@@ -1,10 +1,10 @@
 // Test: Thread-safe call counting with interceptors
 // Spawns many threads to stress-test interceptor call counting
 
-var total_calls: int = 0
+var total_calls: sync int = 0
 
 fn counterInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
-    total_calls = total_calls + 1
+    total_calls++
     var result: any = 1
     return result
 
@@ -54,11 +54,8 @@ fn main(): void =>
 
     print($"Total calls intercepted: {total_calls}\n")
 
-    // Note: Due to potential race conditions on the counter increment,
-    // the count might be less than 10 in rare cases
-    // But we check that at least some calls were intercepted
-    assert(total_calls >= 1, "Should have at least 1 call intercepted")
-    assert(total_calls <= 10, "Should have at most 10 calls intercepted")
+    // With sync int, all increments are atomic - count should always be exactly 10
+    assert(total_calls == 10, "Should have exactly 10 calls intercepted")
 
     Interceptor.clearAll()
     print("Thread-safe counter test passed!\n")
