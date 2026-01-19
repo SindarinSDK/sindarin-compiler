@@ -5,6 +5,8 @@
 //               and common date patterns
 // ============================================================================
 
+import "../../sdk/date"
+
 // Entry point for date demos
 fn demo_date(): void =>
   print("\n┌──────────────────────────────────────────────────────────────────┐\n")
@@ -118,10 +120,5 @@ fn demo_date(): void =>
   print($"Feb 2024 isLeapYear: {feb2024.isLeapYear()}\n")
   print($"Feb 2024 daysInMonth: {feb2024.daysInMonth()}\n")
 
-  // 12. Conversion to Time
-  print("\n--- Conversion to Time ---\n")
-  var dateOnly: Date = Date.fromYmd(2025, 6, 15)
-  var asTime: Time = dateOnly.toTime()
-  print($"Date: {dateOnly.toIso()}\n")
-  print($"As Time: {asTime.toIso()}\n")
+  print("\n--- Date Demo Complete ---\n")
 

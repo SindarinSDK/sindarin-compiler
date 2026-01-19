@@ -7,6 +7,9 @@
 //   - BinaryFile: For reading/writing raw bytes
 // ============================================================================
 
+import "../../sdk/io/textfile"
+import "../../sdk/io/binaryfile"
+
 // Entry point for file I/O demos
 fn demo_fileio(): void =>
   print("\n┌──────────────────────────────────────────────────────────────────┐\n")
