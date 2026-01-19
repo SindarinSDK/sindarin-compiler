@@ -27,19 +27,19 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "tcp.sn.c"
+@source "tcp.sn.c"
 
 # ==============================================================================
 # TcpStream Native Struct Definition
 # ==============================================================================
 # A TCP connection for bidirectional communication.
 
-#pragma alias "RtTcpStream"
+@alias "RtTcpStream"
 native struct TcpStream as ref =>
-    #pragma alias "socket_fd"
+    @alias "socket_fd"
     _socket_fd: int
 
-    #pragma alias "remote_addr"
+    @alias "remote_addr"
     _remote_addr: *byte
 
     # ==========================================================================
@@ -71,11 +71,11 @@ native struct TcpStream as ref =>
     # ==========================================================================
 
     # Write bytes, return count written
-    #pragma alias "sn_tcp_stream_write"
+    @alias "sn_tcp_stream_write"
     native fn write(data: byte[]): int
 
     # Write string + newline
-    #pragma alias "sn_tcp_stream_write_line"
+    @alias "sn_tcp_stream_write_line"
     native fn writeLine(text: str): void
 
     # ==========================================================================
@@ -91,7 +91,7 @@ native struct TcpStream as ref =>
     # ==========================================================================
 
     # Close the connection
-    #pragma alias "sn_tcp_stream_close"
+    @alias "sn_tcp_stream_close"
     native fn close(): void
 
 # ==============================================================================
@@ -99,12 +99,12 @@ native struct TcpStream as ref =>
 # ==============================================================================
 # A TCP socket that listens for incoming connections.
 
-#pragma alias "RtTcpListener"
+@alias "RtTcpListener"
 native struct TcpListener as ref =>
-    #pragma alias "socket_fd"
+    @alias "socket_fd"
     _socket_fd: int
 
-    #pragma alias "bound_port"
+    @alias "bound_port"
     _bound_port: int
 
     # ==========================================================================
@@ -128,7 +128,7 @@ native struct TcpListener as ref =>
     # ==========================================================================
 
     # Get bound port number
-    #pragma alias "sn_tcp_listener_get_port"
+    @alias "sn_tcp_listener_get_port"
     native fn port(): int
 
     # ==========================================================================
@@ -136,7 +136,7 @@ native struct TcpListener as ref =>
     # ==========================================================================
 
     # Close the listener
-    #pragma alias "sn_tcp_listener_close"
+    @alias "sn_tcp_listener_close"
     native fn close(): void
 
 # ==============================================================================

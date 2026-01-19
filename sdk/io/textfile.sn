@@ -21,21 +21,21 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "textfile.sn.c"
+@source "textfile.sn.c"
 
 # ==============================================================================
 # TextFile Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map TextFile to RtTextFile in the runtime.
+# Uses @alias to map TextFile to RtTextFile in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 
-#pragma alias "RtTextFile"
+@alias "RtTextFile"
 native struct TextFile as ref =>
-    #pragma alias "fp"
+    @alias "fp"
     _fp: *void
-    #pragma alias "path"
+    @alias "path"
     _path: str
-    #pragma alias "is_open"
+    @alias "is_open"
     _is_open: int32
 
     # ==========================================================================
@@ -79,7 +79,7 @@ native struct TextFile as ref =>
     # ==========================================================================
 
     # Read a single character, returns -1 at EOF
-    #pragma alias "sn_text_file_read_char"
+    @alias "sn_text_file_read_char"
     native fn readChar(): int
 
     # Read single line (strips trailing newline)
@@ -103,23 +103,23 @@ native struct TextFile as ref =>
     # ==========================================================================
 
     # Write single character
-    #pragma alias "sn_text_file_write_char"
+    @alias "sn_text_file_write_char"
     native fn writeChar(ch: int): void
 
     # Write string without trailing newline
-    #pragma alias "sn_text_file_write"
+    @alias "sn_text_file_write"
     native fn write(text: str): void
 
     # Write string followed by newline
-    #pragma alias "sn_text_file_write_line"
+    @alias "sn_text_file_write_line"
     native fn writeLine(text: str): void
 
     # Write string (alias for write, used with interpolated strings)
-    #pragma alias "sn_text_file_print"
+    @alias "sn_text_file_print"
     native fn print(text: str): void
 
     # Write string followed by newline (alias for writeLine)
-    #pragma alias "sn_text_file_println"
+    @alias "sn_text_file_println"
     native fn println(text: str): void
 
     # ==========================================================================
@@ -127,39 +127,39 @@ native struct TextFile as ref =>
     # ==========================================================================
 
     # Check if at end of file
-    #pragma alias "sn_text_file_is_eof"
+    @alias "sn_text_file_is_eof"
     native fn isEof(): bool
 
     # Check if more characters are available
-    #pragma alias "sn_text_file_has_chars"
+    @alias "sn_text_file_has_chars"
     native fn hasChars(): bool
 
     # Check if more words are available
-    #pragma alias "sn_text_file_has_words"
+    @alias "sn_text_file_has_words"
     native fn hasWords(): bool
 
     # Check if more lines are available
-    #pragma alias "sn_text_file_has_lines"
+    @alias "sn_text_file_has_lines"
     native fn hasLines(): bool
 
     # Get current byte position
-    #pragma alias "sn_text_file_position"
+    @alias "sn_text_file_position"
     native fn position(): int
 
     # Seek to byte position
-    #pragma alias "sn_text_file_seek"
+    @alias "sn_text_file_seek"
     native fn seek(pos: int): void
 
     # Return to beginning of file
-    #pragma alias "sn_text_file_rewind"
+    @alias "sn_text_file_rewind"
     native fn rewind(): void
 
     # Force buffered data to disk
-    #pragma alias "sn_text_file_flush"
+    @alias "sn_text_file_flush"
     native fn flush(): void
 
     # Close the file
-    #pragma alias "sn_text_file_close"
+    @alias "sn_text_file_close"
     native fn close(): void
 
     # ==========================================================================
@@ -175,7 +175,7 @@ native struct TextFile as ref =>
         return sn_text_file_get_name(arena, self)
 
     # Get file size in bytes
-    #pragma alias "sn_text_file_get_size"
+    @alias "sn_text_file_get_size"
     native fn size(): int
 
 # ==============================================================================

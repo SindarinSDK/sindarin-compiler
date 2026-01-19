@@ -25,21 +25,21 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "random.sn.c"
+@source "random.sn.c"
 
 # ==============================================================================
 # Random Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map Random to RtRandom in the runtime.
+# Uses @alias to map Random to RtRandom in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 # Random represents an opaque handle type.
 
-#pragma alias "RtRandom"
+@alias "RtRandom"
 native struct Random as ref =>
-    #pragma alias "is_seeded"
+    @alias "is_seeded"
     _is_seeded: int32
 
-    #pragma alias "state"
+    @alias "state"
     _state: long
 
     # ==========================================================================

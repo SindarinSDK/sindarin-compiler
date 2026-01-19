@@ -19,7 +19,7 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "bytes.sn.c"
+@source "bytes.sn.c"
 
 # ==============================================================================
 # Bytes Static Class
@@ -27,7 +27,7 @@
 # Bytes is a utility class with only static methods for decoding.
 # We use a native struct with no fields just to have a namespace.
 
-#pragma alias "RtBytes"
+@alias "RtBytes"
 native struct Bytes =>
     _unused: int32
 

@@ -9,8 +9,8 @@
 #   print($"sin(45) = {math.sin(angle)}\n")
 # ==============================================================================
 
-#pragma include <math.h>
-#pragma link m
+@include <math.h>
+@link m
 
 # ==============================================================================
 # C Math Library Bindings (double precision)
@@ -280,116 +280,116 @@ fn isFinite(x: double): bool =>
 # ==============================================================================
 
 # --- Trigonometric Functions (float) ---
-#pragma alias "sinf"
+@alias "sinf"
 native fn sinF(x: float): float
 
-#pragma alias "cosf"
+@alias "cosf"
 native fn cosF(x: float): float
 
-#pragma alias "tanf"
+@alias "tanf"
 native fn tanF(x: float): float
 
-#pragma alias "asinf"
+@alias "asinf"
 native fn asinF(x: float): float
 
-#pragma alias "acosf"
+@alias "acosf"
 native fn acosF(x: float): float
 
-#pragma alias "atanf"
+@alias "atanf"
 native fn atanF(x: float): float
 
-#pragma alias "atan2f"
+@alias "atan2f"
 native fn atan2F(y: float, x: float): float
 
 # --- Hyperbolic Functions (float) ---
-#pragma alias "sinhf"
+@alias "sinhf"
 native fn sinhF(x: float): float
 
-#pragma alias "coshf"
+@alias "coshf"
 native fn coshF(x: float): float
 
-#pragma alias "tanhf"
+@alias "tanhf"
 native fn tanhF(x: float): float
 
-#pragma alias "asinhf"
+@alias "asinhf"
 native fn asinhF(x: float): float
 
-#pragma alias "acoshf"
+@alias "acoshf"
 native fn acoshF(x: float): float
 
-#pragma alias "atanhf"
+@alias "atanhf"
 native fn atanhF(x: float): float
 
 # --- Exponential and Logarithmic Functions (float) ---
-#pragma alias "expf"
+@alias "expf"
 native fn expF(x: float): float
 
-#pragma alias "exp2f"
+@alias "exp2f"
 native fn exp2F(x: float): float
 
-#pragma alias "logf"
+@alias "logf"
 native fn logF(x: float): float
 
-#pragma alias "log2f"
+@alias "log2f"
 native fn log2F(x: float): float
 
-#pragma alias "log10f"
+@alias "log10f"
 native fn log10F(x: float): float
 
-#pragma alias "log1pf"
+@alias "log1pf"
 native fn log1pF(x: float): float
 
-#pragma alias "expm1f"
+@alias "expm1f"
 native fn expm1F(x: float): float
 
 # --- Power Functions (float) ---
-#pragma alias "powf"
+@alias "powf"
 native fn powF(base: float, exponent: float): float
 
-#pragma alias "sqrtf"
+@alias "sqrtf"
 native fn sqrtF(x: float): float
 
-#pragma alias "cbrtf"
+@alias "cbrtf"
 native fn cbrtF(x: float): float
 
-#pragma alias "hypotf"
+@alias "hypotf"
 native fn hypotF(x: float, y: float): float
 
 # --- Rounding Functions (float) ---
-#pragma alias "ceilf"
+@alias "ceilf"
 native fn ceilF(x: float): float
 
-#pragma alias "floorf"
+@alias "floorf"
 native fn floorF(x: float): float
 
-#pragma alias "truncf"
+@alias "truncf"
 native fn truncF(x: float): float
 
-#pragma alias "roundf"
+@alias "roundf"
 native fn roundF(x: float): float
 
 # --- Remainder and Modulo (float) ---
-#pragma alias "fmodf"
+@alias "fmodf"
 native fn fmodF(x: float, y: float): float
 
-#pragma alias "remainderf"
+@alias "remainderf"
 native fn remainderF(x: float, y: float): float
 
 # --- Absolute Value (float) ---
-#pragma alias "fabsf"
+@alias "fabsf"
 native fn fabsF(x: float): float
 
 # --- Floating-Point Manipulation (float) ---
-#pragma alias "copysignf"
+@alias "copysignf"
 native fn copysignF(x: float, y: float): float
 
-#pragma alias "fdimf"
+@alias "fdimf"
 native fn fdimF(x: float, y: float): float
 
-#pragma alias "fmaxf"
+@alias "fmaxf"
 native fn fmaxF(x: float, y: float): float
 
-#pragma alias "fminf"
+@alias "fminf"
 native fn fminF(x: float, y: float): float
 
 # ==============================================================================

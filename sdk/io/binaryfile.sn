@@ -21,21 +21,21 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "binaryfile.sn.c"
+@source "binaryfile.sn.c"
 
 # ==============================================================================
 # BinaryFile Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map BinaryFile to RtBinaryFile in the runtime.
+# Uses @alias to map BinaryFile to RtBinaryFile in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 
-#pragma alias "RtBinaryFile"
+@alias "RtBinaryFile"
 native struct BinaryFile as ref =>
-    #pragma alias "fp"
+    @alias "fp"
     _fp: *void
-    #pragma alias "path"
+    @alias "path"
     _path: str
-    #pragma alias "is_open"
+    @alias "is_open"
     _is_open: int32
 
     # ==========================================================================
@@ -79,7 +79,7 @@ native struct BinaryFile as ref =>
     # ==========================================================================
 
     # Read a single byte, returns -1 at EOF
-    #pragma alias "sn_binary_file_read_byte"
+    @alias "sn_binary_file_read_byte"
     native fn readByte(): int
 
     # Read N bytes into new array
@@ -91,7 +91,7 @@ native struct BinaryFile as ref =>
         return sn_binary_file_read_remaining(arena, self)
 
     # Read into byte buffer, returns number of bytes read
-    #pragma alias "sn_binary_file_read_into"
+    @alias "sn_binary_file_read_into"
     native fn readInto(buffer: byte[]): int
 
     # ==========================================================================
@@ -99,11 +99,11 @@ native struct BinaryFile as ref =>
     # ==========================================================================
 
     # Write single byte
-    #pragma alias "sn_binary_file_write_byte"
+    @alias "sn_binary_file_write_byte"
     native fn writeByte(b: int): void
 
     # Write byte array
-    #pragma alias "sn_binary_file_write_bytes"
+    @alias "sn_binary_file_write_bytes"
     native fn writeBytes(data: byte[]): void
 
     # ==========================================================================
@@ -111,31 +111,31 @@ native struct BinaryFile as ref =>
     # ==========================================================================
 
     # Check if at end of file
-    #pragma alias "sn_binary_file_is_eof"
+    @alias "sn_binary_file_is_eof"
     native fn isEof(): bool
 
     # Check if more bytes are available
-    #pragma alias "sn_binary_file_has_bytes"
+    @alias "sn_binary_file_has_bytes"
     native fn hasBytes(): bool
 
     # Get current byte position
-    #pragma alias "sn_binary_file_position"
+    @alias "sn_binary_file_position"
     native fn position(): int
 
     # Seek to byte position
-    #pragma alias "sn_binary_file_seek"
+    @alias "sn_binary_file_seek"
     native fn seek(pos: int): void
 
     # Return to beginning of file
-    #pragma alias "sn_binary_file_rewind"
+    @alias "sn_binary_file_rewind"
     native fn rewind(): void
 
     # Force buffered data to disk
-    #pragma alias "sn_binary_file_flush"
+    @alias "sn_binary_file_flush"
     native fn flush(): void
 
     # Close the file
-    #pragma alias "sn_binary_file_close"
+    @alias "sn_binary_file_close"
     native fn close(): void
 
     # ==========================================================================
@@ -151,7 +151,7 @@ native struct BinaryFile as ref =>
         return sn_binary_file_get_name(arena, self)
 
     # Get file size in bytes
-    #pragma alias "sn_binary_file_get_size"
+    @alias "sn_binary_file_get_size"
     native fn size(): int
 
 # ==============================================================================

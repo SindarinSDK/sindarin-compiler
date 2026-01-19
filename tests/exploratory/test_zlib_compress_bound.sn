@@ -1,0 +1,36 @@
+// Exploratory test to verify compressBound works from zlib C library
+
+import "../../sdk/zlib" as zlib
+
+fn main(): void =>
+    print("=== Testing compressBound from zlib ===\n\n")
+
+    // Test 1: compressBound should return a value larger than input for small data
+    var size10: int = zlib.maxCompressedSize(10)
+    print($"maxCompressedSize(10) = {size10}\n")
+    assert(size10 > 10, "Compressed bound should be > input for small data")
+
+    // Test 2: compressBound should scale with input size
+    var size100: int = zlib.maxCompressedSize(100)
+    var size1000: int = zlib.maxCompressedSize(1000)
+    print($"maxCompressedSize(100) = {size100}\n")
+    print($"maxCompressedSize(1000) = {size1000}\n")
+    assert(size1000 > size100, "Larger input should have larger bound")
+
+    // Test 3: Verify the bound is actually sufficient for compression
+    var data: byte[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    var bound: int = zlib.maxCompressedSize(data.length)
+    print($"Data length: {data.length}, bound: {bound}\n")
+
+    var buffer: byte[bound]
+    var written: int = zlib.compressTo(data, buffer)
+    print($"Actual compressed size: {written}\n")
+    assert(written > 0, "Compression should succeed")
+    assert(written <= bound, "Compressed size should be within bound")
+
+    // Test 4: compressBound(0) should return a small positive value (zlib header overhead)
+    var size0: int = zlib.maxCompressedSize(0)
+    print($"maxCompressedSize(0) = {size0}\n")
+    assert(size0 > 0, "Even empty input has some overhead")
+
+    print("\n=== All compressBound tests passed! ===\n")
