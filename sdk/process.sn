@@ -20,24 +20,24 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "process.sn.c"
+@source "process.sn.c"
 
 # ==============================================================================
 # Process Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map Process to RtProcess in the runtime.
+# Uses @alias to map Process to RtProcess in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 # Process represents a completed process with captured output.
 
-#pragma alias "RtProcess"
+@alias "RtProcess"
 native struct Process as ref =>
-    #pragma alias "exit_code"
+    @alias "exit_code"
     _exitCode: int32
 
-    #pragma alias "stdout_str"
+    @alias "stdout_str"
     _stdout: str
 
-    #pragma alias "stderr_str"
+    @alias "stderr_str"
     _stderr: str
 
     # ==========================================================================
@@ -57,15 +57,15 @@ native struct Process as ref =>
     # ==========================================================================
 
     # Get exit code (0 typically means success)
-    #pragma alias "sn_process_get_exit_code"
+    @alias "sn_process_get_exit_code"
     native fn exitCode(): int
 
     # Get captured standard output
-    #pragma alias "sn_process_get_stdout"
+    @alias "sn_process_get_stdout"
     native fn stdout(): str
 
     # Get captured standard error
-    #pragma alias "sn_process_get_stderr"
+    @alias "sn_process_get_stderr"
     native fn stderr(): str
 
     # ==========================================================================

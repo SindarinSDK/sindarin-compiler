@@ -18,18 +18,18 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "time.sn.c"
+@source "time.sn.c"
 
 # ==============================================================================
 # Time Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map Time to RtTime in the runtime.
+# Uses @alias to map Time to RtTime in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 # Time represents an opaque handle type (like built-in Time).
 
-#pragma alias "RtTime"
+@alias "RtTime"
 native struct Time as ref =>
-    #pragma alias "milliseconds"
+    @alias "milliseconds"
     _milliseconds: long
 
     # ==========================================================================
@@ -65,39 +65,39 @@ native struct Time as ref =>
     # ==========================================================================
 
     # Get milliseconds since Unix epoch
-    #pragma alias "sn_time_get_millis"
+    @alias "sn_time_get_millis"
     native fn millis(): long
 
     # Get seconds since Unix epoch
-    #pragma alias "sn_time_get_seconds"
+    @alias "sn_time_get_seconds"
     native fn seconds(): long
 
     # Get year component (e.g., 2025)
-    #pragma alias "sn_time_get_year"
+    @alias "sn_time_get_year"
     native fn year(): int
 
     # Get month component (1-12)
-    #pragma alias "sn_time_get_month"
+    @alias "sn_time_get_month"
     native fn month(): int
 
     # Get day of month (1-31)
-    #pragma alias "sn_time_get_day"
+    @alias "sn_time_get_day"
     native fn day(): int
 
     # Get hour component (0-23)
-    #pragma alias "sn_time_get_hour"
+    @alias "sn_time_get_hour"
     native fn hour(): int
 
     # Get minute component (0-59)
-    #pragma alias "sn_time_get_minute"
+    @alias "sn_time_get_minute"
     native fn minute(): int
 
     # Get second component (0-59)
-    #pragma alias "sn_time_get_second"
+    @alias "sn_time_get_second"
     native fn second(): int
 
     # Get weekday (0=Sunday, 6=Saturday)
-    #pragma alias "sn_time_get_weekday"
+    @alias "sn_time_get_weekday"
     native fn weekday(): int
 
     # ==========================================================================
@@ -105,15 +105,15 @@ native struct Time as ref =>
     # ==========================================================================
 
     # Check if this time is before another time
-    #pragma alias "sn_time_is_before"
+    @alias "sn_time_is_before"
     native fn isBefore(other: Time): bool
 
     # Check if this time is after another time
-    #pragma alias "sn_time_is_after"
+    @alias "sn_time_is_after"
     native fn isAfter(other: Time): bool
 
     # Check if this time equals another time
-    #pragma alias "sn_time_equals"
+    @alias "sn_time_equals"
     native fn equals(other: Time): bool
 
     # ==========================================================================
@@ -194,7 +194,7 @@ native fn sn_time_add_days(a: *void, t: Time, days: int): Time
 native fn sn_time_diff(t: Time, other: Time): long
 
 # Getter functions - these need explicit declarations for proper return types
-# (used by native methods via #pragma alias)
+# (used by native methods via @alias)
 native fn sn_time_get_millis(t: Time): long
 native fn sn_time_get_seconds(t: Time): long
 native fn sn_time_get_year(t: Time): int
@@ -205,7 +205,7 @@ native fn sn_time_get_minute(t: Time): int
 native fn sn_time_get_second(t: Time): int
 native fn sn_time_get_weekday(t: Time): int
 
-# Comparison functions (used by native methods via #pragma alias)
+# Comparison functions (used by native methods via @alias)
 native fn sn_time_is_before(t: Time, other: Time): bool
 native fn sn_time_is_after(t: Time, other: Time): bool
 native fn sn_time_equals(t: Time, other: Time): bool

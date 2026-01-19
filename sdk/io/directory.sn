@@ -16,7 +16,7 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "directory.sn.c"
+@source "directory.sn.c"
 
 # ==============================================================================
 # Directory Static Class
@@ -24,7 +24,7 @@
 # Directory is a utility class with only static methods.
 # We use a native struct with no fields just to have a namespace.
 
-#pragma alias "RtDirectory"
+@alias "RtDirectory"
 native struct Directory =>
     _unused: int32
 

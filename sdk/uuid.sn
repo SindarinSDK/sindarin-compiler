@@ -17,21 +17,21 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "uuid.sn.c"
+@source "uuid.sn.c"
 
 # ==============================================================================
 # UUID Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map UUID to RtUuid in the runtime.
+# Uses @alias to map UUID to RtUuid in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 # UUID represents an opaque handle type (like built-in UUID).
 
-#pragma alias "RtUuid"
+@alias "RtUuid"
 native struct UUID as ref =>
-    #pragma alias "high"
+    @alias "high"
     _high: long
 
-    #pragma alias "low"
+    @alias "low"
     _low: long
 
     # ==========================================================================
@@ -111,15 +111,15 @@ native struct UUID as ref =>
     # ==========================================================================
 
     # Get UUID version (1-8)
-    #pragma alias "sn_uuid_get_version"
+    @alias "sn_uuid_get_version"
     native fn version(): int
 
     # Get UUID variant
-    #pragma alias "sn_uuid_get_variant"
+    @alias "sn_uuid_get_variant"
     native fn variant(): int
 
     # Check if UUID is nil (all zeros)
-    #pragma alias "sn_uuid_is_nil"
+    @alias "sn_uuid_is_nil"
     native fn isNil(): bool
 
     # ==========================================================================
@@ -127,7 +127,7 @@ native struct UUID as ref =>
     # ==========================================================================
 
     # Get Unix timestamp in milliseconds (v7 only, throws on non-v7)
-    #pragma alias "sn_uuid_get_timestamp"
+    @alias "sn_uuid_get_timestamp"
     native fn timestamp(): long
 
     # ==========================================================================
@@ -151,19 +151,19 @@ native struct UUID as ref =>
     # ==========================================================================
 
     # Check if two UUIDs are equal
-    #pragma alias "sn_uuid_equals"
+    @alias "sn_uuid_equals"
     native fn equals(other: UUID): bool
 
     # Compare two UUIDs (returns -1, 0, or 1)
-    #pragma alias "sn_uuid_compare"
+    @alias "sn_uuid_compare"
     native fn compare(other: UUID): int
 
     # Check if uuid < other
-    #pragma alias "sn_uuid_is_less_than"
+    @alias "sn_uuid_is_less_than"
     native fn isLessThan(other: UUID): bool
 
     # Check if uuid > other
-    #pragma alias "sn_uuid_is_greater_than"
+    @alias "sn_uuid_is_greater_than"
     native fn isGreaterThan(other: UUID): bool
 
 # ==============================================================================

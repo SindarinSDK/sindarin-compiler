@@ -426,6 +426,43 @@ skip_indent_processing:
         snprintf(error_buffer, sizeof(error_buffer), "Unexpected character '%c'", c);
         DEBUG_VERBOSE("Line %d: Error - %s", lexer->line, error_buffer);
         return lexer_error_token(lexer, error_buffer);
+    case '@':
+        // @ is syntactic sugar for #pragma directives
+        // Mark that we're not at line start anymore
+        lexer->at_line_start = 0;
+        // Check for directive keywords
+        if (strncmp(lexer->current, "include", 7) == 0)
+        {
+            lexer->current += 7;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_INCLUDE (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_INCLUDE);
+        }
+        else if (strncmp(lexer->current, "link", 4) == 0)
+        {
+            lexer->current += 4;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_LINK (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_LINK);
+        }
+        else if (strncmp(lexer->current, "source", 6) == 0)
+        {
+            lexer->current += 6;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_SOURCE (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_SOURCE);
+        }
+        else if (strncmp(lexer->current, "pack", 4) == 0)
+        {
+            lexer->current += 4;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_PACK (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_PACK);
+        }
+        else if (strncmp(lexer->current, "alias", 5) == 0)
+        {
+            lexer->current += 5;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_ALIAS (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_ALIAS);
+        }
+        snprintf(error_buffer, sizeof(error_buffer), "Unknown @ directive");
+        return lexer_error_token(lexer, error_buffer);
     default:
         snprintf(error_buffer, sizeof(error_buffer), "Unexpected character '%c'", c);
         DEBUG_VERBOSE("Line %d: Error - %s", lexer->line, error_buffer);

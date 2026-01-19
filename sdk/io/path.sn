@@ -19,7 +19,7 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "path.sn.c"
+@source "path.sn.c"
 
 # ==============================================================================
 # Path Static Class
@@ -27,7 +27,7 @@
 # Path is a utility class with only static methods.
 # We use a native struct with no fields just to have a namespace.
 
-#pragma alias "RtPath"
+@alias "RtPath"
 native struct Path =>
     _unused: int32
 

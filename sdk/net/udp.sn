@@ -24,19 +24,19 @@
 # ==============================================================================
 
 # Self-contained implementation - compile and link our own C source
-#pragma source "udp.sn.c"
+@source "udp.sn.c"
 
 # ==============================================================================
 # UdpReceiveResult - Result struct for receiveFrom
 # ==============================================================================
 # Contains both the received data and the sender's address.
 
-#pragma alias "RtUdpReceiveResult"
+@alias "RtUdpReceiveResult"
 native struct UdpReceiveResult as ref =>
-    #pragma alias "data"
+    @alias "data"
     _data: byte[]
 
-    #pragma alias "sender"
+    @alias "sender"
     _sender: str
 
     # Getter for received data
@@ -50,15 +50,15 @@ native struct UdpReceiveResult as ref =>
 # ==============================================================================
 # UdpSocket Native Struct Definition
 # ==============================================================================
-# Uses #pragma alias to map UdpSocket to RtUdpSocket in the runtime.
+# Uses @alias to map UdpSocket to RtUdpSocket in the runtime.
 # The 'as ref' modifier means native methods receive self by pointer.
 
-#pragma alias "RtUdpSocket"
+@alias "RtUdpSocket"
 native struct UdpSocket as ref =>
-    #pragma alias "socket_fd"
+    @alias "socket_fd"
     _socket_fd: int
 
-    #pragma alias "bound_port"
+    @alias "bound_port"
     _bound_port: int
 
     # ==========================================================================
@@ -74,7 +74,7 @@ native struct UdpSocket as ref =>
     # ==========================================================================
 
     # Send datagram to address, return bytes sent
-    #pragma alias "sn_udp_socket_send_to"
+    @alias "sn_udp_socket_send_to"
     native fn sendTo(data: byte[], address: str): int
 
     # Receive datagram and sender address
@@ -86,7 +86,7 @@ native struct UdpSocket as ref =>
     # ==========================================================================
 
     # Get bound port number
-    #pragma alias "sn_udp_socket_get_port"
+    @alias "sn_udp_socket_get_port"
     native fn port(): int
 
     # ==========================================================================
@@ -94,7 +94,7 @@ native struct UdpSocket as ref =>
     # ==========================================================================
 
     # Close the socket
-    #pragma alias "sn_udp_socket_close"
+    @alias "sn_udp_socket_close"
     native fn close(): void
 
 # ==============================================================================
