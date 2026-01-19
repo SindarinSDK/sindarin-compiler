@@ -1,0 +1,8 @@
+Test 1 - Native zero init passed
+Test 2 - Native partial init passed
+Test 3 - Native full override passed
+Test 4 - Buffer (all required) passed
+Test 5 - StreamConfig defaults passed
+Test 6 - StreamConfig partial override passed
+Test 7 - StreamConfig full override passed
+All native struct default tests passed!

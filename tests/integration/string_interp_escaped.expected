@@ -1,0 +1,13 @@
+Direct: hello
+Upper: TEST
+Concat: hello world
+Tab: 	tab
+Mix: Alice and Bob
+Compare: true
+Empty: 
+Special: a	b
+Multi: onetwothree
+Length: 5
+Func: test
+Mixed: a	b
+c

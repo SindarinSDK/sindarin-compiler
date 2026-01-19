@@ -1,0 +1,48 @@
+// Test nested string interpolation
+// Covers basic nesting, multiple levels, expressions, and function calls
+
+fn main(): int =>
+    var x: int = 42
+    var y: int = 10
+    var name: str = "World"
+
+    // Test 1: Basic nested interpolation - $"a {$"b {x}"} c"
+    print($"a {$"b {x}"} c\n")
+
+    // Test 2: Multiple nesting levels (3 deep)
+    print($"L1 {$"L2 {$"L3 {x}"}"}\n")
+
+    // Test 3: Nested with arithmetic expression
+    print($"Sum: {$"result = {x + y}"}\n")
+
+    // Test 4: Nested with multiplication
+    print($"Product: {$"val = {x * 2}"}\n")
+
+    // Test 5: Function call with nested interpolation argument
+    print($"Func: {identity($"nested {x}")}\n")
+
+    // Test 6: Nested interpolation as function argument
+    print($"Upper: {$"hello {name}".toUpper()}\n")
+
+    // Test 7: Adjacent nested interpolations
+    print($"Adjacent: {$"A"}{$"B"}{$"C"}\n")
+
+    // Test 8: Mixed regular and nested expressions
+    print($"Mixed: {x} and {$"inner {y}"} done\n")
+
+    // Test 9: Complex nested with multiple expressions
+    print($"Complex: {$"x={x}, y={y}, sum={x + y}"}\n")
+
+    // Test 10: Empty nested interpolation with just literal
+    print($"Empty: {$"literal"}\n")
+
+    // Test 11: Nested with string concatenation
+    print($"Concat: {$"Hello " + $"World"}\n")
+
+    // Test 12: Deeply nested (4 levels)
+    print($"Deep: {$"1{$"2{$"3{$"4"}"}"}"}!\n")
+
+    return 0
+
+fn identity(s: str): str =>
+    return s

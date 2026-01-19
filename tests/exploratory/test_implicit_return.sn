@@ -1,0 +1,166 @@
+// Test 133: Implicit return behavior
+// Tests functions without explicit return statements
+// Documents whether the language requires explicit returns
+
+fn main(): int =>
+    print("Test implicit return behavior:\n\n")
+    var errors: int = 0
+
+    // Test 1: Function with explicit return (baseline)
+    print("Test 1 - Explicit return:\n")
+    var r1: int = explicit_return_int()
+    print($"  explicit_return_int() = {r1}\n")
+    if r1 != 42 =>
+        print("  FAIL: expected 42\n")
+        errors++
+
+    // Test 2: Function that returns last expression
+    print("\nTest 2 - Expression as last statement:\n")
+    var r2: int = expression_return()
+    print($"  expression_return() = {r2}\n")
+    if r2 != 100 =>
+        print("  FAIL: expected 100\n")
+        errors++
+
+    // Test 3: Function with conditional returns
+    print("\nTest 3 - Conditional returns:\n")
+    var r3a: int = conditional_return(true)
+    var r3b: int = conditional_return(false)
+    print($"  conditional_return(true) = {r3a}\n")
+    print($"  conditional_return(false) = {r3b}\n")
+    if r3a != 1 =>
+        print("  FAIL: expected 1 for true\n")
+        errors++
+    if r3b != 0 =>
+        print("  FAIL: expected 0 for false\n")
+        errors++
+
+    // Test 4: Return from loop
+    print("\nTest 4 - Return from loop:\n")
+    var r4: int = find_threshold(15)
+    print($"  find_threshold(15) = {r4}\n")
+    if r4 != 10 =>
+        print("  FAIL: expected 10\n")
+        errors++
+
+    // Test 5: Nested block returns
+    print("\nTest 5 - Nested block return:\n")
+    var r5: int = nested_block_return(5)
+    print($"  nested_block_return(5) = {r5}\n")
+    if r5 != 25 =>
+        print("  FAIL: expected 25\n")
+        errors++
+
+    // Test 6: Return string
+    print("\nTest 6 - Return string expression:\n")
+    var r6: str = string_expression()
+    print($"  string_expression() = \"{r6}\"\n")
+    if r6 != "hello world" =>
+        print("  FAIL: expected 'hello world'\n")
+        errors++
+
+    // Test 7: Return boolean
+    print("\nTest 7 - Return boolean expression:\n")
+    var r7a: bool = bool_expression(5, 3)
+    var r7b: bool = bool_expression(3, 5)
+    var r7a_int: int = 0
+    var r7b_int: int = 0
+    if r7a => r7a_int = 1
+    if r7b => r7b_int = 1
+    print($"  bool_expression(5, 3) = {r7a_int}\n")
+    print($"  bool_expression(3, 5) = {r7b_int}\n")
+    if r7a_int != 1 =>
+        print("  FAIL: expected true for 5 > 3\n")
+        errors++
+    if r7b_int != 0 =>
+        print("  FAIL: expected false for 3 > 5\n")
+        errors++
+
+    // Test 8: Arithmetic expression return
+    print("\nTest 8 - Complex arithmetic expression:\n")
+    var r8: int = complex_arithmetic(2, 3, 4)
+    print($"  complex_arithmetic(2, 3, 4) = {r8}\n")
+    // (2 + 3) * 4 = 20
+    if r8 != 20 =>
+        print("  FAIL: expected 20\n")
+        errors++
+
+    // Test 9: Return from multiple paths
+    print("\nTest 9 - Multiple return paths:\n")
+    var r9a: str = classify_number(0)
+    var r9b: str = classify_number(5)
+    var r9c: str = classify_number(100)
+    print($"  classify_number(0) = \"{r9a}\"\n")
+    print($"  classify_number(5) = \"{r9b}\"\n")
+    print($"  classify_number(100) = \"{r9c}\"\n")
+    if r9a != "zero" =>
+        print("  FAIL: expected 'zero'\n")
+        errors++
+    if r9b != "small" =>
+        print("  FAIL: expected 'small'\n")
+        errors++
+    if r9c != "large" =>
+        print("  FAIL: expected 'large'\n")
+        errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll implicit return tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0
+
+
+// Function with explicit return
+fn explicit_return_int(): int =>
+    return 42
+
+// Function where last expression is the return value
+fn expression_return(): int =>
+    var x: int = 50
+    var y: int = 50
+    return x + y
+
+// Conditional returns
+fn conditional_return(flag: bool): int =>
+    if flag =>
+        return 1
+    return 0
+
+// Return from loop - finds first value >= threshold
+fn find_threshold(max: int): int =>
+    for i in 0..max =>
+        if i >= 10 =>
+            return i
+    return max
+
+// Nested block return
+fn nested_block_return(n: int): int =>
+    var result: int = 0
+    if n > 0 =>
+        if n > 3 =>
+            result = n * n
+    return result
+
+// String expression return
+fn string_expression() shared: str =>
+    var s1: str = "hello"
+    var s2: str = " world"
+    return s1 + s2
+
+// Boolean expression return
+fn bool_expression(a: int, b: int): bool =>
+    return a > b
+
+// Complex arithmetic
+fn complex_arithmetic(a: int, b: int, c: int): int =>
+    return (a + b) * c
+
+// Multiple return paths
+fn classify_number(n: int) shared: str =>
+    if n == 0 =>
+        return "zero"
+    if n < 10 =>
+        return "small"
+    return "large"

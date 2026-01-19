@@ -1,0 +1,42 @@
+// Test 25: Higher-order functions with lambdas
+fn apply(f: fn(int): int, x: int): int =>
+    return f(x)
+
+fn apply_twice(f: fn(int): int, x: int): int =>
+    return f(f(x))
+
+fn compose(f: fn(int): int, g: fn(int): int): fn(int): int =>
+    return fn(x: int): int => f(g(x))
+
+fn main(): int =>
+    print("Test higher-order functions:\n\n")
+
+    // Pass lambda to function
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var square: fn(int): int = fn(x: int): int => x * x
+
+    print($"apply(double, 5) = {apply(double_it, 5)}\n")
+    print($"apply(square, 5) = {apply(square, 5)}\n")
+
+    // Apply twice
+    print($"apply_twice(double, 3) = {apply_twice(double_it, 3)}\n")
+    print($"apply_twice(square, 2) = {apply_twice(square, 2)}\n")
+
+    // Composition
+    var double_then_square: fn(int): int = compose(square, double_it)
+    var square_then_double: fn(int): int = compose(double_it, square)
+
+    print($"double_then_square(3) = {double_then_square(3)}\n")
+    print($"square_then_double(3) = {square_then_double(3)}\n")
+
+    // Inline lambda to apply
+    var result: int = apply(fn(x: int): int => x + 10, 5)
+    print($"apply(+10, 5) = {result}\n")
+
+    // Return lambda from function
+    var increment: fn(int): int = fn(x: int): int => x + 1
+    var triple: fn(int): int = fn(x: int): int => x * 3
+    var inc_then_triple: fn(int): int = compose(triple, increment)
+    print($"inc_then_triple(5) = {inc_then_triple(5)}\n")
+
+    return 0

@@ -1,0 +1,264 @@
+// Exploratory test: Binary format handling with structs
+// Tests packed structs for parsing file headers and binary protocols
+
+// Simple file header - would be packed in real usage
+#pragma pack(1)
+struct BinaryHeader =>
+    magic: int32           // Magic number for format identification
+    version: byte          // Format version
+    flags: byte            // Feature flags
+    reserved: byte         // Reserved for future use
+    headerSize: byte       // Size of header in bytes
+
+struct ChunkHeader =>
+    chunkType: int32       // Type identifier
+    chunkSize: int32       // Size of chunk data
+
+#pragma pack()
+
+// Regular struct for protocol message
+struct Message =>
+    messageType: int = 0
+    sequenceNumber: int = 0
+    payloadLength: int = 0
+    checksum: int = 0
+
+// Network packet header (fixed structure)
+struct PacketHeader =>
+    version: byte = 1
+    flags: byte = 0
+    length: int = 0
+    sourcePort: int = 0
+    destPort: int = 0
+
+// Image metadata struct
+struct ImageInfo =>
+    width: int = 0
+    height: int = 0
+    bitsPerPixel: int = 24
+    compression: int = 0
+    dataOffset: int = 0
+
+// Test 1: Binary header creation
+fn test_binary_header(): bool =>
+    print("Test 1: Binary header creation\n")
+
+    var header: BinaryHeader = BinaryHeader { magic: 1234567890, version: 2, flags: 5, reserved: 0, headerSize: 8 }
+
+    if header.magic != 1234567890 =>
+        print($"  FAIL: Expected magic=1234567890, got {header.magic}\n")
+        return false
+
+    if header.version != 2 =>
+        print($"  FAIL: Expected version=2, got {header.version}\n")
+        return false
+
+    if header.flags != 5 =>
+        print($"  FAIL: Expected flags=5, got {header.flags}\n")
+        return false
+
+    if header.headerSize != 8 =>
+        print($"  FAIL: Expected headerSize=8, got {header.headerSize}\n")
+        return false
+
+    print("  PASS: Binary header created correctly\n")
+    return true
+
+// Test 2: Sizeof for packed struct
+fn test_packed_sizeof(): bool =>
+    print("Test 2: Sizeof packed struct\n")
+
+    var headerSize: int = sizeof(BinaryHeader)
+
+    // Packed struct should be exactly 8 bytes:
+    // int32 (4) + byte (1) + byte (1) + byte (1) + byte (1) = 8
+    if headerSize != 8 =>
+        print($"  FAIL: Expected sizeof(BinaryHeader)=8, got {headerSize}\n")
+        return false
+
+    var chunkSize: int = sizeof(ChunkHeader)
+
+    // Chunk header: int32 (4) + int32 (4) = 8
+    if chunkSize != 8 =>
+        print($"  FAIL: Expected sizeof(ChunkHeader)=8, got {chunkSize}\n")
+        return false
+
+    print("  PASS: Packed struct sizes are correct\n")
+    return true
+
+// Test 3: Protocol message creation
+fn test_protocol_message(): bool =>
+    print("Test 3: Protocol message struct\n")
+
+    var msg: Message = Message { messageType: 1, sequenceNumber: 42, payloadLength: 1024, checksum: 12345 }
+
+    if msg.messageType != 1 =>
+        return false
+    if msg.sequenceNumber != 42 =>
+        return false
+    if msg.payloadLength != 1024 =>
+        return false
+    if msg.checksum != 12345 =>
+        return false
+
+    print("  PASS: Protocol message works\n")
+    return true
+
+// Test 4: Packet header with defaults
+fn test_packet_header(): bool =>
+    print("Test 4: Packet header with defaults\n")
+
+    var packet: PacketHeader = PacketHeader { length: 512, sourcePort: 8080, destPort: 443 }
+
+    // Check defaults
+    if packet.version != 1 =>
+        print($"  FAIL: Expected version=1, got {packet.version}\n")
+        return false
+
+    if packet.flags != 0 =>
+        print($"  FAIL: Expected flags=0, got {packet.flags}\n")
+        return false
+
+    // Check set values
+    if packet.length != 512 =>
+        return false
+    if packet.sourcePort != 8080 =>
+        return false
+    if packet.destPort != 443 =>
+        return false
+
+    print("  PASS: Packet header with defaults works\n")
+    return true
+
+// Test 5: Image metadata
+fn test_image_info(): bool =>
+    print("Test 5: Image metadata struct\n")
+
+    var img: ImageInfo = ImageInfo { width: 1920, height: 1080, bitsPerPixel: 32, compression: 1, dataOffset: 54 }
+
+    if img.width != 1920 =>
+        return false
+    if img.height != 1080 =>
+        return false
+    if img.bitsPerPixel != 32 =>
+        return false
+    if img.compression != 1 =>
+        return false
+    if img.dataOffset != 54 =>
+        return false
+
+    // Calculate expected image data size (uncompressed)
+    var expectedSize: int = img.width * img.height * (img.bitsPerPixel / 8)
+    if expectedSize != 8294400 =>
+        print($"  FAIL: Expected size=8294400, got {expectedSize}\n")
+        return false
+
+    print("  PASS: Image metadata works\n")
+    return true
+
+// Test 6: Multiple chunks with indexed access
+fn test_chunk_processing(): bool =>
+    print("Test 6: Chunk processing pattern\n")
+
+    // Test individual chunk headers
+    var chunk1: ChunkHeader = ChunkHeader { chunkType: 1, chunkSize: 100 }
+    var chunk2: ChunkHeader = ChunkHeader { chunkType: 2, chunkSize: 256 }
+    var chunk3: ChunkHeader = ChunkHeader { chunkType: 1, chunkSize: 50 }
+    var chunk4: ChunkHeader = ChunkHeader { chunkType: 3, chunkSize: 1024 }
+
+    // Calculate total data size
+    var totalSize: int = chunk1.chunkSize + chunk2.chunkSize + chunk3.chunkSize + chunk4.chunkSize
+
+    if totalSize != 1430 =>
+        print($"  FAIL: Expected totalSize=1430, got {totalSize}\n")
+        return false
+
+    // Count chunks by type
+    var type1Count: int = 0
+    if chunk1.chunkType == 1 =>
+        type1Count++
+    if chunk2.chunkType == 1 =>
+        type1Count++
+    if chunk3.chunkType == 1 =>
+        type1Count++
+    if chunk4.chunkType == 1 =>
+        type1Count++
+
+    if type1Count != 2 =>
+        print($"  FAIL: Expected type1Count=2, got {type1Count}\n")
+        return false
+
+    print("  PASS: Chunk processing works\n")
+    return true
+
+// Test 7: Header modification
+fn test_header_modification(): bool =>
+    print("Test 7: Header field modification\n")
+
+    var header: BinaryHeader = BinaryHeader { magic: 0, version: 1, flags: 0, reserved: 0, headerSize: 8 }
+
+    // Modify fields
+    header.magic = 1111638594    // "BFMT" as int32
+    header.version = 2
+    header.flags = 3             // Set some flags
+
+    if header.magic != 1111638594 =>
+        return false
+    if header.version != 2 =>
+        return false
+    if header.flags != 3 =>
+        return false
+
+    print("  PASS: Header modification works\n")
+    return true
+
+// Test 8: Struct equality for headers
+fn test_header_equality(): bool =>
+    print("Test 8: Header equality comparison\n")
+
+    var h1: BinaryHeader = BinaryHeader { magic: 12345, version: 1, flags: 0, reserved: 0, headerSize: 8 }
+
+    var h2: BinaryHeader = BinaryHeader { magic: 12345, version: 1, flags: 0, reserved: 0, headerSize: 8 }
+
+    var h3: BinaryHeader = BinaryHeader { magic: 12345, version: 2, flags: 0, reserved: 0, headerSize: 8 }
+
+    if h1 != h2 =>
+        print("  FAIL: Identical headers should be equal\n")
+        return false
+
+    if h1 == h3 =>
+        print("  FAIL: Different headers should not be equal\n")
+        return false
+
+    print("  PASS: Header equality works\n")
+    return true
+
+fn main(): int =>
+    print("=== Binary Format Struct Tests ===\n\n")
+
+    if !test_binary_header() =>
+        return 1
+
+    if !test_packed_sizeof() =>
+        return 1
+
+    if !test_protocol_message() =>
+        return 1
+
+    if !test_packet_header() =>
+        return 1
+
+    if !test_image_info() =>
+        return 1
+
+    if !test_chunk_processing() =>
+        return 1
+
+    if !test_header_modification() =>
+        return 1
+
+    if !test_header_equality() =>
+        return 1
+
+    print("\n=== All Binary Format Tests PASSED! ===\n")
+    return 0

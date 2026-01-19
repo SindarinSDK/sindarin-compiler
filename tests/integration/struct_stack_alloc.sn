@@ -1,0 +1,169 @@
+# Test small struct stack allocation (<8KB threshold)
+# Structs smaller than 8KB (8192 bytes) should be stack-allocated
+
+struct SmallPoint =>
+    x: double
+    y: double
+
+struct SmallConfig =>
+    timeout: int
+    retries: int = 3
+    verbose: bool = false
+
+struct MediumStruct =>
+    # 100 int fields * 8 bytes = 800 bytes (well under 8KB)
+    field0: int = 0
+    field1: int = 0
+    field2: int = 0
+    field3: int = 0
+    field4: int = 0
+    field5: int = 0
+    field6: int = 0
+    field7: int = 0
+    field8: int = 0
+    field9: int = 0
+    field10: int = 0
+    field11: int = 0
+    field12: int = 0
+    field13: int = 0
+    field14: int = 0
+    field15: int = 0
+    field16: int = 0
+    field17: int = 0
+    field18: int = 0
+    field19: int = 0
+    field20: int = 0
+    field21: int = 0
+    field22: int = 0
+    field23: int = 0
+    field24: int = 0
+    field25: int = 0
+    field26: int = 0
+    field27: int = 0
+    field28: int = 0
+    field29: int = 0
+    field30: int = 0
+    field31: int = 0
+    field32: int = 0
+    field33: int = 0
+    field34: int = 0
+    field35: int = 0
+    field36: int = 0
+    field37: int = 0
+    field38: int = 0
+    field39: int = 0
+    field40: int = 0
+    field41: int = 0
+    field42: int = 0
+    field43: int = 0
+    field44: int = 0
+    field45: int = 0
+    field46: int = 0
+    field47: int = 0
+    field48: int = 0
+    field49: int = 0
+    field50: int = 0
+    field51: int = 0
+    field52: int = 0
+    field53: int = 0
+    field54: int = 0
+    field55: int = 0
+    field56: int = 0
+    field57: int = 0
+    field58: int = 0
+    field59: int = 0
+    field60: int = 0
+    field61: int = 0
+    field62: int = 0
+    field63: int = 0
+    field64: int = 0
+    field65: int = 0
+    field66: int = 0
+    field67: int = 0
+    field68: int = 0
+    field69: int = 0
+    field70: int = 0
+    field71: int = 0
+    field72: int = 0
+    field73: int = 0
+    field74: int = 0
+    field75: int = 0
+    field76: int = 0
+    field77: int = 0
+    field78: int = 0
+    field79: int = 0
+    field80: int = 0
+    field81: int = 0
+    field82: int = 0
+    field83: int = 0
+    field84: int = 0
+    field85: int = 0
+    field86: int = 0
+    field87: int = 0
+    field88: int = 0
+    field89: int = 0
+    field90: int = 0
+    field91: int = 0
+    field92: int = 0
+    field93: int = 0
+    field94: int = 0
+    field95: int = 0
+    field96: int = 0
+    field97: int = 0
+    field98: int = 0
+    field99: int = 0
+
+fn test_small_point(): void =>
+    var p: SmallPoint = SmallPoint { x: 1.5, y: 2.5 }
+    # Verify sizeof matches expected C struct size
+    if sizeof(SmallPoint) != 16 =>
+        print($"FAIL: sizeof(SmallPoint) = {sizeof(SmallPoint)}, expected 16\n")
+        return
+    # Verify field values
+    if p.x != 1.5 =>
+        print($"FAIL: p.x = {p.x}, expected 1.5\n")
+        return
+    if p.y != 2.5 =>
+        print($"FAIL: p.y = {p.y}, expected 2.5\n")
+        return
+    print("SmallPoint test: PASS\n")
+
+fn test_config_with_defaults(): void =>
+    var c: SmallConfig = SmallConfig { timeout: 30 }
+    # Verify defaults are applied
+    if c.timeout != 30 =>
+        print($"FAIL: c.timeout = {c.timeout}, expected 30\n")
+        return
+    if c.retries != 3 =>
+        print($"FAIL: c.retries = {c.retries}, expected 3\n")
+        return
+    if c.verbose != false =>
+        print("FAIL: c.verbose != false\n")
+        return
+    print("SmallConfig defaults test: PASS\n")
+
+fn test_medium_struct(): void =>
+    # 800 bytes is well under 8KB threshold
+    if sizeof(MediumStruct) != 800 =>
+        print($"FAIL: sizeof(MediumStruct) = {sizeof(MediumStruct)}, expected 800\n")
+        return
+
+    var m: MediumStruct = MediumStruct { field0: 42, field99: 99 }
+    if m.field0 != 42 =>
+        print($"FAIL: m.field0 = {m.field0}, expected 42\n")
+        return
+    if m.field99 != 99 =>
+        print($"FAIL: m.field99 = {m.field99}, expected 99\n")
+        return
+    # Verify uninitialized fields got defaults
+    if m.field50 != 0 =>
+        print($"FAIL: m.field50 = {m.field50}, expected 0\n")
+        return
+    print("MediumStruct test: PASS\n")
+
+fn main(): void =>
+    print("Testing stack-allocated structs (<8KB):\n")
+    test_small_point()
+    test_config_with_defaults()
+    test_medium_struct()
+    print("All stack allocation tests passed.\n")

@@ -1,0 +1,66 @@
+// Test 22: String edge cases
+fn main(): int =>
+    print("=== Empty String Operations ===\n")
+    var empty: str = ""
+    print($"Empty length: {len(empty)}\n")
+    print($"Empty .length: {empty.length}\n")
+
+    // Empty concatenation
+    var s: str = "hello"
+    var concat1: str = empty + s
+    var concat2: str = s + empty
+    var concat3: str = empty + empty
+    print($"\"\" + \"hello\": \"{concat1}\"\n")
+    print($"\"hello\" + \"\": \"{concat2}\"\n")
+    print($"\"\" + \"\": \"{concat3}\"\n")
+
+    print("\n=== Single Character String ===\n")
+    var single: str = "x"
+    print($"Single char length: {len(single)}\n")
+    print($"Single .toUpper(): \"{single.toUpper()}\"\n")
+    print($"Single .toLower(): \"{single.toLower()}\"\n")
+
+    print("\n=== Whitespace Strings ===\n")
+    var spaces: str = "   "
+    print($"Spaces length: {len(spaces)}\n")
+    print($"Spaces .trim(): \"{spaces.trim()}\"\n")
+
+    var mixed: str = "  hello  "
+    print($"Mixed .trim(): \"{mixed.trim()}\"\n")
+
+    print("\n=== Substring Edge Cases ===\n")
+    var test: str = "Hello"
+    print($"substring(0, 0): \"{test.substring(0, 0)}\"\n")
+    print($"substring(0, 1): \"{test.substring(0, 1)}\"\n")
+    print($"substring(0, 5): \"{test.substring(0, 5)}\"\n")
+    print($"substring(4, 5): \"{test.substring(4, 5)}\"\n")
+
+    print("\n=== IndexOf Edge Cases ===\n")
+    var haystack: str = "hello hello"
+    print($"indexOf(\"hello\"): {haystack.indexOf("hello")}\n")
+    print($"indexOf(\"\"): {haystack.indexOf("")}\n")
+    print($"indexOf(\"xyz\"): {haystack.indexOf("xyz")}\n")
+
+    print("\n=== Contains Edge Cases ===\n")
+    print($"contains(\"\"): {haystack.contains("")}\n")
+    print($"\"\" contains(\"\"): {empty.contains("")}\n")
+
+    print("\n=== StartsWith/EndsWith Edge Cases ===\n")
+    print($"\"hello\".startsWith(\"\"): {"hello".startsWith("")}\n")
+    print($"\"hello\".endsWith(\"\"): {"hello".endsWith("")}\n")
+    print($"\"\".startsWith(\"\"): {"".startsWith("")}\n")
+
+    print("\n=== Replace Edge Cases ===\n")
+    var rep: str = "aaa"
+    print($"\"aaa\".replace(\"a\", \"b\"): \"{rep.replace("a", "b")}\"\n")
+
+    print("\n=== Split Edge Cases ===\n")
+    var csv: str = "a,b,c"
+    var parts: str[] = csv.split(",")
+    print($"\"a,b,c\".split(\",\") length: {parts.length}\n")
+
+    var no_delim: str = "hello"
+    var parts2: str[] = no_delim.split(",")
+    print($"\"hello\".split(\",\") length: {parts2.length}\n")
+
+    return 0

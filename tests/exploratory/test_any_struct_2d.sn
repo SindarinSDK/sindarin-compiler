@@ -1,0 +1,76 @@
+# Exploratory test: Structs with 2D arrays and any
+
+struct Matrix =>
+    data: int[][]
+    rows: int
+    cols: int
+
+struct Grid =>
+    cells: any[][]
+    width: int
+    height: int
+
+fn main(): int =>
+    # Test 1: Struct containing 2D array
+    print("Test 1: Struct with 2D int array\n")
+    var m: Matrix = Matrix {
+        data: {{1, 2, 3}, {4, 5, 6}},
+        rows: 2,
+        cols: 3
+    }
+    print($"  Matrix: {m.rows}x{m.cols}\n")
+    print($"  data[0][0] = {m.data[0][0]}\n")
+    print($"  data[1][2] = {m.data[1][2]}\n")
+
+    # Test 2: Box struct with 2D array into any
+    print("\nTest 2: Box Matrix struct into any\n")
+    var a: any = m
+
+    if a is Matrix =>
+        print("  a is Matrix: PASS\n")
+        var m2: Matrix = a as Matrix
+        print($"  Unboxed: {m2.rows}x{m2.cols}\n")
+        print($"  data[1][1] = {m2.data[1][1]}\n")
+        if m2.data[1][1] == 5 =>
+            print("  Value check: PASS\n")
+        else =>
+            print("  Value check: FAIL\n")
+            return 1
+    else =>
+        print("  a is Matrix: FAIL\n")
+        return 1
+
+    # Test 3: Struct with 2D any array
+    print("\nTest 3: Struct with 2D any array\n")
+    var g: Grid = Grid {
+        cells: {{1, "a"}, {true, 3.14}},
+        width: 2,
+        height: 2
+    }
+    print($"  Grid: {g.width}x{g.height}\n")
+    print($"  cells[0][0] as int = {g.cells[0][0] as int}\n")
+    print($"  cells[0][1] as str = {g.cells[0][1] as str}\n")
+    print($"  cells[1][0] as bool = {g.cells[1][0] as bool}\n")
+    print($"  cells[1][1] as double = {g.cells[1][1] as double}\n")
+
+    # Test 4: Box Grid struct into any
+    print("\nTest 4: Box Grid struct into any\n")
+    var b: any = g
+
+    if b is Grid =>
+        print("  b is Grid: PASS\n")
+        var g2: Grid = b as Grid
+        print($"  Unboxed Grid: {g2.width}x{g2.height}\n")
+        var cell: str = g2.cells[0][1] as str
+        print($"  cells[0][1] as str = {cell}\n")
+        if cell == "a" =>
+            print("  Value check: PASS\n")
+        else =>
+            print("  Value check: FAIL\n")
+            return 1
+    else =>
+        print("  b is Grid: FAIL\n")
+        return 1
+
+    print("\nAll tests passed!\n")
+    return 0

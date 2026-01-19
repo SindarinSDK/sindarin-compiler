@@ -1,0 +1,16 @@
+# Test: Compile error - struct with str field cannot escape private block
+# Expected error: Cannot assign to variable declared outside private block
+
+struct NamedPoint =>
+    name: str
+    x: int
+    y: int
+
+fn main(): void =>
+    var outer: NamedPoint = NamedPoint { name: "origin", x: 0, y: 0 }
+
+    private =>
+        var inner: NamedPoint = NamedPoint { name: "inner", x: 42, y: 99 }
+        outer = inner  # ERROR: struct contains str field
+
+    print($"x: {outer.x}\n")

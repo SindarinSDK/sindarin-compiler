@@ -1,0 +1,8 @@
+# Error test: struct with circular dependency through array
+
+struct TreeNode =>
+    value: int
+    children: TreeNode[]
+
+fn main(): void =>
+    print("Should not compile\n")

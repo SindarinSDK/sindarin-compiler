@@ -1,0 +1,6 @@
+// Test simple closure
+fn main(): void =>
+  var multiplier: int = 3
+  var times_three: fn(int): int = fn(x: int): int => x * multiplier
+  var result: int = times_three(5)
+  print($"result={result}\n")

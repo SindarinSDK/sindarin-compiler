@@ -1,0 +1,58 @@
+// Test: Dual import - same module both directly and as namespace
+// Tests that a module can be imported both ways and both access patterns work
+
+import "import_tests/math_utils"
+import "import_tests/math_utils" as math
+
+fn main(): int =>
+    print("Test dual import (direct + namespace):\n\n")
+    var errors: int = 0
+
+    // Test 1: Call function directly
+    print("Test 1 - Call function directly (add):\n")
+    var sum_direct: int = add(5, 3)
+    print($"  add(5, 3) = {sum_direct}\n")
+    if sum_direct != 8 =>
+        print("  FAIL: expected 8\n")
+        errors++
+
+    // Test 2: Call same function via namespace
+    print("\nTest 2 - Call same function via namespace (math.add):\n")
+    var sum_ns: int = math.add(5, 3)
+    print($"  math.add(5, 3) = {sum_ns}\n")
+    if sum_ns != 8 =>
+        print("  FAIL: expected 8\n")
+        errors++
+
+    // Test 3: Both should produce same result
+    print("\nTest 3 - Both access patterns produce same result:\n")
+    if sum_direct == sum_ns =>
+        print("  PASS: add(5,3) == math.add(5,3)\n")
+    if sum_direct != sum_ns =>
+        print("  FAIL: add(5,3) != math.add(5,3)\n")
+        errors++
+
+    // Test 4: Mix direct and namespaced in same expression
+    print("\nTest 4 - Mix direct and namespaced calls:\n")
+    var mixed: int = add(math.multiply(2, 3), square(2))
+    print($"  add(math.multiply(2, 3), square(2)) = {mixed}\n")
+    if mixed != 10 =>
+        print("  FAIL: expected 10\n")
+        errors++
+
+    // Test 5: Verify no symbol conflicts
+    print("\nTest 5 - Multiple functions both ways:\n")
+    var a: int = multiply(3, 4)
+    var b: int = math.multiply(3, 4)
+    print($"  multiply(3, 4) = {a}, math.multiply(3, 4) = {b}\n")
+    if a != b =>
+        print("  FAIL: results should be equal\n")
+        errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll dual import tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

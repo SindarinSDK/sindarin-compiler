@@ -1,0 +1,12 @@
+Padded: 00042
+Hex lower: ff
+Hex upper: FF
+Octal: 100
+Pi 2 decimals: 3.14
+Pi 4 decimals: 3.1416
+Scientific: 1.234500e+03
+Right aligned:      Alice
+Left aligned: Alice     
+Width+precision:     3.14
+Mixed: 00042 and 3.14
+Expr: 0084

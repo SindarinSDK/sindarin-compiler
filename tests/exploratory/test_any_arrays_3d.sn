@@ -1,0 +1,75 @@
+
+fn main () =>
+  println("Testing 3D any arrays")
+  println("=====================")
+
+  // ============================================
+  // 1. T[][][] -> any[][][] in declarations
+  // ============================================
+  println("")
+  println("1. T[][][] -> any[][][] in declarations:")
+
+  var int3dToAny:any[][][] = {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}}
+  println($"  int[][][] -> any[][][]: {int3dToAny}")
+
+  var str3dToAny:any[][][] = {{{"a", "b"}, {"c", "d"}}, {{"e", "f"}, {"g", "h"}}}
+  println($"  str[][][] -> any[][][]: {str3dToAny}")
+
+  var double3dToAny:any[][][] = {{{1.1, 2.2}, {3.3, 4.4}}, {{5.5, 6.6}, {7.7, 8.8}}}
+  println($"  double[][][] -> any[][][]: {double3dToAny}")
+
+  var bool3dToAny:any[][][] = {{{true, false}, {false, true}}, {{true, true}, {false, false}}}
+  println($"  bool[][][] -> any[][][]: {bool3dToAny}")
+
+  var long3dToAny:any[][][] = {{{1000000000000l, 2000000000000l}, {3000000000000l, 4000000000000l}}, {{5000000000000l, 6000000000000l}, {7000000000000l, 8000000000000l}}}
+  println($"  long[][][] -> any[][][]: {long3dToAny}")
+
+  var char3dToAny:any[][][] = {{{'a', 'b'}, {'c', 'd'}}, {{'e', 'f'}, {'g', 'h'}}}
+  println($"  char[][][] -> any[][][]: {char3dToAny}")
+
+  var byte3dToAny:any[][][] = {{{1b, 2b}, {3b, 4b}}, {{5b, 6b}, {7b, 8b}}}
+  println($"  byte[][][] -> any[][][]: {byte3dToAny}")
+
+  // ============================================
+  // 2. T[][][] -> any[][][] in assignments
+  // ============================================
+  println("")
+  println("2. T[][][] -> any[][][] in assignments:")
+
+  var any3d:any[][][] = {{{0}}}
+
+  any3d = {{{10, 20}, {30, 40}}, {{50, 60}, {70, 80}}}
+  println($"  int[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{"p", "q"}, {"r", "s"}}, {{"t", "u"}, {"v", "w"}}}
+  println($"  str[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{1.5, 2.5}, {3.5, 4.5}}, {{5.5, 6.5}, {7.5, 8.5}}}
+  println($"  double[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{true, false}, {true, true}}, {{false, false}, {false, true}}}
+  println($"  bool[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{100000000000l, 200000000000l}, {300000000000l, 400000000000l}}, {{500000000000l, 600000000000l}, {700000000000l, 800000000000l}}}
+  println($"  long[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{'i', 'j'}, {'k', 'l'}}, {{'m', 'n'}, {'o', 'p'}}}
+  println($"  char[][][] -> any[][][]: {any3d}")
+
+  any3d = {{{10b, 20b}, {30b, 40b}}, {{50b, 60b}, {70b, 80b}}}
+  println($"  byte[][][] -> any[][][]: {any3d}")
+
+  // ============================================
+  // 3. any[][][] string interpolation
+  // ============================================
+  println("")
+  println("3. any[][][] string interpolation:")
+
+  var nested3d:any[][][] = {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}}
+  println($"  nested 3d ints: {nested3d}")
+
+  var nestedStr3d:any[][][] = {{{"a", "b"}, {"c"}}, {{"d", "e", "f"}}}
+  println($"  nested 3d strings: {nestedStr3d}")
+
+  println("")
+  println("All 3D any array tests passed!")

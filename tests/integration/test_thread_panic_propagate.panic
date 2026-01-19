@@ -1,0 +1,2 @@
+# This test is expected to panic (non-zero exit code)
+# The panic message should match the .expected file

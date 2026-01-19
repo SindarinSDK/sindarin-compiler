@@ -1,0 +1,42 @@
+// ============================================================================
+// primes.sn - Prime Sieve Benchmark for Sindarin
+// ============================================================================
+// Tests memory allocation and CPU performance using Sieve of Eratosthenes
+// ============================================================================
+
+// Sieve of Eratosthenes - finds all primes up to n
+fn sieve(n: int): int =>
+    // Create array of bools (true = potentially prime)
+    // Using sized array allocation for O(1) initialization
+    var is_prime: bool[n + 1] = true
+
+    // 0 and 1 are not prime
+    is_prime[0] = false
+    is_prime[1] = false
+
+    // Sieve algorithm
+    var p: int = 2
+    shared while p * p <= n =>
+        if is_prime[p] =>
+            // Mark all multiples of p as not prime
+            var mult: int = p * p
+            shared while mult <= n =>
+                is_prime[mult] = false
+                mult = mult + p
+        p++
+
+    // Count primes
+    var count: int = 0
+    shared for var i: int = 2; i <= n; i++ =>
+        if is_prime[i] =>
+            count++
+
+    return count
+
+fn main(): void =>
+    var n: int = 1000000
+    var start: Time = Time.now()
+    var count: int = sieve(n)
+    var elapsed: int = Time.now().diff(start)
+    print($"Primes up to {n}: {count}\n")
+    print($"Sieve time: {elapsed}ms\n")

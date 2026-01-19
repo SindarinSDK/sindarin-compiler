@@ -1,0 +1,127 @@
+// ============================================================================
+// date.sn - Date Features in Sindarin
+// ============================================================================
+// Demonstrates: Date creation, formatting, arithmetic, comparisons,
+//               and common date patterns
+// ============================================================================
+
+// Entry point for date demos
+fn demo_date(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                         Sindarin Date                            │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Creating dates
+  print("--- Creating Dates ---\n")
+  var today: Date = Date.today()
+  print($"Today: {today.toIso()}\n")
+
+  var christmas: Date = Date.fromYmd(2025, 12, 25)
+  print($"Christmas: {christmas.toIso()}\n")
+
+  var parsed: Date = Date.fromString("2025-07-04")
+  print($"Parsed: {parsed.toIso()}\n")
+
+  var fromEpoch: Date = Date.fromEpochDays(20088)
+  print($"From epoch days: {fromEpoch.toIso()}\n")
+
+  // 2. Date components
+  print("\n--- Date Components ---\n")
+  print($"Year: {today.year()}\n")
+  print($"Month: {today.month()}\n")
+  print($"Day: {today.day()}\n")
+  print($"Weekday: {today.weekday()}\n")
+  print($"Day of year: {today.dayOfYear()}\n")
+  print($"Epoch days: {today.epochDays()}\n")
+
+  // 3. Weekday names
+  print("\n--- Weekday Names ---\n")
+  var names: str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+  print($"Today is {names[today.weekday()]}\n")
+
+  // 4. Formatting
+  print("\n--- Formatting ---\n")
+  var d: Date = Date.fromYmd(2025, 12, 25)
+  print($"ISO: {d.toIso()}\n")
+  print($"toString: {d.toString()}\n")
+  print($"YYYY-MM-DD: {d.format("YYYY-MM-DD")}\n")
+  print($"M/D/YYYY: {d.format("M/D/YYYY")}\n")
+  print($"DD/MM/YYYY: {d.format("DD/MM/YYYY")}\n")
+  print($"MMMM D, YYYY: {d.format("MMMM D, YYYY")}\n")
+  print($"ddd, MMM D: {d.format("ddd, MMM D")}\n")
+
+  // 5. Date arithmetic
+  print("\n--- Date Arithmetic ---\n")
+  var start: Date = Date.fromYmd(2025, 1, 15)
+  print($"Start: {start.toIso()}\n")
+  print($"addDays(10): {start.addDays(10).toIso()}\n")
+  print($"addDays(-5): {start.addDays(-5).toIso()}\n")
+  print($"addWeeks(2): {start.addWeeks(2).toIso()}\n")
+  print($"addMonths(3): {start.addMonths(3).toIso()}\n")
+  print($"addYears(1): {start.addYears(1).toIso()}\n")
+
+  // 6. Month boundaries
+  print("\n--- Month Boundaries ---\n")
+  var jan31: Date = Date.fromYmd(2025, 1, 31)
+  print($"Jan 31: {jan31.toIso()}\n")
+  print($"addMonths(1): {jan31.addMonths(1).toIso()}\n")
+
+  var leapDay: Date = Date.fromYmd(2024, 2, 29)
+  print($"Leap day 2024: {leapDay.toIso()}\n")
+  print($"addYears(1): {leapDay.addYears(1).toIso()}\n")
+
+  // 7. Difference between dates
+  print("\n--- Date Differences ---\n")
+  var d1: Date = Date.fromYmd(2025, 1, 1)
+  var d2: Date = Date.fromYmd(2025, 12, 31)
+  print($"Days in 2025: {d2.diffDays(d1)}\n")
+
+  var birthday: Date = Date.fromYmd(2025, 6, 15)
+  var daysUntil: int = birthday.diffDays(today)
+  print($"Days until Jun 15: {daysUntil}\n")
+
+  // 8. Start/end of month and year
+  print("\n--- Start/End Methods ---\n")
+  var mid: Date = Date.fromYmd(2025, 6, 15)
+  print($"Date: {mid.toIso()}\n")
+  print($"startOfMonth: {mid.startOfMonth().toIso()}\n")
+  print($"endOfMonth: {mid.endOfMonth().toIso()}\n")
+  print($"startOfYear: {mid.startOfYear().toIso()}\n")
+  print($"endOfYear: {mid.endOfYear().toIso()}\n")
+
+  // 9. Comparisons
+  print("\n--- Comparisons ---\n")
+  var earlier: Date = Date.fromYmd(2025, 1, 1)
+  var later: Date = Date.fromYmd(2025, 12, 31)
+  print($"Jan 1 isBefore Dec 31: {earlier.isBefore(later)}\n")
+  print($"Dec 31 isAfter Jan 1: {later.isAfter(earlier)}\n")
+
+  var same1: Date = Date.fromYmd(2025, 6, 15)
+  var same2: Date = Date.fromString("2025-06-15")
+  print($"equals: {same1.equals(same2)}\n")
+
+  // 10. Weekend/weekday checks
+  print("\n--- Weekend/Weekday ---\n")
+  if today.isWeekend() =>
+    print("Today is a weekend!\n")
+  else =>
+    print("Today is a weekday\n")
+
+  // 11. Leap year and days in month
+  print("\n--- Leap Year & Days in Month ---\n")
+  print($"2024 is leap year: {Date.isLeapYear(2024)}\n")
+  print($"2025 is leap year: {Date.isLeapYear(2025)}\n")
+  print($"Days in Feb 2024: {Date.daysInMonth(2024, 2)}\n")
+  print($"Days in Feb 2025: {Date.daysInMonth(2025, 2)}\n")
+
+  var feb2024: Date = Date.fromYmd(2024, 2, 15)
+  print($"Feb 2024 isLeapYear: {feb2024.isLeapYear()}\n")
+  print($"Feb 2024 daysInMonth: {feb2024.daysInMonth()}\n")
+
+  // 12. Conversion to Time
+  print("\n--- Conversion to Time ---\n")
+  var dateOnly: Date = Date.fromYmd(2025, 6, 15)
+  var asTime: Time = dateOnly.toTime()
+  print($"Date: {dateOnly.toIso()}\n")
+  print($"As Time: {asTime.toIso()}\n")
+

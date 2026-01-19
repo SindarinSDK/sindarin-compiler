@@ -1,0 +1,66 @@
+// Test 130: Multiple imports
+// Tests importing from multiple modules in one file
+
+import "import_tests/math_utils"
+import "import_tests/string_utils"
+
+fn main(): int =>
+    print("Test multiple imports:\n\n")
+    var errors: int = 0
+
+    // Test 1: Use function from first import
+    print("Test 1 - Function from math_utils:\n")
+    var sum: int = add(10, 20)
+    print($"  add(10, 20) = {sum}\n")
+    if sum != 30 =>
+        print("  FAIL: expected 30\n")
+        errors++
+
+    // Test 2: Use function from second import
+    print("\nTest 2 - Function from string_utils:\n")
+    var greeting: str = greet("World")
+    print($"  greet(\"World\") = {greeting}\n")
+    if greeting != "Hello, World!" =>
+        print("  FAIL: expected 'Hello, World!'\n")
+        errors++
+
+    // Test 3: Use functions from both imports together
+    print("\nTest 3 - Functions from both imports:\n")
+    var num: int = multiply(5, 5)
+    var formatted: str = format_number(num)
+    print($"  format_number(multiply(5, 5)) = {formatted}\n")
+    if formatted != "Number: 25" =>
+        print("  FAIL: expected 'Number: 25'\n")
+        errors++
+
+    // Test 4: More complex combination
+    print("\nTest 4 - Complex combination:\n")
+    var a: int = square(3)
+    var b: int = add(a, 1)
+    var msg: str = shout("result")
+    print($"  square(3) = {a}\n")
+    print($"  add(9, 1) = {b}\n")
+    print($"  shout(\"result\") = {msg}\n")
+    if a != 9 => errors++
+    if b != 10 => errors++
+    if msg != "RESULT!" => errors++
+
+    // Test 5: Alternating use of modules
+    print("\nTest 5 - Alternating module use:\n")
+    var v1: int = add(1, 2)
+    var s1: str = greet("A")
+    var v2: int = subtract(10, 5)
+    var s2: str = greet("B")
+    var v3: int = multiply(v1, v2)
+    print($"  add(1,2)={v1}, subtract(10,5)={v2}, multiply={v3}\n")
+    print($"  greet A: {s1}\n")
+    print($"  greet B: {s2}\n")
+    if v3 != 15 => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll multiple import tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

@@ -1,0 +1,76 @@
+// Test 19: Function parameters of different types
+fn int_param(x: int): void =>
+    print($"int: {x}\n")
+
+fn double_param(x: double): void =>
+    print($"double: {x}\n")
+
+fn str_param(s: str): void =>
+    print($"str: {s}\n")
+
+fn char_param(c: char): void =>
+    print($"char: '{c}'\n")
+
+fn bool_param(b: bool): void =>
+    print($"bool: {b}\n")
+
+fn array_param(arr: int[]): void =>
+    print("array: ")
+    print(arr)
+    print("\n")
+
+fn multi_params(a: int, b: double, c: str, d: bool): void =>
+    print($"a={a}, b={b}, c={c}, d={d}\n")
+
+fn same_type_params(a: int, b: int, c: int): int =>
+    return a + b + c
+
+fn mixed_math(a: int, b: double): double =>
+    // This tests int promotion to double
+    return a + b
+
+fn string_parts(first: str, middle: str, last: str): str =>
+    return first + " " + middle + " " + last
+
+fn main(): int =>
+    print("Test function parameters:\n\n")
+
+    print("Single params:\n")
+    int_param(42)
+    double_param(3.14)
+    str_param("hello")
+    char_param('X')
+    bool_param(true)
+    array_param({1, 2, 3})
+
+    print("\nMultiple params:\n")
+    multi_params(10, 2.5, "test", false)
+
+    print("\nSame type params:\n")
+    var sum: int = same_type_params(1, 2, 3)
+    print($"same_type_params(1, 2, 3) = {sum}\n")
+
+    print("\nMixed math:\n")
+    var result: double = mixed_math(5, 2.5)
+    print($"mixed_math(5, 2.5) = {result}\n")
+
+    print("\nString concatenation:\n")
+    var fullname: str = string_parts("John", "Q", "Doe")
+    print($"string_parts result: {fullname}\n")
+
+    // Expression as parameter
+    print("\nExpressions as parameters:\n")
+    int_param(5 + 3)
+    double_param(3.14 * 2.0)
+    bool_param(5 > 3)
+
+    // Variable as parameter
+    print("\nVariables as parameters:\n")
+    var x: int = 100
+    var y: double = 2.71828
+    var z: str = "variable"
+    int_param(x)
+    double_param(y)
+    str_param(z)
+
+    return 0

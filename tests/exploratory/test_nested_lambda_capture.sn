@@ -1,0 +1,63 @@
+// Test 95: Multi-level nested lambda capture
+// Tests closures capturing from multiple nested levels
+
+fn main(): int =>
+    print("Test nested lambda capture:\n\n")
+
+    // Test 1: Two-level capture
+    print("Test 1 - Two-level capture:\n")
+    var outer: int = 10
+    var make_adder: fn(int): fn(int): int = fn(middle: int): fn(int): int =>
+        var add: fn(int): int = fn(inner: int): int => outer + middle + inner
+        return add
+
+    var add_10_20: fn(int): int = make_adder(20)
+    print($"  outer=10, middle=20, inner=5: {add_10_20(5)}\n")
+
+    // Test 2: Three-level capture
+    print("\nTest 2 - Three-level capture:\n")
+    var level0: int = 100
+    var level1_fn: fn(int): fn(int): fn(int): int = fn(l1: int): fn(int): fn(int): int =>
+        var level2_fn: fn(int): fn(int): int = fn(l2: int): fn(int): int =>
+            var level3_fn: fn(int): int = fn(l3: int): int => level0 + l1 + l2 + l3
+            return level3_fn
+        return level2_fn
+
+    var partial1: fn(int): fn(int): int = level1_fn(10)
+    var partial2: fn(int): int = partial1(20)
+    var result: int = partial2(30)
+    print($"  100 + 10 + 20 + 30 = {result}\n")
+
+    // Test 3: Nested capture with modification
+    print("\nTest 3 - Capture with different scopes:\n")
+    var base: int = 1000
+    var multiplier: int = 2
+
+    var outer_fn: fn(int): fn(): int = fn(x: int): fn(): int =>
+        var factor: int = x * multiplier
+        var inner: fn(): int = fn(): int => base + factor
+        return inner
+
+    var fn1: fn(): int = outer_fn(5)
+    var fn2: fn(): int = outer_fn(10)
+    print($"  fn1() with x=5: {fn1()}\n")
+    print($"  fn2() with x=10: {fn2()}\n")
+
+    // Test 4: Capture from loop in nested context
+    print("\nTest 4 - Loop capture in nested context:\n")
+    var accumulator: int = 0
+    var outer_multiplier: int = 10
+
+    var make_incrementer: fn(): fn(): void = fn(): fn(): void =>
+        var inner_add: fn(): void = fn(): void =>
+            accumulator = accumulator + outer_multiplier
+        return inner_add
+
+    var inc: fn(): void = make_incrementer()
+    inc()
+    inc()
+    inc()
+    print($"  After 3 increments: {accumulator}\n")
+
+    print("\nAll nested lambda capture tests passed!\n")
+    return 0

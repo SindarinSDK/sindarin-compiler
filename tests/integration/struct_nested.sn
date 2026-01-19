@@ -1,0 +1,74 @@
+# Integration test for nested struct basic operations
+# Tests: nested struct declaration, field access, nested initialization, default values
+
+# Inner struct without defaults
+struct Point =>
+    x: double
+    y: double
+
+# Inner struct with defaults
+struct Size =>
+    width: int = 100
+    height: int = 50
+
+# Outer struct containing inner struct without defaults
+struct Line =>
+    start: Point
+    end: Point
+
+# Outer struct containing inner struct with defaults
+struct Rectangle =>
+    origin: Point
+    size: Size
+    color: str = "black"
+
+# Deep nesting - 3 levels
+struct Bounds =>
+    top_left: Point
+    bottom_right: Point
+
+struct Canvas =>
+    name: str
+    bounds: Bounds
+    background: str = "white"
+
+fn main(): void =>
+    # Test 1: Nested struct - inner has no defaults
+    var line: Line = Line { start: Point { x: 0.0, y: 0.0 }, end: Point { x: 10.0, y: 20.0 } }
+    print($"line.start.x = {line.start.x}\n")
+    print($"line.start.y = {line.start.y}\n")
+    print($"line.end.x = {line.end.x}\n")
+    print($"line.end.y = {line.end.y}\n")
+
+    # Test 2: Nested struct - inner has defaults (use all defaults)
+    var rect1: Rectangle = Rectangle { origin: Point { x: 5.0, y: 10.0 }, size: Size {} }
+    print($"rect1.origin.x = {rect1.origin.x}\n")
+    print($"rect1.origin.y = {rect1.origin.y}\n")
+    print($"rect1.size.width = {rect1.size.width}\n")
+    print($"rect1.size.height = {rect1.size.height}\n")
+    print($"rect1.color = {rect1.color}\n")
+
+    # Test 3: Nested struct - override inner defaults
+    var rect2: Rectangle = Rectangle { origin: Point { x: 0.0, y: 0.0 }, size: Size { width: 200, height: 150 }, color: "red" }
+    print($"rect2.size.width = {rect2.size.width}\n")
+    print($"rect2.size.height = {rect2.size.height}\n")
+    print($"rect2.color = {rect2.color}\n")
+
+    # Test 4: Modify nested field values
+    line.start.x = 100.0
+    line.end.y = 200.0
+    print($"After modify: line.start.x = {line.start.x}\n")
+    print($"After modify: line.end.y = {line.end.y}\n")
+
+    # Test 5: 3-level deep nesting
+    var canvas: Canvas = Canvas { name: "main", bounds: Bounds { top_left: Point { x: 0.0, y: 0.0 }, bottom_right: Point { x: 800.0, y: 600.0 } } }
+    print($"canvas.name = {canvas.name}\n")
+    print($"canvas.bounds.top_left.x = {canvas.bounds.top_left.x}\n")
+    print($"canvas.bounds.bottom_right.x = {canvas.bounds.bottom_right.x}\n")
+    print($"canvas.background = {canvas.background}\n")
+
+    # Test 6: Modify deeply nested field
+    canvas.bounds.bottom_right.y = 900.0
+    print($"After deep modify: canvas.bounds.bottom_right.y = {canvas.bounds.bottom_right.y}\n")
+
+    print("All nested struct tests passed!\n")

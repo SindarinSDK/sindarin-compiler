@@ -1,0 +1,5 @@
+// Test chained method calls
+fn main(): void =>
+  var text: str = "  HELLO WORLD  "
+  var result: str = text.trim().toLower()
+  print($"result={result}\n")

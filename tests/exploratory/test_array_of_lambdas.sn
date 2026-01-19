@@ -1,0 +1,32 @@
+# Test array of lambdas/function types
+
+fn main(): int =>
+    # Declare an array of functions that take int and return int
+    var callbacks: (fn(int): int)[] = {}
+
+    # Create some lambda functions
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var add_ten: fn(int): int = fn(x: int): int => x + 10
+    var negate: fn(int): int = fn(x: int): int => 0 - x
+
+    # Push lambdas to the array
+    callbacks.push(double_it)
+    callbacks.push(add_ten)
+    callbacks.push(negate)
+
+    # Call functions from the array
+    var result1: int = callbacks[0](5)   # Should be 10 (5 * 2)
+    var result2: int = callbacks[1](5)   # Should be 15 (5 + 10)
+    var result3: int = callbacks[2](5)   # Should be -5 (0 - 5)
+
+    print(result1)
+    print(result2)
+    print(result3)
+
+    # Verify results
+    if result1 == 10 && result2 == 15 && result3 == -5 =>
+        print("All tests passed!")
+        return 0
+
+    print("Test failed!")
+    return 1

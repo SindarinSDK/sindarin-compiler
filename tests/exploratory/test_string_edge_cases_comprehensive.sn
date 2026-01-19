@@ -1,0 +1,137 @@
+// Test 118: String edge cases
+// Tests empty strings, very long strings, and edge case behaviors
+
+fn main(): int =>
+    print("Test string edge cases:\n\n")
+    var errors: int = 0
+
+    // Test 1: Empty string basics
+    print("Test 1 - Empty string basics:\n")
+    var empty: str = ""
+    print($"  Empty string length: {empty.length}\n")
+    print($"  Empty string: \"{empty}\"\n")
+    if empty.length != 0 => errors++
+
+    // Test 2: Empty string methods
+    print("\nTest 2 - Methods on empty string:\n")
+    var empty_upper: str = "".toUpper()
+    var empty_lower: str = "".toLower()
+    var empty_trim: str = "".trim()
+    print($"  \"\".toUpper() = \"{empty_upper}\"\n")
+    print($"  \"\".toLower() = \"{empty_lower}\"\n")
+    print($"  \"\".trim() = \"{empty_trim}\"\n")
+    if empty_upper.length != 0 => errors++
+    if empty_lower.length != 0 => errors++
+    if empty_trim.length != 0 => errors++
+
+    // Test 3: Empty string indexOf and contains
+    print("\nTest 3 - Empty string search:\n")
+    var text: str = "Hello"
+    var empty_idx: int = text.indexOf("")
+    var contains_empty: bool = text.contains("")
+    var empty_contains: bool = "".contains("x")
+    print($"  \"Hello\".indexOf(\"\") = {empty_idx}\n")
+    print($"  \"Hello\".contains(\"\") = {contains_empty}\n")
+    print($"  \"\".contains(\"x\") = {empty_contains}\n")
+    // Contains empty should return true (empty is subset of everything)
+    var contains_empty_int: int = 0
+    if contains_empty => contains_empty_int = 1
+    if contains_empty_int != 1 => errors++
+
+    // Test 4: Empty string startsWith/endsWith
+    print("\nTest 4 - Empty string start/end:\n")
+    var starts_empty: bool = text.startsWith("")
+    var ends_empty: bool = text.endsWith("")
+    print($"  \"Hello\".startsWith(\"\") = {starts_empty}\n")
+    print($"  \"Hello\".endsWith(\"\") = {ends_empty}\n")
+    var starts_empty_int: int = 0
+    var ends_empty_int: int = 0
+    if starts_empty => starts_empty_int = 1
+    if ends_empty => ends_empty_int = 1
+    if starts_empty_int != 1 => errors++
+    if ends_empty_int != 1 => errors++
+
+    // Test 5: Empty string split
+    print("\nTest 5 - Split edge cases:\n")
+    var no_delim: str = "abc"
+    var split_no_match: str[] = no_delim.split(",")
+    print($"  \"abc\".split(\",\") length: {split_no_match.length}\n")
+    print($"  First element: \"{split_no_match[0]}\"\n")
+    if split_no_match.length != 1 => errors++
+    if split_no_match[0] != "abc" => errors++
+
+    // Test 6: Single character strings
+    print("\nTest 6 - Single character strings:\n")
+    var single: str = "X"
+    print($"  Single char string: \"{single}\"\n")
+    print($"  Length: {single.length}\n")
+    print($"  toUpper(): \"{single.toUpper()}\"\n")
+    print($"  toLower(): \"{single.toLower()}\"\n")
+    if single.length != 1 => errors++
+
+    // Test 7: Whitespace-only strings
+    print("\nTest 7 - Whitespace strings:\n")
+    var spaces: str = "   "
+    var tabs: str = "\t\t"
+    print($"  \"   \".trim() = \"{spaces.trim()}\"\n")
+    print($"  Spaces length: {spaces.length}\n")
+    print($"  Tabs length: {tabs.length}\n")
+    if spaces.trim().length != 0 => errors++
+    if spaces.length != 3 => errors++
+    if tabs.length != 2 => errors++
+
+    // Test 8: Long string operations
+    print("\nTest 8 - Long strings:\n")
+    var long_str: str = ""
+    shared for i in 0..100 =>
+        long_str = long_str + "x"
+    print($"  100 x's length: {long_str.length}\n")
+    if long_str.length != 100 => errors++
+
+    // Test 9: Special characters in strings
+    print("\nTest 9 - Special characters:\n")
+    var special: str = "a!@#$%b"
+    print($"  Special chars: \"{special}\"\n")
+    print($"  Length: {special.length}\n")
+    print($"  Contains \"#\": {special.contains("#")}\n")
+    if special.length != 7 => errors++
+
+    // Test 10: Substring edge cases
+    print("\nTest 10 - Substring edge cases:\n")
+    var word: str = "Hello"
+    var full_sub: str = word.substring(0, 5)
+    var zero_sub: str = word.substring(2, 2)
+    print($"  Full substring: \"{full_sub}\"\n")
+    print($"  Zero-length substring: \"{zero_sub}\"\n")
+    if full_sub != "Hello" => errors++
+    if zero_sub.length != 0 => errors++
+
+    // Test 11: Replace with empty string
+    print("\nTest 11 - Replace with empty:\n")
+    var with_x: str = "axbxc"
+    var removed: str = with_x.replace("x", "")
+    print($"  \"axbxc\".replace(\"x\", \"\") = \"{removed}\"\n")
+    if removed != "abc" => errors++
+
+    // Test 12: Manual repeat edge cases (no repeat method)
+    print("\nTest 12 - Manual repeat edge cases:\n")
+    var rep0: str = ""
+    // Repeat 0 times - loop doesn't execute
+    shared for i in 0..0 =>
+        rep0 = rep0 + "abc"
+    var rep1: str = ""
+    // Repeat 1 time
+    shared for j in 0..1 =>
+        rep1 = rep1 + "abc"
+    print($"  \"abc\" x 0 = \"{rep0}\"\n")
+    print($"  \"abc\" x 1 = \"{rep1}\"\n")
+    if rep0.length != 0 => errors++
+    if rep1 != "abc" => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll string edge case tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

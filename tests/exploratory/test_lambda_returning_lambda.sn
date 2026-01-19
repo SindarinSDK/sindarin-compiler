@@ -1,0 +1,76 @@
+// Test 98: Higher-order function patterns
+// Tests functions returning functions
+
+// Function that returns a lambda
+fn make_adder(n: int): fn(int): int =>
+    return fn(x: int): int => x + n
+
+// Function that returns a multiplier lambda
+fn make_multiplier(n: int): fn(int): int =>
+    return fn(x: int): int => x * n
+
+// Function returning a predicate
+fn make_threshold_checker(threshold: int): fn(int): bool =>
+    return fn(x: int): bool => x > threshold
+
+// Curried add function
+fn curried_add(a: int): fn(int): int =>
+    return fn(b: int): int => a + b
+
+fn main(): int =>
+    print("Test lambda returning lambda:\n\n")
+
+    // Test 1: Basic adder factory
+    print("Test 1 - Adder factory:\n")
+    var add5: fn(int): int = make_adder(5)
+    var add10: fn(int): int = make_adder(10)
+
+    print($"  add5(3) = {add5(3)}\n")
+    print($"  add10(3) = {add10(3)}\n")
+    print($"  add5(add10(1)) = {add5(add10(1))}\n")
+
+    // Test 2: Multiplier factory
+    print("\nTest 2 - Multiplier factory:\n")
+    var double_fn: fn(int): int = make_multiplier(2)
+    var triple: fn(int): int = make_multiplier(3)
+
+    print($"  double(7) = {double_fn(7)}\n")
+    print($"  triple(7) = {triple(7)}\n")
+
+    // Test 3: Predicate factory
+    print("\nTest 3 - Predicate factory:\n")
+    var above10: fn(int): bool = make_threshold_checker(10)
+    var above100: fn(int): bool = make_threshold_checker(100)
+
+    print($"  above10(15) = {above10(15)}\n")
+    print($"  above10(5) = {above10(5)}\n")
+    print($"  above100(50) = {above100(50)}\n")
+    print($"  above100(150) = {above100(150)}\n")
+
+    // Test 4: Curried function
+    print("\nTest 4 - Curried function:\n")
+    var add3: fn(int): int = curried_add(3)
+    var add7: fn(int): int = curried_add(7)
+
+    print($"  curried_add(3)(5) = {add3(5)}\n")
+    print($"  curried_add(7)(10) = {add7(10)}\n")
+
+    // Test 5: Inline higher-order pattern
+    print("\nTest 5 - Inline pattern:\n")
+    var make_op: fn(int): fn(int): int = fn(n: int): fn(int): int =>
+        return fn(x: int): int => x + n * 2
+
+    var op: fn(int): int = make_op(5)
+    print($"  make_op(5)(10) = {op(10)}\n")
+
+    // Test 6: Chained factories
+    print("\nTest 6 - Chained operations:\n")
+    var step1: fn(int): int = make_adder(10)
+    var step2: fn(int): int = make_multiplier(2)
+    var step3: fn(int): int = make_adder(-5)
+
+    var result: int = step3(step2(step1(5)))
+    print($"  ((5+10)*2)-5 = {result}\n")
+
+    print("\nAll lambda returning lambda tests passed!\n")
+    return 0

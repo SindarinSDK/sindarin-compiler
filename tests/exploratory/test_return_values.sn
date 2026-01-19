@@ -1,0 +1,79 @@
+// Test 17: Functions with return values
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+fn get_pi(): double =>
+    return 3.14159
+
+fn get_greeting(): str =>
+    return "Hello"
+
+fn get_first_char(): char =>
+    return 'A'
+
+fn is_positive(n: int): bool =>
+    return n > 0
+
+fn max(a: int, b: int): int =>
+    if a > b =>
+        return a
+    return b
+
+fn min(a: int, b: int): int =>
+    if a < b =>
+        return a
+    return b
+
+fn abs_value(n: int): int =>
+    if n < 0 =>
+        return 0 - n
+    return n
+
+fn sign(n: int): int =>
+    if n > 0 =>
+        return 1
+    if n < 0 =>
+        return -1
+    return 0
+
+fn main(): int =>
+    print("Test return values:\n\n")
+
+    var sum: int = add(5, 3)
+    print($"add(5, 3) = {sum}\n")
+
+    var prod: int = multiply(4, 7)
+    print($"multiply(4, 7) = {prod}\n")
+
+    var pi: double = get_pi()
+    print($"get_pi() = {pi}\n")
+
+    var greet: str = get_greeting()
+    print($"get_greeting() = {greet}\n")
+
+    var ch: char = get_first_char()
+    print($"get_first_char() = '{ch}'\n")
+
+    var pos1: bool = is_positive(5)
+    var pos2: bool = is_positive(-5)
+    print($"is_positive(5) = {pos1}\n")
+    print($"is_positive(-5) = {pos2}\n")
+
+    print($"max(10, 20) = {max(10, 20)}\n")
+    print($"min(10, 20) = {min(10, 20)}\n")
+
+    print($"abs_value(-15) = {abs_value(-15)}\n")
+    print($"abs_value(15) = {abs_value(15)}\n")
+
+    print($"sign(-5) = {sign(-5)}\n")
+    print($"sign(0) = {sign(0)}\n")
+    print($"sign(5) = {sign(5)}\n")
+
+    // Chained function calls
+    var chained: int = add(multiply(2, 3), multiply(4, 5))
+    print($"add(multiply(2,3), multiply(4,5)) = {chained}\n")
+
+    return 0

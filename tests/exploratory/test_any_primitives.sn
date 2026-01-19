@@ -1,0 +1,93 @@
+// Test: any type with all primitive types
+// Verifies boxing and unboxing for int, double, bool, str, char, byte
+
+fn main(): void =>
+    print("Testing any type with primitive types\n")
+
+    // Test int
+    var a1: any = 42
+    assert(a1 is int, "42 should be boxed as int")
+    var v1: int = a1 as int
+    assert(v1 == 42, "Unboxed int should be 42")
+    print("  int: PASS\n")
+
+    // Test negative int
+    var a2: any = -100
+    assert(a2 is int, "-100 should be boxed as int")
+    var v2: int = a2 as int
+    assert(v2 == -100, "Unboxed int should be -100")
+    print("  negative int: PASS\n")
+
+    // Test zero
+    var a3: any = 0
+    assert(a3 is int, "0 should be boxed as int")
+    var v3: int = a3 as int
+    assert(v3 == 0, "Unboxed int should be 0")
+    print("  zero: PASS\n")
+
+    // Test double
+    var a4: any = 3.14159
+    assert(a4 is double, "3.14159 should be boxed as double")
+    var v4: double = a4 as double
+    assert(v4 > 3.14 && v4 < 3.15, "Unboxed double should be ~3.14159")
+    print("  double: PASS\n")
+
+    // Test negative double
+    var a5: any = -2.5
+    assert(a5 is double, "-2.5 should be boxed as double")
+    var v5: double = a5 as double
+    assert(v5 < -2.4 && v5 > -2.6, "Unboxed double should be -2.5")
+    print("  negative double: PASS\n")
+
+    // Test bool true
+    var a6: any = true
+    assert(a6 is bool, "true should be boxed as bool")
+    var v6: bool = a6 as bool
+    assert(v6, "Unboxed bool should be true")
+    print("  bool true: PASS\n")
+
+    // Test bool false
+    var a7: any = false
+    assert(a7 is bool, "false should be boxed as bool")
+    var v7: bool = a7 as bool
+    assert(!v7, "Unboxed bool should be false")
+    print("  bool false: PASS\n")
+
+    // Test string
+    var a8: any = "hello world"
+    assert(a8 is str, "\"hello world\" should be boxed as str")
+    var v8: str = a8 as str
+    assert(v8 == "hello world", "Unboxed str should be \"hello world\"")
+    print("  str: PASS\n")
+
+    // Test empty string
+    var a9: any = ""
+    assert(a9 is str, "\"\" should be boxed as str")
+    var v9: str = a9 as str
+    assert(v9 == "", "Unboxed str should be empty")
+    print("  empty str: PASS\n")
+
+    // Test char
+    var a10: any = 'A'
+    assert(a10 is char, "'A' should be boxed as char")
+    var v10: char = a10 as char
+    assert(v10 == 'A', "Unboxed char should be 'A'")
+    print("  char: PASS\n")
+
+    // Test byte
+    var b1: byte = 255
+    var a11: any = b1
+    assert(a11 is byte, "255 should be boxed as byte")
+    var v11: byte = a11 as byte
+    assert(v11 == 255, "Unboxed byte should be 255")
+    print("  byte 255: PASS\n")
+
+    // Test byte zero
+    var b2: byte = 0
+    var a12: any = b2
+    assert(a12 is byte, "0 should be boxed as byte")
+    var v12: byte = a12 as byte
+    assert(v12 == 0, "Unboxed byte should be 0")
+    print("  byte 0: PASS\n")
+
+    print("All primitive type tests passed!\n")

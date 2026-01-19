@@ -1,0 +1,7 @@
+// Test: Using reserved keyword 'for' as namespace name
+// Reserved keywords cannot be used as namespace identifiers
+import "../lib/math_basic" as for
+
+fn main(): void =>
+    var x: int = for.add(1, 2)
+    print($"{x}\n")

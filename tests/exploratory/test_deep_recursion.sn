@@ -1,0 +1,58 @@
+// Test 106: Deep recursion / stack depth
+// Tests recursive functions at moderate depths
+
+fn count_down(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + count_down(n - 1)
+
+fn sum_recursive(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return n + sum_recursive(n - 1)
+
+// Tail-recursive style (though Sn may not optimize)
+fn sum_tail(n: int, acc: int): int =>
+    if n <= 0 =>
+        return acc
+    return sum_tail(n - 1, acc + n)
+
+fn fib_memo_helper(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib_memo_helper(n - 1) + fib_memo_helper(n - 2)
+
+fn main(): int =>
+    print("Test deep recursion:\n\n")
+
+    // Test 1: Moderate recursion depth
+    print("Test 1 - Count down:\n")
+    print($"  count_down(10) = {count_down(10)}\n")
+    print($"  count_down(100) = {count_down(100)}\n")
+    print($"  count_down(500) = {count_down(500)}\n")
+
+    // Test 2: Sum recursion
+    print("\nTest 2 - Recursive sum:\n")
+    print($"  sum(10) = {sum_recursive(10)}\n")
+    print($"  sum(100) = {sum_recursive(100)}\n")
+
+    // Test 3: Tail recursive style
+    print("\nTest 3 - Tail recursive sum:\n")
+    print($"  sum_tail(10, 0) = {sum_tail(10, 0)}\n")
+    print($"  sum_tail(100, 0) = {sum_tail(100, 0)}\n")
+
+    // Test 4: Fibonacci (exponential but small n)
+    print("\nTest 4 - Fibonacci:\n")
+    print($"  fib(5) = {fib_memo_helper(5)}\n")
+    print($"  fib(10) = {fib_memo_helper(10)}\n")
+    print($"  fib(15) = {fib_memo_helper(15)}\n")
+
+    // Test 5: Nested recursion
+    print("\nTest 5 - Combined recursion:\n")
+    var total: int = 0
+    for i in 1..5 =>
+        total = total + sum_recursive(i * 10)
+    print($"  Sum of sums: {total}\n")
+
+    print("\nAll deep recursion tests passed!\n")
+    return 0

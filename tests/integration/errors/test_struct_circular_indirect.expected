@@ -1,0 +1,2 @@
+Circular dependency detected in struct 'StructA': StructA -> StructB -> StructA
+Circular dependency detected in struct 'StructB': StructB -> StructA -> StructB

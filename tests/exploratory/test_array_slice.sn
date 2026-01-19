@@ -1,0 +1,9 @@
+// Test array slicing
+fn main(): void =>
+  var arr: int[] = {0, 1, 2, 3, 4, 5}
+  var slice1: int[] = arr[1..4]
+  var slice2: int[] = arr[..3]
+  var slice3: int[] = arr[3..]
+  print($"slice1 len={slice1.length}\n")
+  print($"slice2 len={slice2.length}\n")
+  print($"slice3 len={slice3.length}\n")

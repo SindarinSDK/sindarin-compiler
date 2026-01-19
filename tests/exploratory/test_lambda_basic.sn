@@ -1,0 +1,41 @@
+// Test 21: Basic lambda expressions
+fn main(): int =>
+    print("Test basic lambdas:\n\n")
+
+    // Lambda with explicit types
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+    print($"add(3, 4) = {add(3, 4)}\n")
+
+    // Lambda returning different types
+    var get_int: fn(): int = fn(): int => 42
+    var get_double: fn(): double = fn(): double => 3.14
+    var get_str: fn(): str = fn(): str => "hello"
+    var get_bool: fn(): bool = fn(): bool => true
+
+    print($"get_int() = {get_int()}\n")
+    print($"get_double() = {get_double()}\n")
+    print($"get_str() = {get_str()}\n")
+    print($"get_bool() = {get_bool()}\n")
+
+    // Lambda with single parameter
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var negate: fn(int): int = fn(x: int): int => 0 - x
+
+    print($"double_it(5) = {double_it(5)}\n")
+    print($"negate(7) = {negate(7)}\n")
+
+    // Lambda with multiple parameters
+    var sum3: fn(int, int, int): int = fn(a: int, b: int, c: int): int => a + b + c
+    print($"sum3(1, 2, 3) = {sum3(1, 2, 3)}\n")
+
+    // Lambda stored and called multiple times
+    var increment: fn(int): int = fn(x: int): int => x + 1
+    print($"increment(10) = {increment(10)}\n")
+    print($"increment(20) = {increment(20)}\n")
+    print($"increment(increment(5)) = {increment(increment(5))}\n")
+
+    // Lambda in expression
+    var result: int = add(double_it(3), negate(2))
+    print($"add(double_it(3), negate(2)) = {result}\n")
+
+    return 0

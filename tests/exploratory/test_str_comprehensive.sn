@@ -1,0 +1,418 @@
+// Comprehensive test for str type
+// Tests all expression contexts: literals, interpolation,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== str Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_comparisons()
+    test_concatenation()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+    test_methods()
+
+    print("\n=== All str tests passed! ===\n")
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: str = "hello"
+    assert(x == "hello", "basic literal")
+
+    var y: str = "world"
+    assert(y == "world", "another literal")
+
+    var empty: str = ""
+    assert(empty == "", "empty string")
+
+    var spaces: str = "  spaces  "
+    assert(spaces == "  spaces  ", "spaces literal")
+
+    // Escape sequences
+    var newline: str = "line1\nline2"
+    assert(newline.length > 5, "newline escape")
+
+    var tab: str = "col1\tcol2"
+    assert(tab.length > 5, "tab escape")
+
+    var quote: str = "say \"hello\""
+    assert(quote.length > 5, "quote escape")
+
+    var backslash: str = "path\\to\\file"
+    assert(backslash.length > 5, "backslash escape")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var name: str = "World"
+    var s1: str = $"Hello, {name}!"
+    assert(s1 == "Hello, World!", "basic interpolation")
+
+    // Nested interpolation variable
+    var greeting: str = "Hi"
+    var s2: str = $"{greeting}, {name}!"
+    assert(s2 == "Hi, World!", "multiple interpolation")
+
+    // Expression in interpolation
+    var a: int = 10
+    var b: int = 5
+    var s3: str = $"Sum is {a + b}"
+    assert(s3 == "Sum is 15", "expression in interpolation")
+
+    // String expression in interpolation
+    var first: str = "Hello"
+    var second: str = "World"
+    var s4: str = $"{first} {second}"
+    assert(s4 == "Hello World", "string expression")
+
+    // Empty interpolation
+    var empty: str = ""
+    var s5: str = $"start{empty}end"
+    assert(s5 == "startend", "empty interpolation")
+
+    print("   PASS\n")
+
+// --- 3. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("3. Comparison operations\n")
+
+    var a: str = "apple"
+    var b: str = "banana"
+    var c: str = "apple"
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    // Lexicographic ordering
+    assert(a < b, "less than (a < b)")
+    assert(!(b < a), "less than false")
+
+    assert(b > a, "greater than (b > a)")
+    assert(!(a > b), "greater than false")
+
+    assert(a <= c, "lte equal")
+    assert(a <= b, "lte less")
+    assert(!(b <= a), "lte false")
+
+    assert(b >= a, "gte greater")
+    assert(a >= c, "gte equal")
+    assert(!(a >= b), "gte false")
+
+    // Empty string comparisons
+    var empty: str = ""
+    assert(empty < a, "empty < non-empty")
+    assert(empty == "", "empty == empty")
+
+    // Case sensitivity
+    assert("Apple" != "apple", "case sensitive")
+    assert("Apple" < "apple", "uppercase < lowercase")
+
+    print("   PASS\n")
+
+// --- 4. Concatenation ---
+fn test_concatenation(): void =>
+    print("4. Concatenation\n")
+
+    var a: str = "Hello"
+    var b: str = " "
+    var c: str = "World"
+
+    var result: str = a + b + c
+    assert(result == "Hello World", "concatenation")
+
+    // With empty string
+    var empty: str = ""
+    var r2: str = a + empty
+    assert(r2 == "Hello", "concat with empty")
+
+    // Chained
+    var r3: str = a + " " + c + "!"
+    assert(r3 == "Hello World!", "chained concat")
+
+    print("   PASS\n")
+
+// --- 5. Arrays ---
+fn test_arrays(): void =>
+    print("5. Arrays\n")
+
+    // Array literal
+    var arr: str[] = {"one", "two", "three", "four", "five"}
+    assert(arr.length == 5, "array length")
+
+    // Indexing
+    assert(arr[0] == "one", "index 0")
+    assert(arr[2] == "three", "index 2")
+    assert(arr[4] == "five", "index 4")
+
+    // Negative indexing
+    assert(arr[-1] == "five", "negative index -1")
+    assert(arr[-2] == "four", "negative index -2")
+
+    // Array with variables
+    var x: str = "hello"
+    var y: str = "world"
+    var arr2: str[] = {x, y, x + y}
+    assert(arr2[0] == "hello", "var in array 0")
+    assert(arr2[1] == "world", "var in array 1")
+    assert(arr2[2] == "helloworld", "expr in array 2")
+
+    // Slicing
+    var slice: str[] = arr[1..3]
+    assert(slice.length == 2, "slice length")
+    assert(slice[0] == "two", "slice[0]")
+    assert(slice[1] == "three", "slice[1]")
+
+    // Empty array
+    var empty: str[] = {}
+    assert(empty.length == 0, "empty array")
+
+    print("   PASS\n")
+
+// --- 6. Array Equality ---
+fn test_array_equality(): void =>
+    print("6. Array equality\n")
+
+    var a: str[] = {"a", "b", "c"}
+    var b: str[] = {"a", "b", "c"}
+    var c: str[] = {"a", "b", "d"}
+    var d: str[] = {"a", "b"}
+
+    assert(a == b, "equal arrays")
+    assert(!(a == c), "different last element")
+    assert(!(a == d), "different lengths")
+
+    assert(a != c, "not equal different element")
+    assert(a != d, "not equal different length")
+    assert(!(a != b), "not not equal")
+
+    // Empty arrays
+    var e1: str[] = {}
+    var e2: str[] = {}
+    assert(e1 == e2, "empty arrays equal")
+
+    print("   PASS\n")
+
+// --- 7. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("7. 2D arrays\n")
+
+    var matrix: str[][] = {{"a1", "a2", "a3"}, {"b1", "b2", "b3"}, {"c1", "c2", "c3"}}
+
+    assert(matrix.length == 3, "2d rows")
+    assert(matrix[0].length == 3, "2d cols")
+
+    assert(matrix[0][0] == "a1", "element [0][0]")
+    assert(matrix[1][1] == "b2", "element [1][1]")
+    assert(matrix[2][2] == "c3", "element [2][2]")
+
+    // Row access
+    var row: str[] = matrix[1]
+    assert(row[0] == "b1", "row access")
+
+    print("   PASS\n")
+
+// --- 8. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("8. Any boxing\n")
+
+    var x: str = "hello"
+    var a: any = x
+    assert(a is str, "boxed type check")
+
+    var y: str = ""
+    var b: any = y
+    assert(b is str, "boxed empty type check")
+
+    // Boxing array
+    var arr: str[] = {"a", "b", "c"}
+    var c: any = arr
+    assert(c is str[], "boxed array type check")
+
+    print("   PASS\n")
+
+// --- 9. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("9. Any unboxing\n")
+
+    var x: str = "hello world"
+    var a: any = x
+    var unboxed: str = a as str
+    assert(unboxed == "hello world", "unboxed value")
+
+    var y: str = ""
+    var b: any = y
+    var unboxed2: str = b as str
+    assert(unboxed2 == "", "unboxed empty")
+
+    // Unbox array
+    var arr: str[] = {"x", "y", "z"}
+    var c: any = arr
+    var unboxedArr: str[] = c as str[]
+    assert(unboxedArr.length == 3, "unboxed array length")
+    assert(unboxedArr[0] == "x", "unboxed array element")
+
+    print("   PASS\n")
+
+// --- 10. Type Checking ---
+fn test_type_checking(): void =>
+    print("10. Type checking with 'is'\n")
+
+    var x: str = "test"
+    var a: any = x
+
+    assert(a is str, "is str true")
+    assert(!(a is int), "is int false")
+    assert(!(a is double), "is double false")
+    assert(!(a is bool), "is bool false")
+
+    // Array type checking
+    var arr: str[] = {"a", "b", "c"}
+    var b: any = arr
+    assert(b is str[], "is str[] true")
+    assert(!(b is int[]), "is int[] false")
+    assert(!(b is char[]), "is char[] false")
+
+    print("   PASS\n")
+
+// --- 11. Lambdas ---
+fn test_lambdas(): void =>
+    print("11. Lambdas\n")
+
+    // Lambda with str parameter
+    var identity: fn(str): str = fn(x: str): str => x
+    assert(identity("hello") == "hello", "lambda identity")
+
+    // Lambda with str return
+    var get_str: fn(): str = fn(): str => "constant"
+    assert(get_str() == "constant", "lambda return")
+
+    // Lambda with expression
+    var concat: fn(str, str): str = fn(a: str, b: str): str => a + b
+    assert(concat("Hello", " World") == "Hello World", "lambda concat")
+
+    // Lambda capturing str
+    var prefix: str = "Mr. "
+    var add_prefix: fn(str): str = fn(name: str): str => prefix + name
+    assert(add_prefix("Smith") == "Mr. Smith", "lambda capture")
+
+    // Higher-order lambda with str
+    var to_upper: fn(str): str = fn(s: str): str => s.toUpper()
+    var apply: fn(fn(str): str, str): str = fn(f: fn(str): str, x: str): str => f(x)
+    assert(apply(to_upper, "hello") == "HELLO", "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 12. Functions ---
+fn test_functions(): void =>
+    print("12. Functions\n")
+
+    assert(identity_str("hello") == "hello", "identity function")
+    assert(concat_str("a", "b") == "ab", "concat function")
+    assert(wrap_str("[", "x", "]") == "[x]", "wrap function")
+
+    print("   PASS\n")
+
+fn identity_str(x: str): str =>
+    return x
+fn concat_str(a: str, b: str): str =>
+    return a + b
+fn wrap_str(left: str, mid: str, right: str): str =>
+    return left + mid + right
+
+// --- 13. Control Flow ---
+fn test_control_flow(): void =>
+    print("13. Control flow\n")
+
+    // If with str comparison
+    var x: str = "yes"
+    var result: str = ""
+    if x == "yes" =>
+        result = "confirmed"
+    else =>
+        result = "denied"
+    assert(result == "confirmed", "if comparison")
+
+    // For loop with str array - simplified
+    var arr: str[] = {"a", "b", "c"}
+    var count: int = 0
+    for s in arr =>
+        count = count + 1
+    assert(count == 3, "for loop count")
+
+    // While with int counter
+    var wcount: int = 0
+    while wcount < 3 =>
+        wcount = wcount + 1
+    assert(wcount == 3, "while loop")
+
+    print("   PASS\n")
+
+// --- 14. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("14. Edge cases\n")
+
+    // Empty string operations
+    var empty: str = ""
+    assert(empty == "", "empty equals empty")
+    assert(empty + "x" == "x", "empty + str")
+    assert("x" + empty == "x", "str + empty")
+    assert(empty + empty == "", "empty + empty")
+    assert(empty.length == 0, "empty length")
+
+    // Single character
+    var single: str = "x"
+    assert(single.length == 1, "single char length")
+    assert(single == "x", "single char equals")
+
+    // Long string
+    var longstr: str = "abcdefghijklmnopqrstuvwxyz"
+    assert(longstr.length == 26, "long string length")
+
+    // Unicode (if supported)
+    var special: str = "hello\nworld\ttab"
+    assert(special.length > 10, "special chars")
+
+    print("   PASS\n")
+
+// --- 15. String Methods ---
+fn test_methods(): void =>
+    print("15. String methods\n")
+
+    var s: str = "Hello World"
+
+    // Length
+    assert(s.length == 11, "length property")
+
+    // toBytes and toString
+    var bytes: byte[] = s.toBytes()
+    assert(bytes.length == 11, "toBytes length")
+    var back: str = bytes.toString()
+    assert(back == s, "round-trip bytes")
+
+    // Various string scenarios
+    var lower: str = "hello"
+    var upper: str = "HELLO"
+    assert(lower != upper, "case different")
+
+    // Substring via indexing if available
+    var text: str = "Hello"
+    assert(text.length == 5, "text length")
+
+    print("   PASS\n")

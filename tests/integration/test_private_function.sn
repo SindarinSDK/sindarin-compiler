@@ -1,0 +1,21 @@
+// Test private function modifier
+// Private functions have their own isolated arena
+// They can only return primitive types
+
+fn compute_value() private: int =>
+    var x: int = 10
+    var y: int = 20
+    return x + y
+
+fn calculate() private: int =>
+    var a: int = compute_value()
+    var b: int = 5
+    return a * b
+
+fn main(): void =>
+    var result: int = calculate()
+    print($"Result: {result}\n")
+
+    // Call multiple times to ensure arena cleanup works
+    var r2: int = compute_value()
+    print($"Value: {r2}\n")

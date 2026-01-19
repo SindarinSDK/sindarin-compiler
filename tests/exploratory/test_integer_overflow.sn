@@ -1,0 +1,57 @@
+// Test 107: Integer overflow behavior
+// Tests behavior at integer boundaries
+
+fn main(): int =>
+    print("Test integer overflow:\n\n")
+
+    // Test 1: Large int values
+    print("Test 1 - Large int values:\n")
+    var big: int = 2000000000
+    print($"  big = {big}\n")
+    print($"  big + 100 = {big + 100}\n")
+
+    // Test 2: Int multiplication
+    print("\nTest 2 - Int multiplication:\n")
+    var a: int = 100000
+    var b: int = 100000
+    // This might overflow on 32-bit, but should work on 64-bit
+    var product: int = a * b
+    print($"  100000 * 100000 = {product}\n")
+
+    // Test 3: Long for larger values
+    print("\nTest 3 - Long values:\n")
+    var big_long: long = 9000000000000l
+    print($"  big_long = {big_long}\n")
+    var doubled: long = big_long * 2l
+    print($"  doubled = {doubled}\n")
+
+    // Test 4: Byte wrapping
+    print("\nTest 4 - Byte range:\n")
+    var byte_max: byte = 255
+    var byte_min: byte = 0
+    print($"  byte max: {byte_max}\n")
+    print($"  byte min: {byte_min}\n")
+
+    // Test 5: Arithmetic near boundaries
+    print("\nTest 5 - Arithmetic:\n")
+    var x: int = 1000000
+    var y: int = 1000
+    print($"  {x} * {y} = {x * y}\n")
+    print($"  {x} + {y} = {x + y}\n")
+    print($"  {x} - {y} = {x - y}\n")
+
+    // Test 6: Division with large numbers
+    print("\nTest 6 - Large division:\n")
+    var large: long = 1000000000000l
+    var small: long = 1000l
+    print($"  {large} / {small} = {large / small}\n")
+
+    // Test 7: Negative boundaries
+    print("\nTest 7 - Negative numbers:\n")
+    var neg: int = -1000000
+    print($"  neg = {neg}\n")
+    print($"  neg * 1000 = {neg * 1000}\n")
+    print($"  neg / 100 = {neg / 100}\n")
+
+    print("\nAll integer overflow tests passed!\n")
+    return 0

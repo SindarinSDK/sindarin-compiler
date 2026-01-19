@@ -1,0 +1,12 @@
+Test 1: Basic boxing int to any
+Type tag of a: 1
+Test 3: a is int - PASS
+Test 4: Unboxed value: 42
+Unboxing correct - PASS
+Test 5: a is str after reassignment - PASS
+Test 6: Unboxed string: hello
+Test 7: d is double - PASS
+Test 8: b is bool - PASS
+Test 9: typeof 42 == typeof int - PASS
+Test 10: processAny(100) returned 200
+Function with any param - PASS

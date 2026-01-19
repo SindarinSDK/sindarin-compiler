@@ -1,0 +1,44 @@
+// Test: Native callback typedef generation
+// This test verifies that native callback type aliases generate proper C typedefs
+
+// Define a native callback type
+type IntCallback = native fn(value: int): int
+
+// Define a callback that takes two parameters
+type BinaryOp = native fn(a: int, b: int): int
+
+// Define a callback with void return
+type VoidCallback = native fn(x: int): void
+
+// Native function that accepts a callback (for testing)
+native fn call_with_value(cb: IntCallback, value: int): int =>
+    return cb(value)
+
+// Native function to test BinaryOp callback
+native fn apply_op(op: BinaryOp, a: int, b: int): int =>
+    return op(a, b)
+
+// Create and use native callbacks
+native fn test_callbacks(): int =>
+    // Create a native lambda that matches IntCallback signature
+    var doubler: IntCallback = fn(x: int): int =>
+        return x * 2
+
+    // Create a native lambda that matches BinaryOp signature
+    var adder: BinaryOp = fn(a: int, b: int): int =>
+        return a + b
+
+    // Use the callbacks
+    var result1: int = call_with_value(doubler, 21)
+    var result2: int = apply_op(adder, 10, 32)
+
+    return result1 + result2
+
+fn main(): int =>
+    var result: int = test_callbacks()
+    if result == 84 =>
+        print("PASS\n")
+        return 0
+    else =>
+        print($"FAIL: expected 84, got {result}\n")
+        return 1

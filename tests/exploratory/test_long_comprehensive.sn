@@ -1,0 +1,432 @@
+// Comprehensive test for long type (64-bit signed integer with L suffix)
+// Tests all expression contexts: literals, interpolation, arithmetic,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== long Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_arithmetic()
+    test_comparisons()
+    test_unary()
+    test_compound_expressions()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All long tests passed! ===\n")
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: long = 42l
+    assert(x == 42l, "basic literal")
+
+    var y: long = -100l
+    assert(y == -100l, "negative literal")
+
+    var z: long = 0l
+    assert(z == 0l, "zero literal")
+
+    var large: long = 9223372036854775807l
+    assert(large > 0l, "max long")
+
+    // Assign with suffix (int -> long coercion not yet implemented)
+    var w: long = 42l
+    assert(w == 42l, "long assignment")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: long = 42l
+    var s1: str = $"Value: {x}"
+    assert(s1 == "Value: 42", "basic interpolation")
+
+    var y: long = -100l
+    var s2: str = $"Negative: {y}"
+    assert(s2 == "Negative: -100", "negative interpolation")
+
+    // Expression in interpolation
+    var a: long = 10l
+    var b: long = 5l
+    var s3: str = $"Sum: {a + b}"
+    assert(s3 == "Sum: 15", "expression in interpolation")
+
+    var s4: str = $"Product: {a * b}"
+    assert(s4 == "Product: 50", "multiplication in interpolation")
+
+    // Multiple values
+    var s5: str = $"{a} + {b} = {a + b}"
+    assert(s5 == "10 + 5 = 15", "multiple interpolations")
+
+    print("   PASS\n")
+
+// --- 3. Arithmetic Operations ---
+fn test_arithmetic(): void =>
+    print("3. Arithmetic operations\n")
+
+    var a: long = 100l
+    var b: long = 30l
+
+    // Addition
+    var sum: long = a + b
+    assert(sum == 130l, "addition")
+
+    // Subtraction
+    var diff: long = a - b
+    assert(diff == 70l, "subtraction")
+
+    // Multiplication
+    var prod: long = a * b
+    assert(prod == 3000l, "multiplication")
+
+    // Division
+    var quot: long = a / b
+    assert(quot == 3l, "division")
+
+    // Modulo
+    var rem: long = a % b
+    assert(rem == 10l, "modulo")
+
+    // Chained operations
+    var chain: long = a + b - 10l
+    assert(chain == 120l, "chained add/sub")
+
+    print("   PASS\n")
+
+// --- 4. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("4. Comparison operations\n")
+
+    var a: long = 50l
+    var b: long = 30l
+    var c: long = 50l
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    print("   PASS\n")
+
+// --- 5. Unary Operations ---
+fn test_unary(): void =>
+    print("5. Unary operations\n")
+
+    var x: long = 42l
+    var neg: long = -x
+    assert(neg == -42l, "negation")
+
+    var y: long = -100l
+    var pos: long = -y
+    assert(pos == 100l, "double negation")
+
+    print("   PASS\n")
+
+// --- 6. Compound Expressions ---
+fn test_compound_expressions(): void =>
+    print("6. Compound expressions\n")
+
+    var a: long = 10l
+    var b: long = 5l
+    var c: long = 3l
+
+    // Parenthesized expressions
+    var r1: long = (a + b) * c
+    assert(r1 == 45l, "parenthesized multiply")
+
+    var r2: long = a * (b + c)
+    assert(r2 == 80l, "parenthesized add")
+
+    // Nested expressions
+    var r3: long = (a + b) * (c + 2l)
+    assert(r3 == 75l, "nested parentheses")
+
+    // Complex expression
+    var r4: long = a * b + c * 2l
+    assert(r4 == 56l, "complex expression")
+
+    print("   PASS\n")
+
+// --- 7. Arrays ---
+fn test_arrays(): void =>
+    print("7. Arrays\n")
+
+    // Array literal
+    var arr: long[] = {10l, 20l, 30l, 40l, 50l}
+    assert(arr.length == 5, "array length")
+
+    // Indexing
+    assert(arr[0] == 10l, "index 0")
+    assert(arr[2] == 30l, "index 2")
+    assert(arr[4] == 50l, "index 4")
+
+    // Negative indexing
+    assert(arr[-1] == 50l, "negative index -1")
+    assert(arr[-2] == 40l, "negative index -2")
+
+    // Array with expressions
+    var x: long = 5l
+    var arr2: long[] = {x, x + 1l, x * 2l, x - 1l}
+    assert(arr2[0] == 5l, "expr in array 0")
+    assert(arr2[1] == 6l, "expr in array 1")
+    assert(arr2[2] == 10l, "expr in array 2")
+    assert(arr2[3] == 4l, "expr in array 3")
+
+    // Slicing
+    var slice: long[] = arr[1..3]
+    assert(slice.length == 2, "slice length")
+    assert(slice[0] == 20l, "slice[0]")
+    assert(slice[1] == 30l, "slice[1]")
+
+    // Empty array
+    var empty: long[] = {}
+    assert(empty.length == 0, "empty array")
+
+    print("   PASS\n")
+
+// --- 8. Array Equality ---
+fn test_array_equality(): void =>
+    print("8. Array equality\n")
+
+    var a: long[] = {1l, 2l, 3l, 4l, 5l}
+    var b: long[] = {1l, 2l, 3l, 4l, 5l}
+    var c: long[] = {1l, 2l, 3l, 4l, 6l}
+    var d: long[] = {1l, 2l, 3l}
+
+    assert(a == b, "equal arrays")
+    assert(!(a == c), "different last element")
+    assert(!(a == d), "different lengths")
+
+    assert(a != c, "not equal different element")
+    assert(a != d, "not equal different length")
+    assert(!(a != b), "not not equal")
+
+    // Empty arrays
+    var e1: long[] = {}
+    var e2: long[] = {}
+    assert(e1 == e2, "empty arrays equal")
+
+    print("   PASS\n")
+
+// --- 9. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("9. 2D arrays\n")
+
+    var matrix: long[][] = {{1l, 2l, 3l}, {4l, 5l, 6l}, {7l, 8l, 9l}}
+
+    assert(matrix.length == 3, "2d rows")
+    assert(matrix[0].length == 3, "2d cols")
+
+    assert(matrix[0][0] == 1l, "element [0][0]")
+    assert(matrix[1][1] == 5l, "element [1][1]")
+    assert(matrix[2][2] == 9l, "element [2][2]")
+
+    // Row access
+    var row: long[] = matrix[1]
+    assert(row[0] == 4l, "row access")
+
+    print("   PASS\n")
+
+// --- 10. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("10. Any boxing\n")
+
+    var x: long = 42l
+    var a: any = x
+    assert(a is long, "boxed type check")
+
+    var y: long = -100l
+    var b: any = y
+    assert(b is long, "boxed negative type check")
+
+    // Boxing array
+    var arr: long[] = {1l, 2l, 3l}
+    var c: any = arr
+    assert(c is long[], "boxed array type check")
+
+    print("   PASS\n")
+
+// --- 11. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("11. Any unboxing\n")
+
+    var x: long = 42l
+    var a: any = x
+    var unboxed: long = a as long
+    assert(unboxed == 42l, "unboxed value")
+
+    var y: long = -100l
+    var b: any = y
+    var unboxed2: long = b as long
+    assert(unboxed2 == -100l, "unboxed negative")
+
+    // Unbox array
+    var arr: long[] = {10l, 20l, 30l}
+    var c: any = arr
+    var unboxedArr: long[] = c as long[]
+    assert(unboxedArr.length == 3, "unboxed array length")
+    assert(unboxedArr[0] == 10l, "unboxed array element")
+
+    print("   PASS\n")
+
+// --- 12. Type Checking ---
+fn test_type_checking(): void =>
+    print("12. Type checking with 'is'\n")
+
+    var x: long = 42l
+    var a: any = x
+
+    assert(a is long, "is long true")
+    assert(!(a is double), "is double false")
+    assert(!(a is str), "is str false")
+    assert(!(a is bool), "is bool false")
+
+    // Array type checking
+    var arr: long[] = {1l, 2l, 3l}
+    var b: any = arr
+    assert(b is long[], "is long[] true")
+    assert(!(b is double[]), "is double[] false")
+
+    print("   PASS\n")
+
+// --- 13. Lambdas ---
+fn test_lambdas(): void =>
+    print("13. Lambdas\n")
+
+    // Lambda with long parameter
+    var double_it: fn(long): long = fn(x: long): long => x * 2l
+    assert(double_it(21l) == 42l, "lambda call")
+
+    // Lambda with long return
+    var get_value: fn(): long = fn(): long => 100l
+    assert(get_value() == 100l, "lambda return")
+
+    // Lambda with expression
+    var add: fn(long, long): long = fn(a: long, b: long): long => a + b
+    assert(add(10l, 32l) == 42l, "lambda with two params")
+
+    // Lambda capturing long
+    var base: long = 10l
+    var add_base: fn(long): long = fn(x: long): long => x + base
+    assert(add_base(5l) == 15l, "lambda capture")
+
+    // Higher-order with long
+    var apply: fn(fn(long): long, long): long = fn(f: fn(long): long, x: long): long => f(x)
+    assert(apply(double_it, 21l) == 42l, "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 14. Functions ---
+fn test_functions(): void =>
+    print("14. Functions\n")
+
+    assert(identity_long(42l) == 42l, "identity function")
+    assert(add_long(10l, 32l) == 42l, "add function")
+    assert(multiply_long(6l, 7l) == 42l, "multiply function")
+    assert(negate_long(42l) == -42l, "negate function")
+
+    // Function returning expression
+    assert(compute_long(10l, 5l, 2l) == 30l, "complex function")
+
+    print("   PASS\n")
+
+fn identity_long(x: long): long =>
+    return x
+
+fn add_long(a: long, b: long): long =>
+    return a + b
+
+fn multiply_long(a: long, b: long): long =>
+    return a * b
+
+fn negate_long(x: long): long =>
+    return -x
+
+fn compute_long(a: long, b: long, c: long): long =>
+    return (a + b) * c
+
+// --- 15. Control Flow ---
+fn test_control_flow(): void =>
+    print("15. Control flow\n")
+
+    // If with long comparison
+    var x: long = 50l
+    var result: long = 0l
+    if x > 40l =>
+        result = 1l
+    else =>
+        result = 0l
+    assert(result == 1l, "if comparison")
+
+    // While with long counter
+    var count: long = 0l
+    var sum: long = 0l
+    while count < 5l =>
+        sum = sum + count
+        count = count + 1l
+    assert(sum == 10l, "while loop") // 0+1+2+3+4=10
+
+    // For loop with long
+    var total: long = 0l
+    var arr: long[] = {1l, 2l, 3l, 4l, 5l}
+    for v in arr =>
+        total = total + v
+    assert(total == 15l, "for loop")
+
+    print("   PASS\n")
+
+// --- 16. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("16. Edge cases\n")
+
+    // Zero operations
+    var zero: long = 0l
+    assert(zero + zero == 0l, "zero + zero")
+    assert(zero * 100l == 0l, "zero * n")
+
+    // Division edge cases
+    var hundred: long = 100l
+    assert(hundred / 100l == 1l, "n / n")
+    assert(hundred % 100l == 0l, "n % n")
+
+    // Large values
+    var large: long = 1000000000l
+    var result: long = large * 2l
+    assert(result == 2000000000l, "large multiplication")
+
+    // Sign changes
+    var pos: long = 50l
+    var neg: long = -50l
+    assert(pos + neg == 0l, "pos + neg = 0")
+    assert(pos * neg == -2500l, "pos * neg")
+    assert(neg * neg == 2500l, "neg * neg")
+
+    print("   PASS\n")

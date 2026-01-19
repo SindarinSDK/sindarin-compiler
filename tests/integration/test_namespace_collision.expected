@@ -1,0 +1,5 @@
+basic.sum(2, 3) = 5
+basic.prod(4, 5) = 20
+adv.power(2, 4) = 16
+adv.square(7) = 49
+basic.sum(adv.square(3), adv.power(2, 3)) = 17

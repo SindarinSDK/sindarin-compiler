@@ -1,0 +1,23 @@
+=== Multi-Struct Import Test ===
+
+Test 1: Rectangle struct
+  Created: 5x3
+  Area: 15
+  Perimeter: 16
+
+Test 2: Circle struct
+  Unit circle radius: 1
+  Diameter: 2
+
+Test 3: Triangle struct
+  Base: 6, Height: 4
+  Area: 12
+
+Test 4: Imported factory function
+  Square: 4x4
+  Area: 16
+
+Test 5: Function with multiple struct parameters
+  Sum of areas: 30
+
+=== All Multi-Struct Import Tests PASSED ===

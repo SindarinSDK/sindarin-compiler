@@ -1,0 +1,221 @@
+# Test 79: byte primitive type operations variance testing
+fn main(): int =>
+    print("Test byte primitive type operations:\n\n")
+
+    # Test 1: byte literal range - low values
+    print("1. byte literal range - low values:\n")
+    var b0: byte = 0
+    var b1: byte = 1
+    var b2: byte = 2
+    var b10: byte = 10
+    print($"  byte 0: {b0}\n")
+    print($"  byte 1: {b1}\n")
+    print($"  byte 2: {b2}\n")
+    print($"  byte 10: {b10}\n")
+    if b0 == 0 && b1 == 1 && b2 == 2 && b10 == 10 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 2: byte literal range - mid values
+    print("\n2. byte literal range - mid values:\n")
+    var b50: byte = 50
+    var b100: byte = 100
+    var b127: byte = 127
+    var b128: byte = 128
+    print($"  byte 50: {b50}\n")
+    print($"  byte 100: {b100}\n")
+    print($"  byte 127: {b127}\n")
+    print($"  byte 128: {b128}\n")
+    if b50 == 50 && b100 == 100 && b127 == 127 && b128 == 128 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 3: byte literal range - high values
+    print("\n3. byte literal range - high values:\n")
+    var b200: byte = 200
+    var b250: byte = 250
+    var b254: byte = 254
+    var b255: byte = 255
+    print($"  byte 200: {b200}\n")
+    print($"  byte 250: {b250}\n")
+    print($"  byte 254: {b254}\n")
+    print($"  byte 255: {b255}\n")
+    if b200 == 200 && b250 == 250 && b254 == 254 && b255 == 255 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 4: byte comparison - equality
+    print("\n4. byte comparison - equality:\n")
+    var cmp1: byte = 42
+    var cmp2: byte = 42
+    var cmp3: byte = 43
+    print($"  42 == 42: {cmp1 == cmp2}\n")
+    print($"  42 == 43: {cmp1 == cmp3}\n")
+    print($"  42 != 43: {cmp1 != cmp3}\n")
+    if cmp1 == cmp2 && cmp1 != cmp3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 5: byte comparison - less than / greater than
+    print("\n5. byte comparison - less than / greater than:\n")
+    var small: byte = 10
+    var large: byte = 200
+    print($"  10 < 200: {small < large}\n")
+    print($"  200 > 10: {large > small}\n")
+    print($"  10 <= 10: {small <= small}\n")
+    print($"  200 >= 200: {large >= large}\n")
+    if small < large && large > small && small <= small && large >= large =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 6: byte comparison at boundaries
+    print("\n6. byte comparison at boundaries:\n")
+    var zero: byte = 0
+    var max: byte = 255
+    var one: byte = 1
+    print($"  0 < 1: {zero < one}\n")
+    print($"  0 < 255: {zero < max}\n")
+    print($"  255 > 254: {max > b254}\n")
+    if zero < one && zero < max && max > b254 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 7: byte assignment and reassignment
+    print("\n7. byte assignment and reassignment:\n")
+    var mutable: byte = 0
+    print($"  Initial: {mutable}\n")
+    mutable = 100
+    print($"  After = 100: {mutable}\n")
+    mutable = 255
+    print($"  After = 255: {mutable}\n")
+    if mutable == 255 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 8: byte in conditionals
+    print("\n8. byte in conditionals:\n")
+    var testByte: byte = 128
+    var result: str = ""
+    if testByte > 100 =>
+        result = "greater"
+    else =>
+        result = "less or equal"
+    print($"  128 > 100 -> {result}\n")
+    if result == "greater" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 9: byte array indexing
+    print("\n9. byte array indexing:\n")
+    var arr: byte[] = {10, 20, 30, 40, 50}
+    print($"  arr[0]: {arr[0]}\n")
+    print($"  arr[2]: {arr[2]}\n")
+    print($"  arr[4]: {arr[4]}\n")
+    if arr[0] == 10 && arr[2] == 30 && arr[4] == 50 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 10: byte array modification
+    print("\n10. byte array modification:\n")
+    var modArr: byte[] = {1, 2, 3}
+    modArr[0] = 100
+    modArr[1] = 200
+    modArr[2] = 255
+    print($"  After modification: {modArr[0]}, {modArr[1]}, {modArr[2]}\n")
+    if modArr[0] == 100 && modArr[1] == 200 && modArr[2] == 255 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 11: byte array with boundary values
+    print("\n11. byte array with boundary values:\n")
+    var bounds: byte[] = {0, 1, 127, 128, 254, 255}
+    var allCorrect: bool = true
+    if bounds[0] != 0 =>
+        allCorrect = false
+    if bounds[1] != 1 =>
+        allCorrect = false
+    if bounds[2] != 127 =>
+        allCorrect = false
+    if bounds[3] != 128 =>
+        allCorrect = false
+    if bounds[4] != 254 =>
+        allCorrect = false
+    if bounds[5] != 255 =>
+        allCorrect = false
+    print($"  Boundary values preserved: {allCorrect}\n")
+    if allCorrect =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 12: byte array length operations
+    print("\n12. byte array length operations:\n")
+    var lenArr: byte[] = {}
+    print($"  Empty length: {len(lenArr)}\n")
+    lenArr.push(1)
+    print($"  After 1 push: {len(lenArr)}\n")
+    lenArr.push(2)
+    lenArr.push(3)
+    print($"  After 3 pushes: {len(lenArr)}\n")
+    if len(lenArr) == 3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 13: byte in function return
+    print("\n13. byte in function return (via array):\n")
+    var retArr: byte[] = {42}
+    var retVal: byte = retArr[0]
+    print($"  Returned value: {retVal}\n")
+    if retVal == 42 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 14: Consecutive byte values
+    print("\n14. Consecutive byte values:\n")
+    var consec: byte[] = {253, 254, 255}
+    if consec[0] + 1 == consec[1] && consec[1] + 1 == consec[2] =>
+        print("  PASS: 253, 254, 255 are consecutive\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 15: byte array iteration
+    print("\n15. byte array iteration:\n")
+    var iterArr: byte[] = {10, 20, 30}
+    var sum: int = 0
+    shared for b in iterArr =>
+        sum = sum + b
+    print($"  Sum of 10+20+30: {sum}\n")
+    if sum == 60 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    print("\nAll byte primitive tests passed!\n")
+    return 0

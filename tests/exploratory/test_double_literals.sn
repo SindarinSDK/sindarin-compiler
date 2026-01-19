@@ -1,0 +1,38 @@
+// Test 02: Double literals and operations
+fn main(): int =>
+    // Basic doubles
+    var zero: double = 0.0
+    var pi: double = 3.14159
+    var neg: double = -2.5
+    var small: double = 0.001
+    var large: double = 999999.999
+
+    print($"zero = {zero}\n")
+    print($"pi = {pi}\n")
+    print($"neg = {neg}\n")
+    print($"small = {small}\n")
+    print($"large = {large}\n")
+
+    // Arithmetic
+    var sum: double = pi + neg
+    var diff: double = pi - neg
+    var prod: double = pi * 2.0
+    var quot: double = 10.0 / 3.0
+
+    print($"sum = {sum}\n")
+    print($"diff = {diff}\n")
+    print($"prod = {prod}\n")
+    print($"quot = {quot}\n")
+
+    // Mixed int/double (int should promote)
+    var mixed: double = pi * 2
+    print($"mixed = {mixed}\n")
+
+    // Double comparisons
+    var a: double = 1.5
+    var b: double = 1.5
+    var c: double = 2.0
+    print($"a == b: {a == b}\n")
+    print($"a < c: {a < c}\n")
+
+    return 0

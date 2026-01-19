@@ -1,0 +1,23 @@
+=== Large Numbers ===
+1B + 2B = 3000000000
+100000 * 100000 = 10000000000
+=== Negative Edge Cases ===
+-(-100) = 100
+5 - 10 = -5
+=== Division Edge Cases ===
+17 / 5 = 3
+17 % 5 = 2
+-20 / 4 = -5
+-17 % 5 = -2
+=== Double Precision ===
+0.000001 * 1000000 = 1.00000
+1.0 - 0.9 approximately = 0.10000
+=== Boolean Logic ===
+!(true && false) = true
+!true || !false = true
+=== Zero Operations ===
+42 + 0 = 42
+42 - 0 = 42
+42 * 0 = 0
+42 * 1 = 42
+42 / 1 = 42

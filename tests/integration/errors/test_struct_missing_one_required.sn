@@ -1,0 +1,9 @@
+# Error test: struct literal missing one required field
+
+struct Point =>
+    x: double
+    y: double
+
+fn main(): void =>
+    var p: Point = Point { x: 1.0 }
+    print("Should not compile\n")

@@ -1,0 +1,33 @@
+=== Testing sizeof operator ===
+sizeof(int) = 8
+sizeof(long) = 8
+sizeof(double) = 8
+sizeof(float) = 4
+sizeof(byte) = 1
+sizeof(bool) = 1
+sizeof(char) = 1
+sizeof(int32) = 4
+
+sizeof(Point) = 16
+sizeof(Rectangle) = 32
+sizeof(SmallStruct) = 8
+
+sizeof p = 16
+sizeof r = 32
+sizeof s = 8
+sizeof(p) = 16
+sizeof(r) = 32
+
+sizeof(Point) + sizeof(Rectangle) = 48
+sizeof(Point) > 8
+
+=== Testing struct equality ===
+p1 == p2: true (expected)
+p1 == p3: false (expected)
+p1 != p3: true (expected)
+p1 != p2: false (expected)
+
+r1 == r2: true (expected)
+r1 != r3: true (expected)
+
+All tests completed.

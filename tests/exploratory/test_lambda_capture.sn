@@ -1,0 +1,38 @@
+// Test 23: Lambda capture (closures)
+fn main(): int =>
+    print("Test lambda capture:\n\n")
+
+    // Capture single variable
+    var multiplier: int = 5
+    var times: fn(int): int = fn(x: int): int => x * multiplier
+    print($"times(3) with multiplier=5: {times(3)}\n")
+    print($"times(7) with multiplier=5: {times(7)}\n")
+
+    // Capture multiple variables
+    var x: int = 10
+    var y: int = 20
+    var sum_with_xy: fn(int): int = fn(z: int): int => x + y + z
+    print($"sum_with_xy(5) with x=10, y=20: {sum_with_xy(5)}\n")
+
+    // Capture different types
+    var name: str = "Alice"
+    var greet: fn(str): str = fn(greeting: str): str => $"{greeting}, {name}!"
+    print($"greet result: {greet("Hello")}\n")
+
+    // Capture bool
+    var verbose: bool = true
+    var maybe_print: fn(str): void = fn(msg: str): void =>
+        if verbose =>
+            print(msg)
+    print("With verbose=true: ")
+    maybe_print("This should print\n")
+
+    // Nested capture
+    var outer: int = 100
+    var middle: fn(int): fn(int): int = fn(a: int): fn(int): int =>
+        var inner: fn(int): int = fn(b: int): int => outer + a + b
+        return inner
+    var add_100_50: fn(int): int = middle(50)
+    print($"add_100_50(25) = {add_100_50(25)}\n")
+
+    return 0

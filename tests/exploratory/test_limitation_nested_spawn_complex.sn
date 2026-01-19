@@ -1,0 +1,16 @@
+# Test Known Limitation: Nested thread spawns with arena data
+# More complex case - returning strings through nested threads
+
+fn inner_build(): str =>
+    return "inner-result"
+
+fn outer_build(): str =>
+    # Spawn a thread from within a thread, return string
+    var inner: str = &inner_build()
+    var inner_result = inner!
+    return $"outer({inner_result})"
+
+fn main(): void =>
+    var outer: str = &outer_build()
+    var result = outer!
+    print($"Nested spawn result: {result}\n")

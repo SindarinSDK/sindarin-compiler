@@ -1,0 +1,9 @@
+Error: Something went wrong
+To stderr: error message
+Hello World
+This is a complete line
+Using println convenience
+42
+3.14000
+true
+All stdout/stderr tests completed!

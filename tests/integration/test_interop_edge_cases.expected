@@ -1,0 +1,25 @@
+=== Interop Edge Case Tests ===
+
+Test 1: Nil pointer comparisons
+  ptr == nil: PASS
+  ptr != nil when nil: PASS
+  Function test_nil_equality: PASS
+  Function test_nil_inequality: PASS
+
+Test 2: *char as val when NULL
+  Pointer is nil: PASS
+  Safe unwrap returns guard value: PASS
+
+Test 3: Mixed pointer and primitive parameters
+  Nil pointer detection: PASS
+  Mixed with nil and true flag: PASS
+
+Test 4: Callback with pointer parameters
+  Callback received nil: PASS
+  Callback !nil check with nil: PASS
+
+Test 5: Pointer-to-pointer nil handling
+  **int == nil: PASS
+  Function with **int nil: PASS
+
+=== All edge case tests completed! ===

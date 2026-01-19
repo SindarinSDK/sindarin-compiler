@@ -1,0 +1,39 @@
+# Test native function declarations for C interop
+# This test declares native math functions and calls them via #pragma include
+
+#pragma include <math.h>
+#pragma link m
+
+# Native function declarations without body - external C functions
+native fn sin(x: double): double
+native fn cos(x: double): double
+native fn sqrt(x: double): double
+native fn pow(base: double, exp: double): double
+native fn floor(x: double): double
+native fn ceil(x: double): double
+
+fn main(): int =>
+    # Test calling native functions
+    var angle: double = 0.0
+    var sin_val: double = sin(angle)
+    var cos_val: double = cos(angle)
+
+    print($"sin(0) = {sin_val}")
+    print($"cos(0) = {cos_val}")
+
+    # Test sqrt
+    var sqrt_val: double = sqrt(4.0)
+    print($"sqrt(4) = {sqrt_val}")
+
+    # Test pow
+    var pow_val: double = pow(2.0, 3.0)
+    print($"pow(2, 3) = {pow_val}")
+
+    # Test floor and ceil
+    var x: double = 2.7
+    var floor_val: double = floor(x)
+    var ceil_val: double = ceil(x)
+    print($"floor(2.7) = {floor_val}")
+    print($"ceil(2.7) = {ceil_val}")
+
+    return 0

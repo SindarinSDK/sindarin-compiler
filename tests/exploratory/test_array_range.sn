@@ -1,0 +1,5 @@
+// Test array range literal
+fn main(): void =>
+  var range: int[] = 1..5
+  for x in range =>
+    print($"x={x}\n")

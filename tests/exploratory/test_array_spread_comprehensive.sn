@@ -1,0 +1,68 @@
+// Test 31: Spread operator
+fn main(): int =>
+    print("Test spread operator:\n\n")
+
+    // Basic spread (clone)
+    var arr: int[] = {1, 2, 3}
+    var copy: int[] = {...arr}
+    print("arr = ")
+    print(arr)
+    print("\n")
+    print("{...arr} = ")
+    print(copy)
+    print("\n")
+
+    // Prepend with spread
+    var prepended: int[] = {0, ...arr}
+    print("{0, ...arr} = ")
+    print(prepended)
+    print("\n")
+
+    // Append with spread
+    var appended: int[] = {...arr, 4, 5}
+    print("{...arr, 4, 5} = ")
+    print(appended)
+    print("\n")
+
+    // Both sides
+    var surrounded: int[] = {0, ...arr, 4, 5}
+    print("{0, ...arr, 4, 5} = ")
+    print(surrounded)
+    print("\n")
+
+    // Multiple spreads
+    var a: int[] = {1, 2}
+    var b: int[] = {3, 4}
+    var merged: int[] = {...a, ...b}
+    print("{...a, ...b} = ")
+    print(merged)
+    print("\n")
+
+    // Three arrays spread
+    var c: int[] = {5, 6}
+    var allthree: int[] = {...a, ...b, ...c}
+    print("{...a, ...b, ...c} = ")
+    print(allthree)
+    print("\n")
+
+    // Spread with range
+    var withrange: int[] = {...arr, 10..13}
+    print("{...arr, 10..13} = ")
+    print(withrange)
+    print("\n")
+
+    // Complex combination
+    var complex: int[] = {0, ...a, 100, ...b, 200}
+    print("{0, ...a, 100, ...b, 200} = ")
+    print(complex)
+    print("\n")
+
+    // String array spread
+    print("\nString array spread:\n")
+    var strs: str[] = {"hello", "world"}
+    var strs2: str[] = {"hi", ...strs, "bye"}
+    print("strs2 = ")
+    print(strs2)
+    print("\n")
+
+    return 0

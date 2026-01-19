@@ -1,0 +1,11 @@
+int[][]: {{1, 2, 3}, {4, 5}, {6}}
+double[][]: {{1.5, 2.5}, {3.5}}
+str[][]: {{"hello", "world"}, {"foo"}}
+bool[][]: {{true, false}, {false, true}}
+char[][]: {{'a', 'b'}, {'c', 'd', 'e'}}
+byte[][]: {{1, 2}, {255, 128}}
+empty: {}
+with_empty: {{1}, {}, {2, 3}}
+single: {{42}}
+matrix[0][0]: 1
+matrix[1][1]: 4

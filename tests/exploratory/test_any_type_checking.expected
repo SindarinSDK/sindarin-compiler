@@ -1,0 +1,11 @@
+Testing any type checking with 'is' operator
+  int type exclusivity: PASS
+  double type exclusivity: PASS
+  bool type exclusivity: PASS
+  str type exclusivity: PASS
+  char type exclusivity: PASS
+  byte type exclusivity: PASS
+  type changes after reassignment: PASS
+  type checking in conditionals: PASS
+  function returning different any types: PASS
+All type checking tests passed!

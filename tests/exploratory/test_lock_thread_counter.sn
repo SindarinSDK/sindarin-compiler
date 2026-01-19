@@ -1,0 +1,27 @@
+# Test lock blocks with actual threading
+# Multiple threads incrementing a counter with lock protection
+
+var counter: sync int = 0
+
+fn increment_counter(): int =>
+    for i in 1..101 =>  # 1..101 gives us 100 iterations (1 to 100 inclusive)
+        lock(counter) =>
+            counter = counter + 1
+    return 1  # Return a value so we can store the handle
+
+
+fn main(): void =>
+    # Spawn 4 threads, each incrementing by 100
+    var t1: int = &increment_counter()
+    var t2: int = &increment_counter()
+    var t3: int = &increment_counter()
+    var t4: int = &increment_counter()
+
+    # Wait for all threads
+    var r1 = t1!
+    var r2 = t2!
+    var r3 = t3!
+    var r4 = t4!
+
+    # Expected: 400 (4 threads * 100 increments each)
+    print($"Final counter: {counter}\n")

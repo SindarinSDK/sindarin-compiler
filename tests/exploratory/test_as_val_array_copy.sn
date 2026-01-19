@@ -1,0 +1,40 @@
+// Test 86: as val with arrays - verify copy semantics
+// When using 'as val', arrays should be copied not referenced
+
+fn modify_array(arr: int[] as val): void =>
+    arr.push(999)
+    arr[0] = -1
+
+fn main(): int =>
+    print("Test as val array copy semantics:\n\n")
+
+    // Test 1: Basic as val parameter
+    print("Test 1 - as val parameter:\n")
+    var original: int[] = {1, 2, 3}
+    print($"  Original before: {original}\n")
+    modify_array(original)
+    print($"  Original after: {original}\n")
+
+    // Test 2: as val in variable declaration
+    print("\nTest 2 - as val variable:\n")
+    var source: int[] = {10, 20, 30}
+    var copy: int[] as val = source
+    copy.push(40)
+    copy[0] = 0
+    print($"  Source: {source}\n")
+    print($"  Copy: {copy}\n")
+
+    // Test 3: Verify original unchanged after multiple operations
+    print("\nTest 3 - Multiple operations on copy:\n")
+    var data: int[] = {5, 5, 5}
+    var working: int[] as val = data
+    working.push(5)
+    working.push(5)
+    working.pop()
+    working[0] = 0
+    working[1] = 1
+    print($"  Data (original): {data}\n")
+    print($"  Working (copy): {working}\n")
+
+    print("\nAll as val copy tests passed!\n")
+    return 0

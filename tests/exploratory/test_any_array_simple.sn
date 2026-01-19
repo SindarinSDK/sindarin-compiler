@@ -1,0 +1,14 @@
+# Test basic any[] array with mixed primitive types
+
+fn main(): int =>
+    # Test 1: any[] with mixed primitives - should work
+    print("Test 1: any[] with mixed primitives\n")
+    var arr: any[] = {1, "hello", true, 3.14}
+    print($"  Length: {arr.length}\n")
+    print($"  arr[0] as int = {arr[0] as int}\n")
+    print($"  arr[1] as str = {arr[1] as str}\n")
+    print($"  arr[2] as bool = {arr[2] as bool}\n")
+    print($"  arr[3] as double = {arr[3] as double}\n")
+
+    print("All tests passed!\n")
+    return 0

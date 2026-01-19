@@ -1,0 +1,5 @@
+Immediate sync thread executed
+After immediate sync
+Fire-and-forget thread executed
+After second sync
+SUCCESS: Both patterns completed

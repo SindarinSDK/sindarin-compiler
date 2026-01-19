@@ -1,0 +1,214 @@
+# Integration test for native struct C interop
+# Tests that native structs can be passed to/from C functions properly
+# This validates the C interop pattern from the spec:
+#   native fn gettimeofday(tv: TimeVal as ref, tz: *void): int
+
+#pragma include <string.h>
+#pragma include <stdlib.h>
+
+# Native struct that will be passed to C functions
+native struct CBuffer =>
+    data: *byte
+    size: int
+    capacity: int
+
+# Native struct for testing pass-by-value
+native struct Point3D =>
+    x: double
+    y: double
+    z: double
+
+# Native struct for testing nested struct interop
+native struct BoundingBox =>
+    min_x: double
+    min_y: double
+    max_x: double
+    max_y: double
+    area: double
+
+# C helper function to initialize a buffer struct
+native fn c_init_buffer(buf: CBuffer as ref, cap: int): void =>
+    buf.data = nil
+    buf.size = 0
+    buf.capacity = cap
+
+# C helper function to modify buffer size
+native fn c_set_buffer_size(buf: CBuffer as ref, new_size: int): bool =>
+    if new_size > buf.capacity =>
+        return false
+    buf.size = new_size
+    return true
+
+# C helper function to read buffer capacity
+native fn c_get_buffer_capacity(buf: CBuffer as ref): int =>
+    return buf.capacity
+
+# C helper function that computes bounding box area
+native fn c_compute_box_area(box: BoundingBox as ref): void =>
+    var width: double = box.max_x - box.min_x
+    var height: double = box.max_y - box.min_y
+    box.area = width * height
+
+# C helper that takes struct by value and returns result
+native fn c_point_magnitude_squared(p: Point3D): double =>
+    return p.x * p.x + p.y * p.y + p.z * p.z
+
+# Test 1: Native struct passed via as ref to C function
+native fn test_struct_as_ref(): bool =>
+    print("Test 1: Native struct passed via 'as ref'\n")
+
+    var buf: CBuffer = CBuffer { data: nil, size: 0, capacity: 0 }
+
+    # Pass struct by reference to C function that modifies it
+    c_init_buffer(buf, 1024)
+
+    if buf.capacity != 1024 =>
+        print($"  FAIL: Expected capacity=1024, got {buf.capacity}\n")
+        return false
+
+    if buf.size != 0 =>
+        print($"  FAIL: Expected size=0, got {buf.size}\n")
+        return false
+
+    print("  PASS: Struct modified by C function via as ref\n")
+    return true
+
+# Test 2: Multiple calls modifying same struct
+native fn test_multiple_modifications(): bool =>
+    print("Test 2: Multiple C function calls modifying struct\n")
+
+    var buf: CBuffer = CBuffer { data: nil, size: 0, capacity: 0 }
+    c_init_buffer(buf, 512)
+
+    # First modification
+    var ok: bool = c_set_buffer_size(buf, 100)
+    if !ok =>
+        print("  FAIL: c_set_buffer_size returned false\n")
+        return false
+
+    if buf.size != 100 =>
+        print($"  FAIL: Expected size=100, got {buf.size}\n")
+        return false
+
+    # Second modification
+    ok = c_set_buffer_size(buf, 256)
+    if !ok =>
+        print("  FAIL: Second c_set_buffer_size returned false\n")
+        return false
+
+    if buf.size != 256 =>
+        print($"  FAIL: Expected size=256, got {buf.size}\n")
+        return false
+
+    # Attempt to exceed capacity (should fail)
+    ok = c_set_buffer_size(buf, 1000)
+    if ok =>
+        print("  FAIL: Should have rejected size > capacity\n")
+        return false
+
+    # Size should be unchanged after failed attempt
+    if buf.size != 256 =>
+        print($"  FAIL: Size changed after failed set, got {buf.size}\n")
+        return false
+
+    print("  PASS: Multiple modifications work correctly\n")
+    return true
+
+# Test 3: Reading struct field via C function
+native fn test_read_via_c_function(): bool =>
+    print("Test 3: Reading struct field via C function\n")
+
+    var buf: CBuffer = CBuffer { data: nil, size: 50, capacity: 2048 }
+
+    var cap: int = c_get_buffer_capacity(buf)
+    if cap != 2048 =>
+        print($"  FAIL: Expected capacity=2048, got {cap}\n")
+        return false
+
+    print("  PASS: C function can read struct fields\n")
+    return true
+
+# Test 4: Struct with computed field via C function
+native fn test_computed_field(): bool =>
+    print("Test 4: C function computing struct field\n")
+
+    var box: BoundingBox = BoundingBox { min_x: 0.0, min_y: 0.0, max_x: 10.0, max_y: 5.0, area: 0.0 }
+
+    c_compute_box_area(box)
+
+    # Expected area: 10 * 5 = 50
+    if box.area < 49.9 =>
+        print($"  FAIL: Expected area=50.0, got {box.area}\n")
+        return false
+    if box.area > 50.1 =>
+        print($"  FAIL: Expected area=50.0, got {box.area}\n")
+        return false
+
+    print("  PASS: Computed field set correctly\n")
+    return true
+
+# Test 5: Struct passed by value to C function
+native fn test_struct_by_value(): bool =>
+    print("Test 5: Struct passed by value to C function\n")
+
+    var p: Point3D = Point3D { x: 3.0, y: 4.0, z: 0.0 }
+
+    var mag_sq: double = c_point_magnitude_squared(p)
+
+    # Expected: 3^2 + 4^2 + 0^2 = 9 + 16 = 25
+    if mag_sq < 24.9 =>
+        print($"  FAIL: Expected magnitude_squared=25.0, got {mag_sq}\n")
+        return false
+    if mag_sq > 25.1 =>
+        print($"  FAIL: Expected magnitude_squared=25.0, got {mag_sq}\n")
+        return false
+
+    print("  PASS: Struct passed by value works\n")
+    return true
+
+# Test 6: Verifying original struct unchanged after pass-by-value
+native fn test_value_semantics_preserved(): bool =>
+    print("Test 6: Original struct unchanged after pass-by-value\n")
+
+    var p: Point3D = Point3D { x: 1.0, y: 2.0, z: 3.0 }
+
+    # Call function that receives copy
+    var _: double = c_point_magnitude_squared(p)
+
+    # Original should be unchanged
+    if p.x != 1.0 =>
+        print($"  FAIL: p.x changed from 1.0 to {p.x}\n")
+        return false
+    if p.y != 2.0 =>
+        print($"  FAIL: p.y changed from 2.0 to {p.y}\n")
+        return false
+    if p.z != 3.0 =>
+        print($"  FAIL: p.z changed from 3.0 to {p.z}\n")
+        return false
+
+    print("  PASS: Original struct preserved after pass-by-value\n")
+    return true
+
+fn main(): int =>
+    print("=== Native Struct C Interop Test ===\n\n")
+
+    if !test_struct_as_ref() =>
+        return 1
+
+    if !test_multiple_modifications() =>
+        return 1
+
+    if !test_read_via_c_function() =>
+        return 1
+
+    if !test_computed_field() =>
+        return 1
+
+    if !test_struct_by_value() =>
+        return 1
+
+    if !test_value_semantics_preserved() =>
+        return 1
+
+    print("\n=== All Native Struct C Interop Tests PASSED! ===\n")
+    return 0

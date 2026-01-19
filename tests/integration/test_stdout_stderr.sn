@@ -1,0 +1,32 @@
+# Test Stdout, Stderr static methods and convenience functions
+
+fn main(): int =>
+    # Test Stdout.write
+    Stdout.write("Hello ")
+    Stdout.write("World")
+    Stdout.writeLine("")  # newline
+
+    # Test Stdout.writeLine
+    Stdout.writeLine("This is a complete line")
+
+    # Test Stderr.write (goes to stderr)
+    Stderr.write("Error: ")
+    Stderr.writeLine("Something went wrong")
+
+    # Test println convenience function
+    println("Using println convenience")
+
+    # Test with non-string argument (should convert to string)
+    println(42)
+    println(3.14)
+    println(true)
+
+    # Test printErr convenience function
+    printErr("To stderr: ")
+    printErrLn("error message")
+
+    # Test Stdout.flush
+    Stdout.flush()
+
+    print("All stdout/stderr tests completed!\n")
+    return 0

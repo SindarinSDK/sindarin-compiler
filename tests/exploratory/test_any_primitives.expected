@@ -1,0 +1,14 @@
+Testing any type with primitive types
+  int: PASS
+  negative int: PASS
+  zero: PASS
+  double: PASS
+  negative double: PASS
+  bool true: PASS
+  bool false: PASS
+  str: PASS
+  empty str: PASS
+  char: PASS
+  byte 255: PASS
+  byte 0: PASS
+All primitive type tests passed!

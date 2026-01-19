@@ -1,0 +1,72 @@
+// Test compound assignment operators: +=, -=, *=, /=, %=
+
+struct Point =>
+    x: int
+    y: int
+
+fn main(): void =>
+    // Test += with int
+    var a: int = 10
+    a += 5
+    print($"10 += 5 = {a}\n")
+
+    // Test -= with int
+    var b: int = 20
+    b -= 8
+    print($"20 -= 8 = {b}\n")
+
+    // Test *= with int
+    var c: int = 7
+    c *= 3
+    print($"7 *= 3 = {c}\n")
+
+    // Test /= with int
+    var d: int = 24
+    d /= 4
+    print($"24 /= 4 = {d}\n")
+
+    // Test %= with int
+    var e: int = 17
+    e %= 5
+    print($"17 %= 5 = {e}\n")
+
+    // Test compound assignment with double
+    var f: double = 3.5
+    f += 2.5
+    print($"3.5 += 2.5 = {f}\n")
+
+    var g: double = 10.0
+    g *= 1.5
+    print($"10.0 *= 1.5 = {g}\n")
+
+    // Test compound assignment with arrays
+    var arr: int[] = {1, 2, 3, 4, 5}
+    arr[2] += 10
+    print($"arr[2] after += 10: {arr[2]}\n")
+
+    arr[0] *= 5
+    print($"arr[0] after *= 5: {arr[0]}\n")
+
+    // Test compound assignment with struct fields
+    var p: Point = Point { x: 10, y: 20 }
+    p.x += 5
+    p.y -= 10
+    print($"Point after compound ops: ({p.x}, {p.y})\n")
+
+    // Test chained operations
+    var h: int = 100
+    h += 10
+    h -= 5
+    h *= 2
+    h /= 3
+    print($"Chained: 100 +10 -5 *2 /3 = {h}\n")
+
+    // Test string concatenation with +=
+    var s: str = "Hello"
+    s += " World"
+    print($"String concat: {s}\n")
+
+    s += "!"
+    print($"After another +=: {s}\n")
+
+    print("All compound assignment tests passed!\n")

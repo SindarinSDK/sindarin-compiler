@@ -1,0 +1,14 @@
+Test 1 - Zero init passed
+Test 2 - Partial init (timeout only) passed
+Test 3 - Partial init (verbose only) passed
+Test 4 - Full override passed
+Test 5 - Connection defaults passed
+Test 6 - Connection partial passed
+Test 7 - Connection full override passed
+Test 8 - Point (all required) passed
+Test 9 - Mixed (required only) passed
+Test 10 - Mixed (one override) passed
+Test 11 - Mixed (all override) passed
+Test 12 - Nested with inner defaults passed
+Test 13 - Nested partial passed
+All struct default tests passed!

@@ -1,0 +1,40 @@
+// Test boolean operators && and ||
+fn main(): void =>
+    // Test && with comparisons
+    var a: int = 5
+    var b: int = 10
+
+    if a > 0 && b > 0 =>
+        print("Both positive\n")
+
+    if a > 10 && b > 0 =>
+        print("Should not print\n")
+    else =>
+        print("First condition failed\n")
+
+    // Test || with comparisons
+    if a > 10 || b > 5 =>
+        print("At least one true\n")
+
+    if a > 10 || b > 20 =>
+        print("Should not print\n")
+    else =>
+        print("Both conditions failed\n")
+
+    // Test combined && and ||
+    if (a > 0 && b > 0) || a > 100 =>
+        print("Complex condition passed\n")
+
+    // Test boolean variables with logical ops
+    var x: bool = a > 3
+    var y: bool = b < 20
+
+    if x && y =>
+        print("x and y both true\n")
+
+    if x || y =>
+        print("x or y true\n")
+
+    // Test negation combined with logical ops
+    if !x || y =>
+        print("Not x or y\n")

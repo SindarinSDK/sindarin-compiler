@@ -1,0 +1,44 @@
+// Test 22: Lambda type inference
+fn main(): int =>
+    print("Test lambda type inference:\n\n")
+
+    // Infer parameter and return types from declaration
+    var double_it: fn(int): int = fn(x) => x * 2
+    print($"double_it(7) = {double_it(7)}\n")
+
+    var triple: fn(int): int = fn(x) => x * 3
+    print($"triple(5) = {triple(5)}\n")
+
+    // Infer multiple param types
+    var add: fn(int, int): int = fn(a, b) => a + b
+    print($"add(10, 20) = {add(10, 20)}\n")
+
+    var multiply: fn(int, int): int = fn(a, b) => a * b
+    print($"multiply(6, 7) = {multiply(6, 7)}\n")
+
+    // Infer string lambda
+    var greet: fn(str): str = fn(name) => $"Hello, {name}!"
+    print($"greet result: {greet("World")}\n")
+
+    // Infer double lambda
+    var half: fn(double): double = fn(x) => x / 2.0
+    print($"half(10.0) = {half(10.0)}\n")
+
+    // Infer bool lambda
+    var is_zero: fn(int): bool = fn(x) => x == 0
+    print($"is_zero(0) = {is_zero(0)}\n")
+    print($"is_zero(5) = {is_zero(5)}\n")
+
+    // Mixed: explicit param type, inferred return
+    var square: fn(int): int = fn(x: int) => x * x
+    print($"square(9) = {square(9)}\n")
+
+    // Mixed: inferred param type, explicit return
+    var abs_val: fn(int): int = fn(x): int =>
+        if x < 0 =>
+            return 0 - x
+        return x
+    print($"abs_val(-5) = {abs_val(-5)}\n")
+    print($"abs_val(5) = {abs_val(5)}\n")
+
+    return 0

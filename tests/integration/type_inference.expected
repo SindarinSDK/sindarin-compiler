@@ -1,0 +1,9 @@
+int: 42
+double: 3.14000
+string: hello
+bool: true
+char: A
+sum: 52
+doubled: 6.28000
+nums: [1, 2, 3]
+nums.length = 3

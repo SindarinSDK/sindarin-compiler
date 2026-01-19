@@ -1,0 +1,34 @@
+// Test private block modifier
+// Private blocks have their own isolated arena
+// Only primitive values can escape from private blocks
+
+fn main(): void =>
+    var result: int = 0
+
+    // Private block - isolated arena
+    private =>
+        var x: int = 10
+        var y: int = 20
+        result = x + y  // Primitives can escape
+
+    print($"Result from private block: {result}\n")
+
+    // Nested computation in private block
+    var total: int = 0
+    private =>
+        var sum: int = 0
+        for var i: int = 1; i <= 5; i++ =>
+            sum = sum + i
+        total = sum  // Primitive escapes
+
+    print($"Total: {total}\n")
+
+    // Multiple private blocks
+    var a: int = 0
+    var b: int = 0
+    private =>
+        a = 100
+    private =>
+        b = 200
+
+    print($"a={a}, b={b}\n")

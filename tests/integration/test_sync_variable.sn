@@ -1,0 +1,35 @@
+// Test sync type modifier for atomic variables
+
+fn main(): void =>
+    // Test basic sync variable declaration
+    var counter: sync int = 0
+    print($"Initial counter: {counter}\n")
+
+    // Test increment
+    counter++
+    print($"After ++: {counter}\n")
+
+    // Test decrement
+    counter--
+    print($"After --: {counter}\n")
+
+    // Test compound assignment +=
+    counter += 10
+    print($"After += 10: {counter}\n")
+
+    // Test compound assignment -=
+    counter -= 5
+    print($"After -= 5: {counter}\n")
+
+    // Test multiple increments
+    counter++
+    counter++
+    counter++
+    print($"After 3 increments: {counter}\n")
+
+    // Test sync long
+    var bigCounter: sync long = 1000000000l
+    bigCounter += 100l
+    print($"Long counter: {bigCounter}\n")
+
+    print("All sync variable tests passed!\n")

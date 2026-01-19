@@ -1,0 +1,16 @@
+=== Native Struct C Interop Test ===
+
+Test 1: Native struct passed via 'as ref'
+  PASS: Struct modified by C function via as ref
+Test 2: Multiple C function calls modifying struct
+  PASS: Multiple modifications work correctly
+Test 3: Reading struct field via C function
+  PASS: C function can read struct fields
+Test 4: C function computing struct field
+  PASS: Computed field set correctly
+Test 5: Struct passed by value to C function
+  PASS: Struct passed by value works
+Test 6: Original struct unchanged after pass-by-value
+  PASS: Original struct preserved after pass-by-value
+
+=== All Native Struct C Interop Tests PASSED! ===

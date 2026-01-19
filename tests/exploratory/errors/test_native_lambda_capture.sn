@@ -1,0 +1,15 @@
+// Test: Native lambda cannot capture variables from enclosing scope
+type IntCallback = native fn(x: int): int
+
+native fn use_callback(cb: IntCallback): int =>
+    return cb(10)
+
+native fn test_bad_capture(): int =>
+    var multiplier: int = 5
+    // ERROR: Native lambda cannot capture variables
+    var bad: IntCallback = fn(x: int): int =>
+        return x * multiplier
+    return use_callback(bad)
+
+fn main(): int =>
+    return test_bad_capture()

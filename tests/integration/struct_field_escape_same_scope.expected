@@ -1,0 +1,8 @@
+Testing same-scope field assignments (no escape):
+Same scope simple test: PASS
+Same scope with computation test: PASS
+Same scope struct field copy test: PASS
+Same scope nested test: PASS
+Same scope multiple assigns test: PASS
+Same scope self assign test: PASS
+All same-scope field assignment tests passed!

@@ -1,0 +1,59 @@
+// Test 26: Basic array operations
+fn main(): int =>
+    print("Test basic arrays:\n\n")
+
+    // Declaration with initialization
+    var nums: int[] = {10, 20, 30, 40, 50}
+    print("nums = ")
+    print(nums)
+    print("\n")
+
+    // Access elements
+    print($"nums[0] = {nums[0]}\n")
+    print($"nums[2] = {nums[2]}\n")
+    print($"nums[4] = {nums[4]}\n")
+
+    // Length
+    print($"nums.length = {nums.length}\n")
+    print($"len(nums) = {len(nums)}\n")
+
+    // Modify element
+    nums[2] = 99
+    print("After nums[2] = 99: ")
+    print(nums)
+    print("\n")
+
+    // Empty array
+    var empty: int[] = {}
+    print("empty = ")
+    print(empty)
+    print($" (length = {len(empty)})\n")
+
+    // Single element
+    var single: int[] = {42}
+    print("single = ")
+    print(single)
+    print($" (length = {len(single)})\n")
+
+    // Different types
+    var doubles: double[] = {1.1, 2.2, 3.3}
+    print("doubles = ")
+    print(doubles)
+    print("\n")
+
+    var strings: str[] = {"hello", "world"}
+    print("strings = ")
+    print(strings)
+    print("\n")
+
+    var chars: char[] = {'a', 'b', 'c'}
+    print("chars = ")
+    print(chars)
+    print("\n")
+
+    var bools: bool[] = {true, false, true}
+    print("bools = ")
+    print(bools)
+    print("\n")
+
+    return 0

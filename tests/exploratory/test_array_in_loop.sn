@@ -1,0 +1,7 @@
+// Test array operations in loop
+fn main(): void =>
+  var arr: int[] = {}
+  for var i: int = 0; i < 5; i++ =>
+    arr.push(i * 10)
+  for x in arr =>
+    print($"x={x}\n")

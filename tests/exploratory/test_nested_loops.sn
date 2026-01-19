@@ -1,0 +1,58 @@
+// Test 15: Nested loops with break/continue
+fn main(): int =>
+    // Nested for with outer break
+    print("Nested for, break outer at i=1:\n")
+    for var i: int = 0; i < 3; i++ =>
+        if i == 1 =>
+            print("  breaking outer\n")
+            break
+        for var j: int = 0; j < 3; j++ =>
+            print($"  ({i},{j})\n")
+
+    // Nested for with inner break
+    print("\nNested for, break inner at j=1:\n")
+    for var i: int = 0; i < 3; i++ =>
+        for var j: int = 0; j < 3; j++ =>
+            if j == 1 =>
+                break
+            print($"  ({i},{j})\n")
+
+    // Three levels deep
+    print("\nThree levels deep:\n")
+    for var i: int = 0; i < 2; i++ =>
+        for var j: int = 0; j < 2; j++ =>
+            for var k: int = 0; k < 2; k++ =>
+                print($"  ({i},{j},{k})\n")
+
+    // While inside for
+    print("\nWhile inside for:\n")
+    for var i: int = 0; i < 2; i++ =>
+        var j: int = 0
+        while j < 3 =>
+            print($"  i={i}, j={j}\n")
+            j++
+
+    // For inside while
+    print("\nFor inside while:\n")
+    var count: int = 0
+    while count < 2 =>
+        for var x: int = 0; x < 3; x++ =>
+            print($"  count={count}, x={x}\n")
+        count++
+
+    // For-each inside for
+    print("\nFor-each inside for:\n")
+    var arr: int[] = {10, 20}
+    for var i: int = 0; i < 2; i++ =>
+        for value in arr =>
+            print($"  i={i}, value={value}\n")
+
+    // Continue in nested loops
+    print("\nContinue in inner loop:\n")
+    for var i: int = 0; i < 3; i++ =>
+        for var j: int = 0; j < 3; j++ =>
+            if j == 1 =>
+                continue
+            print($"  ({i},{j})\n")
+
+    return 0

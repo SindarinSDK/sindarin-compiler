@@ -1,0 +1,9 @@
+// Test basic namespace import syntax
+import "lib/math_ops" as math
+
+fn main(): void =>
+    // Test namespaced function calls
+    print($"math.add(5, 3) = {math.add(5, 3)}\n")
+    print($"math.subtract(10, 4) = {math.subtract(10, 4)}\n")
+    print($"math.multiply(6, 7) = {math.multiply(6, 7)}\n")
+    print($"math.divide(20, 4) = {math.divide(20, 4)}\n")

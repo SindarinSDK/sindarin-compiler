@@ -1,0 +1,13 @@
+Testing any type with arrays
+  any[] with multiple int args: PASS
+  any[] with mixed type args: PASS
+  any[] with single arg: PASS
+  any[] empty array: PASS
+  captured function names: PASS
+  captured args count: PASS
+  type checking int args: PASS
+  type checking mixed args: PASS
+  type checking single arg: PASS
+  cast int values: PASS
+  cast mixed values: PASS
+All any array tests passed!

@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "sindarin",
+  "version": "1.0.0",
+  "description": "Sindarin - A statically-typed procedural language that compiles to C",
+  "homepage": "https://github.com/your-org/sindarin",
+  "license": "MIT",
+  "supports": "!uwp",
+  "dependencies": [
+    {
+      "name": "zlib",
+      "version>=": "1.2.11"
+    }
+  ],
+  "builtin-baseline": "25b458671af03578e6a34edd8f0d1ac85e084df4",
+  "overrides": [],
+  "features": {
+    "tests": {
+      "description": "Build test infrastructure",
+      "dependencies": []
+    }
+  }
+}

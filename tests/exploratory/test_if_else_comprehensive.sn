@@ -1,0 +1,51 @@
+// Test 11: If/else statements
+fn main(): int =>
+    var x: int = 10
+
+    // Simple if
+    if x > 5 =>
+        print("x > 5\n")
+
+    // If-else
+    if x > 20 =>
+        print("x > 20\n")
+    else =>
+        print("x <= 20\n")
+
+    // Nested if-else
+    if x < 5 =>
+        print("small\n")
+    else =>
+        if x < 15 =>
+            print("medium\n")
+        else =>
+            print("large\n")
+
+    // If with compound condition
+    var y: int = 5
+    if x > 5 && y > 0 =>
+        print("both conditions true\n")
+
+    if x < 5 || y > 0 =>
+        print("at least one condition true\n")
+
+    // Deeply nested
+    if x > 0 =>
+        if y > 0 =>
+            if x + y > 10 =>
+                print("deeply nested: all true\n")
+
+    // If with boolean variable
+    var flag: bool = true
+    if flag =>
+        print("flag is true\n")
+    if !flag =>
+        print("should not print\n")
+
+    // Empty blocks (just pass through)
+    var z: int = 0
+    if z == 0 =>
+        z = 1
+    print($"z after if block: {z}\n")
+
+    return 0

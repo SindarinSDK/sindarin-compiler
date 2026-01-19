@@ -1,0 +1,12 @@
+// Test: Compile error - write to frozen array captured by pending thread
+// Expected error: Cannot modify frozen variable 'data'
+
+fn sum(arr: int[]): int =>
+    var total: int = 0
+    for n in arr => total = total + n
+    return total
+
+fn main(): void =>
+    var data: int[] = {1, 2, 3}
+    var r: int = &sum(data)
+    data[0] = 99  // ERROR: data is frozen by pending thread r

@@ -1,0 +1,41 @@
+// Test 10: Operator precedence testing
+fn main(): int =>
+    // Arithmetic precedence: * / % before + -
+    print($"2 + 3 * 4 = {2 + 3 * 4}\n")           // 14
+    print($"10 - 4 / 2 = {10 - 4 / 2}\n")         // 8
+    print($"10 + 7 % 3 = {10 + 7 % 3}\n")         // 11
+
+    // Parentheses override
+    print($"(2 + 3) * 4 = {(2 + 3) * 4}\n")       // 20
+    print($"(10 - 4) / 2 = {(10 - 4) / 2}\n")     // 3
+
+    // Left-to-right for same precedence
+    print($"20 - 5 - 3 = {20 - 5 - 3}\n")         // 12
+    print($"20 / 4 / 2 = {20 / 4 / 2}\n")         // 2
+
+    // Comparison precedence: lower than arithmetic
+    print($"5 + 3 > 7 = {5 + 3 > 7}\n")           // true
+    print($"2 * 3 == 6 = {2 * 3 == 6}\n")         // true
+
+    // Logical precedence: && before ||
+    var a: bool = true
+    var b: bool = false
+    var c: bool = true
+    print($"a || b && c = {a || b && c}\n")       // true (a || (b && c))
+    print($"(a || b) && c = {(a || b) && c}\n")   // true
+
+    // NOT has highest logical precedence
+    print($"!false && true = {!b && a}\n")        // true
+    print($"!true || true = {!a || a}\n")         // true
+
+    // Complex expression
+    var result: int = 2 + 3 * 4 - 10 / 2
+    print($"2 + 3 * 4 - 10 / 2 = {result}\n")     // 9
+
+    // Mixed comparison and logical
+    var x: int = 5
+    var y: int = 10
+    var check: bool = x < y && y < 20 || x == 0
+    print($"x < y && y < 20 || x == 0 = {check}\n") // true
+
+    return 0

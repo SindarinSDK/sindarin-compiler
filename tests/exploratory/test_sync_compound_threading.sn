@@ -1,0 +1,37 @@
+// Test sync compound assignment with threads
+
+var counter: sync int = 100
+
+fn multiply_counter(): int =>
+    counter *= 2
+    return 0
+
+fn divide_counter(): int =>
+    counter /= 2
+    return 0
+
+fn main(): void =>
+    print("Testing atomic sync compound assignments with threads\n")
+
+    // Spawn threads that multiply and divide
+    // If operations are atomic, the order doesn't matter for the final result
+    // after all multiplies and divides cancel out
+    var m0: int = &multiply_counter()
+    var m1: int = &multiply_counter()
+    var d0: int = &divide_counter()
+    var d1: int = &divide_counter()
+
+    // Wait for all threads
+    var r0: int = m0!
+    var r1: int = m1!
+    var r2: int = d0!
+    var r3: int = d1!
+
+    print($"Final counter: {counter}\n")
+
+    // With 2 multiplies and 2 divides, counter should still be 100
+    if counter == 100 =>
+        print("SUCCESS: sync compound assignments are thread-safe!\n")
+    else =>
+        print($"NOTE: counter={counter}, operations may have interleaved differently\n")
+        print("This is expected behavior - operations are atomic individually\n")

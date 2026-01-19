@@ -1,0 +1,86 @@
+// Test 15: Functions
+fn main(): int =>
+    print("=== Calling Functions ===\n")
+    greet()
+
+    print("\n=== Functions with Parameters ===\n")
+    greet_name("Alice")
+    greet_name("Bob")
+
+    print("\n=== Functions with Return Values ===\n")
+    var sum: int = add(3, 5)
+    print($"add(3, 5) = {sum}\n")
+
+    var product: int = multiply(4, 7)
+    print($"multiply(4, 7) = {product}\n")
+
+    print("\n=== Functions with Multiple Params ===\n")
+    print_three(1, 2, 3)
+
+    print("\n=== Functions Returning Different Types ===\n")
+    var d: double = get_pi()
+    print($"get_pi() = {d}\n")
+
+    var s: str = get_greeting()
+    print($"get_greeting() = {s}\n")
+
+    var b: bool = is_positive(5)
+    print($"is_positive(5) = {b}\n")
+
+    b = is_positive(-3)
+    print($"is_positive(-3) = {b}\n")
+
+    print("\n=== Recursive Function ===\n")
+    var fact: int = factorial(5)
+    print($"factorial(5) = {fact}\n")
+
+    var fib: int = fibonacci(10)
+    print($"fibonacci(10) = {fib}\n")
+
+    print("\n=== Function Returning Expression ===\n")
+    print($"max(10, 20) = {max(10, 20)}\n")
+    print($"max(30, 15) = {max(30, 15)}\n")
+
+    print("\n=== Chained Function Calls ===\n")
+    print($"add(multiply(2, 3), multiply(4, 5)) = {add(multiply(2, 3), multiply(4, 5))}\n")
+
+    return 0
+
+fn greet(): void =>
+    print("Hello from greet()!\n")
+
+fn greet_name(name: str): void =>
+    print($"Hello, {name}!\n")
+
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+fn print_three(a: int, b: int, c: int): void =>
+    print($"Three values: {a}, {b}, {c}\n")
+
+fn get_pi(): double =>
+    return 3.14159
+
+fn get_greeting(): str =>
+    return "Hello, World!"
+
+fn is_positive(n: int): bool =>
+    return n > 0
+
+fn factorial(n: int): int =>
+    if n <= 1 =>
+        return 1
+    return n * factorial(n - 1)
+
+fn fibonacci(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+fn max(a: int, b: int): int =>
+    if a > b =>
+        return a
+    return b

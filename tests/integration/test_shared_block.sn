@@ -1,0 +1,23 @@
+// Test shared block modifier
+// Shared blocks use the parent's arena context
+
+fn main(): void =>
+    var x: int = 10
+
+    // Shared block - uses parent's arena
+    shared =>
+        var y: int = 20
+        x = x + y
+
+    print($"After shared block: {x}\n")
+
+    // Nested shared blocks
+    var sum: int = 0
+    shared =>
+        var a: int = 5
+        shared =>
+            var b: int = 10
+            sum = a + b
+        sum = sum + 1
+
+    print($"Sum from nested shared: {sum}\n")

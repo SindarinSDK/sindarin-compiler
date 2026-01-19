@@ -1,0 +1,35 @@
+// Test: Threads with complex data structures
+// Tests using strings with threads
+//
+// NOTE: Array arguments have a code generation issue where
+// the thread spawn code is generated before the array declaration.
+// This test focuses on string operations which work correctly.
+
+fn concat_strings(a: str, b: str): str =>
+    return $"{a}-{b}"
+
+fn compute_value(x: int, y: int): int =>
+    return x + y
+
+fn main(): void =>
+    print("Testing threads with complex data structures\n")
+
+    // Test with strings
+    var str_result: str = &concat_strings("hello", "world")
+    str_result!
+
+    print($"Concatenated string: {str_result}\n")
+    if str_result == "hello-world" =>
+        print("SUCCESS: String concatenation works\n")
+    else =>
+        print($"FAILURE: Expected 'hello-world', got '{str_result}'\n")
+
+    // Test with multiple primitive arguments
+    var compute_result: int = &compute_value(100, 200)
+    compute_result!
+
+    print($"Computed value: {compute_result}\n")
+    if compute_result == 300 =>
+        print("SUCCESS: Multiple arguments work\n")
+    else =>
+        print($"FAILURE: Expected 300, got {compute_result}\n")

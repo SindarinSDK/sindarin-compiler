@@ -1,0 +1,122 @@
+# Test sizeof operator and struct equality with == and !=
+
+struct Point =>
+    x: double
+    y: double
+
+struct Rectangle =>
+    origin: Point
+    width: double
+    height: double
+
+struct SmallStruct =>
+    a: int32
+    b: byte
+    c: bool
+
+fn test_sizeof_primitive_types(): void =>
+    # Test sizeof on primitive types
+    print($"sizeof(int) = {sizeof(int)}\n")
+    print($"sizeof(long) = {sizeof(long)}\n")
+    print($"sizeof(double) = {sizeof(double)}\n")
+    print($"sizeof(float) = {sizeof(float)}\n")
+    print($"sizeof(byte) = {sizeof(byte)}\n")
+    print($"sizeof(bool) = {sizeof(bool)}\n")
+    print($"sizeof(char) = {sizeof(char)}\n")
+    print($"sizeof(int32) = {sizeof(int32)}\n")
+
+fn test_sizeof_struct_types(): void =>
+    # Test sizeof on struct types
+    print($"sizeof(Point) = {sizeof(Point)}\n")
+    print($"sizeof(Rectangle) = {sizeof(Rectangle)}\n")
+    print($"sizeof(SmallStruct) = {sizeof(SmallStruct)}\n")
+
+fn test_sizeof_expressions(): void =>
+    # Test sizeof on expressions/variables
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    var r: Rectangle = Rectangle { origin: Point { x: 0.0, y: 0.0 }, width: 10.0, height: 20.0 }
+    var s: SmallStruct = SmallStruct { a: 42, b: 128b, c: true }
+
+    print($"sizeof p = {sizeof p}\n")
+    print($"sizeof r = {sizeof r}\n")
+    print($"sizeof s = {sizeof s}\n")
+
+    # sizeof with parentheses
+    print($"sizeof(p) = {sizeof(p)}\n")
+    print($"sizeof(r) = {sizeof(r)}\n")
+
+fn test_struct_equality(): void =>
+    # Test struct equality (== and !=)
+    var p1: Point = Point { x: 1.0, y: 2.0 }
+    var p2: Point = Point { x: 1.0, y: 2.0 }
+    var p3: Point = Point { x: 3.0, y: 4.0 }
+
+    # Test == with equal structs
+    if p1 == p2 =>
+        print("p1 == p2: true (expected)\n")
+    else =>
+        print("p1 == p2: false (unexpected!)\n")
+
+    # Test == with different structs
+    if p1 == p3 =>
+        print("p1 == p3: true (unexpected!)\n")
+    else =>
+        print("p1 == p3: false (expected)\n")
+
+    # Test != with different structs
+    if p1 != p3 =>
+        print("p1 != p3: true (expected)\n")
+    else =>
+        print("p1 != p3: false (unexpected!)\n")
+
+    # Test != with equal structs
+    if p1 != p2 =>
+        print("p1 != p2: true (unexpected!)\n")
+    else =>
+        print("p1 != p2: false (expected)\n")
+
+fn test_nested_struct_equality(): void =>
+    # Test equality with nested structs
+    var r1: Rectangle = Rectangle { origin: Point { x: 0.0, y: 0.0 }, width: 10.0, height: 20.0 }
+    var r2: Rectangle = Rectangle { origin: Point { x: 0.0, y: 0.0 }, width: 10.0, height: 20.0 }
+    var r3: Rectangle = Rectangle { origin: Point { x: 1.0, y: 1.0 }, width: 10.0, height: 20.0 }
+
+    if r1 == r2 =>
+        print("r1 == r2: true (expected)\n")
+    else =>
+        print("r1 == r2: false (unexpected!)\n")
+
+    if r1 != r3 =>
+        print("r1 != r3: true (expected)\n")
+    else =>
+        print("r1 != r3: false (unexpected!)\n")
+
+fn test_sizeof_in_expressions(): void =>
+    # sizeof can be used in arithmetic expressions
+    var total: int = sizeof(Point) + sizeof(Rectangle)
+    print($"sizeof(Point) + sizeof(Rectangle) = {total}\n")
+
+    # sizeof in conditions
+    if sizeof(Point) > 8 =>
+        print("sizeof(Point) > 8\n")
+    else =>
+        print("sizeof(Point) <= 8\n")
+
+fn main(): void =>
+    print("=== Testing sizeof operator ===\n")
+    test_sizeof_primitive_types()
+    print("\n")
+    test_sizeof_struct_types()
+    print("\n")
+    test_sizeof_expressions()
+    print("\n")
+    test_sizeof_in_expressions()
+    print("\n")
+
+    print("=== Testing struct equality ===\n")
+    test_struct_equality()
+    print("\n")
+    test_nested_struct_equality()
+    print("\n")
+
+    print("All tests completed.\n")

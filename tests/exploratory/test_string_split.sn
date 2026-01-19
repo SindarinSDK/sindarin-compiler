@@ -1,0 +1,6 @@
+// Test string split
+fn main(): void =>
+  var csv: str = "a,b,c,d"
+  var parts: str[] = csv.split(",")
+  for part in parts =>
+    print($"part={part}\n")

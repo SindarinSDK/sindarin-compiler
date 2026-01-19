@@ -1,0 +1,134 @@
+// Test 119: String comparison operators
+// Tests string equality, inequality, and ordering comparisons
+
+fn main(): int =>
+    print("Test string comparison operators:\n\n")
+    var errors: int = 0
+
+    // Test 1: String equality
+    print("Test 1 - String equality (==):\n")
+    var a: str = "hello"
+    var b: str = "hello"
+    var c: str = "world"
+    var eq1: bool = a == b
+    var eq2: bool = a == c
+    var eq1_int: int = 0
+    var eq2_int: int = 0
+    if eq1 => eq1_int = 1
+    if eq2 => eq2_int = 1
+    print($"  \"hello\" == \"hello\": {eq1}\n")
+    print($"  \"hello\" == \"world\": {eq2}\n")
+    if eq1_int != 1 => errors++
+    if eq2_int != 0 => errors++
+
+    // Test 2: String inequality
+    print("\nTest 2 - String inequality (!=):\n")
+    var neq1: bool = a != c
+    var neq2: bool = a != b
+    var neq1_int: int = 0
+    var neq2_int: int = 0
+    if neq1 => neq1_int = 1
+    if neq2 => neq2_int = 1
+    print($"  \"hello\" != \"world\": {neq1}\n")
+    print($"  \"hello\" != \"hello\": {neq2}\n")
+    if neq1_int != 1 => errors++
+    if neq2_int != 0 => errors++
+
+    // Test 3: Case-sensitive comparison
+    print("\nTest 3 - Case sensitivity:\n")
+    var upper: str = "Hello"
+    var lower: str = "hello"
+    var case_eq: bool = upper == lower
+    var case_eq_int: int = 0
+    if case_eq => case_eq_int = 1
+    print($"  \"Hello\" == \"hello\": {case_eq}\n")
+    if case_eq_int != 0 => errors++
+
+    // Test 4: Empty string comparisons
+    print("\nTest 4 - Empty string comparisons:\n")
+    var empty1: str = ""
+    var empty2: str = ""
+    var nonempty: str = "x"
+    var empty_eq: bool = empty1 == empty2
+    var empty_neq: bool = empty1 != nonempty
+    var empty_eq_int: int = 0
+    var empty_neq_int: int = 0
+    if empty_eq => empty_eq_int = 1
+    if empty_neq => empty_neq_int = 1
+    print($"  \"\" == \"\": {empty_eq}\n")
+    print($"  \"\" != \"x\": {empty_neq}\n")
+    if empty_eq_int != 1 => errors++
+    if empty_neq_int != 1 => errors++
+
+    // Test 5: Comparison with same content, different origins
+    print("\nTest 5 - Same content, different construction:\n")
+    var constructed: str = "hel" + "lo"
+    var direct: str = "hello"
+    var origin_eq: bool = constructed == direct
+    var origin_eq_int: int = 0
+    if origin_eq => origin_eq_int = 1
+    print($"  (\"hel\" + \"lo\") == \"hello\": {origin_eq}\n")
+    if origin_eq_int != 1 => errors++
+
+    // Test 6: String comparison with literals
+    print("\nTest 6 - Variable vs literal comparison:\n")
+    var word: str = "test"
+    var lit_eq: bool = word == "test"
+    var lit_neq: bool = word != "other"
+    var lit_eq_int: int = 0
+    var lit_neq_int: int = 0
+    if lit_eq => lit_eq_int = 1
+    if lit_neq => lit_neq_int = 1
+    print($"  word == \"test\": {lit_eq}\n")
+    print($"  word != \"other\": {lit_neq}\n")
+    if lit_eq_int != 1 => errors++
+    if lit_neq_int != 1 => errors++
+
+    // Test 7: Whitespace matters
+    print("\nTest 7 - Whitespace differences:\n")
+    var with_space: str = "hello "
+    var without_space: str = "hello"
+    var space_eq: bool = with_space == without_space
+    var space_eq_int: int = 0
+    if space_eq => space_eq_int = 1
+    print($"  \"hello \" == \"hello\": {space_eq}\n")
+    if space_eq_int != 0 => errors++
+
+    // Test 8: Substring comparison
+    print("\nTest 8 - Substring comparison:\n")
+    var full: str = "hello world"
+    var sub: str = full.substring(0, 5)
+    var sub_eq: bool = sub == "hello"
+    var sub_eq_int: int = 0
+    if sub_eq => sub_eq_int = 1
+    print($"  substring(0,5) == \"hello\": {sub_eq}\n")
+    if sub_eq_int != 1 => errors++
+
+    // Test 9: Comparison in conditionals
+    print("\nTest 9 - Comparison in conditionals:\n")
+    var status: str = "active"
+    var result: str = "unknown"
+    if status == "active" =>
+        result = "is active"
+    print($"  Status check result: {result}\n")
+    if result != "is active" => errors++
+
+    // Test 10: Chained comparisons (using multiple conditions)
+    print("\nTest 10 - Multiple string checks:\n")
+    var input: str = "yes"
+    var is_yes: int = 0
+    var is_no: int = 0
+    if input == "yes" => is_yes = 1
+    if input == "no" => is_no = 1
+    print($"  Input \"yes\" matches \"yes\": {is_yes}\n")
+    print($"  Input \"yes\" matches \"no\": {is_no}\n")
+    if is_yes != 1 => errors++
+    if is_no != 0 => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll string comparison tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

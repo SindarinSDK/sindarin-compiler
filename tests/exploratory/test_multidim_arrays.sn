@@ -1,0 +1,108 @@
+// Test 114: Multi-dimensional arrays (arrays of arrays)
+// Tests working with nested array structures
+
+fn main(): int =>
+    print("Test multi-dimensional arrays:\n\n")
+
+    // Test 1: 2D-like structure using separate rows
+    print("Test 1 - Matrix-like structure with separate rows:\n")
+    var row0: int[] = {1, 2, 3}
+    var row1: int[] = {4, 5, 6}
+    var row2: int[] = {7, 8, 9}
+
+    // Access individual elements
+    print($"  Element at [0][0]: {row0[0]}\n")
+    print($"  Element at [1][1]: {row1[1]}\n")
+    print($"  Element at [2][2]: {row2[2]}\n")
+
+    // Test 2: Sum rows independently
+    print("\nTest 2 - Sum each row:\n")
+    var sum0: int = 0
+    for n in row0 =>
+        sum0 = sum0 + n
+    var sum1: int = 0
+    for n in row1 =>
+        sum1 = sum1 + n
+    var sum2: int = 0
+    for n in row2 =>
+        sum2 = sum2 + n
+    print($"  Row 0 sum: {sum0}\n")
+    print($"  Row 1 sum: {sum1}\n")
+    print($"  Row 2 sum: {sum2}\n")
+    print($"  Total sum: {sum0 + sum1 + sum2}\n")
+
+    // Test 3: String array of comma-separated values (simulating 2D)
+    print("\nTest 3 - CSV-style nested data:\n")
+    var csv_rows: str[] = {"10,20,30", "40,50,60", "70,80,90"}
+    var csv_total: int = 0
+    for row in csv_rows =>
+        print($"  Processing: {row}\n")
+        var values: str[] = row.split(",")
+        print($"    Split into {values.length} values\n")
+
+    // Test 4: Building a grid dynamically (using shared loop for memory safety)
+    print("\nTest 4 - Dynamic grid building:\n")
+    var grid_row0: int[] = {}
+    var grid_row1: int[] = {}
+    var grid_row2: int[] = {}
+    shared for i in 0..3 =>
+        grid_row0.push(i)
+        grid_row1.push(i + 3)
+        grid_row2.push(i + 6)
+    print("  Grid row 0: ")
+    print(grid_row0)
+    print("\n")
+    print("  Grid row 1: ")
+    print(grid_row1)
+    print("\n")
+    print("  Grid row 2: ")
+    print(grid_row2)
+    print("\n")
+
+    // Test 5: Transposing concept (swap rows for columns)
+    print("\nTest 5 - Manual transpose (columns from rows):\n")
+    var col0: int[] = {row0[0], row1[0], row2[0]}
+    var col1: int[] = {row0[1], row1[1], row2[1]}
+    var col2: int[] = {row0[2], row1[2], row2[2]}
+    print("  Column 0: ")
+    print(col0)
+    print("\n")
+    print("  Column 1: ")
+    print(col1)
+    print("\n")
+    print("  Column 2: ")
+    print(col2)
+    print("\n")
+
+    // Test 6: Diagonal access
+    print("\nTest 6 - Diagonal elements:\n")
+    var diag: int[] = {row0[0], row1[1], row2[2]}
+    var anti_diag: int[] = {row0[2], row1[1], row2[0]}
+    print("  Main diagonal: ")
+    print(diag)
+    print("\n")
+    print("  Anti-diagonal: ")
+    print(anti_diag)
+    print("\n")
+
+    // Verification
+    var errors: int = 0
+    if row0[0] != 1 => errors++
+    if row1[1] != 5 => errors++
+    if row2[2] != 9 => errors++
+    if sum0 != 6 => errors++
+    if sum1 != 15 => errors++
+    if sum2 != 24 => errors++
+    if col0[0] != 1 => errors++
+    if col0[1] != 4 => errors++
+    if col0[2] != 7 => errors++
+    if diag[0] != 1 => errors++
+    if diag[1] != 5 => errors++
+    if diag[2] != 9 => errors++
+
+    if errors == 0 =>
+        print("\nAll multi-dimensional array tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

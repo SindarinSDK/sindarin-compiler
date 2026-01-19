@@ -1,0 +1,43 @@
+// Test: Simple interceptor (no continue call)
+// Tests basic interception without calling continue
+
+var intercepted: bool = false
+
+fn greet(): str =>
+    return "Hello"
+
+fn simpleInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercepted = true
+    print($"Intercepted function: {name}\n")
+    // Return a fixed value instead of calling continue
+    var replacement: any = "Intercepted!"
+    return replacement
+
+fn main =>
+    // Test without interceptor
+    var result: str = greet()
+    print($"Without interceptor: {result}\n")
+    if result == "Hello" =>
+        print("Direct call - PASS\n")
+    else =>
+        print("Direct call - FAIL\n")
+
+    // Register interceptor
+    Interceptor.register(simpleInterceptor)
+
+    // Test with interceptor
+    result = greet()
+    print($"With interceptor: {result}\n")
+
+    if intercepted =>
+        print("Handler was called - PASS\n")
+    else =>
+        print("Handler not called - FAIL\n")
+
+    if result == "Intercepted!" =>
+        print("Result replaced - PASS\n")
+    else =>
+        print($"Result not replaced: {result} - FAIL\n")
+
+    Interceptor.clearAll()
+    print("Simple interceptor tests done!\n")

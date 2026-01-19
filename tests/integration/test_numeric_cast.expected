@@ -1,0 +1,18 @@
+=== Numeric Type Cast Tests ===
+
+test_byte_conversions: PASS
+test_int_conversions: PASS
+test_int32_conversions: PASS
+test_uint_conversions: PASS
+test_uint32_conversions: PASS
+test_double_conversions: PASS
+test_negative_double_conversions: PASS
+test_float_conversions: PASS
+test_char_conversions: PASS
+test_int_to_char: PASS
+test_bool_to_numeric: PASS
+test_narrowing_truncation: PASS
+test_chained_casts: PASS
+test_cast_in_expression: PASS
+
+All numeric type cast tests passed!

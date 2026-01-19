@@ -1,0 +1,96 @@
+// Test 47: String arrays with all operations
+fn main(): int =>
+    print("Test string array operations:\n\n")
+
+    // Create and display
+    var words: str[] = {"apple", "banana", "cherry"}
+    print("words = ")
+    print(words)
+    print("\n")
+
+    // Push
+    words.push("date")
+    words.push("elderberry")
+    print("\nAfter push: ")
+    print(words)
+    print("\n")
+
+    // Pop
+    var popped: str = words.pop()
+    print($"Popped: \"{popped}\"\n")
+    print("After pop: ")
+    print(words)
+    print("\n")
+
+    // Access
+    print($"\nwords[0] = \"{words[0]}\"\n")
+    print($"words[-1] = \"{words[-1]}\"\n")
+
+    // Insert
+    words.insert("inserted", 2)
+    print("\nAfter insert at 2: ")
+    print(words)
+    print("\n")
+
+    // Remove
+    words.remove(2)
+    print("After remove at 2: ")
+    print(words)
+    print("\n")
+
+    // Reverse
+    words.reverse()
+    print("After reverse: ")
+    print(words)
+    print("\n")
+
+    // Clone
+    var cloned: str[] = words.clone()
+    cloned.push("clone_extra")
+    print("\nOriginal: ")
+    print(words)
+    print("\n")
+    print("Cloned: ")
+    print(cloned)
+    print("\n")
+
+    // Concat
+    var more: str[] = {"fig", "grape"}
+    var all: str[] = words.concat(more)
+    print("\nConcatenated: ")
+    print(all)
+    print("\n")
+
+    // IndexOf and Contains
+    print($"\nindexOf(\"banana\") = {words.indexOf("banana")}\n")
+    print($"contains(\"banana\") = {words.contains("banana")}\n")
+    print($"contains(\"xyz\") = {words.contains("xyz")}\n")
+
+    // Join
+    print($"\nJoined: \"{words.join(", ")}\"\n")
+    print($"Joined dash: \"{words.join("-")}\"\n")
+
+    // Slice
+    var sliced: str[] = words[1..3]
+    print("\nwords[1..3] = ")
+    print(sliced)
+    print("\n")
+
+    // Iteration
+    print("\nIteration:\n")
+    for word in words =>
+        print($"  - {word} (len={len(word)})\n")
+
+    // Equality
+    var a: str[] = {"x", "y", "z"}
+    var b: str[] = {"x", "y", "z"}
+    var c: str[] = {"x", "y", "w"}
+    print($"\n{{\"x\",\"y\",\"z\"}} == {{\"x\",\"y\",\"z\"}}: {a == b}\n")
+    print($"{{\"x\",\"y\",\"z\"}} == {{\"x\",\"y\",\"w\"}}: {a == c}\n")
+
+    // Clear
+    var toclear: str[] = {"a", "b", "c"}
+    toclear.clear()
+    print($"\nAfter clear: length = {len(toclear)}\n")
+
+    return 0

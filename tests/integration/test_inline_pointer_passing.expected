@@ -1,0 +1,6 @@
+Test 1 passed: mock_free(mock_alloc(100))
+Test 2 passed: use_resource(get_resource())
+Test 3 passed: use_resource(transform_pointer(get_resource()))
+Test 4 passed: combine_resources with two inline get_resource() calls
+Test 5 passed: mock_free(nil)
+All inline pointer passing tests passed!

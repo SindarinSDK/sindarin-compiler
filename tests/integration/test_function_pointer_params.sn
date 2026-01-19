@@ -1,0 +1,86 @@
+// Test: Functions passed as parameters to other functions
+// This tests that named functions can be passed as arguments to function-type parameters.
+
+// Simple function to be passed
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+fn doNothing(): void =>
+    var x: int = 0
+
+// Function that takes a function parameter
+fn applyOp(a: int, b: int, op: fn(int, int): int): int =>
+    return op(a, b)
+
+// Function that takes a void function
+fn runCallback(f: fn(): void): void =>
+    f()
+
+// Test 1: Basic function pointer parameter
+fn test_basic(): void =>
+    print("Test 1: Basic function pointer parameter\n")
+    var result: int = applyOp(3, 4, add)
+    assert(result == 7, "add(3, 4) should be 7")
+    print("  PASS\n")
+
+// Test 2: Different function same signature
+fn test_different_functions(): void =>
+    print("Test 2: Different functions with same signature\n")
+    var r1: int = applyOp(3, 4, add)
+    var r2: int = applyOp(3, 4, multiply)
+    assert(r1 == 7, "add should give 7")
+    assert(r2 == 12, "multiply should give 12")
+    print("  PASS\n")
+
+// Test 3: Void function parameter
+fn test_void_callback(): void =>
+    print("Test 3: Void function parameter\n")
+    runCallback(doNothing)
+    print("  PASS\n")
+
+// Test 4: Function passed in loop
+fn test_loop_calls(): void =>
+    print("Test 4: Function passed in loop\n")
+    var sum: int = 0
+    var i: int = 0
+    while i < 5 =>
+        sum = sum + applyOp(i, 2, add)
+        i = i + 1
+    // sum = 2+3+4+5+6 = 20
+    assert(sum == 20, "loop sum should be 20")
+    print("  PASS\n")
+
+// Test 5: Mixed lambda and named function
+fn test_mixed_lambda(): void =>
+    print("Test 5: Mixed lambda and named function\n")
+    var r1: int = applyOp(10, 3, add)
+    var subtractLambda: fn(int, int): int = fn(a: int, b: int): int => a - b
+    var r2: int = applyOp(10, 3, subtractLambda)
+    assert(r1 == 13, "named function result")
+    assert(r2 == 7, "lambda result")
+    print("  PASS\n")
+
+// Test 6: Nested function calls
+fn outer(a: int, b: int, op: fn(int, int): int): int =>
+    return applyOp(a, b, op) + 1
+
+fn test_nested(): void =>
+    print("Test 6: Nested function calls with function params\n")
+    var result: int = outer(5, 3, add)
+    assert(result == 9, "nested call should give 9")
+    print("  PASS\n")
+
+fn main(): void =>
+    print("=== Function Pointer Parameter Tests ===\n\n")
+
+    test_basic()
+    test_different_functions()
+    test_void_callback()
+    test_loop_calls()
+    test_mixed_lambda()
+    test_nested()
+
+    print("\n=== All function pointer tests passed! ===\n")

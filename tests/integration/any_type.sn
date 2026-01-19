@@ -1,0 +1,71 @@
+// Test the 'any' type with boxing and unboxing
+
+fn main(): int =>
+    // Test 1: Basic boxing - assign concrete type to any
+    var a: any = 42
+    println("Test 1: Basic boxing int to any")
+
+    // Test 2: typeof on any type
+    var typeTag: int = typeof a
+    println($"Type tag of a: {typeTag}")
+
+    // Test 3: is operator
+    if a is int =>
+        println("Test 3: a is int - PASS")
+    else =>
+        println("Test 3: a is int - FAIL")
+
+    // Test 4: as operator (unboxing)
+    var intValue: int = a as int
+    println($"Test 4: Unboxed value: {intValue}")
+    if intValue == 42 =>
+        println("Unboxing correct - PASS")
+    else =>
+        println("Unboxing incorrect - FAIL")
+
+    // Test 5: Reassign any to different type
+    a = "hello"
+    if a is str =>
+        println("Test 5: a is str after reassignment - PASS")
+    else =>
+        println("Test 5: a is str after reassignment - FAIL")
+
+    // Test 6: Unbox string
+    var strValue: str = a as str
+    println($"Test 6: Unboxed string: {strValue}")
+
+    // Test 7: Boxing double
+    var d: any = 3.14
+    if d is double =>
+        println("Test 7: d is double - PASS")
+    else =>
+        println("Test 7: d is double - FAIL")
+
+    // Test 8: Boxing bool
+    var b: any = true
+    if b is bool =>
+        println("Test 8: b is bool - PASS")
+    else =>
+        println("Test 8: b is bool - FAIL")
+
+    // Test 9: typeof with type literal
+    if typeof 42 == typeof int =>
+        println("Test 9: typeof 42 == typeof int - PASS")
+    else =>
+        println("Test 9: typeof 42 == typeof int - FAIL")
+
+    // Test 10: Function with any parameter
+    var result: int = processAny(100)
+    println($"Test 10: processAny(100) returned {result}")
+    if result == 200 =>
+        println("Function with any param - PASS")
+    else =>
+        println("Function with any param - FAIL")
+
+    return 0
+
+fn processAny(value: any): int =>
+    if value is int =>
+        var n: int = value as int
+        return n * 2
+    return 0

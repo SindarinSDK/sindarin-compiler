@@ -1,0 +1,407 @@
+// Comprehensive test for byte type (unsigned 8-bit, 0-255)
+// Tests all expression contexts: literals, interpolation, arithmetic,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== byte Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_arithmetic()
+    test_comparisons()
+    test_compound_expressions()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All byte tests passed! ===\n")
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: byte = 42
+    assert(x == 42, "basic literal")
+
+    var y: byte = 0
+    assert(y == 0, "zero literal")
+
+    var max: byte = 255
+    assert(max == 255, "max byte")
+
+    var mid: byte = 128
+    assert(mid == 128, "mid value")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: byte = 42
+    var s1: str = $"Value: {x}"
+    assert(s1 == "Value: 42", "basic interpolation")
+
+    var y: byte = 255
+    var s2: str = $"Max: {y}"
+    assert(s2 == "Max: 255", "max interpolation")
+
+    // Expression in interpolation
+    var a: byte = 10
+    var b: byte = 5
+    var s3: str = $"Sum: {a + b}"
+    assert(s3 == "Sum: 15", "expression in interpolation")
+
+    // Multiple values
+    var s4: str = $"a={a} b={b}"
+    assert(s4 == "a=10 b=5", "multiple interpolations")
+
+    print("   PASS\n")
+
+// --- 3. Arithmetic Operations ---
+fn test_arithmetic(): void =>
+    print("3. Arithmetic operations\n")
+
+    var a: byte = 100
+    var b: byte = 30
+
+    // Addition (result may need int for overflow)
+    var sum: int = a + b
+    assert(sum == 130, "addition")
+
+    // Subtraction
+    var diff: int = a - b
+    assert(diff == 70, "subtraction")
+
+    // Multiplication
+    var prod: int = a * b
+    assert(prod == 3000, "multiplication")
+
+    // Division
+    var quot: int = a / b
+    assert(quot == 3, "division")
+
+    // Modulo
+    var rem: int = a % b
+    assert(rem == 10, "modulo")
+
+    // Byte-safe operations
+    var c: byte = 50
+    var d: byte = 20
+    var byteSum: byte = c + d
+    assert(byteSum == 70, "byte addition")
+
+    print("   PASS\n")
+
+// --- 4. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("4. Comparison operations\n")
+
+    var a: byte = 50
+    var b: byte = 30
+    var c: byte = 50
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    print("   PASS\n")
+
+// --- 5. Compound Expressions ---
+fn test_compound_expressions(): void =>
+    print("5. Compound expressions\n")
+
+    var a: byte = 10
+    var b: byte = 5
+    var c: byte = 2
+
+    // Parenthesized expressions (results as int)
+    var r1: int = (a + b) * c
+    assert(r1 == 30, "parenthesized multiply")
+
+    var r2: int = a * (b + c)
+    assert(r2 == 70, "parenthesized add")
+
+    // Nested expressions
+    var r3: int = (a + b) * (c + 1)
+    assert(r3 == 45, "nested parentheses")
+
+    print("   PASS\n")
+
+// --- 6. Arrays ---
+fn test_arrays(): void =>
+    print("6. Arrays\n")
+
+    // Array literal
+    var arr: byte[] = {10, 20, 30, 40, 50}
+    assert(arr.length == 5, "array length")
+
+    // Indexing
+    assert(arr[0] == 10, "index 0")
+    assert(arr[2] == 30, "index 2")
+    assert(arr[4] == 50, "index 4")
+
+    // Negative indexing
+    assert(arr[-1] == 50, "negative index -1")
+    assert(arr[-2] == 40, "negative index -2")
+
+    // Array with expressions
+    var x: byte = 5
+    var arr2: byte[] = {x, x + 1, x * 2}
+    assert(arr2[0] == 5, "expr in array 0")
+    assert(arr2[1] == 6, "expr in array 1")
+    assert(arr2[2] == 10, "expr in array 2")
+
+    // Slicing
+    var slice: byte[] = arr[1..3]
+    assert(slice.length == 2, "slice length")
+    assert(slice[0] == 20, "slice[0]")
+    assert(slice[1] == 30, "slice[1]")
+
+    // Empty array
+    var empty: byte[] = {}
+    assert(empty.length == 0, "empty array")
+
+    // Full range of bytes
+    var fullRange: byte[] = {0, 127, 128, 255}
+    assert(fullRange[0] == 0, "min byte")
+    assert(fullRange[3] == 255, "max byte")
+
+    print("   PASS\n")
+
+// --- 7. Array Equality ---
+fn test_array_equality(): void =>
+    print("7. Array equality\n")
+
+    var a: byte[] = {1, 2, 3, 4, 5}
+    var b: byte[] = {1, 2, 3, 4, 5}
+    var c: byte[] = {1, 2, 3, 4, 6}
+    var d: byte[] = {1, 2, 3}
+
+    assert(a == b, "equal arrays")
+    assert(!(a == c), "different last element")
+    assert(!(a == d), "different lengths")
+
+    assert(a != c, "not equal different element")
+    assert(a != d, "not equal different length")
+    assert(!(a != b), "not not equal")
+
+    // Empty arrays
+    var e1: byte[] = {}
+    var e2: byte[] = {}
+    assert(e1 == e2, "empty arrays equal")
+
+    print("   PASS\n")
+
+// --- 8. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("8. 2D arrays\n")
+
+    var matrix: byte[][] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+
+    assert(matrix.length == 3, "2d rows")
+    assert(matrix[0].length == 3, "2d cols")
+
+    assert(matrix[0][0] == 1, "element [0][0]")
+    assert(matrix[1][1] == 5, "element [1][1]")
+    assert(matrix[2][2] == 9, "element [2][2]")
+
+    // Row access
+    var row: byte[] = matrix[1]
+    assert(row[0] == 4, "row access")
+
+    print("   PASS\n")
+
+// --- 9. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("9. Any boxing\n")
+
+    var x: byte = 42
+    var a: any = x
+    assert(a is byte, "boxed type check")
+
+    var y: byte = 255
+    var b: any = y
+    assert(b is byte, "boxed max type check")
+
+    // Boxing array
+    var arr: byte[] = {1, 2, 3}
+    var c: any = arr
+    assert(c is byte[], "boxed array type check")
+
+    print("   PASS\n")
+
+// --- 10. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("10. Any unboxing\n")
+
+    var x: byte = 42
+    var a: any = x
+    var unboxed: byte = a as byte
+    assert(unboxed == 42, "unboxed value")
+
+    var y: byte = 255
+    var b: any = y
+    var unboxed2: byte = b as byte
+    assert(unboxed2 == 255, "unboxed max")
+
+    // Unbox array
+    var arr: byte[] = {10, 20, 30}
+    var c: any = arr
+    var unboxedArr: byte[] = c as byte[]
+    assert(unboxedArr.length == 3, "unboxed array length")
+    assert(unboxedArr[0] == 10, "unboxed array element")
+
+    print("   PASS\n")
+
+// --- 11. Type Checking ---
+fn test_type_checking(): void =>
+    print("11. Type checking with 'is'\n")
+
+    var x: byte = 42
+    var a: any = x
+
+    assert(a is byte, "is byte true")
+    assert(!(a is int), "is int false")
+    assert(!(a is double), "is double false")
+    assert(!(a is str), "is str false")
+
+    // Array type checking
+    var arr: byte[] = {1, 2, 3}
+    var b: any = arr
+    assert(b is byte[], "is byte[] true")
+    assert(!(b is int[]), "is int[] false")
+
+    print("   PASS\n")
+
+// --- 12. Lambdas ---
+fn test_lambdas(): void =>
+    print("12. Lambdas\n")
+
+    // Lambda with byte parameter
+    var double_it: fn(byte): byte = fn(x: byte): byte => x * 2
+    assert(double_it(21) == 42, "lambda call")
+
+    // Lambda with byte return
+    var get_value: fn(): byte = fn(): byte => 100
+    assert(get_value() == 100, "lambda return")
+
+    // Lambda with expression
+    var add: fn(byte, byte): byte = fn(a: byte, b: byte): byte => a + b
+    assert(add(10, 32) == 42, "lambda with two params")
+
+    // Lambda capturing byte
+    var base: byte = 10
+    var add_base: fn(byte): byte = fn(x: byte): byte => x + base
+    assert(add_base(5) == 15, "lambda capture")
+
+    // Higher-order with byte
+    var apply: fn(fn(byte): byte, byte): byte = fn(f: fn(byte): byte, x: byte): byte => f(x)
+    assert(apply(double_it, 21) == 42, "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 13. Functions ---
+fn test_functions(): void =>
+    print("13. Functions\n")
+
+    assert(identity_byte(42) == 42, "identity function")
+    assert(add_byte(10, 32) == 42, "add function")
+    assert(multiply_byte(6, 7) == 42, "multiply function")
+
+    // Function returning expression
+    assert(compute_byte(5, 3, 2) == 16, "complex function")
+
+    print("   PASS\n")
+
+fn identity_byte(x: byte): byte =>
+    return x
+
+fn add_byte(a: byte, b: byte): byte =>
+    return a + b
+
+fn multiply_byte(a: byte, b: byte): byte =>
+    return a * b
+
+fn compute_byte(a: byte, b: byte, c: byte): byte =>
+    return (a + b) * c
+
+// --- 14. Control Flow ---
+fn test_control_flow(): void =>
+    print("14. Control flow\n")
+
+    // If with byte comparison
+    var x: byte = 50
+    var result: byte = 0
+    if x > 40 =>
+        result = 1
+    else =>
+        result = 0
+    assert(result == 1, "if comparison")
+
+    // While with byte counter
+    var count: byte = 0
+    var sum: byte = 0
+    while count < 5 =>
+        sum = sum + count
+        count = count + 1
+    assert(sum == 10, "while loop") // 0+1+2+3+4=10
+
+    // For loop with byte
+    var total: byte = 0
+    var arr: byte[] = {1, 2, 3, 4, 5}
+    for v in arr =>
+        total = total + v
+    assert(total == 15, "for loop")
+
+    print("   PASS\n")
+
+// --- 15. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("15. Edge cases\n")
+
+    // Zero operations
+    var zero: byte = 0
+    assert(zero + zero == 0, "zero + zero")
+    assert(zero * 100 == 0, "zero * n")
+
+    // Division edge cases
+    var hundred: byte = 100
+    assert(hundred / 100 == 1, "n / n")
+    assert(hundred % 100 == 0, "n % n")
+
+    // Boundary values
+    var min: byte = 0
+    var max: byte = 255
+    assert(min == 0, "min byte")
+    assert(max == 255, "max byte")
+
+    // Operations near boundaries
+    var near_max: byte = 250
+    var small: byte = 5
+    assert(near_max + small == 255, "near max addition")
+
+    print("   PASS\n")

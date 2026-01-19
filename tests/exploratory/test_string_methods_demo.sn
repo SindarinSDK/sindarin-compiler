@@ -1,0 +1,59 @@
+// Test 35: String methods
+fn main(): int =>
+    print("Test string methods:\n\n")
+
+    var text: str = "Hello World"
+
+    // Length
+    print($"text = \"{text}\"\n")
+    print($"len(text) = {len(text)}\n")
+    print($"text.length = {text.length}\n")
+
+    // Case conversion
+    print($"\ntoUpper() = \"{text.toUpper()}\"\n")
+    print($"toLower() = \"{text.toLower()}\"\n")
+
+    // Trim
+    var padded: str = "   trimmed   "
+    print($"\npadded = \"{padded}\"\n")
+    print($"trim() = \"{padded.trim()}\"\n")
+
+    // Substring
+    print($"\nsubstring(0, 5) = \"{text.substring(0, 5)}\"\n")
+    print($"substring(6, 11) = \"{text.substring(6, 11)}\"\n")
+
+    // indexOf
+    print($"\nindexOf(\"World\") = {text.indexOf("World")}\n")
+    print($"indexOf(\"xyz\") = {text.indexOf("xyz")}\n")
+
+    // startsWith, endsWith, contains
+    print($"\nstartsWith(\"Hello\") = {text.startsWith("Hello")}\n")
+    print($"startsWith(\"World\") = {text.startsWith("World")}\n")
+    print($"endsWith(\"World\") = {text.endsWith("World")}\n")
+    print($"endsWith(\"Hello\") = {text.endsWith("Hello")}\n")
+    print($"contains(\"lo Wo\") = {text.contains("lo Wo")}\n")
+    print($"contains(\"xyz\") = {text.contains("xyz")}\n")
+
+    // Replace
+    var replaced: str = text.replace("World", "Sindarin")
+    print($"\nreplace(\"World\", \"Sindarin\") = \"{replaced}\"\n")
+
+    // Split
+    print("\nSplit:\n")
+    var csv: str = "apple,banana,cherry"
+    var parts: str[] = csv.split(",")
+    print($"split(\",\") on \"{csv}\":\n")
+    for part in parts =>
+        print($"  - \"{part}\"\n")
+
+    // Method chaining
+    print("\nMethod chaining:\n")
+    var messy: str = "  HELLO WORLD  "
+    var clean: str = messy.trim().toLower()
+    print($"trim().toLower() on \"{messy}\" = \"{clean}\"\n")
+
+    // Chaining on literal
+    var upper: str = "hello".toUpper()
+    print($"\"hello\".toUpper() = \"{upper}\"\n")
+
+    return 0

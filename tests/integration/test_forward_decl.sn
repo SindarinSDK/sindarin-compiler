@@ -1,0 +1,21 @@
+// Test forward declarations - functions calling each other
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    // Call add before it was defined (requires forward declaration)
+    var result: int = 0
+    for var i: int = 0; i < b; i++ =>
+        result = add(result, a)
+    return result
+
+fn calc_sum_of_products(): int =>
+    var total: int = 0
+    total = add(total, multiply(3, 4))
+    total = add(total, multiply(5, 2))
+    return total
+
+fn main(): void =>
+    print($"add(5, 3) = {add(5, 3)}\n")
+    print($"multiply(4, 3) = {multiply(4, 3)}\n")
+    print($"calc_sum_of_products() = {calc_sum_of_products()}\n")

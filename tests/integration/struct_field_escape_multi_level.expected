@@ -1,0 +1,8 @@
+Testing multi-level nested field escape detection:
+Nested to nested assignment test: PASS
+Deep nested cross assign test: PASS
+Partial chain copy test: PASS
+Intermediate field access test: PASS
+Mixed depth assignments test: PASS
+Chain swap test: PASS
+All multi-level nesting tests passed!

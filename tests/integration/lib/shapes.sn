@@ -1,0 +1,39 @@
+# Module that exports multiple struct types for testing import-first processing
+# Tests: INTEROP_V3 - Module Import Does Not Register Exported Types (RESOLVED)
+
+struct Rectangle =>
+    width: int
+    height: int
+
+    fn area(): int =>
+        return self.width * self.height
+
+    fn perimeter(): int =>
+        return 2 * (self.width + self.height)
+
+    static fn create(w: int, h: int): Rectangle =>
+        return Rectangle { width: w, height: h }
+
+struct Circle =>
+    radius: int
+
+    fn diameter(): int =>
+        return self.radius * 2
+
+    static fn unit(): Circle =>
+        return Circle { radius: 1 }
+
+struct Triangle =>
+    base: int
+    height: int
+
+    fn area(): int =>
+        return (self.base * self.height) / 2
+
+# Factory functions outside structs (also valid pattern)
+fn make_square(side: int): Rectangle =>
+    return Rectangle { width: side, height: side }
+
+fn shapes_sum_areas(r: Rectangle, c: Circle, t: Triangle): int =>
+    # Approximate circle area as radius*radius*3
+    return r.area() + (c.radius * c.radius * 3) + t.area()

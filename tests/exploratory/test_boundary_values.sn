@@ -1,0 +1,65 @@
+// Test 25: Boundary values and limits
+fn main(): int =>
+    print("=== Integer Boundaries ===\n")
+    var max_int: int = 2147483647
+    var min_int: int = -2147483648
+    print($"Max int: {max_int}\n")
+    print($"Min int: {min_int}\n")
+
+    // Overflow behavior (undefined in C, but let's see)
+    // var overflow: int = max_int + 1
+    // print($"max_int + 1: {overflow}\n")
+
+    print("\n=== Zero Operations ===\n")
+    print($"0 + 0: {0 + 0}\n")
+    print($"0 - 0: {0 - 0}\n")
+    print($"0 * 100: {0 * 100}\n")
+    print($"0 / 100: {0 / 100}\n")
+    // Division by zero would crash
+    // print($"100 / 0: {100 / 0}\n")
+
+    print("\n=== Double Precision ===\n")
+    var tiny: double = 0.0000001
+    var big: double = 10000000.0
+    print($"tiny: {tiny}\n")
+    print($"big: {big}\n")
+    print($"tiny * big: {tiny * big}\n")
+
+    print("\n=== Empty Collections ===\n")
+    var empty_arr: int[] = {}
+    print($"Empty array length: {empty_arr.length}\n")
+    var empty_str: str = ""
+    print($"Empty string length: {empty_str.length}\n")
+
+    print("\n=== Single Element Collections ===\n")
+    var single_arr: int[] = {42}
+    print($"Single array: ")
+    print(single_arr)
+    print("\n")
+    print($"single[0]: {single_arr[0]}\n")
+    print($"single[-1]: {single_arr[-1]}\n")
+
+    print("\n=== Large Array ===\n")
+    var large: int[] = 1..101
+    print($"Large array (1..101) length: {large.length}\n")
+    print($"First: {large[0]}, Last: {large[-1]}\n")
+
+    print("\n=== Deeply Nested Conditions ===\n")
+    var value: int = 50
+    if value > 0 =>
+        if value > 10 =>
+            if value > 20 =>
+                if value > 30 =>
+                    if value > 40 =>
+                        print("value > 40\n")
+
+    print("\n=== Long String ===\n")
+    var longstr: str = "This is a fairly long string that contains many characters to test string handling"
+    print($"Long string length: {longstr.length}\n")
+    print($"First 20 chars: {longstr.substring(0, 20)}\n")
+
+    print("\n=== Many Concatenations ===\n")
+    var concat: str = "a" + "b" + "c" + "d" + "e" + "f" + "g" + "h"
+    print($"Concatenated: {concat}\n")
+
+    return 0

@@ -1,0 +1,98 @@
+// ============================================================================
+// memory.sn - Memory Management Features in Sindarin
+// ============================================================================
+// Demonstrates: shared/private functions, shared/private blocks, shared loops,
+//               as val (copy semantics), as ref (reference semantics)
+// ============================================================================
+
+// --- Shared Function ---
+// Shared functions use the caller's arena context (no overhead)
+fn add_numbers(a: int, b: int) shared: int =>
+  return a + b
+
+// --- Private Function ---
+// Private functions have their own isolated arena
+// They can only return primitive types
+fn compute_sum() private: int =>
+  var sum: int = 0
+  for var i: int = 1; i <= 10; i++ =>
+    sum = sum + i
+  return sum
+
+// Entry point for memory demos
+fn demo_memory(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                   Sindarin Memory Management                     │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Shared Functions
+  print("--- Shared Functions ---\n")
+  print("Shared functions use the caller's arena (efficient for helpers)\n")
+  var result: int = add_numbers(10, 20)
+  print($"add_numbers(10, 20) = {result}\n")
+
+  // 2. Private Functions
+  print("\n--- Private Functions ---\n")
+  print("Private functions have isolated arenas (safe for temporary work)\n")
+  var sum: int = compute_sum()
+  print($"compute_sum() = {sum}\n")
+
+  // 3. Shared Blocks
+  print("\n--- Shared Blocks ---\n")
+  print("Shared blocks use the parent's arena\n")
+  var x: int = 10
+  shared =>
+    var y: int = 20
+    x = x + y
+  print($"After shared block: x = {x}\n")
+
+  // 4. Private Blocks
+  print("\n--- Private Blocks ---\n")
+  print("Private blocks have isolated arenas (only primitives escape)\n")
+  var computed: int = 0
+  private =>
+    var a: int = 100
+    var b: int = 200
+    computed = a + b
+  print($"After private block: computed = {computed}\n")
+
+  // 5. Shared Loops
+  print("\n--- Shared Loops ---\n")
+  print("Shared loops don't create per-iteration arenas\n")
+  var total: int = 0
+  shared for var i: int = 0; i < 5; i++ =>
+    total = total + i
+  print($"Sum from shared for: {total}\n")
+
+  var count: int = 0
+  shared while count < 3 =>
+    count = count + 1
+  print($"Count from shared while: {count}\n")
+
+  var arr: int[] = {1, 2, 3, 4, 5}
+  var arrSum: int = 0
+  shared for n in arr =>
+    arrSum = arrSum + n
+  print($"Sum from shared for-each: {arrSum}\n")
+
+  // 6. as val (Copy Semantics)
+  print("\n--- as val (Copy Semantics) ---\n")
+  print("'as val' creates independent copies of arrays/strings\n")
+  var original: int[] = {10, 20, 30}
+  var copy: int[] as val = original
+  original.push(40)
+  print("Original after push(40): ")
+  print(original)
+  print("\n")
+  print("Copy (unchanged): ")
+  print(copy)
+  print("\n")
+
+  // 7. as ref (Reference Semantics for Primitives)
+  print("\n--- as ref (Reference Semantics) ---\n")
+  print("'as ref' allocates primitives on heap (for escaping scopes)\n")
+  var value: int as ref = 42
+  print($"value (as ref) = {value}\n")
+  value = 100
+  print($"modified value = {value}\n")
+

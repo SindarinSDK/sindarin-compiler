@@ -1,0 +1,5 @@
+// Test lambda with shared modifier
+fn main(): void =>
+  var increment: fn(int): int = fn(x: int) shared: int => x + 1
+  var result: int = increment(10)
+  print($"result={result}\n")

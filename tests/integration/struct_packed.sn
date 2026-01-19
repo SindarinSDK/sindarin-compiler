@@ -1,0 +1,43 @@
+# Test packed structs using #pragma pack(1)
+# This verifies that packed struct declarations compile correctly
+# Also tests native structs with pointer fields
+
+#pragma pack(1)
+struct PackedHeader =>
+    magic: int32       # offset 0 (4 bytes)
+    version: byte      # offset 4 (1 byte)
+    flags: byte        # offset 5 (1 byte)
+    size: int32        # offset 6 (4 bytes)
+    # Total: 10 bytes (no padding)
+
+#pragma pack()
+
+# Regular unpacked struct for comparison
+struct UnpackedHeader =>
+    magic: int32       # offset 0 (4 bytes)
+    version: byte      # offset 4 (1 byte) + 3 padding = 8
+    flags: byte        # offset 8 (1 byte) + 3 padding = 12
+    size: int32        # offset 12 (4 bytes)
+    # Total: 16 bytes (with padding)
+
+# Native struct with pointer fields - requires native fn context
+native struct DataBuffer =>
+    data: *byte
+    size: int
+    capacity: int
+
+# Native function to test native struct with pointer fields
+native fn test_native_ptr_struct(): void =>
+    # Create native struct with pointer field set to nil
+    var buf: DataBuffer = DataBuffer { data: nil, size: 0, capacity: 1024 }
+    print($"Native struct: size={buf.size}, capacity={buf.capacity}\n")
+
+    # Modify fields
+    buf.size = 100
+    print($"After modification: size={buf.size}\n")
+
+    print("Native struct with pointer fields works!\n")
+
+fn main(): void =>
+    print("Packed struct declarations compile successfully\n")
+    test_native_ptr_struct()

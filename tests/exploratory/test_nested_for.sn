@@ -1,0 +1,5 @@
+// Test nested for loops
+fn main(): void =>
+  for var i: int = 0; i < 3; i++ =>
+    for var j: int = 0; j < 3; j++ =>
+      print($"i={i}, j={j}\n")

@@ -1,0 +1,15 @@
+// Test multiple functions calling each other
+fn double_val(x: int): int =>
+  return x * 2
+
+fn triple_val(x: int): int =>
+  return x * 3
+
+fn process(x: int): int =>
+  var d: int = double_val(x)
+  var t: int = triple_val(x)
+  return d + t
+
+fn main(): void =>
+  var result: int = process(10)
+  print($"result={result}\n")

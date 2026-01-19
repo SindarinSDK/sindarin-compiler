@@ -1,0 +1,10 @@
+Initial byte: 0
+After ++: 1
+After --: 0
+After += 10: 10
+After -= 5: 5
+Initial char: A
+After ++: B
+After ++: C
+After --: B
+All sync byte/char tests passed!

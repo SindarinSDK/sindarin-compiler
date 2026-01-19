@@ -1,0 +1,7 @@
+Testing struct allocation with shared loops:
+Shared for loop struct: PASS
+Shared while loop struct: PASS
+Nested shared loops struct: PASS
+Shared accumulation: PASS
+Multi-struct per iteration: PASS
+All struct shared loop tests completed!

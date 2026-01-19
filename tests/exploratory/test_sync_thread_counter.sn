@@ -1,0 +1,43 @@
+// Test sync variables with threads - atomic increment should be thread-safe
+// This is similar to test_interceptor_thread_counter but uses sync for atomic counter
+
+var counter: sync int = 0
+
+fn increment_counter(): int =>
+    counter++
+    return 0
+
+fn main(): void =>
+    print("Testing atomic sync counter with threads\n")
+
+    // Spawn 10 threads that increment the same counter
+    var h0: int = &increment_counter()
+    var h1: int = &increment_counter()
+    var h2: int = &increment_counter()
+    var h3: int = &increment_counter()
+    var h4: int = &increment_counter()
+    var h5: int = &increment_counter()
+    var h6: int = &increment_counter()
+    var h7: int = &increment_counter()
+    var h8: int = &increment_counter()
+    var h9: int = &increment_counter()
+
+    // Wait for all threads
+    var r0: int = h0!
+    var r1: int = h1!
+    var r2: int = h2!
+    var r3: int = h3!
+    var r4: int = h4!
+    var r5: int = h5!
+    var r6: int = h6!
+    var r7: int = h7!
+    var r8: int = h8!
+    var r9: int = h9!
+
+    print($"Final counter value: {counter}\n")
+
+    // With sync modifier, we should have exactly 10 (no lost increments)
+    if counter == 10 =>
+        print("SUCCESS: Atomic increment is thread-safe!\n")
+    else =>
+        print($"FAILURE: Expected 10, got {counter}\n")

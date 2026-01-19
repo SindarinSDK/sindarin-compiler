@@ -1,0 +1,157 @@
+// ============================================================================
+// bytes.sn - Byte Type in Sindarin
+// ============================================================================
+// Demonstrates: The byte primitive type for handling raw 8-bit unsigned values.
+// Bytes are useful for binary data, file I/O, and low-level operations.
+//
+// Key features:
+//   - Range: 0 to 255 (8-bit unsigned)
+//   - Conversion to/from int (implicit)
+//   - Array operations with toHex(), toString(), etc.
+// ============================================================================
+
+// Entry point for byte demos
+fn demo_bytes(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                       Sindarin Byte Type                         │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  show_byte_basics()
+  show_byte_values()
+  show_byte_conversions()
+  show_byte_arrays()
+
+
+// ----------------------------------------------------------------------------
+// 1. Byte Basics
+// ----------------------------------------------------------------------------
+fn show_byte_basics(): void =>
+  print("--- 1. Byte Basics ---\n")
+
+  // Declaration
+  var zero: byte = 0
+  var mid: byte = 128
+  var max: byte = 255
+
+  print($"zero = {zero}\n")
+  print($"mid = {mid}\n")
+  print($"max = {max}\n")
+
+  // Comparisons
+  print("\nByte comparisons:\n")
+  print($"  0 < 128: {zero < mid}\n")
+  print($"  128 < 255: {mid < max}\n")
+  print($"  255 == 255: {max == max}\n")
+
+  // Equality
+  var a: byte = 100
+  var b: byte = 100
+  var c: byte = 200
+  print($"\n  a(100) == b(100): {a == b}\n")
+  print($"  a(100) != c(200): {a != c}\n")
+
+  print("\n")
+
+// ----------------------------------------------------------------------------
+// 2. Byte Values
+// ----------------------------------------------------------------------------
+fn show_byte_values(): void =>
+  print("--- 2. Byte Values ---\n")
+
+  // Full range
+  print("Range values:\n")
+  var dec0: byte = 0
+  var dec127: byte = 127
+  var dec128: byte = 128
+  var dec255: byte = 255
+  print($"  byte 0 = {dec0}\n")
+  print($"  byte 127 = {dec127}\n")
+  print($"  byte 128 = {dec128}\n")
+  print($"  byte 255 = {dec255}\n")
+
+  // Common ASCII byte values
+  print("\nCommon ASCII values:\n")
+  var nullByte: byte = 0
+  var space: byte = 32
+  var letterA: byte = 65
+  var letterZ: byte = 90
+  var letterALower: byte = 97
+  print($"  NULL = {nullByte}\n")
+  print($"  Space = {space}\n")
+  print($"  'A' = {letterA}\n")
+  print($"  'Z' = {letterZ}\n")
+  print($"  'a' = {letterALower}\n")
+
+  print("\n")
+
+// ----------------------------------------------------------------------------
+// 3. Byte Conversions
+// ----------------------------------------------------------------------------
+fn show_byte_conversions(): void =>
+  print("--- 3. Byte Conversions ---\n")
+
+  // Byte to int conversion (implicit)
+  print("Byte to int (implicit):\n")
+  var b1: byte = 42
+  var i1: int = b1
+  print($"  byte 42 -> int: {i1}\n")
+
+  var b2: byte = 255
+  var i2: int = b2
+  print($"  byte 255 -> int: {i2}\n")
+
+  // Arithmetic with bytes - result is int
+  print("\nArithmetic with bytes:\n")
+  var x: byte = 100
+  var y: byte = 50
+  var sum: int = x + y
+  print($"  {x} + {y} = {sum}\n")
+
+  var diff: int = x - y
+  print($"  {x} - {y} = {diff}\n")
+
+  // Large result (exceeds byte range)
+  print("\nLarge results:\n")
+  var big1: byte = 200
+  var big2: byte = 200
+  var bigSum: int = big1 + big2
+  print($"  200 + 200 = {bigSum} (exceeds 255, int handles it)\n")
+
+  print("\n")
+
+// ----------------------------------------------------------------------------
+// 4. Byte Arrays
+// ----------------------------------------------------------------------------
+fn show_byte_arrays(): void =>
+  print("--- 4. Byte Arrays ---\n")
+
+  // Create a byte array using curly braces
+  print("Creating byte arrays:\n")
+  var data: byte[] = {72, 101, 108, 108, 111}
+  print($"  Array length: {data.length}\n")
+  print("  Contents (ASCII for 'Hello'):\n")
+  for i in 0..data.length =>
+    print($"    [{i}] = {data[i]}\n")
+
+  // Modify array
+  print("\nModifying byte array:\n")
+  data[0] = 74
+  print($"  Changed first byte to 74 (J): {data[0]}\n")
+
+  // Create from decimal values
+  print("\nByte array from decimal:\n")
+  var nums: byte[] = {0, 64, 128, 192, 255}
+  print("  Values: ")
+  for i in 0..nums.length =>
+    print($"{nums[i]} ")
+  print("\n")
+
+  // Convert to string and hex
+  print("\nByte array conversions:\n")
+  var hello: byte[] = {72, 101, 108, 108, 111}
+  var helloStr: str = hello.toString()
+  var helloHex: str = hello.toHex()
+  print($"  toString(): \"{helloStr}\"\n")
+  print($"  toHex(): {helloHex}\n")
+
+  print("\n")

@@ -1,0 +1,248 @@
+// Exploratory test: Configuration struct patterns
+// Tests structs with default values for application configuration
+
+// Simple server configuration
+struct ServerConfig =>
+    host: str = "localhost"
+    port: int = 8080
+    maxConnections: int = 100
+    timeout: int = 30
+    enableLogging: bool = true
+
+// Database configuration
+struct DatabaseConfig =>
+    driver: str = "postgres"
+    host: str = "localhost"
+    port: int = 5432
+    database: str = "myapp"
+    username: str = "admin"
+    maxPoolSize: int = 10
+    enableSSL: bool = false
+
+// Application configuration with nested structs
+struct AppConfig =>
+    name: str = "MyApplication"
+    version: str = "1.0.0"
+    debug: bool = false
+
+// Cache configuration
+struct CacheConfig =>
+    enabled: bool = true
+    maxSizeMb: int = 256
+    ttlSeconds: int = 3600
+    evictionPolicy: str = "lru"
+
+// Test 1: All defaults
+fn test_all_defaults(): bool =>
+    print("Test 1: Configuration with all defaults\n")
+
+    var cfg: ServerConfig = ServerConfig {}
+
+    if cfg.host != "localhost" =>
+        print($"  FAIL: Expected host='localhost', got '{cfg.host}'\n")
+        return false
+
+    if cfg.port != 8080 =>
+        print($"  FAIL: Expected port=8080, got {cfg.port}\n")
+        return false
+
+    if cfg.maxConnections != 100 =>
+        print($"  FAIL: Expected maxConnections=100, got {cfg.maxConnections}\n")
+        return false
+
+    if cfg.timeout != 30 =>
+        print($"  FAIL: Expected timeout=30, got {cfg.timeout}\n")
+        return false
+
+    if !cfg.enableLogging =>
+        print("  FAIL: Expected enableLogging=true\n")
+        return false
+
+    print("  PASS: All defaults applied correctly\n")
+    return true
+
+// Test 2: Partial override
+fn test_partial_override(): bool =>
+    print("Test 2: Partial configuration override\n")
+
+    var cfg: ServerConfig = ServerConfig { port: 443, enableLogging: false }
+
+    // Overridden values
+    if cfg.port != 443 =>
+        print($"  FAIL: Expected port=443, got {cfg.port}\n")
+        return false
+
+    if cfg.enableLogging =>
+        print("  FAIL: Expected enableLogging=false\n")
+        return false
+
+    // Defaults should still apply
+    if cfg.host != "localhost" =>
+        print($"  FAIL: Expected host='localhost', got '{cfg.host}'\n")
+        return false
+
+    if cfg.maxConnections != 100 =>
+        print($"  FAIL: Expected maxConnections=100, got {cfg.maxConnections}\n")
+        return false
+
+    print("  PASS: Partial override works correctly\n")
+    return true
+
+// Test 3: Full custom configuration
+fn test_full_custom(): bool =>
+    print("Test 3: Full custom configuration\n")
+
+    var cfg: ServerConfig = ServerConfig { host: "0.0.0.0", port: 9000, maxConnections: 500, timeout: 60, enableLogging: false }
+
+    if cfg.host != "0.0.0.0" =>
+        print($"  FAIL: Expected host='0.0.0.0', got '{cfg.host}'\n")
+        return false
+
+    if cfg.port != 9000 =>
+        print($"  FAIL: Expected port=9000, got {cfg.port}\n")
+        return false
+
+    if cfg.maxConnections != 500 =>
+        print($"  FAIL: Expected maxConnections=500, got {cfg.maxConnections}\n")
+        return false
+
+    if cfg.timeout != 60 =>
+        print($"  FAIL: Expected timeout=60, got {cfg.timeout}\n")
+        return false
+
+    if cfg.enableLogging =>
+        print("  FAIL: Expected enableLogging=false\n")
+        return false
+
+    print("  PASS: Full custom configuration works\n")
+    return true
+
+// Test 4: Database configuration pattern
+fn test_database_config(): bool =>
+    print("Test 4: Database configuration pattern\n")
+
+    // Development config
+    var devDb: DatabaseConfig = DatabaseConfig {}
+
+    // Production config - override connection and security settings
+    var prodDb: DatabaseConfig = DatabaseConfig { host: "db.production.example.com", database: "production_db", username: "prod_user", maxPoolSize: 50, enableSSL: true }
+
+    // Verify dev defaults
+    if devDb.driver != "postgres" =>
+        return false
+    if devDb.enableSSL =>
+        return false
+
+    // Verify prod overrides
+    if prodDb.host != "db.production.example.com" =>
+        return false
+    if prodDb.maxPoolSize != 50 =>
+        return false
+    if !prodDb.enableSSL =>
+        return false
+
+    // Verify prod defaults preserved
+    if prodDb.driver != "postgres" =>
+        return false
+    if prodDb.port != 5432 =>
+        return false
+
+    print("  PASS: Database configuration works\n")
+    return true
+
+// Test 5: Modifying configuration at runtime
+fn test_runtime_modification(): bool =>
+    print("Test 5: Runtime configuration modification\n")
+
+    var cfg: CacheConfig = CacheConfig {}
+
+    // Modify at runtime
+    cfg.enabled = false
+    cfg.maxSizeMb = 512
+    cfg.ttlSeconds = 7200
+
+    if cfg.enabled =>
+        print("  FAIL: Expected enabled=false\n")
+        return false
+
+    if cfg.maxSizeMb != 512 =>
+        print($"  FAIL: Expected maxSizeMb=512, got {cfg.maxSizeMb}\n")
+        return false
+
+    if cfg.ttlSeconds != 7200 =>
+        print($"  FAIL: Expected ttlSeconds=7200, got {cfg.ttlSeconds}\n")
+        return false
+
+    // Unchanged default
+    if cfg.evictionPolicy != "lru" =>
+        print($"  FAIL: Expected evictionPolicy='lru', got '{cfg.evictionPolicy}'\n")
+        return false
+
+    print("  PASS: Runtime modification works\n")
+    return true
+
+// Test 6: Configuration copy and independence
+fn test_config_copy(): bool =>
+    print("Test 6: Configuration copy independence\n")
+
+    var original: ServerConfig = ServerConfig { port: 8000 }
+    var copy: ServerConfig = original
+
+    // Modify copy
+    copy.port = 9000
+    copy.host = "192.168.1.1"
+
+    // Original should be unchanged (value semantics)
+    if original.port != 8000 =>
+        print($"  FAIL: Original port changed from 8000 to {original.port}\n")
+        return false
+
+    if original.host != "localhost" =>
+        print($"  FAIL: Original host changed from 'localhost' to '{original.host}'\n")
+        return false
+
+    print("  PASS: Configuration copy is independent\n")
+    return true
+
+// Test 7: Using configuration in function
+fn apply_server_config(cfg: ServerConfig): void =>
+    print($"  Server: {cfg.host}:{cfg.port}\n")
+    print($"  Max connections: {cfg.maxConnections}\n")
+    print($"  Timeout: {cfg.timeout}s\n")
+    print($"  Logging: {cfg.enableLogging}\n")
+
+fn test_config_in_function(): bool =>
+    print("Test 7: Configuration passed to function\n")
+
+    var cfg: ServerConfig = ServerConfig { port: 3000, timeout: 120 }
+    apply_server_config(cfg)
+
+    print("  PASS: Configuration passed to function correctly\n")
+    return true
+
+fn main(): int =>
+    print("=== Configuration Struct Tests ===\n\n")
+
+    if !test_all_defaults() =>
+        return 1
+
+    if !test_partial_override() =>
+        return 1
+
+    if !test_full_custom() =>
+        return 1
+
+    if !test_database_config() =>
+        return 1
+
+    if !test_runtime_modification() =>
+        return 1
+
+    if !test_config_copy() =>
+        return 1
+
+    if !test_config_in_function() =>
+        return 1
+
+    print("\n=== All Configuration Tests PASSED! ===\n")
+    return 0

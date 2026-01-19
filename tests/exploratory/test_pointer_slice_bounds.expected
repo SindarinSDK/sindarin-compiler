@@ -1,0 +1,7 @@
+Testing pointer slice bounds behavior...
+Note: Out-of-bounds slicing is undefined behavior!
+
+Correct bounds: array length = 5
+Bounds test: PASS
+
+Pointer slice bounds test complete!

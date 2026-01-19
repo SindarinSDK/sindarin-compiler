@@ -1,0 +1,101 @@
+# Integration tests for nested struct initialization with various default value combinations
+
+# Level 1 structs (innermost)
+struct Settings =>
+    debug: bool = false
+    level: int = 1
+    name: str = "default"
+
+struct Point =>
+    x: double
+    y: double
+
+struct Timing =>
+    timeout: int = 30
+    retries: int
+    delay: int = 100
+
+# Level 2 structs (middle layer)
+struct Config =>
+    enabled: bool = true
+    settings: Settings
+    priority: int = 5
+
+struct Shape =>
+    color: str = "black"
+    origin: Point
+    filled: bool = false
+
+struct ServerConfig =>
+    host: str = "localhost"
+    port: int = 8080
+    timing: Timing
+    settings: Settings
+
+# Level 3 structs (outermost)
+struct Application =>
+    name: str
+    version: str = "1.0.0"
+    config: Config
+    debug: bool = false
+
+struct ComplexApp =>
+    appName: str
+    mainConfig: ServerConfig
+    fallbackConfig: ServerConfig
+    active: bool = true
+
+fn main(): void =>
+    # Test 1: 2-level nested struct - inner has all defaults
+    var cfg1: Config = Config { settings: Settings {} }
+    print("Test 1 - 2-level nested, inner all defaults passed\n")
+
+    # Test 2: 2-level nested struct - defaults at both levels
+    var cfg2: Config = Config { settings: Settings { debug: true } }
+    print("Test 2 - 2-level nested, defaults both levels passed\n")
+
+    # Test 3: 2-level nested struct - override outer defaults
+    var cfg3: Config = Config { enabled: false, settings: Settings {}, priority: 10 }
+    print("Test 3 - 2-level nested, override outer defaults passed\n")
+
+    # Test 4: 2-level nested struct - inner has no defaults
+    var shape1: Shape = Shape { origin: Point { x: 0.0, y: 0.0 } }
+    print("Test 4 - 2-level nested, inner no defaults passed\n")
+
+    # Test 5: 2-level nested struct - override all
+    var shape2: Shape = Shape { color: "red", origin: Point { x: 10.0, y: 20.0 }, filled: true }
+    print("Test 5 - 2-level nested, override all passed\n")
+
+    # Test 6: 2-level nested struct with multiple inners
+    var srv1: ServerConfig = ServerConfig { timing: Timing { retries: 3 }, settings: Settings {} }
+    print("Test 6 - 2-level nested, multiple inners passed\n")
+
+    # Test 7: 2-level nested struct with mixed defaults in inner
+    var srv2: ServerConfig = ServerConfig { host: "api.example.com", timing: Timing { retries: 5, timeout: 60 }, settings: Settings { name: "production" } }
+    print("Test 7 - 2-level nested, mixed inner defaults passed\n")
+
+    # Test 8: 3-level nested struct with partial initialization
+    var app1: Application = Application { name: "MyApp", config: Config { settings: Settings {} } }
+    print("Test 8 - 3-level nested, partial init passed\n")
+
+    # Test 9: 3-level nested struct with defaults at all levels
+    var app2: Application = Application { name: "TestApp", version: "2.0.0", config: Config { enabled: true, settings: Settings { debug: true, level: 3 }, priority: 1 }, debug: true }
+    print("Test 9 - 3-level nested, all levels explicit passed\n")
+
+    # Test 10: 3-level nested struct with minimal initialization
+    var app3: Application = Application { name: "MinimalApp", config: Config { settings: Settings {} } }
+    print("Test 10 - 3-level nested, minimal init passed\n")
+
+    # Test 11: 3-level nested struct with defaults propagating up
+    var app4: Application = Application { name: "DefaultsApp", config: Config { settings: Settings { name: "custom" } } }
+    print("Test 11 - 3-level nested, defaults propagate passed\n")
+
+    # Test 12: Complex app with multiple nested paths
+    var complex1: ComplexApp = ComplexApp { appName: "ComplexApp", mainConfig: ServerConfig { timing: Timing { retries: 3 }, settings: Settings {} }, fallbackConfig: ServerConfig { host: "backup.example.com", port: 9090, timing: Timing { retries: 5, delay: 200 }, settings: Settings { debug: true } } }
+    print("Test 12 - Complex nested with multiple paths passed\n")
+
+    # Test 13: Complex app with minimal initialization
+    var complex2: ComplexApp = ComplexApp { appName: "MinimalComplex", mainConfig: ServerConfig { timing: Timing { retries: 1 }, settings: Settings {} }, fallbackConfig: ServerConfig { timing: Timing { retries: 2 }, settings: Settings {} } }
+    print("Test 13 - Complex nested minimal init passed\n")
+
+    print("All nested struct initialization tests passed!\n")

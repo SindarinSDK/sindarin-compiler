@@ -1,0 +1,16 @@
+# Test calling a static method on an instance (should error)
+
+struct Counter =>
+    value: int
+
+    static fn zero(): int =>
+        return 0
+
+    fn getValue(): int =>
+        return self.value
+
+fn main(): int =>
+    var c: Counter = Counter { value: 42 }
+    # Try to call static method on instance - should fail
+    var z: int = c.zero()
+    return 0

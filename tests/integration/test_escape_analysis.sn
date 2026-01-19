@@ -1,0 +1,42 @@
+// Test escape analysis for private blocks
+// This file tests that primitives CAN escape private blocks
+// (Non-primitives escaping would cause a compile error, tested separately)
+
+fn main(): void =>
+    // Test 1: Primitive int escaping private block
+    var result: int = 0
+    private =>
+        var temp: int = 100
+        result = temp * 3
+    print($"Result: {result}\n")
+
+    // Test 2: Nested private blocks with primitives
+    var outer: int = 0
+    private =>
+        var inner: int = 0
+        private =>
+            inner = 50
+        outer = inner * 2
+    print($"Outer: {outer}\n")
+
+    // Test 3: Multiple assignments to outer scope
+    var a: int = 0
+    var b: int = 0
+    private =>
+        a = 10
+        b = 20
+    print($"a={a}, b={b}\n")
+
+    // Test 4: Boolean escaping
+    var flag: bool = false
+    private =>
+        flag = true
+    print($"Flag: {flag}\n")
+
+    // Test 5: Double escaping
+    var pi: double = 0.0
+    private =>
+        pi = 3.14159
+    print($"Pi: {pi}\n")
+
+    print("Escape analysis tests passed!\n")

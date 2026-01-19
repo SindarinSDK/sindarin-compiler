@@ -1,0 +1,56 @@
+// Test sync byte with threads - atomic increment should be thread-safe
+
+var byte_counter: sync byte = 0
+var char_counter: sync char = 'A'
+
+fn increment_byte(): int =>
+    byte_counter++
+    return 0
+
+fn increment_char(): int =>
+    char_counter++
+    return 0
+
+fn main(): void =>
+    print("Testing atomic sync byte/char with threads\n")
+
+    // Spawn 5 threads that increment byte counter
+    var b0: int = &increment_byte()
+    var b1: int = &increment_byte()
+    var b2: int = &increment_byte()
+    var b3: int = &increment_byte()
+    var b4: int = &increment_byte()
+
+    // Spawn 5 threads that increment char counter
+    var c0: int = &increment_char()
+    var c1: int = &increment_char()
+    var c2: int = &increment_char()
+    var c3: int = &increment_char()
+    var c4: int = &increment_char()
+
+    // Wait for all threads
+    var r0: int = b0!
+    var r1: int = b1!
+    var r2: int = b2!
+    var r3: int = b3!
+    var r4: int = b4!
+    var s0: int = c0!
+    var s1: int = c1!
+    var s2: int = c2!
+    var s3: int = c3!
+    var s4: int = c4!
+
+    print($"Byte counter: {byte_counter}\n")
+    print($"Char counter: {char_counter}\n")
+
+    // With sync modifier, we should have exactly 5 for byte
+    if byte_counter == 5 =>
+        print("SUCCESS: sync byte atomic increment is thread-safe!\n")
+    else =>
+        print($"FAILURE: Expected byte=5, got {byte_counter}\n")
+
+    // Char should go from 'A' (65) to 'F' (70)
+    if char_counter == 'F' =>
+        print("SUCCESS: sync char atomic increment is thread-safe!\n")
+    else =>
+        print($"FAILURE: Expected char='F', got {char_counter}\n")

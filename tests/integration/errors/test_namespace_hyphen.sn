@@ -1,0 +1,6 @@
+// Test: Namespace identifier containing hyphen
+// Identifiers cannot contain hyphens
+import "../lib/math_basic" as my-lib
+
+fn main(): void =>
+    print("should not compile\n")

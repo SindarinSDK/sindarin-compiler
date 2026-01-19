@@ -1,0 +1,141 @@
+# Composite action for setting up build dependencies
+# This action handles platform-specific dependency installation
+
+name: 'Setup Build Dependencies'
+description: 'Install build dependencies for Sindarin compiler'
+
+inputs:
+  vcpkg:
+    description: 'Use vcpkg for dependency management'
+    required: false
+    default: 'false'
+
+outputs:
+  vcpkg_root:
+    description: 'Path to vcpkg installed packages'
+    value: ${{ steps.vcpkg-setup.outputs.vcpkg_root }}
+
+runs:
+  using: 'composite'
+  steps:
+    #--------------------------------------------------------------------------
+    # Linux
+    #--------------------------------------------------------------------------
+    - name: Install dependencies (Linux)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          ninja-build \
+          zlib1g-dev \
+          python3
+
+    #--------------------------------------------------------------------------
+    # macOS
+    #--------------------------------------------------------------------------
+    - name: Install dependencies (macOS)
+      if: runner.os == 'macOS'
+      shell: bash
+      run: |
+        brew install cmake ninja coreutils zlib python3
+
+    #--------------------------------------------------------------------------
+    # Windows
+    #--------------------------------------------------------------------------
+    - name: Remove system LLVM (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        if (Test-Path "C:\Program Files\LLVM") {
+          Write-Host "Removing system LLVM to avoid conflicts..."
+          Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
+        }
+
+    - name: Install LLVM-MinGW (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $version = "20241217"
+        $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
+        $zipPath = "$env:TEMP\llvm-mingw.zip"
+        $extractPath = "C:\llvm-mingw"
+
+        Write-Host "Downloading LLVM-MinGW $version..."
+        Invoke-WebRequest -Uri $url -OutFile $zipPath
+
+        Write-Host "Extracting to $extractPath..."
+        Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+
+        $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
+        $binPath = Join-Path $llvmDir.FullName "bin"
+
+        Write-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"
+        echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+    - name: Install Ninja (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: choco install ninja -y
+
+    - name: Setup vcpkg (Windows)
+      if: runner.os == 'Windows'
+      id: vcpkg-setup
+      shell: pwsh
+      run: |
+        $vcpkgRoot = "C:\vcpkg"
+
+        # Clone or update vcpkg
+        if (Test-Path $vcpkgRoot) {
+          Write-Host "vcpkg already exists, updating..."
+          Push-Location $vcpkgRoot
+          git pull --quiet 2>$null || Write-Host "Git pull skipped"
+          Pop-Location
+        } else {
+          Write-Host "Cloning vcpkg..."
+          git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
+        }
+
+        # Bootstrap if needed
+        if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
+          Write-Host "Bootstrapping vcpkg..."
+          & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
+        }
+
+        Write-Host "Installing zlib..."
+        & "$vcpkgRoot\vcpkg.exe" install zlib:x64-windows --classic
+
+        # Create libz.a compatibility link
+        $zlibLib = "$vcpkgRoot\installed\x64-windows\lib\zlib.lib"
+        $libzA = "$vcpkgRoot\installed\x64-windows\lib\libz.a"
+        if ((Test-Path $zlibLib) -and -not (Test-Path $libzA)) {
+          Copy-Item $zlibLib $libzA
+        }
+
+        # Set output
+        echo "vcpkg_root=$vcpkgRoot\installed\x64-windows" >> $env:GITHUB_OUTPUT
+
+    #--------------------------------------------------------------------------
+    # Verify Installation
+    #--------------------------------------------------------------------------
+    - name: Verify tools
+      shell: bash
+      run: |
+        echo "=== Build Tools ==="
+        echo "CMake: $(cmake --version | head -1)"
+        echo "Ninja: $(ninja --version)"
+
+        echo ""
+        echo "=== Compilers ==="
+        if command -v gcc &> /dev/null; then
+          echo "GCC: $(gcc --version | head -1)"
+        fi
+        if command -v clang &> /dev/null; then
+          echo "Clang: $(clang --version | head -1)"
+        fi
+
+        echo ""
+        echo "=== Python ==="
+        python3 --version 2>/dev/null || python --version 2>/dev/null || echo "Python not found"

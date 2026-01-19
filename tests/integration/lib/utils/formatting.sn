@@ -1,0 +1,10 @@
+// lib/utils/formatting.sn - Nested module for testing nested paths
+
+fn bracket(s: str): str =>
+    return $"[{s}]"
+
+fn parens(s: str): str =>
+    return $"({s})"
+
+fn double_bracket(s: str): str =>
+    return $"[[{s}]]"

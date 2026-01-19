@@ -1,0 +1,88 @@
+# Integration tests for struct literal initialization with default values
+# Tests type checking of struct literals with various initialization patterns
+# NOTE: Field access code generation is pending, so tests verify type checking
+#       by successfully creating struct literals without accessing fields
+
+# Struct with all fields having defaults
+struct Config =>
+    timeout: int = 30
+    retries: int = 3
+    verbose: bool = false
+
+# Struct with mixed required and optional fields
+struct Connection =>
+    host: str = "localhost"
+    port: int = 8080
+    maxConn: int = 100
+
+# Struct with no defaults (all required)
+struct Point =>
+    x: double
+    y: double
+
+# Nested struct where inner has defaults
+struct Outer =>
+    name: str
+    cfg: Config
+
+# Struct with only some fields having defaults
+struct Mixed =>
+    required_field: int
+    optional_field: int = 42
+    another_required: str
+    another_optional: bool = true
+
+fn main(): void =>
+    # Test 1: Zero initialization - empty literal with all defaults
+    var cfg1: Config = Config {}
+    print("Test 1 - Zero init passed\n")
+
+    # Test 2: Partial initialization - some fields specified, rest use defaults
+    var cfg2: Config = Config { timeout: 60 }
+    print("Test 2 - Partial init (timeout only) passed\n")
+
+    # Test 3: Partial initialization - different field
+    var cfg3: Config = Config { verbose: true }
+    print("Test 3 - Partial init (verbose only) passed\n")
+
+    # Test 4: Override all defaults with explicit values
+    var cfg4: Config = Config { timeout: 120, retries: 5, verbose: true }
+    print("Test 4 - Full override passed\n")
+
+    # Test 5: Connection with string defaults
+    var conn1: Connection = Connection {}
+    print("Test 5 - Connection defaults passed\n")
+
+    # Test 6: Connection with partial override
+    var conn2: Connection = Connection { port: 443 }
+    print("Test 6 - Connection partial passed\n")
+
+    # Test 7: Connection with all overrides
+    var conn3: Connection = Connection { host: "example.com", port: 9000, maxConn: 500 }
+    print("Test 7 - Connection full override passed\n")
+
+    # Test 8: Point struct with all required fields (no defaults)
+    var p1: Point = Point { x: 10.5, y: 20.5 }
+    print("Test 8 - Point (all required) passed\n")
+
+    # Test 9: Mixed struct - required fields with some defaults
+    var mix1: Mixed = Mixed { required_field: 100, another_required: "hello" }
+    print("Test 9 - Mixed (required only) passed\n")
+
+    # Test 10: Mixed struct - override one default
+    var mix2: Mixed = Mixed { required_field: 200, another_required: "world", optional_field: 99 }
+    print("Test 10 - Mixed (one override) passed\n")
+
+    # Test 11: Mixed struct - override all defaults
+    var mix3: Mixed = Mixed { required_field: 300, optional_field: 0, another_required: "test", another_optional: false }
+    print("Test 11 - Mixed (all override) passed\n")
+
+    # Test 12: Nested struct with inner defaults
+    var outer1: Outer = Outer { name: "test", cfg: Config {} }
+    print("Test 12 - Nested with inner defaults passed\n")
+
+    # Test 13: Nested struct with inner partial override
+    var outer2: Outer = Outer { name: "partial", cfg: Config { timeout: 90 } }
+    print("Test 13 - Nested partial passed\n")
+
+    print("All struct default tests passed!\n")

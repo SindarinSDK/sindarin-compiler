@@ -1,0 +1,8 @@
+// Test basic variable declarations and assignments
+fn main(): void =>
+  var x: int = 42
+  var y: double = 3.14
+  var s: str = "hello"
+  var c: char = 'A'
+  var b: bool = true
+  print($"x={x}, y={y}, s={s}, c={c}, b={b}\n")

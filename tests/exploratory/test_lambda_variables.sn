@@ -1,0 +1,43 @@
+// Test 45: Arrays containing lambdas
+fn main(): int =>
+    print("Test arrays of lambdas:\n\n")
+
+    // Single lambda stored
+    var f1: fn(int): int = fn(x: int): int => x * 2
+    var f2: fn(int): int = fn(x: int): int => x * 3
+    var f3: fn(int): int = fn(x: int): int => x + 10
+
+    // Call each
+    print($"f1(5) = {f1(5)}\n")
+    print($"f2(5) = {f2(5)}\n")
+    print($"f3(5) = {f3(5)}\n")
+
+    // If array of lambdas supported:
+    // var funcs: fn(int): int[] = {f1, f2, f3}
+    // for f in funcs =>
+    //     print($"f(5) = {f(5)}\n")
+
+    // Alternative: apply each manually
+    print("\nApplying transformations:\n")
+    var value: int = 10
+    value = f1(value)
+    print($"After f1: {value}\n")
+    value = f2(value)
+    print($"After f2: {value}\n")
+    value = f3(value)
+    print($"After f3: {value}\n")
+
+    // Chain calls
+    var result: int = f3(f2(f1(5)))
+    print($"\nf3(f2(f1(5))) = {result}\n")
+
+    // Different lambda signatures
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+    var mul: fn(int, int): int = fn(a: int, b: int): int => a * b
+    var sub: fn(int, int): int = fn(a: int, b: int): int => a - b
+
+    print($"\nadd(10, 5) = {add(10, 5)}\n")
+    print($"mul(10, 5) = {mul(10, 5)}\n")
+    print($"sub(10, 5) = {sub(10, 5)}\n")
+
+    return 0

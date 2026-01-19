@@ -1,0 +1,7 @@
+Counter.zero(): 0
+Counter.defaultValue(): 100
+Counter.add(3, 7): 10
+Initial value: 42
+After increment: 43
+Point(3, 4) magnitude: 5.00000
+All static method tests passed!

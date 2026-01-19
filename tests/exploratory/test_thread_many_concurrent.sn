@@ -1,0 +1,43 @@
+// Test: Many concurrent threads
+// Spawns many threads simultaneously to test thread pool behavior
+// and concurrent execution limits
+
+fn compute(x: int): int =>
+    // Simple computation
+    return x * x
+
+fn main(): void =>
+    print("Testing many concurrent threads\n")
+
+    // Spawn 10 threads
+    var t1: int = &compute(1)
+    var t2: int = &compute(2)
+    var t3: int = &compute(3)
+    var t4: int = &compute(4)
+    var t5: int = &compute(5)
+    var t6: int = &compute(6)
+    var t7: int = &compute(7)
+    var t8: int = &compute(8)
+    var t9: int = &compute(9)
+    var t10: int = &compute(10)
+
+    // Sync all threads individually
+    t1!
+    t2!
+    t3!
+    t4!
+    t5!
+    t6!
+    t7!
+    t8!
+    t9!
+    t10!
+
+    // Calculate sum: 1 + 4 + 9 + 16 + 25 + 36 + 49 + 64 + 81 + 100 = 385
+    var sum: int = t1 + t2 + t3 + t4 + t5 + t6 + t7 + t8 + t9 + t10
+    print($"Sum of squares: {sum}\n")
+
+    if sum == 385 =>
+        print("SUCCESS: Many concurrent threads work correctly\n")
+    else =>
+        print($"FAILURE: Expected 385, got {sum}\n")

@@ -1,0 +1,39 @@
+// Test: Interceptor namespace basic API
+// Tests: Interceptor.count, Interceptor.isActive, Interceptor.clearAll, Interceptor.register
+
+fn myHandler(name: str, args: any[], continue_fn: fn(): any): any =>
+    // Just call continue for now
+    return continue_fn()
+
+fn main =>
+    // Test initial state
+    var count: int = Interceptor.count()
+    if count == 0 =>
+        print("Initial count is 0 - PASS\n")
+    else =>
+        print("Initial count is not 0 - FAIL\n")
+
+    // Test isActive outside of interceptor
+    var active: bool = Interceptor.isActive()
+    if !active =>
+        print("isActive is false outside interceptor - PASS\n")
+    else =>
+        print("isActive should be false - FAIL\n")
+
+    // Test register
+    Interceptor.register(myHandler)
+    count = Interceptor.count()
+    if count == 1 =>
+        print("Count after register is 1 - PASS\n")
+    else =>
+        print("Count after register should be 1 - FAIL\n")
+
+    // Test clearAll
+    Interceptor.clearAll()
+    count = Interceptor.count()
+    if count == 0 =>
+        print("Count after clearAll is 0 - PASS\n")
+    else =>
+        print("Count after clearAll should be 0 - FAIL\n")
+
+    print("All basic interceptor tests passed!\n")

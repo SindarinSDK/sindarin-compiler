@@ -1,0 +1,7 @@
+Testing shared arena mode
+Array length: 4
+Array[0]: 10
+Array[3]: 40
+After push, length: 5
+String: Shared arena mode
+SUCCESS: Shared arena mode works correctly

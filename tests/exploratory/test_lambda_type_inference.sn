@@ -1,0 +1,98 @@
+// Test 111: Lambda parameter type inference in complex scenarios
+// Tests advanced type inference for lambda parameters and return types.
+
+fn main(): int =>
+    print("Test lambda type inference in complex scenarios:\n\n")
+
+    // Test 1: Inference with array parameter
+    print("Test 1 - Array parameter inference:\n")
+    var sum_array: fn(int[]): int = fn(arr) =>
+        var total: int = 0
+        for x in arr =>
+            total = total + x
+        return total
+    var nums: int[] = {1, 2, 3, 4, 5}
+    print($"  sum_array([1,2,3,4,5]) = {sum_array(nums)}\n")
+
+    // Test 2: Inference with multiple parameters of same type
+    print("\nTest 2 - Multiple params same type:\n")
+    var triple_add: fn(int, int, int): int = fn(a, b, c) => a + b + c
+    print($"  triple_add(10, 20, 30) = {triple_add(10, 20, 30)}\n")
+
+    // Test 3: Inference with mixed types
+    print("\nTest 3 - Mixed type params:\n")
+    var format_int: fn(str, int): str = fn(prefix, num) => $"{prefix}: {num}"
+    print($"  format_int(\"Value\", 42) = {format_int("Value", 42)}\n")
+
+    // Test 4: Lambda returning lambda with inference
+    print("\nTest 4 - Lambda returning lambda with inference:\n")
+    var make_multiplier: fn(int): fn(int): int = fn(factor) =>
+        var mult: fn(int): int = fn(x) => x * factor
+        return mult
+    var times_7: fn(int): int = make_multiplier(7)
+    print($"  make_multiplier(7)(6) = {times_7(6)}\n")
+
+    // Test 5: Inference with void return
+    print("\nTest 5 - Void return inference:\n")
+    var print_sum: fn(int, int): void = fn(a, b) =>
+        var s: int = a + b
+        print($"  Sum: {s}\n")
+    print_sum(100, 200)
+
+    // Test 6: Inference with boolean expressions
+    print("\nTest 6 - Boolean expression inference:\n")
+    var is_even: fn(int): bool = fn(x) => x % 2 == 0
+    var is_positive: fn(int): bool = fn(x) => x > 0
+    print($"  is_even(4) = {is_even(4)}\n")
+    print($"  is_even(7) = {is_even(7)}\n")
+    print($"  is_positive(-5) = {is_positive(-5)}\n")
+    print($"  is_positive(10) = {is_positive(10)}\n")
+
+    // Test 7: Inference with char type
+    print("\nTest 7 - Char type inference:\n")
+    var get_char: fn(char): char = fn(c) => c
+    print($"  get_char('a') = {get_char('a')}\n")
+    print($"  get_char('M') = {get_char('M')}\n")
+
+    // Test 8: Inference in nested context with captures
+    print("\nTest 8 - Inference with captured variable:\n")
+    var base: int = 1000
+    var add_to_base: fn(int): int = fn(x) => base + x
+    print($"  add_to_base(42) = {add_to_base(42)}\n")
+
+    // Test 9: Complex inference with conditional
+    print("\nTest 9 - Conditional with inference:\n")
+    var max_of: fn(int, int): int = fn(a, b) =>
+        if a > b =>
+            return a
+        return b
+    print($"  max_of(15, 8) = {max_of(15, 8)}\n")
+    print($"  max_of(3, 20) = {max_of(3, 20)}\n")
+
+    // Test 10: Double type inference
+    print("\nTest 10 - Double type inference:\n")
+    var average: fn(double, double): double = fn(a, b) => (a + b) / 2.0
+    print($"  average(10.0, 20.0) = {average(10.0, 20.0)}\n")
+
+    // Test 11: Partially explicit, partially inferred
+    print("\nTest 11 - Mixed explicit/inferred params:\n")
+    var mixed1: fn(int, int): int = fn(a: int, b) => a - b
+    var mixed2: fn(int, int): int = fn(a, b: int) => a * b
+    print($"  mixed1(10, 3) = {mixed1(10, 3)}\n")
+    print($"  mixed2(4, 5) = {mixed2(4, 5)}\n")
+
+    // Verification
+    var errors: int = 0
+    if sum_array(nums) != 15 => errors++
+    if triple_add(10, 20, 30) != 60 => errors++
+    if times_7(6) != 42 => errors++
+    if max_of(15, 8) != 15 => errors++
+    if mixed1(10, 3) != 7 => errors++
+    if mixed2(4, 5) != 20 => errors++
+
+    if errors == 0 =>
+        print("\nAll lambda type inference tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

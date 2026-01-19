@@ -1,0 +1,112 @@
+# ==============================================================================
+# sdk/net/udp.sn - UDP Socket Type for Sindarin
+# ==============================================================================
+# Provides a UDP socket for connectionless datagram communication.
+# Drop-in replacement for the builtin UdpSocket type.
+#
+# Usage:
+#   import "sdk/net/udp"
+#
+#   # Server
+#   var socket: UdpSocket = UdpSocket.bind(":9000")
+#   while true =>
+#       var result: UdpReceiveResult = socket.receiveFrom(1024)
+#       print($"From {result.sender}: {result.data.toString()}\n")
+#       socket.sendTo(result.data, result.sender)  # echo back
+#
+#   # Client
+#   var socket: UdpSocket = UdpSocket.bind(":0")  # OS assigns port
+#   socket.sendTo("Hello".toBytes(), "127.0.0.1:9000")
+#   var result: UdpReceiveResult = socket.receiveFrom(1024)
+#   print(result.data.toString())
+#   socket.close()
+#
+# ==============================================================================
+
+# Self-contained implementation - compile and link our own C source
+#pragma source "udp.sn.c"
+
+# ==============================================================================
+# UdpReceiveResult - Result struct for receiveFrom
+# ==============================================================================
+# Contains both the received data and the sender's address.
+
+#pragma alias "RtUdpReceiveResult"
+native struct UdpReceiveResult as ref =>
+    #pragma alias "data"
+    _data: byte[]
+
+    #pragma alias "sender"
+    _sender: str
+
+    # Getter for received data
+    fn data(): byte[] =>
+        return sn_udp_result_get_data(arena, self)
+
+    # Getter for sender address
+    fn sender(): str =>
+        return sn_udp_result_get_sender(arena, self)
+
+# ==============================================================================
+# UdpSocket Native Struct Definition
+# ==============================================================================
+# Uses #pragma alias to map UdpSocket to RtUdpSocket in the runtime.
+# The 'as ref' modifier means native methods receive self by pointer.
+
+#pragma alias "RtUdpSocket"
+native struct UdpSocket as ref =>
+    #pragma alias "socket_fd"
+    _socket_fd: int
+
+    #pragma alias "bound_port"
+    _bound_port: int
+
+    # ==========================================================================
+    # Static Factory Methods (non-native - receive arena)
+    # ==========================================================================
+
+    # Create socket bound to address (host:port or :port, use :0 for OS-assigned port)
+    static fn bind(address: str): UdpSocket =>
+        return sn_udp_socket_bind(arena, address)
+
+    # ==========================================================================
+    # Send/Receive Methods
+    # ==========================================================================
+
+    # Send datagram to address, return bytes sent
+    #pragma alias "sn_udp_socket_send_to"
+    native fn sendTo(data: byte[], address: str): int
+
+    # Receive datagram and sender address
+    fn receiveFrom(maxBytes: int): UdpReceiveResult =>
+        return sn_udp_socket_receive_from(arena, self, maxBytes)
+
+    # ==========================================================================
+    # Getter Methods (native - pass self by pointer)
+    # ==========================================================================
+
+    # Get bound port number
+    #pragma alias "sn_udp_socket_get_port"
+    native fn port(): int
+
+    # ==========================================================================
+    # Lifecycle Methods (native - pass self by pointer)
+    # ==========================================================================
+
+    # Close the socket
+    #pragma alias "sn_udp_socket_close"
+    native fn close(): void
+
+# ==============================================================================
+# Runtime Function Declarations
+# ==============================================================================
+
+# Factory functions
+native fn sn_udp_socket_bind(a: *void, address: str): UdpSocket
+
+# Receive function - returns result struct
+native fn sn_udp_socket_receive_from(a: *void, socket: UdpSocket, maxBytes: int): UdpReceiveResult
+
+# Result getters
+native fn sn_udp_result_get_data(a: *void, result: UdpReceiveResult): byte[]
+native fn sn_udp_result_get_sender(a: *void, result: UdpReceiveResult): str

@@ -1,0 +1,39 @@
+// Test 07: Comparison operators
+fn main(): int =>
+    var a: int = 10
+    var b: int = 20
+    var c: int = 10
+
+    // Integer comparisons
+    print($"a == c: {a == c}\n")
+    print($"a == b: {a == b}\n")
+    print($"a != b: {a != b}\n")
+    print($"a < b: {a < b}\n")
+    print($"a > b: {a > b}\n")
+    print($"a <= c: {a <= c}\n")
+    print($"a >= c: {a >= c}\n")
+
+    // Double comparisons
+    var d1: double = 1.5
+    var d2: double = 2.5
+    var d3: double = 1.5
+    print($"d1 == d3: {d1 == d3}\n")
+    print($"d1 < d2: {d1 < d2}\n")
+
+    // String comparisons
+    var s1: str = "apple"
+    var s2: str = "banana"
+    var s3: str = "apple"
+    print($"s1 == s3: {s1 == s3}\n")
+    print($"s1 < s2: {s1 < s2}\n")
+    print($"s1 != s2: {s1 != s2}\n")
+
+    // Chained comparisons in conditions
+    if a <= c && c < b =>
+        print("a <= c < b is true\n")
+
+    // Comparisons with expressions
+    print($"(a + 5) > b: {(a + 5) > b}\n")
+    print($"(a * 2) == b: {(a * 2) == b}\n")
+
+    return 0

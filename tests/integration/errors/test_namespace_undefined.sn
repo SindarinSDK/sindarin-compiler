@@ -1,0 +1,5 @@
+// Test: Accessing an undefined namespace
+// 'unknown_ns' was never imported with 'as unknown_ns'
+fn main(): void =>
+    var x: int = unknown_ns.add(1, 2)
+    print($"{x}\n")

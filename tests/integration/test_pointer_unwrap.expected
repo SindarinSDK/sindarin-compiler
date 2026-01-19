@@ -1,0 +1,17 @@
+=== Pointer Unwrap Integration Tests ===
+
+Test 1: *int unwrap with 'as val'
+  nil pointer unwrap returns: -1
+  *int unwrap test: OK
+
+Test 2: *char to str unwrap with 'as val'
+  Environment value: (not set)
+  *char to str unwrap test: OK
+
+Test 3: buffer unwrap with ptr[0..len] as val
+  Buffer slice created with length param: 8
+  Array length: 8
+  Via unwrap_buffer fn, length: 0
+  Buffer unwrap test: OK
+
+=== All pointer unwrap tests passed! ===

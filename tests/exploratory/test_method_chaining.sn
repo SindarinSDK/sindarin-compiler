@@ -1,0 +1,67 @@
+// Test 50: Method chaining
+fn main(): int =>
+    print("Test method chaining:\n\n")
+
+    // String method chaining
+    var s1: str = "  HELLO WORLD  "
+    print($"Original: \"{s1}\"\n")
+
+    var s2: str = s1.trim()
+    print($"trim(): \"{s2}\"\n")
+
+    var s3: str = s1.trim().toLower()
+    print($"trim().toLower(): \"{s3}\"\n")
+
+    var s4: str = s1.trim().toLower().toUpper()
+    print($"trim().toLower().toUpper(): \"{s4}\"\n")
+
+    // Chain on literal
+    var s5: str = "hello".toUpper()
+    print($"\n\"hello\".toUpper(): \"{s5}\"\n")
+
+    var s6: str = "  test  ".trim()
+    print($"\"  test  \".trim(): \"{s6}\"\n")
+
+    // Chain with replace
+    var s7: str = "hello world".replace("world", "there")
+    print($"\n\"hello world\".replace(\"world\", \"there\"): \"{s7}\"\n")
+
+    // Multiple replaces
+    var s8: str = "a b c".replace("a", "x").replace("b", "y").replace("c", "z")
+    print($"Multiple replace: \"{s8}\"\n")
+
+    // Array method chaining (where applicable)
+    print("\nArray operations:\n")
+    var arr: int[] = {1, 2, 3}
+    print("Original: ")
+    print(arr)
+    print("\n")
+
+    // Clone and modify
+    var arr2: int[] = arr.clone()
+    arr2.push(4)
+    print("clone().push(4): ")
+    print(arr2)
+    print("\n")
+
+    // Concat returns new array
+    var arr3: int[] = arr.concat({4, 5})
+    print("concat({4,5}): ")
+    print(arr3)
+    print("\n")
+
+    // Chain concat
+    var arr4: int[] = arr.concat({4}).concat({5})
+    print("concat({4}).concat({5}): ")
+    print(arr4)
+    print("\n")
+
+    // String split and process
+    print("\nSplit and process:\n")
+    var csv: str = "apple,banana,cherry"
+    var parts: str[] = csv.split(",")
+    for part in parts =>
+        var upper: str = part.toUpper()
+        print($"  {part} -> {upper}\n")
+
+    return 0

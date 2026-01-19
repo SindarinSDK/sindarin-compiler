@@ -1,0 +1,77 @@
+// Test: Interceptor with 'as ref' parameters
+// Verifies that interceptors work correctly with by-reference parameters
+
+var intercept_count: int = 0
+
+fn increment(x: int as ref) =>
+    x = x + 1
+
+fn swap(a: int as ref, b: int as ref) =>
+    var temp: int = a
+    a = b
+    b = temp
+
+fn myInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercept_count = intercept_count + 1
+    print($"Intercepting: {name}\n")
+
+    // Just pass through to the original function
+    var result: any = 42  // dummy, we don't use continue_fn yet
+    return result
+
+fn main =>
+    print("=== Interceptor as ref Test ===\n\n")
+
+    // Test 1: Direct call without interceptor
+    print("Test 1: Direct call to increment\n")
+    var x: int = 5
+    increment(x)
+    if x == 6 =>
+        print($"  x = {x} - PASS\n")
+    else =>
+        print($"  x = {x}, expected 6 - FAIL\n")
+
+    // Test 2: Direct call to swap
+    print("\nTest 2: Direct call to swap\n")
+    var a: int = 10
+    var b: int = 20
+    swap(a, b)
+    if a == 20 && b == 10 =>
+        print($"  a = {a}, b = {b} - PASS\n")
+    else =>
+        print($"  a = {a}, b = {b}, expected a=20, b=10 - FAIL\n")
+
+    // Test 3: Intercepted increment
+    print("\nTest 3: Intercepted increment\n")
+    Interceptor.register(myInterceptor)
+    x = 100
+    increment(x)
+    // Note: since we return dummy value and don't call continue_fn,
+    // the actual increment won't happen through interception
+    // But the interceptor should still be called
+    if intercept_count == 1 =>
+        print("  Interceptor was called - PASS\n")
+    else =>
+        print($"  Interceptor count = {intercept_count}, expected 1 - FAIL\n")
+
+    // Test 4: Intercepted swap
+    print("\nTest 4: Intercepted swap\n")
+    a = 100
+    b = 200
+    swap(a, b)
+    if intercept_count == 2 =>
+        print("  Interceptor was called for swap - PASS\n")
+    else =>
+        print($"  Interceptor count = {intercept_count}, expected 2 - FAIL\n")
+
+    // Test 5: Clear interceptors and verify normal operation
+    print("\nTest 5: After clearAll\n")
+    Interceptor.clearAll()
+    x = 50
+    increment(x)
+    if x == 51 =>
+        print($"  x = {x} - PASS\n")
+    else =>
+        print($"  x = {x}, expected 51 - FAIL\n")
+
+    print("\n=== All as ref Tests Completed ===\n")

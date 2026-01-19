@@ -1,0 +1,9 @@
+=== Random Gaussian Distribution ===
+Testing gaussian(0.0, 1.0)...
+  PASS: gaussian(0,1) mean is close to 0
+Testing gaussian(100.0, 1.0)...
+  PASS: gaussian(100, 1) mean is close to 100
+Testing gaussian(50.0, 10.0)...
+  PASS: gaussian(50, 10) mean is close to 50
+
+PASS

@@ -1,0 +1,9 @@
+Initial data: length = 5
+Spawned 3 threads capturing same array
+Read while frozen: length = 5
+After first sync: sum = 150
+Read after first sync: data[0] = 10
+After second sync: first = 10
+After third sync: last = 50
+After writes: data[0] = 100, length = 6
+SUCCESS: Multiple freeze/unfreeze works correctly

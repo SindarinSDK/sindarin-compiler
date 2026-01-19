@@ -1,0 +1,108 @@
+// Test 127: Functions with many parameters
+// Tests functions with 10+ parameters
+
+// Function with 10 int parameters
+fn sum_10(a1: int, a2: int, a3: int, a4: int, a5: int, a6: int, a7: int, a8: int, a9: int, a10: int): int =>
+    return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10
+
+// Function with 12 int parameters
+fn sum_12(a1: int, a2: int, a3: int, a4: int, a5: int, a6: int, a7: int, a8: int, a9: int, a10: int, a11: int, a12: int): int =>
+    return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
+
+// Function with mixed types (10 parameters) - needs shared to return string
+fn mixed_10(s1: str, i1: int, b1: bool, s2: str, i2: int, d1: double, i3: int, s3: str, i4: int, b2: bool) shared: str =>
+    var result: str = s1 + s2 + s3
+    var sum: int = i1 + i2 + i3 + i4
+    result = result + $" sum={sum}"
+    return result
+
+// Function that passes many parameters to another
+fn wrapper_10(x: int): int =>
+    return sum_10(x, x+1, x+2, x+3, x+4, x+5, x+6, x+7, x+8, x+9)
+
+// Function with 15 parameters
+fn sum_15(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int, i: int, j: int, k: int, l: int, m: int, n: int, o: int): int =>
+    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o
+
+fn main(): int =>
+    print("Test functions with many parameters:\n\n")
+    var errors: int = 0
+
+    // Test 1: Sum of 10 integers
+    print("Test 1 - Sum of 10 integers:\n")
+    var s10: int = sum_10(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    print($"  sum_10(1..10) = {s10}\n")
+    // 1+2+3+4+5+6+7+8+9+10 = 55
+    if s10 != 55 =>
+        print("  FAIL: expected 55\n")
+        errors++
+
+    // Test 2: Sum of 12 integers
+    print("\nTest 2 - Sum of 12 integers:\n")
+    var s12: int = sum_12(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)
+    print($"  sum_12(1..12) = {s12}\n")
+    // 1+2+...+12 = 78
+    if s12 != 78 =>
+        print("  FAIL: expected 78\n")
+        errors++
+
+    // Test 3: All zeros
+    print("\nTest 3 - All zeros:\n")
+    var all_zeros: int = sum_10(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+    print($"  sum_10(0,0,...,0) = {all_zeros}\n")
+    if all_zeros != 0 =>
+        print("  FAIL: expected 0\n")
+        errors++
+
+    // Test 4: Mixed positive and negative
+    print("\nTest 4 - Mixed positive and negative:\n")
+    var mixed: int = sum_10(-5, -4, -3, -2, -1, 1, 2, 3, 4, 5)
+    print($"  sum_10(-5,-4,-3,-2,-1,1,2,3,4,5) = {mixed}\n")
+    // -5-4-3-2-1+1+2+3+4+5 = 0
+    if mixed != 0 =>
+        print("  FAIL: expected 0\n")
+        errors++
+
+    // Test 5: Mixed types
+    print("\nTest 5 - Mixed parameter types:\n")
+    var mix: str = mixed_10("Hello", 1, true, " World", 2, 3.14, 3, "!", 4, false)
+    print($"  mixed_10 result: {mix}\n")
+    // "Hello World! sum=10"
+    if mix != "Hello World! sum=10" =>
+        print("  FAIL: unexpected result\n")
+        errors++
+
+    // Test 6: Wrapper function
+    print("\nTest 6 - Wrapper passing many params:\n")
+    var wrapped: int = wrapper_10(1)
+    print($"  wrapper_10(1) = {wrapped}\n")
+    // 1+2+3+4+5+6+7+8+9+10 = 55
+    if wrapped != 55 =>
+        print("  FAIL: expected 55\n")
+        errors++
+
+    // Test 7: 15 parameters
+    print("\nTest 7 - 15 parameters:\n")
+    var s15: int = sum_15(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+    print($"  sum_15(1..15) = {s15}\n")
+    // 1+2+...+15 = 120
+    if s15 != 120 =>
+        print("  FAIL: expected 120\n")
+        errors++
+
+    // Test 8: Large values
+    print("\nTest 8 - Large values:\n")
+    var large: int = sum_10(100, 200, 300, 400, 500, 600, 700, 800, 900, 1000)
+    print($"  sum_10(100,200,...,1000) = {large}\n")
+    // 100+200+...+1000 = 5500
+    if large != 5500 =>
+        print("  FAIL: expected 5500\n")
+        errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll many parameters tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

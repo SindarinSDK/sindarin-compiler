@@ -1,0 +1,33 @@
+// Test variadic native function support
+// This test uses custom variadic functions to avoid conflicts with stdio.h declarations
+// The variadic functions are defined in test_variadic_helper.c
+
+#pragma source "test_variadic_helper.c"
+
+// Custom variadic function that prints formatted output
+// Defined in the helper C file with the correct signature
+native fn test_printf(format: str, ...): int32
+
+fn main(): int =>
+    // Test with just format string
+    test_printf("Hello, variadic!\n")
+
+    // Test with string argument
+    test_printf("Name: %s\n", "World")
+
+    // Test with int argument - use %ld for 64-bit int
+    test_printf("Count: %ld\n", 42)
+
+    // Test with double argument
+    test_printf("Pi: %f\n", 3.14159)
+
+    // Test with multiple arguments - use %ld for 64-bit ints
+    test_printf("Int: %ld, Double: %f, String: %s\n", 100, 2.718, "test")
+
+    // Test with char argument
+    test_printf("Char: %c\n", 'X')
+
+    // Test with bool (passed as int) - use %ld for 64-bit
+    test_printf("Bool: %ld\n", true)
+
+    return 0

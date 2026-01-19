@@ -1,0 +1,9 @@
+// Test string methods
+fn main(): void =>
+  var text: str = "  Hello World  "
+  var upper: str = text.toUpper()
+  var lower: str = text.toLower()
+  var trimmed: str = text.trim()
+  print($"upper={upper}\n")
+  print($"lower={lower}\n")
+  print($"trimmed={trimmed}\n")

@@ -1,0 +1,127 @@
+// ============================================================================
+// time.sn - Time Features in Sindarin
+// ============================================================================
+// Demonstrates: Time creation, formatting, arithmetic, comparisons,
+//               benchmarking, and common time patterns
+// ============================================================================
+
+// Entry point for time demos
+fn demo_time(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                         Sindarin Time                            │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Creating times
+  print("--- Creating Times ---\n")
+  var now: Time = Time.now()
+  print($"Now (local): {now.toIso()}\n")
+
+  var utc: Time = Time.utc()
+  print($"Now (UTC): {utc.toIso()}\n")
+
+  var fromMs: Time = Time.fromMillis(1735500000000)
+  print($"From millis: {fromMs.toIso()}\n")
+
+  var fromSec: Time = Time.fromSeconds(1735500000)
+  print($"From seconds: {fromSec.toIso()}\n")
+
+  // 2. Time components
+  print("\n--- Time Components ---\n")
+  print($"Year: {now.year()}\n")
+  print($"Month: {now.month()}\n")
+  print($"Day: {now.day()}\n")
+  print($"Hour: {now.hour()}\n")
+  print($"Minute: {now.minute()}\n")
+  print($"Second: {now.second()}\n")
+  print($"Weekday: {now.weekday()}\n")
+  print($"Millis since epoch: {now.millis()}\n")
+  print($"Seconds since epoch: {now.seconds()}\n")
+
+  // 3. Weekday names
+  print("\n--- Weekday Names ---\n")
+  var names: str[] = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"}
+  print($"Today is {names[now.weekday()]}\n")
+
+  // 4. Formatting
+  print("\n--- Formatting ---\n")
+  print($"ISO: {now.toIso()}\n")
+  print($"Date only: {now.format("YYYY-MM-DD")}\n")
+  print($"Time only: {now.format("HH:mm:ss")}\n")
+  print($"YYYY-MM-DD: {now.format("YYYY-MM-DD")}\n")
+  print($"HH:mm:ss: {now.format("HH:mm:ss")}\n")
+  print($"YYYY-MM-DD HH:mm:ss: {now.format("YYYY-MM-DD HH:mm:ss")}\n")
+  print($"M/D/YYYY: {now.format("M/D/YYYY")}\n")
+  print($"h:mm A: {now.format("h:mm A")}\n")
+  print($"h:mm:ss a: {now.format("h:mm:ss a")}\n")
+
+  // 5. Time arithmetic
+  print("\n--- Time Arithmetic ---\n")
+  var base: Time = Time.now()
+  print($"Now: {base.format("HH:mm:ss")}\n")
+  print($"add(5000): {base.add(5000).format("HH:mm:ss.SSS")}\n")
+  print($"addSeconds(30): {base.addSeconds(30).format("HH:mm:ss")}\n")
+  print($"addMinutes(15): {base.addMinutes(15).format("HH:mm:ss")}\n")
+  print($"addHours(2): {base.addHours(2).format("HH:mm:ss")}\n")
+  print($"addDays(1): {base.addDays(1).format("YYYY-MM-DD HH:mm:ss")}\n")
+
+  // Subtraction with negative values
+  print($"addHours(-1): {base.addHours(-1).format("HH:mm:ss")}\n")
+  print($"addDays(-7): {base.addDays(-7).format("YYYY-MM-DD")}\n")
+
+  // 6. Measuring elapsed time
+  print("\n--- Elapsed Time ---\n")
+  var start: Time = Time.now()
+  // Simulate some work
+  var sum: int = 0
+  for var i: int = 0; i < 10000; i++ =>
+    sum = sum + i
+  var elapsed: int = Time.now().diff(start)
+  print($"Loop completed in {elapsed}ms\n")
+
+  // 7. Time differences
+  print("\n--- Time Differences ---\n")
+  var t1: Time = Time.now()
+  Time.sleep(50)
+  var t2: Time = Time.now()
+  print($"t2.diff(t1): {t2.diff(t1)}ms\n")
+  print($"t1.diff(t2): {t1.diff(t2)}ms\n")
+
+  // 8. Comparisons
+  print("\n--- Comparisons ---\n")
+  var earlier: Time = Time.fromMillis(1735500000000)
+  var later: Time = Time.fromMillis(1735500001000)
+  print($"earlier isBefore later: {earlier.isBefore(later)}\n")
+  print($"later isAfter earlier: {later.isAfter(earlier)}\n")
+
+  var same1: Time = Time.fromMillis(1735500000000)
+  var same2: Time = Time.fromMillis(1735500000000)
+  print($"equals: {same1.equals(same2)}\n")
+
+  // 9. Sleep
+  print("\n--- Sleep ---\n")
+  print("Sleeping for 100ms...\n")
+  var sleepStart: Time = Time.now()
+  Time.sleep(100)
+  var sleepElapsed: int = Time.now().diff(sleepStart)
+  print($"Slept for {sleepElapsed}ms\n")
+
+  // 10. Timestamps for logging
+  print("\n--- Timestamps ---\n")
+  var timestamp: Time = Time.now()
+  print($"[{timestamp.format("YYYY-MM-DD HH:mm:ss")}] Event occurred\n")
+  print($"[{timestamp.format("HH:mm:ss.SSS")}] Precise timestamp\n")
+
+  // 11. File naming with timestamps
+  print("\n--- File Naming ---\n")
+  var fileTime: Time = Time.now()
+  var filename: str = $"backup_{fileTime.format("YYYYMMDD_HHmmss")}.txt"
+  print($"Generated filename: {filename}\n")
+
+  // 12. Scheduling future events
+  print("\n--- Future Events ---\n")
+  var eventNow: Time = Time.now()
+  var eventTime: Time = eventNow.addHours(2).addMinutes(30)
+  print($"Event scheduled for: {eventTime.format("h:mm A")}\n")
+  var waitMs: int = eventTime.diff(eventNow)
+  print($"Time until event: {waitMs / 1000 / 60} minutes\n")
+

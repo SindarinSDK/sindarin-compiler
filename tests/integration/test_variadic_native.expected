@@ -1,0 +1,7 @@
+Hello, variadic!
+Name: World
+Count: 42
+Pi: 3.141590
+Int: 100, Double: 2.718000, String: test
+Char: X
+Bool: 1

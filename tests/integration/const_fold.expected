@@ -1,0 +1,17 @@
+a = 5
+b = 6
+c = 56
+d = 20
+e = 2
+nested = 15
+mixed = 16
+cmp1 = true
+cmp2 = true
+cmp3 = false
+log1 = true
+log2 = false
+log3 = true
+neg = -42
+neg2 = 42
+da = 5.00000
+db = 2.50000

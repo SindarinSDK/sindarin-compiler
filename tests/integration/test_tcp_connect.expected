@@ -1,0 +1,10 @@
+[DEBUG] Connecting to server...
+Connected to server
+Remote address correct
+[DEBUG] Reading data from socket...
+Received: HELLO FROM SERVER
+Message matches
+Connection closed
+[DEBUG] Syncing server thread...
+[DEBUG] Server thread completed
+Test complete

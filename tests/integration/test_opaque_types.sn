@@ -1,0 +1,38 @@
+# Integration test for opaque types (type X = opaque)
+# Tests opaque type declaration and pointer usage with FILE
+
+#pragma include <stdio.h>
+
+# Declare FILE as an opaque type
+type FILE = opaque
+
+# Native function to get a null file pointer
+native fn get_null_file(): *FILE =>
+    return nil
+
+# Native function that takes opaque pointer and tests nil comparison
+native fn is_file_nil(f: *FILE): bool =>
+    return f == nil
+
+# Native function with FILE pointer parameter
+native fn use_file_ptr(f: *FILE): void =>
+    return
+
+fn main(): int =>
+    # Test nil passed to function expecting opaque pointer
+    var result: bool = is_file_nil(nil)
+    if result =>
+        print("is_file_nil(nil) returned true (expected)\n")
+    else =>
+        print("is_file_nil(nil) returned false (unexpected)\n")
+
+    # Test passing result of native function to another native function
+    use_file_ptr(get_null_file())
+    print("use_file_ptr(get_null_file()) succeeded\n")
+
+    # Test inline nil passing
+    use_file_ptr(nil)
+    print("use_file_ptr(nil) succeeded\n")
+
+    print("All opaque type tests passed!\n")
+    return 0

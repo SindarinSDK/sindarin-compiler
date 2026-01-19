@@ -1,0 +1,6 @@
+// Test while loop
+fn main(): void =>
+  var i: int = 0
+  while i < 5 =>
+    print($"i={i}\n")
+    i = i + 1

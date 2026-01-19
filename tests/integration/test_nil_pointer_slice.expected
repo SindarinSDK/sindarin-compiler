@@ -1,0 +1,4 @@
+Testing nil pointer slicing...
+Array length: 5
+Length check: PASS
+Nil pointer slice test complete!

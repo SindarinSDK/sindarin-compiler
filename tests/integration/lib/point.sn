@@ -1,0 +1,19 @@
+# Module that exports a Point struct for testing import-first processing
+
+struct Point =>
+    x: int
+    y: int
+    fn getX(): int =>
+        return self.x
+    fn getY(): int =>
+        return self.y
+
+# Factory function (outside the struct)
+fn point_create(x: int, y: int): Point =>
+    return Point { x: x, y: y }
+
+fn point_origin(): Point =>
+    return Point { x: 0, y: 0 }
+
+fn add_points(a: Point, b: Point): Point =>
+    return Point { x: a.x + b.x, y: a.y + b.y }

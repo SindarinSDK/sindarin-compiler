@@ -1,0 +1,11 @@
+// Test nested module paths with namespaces
+import "lib/utils/formatting" as fmt
+
+fn main(): void =>
+    print($"fmt.bracket(\"test\") = {fmt.bracket("test")}\n")
+    print($"fmt.parens(\"hello\") = {fmt.parens("hello")}\n")
+    print($"fmt.double_bracket(\"x\") = {fmt.double_bracket("x")}\n")
+
+    // Combine formatting functions
+    var result: str = fmt.bracket(fmt.parens("nested"))
+    print($"fmt.bracket(fmt.parens(\"nested\")) = {result}\n")

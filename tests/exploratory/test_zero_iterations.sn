@@ -1,0 +1,54 @@
+// Test 53: Loops with zero iterations
+fn main(): int =>
+    print("Test zero-iteration loops:\n\n")
+
+    // For loop that doesn't execute
+    print("For loop (start > end):\n")
+    var count1: int = 0
+    for var i: int = 10; i < 5; i++ =>
+        count1++
+        print("Should not print\n")
+    print($"Iterations: {count1}\n")
+
+    // For loop with condition immediately false
+    print("\nFor loop (condition false):\n")
+    var count2: int = 0
+    for var j: int = 0; j > 10; j++ =>
+        count2++
+        print("Should not print\n")
+    print($"Iterations: {count2}\n")
+
+    // While loop that doesn't execute
+    print("\nWhile loop (condition false):\n")
+    var count3: int = 0
+    var x: int = 100
+    while x < 50 =>
+        count3++
+        print("Should not print\n")
+    print($"Iterations: {count3}\n")
+
+    // For-each over empty array
+    print("\nFor-each over empty:\n")
+    var empty: int[] = {}
+    var count4: int = 0
+    for n in empty =>
+        count4++
+        print("Should not print\n")
+    print($"Iterations: {count4}\n")
+
+    // Verify code after zero-iteration loops executes
+    print("\nAfter all zero-iteration loops:\n")
+    print("This should print\n")
+
+    // Nested zero-iteration loops
+    print("\nNested zero-iteration:\n")
+    var total: int = 0
+    for var a: int = 5; a < 3; a++ =>
+        for var b: int = 0; b < 10; b++ =>
+            total++
+    print($"Total iterations: {total}\n")
+
+    // Variables should retain values
+    print($"\nVariables: x={x}, count1={count1}\n")
+
+    return 0

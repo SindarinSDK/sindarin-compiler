@@ -1,0 +1,71 @@
+// Test: Private arena mode
+// Verifies that threads with 'private' modifier:
+// 1. Have an isolated arena that's destroyed immediately
+// 2. Only primitives can be returned (non-primitives are freed)
+// 3. Thread arena is cleaned up after sync
+
+fn count_elements() private: int =>
+    // Create arrays and strings in thread's private arena
+    var numbers: int[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    var words: str[] = {"one", "two", "three", "four", "five"}
+    var message: str = "This string will be freed"
+
+    // Do some work with temporary allocations
+    var sum: int = 0
+    for n in numbers =>
+        sum = sum + n
+
+    // Only the primitive result escapes - all arrays/strings freed
+    return numbers.length + words.length
+
+fn compute_sum() private: int =>
+    // Heavy temporary allocations that are cleaned up
+    var data: int[] = {100, 200, 300, 400, 500}
+    var more: int[] = {1, 2, 3, 4, 5}
+
+    var total: int = 0
+    for n in data =>
+        total = total + n
+    for n in more =>
+        total = total + n
+
+    // Return just the sum - arrays freed after return
+    return total
+
+fn get_length() private: int =>
+    // Allocate some temporary data in thread's arena
+    var temp: str = "temporary string that will be freed"
+    var arr: int[] = {1, 2, 3, 4, 5}
+
+    // Return the length - primitive escapes, rest freed
+    return arr.length
+
+fn main(): void =>
+    print("Testing private arena mode\n")
+
+    // Test 1: Private function returning int (count)
+    var count: int = &count_elements()
+    count!
+    print($"Count: {count}\n")
+
+    // Test 2: Private function with heavy allocations
+    var sum: int = &compute_sum()
+    sum!
+    print($"Sum: {sum}\n")
+
+    // Test 3: Private function returning length
+    var len: int = &get_length()
+    len!
+    print($"Length: {len}\n")
+
+    // Validate results
+    if count == 15 =>
+        if sum == 1515 =>
+            if len == 5 =>
+                print("SUCCESS: Private arena mode works correctly\n")
+            else =>
+                print($"FAILURE: Length expected 5, got {len}\n")
+        else =>
+            print($"FAILURE: Sum expected 1515, got {sum}\n")
+    else =>
+        print($"FAILURE: Count expected 15, got {count}\n")

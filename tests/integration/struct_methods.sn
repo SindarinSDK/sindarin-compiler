@@ -1,0 +1,63 @@
+# Test struct methods
+
+struct Counter =>
+    value: int
+
+    fn getValue(): int =>
+        return self.value
+
+    fn increment(): void =>
+        self.value = self.value + 1
+
+    fn addValue(amount: int): int =>
+        self.value = self.value + amount
+        return self.value
+
+struct Point =>
+    x: double
+    y: double
+
+    fn getX(): double =>
+        return self.x
+
+    fn getY(): double =>
+        return self.y
+
+fn main(): int =>
+    # Test basic method call
+    var c: Counter = Counter { value: 42 }
+    var v: int = c.getValue()
+    print($"Initial counter value: {v}\n")
+    if v != 42 =>
+        print("FAIL:\n getValue returned wrong value")
+        return 1
+
+    # Test method that modifies self
+    c.increment()
+    v = c.getValue()
+    print($"After increment: {v}\n")
+    if v != 43 =>
+        print("FAIL:\n increment didn't work")
+        return 1
+
+    # Test method with parameter that returns a value
+    var result: int = c.addValue(10)
+    print($"After addValue(10): {result}\n")
+    if result != 53 =>
+        print("FAIL:\n addValue returned wrong value")
+        return 1
+
+    # Test Point methods
+    var p1: Point = Point { x: 3.0, y: 4.0 }
+    var px: double = p1.getX()
+    var py: double = p1.getY()
+    print($"Point: ({px}, {py})\n")
+    if px != 3.0 =>
+        print("FAIL:\n getX returned wrong value")
+        return 1
+    if py != 4.0 =>
+        print("FAIL:\n getY returned wrong value")
+        return 1
+
+    print("All struct method tests passed!\n")
+    return 0

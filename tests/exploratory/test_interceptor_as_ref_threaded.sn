@@ -1,0 +1,62 @@
+// Test: Interceptors with as ref parameters in threaded context
+// Verifies that as ref parameter modifications work correctly across threads
+
+fn refInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    print($"Intercepted {name}\n")
+    // Modify the first argument if it's an int
+    if args.length > 0 =>
+        var arg: any = args[0]
+        if arg is int =>
+            var v: int = arg as int
+            // Double the value
+            var newV: any = v * 2
+            args[0] = newV
+
+    var result: any = 0
+    return result
+
+fn increment(x: int as ref): void =>
+    x = x + 1
+
+fn multiply(x: int as ref, factor: int): void =>
+    x = x * factor
+
+fn threadedIncrement(v: int): int =>
+    increment(v)
+    return v
+
+fn main(): void =>
+    print("Testing as ref parameters with threads\n")
+
+    // Test without interceptor first
+    var x: int = 10
+    increment(x)
+    assert(x == 11, "Without interceptor: x should be 11")
+    print($"Without interceptor: x = {x}\n")
+
+    // Register interceptor
+    Interceptor.register(refInterceptor)
+
+    // Test with interceptor on main thread
+    var y: int = 20
+    increment(y)
+    // The interceptor doubles the value before the function sees it
+    // But since we're not calling continue_fn, the function doesn't actually run
+    // The value should be written back as 40 (20 * 2)
+    print($"With interceptor: y = {y}\n")
+
+    // Test in spawned thread
+    var z: int = 30
+    var handle: int = &threadedIncrement(z)
+    var result: int = handle!
+    print($"Thread result: {result}\n")
+
+    Interceptor.clearAll()
+
+    // After clearing, test that as ref works normally again
+    var w: int = 100
+    increment(w)
+    assert(w == 101, "After clear: w should be 101")
+    print($"After clear: w = {w}\n")
+
+    print("As ref threaded test passed!\n")

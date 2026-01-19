@@ -1,0 +1,17 @@
+=== Pipe Block String Tests ===
+
+test_basic_multiline: PASS
+test_relative_indentation: PASS
+test_nested_indentation: PASS
+test_sql: PASS
+test_interpolated: PASS
+test_math_interp: PASS
+test_interpolated_with_indent: PASS
+test_single_line: PASS
+test_two_space_source: PASS
+test_four_space_source: PASS
+test_mixed_2_2: PASS
+test_mixed_4_4: PASS
+test_interp_two_space: PASS
+
+All pipe block string tests passed!

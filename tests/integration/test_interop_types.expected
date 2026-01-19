@@ -1,0 +1,7 @@
+int32: 100 + 50 = 150
+uint: 1000000 + 500000 = 1500000
+uint32: 65535 + 1 = 65536
+float: 3.14000 + 2.86000 = 6.00000
+After reassignment: i32=200, u64=2000000, u32=100000, f=1.50000
+Multiply: i32=400, u64=6000000, u32=400000, f=3.00000
+All interop type tests passed!

@@ -1,0 +1,5 @@
+sum(10, 5) = 15
+prod(6, 7) = 42
+adv.power(3, 3) = 27
+adv.square(5) = 25
+sum(adv.power(2, 4), prod(2, 3)) = 22

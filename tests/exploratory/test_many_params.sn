@@ -1,0 +1,54 @@
+// Test 57: Functions with many parameters
+fn sum2(a: int, b: int): int =>
+    return a + b
+
+fn sum3(a: int, b: int, c: int): int =>
+    return a + b + c
+
+fn sum4(a: int, b: int, c: int, d: int): int =>
+    return a + b + c + d
+
+fn sum5(a: int, b: int, c: int, d: int, e: int): int =>
+    return a + b + c + d + e
+
+fn sum6(a: int, b: int, c: int, d: int, e: int, f: int): int =>
+    return a + b + c + d + e + f
+
+fn mixed_params(i: int, d: double, s: str, b: bool, c: char): void =>
+    print($"i={i}, d={d}, s={s}, b={b}, c={c}\n")
+
+fn all_ints(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int): int =>
+    return a + b + c + d + e + f + g + h
+
+fn main(): int =>
+    print("Test many parameters:\n\n")
+
+    print($"sum2(1, 2) = {sum2(1, 2)}\n")
+    print($"sum3(1, 2, 3) = {sum3(1, 2, 3)}\n")
+    print($"sum4(1, 2, 3, 4) = {sum4(1, 2, 3, 4)}\n")
+    print($"sum5(1, 2, 3, 4, 5) = {sum5(1, 2, 3, 4, 5)}\n")
+    print($"sum6(1, 2, 3, 4, 5, 6) = {sum6(1, 2, 3, 4, 5, 6)}\n")
+
+    print("\nMixed types:\n")
+    mixed_params(42, 3.14, "hello", true, 'X')
+
+    print("\n8 parameters:\n")
+    var total: int = all_ints(1, 2, 3, 4, 5, 6, 7, 8)
+    print($"all_ints(1..8) = {total}\n")
+
+    // Lambda with multiple params
+    print("\nLambda with multiple params:\n")
+    var lambda_sum: fn(int, int, int, int): int = fn(a: int, b: int, c: int, d: int): int => a + b + c + d
+    print($"lambda_sum(10, 20, 30, 40) = {lambda_sum(10, 20, 30, 40)}\n")
+
+    // Call with expressions as arguments
+    print("\nExpressions as arguments:\n")
+    var result: int = sum5(1+1, 2+2, 3+3, 4+4, 5+5)
+    print($"sum5(2, 4, 6, 8, 10) = {result}\n")
+
+    // Nested calls
+    print("\nNested calls:\n")
+    var nested: int = sum2(sum2(1, 2), sum2(3, 4))
+    print($"sum2(sum2(1,2), sum2(3,4)) = {nested}\n")
+
+    return 0

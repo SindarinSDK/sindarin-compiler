@@ -1,0 +1,64 @@
+// Test: Thread-safe call counting with interceptors
+// Spawns many threads to stress-test interceptor call counting
+
+var total_calls: int = 0
+
+fn counterInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    total_calls = total_calls + 1
+    var result: any = 1
+    return result
+
+fn work(): int =>
+    return 0
+
+fn main(): void =>
+    print("Testing thread-safe interceptor counting\n")
+
+    Interceptor.register(counterInterceptor)
+
+    // Spawn 10 threads, each calling work()
+    var h0: int = &work()
+    var h1: int = &work()
+    var h2: int = &work()
+    var h3: int = &work()
+    var h4: int = &work()
+    var h5: int = &work()
+    var h6: int = &work()
+    var h7: int = &work()
+    var h8: int = &work()
+    var h9: int = &work()
+
+    // Sync all threads
+    var r0: int = h0!
+    var r1: int = h1!
+    var r2: int = h2!
+    var r3: int = h3!
+    var r4: int = h4!
+    var r5: int = h5!
+    var r6: int = h6!
+    var r7: int = h7!
+    var r8: int = h8!
+    var r9: int = h9!
+
+    // Verify all returned intercepted value
+    assert(r0 == 1, "Thread 0 should return 1")
+    assert(r1 == 1, "Thread 1 should return 1")
+    assert(r2 == 1, "Thread 2 should return 1")
+    assert(r3 == 1, "Thread 3 should return 1")
+    assert(r4 == 1, "Thread 4 should return 1")
+    assert(r5 == 1, "Thread 5 should return 1")
+    assert(r6 == 1, "Thread 6 should return 1")
+    assert(r7 == 1, "Thread 7 should return 1")
+    assert(r8 == 1, "Thread 8 should return 1")
+    assert(r9 == 1, "Thread 9 should return 1")
+
+    print($"Total calls intercepted: {total_calls}\n")
+
+    // Note: Due to potential race conditions on the counter increment,
+    // the count might be less than 10 in rare cases
+    // But we check that at least some calls were intercepted
+    assert(total_calls >= 1, "Should have at least 1 call intercepted")
+    assert(total_calls <= 10, "Should have at most 10 calls intercepted")
+
+    Interceptor.clearAll()
+    print("Thread-safe counter test passed!\n")

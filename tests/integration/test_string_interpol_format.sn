@@ -1,0 +1,96 @@
+// Comprehensive test for format specifiers in string interpolation
+// Tests floating point precision, integer formats, and edge cases
+
+fn main(): int =>
+    // ===== FLOATING POINT PRECISION VARIANTS =====
+    var pi: double = 3.14159265358979
+    var e: double = 2.71828182845904
+
+    // Test .1f precision
+    print($"Pi .1f: {pi:.1f}\n")
+    print($"E .1f: {e:.1f}\n")
+
+    // Test .2f precision
+    print($"Pi .2f: {pi:.2f}\n")
+    print($"E .2f: {e:.2f}\n")
+
+    // Test .5f precision
+    print($"Pi .5f: {pi:.5f}\n")
+    print($"E .5f: {e:.5f}\n")
+
+    // Test .0f (no decimal places)
+    print($"Pi .0f: {pi:.0f}\n")
+
+    // Test .3f and .4f for completeness
+    print($"Pi .3f: {pi:.3f}\n")
+    print($"Pi .4f: {pi:.4f}\n")
+
+    // ===== INTEGER FORMATS =====
+    var num: int = 255
+    var small: int = 42
+    var zero: int = 0
+
+    // Hexadecimal lowercase
+    print($"Hex x: {num:x}\n")
+    print($"Small hex: {small:x}\n")
+    print($"Zero hex: {zero:x}\n")
+
+    // Hexadecimal uppercase
+    print($"Hex X: {num:X}\n")
+    print($"Small HEX: {small:X}\n")
+
+    // Octal
+    print($"Octal: {num:o}\n")
+    print($"Small octal: {small:o}\n")
+    print($"Zero octal: {zero:o}\n")
+
+    // Zero-padding
+    print($"Pad 3: {small:03d}\n")
+    print($"Pad 5: {small:05d}\n")
+    print($"Pad 8: {small:08d}\n")
+    print($"Zero pad: {zero:05d}\n")
+
+    // ===== EDGE CASES: VERY LARGE NUMBERS =====
+    var large: int = 999999999
+    var large_d: double = 123456789.123456
+
+    print($"Large int: {large:d}\n")
+    print($"Large padded: {large:015d}\n")
+    print($"Large hex: {large:x}\n")
+    print($"Large double .2f: {large_d:.2f}\n")
+    print($"Large double .6f: {large_d:.6f}\n")
+
+    // ===== EDGE CASES: VERY SMALL NUMBERS =====
+    var tiny: double = 0.000123456
+    var small_neg: int = -42
+
+    print($"Tiny .2f: {tiny:.2f}\n")
+    print($"Tiny .6f: {tiny:.6f}\n")
+    print($"Neg padded: {small_neg:05d}\n")
+
+    // ===== FORMAT COMBINATIONS =====
+    var value: double = 42.5
+
+    // Width + precision
+    print($"Width 10 .2f: {value:10.2f}\n")
+    print($"Width 8 .1f: {value:8.1f}\n")
+
+    // Multiple formats in one string
+    print($"Multi: hex={num:x} oct={num:o} dec={num:d}\n")
+    print($"Mixed types: int={small:05d} float={pi:.3f}\n")
+
+    // Format with expressions
+    print($"Expr hex: {num * 2:x}\n")
+    print($"Expr pad: {small + 8:04d}\n")
+    print($"Expr float: {pi * 2.0:.2f}\n")
+
+    // Scientific notation
+    print($"Sci e: {large_d:e}\n")
+    print($"Sci E: {large_d:E}\n")
+    print($"Tiny sci: {tiny:e}\n")
+
+    // Percentage (if supported)
+    var ratio: double = 0.75
+    print($"Percent: {ratio:.2f}\n")
+
+    return 0

@@ -1,0 +1,2 @@
+panic: Division by zero
+Testing thread panic propagation

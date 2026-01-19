@@ -1,0 +1,63 @@
+// Test: Default arena mode with result promotion
+// Verifies that threads with default arena mode:
+// 1. Get their own private arena for execution
+// 2. Return values are promoted to caller's arena on sync
+// 3. Thread's private arena is freed after sync
+// 4. Promoted values remain valid after sync
+
+fn build_array(): int[] =>
+    // Create array in thread's private arena
+    var result: int[] = {10, 20, 30, 40, 50}
+    // Modify it within the thread
+    result.push(60)
+    return result
+
+fn build_string(): str =>
+    // Create string in thread's private arena
+    var msg: str = "Hello"
+    // String concatenation creates new string
+    msg = msg + " from thread"
+    return msg
+
+fn main(): void =>
+    print("Testing default arena mode (promotion)\n")
+
+    // Test 1: Array promotion
+    // Spawn thread - it gets its own arena
+    var arr_result: int[] = &build_array()
+
+    // Sync - array is promoted to caller's arena, thread arena is freed
+    arr_result!
+
+    // Validate promoted array is accessible and correct
+    print($"Array length: {arr_result.length}\n")
+    print($"Array[0]: {arr_result[0]}\n")
+    print($"Array[5]: {arr_result[5]}\n")
+
+    // Can modify the promoted array (it's in caller's arena now)
+    arr_result.push(70)
+    print($"After push, length: {arr_result.length}\n")
+
+    // Test 2: String promotion
+    var str_result: str = &build_string()
+    str_result!
+
+    print($"String: {str_result}\n")
+
+    // Validate results
+    if arr_result.length == 7 =>
+        if arr_result[0] == 10 =>
+            if arr_result[5] == 60 =>
+                if arr_result[6] == 70 =>
+                    if str_result == "Hello from thread" =>
+                        print("SUCCESS: Default arena promotion works correctly\n")
+                    else =>
+                        print($"FAILURE: String expected 'Hello from thread', got '{str_result}'\n")
+                else =>
+                    print($"FAILURE: arr[6] expected 70, got {arr_result[6]}\n")
+            else =>
+                print($"FAILURE: arr[5] expected 60, got {arr_result[5]}\n")
+        else =>
+            print($"FAILURE: arr[0] expected 10, got {arr_result[0]}\n")
+    else =>
+        print($"FAILURE: length expected 7, got {arr_result.length}\n")

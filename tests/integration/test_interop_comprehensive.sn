@@ -1,0 +1,260 @@
+# Comprehensive integration test for C interop
+# Demonstrates ALL interop features together in a realistic scenario
+#
+# Features tested:
+# - #pragma include and #pragma link
+# - native function declarations (with and without body)
+# - Pointer types (*T, *void, nil)
+# - Opaque types (type X = opaque)
+# - as val unwrapping
+# - as ref out-parameters
+# - Variadic functions (...)
+# - Native callbacks (native fn types)
+
+#pragma include <math.h>
+#pragma link m
+#pragma source "test_variadic_helper.c"
+
+# === Opaque Types ===
+type OpaqueHandle = opaque
+
+# === Native Function Declarations (no body - from C) ===
+native fn sin(x: double): double
+native fn cos(x: double): double
+native fn sqrt(x: double): double
+native fn test_printf(format: str, ...): int32
+
+# === Native Callback Types ===
+type Comparator = native fn(a: *void, b: *void): int
+type Transform = native fn(value: int): int
+
+# === Native Functions with Body ===
+
+# Native function that simulates file operations (stores opaque handle)
+native fn get_null_handle(): *OpaqueHandle =>
+    return nil
+
+native fn is_handle_valid(h: *OpaqueHandle): bool =>
+    return h != nil
+
+# Out-parameter function for computing stats
+native fn compute_circle(radius: double, area: double as ref, circumference: double as ref): void =>
+    var pi: double = 3.14159265359
+    area = pi * radius * radius
+    circumference = 2.0 * pi * radius
+
+# Native function that uses callback
+native fn apply_transform(cb: Transform, value: int): int =>
+    return cb(value)
+
+# Native function that applies transform multiple times
+native fn apply_n_times(cb: Transform, value: int, n: int): int =>
+    var result: int = value
+    var i: int = 0
+    while i < n =>
+        result = cb(result)
+        i = i + 1
+    return result
+
+# === Regular Sindarin Functions ===
+
+fn approx_eq(a: double, b: double, tol: double): bool =>
+    var diff: double = a - b
+    if diff < 0.0 =>
+        diff = -diff
+    return diff < tol
+
+# --- Test 1: Math Library Integration ---
+fn test_math_integration(): bool =>
+    print("Test 1: Math library integration\n")
+
+    # Use sin, cos, sqrt from math.h
+    var angle: double = 0.0
+    var s: double = sin(angle)
+    var c: double = cos(angle)
+
+    if !approx_eq(s, 0.0, 0.00001) =>
+        print("  FAIL: sin(0) != 0\n")
+        return false
+    if !approx_eq(c, 1.0, 0.00001) =>
+        print("  FAIL: cos(0) != 1\n")
+        return false
+
+    var sq: double = sqrt(16.0)
+    if !approx_eq(sq, 4.0, 0.00001) =>
+        print("  FAIL: sqrt(16) != 4\n")
+        return false
+
+    print("  PASS: Math library works\n")
+    return true
+
+# --- Test 2: Variadic Printf ---
+fn test_variadic_printf(): bool =>
+    print("Test 2: Variadic printf\n")
+
+    # Use test_printf (wrapper) with various argument types
+    test_printf("  String: %s\n", "hello")
+    test_printf("  Integer: %ld\n", 42)
+    test_printf("  Double: %.2f\n", 3.14159)
+    test_printf("  Mixed: %s=%ld (%.1f%%)\n", "score", 95, 95.0)
+
+    print("  PASS: Variadic printf works\n")
+    return true
+
+# --- Test 3: Opaque Type Operations ---
+fn test_opaque_type(): bool =>
+    print("Test 3: Opaque type operations\n")
+
+    # Test null handle
+    if is_handle_valid(nil) =>
+        print("  FAIL: nil should be invalid\n")
+        return false
+
+    # Test inline handle passing
+    if is_handle_valid(get_null_handle()) =>
+        print("  FAIL: get_null_handle() should return invalid handle\n")
+        return false
+
+    print("  PASS: Opaque type works\n")
+    return true
+
+# --- Test 4: Out Parameters ---
+fn test_out_params(): bool =>
+    print("Test 4: Out-parameters with as ref\n")
+
+    var area: double = 0.0
+    var circ: double = 0.0
+    compute_circle(10.0, area, circ)
+
+    # Area = pi * 10^2 = ~314.159
+    if !approx_eq(area, 314.159, 0.01) =>
+        print($"  FAIL: Area = {area}, expected ~314.159\n")
+        return false
+
+    # Circumference = 2 * pi * 10 = ~62.832
+    if !approx_eq(circ, 62.832, 0.01) =>
+        print($"  FAIL: Circumference = {circ}, expected ~62.832\n")
+        return false
+
+    print("  PASS: Out-parameters work\n")
+    return true
+
+# --- Test 5: Native Callbacks ---
+native fn test_callbacks(): bool =>
+    print("Test 5: Native callbacks\n")
+
+    # Create transform callback
+    var double_it: Transform = fn(value: int): int =>
+        return value * 2
+
+    # Apply once
+    var result: int = apply_transform(double_it, 5)
+    if result != 10 =>
+        print($"  FAIL: double(5) = {result}, expected 10\n")
+        return false
+
+    # Apply multiple times
+    result = apply_n_times(double_it, 1, 4)  # 1 -> 2 -> 4 -> 8 -> 16
+    if result != 16 =>
+        print($"  FAIL: double^4(1) = {result}, expected 16\n")
+        return false
+
+    # Create increment callback
+    var inc: Transform = fn(value: int): int =>
+        return value + 1
+
+    result = apply_n_times(inc, 0, 5)  # 0 -> 1 -> 2 -> 3 -> 4 -> 5
+    if result != 5 =>
+        print($"  FAIL: inc^5(0) = {result}, expected 5\n")
+        return false
+
+    print("  PASS: Native callbacks work\n")
+    return true
+
+# --- Test 6: Pointer Operations ---
+native fn test_pointers(): bool =>
+    print("Test 6: Pointer operations\n")
+
+    # Test nil pointer
+    var p: *int = nil
+    if p != nil =>
+        print("  FAIL: nil pointer comparison failed\n")
+        return false
+
+    # Test void pointer
+    var vp: *void = nil
+    if vp != nil =>
+        print("  FAIL: void pointer nil comparison failed\n")
+        return false
+
+    # Test opaque pointer nil
+    var h: *OpaqueHandle = get_null_handle()
+    if h != nil =>
+        print("  FAIL: get_null_handle() should return nil\n")
+        return false
+
+    print("  PASS: Pointer operations work\n")
+    return true
+
+# --- Test 7: Combined Workflow ---
+native fn test_combined_workflow(): bool =>
+    print("Test 7: Combined workflow (all features together)\n")
+
+    # Step 1: Calculate some values using math
+    var radius: double = 5.0
+    var sqrt_radius: double = sqrt(radius)
+
+    # Step 2: Get circle stats via out-params
+    var area: double = 0.0
+    var circ: double = 0.0
+    compute_circle(radius, area, circ)
+
+    # Step 3: Create callback to scale values
+    var scale: Transform = fn(value: int): int =>
+        return value * 10
+
+    var scaled: int = apply_transform(scale, 7)
+
+    # Step 4: Use printf to report (variadic)
+    test_printf("  Combined: sqrt(%.1f)=%.4f, scaled=%ld\n", radius, sqrt_radius, scaled)
+
+    # Step 5: Verify opaque handle (pointer nil check)
+    var h: *OpaqueHandle = get_null_handle()
+    if h != nil =>
+        print("  FAIL: Handle should be nil\n")
+        return false
+
+    # Step 6: Verify calculations
+    if scaled != 70 =>
+        print($"  FAIL: Expected scaled=70, got {scaled}\n")
+        return false
+
+    print("  PASS: Combined workflow works\n")
+    return true
+
+fn main(): int =>
+    print("=== Comprehensive C Interop Test ===\n\n")
+
+    if !test_math_integration() =>
+        return 1
+
+    if !test_variadic_printf() =>
+        return 1
+
+    if !test_opaque_type() =>
+        return 1
+
+    if !test_out_params() =>
+        return 1
+
+    if !test_callbacks() =>
+        return 1
+
+    if !test_pointers() =>
+        return 1
+
+    if !test_combined_workflow() =>
+        return 1
+
+    print("\n=== All comprehensive interop tests PASSED! ===\n")
+    return 0

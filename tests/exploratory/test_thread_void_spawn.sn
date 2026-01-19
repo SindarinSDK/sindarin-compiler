@@ -1,0 +1,10 @@
+// Test: Void thread inline spawn-sync code generation
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies void sync generates rt_thread_sync (not rt_thread_sync_with_result)
+
+fn do_work(): void =>
+    print("Work done in thread\n")
+
+fn main(): void =>
+    &do_work()!  // Inline void thread spawn-sync
+    print("Main thread done\n")

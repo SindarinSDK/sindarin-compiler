@@ -1,0 +1,6 @@
+// Test: Namespace identifier starting with digit
+// Identifiers must start with a letter or underscore
+import "../lib/math_basic" as 123math
+
+fn main(): void =>
+    print("should not compile\n")

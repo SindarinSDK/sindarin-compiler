@@ -1,0 +1,9 @@
+# Error test: native struct used in regular function context
+
+native struct Buffer =>
+    data: *byte
+    length: int
+
+fn main(): void =>
+    var buf: Buffer = Buffer {}
+    print("Should not compile\n")

@@ -1,0 +1,15 @@
+# Test: Compile error - struct with array field cannot escape private block
+# Expected error: Cannot assign to variable declared outside private block
+
+struct Container =>
+    items: int[]
+    count: int
+
+fn main(): void =>
+    var outer: Container = Container { items: {1, 2, 3}, count: 3 }
+
+    private =>
+        var inner: Container = Container { items: {4, 5, 6}, count: 3 }
+        outer = inner  # ERROR: struct contains array field
+
+    print($"count: {outer.count}\n")

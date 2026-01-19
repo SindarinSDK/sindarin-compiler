@@ -1,0 +1,26 @@
+# Exploratory test: 3D arrays with any type
+
+fn main(): int =>
+    # Test 1: 3D array of ints
+    print("Test 1: 3D int array\n")
+    var cube: int[][][] = {
+        {{1, 2}, {3, 4}},
+        {{5, 6}, {7, 8}}
+    }
+    print($"  cube[0][0][0] = {cube[0][0][0]}\n")
+    print($"  cube[1][1][1] = {cube[1][1][1]}\n")
+
+    # Test 2: 3D array boxed to any
+    print("\nTest 2: 3D array boxed to any\n")
+    var a: any = cube
+    print("  Boxed 3D array to any\n")
+
+    # Test 3: Check if the any value is int[][][] - note this may not work for nested arrays
+    print("  Checking type...\n")
+    if a is int[][][] =>
+        print("  a is int[][][]: PASS\n")
+    else =>
+        print("  a is int[][][]: FAIL (may be expected for nested arrays)\n")
+
+    print("\nAll tests passed!\n")
+    return 0

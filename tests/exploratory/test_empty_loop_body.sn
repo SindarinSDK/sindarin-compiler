@@ -1,0 +1,76 @@
+// Test 112: Empty loop body
+// Tests that loops with empty bodies compile and execute correctly
+
+fn main(): int =>
+    print("Test empty loop body:\n\n")
+
+    // Test 1: Empty for loop with range - counting with side effect only
+    print("Test 1 - Empty for loop (counter incremented in condition):\n")
+    var counter1: int = 0
+    for var i: int = 0; i < 5; i++ =>
+        counter1++
+    print($"  Counter after for loop: {counter1}\n")
+
+    // Test 2: Empty while loop with external mutation
+    print("\nTest 2 - While loop with single statement (minimal body):\n")
+    var counter2: int = 0
+    while counter2 < 3 =>
+        counter2++
+    print($"  Counter after while loop: {counter2}\n")
+
+    // Test 3: Empty for-each loop
+    print("\nTest 3 - For-each loop with no-op body:\n")
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var count: int = 0
+    for item in arr =>
+        count++
+    print($"  Items counted: {count}\n")
+
+    // Test 4: Nested empty loops
+    print("\nTest 4 - Nested loops with minimal bodies:\n")
+    var outer: int = 0
+    var inner: int = 0
+    for var i: int = 0; i < 3; i++ =>
+        outer++
+        for var j: int = 0; j < 2; j++ =>
+            inner++
+    print($"  Outer iterations: {outer}, inner iterations: {inner}\n")
+
+    // Test 5: Empty loop with range literal
+    print("\nTest 5 - Range-based for loop:\n")
+    var range_count: int = 0
+    for x in 1..10 =>
+        range_count++
+    print($"  Range count (1..10): {range_count}\n")
+
+    // Test 6: Shared empty loop
+    print("\nTest 6 - Shared for loop:\n")
+    var shared_count: int = 0
+    shared for var i: int = 0; i < 4; i++ =>
+        shared_count++
+    print($"  Shared loop count: {shared_count}\n")
+
+    // Test 7: Loop that only updates condition variable
+    print("\nTest 7 - Loop updating only condition:\n")
+    var value: int = 10
+    while value > 0 =>
+        value = value - 1
+    print($"  Final value: {value}\n")
+
+    // Verification
+    var errors: int = 0
+    if counter1 != 5 => errors++
+    if counter2 != 3 => errors++
+    if count != 5 => errors++
+    if outer != 3 => errors++
+    if inner != 6 => errors++
+    if range_count != 9 => errors++
+    if shared_count != 4 => errors++
+    if value != 0 => errors++
+
+    if errors == 0 =>
+        print("\nAll empty loop body tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

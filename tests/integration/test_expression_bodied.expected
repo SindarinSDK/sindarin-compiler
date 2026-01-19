@@ -1,0 +1,10 @@
+=== Expression-Bodied Function Tests ===
+
+test_constant_functions: PASS
+test_single_param_functions: PASS
+test_multi_param_functions: PASS
+test_expression_functions: PASS
+test_nested_calls: PASS
+test_native_expression_bodied: PASS
+
+All expression-bodied function tests passed!

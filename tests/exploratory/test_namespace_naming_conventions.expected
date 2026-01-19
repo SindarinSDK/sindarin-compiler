@@ -1,0 +1,16 @@
+=== Namespace Naming Conventions ===
+
+1. Short abbreviation 'math':
+   math.add(10, 20) = 30
+
+2. Underscore-prefixed '_strings':
+   _strings.greet("Test") = Hello, Test!
+
+3. Descriptive name 'stringHelpers':
+   stringHelpers.quote("hello") = "hello"
+
+4. All conventions work together:
+   math.add(math.subtract(100, 50), 25) = 75
+   _strings.greet(stringHelpers.wrap("user", "<", ">")) = Hello, <user>!
+
+All naming conventions demonstrated!

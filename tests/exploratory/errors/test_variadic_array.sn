@@ -1,0 +1,12 @@
+# Exploratory test: Variadic function rejects array arguments
+# This should fail to compile because arrays cannot be passed as variadic arguments.
+
+#pragma include <stdio.h>
+
+native fn printf(format: str, ...): int
+
+fn main(): int =>
+    var arr: int[] = [1, 2, 3]
+    # This should be a compile error - arrays not allowed as variadic args
+    printf("Array: %p\n", arr)
+    return 0

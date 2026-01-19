@@ -1,0 +1,56 @@
+// Test 12: While loops
+fn main(): int =>
+    // Basic while
+    var i: int = 0
+    print("Basic while 0-4:\n")
+    while i < 5 =>
+        print($"  {i}\n")
+        i++
+
+    // While with break
+    print("\nWhile with break at 3:\n")
+    var j: int = 0
+    while j < 10 =>
+        if j == 3 =>
+            print("  breaking\n")
+            break
+        print($"  {j}\n")
+        j++
+
+    // While with continue
+    print("\nWhile with continue (skip evens):\n")
+    var k: int = 0
+    while k < 6 =>
+        k++
+        if k % 2 == 0 =>
+            continue
+        print($"  {k}\n")
+
+    // Nested while
+    print("\nNested while (2x3 grid):\n")
+    var row: int = 0
+    while row < 2 =>
+        var col: int = 0
+        while col < 3 =>
+            print($"  ({row},{col})")
+            col++
+        print("\n")
+        row++
+
+    // While with compound condition
+    print("\nWhile with compound condition:\n")
+    var a: int = 0
+    var b: int = 10
+    while a < 5 && b > 5 =>
+        print($"  a={a}, b={b}\n")
+        a++
+        b--
+
+    // While that doesn't execute
+    print("\nWhile that doesn't execute:\n")
+    var x: int = 10
+    while x < 5 =>
+        print("should not print\n")
+    print("after zero-iteration while\n")
+
+    return 0

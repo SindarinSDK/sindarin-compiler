@@ -1,0 +1,5 @@
+Initial counter value: 42
+After increment: 43
+After addValue(10): 53
+Point: (3.00000, 4.00000)
+All struct method tests passed!

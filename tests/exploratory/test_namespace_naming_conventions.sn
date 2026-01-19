@@ -1,0 +1,38 @@
+// Test: Various namespace naming conventions
+// Demonstrates valid naming patterns for namespaces
+
+// Short, descriptive abbreviations (recommended)
+import "import_tests/math_utils" as math
+
+// Underscore-prefixed for internal/private modules
+import "import_tests/string_utils" as _strings
+
+// Longer descriptive names
+import "namespace_demo/strings" as stringHelpers
+
+fn main(): void =>
+    print("=== Namespace Naming Conventions ===\n\n")
+
+    // Standard short abbreviation
+    print("1. Short abbreviation 'math':\n")
+    var a: int = math.add(10, 20)
+    print($"   math.add(10, 20) = {a}\n")
+
+    // Underscore-prefixed
+    print("\n2. Underscore-prefixed '_strings':\n")
+    var b: str = _strings.greet("Test")
+    print($"   _strings.greet(\"Test\") = {b}\n")
+
+    // Descriptive camelCase
+    print("\n3. Descriptive name 'stringHelpers':\n")
+    var c: str = stringHelpers.quote("hello")
+    print($"   stringHelpers.quote(\"hello\") = {c}\n")
+
+    // All can be used together
+    print("\n4. All conventions work together:\n")
+    var result: int = math.add(math.subtract(100, 50), 25)
+    var text: str = _strings.greet(stringHelpers.wrap("user", "<", ">"))
+    print($"   math.add(math.subtract(100, 50), 25) = {result}\n")
+    print($"   _strings.greet(stringHelpers.wrap(\"user\", \"<\", \">\")) = {text}\n")
+
+    print("\nAll naming conventions demonstrated!\n")

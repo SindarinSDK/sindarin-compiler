@@ -1,0 +1,4 @@
+// Test for loop with decrement
+fn main(): void =>
+  for var i: int = 5; i > 0; i-- =>
+    print($"i={i}\n")

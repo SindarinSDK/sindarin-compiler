@@ -1,0 +1,77 @@
+// Test 101: If statements without else
+// Tests if-only control flow
+
+fn increment_counter(counter: int): int =>
+    return counter + 1
+
+fn main(): int =>
+    print("Test if without else:\n\n")
+
+    // Test 1: Simple if without else
+    print("Test 1 - Simple if:\n")
+    var x: int = 10
+    if x > 5 =>
+        print("  x is greater than 5\n")
+    if x > 20 =>
+        print("  x is greater than 20\n")
+    print("  After ifs\n")
+
+    // Test 2: Multiple sequential ifs
+    print("\nTest 2 - Sequential ifs:\n")
+    var value: int = 15
+    var status: str = "none"
+    if value > 0 =>
+        status = "positive"
+    if value > 10 =>
+        status = "large positive"
+    if value > 20 =>
+        status = "very large"
+    print($"  Value {value} is: {status}\n")
+
+    // Test 3: If in loop without else
+    print("\nTest 3 - If in loop:\n")
+    var sum: int = 0
+    for i in 1..10 =>
+        if i % 2 == 0 =>
+            sum = sum + i
+    print($"  Sum of evens 1-10: {sum}\n")
+
+    // Test 4: Nested if without else
+    print("\nTest 4 - Nested if:\n")
+    var a: int = 5
+    var b: int = 3
+    var result: str = "unknown"
+    if a > 0 =>
+        if b > 0 =>
+            result = "both positive"
+        if b < 0 =>
+            result = "a positive, b negative"
+    print($"  Result: {result}\n")
+
+    // Test 5: If with function call
+    print("\nTest 5 - If with side effect:\n")
+    var counter: int = 0
+    if true =>
+        counter = increment_counter(counter)
+    if true =>
+        counter = increment_counter(counter)
+    if false =>
+        counter = increment_counter(counter)
+    print($"  Counter (should be 2): {counter}\n")
+
+    // Test 6: If checking multiple conditions
+    print("\nTest 6 - Multiple conditions:\n")
+    var n: int = 42
+    var checks: int = 0
+    if n > 0 =>
+        checks = checks + 1
+    if n < 100 =>
+        checks = checks + 1
+    if n % 2 == 0 =>
+        checks = checks + 1
+    if n % 7 == 0 =>
+        checks = checks + 1
+    print($"  Checks passed: {checks}\n")
+
+    print("\nAll if-without-else tests passed!\n")
+    return 0

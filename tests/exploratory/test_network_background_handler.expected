@@ -1,0 +1,6 @@
+Testing background client handlers
+Server ready
+All handlers spawned (fire and forget)
+Server finished - all handlers processed
+SUCCESS: Background handler pattern works
+Test complete

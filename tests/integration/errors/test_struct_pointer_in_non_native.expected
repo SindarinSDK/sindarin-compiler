@@ -1,0 +1,3 @@
+Pointer field 'ptr' not allowed in struct 'Data'. Use 'native struct' for structs with pointer fields:
+    native struct Data =>
+        ptr: *...

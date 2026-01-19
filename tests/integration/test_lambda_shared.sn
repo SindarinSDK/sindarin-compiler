@@ -1,0 +1,15 @@
+// Test shared lambda - uses caller's arena for allocations
+
+fn main(): int =>
+    // Shared lambda that creates and returns an array
+    var makeArr: fn(int): int[] = fn(x: int) shared: int[] => {x, x * 2}
+
+    var result: int[] = makeArr(5)
+    print(result)
+    print("\n")
+
+    // Another shared lambda
+    var dbl: fn(int): int = fn(x: int) shared: int => x * 2
+    print($"Double 5 = {dbl(5)}\n")
+
+    return 0

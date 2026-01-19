@@ -1,0 +1,171 @@
+# Integration test: Interop edge cases
+# Tests nil handling, boundary conditions, and type combinations
+
+# --- Test 1: Nil pointer comparison patterns ---
+
+native fn get_nil_int_ptr(): *int =>
+	return nil
+
+native fn get_nil_char_ptr(): *char =>
+	return nil
+
+native fn test_nil_equality(ptr: *int): bool =>
+	return ptr == nil
+
+native fn test_nil_inequality(ptr: *int): bool =>
+	return ptr != nil
+
+native fn test_nil_comparisons(): void =>
+	print("Test 1: Nil pointer comparisons\n")
+
+	var ptr: *int = get_nil_int_ptr()
+
+	# Test == nil
+	if ptr == nil =>
+		print("  ptr == nil: PASS\n")
+	else =>
+		print("  ptr == nil: FAIL\n")
+
+	# Test != nil
+	if ptr != nil =>
+		print("  ptr != nil when nil: FAIL\n")
+	else =>
+		print("  ptr != nil when nil: PASS\n")
+
+	# Test via function
+	var eq_result: bool = test_nil_equality(ptr)
+	if eq_result =>
+		print("  Function test_nil_equality: PASS\n")
+	else =>
+		print("  Function test_nil_equality: FAIL\n")
+
+	var neq_result: bool = test_nil_inequality(ptr)
+	if !neq_result =>
+		print("  Function test_nil_inequality: PASS\n")
+	else =>
+		print("  Function test_nil_inequality: FAIL\n")
+
+# --- Test 2: *char as val when NULL (should return empty string) ---
+
+native fn safe_char_unwrap(ptr: *char): str =>
+	if ptr == nil =>
+		return "(null)"
+	return ptr as val
+
+native fn test_null_char_unwrap(): void =>
+	print("\nTest 2: *char as val when NULL\n")
+
+	var ptr: *char = get_nil_char_ptr()
+
+	# Direct nil check before unwrap
+	if ptr == nil =>
+		print("  Pointer is nil: PASS\n")
+
+	# Safe unwrap using guard function
+	var result: str = safe_char_unwrap(ptr)
+	if result == "(null)" =>
+		print("  Safe unwrap returns guard value: PASS\n")
+	else =>
+		print("  Safe unwrap returns guard value: FAIL\n")
+
+# --- Test 3: Native function with mixed pointer and primitive parameters ---
+
+native fn mixed_params(a: int, ptr: *int, b: double, flag: bool): int =>
+	if ptr == nil =>
+		return -1
+	if flag =>
+		return a * 2
+	return a + 10
+
+fn call_mixed_params_with_nil(): int =>
+	return mixed_params(5, nil, 3.14, true)
+
+native fn call_mixed_params_with_ptr(p: *int): int =>
+	return mixed_params(5, p, 3.14, false)
+
+native fn test_mixed_parameters(): void =>
+	print("\nTest 3: Mixed pointer and primitive parameters\n")
+
+	# Call with nil pointer
+	var result1: int = call_mixed_params_with_nil()
+	if result1 == -1 =>
+		print("  Nil pointer detection: PASS\n")
+	else =>
+		print("  Nil pointer detection: FAIL\n")
+
+	# Call with values (nil pointer, different flag)
+	var result2: int = mixed_params(5, nil, 2.71, true)
+	if result2 == -1 =>
+		print("  Mixed with nil and true flag: PASS\n")
+	else =>
+		print("  Mixed with nil and true flag: FAIL\n")
+
+# --- Test 4: Callback with pointer parameters ---
+
+type PtrCallback = native fn(ptr: *int): bool
+
+native fn invoke_ptr_callback(cb: PtrCallback, ptr: *int): bool =>
+	return cb(ptr)
+
+native fn test_callback_with_pointer(): void =>
+	print("\nTest 4: Callback with pointer parameters\n")
+
+	# Create a callback that checks for nil
+	var nil_checker: PtrCallback = fn(ptr: *int): bool =>
+		return ptr == nil
+
+	# Test with nil pointer
+	var is_nil: bool = invoke_ptr_callback(nil_checker, nil)
+	if is_nil =>
+		print("  Callback received nil: PASS\n")
+	else =>
+		print("  Callback received nil: FAIL\n")
+
+	# Create a callback that checks for non-nil
+	var not_nil_checker: PtrCallback = fn(ptr: *int): bool =>
+		return ptr != nil
+
+	# Test with nil pointer (should return false)
+	var is_not_nil: bool = invoke_ptr_callback(not_nil_checker, nil)
+	if !is_not_nil =>
+		print("  Callback !nil check with nil: PASS\n")
+	else =>
+		print("  Callback !nil check with nil: FAIL\n")
+
+# --- Test 5: Edge case with pointer-to-pointer ---
+
+native fn get_nil_ptr_ptr(): **int =>
+	return nil
+
+native fn test_double_pointer_nil(pp: **int): bool =>
+	return pp == nil
+
+native fn test_ptr_ptr_nil(): void =>
+	print("\nTest 5: Pointer-to-pointer nil handling\n")
+
+	var pp: **int = get_nil_ptr_ptr()
+
+	if pp == nil =>
+		print("  **int == nil: PASS\n")
+	else =>
+		print("  **int == nil: FAIL\n")
+
+	var result: bool = test_double_pointer_nil(pp)
+	if result =>
+		print("  Function with **int nil: PASS\n")
+	else =>
+		print("  Function with **int nil: FAIL\n")
+
+# --- Main ---
+
+fn main(): int =>
+	print("=== Interop Edge Case Tests ===\n\n")
+
+	test_nil_comparisons()
+	test_null_char_unwrap()
+	test_mixed_parameters()
+	test_callback_with_pointer()
+	test_ptr_ptr_nil()
+
+	print("\n=== All edge case tests completed! ===\n")
+	return 0

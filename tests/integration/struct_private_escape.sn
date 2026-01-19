@@ -1,0 +1,151 @@
+# Integration test for struct escape from private blocks
+# Tests that structs with only primitive fields can escape from private blocks.
+# Per the specification: "Structs with Only Primitive Fields: Can Escape"
+
+struct Point =>
+    x: int
+    y: int
+
+struct Dimensions =>
+    width: double
+    height: double
+    depth: double
+
+struct Flags =>
+    enabled: bool
+    active: bool
+    count: byte
+
+# Nested struct with only primitives should also be allowed to escape
+struct Rectangle =>
+    origin: Point
+    size: Dimensions
+
+fn get_point() private: Point =>
+    # Point has only primitive fields (int, int)
+    var p: Point = Point { x: 42, y: 99 }
+    return p  # OK: struct contains only primitives
+
+fn get_dimensions() private: Dimensions =>
+    # Dimensions has only primitive fields (double, double, double)
+    return Dimensions { width: 10.5, height: 20.5, depth: 30.5 }
+
+fn get_flags() private: Flags =>
+    # Flags has only primitive fields (bool, bool, byte)
+    return Flags { enabled: true, active: false, count: 255 }
+
+fn get_rectangle() private: Rectangle =>
+    # Rectangle contains nested structs with only primitives
+    var rect: Rectangle = Rectangle { origin: Point { x: 5, y: 10 }, size: Dimensions { width: 100.0, height: 200.0, depth: 300.0 } }
+    return rect  # OK: nested structs contain only primitives
+
+fn test_private_function_return(): void =>
+    # Test that private functions can return primitive-only structs
+    var p: Point = get_point()
+
+    if p.x != 42 =>
+        print($"FAIL: p.x = {p.x}, expected 42\n")
+        return
+    if p.y != 99 =>
+        print($"FAIL: p.y = {p.y}, expected 99\n")
+        return
+
+    var d: Dimensions = get_dimensions()
+    if d.width != 10.5 =>
+        print($"FAIL: d.width = {d.width}, expected 10.5\n")
+        return
+    if d.height != 20.5 =>
+        print($"FAIL: d.height = {d.height}, expected 20.5\n")
+        return
+
+    var f: Flags = get_flags()
+    if !f.enabled =>
+        print("FAIL: f.enabled should be true\n")
+        return
+    if f.active =>
+        print("FAIL: f.active should be false\n")
+        return
+    if f.count != 255 =>
+        print($"FAIL: f.count = {f.count}, expected 255\n")
+        return
+
+    print("Private function return test: PASS\n")
+
+fn test_nested_struct_return(): void =>
+    var rect: Rectangle = get_rectangle()
+
+    if rect.origin.x != 5 =>
+        print($"FAIL: rect.origin.x = {rect.origin.x}, expected 5\n")
+        return
+    if rect.origin.y != 10 =>
+        print($"FAIL: rect.origin.y = {rect.origin.y}, expected 10\n")
+        return
+    if rect.size.width != 100.0 =>
+        print($"FAIL: rect.size.width = {rect.size.width}, expected 100.0\n")
+        return
+
+    print("Nested struct return test: PASS\n")
+
+fn test_private_block_escape(): void =>
+    var result: Point = Point { x: 0, y: 0 }
+
+    private =>
+        # Create struct in private block
+        var inner: Point = Point { x: 123, y: 456 }
+        # Assign to outer variable - should work for primitive-only struct
+        result = inner
+        # Private block arena freed here, but result was copied
+
+    if result.x != 123 =>
+        print($"FAIL: result.x = {result.x}, expected 123\n")
+        return
+    if result.y != 456 =>
+        print($"FAIL: result.y = {result.y}, expected 456\n")
+        return
+
+    print("Private block escape test: PASS\n")
+
+fn test_loop_primitive_struct_escape(): void =>
+    # Test that primitive-only structs can escape from loop arenas
+    var last_point: Point = Point { x: 0, y: 0 }
+
+    for var i: int = 0; i < 5; i++ =>
+        var p: Point = Point { x: i * 10, y: i * 20 }
+        last_point = p  # OK: Point has only primitives
+
+    if last_point.x != 40 =>
+        print($"FAIL: last_point.x = {last_point.x}, expected 40\n")
+        return
+    if last_point.y != 80 =>
+        print($"FAIL: last_point.y = {last_point.y}, expected 80\n")
+        return
+
+    print("Loop primitive struct escape test: PASS\n")
+
+fn test_while_loop_struct_escape(): void =>
+    var accumulated: Point = Point { x: 0, y: 0 }
+    var i: int = 0
+
+    while i < 3 =>
+        var p: Point = Point { x: i * 10, y: i * 20 }
+        accumulated = p  # OK: Point has only primitives
+        i = i + 1
+
+    # After loop, should have values from i=2
+    if accumulated.x != 20 =>
+        print($"FAIL: accumulated.x = {accumulated.x}, expected 20\n")
+        return
+    if accumulated.y != 40 =>
+        print($"FAIL: accumulated.y = {accumulated.y}, expected 40\n")
+        return
+
+    print("While loop struct escape test: PASS\n")
+
+fn main(): void =>
+    print("Testing primitive-only struct escape from private blocks:\n")
+    test_private_function_return()
+    test_nested_struct_return()
+    test_private_block_escape()
+    test_loop_primitive_struct_escape()
+    test_while_loop_struct_escape()
+    print("All primitive struct escape tests passed!\n")

@@ -1,0 +1,4 @@
+early_return(5) = 5
+early_return(-1) = 0
+unused_variables() = 10
+noop_operations() = 5

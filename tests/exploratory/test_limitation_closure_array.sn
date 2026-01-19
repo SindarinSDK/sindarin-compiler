@@ -1,0 +1,26 @@
+# Test Known Limitation: Closures capturing arrays in threads
+
+fn run_closure(f: fn(): void): int =>
+    f()
+    return 1
+
+fn main(): void =>
+    var data: int[] = {1, 2, 3}
+
+    # Create a closure that captures and modifies an array
+    var append: fn(): void = fn() shared: void =>
+        data.push(99)
+
+    # Spawn multiple threads with the closure
+    var r1: int = &run_closure(append)
+    var r2: int = &run_closure(append)
+    var r3: int = &run_closure(append)
+
+    var v1 = r1!
+    var v2 = r2!
+    var v3 = r3!
+
+    print($"Array length: {data.length}\n")
+    for x in data =>
+        print($"{x} ")
+    print("\n")

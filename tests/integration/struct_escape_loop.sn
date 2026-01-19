@@ -1,0 +1,159 @@
+# Integration test for struct usage patterns within loops
+# Tests that structs can be created and used within loop bodies,
+# and primitive values can be extracted from struct fields to outer variables.
+#
+# Note: Structs with only primitive fields CAN escape from loop bodies.
+# Structs with heap fields (str, array, pointer) CANNOT escape.
+# For the error test case (struct with heap field), see:
+# tests/integration/errors/test_struct_escape_loop.sn
+# For the positive test case (primitive-only struct escape), see:
+# tests/integration/struct_private_escape.sn
+
+struct Point =>
+    x: int
+    y: int
+
+struct Person =>
+    name: str
+    age: int
+
+struct Counter =>
+    value: int
+    label: str = "count"
+
+fn test_struct_within_while_loop(): void =>
+    # Test creating and using structs entirely within loop scope
+    var sum_x: int = 0
+    var sum_y: int = 0
+    var i: int = 0
+
+    while i < 3 =>
+        # Create struct in loop body
+        var p: Point = Point { x: i * 10, y: i * 20 }
+        # Extract values to primitive outer variables (this is allowed)
+        sum_x = sum_x + p.x
+        sum_y = sum_y + p.y
+        i = i + 1
+
+    # sum_x = 0 + 10 + 20 = 30
+    # sum_y = 0 + 20 + 40 = 60
+    if sum_x != 30 =>
+        print($"FAIL: sum_x = {sum_x}, expected 30\n")
+        return
+    if sum_y != 60 =>
+        print($"FAIL: sum_y = {sum_y}, expected 60\n")
+        return
+
+    print("Struct within while loop test: PASS\n")
+
+fn test_struct_within_for_loop(): void =>
+    # Test for loop with struct operations
+    var total: int = 0
+
+    for var i: int = 0; i < 5; i++ =>
+        var p: Point = Point { x: i + 1, y: (i + 1) * 2 }
+        total = total + p.x + p.y
+
+    # total = (1+2) + (2+4) + (3+6) + (4+8) + (5+10) = 3+6+9+12+15 = 45
+    if total != 45 =>
+        print($"FAIL: total = {total}, expected 45\n")
+        return
+
+    print("Struct within for loop test: PASS\n")
+
+fn test_struct_with_string_in_loop(): void =>
+    # Test struct with string field in loop
+    var last_age: int = 0
+
+    for var i: int = 0; i < 3; i++ =>
+        var person: Person = Person { name: "Alice", age: 25 + i }
+        # Extract primitive value from struct (allowed)
+        last_age = person.age
+
+    if last_age != 27 =>
+        print($"FAIL: last_age = {last_age}, expected 27\n")
+        return
+
+    print("Struct with string in loop test: PASS\n")
+
+fn test_struct_defaults_in_loop(): void =>
+    # Test that default values work correctly in loop
+    var sum_values: int = 0
+
+    for var i: int = 0; i < 4; i++ =>
+        var c: Counter = Counter { value: i * 100 }
+        # c.label should be "count" by default
+        sum_values = sum_values + c.value
+
+    # sum_values = 0 + 100 + 200 + 300 = 600
+    if sum_values != 600 =>
+        print($"FAIL: sum_values = {sum_values}, expected 600\n")
+        return
+
+    print("Struct defaults in loop test: PASS\n")
+
+fn test_nested_loops_with_struct(): void =>
+    # Test structs in nested loops
+    var accumulated: int = 0
+
+    for var i: int = 0; i < 2; i++ =>
+        for var j: int = 0; j < 3; j++ =>
+            var p: Point = Point { x: i * 10 + j, y: i * 100 + j * 10 }
+            accumulated = accumulated + p.x + p.y
+
+    # i=0: j=0: 0+0, j=1: 1+10, j=2: 2+20
+    # i=1: j=0: 10+100, j=1: 11+110, j=2: 12+120
+    # total = 0 + 11 + 22 + 110 + 121 + 132 = 396
+    if accumulated != 396 =>
+        print($"FAIL: accumulated = {accumulated}, expected 396\n")
+        return
+
+    print("Nested loops with struct test: PASS\n")
+
+fn test_conditional_struct_in_loop(): void =>
+    # Test conditional struct creation in loop
+    var special_value: int = 0
+
+    for var i: int = 0; i < 10; i++ =>
+        if i == 7 =>
+            var special: Point = Point { x: 777, y: 888 }
+            special_value = special.x + special.y
+
+    if special_value != 1665 =>
+        print($"FAIL: special_value = {special_value}, expected 1665\n")
+        return
+
+    print("Conditional struct in loop test: PASS\n")
+
+fn test_struct_field_accumulation(): void =>
+    # Test accumulating struct field values across iterations
+    var max_x: int = 0
+    var max_y: int = 0
+
+    for var i: int = 0; i < 5; i++ =>
+        var p: Point = Point { x: i * 3, y: i * 5 }
+        if p.x > max_x =>
+            max_x = p.x
+        if p.y > max_y =>
+            max_y = p.y
+
+    # max_x = 4*3 = 12, max_y = 4*5 = 20
+    if max_x != 12 =>
+        print($"FAIL: max_x = {max_x}, expected 12\n")
+        return
+    if max_y != 20 =>
+        print($"FAIL: max_y = {max_y}, expected 20\n")
+        return
+
+    print("Struct field accumulation test: PASS\n")
+
+fn main(): void =>
+    print("Testing struct usage patterns in loops:\n")
+    test_struct_within_while_loop()
+    test_struct_within_for_loop()
+    test_struct_with_string_in_loop()
+    test_struct_defaults_in_loop()
+    test_nested_loops_with_struct()
+    test_conditional_struct_in_loop()
+    test_struct_field_accumulation()
+    print("All struct loop tests passed!\n")

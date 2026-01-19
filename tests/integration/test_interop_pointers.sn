@@ -1,0 +1,225 @@
+# Integration test for pointer operations in C interop
+# Demonstrates: *T types, nil, pointer comparison, as val unwrapping, as ref out-params
+
+#pragma include <stdlib.h>
+#pragma include <string.h>
+
+# --- Section 1: Basic Pointer Types and nil ---
+
+# Native function returning a nil pointer
+native fn get_nil_int_ptr(): *int =>
+    return nil
+
+# Native function returning a nil void pointer
+native fn get_nil_void_ptr(): *void =>
+    return nil
+
+# Native function with pointer parameter
+native fn is_ptr_nil(p: *int): bool =>
+    return p == nil
+
+# Native function with void pointer parameter
+native fn is_void_ptr_nil(p: *void): bool =>
+    return p == nil
+
+# --- Section 2: Pointer Unwrapping with 'as val' ---
+
+# Static int for testing (native function can create and return address)
+native fn get_static_int(): *int =>
+    # Return nil - in real use this would return an address from C
+    return nil
+
+# Native function that creates a mock buffer and returns its pointer
+native fn get_mock_buffer(): *byte =>
+    return nil
+
+# Native function returning buffer length
+native fn get_mock_buffer_len(): int =>
+    return 10
+
+# Native function that unwraps an int pointer
+native fn unwrap_int(p: *int): int =>
+    if p == nil =>
+        return -999
+    return p as val
+
+# Native function that unwraps a char pointer to str
+native fn unwrap_char(p: *char): str =>
+    if p == nil =>
+        return "(nil)"
+    return p as val
+
+# Native function that unwraps a buffer slice
+native fn unwrap_buffer_slice(p: *byte, len: int): byte[] =>
+    if p == nil =>
+        return p[0..0] as val
+    return p[0..len] as val
+
+# --- Section 3: Out Parameters with 'as ref' ---
+
+# Native function that writes to out-parameters
+native fn compute_stats(a: int, b: int, sum: int as ref, product: int as ref): void =>
+    sum = a + b
+    product = a * b
+
+# Native function with single out-parameter
+native fn increment(num: int as ref): void =>
+    num = num + 1
+
+# Native function with double out-parameter
+native fn halve(num: double as ref): void =>
+    num = num / 2.0
+
+# --- Section 4: Pointer Comparison ---
+
+# Native function that compares two pointers
+native fn ptrs_equal(a: *int, b: *int): bool =>
+    return a == b
+
+native fn ptrs_not_equal(a: *int, b: *int): bool =>
+    return a != b
+
+# --- Test Functions ---
+
+fn test_nil_pointers(): bool =>
+    print("  Testing nil pointers...\n")
+
+    # Test nil comparison for int pointer
+    if !is_ptr_nil(nil) =>
+        print("    FAIL: is_ptr_nil(nil) should be true\n")
+        return false
+
+    # Test nil comparison for void pointer
+    if !is_void_ptr_nil(nil) =>
+        print("    FAIL: is_void_ptr_nil(nil) should be true\n")
+        return false
+
+    print("    PASS: nil pointer tests\n")
+    return true
+
+native fn test_pointer_variables(): bool =>
+    print("  Testing pointer variables in native function...\n")
+
+    # Declare pointer variable (only allowed in native fn)
+    var p: *int = nil
+    var vp: *void = nil
+    var pp: **int = nil
+
+    # Test comparisons
+    if p != nil =>
+        print("    FAIL: p should be nil\n")
+        return false
+
+    if vp != nil =>
+        print("    FAIL: vp should be nil\n")
+        return false
+
+    if pp != nil =>
+        print("    FAIL: pp should be nil\n")
+        return false
+
+    # Test getting pointer from native function
+    var ptr: *int = get_nil_int_ptr()
+    if ptr != nil =>
+        print("    FAIL: get_nil_int_ptr() should return nil\n")
+        return false
+
+    print("    PASS: pointer variable tests\n")
+    return true
+
+fn test_pointer_unwrap(): bool =>
+    print("  Testing pointer unwrap with 'as val'...\n")
+
+    # Test int pointer unwrap (nil case)
+    var result: int = unwrap_int(nil)
+    if result != -999 =>
+        print($"    FAIL: unwrap_int(nil) returned {result}, expected -999\n")
+        return false
+
+    # Test char pointer unwrap (nil case)
+    var s: str = unwrap_char(nil)
+    if s != "(nil)" =>
+        print($"    FAIL: unwrap_char(nil) returned '{s}', expected '(nil)'\n")
+        return false
+
+    # Test buffer slice unwrap (nil case)
+    var buf: byte[] = unwrap_buffer_slice(nil, 0)
+    if buf.length != 0 =>
+        print($"    FAIL: unwrap_buffer_slice(nil, 0) length = {buf.length}, expected 0\n")
+        return false
+
+    print("    PASS: pointer unwrap tests\n")
+    return true
+
+fn test_out_params(): bool =>
+    print("  Testing 'as ref' out-parameters...\n")
+
+    # Test dual out-parameters
+    var sum: int = 0
+    var product: int = 0
+    compute_stats(7, 6, sum, product)
+    if sum != 13 =>
+        print($"    FAIL: sum = {sum}, expected 13\n")
+        return false
+    if product != 42 =>
+        print($"    FAIL: product = {product}, expected 42\n")
+        return false
+
+    # Test single out-parameter
+    var counter: int = 10
+    increment(counter)
+    increment(counter)
+    increment(counter)
+    if counter != 13 =>
+        print($"    FAIL: counter = {counter}, expected 13\n")
+        return false
+
+    # Test double out-parameter
+    var half: double = 100.0
+    halve(half)
+    if half < 49.9 =>
+        print($"    FAIL: half = {half}, expected ~50.0\n")
+        return false
+    if half > 50.1 =>
+        print($"    FAIL: half = {half}, expected ~50.0\n")
+        return false
+
+    print("    PASS: out-parameter tests\n")
+    return true
+
+fn test_pointer_comparison(): bool =>
+    print("  Testing pointer comparisons...\n")
+
+    # Test equal pointers (both nil)
+    if !ptrs_equal(nil, nil) =>
+        print("    FAIL: nil == nil should be true\n")
+        return false
+
+    # Test not-equal (same nil pointers)
+    if ptrs_not_equal(nil, nil) =>
+        print("    FAIL: nil != nil should be false\n")
+        return false
+
+    print("    PASS: pointer comparison tests\n")
+    return true
+
+fn main(): int =>
+    print("=== Pointer Operations Interop Test ===\n\n")
+
+    if !test_nil_pointers() =>
+        return 1
+
+    if !test_pointer_variables() =>
+        return 1
+
+    if !test_pointer_unwrap() =>
+        return 1
+
+    if !test_out_params() =>
+        return 1
+
+    if !test_pointer_comparison() =>
+        return 1
+
+    print("\n=== All pointer interop tests PASSED! ===\n")
+    return 0

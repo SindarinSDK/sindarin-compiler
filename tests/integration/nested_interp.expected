@@ -1,0 +1,8 @@
+Outer: Inner: 42
+Result: Value: 43
+L1: L2: L3: 42
+ABCD
+Hello: Alice says hi
+Math: Sum: 52 Prod: 84
+Upper: NAME: ALICE
+Multi: x=42, doubled=84

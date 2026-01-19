@@ -1,0 +1,76 @@
+// Test array string interpolation
+// Demonstrates formatting of arrays in interpolated strings
+
+fn main(): int =>
+    print("Array String Interpolation Tests:\n\n")
+
+    // Test 1: Basic 1D arrays of different types
+    print("1. Basic 1D arrays:\n")
+    var ints: int[] = {1, 2, 3, 4, 5}
+    var doubles: double[] = {1.1, 2.2, 3.3}
+    var strings: str[] = {"hello", "world"}
+    var bools: bool[] = {true, false, true}
+    var chars: char[] = {'a', 'b', 'c'}
+    var bytes: byte[] = {0, 127, 255}
+
+    print($"   ints: {ints}\n")
+    print($"   doubles: {doubles}\n")
+    print($"   strings: {strings}\n")
+    print($"   bools: {bools}\n")
+    print($"   chars: {chars}\n")
+    print($"   bytes: {bytes}\n")
+
+    // Test 2: Empty arrays
+    print("\n2. Empty arrays:\n")
+    var empty_int: int[] = {}
+    var empty_str: str[] = {}
+    print($"   empty int[]: {empty_int}\n")
+    print($"   empty str[]: {empty_str}\n")
+
+    // Test 3: Single element arrays
+    print("\n3. Single element arrays:\n")
+    var single_int: int[] = {42}
+    var single_str: str[] = {"only"}
+    print($"   single int[]: {single_int}\n")
+    print($"   single str[]: {single_str}\n")
+
+    // Test 4: Arrays with special values
+    print("\n4. Special values:\n")
+    var negative: int[] = {-1, -100, -999}
+    var mixed_double: double[] = {0.0, -1.5, 100.001}
+    print($"   negative ints: {negative}\n")
+    print($"   mixed doubles: {mixed_double}\n")
+
+    // Test 5: 2D arrays
+    print("\n5. 2D arrays:\n")
+    var matrix: int[][] = {{1, 2}, {3, 4}, {5, 6}}
+    var nested_str: str[][] = {{"a", "b"}, {"c", "d", "e"}}
+    print($"   int matrix: {matrix}\n")
+    print($"   nested strings: {nested_str}\n")
+
+    // Test 6: 2D arrays of other types
+    print("\n6. 2D arrays of other types:\n")
+    var bool_2d: bool[][] = {{true}, {false, true}}
+    var char_2d: char[][] = {{'x', 'y'}, {'z'}}
+    print($"   bool 2D: {bool_2d}\n")
+    print($"   char 2D: {char_2d}\n")
+
+    // Test 7: Arrays in complex expressions
+    print("\n7. Arrays in expressions:\n")
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {4, 5, 6}
+    print($"   a = {a}, b = {b}\n")
+    print($"   a[0] + b[0] = {a[0] + b[0]}\n")
+
+    // Test 8: Jagged 2D arrays
+    print("\n8. Jagged arrays:\n")
+    var jagged: int[][] = {{1}, {2, 3}, {4, 5, 6, 7}}
+    print($"   jagged: {jagged}\n")
+
+    // Test 9: 2D array with empty inner arrays
+    print("\n9. Sparse arrays:\n")
+    var sparse: int[][] = {{}, {1}, {}, {2, 3}}
+    print($"   sparse: {sparse}\n")
+
+    print("\nAll interpolation tests completed!\n")
+    return 0

@@ -1,0 +1,132 @@
+# Integration test for C math library interop
+# Demonstrates native function declarations with #pragma include and #pragma link
+
+#pragma include <math.h>
+#pragma link m
+
+# Native function declarations for C math library functions
+native fn sin(x: double): double
+native fn cos(x: double): double
+native fn tan(x: double): double
+native fn sqrt(x: double): double
+native fn pow(base: double, exp: double): double
+native fn fabs(x: double): double
+native fn floor(x: double): double
+native fn ceil(x: double): double
+native fn log(x: double): double
+native fn log10(x: double): double
+native fn exp(x: double): double
+
+# Helper to check if two doubles are approximately equal
+fn approx_eq(a: double, b: double, tolerance: double): bool =>
+    var diff: double = a - b
+    if diff < 0.0 =>
+        diff = -diff
+    return diff < tolerance
+
+fn main(): int =>
+    print("=== C Math Library Interop Test ===\n\n")
+    var tolerance: double = 0.00001
+    var pi: double = 3.14159265359
+
+    # Test 1: sin and cos at 0
+    var sin_0: double = sin(0.0)
+    var cos_0: double = cos(0.0)
+    print($"sin(0) = {sin_0}\n")
+    print($"cos(0) = {cos_0}\n")
+    if !approx_eq(sin_0, 0.0, tolerance) =>
+        print("FAIL: sin(0) should be 0\n")
+        return 1
+    if !approx_eq(cos_0, 1.0, tolerance) =>
+        print("FAIL: cos(0) should be 1\n")
+        return 1
+
+    # Test 2: sin and cos at pi/2 (90 degrees)
+    var angle: double = pi / 2.0
+    var sin_90: double = sin(angle)
+    var cos_90: double = cos(angle)
+    print($"sin(pi/2) = {sin_90}\n")
+    print($"cos(pi/2) = {cos_90}\n")
+    if !approx_eq(sin_90, 1.0, tolerance) =>
+        print("FAIL: sin(pi/2) should be 1\n")
+        return 1
+    if !approx_eq(cos_90, 0.0, tolerance) =>
+        print("FAIL: cos(pi/2) should be 0\n")
+        return 1
+
+    # Test 3: sqrt
+    var sqrt_4: double = sqrt(4.0)
+    var sqrt_2: double = sqrt(2.0)
+    print($"sqrt(4) = {sqrt_4}\n")
+    print($"sqrt(2) = {sqrt_2}\n")
+    if !approx_eq(sqrt_4, 2.0, tolerance) =>
+        print("FAIL: sqrt(4) should be 2\n")
+        return 1
+    if !approx_eq(sqrt_2, 1.41421, tolerance) =>
+        print("FAIL: sqrt(2) should be ~1.41421\n")
+        return 1
+
+    # Test 4: pow
+    var pow_2_3: double = pow(2.0, 3.0)
+    var pow_10_2: double = pow(10.0, 2.0)
+    print($"pow(2, 3) = {pow_2_3}\n")
+    print($"pow(10, 2) = {pow_10_2}\n")
+    if !approx_eq(pow_2_3, 8.0, tolerance) =>
+        print("FAIL: pow(2, 3) should be 8\n")
+        return 1
+    if !approx_eq(pow_10_2, 100.0, tolerance) =>
+        print("FAIL: pow(10, 2) should be 100\n")
+        return 1
+
+    # Test 5: fabs (absolute value)
+    var abs_neg: double = fabs(-5.5)
+    var abs_pos: double = fabs(3.3)
+    print($"fabs(-5.5) = {abs_neg}\n")
+    print($"fabs(3.3) = {abs_pos}\n")
+    if !approx_eq(abs_neg, 5.5, tolerance) =>
+        print("FAIL: fabs(-5.5) should be 5.5\n")
+        return 1
+    if !approx_eq(abs_pos, 3.3, tolerance) =>
+        print("FAIL: fabs(3.3) should be 3.3\n")
+        return 1
+
+    # Test 6: floor and ceil
+    var floor_val: double = floor(2.7)
+    var ceil_val: double = ceil(2.3)
+    print($"floor(2.7) = {floor_val}\n")
+    print($"ceil(2.3) = {ceil_val}\n")
+    if !approx_eq(floor_val, 2.0, tolerance) =>
+        print("FAIL: floor(2.7) should be 2\n")
+        return 1
+    if !approx_eq(ceil_val, 3.0, tolerance) =>
+        print("FAIL: ceil(2.3) should be 3\n")
+        return 1
+
+    # Test 7: log and log10
+    var log_e: double = log(2.71828)  # ln(e) ~ 1
+    var log10_100: double = log10(100.0)
+    print($"log(e) ~ {log_e}\n")
+    print($"log10(100) = {log10_100}\n")
+    if !approx_eq(log_e, 1.0, 0.0001) =>
+        print("FAIL: log(e) should be ~1\n")
+        return 1
+    if !approx_eq(log10_100, 2.0, tolerance) =>
+        print("FAIL: log10(100) should be 2\n")
+        return 1
+
+    # Test 8: exp
+    var exp_1: double = exp(1.0)
+    print($"exp(1) = {exp_1}\n")
+    if !approx_eq(exp_1, 2.71828, 0.0001) =>
+        print("FAIL: exp(1) should be ~2.71828\n")
+        return 1
+
+    # Test 9: tan at pi/4 (45 degrees)
+    var tan_45: double = tan(pi / 4.0)
+    print($"tan(pi/4) = {tan_45}\n")
+    if !approx_eq(tan_45, 1.0, tolerance) =>
+        print("FAIL: tan(pi/4) should be 1\n")
+        return 1
+
+    print("\n=== All math interop tests PASSED! ===\n")
+    return 0

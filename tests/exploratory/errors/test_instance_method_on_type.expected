@@ -1,0 +1,1 @@
+Cannot call instance method 'getValue' on type 'Counter'. Use an instance: var obj: Counter = ...; obj.getValue(...)

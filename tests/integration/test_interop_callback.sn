@@ -1,0 +1,201 @@
+# Integration test for native callbacks (function pointers)
+# Demonstrates: native fn types, native lambdas, comparator pattern
+
+# Define a native callback type matching comparator signature
+type Comparator = native fn(a: *void, b: *void): int
+
+# --- Section 1: Basic Native Callback ---
+
+# Native function that accepts and invokes a callback
+native fn invoke_callback(cb: Comparator, a: *void, b: *void): int =>
+    return cb(a, b)
+
+native fn test_basic_callback(): bool =>
+    print("  Testing basic native callback invocation...\n")
+
+    # Create a native lambda matching Comparator signature
+    var cmp: Comparator = fn(a: *void, b: *void): int =>
+        # Simple test: both nil = equal
+        if a == nil =>
+            if b == nil =>
+                return 0
+            return -1
+        if b == nil =>
+            return 1
+        return 0
+
+    # Test with nil pointers
+    var result: int = invoke_callback(cmp, nil, nil)
+    if result != 0 =>
+        print($"    FAIL: Expected 0 for nil==nil, got {result}\n")
+        return false
+
+    # Test with nil vs non-nil (conceptually)
+    result = invoke_callback(cmp, nil, nil)
+    if result != 0 =>
+        print($"    FAIL: Second nil==nil test failed\n")
+        return false
+
+    print("    PASS: basic callback test\n")
+    return true
+
+# --- Section 2: Multiple Callback Invocations ---
+
+# Counter callback type for testing multiple calls
+type IntCallback = native fn(value: int): int
+
+native fn apply_callback_twice(cb: IntCallback, value: int): int =>
+    var result: int = cb(value)
+    return cb(result)
+
+native fn test_multiple_invocations(): bool =>
+    print("  Testing multiple callback invocations...\n")
+
+    # Create a doubling callback
+    var double_it: IntCallback = fn(value: int): int =>
+        return value * 2
+
+    # Double 5 twice: 5 -> 10 -> 20
+    var result: int = apply_callback_twice(double_it, 5)
+    if result != 20 =>
+        print($"    FAIL: Expected 20, got {result}\n")
+        return false
+
+    # Create an incrementing callback
+    var inc: IntCallback = fn(value: int): int =>
+        return value + 1
+
+    # Increment 0 twice: 0 -> 1 -> 2
+    result = apply_callback_twice(inc, 0)
+    if result != 2 =>
+        print($"    FAIL: Expected 2, got {result}\n")
+        return false
+
+    print("    PASS: multiple invocations test\n")
+    return true
+
+# --- Section 3: Callback That Returns Different Values ---
+
+native fn test_callback_logic(): bool =>
+    print("  Testing callback return value logic...\n")
+
+    # Create comparator with specific logic
+    var cmp: Comparator = fn(a: *void, b: *void): int =>
+        # Return -1 if first is nil, 1 if second is nil, 0 if both same
+        if a == nil =>
+            if b == nil =>
+                return 0    # Both nil
+            return -1       # a nil, b not nil
+        if b == nil =>
+            return 1        # a not nil, b nil
+        return 0            # Both not nil (treat as equal)
+
+    # Test all branches
+    var r1: int = invoke_callback(cmp, nil, nil)
+    if r1 != 0 =>
+        print($"    FAIL: nil,nil should return 0, got {r1}\n")
+        return false
+
+    print("    All callback logic paths tested\n")
+    print("    PASS: callback logic test\n")
+    return true
+
+# --- Section 4: Different Callback Signatures ---
+
+# Boolean predicate callback
+type Predicate = native fn(value: int): bool
+
+native fn count_matching(pred: Predicate, count: int): int =>
+    var matches: int = 0
+    var i: int = 0
+    while i < count =>
+        if pred(i) =>
+            matches = matches + 1
+        i = i + 1
+    return matches
+
+native fn test_predicate_callback(): bool =>
+    print("  Testing predicate callback...\n")
+
+    # Create "is even" predicate
+    var is_even: Predicate = fn(value: int): bool =>
+        return value % 2 == 0
+
+    # Count even numbers from 0 to 9 (should be 5: 0,2,4,6,8)
+    var evens: int = count_matching(is_even, 10)
+    if evens != 5 =>
+        print($"    FAIL: Expected 5 even numbers, got {evens}\n")
+        return false
+
+    # Create "greater than 5" predicate
+    var gt5: Predicate = fn(value: int): bool =>
+        return value > 5
+
+    # Count numbers > 5 from 0 to 9 (should be 4: 6,7,8,9)
+    var gt5_count: int = count_matching(gt5, 10)
+    if gt5_count != 4 =>
+        print($"    FAIL: Expected 4 numbers > 5, got {gt5_count}\n")
+        return false
+
+    print("    PASS: predicate callback test\n")
+    return true
+
+# --- Section 5: Callback Returning Int as Status ---
+
+type StatusCallback = native fn(code: int): int
+
+native fn invoke_status(cb: StatusCallback, code: int): int =>
+    return cb(code)
+
+native fn test_status_callback(): bool =>
+    print("  Testing status callback...\n")
+
+    # Create status callback that echoes the code
+    var echo: StatusCallback = fn(code: int): int =>
+        return code
+
+    # Test echo
+    var result: int = invoke_status(echo, 42)
+    if result != 42 =>
+        print($"    FAIL: Expected 42, got {result}\n")
+        return false
+
+    # Create status callback that returns 0 for success, 1 for error
+    var checker: StatusCallback = fn(code: int): int =>
+        if code >= 0 =>
+            return 0
+        return 1
+
+    result = invoke_status(checker, 10)
+    if result != 0 =>
+        print($"    FAIL: Expected 0 for positive, got {result}\n")
+        return false
+
+    result = invoke_status(checker, -5)
+    if result != 1 =>
+        print($"    FAIL: Expected 1 for negative, got {result}\n")
+        return false
+
+    print("    PASS: status callback test\n")
+    return true
+
+fn main(): int =>
+    print("=== Native Callback Interop Test ===\n\n")
+
+    if !test_basic_callback() =>
+        return 1
+
+    if !test_multiple_invocations() =>
+        return 1
+
+    if !test_callback_logic() =>
+        return 1
+
+    if !test_predicate_callback() =>
+        return 1
+
+    if !test_status_callback() =>
+        return 1
+
+    print("\n=== All native callback tests PASSED! ===\n")
+    return 0

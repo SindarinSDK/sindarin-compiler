@@ -1,0 +1,138 @@
+# Test 81: String splitWhitespace method variance testing
+fn main(): int =>
+    print("Test string splitWhitespace method:\n\n")
+
+    # Test 1: Basic word splitting
+    print("1. Basic word splitting:\n")
+    var text1: str = "hello world"
+    var words1: str[] = text1.splitWhitespace()
+    print($"  '{text1}' -> {words1.length} words\n")
+    if words1.length == 2 && words1[0] == "hello" && words1[1] == "world" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 2: Multiple spaces between words
+    print("\n2. Multiple spaces between words:\n")
+    var text2: str = "one   two     three"
+    var words2: str[] = text2.splitWhitespace()
+    print($"  Words: {words2.length}\n")
+    if words2.length == 3 && words2[0] == "one" && words2[1] == "two" && words2[2] == "three" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 3: Leading whitespace
+    print("\n3. Leading whitespace:\n")
+    var text3: str = "   leading"
+    var words3: str[] = text3.splitWhitespace()
+    print($"  Words: {words3.length}\n")
+    if words3.length == 1 && words3[0] == "leading" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 4: Trailing whitespace
+    print("\n4. Trailing whitespace:\n")
+    var text4: str = "trailing   "
+    var words4: str[] = text4.splitWhitespace()
+    print($"  Words: {words4.length}\n")
+    if words4.length == 1 && words4[0] == "trailing" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 5: Tab characters
+    print("\n5. Tab characters:\n")
+    var text5: str = "a\tb\tc"
+    var words5: str[] = text5.splitWhitespace()
+    print($"  Words: {words5.length}\n")
+    if words5.length == 3 && words5[0] == "a" && words5[1] == "b" && words5[2] == "c" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 6: Newline characters
+    print("\n6. Newline characters:\n")
+    var text6: str = "x\ny\nz"
+    var words6: str[] = text6.splitWhitespace()
+    print($"  Words: {words6.length}\n")
+    if words6.length == 3 && words6[0] == "x" && words6[1] == "y" && words6[2] == "z" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 7: Mixed whitespace
+    print("\n7. Mixed whitespace:\n")
+    var text7: str = "a \t b \n c"
+    var words7: str[] = text7.splitWhitespace()
+    print($"  Words: {words7.length}\n")
+    if words7.length == 3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 8: Empty string
+    print("\n8. Empty string:\n")
+    var empty: str = ""
+    var emptyWords: str[] = empty.splitWhitespace()
+    print($"  Words: {emptyWords.length}\n")
+    if emptyWords.length == 0 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 9: Only whitespace
+    print("\n9. Only whitespace:\n")
+    var wsOnly: str = "   \t  \n  "
+    var wsWords: str[] = wsOnly.splitWhitespace()
+    print($"  Words: {wsWords.length}\n")
+    if wsWords.length == 0 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 10: Single word
+    print("\n10. Single word:\n")
+    var single: str = "word"
+    var singleWords: str[] = single.splitWhitespace()
+    print($"  Words: {singleWords.length}\n")
+    if singleWords.length == 1 && singleWords[0] == "word" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 11: Many words
+    print("\n11. Many words:\n")
+    var many: str = "one two three four five six seven eight nine ten"
+    var manyWords: str[] = many.splitWhitespace()
+    print($"  Words: {manyWords.length}\n")
+    if manyWords.length == 10 && manyWords[0] == "one" && manyWords[9] == "ten" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 12: Carriage return
+    print("\n12. Carriage return:\n")
+    var cr: str = "a\rb\rc"
+    var crWords: str[] = cr.splitWhitespace()
+    print($"  Words: {crWords.length}\n")
+    if crWords.length == 3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    print("\nAll splitWhitespace tests passed!\n")
+    return 0

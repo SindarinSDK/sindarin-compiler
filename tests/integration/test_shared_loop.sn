@@ -1,0 +1,28 @@
+// Test shared loop modifier
+// Shared loops use the same arena for all iterations (no per-iteration cleanup)
+
+fn main(): void =>
+    var sum: int = 0
+
+    // Shared for loop
+    shared for var i: int = 0; i < 5; i++ =>
+        sum = sum + i
+
+    print($"Sum from shared for: {sum}\n")
+
+    // Shared while loop
+    var count: int = 0
+    var total: int = 0
+    shared while count < 3 =>
+        total = total + count
+        count = count + 1
+
+    print($"Total from shared while: {total}\n")
+
+    // Shared for-each loop
+    var arr: int[] = {10, 20, 30}
+    var arrSum: int = 0
+    shared for n in arr =>
+        arrSum = arrSum + n
+
+    print($"Sum from shared for-each: {arrSum}\n")

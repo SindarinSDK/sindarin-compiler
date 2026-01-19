@@ -1,0 +1,11 @@
+// Test multiple namespaced imports with different namespaces
+import "lib/math_ops" as math
+import "lib/string_ops" as strings
+
+fn main(): void =>
+    // Use both namespaces
+    print($"math.add(10, 20) = {math.add(10, 20)}\n")
+    print($"math.multiply(3, 4) = {math.multiply(3, 4)}\n")
+    print($"strings.greet(\"World\") = {strings.greet("World")}\n")
+    print($"strings.farewell(\"World\") = {strings.farewell("World")}\n")
+    print($"strings.double_str(\"ab\") = {strings.double_str("ab")}\n")

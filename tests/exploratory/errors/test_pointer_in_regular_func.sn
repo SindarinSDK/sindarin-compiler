@@ -1,0 +1,13 @@
+# Exploratory test: Pointer variable in regular function
+# This should fail to compile because pointer types (variables, parameters,
+# and return types) can only be used in native functions.
+
+native fn get_pointer(): *int
+
+# Regular function trying to store a pointer - should be a compile error
+fn bad_function(): void =>
+    var p: *int = get_pointer()
+    return
+
+fn main(): int =>
+    return 0

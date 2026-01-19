@@ -1,0 +1,11 @@
+// Test: assert() built-in function
+// Verifies that assert() exits with error when condition is false
+
+fn main(): void =>
+    println("Testing assert")
+    assert(true, "This should not fail")
+    println("First assert passed")
+    assert(1 + 1 == 2, "Math works")
+    println("Second assert passed")
+    assert(false, "Assertion failed: expected condition to be true")
+    println("This should not be printed")

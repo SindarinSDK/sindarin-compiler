@@ -1,0 +1,134 @@
+// Test 115: Complex slice expressions
+// Tests slicing with computed indices and function calls
+
+fn get_start(): int =>
+    return 2
+
+fn get_end(): int =>
+    return 7
+
+fn get_step(): int =>
+    return 2
+
+fn main(): int =>
+    print("Test complex slice expressions:\n\n")
+
+    var arr: int[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    print("Original array: ")
+    print(arr)
+    print("\n")
+
+    // Test 1: Slice with function call indices
+    print("\nTest 1 - Slice with function call indices:\n")
+    var start: int = get_start()
+    var end: int = get_end()
+    var slice1: int[] = arr[start..end]
+    print($"  arr[get_start()..get_end()] = arr[{start}..{end}] = ")
+    print(slice1)
+    print("\n")
+
+    // Test 2: Slice with computed indices
+    print("\nTest 2 - Slice with computed indices:\n")
+    var offset: int = 3
+    var length: int = 4
+    var slice2: int[] = arr[offset..(offset + length)]
+    print($"  arr[{offset}..{offset + length}] = ")
+    print(slice2)
+    print("\n")
+
+    // Test 3: Slice with arithmetic expressions
+    print("\nTest 3 - Slice with arithmetic:\n")
+    var base: int = 1
+    var slice3: int[] = arr[(base * 2)..(base * 2 + 3)]
+    print($"  arr[{base * 2}..{base * 2 + 3}] = ")
+    print(slice3)
+    print("\n")
+
+    // Test 4: Slice with step from function
+    print("\nTest 4 - Slice with step:\n")
+    var step: int = get_step()
+    var slice4: int[] = arr[..:step]
+    print($"  arr[..:get_step()] = arr[..:{step}] = ")
+    print(slice4)
+    print("\n")
+
+    // Test 5: Chained slicing
+    print("\nTest 5 - Chained slicing:\n")
+    var first_slice: int[] = arr[1..8]
+    var second_slice: int[] = first_slice[1..5]
+    var third_slice: int[] = second_slice[1..3]
+    print("  arr[1..8] = ")
+    print(first_slice)
+    print("\n")
+    print("  then [1..5] = ")
+    print(second_slice)
+    print("\n")
+    print("  then [1..3] = ")
+    print(third_slice)
+    print("\n")
+
+    // Test 6: Slice with negative indices
+    print("\nTest 6 - Negative indices:\n")
+    var neg_slice1: int[] = arr[-3..]
+    print("  arr[-3..] = ")
+    print(neg_slice1)
+    print("\n")
+
+    var neg_slice2: int[] = arr[..-2]
+    print("  arr[..-2] = ")
+    print(neg_slice2)
+    print("\n")
+
+    // Test 7: Empty slice (start == end)
+    print("\nTest 7 - Empty slice:\n")
+    var empty_slice: int[] = arr[5..5]
+    print($"  arr[5..5] length: {empty_slice.length}\n")
+
+    // Test 8: Full copy via slice
+    print("\nTest 8 - Full copy via slice:\n")
+    var full_copy: int[] = arr[..]
+    full_copy.push(100)
+    print("  Original length after copy.push: ")
+    print($"{arr.length}\n")
+    print("  Copy length after push: ")
+    print($"{full_copy.length}\n")
+
+    // Test 9: Slice of string array
+    print("\nTest 9 - String array slicing:\n")
+    var words: str[] = {"zero", "one", "two", "three", "four", "five"}
+    var word_slice: str[] = words[2..5]
+    print("  words[2..5] = ")
+    print(word_slice)
+    print("\n")
+
+    // Test 10: Slice with loop index
+    print("\nTest 10 - Dynamic slicing in loop:\n")
+    for i in 0..3 =>
+        var dyn_slice: int[] = arr[i..(i + 3)]
+        print($"  arr[{i}..{i + 3}] = ")
+        print(dyn_slice)
+        print("\n")
+
+    // Verification
+    var errors: int = 0
+    if slice1.length != 5 => errors++
+    if slice1[0] != 2 => errors++
+    if slice2.length != 4 => errors++
+    if slice2[0] != 3 => errors++
+    if slice3.length != 3 => errors++
+    if slice3[0] != 2 => errors++
+    if slice4.length != 5 => errors++
+    if first_slice.length != 7 => errors++
+    if second_slice.length != 4 => errors++
+    if third_slice.length != 2 => errors++
+    if neg_slice1.length != 3 => errors++
+    if empty_slice.length != 0 => errors++
+    if arr.length != 10 => errors++
+    if full_copy.length != 11 => errors++
+
+    if errors == 0 =>
+        print("\nAll complex slicing tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

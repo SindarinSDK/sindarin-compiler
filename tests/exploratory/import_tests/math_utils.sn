@@ -1,0 +1,17 @@
+// math_utils.sn - Utility math functions for import testing
+
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn subtract(a: int, b: int): int =>
+    return a - b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+fn square(x: int): int =>
+    return x * x
+
+// Public constant via function
+fn get_pi_approx(): double =>
+    return 3.14159

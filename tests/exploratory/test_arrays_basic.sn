@@ -1,0 +1,65 @@
+// Test 06: Arrays - basic operations
+fn main(): int =>
+    print("=== Array Declaration ===\n")
+
+    // Empty array
+    var empty: int[] = {}
+    print("Empty array: ")
+    print(empty)
+    print($"\nLength: {empty.length}\n")
+
+    // Single element array
+    var single: int[] = {42}
+    print("Single element: ")
+    print(single)
+    print($"\nLength: {single.length}\n")
+
+    // Multiple elements
+    var nums: int[] = {10, 20, 30, 40, 50}
+    print("Numbers: ")
+    print(nums)
+    print($"\nLength: {nums.length}\n")
+
+    // Access elements
+    print("\n=== Array Access ===\n")
+    print($"nums[0]: {nums[0]}\n")
+    print($"nums[2]: {nums[2]}\n")
+    print($"nums[4]: {nums[4]}\n")
+
+    // Negative indexing
+    print("\n=== Negative Indexing ===\n")
+    print($"nums[-1]: {nums[-1]}\n")
+    print($"nums[-2]: {nums[-2]}\n")
+    print($"nums[-5]: {nums[-5]}\n")
+
+    // Modify elements
+    print("\n=== Modify Elements ===\n")
+    nums[0] = 100
+    nums[-1] = 500
+    print("After modification: ")
+    print(nums)
+    print("\n")
+
+    // Different types
+    print("\n=== Different Array Types ===\n")
+    var doubles: double[] = {1.1, 2.2, 3.3}
+    print("Doubles: ")
+    print(doubles)
+    print("\n")
+
+    var strings: str[] = {"hello", "world", "test"}
+    print("Strings: ")
+    print(strings)
+    print("\n")
+
+    var chars: char[] = {'a', 'b', 'c'}
+    print("Chars: ")
+    print(chars)
+    print("\n")
+
+    var bools: bool[] = {true, false, true}
+    print("Bools: ")
+    print(bools)
+    print("\n")
+
+    return 0

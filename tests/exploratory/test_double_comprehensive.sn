@@ -1,0 +1,432 @@
+// Comprehensive test for double type (64-bit floating point)
+// Tests all expression contexts: literals, interpolation, arithmetic,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== double Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_arithmetic()
+    test_comparisons()
+    test_unary()
+    test_compound_expressions()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All double tests passed! ===\n")
+
+// Helper for double comparison with epsilon
+fn double_eq(a: double, b: double): bool =>
+    var diff: double = a - b
+    if diff < 0.0 =>
+        diff = -diff
+    return diff < 0.0000001
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: double = 3.14159
+    assert(double_eq(x, 3.14159), "basic literal")
+
+    var y: double = -2.5
+    assert(double_eq(y, -2.5), "negative literal")
+
+    var z: double = 0.0
+    assert(double_eq(z, 0.0), "zero literal")
+
+    var small: double = 0.000001
+    assert(small > 0.0, "small positive")
+
+    var large: double = 1000000000.0
+    assert(large > 999999999.0, "large value")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: double = 3.14159
+    var s1: str = $"Value: {x}"
+    print($"   Got: {s1}\n")
+
+    var y: double = -2.5
+    var s2: str = $"Negative: {y}"
+    print($"   Got: {s2}\n")
+
+    // Expression in interpolation
+    var a: double = 1.5
+    var b: double = 2.5
+    var s3: str = $"Sum: {a + b}"
+    print($"   Got: {s3}\n")
+
+    // Multiple values
+    var s4: str = $"a={a} b={b}"
+    print($"   Got: {s4}\n")
+
+    print("   PASS\n")
+
+// --- 3. Arithmetic Operations ---
+fn test_arithmetic(): void =>
+    print("3. Arithmetic operations\n")
+
+    var a: double = 10.0
+    var b: double = 3.0
+
+    // Addition
+    var sum: double = a + b
+    assert(double_eq(sum, 13.0), "addition")
+
+    // Subtraction
+    var diff: double = a - b
+    assert(double_eq(diff, 7.0), "subtraction")
+
+    // Multiplication
+    var prod: double = a * b
+    assert(double_eq(prod, 30.0), "multiplication")
+
+    // Division
+    var quot: double = a / b
+    assert(quot > 3.333 && quot < 3.334, "division")
+
+    // Fractional arithmetic
+    var f1: double = 0.1
+    var f2: double = 0.2
+    var f3: double = f1 + f2
+    assert(f3 > 0.299 && f3 < 0.301, "fractional addition")
+
+    print("   PASS\n")
+
+// --- 4. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("4. Comparison operations\n")
+
+    var a: double = 5.0
+    var b: double = 3.0
+    var c: double = 5.0
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    print("   PASS\n")
+
+// --- 5. Unary Operations ---
+fn test_unary(): void =>
+    print("5. Unary operations\n")
+
+    var x: double = 3.14159
+    var neg: double = -x
+    assert(double_eq(neg, -3.14159), "negation")
+
+    var y: double = -2.5
+    var pos: double = -y
+    assert(double_eq(pos, 2.5), "double negation")
+
+    print("   PASS\n")
+
+// --- 6. Compound Expressions ---
+fn test_compound_expressions(): void =>
+    print("6. Compound expressions\n")
+
+    var a: double = 10.0
+    var b: double = 5.0
+    var c: double = 2.0
+
+    // Parenthesized expressions
+    var r1: double = (a + b) * c
+    assert(double_eq(r1, 30.0), "parenthesized multiply")
+
+    var r2: double = a * (b + c)
+    assert(double_eq(r2, 70.0), "parenthesized add")
+
+    // Nested expressions
+    var r3: double = (a + b) * (c + 1.0)
+    assert(double_eq(r3, 45.0), "nested parentheses")
+
+    // Complex expression
+    var r4: double = a * b + c * 3.0
+    assert(double_eq(r4, 56.0), "complex expression")
+
+    print("   PASS\n")
+
+// --- 7. Arrays ---
+fn test_arrays(): void =>
+    print("7. Arrays\n")
+
+    // Array literal
+    var arr: double[] = {1.0, 2.0, 3.0, 4.0, 5.0}
+    assert(arr.length == 5, "array length")
+
+    // Indexing
+    assert(double_eq(arr[0], 1.0), "index 0")
+    assert(double_eq(arr[2], 3.0), "index 2")
+    assert(double_eq(arr[4], 5.0), "index 4")
+
+    // Negative indexing
+    assert(double_eq(arr[-1], 5.0), "negative index -1")
+    assert(double_eq(arr[-2], 4.0), "negative index -2")
+
+    // Array with expressions
+    var x: double = 2.5
+    var arr2: double[] = {x, x + 1.0, x * 2.0}
+    assert(double_eq(arr2[0], 2.5), "expr in array 0")
+    assert(double_eq(arr2[1], 3.5), "expr in array 1")
+    assert(double_eq(arr2[2], 5.0), "expr in array 2")
+
+    // Slicing
+    var slice: double[] = arr[1..3]
+    assert(slice.length == 2, "slice length")
+    assert(double_eq(slice[0], 2.0), "slice[0]")
+    assert(double_eq(slice[1], 3.0), "slice[1]")
+
+    // Empty array
+    var empty: double[] = {}
+    assert(empty.length == 0, "empty array")
+
+    print("   PASS\n")
+
+// --- 8. Array Equality ---
+fn test_array_equality(): void =>
+    print("8. Array equality\n")
+
+    var a: double[] = {1.0, 2.0, 3.0}
+    var b: double[] = {1.0, 2.0, 3.0}
+    var c: double[] = {1.0, 2.0, 4.0}
+    var d: double[] = {1.0, 2.0}
+
+    assert(a == b, "equal arrays")
+    assert(!(a == c), "different last element")
+    assert(!(a == d), "different lengths")
+
+    assert(a != c, "not equal different element")
+    assert(a != d, "not equal different length")
+    assert(!(a != b), "not not equal")
+
+    // Empty arrays
+    var e1: double[] = {}
+    var e2: double[] = {}
+    assert(e1 == e2, "empty arrays equal")
+
+    print("   PASS\n")
+
+// --- 9. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("9. 2D arrays\n")
+
+    var matrix: double[][] = {{1.0, 2.0, 3.0}, {4.0, 5.0, 6.0}, {7.0, 8.0, 9.0}}
+
+    assert(matrix.length == 3, "2d rows")
+    assert(matrix[0].length == 3, "2d cols")
+
+    assert(double_eq(matrix[0][0], 1.0), "element [0][0]")
+    assert(double_eq(matrix[1][1], 5.0), "element [1][1]")
+    assert(double_eq(matrix[2][2], 9.0), "element [2][2]")
+
+    // Row access
+    var row: double[] = matrix[1]
+    assert(double_eq(row[0], 4.0), "row access")
+
+    print("   PASS\n")
+
+// --- 10. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("10. Any boxing\n")
+
+    var x: double = 3.14159
+    var a: any = x
+    assert(a is double, "boxed type check")
+
+    var y: double = -2.5
+    var b: any = y
+    assert(b is double, "boxed negative type check")
+
+    // Boxing array
+    var arr: double[] = {1.0, 2.0, 3.0}
+    var c: any = arr
+    assert(c is double[], "boxed array type check")
+
+    print("   PASS\n")
+
+// --- 11. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("11. Any unboxing\n")
+
+    var x: double = 3.14159
+    var a: any = x
+    var unboxed: double = a as double
+    assert(double_eq(unboxed, 3.14159), "unboxed value")
+
+    var y: double = -2.5
+    var b: any = y
+    var unboxed2: double = b as double
+    assert(double_eq(unboxed2, -2.5), "unboxed negative")
+
+    // Unbox array
+    var arr: double[] = {1.0, 2.0, 3.0}
+    var c: any = arr
+    var unboxedArr: double[] = c as double[]
+    assert(unboxedArr.length == 3, "unboxed array length")
+    assert(double_eq(unboxedArr[0], 1.0), "unboxed array element")
+
+    print("   PASS\n")
+
+// --- 12. Type Checking ---
+fn test_type_checking(): void =>
+    print("12. Type checking with 'is'\n")
+
+    var x: double = 3.14159
+    var a: any = x
+
+    assert(a is double, "is double true")
+    assert(!(a is int), "is int false")
+    assert(!(a is str), "is str false")
+    assert(!(a is bool), "is bool false")
+
+    // Array type checking
+    var arr: double[] = {1.0, 2.0, 3.0}
+    var b: any = arr
+    assert(b is double[], "is double[] true")
+    assert(!(b is int[]), "is int[] false")
+
+    print("   PASS\n")
+
+// --- 13. Lambdas ---
+fn test_lambdas(): void =>
+    print("13. Lambdas\n")
+
+    // Lambda with double parameter
+    var double_it: fn(double): double = fn(x: double): double => x * 2.0
+    assert(double_eq(double_it(3.0), 6.0), "lambda call")
+
+    // Lambda with double return
+    var get_pi: fn(): double = fn(): double => 3.14159
+    assert(double_eq(get_pi(), 3.14159), "lambda return")
+
+    // Lambda with expression
+    var add: fn(double, double): double = fn(a: double, b: double): double => a + b
+    assert(double_eq(add(1.5, 2.5), 4.0), "lambda with two params")
+
+    // Lambda capturing double
+    var base: double = 10.0
+    var add_base: fn(double): double = fn(x: double): double => x + base
+    assert(double_eq(add_base(5.0), 15.0), "lambda capture")
+
+    // Higher-order with double
+    var apply: fn(fn(double): double, double): double = fn(f: fn(double): double, x: double): double => f(x)
+    assert(double_eq(apply(double_it, 3.0), 6.0), "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 14. Functions ---
+fn test_functions(): void =>
+    print("14. Functions\n")
+
+    assert(double_eq(identity_double(3.14159), 3.14159), "identity function")
+    assert(double_eq(add_double(1.5, 2.5), 4.0), "add function")
+    assert(double_eq(multiply_double(3.0, 4.0), 12.0), "multiply function")
+    assert(double_eq(negate_double(3.14159), -3.14159), "negate function")
+
+    // Function returning expression
+    assert(double_eq(compute_double(2.0, 3.0, 4.0), 20.0), "complex function")
+
+    print("   PASS\n")
+
+fn identity_double(x: double): double =>
+    return x
+
+fn add_double(a: double, b: double): double =>
+    return a + b
+
+fn multiply_double(a: double, b: double): double =>
+    return a * b
+
+fn negate_double(x: double): double =>
+    return -x
+
+fn compute_double(a: double, b: double, c: double): double =>
+    return (a + b) * c
+
+// --- 15. Control Flow ---
+fn test_control_flow(): void =>
+    print("15. Control flow\n")
+
+    // If with double comparison
+    var x: double = 5.0
+    var result: double = 0.0
+    if x > 4.0 =>
+        result = 1.0
+    else =>
+        result = 0.0
+    assert(double_eq(result, 1.0), "if comparison")
+
+    // While with double counter
+    var count: double = 0.0
+    var sum: double = 0.0
+    while count < 5.0 =>
+        sum = sum + count
+        count = count + 1.0
+    assert(double_eq(sum, 10.0), "while loop") // 0+1+2+3+4=10
+
+    // For loop with double array
+    var total: double = 0.0
+    var arr: double[] = {1.0, 2.0, 3.0, 4.0, 5.0}
+    for v in arr =>
+        total = total + v
+    assert(double_eq(total, 15.0), "for loop")
+
+    print("   PASS\n")
+
+// --- 16. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("16. Edge cases\n")
+
+    // Zero operations
+    var zero: double = 0.0
+    assert(double_eq(zero + zero, 0.0), "zero + zero")
+    assert(double_eq(zero * 100.0, 0.0), "zero * n")
+
+    // Division
+    var ten: double = 10.0
+    assert(double_eq(ten / 10.0, 1.0), "n / n")
+    assert(double_eq(ten / 2.0, 5.0), "n / 2")
+
+    // Small values
+    var small: double = 0.0000001
+    assert(small > 0.0, "small positive")
+    assert(small < 0.000001, "small less than")
+
+    // Sign changes
+    var pos: double = 5.0
+    var neg: double = -5.0
+    assert(double_eq(pos + neg, 0.0), "pos + neg = 0")
+    assert(double_eq(pos * neg, -25.0), "pos * neg")
+    assert(double_eq(neg * neg, 25.0), "neg * neg")
+
+    print("   PASS\n")

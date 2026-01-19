@@ -1,0 +1,8 @@
+# Error test: struct declaration missing '=>'
+
+struct Point
+    x: double
+    y: double
+
+fn main(): void =>
+    print("Should not compile\n")

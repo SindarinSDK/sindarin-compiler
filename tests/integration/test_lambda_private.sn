@@ -1,0 +1,17 @@
+// Test private lambda - creates isolated arena that is destroyed after call
+
+fn main(): int =>
+    // Private lambda that returns a primitive
+    var square: fn(int): int = fn(x: int) private: int => x * x
+
+    print($"Square 7 = {square(7)}\n")
+
+    // Another private lambda
+    var add: fn(int, int): int = fn(a: int, b: int) private: int => a + b
+    print($"Add 10 + 20 = {add(10, 20)}\n")
+
+    // Multiple calls to verify arena cleanup
+    print($"Square 3 = {square(3)}\n")
+    print($"Square 5 = {square(5)}\n")
+
+    return 0

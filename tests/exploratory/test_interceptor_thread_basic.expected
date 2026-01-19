@@ -1,0 +1,7 @@
+Testing interceptors with threads
+Intercepted: compute
+Main thread result: 999
+Intercepted: compute
+Thread result: 999
+After clear result: 42
+All interceptor thread basic tests passed!

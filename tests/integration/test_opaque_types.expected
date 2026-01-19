@@ -1,0 +1,4 @@
+is_file_nil(nil) returned true (expected)
+use_file_ptr(get_null_file()) succeeded
+use_file_ptr(nil) succeeded
+All opaque type tests passed!

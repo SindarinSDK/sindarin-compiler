@@ -1,0 +1,67 @@
+// Test 32: Arrays of different types
+fn main(): int =>
+    print("Test array types:\n\n")
+
+    // Int array
+    print("Int array:\n")
+    var ints: int[] = {1, 2, 3, 4, 5}
+    print("  ")
+    print(ints)
+    print($"\n  length = {ints.length}\n")
+    print($"  sum = {ints[0] + ints[1] + ints[2]}\n")
+
+    // Double array
+    print("\nDouble array:\n")
+    var doubles: double[] = {1.1, 2.2, 3.3, 4.4, 5.5}
+    print("  ")
+    print(doubles)
+    print($"\n  length = {doubles.length}\n")
+    print($"  first = {doubles[0]}\n")
+
+    // String array
+    print("\nString array:\n")
+    var strings: str[] = {"apple", "banana", "cherry", "date"}
+    print("  ")
+    print(strings)
+    print($"\n  length = {strings.length}\n")
+    print($"  first = {strings[0]}\n")
+    print($"  joined = {strings.join(", ")}\n")
+
+    // Char array
+    print("\nChar array:\n")
+    var chars: char[] = {'H', 'e', 'l', 'l', 'o'}
+    print("  ")
+    print(chars)
+    print($"\n  length = {chars.length}\n")
+    print($"  first = '{chars[0]}'\n")
+
+    // Bool array
+    print("\nBool array:\n")
+    var bools: bool[] = {true, false, true, false}
+    print("  ")
+    print(bools)
+    print($"\n  length = {bools.length}\n")
+    print($"  first = {bools[0]}\n")
+
+    // Operations on typed arrays
+    print("\nOperations:\n")
+    ints.push(6)
+    print("After int push: ")
+    print(ints)
+    print("\n")
+
+    strings.push("elderberry")
+    print("After string push: ")
+    print(strings)
+    print("\n")
+
+    // Equality
+    print("\nEquality:\n")
+    var arr1: int[] = {1, 2, 3}
+    var arr2: int[] = {1, 2, 3}
+    var arr3: int[] = {1, 2, 4}
+    print($"{{1,2,3}} == {{1,2,3}}: {arr1 == arr2}\n")
+    print($"{{1,2,3}} == {{1,2,4}}: {arr1 == arr3}\n")
+    print($"{{1,2,3}} != {{1,2,4}}: {arr1 != arr3}\n")
+
+    return 0

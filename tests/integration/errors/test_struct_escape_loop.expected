@@ -1,0 +1,1 @@
+Cannot assign to variable declared outside private block: struct 'NamedPoint' contains heap data: field 'name' is str (heap-allocated string)

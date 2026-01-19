@@ -1,0 +1,10 @@
+Test 1 - Array of structs with no defaults passed
+Test 2 - Array of structs with defaults passed
+Test 3 - Struct containing array of structs passed
+Test 4 - Struct containing array with outer defaults passed
+Test 5 - Struct containing array of structs with defaults passed
+Test 6 - Empty array in struct passed
+Test 7 - Container with nested array of structs passed
+Test 8 - Container with multiple shapes passed
+Test 9 - Single element array passed
+All nested struct array tests passed!

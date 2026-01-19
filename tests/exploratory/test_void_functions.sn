@@ -1,0 +1,53 @@
+// Test 16: Void functions
+fn greet(): void =>
+    print("Hello!\n")
+
+fn greet_name(name: str): void =>
+    print($"Hello, {name}!\n")
+
+fn print_sum(a: int, b: int): void =>
+    var sum: int = a + b
+    print($"{a} + {b} = {sum}\n")
+
+fn print_product(a: int, b: int, c: int): void =>
+    var prod: int = a * b * c
+    print($"{a} * {b} * {c} = {prod}\n")
+
+fn nested_calls(): void =>
+    print("Starting nested calls\n")
+    greet()
+    greet_name("World")
+    print("Done nested calls\n")
+
+fn with_loop(): void =>
+    for var i: int = 0; i < 3; i++ =>
+        print($"  loop {i}\n")
+
+fn with_condition(x: int): void =>
+    if x > 0 =>
+        print("positive\n")
+    else =>
+        print("not positive\n")
+
+fn main(): int =>
+    print("Test void functions:\n\n")
+
+    greet()
+    greet_name("Alice")
+    greet_name("Bob")
+
+    print_sum(5, 3)
+    print_sum(10, 20)
+
+    print_product(2, 3, 4)
+
+    nested_calls()
+
+    print("\nWith loop:\n")
+    with_loop()
+
+    print("\nWith condition:\n")
+    with_condition(5)
+    with_condition(-5)
+
+    return 0

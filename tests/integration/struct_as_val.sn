@@ -1,0 +1,81 @@
+# Test 'as val' deep copy semantics for structs with array fields
+# 'as val' on a struct creates a deep copy where array fields are independently copied
+
+struct Container =>
+    name: str
+    items: int[]
+
+struct DataHolder =>
+    label: str
+    values: double[]
+
+fn main(): int =>
+    print("Testing 'as val' struct deep copy semantics:\n\n")
+
+    # Test 1: Default copy is shallow - arrays are shared
+    var c1 = Container{ name: "original", items: {1, 2, 3} }
+    var c2: Container = c1   # Shallow copy - c2.items points to same array
+
+    print($"1. Before modification:\n")
+    print($"   c1.items: [{c1.items[0]}, {c1.items[1]}, {c1.items[2]}]\n")
+    print($"   c2.items: [{c2.items[0]}, {c2.items[1]}, {c2.items[2]}]\n")
+
+    c2.items[0] = 100  # Modifying c2.items affects c1.items (shallow copy)
+    print($"   After c2.items[0] = 100 (shallow copy):\n")
+    print($"   c1.items: [{c1.items[0]}, {c1.items[1]}, {c1.items[2]}]\n")
+    print($"   c2.items: [{c2.items[0]}, {c2.items[1]}, {c2.items[2]}]\n")
+
+    if c1.items[0] != 100 =>
+        print("FAIL: Expected c1.items[0] to be affected by shallow copy\n")
+        return 1
+
+    # Test 2: Deep copy with 'as val' - arrays are independent
+    var c3 = Container{ name: "source", items: {10, 20, 30} }
+    var c4: Container = c3 as val   # Deep copy - c4.items is independent
+
+    print($"\n2. With 'as val' (deep copy):\n")
+    print($"   c3.items: [{c3.items[0]}, {c3.items[1]}, {c3.items[2]}]\n")
+    print($"   c4.items: [{c4.items[0]}, {c4.items[1]}, {c4.items[2]}]\n")
+
+    c4.items[0] = 999  # Modifying c4.items should NOT affect c3.items
+    print($"   After c4.items[0] = 999 (deep copy):\n")
+    print($"   c3.items: [{c3.items[0]}, {c3.items[1]}, {c3.items[2]}]\n")
+    print($"   c4.items: [{c4.items[0]}, {c4.items[1]}, {c4.items[2]}]\n")
+
+    if c3.items[0] != 10 =>
+        print("FAIL: c3.items[0] should be unchanged after deep copy modification\n")
+        return 1
+    if c4.items[0] != 999 =>
+        print("FAIL: c4.items[0] should be 999\n")
+        return 1
+
+    # Test 3: Deep copy with doubles
+    var d1 = DataHolder{ label: "measurements", values: {1.5, 2.5, 3.5} }
+    var d2: DataHolder = d1 as val
+
+    print($"\n3. Deep copy with doubles:\n")
+    d2.values[1] = 100.5
+    print($"   d1.values[1]: {d1.values[1]}\n")
+    print($"   d2.values[1]: {d2.values[1]}\n")
+
+    if d1.values[1] != 2.5 =>
+        print("FAIL: d1.values should be unchanged\n")
+        return 1
+    if d2.values[1] != 100.5 =>
+        print("FAIL: d2.values[1] should be 100.5\n")
+        return 1
+
+    # Test 4: Deep copy preserves string fields
+    var c5 = Container{ name: "test_name", items: {5, 10, 15} }
+    var c6: Container = c5 as val
+
+    print($"\n4. String field in deep copy:\n")
+    print($"   c5.name: {c5.name}\n")
+    print($"   c6.name: {c6.name}\n")
+
+    if c6.name != "test_name" =>
+        print("FAIL: String field should be copied\n")
+        return 1
+
+    print("\nAll 'as val' struct deep copy tests PASSED!\n")
+    return 0

@@ -1,0 +1,9 @@
+// circular_b.sn - Second module in potential circular import
+// This module imports circular_a, creating a cycle
+
+import "circular_a"
+
+fn func_b(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return n + func_a(n - 1)

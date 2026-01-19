@@ -1,0 +1,24 @@
+# Test importing a struct type from another module
+# This tests the "import-first processing" fix where types are registered
+# DURING parsing, not after.
+
+import "lib/point"
+
+fn main(): void =>
+    # Test that Point type is available after import
+    var p1: Point = point_origin()
+    print($"Origin: ({p1.getX()}, {p1.getY()})\n")
+
+    # Test factory function
+    var p2: Point = point_create(3, 4)
+    print($"Created: ({p2.getX()}, {p2.getY()})\n")
+
+    # Test struct literal syntax
+    var p3: Point = Point { x: 10, y: 20 }
+    print($"Literal: ({p3.getX()}, {p3.getY()})\n")
+
+    # Test function that takes Point parameters
+    var sum: Point = add_points(p2, p3)
+    print($"Sum: ({sum.getX()}, {sum.getY()})\n")
+
+    print("All struct import tests passed!\n")

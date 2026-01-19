@@ -1,0 +1,11 @@
+# Error test: Cannot dereference opaque types
+
+# Declare opaque type
+type OpaqueHandle = opaque
+
+# This should fail: trying to dereference opaque type
+native fn bad_deref(h: *OpaqueHandle): OpaqueHandle =>
+    return h as val
+
+fn main(): int =>
+    return 0

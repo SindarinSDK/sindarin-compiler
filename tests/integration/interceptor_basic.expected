@@ -1,0 +1,5 @@
+Initial count is 0 - PASS
+isActive is false outside interceptor - PASS
+Count after register is 1 - PASS
+Count after clearAll is 0 - PASS
+All basic interceptor tests passed!

@@ -1,0 +1,15 @@
+# Exploratory test: Calling a method with wrong number of arguments
+# This should fail to compile because the argument count doesn't match.
+
+struct Counter =>
+    value: int
+
+    fn addValue(amount: int): int =>
+        self.value = self.value + amount
+        return self.value
+
+fn main(): int =>
+    var c: Counter = Counter { value: 42 }
+    # Try to call a method with too few arguments
+    var x: int = c.addValue()
+    return 0

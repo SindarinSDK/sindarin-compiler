@@ -1,0 +1,49 @@
+// Test 36: String escape sequences
+fn main(): int =>
+    print("Test escape sequences:\n\n")
+
+    // Newline
+    print("Line 1\nLine 2\nLine 3\n")
+
+    // Tab
+    print("Column1\tColumn2\tColumn3\n")
+    print("A\tB\tC\n")
+    print("123\t456\t789\n")
+
+    // Quote
+    print("She said \"Hello\"\n")
+    print("It's a \"test\"\n")
+
+    // Backslash
+    print("Path: C:\\Users\\Name\n")
+    print("Backslash: \\\n")
+
+    // Mixed
+    print("\nMixed escapes:\n")
+    print("Tab:\tNewline follows\nQuote: \"text\"\n")
+
+    // In interpolation
+    var name: str = "Alice"
+    print($"\tHello, \"{name}\"!\n")
+
+    // Char escapes
+    var nl: char = '\n'
+    var tab: char = '\t'
+    var sq: char = '\''
+    var bs: char = '\\'
+
+    print("\nChar escapes:\n")
+    print("Tab:")
+    print(tab)
+    print("text")
+    print(nl)
+    print($"Single quote: {sq}\n")
+    print($"Backslash: {bs}\n")
+
+    // Empty string and escapes
+    var empty: str = ""
+    var justEscape: str = "\n"
+    print($"Empty length: {len(empty)}\n")
+    print($"Just newline length: {len(justEscape)}\n")
+
+    return 0

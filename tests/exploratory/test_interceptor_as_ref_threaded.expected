@@ -1,0 +1,8 @@
+Testing as ref parameters with threads
+Without interceptor: x = 11
+Intercepted increment
+With interceptor: y = 40
+Intercepted threadedIncrement
+Thread result: 0
+After clear: w = 101
+As ref threaded test passed!

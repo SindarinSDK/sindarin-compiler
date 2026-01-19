@@ -1,0 +1,86 @@
+# Integration test for simple field assignment escape detection
+# Tests that escape detection works correctly for direct field assignments
+# where a value from an inner scope is assigned to a field of an outer-scoped struct.
+
+struct Container =>
+    value: int
+    name: str = "default"
+
+struct Holder =>
+    data: int
+    flag: bool = false
+
+fn test_simple_escape(): void =>
+    # outer is declared in function scope
+    var outer: Container = Container { value: 0 }
+
+    # Create an inner block (simulating deeper scope)
+    # and assign from that scope to outer.value
+    var inner_value: int = 42
+    outer.value = inner_value
+
+    if outer.value != 42 =>
+        print($"FAIL: outer.value = {outer.value}, expected 42\n")
+        return
+
+    print("Simple escape test: PASS\n")
+
+fn test_escape_with_defaults(): void =>
+    var holder: Holder = Holder { data: 100 }
+
+    # Verify default was applied
+    if holder.flag != false =>
+        print("FAIL: holder.flag should be false by default\n")
+        return
+
+    # Modify field
+    var new_val: int = 999
+    holder.data = new_val
+
+    if holder.data != 999 =>
+        print($"FAIL: holder.data = {holder.data}, expected 999\n")
+        return
+
+    print("Escape with defaults test: PASS\n")
+
+fn test_multiple_field_escapes(): void =>
+    var c: Container = Container { value: 0 }
+
+    # Multiple assignments from local scope
+    var v1: int = 10
+    var v2: int = 20
+
+    c.value = v1
+    if c.value != 10 =>
+        print($"FAIL: c.value = {c.value}, expected 10\n")
+        return
+
+    c.value = v2
+    if c.value != 20 =>
+        print($"FAIL: c.value = {c.value}, expected 20\n")
+        return
+
+    print("Multiple field escapes test: PASS\n")
+
+fn test_escape_with_computation(): void =>
+    var container: Container = Container { value: 0 }
+
+    var a: int = 5
+    var b: int = 7
+
+    # Assign computed value
+    container.value = a * b
+
+    if container.value != 35 =>
+        print($"FAIL: container.value = {container.value}, expected 35\n")
+        return
+
+    print("Escape with computation test: PASS\n")
+
+fn main(): void =>
+    print("Testing simple field assignment escape detection:\n")
+    test_simple_escape()
+    test_escape_with_defaults()
+    test_multiple_field_escapes()
+    test_escape_with_computation()
+    print("All simple field escape tests passed!\n")

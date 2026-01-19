@@ -1,0 +1,54 @@
+// Test 89: Long integer literals and operations
+// Tests the long type for 64-bit integers
+
+fn main(): int =>
+    print("Test long literals and operations:\n\n")
+
+    // Test 1: Long literal syntax
+    print("Test 1 - Long literals:\n")
+    var a: long = 42l
+    var b: long = 100l
+    print($"  a = {a}\n")
+    print($"  b = {b}\n")
+
+    // Test 2: Long arithmetic
+    print("\nTest 2 - Long arithmetic:\n")
+    var sum: long = a + b
+    var diff: long = b - a
+    var prod: long = a * b
+    var quot: long = b / a
+    print($"  a + b = {sum}\n")
+    print($"  b - a = {diff}\n")
+    print($"  a * b = {prod}\n")
+    print($"  b / a = {quot}\n")
+
+    // Test 3: Large long values
+    print("\nTest 3 - Large values:\n")
+    var large: long = 1000000000l
+    var doubled: long = large * 2l
+    print($"  large = {large}\n")
+    print($"  doubled = {doubled}\n")
+
+    // Test 4: Long comparison
+    print("\nTest 4 - Long comparison:\n")
+    var x: long = 50l
+    var y: long = 100l
+    if x < y =>
+        print("  x < y: true\n")
+    else =>
+        print("  x < y: false\n")
+    if x == 50l =>
+        print("  x == 50l: true\n")
+
+    // Test 5: Long in expressions
+    print("\nTest 5 - Complex expressions:\n")
+    var result: long = (a + b) * 2l - 10l
+    print($"  (a + b) * 2 - 10 = {result}\n")
+
+    // Test 6: Long modulo
+    print("\nTest 6 - Long modulo:\n")
+    var mod: long = 17l % 5l
+    print($"  17l %% 5l = {mod}\n")
+
+    print("\nAll long literal tests passed!\n")
+    return 0

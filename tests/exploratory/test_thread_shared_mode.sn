@@ -1,0 +1,11 @@
+// Test: Shared mode arena flag code generation
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies is_shared=true flag generation and caller arena usage
+
+fn shared_work() shared: str =>
+    return "shared result"
+
+fn main(): void =>
+    var r: str = &shared_work()  // Spawns in shared mode
+    var result: str = r!          // No promotion needed
+    print($"Result: {result}\n")  // Should print "Result: shared result"

@@ -1,0 +1,85 @@
+# Test struct allocation with explicitly shared functions
+# Shared functions allocate structs directly in caller's arena (no copy needed)
+
+struct Point =>
+    x: int
+    y: int
+
+struct Rectangle =>
+    topLeft: Point
+    bottomRight: Point
+
+# Explicitly shared function returning struct - uses caller's arena
+fn createPoint(x: int, y: int) shared: Point =>
+    return Point { x: x, y: y }
+
+# Shared function that creates nested struct
+fn createRectangle(x1: int, y1: int, x2: int, y2: int) shared: Rectangle =>
+    var tl: Point = Point { x: x1, y: y1 }
+    var br: Point = Point { x: x2, y: y2 }
+    return Rectangle { topLeft: tl, bottomRight: br }
+
+# Shared function that modifies struct
+fn offsetPoint(p: Point, dx: int, dy: int) shared: Point =>
+    return Point { x: p.x + dx, y: p.y + dy }
+
+# Chain of shared function calls
+fn doubleAndOffset(p: Point) shared: Point =>
+    var doubled: Point = Point { x: p.x * 2, y: p.y * 2 }
+    return offsetPoint(doubled, 10, 10)
+
+fn main(): void =>
+    print("Testing struct allocation with shared functions:\n")
+
+    # Test 1: Simple shared function creating struct
+    var p1: Point = createPoint(5, 10)
+    if p1.x != 5 =>
+        print($"Simple shared struct: FAIL (x={p1.x})\n")
+        return
+    if p1.y != 10 =>
+        print($"Simple shared struct: FAIL (y={p1.y})\n")
+        return
+    print("Simple shared struct: PASS\n")
+
+    # Test 2: Shared function with nested struct
+    var rect: Rectangle = createRectangle(0, 0, 100, 100)
+    if rect.topLeft.x != 0 =>
+        print($"Nested shared struct: FAIL (topLeft.x={rect.topLeft.x})\n")
+        return
+    if rect.bottomRight.x != 100 =>
+        print($"Nested shared struct: FAIL (bottomRight.x={rect.bottomRight.x})\n")
+        return
+    print("Nested shared struct: PASS\n")
+
+    # Test 3: Shared function modifying struct
+    var p2: Point = createPoint(3, 4)
+    var p3: Point = offsetPoint(p2, 7, 6)
+    if p3.x != 10 =>
+        print($"Modify shared struct: FAIL (x={p3.x})\n")
+        return
+    if p3.y != 10 =>
+        print($"Modify shared struct: FAIL (y={p3.y})\n")
+        return
+    print("Modify shared struct: PASS\n")
+
+    # Test 4: Chained shared function calls
+    var p4: Point = createPoint(5, 5)
+    var p5: Point = doubleAndOffset(p4)
+    if p5.x != 20 =>
+        print($"Chained shared struct: FAIL (x={p5.x}, expected 20)\n")
+        return
+    if p5.y != 20 =>
+        print($"Chained shared struct: FAIL (y={p5.y}, expected 20)\n")
+        return
+    print("Chained shared struct: PASS\n")
+
+    # Test 5: Multiple structs from shared functions
+    var a: Point = createPoint(1, 2)
+    var b: Point = createPoint(3, 4)
+    var c: Point = createPoint(5, 6)
+    if a.x + b.x + c.x != 9 =>
+        print($"Multiple shared structs: FAIL (sum={a.x + b.x + c.x})\n")
+        return
+    print("Multiple shared structs: PASS\n")
+
+    print("All struct shared function tests completed!\n")

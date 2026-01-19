@@ -1,0 +1,122 @@
+# Integration test for same-scope field assignments (no escape)
+# Tests that assignments where LHS and RHS are at the same scope work correctly
+# These should NOT trigger escape detection.
+
+struct Point =>
+    x: int
+    y: int
+
+struct Rectangle =>
+    width: int
+    height: int
+    area: int = 0
+
+struct Pair =>
+    first: Point
+    second: Point
+
+fn test_same_scope_simple(): void =>
+    # Both declared at same scope - no escape
+    var p: Point = Point { x: 0, y: 0 }
+    var new_x: int = 10
+    var new_y: int = 20
+
+    p.x = new_x
+    p.y = new_y
+
+    if p.x != 10 =>
+        print($"FAIL: p.x = {p.x}, expected 10\n")
+        return
+
+    if p.y != 20 =>
+        print($"FAIL: p.y = {p.y}, expected 20\n")
+        return
+
+    print("Same scope simple test: PASS\n")
+
+fn test_same_scope_with_computation(): void =>
+    var rect: Rectangle = Rectangle { width: 5, height: 10 }
+
+    # Compute and assign at same scope
+    var w: int = rect.width
+    var h: int = rect.height
+    rect.area = w * h
+
+    if rect.area != 50 =>
+        print($"FAIL: rect.area = {rect.area}, expected 50\n")
+        return
+
+    print("Same scope with computation test: PASS\n")
+
+fn test_same_scope_struct_field_copy(): void =>
+    # Copy field values between structs at same scope
+    var p1: Point = Point { x: 100, y: 200 }
+    var p2: Point = Point { x: 0, y: 0 }
+
+    p2.x = p1.x
+    p2.y = p1.y
+
+    if p2.x != 100 =>
+        print($"FAIL: p2.x = {p2.x}, expected 100\n")
+        return
+
+    if p2.y != 200 =>
+        print($"FAIL: p2.y = {p2.y}, expected 200\n")
+        return
+
+    print("Same scope struct field copy test: PASS\n")
+
+fn test_same_scope_nested(): void =>
+    # Nested structs at same scope
+    var pair: Pair = Pair { first: Point { x: 1, y: 2 }, second: Point { x: 3, y: 4 } }
+
+    # Copy between nested fields at same scope
+    var temp: int = pair.first.x
+    pair.second.x = temp
+
+    if pair.second.x != 1 =>
+        print($"FAIL: pair.second.x = {pair.second.x}, expected 1\n")
+        return
+
+    print("Same scope nested test: PASS\n")
+
+fn test_same_scope_multiple_assigns(): void =>
+    var p: Point = Point { x: 0, y: 0 }
+
+    # Multiple assignments from same-scope variables
+    var a: int = 1
+    var b: int = 2
+    var c: int = 3
+
+    p.x = a
+    p.x = b
+    p.x = c
+
+    if p.x != 3 =>
+        print($"FAIL: p.x = {p.x}, expected 3\n")
+        return
+
+    print("Same scope multiple assigns test: PASS\n")
+
+fn test_same_scope_self_assign(): void =>
+    var rect: Rectangle = Rectangle { width: 8, height: 4 }
+
+    # Assign field to itself (no-op, but should work)
+    var current: int = rect.width
+    rect.width = current
+
+    if rect.width != 8 =>
+        print($"FAIL: rect.width = {rect.width}, expected 8\n")
+        return
+
+    print("Same scope self assign test: PASS\n")
+
+fn main(): void =>
+    print("Testing same-scope field assignments (no escape):\n")
+    test_same_scope_simple()
+    test_same_scope_with_computation()
+    test_same_scope_struct_field_copy()
+    test_same_scope_nested()
+    test_same_scope_multiple_assigns()
+    test_same_scope_self_assign()
+    print("All same-scope field assignment tests passed!\n")

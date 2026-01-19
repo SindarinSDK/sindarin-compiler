@@ -1,0 +1,349 @@
+// Comprehensive test for char type (single character)
+// Tests all expression contexts: literals, interpolation,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== char Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_comparisons()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All char tests passed! ===\n")
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: char = 'A'
+    assert(x == 'A', "basic literal")
+
+    var y: char = 'z'
+    assert(y == 'z', "lowercase literal")
+
+    var digit: char = '5'
+    assert(digit == '5', "digit literal")
+
+    var space: char = ' '
+    assert(space == ' ', "space literal")
+
+    // Escape sequences
+    var newline: char = '\n'
+    assert(newline == '\n', "newline escape")
+
+    var tab: char = '\t'
+    assert(tab == '\t', "tab escape")
+
+    var backslash: char = '\\'
+    assert(backslash == '\\', "backslash escape")
+
+    var quote: char = '\''
+    assert(quote == '\'', "quote escape")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: char = 'A'
+    var s1: str = $"Char: {x}"
+    assert(s1 == "Char: A", "basic interpolation")
+
+    var y: char = '!'
+    var s2: str = $"Punct: {y}"
+    assert(s2 == "Punct: !", "punctuation interpolation")
+
+    // Multiple chars
+    var a: char = 'H'
+    var b: char = 'i'
+    var s3: str = $"{a}{b}"
+    assert(s3 == "Hi", "multiple char interpolation")
+
+    print("   PASS\n")
+
+// --- 3. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("3. Comparison operations\n")
+
+    var a: char = 'M'
+    var b: char = 'A'
+    var c: char = 'M'
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true (M > A)")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true (A < M)")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    // Case sensitivity
+    var upper: char = 'A'
+    var lower: char = 'a'
+    assert(upper != lower, "case sensitive")
+    assert(upper < lower, "uppercase < lowercase in ASCII")
+
+    print("   PASS\n")
+
+// --- 4. Arrays ---
+fn test_arrays(): void =>
+    print("4. Arrays\n")
+
+    // Array literal
+    var arr: char[] = {'H', 'e', 'l', 'l', 'o'}
+    assert(arr.length == 5, "array length")
+
+    // Indexing
+    assert(arr[0] == 'H', "index 0")
+    assert(arr[2] == 'l', "index 2")
+    assert(arr[4] == 'o', "index 4")
+
+    // Negative indexing
+    assert(arr[-1] == 'o', "negative index -1")
+    assert(arr[-2] == 'l', "negative index -2")
+
+    // Array with variables
+    var x: char = 'X'
+    var y: char = 'Y'
+    var arr2: char[] = {x, y, x}
+    assert(arr2[0] == 'X', "var in array 0")
+    assert(arr2[1] == 'Y', "var in array 1")
+    assert(arr2[2] == 'X', "var in array 2")
+
+    // Slicing
+    var slice: char[] = arr[1..3]
+    assert(slice.length == 2, "slice length")
+    assert(slice[0] == 'e', "slice[0]")
+    assert(slice[1] == 'l', "slice[1]")
+
+    // Empty array
+    var empty: char[] = {}
+    assert(empty.length == 0, "empty array")
+
+    print("   PASS\n")
+
+// --- 5. Array Equality ---
+fn test_array_equality(): void =>
+    print("5. Array equality\n")
+
+    var a: char[] = {'a', 'b', 'c'}
+    var b: char[] = {'a', 'b', 'c'}
+    var c: char[] = {'a', 'b', 'd'}
+    var d: char[] = {'a', 'b'}
+
+    assert(a == b, "equal arrays")
+    assert(!(a == c), "different last element")
+    assert(!(a == d), "different lengths")
+
+    assert(a != c, "not equal different element")
+    assert(a != d, "not equal different length")
+    assert(!(a != b), "not not equal")
+
+    // Empty arrays
+    var e1: char[] = {}
+    var e2: char[] = {}
+    assert(e1 == e2, "empty arrays equal")
+
+    print("   PASS\n")
+
+// --- 6. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("6. 2D arrays\n")
+
+    var matrix: char[][] = {{'A', 'B', 'C'}, {'D', 'E', 'F'}, {'G', 'H', 'I'}}
+
+    assert(matrix.length == 3, "2d rows")
+    assert(matrix[0].length == 3, "2d cols")
+
+    assert(matrix[0][0] == 'A', "element [0][0]")
+    assert(matrix[1][1] == 'E', "element [1][1]")
+    assert(matrix[2][2] == 'I', "element [2][2]")
+
+    // Row access
+    var row: char[] = matrix[1]
+    assert(row[0] == 'D', "row access")
+
+    print("   PASS\n")
+
+// --- 7. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("7. Any boxing\n")
+
+    var x: char = 'A'
+    var a: any = x
+    assert(a is char, "boxed type check")
+
+    var y: char = '\n'
+    var b: any = y
+    assert(b is char, "boxed escape type check")
+
+    // Boxing array
+    var arr: char[] = {'a', 'b', 'c'}
+    var c: any = arr
+    assert(c is char[], "boxed array type check")
+
+    print("   PASS\n")
+
+// --- 8. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("8. Any unboxing\n")
+
+    var x: char = 'Z'
+    var a: any = x
+    var unboxed: char = a as char
+    assert(unboxed == 'Z', "unboxed value")
+
+    var y: char = '!'
+    var b: any = y
+    var unboxed2: char = b as char
+    assert(unboxed2 == '!', "unboxed punctuation")
+
+    // Unbox array
+    var arr: char[] = {'x', 'y', 'z'}
+    var c: any = arr
+    var unboxedArr: char[] = c as char[]
+    assert(unboxedArr.length == 3, "unboxed array length")
+    assert(unboxedArr[0] == 'x', "unboxed array element")
+
+    print("   PASS\n")
+
+// --- 9. Type Checking ---
+fn test_type_checking(): void =>
+    print("9. Type checking with 'is'\n")
+
+    var x: char = 'A'
+    var a: any = x
+
+    assert(a is char, "is char true")
+    assert(!(a is int), "is int false")
+    assert(!(a is str), "is str false")
+    assert(!(a is bool), "is bool false")
+
+    // Array type checking
+    var arr: char[] = {'a', 'b', 'c'}
+    var b: any = arr
+    assert(b is char[], "is char[] true")
+    assert(!(b is int[]), "is int[] false")
+    assert(!(b is str[]), "is str[] false")
+
+    print("   PASS\n")
+
+// --- 10. Lambdas ---
+fn test_lambdas(): void =>
+    print("10. Lambdas\n")
+
+    // Lambda with char parameter
+    var identity: fn(char): char = fn(x: char): char => x
+    assert(identity('A') == 'A', "lambda identity")
+
+    // Lambda with char return
+    var get_char: fn(): char = fn(): char => 'X'
+    assert(get_char() == 'X', "lambda return")
+
+    // Lambda capturing char
+    var base: char = 'A'
+    var get_base: fn(): char = fn(): char => base
+    assert(get_base() == 'A', "lambda capture")
+
+    // Higher-order lambda with char
+    var char_id: fn(char): char = fn(c: char): char => c
+    var apply: fn(fn(char): char, char): char = fn(f: fn(char): char, x: char): char => f(x)
+    assert(apply(char_id, 'Z') == 'Z', "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 11. Functions ---
+fn test_functions(): void =>
+    print("11. Functions\n")
+
+    assert(identity_char('A') == 'A', "identity function")
+    assert(get_first({'H', 'i'}) == 'H', "array param function")
+
+    print("   PASS\n")
+
+fn identity_char(x: char): char =>
+    return x
+fn get_first(arr: char[]): char =>
+    return arr[0]
+
+// --- 12. Control Flow ---
+fn test_control_flow(): void =>
+    print("12. Control flow\n")
+
+    // If with char comparison
+    var x: char = 'M'
+    var result: char = '?'
+    if x == 'M' =>
+        result = 'Y'
+    else =>
+        result = 'N'
+    assert(result == 'Y', "if comparison")
+
+    // If with ordering
+    var letter: char = 'B'
+    var category: char = '?'
+    if letter < 'M' =>
+        category = 'L'  // Lower half
+    else =>
+        category = 'U'  // Upper half
+    assert(category == 'L', "if ordering")
+
+    // For loop with char array
+    var count: int = 0
+    var arr: char[] = {'a', 'b', 'c', 'd', 'e'}
+    for c in arr =>
+        count = count + 1
+    assert(count == 5, "for loop")
+
+    print("   PASS\n")
+
+// --- 13. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("13. Edge cases\n")
+
+    // Various character types
+    var digit: char = '0'
+    var upper: char = 'A'
+    var lower: char = 'a'
+    var punct: char = '!'
+    var space: char = ' '
+
+    assert(digit == '0', "digit char")
+    assert(upper == 'A', "upper char")
+    assert(lower == 'a', "lower char")
+    assert(punct == '!', "punct char")
+    assert(space == ' ', "space char")
+
+    // Ordering
+    assert('0' < 'A', "digit < upper")
+    assert('A' < 'a', "upper < lower")
+    assert(' ' < '0', "space < digit")
+
+    // All escape sequences
+    var escapes: char[] = {'\n', '\t', '\\', '\''}
+    assert(escapes.length == 4, "escape array length")
+
+    print("   PASS\n")

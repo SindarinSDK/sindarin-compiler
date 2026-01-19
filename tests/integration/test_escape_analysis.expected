@@ -1,0 +1,6 @@
+Result: 300
+Outer: 100
+a=10, b=20
+Flag: true
+Pi: 3.14159
+Escape analysis tests passed!

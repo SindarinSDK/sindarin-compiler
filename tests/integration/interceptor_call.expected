@@ -1,0 +1,10 @@
+Result without interceptor: 30
+Direct call works - PASS
+Interceptor count: 1
+Intercepting: add
+Result with interceptor: 42
+Intercepted call returns modified result - PASS
+Interceptor was called once - PASS
+Direct call after clearAll works - PASS
+No interception after clearAll - PASS
+All interceptor call tests passed!

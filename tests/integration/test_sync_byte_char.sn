@@ -1,0 +1,33 @@
+// Test sync byte and char types
+
+fn main(): void =>
+    // Test sync byte
+    var b: sync byte = 0
+    print($"Initial byte: {b}\n")
+
+    b++
+    print($"After ++: {b}\n")
+
+    b--
+    print($"After --: {b}\n")
+
+    b += 10
+    print($"After += 10: {b}\n")
+
+    b -= 5
+    print($"After -= 5: {b}\n")
+
+    // Test sync char
+    var c: sync char = 'A'
+    print($"Initial char: {c}\n")
+
+    c++
+    print($"After ++: {c}\n")
+
+    c++
+    print($"After ++: {c}\n")
+
+    c--
+    print($"After --: {c}\n")
+
+    print("All sync byte/char tests passed!\n")

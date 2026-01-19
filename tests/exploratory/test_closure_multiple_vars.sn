@@ -1,0 +1,7 @@
+// Test closure capturing multiple variables
+fn main(): void =>
+  var x: int = 10
+  var y: int = 20
+  var sum_xy: fn(int): int = fn(z: int): int => x + y + z
+  var result: int = sum_xy(5)
+  print($"result={result}\n")

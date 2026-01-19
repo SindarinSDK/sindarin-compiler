@@ -1,0 +1,58 @@
+// Test multi-line interpolated strings with line tracking and indentation
+
+fn main(): int =>
+    // ===== BASIC MULTI-LINE STRINGS =====
+    var msg1: str = $"Line 1
+Line 2
+Line 3"
+    print(msg1)
+    print("\n---\n")
+
+    // ===== MULTI-LINE WITH INTERPOLATION =====
+    var name: str = "World"
+    var msg2: str = $"Hello,
+{name}!"
+    print(msg2)
+    print("\n---\n")
+
+    // ===== MULTI-LINE WITH EXPRESSIONS =====
+    var x: int = 42
+    var msg3: str = $"Value: {x}
+Doubled: {x * 2}
+Tripled: {x * 3}"
+    print(msg3)
+    print("\n---\n")
+
+    // ===== MULTI-LINE WITH FORMAT SPECIFIERS =====
+    var pi: double = 3.14159
+    var msg4: str = $"Pi values:
+2 decimals: {pi:.2f}
+4 decimals: {pi:.4f}"
+    print(msg4)
+    print("\n---\n")
+
+    // ===== MULTI-LINE WITH MIXED CONTENT =====
+    var count: int = 5
+    var item: str = "apples"
+    var msg5: str = $"Shopping list:
+- {count} {item}
+- {count * 2} oranges
+Total items: {count + count * 2}"
+    print(msg5)
+    print("\n---\n")
+
+    // ===== PRESERVING NEWLINES IN CONTENT =====
+    var msg6: str = $"First
+
+Third"
+    print(msg6)
+    print("\n---\n")
+
+    // ===== MULTI-LINE WITH ESCAPE SEQUENCES =====
+    var msg7: str = $"Tab:\there
+Quote: \"quoted\"
+Backslash: \\"
+    print(msg7)
+    print("\n")
+
+    return 0

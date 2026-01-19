@@ -1,0 +1,33 @@
+# Ensure consistent line endings across platforms
+* text=auto
+
+# Source files - always LF (multiline string literals depend on this)
+*.sn text eol=lf
+*.c text eol=lf
+*.h text eol=lf
+
+# Test expected output files - always LF
+*.expected text eol=lf
+
+# Scripts
+*.sh text eol=lf
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+
+# Config files
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.cfg text eol=lf
+.gitattributes text eol=lf
+
+# CMake
+CMakeLists.txt text eol=lf
+
+# Prevent binary files from being modified
+*.exe binary
+*.o binary
+*.a binary
+*.dll binary
+*.so binary

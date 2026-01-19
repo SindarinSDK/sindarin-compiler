@@ -1,0 +1,8 @@
+// Test: Ambiguous symbol when two modules have same function without namespacing
+// Both calc_v1 and calc_v2 export 'compute' - this should error
+import "../lib/calc_v1"
+import "../lib/calc_v2"
+
+fn main(): void =>
+    var x: int = compute(5)
+    print($"{x}\n")

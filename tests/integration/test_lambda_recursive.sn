@@ -1,0 +1,56 @@
+// Test recursive lambdas - lambdas that reference themselves
+
+fn main(): int =>
+    print("Testing recursive lambdas:\n\n")
+
+    // Test 1: Factorial with recursive lambda
+    print("Test 1: Factorial\n")
+    var factorial: fn(int): int = fn(n: int): int =>
+        if n <= 1 =>
+            return 1
+        else =>
+            return n * factorial(n - 1)
+
+    print($"  factorial(0) = {factorial(0)}\n")
+    print($"  factorial(1) = {factorial(1)}\n")
+    print($"  factorial(5) = {factorial(5)}\n")
+    print($"  factorial(10) = {factorial(10)}\n")
+
+    // Test 2: Fibonacci with recursive lambda
+    print("\nTest 2: Fibonacci\n")
+    var fibonacci: fn(int): int = fn(n: int): int =>
+        if n <= 1 =>
+            return n
+        else =>
+            return fibonacci(n - 1) + fibonacci(n - 2)
+
+    print($"  fibonacci(0) = {fibonacci(0)}\n")
+    print($"  fibonacci(1) = {fibonacci(1)}\n")
+    print($"  fibonacci(10) = {fibonacci(10)}\n")
+
+    // Test 3: Sum of 1 to n with recursive lambda
+    print("\nTest 3: Sum 1 to n\n")
+    var sumTo: fn(int): int = fn(n: int): int =>
+        if n <= 0 =>
+            return 0
+        else =>
+            return n + sumTo(n - 1)
+
+    print($"  sumTo(0) = {sumTo(0)}\n")
+    print($"  sumTo(5) = {sumTo(5)}\n")
+    print($"  sumTo(10) = {sumTo(10)}\n")
+
+    // Test 4: GCD with recursive lambda
+    print("\nTest 4: GCD\n")
+    var gcd: fn(int, int): int = fn(a: int, b: int): int =>
+        if b == 0 =>
+            return a
+        else =>
+            return gcd(b, a % b)
+
+    print($"  gcd(12, 8) = {gcd(12, 8)}\n")
+    print($"  gcd(100, 25) = {gcd(100, 25)}\n")
+    print($"  gcd(17, 13) = {gcd(17, 13)}\n")
+
+    print("\nAll recursive lambda tests passed!\n")
+    return 0

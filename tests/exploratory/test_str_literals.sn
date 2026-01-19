@@ -1,0 +1,38 @@
+// Test 03: String literals and operations
+fn main(): int =>
+    // Basic strings
+    var empty: str = ""
+    var hello: str = "Hello"
+    var world: str = "World"
+
+    print($"empty: \"{empty}\"\n")
+    print($"hello: \"{hello}\"\n")
+    print($"world: \"{world}\"\n")
+
+    // Concatenation
+    var concat1: str = hello + " " + world
+    var concat2: str = "" + hello
+    var concat3: str = hello + ""
+
+    print($"concat1: {concat1}\n")
+    print($"concat2: {concat2}\n")
+    print($"concat3: {concat3}\n")
+
+    // Length
+    print($"len(empty) = {len(empty)}\n")
+    print($"len(hello) = {len(hello)}\n")
+    print($"hello.length = {hello.length}\n")
+
+    // Comparisons
+    var s1: str = "abc"
+    var s2: str = "abc"
+    var s3: str = "abd"
+    print($"s1 == s2: {s1 == s2}\n")
+    print($"s1 != s3: {s1 != s3}\n")
+    print($"s1 < s3: {s1 < s3}\n")
+
+    // Special characters in strings
+    var special: str = "quotes: \" and backslash: \\"
+    print($"special: {special}\n")
+
+    return 0

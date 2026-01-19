@@ -1,0 +1,8 @@
+Testing break:
+0 1 2 3 4 
+Testing continue:
+1 3 5 7 9 
+Testing break in for:
+0 1 2 
+Testing continue in for-each:
+1 2 4 5 

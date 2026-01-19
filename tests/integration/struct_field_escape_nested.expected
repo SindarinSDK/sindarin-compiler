@@ -1,0 +1,7 @@
+Testing nested field assignment escape detection:
+Two-level nested escape test: PASS
+Three-level nested escape test: PASS
+Four-level nested escape test: PASS
+Nested with defaults test: PASS
+Multiple nested escapes test: PASS
+All nested field escape tests passed!

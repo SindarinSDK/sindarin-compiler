@@ -1,0 +1,4 @@
+fmt.bracket("test") = [test]
+fmt.parens("hello") = (hello)
+fmt.double_bracket("x") = [[x]]
+fmt.bracket(fmt.parens("nested")) = [(nested)]

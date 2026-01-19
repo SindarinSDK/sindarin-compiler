@@ -1,0 +1,11 @@
+Testing 'as ref' out-parameter semantics:
+
+1. Dimensions: 1920x1080
+2. Doubled value: 42
+3. Sum: 13, Product: 42
+4. Pi: 3.14159
+5. Is 42 positive: true
+6. Is -5 positive: false
+7. Chained double: 40
+
+All 'as ref' out-parameter tests PASSED!

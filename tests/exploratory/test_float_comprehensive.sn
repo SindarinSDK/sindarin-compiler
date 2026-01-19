@@ -1,0 +1,412 @@
+// Comprehensive test for float type (32-bit floating point)
+// Tests all expression contexts: literals, interpolation, arithmetic,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== float Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_arithmetic()
+    test_comparisons()
+    test_unary()
+    test_compound_expressions()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All float tests passed! ===\n")
+
+// Helper for float comparison with epsilon
+fn float_eq(a: float, b: float): bool =>
+    var diff: float = a - b
+    if diff < 0.0 =>
+        diff = -diff
+    return diff < 0.0001
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: float = 3.14
+    assert(float_eq(x, 3.14), "basic literal")
+
+    var y: float = -2.5
+    assert(float_eq(y, -2.5), "negative literal")
+
+    var z: float = 0.0
+    assert(float_eq(z, 0.0), "zero literal")
+
+    var small: float = 0.001
+    assert(small > 0.0, "small positive")
+
+    var large: float = 1000000.0
+    assert(large > 999999.0, "large value")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: float = 3.14
+    var s1: str = $"Value: {x}"
+    print($"   Got: {s1}\n")
+    // Float interpolation should produce some representation
+
+    var y: float = -2.5
+    var s2: str = $"Negative: {y}"
+    print($"   Got: {s2}\n")
+
+    // Expression in interpolation
+    var a: float = 1.5
+    var b: float = 2.5
+    var s3: str = $"Sum: {a + b}"
+    print($"   Got: {s3}\n")
+
+    // Multiple values
+    var s4: str = $"a={a} b={b}"
+    print($"   Got: {s4}\n")
+
+    print("   PASS\n")
+
+// --- 3. Arithmetic Operations ---
+fn test_arithmetic(): void =>
+    print("3. Arithmetic operations\n")
+
+    var a: float = 10.0
+    var b: float = 3.0
+
+    // Addition
+    var sum: float = a + b
+    assert(float_eq(sum, 13.0), "addition")
+
+    // Subtraction
+    var diff: float = a - b
+    assert(float_eq(diff, 7.0), "subtraction")
+
+    // Multiplication
+    var prod: float = a * b
+    assert(float_eq(prod, 30.0), "multiplication")
+
+    // Division
+    var quot: float = a / b
+    assert(quot > 3.3 && quot < 3.34, "division")
+
+    // Fractional arithmetic
+    var f1: float = 0.1
+    var f2: float = 0.2
+    var f3: float = f1 + f2
+    assert(f3 > 0.29 && f3 < 0.31, "fractional addition")
+
+    print("   PASS\n")
+
+// --- 4. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("4. Comparison operations\n")
+
+    var a: float = 5.0
+    var b: float = 3.0
+    var c: float = 5.0
+
+    // Note: float equality is tricky, but for exact values it should work
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    print("   PASS\n")
+
+// --- 5. Unary Operations ---
+fn test_unary(): void =>
+    print("5. Unary operations\n")
+
+    var x: float = 3.14
+    var neg: float = -x
+    assert(float_eq(neg, -3.14), "negation")
+
+    var y: float = -2.5
+    var pos: float = -y
+    assert(float_eq(pos, 2.5), "double negation")
+
+    print("   PASS\n")
+
+// --- 6. Compound Expressions ---
+fn test_compound_expressions(): void =>
+    print("6. Compound expressions\n")
+
+    var a: float = 10.0
+    var b: float = 5.0
+    var c: float = 2.0
+
+    // Parenthesized expressions
+    var r1: float = (a + b) * c
+    assert(float_eq(r1, 30.0), "parenthesized multiply")
+
+    var r2: float = a * (b + c)
+    assert(float_eq(r2, 70.0), "parenthesized add")
+
+    // Nested expressions
+    var r3: float = (a + b) * (c + 1.0)
+    assert(float_eq(r3, 45.0), "nested parentheses")
+
+    // Complex expression
+    var r4: float = a * b + c * 3.0
+    assert(float_eq(r4, 56.0), "complex expression")
+
+    print("   PASS\n")
+
+// --- 7. Arrays ---
+fn test_arrays(): void =>
+    print("7. Arrays\n")
+
+    // Array creation
+    var arr: float[] = {1.0, 2.0, 3.0, 4.0, 5.0}
+    assert(arr.length == 5, "array length")
+    assert(float_eq(arr[0], 1.0), "array index 0")
+    assert(float_eq(arr[4], 5.0), "array index 4")
+
+    // Array push
+    arr.push(6.0)
+    assert(arr.length == 6, "push length")
+    assert(float_eq(arr[5], 6.0), "push value")
+
+    // Array pop
+    var popped: float = arr.pop()
+    assert(float_eq(popped, 6.0), "pop value")
+    assert(arr.length == 5, "pop length")
+
+    // Array slicing
+    var slice: float[] = arr[1..4]
+    assert(slice.length == 3, "slice length")
+    assert(float_eq(slice[0], 2.0), "slice first")
+    assert(float_eq(slice[2], 4.0), "slice last")
+
+    // Array contains
+    assert(arr.contains(3.0), "contains existing")
+    assert(!arr.contains(100.0), "contains missing")
+
+    // Array indexOf
+    assert(arr.indexOf(3.0) == 2, "indexOf existing")
+    assert(arr.indexOf(100.0) == -1, "indexOf missing")
+
+    print("   PASS\n")
+
+// --- 8. Array Equality ---
+fn test_array_equality(): void =>
+    print("8. Array equality\n")
+
+    var a: float[] = {1.0, 2.0, 3.0}
+    var b: float[] = {1.0, 2.0, 3.0}
+    var c: float[] = {1.0, 2.0, 4.0}
+
+    assert(a == b, "equal arrays")
+    assert(a != c, "unequal arrays")
+
+    print("   PASS\n")
+
+// --- 9. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("9. 2D arrays\n")
+
+    var arr: float[][] = {{1.0, 2.0}, {3.0, 4.0}, {5.0, 6.0}}
+    assert(arr.length == 3, "2D outer length")
+    assert(arr[0].length == 2, "2D inner length")
+    assert(float_eq(arr[1][1], 4.0), "2D access")
+
+    print("   PASS\n")
+
+// --- 10. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("10. Any boxing\n")
+
+    var x: float = 3.14
+    var a: any = x
+    assert(a is float, "boxed type check")
+
+    var y: float = -2.5
+    var b: any = y
+    assert(b is float, "boxed negative type check")
+
+    // Array boxing
+    var arr: float[] = {1.5, 2.5, 3.5}
+    var boxed_arr: any = arr
+    assert(boxed_arr is float[], "array boxing type check")
+
+    print("   PASS\n")
+
+// --- 11. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("11. Any unboxing\n")
+
+    var x: float = 3.14
+    var a: any = x
+    var unboxed: float = a as float
+    assert(float_eq(unboxed, 3.14), "unboxed value")
+
+    var y: float = -2.5
+    var b: any = y
+    var unboxed2: float = b as float
+    assert(float_eq(unboxed2, -2.5), "unboxed negative")
+
+    // Array unboxing
+    var arr: float[] = {1.5, 2.5, 3.5}
+    var boxed: any = arr
+    var unboxed_arr: float[] = boxed as float[]
+    assert(unboxed_arr.length == 3, "unboxed array length")
+    assert(float_eq(unboxed_arr[0], 1.5), "unboxed array element 0")
+    assert(float_eq(unboxed_arr[2], 3.5), "unboxed array element 2")
+
+    print("   PASS\n")
+
+// --- 12. Type Checking ---
+fn test_type_checking(): void =>
+    print("12. Type checking with 'is'\n")
+
+    var x: float = 3.14
+    var a: any = x
+
+    assert(a is float, "is float true")
+    assert(!(a is double), "is double false")
+    assert(!(a is int), "is int false")
+    assert(!(a is str), "is str false")
+
+    // Array type checking
+    var arr: float[] = {1.0, 2.0}
+    var boxed: any = arr
+    assert(boxed is float[], "array is float[]")
+    assert(!(boxed is int[]), "array is not int[]")
+    assert(!(boxed is double[]), "array is not double[]")
+
+    print("   PASS\n")
+
+// --- 13. Lambdas ---
+fn test_lambdas(): void =>
+    print("13. Lambdas\n")
+
+    // Lambda with float parameter
+    var double_it: fn(float): float = fn(x: float): float => x * 2.0
+    assert(float_eq(double_it(3.0), 6.0), "lambda call")
+
+    // Lambda with float return
+    var get_pi: fn(): float = fn(): float => 3.14
+    assert(float_eq(get_pi(), 3.14), "lambda return")
+
+    // Lambda with expression
+    var add: fn(float, float): float = fn(a: float, b: float): float => a + b
+    assert(float_eq(add(1.5, 2.5), 4.0), "lambda with two params")
+
+    // Lambda capturing float
+    var base: float = 10.0
+    var add_base: fn(float): float = fn(x: float): float => x + base
+    assert(float_eq(add_base(5.0), 15.0), "lambda capture")
+
+    // Higher-order with float
+    var apply: fn(fn(float): float, float): float = fn(f: fn(float): float, x: float): float => f(x)
+    assert(float_eq(apply(double_it, 3.0), 6.0), "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 14. Functions ---
+fn test_functions(): void =>
+    print("14. Functions\n")
+
+    assert(float_eq(identity_float(3.14), 3.14), "identity function")
+    assert(float_eq(add_float(1.5, 2.5), 4.0), "add function")
+    assert(float_eq(multiply_float(3.0, 4.0), 12.0), "multiply function")
+    assert(float_eq(negate_float(3.14), -3.14), "negate function")
+
+    // Function returning expression
+    assert(float_eq(compute_float(2.0, 3.0, 4.0), 20.0), "complex function")
+
+    print("   PASS\n")
+
+fn identity_float(x: float): float =>
+    return x
+
+fn add_float(a: float, b: float): float =>
+    return a + b
+
+fn multiply_float(a: float, b: float): float =>
+    return a * b
+
+fn negate_float(x: float): float =>
+    return -x
+
+fn compute_float(a: float, b: float, c: float): float =>
+    return (a + b) * c
+
+// --- 15. Control Flow ---
+fn test_control_flow(): void =>
+    print("15. Control flow\n")
+
+    // If with float comparison
+    var x: float = 5.0
+    var result: float = 0.0
+    if x > 4.0 =>
+        result = 1.0
+    else =>
+        result = 0.0
+    assert(float_eq(result, 1.0), "if comparison")
+
+    // While with float counter
+    var count: float = 0.0
+    var sum: float = 0.0
+    while count < 5.0 =>
+        sum = sum + count
+        count = count + 1.0
+    assert(float_eq(sum, 10.0), "while loop") // 0+1+2+3+4=10
+
+    // For loop skipped - float[] not supported yet
+
+    print("   PASS\n")
+
+// --- 16. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("16. Edge cases\n")
+
+    // Zero operations
+    var zero: float = 0.0
+    assert(float_eq(zero + zero, 0.0), "zero + zero")
+    assert(float_eq(zero * 100.0, 0.0), "zero * n")
+
+    // Division
+    var ten: float = 10.0
+    assert(float_eq(ten / 10.0, 1.0), "n / n")
+    assert(float_eq(ten / 2.0, 5.0), "n / 2")
+
+    // Small values
+    var small: float = 0.0001
+    assert(small > 0.0, "small positive")
+    assert(small < 0.001, "small less than")
+
+    // Sign changes
+    var pos: float = 5.0
+    var neg: float = -5.0
+    assert(float_eq(pos + neg, 0.0), "pos + neg = 0")
+    assert(float_eq(pos * neg, -25.0), "pos * neg")
+    assert(float_eq(neg * neg, 25.0), "neg * neg")
+
+    print("   PASS\n")

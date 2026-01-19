@@ -1,0 +1,28 @@
+# Test native function with Sindarin body
+# Native functions with body provide Sindarin implementations that can use
+# native types for interop while keeping implementation in Sindarin
+
+# Native function with a Sindarin body
+native fn my_abs(x: int): int =>
+    if x < 0 =>
+        return -x
+    return x
+
+# Native function with a more complex body
+native fn clamp(value: int, min_v: int, max_v: int): int =>
+    if value < min_v =>
+        return min_v
+    if value > max_v =>
+        return max_v
+    return value
+
+fn main(): int =>
+    print($"my_abs(-5) = {my_abs(-5)}")
+    print($"my_abs(5) = {my_abs(5)}")
+    print($"my_abs(0) = {my_abs(0)}")
+
+    print($"clamp(-10, 0, 100) = {clamp(-10, 0, 100)}")
+    print($"clamp(50, 0, 100) = {clamp(50, 0, 100)}")
+    print($"clamp(150, 0, 100) = {clamp(150, 0, 100)}")
+
+    return 0

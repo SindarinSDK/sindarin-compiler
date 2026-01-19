@@ -1,0 +1,88 @@
+// Test 03: String literals and edge cases
+fn main(): int =>
+    print("=== String Literals ===\n")
+
+    // Basic strings
+    var hello: str = "Hello, World!"
+    var empty: str = ""
+    print($"hello: {hello}\n")
+    print($"empty: \"{empty}\"\n")
+    print($"empty length: {len(empty)}\n")
+
+    // Single character string
+    var single: str = "x"
+    print($"single char string: \"{single}\", length: {len(single)}\n")
+
+    // Escape sequences
+    print("\n=== Escape Sequences ===\n")
+    var with_newline: str = "Line1\nLine2"
+    var with_tab: str = "Col1\tCol2"
+    var with_quote: str = "He said \"Hello\""
+    var with_backslash: str = "Path: C:\\Users"
+    print($"newline:\n{with_newline}\n")
+    print($"tab: {with_tab}\n")
+    print($"quote: {with_quote}\n")
+    print($"backslash: {with_backslash}\n")
+
+    // String concatenation
+    print("\n=== Concatenation ===\n")
+    var s1: str = "Hello"
+    var s2: str = " "
+    var s3: str = "World"
+    var concat: str = s1 + s2 + s3
+    print($"Concatenated: {concat}\n")
+
+    // Empty string concatenation
+    var with_empty: str = "Start" + "" + "End"
+    print($"With empty: {with_empty}\n")
+
+    // String comparison
+    print("\n=== String Comparison ===\n")
+    print($"\"abc\" == \"abc\": {"abc" == "abc"}\n")
+    print($"\"abc\" != \"xyz\": {"abc" != "xyz"}\n")
+    print($"\"abc\" < \"abd\": {"abc" < "abd"}\n")
+    print($"\"\" == \"\": {"" == ""}\n")
+    print($"\"a\" < \"b\": {"a" < "b"}\n")
+    print($"\"aa\" < \"ab\": {"aa" < "ab"}\n")
+
+    // String interpolation complexity
+    print("\n=== Complex Interpolation ===\n")
+    var name: str = "Alice"
+    var age: int = 30
+    var height: double = 5.7
+    var active: bool = true
+    print($"Name: {name}, Age: {age}, Height: {height}, Active: {active}\n")
+
+    // Nested interpolation in expressions
+    var x: int = 5
+    var y: int = 3
+    print($"Expression: {x} + {y} = {x + y}\n")
+    print($"Expression: {x} * {y} = {x * y}\n")
+
+    // String methods
+    print("\n=== String Methods ===\n")
+    var text: str = "Hello World"
+    print($"length: {text.length}\n")
+    print($"toUpper: {text.toUpper()}\n")
+    print($"toLower: {text.toLower()}\n")
+
+    var padded: str = "  trimme  "
+    print($"trim: \"{padded.trim()}\"\n")
+
+    var phrase: str = "Hello, World!"
+    print($"substring(0, 5): {phrase.substring(0, 5)}\n")
+    print($"indexOf(\"World\"): {phrase.indexOf("World")}\n")
+    print($"contains(\"World\"): {phrase.contains("World")}\n")
+    print($"startsWith(\"Hello\"): {phrase.startsWith("Hello")}\n")
+    print($"endsWith(\"!\"): {phrase.endsWith("!")}\n")
+
+    // Replace
+    var original: str = "foo bar foo"
+    print($"replace(\"foo\", \"baz\"): {original.replace("foo", "baz")}\n")
+
+    // Split
+    var csv: str = "a,b,c,d"
+    var parts: str[] = csv.split(",")
+    print($"split result length: {parts.length}\n")
+
+    return 0

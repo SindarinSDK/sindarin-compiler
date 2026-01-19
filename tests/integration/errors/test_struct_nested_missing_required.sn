@@ -1,0 +1,13 @@
+# Error test: nested struct missing required field in inner struct
+
+struct Point =>
+    x: double
+    y: double
+
+struct Wrapper =>
+    pt: Point
+
+fn main(): void =>
+    # This should fail - Point is missing required field 'y'
+    var w: Wrapper = Wrapper { pt: Point { x: 1.0 } }
+    print("Should not compile\n")

@@ -1,0 +1,51 @@
+# Test chained imports: test -> physics -> vector2d
+# Proves: INTEROP_V3 - Module Import Does Not Register Exported Types (RESOLVED)
+# Proves: INTEROP_V3 - Forward Reference Types Not Resolved for Imported Structs (RESOLVED)
+#
+# This test verifies that:
+# 1. Types from transitively imported modules are available
+# 2. Structs can contain fields of imported types
+# 3. Forward references are resolved across import chains
+
+import "lib/physics"
+
+fn main(): void =>
+    print("=== Chained Import Test ===\n\n")
+
+    # Test 1: Access type from transitive import (vector2d via physics)
+    print("Test 1: Transitive import - Vector2D from vector2d\n")
+    var v1: Vector2D = Vector2D.unit_x()
+    var v2: Vector2D = Vector2D.unit_y()
+    print($"  v1 = ({v1.x}, {v1.y})\n")
+    print($"  v2 = ({v2.x}, {v2.y})\n")
+    print($"  v1.dot(v2) = {v1.dot(v2)}\n")
+
+    # Test 2: Use functions from transitive import
+    print("\nTest 2: Functions from transitive import\n")
+    var v3: Vector2D = vec_add(v1, v2)
+    print($"  v1 + v2 = ({v3.x}, {v3.y})\n")
+    var v4: Vector2D = vec_scale(v3, 3)
+    print($"  (v1 + v2) * 3 = ({v4.x}, {v4.y})\n")
+
+    # Test 3: Struct from direct import that contains imported type field
+    print("\nTest 3: Particle struct (uses Vector2D fields)\n")
+    var pos: Vector2D = Vector2D { x: 10, y: 20 }
+    var p: Particle = Particle.at_rest(pos, 5)
+    print($"  Position: ({p.position.x}, {p.position.y})\n")
+    print($"  Velocity: ({p.velocity.x}, {p.velocity.y})\n")
+    print($"  Mass: {p.mass}\n")
+
+    # Test 4: Give the particle a velocity and test physics
+    print("\nTest 4: Particle with velocity\n")
+    var vel: Vector2D = make_velocity(3, 4)
+    var moving: Particle = Particle { position: pos, velocity: vel, mass: 2 }
+    print($"  Velocity: ({moving.velocity.x}, {moving.velocity.y})\n")
+    print($"  Velocity^2: {moving.velocity.magnitude_squared()}\n")
+    print($"  Kinetic energy: {moving.kinetic_energy()}\n")
+
+    # Test 5: Function that takes/returns struct with imported type fields
+    print("\nTest 5: Move particle function\n")
+    var moved: Particle = move_particle(moving, 2)
+    print($"  After dt=2: ({moved.position.x}, {moved.position.y})\n")
+
+    print("\n=== All Chained Import Tests PASSED ===\n")

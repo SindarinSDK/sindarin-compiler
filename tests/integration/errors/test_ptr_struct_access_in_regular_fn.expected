@@ -1,0 +1,1 @@
+Pointer to struct member access requires native function context. Declare the function with 'native fn' to access '*Buffer' fields

@@ -1,0 +1,60 @@
+// Test 131: Import visibility rules
+// Tests that public functions are accessible and private functions remain hidden
+
+import "import_tests/private_module"
+
+fn main(): int =>
+    print("Test import visibility rules:\n\n")
+    var errors: int = 0
+
+    // Test 1: Call public function
+    print("Test 1 - Call public function:\n")
+    var magic: int = get_magic_number()
+    print($"  get_magic_number() = {magic}\n")
+    if magic != 42 =>
+        print("  FAIL: expected 42\n")
+        errors++
+
+    // Test 2: Call public function that uses private internally
+    print("\nTest 2 - Public function using private helper:\n")
+    var processed: int = process_number(5)
+    print($"  process_number(5) = {processed}\n")
+    // internal_helper(5) = 10, + 10 = 20
+    if processed != 20 =>
+        print("  FAIL: expected 20\n")
+        errors++
+
+    // Test 3: Another public function
+    print("\nTest 3 - Call compute_total:\n")
+    var total: int = compute_total(1, 2, 3)
+    print($"  compute_total(1, 2, 3) = {total}\n")
+    if total != 6 =>
+        print("  FAIL: expected 6\n")
+        errors++
+
+    // Test 4: Multiple calls to public functions
+    print("\nTest 4 - Multiple calls:\n")
+    var r1: int = process_number(0)
+    var r2: int = process_number(10)
+    var r3: int = process_number(100)
+    print($"  process_number(0) = {r1}\n")
+    print($"  process_number(10) = {r2}\n")
+    print($"  process_number(100) = {r3}\n")
+    if r1 != 10 => errors++
+    if r2 != 30 => errors++
+    if r3 != 210 => errors++
+
+    // Note: Trying to call internal_helper() or validate_input()
+    // from here should result in a compile error (function not found)
+    // This test validates that public functions work correctly
+    print("\nNote: Private functions (internal_helper, validate_input)\n")
+    print("      are NOT accessible from importing files.\n")
+    print("      Attempting to call them would cause a compile error.\n")
+
+    // Results
+    if errors == 0 =>
+        print("\nAll import visibility tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

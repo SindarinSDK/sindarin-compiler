@@ -1,0 +1,6 @@
+Testing buffer unwrap code generation...
+Array created successfully with length parameter: 5
+Array length property: 5
+Pattern 1 (ptr[0..len] as val): OK
+Pattern 3 (fn()[0..fn2()] as val): OK
+Buffer unwrap code generation test complete!

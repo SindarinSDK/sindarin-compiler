@@ -1,0 +1,16 @@
+// Test: Basic thread spawn and sync
+// Spawns a thread with &fn(), stores the handle in a variable, syncs with r!
+
+fn compute_value(): int =>
+    return 42
+
+fn main(): void =>
+    var r: int = &compute_value()  // Spawn thread, store handle
+    var result: int = r!            // Sync and get result
+    print($"Result: {result}\n")
+
+    // Verify the value is correct
+    if result == 42 =>
+        print("SUCCESS: Value is correct\n")
+    else =>
+        print("FAILURE: Value is incorrect\n")

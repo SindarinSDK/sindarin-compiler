@@ -1,0 +1,59 @@
+// Test 46: Lambdas that return arrays
+fn main(): int =>
+    print("Test lambdas returning arrays:\n\n")
+
+    // Lambda returning int array
+    var make_range: fn(int, int): int[] = fn(start: int, end: int): int[] =>
+        var result: int[] = {}
+        for var i: int = start; i < end; i++ =>
+            result.push(i)
+        return result
+
+    var r1: int[] = make_range(0, 5)
+    print("make_range(0, 5) = ")
+    print(r1)
+    print("\n")
+
+    var r2: int[] = make_range(10, 15)
+    print("make_range(10, 15) = ")
+    print(r2)
+    print("\n")
+
+    // Lambda returning filtered array
+    var filter_positive: fn(int[]): int[] = fn(arr: int[]): int[] =>
+        var result: int[] = {}
+        for n in arr =>
+            if n > 0 =>
+                result.push(n)
+        return result
+
+    var mixed: int[] = {-5, 3, -2, 8, -1, 10}
+    var positives: int[] = filter_positive(mixed)
+    print("\nfilter_positive on ")
+    print(mixed)
+    print(" = ")
+    print(positives)
+    print("\n")
+
+    // Lambda that doubles each element
+    var double_each: fn(int[]): int[] = fn(arr: int[]): int[] =>
+        var result: int[] = {}
+        for n in arr =>
+            result.push(n * 2)
+        return result
+
+    var nums: int[] = {1, 2, 3, 4, 5}
+    var doubled: int[] = double_each(nums)
+    print("\ndouble_each on ")
+    print(nums)
+    print(" = ")
+    print(doubled)
+    print("\n")
+
+    // Chained array lambdas
+    var result: int[] = double_each(filter_positive(mixed))
+    print("\ndouble_each(filter_positive(mixed)) = ")
+    print(result)
+    print("\n")
+
+    return 0

@@ -1,0 +1,11 @@
+Testing pattern-based interceptors with threads
+GET intercepted: getValue
+GET intercepted: getCount
+SET intercepted: setValue
+SET intercepted: setFlag
+otherFunc returned: 1
+GET intercepted: getValue
+SET intercepted: setValue
+get_calls: 3
+set_calls: 3
+Pattern threaded test passed!

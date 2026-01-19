@@ -1,0 +1,7 @@
+p is nil (expected)
+void pointer is nil (expected)
+double pointer is nil (expected)
+test_pointer_type_param passed
+test_void_pointer_param passed
+test_double_pointer_param passed
+All pointer type tests passed!

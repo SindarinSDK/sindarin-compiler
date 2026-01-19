@@ -1,0 +1,65 @@
+// Test 18: Recursive functions
+fn factorial(n: int): int =>
+    if n <= 1 =>
+        return 1
+    return n * factorial(n - 1)
+
+fn fibonacci(n: int): int =>
+    if n <= 0 =>
+        return 0
+    if n == 1 =>
+        return 1
+    return fibonacci(n - 1) + fibonacci(n - 2)
+
+fn sum_to_n(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return n + sum_to_n(n - 1)
+
+fn power(base: int, exp: int): int =>
+    if exp == 0 =>
+        return 1
+    return base * power(base, exp - 1)
+
+fn gcd(a: int, b: int): int =>
+    if b == 0 =>
+        return a
+    return gcd(b, a % b)
+
+fn countdown(n: int): void =>
+    if n <= 0 =>
+        print("Liftoff!\n")
+        return
+    print($"{n}...\n")
+    countdown(n - 1)
+
+fn main(): int =>
+    print("Test recursion:\n\n")
+
+    print("Factorials:\n")
+    print($"factorial(0) = {factorial(0)}\n")
+    print($"factorial(1) = {factorial(1)}\n")
+    print($"factorial(5) = {factorial(5)}\n")
+    print($"factorial(7) = {factorial(7)}\n")
+
+    print("\nFibonacci:\n")
+    for var i: int = 0; i <= 10; i++ =>
+        print($"fib({i}) = {fibonacci(i)}\n")
+
+    print("\nSum to N:\n")
+    print($"sum_to_n(5) = {sum_to_n(5)}\n")
+    print($"sum_to_n(10) = {sum_to_n(10)}\n")
+
+    print("\nPower:\n")
+    print($"power(2, 0) = {power(2, 0)}\n")
+    print($"power(2, 5) = {power(2, 5)}\n")
+    print($"power(3, 4) = {power(3, 4)}\n")
+
+    print("\nGCD:\n")
+    print($"gcd(48, 18) = {gcd(48, 18)}\n")
+    print($"gcd(100, 35) = {gcd(100, 35)}\n")
+
+    print("\nCountdown:\n")
+    countdown(5)
+
+    return 0

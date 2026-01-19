@@ -1,0 +1,7 @@
+// Test closure with captured variable that is modified
+fn main(): void =>
+  var counter: int = 0
+  var get_counter: fn(): int = fn(): int => counter
+  counter = 10
+  var result: int = get_counter()
+  print($"result={result}\n")

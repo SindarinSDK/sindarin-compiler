@@ -1,0 +1,97 @@
+// Test 103: Return from nested blocks
+// Tests return behavior from various block structures
+
+fn return_from_if(n: int): int =>
+    if n > 10 =>
+        return 100
+    if n > 5 =>
+        return 50
+    return n
+
+fn return_from_loop(limit: int): int =>
+    var sum: int = 0
+    for i in 1..100 =>
+        sum = sum + i
+        if sum > limit =>
+            return sum
+    return sum
+
+fn return_from_nested(x: int, y: int): str =>
+    for i in 0..x =>
+        for j in 0..y =>
+            if i + j == 5 =>
+                return "found 5"
+            if i * j > 10 =>
+                return "product > 10"
+    return "completed"
+
+fn return_from_while(): int =>
+    var n: int = 0
+    while n < 100 =>
+        n = n + 1
+        if n == 42 =>
+            return n
+    return -1
+
+fn early_return_with_computation(a: int): int =>
+    var result: int = a
+    if a < 0 =>
+        return -1
+    result = result * 2
+    if result > 100 =>
+        return 100
+    result = result + 10
+    if result > 50 =>
+        return 50
+    return result
+
+fn check_range(n: int): str =>
+    if n < 0 =>
+        return "negative"
+    if n < 10 =>
+        return "small"
+    if n < 100 =>
+        return "medium"
+    return "large"
+
+fn main(): int =>
+    print("Test return from blocks:\n\n")
+
+    // Test 1: Return from if
+    print("Test 1 - Return from if:\n")
+    print($"  return_from_if(15) = {return_from_if(15)}\n")
+    print($"  return_from_if(8) = {return_from_if(8)}\n")
+    print($"  return_from_if(3) = {return_from_if(3)}\n")
+
+    // Test 2: Return from loop
+    print("\nTest 2 - Return from loop:\n")
+    print($"  return_from_loop(50) = {return_from_loop(50)}\n")
+    print($"  return_from_loop(100) = {return_from_loop(100)}\n")
+    print($"  return_from_loop(10) = {return_from_loop(10)}\n")
+
+    // Test 3: Return from nested loops
+    print("\nTest 3 - Return from nested:\n")
+    print($"  return_from_nested(10, 10) = {return_from_nested(10, 10)}\n")
+    print($"  return_from_nested(2, 2) = {return_from_nested(2, 2)}\n")
+    print($"  return_from_nested(5, 5) = {return_from_nested(5, 5)}\n")
+
+    // Test 4: Return from while
+    print("\nTest 4 - Return from while:\n")
+    print($"  return_from_while() = {return_from_while()}\n")
+
+    // Test 5: Multiple return points
+    print("\nTest 5 - Multiple return points:\n")
+    print($"  early_return(-5) = {early_return_with_computation(-5)}\n")
+    print($"  early_return(60) = {early_return_with_computation(60)}\n")
+    print($"  early_return(30) = {early_return_with_computation(30)}\n")
+    print($"  early_return(10) = {early_return_with_computation(10)}\n")
+
+    // Test 6: Range checking
+    print("\nTest 6 - Range checking:\n")
+    print($"  check_range(-5) = {check_range(-5)}\n")
+    print($"  check_range(5) = {check_range(5)}\n")
+    print($"  check_range(50) = {check_range(50)}\n")
+    print($"  check_range(500) = {check_range(500)}\n")
+
+    print("\nAll return from block tests passed!\n")
+    return 0

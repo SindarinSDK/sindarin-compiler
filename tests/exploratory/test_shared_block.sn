@@ -1,0 +1,57 @@
+// Test 39: Shared blocks
+fn main(): int =>
+    print("Test shared blocks:\n\n")
+
+    // Basic shared block
+    var x: int = 10
+    shared =>
+        var y: int = 20
+        x = x + y
+    print($"After shared block: x = {x}\n")
+
+    // Nested shared blocks
+    var a: int = 5
+    shared =>
+        a = a * 2
+        shared =>
+            a = a + 10
+        a = a + 1
+    print($"After nested shared: a = {a}\n")
+
+    // Shared block with loop inside
+    var sum: int = 0
+    shared =>
+        for var i: int = 1; i <= 5; i++ =>
+            sum = sum + i
+    print($"Sum after shared block: {sum}\n")
+
+    // Shared block with condition inside
+    var result: int = 0
+    var test: int = 15
+    shared =>
+        if test > 10 =>
+            result = 1
+        else =>
+            result = 0
+    print($"Result after condition: {result}\n")
+
+    // Multiple shared blocks
+    var counter: int = 0
+    shared =>
+        counter = counter + 10
+    shared =>
+        counter = counter * 2
+    shared =>
+        counter = counter - 5
+    print($"Counter after 3 shared blocks: {counter}\n")
+
+    // Shared block modifying outer variable
+    var arr: int[] = {1, 2, 3}
+    shared =>
+        arr.push(4)
+        arr.push(5)
+    print("Array after shared block: ")
+    print(arr)
+    print("\n")
+
+    return 0

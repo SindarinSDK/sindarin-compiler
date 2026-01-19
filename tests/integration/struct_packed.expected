@@ -1,0 +1,4 @@
+Packed struct declarations compile successfully
+Native struct: size=0, capacity=1024
+After modification: size=100
+Native struct with pointer fields works!

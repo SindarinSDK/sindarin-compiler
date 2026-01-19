@@ -1,0 +1,145 @@
+# Integration test for struct escaping from if-block to outer scope
+# Tests that a struct created in an if-block can be properly assigned
+# to an outer-scoped variable with correct value preservation.
+
+struct Point =>
+    x: int
+    y: int
+
+struct Person =>
+    name: str
+    age: int
+
+struct Rectangle =>
+    width: int
+    height: int
+    label: str = "rect"
+
+fn test_simple_struct_escape(): void =>
+    # Outer variable declared before if-block
+    var outer: Point = Point { x: 0, y: 0 }
+
+    if true =>
+        # Inner struct created in if-block scope
+        var inner: Point = Point { x: 42, y: 99 }
+        # Assign entire struct from inner to outer scope
+        outer = inner
+
+    # Verify values are preserved after if-block
+    if outer.x != 42 =>
+        print($"FAIL: outer.x = {outer.x}, expected 42\n")
+        return
+    if outer.y != 99 =>
+        print($"FAIL: outer.y = {outer.y}, expected 99\n")
+        return
+
+    print("Simple struct escape test: PASS\n")
+
+fn test_struct_with_string_escape(): void =>
+    # Test struct containing string field
+    var outer: Person = Person { name: "default", age: 0 }
+
+    if true =>
+        var inner: Person = Person { name: "Alice", age: 30 }
+        outer = inner
+
+    if outer.name != "Alice" =>
+        print($"FAIL: outer.name = {outer.name}, expected Alice\n")
+        return
+    if outer.age != 30 =>
+        print($"FAIL: outer.age = {outer.age}, expected 30\n")
+        return
+
+    print("Struct with string escape test: PASS\n")
+
+fn test_conditional_struct_escape(): void =>
+    # Test struct escape with actual condition
+    var result: Point = Point { x: 0, y: 0 }
+    var condition: bool = true
+
+    if condition =>
+        var p: Point = Point { x: 100, y: 200 }
+        result = p
+
+    if result.x != 100 =>
+        print($"FAIL: result.x = {result.x}, expected 100\n")
+        return
+    if result.y != 200 =>
+        print($"FAIL: result.y = {result.y}, expected 200\n")
+        return
+
+    print("Conditional struct escape test: PASS\n")
+
+fn test_struct_escape_with_defaults(): void =>
+    # Test that default values are preserved during escape
+    var outer: Rectangle = Rectangle { width: 0, height: 0 }
+
+    if true =>
+        var inner: Rectangle = Rectangle { width: 50, height: 75 }
+        # inner.label should be "rect" by default
+        outer = inner
+
+    if outer.width != 50 =>
+        print($"FAIL: outer.width = {outer.width}, expected 50\n")
+        return
+    if outer.height != 75 =>
+        print($"FAIL: outer.height = {outer.height}, expected 75\n")
+        return
+    if outer.label != "rect" =>
+        print($"FAIL: outer.label = {outer.label}, expected rect\n")
+        return
+
+    print("Struct escape with defaults test: PASS\n")
+
+fn test_nested_if_struct_escape(): void =>
+    # Test struct escape from nested if-blocks
+    var outer: Point = Point { x: 0, y: 0 }
+
+    if true =>
+        if true =>
+            var deep: Point = Point { x: 111, y: 222 }
+            outer = deep
+
+    if outer.x != 111 =>
+        print($"FAIL: outer.x = {outer.x}, expected 111\n")
+        return
+    if outer.y != 222 =>
+        print($"FAIL: outer.y = {outer.y}, expected 222\n")
+        return
+
+    print("Nested if struct escape test: PASS\n")
+
+fn test_multiple_struct_escapes(): void =>
+    # Test multiple assignments from different if-blocks
+    var result: Point = Point { x: 0, y: 0 }
+
+    if true =>
+        var first: Point = Point { x: 10, y: 20 }
+        result = first
+
+    if result.x != 10 =>
+        print($"FAIL: result.x after first = {result.x}, expected 10\n")
+        return
+
+    if true =>
+        var second: Point = Point { x: 30, y: 40 }
+        result = second
+
+    if result.x != 30 =>
+        print($"FAIL: result.x after second = {result.x}, expected 30\n")
+        return
+    if result.y != 40 =>
+        print($"FAIL: result.y after second = {result.y}, expected 40\n")
+        return
+
+    print("Multiple struct escapes test: PASS\n")
+
+fn main(): void =>
+    print("Testing struct escaping from if-block to outer scope:\n")
+    test_simple_struct_escape()
+    test_struct_with_string_escape()
+    test_conditional_struct_escape()
+    test_struct_escape_with_defaults()
+    test_nested_if_struct_escape()
+    test_multiple_struct_escapes()
+    print("All struct escape if-block tests passed!\n")

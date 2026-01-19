@@ -1,0 +1,20 @@
+// Test lambda capture with memory modifiers
+
+fn main(): int =>
+    var x: int = 10
+    var y: int = 20
+
+    // Lambda capturing outer variables
+    var addXY: fn(int): int = fn(z: int) shared: int => x + y + z
+
+    print($"Sum with z=5: {addXY(5)}\n")
+    print($"Sum with z=100: {addXY(100)}\n")
+
+    // Lambda with closure capturing single var
+    var multiplier: int = 3
+    var times: fn(int): int = fn(n: int) shared: int => n * multiplier
+
+    print($"Times 4 = {times(4)}\n")
+    print($"Times 7 = {times(7)}\n")
+
+    return 0

@@ -1,0 +1,73 @@
+// Test byte type and byte arrays
+fn main(): void =>
+    // Basic byte variable
+    var b1: byte = 255
+    var b2: byte = 0
+    var b3: byte = 128
+
+    print("Byte values: ")
+    print(b1)
+    print(", ")
+    print(b2)
+    print(", ")
+    print(b3)
+    print("\n")
+
+    // Byte array creation
+    var bytes: byte[] = {0, 127, 255}
+    print("Byte array: ")
+    print(bytes)
+    print("\n")
+
+    // Array length
+    print("Length: ")
+    print(bytes.length)
+    print("\n")
+
+    // Array push
+    bytes.push(64)
+    print("After push(64): ")
+    print(bytes)
+    print("\n")
+
+    // Array access
+    print("bytes[0]: ")
+    print(bytes[0])
+    print("\n")
+    print("bytes[1]: ")
+    print(bytes[1])
+    print("\n")
+
+    // Array pop
+    var popped: byte = bytes.pop()
+    print("Popped: ")
+    print(popped)
+    print("\n")
+    print("After pop: ")
+    print(bytes)
+    print("\n")
+
+    // Array indexOf
+    var idx: int = bytes.indexOf(127)
+    print("indexOf(127): ")
+    print(idx)
+    print("\n")
+
+    // Array contains
+    if bytes.contains(127) =>
+        print("Contains 127: true\n")
+    else =>
+        print("Contains 127: false\n")
+
+    // Array clone
+    var cloned: byte[] = bytes.clone()
+    print("Cloned: ")
+    print(cloned)
+    print("\n")
+
+    // Iteration
+    print("Iteration: ")
+    for b in bytes =>
+        print(b)
+        print(" ")
+    print("\n")

@@ -1,0 +1,28 @@
+// Test range literal syntax: start..end
+fn main(): void =>
+    // Basic range
+    var r1: int[] = 1..5
+    print("Range 1..5: ")
+    print(r1)
+    print("\n")
+    print($"Length: {r1.length}\n")
+
+    // Range with expressions
+    var start: int = 3
+    var end: int = 8
+    var r2: int[] = start..end
+    print($"Range {start}..{end}: ")
+    print(r2)
+    print("\n")
+
+    // Range in array literal
+    var arr: int[] = {0, 1..4, 10}
+    print("Array with range {0, 1..4, 10}: ")
+    print(arr)
+    print("\n")
+
+    // Iterate over range
+    var sum: int = 0
+    for n in 1..6 =>
+        sum = sum + n
+    print($"Sum of 1..6: {sum}\n")

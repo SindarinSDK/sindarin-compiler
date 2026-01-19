@@ -1,0 +1,20 @@
+// Test 108: Non-primitive attempting to escape private block (should error)
+// This test verifies that the type checker correctly rejects attempts
+// to assign non-primitive types (arrays, strings) to variables declared
+// outside a private block.
+//
+// EXPECTED BEHAVIOR: This test should FAIL COMPILATION with an error about
+// non-primitive types not being able to escape private blocks.
+
+fn main(): int =>
+    print("Test non-primitive escape analysis:\n\n")
+
+    // Attempt 1: Try to escape a string from private block
+    var escaped_str: str = ""
+    private =>
+        var temp_str: str = "hello from private"
+        escaped_str = temp_str  // ERROR: Cannot assign non-primitive type to variable declared outside private block
+
+    print($"This should not print: {escaped_str}\n")
+
+    return 0

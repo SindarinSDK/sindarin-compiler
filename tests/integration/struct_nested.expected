@@ -1,0 +1,20 @@
+line.start.x = 0.00000
+line.start.y = 0.00000
+line.end.x = 10.00000
+line.end.y = 20.00000
+rect1.origin.x = 5.00000
+rect1.origin.y = 10.00000
+rect1.size.width = 100
+rect1.size.height = 50
+rect1.color = black
+rect2.size.width = 200
+rect2.size.height = 150
+rect2.color = red
+After modify: line.start.x = 100.00000
+After modify: line.end.y = 200.00000
+canvas.name = main
+canvas.bounds.top_left.x = 0.00000
+canvas.bounds.bottom_right.x = 800.00000
+canvas.background = white
+After deep modify: canvas.bounds.bottom_right.y = 900.00000
+All nested struct tests passed!

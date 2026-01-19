@@ -1,0 +1,50 @@
+// Test 33: Basic string operations
+fn main(): int =>
+    print("Test basic strings:\n\n")
+
+    // String literals
+    var empty: str = ""
+    var hello: str = "Hello"
+    var world: str = "World"
+
+    print($"empty = \"{empty}\"\n")
+    print($"hello = \"{hello}\"\n")
+    print($"world = \"{world}\"\n")
+
+    // Length
+    print($"\nlen(empty) = {len(empty)}\n")
+    print($"len(hello) = {len(hello)}\n")
+    print($"hello.length = {hello.length}\n")
+
+    // Concatenation
+    var concat1: str = hello + " " + world
+    var concat2: str = hello + world
+    var concat3: str = "" + hello + ""
+
+    print($"\nConcat:\n")
+    print($"hello + \" \" + world = \"{concat1}\"\n")
+    print($"hello + world = \"{concat2}\"\n")
+
+    // Multiple concat
+    var l: str = "A" + "B" + "C" + "D" + "E"
+    print($"Multiple: \"{l}\"\n")
+
+    // Comparison
+    print("\nComparisons:\n")
+    var s1: str = "abc"
+    var s2: str = "abc"
+    var s3: str = "abd"
+    var s4: str = "ab"
+    print($"\"abc\" == \"abc\": {s1 == s2}\n")
+    print($"\"abc\" != \"abd\": {s1 != s3}\n")
+    print($"\"abc\" < \"abd\": {s1 < s3}\n")
+    print($"\"abc\" > \"ab\": {s1 > s4}\n")
+
+    // String in conditions
+    print("\nString in conditions:\n")
+    if hello == "Hello" =>
+        print("hello equals \"Hello\"\n")
+    if hello != world =>
+        print("hello != world\n")
+
+    return 0

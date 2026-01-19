@@ -1,0 +1,61 @@
+fn demo_lambda(): void =>
+    print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+    print("│                     Sindarin Lambda Expressions                  │\n")
+    print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+    // =========================================
+    // Explicit Type Annotations (verbose style)
+    // =========================================
+    print("Explicit type annotations:\n")
+
+    // Test 1: Basic lambda with explicit types
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var result: int = double_it(5)
+    print($"  double_it(5) = {result}\n")
+
+    // Test 2: Lambda with multiple parameters (explicit)
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+    print($"  add(3, 4) = {add(3, 4)}\n")
+
+    // =========================================
+    // Type Inference (concise style)
+    // =========================================
+    print("\nType inference (types inferred from declaration):\n")
+
+    // Test 3: Infer both param and return types from declaration
+    var triple: fn(int): int = fn(x) => x * 3
+    print($"  triple(7) = {triple(7)}\n")
+
+    // Test 4: Infer multiple param types
+    var multiply: fn(int, int): int = fn(a, b) => a * b
+    print($"  multiply(6, 8) = {multiply(6, 8)}\n")
+
+    // Test 5: Mixed - explicit param type, inferred return
+    var square: fn(int): int = fn(x: int) => x * x
+    print($"  square(9) = {square(9)}\n")
+
+    // Test 6: Mixed - inferred param type, explicit return
+    var negate: fn(int): int = fn(x): int => 0 - x
+    print($"  negate(42) = {negate(42)}\n")
+
+    // =========================================
+    // Lambdas with modifiers
+    // =========================================
+    print("\nLambdas with modifiers:\n")
+
+    // Test 7: Shared lambda with inferred types
+    var increment: fn(int): int = fn(x) shared => x + 1
+    print($"  increment(99) = {increment(99)}\n")
+
+    // =========================================
+    // Combining lambdas
+    // =========================================
+    print("\nCombining lambdas:\n")
+
+    // Test 8: Compose lambdas
+    var x: int = double_it(add(1, 2))
+    print($"  double_it(add(1, 2)) = {x}\n")
+
+    var y: int = triple(multiply(2, 3))
+    print($"  triple(multiply(2, 3)) = {y}\n")
+

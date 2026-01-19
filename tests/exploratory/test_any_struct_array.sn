@@ -1,0 +1,48 @@
+# Exploratory test: Struct containing arrays boxed into any
+
+struct Container =>
+    values: int[]
+    name: str
+
+fn main(): int =>
+    # Create a struct with an array field
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var c: Container = Container { values: arr, name: "test" }
+
+    print($"Original: name={c.name}, values.length={c.values.length}\n")
+    print($"values[0]={c.values[0]}, values[4]={c.values[4]}\n")
+
+    # Box the struct into any
+    var a: any = c
+
+    if a is Container =>
+        print("a is Container: PASS\n")
+    else =>
+        print("a is Container: FAIL\n")
+        return 1
+
+    # Unbox and check values
+    var c2: Container = a as Container
+    print($"Unboxed: name={c2.name}, values.length={c2.values.length}\n")
+    print($"values[0]={c2.values[0]}, values[4]={c2.values[4]}\n")
+
+    if c2.name == "test" =>
+        print("Name check: PASS\n")
+    else =>
+        print("Name check: FAIL\n")
+        return 1
+
+    if c2.values.length == 5 =>
+        print("Array length check: PASS\n")
+    else =>
+        print("Array length check: FAIL\n")
+        return 1
+
+    if c2.values[2] == 3 =>
+        print("Array element check: PASS\n")
+    else =>
+        print("Array element check: FAIL\n")
+        return 1
+
+    print("All tests passed!\n")
+    return 0

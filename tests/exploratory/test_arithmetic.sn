@@ -1,0 +1,10 @@
+// Test arithmetic operations
+fn main(): void =>
+  var a: int = 10
+  var b: int = 3
+  var add: int = a + b
+  var sub: int = a - b
+  var mul: int = a * b
+  var div: int = a / b
+  var mod: int = a % b
+  print($"add={add}, sub={sub}, mul={mul}, div={div}, mod={mod}\n")

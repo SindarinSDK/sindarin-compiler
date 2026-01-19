@@ -1,0 +1,189 @@
+// Test 136: Comprehensive range literal tests
+fn main(): int =>
+    print("=== Test 136: Range Literals ===\n\n")
+
+    // Test 1: Basic range - 1..6 produces {1,2,3,4,5}
+    print("1. Basic range (1..6):\n")
+    var r: int[] = 1..6
+    print("   1..6 = ")
+    print(r)
+    print("\n")
+    print($"   Length: {r.length}\n")
+    print($"   First: {r[0]}, Last: {r[r.length - 1]}\n")
+
+    // Test 2: Range with variables
+    print("\n2. Range with variables:\n")
+    var a: int = 1
+    var b: int = 5
+    var r2: int[] = a..b
+    print($"   a={a}, b={b}, a..b = ")
+    print(r2)
+    print("\n")
+    print($"   Length: {r2.length}\n")
+
+    // Additional variable range tests
+    var start: int = 10
+    var end: int = 15
+    var r2b: int[] = start..end
+    print($"   start={start}, end={end}, start..end = ")
+    print(r2b)
+    print("\n")
+
+    // Test 3: Range in for loop
+    print("\n3. Range in for loop (1..10):\n")
+    var sum: int = 0
+    print("   Values: ")
+    for x in 1..10 =>
+        print($"{x} ")
+        sum = sum + x
+    print("\n")
+    print($"   Sum of 1..10 = {sum}\n")
+
+    // Test 4: Empty range - 5..5 produces {}
+    print("\n4. Empty range (5..5):\n")
+    var empty: int[] = 5..5
+    print("   5..5 = ")
+    print(empty)
+    print("\n")
+    print($"   Length: {empty.length}\n")
+    print("   Iterating over empty range: ")
+    for x in 5..5 =>
+        print($"{x} ")
+    print("(nothing printed - correct!)\n")
+
+    // Another empty range test
+    var empty2: int[] = 0..0
+    print("   0..0 = ")
+    print(empty2)
+    print($" (length: {empty2.length})\n")
+
+    // Test 5: Negative ranges - -5..5
+    print("\n5. Negative ranges (-5..5):\n")
+    var neg: int[] = -5..5
+    print("   -5..5 = ")
+    print(neg)
+    print("\n")
+    print($"   Length: {neg.length}\n")
+    print($"   First: {neg[0]}, Last: {neg[neg.length - 1]}\n")
+
+    // More negative range tests
+    var neg2: int[] = -10..-5
+    print("   -10..-5 = ")
+    print(neg2)
+    print($" (length: {neg2.length})\n")
+
+    var neg3: int[] = -3..0
+    print("   -3..0 = ")
+    print(neg3)
+    print($" (length: {neg3.length})\n")
+
+    // Test 6: Large ranges - 0..100
+    print("\n6. Large ranges (0..100):\n")
+    var large: int[] = 0..100
+    print($"   0..100 length: {large.length}\n")
+    print($"   First: {large[0]}, Last: {large[large.length - 1]}\n")
+
+    // Sum of 0..100
+    var largeSum: int = 0
+    for x in large =>
+        largeSum = largeSum + x
+    print($"   Sum of 0..99 = {largeSum}\n")
+
+    // Even larger range
+    var larger: int[] = 1..1001
+    print($"   1..1001 length: {larger.length}\n")
+    print($"   First: {larger[0]}, Last: {larger[larger.length - 1]}\n")
+
+    // Test 7: Range in array literal
+    print("\n7. Range in array literal:\n")
+    var mixed: int[] = {0, 1..4, 10}
+    print("   {0, 1..4, 10} = ")
+    print(mixed)
+    print("\n")
+
+    var mixed2: int[] = {1..3, 10..13}
+    print("   {1..3, 10..13} = ")
+    print(mixed2)
+    print("\n")
+
+    // Test 8: Range starting from zero
+    print("\n8. Zero-based ranges:\n")
+    var zero: int[] = 0..5
+    print("   0..5 = ")
+    print(zero)
+    print("\n")
+
+    var zero2: int[] = 0..1
+    print("   0..1 = ")
+    print(zero2)
+    print($" (length: {zero2.length})\n")
+
+    // Test 9: Range with computed bounds
+    print("\n9. Range with computed bounds:\n")
+    var base: int = 5
+    var computed: int[] = (base - 2)..(base + 3)
+    print($"   (base - 2)..(base + 3) where base={base} = ")
+    print(computed)
+    print("\n")
+
+    // Test 10: Nested for loops with ranges
+    print("\n10. Nested for loops with ranges:\n")
+    print("   Multiplication table (1..4 x 1..4):\n")
+    for i in 1..4 =>
+        print("   ")
+        for j in 1..4 =>
+            var product: int = i * j
+            print($"{product} ")
+        print("\n")
+
+    // Test 11: Range element access
+    print("\n11. Range element access:\n")
+    var r11: int[] = 10..20
+    print($"   Range 10..20, element at [0]: {r11[0]}\n")
+    print($"   Range 10..20, element at [5]: {r11[5]}\n")
+    print($"   Range 10..20, element at [9]: {r11[9]}\n")
+
+    // Test 12: Range with for-in and accumulation
+    print("\n12. Range accumulation tests:\n")
+    var product: int = 1
+    for x in 1..6 =>
+        product = product * x
+    print($"   Factorial 5! (product of 1..6) = {product}\n")
+
+    var count: int = 0
+    for x in -5..6 =>
+        count = count + 1
+    print($"   Count of elements in -5..6: {count}\n")
+
+    // Test 13: Single element range
+    print("\n13. Single element range:\n")
+    var single: int[] = 42..43
+    print("   42..43 = ")
+    print(single)
+    print($" (length: {single.length})\n")
+
+    // Test 14: Range assignment and modification
+    print("\n14. Range to array, then modify:\n")
+    var arr: int[] = 1..5
+    print("   Initial 1..5 = ")
+    print(arr)
+    print("\n")
+    arr[2] = 99
+    print("   After arr[2] = 99: ")
+    print(arr)
+    print("\n")
+
+    // Test 15: Range in function context
+    print("\n15. Range passed to function:\n")
+    var sumResult: int = sumArray(1..11)
+    print($"   sumArray(1..11) = {sumResult}\n")
+
+    print("\n=== All Range Literal Tests Complete ===\n")
+    return 0
+
+// Helper function to test range as array argument
+fn sumArray(arr: int[]): int =>
+    var total: int = 0
+    for x in arr =>
+        total = total + x
+    return total

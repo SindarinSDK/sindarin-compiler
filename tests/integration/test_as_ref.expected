@@ -1,0 +1,6 @@
+x = 42
+y = 3.14000
+flag = true
+Modified x = 100
+Modified y = 2.71000
+Modified flag = false

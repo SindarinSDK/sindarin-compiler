@@ -1,0 +1,12 @@
+=== Random Integration Tests ===
+--- Factory Methods ---  PASS: Random.create() succeeded  PASS: Random.createWithSeed(12345l) succeeded
+--- Seeded PRNG Determinism ---  PASS: Same seed produces same first int: 43  PASS: Same seed produces same second int: 3
+--- Static Value Generation ---  PASS: Random.int(1, 100)  PASS: Random.double(0.0, 1.0)  PASS: Random.bool()  PASS: Random.byte()  PASS: Random.gaussian(0.0, 1.0)
+--- Static Batch Generation ---  PASS: Random.intMany(1, 10, 5) returned array  PASS: Random.doubleMany(0.0, 1.0, 5) returned array  PASS: Random.boolMany(5) returned array
+--- Static Collection Operations ---  PASS: Random.choice(colors)  PASS: Random.choice(numbers)  PASS: Random.shuffle() shuffled array  PASS: Random.weightedChoice(colors, weights)  PASS: Random.sample(numbers, 3) returned sample
+--- Instance Value Generation ---  PASS: rng.int(1, 100) = 52  PASS: rng.long(1, 1000000) = 342413  PASS: rng.double(0.0, 10.0) = 6.67039  PASS: rng.bool() = true  PASS: rng.byte() = 96  PASS: rng.gaussian(100.0, 15.0) = 103.31318
+--- Instance Batch Generation ---  PASS: rng.intMany(1, 100, 5) returned array  PASS: rng.doubleMany(0.0, 1.0, 5) returned array  PASS: rng.boolMany(5) returned array
+--- Instance Collection Operations ---  PASS: rng.choice(fruits) = date  PASS: rng.choice(scores) = 92  PASS: rng.shuffle() shuffled array  PASS: rng.weightedChoice(fruits, weights) = cherry  PASS: rng.sample(scores, 3) returned sample
+--- Practical Usage Patterns ---  Dice rolls: 2, 1  PASS: Coin flip completed  PASS: Random chars selected  PASS: Loot drop completed
+=== Test Summary ===Passed: 35Failed: 0
+All Random integration tests PASSED!

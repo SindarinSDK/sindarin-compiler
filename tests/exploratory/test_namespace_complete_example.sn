@@ -1,0 +1,26 @@
+// Test: Complete example from NAMESPACES.md spec
+// Demonstrates namespaced imports to avoid collisions and provide clarity
+import "namespace_demo/math" as math
+import "namespace_demo/strings" as strings
+
+fn main(): void =>
+    // Each function is clearly qualified with its namespace
+    var sum: int = math.add(10, 20)
+    var combined: str = strings.concat("Hello, ", "World!")
+
+    print($"Sum: {sum}\n")
+    print($"Combined: {combined}\n")
+
+    var product: int = math.multiply(6, 7)
+    var quoted: str = strings.quote("Sindarin")
+
+    print($"Product: {product}\n")
+    print($"Quoted: {quoted}\n")
+
+    // Use string wrap function
+    var wrapped: str = strings.wrap("content", "[", "]")
+    print($"Wrapped: {wrapped}\n")
+
+    // Combine operations from both namespaces
+    var result: int = math.subtract(math.add(100, 50), math.multiply(5, 10))
+    print($"Complex math: {result}\n")

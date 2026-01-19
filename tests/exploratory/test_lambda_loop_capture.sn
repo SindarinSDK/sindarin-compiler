@@ -1,0 +1,71 @@
+// Test 110: Lambda capturing loop variable (closure-in-loop semantics)
+// Tests how closures behave when capturing loop variables.
+
+fn main(): int =>
+    print("Test lambda loop variable capture:\n\n")
+
+    // Test 1: Basic loop variable capture - immediate call
+    print("Test 1 - Immediate lambda call in loop:\n")
+    for var i: int = 0; i < 5; i++ =>
+        var capturer: fn(): int = fn(): int => i
+        print($"  i={i}, capturer()={capturer()}\n")
+
+    // Test 2: Capture modified variable - lambda sees latest value
+    print("\nTest 2 - Lambda sees modified capture:\n")
+    var counter: int = 0
+    var get_counter: fn(): int = fn(): int => counter
+    print($"  Initial: {get_counter()}\n")
+    for var j: int = 0; j < 3; j++ =>
+        counter = counter + 10
+        print($"  After iteration {j}: counter={counter}, get_counter()={get_counter()}\n")
+
+    // Test 3: Nested lambda capture from outer loop
+    print("\nTest 3 - Nested lambda with loop variable:\n")
+    for var outer: int = 1; outer <= 2; outer++ =>
+        var outer_captured: int = outer
+        var inner_lambda: fn(int): int = fn(x: int): int => x * outer_captured
+        print($"  outer={outer}: inner_lambda(10)={inner_lambda(10)}\n")
+
+    // Test 4: Lambda capturing foreach loop variable
+    print("\nTest 4 - Capture from for-each loop:\n")
+    var values: int[] = {100, 200, 300}
+    for item in values =>
+        var capturer: fn(): int = fn(): int => item
+        print($"  item={item}, capturer()={capturer()}\n")
+
+    // Test 5: While loop capture
+    print("\nTest 5 - While loop capture:\n")
+    var w: int = 0
+    while w < 3 =>
+        var w_copy: int = w
+        var w_lambda: fn(): int = fn(): int => w_copy
+        print($"  w={w}, w_lambda()={w_lambda()}\n")
+        w++
+
+    // Test 6: Lambda with mutation in loop
+    print("\nTest 6 - Lambda mutating captured variable in loop:\n")
+    var sum: int = 0
+    var adder: fn(int): void = fn(x: int): void =>
+        sum = sum + x
+    for var n: int = 1; n <= 5; n++ =>
+        adder(n)
+    print($"  Sum of 1-5 using lambda in loop: {sum}\n")
+    print("  (Expected: 15 - closure mutations now work correctly)\n")
+
+    // Test 7: Multiple lambdas capturing same loop variable
+    print("\nTest 7 - Multiple lambdas in same iteration:\n")
+    for var m: int = 1; m <= 2; m++ =>
+        var m_copy: int = m
+        var getter1: fn(): int = fn(): int => m_copy
+        var getter2: fn(): int = fn(): int => m_copy * 10
+        print($"  m={m}: getter1()={getter1()}, getter2()={getter2()}\n")
+
+    // Test 8: Capture loop index in range-based for
+    print("\nTest 8 - Capture from range-based for:\n")
+    for idx in 1..4 =>
+        var cap: fn(): int = fn(): int => idx
+        print($"  idx={idx}, cap()={cap()}\n")
+
+    // Verification - closure mutations now work correctly
+    print("\nLambda loop capture tests completed!\n")
+    return 0

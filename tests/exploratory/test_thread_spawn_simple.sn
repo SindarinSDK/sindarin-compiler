@@ -1,0 +1,11 @@
+// Test: Simple thread spawn code generation
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies basic spawn wrapper function generation and pthread_create call
+
+fn compute(): int =>
+    return 42
+
+fn main(): void =>
+    var r: int = &compute()  // Spawns thread, stores handle
+    var result: int = r!     // Syncs and gets result
+    print($"Result: {result}\n")  // Should print "Result: 42"

@@ -1,0 +1,82 @@
+// Test 102: Nested if-else chains
+// Tests handling of multiple else-if patterns
+
+fn get_grade(score: int): str =>
+    if score >= 90 =>
+        return "A"
+    else =>
+        if score >= 80 =>
+            return "B"
+        else =>
+            if score >= 70 =>
+                return "C"
+            else =>
+                return "D or F"
+
+fn get_category(n: int): str =>
+    if n < 0 =>
+        return "negative"
+    else =>
+        if n == 0 =>
+            return "zero"
+        else =>
+            if n < 10 =>
+                return "small"
+            else =>
+                if n < 100 =>
+                    return "medium"
+                else =>
+                    return "large"
+
+fn main(): int =>
+    print("Test many else-if:\n\n")
+
+    // Test 1: Grade classification
+    print("Test 1 - Grade classification:\n")
+    print($"  Score 95: {get_grade(95)}\n")
+    print($"  Score 85: {get_grade(85)}\n")
+    print($"  Score 75: {get_grade(75)}\n")
+    print($"  Score 55: {get_grade(55)}\n")
+
+    // Test 2: Number classification
+    print("\nTest 2 - Number classification:\n")
+    print($"  -5: {get_category(-5)}\n")
+    print($"  0: {get_category(0)}\n")
+    print($"  7: {get_category(7)}\n")
+    print($"  42: {get_category(42)}\n")
+    print($"  999: {get_category(999)}\n")
+
+    // Test 3: Inline nested if-else
+    print("\nTest 3 - Inline nested:\n")
+    var x: int = 50
+    var result: str = ""
+    if x > 100 =>
+        result = "very large"
+    else =>
+        if x > 50 =>
+            result = "large"
+        else =>
+            if x > 10 =>
+                result = "medium"
+            else =>
+                result = "small"
+    print($"  x={x}: {result}\n")
+
+    // Test 4: Simple day mapping
+    print("\nTest 4 - Day mapping:\n")
+    for d in 1..4 =>
+        var day: str = ""
+        if d == 1 =>
+            day = "Monday"
+        else =>
+            if d == 2 =>
+                day = "Tuesday"
+            else =>
+                if d == 3 =>
+                    day = "Wednesday"
+                else =>
+                    day = "Other"
+        print($"  Day {d}: {day}\n")
+
+    print("\nAll many else-if tests passed!\n")
+    return 0

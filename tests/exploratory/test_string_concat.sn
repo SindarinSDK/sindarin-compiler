@@ -1,0 +1,7 @@
+// Test string concatenation
+fn main(): void =>
+  var a: str = "Hello"
+  var b: str = " "
+  var c: str = "World"
+  var result: str = a + b + c
+  print($"result={result}\n")

@@ -1,0 +1,7 @@
+// Test empty function body
+fn do_nothing(): void =>
+  return
+
+fn main(): void =>
+  do_nothing()
+  print("done\n")

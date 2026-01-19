@@ -1,0 +1,72 @@
+// Test 12: For-each loops
+fn main(): int =>
+    print("=== Basic For-Each ===\n")
+    var nums: int[] = {10, 20, 30, 40, 50}
+    for n in nums =>
+        print($"n = {n}\n")
+
+    // Empty array
+    print("\n=== Empty Array ===\n")
+    var empty: int[] = {}
+    for n in empty =>
+        print("Should not print\n")
+    print("After empty for-each\n")
+
+    // Single element
+    print("\n=== Single Element ===\n")
+    var single: int[] = {42}
+    for n in single =>
+        print($"n = {n}\n")
+
+    // Different types
+    print("\n=== String Array ===\n")
+    var fruits: str[] = {"apple", "banana", "cherry"}
+    for fruit in fruits =>
+        print($"fruit: {fruit}\n")
+
+    print("\n=== Double Array ===\n")
+    var doubles: double[] = {1.1, 2.2, 3.3}
+    for d in doubles =>
+        print($"d = {d}\n")
+
+    print("\n=== Char Array ===\n")
+    var chars: char[] = {'H', 'e', 'l', 'l', 'o'}
+    for c in chars =>
+        print($"{c}")
+    print("\n")
+
+    print("\n=== Bool Array ===\n")
+    var bools: bool[] = {true, false, true}
+    for b in bools =>
+        print($"b = {b}\n")
+
+    // Sum with for-each
+    print("\n=== Sum with For-Each ===\n")
+    var sum: int = 0
+    for n in nums =>
+        sum = sum + n
+    print($"Sum = {sum}\n")
+
+    // Nested for-each
+    print("\n=== Nested For-Each ===\n")
+    var a: int[] = {1, 2}
+    var b: int[] = {10, 20}
+    for x in a =>
+        for y in b =>
+            print($"({x}, {y})\n")
+
+    // For-each over range
+    print("\n=== For-Each over Range ===\n")
+    for i in 1..6 =>
+        print($"i = {i}\n")
+
+    // Find max
+    print("\n=== Find Max ===\n")
+    var values: int[] = {3, 7, 2, 9, 1, 8}
+    var max: int = values[0]
+    for v in values =>
+        if v > max =>
+            max = v
+    print($"Max = {max}\n")
+
+    return 0

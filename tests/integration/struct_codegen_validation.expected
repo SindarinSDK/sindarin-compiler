@@ -1,0 +1,36 @@
+=== Struct Code Generation Validation ===
+
+--- Testing Basic Field Types ---
+field_int: PASS
+field_int32: PASS
+field_double: PASS
+field_char: PASS
+field_bool: PASS
+field_byte: PASS
+
+--- Testing Nested Structs ---
+nested point.x: PASS
+nested point.y: PASS
+nested value: PASS
+
+--- Testing Packed Struct Size ---
+PackedData sizeof=10: PASS (expected 10)
+
+--- Testing Unpacked Struct Alignment ---
+AfterPacked sizeof=24: checking alignment
+AfterPacked alignment: PASS (size >= 17)
+
+--- C Type Sizes ---
+int: 8 bytes
+int32: 4 bytes
+double: 8 bytes
+float: 4 bytes
+char: 1 bytes
+bool: 1 bytes
+byte: 1 bytes
+sizeof(int) == 8: PASS
+sizeof(int32) == 4: PASS
+sizeof(double) == 8: PASS
+sizeof(float) == 4: PASS
+
+=== All Struct Code Generation Tests Completed ===

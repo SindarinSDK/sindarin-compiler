@@ -1,0 +1,74 @@
+// Test: Multiple freezes on same variable
+// Verifies that an array can be frozen multiple times by different threads
+// and only becomes writable after ALL threads have synced
+
+fn sum_array(arr: int[]): int =>
+    var total: int = 0
+    for n in arr =>
+        total = total + n
+    return total
+
+fn get_first(arr: int[]): int =>
+    return arr[0]
+
+fn get_last(arr: int[]): int =>
+    return arr[arr.length - 1]
+
+fn main(): void =>
+    var data: int[] = {10, 20, 30, 40, 50}
+
+    print($"Initial data: length = {data.length}\n")
+
+    // Spawn THREE threads all capturing the same array
+    // This should freeze `data` three times (freeze count = 3)
+    var r1: int = &sum_array(data)
+    var r2: int = &get_first(data)
+    var r3: int = &get_last(data)
+
+    print("Spawned 3 threads capturing same array\n")
+
+    // While threads are pending, reads are allowed
+    var len: int = data.length
+    print($"Read while frozen: length = {len}\n")
+
+    // Sync first thread - freeze count should go from 3 to 2
+    // Array should STILL be frozen (other threads still pending)
+    var sum: int = r1!
+    print($"After first sync: sum = {sum}\n")
+
+    // Reads should still work
+    var first_check: int = data[0]
+    print($"Read after first sync: data[0] = {first_check}\n")
+
+    // Sync second thread - freeze count should go from 2 to 1
+    // Array should STILL be frozen (one thread still pending)
+    var first: int = r2!
+    print($"After second sync: first = {first}\n")
+
+    // Sync third thread - freeze count should go from 1 to 0
+    // Array should now be UNFROZEN
+    var last: int = r3!
+    print($"After third sync: last = {last}\n")
+
+    // NOW writes should be allowed - array is fully unfrozen
+    data[0] = 100
+    data.push(60)
+    print($"After writes: data[0] = {data[0]}, length = {data.length}\n")
+
+    // Validate all results
+    if sum == 150 =>
+        if first == 10 =>
+            if last == 50 =>
+                if data[0] == 100 =>
+                    if data.length == 6 =>
+                        print("SUCCESS: Multiple freeze/unfreeze works correctly\n")
+                    else =>
+                        print("FAILURE: push didn't work after full unfreeze\n")
+                else =>
+                    print("FAILURE: write didn't work after full unfreeze\n")
+            else =>
+                print($"FAILURE: last expected 50, got {last}\n")
+        else =>
+            print($"FAILURE: first expected 10, got {first}\n")
+    else =>
+        print($"FAILURE: sum expected 150, got {sum}\n")

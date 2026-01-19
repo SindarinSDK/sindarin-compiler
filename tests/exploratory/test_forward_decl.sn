@@ -1,0 +1,46 @@
+// Test 20: Forward declarations (mutual recursion)
+// Functions can call each other regardless of declaration order
+
+fn is_even(n: int): bool =>
+    if n == 0 =>
+        return true
+    return is_odd(n - 1)
+
+fn is_odd(n: int): bool =>
+    if n == 0 =>
+        return false
+    return is_even(n - 1)
+
+fn a_calls_b(n: int): int =>
+    if n <= 0 =>
+        return 0
+    print($"a: {n}\n")
+    return b_calls_a(n - 1)
+
+fn b_calls_a(n: int): int =>
+    if n <= 0 =>
+        return 0
+    print($"b: {n}\n")
+    return a_calls_b(n - 1)
+
+fn first(): void =>
+    print("first calls second\n")
+    second()
+
+fn second(): void =>
+    print("second done\n")
+
+fn main(): int =>
+    print("Test forward declarations:\n\n")
+
+    print("is_even/is_odd:\n")
+    for var i: int = 0; i <= 6; i++ =>
+        print($"{i} is even: {is_even(i)}, is odd: {is_odd(i)}\n")
+
+    print("\nMutual recursion a<->b:\n")
+    a_calls_b(4)
+
+    print("\nForward call first->second:\n")
+    first()
+
+    return 0

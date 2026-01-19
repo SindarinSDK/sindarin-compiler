@@ -1,0 +1,65 @@
+// Test: Namespace import syntax
+// Tests import with 'as' namespace qualifier
+
+import "import_tests/math_utils" as math
+
+fn main(): int =>
+    print("Test namespace import syntax:\n\n")
+    var errors: int = 0
+
+    // Test 1: Call namespaced function - add
+    print("Test 1 - Call namespaced add function:\n")
+    var sum: int = math.add(5, 3)
+    print($"  math.add(5, 3) = {sum}\n")
+    if sum != 8 =>
+        print("  FAIL: expected 8\n")
+        errors++
+
+    // Test 2: Call namespaced function - subtract
+    print("\nTest 2 - Call namespaced subtract function:\n")
+    var diff: int = math.subtract(10, 4)
+    print($"  math.subtract(10, 4) = {diff}\n")
+    if diff != 6 =>
+        print("  FAIL: expected 6\n")
+        errors++
+
+    // Test 3: Call namespaced function - multiply
+    print("\nTest 3 - Call namespaced multiply function:\n")
+    var prod: int = math.multiply(7, 6)
+    print($"  math.multiply(7, 6) = {prod}\n")
+    if prod != 42 =>
+        print("  FAIL: expected 42\n")
+        errors++
+
+    // Test 4: Call namespaced function - square
+    print("\nTest 4 - Call namespaced square function:\n")
+    var sq: int = math.square(9)
+    print($"  math.square(9) = {sq}\n")
+    if sq != 81 =>
+        print("  FAIL: expected 81\n")
+        errors++
+
+    // Test 5: Call function returning double
+    print("\nTest 5 - Namespaced function returning double:\n")
+    var pi: double = math.get_pi_approx()
+    print($"  math.get_pi_approx() = {pi}\n")
+    if pi < 3.0 =>
+        print("  FAIL: expected pi > 3.0\n")
+        errors++
+
+    // Test 6: Use namespaced functions in expressions
+    print("\nTest 6 - Namespaced functions in expressions:\n")
+    var result: int = math.add(math.multiply(2, 3), math.square(2))
+    print($"  math.add(math.multiply(2, 3), math.square(2)) = {result}\n")
+    // 2*3 = 6, 2^2 = 4, 6+4 = 10
+    if result != 10 =>
+        print("  FAIL: expected 10\n")
+        errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll namespace import tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

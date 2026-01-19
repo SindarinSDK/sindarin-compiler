@@ -1,0 +1,189 @@
+
+fn main () =>
+  println("Testing any arrays - all permutations")
+  println("======================================")
+
+  // ============================================
+  // 1. T[] -> any[] in declarations
+  // ============================================
+  println("")
+  println("1. T[] -> any[] in declarations:")
+
+  var intToAny:any[] = {1, 2, 3}
+  println($"  int[] -> any[]: {intToAny}")
+
+  var strToAny:any[] = {"a", "b", "c"}
+  println($"  str[] -> any[]: {strToAny}")
+
+  var doubleToAny:any[] = {1.1, 2.2, 3.3}
+  println($"  double[] -> any[]: {doubleToAny}")
+
+  var boolToAny:any[] = {true, false, true}
+  println($"  bool[] -> any[]: {boolToAny}")
+
+  var longToAny:any[] = {1000000000000l, 2000000000000l, 3000000000000l}
+  println($"  long[] -> any[]: {longToAny}")
+
+  var charToAny:any[] = {'a', 'b', 'c'}
+  println($"  char[] -> any[]: {charToAny}")
+
+  var byteToAny:any[] = {255b, 128b, 64b}
+  println($"  byte[] -> any[]: {byteToAny}")
+
+  // ============================================
+  // 2. T[] -> any[] in assignments
+  // ============================================
+  println("")
+  println("2. T[] -> any[] in assignments:")
+
+  var anyArr:any[] = {0}
+
+  anyArr = {10, 20, 30}
+  println($"  int[] -> any[]: {anyArr}")
+
+  anyArr = {"x", "y", "z"}
+  println($"  str[] -> any[]: {anyArr}")
+
+  anyArr = {4.4, 5.5, 6.6}
+  println($"  double[] -> any[]: {anyArr}")
+
+  anyArr = {false, true, false}
+  println($"  bool[] -> any[]: {anyArr}")
+
+  anyArr = {9000000000000l, 8000000000000l}
+  println($"  long[] -> any[]: {anyArr}")
+
+  anyArr = {'x', 'y', 'z'}
+  println($"  char[] -> any[]: {anyArr}")
+
+  anyArr = {200b, 100b, 50b}
+  println($"  byte[] -> any[]: {anyArr}")
+
+  // ============================================
+  // 3. any[] -> T[] casting
+  // ============================================
+  println("")
+  println("3. any[] -> T[] casting:")
+
+  var srcInts:any[] = {100, 200, 300}
+  var castInts:int[] = srcInts as int[]
+  println($"  any[] -> int[]: {castInts}")
+
+  var srcStrs:any[] = {"hello", "world"}
+  var castStrs:str[] = srcStrs as str[]
+  println($"  any[] -> str[]: {castStrs}")
+
+  var srcDoubles:any[] = {1.5, 2.5}
+  var castDoubles:double[] = srcDoubles as double[]
+  println($"  any[] -> double[]: {castDoubles}")
+
+  var srcBools:any[] = {true, false}
+  var castBools:bool[] = srcBools as bool[]
+  println($"  any[] -> bool[]: {castBools}")
+
+  var srcLongs:any[] = {5000000000000l, 6000000000000l}
+  var castLongs:long[] = srcLongs as long[]
+  println($"  any[] -> long[]: {castLongs}")
+
+  var srcChars:any[] = {'m', 'n', 'o'}
+  var castChars:char[] = srcChars as char[]
+  println($"  any[] -> char[]: {castChars}")
+
+  var srcBytes:any[] = {10b, 20b, 30b}
+  var castBytes:byte[] = srcBytes as byte[]
+  println($"  any[] -> byte[]: {castBytes}")
+
+  // ============================================
+  // 4. T[][] -> any[][] in declarations
+  // ============================================
+  println("")
+  println("4. T[][] -> any[][] in declarations:")
+
+  var int2dToAny:any[][] = {{1, 2}, {3, 4}}
+  println($"  int[][] -> any[][]: {int2dToAny}")
+
+  var str2dToAny:any[][] = {{"a", "b"}, {"c", "d"}}
+  println($"  str[][] -> any[][]: {str2dToAny}")
+
+  var double2dToAny:any[][] = {{1.1, 2.2}, {3.3, 4.4}}
+  println($"  double[][] -> any[][]: {double2dToAny}")
+
+  var bool2dToAny:any[][] = {{true, false}, {false, true}}
+  println($"  bool[][] -> any[][]: {bool2dToAny}")
+
+  var long2dToAny:any[][] = {{1000000000000l, 2000000000000l}, {3000000000000l, 4000000000000l}}
+  println($"  long[][] -> any[][]: {long2dToAny}")
+
+  var char2dToAny:any[][] = {{'a', 'b'}, {'c', 'd'}}
+  println($"  char[][] -> any[][]: {char2dToAny}")
+
+  var byte2dToAny:any[][] = {{255b, 128b}, {64b, 32b}}
+  println($"  byte[][] -> any[][]: {byte2dToAny}")
+
+  // ============================================
+  // 5. T[][] -> any[][] in assignments
+  // ============================================
+  println("")
+  println("5. T[][] -> any[][] in assignments:")
+
+  var any2d:any[][] = {{0}}
+
+  any2d = {{10, 20}, {30, 40}}
+  println($"  int[][] -> any[][]: {any2d}")
+
+  any2d = {{"p", "q"}, {"r", "s"}}
+  println($"  str[][] -> any[][]: {any2d}")
+
+  any2d = {{7.7, 8.8}, {9.9, 10.1}}
+  println($"  double[][] -> any[][]: {any2d}")
+
+  any2d = {{true, false}, {false, true}}
+  println($"  bool[][] -> any[][]: {any2d}")
+
+  any2d = {{100000000000l, 200000000000l}, {300000000000l, 400000000000l}}
+  println($"  long[][] -> any[][]: {any2d}")
+
+  any2d = {{'w', 'x'}, {'y', 'z'}}
+  println($"  char[][] -> any[][]: {any2d}")
+
+  any2d = {{15b, 25b}, {35b, 45b}}
+  println($"  byte[][] -> any[][]: {any2d}")
+
+  // ============================================
+  // 6. any[] string interpolation (various types)
+  // ============================================
+  println("")
+  println("6. any[] string interpolation:")
+
+  var mixedAny:any[] = {1, "two", 3.0, true}
+  println($"  mixed types: {mixedAny}")
+
+  // ============================================
+  // 7. any[][] string interpolation
+  // ============================================
+  println("")
+  println("7. any[][] string interpolation:")
+
+  var nested:any[][] = {{1, 2, 3}, {4, 5, 6}}
+  println($"  nested ints: {nested}")
+
+  var nestedStr:any[][] = {{"a", "b"}, {"c", "d", "e"}}
+  println($"  nested strings: {nestedStr}")
+
+  // ============================================
+  // 8. String values displayed with quotes
+  // ============================================
+  println("")
+  println("8. String values displayed with quotes:")
+
+  var strArr:any[] = {"hello", "world"}
+  println($"  strings show quotes: {strArr}")
+
+  var numericStrings:any[] = {"1", "2", "3"}
+  println($"  numeric strings (quoted): {numericStrings}")
+
+  var actualInts:any[] = {1, 2, 3}
+  println($"  actual ints (no quotes): {actualInts}")
+
+  println("")
+  println("All any array tests passed!")

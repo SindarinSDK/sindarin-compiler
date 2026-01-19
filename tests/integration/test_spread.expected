@@ -1,0 +1,6 @@
+Spread {...arr1}: [1, 2, 3]
+Spread {0, ...arr1, 4, 5}: [0, 1, 2, 3, 4, 5]
+Combined {...a, ...b}: [1, 2, 3, 4]
+Spread with range {...arr1, 10..13}: [1, 2, 3, 10, 11, 12]
+Original length: 3
+Combined length: 4

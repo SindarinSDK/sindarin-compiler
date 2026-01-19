@@ -1,0 +1,10 @@
+// Test: Compile error - private function returns array (non-primitive)
+// Expected error: Private function can only return primitive types
+
+fn build_array() private: int[] =>
+    return {1, 2, 3}  // ERROR: private can only return primitives
+
+fn main(): void =>
+    var r: int[] = &build_array()
+    r!
+    print($"Length: {r.length}\n")

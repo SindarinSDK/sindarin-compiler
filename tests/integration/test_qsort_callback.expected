@@ -1,0 +1,6 @@
+Testing qsort-style native comparator callback
+PASS: Comparator callback executed correctly
+- Defined type Comparator = native fn(a: *void, b: *void): int
+- Created native lambda matching Comparator signature
+- Passed callback to native function
+- Callback returned expected comparison result

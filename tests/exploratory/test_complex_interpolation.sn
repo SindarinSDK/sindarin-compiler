@@ -1,0 +1,62 @@
+// Test 48: Complex expressions in interpolation
+fn double_val(x: int): int =>
+    return x * 2
+
+fn main(): int =>
+    print("Test complex interpolation:\n\n")
+
+    // Arithmetic expressions
+    var a: int = 10
+    var b: int = 3
+    print($"a + b = {a + b}\n")
+    print($"a - b = {a - b}\n")
+    print($"a * b = {a * b}\n")
+    print($"a / b = {a / b}\n")
+    print($"a % b = {a % b}\n")
+
+    // Parenthesized expressions
+    print($"\n(a + b) * 2 = {(a + b) * 2}\n")
+    print($"a * (b + 1) = {a * (b + 1)}\n")
+
+    // Comparison in interpolation
+    print($"\na > b: {a > b}\n")
+    print($"a == 10: {a == 10}\n")
+    print($"a != b: {a != b}\n")
+
+    // Logical expressions
+    var t: bool = true
+    var f: bool = false
+    print($"\nt && f: {t && f}\n")
+    print($"t || f: {t || f}\n")
+    print($"!f: {!f}\n")
+
+    // Function call in interpolation
+    print($"\ndouble_val(5) = {double_val(5)}\n")
+    print($"double_val(a) = {double_val(a)}\n")
+
+    // Nested function calls
+    print($"double_val(double_val(3)) = {double_val(double_val(3))}\n")
+
+    // Array access in interpolation
+    var arr: int[] = {100, 200, 300}
+    print($"\narr[0] = {arr[0]}\n")
+    print($"arr[1] + arr[2] = {arr[1] + arr[2]}\n")
+    print($"arr.length = {arr.length}\n")
+
+    // String method in interpolation
+    var text: str = "hello"
+    print($"\ntext.toUpper() = {text.toUpper()}\n")
+    print($"text.length = {text.length}\n")
+
+    // Mixed types
+    var d: double = 3.14
+    var c: char = 'X'
+    print($"\nMixed: int={a}, double={d}, char={c}, bool={t}\n")
+
+    // Multiple expressions
+    print($"\nAll: {a} + {b} = {a + b}, {a} * {b} = {a * b}\n")
+
+    // Complex boolean
+    print($"(a > 5) && (b < 10) = {(a > 5) && (b < 10)}\n")
+
+    return 0

@@ -1,0 +1,61 @@
+# Integration test for buffer unwrap code generation
+# Tests that the pattern: ptr[0..len] as val => byte[]
+# generates valid C code that compiles and runs correctly.
+#
+# Note: This test focuses on the code generation path.
+# For a full end-to-end test with actual data, see test_buffer_unwrap.c
+
+# Native function declaration - simulates external C function returning pointer
+native fn get_buffer_ptr(): *byte
+
+# Native function with Sindarin body that returns a buffer pointer
+# In real interop, this would call external C code
+native fn mock_get_buffer(): *byte =>
+    return nil
+
+# Native function to get length (simulates length from C API)
+native fn get_buffer_length(): int =>
+    return 5
+
+# Regular function tests the ptr[0..len] as val pattern
+# This is the key code generation we're testing:
+# The slice of a pointer should produce an array via rt_array_create_byte()
+fn test_pointer_slice_codegen(): void =>
+    var len: int = get_buffer_length()
+
+    # The key pattern: ptr[0..len] as val
+    # This should generate: rt_array_create_byte(arena, len - 0, ptr + 0)
+    # Not: *(rt_array_create_byte(...)) which would be wrong
+    var data: byte[] = mock_get_buffer()[0..len] as val
+
+    # When ptr is nil, rt_array_create_byte with nil pointer
+    # creates an array with nil data, but length is still set.
+    # Accessing elements would be undefined, but the type is correct.
+    print($"Array created successfully with length parameter: {len}\n")
+
+    # Test that we can call array methods on the result
+    var arr_len: int = data.length
+    print($"Array length property: {arr_len}\n")
+
+# Test that the code compiles with various slice patterns
+fn test_slice_patterns(): void =>
+    var len: int = 10
+
+    # Pattern 1: ptr[0..len] as val - standard pattern
+    var data1: byte[] = mock_get_buffer()[0..len] as val
+    print("Pattern 1 (ptr[0..len] as val): OK\n")
+
+    # Pattern 2: ptr[..len] as val - slice from start (implicit 0)
+    # Note: This generates with start=LONG_MIN, different from explicit 0
+    # var data2: byte[] = mock_get_buffer()[..len] as val
+    # print("Pattern 2 (ptr[..len] as val): OK\n")
+
+    # Pattern 3: Direct function call in slice
+    var data3: byte[] = mock_get_buffer()[0..get_buffer_length()] as val
+    print("Pattern 3 (fn()[0..fn2()] as val): OK\n")
+
+fn main(): void =>
+    print("Testing buffer unwrap code generation...\n")
+    test_pointer_slice_codegen()
+    test_slice_patterns()
+    print("Buffer unwrap code generation test complete!\n")

@@ -1,0 +1,256 @@
+// Comprehensive tests for sizeof builtin
+
+struct Point =>
+    x: double
+    y: double
+
+struct SmallStruct =>
+    a: int32
+    b: byte
+    c: bool
+
+struct NestedStruct =>
+    point: Point
+    value: int
+
+// Struct containing all primitive types
+struct AllPrimitives =>
+    i: int
+    l: long
+    d: double
+    f: float
+    b: byte
+    bo: bool
+    c: char
+    i32: int32
+    u: uint
+    u32: uint32
+
+// Empty struct
+struct EmptyStruct =>
+    dummy: byte  // Sindarin requires at least one field
+
+fn main(): void =>
+    print("=== Comprehensive sizeof Tests ===\n\n")
+
+    // --- Primitive types ---
+    assert(sizeof(int) == 8, "sizeof(int)")
+    assert(sizeof(long) == 8, "sizeof(long)")
+    assert(sizeof(double) == 8, "sizeof(double)")
+    assert(sizeof(float) == 4, "sizeof(float)")
+    assert(sizeof(byte) == 1, "sizeof(byte)")
+    assert(sizeof(bool) == 1, "sizeof(bool)")
+    assert(sizeof(char) == 1, "sizeof(char)")
+    assert(sizeof(int32) == 4, "sizeof(int32)")
+    assert(sizeof(uint) == 8, "sizeof(uint)")
+    assert(sizeof(uint32) == 4, "sizeof(uint32)")
+    print("test_primitive_types: PASS\n")
+
+    // --- Struct types ---
+    assert(sizeof(Point) == 16, "sizeof(Point) - 2 doubles")
+    assert(sizeof(NestedStruct) == 24, "sizeof(NestedStruct) - Point + int")
+    // SmallStruct has padding: int32(4) + byte(1) + bool(1) + padding = 8
+    assert(sizeof(SmallStruct) == 8, "sizeof(SmallStruct) with padding")
+    // AllPrimitives: int(8) + long(8) + double(8) + float(4) + byte(1) + bool(1) + char(1) + padding(1) + int32(4) + uint(8) + uint32(4) + padding(4) = 52 rounded to 56
+    assert(sizeof(AllPrimitives) >= 48, "sizeof(AllPrimitives) minimum size")
+    assert(sizeof(EmptyStruct) == 1, "sizeof(EmptyStruct) - single byte")
+    print("test_struct_types: PASS\n")
+
+    // --- Primitive variables ---
+    var i: int = 42
+    var l: long = 100l
+    var d: double = 3.14
+    var f: float = 2.5f
+    var b: byte = 255b
+    var bo: bool = true
+    var c: char = 'A'
+    var i32: int32 = 100i32
+    var u: uint = 1000u
+    var u32: uint32 = 500u32
+
+    assert(sizeof(i) == 8, "sizeof int variable")
+    assert(sizeof(l) == 8, "sizeof long variable")
+    assert(sizeof(d) == 8, "sizeof double variable")
+    assert(sizeof(f) == 4, "sizeof float variable")
+    assert(sizeof(b) == 1, "sizeof byte variable")
+    assert(sizeof(bo) == 1, "sizeof bool variable")
+    assert(sizeof(c) == 1, "sizeof char variable")
+    assert(sizeof(i32) == 4, "sizeof int32 variable")
+    assert(sizeof(u) == 8, "sizeof uint variable")
+    assert(sizeof(u32) == 4, "sizeof uint32 variable")
+    print("test_primitive_variables: PASS\n")
+
+    // --- Struct variables ---
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    var s: SmallStruct = SmallStruct { a: 1, b: 2, c: true }
+    var n: NestedStruct = NestedStruct { point: Point { x: 0.0, y: 0.0 }, value: 42 }
+
+    assert(sizeof(p) == 16, "sizeof Point variable")
+    assert(sizeof(s) == 8, "sizeof SmallStruct variable")
+    assert(sizeof(n) == 24, "sizeof NestedStruct variable")
+    print("test_struct_variables: PASS\n")
+
+    // --- sizeof without parentheses ---
+    assert(sizeof i == 8, "sizeof i without parens")
+    assert(sizeof p == 16, "sizeof p without parens")
+    assert(sizeof int == 8, "sizeof int without parens")
+    assert(sizeof Point == 16, "sizeof Point without parens")
+    print("test_without_parentheses: PASS\n")
+
+    // --- sizeof in expressions ---
+    var sum: int = sizeof(int) + sizeof(double)
+    assert(sum == 16, "sizeof in addition")
+
+    var product: int = sizeof(Point) * 2
+    assert(product == 32, "sizeof in multiplication")
+
+    var cond: bool = sizeof(int) > sizeof(byte)
+    assert(cond, "sizeof in comparison")
+    print("test_in_expressions: PASS\n")
+
+    // --- Arrays (returns pointer size, not array size) ---
+    var arr_int: int[] = {1, 2, 3, 4, 5}
+    var arr_byte: byte[] = {1, 2, 3}
+    var arr_point: Point[] = {Point { x: 0.0, y: 0.0 }}
+    var arr_double: double[] = {1.0, 2.0}
+    var arr_float: float[] = {1.0f, 2.0f, 3.0f}
+    var arr_bool: bool[] = {true, false, true}
+    var arr_char: char[] = {'a', 'b', 'c'}
+    var arr_int32: int32[] = {1i32, 2i32}
+    var arr_uint: uint[] = {1u, 2u}
+    var arr_uint32: uint32[] = {1u32, 2u32}
+    var arr_long: long[] = {1l, 2l}
+
+    // sizeof on array variables returns pointer size (8 bytes)
+    assert(sizeof(arr_int) == 8, "sizeof int[] variable")
+    assert(sizeof(arr_byte) == 8, "sizeof byte[] variable")
+    assert(sizeof(arr_point) == 8, "sizeof Point[] variable")
+    assert(sizeof(arr_double) == 8, "sizeof double[] variable")
+    assert(sizeof(arr_float) == 8, "sizeof float[] variable")
+    assert(sizeof(arr_bool) == 8, "sizeof bool[] variable")
+    assert(sizeof(arr_char) == 8, "sizeof char[] variable")
+    assert(sizeof(arr_int32) == 8, "sizeof int32[] variable")
+    assert(sizeof(arr_uint) == 8, "sizeof uint[] variable")
+    assert(sizeof(arr_uint32) == 8, "sizeof uint32[] variable")
+    assert(sizeof(arr_long) == 8, "sizeof long[] variable")
+    // Use .length for element count
+    assert(arr_int.length == 5, "array .length for count")
+    print("test_arrays: PASS\n")
+
+    // --- 2D Arrays ---
+    var arr2d_int: int[][] = {{1, 2}, {3, 4, 5}}
+    var arr2d_byte: byte[][] = {{1b, 2b}, {3b}}
+    assert(sizeof(arr2d_int) == 8, "sizeof int[][] variable")
+    assert(sizeof(arr2d_byte) == 8, "sizeof byte[][] variable")
+    assert(arr2d_int.length == 2, "2D array outer length")
+    assert(arr2d_int[0].length == 2, "2D array inner length")
+    print("test_2d_arrays: PASS\n")
+
+    // --- Test in normal helper function ---
+    test_sizeof_in_normal_function()
+
+    // --- Test in native function ---
+    test_sizeof_in_native()
+
+    print("\nAll sizeof tests passed!\n")
+
+// Test sizeof in a normal (non-main, non-native) function
+fn test_sizeof_in_normal_function(): void =>
+    // All primitive types
+    assert(sizeof(int) == 8, "normal fn: sizeof(int)")
+    assert(sizeof(long) == 8, "normal fn: sizeof(long)")
+    assert(sizeof(double) == 8, "normal fn: sizeof(double)")
+    assert(sizeof(float) == 4, "normal fn: sizeof(float)")
+    assert(sizeof(byte) == 1, "normal fn: sizeof(byte)")
+    assert(sizeof(bool) == 1, "normal fn: sizeof(bool)")
+    assert(sizeof(char) == 1, "normal fn: sizeof(char)")
+    assert(sizeof(int32) == 4, "normal fn: sizeof(int32)")
+    assert(sizeof(uint) == 8, "normal fn: sizeof(uint)")
+    assert(sizeof(uint32) == 4, "normal fn: sizeof(uint32)")
+
+    // Struct types
+    assert(sizeof(Point) == 16, "normal fn: sizeof(Point)")
+    assert(sizeof(SmallStruct) == 8, "normal fn: sizeof(SmallStruct)")
+    assert(sizeof(NestedStruct) == 24, "normal fn: sizeof(NestedStruct)")
+
+    // Variables
+    var x: int = 42
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    assert(sizeof(x) == 8, "normal fn: sizeof int var")
+    assert(sizeof(p) == 16, "normal fn: sizeof Point var")
+
+    // Arrays
+    var arr: int[] = {1, 2, 3}
+    assert(sizeof(arr) == 8, "normal fn: sizeof array")
+    assert(arr.length == 3, "normal fn: array .length")
+
+    print("test_sizeof_in_normal_function: PASS\n")
+
+// Test sizeof in native function context
+native fn test_sizeof_in_native(): void =>
+    // All primitive types (exhaustive)
+    assert(sizeof(int) == 8, "native: sizeof(int)")
+    assert(sizeof(long) == 8, "native: sizeof(long)")
+    assert(sizeof(double) == 8, "native: sizeof(double)")
+    assert(sizeof(float) == 4, "native: sizeof(float)")
+    assert(sizeof(byte) == 1, "native: sizeof(byte)")
+    assert(sizeof(bool) == 1, "native: sizeof(bool)")
+    assert(sizeof(char) == 1, "native: sizeof(char)")
+    assert(sizeof(int32) == 4, "native: sizeof(int32)")
+    assert(sizeof(uint) == 8, "native: sizeof(uint)")
+    assert(sizeof(uint32) == 4, "native: sizeof(uint32)")
+
+    // Pointer types (only valid in native)
+    assert(sizeof(*int) == 8, "native: sizeof(*int)")
+    assert(sizeof(*byte) == 8, "native: sizeof(*byte)")
+    assert(sizeof(*void) == 8, "native: sizeof(*void)")
+    assert(sizeof(*Point) == 8, "native: sizeof(*Point)")
+
+    // Struct types (all defined structs)
+    assert(sizeof(Point) == 16, "native: sizeof(Point)")
+    assert(sizeof(SmallStruct) == 8, "native: sizeof(SmallStruct)")
+    assert(sizeof(NestedStruct) == 24, "native: sizeof(NestedStruct)")
+    assert(sizeof(AllPrimitives) >= 48, "native: sizeof(AllPrimitives)")
+    assert(sizeof(EmptyStruct) == 1, "native: sizeof(EmptyStruct)")
+
+    // Variables
+    var x: int = 42
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    assert(sizeof(x) == 8, "native: sizeof int var")
+    assert(sizeof(p) == 16, "native: sizeof Point var")
+
+    // Pointer variables
+    var ptr: *int = nil
+    assert(sizeof(ptr) == 8, "native: sizeof pointer var")
+
+    // Arrays in native context (all primitive element types)
+    var arr: int[] = {1, 2, 3}
+    var arr_long: long[] = {1l, 2l}
+    var arr_double: double[] = {1.0, 2.0}
+    var arr_float: float[] = {1.0f, 2.0f}
+    var arr_byte: byte[] = {1b, 2b}
+    var arr_bool: bool[] = {true, false}
+    var arr_char: char[] = {'a', 'b'}
+    var arr_int32: int32[] = {1i32, 2i32}
+    var arr_uint: uint[] = {1u, 2u}
+    var arr_uint32: uint32[] = {1u32, 2u32}
+    var arr_struct: Point[] = {Point { x: 0.0, y: 0.0 }}
+
+    assert(sizeof(arr) == 8, "native: sizeof int[]")
+    assert(sizeof(arr_long) == 8, "native: sizeof long[]")
+    assert(sizeof(arr_double) == 8, "native: sizeof double[]")
+    assert(sizeof(arr_float) == 8, "native: sizeof float[]")
+    assert(sizeof(arr_byte) == 8, "native: sizeof byte[]")
+    assert(sizeof(arr_bool) == 8, "native: sizeof bool[]")
+    assert(sizeof(arr_char) == 8, "native: sizeof char[]")
+    assert(sizeof(arr_int32) == 8, "native: sizeof int32[]")
+    assert(sizeof(arr_uint) == 8, "native: sizeof uint[]")
+    assert(sizeof(arr_uint32) == 8, "native: sizeof uint32[]")
+    assert(sizeof(arr_struct) == 8, "native: sizeof Point[]")
+    assert(arr.length == 3, "native: array .length")
+
+    // 2D arrays in native
+    var arr2d: int[][] = {{1, 2}, {3, 4}}
+    assert(sizeof(arr2d) == 8, "native: sizeof int[][]")
+
+    print("test_sizeof_in_native: PASS\n")

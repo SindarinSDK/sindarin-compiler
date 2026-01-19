@@ -1,0 +1,40 @@
+// Test: Basic interceptor functionality with spawned threads
+// Verifies that interceptors work correctly when functions are called from threads
+
+fn myInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    print($"Intercepted: {name}\n")
+    var result: any = 999
+    return result
+
+fn compute(x: int): int =>
+    return x * 2
+
+fn main(): void =>
+    print("Testing interceptors with threads\n")
+
+    // Register interceptor
+    Interceptor.register(myInterceptor)
+    assert(Interceptor.count() == 1, "Interceptor should be registered")
+
+    // Call from main thread - should be intercepted
+    var result: int = compute(21)
+    assert(result == 999, "Interceptor should return 999")
+    print($"Main thread result: {result}\n")
+
+    // Spawn a thread that calls an intercepted function
+    var handle: int = &compute(50)
+    var threadResult: int = handle!
+
+    // The thread's call should also be intercepted - verify by return value
+    assert(threadResult == 999, "Thread should get intercepted result 999")
+    print($"Thread result: {threadResult}\n")
+
+    Interceptor.clearAll()
+    assert(Interceptor.count() == 0, "Interceptors should be cleared")
+
+    // After clearing, compute should work normally
+    result = compute(21)
+    assert(result == 42, "After clearing, compute(21) should return 42")
+    print($"After clear result: {result}\n")
+
+    print("All interceptor thread basic tests passed!\n")

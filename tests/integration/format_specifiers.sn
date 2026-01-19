@@ -1,0 +1,38 @@
+// Test format specifiers in interpolated strings
+
+fn main(): int =>
+    var x: int = 42
+    var pi: double = 3.14159265
+    var name: str = "Alice"
+
+    // Test 1: Integer zero-padding
+    print($"Padded: {x:05d}\n")
+
+    // Test 2: Hexadecimal formatting
+    print($"Hex lower: {255:x}\n")
+    print($"Hex upper: {255:X}\n")
+
+    // Test 3: Octal formatting
+    print($"Octal: {64:o}\n")
+
+    // Test 4: Double precision
+    print($"Pi 2 decimals: {pi:.2f}\n")
+    print($"Pi 4 decimals: {pi:.4f}\n")
+
+    // Test 5: Scientific notation
+    print($"Scientific: {1234.5:e}\n")
+
+    // Test 6: String width formatting
+    print($"Right aligned: {name:10s}\n")
+    print($"Left aligned: {name:-10s}\n")
+
+    // Test 7: Width with precision for doubles
+    print($"Width+precision: {pi:8.2f}\n")
+
+    // Test 8: Multiple format specifiers in one string
+    print($"Mixed: {x:05d} and {pi:.2f}\n")
+
+    // Test 9: Format specifier with expression
+    print($"Expr: {x * 2:04d}\n")
+
+    return 0

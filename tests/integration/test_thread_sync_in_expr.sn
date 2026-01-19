@@ -1,0 +1,48 @@
+// Test: Sync operators in expressions (x! + y!)
+// Verifies that sync can be used inline in arithmetic and function calls
+
+fn compute_a(): int =>
+    return 10
+
+fn compute_b(): int =>
+    return 20
+
+fn compute_c(): int =>
+    return 5
+
+fn double_value(x: int): int =>
+    return x * 2
+
+fn main(): void =>
+    // Spawn three threads
+    var a: int = &compute_a()
+    var b: int = &compute_b()
+    var c: int = &compute_c()
+
+    // Test 1: Sync in arithmetic expression
+    var sum: int = a! + b!
+    print($"a! + b! = {sum}\n")
+
+    // Test 2: Sync in nested expression
+    var result: int = (a + b) * c!
+    print($"(a + b) * c! = {result}\n")
+
+    // Test 3: Sync in function call argument
+    var doubled: int = double_value(c)
+    print($"double_value(c) = {doubled}\n")
+
+    // Test 4: Multiple syncs in print
+    // Note: a, b, c are already synced from above, so they're just values now
+    print($"Sum of all: {a + b + c}\n")
+
+    // Validate results
+    if sum == 30 =>
+        if result == 150 =>
+            if doubled == 10 =>
+                print("SUCCESS: All sync-in-expression results correct\n")
+            else =>
+                print($"FAILURE: doubled expected 10, got {doubled}\n")
+        else =>
+            print($"FAILURE: result expected 150, got {result}\n")
+    else =>
+        print($"FAILURE: sum expected 30, got {sum}\n")

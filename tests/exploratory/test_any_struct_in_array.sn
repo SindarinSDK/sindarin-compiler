@@ -1,0 +1,55 @@
+# Exploratory test: Array of any containing structs
+
+struct Point =>
+    x: double
+    y: double
+
+struct Circle =>
+    center: Point
+    radius: double
+
+fn main(): int =>
+    # Create some structs
+    var p1: Point = Point { x: 1.0, y: 2.0 }
+    var p2: Point = Point { x: 3.0, y: 4.0 }
+    var c1: Circle = Circle { center: Point { x: 0.0, y: 0.0 }, radius: 5.0 }
+
+    # Create an any[] array with different struct types
+    var items: any[] = {p1, p2, c1}
+
+    print($"Array length: {items.length}\n")
+
+    # Check types
+    if items[0] is Point =>
+        print("items[0] is Point: PASS\n")
+        var pt: Point = items[0] as Point
+        print($"  x={pt.x}, y={pt.y}\n")
+    else =>
+        print("items[0] is Point: FAIL\n")
+        return 1
+
+    if items[1] is Point =>
+        print("items[1] is Point: PASS\n")
+        var pt: Point = items[1] as Point
+        print($"  x={pt.x}, y={pt.y}\n")
+    else =>
+        print("items[1] is Point: FAIL\n")
+        return 1
+
+    if items[2] is Circle =>
+        print("items[2] is Circle: PASS\n")
+        var circ: Circle = items[2] as Circle
+        print($"  center=({circ.center.x}, {circ.center.y}), radius={circ.radius}\n")
+    else =>
+        print("items[2] is Circle: FAIL\n")
+        return 1
+
+    # Verify items[2] is not a Point
+    if items[2] is Point =>
+        print("items[2] is not Point: FAIL\n")
+        return 1
+    else =>
+        print("items[2] is not Point: PASS\n")
+
+    print("All tests passed!\n")
+    return 0

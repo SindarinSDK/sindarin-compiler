@@ -1,0 +1,96 @@
+// Test: Comprehensive type checking with 'is' operator
+// Verifies correct type identification for any values
+
+fn main(): void =>
+    print("Testing any type checking with 'is' operator\n")
+
+    // Test that each type is correctly identified and not confused
+    var intVal: any = 42
+    var doubleVal: any = 3.14
+    var boolVal: any = true
+    var strVal: any = "test"
+    var charVal: any = 'X'
+    var b: byte = 128
+    var byteVal: any = b
+
+    // Test int is only int
+    assert(intVal is int, "intVal should be int")
+    assert(!(intVal is double), "intVal should not be double")
+    assert(!(intVal is bool), "intVal should not be bool")
+    assert(!(intVal is str), "intVal should not be str")
+    print("  int type exclusivity: PASS\n")
+
+    // Test double is only double
+    assert(doubleVal is double, "doubleVal should be double")
+    assert(!(doubleVal is int), "doubleVal should not be int")
+    assert(!(doubleVal is bool), "doubleVal should not be bool")
+    assert(!(doubleVal is str), "doubleVal should not be str")
+    print("  double type exclusivity: PASS\n")
+
+    // Test bool is only bool
+    assert(boolVal is bool, "boolVal should be bool")
+    assert(!(boolVal is int), "boolVal should not be int")
+    assert(!(boolVal is double), "boolVal should not be double")
+    assert(!(boolVal is str), "boolVal should not be str")
+    print("  bool type exclusivity: PASS\n")
+
+    // Test str is only str
+    assert(strVal is str, "strVal should be str")
+    assert(!(strVal is int), "strVal should not be int")
+    assert(!(strVal is double), "strVal should not be double")
+    assert(!(strVal is bool), "strVal should not be bool")
+    print("  str type exclusivity: PASS\n")
+
+    // Test char is only char
+    assert(charVal is char, "charVal should be char")
+    assert(!(charVal is int), "charVal should not be int")
+    assert(!(charVal is str), "charVal should not be str")
+    print("  char type exclusivity: PASS\n")
+
+    // Test byte is only byte
+    assert(byteVal is byte, "byteVal should be byte")
+    assert(!(byteVal is int), "byteVal should not be int")
+    print("  byte type exclusivity: PASS\n")
+
+    // Test type after reassignment
+    var mutable: any = 100
+    assert(mutable is int, "mutable should be int initially")
+    mutable = "changed"
+    assert(mutable is str, "mutable should be str after reassignment")
+    assert(!(mutable is int), "mutable should no longer be int")
+    mutable = false
+    assert(mutable is bool, "mutable should be bool after second reassignment")
+    print("  type changes after reassignment: PASS\n")
+
+    // Test type checking in conditionals
+    var testVal: any = 42
+    var typeFound: str = "unknown"
+    if testVal is int =>
+        typeFound = "int"
+    else if testVal is double =>
+        typeFound = "double"
+    else if testVal is str =>
+        typeFound = "str"
+    assert(typeFound == "int", "conditional should find int type")
+    print("  type checking in conditionals: PASS\n")
+
+    // Test with function that returns any
+    var result: any = getAnyValue(1)
+    assert(result is int, "getAnyValue(1) should return int")
+    result = getAnyValue(2)
+    assert(result is str, "getAnyValue(2) should return str")
+    result = getAnyValue(3)
+    assert(result is bool, "getAnyValue(3) should return bool")
+    print("  function returning different any types: PASS\n")
+
+    print("All type checking tests passed!\n")
+
+fn getAnyValue(which: int): any =>
+    if which == 1 =>
+        var r: any = 999
+        return r
+    else if which == 2 =>
+        var r: any = "text"
+        return r
+    var r: any = true
+    return r

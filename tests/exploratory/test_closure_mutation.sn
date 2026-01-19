@@ -1,0 +1,61 @@
+// Test 84: Closure mutation across multiple calls
+// Verifies that closures properly capture and mutate variables
+
+fn main(): int =>
+    print("Test closure mutation:\n\n")
+
+    // Test 1: Counter closure - variable mutates across calls
+    var count: int = 0
+    var increment: fn(): int = fn(): int =>
+        count = count + 1
+        return count
+
+    print("Counter test:\n")
+    print($"  Call 1: {increment()}\n")
+    print($"  Call 2: {increment()}\n")
+    print($"  Call 3: {increment()}\n")
+    print($"  Final count: {count}\n")
+
+    // Test 2: Accumulator closure
+    var total: int = 0
+    var add: fn(int): int = fn(n: int): int =>
+        total = total + n
+        return total
+
+    print("\nAccumulator test:\n")
+    print($"  Add 5: {add(5)}\n")
+    print($"  Add 3: {add(3)}\n")
+    print($"  Add 10: {add(10)}\n")
+    print($"  Total: {total}\n")
+
+    // Test 3: Multiple closures sharing same variable
+    var shared_val: int = 0
+    var inc: fn(): int = fn(): int =>
+        shared_val = shared_val + 1
+        return shared_val
+    var dec: fn(): int = fn(): int =>
+        shared_val = shared_val - 1
+        return shared_val
+    var get: fn(): int = fn(): int =>
+        return shared_val
+
+    print("\nShared variable test:\n")
+    print($"  Inc: {inc()}\n")
+    print($"  Inc: {inc()}\n")
+    print($"  Dec: {dec()}\n")
+    print($"  Get: {get()}\n")
+    print($"  Inc: {inc()}\n")
+    print($"  Shared: {shared_val}\n")
+
+    // Test 4: Closure modifying outer variable in loop
+    var sum: int = 0
+    var adder: fn(int): void = fn(n: int): void =>
+        sum = sum + n
+
+    print("\nLoop mutation test:\n")
+    for i in 1..5 =>
+        adder(i)
+    print($"  Sum of 1..5: {sum}\n")
+
+    print("\nAll closure mutation tests passed!\n")
+    return 0

@@ -1,0 +1,9 @@
+fn demo_closure(): void =>
+    print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+    print("│                        Sindarin Closures                         │\n")
+    print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+    // Test: Lambda with capture
+    var multiplier: int = 3
+    var times_three: fn(int): int = fn(x: int): int => x * multiplier
+    print($"times_three(5) = {times_three(5)}\n")

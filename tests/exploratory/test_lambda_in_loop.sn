@@ -1,0 +1,6 @@
+// Test lambda created inside loop
+fn main(): void =>
+  for var i: int = 0; i < 3; i++ =>
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var result: int = double_it(i)
+    print($"result={result}\n")

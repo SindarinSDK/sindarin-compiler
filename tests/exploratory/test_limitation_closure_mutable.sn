@@ -1,0 +1,25 @@
+# Test Known Limitation: Complex closures with mutable state in threads
+# Lambda capturing mutable state and modifying it across threads
+
+fn run_closure(f: fn(): int): int =>
+    return f()
+
+fn main(): void =>
+    var counter: int = 0
+
+    # Create a closure that captures and modifies counter
+    var increment: fn(): int = fn() shared: int =>
+        counter = counter + 1
+        return counter
+
+    # Spawn multiple threads with the closure
+    var r1: int = &run_closure(increment)
+    var r2: int = &run_closure(increment)
+    var r3: int = &run_closure(increment)
+
+    var v1 = r1!
+    var v2 = r2!
+    var v3 = r3!
+
+    print($"Results: {v1}, {v2}, {v3}\n")
+    print($"Counter: {counter}\n")

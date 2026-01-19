@@ -1,0 +1,213 @@
+# ==============================================================================
+# sdk/zlib.sn - Zlib Compression Library for Sindarin
+# ==============================================================================
+# Provides zlib compression/decompression bindings and high-level wrappers.
+#
+# Usage:
+#   import "sdk/zlib"
+#
+#   // High-level API (recommended)
+#   var compressed: byte[] = zlib.compress_data(data)
+#   var original: byte[] = zlib.decompress_data(compressed, original_size)
+#
+#   // With compression level (0-9, default 6)
+#   var fast: byte[] = zlib.compress_data_level(data, 1)      // Fastest
+#   var best: byte[] = zlib.compress_data_level(data, 9)      // Best compression
+#
+# Requirements:
+#   - zlib library must be installed (libz)
+#   - Linux: sudo apt install zlib1g-dev
+#   - macOS: brew install zlib (usually pre-installed)
+#   - Windows: Install zlib via vcpkg or download from zlib.net
+# ==============================================================================
+
+#pragma include <zlib.h>
+#pragma link z
+
+# ==============================================================================
+# Error Codes
+# ==============================================================================
+# zlib returns these error codes from compression/decompression functions.
+# Note: These use ZLIB_ prefix to avoid collision with zlib.h macros.
+
+fn ZLIB_OK(): int => 0
+fn ZLIB_STREAM_END(): int => 1
+fn ZLIB_NEED_DICT(): int => 2
+fn ZLIB_ERRNO(): int => -1
+fn ZLIB_STREAM_ERROR(): int => -2
+fn ZLIB_DATA_ERROR(): int => -3
+fn ZLIB_MEM_ERROR(): int => -4
+fn ZLIB_BUF_ERROR(): int => -5
+fn ZLIB_VERSION_ERROR(): int => -6
+
+# ==============================================================================
+# Compression Levels
+# ==============================================================================
+
+fn ZLIB_NO_COMPRESSION(): int => 0
+fn ZLIB_BEST_SPEED(): int => 1
+fn ZLIB_BEST_COMPRESSION(): int => 9
+fn ZLIB_DEFAULT_COMPRESSION(): int => -1
+
+# ==============================================================================
+# Low-Level zlib Bindings
+# ==============================================================================
+# These are direct bindings to the zlib C library.
+# For most use cases, prefer the high-level wrappers below.
+
+# compress2 - Compress with specified level
+native fn compress2(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint, level: int): int
+
+# compress - Compress with default level
+native fn compress(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint): int
+
+# uncompress - Decompress data
+native fn uncompress(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint): int
+
+# compressBound - Calculate upper bound for compressed size
+native fn compressBound(sourceLen: uint): uint
+
+# ==============================================================================
+# Error Message Helper
+# ==============================================================================
+
+fn error_message(code: int): str =>
+    if code == ZLIB_OK() =>
+        return "OK"
+    if code == ZLIB_STREAM_END() =>
+        return "Stream end"
+    if code == ZLIB_NEED_DICT() =>
+        return "Need dictionary"
+    if code == ZLIB_ERRNO() =>
+        return "File error"
+    if code == ZLIB_STREAM_ERROR() =>
+        return "Stream error"
+    if code == ZLIB_DATA_ERROR() =>
+        return "Data error (corrupted or incomplete)"
+    if code == ZLIB_MEM_ERROR() =>
+        return "Memory error"
+    if code == ZLIB_BUF_ERROR() =>
+        return "Buffer error (output too small)"
+    if code == ZLIB_VERSION_ERROR() =>
+        return "Version error"
+    return "Unknown error"
+
+# ==============================================================================
+# High-Level Compression API
+# ==============================================================================
+
+# compress_to - Compress data into provided buffer
+# Returns number of bytes written, or -1 on error
+native fn compress_to(source: byte[], dest: byte[]): int =>
+    var destLen: uint = dest.length as uint
+    var result: int = compress(dest as ref, destLen, source as ref, source.length as uint)
+    if result != 0 =>
+        return -1
+    return destLen as int
+
+# compress_to_level - Compress with specific level into provided buffer
+# Returns number of bytes written, or -1 on error
+native fn compress_to_level(source: byte[], dest: byte[], level: int): int =>
+    var destLen: uint = dest.length as uint
+    var result: int = compress2(dest as ref, destLen, source as ref, source.length as uint, level)
+    if result != 0 =>
+        return -1
+    return destLen as int
+
+# decompress_to - Decompress data into provided buffer
+# Returns number of bytes written, or -1 on error
+native fn decompress_to(source: byte[], dest: byte[]): int =>
+    var destLen: uint = dest.length as uint
+    var result: int = uncompress(dest as ref, destLen, source as ref, source.length as uint)
+    if result != 0 =>
+        return -1
+    return destLen as int
+
+# max_compressed_size - Calculate maximum possible compressed size
+fn max_compressed_size(source_len: int): int => compressBound(source_len as uint) as int
+
+# ==============================================================================
+# Convenience Wrappers (allocate output buffer automatically)
+# ==============================================================================
+
+# compress_data - Compress data with default compression level
+# Returns compressed data, or empty array on error
+native fn compress_data(source: byte[]): byte[] =>
+    if source.length == 0 =>
+        return source
+
+    var bound: int = max_compressed_size(source.length)
+    var dest: byte[bound]
+    var destLen: uint = bound as uint
+
+    var result: int = compress(dest as ref, destLen, source as ref, source.length as uint)
+    if result != 0 =>
+        var empty: byte[0]
+        return empty
+
+    return dest[0..(destLen as int)] as val
+
+# compress_data_level - Compress data with specified level
+# Returns compressed data, or empty array on error
+native fn compress_data_level(source: byte[], level: int): byte[] =>
+    if source.length == 0 =>
+        return source
+
+    var bound: int = max_compressed_size(source.length)
+    var dest: byte[bound]
+    var destLen: uint = bound as uint
+
+    var result: int = compress2(dest as ref, destLen, source as ref, source.length as uint, level)
+    if result != 0 =>
+        var empty: byte[0]
+        return empty
+
+    return dest[0..(destLen as int)] as val
+
+# decompress_data - Decompress data
+# expected_size: the size of the original uncompressed data
+# Returns decompressed data, or empty array on error
+native fn decompress_data(source: byte[], expected_size: int): byte[] =>
+    if source.length == 0 =>
+        return source
+
+    var dest: byte[expected_size]
+    var destLen: uint = expected_size as uint
+
+    var result: int = uncompress(dest as ref, destLen, source as ref, source.length as uint)
+    if result != 0 =>
+        var empty: byte[0]
+        return empty
+
+    return dest[0..(destLen as int)] as val
+
+# ==============================================================================
+# Utility Functions
+# ==============================================================================
+
+# is_compressed - Simple heuristic to check if data might be zlib-compressed
+fn is_compressed(data: byte[]): bool =>
+    if data.length < 2 =>
+        return false
+
+    # zlib header: first byte is CMF (usually 0x78 for deflate)
+    var cmf: int = data[0]
+    var flg: int = data[1]
+
+    # Common zlib headers: 78 01, 78 5E, 78 9C, 78 DA
+    if cmf != 120 =>
+        return false
+
+    var check: int = cmf * 256 + flg
+    return check % 31 == 0
+
+# compression_ratio - Calculate compression ratio
+# Returns ratio as percentage (e.g., 75.5 means compressed to 75.5% of original)
+fn compression_ratio(original_size: int, compressed_size: int): double =>
+    if original_size == 0 =>
+        return 0.0
+    return (compressed_size as double * 100.0) / (original_size as double)
+
+# space_saved - Calculate space saved by compression
+# Returns percentage saved (e.g., 24.5 means saved 24.5% of original size)
+fn space_saved(original_size: int, compressed_size: int): double => 100.0 - compression_ratio(original_size, compressed_size)

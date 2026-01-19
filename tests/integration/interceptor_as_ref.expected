@@ -1,0 +1,20 @@
+=== Interceptor as ref Test ===
+
+Test 1: Direct call to increment
+  x = 6 - PASS
+
+Test 2: Direct call to swap
+  a = 20, b = 10 - PASS
+
+Test 3: Intercepted increment
+Intercepting: increment
+  Interceptor was called - PASS
+
+Test 4: Intercepted swap
+Intercepting: swap
+  Interceptor was called for swap - PASS
+
+Test 5: After clearAll
+  x = 51 - PASS
+
+=== All as ref Tests Completed ===

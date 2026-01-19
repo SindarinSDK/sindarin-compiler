@@ -1,0 +1,7 @@
+Without interceptor: Hello
+Direct call - PASS
+Intercepted function: greet
+With interceptor: Intercepted!
+Handler was called - PASS
+Result replaced - PASS
+Simple interceptor tests done!

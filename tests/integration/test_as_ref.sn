@@ -1,0 +1,21 @@
+// Test 'as ref' modifier for primitives
+// Variables declared with 'as ref' use heap allocation (reference semantics)
+
+fn main(): void =>
+    // Primitive with as ref
+    var x: int as ref = 42
+    var y: double as ref = 3.14
+    var flag: bool as ref = true
+
+    print($"x = {x}\n")
+    print($"y = {y}\n")
+    print($"flag = {flag}\n")
+
+    // Modify values
+    x = 100
+    y = 2.71
+    flag = false
+
+    print($"Modified x = {x}\n")
+    print($"Modified y = {y}\n")
+    print($"Modified flag = {flag}\n")

@@ -1,0 +1,86 @@
+// Test: Pattern-based interceptor registration with threads
+// Verifies registerWhere pattern matching works with spawned threads
+
+var get_calls: int = 0
+var set_calls: int = 0
+
+fn getInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    get_calls = get_calls + 1
+    print($"GET intercepted: {name}\n")
+    var result: any = 999
+    return result
+
+fn setInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    set_calls = set_calls + 1
+    print($"SET intercepted: {name}\n")
+    var result: any = 0
+    return result
+
+fn getValue(): int =>
+    return 42
+
+fn getCount(): int =>
+    return 100
+
+fn setValue(x: int): void =>
+    print($"Setting value to {x}\n")
+
+fn setFlag(b: bool): void =>
+    print($"Setting flag to {b}\n")
+
+fn otherFunc(): int =>
+    return 1
+
+fn threadedGetValue(): int =>
+    return getValue()
+
+fn threadedSetValue(): int =>
+    setValue(123)
+    return 0
+
+fn main(): void =>
+    print("Testing pattern-based interceptors with threads\n")
+
+    // Register interceptors with patterns
+    Interceptor.registerWhere(getInterceptor, "get*")
+    Interceptor.registerWhere(setInterceptor, "set*")
+    assert(Interceptor.count() == 2, "Should have 2 interceptors")
+
+    // Call from main thread
+    var v1: int = getValue()
+    assert(v1 == 999, "getValue should be intercepted to return 999")
+
+    var v2: int = getCount()
+    assert(v2 == 999, "getCount should be intercepted to return 999")
+
+    setValue(50)
+    setFlag(true)
+
+    // otherFunc should NOT be intercepted
+    var v3: int = otherFunc()
+    assert(v3 == 1, "otherFunc should NOT be intercepted")
+    print($"otherFunc returned: {v3}\n")
+
+    // Test from threads - sync first thread before spawning second to ensure deterministic output
+    var h1: int = &threadedGetValue()
+    var r1: int = h1!
+
+    var h2: int = &threadedSetValue()
+    var r2: int = h2!
+
+    // threadedGetValue calls getValue internally, which should be intercepted
+    // But threadedGetValue itself is intercepted (matches get*)
+    assert(r1 == 999, "threadedGetValue should be intercepted")
+
+    print($"get_calls: {get_calls}\n")
+    print($"set_calls: {set_calls}\n")
+
+    // Verify call counts:
+    // get*: getValue, getCount, threadedGetValue = 3 (getValue inside thread doesn't count as it's after threadedGetValue intercepts)
+    assert(get_calls >= 3, "Should have at least 3 get* calls intercepted")
+    assert(set_calls >= 3, "Should have at least 3 set* calls intercepted")
+
+    Interceptor.clearAll()
+    assert(Interceptor.count() == 0, "Should have no interceptors after clear")
+
+    print("Pattern threaded test passed!\n")

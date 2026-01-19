@@ -1,0 +1,13 @@
+# Error test: pointer-to-struct member access in regular (non-native) function
+
+native struct Buffer =>
+    data: *byte
+    size: int
+
+native fn get_buffer(): *Buffer
+
+fn main(): void =>
+    # This should fail - accessing *struct member in non-native function
+    # We use inline access to avoid the pointer variable declaration error
+    var s: int = get_buffer().size
+    print("Should not compile\n")

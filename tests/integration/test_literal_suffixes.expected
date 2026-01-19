@@ -1,0 +1,14 @@
+=== Literal Suffix Tests ===
+
+test_int_literals: PASS
+test_long_literals: PASS
+test_byte_literals: PASS
+test_double_literals: PASS
+test_float_literals: PASS
+test_uint_literals: PASS
+test_uint32_literals: PASS
+test_int32_literals: PASS
+test_literals_in_expressions: PASS
+test_literals_as_args: PASS
+
+All literal suffix tests passed!

@@ -1,0 +1,7 @@
+// Test if-else
+fn main(): void =>
+  var x: int = 10
+  if x > 5 =>
+    print("greater\n")
+  else =>
+    print("lesser\n")

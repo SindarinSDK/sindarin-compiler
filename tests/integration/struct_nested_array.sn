@@ -1,0 +1,68 @@
+# Integration tests for nested struct in array fields
+
+# Basic struct with no defaults
+struct Point =>
+    x: double
+    y: double
+
+# Struct with defaults
+struct Config =>
+    name: str = "default"
+    value: int = 0
+    enabled: bool = true
+
+# Struct containing an array of structs
+struct Shape =>
+    name: str
+    points: Point[]
+    color: str = "black"
+
+# Struct containing an array of structs with defaults
+struct Settings =>
+    configs: Config[]
+    active: bool = true
+
+# 2-level nesting with array in middle
+struct Container =>
+    label: str
+    shapes: Shape[]
+    count: int = 0
+
+fn main(): void =>
+    # Test 1: Array of structs with no defaults
+    var points1: Point[] = { Point { x: 1.0, y: 2.0 }, Point { x: 3.0, y: 4.0 } }
+    print("Test 1 - Array of structs with no defaults passed\n")
+
+    # Test 2: Array of structs with defaults
+    var configs1: Config[] = { Config {}, Config { name: "custom" }, Config { value: 42, enabled: false } }
+    print("Test 2 - Array of structs with defaults passed\n")
+
+    # Test 3: Struct containing array of structs
+    var shape1: Shape = Shape { name: "triangle", points: { Point { x: 0.0, y: 0.0 }, Point { x: 1.0, y: 0.0 }, Point { x: 0.5, y: 1.0 } } }
+    print("Test 3 - Struct containing array of structs passed\n")
+
+    # Test 4: Struct containing array of structs with outer defaults
+    var shape2: Shape = Shape { name: "line", points: { Point { x: 0.0, y: 0.0 }, Point { x: 5.0, y: 5.0 } }, color: "red" }
+    print("Test 4 - Struct containing array with outer defaults passed\n")
+
+    # Test 5: Struct containing array of structs with defaults
+    var settings1: Settings = Settings { configs: { Config {}, Config { name: "test" } } }
+    print("Test 5 - Struct containing array of structs with defaults passed\n")
+
+    # Test 6: Empty array in struct
+    var shape3: Shape = Shape { name: "empty", points: {} }
+    print("Test 6 - Empty array in struct passed\n")
+
+    # Test 7: Container with nested array of structs
+    var container1: Container = Container { label: "shapes", shapes: { Shape { name: "square", points: { Point { x: 0.0, y: 0.0 }, Point { x: 1.0, y: 0.0 }, Point { x: 1.0, y: 1.0 }, Point { x: 0.0, y: 1.0 } } } } }
+    print("Test 7 - Container with nested array of structs passed\n")
+
+    # Test 8: Container with multiple shapes
+    var container2: Container = Container { label: "multi", shapes: { Shape { name: "line1", points: { Point { x: 0.0, y: 0.0 }, Point { x: 1.0, y: 1.0 } } }, Shape { name: "line2", points: { Point { x: 2.0, y: 2.0 }, Point { x: 3.0, y: 3.0 } }, color: "blue" } }, count: 2 }
+    print("Test 8 - Container with multiple shapes passed\n")
+
+    # Test 9: Single element array
+    var single: Shape = Shape { name: "dot", points: { Point { x: 5.0, y: 5.0 } } }
+    print("Test 9 - Single element array passed\n")
+
+    print("All nested struct array tests passed!\n")

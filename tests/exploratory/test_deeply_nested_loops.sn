@@ -1,0 +1,8 @@
+// Test deeply nested loops
+fn main(): void =>
+  var count: int = 0
+  for var i: int = 0; i < 2; i++ =>
+    for var j: int = 0; j < 2; j++ =>
+      for var k: int = 0; k < 2; k++ =>
+        count = count + 1
+  print($"count={count}\n")

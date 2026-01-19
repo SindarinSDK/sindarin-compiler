@@ -1,0 +1,7 @@
+Client bound
+Test 1 PASS: Datagram sent
+Test 2 PASS: Received echo prefix
+Test 3 PASS: Echo content correct
+Test 4 PASS: Server saw sender IP
+Test 5 PASS: Server saw sender port
+All UDP echo tests complete

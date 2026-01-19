@@ -1,0 +1,18 @@
+# Test thread recursion - function spawning threads that call itself
+
+fn parallel_sum(n: int): int =>
+    if n <= 1 =>
+        return n
+
+    # Spawn two threads for recursive calls
+    var left: int = &parallel_sum(n / 2)
+    var right: int = &parallel_sum(n - n / 2)
+
+    var l = left!
+    var r = right!
+    return l + r
+
+fn main(): void =>
+    var result: int = &parallel_sum(10)
+    var value = result!
+    print($"Parallel sum of 1..10: {value}\n")

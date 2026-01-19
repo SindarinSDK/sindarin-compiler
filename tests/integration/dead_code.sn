@@ -1,0 +1,27 @@
+// Test dead code elimination - program behavior should be unchanged
+
+fn early_return(x: int): int =>
+    if x > 0 =>
+        return x
+        // Dead code after return - should be eliminated
+        var dead: int = 99
+        print("This should never print\n")
+    return 0
+
+fn unused_variables(): int =>
+    // var unused: int = 42  // Unused variable - would be eliminated
+    var used: int = 10
+    return used
+
+fn noop_operations(): int =>
+    var x: int = 5
+    // These would be simplified: x + 0 -> x, x * 1 -> x
+    var y: int = x + 0
+    var z: int = y * 1
+    return z
+
+fn main(): void =>
+    print($"early_return(5) = {early_return(5)}\n")
+    print($"early_return(-1) = {early_return(-1)}\n")
+    print($"unused_variables() = {unused_variables()}\n")
+    print($"noop_operations() = {noop_operations()}\n")

@@ -1,0 +1,32 @@
+// Test loop counter optimization for array access
+// Loop counters should generate direct array access (no ternary check)
+// Non-loop-counter variables should still generate ternary check
+
+fn main(): void =>
+    var arr: int[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+
+    // Test 1: Loop counter access - should be optimized (no ternary)
+    var sum1: int = 0
+    for var i: int = 0; i < 10; i++ =>
+        sum1 = sum1 + arr[i]
+    print($"Sum with loop counter: {sum1}\n")
+
+    // Test 2: Non-loop-counter variable access - should have ternary check
+    var sum2: int = 0
+    var j: int = 0
+    while j < 10 =>
+        sum2 = sum2 + arr[j]
+        j = j + 1
+    print($"Sum with while loop: {sum2}\n")
+
+    // Test 3: Literal index access - should be optimized (no ternary)
+    var first: int = arr[0]
+    var last: int = arr[9]
+    print($"First: {first}, Last: {last}\n")
+
+    // Test 4: Nested loop with loop counter
+    var matrix_sum: int = 0
+    var row: int[] = {1, 2, 3}
+    for var x: int = 0; x < 3; x++ =>
+        matrix_sum = matrix_sum + row[x]
+    print($"Row sum: {matrix_sum}\n")

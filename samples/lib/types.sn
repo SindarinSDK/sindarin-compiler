@@ -1,0 +1,208 @@
+// ============================================================================
+// types.sn - Basic Types in Sindarin
+// ============================================================================
+// This file demonstrates all primitive types available in Sindarin.
+//
+// Types covered:
+//   1. int - Integer numbers
+//   2. double - Floating-point numbers
+//   3. str - String text
+//   4. char - Single characters
+//   5. bool - Boolean true/false
+//   6. void - No return value
+// ============================================================================
+
+// Entry point for type demos
+fn demo_types(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                      Sindarin Type System                        │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  show_integers()
+  show_doubles()
+  show_strings()
+  show_chars()
+  show_booleans()
+  show_type_conversion()
+
+
+// ----------------------------------------------------------------------------
+// 1. Integers (int)
+// ----------------------------------------------------------------------------
+fn show_integers(): void =>
+  print("--- 1. Integer Type (int) ---\n")
+
+  // Declaration and initialization
+  var a: int = 42
+  var b: int = -17
+  var c: int = 0
+
+  print($"a = {a}\n")
+  print($"b = {b}\n")
+  print($"c = {c}\n")
+
+  // Arithmetic operations
+  print("\nArithmetic:\n")
+  print($"  a + b = {a + b}\n")
+  print($"  a - b = {a - b}\n")
+  print($"  a * 2 = {a * 2}\n")
+  print($"  a / 5 = {a / 5}\n")
+  print($"  a % 5 = {a % 5}\n")
+
+  // Increment/decrement
+  print("\nIncrement/Decrement:\n")
+  var x: int = 5
+  print($"  x = {x}\n")
+  x++
+  print($"  After x++: {x}\n")
+  x--
+  print($"  After x--: {x}\n")
+
+  // Comparisons
+  print("\nComparisons:\n")
+  print($"  10 == 10: {10 == 10}\n")
+  print($"  10 != 5: {10 != 5}\n")
+  print($"  10 > 5: {10 > 5}\n")
+  print($"  10 < 5: {10 < 5}\n")
+  print($"  10 >= 10: {10 >= 10}\n")
+  print($"  10 <= 10: {10 <= 10}\n\n")
+
+// ----------------------------------------------------------------------------
+// 2. Doubles (double)
+// ----------------------------------------------------------------------------
+fn show_doubles(): void =>
+  print("--- 2. Double Type (double) ---\n")
+
+  // Declaration
+  var pi: double = 3.14159
+  var e: double = 2.71828
+  var negative: double = -1.5
+
+  print($"pi = {pi}\n")
+  print($"e = {e}\n")
+  print($"negative = {negative}\n")
+
+  // Arithmetic
+  print("\nArithmetic:\n")
+  print($"  pi + e = {pi + e}\n")
+  print($"  pi * 2.0 = {pi * 2.0}\n")
+  print($"  10.0 / 3.0 = {10.0 / 3.0}\n")
+
+  // Mixed with int (int promotes to double)
+  print("\nMixed operations:\n")
+  var radius: double = 5.0
+  var area: double = pi * radius * radius
+  print($"  Circle area (r=5): {area}\n\n")
+
+// ----------------------------------------------------------------------------
+// 3. Strings (str)
+// ----------------------------------------------------------------------------
+fn show_strings(): void =>
+  print("--- 3. String Type (str) ---\n")
+
+  // Declaration
+  var greeting: str = "Hello"
+  var name: str = "World"
+
+  print($"greeting = \"{greeting}\"\n")
+  print($"name = \"{name}\"\n")
+
+  // Concatenation
+  var message: str = greeting + ", " + name + "!"
+  print($"Concatenated: {message}\n")
+
+  // String interpolation
+  var age: int = 25
+  var height: double = 5.9
+  print($"Interpolation: Age is {age}, height is {height}\n")
+
+  // Empty string
+  var empty: str = ""
+  print($"Empty string: \"{empty}\"\n")
+
+  // String comparisons
+  print("\nString comparisons:\n")
+  print($"  \"abc\" == \"abc\": {"abc" == "abc"}\n")
+  print($"  \"abc\" != \"xyz\": {"abc" != "xyz"}\n")
+  print($"  \"abc\" < \"abd\": {"abc" < "abd"}\n\n")
+
+// ----------------------------------------------------------------------------
+// 4. Characters (char)
+// ----------------------------------------------------------------------------
+fn show_chars(): void =>
+  print("--- 4. Character Type (char) ---\n")
+
+  // Declaration
+  var letter: char = 'A'
+  var digit: char = '7'
+  var symbol: char = '@'
+
+  print($"letter = '{letter}'\n")
+  print($"digit = '{digit}'\n")
+  print($"symbol = '{symbol}'\n")
+
+  // Escape sequences
+  var newline: char = '\n'
+  var tab: char = '\t'
+
+  print("\nEscape sequences:\n")
+  print("  Tab:")
+  print(tab)
+  print("between\n")
+
+  // Char in strings
+  var first: char = 'S'
+  var rest: str = "indarin"
+  print($"  Combined: {first}{rest}\n\n")
+
+// ----------------------------------------------------------------------------
+// 5. Booleans (bool)
+// ----------------------------------------------------------------------------
+fn show_booleans(): void =>
+  print("--- 5. Boolean Type (bool) ---\n")
+
+  // Declaration
+  var is_active: bool = true
+  var is_complete: bool = false
+
+  print($"is_active = {is_active}\n")
+  print($"is_complete = {is_complete}\n")
+
+  // Boolean from comparisons
+  var x: int = 10
+  var y: int = 5
+  var greater: bool = x > y
+  print($"\n{x} > {y} = {greater}\n")
+
+  // NOT operator (!)
+  print("\nNOT operator (!):\n")
+  var flag: bool = false
+  if !flag =>
+    print("  !false = true\n")
+  flag = true
+  if !flag =>
+    print("  never printed\n")
+  else =>
+    print("  !true = false\n\n")
+
+// ----------------------------------------------------------------------------
+// 6. Type Conversion (implicit via interpolation)
+// ----------------------------------------------------------------------------
+fn show_type_conversion(): void =>
+  print("--- 6. Type Display in Strings ---\n")
+
+  var i: int = 42
+  var d: double = 3.14
+  var s: str = "hello"
+  var c: char = 'X'
+  var b: bool = true
+
+  // All types can be displayed via interpolation
+  print($"int: {i}\n")
+  print($"double: {d}\n")
+  print($"str: {s}\n")
+  print($"char: {c}\n")
+  print($"bool: {b}\n")
+
+  // Mixed in single string
+  print($"\nMixed: i={i}, d={d}, s={s}, c={c}, b={b}\n")

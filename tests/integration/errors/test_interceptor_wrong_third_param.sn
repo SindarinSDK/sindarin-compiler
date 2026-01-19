@@ -1,0 +1,7 @@
+# Error test: interceptor handler with wrong third parameter type
+
+fn badHandler(name: str, args: any[], continue_fn: fn(int): any): any =>
+    return continue_fn(0)
+
+fn main(): void =>
+    Interceptor.register(badHandler)

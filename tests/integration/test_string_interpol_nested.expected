@@ -1,0 +1,12 @@
+a b 42 c
+L1 L2 L3 42
+Sum: result = 52
+Product: val = 84
+Func: nested 42
+Upper: HELLO WORLD
+Adjacent: ABC
+Mixed: 42 and inner 10 done
+Complex: x=42, y=10, sum=52
+Empty: literal
+Concat: Hello World
+Deep: 1234!

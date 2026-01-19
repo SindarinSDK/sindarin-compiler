@@ -1,0 +1,56 @@
+// Test 24: Complex nested expressions
+fn main(): int =>
+    print("=== Deeply Nested Arithmetic ===\n")
+    var result: int = (((1 + 2) * (3 + 4)) - ((5 - 6) * (7 - 8)))
+    print($"(((1+2)*(3+4))-((5-6)*(7-8))): {result}\n")
+
+    print("\n=== Nested Function Calls ===\n")
+    print($"add(mul(2,3), mul(4,5)): {add(mul(2,3), mul(4,5))}\n")
+    print($"mul(add(1,2), add(3,4)): {mul(add(1,2), add(3,4))}\n")
+
+    print("\n=== Boolean in Arithmetic Context ===\n")
+    var t: bool = true
+    var f: bool = false
+    // Testing boolean to string conversion
+    print($"true: {t}, false: {f}\n")
+
+    print("\n=== Mixed Type Expressions ===\n")
+    var i: int = 10
+    var d: double = 3.5
+    // int and double arithmetic
+    // Note: This tests if implicit conversion works
+
+    print("\n=== Array Index Expressions ===\n")
+    var arr: int[] = {10, 20, 30, 40, 50}
+    var idx: int = 2
+    print($"arr[idx]: {arr[idx]}\n")
+    print($"arr[idx + 1]: {arr[idx + 1]}\n")
+    print($"arr[1 + 1]: {arr[1 + 1]}\n")
+
+    print("\n=== Conditional Expression in Interpolation ===\n")
+    var x: int = 5
+    print($"x > 3: {x > 3}\n")
+    print($"x > 3 && x < 10: {x > 3 && x < 10}\n")
+
+    print("\n=== Chained Method Calls ===\n")
+    var s: str = "  HELLO  "
+    print($"trim().toLower(): \"{s.trim().toLower()}\"\n")
+    print($"toLower().trim(): \"{s.toLower().trim()}\"\n")
+
+    print("\n=== Lambda in Expression ===\n")
+    var dbl: fn(int): int = fn(n) => n * 2
+    print($"dbl(dbl(5)): {dbl(dbl(5))}\n")
+
+    print("\n=== Array Method Chaining ===\n")
+    var nums: int[] = {1, 2, 3}
+    var clone: int[] = nums.clone()
+    clone.push(4)
+    print($"Original length: {nums.length}, Clone length: {clone.length}\n")
+
+    return 0
+
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn mul(a: int, b: int): int =>
+    return a * b

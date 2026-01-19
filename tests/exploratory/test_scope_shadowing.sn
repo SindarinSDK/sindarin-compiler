@@ -1,0 +1,64 @@
+// Test 23: Scope and variable shadowing
+fn main(): int =>
+    print("=== Basic Scope ===\n")
+    var x: int = 10
+    print($"Outer x: {x}\n")
+
+    if true =>
+        var y: int = 20
+        print($"Inner y: {y}\n")
+        print($"Can access outer x: {x}\n")
+
+    // y is not accessible here
+    print($"After block, x: {x}\n")
+
+    print("\n=== Variable Modification in Block ===\n")
+    var a: int = 5
+    if true =>
+        a = 15
+    print($"a after inner modification: {a}\n")
+
+    print("\n=== Loop Scope ===\n")
+    var sum: int = 0
+    for var i: int = 0; i < 3; i++ =>
+        var temp: int = i * 2
+        sum = sum + temp
+    print($"sum after loop: {sum}\n")
+    // i and temp not accessible here
+
+    print("\n=== For-Each Scope ===\n")
+    var nums: int[] = {1, 2, 3}
+    var total: int = 0
+    for n in nums =>
+        total = total + n
+    print($"total after for-each: {total}\n")
+    // n not accessible here
+
+    print("\n=== While Scope ===\n")
+    var count: int = 0
+    while count < 3 =>
+        var inner: int = count * 10
+        print($"inner: {inner}\n")
+        count++
+    // inner not accessible here
+
+    print("\n=== Nested Blocks ===\n")
+    var outer: int = 1
+    if true =>
+        var mid: int = 2
+        if true =>
+            var inner: int = 3
+            print($"All visible: {outer}, {mid}, {inner}\n")
+        print($"Mid visible: {outer}, {mid}\n")
+    print($"Only outer visible: {outer}\n")
+
+    print("\n=== Function Local vs Outer ===\n")
+    var global: int = 100
+    modify_local(global)
+    print($"global after function: {global}\n")
+
+    return 0
+
+fn modify_local(value: int): void =>
+    value = value + 50
+    print($"Inside function, value: {value}\n")

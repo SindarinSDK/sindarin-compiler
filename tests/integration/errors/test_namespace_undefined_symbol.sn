@@ -1,0 +1,7 @@
+// Test: Accessing undefined symbol in a valid namespace
+// The namespace 'math' exists but 'nonexistent' is not defined in it
+import "../lib/math_basic" as math
+
+fn main(): void =>
+    var x: int = math.nonexistent(1, 2)
+    print($"{x}\n")

@@ -1,0 +1,85 @@
+# Integration test for variadic function interop
+# Demonstrates: native variadic functions with ... parameter, various argument types
+#
+# Note: This test uses a custom variadic wrapper to avoid conflicts with
+# C stdio.h declarations. See test_variadic_helper.c for the wrapper.
+
+#pragma source "test_variadic_helper.c"
+
+# Declare test_printf as a variadic native function
+# Note: Sindarin int is 64-bit, so use %ld format specifier
+native fn test_printf(format: str, ...): int32
+
+# Test helper to format output consistently
+fn test_string_format(): void =>
+    print("  Testing printf with string arguments...\n")
+    test_printf("    Hello, %s!\n", "World")
+    test_printf("    Name: %s, Language: %s\n", "Alice", "Sindarin")
+
+fn test_int_format(): void =>
+    print("  Testing printf with integer arguments...\n")
+    var x: int = 42
+    var y: int = -17
+    var big: int = 1000000
+    test_printf("    Integer: %ld\n", x)
+    test_printf("    Negative: %ld\n", y)
+    test_printf("    Large: %ld\n", big)
+    test_printf("    Multiple ints: %ld, %ld, %ld\n", 1, 2, 3)
+
+fn test_double_format(): void =>
+    print("  Testing printf with double arguments...\n")
+    var pi: double = 3.14159265359
+    var e: double = 2.71828
+    test_printf("    Pi: %f\n", pi)
+    test_printf("    e: %.5f\n", e)
+    test_printf("    Formatted: %.2f\n", 123.456)
+
+fn test_char_format(): void =>
+    print("  Testing printf with char arguments...\n")
+    var c: char = 'X'
+    test_printf("    Char: %c\n", c)
+    test_printf("    Multiple chars: %c%c%c\n", 'A', 'B', 'C')
+
+fn test_bool_format(): void =>
+    print("  Testing printf with bool arguments (as int)...\n")
+    var t: bool = true
+    var f: bool = false
+    # Bool is passed as int (true=1, false=0)
+    test_printf("    True: %ld\n", t)
+    test_printf("    False: %ld\n", f)
+
+fn test_mixed_format(): void =>
+    print("  Testing printf with mixed argument types...\n")
+    var name: str = "Test"
+    var count: int = 42
+    var value: double = 3.14
+    var flag: char = '*'
+
+    test_printf("    String: %s, Int: %ld, Double: %.2f, Char: %c\n", name, count, value, flag)
+    test_printf("    Combined: %s scored %ld points with %.1f%% accuracy\n", "Player", 100, 95.5)
+
+fn test_no_args_format(): void =>
+    print("  Testing printf with no variadic arguments...\n")
+    test_printf("    Just a plain string\n")
+
+fn test_width_precision(): void =>
+    print("  Testing printf with width and precision...\n")
+    test_printf("    Right aligned: %10s|\n", "test")
+    test_printf("    Left aligned: %-10s|\n", "test")
+    test_printf("    Zero padded: %05ld\n", 42)
+    test_printf("    Precision: %.3f\n", 1.23456789)
+
+fn main(): int =>
+    print("=== Variadic Function Interop Test ===\n\n")
+
+    test_string_format()
+    test_int_format()
+    test_double_format()
+    test_char_format()
+    test_bool_format()
+    test_mixed_format()
+    test_no_args_format()
+    test_width_precision()
+
+    print("\n=== All variadic interop tests PASSED! ===\n")
+    return 0

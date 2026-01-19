@@ -1,0 +1,10 @@
+# Error test: Pointer return type in regular function
+# This should fail to compile because pointer types in function signatures
+# require the 'native' keyword.
+
+# Regular function with pointer return type - should be a compile error
+fn bad_function(): *int =>
+    return nil
+
+fn main(): int =>
+    return 0

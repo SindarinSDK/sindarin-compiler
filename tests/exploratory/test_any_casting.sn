@@ -1,0 +1,100 @@
+// Test: Comprehensive casting with 'as' operator
+// Verifies correct unboxing of any values to concrete types
+
+fn main(): void =>
+    print("Testing any type casting with 'as' operator\n")
+
+    // Test int casting with arithmetic
+    var a1: any = 50
+    var v1: int = a1 as int
+    assert(v1 + 10 == 60, "Casted int should support arithmetic")
+    assert(v1 * 2 == 100, "Casted int multiplication should work")
+    print("  int cast with arithmetic: PASS\n")
+
+    // Test double casting with arithmetic
+    var a2: any = 2.5
+    var v2: double = a2 as double
+    assert(v2 * 2.0 > 4.9 && v2 * 2.0 < 5.1, "Casted double should support arithmetic")
+    print("  double cast with arithmetic: PASS\n")
+
+    // Test bool casting with logical operations
+    var a3: any = true
+    var v3: bool = a3 as bool
+    assert(v3, "Casted bool should be true")
+    var a4: any = false
+    var v4: bool = a4 as bool
+    assert(!v4, "Casted false should be negatable")
+    print("  bool cast with logical ops: PASS\n")
+
+    // Test string casting with operations
+    var a5: any = "hello"
+    var v5: str = a5 as str
+    assert(v5.length == 5, "Casted str should have length method")
+    assert(v5 + " world" == "hello world", "Casted str should support concatenation")
+    print("  str cast with operations: PASS\n")
+
+    // Test char casting
+    var a6: any = 'Z'
+    var v6: char = a6 as char
+    assert(v6 == 'Z', "Casted char should equal 'Z'")
+    print("  char cast: PASS\n")
+
+    // Test byte casting
+    var b: byte = 200
+    var a7: any = b
+    var v7: byte = a7 as byte
+    assert(v7 == 200, "Casted byte should equal 200")
+    print("  byte cast: PASS\n")
+
+    // Test casting result used directly in expressions
+    var numAny: any = 10
+    var result: int = (numAny as int) * 5 + 3
+    assert(result == 53, "Direct cast in expression should work")
+    print("  direct cast in expression: PASS\n")
+
+    // Test casting in comparisons
+    var strAny: any = "test"
+    assert((strAny as str) == "test", "Cast in comparison should work")
+    var intAny: any = 42
+    assert((intAny as int) > 40, "Cast in greater-than should work")
+    assert((intAny as int) < 50, "Cast in less-than should work")
+    print("  cast in comparisons: PASS\n")
+
+    // Test multiple casts from same any variable
+    var multiAny: any = 123
+    var c1: int = multiAny as int
+    var c2: int = multiAny as int
+    assert(c1 == c2, "Multiple casts should yield same value")
+    assert(c1 == 123, "Both casts should be 123")
+    print("  multiple casts from same any: PASS\n")
+
+    // Test cast after type change
+    var changingAny: any = 100
+    var before: int = changingAny as int
+    assert(before == 100, "Initial int value should be 100")
+    changingAny = "new value"
+    var after: str = changingAny as str
+    assert(after == "new value", "After reassignment, str cast should work")
+    print("  cast after type change: PASS\n")
+
+    // Test cast of function return value
+    var funcResult: any = returnAny()
+    assert(funcResult is int, "Function should return int boxed as any")
+    var funcInt: int = funcResult as int
+    assert(funcInt == 777, "Casted function result should be 777")
+    print("  cast of function return: PASS\n")
+
+    // Test cast used in function argument
+    var argAny: any = 15
+    var doubled: int = doubleIt(argAny as int)
+    assert(doubled == 30, "Cast used as function argument should work")
+    print("  cast as function argument: PASS\n")
+
+    print("All casting tests passed!\n")
+
+fn returnAny(): any =>
+    var r: any = 777
+    return r
+
+fn doubleIt(x: int): int =>
+    return x * 2

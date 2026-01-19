@@ -1,0 +1,53 @@
+# Exploratory test: Pointer slice bounds behavior
+#
+# IMPORTANT: Out-of-bounds pointer slicing is UNDEFINED BEHAVIOR
+#
+# When using ptr[start..end] as val, the programmer must ensure that:
+# 1. The pointer is not nil (unless nil is acceptable for your use case)
+# 2. The range [start, end) is within the valid memory bounds
+# 3. The length (end - start) matches the actual allocated buffer size
+#
+# This test demonstrates VALID usage with correct bounds.
+# Out-of-bounds access (e.g., ptr[0..100] on a 10-byte buffer) will:
+# - Compile without error (bounds are not checked at compile time)
+# - Cause undefined behavior at runtime (memory corruption, crashes, etc.)
+#
+# The language does NOT perform runtime bounds checking on pointer slices
+# because pointer data comes from external C code without length metadata.
+
+# Native function simulating a C function that returns a 5-byte buffer
+native fn get_small_buffer(): *byte =>
+    # In real FFI, this would return a C pointer
+    # For testing, we return nil (no actual data)
+    return nil
+
+native fn get_buffer_size(): int =>
+    # The programmer must know the actual buffer size
+    return 5
+
+# CORRECT usage: slice matches actual buffer size
+fn test_correct_bounds(): void =>
+    var size: int = get_buffer_size()
+    # This is correct: we slice exactly the buffer size
+    var data: byte[] = get_small_buffer()[0..size] as val
+    print($"Correct bounds: array length = {data.length}\n")
+
+    if data.length == 5 =>
+        print("Bounds test: PASS\n")
+    else =>
+        print("Bounds test: FAIL\n")
+
+# Documentation of INCORRECT usage (DO NOT uncomment - undefined behavior):
+#
+# fn test_out_of_bounds(): void =>
+#     # WRONG: Requesting 100 bytes from a 5-byte buffer
+#     var data: byte[] = get_small_buffer()[0..100] as val
+#     # This COMPILES but causes UNDEFINED BEHAVIOR at runtime!
+#     # The runtime will copy 100 bytes starting from the pointer,
+#     # reading past the end of the allocated buffer.
+
+fn main(): void =>
+    print("Testing pointer slice bounds behavior...\n")
+    print("Note: Out-of-bounds slicing is undefined behavior!\n\n")
+    test_correct_bounds()
+    print("\nPointer slice bounds test complete!\n")

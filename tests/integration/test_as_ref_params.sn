@@ -1,0 +1,149 @@
+// Comprehensive test for parameter-level 'as ref'
+
+// Test 1: Basic as ref parameter modification
+fn increment(x: int as ref): void =>
+    x = x + 1
+
+fn test_basic_as_ref(): void =>
+    print("Test 1: Basic as ref parameter\n")
+    var count: int = 0
+    increment(count)
+    assert(count == 1, "basic increment")
+    increment(count)
+    assert(count == 2, "second increment")
+    print("  PASS\n")
+
+// Test 2: Multiple as ref parameters
+fn swap(a: int as ref, b: int as ref): void =>
+    var temp: int = a
+    a = b
+    b = temp
+
+fn test_multiple_as_ref(): void =>
+    print("Test 2: Multiple as ref parameters\n")
+    var x: int = 10
+    var y: int = 20
+    swap(x, y)
+    assert(x == 20, "x swapped")
+    assert(y == 10, "y swapped")
+    print("  PASS\n")
+
+// Test 3: as ref with different primitive types
+fn negate_double(x: double as ref): void =>
+    x = -x
+
+fn toggle_bool(x: bool as ref): void =>
+    x = !x
+
+fn test_different_types(): void =>
+    print("Test 3: Different primitive types\n")
+
+    var d: double = 3.14
+    negate_double(d)
+    assert(d < 0.0, "double negated")
+
+    var b: bool = true
+    toggle_bool(b)
+    assert(b == false, "bool toggled")
+    toggle_bool(b)
+    assert(b == true, "bool toggled back")
+
+    print("  PASS\n")
+
+// Test 4: as ref with threading - modification across threads
+fn thread_increment(counter: int as ref): int =>
+    counter = counter + 1
+    return 0
+
+fn test_threaded_as_ref(): void =>
+    print("Test 4: Threaded as ref modification\n")
+    var count: int = 0
+
+    // Spawn multiple threads that increment
+    var r1: int = &thread_increment(count)
+    r1!
+    assert(count == 1, "after first thread")
+
+    var r2: int = &thread_increment(count)
+    r2!
+    assert(count == 2, "after second thread")
+
+    print("  PASS\n")
+
+// Test 5: as ref unfreezing after sync
+fn delayed_set(x: int as ref): int =>
+    x = 42
+    return 0
+
+fn test_unfreeze_after_sync(): void =>
+    print("Test 5: Unfreeze after sync\n")
+    var value: int = 0
+
+    var r: int = &delayed_set(value)
+    // value is frozen here - cannot modify
+    r!  // Sync unfreezes value
+
+    // Now we can modify again
+    value = 100
+    assert(value == 100, "can modify after sync")
+
+    print("  PASS\n")
+
+// Test 6: Mixed as ref and regular parameters
+fn add_to_first(target: int as ref, amount: int): void =>
+    target = target + amount
+
+fn test_mixed_params(): void =>
+    print("Test 6: Mixed as ref and regular params\n")
+    var total: int = 0
+    add_to_first(total, 10)
+    assert(total == 10, "first add")
+    add_to_first(total, 25)
+    assert(total == 35, "second add")
+    print("  PASS\n")
+
+// Test 7: as ref with byte and char
+fn increment_byte(b: byte as ref): void =>
+    b = b + 1
+
+fn next_char(c: char as ref): void =>
+    c++
+
+fn test_byte_char_as_ref(): void =>
+    print("Test 7: Byte and char as ref\n")
+
+    var b: byte = 0
+    increment_byte(b)
+    assert(b == 1, "byte incremented")
+
+    var c: char = 'A'
+    next_char(c)
+    assert(c == 'B', "char incremented")
+
+    print("  PASS\n")
+
+// Test 8: as ref in nested function calls
+fn outer_modify(x: int as ref): void =>
+    increment(x)
+    increment(x)
+
+fn test_nested_as_ref(): void =>
+    print("Test 8: Nested as ref calls\n")
+    var n: int = 0
+    outer_modify(n)
+    assert(n == 2, "nested increments")
+    print("  PASS\n")
+
+fn main(): void =>
+    print("=== Parameter-level 'as ref' Tests ===\n\n")
+
+    test_basic_as_ref()
+    test_multiple_as_ref()
+    test_different_types()
+    test_threaded_as_ref()
+    test_unfreeze_after_sync()
+    test_mixed_params()
+    test_byte_char_as_ref()
+    test_nested_as_ref()
+
+    print("\n=== All 'as ref' parameter tests passed! ===\n")

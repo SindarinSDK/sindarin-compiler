@@ -1,0 +1,7 @@
+// Test nested lambdas
+fn main(): void =>
+  var outer: fn(int): fn(int): int = fn(x: int): fn(int): int =>
+    return fn(y: int): int => x + y
+  var inner: fn(int): int = outer(10)
+  var result: int = inner(5)
+  print($"result={result}\n")

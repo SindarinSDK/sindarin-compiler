@@ -1,0 +1,10 @@
+// lib/math_advanced.sn - Advanced math operations
+
+fn power(base: int, exp: int): int =>
+    var result: int = 1
+    for var i: int = 0; i < exp; i++ =>
+        result = result * base
+    return result
+
+fn square(x: int): int =>
+    return x * x

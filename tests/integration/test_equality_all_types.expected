@@ -1,0 +1,30 @@
+=== Comprehensive Equality Tests ===
+
+Test: int equality
+  PASS
+Test: long equality
+  PASS
+Test: double equality
+  PASS
+Test: float equality
+  PASS
+Test: bool equality
+  PASS
+Test: char equality
+  PASS
+Test: byte equality
+  PASS
+Test: string equality
+  PASS
+Test: int32 equality
+  PASS
+Test: uint equality
+  PASS
+Test: uint32 equality
+  PASS
+Test: array equality
+  PASS
+Test: mixed type comparisons
+  PASS
+
+=== All equality tests passed! ===

@@ -1,0 +1,14 @@
+Testing any type casting with 'as' operator
+  int cast with arithmetic: PASS
+  double cast with arithmetic: PASS
+  bool cast with logical ops: PASS
+  str cast with operations: PASS
+  char cast: PASS
+  byte cast: PASS
+  direct cast in expression: PASS
+  cast in comparisons: PASS
+  multiple casts from same any: PASS
+  cast after type change: PASS
+  cast of function return: PASS
+  cast as function argument: PASS
+All casting tests passed!

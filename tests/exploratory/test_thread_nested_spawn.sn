@@ -1,0 +1,32 @@
+// Test: Nested thread spawns
+// Tests spawning threads from within spawned threads
+// This validates that the threading runtime correctly handles
+// nested thread contexts and arena management
+//
+// STATUS: KNOWN ISSUE - Crashes with segfault
+// Nested thread spawns are not yet fully supported.
+// The issue is likely related to arena management when
+// a child thread spawns another thread.
+
+fn inner_compute(x: int): int =>
+    return x * 2
+
+fn outer_compute(x: int): int =>
+    // Spawn a nested thread from within this thread
+    var inner: int = &inner_compute(x)
+    inner!
+    return inner + 1
+
+fn main(): void =>
+    print("Testing nested thread spawns\n")
+
+    // Spawn outer thread which spawns inner thread
+    var result: int = &outer_compute(10)
+    result!
+
+    print($"Result: {result}\n")
+
+    if result == 21 =>  // 10 * 2 + 1 = 21
+        print("SUCCESS: Nested thread spawns work correctly\n")
+    else =>
+        print($"FAILURE: Expected 21, got {result}\n")

@@ -1,0 +1,88 @@
+// Test 99: Break from deeply nested loops (4+ levels)
+// Tests break behavior in nested loop structures
+
+fn main(): int =>
+    print("Test deep break:\n\n")
+
+    // Test 1: Break from 2 levels
+    print("Test 1 - Two-level break:\n")
+    var found2: bool = false
+    for i in 0..5 =>
+        for j in 0..5 =>
+            if i == 2 && j == 3 =>
+                found2 = true
+                break
+        if found2 =>
+            break
+    print($"  Found at i=2, j=3: {found2}\n")
+
+    // Test 2: Break from 3 levels
+    print("\nTest 2 - Three-level break:\n")
+    var count3: int = 0
+    for i in 0..3 =>
+        for j in 0..3 =>
+            for k in 0..3 =>
+                count3 = count3 + 1
+                if count3 == 10 =>
+                    break
+            if count3 >= 10 =>
+                break
+        if count3 >= 10 =>
+            break
+    print($"  Count stopped at: {count3}\n")
+
+    // Test 3: Break from 4 levels
+    print("\nTest 3 - Four-level break:\n")
+    var iterations: int = 0
+    var done: bool = false
+    for a in 0..3 =>
+        for b in 0..3 =>
+            for c in 0..3 =>
+                for d in 0..3 =>
+                    iterations = iterations + 1
+                    if iterations == 20 =>
+                        done = true
+                        break
+                if done =>
+                    break
+            if done =>
+                break
+        if done =>
+            break
+    print($"  Iterations stopped at: {iterations}\n")
+
+    // Test 4: Break in while loops
+    print("\nTest 4 - While loop break:\n")
+    var x: int = 0
+    var y: int = 0
+    var max_reached: bool = false
+    while x < 10 =>
+        while y < 10 =>
+            y = y + 1
+            if y == 5 =>
+                max_reached = true
+                break
+        if max_reached =>
+            break
+        x = x + 1
+        y = 0
+    print($"  Stopped at x={x}, y={y}\n")
+
+    // Test 5: Mixed for/while nested break
+    print("\nTest 5 - Mixed loop break:\n")
+    var sum: int = 0
+    var stop_outer: bool = false
+    for i in 1..5 =>
+        var j: int = 1
+        while j <= 5 =>
+            sum = sum + i * j
+            if sum > 20 =>
+                stop_outer = true
+                break
+            j = j + 1
+        if stop_outer =>
+            break
+    print($"  Sum when stopped: {sum}\n")
+
+    print("\nAll deep break tests passed!\n")
+    return 0

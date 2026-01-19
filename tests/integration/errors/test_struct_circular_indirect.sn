@@ -1,0 +1,12 @@
+# Error test: struct with indirect circular dependency (A -> B -> A)
+
+struct StructA =>
+    value: int
+    ref_b: StructB
+
+struct StructB =>
+    value: int
+    ref_a: StructA
+
+fn main(): void =>
+    print("Should not compile\n")

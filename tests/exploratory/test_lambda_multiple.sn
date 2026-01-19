@@ -1,0 +1,76 @@
+// Test 97: Multiple lambdas with different signatures
+// Tests various lambda patterns without arrays
+
+fn main(): int =>
+    print("Test multiple lambdas:\n\n")
+
+    // Test 1: Store multiple lambdas in variables
+    print("Test 1 - Multiple operations:\n")
+    var op1: fn(int): int = fn(x: int): int => x + 10
+    var op2: fn(int): int = fn(x: int): int => x * 2
+    var op3: fn(int): int = fn(x: int): int => x - 5
+    var op4: fn(int): int = fn(x: int): int => x / 2
+
+    var value: int = 100
+    print($"  Initial: {value}\n")
+    value = op1(value)
+    print($"  After +10: {value}\n")
+    value = op2(value)
+    print($"  After *2: {value}\n")
+    value = op3(value)
+    print($"  After -5: {value}\n")
+    value = op4(value)
+    print($"  After /2: {value}\n")
+
+    // Test 2: Apply same lambda multiple times
+    print("\nTest 2 - Repeated application:\n")
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var n: int = 1
+    n = double_it(n)
+    n = double_it(n)
+    n = double_it(n)
+    n = double_it(n)
+    print($"  1 doubled 4 times = {n}\n")
+
+    // Test 3: Lambdas with different signatures
+    print("\nTest 3 - Different signatures:\n")
+    var unary: fn(int): int = fn(x: int): int => x * x
+    var binary: fn(int, int): int = fn(a: int, b: int): int => a + b
+    var ternary: fn(int, int, int): int = fn(a: int, b: int, c: int): int => a + b + c
+
+    print($"  unary(5) = {unary(5)}\n")
+    print($"  binary(3, 4) = {binary(3, 4)}\n")
+    print($"  ternary(1, 2, 3) = {ternary(1, 2, 3)}\n")
+
+    // Test 4: Swap lambdas
+    print("\nTest 4 - Lambda reassignment:\n")
+    var operation: fn(int): int = fn(x: int): int => x + 1
+    print($"  operation(5) = {operation(5)}\n")
+
+    operation = fn(x: int): int => x * 2
+    print($"  operation(5) after swap = {operation(5)}\n")
+
+    operation = fn(x: int): int => x * x
+    print($"  operation(5) after swap = {operation(5)}\n")
+
+    // Test 5: Conditional lambda selection
+    print("\nTest 5 - Conditional selection:\n")
+    var use_add: bool = true
+    var selected: fn(int, int): int = fn(a: int, b: int): int => a + b
+    if use_add =>
+        selected = fn(a: int, b: int): int => a + b
+    else =>
+        selected = fn(a: int, b: int): int => a * b
+
+    print($"  selected(3, 4) with add: {selected(3, 4)}\n")
+
+    use_add = false
+    if use_add =>
+        selected = fn(a: int, b: int): int => a + b
+    else =>
+        selected = fn(a: int, b: int): int => a * b
+
+    print($"  selected(3, 4) with mul: {selected(3, 4)}\n")
+
+    print("\nAll multiple lambda tests passed!\n")
+    return 0

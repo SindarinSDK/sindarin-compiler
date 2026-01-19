@@ -1,0 +1,64 @@
+// Test 56: Deeply nested structures
+fn main(): int =>
+    print("Test deep nesting:\n\n")
+
+    // Deeply nested if statements
+    print("Nested if (5 levels):\n")
+    var x: int = 10
+    if x > 0 =>
+        if x > 2 =>
+            if x > 4 =>
+                if x > 6 =>
+                    if x > 8 =>
+                        print("  x > 8 (all conditions true)\n")
+
+    // Deeply nested loops
+    print("\nNested loops (4 levels):\n")
+    var count: int = 0
+    for var a: int = 0; a < 2; a++ =>
+        for var b: int = 0; b < 2; b++ =>
+            for var c: int = 0; c < 2; c++ =>
+                for var d: int = 0; d < 2; d++ =>
+                    count++
+    print($"Total iterations: {count}\n")
+
+    // Nested blocks
+    print("\nNested blocks (5 levels):\n")
+    var value: int = 0
+    shared =>
+        value = value + 1
+        shared =>
+            value = value + 2
+            shared =>
+                value = value + 3
+                shared =>
+                    value = value + 4
+                    shared =>
+                        value = value + 5
+    print($"value after nested blocks: {value}\n")
+
+    // Mix of nesting types
+    print("\nMixed nesting:\n")
+    var result: int = 0
+    if x > 0 =>
+        for var i: int = 0; i < 3; i++ =>
+            shared =>
+                var j: int = 0
+                while j < 2 =>
+                    result = result + 1
+                    j++
+    print($"result: {result}\n")
+
+    // Nested function calls
+    print("\nNested expressions:\n")
+    var a: int = 2
+    var b: int = 3
+    var nested_expr: int = ((a + b) * (a + b)) + ((a * b) + (a * b))
+    print($"Nested expression = {nested_expr}\n")
+
+    // Nested interpolation content
+    var name: str = "Alice"
+    var greeting: str = $"Hello, {$"{name}"}!"
+    print($"Nested interpolation: {greeting}\n")
+
+    return 0

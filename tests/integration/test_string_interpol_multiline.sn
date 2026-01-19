@@ -1,0 +1,107 @@
+// Integration test for multi-line interpolated strings
+// Tests basic multi-line strings, interpolation on different lines,
+// and indentation/whitespace preservation
+
+fn main(): int =>
+    // ===== TEST 1: Basic multi-line interpolated string =====
+    var basic: str = $"First line
+Second line
+Third line"
+    print($"Test 1 - Basic multi-line:\n")
+    print(basic)
+    print("\n\n")
+
+    // ===== TEST 2: Interpolation expressions on different lines =====
+    var a: int = 10
+    var b: int = 20
+    var c: int = 30
+    var multi_expr: str = $"Line with a: {a}
+Line with b: {b}
+Line with c: {c}
+Sum on this line: {a + b + c}"
+    print($"Test 2 - Expressions on different lines:\n")
+    print(multi_expr)
+    print("\n\n")
+
+    // ===== TEST 3: Indentation/whitespace preservation =====
+    var indented: str = $"No indent
+  Two spaces
+    Four spaces
+      Six spaces
+        Eight spaces"
+    print($"Test 3 - Indentation preservation:\n")
+    print(indented)
+    print("\n\n")
+
+    // ===== TEST 4: Tabs and mixed whitespace =====
+    var tabbed: str = $"Start
+	One tab
+		Two tabs
+ 	Space then tab"
+    print($"Test 4 - Tab preservation:\n")
+    print(tabbed)
+    print("\n\n")
+
+    // ===== TEST 5: Empty lines within multi-line string =====
+    var with_empty: str = $"Before empty
+
+After empty
+
+Another gap
+
+End"
+    print($"Test 5 - Empty lines:\n")
+    print(with_empty)
+    print("\n\n")
+
+    // ===== TEST 6: Interpolation at line boundaries =====
+    var start_val: str = "START"
+    var end_val: str = "END"
+    var boundary: str = $"{start_val}
+middle content
+{end_val}"
+    print($"Test 6 - Interpolation at boundaries:\n")
+    print(boundary)
+    print("\n\n")
+
+    // ===== TEST 7: Multiple interpolations per line across lines =====
+    var x: int = 1
+    var y: int = 2
+    var z: int = 3
+    var multi_per_line: str = $"First: {x} and {y}
+Second: {y} and {z}
+Third: {x} and {z}"
+    print($"Test 7 - Multiple interpolations per line:\n")
+    print(multi_per_line)
+    print("\n\n")
+
+    // ===== TEST 8: Long multi-line with complex expressions =====
+    var name: str = "Alice"
+    var age: int = 25
+    var score: double = 95.5
+    var status: str = "Adult"
+    var complex: str = $"User Profile:
+Name: {name}
+Age: {age} years old
+Score: {score:.1f} points
+Status: {status}"
+    print($"Test 8 - Complex expressions:\n")
+    print(complex)
+    print("\n\n")
+
+    // ===== TEST 9: Whitespace only lines =====
+    var ws_lines: str = $"Content
+
+More content"
+    print($"Test 9 - Whitespace-only lines:\n")
+    print(ws_lines)
+    print("\n\n")
+
+    // ===== TEST 10: Trailing whitespace preservation =====
+    var trailing: str = $"Line with trailing spaces
+Next line"
+    print($"Test 10 - Trailing whitespace:\n")
+    print(trailing)
+    print("\n")
+
+    return 0

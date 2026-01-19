@@ -1,0 +1,104 @@
+// Test 54: Single element arrays
+fn main(): int =>
+    print("Test single element arrays:\n\n")
+
+    // Single element arrays of different types
+    var one_int: int[] = {42}
+    var one_double: double[] = {3.14}
+    var one_str: str[] = {"hello"}
+    var one_char: char[] = {'X'}
+    var one_bool: bool[] = {true}
+
+    print("one_int: ")
+    print(one_int)
+    print($" (length = {len(one_int)})\n")
+
+    print("one_double: ")
+    print(one_double)
+    print($" (length = {len(one_double)})\n")
+
+    print("one_str: ")
+    print(one_str)
+    print($" (length = {len(one_str)})\n")
+
+    print("one_char: ")
+    print(one_char)
+    print($" (length = {len(one_char)})\n")
+
+    print("one_bool: ")
+    print(one_bool)
+    print($" (length = {len(one_bool)})\n")
+
+    // Access single element
+    print($"\none_int[0] = {one_int[0]}\n")
+    print($"one_int[-1] = {one_int[-1]}\n")
+
+    // Operations on single-element arrays
+    print("\nOperations:\n")
+
+    // Push
+    one_int.push(100)
+    print("After push(100): ")
+    print(one_int)
+    print("\n")
+
+    // Pop back to single
+    one_int.pop()
+    print("After pop: ")
+    print(one_int)
+    print("\n")
+
+    // Pop last element
+    var popped: int = one_int.pop()
+    print($"Popped: {popped}\n")
+    print("After pop (now empty): ")
+    print(one_int)
+    print($" (length = {len(one_int)})\n")
+
+    // Recreate for more tests
+    var single: int[] = {99}
+
+    // Clone
+    var cloned: int[] = single.clone()
+    print("\nCloned: ")
+    print(cloned)
+    print("\n")
+
+    // Slice
+    var sliced: int[] = single[0..1]
+    print("single[0..1]: ")
+    print(sliced)
+    print("\n")
+
+    // Full copy slice
+    var fullcopy: int[] = single[..]
+    print("single[..]: ")
+    print(fullcopy)
+    print("\n")
+
+    // Reverse single element
+    single.reverse()
+    print("After reverse: ")
+    print(single)
+    print("\n")
+
+    // Concat
+    var other: int[] = {1, 2}
+    var combined: int[] = single.concat(other)
+    print("single.concat({1,2}): ")
+    print(combined)
+    print("\n")
+
+    // Join single
+    var strs: str[] = {"only"}
+    print($"Single string joined: \"{strs.join(",")}\"\n")
+
+    // Iterate single
+    print("\nIterate single:\n")
+    var count: int = 0
+    for n in single =>
+        print($"  {n}\n")
+        count++
+    print($"Iterations: {count}\n")
+
+    return 0

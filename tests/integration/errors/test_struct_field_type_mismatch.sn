@@ -1,0 +1,10 @@
+# Error test: struct literal with type mismatch in field initializer
+
+struct Point =>
+    x: double
+    y: double
+
+fn main(): void =>
+    # This should fail - string value for double field
+    var p: Point = Point { x: "wrong", y: 1.0 }
+    print("Should not compile\n")

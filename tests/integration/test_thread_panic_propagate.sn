@@ -1,0 +1,20 @@
+// Test: Thread panic propagation
+// Verifies that panics in threads are properly caught and propagated to caller on sync
+// Uses division by zero to trigger a panic in the thread
+
+fn will_panic(x: int): int =>
+    // Division by zero triggers rt_thread_panic
+    return 10 / x
+
+fn main(): void =>
+    print("Testing thread panic propagation\n")
+
+    // Spawn a thread that will panic due to division by zero
+    var r: int = &will_panic(0)
+
+    // This sync should propagate the panic
+    // The program will exit with panic message before reaching SUCCESS
+    r!
+
+    // If we get here, panic was NOT propagated (failure)
+    print("FAILURE: Should not reach here - panic should have propagated\n")

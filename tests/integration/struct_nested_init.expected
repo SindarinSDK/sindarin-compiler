@@ -1,0 +1,14 @@
+Test 1 - 2-level nested, inner all defaults passed
+Test 2 - 2-level nested, defaults both levels passed
+Test 3 - 2-level nested, override outer defaults passed
+Test 4 - 2-level nested, inner no defaults passed
+Test 5 - 2-level nested, override all passed
+Test 6 - 2-level nested, multiple inners passed
+Test 7 - 2-level nested, mixed inner defaults passed
+Test 8 - 3-level nested, partial init passed
+Test 9 - 3-level nested, all levels explicit passed
+Test 10 - 3-level nested, minimal init passed
+Test 11 - 3-level nested, defaults propagate passed
+Test 12 - Complex nested with multiple paths passed
+Test 13 - Complex nested minimal init passed
+All nested struct initialization tests passed!

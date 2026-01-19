@@ -1,0 +1,32 @@
+// ============================================================================
+// arrays.sn - Array Operations Benchmark for Sindarin
+// ============================================================================
+// Tests dynamic array/list operations performance
+// ============================================================================
+
+fn main(): void =>
+    var start: Time = Time.now()
+
+    // Create array with 1,000,000 integers (0 to 999,999)
+    // Use sized array allocation for O(1) initialization
+    var arr: int[1000000]
+    shared for var i: int = 0; i < 1000000; i++ =>
+        arr[i] = i
+
+    // Sum all elements
+    var sum: int = 0
+    shared for n in arr =>
+        sum = sum + n
+    print($"Sum: {sum}\n")
+
+    // Reverse the array in-place
+    arr.reverse()
+
+    // Sum again to verify
+    var reversed_sum: int = 0
+    shared for n in arr =>
+        reversed_sum = reversed_sum + n
+    print($"Reversed sum: {reversed_sum}\n")
+
+    var elapsed: int = Time.now().diff(start)
+    print($"Array time: {elapsed}ms\n")

@@ -1,0 +1,18 @@
+// Test 132: Circular import handling
+// Tests how the compiler handles circular imports (A imports B imports A)
+// This test documents the expected behavior - may be error or resolution
+
+import "import_tests/circular_a"
+
+fn main(): int =>
+    print("Test circular import handling:\n\n")
+
+    // If we reach here, circular imports are handled gracefully
+    print("Circular import compiled successfully!\n")
+
+    // Try calling functions from the circular modules
+    var result: int = func_a(5)
+    print($"func_a(5) = {result}\n")
+
+    print("\nCircular import test complete.\n")
+    return 0

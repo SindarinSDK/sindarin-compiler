@@ -1,0 +1,107 @@
+// Test 09: Arrays - range literals and spread operator
+fn main(): int =>
+    print("=== Range Literals ===\n")
+
+    // Basic range
+    var r1: int[] = 1..5
+    print("1..5: ")
+    print(r1)
+    print("\n")
+
+    // Zero-based range
+    var r2: int[] = 0..3
+    print("0..3: ")
+    print(r2)
+    print("\n")
+
+    // Larger range
+    var r3: int[] = 1..10
+    print("1..10: ")
+    print(r3)
+    print("\n")
+
+    // Variable range
+    var start: int = 5
+    var end: int = 9
+    var r4: int[] = start..end
+    print($"Range {start}..{end}: ")
+    print(r4)
+    print("\n")
+
+    // Range in array literal
+    print("\n=== Range in Array Literal ===\n")
+    var mixed1: int[] = {0, 1..4, 10}
+    print("{0, 1..4, 10}: ")
+    print(mixed1)
+    print("\n")
+
+    var mixed2: int[] = {1..3, 10..13}
+    print("{1..3, 10..13}: ")
+    print(mixed2)
+    print("\n")
+
+    print("\n=== Spread Operator ===\n")
+    var source: int[] = {1, 2, 3}
+    print("source: ")
+    print(source)
+    print("\n")
+
+    // Simple spread (clone)
+    var spread1: int[] = {...source}
+    print("{...source}: ")
+    print(spread1)
+    print("\n")
+
+    // Spread with prefix
+    var spread2: int[] = {0, ...source}
+    print("{0, ...source}: ")
+    print(spread2)
+    print("\n")
+
+    // Spread with suffix
+    var spread3: int[] = {...source, 4, 5}
+    print("{...source, 4, 5}: ")
+    print(spread3)
+    print("\n")
+
+    // Spread with both
+    var spread4: int[] = {0, ...source, 4}
+    print("{0, ...source, 4}: ")
+    print(spread4)
+    print("\n")
+
+    // Multiple spreads
+    var a: int[] = {1, 2}
+    var b: int[] = {3, 4}
+    var combined: int[] = {...a, ...b}
+    print("{...a, ...b}: ")
+    print(combined)
+    print("\n")
+
+    print("\n=== Spread with Range ===\n")
+    var spread_range: int[] = {...source, 10..13}
+    print("{...source, 10..13}: ")
+    print(spread_range)
+    print("\n")
+
+    var range_spread: int[] = {1..3, ...source}
+    print("{1..3, ...source}: ")
+    print(range_spread)
+    print("\n")
+
+    print("\n=== Edge Cases ===\n")
+    // Empty spread
+    var empty: int[] = {}
+    var with_empty: int[] = {1, ...empty, 2}
+    print("{1, ...empty, 2}: ")
+    print(with_empty)
+    print("\n")
+
+    // Single element spread
+    var single: int[] = {42}
+    var spread_single: int[] = {...single}
+    print("{...single}: ")
+    print(spread_single)
+    print("\n")
+
+    return 0

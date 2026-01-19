@@ -1,0 +1,5 @@
+a! + b! = 30
+(a + b) * c! = 150
+double_value(c) = 10
+Sum of all: 35
+SUCCESS: All sync-in-expression results correct

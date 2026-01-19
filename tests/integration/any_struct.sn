@@ -1,0 +1,71 @@
+# Test struct support for any type
+
+struct Point =>
+    x: double
+    y: double
+
+struct Vector =>
+    dx: double
+    dy: double
+
+fn main(): int =>
+    # Test boxing a struct into any
+    var p: Point = Point { x: 10.0, y: 20.0 }
+    var a: any = p
+
+    # Test 'is' operator for correct struct type
+    if a is Point =>
+        print("a is Point: PASS\n")
+    else =>
+        print("a is Point: FAIL\n")
+        return 1
+
+    # Test 'is' operator for incorrect struct type
+    if a is Vector =>
+        print("a is not Vector: FAIL\n")
+        return 1
+    else =>
+        print("a is not Vector: PASS\n")
+
+    # Test 'as' operator to unbox struct
+    var p2: Point = a as Point
+    if p2.x == 10.0 =>
+        if p2.y == 20.0 =>
+            print("Unboxed Point values: PASS\n")
+        else =>
+            print("Unboxed Point y value: FAIL\n")
+            return 1
+    else =>
+        print("Unboxed Point x value: FAIL\n")
+        return 1
+
+    # Test boxing a different struct
+    var v: Vector = Vector { dx: 1.0, dy: 2.0 }
+    var b: any = v
+
+    if b is Vector =>
+        print("b is Vector: PASS\n")
+    else =>
+        print("b is Vector: FAIL\n")
+        return 1
+
+    if b is Point =>
+        print("b is not Point: FAIL\n")
+        return 1
+    else =>
+        print("b is not Point: PASS\n")
+
+    # Test unboxing the other struct
+    var v2: Vector = b as Vector
+    if v2.dx == 1.0 =>
+        if v2.dy == 2.0 =>
+            print("Unboxed Vector values: PASS\n")
+        else =>
+            print("Unboxed Vector dy value: FAIL\n")
+            return 1
+    else =>
+        print("Unboxed Vector dx value: FAIL\n")
+        return 1
+
+    print("All struct any tests passed!\n")
+    return 0

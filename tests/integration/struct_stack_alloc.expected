@@ -1,0 +1,5 @@
+Testing stack-allocated structs (<8KB):
+SmallPoint test: PASS
+SmallConfig defaults test: PASS
+MediumStruct test: PASS
+All stack allocation tests passed.

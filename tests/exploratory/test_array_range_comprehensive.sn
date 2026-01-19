@@ -1,0 +1,59 @@
+// Test 30: Range literals in arrays
+fn main(): int =>
+    print("Test range literals:\n\n")
+
+    // Basic range
+    var r1: int[] = 1..5
+    print("1..5 = ")
+    print(r1)
+    print("\n")
+
+    var r2: int[] = 0..10
+    print("0..10 = ")
+    print(r2)
+    print("\n")
+
+    // Range starting from non-zero
+    var r3: int[] = 5..10
+    print("5..10 = ")
+    print(r3)
+    print("\n")
+
+    // Short range
+    var r4: int[] = 1..3
+    print("1..3 = ")
+    print(r4)
+    print("\n")
+
+    // Range in array literal
+    var arr1: int[] = {0, 1..4, 10}
+    print("{0, 1..4, 10} = ")
+    print(arr1)
+    print("\n")
+
+    // Multiple ranges
+    var arr2: int[] = {1..3, 10..13}
+    print("{1..3, 10..13} = ")
+    print(arr2)
+    print("\n")
+
+    // Range with expressions
+    var start: int = 5
+    var end: int = 8
+    var r5: int[] = start..end
+    print($"{start}..{end} = ")
+    print(r5)
+    print("\n")
+
+    // Iterate over range
+    print("\nIterate over 1..5:\n")
+    for n in 1..6 =>
+        print($"  {n}\n")
+
+    // Sum of range
+    var sum: int = 0
+    for n in 1..11 =>
+        sum = sum + n
+    print($"Sum of 1..10 = {sum}\n")
+
+    return 0

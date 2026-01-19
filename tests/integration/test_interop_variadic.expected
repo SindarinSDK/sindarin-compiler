@@ -1,0 +1,32 @@
+=== Variadic Function Interop Test ===
+
+  Testing printf with string arguments...
+    Hello, World!
+    Name: Alice, Language: Sindarin
+  Testing printf with integer arguments...
+    Integer: 42
+    Negative: -17
+    Large: 1000000
+    Multiple ints: 1, 2, 3
+  Testing printf with double arguments...
+    Pi: 3.141593
+    e: 2.71828
+    Formatted: 123.46
+  Testing printf with char arguments...
+    Char: X
+    Multiple chars: ABC
+  Testing printf with bool arguments (as int)...
+    True: 1
+    False: 0
+  Testing printf with mixed argument types...
+    String: Test, Int: 42, Double: 3.14, Char: *
+    Combined: Player scored 100 points with 95.5% accuracy
+  Testing printf with no variadic arguments...
+    Just a plain string
+  Testing printf with width and precision...
+    Right aligned:       test|
+    Left aligned: test      |
+    Zero padded: 00042
+    Precision: 1.235
+
+=== All variadic interop tests PASSED! ===

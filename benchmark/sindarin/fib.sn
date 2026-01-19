@@ -1,0 +1,38 @@
+// ============================================================================
+// fib.sn - Fibonacci Benchmark for Sindarin
+// ============================================================================
+// Tests function call overhead (recursive) and loop performance (iterative)
+// ============================================================================
+
+// Fibonacci recursive (tests function call overhead)
+fn fib_recursive(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib_recursive(n - 1) + fib_recursive(n - 2)
+
+// Fibonacci iterative (tests loop performance)
+fn fib_iterative(n: int): int =>
+    if n <= 1 =>
+        return n
+    var a: int = 0
+    var b: int = 1
+    shared for var i: int = 2; i <= n; i++ =>
+        var temp: int = a + b
+        a = b
+        b = temp
+    return b
+
+fn main(): void =>
+    // Recursive fib(35)
+    var start_recursive: Time = Time.now()
+    var result_recursive: int = fib_recursive(35)
+    var elapsed_recursive: int = Time.now().diff(start_recursive)
+    print($"Recursive fib(35) = {result_recursive}\n")
+    print($"Recursive time: {elapsed_recursive}ms\n")
+
+    // Iterative fib(50)
+    var start_iterative: Time = Time.now()
+    var result_iterative: int = fib_iterative(50)
+    var elapsed_iterative: int = Time.now().diff(start_iterative)
+    print($"Iterative fib(50) = {result_iterative}\n")
+    print($"Iterative time: {elapsed_iterative}ms\n")

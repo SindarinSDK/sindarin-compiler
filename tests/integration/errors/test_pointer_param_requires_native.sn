@@ -1,0 +1,10 @@
+# Error test: Pointer parameter in regular function
+# This should fail to compile because pointer types in function signatures
+# require the 'native' keyword.
+
+# Regular function with pointer parameter - should be a compile error
+fn bad_function(ptr: *int): void =>
+    return
+
+fn main(): int =>
+    return 0

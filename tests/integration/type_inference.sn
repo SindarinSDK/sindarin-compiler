@@ -1,0 +1,30 @@
+// Test type inference feature
+fn main(): int =>
+  // Test inference for basic types
+  var x = 42
+  var y = 3.14
+  var s = "hello"
+  var b = true
+  var c = 'A'
+
+  print($"int: {x}\n")
+  print($"double: {y}\n")
+  print($"string: {s}\n")
+  print($"bool: {b}\n")
+  print($"char: {c}\n")
+
+  // Test inference with expressions
+  var sum = x + 10
+  var doubled = y * 2.0
+  print($"sum: {sum}\n")
+  print($"doubled: {doubled}\n")
+
+  // Test inference with arrays
+  var nums = {1, 2, 3}
+  print("nums: ")
+  print(nums)
+  print("\n")
+
+  print($"nums.length = {nums.length}\n")
+
+  return 0

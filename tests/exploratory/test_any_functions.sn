@@ -1,0 +1,174 @@
+// Test: any type with functions
+// Verifies any in function parameters, returns, and complex patterns
+
+fn main(): void =>
+    print("Testing any type with functions\n")
+
+    // Test function with single any parameter
+    var v1: any = 42
+    var r1: str = describeType(v1)
+    assert(r1 == "int", "describeType should identify int")
+    var v2: any = "test"
+    var r2: str = describeType(v2)
+    assert(r2 == "str", "describeType should identify str")
+    var v3: any = true
+    var r3: str = describeType(v3)
+    assert(r3 == "bool", "describeType should identify bool")
+    print("  single any parameter: PASS\n")
+
+    // Test function with multiple any parameters
+    var a1: any = 10
+    var a2: any = 20
+    var sum: int = addAnys(a1, a2)
+    assert(sum == 30, "addAnys should sum two ints")
+    print("  multiple any parameters: PASS\n")
+
+    // Test function returning any
+    var result: any = createAny("int")
+    assert(result is int, "createAny('int') should return int")
+    result = createAny("str")
+    assert(result is str, "createAny('str') should return str")
+    result = createAny("bool")
+    assert(result is bool, "createAny('bool') should return bool")
+    print("  function returning any: PASS\n")
+
+    // Test function with mixed any and concrete parameters
+    var anyVal: any = 5
+    var concrete: int = 10
+    var mixed: int = mixedParams(anyVal, concrete)
+    assert(mixed == 15, "mixedParams should combine any and concrete")
+    print("  mixed any and concrete params: PASS\n")
+
+    // Test any through multiple function calls
+    var original: any = 100
+    var processed: any = processThrough(original)
+    assert(processed is int, "Processed value should be int")
+    var processedInt: int = processed as int
+    assert(processedInt == 200, "Processed value should be doubled")
+    print("  any through multiple calls: PASS\n")
+
+    // Test function that transforms types
+    var intInput: any = 42
+    var transformed: any = transformType(intInput)
+    assert(transformed is str, "Transformed int should become str")
+    var transformedStr: str = transformed as str
+    assert(transformedStr == "42", "Transformed value should be '42'")
+    print("  type transformation: PASS\n")
+
+    // Test conditional return types
+    var c1: any = conditionalReturn(true)
+    assert(c1 is int, "conditionalReturn(true) should return int")
+    var c2: any = conditionalReturn(false)
+    assert(c2 is str, "conditionalReturn(false) should return str")
+    print("  conditional return types: PASS\n")
+
+    // Test any with higher-order patterns
+    var opInput: any = 7
+    var doubled: any = applyOperation(opInput, 1)
+    assert(doubled is int, "Doubled value should be int")
+    var doubledInt: int = doubled as int
+    assert(doubledInt == 14, "Doubled value should be 14")
+
+    var squared: any = applyOperation(opInput, 2)
+    assert(squared is int, "Squared value should be int")
+    var squaredInt: int = squared as int
+    assert(squaredInt == 49, "Squared value should be 49")
+    print("  any with operation patterns: PASS\n")
+
+    // Test recursive function with any
+    var fibInput: any = 10
+    var fibResult: any = fibAny(fibInput)
+    assert(fibResult is int, "Fibonacci result should be int")
+    var fibInt: int = fibResult as int
+    assert(fibInt == 55, "Fibonacci(10) should be 55")
+    print("  recursive function with any: PASS\n")
+
+    print("All any function tests passed!\n")
+
+fn describeType(value: any): str =>
+    if value is int =>
+        return "int"
+    else if value is str =>
+        return "str"
+    else if value is bool =>
+        return "bool"
+    else if value is double =>
+        return "double"
+    return "unknown"
+
+fn addAnys(a: any, b: any): int =>
+    if a is int && b is int =>
+        var aInt: int = a as int
+        var bInt: int = b as int
+        return aInt + bInt
+    return 0
+
+fn createAny(typeName: str): any =>
+    if typeName == "int" =>
+        var r: any = 123
+        return r
+    else if typeName == "str" =>
+        var r: any = "created"
+        return r
+    var r: any = true
+    return r
+
+fn mixedParams(anyVal: any, concrete: int): int =>
+    if anyVal is int =>
+        var anyInt: int = anyVal as int
+        return anyInt + concrete
+    return concrete
+
+fn processThrough(value: any): any =>
+    var intermediate: any = doubleAny(value)
+    return intermediate
+
+fn doubleAny(value: any): any =>
+    if value is int =>
+        var i: int = value as int
+        var r: any = i * 2
+        return r
+    var r: any = value
+    return r
+
+fn transformType(value: any): any =>
+    if value is int =>
+        var i: int = value as int
+        var s: str = $"{i}"
+        var r: any = s
+        return r
+    var r: any = value
+    return r
+
+fn conditionalReturn(flag: bool): any =>
+    if flag =>
+        var r: any = 42
+        return r
+    var r: any = "text"
+    return r
+
+fn applyOperation(value: any, op: int): any =>
+    if value is int =>
+        var i: int = value as int
+        if op == 1 =>
+            var r: any = i * 2
+            return r
+        else if op == 2 =>
+            var r: any = i * i
+            return r
+    var r: any = value
+    return r
+
+fn fibAny(n: any): any =>
+    if n is int =>
+        var num: int = n as int
+        var result: int = fib(num)
+        var r: any = result
+        return r
+    var r: any = 0
+    return r
+
+fn fib(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib(n - 1) + fib(n - 2)

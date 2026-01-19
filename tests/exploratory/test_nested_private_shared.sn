@@ -1,0 +1,61 @@
+// Test 85: Nested private and shared blocks
+// Tests alternating memory contexts and arena lifetime
+
+fn main(): int =>
+    print("Test nested private/shared blocks:\n\n")
+
+    var outer_val: int = 100
+
+    // Test 1: Shared block inside function
+    print("Test 1 - Shared block:\n")
+    shared =>
+        var shared_var: int = outer_val + 1
+        print($"  Shared var: {shared_var}\n")
+        outer_val = shared_var
+    print($"  Outer after shared: {outer_val}\n")
+
+    // Test 2: Private block (own arena)
+    print("\nTest 2 - Private block:\n")
+    var before_private: int = outer_val
+    private =>
+        var private_var: int = 50
+        print($"  Private var: {private_var}\n")
+        print($"  Can read outer: {outer_val}\n")
+        outer_val = private_var
+    print($"  Outer after private: {outer_val}\n")
+
+    // Test 3: Nested shared inside shared
+    print("\nTest 3 - Nested shared:\n")
+    var level: int = 0
+    shared =>
+        level = 1
+        print($"  Level 1: {level}\n")
+        shared =>
+            level = 2
+            print($"  Level 2: {level}\n")
+            shared =>
+                level = 3
+                print($"  Level 3: {level}\n")
+    print($"  Final level: {level}\n")
+
+    // Test 4: Shared with loop
+    print("\nTest 4 - Shared with loop:\n")
+    var total: int = 0
+    shared =>
+        for i in 1..5 =>
+            total = total + i
+            print($"  Adding {i}, total: {total}\n")
+    print($"  Final total: {total}\n")
+
+    // Test 5: Private block with computation
+    print("\nTest 5 - Private computation:\n")
+    var result: int = 0
+    private =>
+        var temp: int = 0
+        for i in 1..10 =>
+            temp = temp + i
+        result = temp
+    print($"  Sum 1..10: {result}\n")
+
+    print("\nAll nested block tests passed!\n")
+    return 0

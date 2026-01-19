@@ -1,0 +1,3 @@
+Circular dependency detected in struct 'LevelA': LevelA -> LevelB -> LevelC -> LevelA
+Circular dependency detected in struct 'LevelB': LevelB -> LevelC -> LevelA -> LevelB
+Circular dependency detected in struct 'LevelC': LevelC -> LevelA -> LevelB -> LevelC

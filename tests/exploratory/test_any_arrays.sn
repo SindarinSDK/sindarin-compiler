@@ -1,0 +1,112 @@
+// Test: any type with arrays
+// Verifies any[] behavior as used in interceptors
+
+// Global arrays to collect test data
+var captured_names: str[] = {}
+var captured_args: any[] = {}
+
+fn captureInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    // Capture the function name
+    captured_names.push(name)
+
+    // Test: args.length access and iteration
+    for i in 0..args.length =>
+        var arg: any = args[i]
+        captured_args.push(arg)
+
+    // Return based on first arg type
+    if args.length > 0 =>
+        var first: any = args[0]
+        if first is int =>
+            var v: int = first as int
+            var r: any = v * 2
+            return r
+
+    var r: any = 0
+    return r
+
+fn testIntArgs(a: int, b: int, c: int): int =>
+    return a + b + c
+
+fn testMixedArgs(n: int, s: str, flag: bool): int =>
+    return n
+
+fn testSingleArg(x: int): int =>
+    return x
+
+fn testNoArgs(): int =>
+    return 42
+
+fn main(): void =>
+    print("Testing any type with arrays\n")
+
+    Interceptor.register(captureInterceptor)
+
+    // Test 1: any[] with multiple int arguments
+    var r1: int = testIntArgs(10, 20, 30)
+    assert(r1 == 20, "First arg (10) doubled should be 20")
+    print("  any[] with multiple int args: PASS\n")
+
+    // Test 2: any[] with mixed type arguments
+    var r2: int = testMixedArgs(5, "hello", true)
+    assert(r2 == 10, "First arg (5) doubled should be 10")
+    print("  any[] with mixed type args: PASS\n")
+
+    // Test 3: any[] with single argument
+    var r3: int = testSingleArg(7)
+    assert(r3 == 14, "Single arg (7) doubled should be 14")
+    print("  any[] with single arg: PASS\n")
+
+    // Test 4: any[] with no arguments (empty array)
+    var r4: int = testNoArgs()
+    assert(r4 == 0, "No args should return 0")
+    print("  any[] empty array: PASS\n")
+
+    // Verify captured names
+    assert(captured_names.length == 4, "Should have captured 4 function names")
+    assert(captured_names[0] == "testIntArgs", "First call should be testIntArgs")
+    assert(captured_names[1] == "testMixedArgs", "Second call should be testMixedArgs")
+    assert(captured_names[2] == "testSingleArg", "Third call should be testSingleArg")
+    assert(captured_names[3] == "testNoArgs", "Fourth call should be testNoArgs")
+    print("  captured function names: PASS\n")
+
+    // Verify captured args count (3 + 3 + 1 + 0 = 7)
+    assert(captured_args.length == 7, "Should have captured 7 total args")
+    print("  captured args count: PASS\n")
+
+    // Test 5: Type checking on captured args from testIntArgs
+    assert(captured_args[0] is int, "arg 0 should be int")
+    assert(captured_args[1] is int, "arg 1 should be int")
+    assert(captured_args[2] is int, "arg 2 should be int")
+    print("  type checking int args: PASS\n")
+
+    // Type checking on captured args from testMixedArgs
+    assert(captured_args[3] is int, "arg 3 should be int")
+    assert(captured_args[4] is str, "arg 4 should be str")
+    assert(captured_args[5] is bool, "arg 5 should be bool")
+    print("  type checking mixed args: PASS\n")
+
+    // Type checking on captured arg from testSingleArg
+    assert(captured_args[6] is int, "arg 6 should be int")
+    print("  type checking single arg: PASS\n")
+
+    // Test 6: Cast and verify int values
+    var v0: int = captured_args[0] as int
+    var v1: int = captured_args[1] as int
+    var v2: int = captured_args[2] as int
+    assert(v0 == 10, "captured arg 0 should be 10")
+    assert(v1 == 20, "captured arg 1 should be 20")
+    assert(v2 == 30, "captured arg 2 should be 30")
+    print("  cast int values: PASS\n")
+
+    // Cast and verify mixed values
+    var v3: int = captured_args[3] as int
+    var v4: str = captured_args[4] as str
+    var v5: bool = captured_args[5] as bool
+    assert(v3 == 5, "captured arg 3 should be 5")
+    assert(v4 == "hello", "captured arg 4 should be 'hello'")
+    assert(v5, "captured arg 5 should be true")
+    print("  cast mixed values: PASS\n")
+
+    Interceptor.clearAll()
+    print("All any array tests passed!\n")

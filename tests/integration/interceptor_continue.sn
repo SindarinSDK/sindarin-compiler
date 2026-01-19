@@ -1,0 +1,102 @@
+// Test: Interceptor continue_fn functionality
+// Tests that continue_fn() correctly invokes the original function
+// Also tests Interceptor.isActive() inside handler
+
+var original_called: bool = false
+var intercept_count: int = 0
+var was_active_in_handler: bool = false
+
+fn add(a: int, b: int): int =>
+    original_called = true
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+// Passthrough interceptor - calls continue and returns result
+fn passthrough(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercept_count = intercept_count + 1
+    was_active_in_handler = Interceptor.isActive()
+    var result: any = continue_fn()
+    return result
+
+// Doubling interceptor - modifies result after continue
+fn doubleResult(name: str, args: any[], continue_fn: fn(): any): any =>
+    var result: any = continue_fn()
+    var intResult: int = result as int
+    var doubled: any = intResult * 2
+    return doubled
+
+fn main =>
+    print("=== Interceptor continue_fn Tests ===\n")
+
+    // Test 1: Basic continue passthrough
+    print("\nTest 1: Basic continue passthrough\n")
+    Interceptor.register(passthrough)
+    var r1: int = add(5, 3)
+    Interceptor.clearAll()
+
+    if r1 == 8 =>
+        print("  Result correct: 8 - PASS\n")
+    else =>
+        print("  Result wrong - FAIL\n")
+
+    if original_called =>
+        print("  Original function called - PASS\n")
+    else =>
+        print("  Original function NOT called - FAIL\n")
+
+    if intercept_count == 1 =>
+        print("  Interceptor was invoked - PASS\n")
+    else =>
+        print("  Interceptor count wrong - FAIL\n")
+
+    if was_active_in_handler =>
+        print("  isActive() true inside handler - PASS\n")
+    else =>
+        print("  isActive() should be true inside handler - FAIL\n")
+
+    // Verify isActive is false outside handler
+    if !Interceptor.isActive() =>
+        print("  isActive() false outside handler - PASS\n")
+    else =>
+        print("  isActive() should be false outside handler - FAIL\n")
+
+    // Reset state
+    original_called = false
+    intercept_count = 0
+    was_active_in_handler = false
+
+    // Test 2: Modify result after continue
+    print("\nTest 2: Modify result after continue\n")
+    Interceptor.register(doubleResult)
+    var r2: int = add(5, 3)  // Should return 16 (8 * 2)
+    Interceptor.clearAll()
+
+    if r2 == 16 =>
+        print("  Result correctly doubled: 16 - PASS\n")
+    else =>
+        print("  Result wrong - FAIL\n")
+
+    // Reset state
+    original_called = false
+    intercept_count = 0
+
+    // Test 3: Multiple interceptors chaining
+    print("\nTest 3: Multiple interceptors chaining\n")
+    Interceptor.register(passthrough)
+    Interceptor.register(passthrough)
+    var r3: int = multiply(4, 5)
+    Interceptor.clearAll()
+
+    if r3 == 20 =>
+        print("  Result correct with chain: 20 - PASS\n")
+    else =>
+        print("  Result wrong - FAIL\n")
+
+    if intercept_count == 2 =>
+        print("  Both interceptors called - PASS\n")
+    else =>
+        print("  Intercept count wrong - FAIL\n")
+
+    print("\n=== All continue_fn Tests Passed ===\n")

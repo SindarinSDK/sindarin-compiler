@@ -1,0 +1,317 @@
+#include "token.h"
+#include "debug.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <inttypes.h>
+
+void token_init(Token *token, SnTokenType type, const char *start, int length, int line, const char *filename)
+{
+    token->type = type;
+    token->start = start;
+    token->length = length;
+    token->line = line;
+    token->literal.int_value = 0;
+    token->filename = filename;
+}
+
+void token_set_int_literal(Token *token, int64_t value)
+{
+    token->literal.int_value = value;
+}
+
+void token_set_double_literal(Token *token, double value)
+{
+    token->literal.double_value = value;
+}
+
+void token_set_char_literal(Token *token, char value)
+{
+    token->literal.char_value = value;
+}
+
+void token_set_string_literal(Token *token, const char *value)
+{
+    token->literal.string_value = value;
+}
+
+void token_set_array_literal(Token *token, const char *value)
+{
+    token->literal.string_value = value;
+}
+
+void token_set_bool_literal(Token *token, int value)
+{
+    token->literal.bool_value = value;
+}
+
+const char *token_type_to_string(SnTokenType type)
+{
+    if (type < 0 || type > TOKEN_ERROR)
+    {
+        DEBUG_ERROR("Invalid SnTokenType: %d", type);
+        return "INVALID";
+    }
+
+    switch (type)
+    {
+    case TOKEN_EOF:
+        return "EOF";
+    case TOKEN_INT_LITERAL:
+        return "INT_LITERAL";
+    case TOKEN_LONG_LITERAL:
+        return "LONG_LITERAL";
+    case TOKEN_BYTE_LITERAL:
+        return "BYTE_LITERAL";
+    case TOKEN_DOUBLE_LITERAL:
+        return "DOUBLE_LITERAL";
+    case TOKEN_FLOAT_LITERAL:
+        return "FLOAT_LITERAL";
+    case TOKEN_UINT_LITERAL:
+        return "UINT_LITERAL";
+    case TOKEN_UINT32_LITERAL:
+        return "UINT32_LITERAL";
+    case TOKEN_INT32_LITERAL:
+        return "INT32_LITERAL";
+    case TOKEN_CHAR_LITERAL:
+        return "CHAR_LITERAL";
+    case TOKEN_STRING_LITERAL:
+        return "STRING_LITERAL";
+    case TOKEN_INTERPOL_STRING:
+        return "INTERPOL_STRING";
+    case TOKEN_ARRAY_LITERAL:
+        return "ARRAY_LITERAL";
+    case TOKEN_BOOL_LITERAL:
+        return "BOOL_LITERAL";
+    case TOKEN_IDENTIFIER:
+        return "IDENTIFIER";
+    case TOKEN_FN:
+        return "FN";
+    case TOKEN_VAR:
+        return "VAR";
+    case TOKEN_RETURN:
+        return "RETURN";
+    case TOKEN_IF:
+        return "IF";
+    case TOKEN_ELSE:
+        return "ELSE";
+    case TOKEN_FOR:
+        return "FOR";
+    case TOKEN_WHILE:
+        return "WHILE";
+    case TOKEN_BREAK:
+        return "BREAK";
+    case TOKEN_CONTINUE:
+        return "CONTINUE";
+    case TOKEN_IN:
+        return "IN";
+    case TOKEN_IMPORT:
+        return "IMPORT";
+    case TOKEN_NIL:
+        return "NIL";
+    case TOKEN_INT:
+        return "INT";
+    case TOKEN_INT32:
+        return "INT32";
+    case TOKEN_UINT:
+        return "UINT";
+    case TOKEN_UINT32:
+        return "UINT32";
+    case TOKEN_LONG:
+        return "LONG";
+    case TOKEN_DOUBLE:
+        return "DOUBLE";
+    case TOKEN_FLOAT:
+        return "FLOAT";
+    case TOKEN_CHAR:
+        return "CHAR";
+    case TOKEN_STR:
+        return "STR";
+    case TOKEN_BOOL:
+        return "BOOL";
+    case TOKEN_BYTE:
+        return "BYTE";
+    case TOKEN_VOID:
+        return "VOID";
+    case TOKEN_SHARED:
+        return "SHARED";
+    case TOKEN_PRIVATE:
+        return "PRIVATE";
+    case TOKEN_AS:
+        return "AS";
+    case TOKEN_VAL:
+        return "VAL";
+    case TOKEN_REF:
+        return "REF";
+    case TOKEN_NATIVE:
+        return "NATIVE";
+    case TOKEN_KEYWORD_TYPE:
+        return "TYPE";
+    case TOKEN_OPAQUE:
+        return "OPAQUE";
+    case TOKEN_STRUCT:
+        return "STRUCT";
+    case TOKEN_STATIC:
+        return "STATIC";
+    case TOKEN_ANY:
+        return "ANY";
+    case TOKEN_TYPEOF:
+        return "TYPEOF";
+    case TOKEN_IS:
+        return "IS";
+    case TOKEN_SIZEOF:
+        return "SIZEOF";
+    case TOKEN_PLUS:
+        return "PLUS";
+    case TOKEN_MINUS:
+        return "MINUS";
+    case TOKEN_STAR:
+        return "STAR";
+    case TOKEN_SLASH:
+        return "SLASH";
+    case TOKEN_MODULO:
+        return "MODULO";
+    case TOKEN_EQUAL:
+        return "EQUAL";
+    case TOKEN_EQUAL_EQUAL:
+        return "EQUAL_EQUAL";
+    case TOKEN_BANG:
+        return "BANG";
+    case TOKEN_BANG_EQUAL:
+        return "BANG_EQUAL";
+    case TOKEN_LESS:
+        return "LESS";
+    case TOKEN_LESS_EQUAL:
+        return "LESS_EQUAL";
+    case TOKEN_GREATER:
+        return "GREATER";
+    case TOKEN_GREATER_EQUAL:
+        return "GREATER_EQUAL";
+    case TOKEN_AND:
+        return "AND";
+    case TOKEN_OR:
+        return "OR";
+    case TOKEN_AMPERSAND:
+        return "AMPERSAND";
+    case TOKEN_PLUS_PLUS:
+        return "PLUS_PLUS";
+    case TOKEN_MINUS_MINUS:
+        return "MINUS_MINUS";
+    case TOKEN_PLUS_EQUAL:
+        return "PLUS_EQUAL";
+    case TOKEN_MINUS_EQUAL:
+        return "MINUS_EQUAL";
+    case TOKEN_STAR_EQUAL:
+        return "STAR_EQUAL";
+    case TOKEN_SLASH_EQUAL:
+        return "SLASH_EQUAL";
+    case TOKEN_MODULO_EQUAL:
+        return "MODULO_EQUAL";
+    case TOKEN_SYNC:
+        return "SYNC";
+    case TOKEN_LOCK:
+        return "LOCK";
+    case TOKEN_LEFT_PAREN:
+        return "LEFT_PAREN";
+    case TOKEN_RIGHT_PAREN:
+        return "RIGHT_PAREN";
+    case TOKEN_LEFT_BRACE:
+        return "LEFT_BRACE";
+    case TOKEN_RIGHT_BRACE:
+        return "RIGHT_BRACE";
+    case TOKEN_LEFT_BRACKET:
+        return "LEFT_BRACKET";
+    case TOKEN_RIGHT_BRACKET:
+        return "RIGHT_BRACKET";
+    case TOKEN_SEMICOLON:
+        return "SEMICOLON";
+    case TOKEN_COLON:
+        return "COLON";
+    case TOKEN_COMMA:
+        return "COMMA";
+    case TOKEN_DOT:
+        return "DOT";
+    case TOKEN_RANGE:
+        return "RANGE";
+    case TOKEN_SPREAD:
+        return "SPREAD";
+    case TOKEN_ARROW:
+        return "ARROW";
+    case TOKEN_PRAGMA:
+        return "PRAGMA";
+    case TOKEN_PRAGMA_INCLUDE:
+        return "PRAGMA_INCLUDE";
+    case TOKEN_PRAGMA_LINK:
+        return "PRAGMA_LINK";
+    case TOKEN_PRAGMA_SOURCE:
+        return "PRAGMA_SOURCE";
+    case TOKEN_PRAGMA_PACK:
+        return "PRAGMA_PACK";
+    case TOKEN_INDENT:
+        return "INDENT";
+    case TOKEN_DEDENT:
+        return "DEDENT";
+    case TOKEN_NEWLINE:
+        return "NEWLINE";
+    case TOKEN_ERROR:
+        return "ERROR";
+    default:
+        return "UNKNOWN";
+    }
+}
+
+void token_print(Token *token)
+{
+    char *text = malloc(token->length + 1);
+    memcpy(text, token->start, token->length);
+    text[token->length] = '\0';
+
+    printf("Token { type: %s, lexeme: '%s', line: %d",
+           token_type_to_string(token->type), text, token->line);
+
+    switch (token->type)
+    {
+    case TOKEN_INT_LITERAL:
+        printf(", value: %" PRId64, token->literal.int_value);
+        break;
+    case TOKEN_LONG_LITERAL:
+        printf(", value: %" PRId64 "l", token->literal.int_value);
+        break;
+    case TOKEN_BYTE_LITERAL:
+        printf(", value: %" PRId64 "b", token->literal.int_value);
+        break;
+    case TOKEN_DOUBLE_LITERAL:
+        printf(", value: %fd", token->literal.double_value);
+        break;
+    case TOKEN_FLOAT_LITERAL:
+        printf(", value: %ff", token->literal.double_value);
+        break;
+    case TOKEN_UINT_LITERAL:
+        printf(", value: %" PRIu64 "u", (uint64_t)token->literal.int_value);
+        break;
+    case TOKEN_UINT32_LITERAL:
+        printf(", value: %" PRIu32 "u32", (uint32_t)token->literal.int_value);
+        break;
+    case TOKEN_INT32_LITERAL:
+        printf(", value: %" PRId32 "i32", (int32_t)token->literal.int_value);
+        break;
+    case TOKEN_CHAR_LITERAL:
+        printf(", value: '%c'", token->literal.char_value);
+        break;
+    case TOKEN_STRING_LITERAL:
+    case TOKEN_INTERPOL_STRING:
+        printf(", value: \"%s\"", token->literal.string_value);
+        break;
+    case TOKEN_ARRAY_LITERAL:
+        printf(", value: {%s}", token->literal.string_value ? token->literal.string_value : "");
+        break;
+    case TOKEN_BOOL_LITERAL:
+        printf(", value: %s", token->literal.bool_value ? "true" : "false");
+        break;
+    default:
+        break;
+    }
+
+    printf(" }\n");
+    free(text);
+}

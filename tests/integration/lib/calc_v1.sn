@@ -1,0 +1,7 @@
+// lib/calc_v1.sn - Calculator version 1 (for collision testing)
+
+fn compute(x: int): int =>
+    return x + 10
+
+fn process(a: int, b: int): int =>
+    return a + b

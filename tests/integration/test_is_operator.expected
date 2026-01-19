@@ -1,0 +1,12 @@
+=== Is Operator Tests ===
+
+Test: Primitive type checks
+  PASS
+Test: Array type checks
+  PASS
+Test: Extended integer types
+  PASS
+Test: Type dispatch with if/is
+  PASS
+
+=== All is operator tests passed! ===

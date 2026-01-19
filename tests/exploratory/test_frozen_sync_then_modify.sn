@@ -1,0 +1,13 @@
+// Test: after sync, frozen array becomes writable again
+// Expected: Compilation should SUCCEED
+// After r! syncs the thread, the frozen array is unfrozen
+
+fn process(data: int[]): int =>
+    return data[0]
+
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var r: int = &process(arr)  // arr is now frozen
+    var result: int = r!         // Sync: arr is now unfrozen
+    arr[0] = 99                  // OK: array is no longer frozen
+    print($"Result: {result}, arr[0]: {arr[0]}\n")

@@ -1,0 +1,15 @@
+Testing 'as ref' struct parameter passing:
+
+1. Original point: (5.00000, 10.00000)
+   After update_point: (15.00000, 30.00000)
+
+2. Before scaling: (2.00000, 3.00000)
+   After scale by 5: (10.00000, 15.00000)
+
+3. Before increment: count=0
+   After 3 increments: count=3
+
+4. Starting point: (1.00000, 1.00000)
+   After two updates: (21.00000, 41.00000)
+
+All 'as ref' struct tests PASSED!

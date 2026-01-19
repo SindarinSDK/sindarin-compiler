@@ -1,0 +1,18 @@
+# Test Known Limitation: Nested thread spawns
+# This tests spawning threads from within spawned threads
+# Expected: May cause issues with arena management
+
+fn inner_work(): int =>
+    return 42
+
+fn outer_work(): int =>
+    # Spawn a thread from within a thread
+    var inner: int = &inner_work()
+    var result = inner!
+    return result
+
+fn main(): void =>
+    # Spawn outer thread which will spawn inner thread
+    var outer: int = &outer_work()
+    var result = outer!
+    print($"Nested spawn result: {result}\n")

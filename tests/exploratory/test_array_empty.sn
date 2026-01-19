@@ -1,0 +1,4 @@
+// Test empty array
+fn main(): void =>
+  var arr: int[] = {}
+  print($"len={arr.length}\n")

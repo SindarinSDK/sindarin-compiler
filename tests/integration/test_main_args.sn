@@ -1,0 +1,7 @@
+# Test: main function with str[] parameter for command-line arguments
+
+fn main(args: str[]): void =>
+    # Test that args array is properly created
+    print($"Has args: {args.length > 0}\n")
+    # argv[0] contains the program name (path may vary)
+    print($"First arg contains test name: {args[0].contains("test_main_args")}\n")

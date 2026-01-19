@@ -1,0 +1,40 @@
+// Test string methods
+fn main(): int =>
+  var s = "Hello, World!"
+
+  // Test length
+  print($"Length: {s.length}\n")
+
+  // Test substring
+  print($"substring: {s.substring(0, 5)}\n")
+
+  // Test indexOf
+  print($"indexOf: {s.indexOf("World")}\n")
+
+  // Test toUpper and toLower
+  print($"toUpper: {s.toUpper()}\n")
+  print($"toLower: {s.toLower()}\n")
+
+  // Test trim
+  var padded = "  hello  "
+  print($"trim: '{padded.trim()}'\n")
+
+  // Test startsWith and endsWith
+  print($"startsWith: {s.startsWith("Hello")}\n")
+  print($"endsWith: {s.endsWith("!")}\n")
+
+  // Test contains
+  print($"contains: {s.contains("World")}\n")
+
+  // Test replace
+  print($"replace: {s.replace("World", "Sindarin")}\n")
+
+  // Test split
+  var csv = "a,b,c"
+  var parts: str[] = csv.split(",")
+  print("split:")
+  for p in parts =>
+    print($" [{p}]")
+  print("\n")
+
+  return 0

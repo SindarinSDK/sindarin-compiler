@@ -1,0 +1,59 @@
+// Test 105: Array bounds checking
+// Tests safe array access patterns
+
+fn safe_get(arr: int[], idx: int): int =>
+    if idx < 0 =>
+        return -1
+    if idx >= arr.length =>
+        return -1
+    return arr[idx]
+
+fn main(): int =>
+    print("Test array bounds:\n\n")
+
+    // Test 1: Normal array access
+    print("Test 1 - Normal access:\n")
+    var arr: int[] = {10, 20, 30, 40, 50}
+    print($"  arr[0] = {arr[0]}\n")
+    print($"  arr[2] = {arr[2]}\n")
+    print($"  arr[4] = {arr[4]}\n")
+
+    // Test 2: Safe getter with bounds check
+    print("\nTest 2 - Safe getter:\n")
+    print($"  safe_get(arr, 0) = {safe_get(arr, 0)}\n")
+    print($"  safe_get(arr, 4) = {safe_get(arr, 4)}\n")
+    print($"  safe_get(arr, 10) = {safe_get(arr, 10)} (out of bounds)\n")
+    print($"  safe_get(arr, -1) = {safe_get(arr, -1)} (negative)\n")
+
+    // Test 3: Negative indexing
+    print("\nTest 3 - Negative indexing:\n")
+    var data: int[] = {1, 2, 3, 4, 5}
+    print($"  data[-1] = {data[-1]} (last element)\n")
+    print($"  data[-2] = {data[-2]} (second to last)\n")
+
+    // Test 4: Boundary values
+    print("\nTest 4 - Boundary values:\n")
+    var nums: int[] = {100, 200, 300}
+    var first: int = nums[0]
+    var last: int = nums[nums.length - 1]
+    print($"  First element: {first}\n")
+    print($"  Last element: {last}\n")
+
+    // Test 5: Empty array check
+    print("\nTest 5 - Empty array:\n")
+    var empty: int[] = {}
+    print($"  Empty length: {empty.length}\n")
+    if empty.length > 0 =>
+        print($"  First: {empty[0]}\n")
+    else =>
+        print("  Array is empty\n")
+
+    // Test 6: Array modification at bounds
+    print("\nTest 6 - Modification at bounds:\n")
+    var modify: int[] = {1, 2, 3, 4, 5}
+    modify[0] = 100
+    modify[modify.length - 1] = 500
+    print($"  Modified array: first={modify[0]}, last={modify[-1]}\n")
+
+    print("\nAll array bounds tests passed!\n")
+    return 0

@@ -1,0 +1,96 @@
+// Test 27: Array methods
+fn main(): int =>
+    print("Test array methods:\n\n")
+
+    // push
+    print("push:\n")
+    var arr: int[] = {}
+    arr.push(10)
+    arr.push(20)
+    arr.push(30)
+    print("After pushes: ")
+    print(arr)
+    print("\n")
+
+    // pop
+    print("\npop:\n")
+    var popped: int = arr.pop()
+    print($"Popped: {popped}\n")
+    print("After pop: ")
+    print(arr)
+    print("\n")
+
+    // insert
+    print("\ninsert:\n")
+    arr.insert(99, 1)
+    print("After insert(99, 1): ")
+    print(arr)
+    print("\n")
+
+    // remove
+    print("\nremove:\n")
+    arr.remove(1)
+    print("After remove(1): ")
+    print(arr)
+    print("\n")
+
+    // reverse
+    print("\nreverse:\n")
+    var torev: int[] = {1, 2, 3, 4, 5}
+    print("Before: ")
+    print(torev)
+    print("\n")
+    torev.reverse()
+    print("After: ")
+    print(torev)
+    print("\n")
+
+    // clone
+    print("\nclone:\n")
+    var original: int[] = {10, 20, 30}
+    var cloned: int[] = original.clone()
+    cloned.push(40)
+    print("Original: ")
+    print(original)
+    print("\n")
+    print("Cloned: ")
+    print(cloned)
+    print("\n")
+
+    // concat
+    print("\nconcat:\n")
+    var first: int[] = {1, 2, 3}
+    var second: int[] = {4, 5, 6}
+    var combined: int[] = first.concat(second)
+    print("Combined: ")
+    print(combined)
+    print("\n")
+
+    // indexOf
+    print("\nindexOf:\n")
+    var search: int[] = {10, 20, 30, 40, 50}
+    print($"indexOf(30) = {search.indexOf(30)}\n")
+    print($"indexOf(99) = {search.indexOf(99)}\n")
+
+    // contains
+    print("\ncontains:\n")
+    print($"contains(30) = {search.contains(30)}\n")
+    print($"contains(99) = {search.contains(99)}\n")
+
+    // join
+    print("\njoin:\n")
+    var words: str[] = {"apple", "banana", "cherry"}
+    print($"join(\", \") = {words.join(", ")}\n")
+
+    // clear
+    print("\nclear:\n")
+    var toclear: int[] = {1, 2, 3}
+    print("Before: ")
+    print(toclear)
+    print("\n")
+    toclear.clear()
+    print("After: ")
+    print(toclear)
+    print($" (length = {len(toclear)})\n")
+
+    return 0

@@ -1,0 +1,78 @@
+# Test 'as ref' parameter passing for structs
+# 'as ref' on struct parameters passes a pointer allowing callee to modify caller's struct
+
+struct Point =>
+    x: double
+    y: double
+
+struct Counter =>
+    count: int
+    name: str
+
+# Native function with struct 'as ref' parameter - allows modification of caller's struct
+native fn update_point(p: Point as ref): void =>
+    p.x = p.x + 10.0
+    p.y = p.y + 20.0
+
+# Native function with mixed parameters - some regular, some as ref
+native fn scale_point(p: Point as ref, factor: double): void =>
+    p.x = p.x * factor
+    p.y = p.y * factor
+
+# Native function that modifies a counter struct
+native fn increment_counter(c: Counter as ref): void =>
+    c.count = c.count + 1
+
+fn main(): int =>
+    print("Testing 'as ref' struct parameter passing:\n\n")
+
+    # Test 1: Basic struct modification via as ref
+    var pt = Point{ x: 5.0, y: 10.0 }
+    print($"1. Original point: ({pt.x}, {pt.y})\n")
+    update_point(pt)
+    print($"   After update_point: ({pt.x}, {pt.y})\n")
+    if pt.x != 15.0 =>
+        print("FAIL: Expected x=15.0\n")
+        return 1
+    if pt.y != 30.0 =>
+        print("FAIL: Expected y=30.0\n")
+        return 1
+
+    # Test 2: Mixed regular and as ref parameters
+    var pt2 = Point{ x: 2.0, y: 3.0 }
+    print($"\n2. Before scaling: ({pt2.x}, {pt2.y})\n")
+    scale_point(pt2, 5.0)
+    print($"   After scale by 5: ({pt2.x}, {pt2.y})\n")
+    if pt2.x != 10.0 =>
+        print("FAIL: Expected x=10.0\n")
+        return 1
+    if pt2.y != 15.0 =>
+        print("FAIL: Expected y=15.0\n")
+        return 1
+
+    # Test 3: Struct with string field
+    var ctr = Counter{ count: 0, name: "test_counter" }
+    print($"\n3. Before increment: count={ctr.count}\n")
+    increment_counter(ctr)
+    increment_counter(ctr)
+    increment_counter(ctr)
+    print($"   After 3 increments: count={ctr.count}\n")
+    if ctr.count != 3 =>
+        print("FAIL: Expected count=3\n")
+        return 1
+
+    # Test 4: Multiple calls chained
+    var pt3 = Point{ x: 1.0, y: 1.0 }
+    print($"\n4. Starting point: ({pt3.x}, {pt3.y})\n")
+    update_point(pt3)
+    update_point(pt3)
+    print($"   After two updates: ({pt3.x}, {pt3.y})\n")
+    if pt3.x != 21.0 =>
+        print("FAIL: Expected x=21.0\n")
+        return 1
+    if pt3.y != 41.0 =>
+        print("FAIL: Expected y=41.0\n")
+        return 1
+
+    print("\nAll 'as ref' struct tests PASSED!\n")
+    return 0

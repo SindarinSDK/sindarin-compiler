@@ -1,0 +1,23 @@
+// Test: Same module imported both directly and with namespace
+// Both access methods should work and produce the same results
+import "lib/math_basic"
+import "lib/math_basic" as m
+
+fn main(): void =>
+    // Direct access
+    print($"sum(3, 4) = {sum(3, 4)}\n")
+    print($"prod(5, 6) = {prod(5, 6)}\n")
+
+    // Namespace access (same functions)
+    print($"m.sum(3, 4) = {m.sum(3, 4)}\n")
+    print($"m.prod(5, 6) = {m.prod(5, 6)}\n")
+
+    // Verify both produce same results
+    var direct: int = sum(10, 20)
+    var namespaced: int = m.sum(10, 20)
+    if direct == namespaced =>
+        print("PASS: sum(10, 20) == m.sum(10, 20)\n")
+
+    // Mix both in same expression
+    var mixed: int = sum(m.prod(2, 3), prod(4, 5))
+    print($"sum(m.prod(2, 3), prod(4, 5)) = {mixed}\n")

@@ -1,0 +1,62 @@
+// Test: Multiple threads calling intercepted functions concurrently
+// Verifies thread-safety of the interceptor dispatch mechanism
+
+var call_count: sync int = 0
+
+fn countingInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    call_count++
+    // Return different values based on function name
+    if name == "taskA" =>
+        var result: any = 10
+        return result
+    else if name == "taskB" =>
+        var result: any = 20
+        return result
+    else if name == "taskC" =>
+        var result: any = 30
+        return result
+    var result: any = 0
+    return result
+
+fn taskA(): int =>
+    return 1
+
+fn taskB(): int =>
+    return 2
+
+fn taskC(): int =>
+    return 3
+
+fn main(): void =>
+    print("Testing multiple threads with interceptors\n")
+
+    Interceptor.register(countingInterceptor)
+    assert(Interceptor.count() == 1, "Should have one interceptor")
+
+    // Spawn multiple threads that call different intercepted functions
+    var h1: int = &taskA()
+    var h2: int = &taskB()
+    var h3: int = &taskC()
+
+    // Also call from main thread
+    var mainResult: int = taskA()
+    assert(mainResult == 10, "Main thread should get intercepted value 10")
+
+    // Sync all threads
+    var r1: int = h1!
+    var r2: int = h2!
+    var r3: int = h3!
+
+    // Verify all were intercepted correctly
+    assert(r1 == 10, "Thread 1 should get intercepted value 10")
+    assert(r2 == 20, "Thread 2 should get intercepted value 20")
+    assert(r3 == 30, "Thread 3 should get intercepted value 30")
+
+    print($"Results: taskA={r1}, taskB={r2}, taskC={r3}\n")
+
+    // We called 4 functions total (3 threads + 1 main)
+    assert(call_count == 4, $"Should have 4 calls, got {call_count}")
+    print($"Total intercepted calls: {call_count}\n")
+
+    Interceptor.clearAll()
+    print("Multiple thread interceptor test passed!\n")

@@ -1,0 +1,30 @@
+# Integration test: Nil pointer slicing behavior
+# Tests that slicing a nil pointer produces an array with correct length
+# but nil data pointer. This is defined behavior for FFI null returns.
+
+native fn get_nil_buffer(): *byte =>
+    return nil
+
+native fn get_length(): int =>
+    return 5
+
+fn test_nil_slice_creates_array(): void =>
+    var len: int = get_length()
+    # Slicing a nil pointer should create an array structure
+    # with the specified length, but nil data pointer
+    var data: byte[] = get_nil_buffer()[0..len] as val
+
+    # The array should have the correct length property
+    print($"Array length: {data.length}\n")
+
+    # Note: Accessing elements would be undefined behavior,
+    # so we only test the length property here.
+    if data.length == 5 =>
+        print("Length check: PASS\n")
+    else =>
+        print("Length check: FAIL\n")
+
+fn main(): void =>
+    print("Testing nil pointer slicing...\n")
+    test_nil_slice_creates_array()
+    print("Nil pointer slice test complete!\n")

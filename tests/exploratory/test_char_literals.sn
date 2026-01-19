@@ -1,0 +1,38 @@
+// Test 04: Character literals
+fn main(): int =>
+    // Basic chars
+    var a: char = 'A'
+    var z: char = 'z'
+    var digit: char = '5'
+    var symbol: char = '@'
+
+    print($"a = '{a}'\n")
+    print($"z = '{z}'\n")
+    print($"digit = '{digit}'\n")
+    print($"symbol = '{symbol}'\n")
+
+    // Escape characters
+    var newline: char = '\n'
+    var tab: char = '\t'
+    var quote: char = '\''
+    var backslash: char = '\\'
+
+    print("Tab char: ")
+    print(tab)
+    print("between\n")
+
+    print($"quote = '{quote}'\n")
+    print($"backslash = '{backslash}'\n")
+
+    // Char in interpolation
+    var first: char = 'H'
+    var second: char = 'i'
+    print($"Chars: {first}{second}\n")
+
+    // Char array
+    var chars: char[] = {'H', 'e', 'l', 'l', 'o'}
+    print("char array: ")
+    print(chars)
+    print("\n")
+
+    return 0

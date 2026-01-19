@@ -1,0 +1,6 @@
+Int result: 42
+Double result: 3.14000
+String result: hello
+Void work executed
+After void sync
+SUCCESS: All inline spawn-sync results correct

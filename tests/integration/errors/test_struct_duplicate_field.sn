@@ -1,0 +1,9 @@
+# Error test: struct with duplicate field names
+
+struct Point =>
+    x: double
+    y: double
+    x: int
+
+fn main(): void =>
+    print("Should not compile\n")

@@ -1,0 +1,7 @@
+# Error test: interceptor handler with wrong return type
+
+fn badHandler(name: str, args: any[], continue_fn: fn(): any): int =>
+    return 0
+
+fn main(): void =>
+    Interceptor.register(badHandler)

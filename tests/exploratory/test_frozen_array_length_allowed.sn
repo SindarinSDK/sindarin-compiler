@@ -1,0 +1,12 @@
+// Test: reading frozen array length should be allowed
+// Expected: Compilation should SUCCEED (read-only access is OK)
+// Even when an array is frozen, reading length is permitted
+
+fn process(data: int[]): int =>
+    return data[0]
+
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var r: int = &process(arr)  // arr is now frozen
+    var len: int = arr.length    // OK: read-only access
+    print($"Length: {len}\n")    // Should print "Length: 3"

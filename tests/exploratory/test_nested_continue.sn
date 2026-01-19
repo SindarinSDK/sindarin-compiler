@@ -1,0 +1,78 @@
+// Test 100: Continue in nested loops
+// Tests continue behavior in various loop configurations
+
+fn main(): int =>
+    print("Test nested continue:\n\n")
+
+    // Test 1: Continue in inner loop only
+    print("Test 1 - Inner loop continue:\n")
+    var pairs: int = 0
+    for i in 0..3 =>
+        for j in 0..3 =>
+            if j == 1 =>
+                continue
+            pairs = pairs + 1
+            print($"  ({i},{j}) ")
+    print($"\n  Total pairs: {pairs}\n")
+
+    // Test 2: Continue skipping odds
+    print("\nTest 2 - Skip odds:\n")
+    var sum_even: int = 0
+    for i in 0..10 =>
+        if i % 2 != 0 =>
+            continue
+        sum_even = sum_even + i
+    print($"  Sum of evens 0-9: {sum_even}\n")
+
+    // Test 3: Continue in nested with condition
+    print("\nTest 3 - Conditional continue:\n")
+    var valid: int = 0
+    for x in 0..5 =>
+        for y in 0..5 =>
+            if x == y =>
+                continue
+            if x + y > 5 =>
+                continue
+            valid = valid + 1
+    print($"  Valid combinations: {valid}\n")
+
+    // Test 4: Continue in while loop
+    print("\nTest 4 - While loop continue:\n")
+    var n: int = 0
+    var skipped: int = 0
+    while n < 10 =>
+        n = n + 1
+        if n % 3 == 0 =>
+            skipped = skipped + 1
+            continue
+        print($"  {n}")
+    print($"\n  Skipped {skipped} multiples of 3\n")
+
+    // Test 5: Continue with break interaction
+    print("\nTest 5 - Continue and break:\n")
+    var count: int = 0
+    for i in 0..10 =>
+        if i % 2 == 0 =>
+            continue
+        count = count + 1
+        if count >= 3 =>
+            break
+    print($"  Processed {count} odd numbers before break\n")
+
+    // Test 6: Triple nested continue
+    print("\nTest 6 - Triple nested:\n")
+    var triples: int = 0
+    for a in 0..3 =>
+        for b in 0..3 =>
+            if a == b =>
+                continue
+            for c in 0..3 =>
+                if b == c =>
+                    continue
+                if a == c =>
+                    continue
+                triples = triples + 1
+    print($"  Distinct triples: {triples}\n")
+
+    print("\nAll nested continue tests passed!\n")
+    return 0

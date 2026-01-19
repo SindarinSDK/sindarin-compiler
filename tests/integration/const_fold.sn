@@ -1,0 +1,56 @@
+// Integration test for constant folding optimization
+// This test verifies that constant expressions are correctly folded at compile time
+
+fn main(): int =>
+    // Basic arithmetic constant folding
+    var a: int = 2 + 3           // Should fold to 5
+    var b: int = 10 - 4          // Should fold to 6
+    var c: int = 7 * 8           // Should fold to 56
+    var d: int = 100 / 5         // Should fold to 20
+    var e: int = 17 % 5          // Should fold to 2
+
+    // Verify values
+    print($"a = {a}\n")
+    print($"b = {b}\n")
+    print($"c = {c}\n")
+    print($"d = {d}\n")
+    print($"e = {e}\n")
+
+    // Nested constant folding
+    var nested: int = (2 + 3) * (4 - 1)  // (5) * (3) = 15
+    print($"nested = {nested}\n")
+
+    // Mixed with variables (partial folding)
+    var x: int = 10
+    var mixed: int = x + (2 * 3)  // x + 6 (only 2*3 folded)
+    print($"mixed = {mixed}\n")
+
+    // Comparison folding
+    var cmp1: bool = 5 < 10     // true
+    var cmp2: bool = 10 == 10   // true
+    var cmp3: bool = 5 > 10     // false
+    print($"cmp1 = {cmp1}\n")
+    print($"cmp2 = {cmp2}\n")
+    print($"cmp3 = {cmp3}\n")
+
+    // Logical operator folding
+    var log1: bool = true && true   // true
+    var log2: bool = true && false  // false
+    var log3: bool = false || true  // true
+    print($"log1 = {log1}\n")
+    print($"log2 = {log2}\n")
+    print($"log3 = {log3}\n")
+
+    // Unary folding
+    var neg: int = -42
+    var neg2: int = -(-42)  // Double negation = 42
+    print($"neg = {neg}\n")
+    print($"neg2 = {neg2}\n")
+
+    // Double arithmetic
+    var da: double = 3.0 + 2.0    // 5.0
+    var db: double = 10.0 / 4.0   // 2.5
+    print($"da = {da}\n")
+    print($"db = {db}\n")
+
+    return 0

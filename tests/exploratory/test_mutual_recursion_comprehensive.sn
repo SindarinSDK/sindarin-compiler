@@ -1,0 +1,123 @@
+// Test 126: Mutual recursion
+// Tests functions that call each other recursively (A calls B, B calls A)
+
+// is_even and is_odd mutually recurse to determine parity
+fn is_even(n: int): bool =>
+    if n == 0 =>
+        return true
+    if n < 0 =>
+        return is_even(-n)
+    return is_odd(n - 1)
+
+fn is_odd(n: int): bool =>
+    if n == 0 =>
+        return false
+    if n < 0 =>
+        return is_odd(-n)
+    return is_even(n - 1)
+
+// Another mutual recursion pattern: ping-pong counter
+fn ping(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + pong(n - 1)
+
+fn pong(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + ping(n - 1)
+
+// More complex: three-way mutual recursion
+fn step_a(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + step_b(n - 1)
+
+fn step_b(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + step_c(n - 1)
+
+fn step_c(n: int): int =>
+    if n <= 0 =>
+        return 0
+    return 1 + step_a(n - 1)
+
+fn main(): int =>
+    print("Test mutual recursion:\n\n")
+    var errors: int = 0
+
+    // Test 1: is_even / is_odd
+    print("Test 1 - is_even / is_odd mutual recursion:\n")
+
+    var even_0: bool = is_even(0)
+    var even_0_int: int = 0
+    if even_0 => even_0_int = 1
+    print($"  is_even(0) = {even_0}\n")
+    if even_0_int != 1 => errors++
+
+    var even_4: bool = is_even(4)
+    var even_4_int: int = 0
+    if even_4 => even_4_int = 1
+    print($"  is_even(4) = {even_4}\n")
+    if even_4_int != 1 => errors++
+
+    var even_5: bool = is_even(5)
+    var even_5_int: int = 0
+    if even_5 => even_5_int = 1
+    print($"  is_even(5) = {even_5}\n")
+    if even_5_int != 0 => errors++
+
+    var odd_3: bool = is_odd(3)
+    var odd_3_int: int = 0
+    if odd_3 => odd_3_int = 1
+    print($"  is_odd(3) = {odd_3}\n")
+    if odd_3_int != 1 => errors++
+
+    var odd_6: bool = is_odd(6)
+    var odd_6_int: int = 0
+    if odd_6 => odd_6_int = 1
+    print($"  is_odd(6) = {odd_6}\n")
+    if odd_6_int != 0 => errors++
+
+    // Test 2: Negative numbers
+    print("\nTest 2 - Negative number handling:\n")
+    var even_neg4: bool = is_even(-4)
+    var even_neg4_int: int = 0
+    if even_neg4 => even_neg4_int = 1
+    print($"  is_even(-4) = {even_neg4}\n")
+    if even_neg4_int != 1 => errors++
+
+    var odd_neg3: bool = is_odd(-3)
+    var odd_neg3_int: int = 0
+    if odd_neg3 => odd_neg3_int = 1
+    print($"  is_odd(-3) = {odd_neg3}\n")
+    if odd_neg3_int != 1 => errors++
+
+    // Test 3: Ping-pong counter
+    print("\nTest 3 - Ping-pong counter:\n")
+    var pp_10: int = ping(10)
+    print($"  ping(10) = {pp_10}\n")
+    if pp_10 != 10 => errors++
+
+    var pp_5: int = pong(5)
+    print($"  pong(5) = {pp_5}\n")
+    if pp_5 != 5 => errors++
+
+    // Test 4: Three-way recursion
+    print("\nTest 4 - Three-way mutual recursion:\n")
+    var step_9: int = step_a(9)
+    print($"  step_a(9) = {step_9}\n")
+    if step_9 != 9 => errors++
+
+    var step_6: int = step_b(6)
+    print($"  step_b(6) = {step_6}\n")
+    if step_6 != 6 => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll mutual recursion tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

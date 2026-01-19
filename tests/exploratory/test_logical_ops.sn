@@ -1,0 +1,42 @@
+// Test 08: Logical operators
+fn main(): int =>
+    var t: bool = true
+    var f: bool = false
+
+    // NOT
+    print($"!true = {!t}\n")
+    print($"!false = {!f}\n")
+
+    // AND - should short-circuit
+    print($"true && true = {t && t}\n")
+    print($"true && false = {t && f}\n")
+    print($"false && true = {f && t}\n")
+    print($"false && false = {f && f}\n")
+
+    // OR - should short-circuit
+    print($"true || true = {t || t}\n")
+    print($"true || false = {t || f}\n")
+    print($"false || true = {f || t}\n")
+    print($"false || false = {f || f}\n")
+
+    // Complex combinations
+    print($"!t || f = {!t || f}\n")
+    print($"!(t || f) = {!(t || f)}\n")
+    print($"t && !f = {t && !f}\n")
+    print($"(t && f) || (!f && t) = {(t && f) || (!f && t)}\n")
+
+    // Logical with comparisons
+    var x: int = 5
+    var y: int = 10
+    print($"x < y && y < 20 = {x < y && y < 20}\n")
+    print($"x > y || x == 5 = {x > y || x == 5}\n")
+
+    // Short-circuit test with print (side effect)
+    // If short-circuit works, second operand not evaluated when result is known
+    var evaluated: bool = false
+    if f && t =>
+        print("should not print\n")
+    if t || f =>
+        print("should print\n")
+
+    return 0

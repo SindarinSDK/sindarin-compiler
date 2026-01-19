@@ -1,0 +1,66 @@
+// Test 58: Long method chains
+fn main(): int =>
+    print("Test long method chains:\n\n")
+
+    // String chains
+    var s1: str = "  HELLO WORLD  "
+    print($"Original: \"{s1}\"\n")
+
+    var s2: str = s1.trim()
+    print($"trim(): \"{s2}\"\n")
+
+    var s3: str = s1.trim().toLower()
+    print($"trim().toLower(): \"{s3}\"\n")
+
+    var s4: str = s1.trim().toLower().toUpper()
+    print($"trim().toLower().toUpper(): \"{s4}\"\n")
+
+    var s5: str = s1.trim().toLower().toUpper().toLower()
+    print($"trim().toLower().toUpper().toLower(): \"{s5}\"\n")
+
+    // Chain with replace
+    print("\nReplace chains:\n")
+    var text: str = "a b c d e"
+    var r1: str = text.replace("a", "A").replace("b", "B")
+    print($"Two replaces: \"{r1}\"\n")
+
+    var r2: str = text.replace("a", "x").replace("b", "y").replace("c", "z")
+    print($"Three replaces: \"{r2}\"\n")
+
+    // Array chains
+    print("\nArray chains:\n")
+    var arr: int[] = {1, 2, 3}
+    print("Original: ")
+    print(arr)
+    print("\n")
+
+    // Clone and concat chain
+    var arr2: int[] = arr.clone()
+    arr2 = arr2.concat({4, 5})
+    print("clone then concat({4,5}): ")
+    print(arr2)
+    print("\n")
+
+    // Multiple concats
+    var arr3: int[] = arr.concat({4}).concat({5}).concat({6})
+    print("concat({4}).concat({5}).concat({6}): ")
+    print(arr3)
+    print("\n")
+
+    // Lambda chains
+    print("\nLambda chains:\n")
+    var f: fn(int): int = fn(x: int): int => x + 1
+    var result: int = f(f(f(f(f(0)))))
+    print($"f(f(f(f(f(0))))) where f=+1: {result}\n")
+
+    var double_fn: fn(int): int = fn(x: int): int => x * 2
+    var doubled: int = double_fn(double_fn(double_fn(2)))
+    print($"double(double(double(2))): {doubled}\n")
+
+    // String length chains
+    print("\nLength chains:\n")
+    var word: str = "hello"
+    print($"\"hello\".length = {word.length}\n")
+    print($"\"hello\".toUpper().length = {word.toUpper().length}\n")
+
+    return 0

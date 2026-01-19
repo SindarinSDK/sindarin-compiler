@@ -1,0 +1,14 @@
+=== Comprehensive sizeof Tests ===
+
+test_primitive_types: PASS
+test_struct_types: PASS
+test_primitive_variables: PASS
+test_struct_variables: PASS
+test_without_parentheses: PASS
+test_in_expressions: PASS
+test_arrays: PASS
+test_2d_arrays: PASS
+test_sizeof_in_normal_function: PASS
+test_sizeof_in_native: PASS
+
+All sizeof tests passed!

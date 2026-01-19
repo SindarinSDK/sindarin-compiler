@@ -1,0 +1,4 @@
+Testing multiple threads with interceptors
+Results: taskA=10, taskB=20, taskC=30
+Total intercepted calls: 4
+Multiple thread interceptor test passed!

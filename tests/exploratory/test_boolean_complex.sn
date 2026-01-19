@@ -1,0 +1,9 @@
+// Test complex boolean expressions
+fn main(): void =>
+  var a: bool = true
+  var b: bool = false
+  var c: bool = true
+  var result1: bool = a && b || c
+  var result2: bool = !a || b && c
+  var result3: bool = (a || b) && (b || c)
+  print($"r1={result1}, r2={result2}, r3={result3}\n")

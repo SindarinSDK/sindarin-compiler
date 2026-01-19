@@ -1,0 +1,8 @@
+# Error test: undefined field type
+
+struct Config =>
+    name: str
+    data: UndefinedType
+
+fn main(): void =>
+    print("Should not compile\n")

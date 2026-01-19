@@ -1,0 +1,10 @@
+// Test: Inline spawn-sync code generation (&fn()!)
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies inline pattern generates spawn followed immediately by sync
+
+fn get_value(): int =>
+    return 123
+
+fn main(): void =>
+    var result: int = &get_value()!  // Inline spawn-sync
+    print($"Result: {result}\n")  // Should print "Result: 123"

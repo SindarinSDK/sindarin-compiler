@@ -1,0 +1,9 @@
+// Test: Compile error - reassign pending variable before sync
+// Expected error: Cannot reassign pending thread variable 'r'
+
+fn compute(): int =>
+    return 42
+
+fn main(): void =>
+    var r: int = &compute()
+    r = 100  // ERROR: r is pending, cannot reassign before sync

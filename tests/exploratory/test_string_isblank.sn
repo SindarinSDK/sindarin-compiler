@@ -1,0 +1,156 @@
+# Test 83: String isBlank method variance testing
+fn main(): int =>
+    print("Test string isBlank method:\n\n")
+
+    # Test 1: Empty string
+    print("1. Empty string:\n")
+    var empty: str = ""
+    print($"  '' isBlank: {empty.isBlank()}\n")
+    if empty.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 2: Single space
+    print("\n2. Single space:\n")
+    var space: str = " "
+    print($"  ' ' isBlank: {space.isBlank()}\n")
+    if space.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 3: Multiple spaces
+    print("\n3. Multiple spaces:\n")
+    var spaces: str = "     "
+    print($"  '     ' isBlank: {spaces.isBlank()}\n")
+    if spaces.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 4: Tab character
+    print("\n4. Tab character:\n")
+    var tab: str = "\t"
+    print($"  '\\t' isBlank: {tab.isBlank()}\n")
+    if tab.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 5: Multiple tabs
+    print("\n5. Multiple tabs:\n")
+    var tabs: str = "\t\t\t"
+    print($"  '\\t\\t\\t' isBlank: {tabs.isBlank()}\n")
+    if tabs.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 6: Newline
+    print("\n6. Newline:\n")
+    var newline: str = "\n"
+    print($"  '\\n' isBlank: {newline.isBlank()}\n")
+    if newline.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 7: Carriage return
+    print("\n7. Carriage return:\n")
+    var cr: str = "\r"
+    print($"  '\\r' isBlank: {cr.isBlank()}\n")
+    if cr.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 8: Mixed whitespace
+    print("\n8. Mixed whitespace:\n")
+    var mixed: str = " \t\n\r "
+    print($"  ' \\t\\n\\r ' isBlank: {mixed.isBlank()}\n")
+    if mixed.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 9: Single character (not blank)
+    print("\n9. Single character (not blank):\n")
+    var char1: str = "a"
+    print($"  'a' isBlank: {char1.isBlank()}\n")
+    if !char1.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 10: Word (not blank)
+    print("\n10. Word (not blank):\n")
+    var word: str = "hello"
+    print($"  'hello' isBlank: {word.isBlank()}\n")
+    if !word.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 11: Whitespace around text (not blank)
+    print("\n11. Whitespace around text (not blank):\n")
+    var padded: str = "  text  "
+    print($"  '  text  ' isBlank: {padded.isBlank()}\n")
+    if !padded.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 12: Tab and text (not blank)
+    print("\n12. Tab and text (not blank):\n")
+    var tabText: str = "\thello\t"
+    print($"  '\\thello\\t' isBlank: {tabText.isBlank()}\n")
+    if !tabText.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 13: Number string (not blank)
+    print("\n13. Number string (not blank):\n")
+    var num: str = "123"
+    print($"  '123' isBlank: {num.isBlank()}\n")
+    if !num.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 14: Special characters (not blank)
+    print("\n14. Special characters (not blank):\n")
+    var special: str = "!@#"
+    print($"  '!@#' isBlank: {special.isBlank()}\n")
+    if !special.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 15: Only space followed by non-space
+    print("\n15. Space before character:\n")
+    var spaceChar: str = " x"
+    print($"  ' x' isBlank: {spaceChar.isBlank()}\n")
+    if !spaceChar.isBlank() =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    print("\nAll isBlank tests passed!\n")
+    return 0

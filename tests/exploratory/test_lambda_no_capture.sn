@@ -1,0 +1,68 @@
+// Test 96: Pure lambdas with no captures
+// Tests lambdas that don't capture any external variables
+
+fn main(): int =>
+    print("Test pure lambdas (no capture):\n\n")
+
+    // Test 1: Simple arithmetic lambda
+    print("Test 1 - Arithmetic lambda:\n")
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+    var multiply: fn(int, int): int = fn(a: int, b: int): int => a * b
+    var subtract: fn(int, int): int = fn(a: int, b: int): int => a - b
+
+    print($"  add(10, 5) = {add(10, 5)}\n")
+    print($"  multiply(10, 5) = {multiply(10, 5)}\n")
+    print($"  subtract(10, 5) = {subtract(10, 5)}\n")
+
+    // Test 2: Lambda with conditionals
+    print("\nTest 2 - Conditional lambda:\n")
+    var max: fn(int, int): int = fn(a: int, b: int): int =>
+        if a > b =>
+            return a
+        else =>
+            return b
+
+    var min: fn(int, int): int = fn(a: int, b: int): int =>
+        if a < b =>
+            return a
+        else =>
+            return b
+
+    print($"  max(10, 20) = {max(10, 20)}\n")
+    print($"  min(10, 20) = {min(10, 20)}\n")
+
+    // Test 3: Boolean returning lambda
+    print("\nTest 3 - Boolean lambda:\n")
+    var is_even: fn(int): bool = fn(n: int): bool => n % 2 == 0
+    var is_positive: fn(int): bool = fn(n: int): bool => n > 0
+
+    print($"  is_even(4) = {is_even(4)}\n")
+    print($"  is_even(7) = {is_even(7)}\n")
+    print($"  is_positive(5) = {is_positive(5)}\n")
+    print($"  is_positive(-3) = {is_positive(-3)}\n")
+
+    // Test 4: String lambda
+    print("\nTest 4 - String lambda:\n")
+    var greet: fn(str): str = fn(name: str): str => $"Hello, {name}!"
+
+    print($"  {greet("World")}\n")
+    print($"  {greet("Sn")}\n")
+
+    // Test 5: Double lambda
+    print("\nTest 5 - Double lambda:\n")
+    var half: fn(double): double = fn(x: double): double => x / 2.0
+    var square: fn(double): double = fn(x: double): double => x * x
+
+    print($"  half(10.0) = {half(10.0)}\n")
+    print($"  square(5.0) = {square(5.0)}\n")
+
+    // Test 6: Composition of pure lambdas
+    print("\nTest 6 - Lambda composition:\n")
+    var double_val: fn(int): int = fn(x: int): int => x * 2
+    var increment: fn(int): int = fn(x: int): int => x + 1
+
+    var composed: int = double_val(increment(5))
+    print($"  double(increment(5)) = {composed}\n")
+
+    print("\nAll pure lambda tests passed!\n")
+    return 0

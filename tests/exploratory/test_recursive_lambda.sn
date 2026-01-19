@@ -1,0 +1,61 @@
+// Test 94: Recursive patterns
+// Tests recursion using regular functions (recursive lambdas not supported)
+
+// Regular recursive functions
+fn factorial(n: int): int =>
+    if n <= 1 =>
+        return 1
+    else =>
+        return n * factorial(n - 1)
+
+fn fibonacci(n: int): int =>
+    if n <= 1 =>
+        return n
+    else =>
+        return fibonacci(n - 1) + fibonacci(n - 2)
+
+fn countdown(n: int): void =>
+    if n > 0 =>
+        print($"  {n}\n")
+        countdown(n - 1)
+    else =>
+        print("  Liftoff!\n")
+
+fn sum_to(n: int): int =>
+    if n <= 0 =>
+        return 0
+    else =>
+        return n + sum_to(n - 1)
+
+fn main(): int =>
+    print("Test recursive functions:\n\n")
+
+    // Test 1: Factorial
+    print("Test 1 - Recursive factorial:\n")
+    print($"  factorial(1) = {factorial(1)}\n")
+    print($"  factorial(5) = {factorial(5)}\n")
+    print($"  factorial(10) = {factorial(10)}\n")
+
+    // Test 2: Fibonacci
+    print("\nTest 2 - Recursive fibonacci:\n")
+    print($"  fib(0) = {fibonacci(0)}\n")
+    print($"  fib(1) = {fibonacci(1)}\n")
+    print($"  fib(5) = {fibonacci(5)}\n")
+    print($"  fib(10) = {fibonacci(10)}\n")
+
+    // Test 3: Countdown
+    print("\nTest 3 - Recursive countdown:\n")
+    countdown(5)
+
+    // Test 4: Sum
+    print("\nTest 4 - Recursive sum:\n")
+    print($"  sum(1 to 10) = {sum_to(10)}\n")
+    print($"  sum(1 to 100) = {sum_to(100)}\n")
+
+    // Test 5: Lambda composition with recursion
+    print("\nTest 5 - Lambda with recursion:\n")
+    var double_sum: int = sum_to(10) * 2
+    print($"  sum(10) * 2 = {double_sum}\n")
+
+    print("\nAll recursive tests passed!\n")
+    return 0

@@ -1,0 +1,57 @@
+# Integration tests for native struct literal initialization with default values
+# Tests that native structs can also use default values for initialization
+
+# Native struct with default values for non-pointer fields
+native struct NativeConfig =>
+    data: *byte
+    size: int = 0
+    capacity: int = 1024
+    flags: int = 0
+
+# Native struct with all pointer fields (no defaults possible for pointers)
+native struct Buffer =>
+    ptr: *byte
+    len: int
+
+# Native struct with mix of pointer and defaulted non-pointer fields
+native struct StreamConfig =>
+    input: *byte
+    output: *byte
+    buffer_size: int = 4096
+    timeout_ms: int = 30000
+    verbose: bool = false
+
+# Native function to test native struct usage
+native fn test_native_structs(): void =>
+    # Test 1: Native struct with zero initialization (non-pointer defaults apply)
+    var cfg1: NativeConfig = NativeConfig { data: nil }
+    print("Test 1 - Native zero init passed\n")
+
+    # Test 2: Native struct with partial initialization
+    var cfg2: NativeConfig = NativeConfig { data: nil, size: 100 }
+    print("Test 2 - Native partial init passed\n")
+
+    # Test 3: Native struct with full override
+    var cfg3: NativeConfig = NativeConfig { data: nil, size: 512, capacity: 2048, flags: 7 }
+    print("Test 3 - Native full override passed\n")
+
+    # Test 4: Buffer struct (all required, no defaults)
+    var buf1: Buffer = Buffer { ptr: nil, len: 0 }
+    print("Test 4 - Buffer (all required) passed\n")
+
+    # Test 5: StreamConfig with just required pointer fields
+    var stream1: StreamConfig = StreamConfig { input: nil, output: nil }
+    print("Test 5 - StreamConfig defaults passed\n")
+
+    # Test 6: StreamConfig with partial override of defaults
+    var stream2: StreamConfig = StreamConfig { input: nil, output: nil, buffer_size: 8192 }
+    print("Test 6 - StreamConfig partial override passed\n")
+
+    # Test 7: StreamConfig with all defaults overridden
+    var stream3: StreamConfig = StreamConfig { input: nil, output: nil, buffer_size: 16384, timeout_ms: 60000, verbose: true }
+    print("Test 7 - StreamConfig full override passed\n")
+
+    print("All native struct default tests passed!\n")
+
+fn main(): void =>
+    test_native_structs()

@@ -1,0 +1,73 @@
+# Test byte array extension methods: toString, toStringLatin1, toHex, toBase64
+
+fn main(): int =>
+    # Test toHex() with "Hello" (ASCII bytes: H=72, e=101, l=108, l=108, o=111)
+    var hello: byte[] = {72, 101, 108, 108, 111}
+    var hex: str = hello.toHex()
+    print("Hex of Hello: ")
+    print(hex)
+    print("\n")
+
+    # Test toString() with ASCII bytes
+    var str_result: str = hello.toString()
+    print("toString of Hello: ")
+    print(str_result)
+    print("\n")
+
+    # Test toBase64() with "Hello"
+    var b64: str = hello.toBase64()
+    print("Base64 of Hello: ")
+    print(b64)
+    print("\n")
+
+    # Test toBase64() with "Man" (classic base64 example: M=77, a=97, n=110)
+    var man: byte[] = {77, 97, 110}
+    print("Base64 of Man: ")
+    print(man.toBase64())
+    print("\n")
+
+    # Test toBase64() with "Ma" (2 bytes - needs 1 padding)
+    var ma: byte[] = {77, 97}
+    print("Base64 of Ma: ")
+    print(ma.toBase64())
+    print("\n")
+
+    # Test toBase64() with "M" (1 byte - needs 2 padding)
+    var m: byte[] = {77}
+    print("Base64 of M: ")
+    print(m.toBase64())
+    print("\n")
+
+    # Test toHex with single byte (171 = 0xAB)
+    var single: byte[] = {171}
+    print("Hex of 0xAB: ")
+    print(single.toHex())
+    print("\n")
+
+    # Test toHex with empty array
+    var empty: byte[] = {}
+    print("Hex of empty: '")
+    print(empty.toHex())
+    print("'\n")
+
+    # Test toBase64 with empty array
+    print("Base64 of empty: '")
+    print(empty.toBase64())
+    print("'\n")
+
+    # Test toStringLatin1 with high bytes (Latin-1 specific)
+    # c=99, a=97, f=102, é=233 (0xE9) in Latin-1
+    var latin1_bytes: byte[] = {99, 97, 102, 233}
+    var latin1_str: str = latin1_bytes.toStringLatin1()
+    print("Latin1 string: ")
+    print(latin1_str)
+    print("\n")
+
+    # Test toHex with known PNG header bytes (137, 80, 78, 71 = 89504e47)
+    var png_header: byte[] = {137, 80, 78, 71}
+    print("PNG header hex: ")
+    print(png_header.toHex())
+    print("\n")
+
+    print("All byte encoding tests completed!\n")
+    return 0

@@ -1,0 +1,47 @@
+// Test 21: Array equality and comparisons
+fn main(): int =>
+    print("=== Array Equality ===\n")
+
+    // Same arrays
+    var a1: int[] = {1, 2, 3}
+    var a2: int[] = {1, 2, 3}
+    print($"{{1,2,3}} == {{1,2,3}}: {a1 == a2}\n")
+
+    // Different arrays
+    var a3: int[] = {1, 2, 4}
+    print($"{{1,2,3}} == {{1,2,4}}: {a1 == a3}\n")
+
+    // Different length
+    var a4: int[] = {1, 2}
+    print($"{{1,2,3}} == {{1,2}}: {a1 == a4}\n")
+
+    // Empty arrays
+    var e1: int[] = {}
+    var e2: int[] = {}
+    print($"{{}} == {{}}: {e1 == e2}\n")
+
+    // Empty vs non-empty
+    print($"{{}} == {{1}}: {e1 == {1}}\n")
+
+    // Inequality
+    print("\n=== Array Inequality ===\n")
+    print($"{{1,2,3}} != {{1,2,4}}: {a1 != a3}\n")
+    print($"{{1,2,3}} != {{1,2,3}}: {a1 != a2}\n")
+
+    // String arrays
+    print("\n=== String Array Equality ===\n")
+    var s1: str[] = {"hello", "world"}
+    var s2: str[] = {"hello", "world"}
+    var s3: str[] = {"hello", "there"}
+    print($"{{\"hello\",\"world\"}} == {{\"hello\",\"world\"}}: {s1 == s2}\n")
+    print($"{{\"hello\",\"world\"}} == {{\"hello\",\"there\"}}: {s1 == s3}\n")
+
+    // Bool arrays
+    print("\n=== Bool Array Equality ===\n")
+    var b1: bool[] = {true, false}
+    var b2: bool[] = {true, false}
+    var b3: bool[] = {false, true}
+    print($"{{true,false}} == {{true,false}}: {b1 == b2}\n")
+    print($"{{true,false}} == {{false,true}}: {b1 == b3}\n")
+
+    return 0

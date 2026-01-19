@@ -1,0 +1,16 @@
+=== Namespace Best Practices Demo ===
+
+1. Namespaced calls are self-documenting:
+   math.add(100, 200) = 300
+   math.multiply(7, 8) = 56
+
+2. Direct imports for common utilities:
+   greet("Developer") = Hello, Developer!
+
+3. Mix namespaced and direct in same expression:
+   Hello, square is! 25
+
+4. Chain namespaced operations:
+   math.subtract(math.add(50, 30), math.multiply(2, 10)) = 60
+
+All best practices demonstrated successfully!

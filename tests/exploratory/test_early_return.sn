@@ -1,0 +1,13 @@
+// Test early return from function
+fn check(x: int): int =>
+  if x < 0 =>
+    return -1
+  if x == 0 =>
+    return 0
+  return 1
+
+fn main(): void =>
+  var r1: int = check(-5)
+  var r2: int = check(0)
+  var r3: int = check(10)
+  print($"r1={r1}, r2={r2}, r3={r3}\n")

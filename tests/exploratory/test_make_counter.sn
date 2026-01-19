@@ -1,0 +1,56 @@
+// Test 88: Function returning closure (make_counter pattern)
+// Tests arena lifetime when closures escape their creating function
+
+// A function that returns a closure capturing local state
+fn make_counter(): fn(): int =>
+    var count: int = 0
+    var counter: fn(): int = fn(): int =>
+        count = count + 1
+        return count
+    return counter
+
+// A function returning a closure with initial value
+fn make_counter_from(start: int): fn(): int =>
+    var count: int = start
+    var counter: fn(): int = fn(): int =>
+        count = count + 1
+        return count
+    return counter
+
+fn main(): int =>
+    print("Test make_counter pattern:\n\n")
+
+    // Test 1: Basic counter
+    print("Test 1 - Basic counter:\n")
+    var counter: fn(): int = make_counter()
+    print($"  Call 1: {counter()}\n")
+    print($"  Call 2: {counter()}\n")
+    print($"  Call 3: {counter()}\n")
+
+    // Test 2: Multiple independent counters
+    print("\nTest 2 - Multiple counters:\n")
+    var c1: fn(): int = make_counter()
+    var c2: fn(): int = make_counter()
+    print($"  c1(): {c1()}\n")
+    print($"  c1(): {c1()}\n")
+    print($"  c2(): {c2()}\n")
+    print($"  c1(): {c1()}\n")
+    print($"  c2(): {c2()}\n")
+
+    // Test 3: Counter with initial value
+    print("\nTest 3 - Counter from value:\n")
+    var from10: fn(): int = make_counter_from(10)
+    print($"  Call 1: {from10()}\n")
+    print($"  Call 2: {from10()}\n")
+    print($"  Call 3: {from10()}\n")
+
+    // Test 4: Counter used in loop
+    print("\nTest 4 - Counter in loop:\n")
+    var loopCounter: fn(): int = make_counter()
+    var sum: int = 0
+    for i in 1..5 =>
+        sum = sum + loopCounter()
+    print($"  Sum of 5 calls: {sum}\n")
+
+    print("\nAll make_counter tests passed!\n")
+    return 0

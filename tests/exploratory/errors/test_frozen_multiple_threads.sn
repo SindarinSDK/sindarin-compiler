@@ -1,0 +1,17 @@
+// Test: multiple threads freezing same array
+// Expected: Compilation should FAIL - array is still frozen after first sync
+// When two threads capture the same array, both must sync before it's writable
+
+fn process1(data: int[]): int =>
+    return data[0]
+
+fn process2(data: int[]): int =>
+    return data[1]
+
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var r1: int = &process1(arr)  // arr frozen (count=1)
+    var r2: int = &process2(arr)  // arr frozen (count=2)
+    var result1: int = r1!        // Sync r1: arr still frozen (count=1)
+    arr[0] = 99                   // ERROR: arr is still frozen
+    print("Should not reach here\n")

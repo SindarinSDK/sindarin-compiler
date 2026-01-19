@@ -1,0 +1,19 @@
+# Test: Closure capture semantics (without threads)
+# This demonstrates how closures capture mutable data
+
+fn main(): void =>
+    var data: int[] = {1, 2, 3}
+
+    # Create a closure that modifies the captured array
+    var append: fn(): void = fn() shared: void =>
+        data.push(99)
+
+    # Call the closure multiple times (no threads)
+    append()
+    append()
+    append()
+
+    print($"Array length: {data.length}\n")
+    for x in data =>
+        print($"{x} ")
+    print("\n")

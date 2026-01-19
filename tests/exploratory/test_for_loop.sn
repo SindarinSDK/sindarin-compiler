@@ -1,0 +1,4 @@
+// Test for loop
+fn main(): void =>
+  for var i: int = 0; i < 5; i++ =>
+    print($"i={i}\n")

@@ -1,0 +1,37 @@
+// Test 06: Arithmetic operators and precedence
+fn main(): int =>
+    var a: int = 10
+    var b: int = 3
+
+    // Basic operators
+    print($"a + b = {a + b}\n")
+    print($"a - b = {a - b}\n")
+    print($"a * b = {a * b}\n")
+    print($"a / b = {a / b}\n")
+    print($"a % b = {a % b}\n")
+
+    // Precedence: * and / before + and -
+    var expr1: int = 2 + 3 * 4
+    var expr2: int = (2 + 3) * 4
+    print($"2 + 3 * 4 = {expr1}\n")
+    print($"(2 + 3) * 4 = {expr2}\n")
+
+    // Left-to-right evaluation
+    var expr3: int = 20 / 4 / 2
+    print($"20 / 4 / 2 = {expr3}\n")
+
+    // Negative numbers
+    var neg: int = -5
+    print($"-5 * 3 = {neg * 3}\n")
+    print($"-5 + 10 = {neg + 10}\n")
+
+    // Division edge cases
+    print($"10 / 3 = {10 / 3}\n")
+    print($"10 % 3 = {10 % 3}\n")
+    print($"-10 % 3 = {-10 % 3}\n")
+
+    // Complex expression
+    var complex: int = (a + b) * (a - b) / 2
+    print($"(a + b) * (a - b) / 2 = {complex}\n")
+
+    return 0

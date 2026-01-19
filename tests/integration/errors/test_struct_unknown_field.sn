@@ -1,0 +1,10 @@
+# Error test: struct literal with unknown field name
+
+struct Point =>
+    x: double
+    y: double
+
+fn main(): void =>
+    # This should fail - 'z' is not a field of Point
+    var p: Point = Point { x: 1.0, y: 2.0, z: 3.0 }
+    print("Should not compile\n")

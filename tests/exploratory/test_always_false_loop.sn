@@ -1,0 +1,112 @@
+// Test 113: Loop with always-false condition
+// Tests that loops with conditions that are always false execute correctly
+// (they should execute zero times)
+
+fn main(): int =>
+    print("Test always-false loop conditions:\n\n")
+
+    // Test 1: While loop with literal false
+    print("Test 1 - While with false literal:\n")
+    var count1: int = 0
+    while false =>
+        count1 = 100
+        print("  This should never print\n")
+    print($"  Count after false while: {count1} (expected 0)\n")
+
+    // Test 2: For loop with impossible condition (start > end)
+    print("\nTest 2 - For loop start > end:\n")
+    var count2: int = 0
+    for var i: int = 10; i < 5; i++ =>
+        count2 = count2 + 1
+        print("  This should never print\n")
+    print($"  Count after impossible for: {count2} (expected 0)\n")
+
+    // Test 3: For loop with i > impossible target
+    print("\nTest 3 - For decrement with impossible target:\n")
+    var count3: int = 0
+    for var i: int = 0; i > 10; i-- =>
+        count3 = count3 + 1
+        print("  This should never print\n")
+    print($"  Count after impossible decrement: {count3} (expected 0)\n")
+
+    // Test 4: While with expression that's always false
+    print("\nTest 4 - While with always-false expression:\n")
+    var count4: int = 0
+    var x: int = 5
+    while x > 10 =>
+        count4 = count4 + 1
+        print("  This should never print\n")
+    print($"  Count after x > 10 where x=5: {count4} (expected 0)\n")
+
+    // Test 5: For-each on empty array
+    print("\nTest 5 - For-each on empty array:\n")
+    var empty_arr: int[] = {}
+    var count5: int = 0
+    for item in empty_arr =>
+        count5 = count5 + 1
+        print("  This should never print\n")
+    print($"  Count after empty array loop: {count5} (expected 0)\n")
+
+    // Test 6: Range-based for with empty range (start == end)
+    print("\nTest 6 - Range with start == end:\n")
+    var count6: int = 0
+    for i in 5..5 =>
+        count6 = count6 + 1
+        print("  This should never print\n")
+    print($"  Count after 5..5 range: {count6} (expected 0)\n")
+
+    // Test 7: Nested always-false loops
+    print("\nTest 7 - Nested always-false loops:\n")
+    var count7: int = 0
+    for var i: int = 10; i < 5; i++ =>
+        for var j: int = 20; j < 10; j++ =>
+            count7 = count7 + 1
+            print("  This should never print\n")
+    print($"  Count after nested false: {count7} (expected 0)\n")
+
+    // Test 8: While with contradictory condition
+    print("\nTest 8 - While with contradictory condition:\n")
+    var count8: int = 0
+    var a: int = 10
+    var b: int = 5
+    while a < b =>
+        count8 = count8 + 1
+        print("  This should never print\n")
+    print($"  Count after a<b where a=10,b=5: {count8} (expected 0)\n")
+
+    // Test 9: Code after never-executing loop still runs
+    print("\nTest 9 - Code after never-executing loop:\n")
+    var before: int = 1
+    while false =>
+        before = 999
+    var after: int = 2
+    print($"  before={before}, after={after} (expected 1, 2)\n")
+
+    // Test 10: Shared loop with always-false
+    print("\nTest 10 - Shared for with always-false:\n")
+    var count10: int = 0
+    shared for var i: int = 100; i < 0; i++ =>
+        count10 = count10 + 1
+        print("  This should never print\n")
+    print($"  Count after shared false loop: {count10} (expected 0)\n")
+
+    // Verification
+    var errors: int = 0
+    if count1 != 0 => errors++
+    if count2 != 0 => errors++
+    if count3 != 0 => errors++
+    if count4 != 0 => errors++
+    if count5 != 0 => errors++
+    if count6 != 0 => errors++
+    if count7 != 0 => errors++
+    if count8 != 0 => errors++
+    if before != 1 => errors++
+    if after != 2 => errors++
+    if count10 != 0 => errors++
+
+    if errors == 0 =>
+        print("\nAll always-false loop tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

@@ -1,0 +1,11 @@
+Testing any type with functions
+  single any parameter: PASS
+  multiple any parameters: PASS
+  function returning any: PASS
+  mixed any and concrete params: PASS
+  any through multiple calls: PASS
+  type transformation: PASS
+  conditional return types: PASS
+  any with operation patterns: PASS
+  recursive function with any: PASS
+All any function tests passed!

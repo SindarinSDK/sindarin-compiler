@@ -1,0 +1,48 @@
+// Test 90: Long type boundary behavior
+// Tests long type at boundary values
+
+fn main(): int =>
+    print("Test long overflow behavior:\n\n")
+
+    // Test 1: Maximum positive long values
+    print("Test 1 - Large positive:\n")
+    var big: long = 9223372036854775807l
+    print($"  Max long: {big}\n")
+
+    // Test 2: Negative long values
+    print("\nTest 2 - Negative long:\n")
+    var neg: long = -100l
+    print($"  Negative: {neg}\n")
+
+    // Test 3: Long addition near boundary
+    print("\nTest 3 - Addition:\n")
+    var a: long = 1000000000000l
+    var b: long = 2000000000000l
+    var sum: long = a + b
+    print($"  {a} + {b} = {sum}\n")
+
+    // Test 4: Long multiplication
+    print("\nTest 4 - Multiplication:\n")
+    var x: long = 1000000l
+    var y: long = 1000000l
+    var prod: long = x * y
+    print($"  {x} * {y} = {prod}\n")
+
+    // Test 5: Division of large numbers
+    print("\nTest 5 - Division:\n")
+    var large: long = 9000000000000l
+    var divisor: long = 3l
+    var quot: long = large / divisor
+    print($"  {large} / {divisor} = {quot}\n")
+
+    // Test 6: Comparison at boundaries
+    print("\nTest 6 - Boundary comparison:\n")
+    var p: long = 1000000000000l
+    var q: long = 1000000000001l
+    if p < q =>
+        print("  p < q: true\n")
+    if p != q =>
+        print("  p != q: true\n")
+
+    print("\nAll long overflow tests passed!\n")
+    return 0

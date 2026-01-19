@@ -1,0 +1,94 @@
+# Test struct allocation with shared loops
+# Shared loops allocate structs in parent arena (no per-iteration arena)
+
+struct Point =>
+    x: int
+    y: int
+
+struct Counter =>
+    value: int
+    label: str
+
+fn main(): void =>
+    print("Testing struct allocation with shared loops:\n")
+
+    # Test 1: Shared for loop creating structs (allocated in main's arena)
+    var lastPoint: Point = Point { x: 0, y: 0 }
+    shared for var i: int = 0; i < 5; i++ =>
+        var p: Point = Point { x: i, y: i * 2 }
+        lastPoint = p
+
+    if lastPoint.x != 4 =>
+        print($"Shared for loop struct: FAIL (x={lastPoint.x})\n")
+        return
+    if lastPoint.y != 8 =>
+        print($"Shared for loop struct: FAIL (y={lastPoint.y})\n")
+        return
+    print("Shared for loop struct: PASS\n")
+
+    # Test 2: Shared while loop with structs
+    var counter: int = 0
+    var sumPoint: Point = Point { x: 0, y: 0 }
+    shared while counter < 3 =>
+        var p: Point = Point { x: counter * 10, y: counter * 20 }
+        sumPoint = Point { x: sumPoint.x + p.x, y: sumPoint.y + p.y }
+        counter = counter + 1
+
+    # Sum of 0+10+20 = 30 for x, 0+20+40 = 60 for y
+    if sumPoint.x != 30 =>
+        print($"Shared while loop struct: FAIL (x={sumPoint.x})\n")
+        return
+    if sumPoint.y != 60 =>
+        print($"Shared while loop struct: FAIL (y={sumPoint.y})\n")
+        return
+    print("Shared while loop struct: PASS\n")
+
+    # Test 3: Nested shared loops with structs
+    var nested: Point = Point { x: 0, y: 0 }
+    shared for var i: int = 0; i < 2; i++ =>
+        shared for var j: int = 0; j < 3; j++ =>
+            var p: Point = Point { x: i, y: j }
+            nested = Point { x: nested.x + p.x, y: nested.y + p.y }
+
+    # Sum of i: 0+0+0+1+1+1 = 3, Sum of j: 0+1+2+0+1+2 = 6
+    if nested.x != 3 =>
+        print($"Nested shared loops struct: FAIL (x={nested.x})\n")
+        return
+    if nested.y != 6 =>
+        print($"Nested shared loops struct: FAIL (y={nested.y})\n")
+        return
+    print("Nested shared loops struct: PASS\n")
+
+    # Test 4: Shared loop with accumulation
+    var total: Point = Point { x: 0, y: 0 }
+    shared for var k: int = 1; k <= 3; k++ =>
+        var p: Point = Point { x: k * 2 - 1, y: k * 2 }
+        total = Point { x: total.x + p.x, y: total.y + p.y }
+
+    # Sum: (1+3+5)=9, (2+4+6)=12
+    if total.x != 9 =>
+        print($"Shared accumulation: FAIL (x={total.x})\n")
+        return
+    if total.y != 12 =>
+        print($"Shared accumulation: FAIL (y={total.y})\n")
+        return
+    print("Shared accumulation: PASS\n")
+
+    # Test 5: Multiple struct creations per iteration (no per-iteration cleanup)
+    var finalA: Point = Point { x: 0, y: 0 }
+    var finalB: Point = Point { x: 0, y: 0 }
+    shared for var i: int = 0; i < 4; i++ =>
+        var a: Point = Point { x: i, y: i }
+        var b: Point = Point { x: i * 2, y: i * 2 }
+        finalA = a
+        finalB = b
+
+    if finalA.x != 3 =>
+        print($"Multi-struct per iteration: FAIL (a.x={finalA.x})\n")
+        return
+    if finalB.x != 6 =>
+        print($"Multi-struct per iteration: FAIL (b.x={finalB.x})\n")
+        return
+    print("Multi-struct per iteration: PASS\n")
+
+    print("All struct shared loop tests completed!\n")

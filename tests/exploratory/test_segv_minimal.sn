@@ -1,0 +1,19 @@
+// Test - 9 simple functions
+fn f1(): void =>
+    return
+fn f2(): void =>
+    return
+fn f3(): void =>
+    return
+fn f4(): void =>
+    return
+fn f5(): void =>
+    return
+fn f6(): void =>
+    return
+fn f7(): void =>
+    return
+fn f8(): void =>
+    return
+fn f9(): void =>
+    return

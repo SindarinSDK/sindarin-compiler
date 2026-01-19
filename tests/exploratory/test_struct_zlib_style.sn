@@ -1,0 +1,231 @@
+// Exploratory test: zlib-style streaming struct usage
+// Tests native structs with pointer fields mimicking compression library patterns
+// Simplified version that works within current language capabilities
+
+// Mimics z_stream from zlib - the motivating use case for struct support
+// Uses primitives for counters to simulate the streaming pattern
+native struct StreamState =>
+    avail_in: uint = 0
+    total_in: uint = 0
+    avail_out: uint = 0
+    total_out: uint = 0
+    state: int = 0
+
+// Initialize stream (like deflateInit)
+native fn stream_init(strm: StreamState as ref): bool =>
+    strm.avail_in = 0
+    strm.total_in = 0
+    strm.avail_out = 0
+    strm.total_out = 0
+    strm.state = 0
+    return true
+
+// Configure input size (simulates setting strm.avail_in in zlib)
+native fn stream_set_input_size(strm: StreamState as ref, size: uint): void =>
+    strm.avail_in = size
+
+// Configure output buffer size
+native fn stream_set_output_size(strm: StreamState as ref, size: uint): void =>
+    strm.avail_out = size
+
+// Simulate processing (like deflate - tracks bytes processed)
+native fn stream_process(strm: StreamState as ref): int =>
+    // Simulate processing: transfer from input to output
+    var to_process: uint = strm.avail_in
+    if strm.avail_out < to_process =>
+        to_process = strm.avail_out
+
+    strm.total_in = strm.total_in + to_process
+    strm.total_out = strm.total_out + to_process
+    strm.avail_in = strm.avail_in - to_process
+    strm.avail_out = strm.avail_out - to_process
+
+    if strm.avail_in == 0 =>
+        return 1  // Stream end
+    return 0  // More to process
+
+// End stream (like deflateEnd)
+native fn stream_end(strm: StreamState as ref): void =>
+    strm.state = -1
+
+// Test 1: Basic streaming pattern
+native fn test_basic_streaming(): bool =>
+    print("Test 1: Basic streaming pattern (zlib-style)\n")
+
+    var strm: StreamState = StreamState {}
+
+    if !stream_init(strm) =>
+        print("  FAIL: stream_init failed\n")
+        return false
+
+    // Set up input (5 bytes, like "Hello")
+    var five: uint = 5
+    stream_set_input_size(strm, five)
+
+    if strm.avail_in != 5 =>
+        print($"  FAIL: Expected avail_in=5, got {strm.avail_in}\n")
+        return false
+
+    // Set up output buffer
+    var buf_size: uint = 1024
+    stream_set_output_size(strm, buf_size)
+
+    // Process
+    var result: int = stream_process(strm)
+
+    if result != 1 =>
+        print($"  FAIL: Expected result=1 (stream end), got {result}\n")
+        return false
+
+    if strm.total_in != 5 =>
+        print($"  FAIL: Expected total_in=5, got {strm.total_in}\n")
+        return false
+
+    if strm.total_out != 5 =>
+        print($"  FAIL: Expected total_out=5, got {strm.total_out}\n")
+        return false
+
+    stream_end(strm)
+    print("  PASS: Basic streaming works\n")
+    return true
+
+// Test 2: Multi-chunk streaming
+native fn test_multi_chunk(): bool =>
+    print("Test 2: Multi-chunk streaming\n")
+
+    var strm: StreamState = StreamState {}
+    stream_init(strm)
+
+    // Set large output buffer
+    var out_size: uint = 256
+    stream_set_output_size(strm, out_size)
+
+    // Chunk 1 (3 bytes)
+    var c1: uint = 3
+    stream_set_input_size(strm, c1)
+    stream_process(strm)
+
+    // Chunk 2 (4 bytes)
+    var c2: uint = 4
+    stream_set_input_size(strm, c2)
+    stream_process(strm)
+
+    // Chunk 3 (2 bytes)
+    var c3: uint = 2
+    stream_set_input_size(strm, c3)
+    stream_process(strm)
+
+    if strm.total_in != 9 =>
+        print($"  FAIL: Expected total_in=9, got {strm.total_in}\n")
+        return false
+
+    stream_end(strm)
+    print("  PASS: Multi-chunk streaming works\n")
+    return true
+
+// Test 3: Output buffer exhaustion simulation
+native fn test_output_exhaustion(): bool =>
+    print("Test 3: Output buffer exhaustion handling\n")
+
+    var strm: StreamState = StreamState {}
+    stream_init(strm)
+
+    // Large input (10 bytes)
+    var in10: uint = 10
+    stream_set_input_size(strm, in10)
+
+    // Small output - can only fit 3 bytes
+    var out3: uint = 3
+    stream_set_output_size(strm, out3)
+
+    var result: int = stream_process(strm)
+
+    // Should not be at stream end - more input remains
+    if result != 0 =>
+        print($"  FAIL: Expected result=0 (more to process), got {result}\n")
+        return false
+
+    if strm.avail_in != 7 =>
+        print($"  FAIL: Expected avail_in=7 (7 bytes remaining), got {strm.avail_in}\n")
+        return false
+
+    if strm.avail_out != 0 =>
+        print($"  FAIL: Expected avail_out=0 (buffer full), got {strm.avail_out}\n")
+        return false
+
+    stream_end(strm)
+    print("  PASS: Output exhaustion handled correctly\n")
+    return true
+
+// Test 4: Resume after output buffer refill
+native fn test_resume_streaming(): bool =>
+    print("Test 4: Resume streaming after buffer refill\n")
+
+    var strm: StreamState = StreamState {}
+    stream_init(strm)
+
+    // Set up 20 bytes of input
+    var in20: uint = 20
+    stream_set_input_size(strm, in20)
+
+    // Small output buffer - 8 bytes
+    var out8: uint = 8
+    stream_set_output_size(strm, out8)
+
+    // First process - should partially complete
+    var result: int = stream_process(strm)
+    if result != 0 =>
+        print("  FAIL: Should need more processing\n")
+        return false
+
+    if strm.total_out != 8 =>
+        print($"  FAIL: Expected total_out=8, got {strm.total_out}\n")
+        return false
+
+    // Refill output buffer
+    stream_set_output_size(strm, out8)
+
+    // Second process
+    result = stream_process(strm)
+    if result != 0 =>
+        print("  FAIL: Should still need more processing\n")
+        return false
+
+    if strm.total_out != 16 =>
+        print($"  FAIL: Expected total_out=16, got {strm.total_out}\n")
+        return false
+
+    // Final refill
+    stream_set_output_size(strm, out8)
+    result = stream_process(strm)
+
+    // Now should be complete
+    if result != 1 =>
+        print($"  FAIL: Expected result=1 (complete), got {result}\n")
+        return false
+
+    if strm.total_out != 20 =>
+        print($"  FAIL: Expected total_out=20, got {strm.total_out}\n")
+        return false
+
+    stream_end(strm)
+    print("  PASS: Resume streaming works\n")
+    return true
+
+fn main(): int =>
+    print("=== zlib-style Streaming Struct Tests ===\n\n")
+
+    if !test_basic_streaming() =>
+        return 1
+
+    if !test_multi_chunk() =>
+        return 1
+
+    if !test_output_exhaustion() =>
+        return 1
+
+    if !test_resume_streaming() =>
+        return 1
+
+    print("\n=== All zlib-style Tests PASSED! ===\n")
+    return 0

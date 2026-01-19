@@ -1,0 +1,20 @@
+=== Parameter-level 'as ref' Tests ===
+
+Test 1: Basic as ref parameter
+  PASS
+Test 2: Multiple as ref parameters
+  PASS
+Test 3: Different primitive types
+  PASS
+Test 4: Threaded as ref modification
+  PASS
+Test 5: Unfreeze after sync
+  PASS
+Test 6: Mixed as ref and regular params
+  PASS
+Test 7: Byte and char as ref
+  PASS
+Test 8: Nested as ref calls
+  PASS
+
+=== All 'as ref' parameter tests passed! ===

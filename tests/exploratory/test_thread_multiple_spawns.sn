@@ -1,0 +1,21 @@
+// Test: Multiple thread spawns generate unique wrappers
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies wrapper name uniqueness (__thread_wrapper_N__)
+
+fn compute1(): int =>
+    return 1
+
+fn compute2(): int =>
+    return 2
+
+fn compute3(): int =>
+    return 3
+
+fn main(): void =>
+    var r1: int = &compute1()
+    var r2: int = &compute2()
+    var r3: int = &compute3()
+    var v1: int = r1!
+    var v2: int = r2!
+    var v3: int = r3!
+    print($"{v1} {v2} {v3}\n")  // Should print "1 2 3"

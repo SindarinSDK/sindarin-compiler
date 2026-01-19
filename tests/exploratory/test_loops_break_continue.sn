@@ -1,0 +1,77 @@
+// Test 13: Break and continue statements
+fn main(): int =>
+    print("=== Break in For Loop ===\n")
+    for var i: int = 0; i < 10; i++ =>
+        if i == 5 =>
+            print("Breaking at 5\n")
+            break
+        print($"i = {i}\n")
+
+    print("\n=== Break in While Loop ===\n")
+    var j: int = 0
+    while j < 10 =>
+        if j == 3 =>
+            print("Breaking at 3\n")
+            break
+        print($"j = {j}\n")
+        j++
+
+    print("\n=== Break in For-Each ===\n")
+    var nums: int[] = {1, 2, 3, 4, 5, 6, 7, 8}
+    for n in nums =>
+        if n == 4 =>
+            print("Breaking at 4\n")
+            break
+        print($"n = {n}\n")
+
+    print("\n=== Continue in For Loop ===\n")
+    for var i: int = 0; i < 6; i++ =>
+        if i % 2 == 0 =>
+            continue
+        print($"i = {i} (odd)\n")
+
+    print("\n=== Continue in While Loop ===\n")
+    var k: int = 0
+    while k < 6 =>
+        k++
+        if k % 2 == 0 =>
+            continue
+        print($"k = {k} (odd)\n")
+
+    print("\n=== Continue in For-Each ===\n")
+    var fruits: str[] = {"apple", "banana", "cherry", "date", "elderberry"}
+    for fruit in fruits =>
+        if fruit == "cherry" =>
+            continue
+        print($"fruit: {fruit}\n")
+
+    print("\n=== Break First Iteration ===\n")
+    for var i: int = 0; i < 10; i++ =>
+        print("Breaking immediately\n")
+        break
+
+    print("\n=== Continue Every Iteration ===\n")
+    var count: int = 0
+    for var i: int = 0; i < 5; i++ =>
+        count++
+        continue
+        print("Should not print\n")
+    print($"Count after all continues: {count}\n")
+
+    print("\n=== Break in Nested Loop (Inner) ===\n")
+    for var i: int = 0; i < 3; i++ =>
+        print($"Outer i = {i}\n")
+        for var j: int = 0; j < 5; j++ =>
+            if j == 2 =>
+                break
+            print($"  Inner j = {j}\n")
+
+    print("\n=== Continue in Nested Loop ===\n")
+    for var i: int = 0; i < 3; i++ =>
+        for var j: int = 0; j < 3; j++ =>
+            if j == 1 =>
+                continue
+            print($"({i},{j}) ")
+        print("\n")
+
+    return 0

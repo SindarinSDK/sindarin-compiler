@@ -1,0 +1,60 @@
+// Test 52: Empty string operations
+fn main(): int =>
+    print("Test empty string operations:\n\n")
+
+    // Empty string
+    var empty: str = ""
+    print($"empty = \"{empty}\"\n")
+    print($"len(empty) = {len(empty)}\n")
+    print($"empty.length = {empty.length}\n")
+
+    // Concatenation with empty
+    var hello: str = "hello"
+    print($"\nConcatenation:\n")
+    print($"empty + hello = \"{empty + hello}\"\n")
+    print($"hello + empty = \"{hello + empty}\"\n")
+    print($"empty + empty = \"{empty + empty}\"\n")
+
+    // String methods on empty
+    print($"\nMethods on empty:\n")
+    print($"empty.toUpper() = \"{empty.toUpper()}\"\n")
+    print($"empty.toLower() = \"{empty.toLower()}\"\n")
+    print($"empty.trim() = \"{empty.trim()}\"\n")
+
+    // indexOf on empty
+    print($"\nindexOf on empty:\n")
+    print($"empty.indexOf(\"x\") = {empty.indexOf("x")}\n")
+    print($"empty.indexOf(\"\") = {empty.indexOf("")}\n")
+
+    // startsWith/endsWith/contains on empty
+    print($"\nSearch on empty:\n")
+    print($"empty.startsWith(\"\") = {empty.startsWith("")}\n")
+    print($"empty.endsWith(\"\") = {empty.endsWith("")}\n")
+    print($"empty.contains(\"\") = {empty.contains("")}\n")
+
+    // Substring on empty
+    print($"\nsubstring on empty:\n")
+    print($"empty.substring(0, 0) = \"{empty.substring(0, 0)}\"\n")
+
+    // Replace on empty
+    print($"\nreplace on empty:\n")
+    print($"empty.replace(\"x\", \"y\") = \"{empty.replace("x", "y")}\"\n")
+
+    // Split on empty
+    print($"\nsplit on empty:\n")
+    var parts: str[] = empty.split(",")
+    print($"empty.split(\",\") length = {len(parts)}\n")
+
+    // Comparison with empty
+    print($"\nComparisons:\n")
+    var e2: str = ""
+    print($"\"\" == \"\": {empty == e2}\n")
+    print($"\"\" != \"x\": {empty != "x"}\n")
+    print($"\"\" < \"a\": {empty < "a"}\n")
+
+    // Empty in interpolation
+    print($"\nIn interpolation:\n")
+    print($"Value is: '{empty}'\n")
+    print($"Between: [{empty}]\n")
+
+    return 0

@@ -1,0 +1,5 @@
+add(1, 2) = 3
+subtract(5, 3) = 2
+strings.greet("Alice") = Hello, Alice!
+strings.double_str("x") = xx
+add(multiply(2, 3), subtract(10, 5)) = 11

@@ -1,0 +1,98 @@
+// Test 'as ref' out-parameter semantics for native functions
+// Native functions can declare parameters with 'as ref' to create out-parameters
+// that C code (or native fn body) can write back to
+
+// Native function with body that writes to out-parameters
+native fn get_dimensions(width: int as ref, height: int as ref): void =>
+    width = 1920
+    height = 1080
+
+// Native function with single out-parameter
+native fn double_num(num: int as ref): void =>
+    num = num * 2
+
+// Native function with mixed params (regular + out-param)
+native fn compute_sum_and_product(a: int, b: int, sum: int as ref, product: int as ref): void =>
+    sum = a + b
+    product = a * b
+
+// Native function with double out-parameter
+native fn compute_pi(result: double as ref): void =>
+    result = 3.14159265359
+
+// Native function with bool out-parameter
+native fn check_positive(n: int, is_positive: bool as ref): void =>
+    is_positive = n > 0
+
+fn main(): int =>
+    print("Testing 'as ref' out-parameter semantics:\n\n")
+
+    // Test 1: Basic out-parameters
+    var w: int = 0
+    var h: int = 0
+    get_dimensions(w, h)
+    print($"1. Dimensions: {w}x{h}\n")
+    if w != 1920 =>
+        print("FAIL: Expected w=1920\n")
+        return 1
+    if h != 1080 =>
+        print("FAIL: Expected h=1080\n")
+        return 1
+
+    // Test 2: Single out-parameter
+    var num: int = 21
+    double_num(num)
+    print($"2. Doubled value: {num}\n")
+    if num != 42 =>
+        print("FAIL: Expected 42\n")
+        return 1
+
+    // Test 3: Mixed regular and out-parameters
+    var s: int = 0
+    var p: int = 0
+    compute_sum_and_product(7, 6, s, p)
+    print($"3. Sum: {s}, Product: {p}\n")
+    if s != 13 =>
+        print("FAIL: Expected sum=13\n")
+        return 1
+    if p != 42 =>
+        print("FAIL: Expected product=42\n")
+        return 1
+
+    // Test 4: Double out-parameter
+    var pi: double = 0.0
+    compute_pi(pi)
+    print($"4. Pi: {pi}\n")
+    if pi < 3.14 =>
+        print("FAIL: Expected pi >= 3.14\n")
+        return 1
+    if pi > 3.15 =>
+        print("FAIL: Expected pi <= 3.15\n")
+        return 1
+
+    // Test 5: Bool out-parameter
+    var is_pos: bool = false
+    check_positive(42, is_pos)
+    print($"5. Is 42 positive: {is_pos}\n")
+    if !is_pos =>
+        print("FAIL: Expected true\n")
+        return 1
+
+    check_positive(-5, is_pos)
+    print($"6. Is -5 positive: {is_pos}\n")
+    if is_pos =>
+        print("FAIL: Expected false\n")
+        return 1
+
+    // Test 6: Chained out-parameter calls
+    var a: int = 5
+    double_num(a)
+    double_num(a)
+    double_num(a)
+    print($"7. Chained double: {a}\n")
+    if a != 40 =>
+        print("FAIL: Expected 40\n")
+        return 1
+
+    print("\nAll 'as ref' out-parameter tests PASSED!\n")
+    return 0

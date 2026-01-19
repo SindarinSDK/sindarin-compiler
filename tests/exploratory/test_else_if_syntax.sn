@@ -1,0 +1,159 @@
+// Test 138: else if syntax sugar
+// This tests the 'else if' syntax as an alternative to 'else => if'
+
+// Simple else if chain
+fn classify_number(n: int): str =>
+    if n < 0 =>
+        return "negative"
+    else if n == 0 =>
+        return "zero"
+    else if n < 10 =>
+        return "small"
+    else if n < 100 =>
+        return "medium"
+    else =>
+        return "large"
+
+// Mix of else if and else => if (both should work)
+fn grade_score(score: int): str =>
+    if score >= 90 =>
+        return "A"
+    else if score >= 80 =>
+        return "B"
+    else if score >= 70 =>
+        return "C"
+    else if score >= 60 =>
+        return "D"
+    else =>
+        return "F"
+
+// Long else if chain (10+ branches)
+fn month_name(month: int): str =>
+    if month == 1 =>
+        return "January"
+    else if month == 2 =>
+        return "February"
+    else if month == 3 =>
+        return "March"
+    else if month == 4 =>
+        return "April"
+    else if month == 5 =>
+        return "May"
+    else if month == 6 =>
+        return "June"
+    else if month == 7 =>
+        return "July"
+    else if month == 8 =>
+        return "August"
+    else if month == 9 =>
+        return "September"
+    else if month == 10 =>
+        return "October"
+    else if month == 11 =>
+        return "November"
+    else if month == 12 =>
+        return "December"
+    else =>
+        return "Invalid"
+
+// else if with expressions in conditions
+fn check_range(a: int, b: int): str =>
+    if a + b < 0 =>
+        return "sum negative"
+    else if a + b == 0 =>
+        return "sum zero"
+    else if a * b < 0 =>
+        return "product negative"
+    else if a * b == 0 =>
+        return "product zero"
+    else =>
+        return "both positive"
+
+// else if with boolean operators
+fn check_bounds(n: int, min: int, max: int): str =>
+    if n < min =>
+        return "below"
+    else if n > max =>
+        return "above"
+    else if n == min =>
+        return "at min"
+    else if n == max =>
+        return "at max"
+    else =>
+        return "within"
+
+// Nested else if chains
+fn complex_classify(x: int, y: int): str =>
+    if x < 0 =>
+        if y < 0 =>
+            return "Q3"
+        else if y > 0 =>
+            return "Q2"
+        else =>
+            return "negative X axis"
+    else if x > 0 =>
+        if y < 0 =>
+            return "Q4"
+        else if y > 0 =>
+            return "Q1"
+        else =>
+            return "positive X axis"
+    else =>
+        if y < 0 =>
+            return "negative Y axis"
+        else if y > 0 =>
+            return "positive Y axis"
+        else =>
+            return "origin"
+
+fn main(): int =>
+    print("Test else if syntax sugar:\n\n")
+
+    // Test 1: Simple else if chain
+    print("Test 1 - classify_number:\n")
+    print($"  -5: {classify_number(-5)}\n")
+    print($"  0: {classify_number(0)}\n")
+    print($"  5: {classify_number(5)}\n")
+    print($"  50: {classify_number(50)}\n")
+    print($"  500: {classify_number(500)}\n")
+
+    // Test 2: Grade score
+    print("\nTest 2 - grade_score:\n")
+    print($"  95: {grade_score(95)}\n")
+    print($"  85: {grade_score(85)}\n")
+    print($"  75: {grade_score(75)}\n")
+    print($"  65: {grade_score(65)}\n")
+    print($"  55: {grade_score(55)}\n")
+
+    // Test 3: Long else if chain (12 branches)
+    print("\nTest 3 - month_name:\n")
+    print($"  1: {month_name(1)}\n")
+    print($"  6: {month_name(6)}\n")
+    print($"  12: {month_name(12)}\n")
+    print($"  13: {month_name(13)}\n")
+
+    // Test 4: else if with complex conditions
+    print("\nTest 4 - check_range:\n")
+    print($"  (-3, 1): {check_range(-3, 1)}\n")
+    print($"  (3, -3): {check_range(3, -3)}\n")
+    print($"  (0, 0): {check_range(0, 0)}\n")
+    print($"  (2, 3): {check_range(2, 3)}\n")
+
+    // Test 5: else if with boolean operators
+    print("\nTest 5 - check_bounds:\n")
+    print($"  (5, 1, 10): {check_bounds(5, 1, 10)}\n")
+    print($"  (0, 1, 10): {check_bounds(0, 1, 10)}\n")
+    print($"  (15, 1, 10): {check_bounds(15, 1, 10)}\n")
+    print($"  (1, 1, 10): {check_bounds(1, 1, 10)}\n")
+    print($"  (10, 1, 10): {check_bounds(10, 1, 10)}\n")
+
+    // Test 6: Nested else if
+    print("\nTest 6 - complex_classify (quadrants):\n")
+    print($"  (1, 1): {complex_classify(1, 1)}\n")
+    print($"  (-1, 1): {complex_classify(-1, 1)}\n")
+    print($"  (-1, -1): {complex_classify(-1, -1)}\n")
+    print($"  (1, -1): {complex_classify(1, -1)}\n")
+    print($"  (0, 0): {complex_classify(0, 0)}\n")
+
+    print("\nAll else if syntax tests passed!\n")
+    return 0

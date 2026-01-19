@@ -1,0 +1,62 @@
+// Integration test for C-interop primitive types: int32, uint, uint32, float
+// Tests variable declarations, arithmetic, assignments, and function calls
+
+// Function with int32 parameter and return type
+fn add_int32(a: int32, b: int32): int32 =>
+    return a + b
+
+// Function with uint (64-bit unsigned) parameter and return type
+fn add_uint(a: uint, b: uint): uint =>
+    return a + b
+
+// Function with uint32 parameter and return type
+fn add_uint32(a: uint32, b: uint32): uint32 =>
+    return a + b
+
+// Function with float parameter and return type
+fn add_float(a: float, b: float): float =>
+    return a + b
+
+fn main(): void =>
+    // Test int32 declarations and arithmetic
+    var i32a: int32 = 100
+    var i32b: int32 = 50
+    var i32sum: int32 = add_int32(i32a, i32b)
+    print($"int32: {i32a} + {i32b} = {i32sum}\n")
+
+    // Test uint (64-bit unsigned) declarations and arithmetic
+    var u64a: uint = 1000000
+    var u64b: uint = 500000
+    var u64sum: uint = add_uint(u64a, u64b)
+    print($"uint: {u64a} + {u64b} = {u64sum}\n")
+
+    // Test uint32 declarations and arithmetic
+    var u32a: uint32 = 65535
+    var u32b: uint32 = 1
+    var u32sum: uint32 = add_uint32(u32a, u32b)
+    print($"uint32: {u32a} + {u32b} = {u32sum}\n")
+
+    // Test float declarations and arithmetic
+    var fa: float = 3.14
+    var fb: float = 2.86
+    var fsum: float = add_float(fa, fb)
+    print($"float: {fa} + {fb} = {fsum}\n")
+
+    // Test assignment and reassignment
+    i32a = 200
+    u64a = 2000000
+    u32a = 100000
+    fa = 1.5
+    print($"After reassignment: i32={i32a}, u64={u64a}, u32={u32a}, f={fa}\n")
+
+    // Test arithmetic operations with same-type operands
+    var i32two: int32 = 2
+    var i32mul: int32 = i32a * i32two
+    var u64three: uint = 3
+    var u64mul: uint = u64a * u64three
+    var u32four: uint32 = 4
+    var u32mul: uint32 = u32a * u32four
+    var fmul: float = fa * 2.0
+    print($"Multiply: i32={i32mul}, u64={u64mul}, u32={u32mul}, f={fmul}\n")
+
+    print("All interop type tests passed!\n")

@@ -1,0 +1,24 @@
+// Test lambda type inference from variable declaration
+
+fn main(): int =>
+    // Infer both param and return types
+    var double_it: fn(int): int = fn(x) => x * 2
+    print($"Double 5 = {double_it(5)}\n")
+
+    // Infer multiple params
+    var add: fn(int, int): int = fn(a, b) => a + b
+    print($"Add 3 + 7 = {add(3, 7)}\n")
+
+    // Mixed: explicit and inferred types
+    var multiply: fn(int, int): int = fn(x: int, y) => x * y
+    print($"Multiply 4 * 6 = {multiply(4, 6)}\n")
+
+    // Infer with shared modifier (modifier before =>)
+    var triple: fn(int): int = fn(x) shared => x * 3
+    print($"Triple 4 = {triple(4)}\n")
+
+    // All types explicit (existing syntax still works)
+    var square: fn(int): int = fn(x: int): int => x * x
+    print($"Square 5 = {square(5)}\n")
+
+    return 0

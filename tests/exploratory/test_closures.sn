@@ -1,0 +1,34 @@
+// Test 17: Closures - lambdas capturing variables
+fn main(): int =>
+    print("=== Basic Closure ===\n")
+
+    var multiplier: int = 3
+    var times: fn(int): int = fn(x: int) shared: int => x * multiplier
+    print($"times(5) with multiplier=3: {times(5)}\n")
+    print($"times(10) with multiplier=3: {times(10)}\n")
+
+    print("\n=== Closure with Multiple Captures ===\n")
+    var a: int = 10
+    var b: int = 20
+    var add_both: fn(int): int = fn(x: int) shared: int => x + a + b
+    print($"add_both(5) with a=10, b=20: {add_both(5)}\n")
+
+    print("\n=== Closure Capturing Different Types ===\n")
+    var prefix: str = "Value: "
+    var format_int: fn(int): str = fn(n: int) shared: str => $"{prefix}{n}"
+    print($"format_int(42): {format_int(42)}\n")
+
+    print("\n=== Closure in Loop ===\n")
+    var base: int = 100
+    var adder: fn(int): int = fn(x: int) shared: int => x + base
+    for i in 1..4 =>
+        print($"adder({i}) = {adder(i)}\n")
+
+    print("\n=== Multiple Closures Same Variable ===\n")
+    var offset: int = 5
+    var add_offset: fn(int): int = fn(x: int) shared: int => x + offset
+    var sub_offset: fn(int): int = fn(x: int) shared: int => x - offset
+    print($"add_offset(10) = {add_offset(10)}\n")
+    print($"sub_offset(10) = {sub_offset(10)}\n")
+
+    return 0

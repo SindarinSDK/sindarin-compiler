@@ -1,0 +1,40 @@
+Pi .1f: 3.1
+E .1f: 2.7
+Pi .2f: 3.14
+E .2f: 2.72
+Pi .5f: 3.14159
+E .5f: 2.71828
+Pi .0f: 3
+Pi .3f: 3.142
+Pi .4f: 3.1416
+Hex x: ff
+Small hex: 2a
+Zero hex: 0
+Hex X: FF
+Small HEX: 2A
+Octal: 377
+Small octal: 52
+Zero octal: 0
+Pad 3: 042
+Pad 5: 00042
+Pad 8: 00000042
+Zero pad: 00000
+Large int: 999999999
+Large padded: 000000999999999
+Large hex: 3b9ac9ff
+Large double .2f: 123456789.12
+Large double .6f: 123456789.123456
+Tiny .2f: 0.00
+Tiny .6f: 0.000123
+Neg padded: -0042
+Width 10 .2f:      42.50
+Width 8 .1f:     42.5
+Multi: hex=ff oct=377 dec=255
+Mixed types: int=00042 float=3.142
+Expr hex: 1fe
+Expr pad: 0050
+Expr float: 6.28
+Sci e: 1.234568e+08
+Sci E: 1.234568E+08
+Tiny sci: 1.234560e-04
+Percent: 0.75

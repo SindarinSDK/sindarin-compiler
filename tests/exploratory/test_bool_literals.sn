@@ -1,0 +1,43 @@
+// Test 05: Boolean literals and operations
+fn main(): int =>
+    // Basic bools
+    var t: bool = true
+    var f: bool = false
+
+    print($"t = {t}\n")
+    print($"f = {f}\n")
+
+    // NOT operator
+    print($"!t = {!t}\n")
+    print($"!f = {!f}\n")
+    print($"!!t = {!!t}\n")
+
+    // AND operator
+    print($"t && t = {t && t}\n")
+    print($"t && f = {t && f}\n")
+    print($"f && t = {f && t}\n")
+    print($"f && f = {f && f}\n")
+
+    // OR operator
+    print($"t || t = {t || t}\n")
+    print($"t || f = {t || f}\n")
+    print($"f || t = {f || t}\n")
+    print($"f || f = {f || f}\n")
+
+    // Comparison results
+    var cmp1: bool = 5 > 3
+    var cmp2: bool = 5 < 3
+    print($"5 > 3: {cmp1}\n")
+    print($"5 < 3: {cmp2}\n")
+
+    // Bool array
+    var bools: bool[] = {true, false, true}
+    print("bool array: ")
+    print(bools)
+    print("\n")
+
+    // Complex boolean expressions
+    var complex: bool = (t && f) || (!f && t)
+    print($"complex: {complex}\n")
+
+    return 0

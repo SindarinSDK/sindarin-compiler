@@ -1,0 +1,48 @@
+// Test 49: Closures created in loops
+fn main(): int =>
+    print("Test closures in loops:\n\n")
+
+    // Create lambdas that capture loop variable
+    // This tests if closures capture by value or reference
+
+    var multiplier: int = 1
+
+    // Lambda capturing variable modified in loop
+    var f: fn(int): int = fn(x: int): int => x * multiplier
+    print($"Before loop: f(10) = {f(10)}\n")
+
+    // Modify captured variable
+    multiplier = 5
+    print($"After multiplier=5: f(10) = {f(10)}\n")
+
+    // Lambda in for loop
+    print("\nLambda in for loop:\n")
+    for var i: int = 0; i < 3; i++ =>
+        var factor: int = i + 1
+        var g: fn(int): int = fn(x: int): int => x * factor
+        print($"  i={i}: g(10) = {g(10)}\n")
+
+    // Lambda in while loop
+    print("\nLambda in while loop:\n")
+    var j: int = 0
+    while j < 3 =>
+        var offset: int = j * 10
+        var h: fn(int): int = fn(x: int): int => x + offset
+        print($"  j={j}: h(5) = {h(5)}\n")
+        j++
+
+    // Lambda in for-each loop
+    print("\nLambda in for-each loop:\n")
+    var factors: int[] = {2, 3, 5}
+    for fact in factors =>
+        var scale: fn(int): int = fn(x: int): int => x * fact
+        print($"  fact={fact}: scale(10) = {scale(10)}\n")
+
+    // Nested loops with closures
+    print("\nNested loops with closures:\n")
+    for var a: int = 1; a <= 2; a++ =>
+        for var b: int = 1; b <= 2; b++ =>
+            var combine: fn(int): int = fn(x: int): int => x * a + b
+            print($"  a={a}, b={b}: combine(10) = {combine(10)}\n")
+
+    return 0

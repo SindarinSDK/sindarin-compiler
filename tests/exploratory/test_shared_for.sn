@@ -1,0 +1,6 @@
+// Test shared for loop
+fn main(): void =>
+  var sum: int = 0
+  shared for var i: int = 0; i < 10; i++ =>
+    sum = sum + i
+  print($"sum={sum}\n")

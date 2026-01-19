@@ -1,0 +1,27 @@
+fn main(): void =>
+    // Test 1: Variable accessible after for-each with nested if
+    var arr: int[] = {1, 5, 3, 8, 2}
+    var max_val: int = arr[0]
+    for n in arr =>
+        if n > max_val =>
+            max_val = n
+    print($"max = {max_val}\n")
+
+    // Test 2: Nested for-each loops
+    var sum: int = 0
+    var nums: int[] = {1, 2, 3}
+    for i in nums =>
+        for j in nums =>
+            if i > 0 =>
+                if j > 0 =>
+                    sum = sum + 1
+    print($"sum = {sum}\n")
+
+    // Test 3: Variable in while with nested if
+    var count: int = 0
+    var limit: int = 5
+    while count < limit =>
+        if count > 2 =>
+            limit = limit - 1
+        count = count + 1
+    print($"count = {count}, limit = {limit}\n")

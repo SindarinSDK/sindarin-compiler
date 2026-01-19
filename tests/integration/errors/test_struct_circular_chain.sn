@@ -1,0 +1,16 @@
+# Error test: struct with multi-level circular chain (A -> B -> C -> A)
+
+struct LevelA =>
+    value: int
+    ref_b: LevelB
+
+struct LevelB =>
+    value: int
+    ref_c: LevelC
+
+struct LevelC =>
+    value: int
+    ref_a: LevelA
+
+fn main(): void =>
+    print("Should not compile\n")

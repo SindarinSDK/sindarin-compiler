@@ -1,0 +1,60 @@
+// Test: Shared arena mode
+// Verifies that threads with 'shared' modifier:
+// 1. Allocate directly in caller's arena
+// 2. Return values need no promotion (already in caller's arena)
+// 3. Results are accessible after sync
+
+fn build_array() shared: int[] =>
+    // Array is created directly in caller's arena
+    var result: int[] = {10, 20, 30}
+    result.push(40)
+    return result
+
+fn build_string() shared: str =>
+    // String is created directly in caller's arena
+    var msg: str = "Shared"
+    msg = msg + " arena"
+    msg = msg + " mode"
+    return msg
+
+fn main(): void =>
+    print("Testing shared arena mode\n")
+
+    // Test 1: Array in shared mode
+    var arr_result: int[] = &build_array()
+
+    // Sync - result already in caller's arena, no promotion needed
+    arr_result!
+
+    // Validate array is accessible and correct
+    print($"Array length: {arr_result.length}\n")
+    print($"Array[0]: {arr_result[0]}\n")
+    print($"Array[3]: {arr_result[3]}\n")
+
+    // Can modify the array (it's in caller's arena)
+    arr_result.push(50)
+    print($"After push, length: {arr_result.length}\n")
+
+    // Test 2: String in shared mode
+    var str_result: str = &build_string()
+    str_result!
+
+    print($"String: {str_result}\n")
+
+    // Validate results
+    if arr_result.length == 5 =>
+        if arr_result[0] == 10 =>
+            if arr_result[3] == 40 =>
+                if arr_result[4] == 50 =>
+                    if str_result == "Shared arena mode" =>
+                        print("SUCCESS: Shared arena mode works correctly\n")
+                    else =>
+                        print($"FAILURE: String expected 'Shared arena mode', got '{str_result}'\n")
+                else =>
+                    print($"FAILURE: arr[4] expected 50, got {arr_result[4]}\n")
+            else =>
+                print($"FAILURE: arr[3] expected 40, got {arr_result[3]}\n")
+        else =>
+            print($"FAILURE: arr[0] expected 10, got {arr_result[0]}\n")
+    else =>
+        print($"FAILURE: length expected 5, got {arr_result.length}\n")

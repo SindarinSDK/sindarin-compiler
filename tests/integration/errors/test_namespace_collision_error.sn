@@ -1,0 +1,8 @@
+// Test: Direct imports with conflicting symbol names should error
+// Both modules have compute() and process() functions
+import "../lib/calc_v1"
+import "../lib/calc_v2"
+
+fn main(): void =>
+    // This should not compile - compute() is ambiguous
+    print($"compute(5) = {compute(5)}\n")

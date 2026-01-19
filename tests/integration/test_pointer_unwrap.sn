@@ -1,0 +1,107 @@
+# Integration test for pointer unwrapping with 'as val'
+# Tests: *int unwrap, *char to str conversion, buffer unwrap
+
+# --- Test 1: Native fn returning *int, regular fn unwrapping with 'as val' ---
+
+# Native function that returns a pointer to an integer (nil for testing)
+native fn get_int_ptr(): *int =>
+    return nil
+
+# Native function that unwraps *int with 'as val'
+# Note: Pointer parameters require native functions
+native fn unwrap_int_pointer(ptr: *int): int =>
+    if ptr == nil =>
+        return -1
+    return ptr as val
+
+# Test harness in native context (can declare pointer variables)
+native fn test_int_unwrap(): void =>
+    print("Test 1: *int unwrap with 'as val'\n")
+
+    # Get pointer from native function
+    var ptr: *int = get_int_ptr()
+
+    # Call regular function to unwrap
+    var result: int = unwrap_int_pointer(ptr)
+    print($"  nil pointer unwrap returns: {result}\n")
+
+    print("  *int unwrap test: OK\n")
+
+# --- Test 2: *char unwrap to str (getenv-like function) ---
+
+# Native function simulating getenv - returns *char (C string pointer)
+native fn mock_getenv(name: str): *char
+
+# Native function with body that returns a mock environment value (nil)
+native fn get_env_value(): *char =>
+    return nil
+
+# Native function that unwraps *char to str with 'as val'
+native fn get_environment_var(ptr: *char): str =>
+    if ptr == nil =>
+        return "(not set)"
+    return ptr as val
+
+# Test harness in native context
+native fn test_char_unwrap(): void =>
+    print("Test 2: *char to str unwrap with 'as val'\n")
+
+    # Get pointer from native function (simulating getenv)
+    var env_ptr: *char = get_env_value()
+
+    # Call regular function to unwrap
+    var value: str = get_environment_var(env_ptr)
+    print($"  Environment value: {value}\n")
+
+    print("  *char to str unwrap test: OK\n")
+
+# --- Test 3: Buffer unwrap with ptr[0..len] as val ---
+
+# Native function returning a buffer pointer
+native fn get_buffer(): *byte =>
+    return nil
+
+# Native function returning buffer length
+native fn get_buffer_len(): int =>
+    return 8
+
+# Native function that unwraps a buffer using slice syntax
+# Pointer parameters require native functions
+native fn unwrap_buffer(ptr: *byte, len: int): byte[] =>
+    if ptr == nil =>
+        # Cannot return empty array directly, use slice with 0 length
+        return ptr[0..0] as val
+    return ptr[0..len] as val
+
+# Test harness in native context
+native fn test_buffer_unwrap(): void =>
+    print("Test 3: buffer unwrap with ptr[0..len] as val\n")
+
+    var len: int = get_buffer_len()
+    var ptr: *byte = get_buffer()
+
+    # Direct slice in native function
+    var data: byte[] = ptr[0..len] as val
+    print($"  Buffer slice created with length param: {len}\n")
+    print($"  Array length: {data.length}\n")
+
+    # Test via regular function wrapper
+    var data2: byte[] = unwrap_buffer(ptr, len)
+    print($"  Via unwrap_buffer fn, length: {data2.length}\n")
+
+    print("  Buffer unwrap test: OK\n")
+
+# --- Main ---
+
+fn main(): void =>
+    print("=== Pointer Unwrap Integration Tests ===\n\n")
+
+    test_int_unwrap()
+    print("\n")
+
+    test_char_unwrap()
+    print("\n")
+
+    test_buffer_unwrap()
+
+    print("\n=== All pointer unwrap tests passed! ===\n")

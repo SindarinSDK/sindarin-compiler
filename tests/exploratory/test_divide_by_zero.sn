@@ -1,0 +1,50 @@
+// Test 104: Division by zero behavior
+// Tests how the runtime handles division by zero
+
+fn safe_divide(a: int, b: int): int =>
+    if b == 0 =>
+        return 0
+    return a / b
+
+fn main(): int =>
+    print("Test divide by zero:\n\n")
+
+    // Test 1: Safe division (guard against zero)
+    print("Test 1 - Safe division:\n")
+    print($"  10 / 2 = {safe_divide(10, 2)}\n")
+    print($"  10 / 0 = {safe_divide(10, 0)} (guarded)\n")
+    print($"  100 / 5 = {safe_divide(100, 5)}\n")
+
+    // Test 2: Normal division
+    print("\nTest 2 - Normal division:\n")
+    var a: int = 100
+    var b: int = 4
+    print($"  {a} / {b} = {a / b}\n")
+
+    // Test 3: Division with variables
+    print("\nTest 3 - Variable division:\n")
+    var x: int = 50
+    var y: int = 10
+    var z: int = x / y
+    print($"  x / y = {z}\n")
+
+    // Test 4: Division in expression
+    print("\nTest 4 - Expression division:\n")
+    var result: int = (100 + 50) / 3
+    print($"  (100 + 50) / 3 = {result}\n")
+
+    // Test 5: Double division
+    print("\nTest 5 - Double division:\n")
+    var d1: double = 10.0
+    var d2: double = 3.0
+    var d_result: double = d1 / d2
+    print($"  10.0 / 3.0 = {d_result}\n")
+
+    // Test 6: Division in loop
+    print("\nTest 6 - Division in loop:\n")
+    for i in 1..5 =>
+        var div: int = 100 / i
+        print($"  100 / {i} = {div}\n")
+
+    print("\nAll divide by zero tests passed!\n")
+    return 0

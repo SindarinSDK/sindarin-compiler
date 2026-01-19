@@ -1,0 +1,40 @@
+// Test 01: Integer literals and operations
+fn main(): int =>
+    // Basic integers
+    var zero: int = 0
+    var pos: int = 42
+    var neg: int = -17
+    var large: int = 999999
+
+    print($"zero = {zero}\n")
+    print($"pos = {pos}\n")
+    print($"neg = {neg}\n")
+    print($"large = {large}\n")
+
+    // Arithmetic
+    var sum: int = pos + neg
+    var diff: int = pos - neg
+    var prod: int = pos * 2
+    var quot: int = pos / 5
+    var mod: int = pos % 5
+
+    print($"sum = {sum}\n")
+    print($"diff = {diff}\n")
+    print($"prod = {prod}\n")
+    print($"quot = {quot}\n")
+    print($"mod = {mod}\n")
+
+    // Negative arithmetic
+    var negSum: int = neg + neg
+    var negProd: int = neg * neg
+    print($"negSum = {negSum}\n")
+    print($"negProd = {negProd}\n")
+
+    // Increment/decrement
+    var x: int = 10
+    x++
+    print($"after x++: {x}\n")
+    x--
+    print($"after x--: {x}\n")
+
+    return 0

@@ -1,0 +1,28 @@
+// Test: Threads with function parameters
+// Tests using function types in conjunction with threads
+// This validates passing functions to thread-spawned functions
+//
+// STATUS: KNOWN ISSUE - Crashes with segfault
+// Passing function parameters to thread-spawned functions
+// is not yet fully supported. The issue is likely related to
+// function pointer marshaling in the thread wrapper.
+
+fn times_two(x: int): int =>
+    return x * 2
+
+fn apply_operation(x: int, op: fn(int): int): int =>
+    return op(x)
+
+fn main(): void =>
+    print("Testing threads with function operations\n")
+
+    // Spawn thread that uses a function passed as parameter
+    var result: int = &apply_operation(21, times_two)
+    result!
+
+    print($"Result: {result}\n")
+
+    if result == 42 =>
+        print("SUCCESS: Thread with function parameter works\n")
+    else =>
+        print($"FAILURE: Expected 42, got {result}\n")

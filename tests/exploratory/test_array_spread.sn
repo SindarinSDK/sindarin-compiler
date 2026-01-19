@@ -1,0 +1,5 @@
+// Test array spread
+fn main(): void =>
+  var arr1: int[] = {1, 2, 3}
+  var arr2: int[] = {...arr1, 4, 5}
+  print($"len={arr2.length}\n")

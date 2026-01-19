@@ -1,0 +1,7 @@
+// Test complex expression
+fn main(): void =>
+  var a: int = 5
+  var b: int = 3
+  var c: int = 2
+  var result: int = (a + b) * c - (a - b) / c + a % b
+  print($"result={result}\n")

@@ -1,0 +1,9 @@
+// Test loop with function calls
+fn compute(x: int): int =>
+  return x * x
+
+fn main(): void =>
+  var sum: int = 0
+  for var i: int = 0; i < 5; i++ =>
+    sum = sum + compute(i)
+  print($"sum={sum}\n")

@@ -1,0 +1,13 @@
+# Test Known Limitation: Lambda parameters in threads
+# Passing lambda as argument to thread-spawned function
+
+fn apply(f: fn(int): int, x: int): int =>
+    return f(x)
+
+fn main(): void =>
+    # Try to spawn a thread with a lambda parameter
+    var multiplier: int = 3
+    var times: fn(int): int = fn(n: int) shared: int => n * multiplier
+    var result: int = &apply(times, 14)
+    var value = result!
+    print($"Result: {value}\n")

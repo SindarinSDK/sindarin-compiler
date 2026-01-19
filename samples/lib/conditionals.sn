@@ -1,0 +1,105 @@
+// ============================================================================
+// conditionals.sn - Conditional Statements in Sindarin
+// ============================================================================
+// Demonstrates: if, if-else, comparison operators, NOT, AND (&&), OR (||)
+// ============================================================================
+
+// Entry point for conditional demos
+fn demo_conditionals(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                      Sindarin Conditionals                       │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Basic if
+  print("--- If Statements ---\n")
+  var x: int = 10
+  if x > 5 =>
+    print($"{x} is greater than 5\n")
+  if x == 10 =>
+    print($"{x} equals 10\n")
+
+  // 2. If-else
+  print("\n--- If-Else ---\n")
+  var age: int = 20
+  if age >= 18 =>
+    print($"Age {age}: Adult\n")
+  else =>
+    print($"Age {age}: Minor\n")
+
+  var score: int = 75
+  if score >= 60 =>
+    print($"Score {score}: Pass\n")
+  else =>
+    print($"Score {score}: Fail\n")
+
+  // 3. NOT operator
+  print("\n--- NOT Operator ---\n")
+  var flag: bool = false
+  if !flag =>
+    print("!false = true\n")
+
+  // 4. AND (&&) and OR (||) operators
+  print("\n--- AND (&&) and OR (||) ---\n")
+  var hasTicket: bool = true
+  var hasID: bool = true
+  var isVIP: bool = false
+
+  // Both must be true
+  if hasTicket && hasID =>
+    print("Entry allowed (has ticket AND ID)\n")
+
+  // At least one must be true
+  if hasTicket || isVIP =>
+    print("Can enter (has ticket OR is VIP)\n")
+
+  // Combining operators
+  var temperature: int = 25
+  var humidity: int = 60
+  if temperature > 20 && temperature < 30 =>
+    print($"Temperature {temperature}C is comfortable\n")
+
+  if temperature < 10 || temperature > 35 =>
+    print("Extreme temperature!\n")
+  else =>
+    print("Temperature is moderate\n")
+
+  // Complex condition
+  var loggedIn: bool = true
+  var isAdmin: bool = false
+  var isModerator: bool = true
+  if loggedIn && (isAdmin || isModerator) =>
+    print("User can moderate content\n")
+
+  // 5. Comparison operators
+  print("\n--- Comparisons ---\n")
+  var a: int = 10
+  var b: int = 20
+  print($"a = {a}, b = {b}\n")
+  print($"a == b: {a == b}\n")
+  print($"a != b: {a != b}\n")
+  print($"a < b: {a < b}\n")
+  print($"a > b: {a > b}\n")
+
+  // 6. Even/odd check (inline)
+  print("\n--- Even/Odd Check ---\n")
+  var n: int = 7
+  if n % 2 == 0 =>
+    print($"{n} is even\n")
+  else =>
+    print($"{n} is odd\n")
+
+  n = 12
+  if n % 2 == 0 =>
+    print($"{n} is even\n")
+  else =>
+    print($"{n} is odd\n")
+
+  // 7. Max calculation (inline)
+  print("\n--- Max Example ---\n")
+  var p: int = 5
+  var q: int = 12
+  var m: int = p
+  if q > p =>
+    m = q
+  print($"max({p}, {q}) = {m}\n")
+

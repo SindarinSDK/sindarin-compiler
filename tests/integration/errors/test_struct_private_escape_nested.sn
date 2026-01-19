@@ -1,0 +1,18 @@
+# Test: Compile error - struct with nested struct containing heap field cannot escape
+# Expected error: Cannot assign to variable declared outside private block
+
+struct Inner =>
+    data: str
+
+struct Outer =>
+    value: int
+    inner: Inner  # Inner has str field, so Outer cannot escape
+
+fn main(): void =>
+    var outer: Outer = Outer { value: 0, inner: Inner { data: "default" } }
+
+    private =>
+        var inner: Outer = Outer { value: 42, inner: Inner { data: "nested" } }
+        outer = inner  # ERROR: nested struct contains heap data
+
+    print($"value: {outer.value}\n")

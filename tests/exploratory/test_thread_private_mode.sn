@@ -1,0 +1,11 @@
+// Test: Private mode arena flag code generation
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies is_private=true flag generation and isolated arena
+
+fn private_compute() private: int =>
+    return 99
+
+fn main(): void =>
+    var r: int = &private_compute()  // Spawns in private mode
+    var result: int = r!              // Result promoted from private arena
+    print($"Result: {result}\n")      // Should print "Result: 99"

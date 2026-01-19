@@ -1,0 +1,44 @@
+// Test string interpolation with escaped quotes and string literals in expressions
+
+fn main(): int =>
+    // Test 1: Direct string literal in interpolation
+    print($"Direct: {"hello"}\n")
+
+    // Test 2: String method on literal in interpolation
+    print($"Upper: {"test".toUpper()}\n")
+
+    // Test 3: Multiple string literals in interpolation
+    print($"Concat: {"hello" + " " + "world"}\n")
+
+    // Test 4: Escape sequences inside interpolation strings
+    print($"Tab: {"\ttab"}\n")
+
+    // Test 5: Mix of variables and string literals
+    var name: str = "Alice"
+    print($"Mix: {name + " and " + "Bob"}\n")
+
+    // Test 6: String comparison in interpolation
+    print($"Compare: {"abc" == "abc"}\n")
+
+    // Test 7: Empty string in interpolation
+    print($"Empty: {""}\n")
+
+    // Test 8: String with special chars in interpolation
+    print($"Special: {"a\tb"}\n")
+
+    // Test 9: Multiple nested strings
+    print($"Multi: {"one" + "two" + "three"}\n")
+
+    // Test 10: String length on literal
+    print($"Length: {"hello".length}\n")
+
+    // Test 11: Function call with string literal argument
+    print($"Func: {identity("test")}\n")
+
+    // Test 12: Mixed escape sequences in single interpolation
+    print($"Mixed: {"a\tb\nc"}\n")
+
+    return 0
+
+fn identity(s: str): str =>
+    return s

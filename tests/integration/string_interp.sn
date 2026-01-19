@@ -1,0 +1,24 @@
+// Test string interpolation optimizations
+
+fn main(): void =>
+    var name: str = "World"
+    var count: int = 42
+
+    // Test 1: Simple literal (should be used directly)
+    print($"Hello!\n")
+
+    // Test 2: Variable interpolation
+    print($"Hello {name}!\n")
+
+    // Test 3: Multiple parts with values
+    print($"Hello {name}, count is {count}\n")
+
+    // Test 4: Adjacent string parts (should be merged at compile time)
+    print($"Part1" + "Part2" + "\n")
+
+    // Test 5: Complex expression with formatting
+    print($"Result: {count * 2} doubled\n")
+
+    // Test 6: Empty interpolation
+    var empty: str = $""
+    print($"Empty is: '{empty}'\n")

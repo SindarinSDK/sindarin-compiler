@@ -1,0 +1,48 @@
+// Test nested array (2D array) string interpolation
+// Covers various element types and edge cases
+
+fn main(): int =>
+    // Test 1: Basic 2D int array
+    var int_2d: int[][] = {{1, 2, 3}, {4, 5}, {6}}
+    print($"int[][]: {int_2d}\n")
+
+    // Test 2: 2D double array
+    var double_2d: double[][] = {{1.5, 2.5}, {3.5}}
+    print($"double[][]: {double_2d}\n")
+
+    // Test 3: 2D string array
+    var str_2d: str[][] = {{"hello", "world"}, {"foo"}}
+    print($"str[][]: {str_2d}\n")
+
+    // Test 4: 2D bool array
+    var bool_2d: bool[][] = {{true, false}, {false, true}}
+    print($"bool[][]: {bool_2d}\n")
+
+    // Test 5: 2D char array
+    var char_2d: char[][] = {{'a', 'b'}, {'c', 'd', 'e'}}
+    print($"char[][]: {char_2d}\n")
+
+    // Test 6: 2D byte array (using explicit byte values)
+    var b1: byte[] = {1, 2}
+    var b2: byte[] = {255, 128}
+    var byte_2d: byte[][] = {b1, b2}
+    print($"byte[][]: {byte_2d}\n")
+
+    // Test 7: Empty nested array
+    var empty_2d: int[][] = {}
+    print($"empty: {empty_2d}\n")
+
+    // Test 8: Nested array with empty inner arrays
+    var with_empty: int[][] = {{1}, {}, {2, 3}}
+    print($"with_empty: {with_empty}\n")
+
+    // Test 9: Single element nested array
+    var single: int[][] = {{42}}
+    print($"single: {single}\n")
+
+    // Test 10: Access and modify nested array elements
+    var matrix: int[][] = {{1, 2}, {3, 4}}
+    print($"matrix[0][0]: {matrix[0][0]}\n")
+    print($"matrix[1][1]: {matrix[1][1]}\n")
+
+    return 0

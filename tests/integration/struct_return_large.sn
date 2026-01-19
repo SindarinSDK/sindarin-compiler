@@ -1,0 +1,220 @@
+# Test struct copy-on-return semantics for large structs (>8KB threshold)
+# Large structs are heap-allocated on the arena and need proper copy semantics
+
+# Large struct with many fields - designed to exceed 8KB threshold
+# Using default values for all fields
+struct LargeData =>
+    a1: int = 0
+    a2: int = 0
+    a3: int = 0
+    a4: int = 0
+    a5: int = 0
+    a6: int = 0
+    a7: int = 0
+    a8: int = 0
+    b1: int = 0
+    b2: int = 0
+    b3: int = 0
+    b4: int = 0
+    b5: int = 0
+    b6: int = 0
+    b7: int = 0
+    b8: int = 0
+    c1: int = 0
+    c2: int = 0
+    c3: int = 0
+    c4: int = 0
+    c5: int = 0
+    c6: int = 0
+    c7: int = 0
+    c8: int = 0
+    d1: int = 0
+    d2: int = 0
+    d3: int = 0
+    d4: int = 0
+    d5: int = 0
+    d6: int = 0
+    d7: int = 0
+    d8: int = 0
+    e1: int = 0
+    e2: int = 0
+    e3: int = 0
+    e4: int = 0
+    e5: int = 0
+    e6: int = 0
+    e7: int = 0
+    e8: int = 0
+    f1: int = 0
+    f2: int = 0
+    f3: int = 0
+    f4: int = 0
+    f5: int = 0
+    f6: int = 0
+    f7: int = 0
+    f8: int = 0
+    g1: int = 0
+    g2: int = 0
+    g3: int = 0
+    g4: int = 0
+    g5: int = 0
+    g6: int = 0
+    g7: int = 0
+    g8: int = 0
+    h1: int = 0
+    h2: int = 0
+    h3: int = 0
+    h4: int = 0
+    h5: int = 0
+    h6: int = 0
+    h7: int = 0
+    h8: int = 0
+    i1: int = 0
+    i2: int = 0
+    i3: int = 0
+    i4: int = 0
+    i5: int = 0
+    i6: int = 0
+    i7: int = 0
+    i8: int = 0
+    j1: int = 0
+    j2: int = 0
+    j3: int = 0
+    j4: int = 0
+    j5: int = 0
+    j6: int = 0
+    j7: int = 0
+    j8: int = 0
+    k1: int = 0
+    k2: int = 0
+    k3: int = 0
+    k4: int = 0
+    k5: int = 0
+    k6: int = 0
+    k7: int = 0
+    k8: int = 0
+    l1: int = 0
+    l2: int = 0
+    l3: int = 0
+    l4: int = 0
+    l5: int = 0
+    l6: int = 0
+    l7: int = 0
+    l8: int = 0
+    m1: int = 0
+    m2: int = 0
+    m3: int = 0
+    m4: int = 0
+    m5: int = 0
+    m6: int = 0
+    m7: int = 0
+    m8: int = 0
+    n1: int = 0
+    n2: int = 0
+    n3: int = 0
+    n4: int = 0
+    n5: int = 0
+    n6: int = 0
+    n7: int = 0
+    n8: int = 0
+    o1: int = 0
+    o2: int = 0
+    o3: int = 0
+    o4: int = 0
+    o5: int = 0
+    o6: int = 0
+    o7: int = 0
+    o8: int = 0
+    p1: int = 0
+    p2: int = 0
+    p3: int = 0
+    p4: int = 0
+    p5: int = 0
+    p6: int = 0
+    p7: int = 0
+    p8: int = 0
+
+# Medium-sized struct for nested tests
+struct MediumData =>
+    x: int
+    y: int
+    z: int
+    name: str
+
+# Function returning a large struct
+fn createLargeData(v: int): LargeData =>
+    return LargeData { a1: v, b1: v * 2, c1: v * 3, d1: v * 4, p8: v * 100 }
+
+# Function that modifies and returns large struct
+fn modifyLargeData(data: LargeData, off: int): LargeData =>
+    var result: LargeData = LargeData { a1: data.a1 + off, b1: data.b1 + off, c1: data.c1 + off, d1: data.d1 + off, p8: data.p8 + off }
+    return result
+
+# Function returning medium struct with string
+fn createMediumData(x: int, y: int, z: int, name: str): MediumData =>
+    return MediumData { x: x, y: y, z: z, name: name }
+
+fn main(): void =>
+    print("Testing large struct return semantics:\n")
+
+    # Test 1: Simple large struct return
+    var large1: LargeData = createLargeData(10)
+    if large1.a1 != 10 =>
+        print($"Simple large struct return: FAIL (a1={large1.a1})\n")
+        return
+    if large1.b1 != 20 =>
+        print($"Simple large struct return: FAIL (b1={large1.b1})\n")
+        return
+    if large1.p8 != 1000 =>
+        print($"Simple large struct return: FAIL (p8={large1.p8})\n")
+        return
+    print("Simple large struct return: PASS\n")
+
+    # Test 2: Modify and return large struct
+    var large2: LargeData = modifyLargeData(large1, 5)
+    if large2.a1 != 15 =>
+        print($"Modify large struct return: FAIL (a1={large2.a1})\n")
+        return
+    if large2.b1 != 25 =>
+        print($"Modify large struct return: FAIL (b1={large2.b1})\n")
+        return
+    if large2.p8 != 1005 =>
+        print($"Modify large struct return: FAIL (p8={large2.p8})\n")
+        return
+    print("Modify large struct return: PASS\n")
+
+    # Test 3: Chained large struct operations
+    var large3: LargeData = modifyLargeData(createLargeData(1), 100)
+    if large3.a1 != 101 =>
+        print($"Chained large struct: FAIL (a1={large3.a1})\n")
+        return
+    if large3.b1 != 102 =>
+        print($"Chained large struct: FAIL (b1={large3.b1})\n")
+        return
+    print("Chained large struct: PASS\n")
+
+    # Test 4: Medium struct with string return
+    var med1: MediumData = createMediumData(1, 2, 3, "test")
+    if med1.x != 1 =>
+        print($"Medium struct with string: FAIL (x={med1.x})\n")
+        return
+    if med1.name != "test" =>
+        print($"Medium struct with string: FAIL (name={med1.name})\n")
+        return
+    print("Medium struct with string: PASS\n")
+
+    # Test 5: Multiple large struct returns
+    var a: LargeData = createLargeData(100)
+    var b: LargeData = createLargeData(200)
+    var c: LargeData = createLargeData(300)
+    if a.a1 != 100 =>
+        print($"Multiple large structs: FAIL (a.a1={a.a1})\n")
+        return
+    if b.a1 != 200 =>
+        print($"Multiple large structs: FAIL (b.a1={b.a1})\n")
+        return
+    if c.a1 != 300 =>
+        print($"Multiple large structs: FAIL (c.a1={c.a1})\n")
+        return
+    print("Multiple large struct returns: PASS\n")
+
+    print("All large struct return tests completed!\n")

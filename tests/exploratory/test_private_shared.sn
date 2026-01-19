@@ -1,0 +1,59 @@
+// Test 18: Private and shared memory modifiers
+fn main(): int =>
+    print("=== Private Block ===\n")
+
+    // Private block with primitive escape
+    var result: int = 0
+    private =>
+        var temp: int = 42
+        result = temp * 2
+    print($"result after private: {result}\n")
+
+    print("\n=== Nested Private Blocks ===\n")
+    var outer: int = 0
+    private =>
+        var inner: int = 0
+        private =>
+            inner = 50
+        outer = inner * 2
+    print($"outer after nested private: {outer}\n")
+
+    print("\n=== Multiple Assigns in Private ===\n")
+    var x: int = 0
+    var y: int = 0
+    var z: int = 0
+    private =>
+        x = 10
+        y = 20
+        z = x + y
+    print($"x={x}, y={y}, z={z}\n")
+
+    print("\n=== Private with Different Types ===\n")
+    var flag: bool = false
+    var pi: double = 0.0
+    private =>
+        flag = true
+        pi = 3.14159
+    print($"flag={flag}, pi={pi}\n")
+
+    print("\n=== Shared Loop ===\n")
+    var sum: int = 0
+    shared for i in 1..6 =>
+        sum = sum + i
+    print($"sum after shared loop: {sum}\n")
+
+    print("\n=== Shared Block ===\n")
+    var counter: int = 0
+    shared =>
+        counter = 100
+    print($"counter after shared: {counter}\n")
+
+    print("\n=== Private in Loop ===\n")
+    var total: int = 0
+    for i in 1..4 =>
+        private =>
+            var temp: int = i * 10
+            total = total + temp
+    print($"total: {total}\n")
+
+    return 0

@@ -1,0 +1,141 @@
+# Test 82: String splitLines method variance testing
+fn main(): int =>
+    print("Test string splitLines method:\n\n")
+
+    # Test 1: Basic line splitting (Unix \n)
+    print("1. Basic Unix line endings:\n")
+    var text1: str = "line1\nline2\nline3"
+    var lines1: str[] = text1.splitLines()
+    print($"  Lines: {lines1.length}\n")
+    if lines1.length == 3 && lines1[0] == "line1" && lines1[1] == "line2" && lines1[2] == "line3" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 2: Windows line endings (\r\n)
+    print("\n2. Windows line endings:\n")
+    var text2: str = "line1\r\nline2\r\nline3"
+    var lines2: str[] = text2.splitLines()
+    print($"  Lines: {lines2.length}\n")
+    if lines2.length == 3 && lines2[0] == "line1" && lines2[1] == "line2" && lines2[2] == "line3" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 3: Old Mac line endings (\r)
+    print("\n3. Old Mac line endings:\n")
+    var text3: str = "line1\rline2\rline3"
+    var lines3: str[] = text3.splitLines()
+    print($"  Lines: {lines3.length}\n")
+    if lines3.length == 3 && lines3[0] == "line1" && lines3[1] == "line2" && lines3[2] == "line3" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 4: Mixed line endings
+    print("\n4. Mixed line endings:\n")
+    var text4: str = "unix\nwindows\r\nmac\r"
+    var lines4: str[] = text4.splitLines()
+    print($"  Lines: {lines4.length}\n")
+    if lines4.length == 3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 5: Empty string
+    print("\n5. Empty string:\n")
+    var empty: str = ""
+    var emptyLines: str[] = empty.splitLines()
+    print($"  Lines: {emptyLines.length}\n")
+    if emptyLines.length == 0 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 6: Single line no newline
+    print("\n6. Single line no newline:\n")
+    var single: str = "just one line"
+    var singleLines: str[] = single.splitLines()
+    print($"  Lines: {singleLines.length}\n")
+    if singleLines.length == 1 && singleLines[0] == "just one line" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 7: Trailing newline
+    print("\n7. Trailing newline:\n")
+    var trailing: str = "line1\nline2\n"
+    var trailingLines: str[] = trailing.splitLines()
+    print($"  Lines: {trailingLines.length}\n")
+    # Should include empty line at end or not? Check behavior
+    if trailingLines.length >= 2 && trailingLines[0] == "line1" && trailingLines[1] == "line2" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 8: Multiple consecutive newlines (empty lines)
+    print("\n8. Multiple consecutive newlines:\n")
+    var multi: str = "a\n\n\nb"
+    var multiLines: str[] = multi.splitLines()
+    print($"  Lines: {multiLines.length}\n")
+    # Should have a, empty, empty, b
+    if multiLines.length == 4 && multiLines[0] == "a" && multiLines[3] == "b" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL: Expected 4 lines\n")
+        return 1
+
+    # Test 9: Only newlines
+    print("\n9. Only newlines:\n")
+    var onlyNl: str = "\n\n\n"
+    var onlyNlLines: str[] = onlyNl.splitLines()
+    print($"  Lines: {onlyNlLines.length}\n")
+    # 3 newlines = 3 or 4 lines depending on implementation
+    if onlyNlLines.length >= 3 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 10: Lines with spaces
+    print("\n10. Lines with spaces:\n")
+    var spaced: str = "  line1  \n  line2  "
+    var spacedLines: str[] = spaced.splitLines()
+    print($"  Lines: {spacedLines.length}\n")
+    if spacedLines.length == 2 && spacedLines[0] == "  line1  " && spacedLines[1] == "  line2  " =>
+        print("  PASS: Spaces preserved\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 11: Many lines
+    print("\n11. Many lines:\n")
+    var manyStr: str = "1\n2\n3\n4\n5\n6\n7\n8\n9\n10"
+    var manyLines: str[] = manyStr.splitLines()
+    print($"  Lines: {manyLines.length}\n")
+    if manyLines.length == 10 && manyLines[0] == "1" && manyLines[9] == "10" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 12: Blank line in middle
+    print("\n12. Blank line in middle:\n")
+    var blank: str = "first\n\nlast"
+    var blankLines: str[] = blank.splitLines()
+    print($"  Lines: {blankLines.length}\n")
+    if blankLines.length == 3 && blankLines[0] == "first" && blankLines[1] == "" && blankLines[2] == "last" =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    print("\nAll splitLines tests passed!\n")
+    return 0

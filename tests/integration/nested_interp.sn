@@ -1,0 +1,32 @@
+// Test nested interpolated strings
+// Tests various levels of nesting and combinations
+
+fn main(): int =>
+    var x: int = 42
+    var name: str = "Alice"
+
+    // Test 1: Basic nested interpolation
+    print($"Outer: {$"Inner: {x}"}\n")
+
+    // Test 2: Nested with expression
+    print($"Result: {$"Value: {x + 1}"}\n")
+
+    // Test 3: Double nesting
+    print($"L1: {$"L2: {$"L3: {x}"}"}\n")
+
+    // Test 4: Adjacent nested strings
+    print($"A{$"B"}{$"C"}D\n")
+
+    // Test 5: Nested interpolation with variable
+    print($"Hello: {$"{name} says hi"}\n")
+
+    // Test 6: Complex nested with arithmetic
+    print($"Math: {$"Sum: {x + 10} Prod: {x * 2}"}\n")
+
+    // Test 7: Nested interpolation with method call
+    print($"Upper: {$"name: {name}".toUpper()}\n")
+
+    // Test 8: Multiple expressions in nested string
+    print($"Multi: {$"x={x}, doubled={x * 2}"}\n")
+
+    return 0

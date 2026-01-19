@@ -1,0 +1,32 @@
+// Test spread operator: ...arr
+fn main(): void =>
+    // Basic spread
+    var arr1: int[] = {1, 2, 3}
+    var arr2: int[] = {...arr1}
+    print("Spread {...arr1}: ")
+    print(arr2)
+    print("\n")
+
+    // Spread with additional elements
+    var arr3: int[] = {0, ...arr1, 4, 5}
+    print("Spread {0, ...arr1, 4, 5}: ")
+    print(arr3)
+    print("\n")
+
+    // Multiple spreads
+    var a: int[] = {1, 2}
+    var b: int[] = {3, 4}
+    var combined: int[] = {...a, ...b}
+    print("Combined {...a, ...b}: ")
+    print(combined)
+    print("\n")
+
+    // Spread with range
+    var withRange: int[] = {...arr1, 10..13}
+    print("Spread with range {...arr1, 10..13}: ")
+    print(withRange)
+    print("\n")
+
+    // Length check
+    print($"Original length: {arr1.length}\n")
+    print($"Combined length: {combined.length}\n")

@@ -1,0 +1,20 @@
+=== C Math Library Interop Test ===
+
+sin(0) = 0.00000
+cos(0) = 1.00000
+sin(pi/2) = 1.00000
+cos(pi/2) = -0.00000
+sqrt(4) = 2.00000
+sqrt(2) = 1.41421
+pow(2, 3) = 8.00000
+pow(10, 2) = 100.00000
+fabs(-5.5) = 5.50000
+fabs(3.3) = 3.30000
+floor(2.7) = 2.00000
+ceil(2.3) = 3.00000
+log(e) ~ 1.00000
+log10(100) = 2.00000
+exp(1) = 2.71828
+tan(pi/4) = 1.00000
+
+=== All math interop tests PASSED! ===

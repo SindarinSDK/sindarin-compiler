@@ -1,0 +1,206 @@
+// Tests for pipe block strings
+
+fn main(): void =>
+    print("=== Pipe Block String Tests ===\n\n")
+
+    // Test basic multi-line string - all lines same indent, should strip to none
+    // Note: pipe strings include a trailing newline
+    var basic: str = |
+        Line 1
+        Line 2
+        Line 3
+
+    var basic_lines: str[] = basic.splitLines()
+    // splitLines gives 4 entries (3 content + 1 empty due to trailing newline)
+    assert(basic_lines.length >= 3, "basic has at least 3 content lines")
+    assert(basic_lines[0] == "Line 1", "basic line 1 - no leading indent")
+    assert(basic_lines[1] == "Line 2", "basic line 2 - no leading indent")
+    assert(basic_lines[2] == "Line 3", "basic line 3 - no leading indent")
+    // Verify no unexpected leading spaces
+    assert(!basic_lines[0].startsWith(" "), "line 1 has no leading space")
+    assert(!basic_lines[1].startsWith(" "), "line 2 has no leading space")
+    assert(!basic_lines[2].startsWith(" "), "line 3 has no leading space")
+    print("test_basic_multiline: PASS\n")
+
+    // Test relative indentation is preserved
+    var indented: str = |
+        outer
+            inner1
+            inner2
+        outer again
+
+    var ind_lines: str[] = indented.splitLines()
+    assert(ind_lines.length >= 4, "indented has at least 4 content lines")
+    assert(ind_lines[0] == "outer", "first line - base indent stripped")
+    assert(ind_lines[1] == "    inner1", "second line - 4 spaces relative indent")
+    assert(ind_lines[2] == "    inner2", "third line - 4 spaces relative indent")
+    assert(ind_lines[3] == "outer again", "fourth line - back to base")
+    // Verify indentation characters
+    assert(ind_lines[1].startsWith("    "), "inner1 starts with 4 spaces")
+    assert(ind_lines[1].charAt(4) == 'i', "inner1 content starts at position 4")
+    print("test_relative_indentation: PASS\n")
+
+    // Test deeper nesting preserves multiple indent levels
+    var nested: str = |
+        level0
+            level1
+                level2
+            level1
+        level0
+
+    var nest_lines: str[] = nested.splitLines()
+    assert(nest_lines.length >= 5, "nested has at least 5 content lines")
+    assert(nest_lines[0] == "level0", "nest line 0 - no indent")
+    assert(nest_lines[1] == "    level1", "nest line 1 - 4 spaces")
+    assert(nest_lines[2] == "        level2", "nest line 2 - 8 spaces")
+    assert(nest_lines[3] == "    level1", "nest line 3 - 4 spaces")
+    assert(nest_lines[4] == "level0", "nest line 4 - no indent")
+    // Verify exact indent counts
+    assert(!nest_lines[0].startsWith(" "), "level0 has 0 leading spaces")
+    assert(nest_lines[1].startsWith("    ") && !nest_lines[1].startsWith("     "), "level1 has exactly 4 spaces")
+    assert(nest_lines[2].startsWith("        ") && !nest_lines[2].startsWith("         "), "level2 has exactly 8 spaces")
+    print("test_nested_indentation: PASS\n")
+
+    // Test SQL query formatting - common use case
+    var sql: str = |
+        SELECT *
+        FROM users
+        WHERE active = true
+
+    assert(sql.contains("SELECT"), "sql has SELECT")
+    assert(sql.contains("FROM"), "sql has FROM")
+    assert(sql.contains("WHERE"), "sql has WHERE")
+    var sql_lines: str[] = sql.splitLines()
+    assert(sql_lines.length >= 3, "sql has at least 3 lines")
+    // All lines at same indent level should have no leading spaces
+    assert(sql_lines[0] == "SELECT *", "sql line 1 - no indent")
+    assert(sql_lines[1] == "FROM users", "sql line 2 - no indent")
+    assert(sql_lines[2] == "WHERE active = true", "sql line 3 - no indent")
+    print("test_sql: PASS\n")
+
+    // Test interpolated pipe string
+    var name: str = "Alice"
+    var greeting: str = $|
+        Hello {name}!
+        Welcome back.
+
+    assert(greeting.contains("Alice"), "greeting interpolated name")
+    var greet_lines: str[] = greeting.splitLines()
+    assert(greet_lines.length >= 2, "greeting has at least 2 lines")
+    assert(greet_lines[0] == "Hello Alice!", "greeting line 1 - interpolation worked")
+    assert(greet_lines[1] == "Welcome back.", "greeting line 2")
+    print("test_interpolated: PASS\n")
+
+    // Test interpolation with expressions
+    var x: int = 42
+    var math: str = $|
+        x = {x}
+        x * 2 = {x * 2}
+
+    var math_lines: str[] = math.splitLines()
+    assert(math_lines.length >= 2, "math has at least 2 lines")
+    assert(math_lines[0] == "x = 42", "math line 1 - simple interpolation")
+    assert(math_lines[1] == "x * 2 = 84", "math line 2 - expression interpolation")
+    print("test_math_interp: PASS\n")
+
+    // Test interpolated pipe string with relative indentation
+    var code_type: str = "function"
+    var code: str = $|
+        def {code_type}():
+            print("hello")
+            return 42
+
+    var code_lines: str[] = code.splitLines()
+    assert(code_lines.length >= 3, "code has at least 3 lines")
+    assert(code_lines[0] == "def function():", "code line 1 - interpolation + no indent")
+    assert(code_lines[1] == "    print(\"hello\")", "code line 2 - 4 space indent preserved")
+    assert(code_lines[2] == "    return 42", "code line 3 - 4 space indent preserved")
+    // Verify indentation is consistent
+    assert(code_lines[1].startsWith("    "), "code line 2 has 4 leading spaces")
+    assert(code_lines[2].startsWith("    "), "code line 3 has 4 leading spaces")
+    print("test_interpolated_with_indent: PASS\n")
+
+    // Test single line pipe string
+    var single: str = |
+        just one line
+
+    var single_lines: str[] = single.splitLines()
+    assert(single_lines.length >= 1, "single has at least 1 line")
+    assert(single_lines[0] == "just one line", "single line - no indent")
+    print("test_single_line: PASS\n")
+
+    // Test 2-space source indentation (Sindarin convention)
+    var two_space_src: str = |
+      line at base
+        indented 2 more
+      back to base
+
+    var ts_lines: str[] = two_space_src.splitLines()
+    assert(ts_lines.length >= 3, "two_space_src has at least 3 content lines")
+    assert(ts_lines[0] == "line at base", "2sp src line 0 - no indent")
+    assert(ts_lines[1] == "  indented 2 more", "2sp src line 1 - 2 space relative")
+    assert(ts_lines[2] == "back to base", "2sp src line 2 - no indent")
+    assert(ts_lines[1].startsWith("  ") && !ts_lines[1].startsWith("   "), "2sp src has exactly 2 spaces")
+    print("test_two_space_source: PASS\n")
+
+    // Test 4-space source indentation
+    var four_space_src: str = |
+        line at base
+            indented 4 more
+        back to base
+
+    var fs_lines: str[] = four_space_src.splitLines()
+    assert(fs_lines.length >= 3, "four_space_src has at least 3 content lines")
+    assert(fs_lines[0] == "line at base", "4sp src line 0 - no indent")
+    assert(fs_lines[1] == "    indented 4 more", "4sp src line 1 - 4 space relative")
+    assert(fs_lines[2] == "back to base", "4sp src line 2 - no indent")
+    assert(fs_lines[1].startsWith("    ") && !fs_lines[1].startsWith("     "), "4sp src has exactly 4 spaces")
+    print("test_four_space_source: PASS\n")
+
+    // Test mixed: 2-space source with nested 2-space content indentation
+    var mixed_2_2: str = |
+      fn example():
+        var x: int = 1
+        if true:
+          nested
+        done
+
+    var m22_lines: str[] = mixed_2_2.splitLines()
+    assert(m22_lines.length >= 5, "mixed_2_2 has at least 5 lines")
+    assert(m22_lines[0] == "fn example():", "m22 line 0 - base")
+    assert(m22_lines[1] == "  var x: int = 1", "m22 line 1 - 2sp")
+    assert(m22_lines[2] == "  if true:", "m22 line 2 - 2sp")
+    assert(m22_lines[3] == "    nested", "m22 line 3 - 4sp (2+2)")
+    assert(m22_lines[4] == "  done", "m22 line 4 - 2sp")
+    print("test_mixed_2_2: PASS\n")
+
+    // Test mixed: 4-space source with nested 4-space content indentation
+    var mixed_4_4: str = |
+        fn example():
+            var x: int = 1
+            if true:
+                nested
+            done
+
+    var m44_lines: str[] = mixed_4_4.splitLines()
+    assert(m44_lines.length >= 5, "mixed_4_4 has at least 5 lines")
+    assert(m44_lines[0] == "fn example():", "m44 line 0 - base")
+    assert(m44_lines[1] == "    var x: int = 1", "m44 line 1 - 4sp")
+    assert(m44_lines[2] == "    if true:", "m44 line 2 - 4sp")
+    assert(m44_lines[3] == "        nested", "m44 line 3 - 8sp (4+4)")
+    assert(m44_lines[4] == "    done", "m44 line 4 - 4sp")
+    print("test_mixed_4_4: PASS\n")
+
+    // Test interpolation with 2-space source indent
+    var fn_name: str = "greet"
+    var interp_2sp: str = $|
+      fn {fn_name}():
+        print("hi")
+
+    var i2_lines: str[] = interp_2sp.splitLines()
+    assert(i2_lines.length >= 2, "interp_2sp has at least 2 lines")
+    assert(i2_lines[0] == "fn greet():", "i2sp line 0 - interpolated")
+    assert(i2_lines[1] == "  print(\"hi\")", "i2sp line 1 - 2sp indent")
+    print("test_interp_two_space: PASS\n")
+
+    print("\nAll pipe block string tests passed!\n")

@@ -1,0 +1,74 @@
+// Test 60: Mixed type expressions
+fn main(): int =>
+    print("Test mixed type expressions:\n\n")
+
+    // Int and double mixing
+    var i: int = 5
+    var d: double = 2.5
+
+    print($"int i = {i}\n")
+    print($"double d = {d}\n")
+
+    // Int to double promotion
+    print("\nInt-double operations:\n")
+    var sum: double = i + d
+    print($"i + d = {sum}\n")
+
+    var diff: double = i - d
+    print($"i - d = {diff}\n")
+
+    var prod: double = i * d
+    print($"i * d = {prod}\n")
+
+    var quot: double = i / d
+    print($"i / d = {quot}\n")
+
+    // Comparison between int and double
+    print("\nComparisons:\n")
+    print($"i > d: {i > d}\n")
+    print($"5 == 5.0: {5 == 5.0}\n")
+    print($"5 < 5.5: {5 < 5.5}\n")
+
+    // Mixed arithmetic
+    print("\nMixed arithmetic:\n")
+    var result1: double = 10 / 4.0
+    print($"10 / 4.0 = {result1}\n")
+
+    var result2: double = 10.0 / 4
+    print($"10.0 / 4 = {result2}\n")
+
+    // In interpolation
+    print($"\nIn interpolation: i={i}, d={d}, sum={i + d}\n")
+
+    // Bool in conditions with other types
+    print("\nBool with comparisons:\n")
+    var flag: bool = i > 3 && d < 5.0
+    print($"i > 3 && d < 5.0: {flag}\n")
+
+    // Char in expressions
+    print("\nChar handling:\n")
+    var c: char = 'A'
+    print($"char c = '{c}'\n")
+
+    // String with numbers
+    print("\nString concatenation with numbers:\n")
+    var s: str = "Value: "
+    print($"String: {s}\n")
+    print($"Concatenated: {s}{i}\n")
+
+    // Mixed array operations
+    print("\nMixed in arrays:\n")
+    var ints: int[] = {1, 2, 3}
+    var dbls: double[] = {1.1, 2.2, 3.3}
+    print("ints: ")
+    print(ints)
+    print("\n")
+    print("dbls: ")
+    print(dbls)
+    print("\n")
+
+    // Calculate mixed
+    var mixedSum: double = ints[0] + dbls[0]
+    print($"ints[0] + dbls[0] = {mixedSum}\n")
+
+    return 0

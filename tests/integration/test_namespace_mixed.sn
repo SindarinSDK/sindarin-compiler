@@ -1,0 +1,16 @@
+// Test mixing direct and namespaced imports in same file
+import "lib/math_ops"
+import "lib/string_ops" as strings
+
+fn main(): void =>
+    // Direct import - call without namespace
+    print($"add(1, 2) = {add(1, 2)}\n")
+    print($"subtract(5, 3) = {subtract(5, 3)}\n")
+
+    // Namespaced import - call with namespace
+    print($"strings.greet(\"Alice\") = {strings.greet("Alice")}\n")
+    print($"strings.double_str(\"x\") = {strings.double_str("x")}\n")
+
+    // Mix in expressions
+    var total: int = add(multiply(2, 3), subtract(10, 5))
+    print($"add(multiply(2, 3), subtract(10, 5)) = {total}\n")

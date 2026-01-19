@@ -1,0 +1,4 @@
+# Error test: main with wrong parameter type (should be str[], not int[])
+
+fn main(args: int[]): void =>
+    print("Should not compile\n")

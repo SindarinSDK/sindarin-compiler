@@ -1,0 +1,61 @@
+=== UUID Integration Tests ===
+--- Factory Methods ---
+  PASS: UUID.new() succeeded
+  PASS: UUID.create() succeeded
+  PASS: UUID.v7() succeeded
+  PASS: UUID.v4() succeeded
+
+--- Version Verification ---
+  PASS: v7 UUID reports version 7
+  PASS: v4 UUID reports version 4
+
+--- toString Method ---
+  PASS: toString() returns 36-char string
+  PASS: Different UUIDs have different string representations
+
+--- equals Method ---
+  PASS: Different UUIDs are not equal
+  PASS: Same UUID equals itself
+
+--- String Parsing ---
+  PASS: UUID.fromString() round-trips correctly
+
+--- V5 Deterministic UUIDs ---
+  PASS: Namespace URL is correct
+  PASS: v5 with same input produces same UUID
+  PASS: v5 with different input produces different UUID
+  PASS: v5 UUID reports version 5
+
+--- Variant Check ---
+  PASS: UUID variant is 1 (RFC 9562)
+
+--- Timestamp Extraction (v7) ---
+  PASS: v7 timestamp is valid
+
+--- Alternative Formats ---
+  PASS: toHex() returns 32-char string
+  PASS: toBase64() returns 22-char string
+
+--- Nil and Max UUIDs ---
+  PASS: UUID.zero() is all zeros
+  PASS: zero UUID reports isNil() == true
+  PASS: regular UUID reports isNil() == false
+  PASS: UUID.max() is all ones
+
+--- Comparison Operators ---
+  PASS: == operator works for equal UUIDs
+  PASS: != operator works for different UUIDs
+  PASS: zero < max is true
+  PASS: max > zero is true
+  PASS: zero <= zero is true
+  PASS: max >= max is true
+  PASS: ordering works with known values (small < large)
+
+--- Practical Use Case ---
+  PASS: Multiple generated UUIDs are all unique
+
+=== Test Summary ===
+Passed: 31
+Failed: 0
+
+All UUID integration tests PASSED!

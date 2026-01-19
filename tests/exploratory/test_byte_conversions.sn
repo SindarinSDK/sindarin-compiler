@@ -1,0 +1,185 @@
+# Test 80: byte/int conversions and arithmetic variance testing
+fn main(): int =>
+    print("Test byte/int conversions and arithmetic:\n\n")
+
+    # Test 1: byte to int implicit conversion
+    print("1. byte to int conversion:\n")
+    var b1: byte = 100
+    var i1: int = b1
+    print($"  byte 100 as int: {i1}\n")
+    if i1 == 100 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 2: byte max value to int
+    print("\n2. byte max value to int:\n")
+    var bMax: byte = 255
+    var iMax: int = bMax
+    print($"  byte 255 as int: {iMax}\n")
+    if iMax == 255 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 3: byte zero to int
+    print("\n3. byte zero to int:\n")
+    var bZero: byte = 0
+    var iZero: int = bZero
+    print($"  byte 0 as int: {iZero}\n")
+    if iZero == 0 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 4: byte addition
+    print("\n4. byte addition:\n")
+    var add1: byte = 10
+    var add2: byte = 20
+    var addResult: int = add1 + add2
+    print($"  10 + 20 = {addResult}\n")
+    if addResult == 30 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 5: byte subtraction
+    print("\n5. byte subtraction:\n")
+    var sub1: byte = 100
+    var sub2: byte = 30
+    var subResult: int = sub1 - sub2
+    print($"  100 - 30 = {subResult}\n")
+    if subResult == 70 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 6: byte multiplication
+    print("\n6. byte multiplication:\n")
+    var mul1: byte = 5
+    var mul2: byte = 10
+    var mulResult: int = mul1 * mul2
+    print($"  5 * 10 = {mulResult}\n")
+    if mulResult == 50 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 7: byte division
+    print("\n7. byte division:\n")
+    var div1: byte = 100
+    var div2: byte = 5
+    var divResult: int = div1 / div2
+    print($"  100 / 5 = {divResult}\n")
+    if divResult == 20 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 8: byte modulo
+    print("\n8. byte modulo:\n")
+    var mod1: byte = 17
+    var mod2: byte = 5
+    var modResult: int = mod1 % mod2
+    print($"  17 %% 5 = {modResult}\n")
+    if modResult == 2 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 9: byte arithmetic with int result (overflow safe)
+    print("\n9. byte arithmetic - large result:\n")
+    var big1: byte = 200
+    var big2: byte = 200
+    var bigSum: int = big1 + big2
+    print($"  200 + 200 = {bigSum}\n")
+    if bigSum == 400 =>
+        print("  PASS: Result exceeds byte range but int handles it\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 10: byte multiplication overflow to int
+    print("\n10. byte multiplication - large result:\n")
+    var mulBig1: byte = 100
+    var mulBig2: byte = 100
+    var mulBigResult: int = mulBig1 * mulBig2
+    print($"  100 * 100 = {mulBigResult}\n")
+    if mulBigResult == 10000 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 11: byte comparison with int literal
+    print("\n11. byte comparison with int literal:\n")
+    var cmpByte: byte = 128
+    print($"  byte 128 == 128: {cmpByte == 128}\n")
+    print($"  byte 128 < 200: {cmpByte < 200}\n")
+    print($"  byte 128 > 100: {cmpByte > 100}\n")
+    if cmpByte == 128 && cmpByte < 200 && cmpByte > 100 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 12: byte in arithmetic expression
+    print("\n12. byte in arithmetic expression:\n")
+    var expr1: byte = 10
+    var expr2: byte = 5
+    var expr3: byte = 2
+    var exprResult: int = expr1 + expr2 * expr3
+    print($"  10 + 5 * 2 = {exprResult}\n")
+    if exprResult == 20 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 13: byte array sum
+    print("\n13. byte array sum:\n")
+    var sumArr: byte[] = {10, 20, 30, 40}
+    var total: int = 0
+    shared for b in sumArr =>
+        total = total + b
+    print($"  Sum: {total}\n")
+    if total == 100 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 14: byte in mixed arithmetic
+    print("\n14. byte with int arithmetic:\n")
+    var mixByte: byte = 50
+    var mixInt: int = 1000
+    var mixResult: int = mixInt + mixByte
+    print($"  1000 + 50 = {mixResult}\n")
+    if mixResult == 1050 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    # Test 15: byte max multiplication
+    print("\n15. byte max multiplication:\n")
+    var maxB1: byte = 255
+    var maxB2: byte = 255
+    var maxProduct: int = maxB1 * maxB2
+    print($"  255 * 255 = {maxProduct}\n")
+    if maxProduct == 65025 =>
+        print("  PASS\n")
+    else =>
+        print("  FAIL\n")
+        return 1
+
+    print("\nAll byte conversion and arithmetic tests passed!\n")
+    return 0

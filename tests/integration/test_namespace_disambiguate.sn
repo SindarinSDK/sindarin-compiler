@@ -1,0 +1,22 @@
+// Test: Two modules with similar functionality using namespaces
+// Demonstrates how namespaces help organize and access imports clearly
+import "lib/math_basic" as basic
+import "lib/math_advanced" as adv
+
+fn main(): void =>
+    // Both namespaces provide math operations
+    // basic: sum, prod
+    // adv: power, square
+
+    // Use both namespaces side by side
+    print($"basic.sum(5, 3) = {basic.sum(5, 3)}\n")
+    print($"basic.prod(5, 3) = {basic.prod(5, 3)}\n")
+    print($"adv.power(2, 3) = {adv.power(2, 3)}\n")
+    print($"adv.square(4) = {adv.square(4)}\n")
+
+    // Combine operations from both namespaces
+    var result1: int = basic.sum(adv.power(2, 3), adv.square(3))
+    print($"basic.sum(adv.power(2, 3), adv.square(3)) = {result1}\n")
+
+    var result2: int = basic.prod(basic.sum(1, 2), adv.square(2))
+    print($"basic.prod(basic.sum(1, 2), adv.square(2)) = {result2}\n")

@@ -1,0 +1,113 @@
+# Integration test for nested field assignment escape detection
+# Tests escape detection for assignments to nested struct fields like outer.inner.field
+
+struct Inner =>
+    value: int
+    factor: int = 1
+
+struct Middle =>
+    inner: Inner
+    name: str = "middle"
+
+struct Outer =>
+    middle: Middle
+    id: int = 0
+
+struct Deep =>
+    outer: Outer
+    label: str = "deep"
+
+fn test_two_level_nested_escape(): void =>
+    # outer.inner.value = local_val should mark escape on chain
+    var wrapper: Middle = Middle { inner: Inner { value: 0 } }
+
+    var local_val: int = 123
+    wrapper.inner.value = local_val
+
+    if wrapper.inner.value != 123 =>
+        print($"FAIL: wrapper.inner.value = {wrapper.inner.value}, expected 123\n")
+        return
+
+    print("Two-level nested escape test: PASS\n")
+
+fn test_three_level_nested_escape(): void =>
+    # outer.middle.inner.value = local should mark entire chain
+    var root: Outer = Outer { middle: Middle { inner: Inner { value: 0 } } }
+
+    var data: int = 456
+    root.middle.inner.value = data
+
+    if root.middle.inner.value != 456 =>
+        print($"FAIL: root.middle.inner.value = {root.middle.inner.value}, expected 456\n")
+        return
+
+    print("Three-level nested escape test: PASS\n")
+
+fn test_four_level_nested_escape(): void =>
+    # deep.outer.middle.inner.value = local
+    var deep: Deep = Deep { outer: Outer { middle: Middle { inner: Inner { value: 0 } } } }
+
+    var deep_val: int = 789
+    deep.outer.middle.inner.value = deep_val
+
+    if deep.outer.middle.inner.value != 789 =>
+        print($"FAIL: deep.outer.middle.inner.value = {deep.outer.middle.inner.value}, expected 789\n")
+        return
+
+    print("Four-level nested escape test: PASS\n")
+
+fn test_nested_with_defaults(): void =>
+    # Verify defaults propagate through nested structs
+    var o: Outer = Outer { middle: Middle { inner: Inner { value: 100 } } }
+
+    # Check defaults
+    if o.middle.name != "middle" =>
+        print($"FAIL: o.middle.name = {o.middle.name}, expected 'middle'\n")
+        return
+
+    if o.middle.inner.factor != 1 =>
+        print($"FAIL: o.middle.inner.factor = {o.middle.inner.factor}, expected 1\n")
+        return
+
+    if o.id != 0 =>
+        print($"FAIL: o.id = {o.id}, expected 0\n")
+        return
+
+    # Now assign to nested field
+    var new_factor: int = 10
+    o.middle.inner.factor = new_factor
+
+    if o.middle.inner.factor != 10 =>
+        print($"FAIL: o.middle.inner.factor = {o.middle.inner.factor}, expected 10\n")
+        return
+
+    print("Nested with defaults test: PASS\n")
+
+fn test_multiple_nested_escapes(): void =>
+    var root: Outer = Outer { middle: Middle { inner: Inner { value: 0 } } }
+
+    # Multiple assignments to different levels
+    var v1: int = 11
+    var v2: int = 22
+
+    root.middle.inner.value = v1
+    root.id = v2
+
+    if root.middle.inner.value != 11 =>
+        print($"FAIL: root.middle.inner.value = {root.middle.inner.value}, expected 11\n")
+        return
+
+    if root.id != 22 =>
+        print($"FAIL: root.id = {root.id}, expected 22\n")
+        return
+
+    print("Multiple nested escapes test: PASS\n")
+
+fn main(): void =>
+    print("Testing nested field assignment escape detection:\n")
+    test_two_level_nested_escape()
+    test_three_level_nested_escape()
+    test_four_level_nested_escape()
+    test_nested_with_defaults()
+    test_multiple_nested_escapes()
+    print("All nested field escape tests passed!\n")

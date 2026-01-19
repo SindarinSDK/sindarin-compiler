@@ -1,0 +1,6 @@
+basic.sum(5, 3) = 8
+basic.prod(5, 3) = 15
+adv.power(2, 3) = 8
+adv.square(4) = 16
+basic.sum(adv.power(2, 3), adv.square(3)) = 17
+basic.prod(basic.sum(1, 2), adv.square(2)) = 12

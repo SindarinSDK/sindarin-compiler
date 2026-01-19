@@ -1,0 +1,7 @@
+Initial: 10
+After += 5: 15
+After -= 3: 12
+After *= 2: 24
+After /= 4: 6
+After %= 3: 0
+All sync compound assignment tests passed!

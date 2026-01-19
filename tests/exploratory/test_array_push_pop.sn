@@ -1,0 +1,7 @@
+// Test array push and pop
+fn main(): void =>
+  var arr: int[] = {1, 2, 3}
+  arr.push(4)
+  arr.push(5)
+  var last: int = arr.pop()
+  print($"last={last}, len={arr.length}\n")

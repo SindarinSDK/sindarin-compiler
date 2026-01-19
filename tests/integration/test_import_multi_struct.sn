@@ -1,0 +1,42 @@
+# Test importing multiple struct types from a single module
+# Proves: INTEROP_V3 - Module Import Does Not Register Exported Types (RESOLVED)
+#
+# This test verifies that when a module exports multiple struct types,
+# ALL types are correctly registered and available in the importing module.
+
+import "lib/shapes"
+
+fn main(): void =>
+    print("=== Multi-Struct Import Test ===\n\n")
+
+    # Test 1: Rectangle type and static method
+    print("Test 1: Rectangle struct\n")
+    var r: Rectangle = Rectangle.create(5, 3)
+    print($"  Created: {r.width}x{r.height}\n")
+    print($"  Area: {r.area()}\n")
+    print($"  Perimeter: {r.perimeter()}\n")
+
+    # Test 2: Circle type and static method
+    print("\nTest 2: Circle struct\n")
+    var c: Circle = Circle.unit()
+    print($"  Unit circle radius: {c.radius}\n")
+    print($"  Diameter: {c.diameter()}\n")
+
+    # Test 3: Triangle type and methods
+    print("\nTest 3: Triangle struct\n")
+    var t: Triangle = Triangle { base: 6, height: 4 }
+    print($"  Base: {t.base}, Height: {t.height}\n")
+    print($"  Area: {t.area()}\n")
+
+    # Test 4: Factory function from imported module
+    print("\nTest 4: Imported factory function\n")
+    var sq: Rectangle = make_square(4)
+    print($"  Square: {sq.width}x{sq.height}\n")
+    print($"  Area: {sq.area()}\n")
+
+    # Test 5: Function that takes multiple imported struct types
+    print("\nTest 5: Function with multiple struct parameters\n")
+    var total: int = shapes_sum_areas(r, c, t)
+    print($"  Sum of areas: {total}\n")
+
+    print("\n=== All Multi-Struct Import Tests PASSED ===\n")

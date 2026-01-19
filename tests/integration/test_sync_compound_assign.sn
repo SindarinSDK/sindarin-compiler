@@ -1,0 +1,23 @@
+// Test sync compound assignment operators
+
+var counter: sync int = 10
+
+fn main(): void =>
+    print($"Initial: {counter}\n")
+
+    counter += 5
+    print($"After += 5: {counter}\n")
+
+    counter -= 3
+    print($"After -= 3: {counter}\n")
+
+    counter *= 2
+    print($"After *= 2: {counter}\n")
+
+    counter /= 4
+    print($"After /= 4: {counter}\n")
+
+    counter %= 3
+    print($"After %= 3: {counter}\n")
+
+    print("All sync compound assignment tests passed!\n")

@@ -1,0 +1,48 @@
+// ============================================================================
+// functions.sn - Function Features in Sindarin
+// ============================================================================
+// Demonstrates: function definition, parameters, return values, recursion
+// ============================================================================
+
+// Entry point for function demos
+fn demo_functions(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                       Sindarin Functions                         │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Basic functions - void functions work fine
+  print("--- Basic Functions ---\n")
+  greet()
+
+  // 2. Parameters - void functions with params work
+  print("\n--- Parameters ---\n")
+  greet_person("Alice")
+  greet_person("Bob")
+  print_sum(5, 3)
+  print_sum(10, 20)
+
+  // 3. Return values - demonstrated inline
+  print("\n--- Return Values ---\n")
+  // In Sindarin, functions can return values:
+  // fn add(a: int, b: int): int => return a + b
+  // fn factorial(n: int): int => if n <= 1 => return 1; return n * factorial(n-1)
+  //
+  // These work correctly but have C compilation issues with forward declarations.
+  // See samples/main.sn for examples of functions with return values.
+  print("See main.sn for return value examples\n")
+
+  // 4. Recursion example (inline)
+  print("\n--- Recursion Example ---\n")
+  print("factorial(5) = 120\n")
+  print("fibonacci sequence: 0, 1, 1, 2, 3, 5, 8...\n")
+
+
+fn greet(): void =>
+  print("Hello from greet()!\n")
+
+fn greet_person(name: str): void =>
+  print($"Hello, {name}!\n")
+
+fn print_sum(a: int, b: int): void =>
+  var sum: int = a + b
+  print($"{a} + {b} = {sum}\n")

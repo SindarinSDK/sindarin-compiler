@@ -1,0 +1,96 @@
+// Test: Function interception system
+// Tests the Interceptor namespace and automatic call site transformation
+
+var intercepted_count: int = 0
+
+// Simple functions to test
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(x: int, y: int): int =>
+    return x * y
+
+fn greet(name: str): str =>
+    return $"Hello, {name}!"
+
+// Interceptor that logs and modifies return values
+fn loggingInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercepted_count = intercepted_count + 1
+    print($"  [Interceptor] Called: {name}\n")
+
+    // Return a fixed value based on function name
+    if name == "add" =>
+        var result: any = 999  // Return fixed int
+        return result
+    else if name == "multiply" =>
+        var result: any = 777  // Return fixed int
+        return result
+    else =>
+        var result: any = "Intercepted greeting!"
+        return result
+
+fn main =>
+    print("=== Interceptor Tests ===\n\n")
+
+    // Test 1: Direct calls without interception
+    print("Test 1: Direct calls (no interceptor)\n")
+    var sum: int = add(5, 3)
+    var product: int = multiply(4, 6)
+    var greeting: str = greet("World")
+
+    if sum == 8 && product == 24 && greeting == "Hello, World!" =>
+        print("  Direct calls work correctly - PASS\n")
+    else =>
+        print("  Direct calls failed - FAIL\n")
+
+    // Test 2: Register interceptor and verify count
+    print("\nTest 2: Register interceptor\n")
+    Interceptor.register(loggingInterceptor)
+    if Interceptor.count() == 1 =>
+        print("  Interceptor registered - PASS\n")
+    else =>
+        print("  Interceptor count wrong - FAIL\n")
+
+    // Test 3: Calls with interceptor active
+    print("\nTest 3: Intercepted calls\n")
+    sum = add(10, 20)
+    if sum == 999 =>
+        print("  add() intercepted correctly - PASS\n")
+    else =>
+        print($"  add() returned {sum}, expected 999 - FAIL\n")
+
+    product = multiply(7, 8)
+    if product == 777 =>
+        print("  multiply() intercepted correctly - PASS\n")
+    else =>
+        print($"  multiply() returned {product}, expected 777 - FAIL\n")
+
+    greeting = greet("Claude")
+    if greeting == "Intercepted greeting!" =>
+        print("  greet() intercepted correctly - PASS\n")
+    else =>
+        print($"  greet() returned '{greeting}', expected 'Intercepted greeting!' - FAIL\n")
+
+    // Test 4: Verify interceptor was called 3 times
+    print("\nTest 4: Interceptor call count\n")
+    if intercepted_count == 3 =>
+        print("  Interceptor called 3 times - PASS\n")
+    else =>
+        print($"  Interceptor called {intercepted_count} times, expected 3 - FAIL\n")
+
+    // Test 5: Clear and verify no interception
+    print("\nTest 5: Clear interceptors\n")
+    Interceptor.clearAll()
+    if Interceptor.count() == 0 =>
+        print("  Interceptors cleared - PASS\n")
+    else =>
+        print("  Interceptor count should be 0 - FAIL\n")
+
+    intercepted_count = 0
+    sum = add(100, 200)
+    if sum == 300 && intercepted_count == 0 =>
+        print("  No interception after clear - PASS\n")
+    else =>
+        print("  Unexpected behavior after clear - FAIL\n")
+
+    print("\n=== All Interceptor Tests Completed ===\n")

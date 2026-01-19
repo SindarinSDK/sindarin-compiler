@@ -1,0 +1,71 @@
+// Integration test for pointer types: *T, **T, *void, nil
+// Tests pointer type declarations and nil literal
+//
+// Note: Pointer types can only be used in native functions.
+// This includes pointer variables, parameters, and return types.
+
+native fn test_pointer_type_param(p: *int): bool =>
+    // Test pointer parameter with nil comparison
+    if p == nil =>
+        return true
+    return false
+
+native fn test_void_pointer_param(p: *void): bool =>
+    // Test void pointer parameter
+    if p == nil =>
+        return true
+    return false
+
+native fn test_double_pointer_param(pp: **int): bool =>
+    // Test pointer-to-pointer parameter
+    if pp == nil =>
+        return true
+    return false
+
+// Native function can declare pointer variables
+native fn test_pointer_variable(): void =>
+    // Test pointer variable with nil in native function
+    var p: *int = nil
+
+    // Test comparison with nil
+    if p == nil =>
+        print("p is nil (expected)\n")
+    else =>
+        print("p is not nil (unexpected)\n")
+
+    // Test *void type
+    var vp: *void = nil
+    if vp == nil =>
+        print("void pointer is nil (expected)\n")
+
+    // Test nested pointer type declaration (**T)
+    var pp: **int = nil
+    if pp == nil =>
+        print("double pointer is nil (expected)\n")
+
+fn main(): void =>
+    // Test pointer variables inside native function
+    test_pointer_variable()
+
+    // Test function with pointer parameter (passing nil)
+    var result: bool = test_pointer_type_param(nil)
+    if result =>
+        print("test_pointer_type_param passed\n")
+    else =>
+        print("test_pointer_type_param failed\n")
+
+    // Test function with void pointer parameter
+    result = test_void_pointer_param(nil)
+    if result =>
+        print("test_void_pointer_param passed\n")
+    else =>
+        print("test_void_pointer_param failed\n")
+
+    // Test function with double pointer parameter
+    result = test_double_pointer_param(nil)
+    if result =>
+        print("test_double_pointer_param passed\n")
+    else =>
+        print("test_double_pointer_param failed\n")
+
+    print("All pointer type tests passed!\n")

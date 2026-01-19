@@ -1,0 +1,52 @@
+// Test 43: as ref (reference semantics for primitives)
+fn main(): int =>
+    print("Test as ref (reference semantics):\n\n")
+
+    // Basic as ref with int
+    var value: int as ref = 42
+    print($"Initial value (as ref): {value}\n")
+
+    value = 100
+    print($"After assignment: {value}\n")
+
+    // as ref with arithmetic
+    value = value + 10
+    print($"After +10: {value}\n")
+
+    value = value * 2
+    print($"After *2: {value}\n")
+
+    // as ref in expressions
+    var other: int = 5
+    var sum: int = value + other
+    print($"value + other = {sum}\n")
+
+    // as ref with double
+    print("\nas ref with double:\n")
+    var pi: double as ref = 3.14159
+    print($"pi = {pi}\n")
+    pi = pi * 2.0
+    print($"pi * 2 = {pi}\n")
+
+    // as ref with bool
+    print("\nas ref with bool:\n")
+    var flag: bool as ref = true
+    print($"flag = {flag}\n")
+    flag = !flag
+    print($"!flag = {flag}\n")
+
+    // as ref in loop
+    print("\nas ref modified in loop:\n")
+    var counter: int as ref = 0
+    for var i: int = 0; i < 5; i++ =>
+        counter++
+    print($"counter after loop: {counter}\n")
+
+    // as ref in condition
+    print("\nas ref in condition:\n")
+    var x: int as ref = 10
+    if x > 5 =>
+        x = x + 100
+    print($"x after condition: {x}\n")
+
+    return 0

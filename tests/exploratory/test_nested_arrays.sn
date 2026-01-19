@@ -1,0 +1,87 @@
+// Test nested arrays (multi-dimensional)
+// Demonstrates 2D array support with various element types
+
+fn main(): int =>
+    print("Test nested arrays (2D arrays):\n\n")
+
+    // Test 1: Basic 2D int array (matrix)
+    print("1. 2D int array (matrix):\n")
+    var matrix: int[][] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}}
+    print($"   matrix = {matrix}\n")
+
+    // Access individual elements
+    print($"   matrix[0][0] = {matrix[0][0]}\n")
+    print($"   matrix[1][1] = {matrix[1][1]}\n")
+    print($"   matrix[2][2] = {matrix[2][2]}\n")
+
+    // Access entire rows
+    print($"   matrix[0] = {matrix[0]}\n")
+    print($"   matrix[1] = {matrix[1]}\n")
+    print($"   matrix[2] = {matrix[2]}\n")
+
+    // Test 2: Jagged arrays (different length inner arrays)
+    print("\n2. Jagged array:\n")
+    var jagged: int[][] = {{1}, {2, 3}, {4, 5, 6}, {7, 8, 9, 10}}
+    print($"   jagged = {jagged}\n")
+    print($"   jagged[0] = {jagged[0]}\n")
+    print($"   jagged[1] = {jagged[1]}\n")
+    print($"   jagged[2] = {jagged[2]}\n")
+    print($"   jagged[3] = {jagged[3]}\n")
+
+    // Test 3: 2D string array
+    print("\n3. 2D string array:\n")
+    var names: str[][] = {{"Alice", "Bob"}, {"Charlie", "Diana", "Eve"}}
+    print($"   names = {names}\n")
+    print($"   names[0][1] = {names[0][1]}\n")
+    print($"   names[1][2] = {names[1][2]}\n")
+
+    // Test 4: 2D double array
+    print("\n4. 2D double array:\n")
+    var coords: double[][] = {{0.0, 0.0}, {1.5, 2.5}, {3.14, 2.71}}
+    print($"   coords = {coords}\n")
+
+    // Test 5: 2D bool array
+    print("\n5. 2D bool array (truth table):\n")
+    var truth: bool[][] = {{true, true}, {true, false}, {false, true}, {false, false}}
+    print($"   truth = {truth}\n")
+
+    // Test 6: Empty nested array
+    print("\n6. Empty nested array:\n")
+    var empty: int[][] = {}
+    print($"   empty = {empty}\n")
+
+    // Test 7: Nested array with empty inner arrays
+    print("\n7. Nested array with empty inner arrays:\n")
+    var sparse: int[][] = {{1, 2}, {}, {3}, {}}
+    print($"   sparse = {sparse}\n")
+
+    // Test 8: Building nested arrays dynamically
+    print("\n8. Building nested arrays dynamically:\n")
+    var row1: int[] = {10, 20, 30}
+    var row2: int[] = {40, 50, 60}
+    var dynamic: int[][] = {row1, row2}
+    print($"   dynamic = {dynamic}\n")
+
+    // Test 9: Sum all elements in a 2D array
+    print("\n9. Sum all elements:\n")
+    var nums: int[][] = {{1, 2, 3}, {4, 5, 6}}
+    var total: int = 0
+    for row in nums =>
+        for n in row =>
+            total = total + n
+    print($"   Sum of {nums} = {total}\n")
+
+    // Test 10: 2D char array
+    print("\n10. 2D char array:\n")
+    var chars: char[][] = {{'H', 'i'}, {'B', 'y', 'e'}}
+    print($"   chars = {chars}\n")
+
+    // Test 11: 2D byte array
+    print("\n11. 2D byte array:\n")
+    var b1: byte[] = {0, 127, 255}
+    var b2: byte[] = {1, 2, 3}
+    var bytes: byte[][] = {b1, b2}
+    print($"   bytes = {bytes}\n")
+
+    print("\nAll nested array tests completed!\n")
+    return 0

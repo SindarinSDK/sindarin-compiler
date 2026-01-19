@@ -1,0 +1,86 @@
+// Test 08: Arrays - slicing operations
+fn main(): int =>
+    print("=== Basic Slicing ===\n")
+    var arr: int[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    print("Original: ")
+    print(arr)
+    print("\n")
+
+    var s1: int[] = arr[2..5]
+    print("arr[2..5]: ")
+    print(s1)
+    print("\n")
+
+    var s2: int[] = arr[..3]
+    print("arr[..3]: ")
+    print(s2)
+    print("\n")
+
+    var s3: int[] = arr[7..]
+    print("arr[7..]: ")
+    print(s3)
+    print("\n")
+
+    var s4: int[] = arr[..]
+    print("arr[..] (full copy): ")
+    print(s4)
+    print("\n")
+
+    print("\n=== Step Slicing ===\n")
+    var evens: int[] = arr[..:2]
+    print("arr[..:2] (every 2nd): ")
+    print(evens)
+    print("\n")
+
+    var odds: int[] = arr[1..:2]
+    print("arr[1..:2] (odds): ")
+    print(odds)
+    print("\n")
+
+    var thirds: int[] = arr[..:3]
+    print("arr[..:3] (every 3rd): ")
+    print(thirds)
+    print("\n")
+
+    var range_step: int[] = arr[1..8:2]
+    print("arr[1..8:2]: ")
+    print(range_step)
+    print("\n")
+
+    print("\n=== Negative Index Slicing ===\n")
+    print("arr[-3..]: ")
+    var neg1: int[] = arr[-3..]
+    print(neg1)
+    print("\n")
+
+    print("arr[..-2]: ")
+    var neg2: int[] = arr[..-2]
+    print(neg2)
+    print("\n")
+
+    print("arr[-5..-2]: ")
+    var neg3: int[] = arr[-5..-2]
+    print(neg3)
+    print("\n")
+
+    print("\n=== Edge Cases ===\n")
+    // Single element slice
+    var single_slice: int[] = arr[3..4]
+    print("arr[3..4]: ")
+    print(single_slice)
+    print("\n")
+
+    // Empty slice
+    var empty_slice: int[] = arr[5..5]
+    print("arr[5..5] (empty): ")
+    print(empty_slice)
+    print("\n")
+
+    // Slice of small array
+    var small: int[] = {1, 2}
+    var small_slice: int[] = small[..]
+    print("small[..]: ")
+    print(small_slice)
+    print("\n")
+
+    return 0

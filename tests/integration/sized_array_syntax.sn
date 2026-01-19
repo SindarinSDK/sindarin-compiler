@@ -1,0 +1,21 @@
+// Test sized array syntax and code generation
+// Verifies rt_array_alloc_* functions are called correctly
+
+fn main(): void =>
+    // Sized array without default value (should use 0 as default)
+    var arr: int[10]
+    print($"arr[0]: {arr[0]}\n")
+
+    // Sized array with default value
+    var arr2: int[5] = 42
+    print($"arr2[0]: {arr2[0]}\n")
+
+    // Different type with default value
+    var arr3: bool[100] = true
+    print($"arr3[0]: {arr3[0]}\n")
+
+    // String array with default value
+    var arr4: str[3] = "hello"
+    print($"arr4[0]: {arr4[0]}\n")
+
+    print("Sized array syntax test complete\n")

@@ -1,0 +1,146 @@
+// Test 117: Comprehensive string methods test
+// Tests all string methods with verification
+
+fn main(): int =>
+    print("Test comprehensive string methods:\n\n")
+    var errors: int = 0
+
+    // Test 1: length property and len() function
+    print("Test 1 - Length:\n")
+    var hello: str = "Hello"
+    print($"  len(\"Hello\") = {len(hello)}\n")
+    print($"  \"Hello\".length = {hello.length}\n")
+    if len(hello) != 5 => errors++
+    if hello.length != 5 => errors++
+
+    // Test 2: toUpper and toLower
+    print("\nTest 2 - Case conversion:\n")
+    var mixed: str = "Hello World 123"
+    var upper: str = mixed.toUpper()
+    var lower: str = mixed.toLower()
+    print($"  \"{mixed}\".toUpper() = \"{upper}\"\n")
+    print($"  \"{mixed}\".toLower() = \"{lower}\"\n")
+    if upper != "HELLO WORLD 123" => errors++
+    if lower != "hello world 123" => errors++
+
+    // Test 3: trim, trimLeft, trimRight
+    print("\nTest 3 - Trim operations:\n")
+    var padded: str = "   text   "
+    var trimmed: str = padded.trim()
+    print($"  \"{padded}\".trim() = \"{trimmed}\"\n")
+    if trimmed != "text" => errors++
+
+    // Test 4: substring
+    print("\nTest 4 - Substring:\n")
+    var text: str = "Hello World"
+    var sub1: str = text.substring(0, 5)
+    var sub2: str = text.substring(6, 11)
+    print($"  \"{text}\".substring(0, 5) = \"{sub1}\"\n")
+    print($"  \"{text}\".substring(6, 11) = \"{sub2}\"\n")
+    if sub1 != "Hello" => errors++
+    if sub2 != "World" => errors++
+
+    // Test 5: indexOf
+    print("\nTest 5 - indexOf:\n")
+    var idx1: int = text.indexOf("World")
+    var idx2: int = text.indexOf("xyz")
+    var idx3: int = text.indexOf("o")
+    print($"  indexOf(\"World\") = {idx1}\n")
+    print($"  indexOf(\"xyz\") = {idx2}\n")
+    print($"  indexOf(\"o\") = {idx3}\n")
+    if idx1 != 6 => errors++
+    if idx2 != -1 => errors++
+    if idx3 != 4 => errors++
+
+    // Test 6: startsWith, endsWith, contains
+    print("\nTest 6 - Search methods:\n")
+    var starts1: bool = text.startsWith("Hello")
+    var starts2: bool = text.startsWith("World")
+    var ends1: bool = text.endsWith("World")
+    var ends2: bool = text.endsWith("Hello")
+    var contains1: bool = text.contains("lo Wo")
+    var contains2: bool = text.contains("xyz")
+    print($"  startsWith(\"Hello\") = {starts1}\n")
+    print($"  startsWith(\"World\") = {starts2}\n")
+    print($"  endsWith(\"World\") = {ends1}\n")
+    print($"  endsWith(\"Hello\") = {ends2}\n")
+    print($"  contains(\"lo Wo\") = {contains1}\n")
+    print($"  contains(\"xyz\") = {contains2}\n")
+    // Use int conversion for bool verification
+    var starts1_int: int = 0
+    var starts2_int: int = 0
+    var ends1_int: int = 0
+    var contains1_int: int = 0
+    if starts1 => starts1_int = 1
+    if starts2 => starts2_int = 1
+    if ends1 => ends1_int = 1
+    if contains1 => contains1_int = 1
+    if starts1_int != 1 => errors++
+    if starts2_int != 0 => errors++
+    if ends1_int != 1 => errors++
+    if contains1_int != 1 => errors++
+
+    // Test 7: replace
+    print("\nTest 7 - Replace:\n")
+    var replaced: str = text.replace("World", "Sindarin")
+    print($"  replace(\"World\", \"Sindarin\") = \"{replaced}\"\n")
+    if replaced != "Hello Sindarin" => errors++
+
+    // Test 8: split
+    print("\nTest 8 - Split:\n")
+    var csv: str = "apple,banana,cherry"
+    var parts: str[] = csv.split(",")
+    print($"  split(\",\") on \"{csv}\":\n")
+    for part in parts =>
+        print($"    - \"{part}\"\n")
+    if parts.length != 3 => errors++
+    if parts[0] != "apple" => errors++
+    if parts[1] != "banana" => errors++
+    if parts[2] != "cherry" => errors++
+
+    // Test 9: charAt
+    print("\nTest 9 - charAt:\n")
+    var char0: char = text.charAt(0)
+    var char6: char = text.charAt(6)
+    print($"  charAt(0) = '{char0}'\n")
+    print($"  charAt(6) = '{char6}'\n")
+    if char0 != 'H' => errors++
+    if char6 != 'W' => errors++
+
+    // Test 10: Method chaining
+    print("\nTest 10 - Method chaining:\n")
+    var messy: str = "  HELLO WORLD  "
+    var clean: str = messy.trim().toLower()
+    print($"  \"  HELLO WORLD  \".trim().toLower() = \"{clean}\"\n")
+    if clean != "hello world" => errors++
+
+    // Test 11: String on literals
+    print("\nTest 11 - Methods on literals:\n")
+    var literal_upper: str = "hello".toUpper()
+    var literal_len: int = "test".length
+    print($"  \"hello\".toUpper() = \"{literal_upper}\"\n")
+    print($"  \"test\".length = {literal_len}\n")
+    if literal_upper != "HELLO" => errors++
+    if literal_len != 4 => errors++
+
+    // Test 12: Manual string repetition (no repeat method)
+    print("\nTest 12 - Manual repeat:\n")
+    var repeated: str = ""
+    shared for i in 0..3 =>
+        repeated = repeated + "ab"
+    print($"  \"ab\" x 3 = \"{repeated}\"\n")
+    if repeated != "ababab" => errors++
+
+    // Test 13: String concatenation chaining
+    print("\nTest 13 - Concatenation chaining:\n")
+    var chain: str = "A" + "B" + "C" + "D"
+    print($"  \"A\" + \"B\" + \"C\" + \"D\" = \"{chain}\"\n")
+    if chain != "ABCD" => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll comprehensive string method tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

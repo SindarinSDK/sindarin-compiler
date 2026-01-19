@@ -1,0 +1,36 @@
+// Test: Namespace best practices demonstration
+// Shows recommended patterns for using namespaces effectively
+
+// Best practice 1: Use namespaces for third-party or external libraries
+import "import_tests/math_utils" as math
+
+// Best practice 2: Use direct imports for well-known utilities with unique names
+import "import_tests/string_utils"
+
+fn main(): void =>
+    print("=== Namespace Best Practices Demo ===\n\n")
+
+    // Best practice 3: Namespace prefix makes code self-documenting
+    print("1. Namespaced calls are self-documenting:\n")
+    var sum: int = math.add(100, 200)
+    var product: int = math.multiply(7, 8)
+    print($"   math.add(100, 200) = {sum}\n")
+    print($"   math.multiply(7, 8) = {product}\n")
+
+    // Best practice 4: Direct imports for frequently used simple functions
+    print("\n2. Direct imports for common utilities:\n")
+    var greeting: str = greet("Developer")
+    print($"   greet(\"Developer\") = {greeting}\n")
+
+    // Best practice 5: Mix styles strategically
+    print("\n3. Mix namespaced and direct in same expression:\n")
+    var square: int = math.multiply(5, 5)
+    var message: str = greet("square is")
+    print($"   {message} {square}\n")
+
+    // Best practice 6: Combine namespace calls for clarity
+    print("\n4. Chain namespaced operations:\n")
+    var result: int = math.subtract(math.add(50, 30), math.multiply(2, 10))
+    print($"   math.subtract(math.add(50, 30), math.multiply(2, 10)) = {result}\n")
+
+    print("\nAll best practices demonstrated successfully!\n")

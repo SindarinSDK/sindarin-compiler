@@ -1,0 +1,235 @@
+// Comprehensive equality tests for all primitive types
+// Tests ==, !=, <, <=, >, >= operators where applicable
+
+fn test_int_equality(): void =>
+    print("Test: int equality\n")
+    var a: int = 42
+    var b: int = 42
+    var c: int = 100
+
+    assert(a == b, "int ==")
+    assert(a != c, "int !=")
+    assert(a < c, "int <")
+    assert(a <= b, "int <=")
+    assert(c > a, "int >")
+    assert(b >= a, "int >=")
+    assert(42 == 42, "int literal ==")
+    assert(42 != 100, "int literal !=")
+    print("  PASS\n")
+
+fn test_long_equality(): void =>
+    print("Test: long equality\n")
+    var a: long = 9223372036854775807l
+    var b: long = 9223372036854775807l
+    var c: long = 0l
+
+    assert(a == b, "long ==")
+    assert(a != c, "long !=")
+    assert(c < a, "long <")
+    assert(c <= a, "long <=")
+    assert(a > c, "long >")
+    assert(a >= b, "long >=")
+    print("  PASS\n")
+
+fn test_double_equality(): void =>
+    print("Test: double equality\n")
+    var a: double = 3.14159
+    var b: double = 3.14159
+    var c: double = 2.71828
+
+    assert(a == b, "double ==")
+    assert(a != c, "double !=")
+    assert(c < a, "double <")
+    assert(c <= a, "double <=")
+    assert(a > c, "double >")
+    assert(a >= b, "double >=")
+    assert(3.14 == 3.14, "double literal ==")
+    print("  PASS\n")
+
+fn test_float_equality(): void =>
+    print("Test: float equality\n")
+    var a: float = 3.14
+    var b: float = 3.14
+    var c: float = 2.71
+
+    assert(a == b, "float ==")
+    assert(a != c, "float !=")
+    assert(c < a, "float <")
+    assert(c <= a, "float <=")
+    assert(a > c, "float >")
+    assert(a >= b, "float >=")
+    print("  PASS\n")
+
+fn test_bool_equality(): void =>
+    print("Test: bool equality\n")
+    var t: bool = true
+    var f: bool = false
+    var t2: bool = true
+
+    // Variable to variable
+    assert(t == t2, "bool var == var")
+    assert(t != f, "bool var != var")
+
+    // Variable to literal
+    assert(t == true, "bool var == true")
+    assert(f == false, "bool var == false")
+    assert(t != false, "bool var != false")
+    assert(f != true, "bool var != true")
+
+    // Literal to literal
+    assert(true == true, "bool true == true")
+    assert(false == false, "bool false == false")
+    assert(true != false, "bool true != false")
+    print("  PASS\n")
+
+fn test_char_equality(): void =>
+    print("Test: char equality\n")
+    var a: char = 'A'
+    var b: char = 'A'
+    var c: char = 'Z'
+
+    assert(a == b, "char ==")
+    assert(a != c, "char !=")
+    assert(a < c, "char <")
+    assert(a <= b, "char <=")
+    assert(c > a, "char >")
+    assert(b >= a, "char >=")
+    assert('X' == 'X', "char literal ==")
+    assert('X' != 'Y', "char literal !=")
+    print("  PASS\n")
+
+fn test_byte_equality(): void =>
+    print("Test: byte equality\n")
+    var a: byte = 255
+    var b: byte = 255
+    var c: byte = 0
+
+    assert(a == b, "byte ==")
+    assert(a != c, "byte !=")
+    assert(c < a, "byte <")
+    assert(c <= a, "byte <=")
+    assert(a > c, "byte >")
+    assert(a >= b, "byte >=")
+    print("  PASS\n")
+
+fn test_string_equality(): void =>
+    print("Test: string equality\n")
+    var a: str = "hello"
+    var b: str = "hello"
+    var c: str = "world"
+
+    assert(a == b, "str ==")
+    assert(a != c, "str !=")
+    assert(a < c, "str < (lexicographic)")
+    assert(a <= b, "str <=")
+    assert(c > a, "str >")
+    assert(b >= a, "str >=")
+    assert("test" == "test", "str literal ==")
+    assert("test" != "other", "str literal !=")
+    print("  PASS\n")
+
+fn test_int32_equality(): void =>
+    print("Test: int32 equality\n")
+    var a: int32 = 2147483647
+    var b: int32 = 2147483647
+    var c: int32 = 0
+
+    assert(a == b, "int32 ==")
+    assert(a != c, "int32 !=")
+    assert(c < a, "int32 <")
+    assert(c <= a, "int32 <=")
+    assert(a > c, "int32 >")
+    assert(a >= b, "int32 >=")
+    print("  PASS\n")
+
+fn test_uint_equality(): void =>
+    print("Test: uint equality\n")
+    var a: uint = 18446744073709551615
+    var b: uint = 18446744073709551615
+    var c: uint = 0
+
+    assert(a == b, "uint ==")
+    assert(a != c, "uint !=")
+    assert(c < a, "uint <")
+    assert(c <= a, "uint <=")
+    assert(a > c, "uint >")
+    assert(a >= b, "uint >=")
+    print("  PASS\n")
+
+fn test_uint32_equality(): void =>
+    print("Test: uint32 equality\n")
+    var a: uint32 = 4294967295
+    var b: uint32 = 4294967295
+    var c: uint32 = 0
+
+    assert(a == b, "uint32 ==")
+    assert(a != c, "uint32 !=")
+    assert(c < a, "uint32 <")
+    assert(c <= a, "uint32 <=")
+    assert(a > c, "uint32 >")
+    assert(a >= b, "uint32 >=")
+    print("  PASS\n")
+
+fn test_array_equality(): void =>
+    print("Test: array equality\n")
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {1, 2, 3}
+    var c: int[] = {1, 2, 4}
+    var d: int[] = {1, 2}
+
+    assert(a == b, "int[] ==")
+    assert(a != c, "int[] != (different element)")
+    assert(a != d, "int[] != (different length)")
+
+    var s1: str[] = {"hello", "world"}
+    var s2: str[] = {"hello", "world"}
+    var s3: str[] = {"hello", "there"}
+
+    assert(s1 == s2, "str[] ==")
+    assert(s1 != s3, "str[] !=")
+
+    var b1: bool[] = {true, false, true}
+    var b2: bool[] = {true, false, true}
+    var b3: bool[] = {true, true, true}
+
+    assert(b1 == b2, "bool[] ==")
+    assert(b1 != b3, "bool[] !=")
+    print("  PASS\n")
+
+fn test_mixed_comparisons(): void =>
+    print("Test: mixed type comparisons\n")
+
+    // int and long comparison
+    var i: int = 42
+    var l: long = 42l
+    assert(i == l, "int == long")
+
+    // int and double comparison
+    var d: double = 42.0
+    assert(i == d, "int == double")
+
+    // Expressions in comparisons
+    assert((2 + 2) == 4, "expr == literal")
+    assert((10 - 5) != 6, "expr != literal")
+    assert((3 * 4) > 10, "expr > literal")
+
+    print("  PASS\n")
+
+fn main(): void =>
+    print("=== Comprehensive Equality Tests ===\n\n")
+
+    test_int_equality()
+    test_long_equality()
+    test_double_equality()
+    test_float_equality()
+    test_bool_equality()
+    test_char_equality()
+    test_byte_equality()
+    test_string_equality()
+    test_int32_equality()
+    test_uint_equality()
+    test_uint32_equality()
+    test_array_equality()
+    test_mixed_comparisons()
+
+    print("\n=== All equality tests passed! ===\n")

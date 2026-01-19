@@ -1,0 +1,49 @@
+// Test 37: Shared function modifier
+fn helper_add(a: int, b: int) shared: int =>
+    return a + b
+
+fn helper_multiply(a: int, b: int) shared: int =>
+    return a * b
+
+fn helper_greet(name: str) shared: void =>
+    print($"Hello, {name}!\n")
+
+fn helper_double(x: int) shared: int =>
+    return x * 2
+
+fn helper_triple(x: int) shared: int =>
+    return x * 3
+
+fn compute(a: int, b: int) shared: int =>
+    var sum: int = helper_add(a, b)
+    var prod: int = helper_multiply(a, b)
+    return sum + prod
+
+fn main(): int =>
+    print("Test shared functions:\n\n")
+
+    // Basic shared function calls
+    var sum: int = helper_add(10, 20)
+    print($"helper_add(10, 20) = {sum}\n")
+
+    var prod: int = helper_multiply(5, 6)
+    print($"helper_multiply(5, 6) = {prod}\n")
+
+    // Shared void function
+    helper_greet("Alice")
+    helper_greet("Bob")
+
+    // Chained shared calls
+    var result: int = helper_double(helper_triple(5))
+    print($"helper_double(helper_triple(5)) = {result}\n")
+
+    // Shared calling shared
+    var comp: int = compute(3, 4)
+    print($"compute(3, 4) = {comp}\n")
+
+    // In loop
+    print("\nShared in loop:\n")
+    for var i: int = 1; i <= 5; i++ =>
+        print($"  double({i}) = {helper_double(i)}\n")
+
+    return 0

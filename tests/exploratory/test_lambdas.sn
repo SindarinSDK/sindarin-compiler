@@ -1,0 +1,48 @@
+// Test 16: Lambda expressions
+fn main(): int =>
+    print("=== Basic Lambda ===\n")
+
+    // Lambda with explicit types
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    print($"double_it(5) = {double_it(5)}\n")
+
+    // Lambda with inferred param type
+    var triple: fn(int): int = fn(x) => x * 3
+    print($"triple(7) = {triple(7)}\n")
+
+    print("\n=== Multiple Parameters ===\n")
+    var add: fn(int, int): int = fn(a, b) => a + b
+    print($"add(3, 4) = {add(3, 4)}\n")
+
+    var multiply: fn(int, int): int = fn(a: int, b: int): int => a * b
+    print($"multiply(5, 6) = {multiply(5, 6)}\n")
+
+    print("\n=== Lambda with Different Types ===\n")
+    var concat: fn(str, str): str = fn(a, b) => a + b
+    print($"concat(\"Hello\", \" World\") = {concat("Hello", " World")}\n")
+
+    var negate: fn(bool): bool = fn(b) => !b
+    print($"negate(true) = {negate(true)}\n")
+
+    print("\n=== Lambda Returning String ===\n")
+    var greet: fn(str): str = fn(name) => $"Hello, {name}!"
+    print($"greet(\"Alice\") = {greet("Alice")}\n")
+
+    print("\n=== Combining Lambdas ===\n")
+    var x: int = double_it(add(1, 2))
+    print($"double_it(add(1, 2)) = {x}\n")
+
+    var y: int = add(double_it(3), triple(2))
+    print($"add(double_it(3), triple(2)) = {y}\n")
+
+    print("\n=== Lambda Stored and Called ===\n")
+    var square: fn(int): int = fn(n) => n * n
+    var nums: int[] = {1, 2, 3, 4, 5}
+    for n in nums =>
+        print($"square({n}) = {square(n)}\n")
+
+    print("\n=== Lambda with Shared Modifier ===\n")
+    var increment: fn(int): int = fn(x) shared => x + 1
+    print($"increment(99) = {increment(99)}\n")
+
+    return 0

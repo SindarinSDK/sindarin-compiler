@@ -1,0 +1,129 @@
+# Integration test for multi-level nesting escape detection (a.b.c = d.e.f)
+# Tests escape detection when both LHS and RHS are nested field access chains
+
+struct Leaf =>
+    value: int
+    id: int = 0
+
+struct Branch =>
+    leaf: Leaf
+    weight: int = 1
+
+struct Tree =>
+    branch: Branch
+    name: str = "tree"
+
+struct Forest =>
+    tree: Tree
+    size: int = 0
+
+fn test_nested_to_nested_assignment(): void =>
+    # a.b.c = d.e.f pattern
+    var src: Tree = Tree { branch: Branch { leaf: Leaf { value: 42 } } }
+    var dst: Tree = Tree { branch: Branch { leaf: Leaf { value: 0 } } }
+
+    dst.branch.leaf.value = src.branch.leaf.value
+
+    if dst.branch.leaf.value != 42 =>
+        print($"FAIL: dst.branch.leaf.value = {dst.branch.leaf.value}, expected 42\n")
+        return
+
+    print("Nested to nested assignment test: PASS\n")
+
+fn test_deep_nested_cross_assign(): void =>
+    # Four-level nested assignment
+    var f1: Forest = Forest { tree: Tree { branch: Branch { leaf: Leaf { value: 100, id: 1 } } } }
+    var f2: Forest = Forest { tree: Tree { branch: Branch { leaf: Leaf { value: 0, id: 0 } } } }
+
+    f2.tree.branch.leaf.value = f1.tree.branch.leaf.value
+    f2.tree.branch.leaf.id = f1.tree.branch.leaf.id
+
+    if f2.tree.branch.leaf.value != 100 =>
+        print($"FAIL: f2.tree.branch.leaf.value = {f2.tree.branch.leaf.value}, expected 100\n")
+        return
+
+    if f2.tree.branch.leaf.id != 1 =>
+        print($"FAIL: f2.tree.branch.leaf.id = {f2.tree.branch.leaf.id}, expected 1\n")
+        return
+
+    print("Deep nested cross assign test: PASS\n")
+
+fn test_partial_chain_copy(): void =>
+    # Copy from deeper to shallower chain
+    var src: Forest = Forest { tree: Tree { branch: Branch { leaf: Leaf { value: 55 } } } }
+    var dst_tree: Tree = Tree { branch: Branch { leaf: Leaf { value: 0 } } }
+
+    # dst_tree.branch.leaf.value = src.tree.branch.leaf.value
+    dst_tree.branch.leaf.value = src.tree.branch.leaf.value
+
+    if dst_tree.branch.leaf.value != 55 =>
+        print($"FAIL: dst_tree.branch.leaf.value = {dst_tree.branch.leaf.value}, expected 55\n")
+        return
+
+    print("Partial chain copy test: PASS\n")
+
+fn test_intermediate_field_access(): void =>
+    # Access intermediate fields (not just leaf)
+    var t1: Tree = Tree { branch: Branch { leaf: Leaf { value: 10 }, weight: 5 } }
+    var t2: Tree = Tree { branch: Branch { leaf: Leaf { value: 0 }, weight: 0 } }
+
+    # Copy weight (intermediate field)
+    t2.branch.weight = t1.branch.weight
+
+    if t2.branch.weight != 5 =>
+        print($"FAIL: t2.branch.weight = {t2.branch.weight}, expected 5\n")
+        return
+
+    print("Intermediate field access test: PASS\n")
+
+fn test_mixed_depth_assignments(): void =>
+    var forest: Forest = Forest { tree: Tree { branch: Branch { leaf: Leaf { value: 0 } } } }
+
+    # Assign from different depths
+    var shallow_val: int = 111
+    var deep_src: Tree = Tree { branch: Branch { leaf: Leaf { value: 222 } } }
+
+    # Shallow to deep
+    forest.tree.branch.leaf.value = shallow_val
+
+    if forest.tree.branch.leaf.value != 111 =>
+        print($"FAIL: forest.tree.branch.leaf.value = {forest.tree.branch.leaf.value}, expected 111\n")
+        return
+
+    # Deep to deep
+    forest.tree.branch.leaf.value = deep_src.branch.leaf.value
+
+    if forest.tree.branch.leaf.value != 222 =>
+        print($"FAIL: forest.tree.branch.leaf.value = {forest.tree.branch.leaf.value}, expected 222\n")
+        return
+
+    print("Mixed depth assignments test: PASS\n")
+
+fn test_chain_swap(): void =>
+    # Swap values between two nested chains
+    var t1: Tree = Tree { branch: Branch { leaf: Leaf { value: 1 } } }
+    var t2: Tree = Tree { branch: Branch { leaf: Leaf { value: 2 } } }
+
+    var temp: int = t1.branch.leaf.value
+    t1.branch.leaf.value = t2.branch.leaf.value
+    t2.branch.leaf.value = temp
+
+    if t1.branch.leaf.value != 2 =>
+        print($"FAIL: t1.branch.leaf.value = {t1.branch.leaf.value}, expected 2\n")
+        return
+
+    if t2.branch.leaf.value != 1 =>
+        print($"FAIL: t2.branch.leaf.value = {t2.branch.leaf.value}, expected 1\n")
+        return
+
+    print("Chain swap test: PASS\n")
+
+fn main(): void =>
+    print("Testing multi-level nested field escape detection:\n")
+    test_nested_to_nested_assignment()
+    test_deep_nested_cross_assign()
+    test_partial_chain_copy()
+    test_intermediate_field_access()
+    test_mixed_depth_assignments()
+    test_chain_swap()
+    print("All multi-level nesting tests passed!\n")

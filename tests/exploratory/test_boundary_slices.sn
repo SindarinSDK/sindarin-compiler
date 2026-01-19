@@ -1,0 +1,80 @@
+// Test 59: Boundary conditions in slicing
+fn main(): int =>
+    print("Test boundary slicing:\n\n")
+
+    var arr: int[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    print("arr = ")
+    print(arr)
+    print($" (length = {len(arr)})\n\n")
+
+    // Slice entire array
+    var full: int[] = arr[0..10]
+    print("arr[0..10] (full): ")
+    print(full)
+    print("\n")
+
+    // First element only
+    var first: int[] = arr[0..1]
+    print("arr[0..1] (first only): ")
+    print(first)
+    print("\n")
+
+    // Last element only
+    var last: int[] = arr[9..10]
+    print("arr[9..10] (last only): ")
+    print(last)
+    print("\n")
+
+    // Using negative indices at boundaries
+    var lastN: int[] = arr[-1..]
+    print("arr[-1..] (last via negative): ")
+    print(lastN)
+    print("\n")
+
+    var allButLast: int[] = arr[..-1]
+    print("arr[..-1] (all but last): ")
+    print(allButLast)
+    print("\n")
+
+    // Empty slice (start == end)
+    var empty: int[] = arr[5..5]
+    print("arr[5..5] (empty slice): ")
+    print(empty)
+    print($" (length = {len(empty)})\n")
+
+    // Adjacent slices that together cover the array
+    var left: int[] = arr[..5]
+    var right: int[] = arr[5..]
+    print("\nAdjacent slices:\n")
+    print("arr[..5] = ")
+    print(left)
+    print("\n")
+    print("arr[5..] = ")
+    print(right)
+    print("\n")
+
+    // Single element array slicing
+    print("\nSingle element array slicing:\n")
+    var single: int[] = {42}
+    var s1: int[] = single[..]
+    var s2: int[] = single[0..1]
+    print("single[..] = ")
+    print(s1)
+    print("\n")
+    print("single[0..1] = ")
+    print(s2)
+    print("\n")
+
+    // String array slicing at boundaries
+    print("\nString array boundaries:\n")
+    var strs: str[] = {"a", "b", "c"}
+    var strFirst: str[] = strs[..1]
+    var strLast: str[] = strs[-1..]
+    print("strs[..1] = ")
+    print(strFirst)
+    print("\n")
+    print("strs[-1..] = ")
+    print(strLast)
+    print("\n")
+
+    return 0

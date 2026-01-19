@@ -1,0 +1,9 @@
+Testing small struct return semantics:
+Simple struct return: PASS
+Byte field struct return: PASS
+Nested struct return: PASS
+Struct modify and return: PASS
+Conditional struct return: PASS
+Chained struct return: PASS
+Multiple chained returns: PASS
+All small struct return tests completed!

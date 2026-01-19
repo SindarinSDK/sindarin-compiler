@@ -1,0 +1,169 @@
+# Test struct code generation produces valid C typedef with correct field types
+# This test verifies:
+# - typedef struct { fields } Name; format
+# - Correct C type mappings for all field types
+# - Proper #pragma pack directives for packed structs
+# - Correct alignment and padding behavior
+
+# Regular struct with various field types
+struct BasicTypes =>
+    field_int: int
+    field_int32: int32
+    field_double: double
+    field_float: float
+    field_char: char
+    field_bool: bool
+    field_byte: byte
+
+# Nested struct
+struct Point =>
+    x: double
+    y: double
+
+struct NestedStruct =>
+    point: Point
+    value: int
+
+# Packed struct for binary formats
+#pragma pack(1)
+struct PackedData =>
+    header: int32
+    version: byte
+    flags: byte
+    payload_size: int32
+
+#pragma pack()
+
+# Regular struct after pragma pack() reset
+struct AfterPacked =>
+    a: int
+    b: byte
+    c: int
+
+# Native struct with pointer fields
+native struct NativeBuffer =>
+    data: *byte
+    size: int
+    capacity: int
+
+fn test_basic_types(): void =>
+    var s: BasicTypes = BasicTypes { field_int: 1, field_int32: 2, field_double: 6.0, field_float: 7.0, field_char: 'a', field_bool: true, field_byte: 255b }
+
+    # Verify each field value
+    if s.field_int == 1 =>
+        print("field_int: PASS\n")
+    else =>
+        print("field_int: FAIL\n")
+
+    if s.field_int32 == 2 =>
+        print("field_int32: PASS\n")
+    else =>
+        print("field_int32: FAIL\n")
+
+    if s.field_double == 6.0 =>
+        print("field_double: PASS\n")
+    else =>
+        print("field_double: FAIL\n")
+
+    if s.field_char == 'a' =>
+        print("field_char: PASS\n")
+    else =>
+        print("field_char: FAIL\n")
+
+    if s.field_bool == true =>
+        print("field_bool: PASS\n")
+    else =>
+        print("field_bool: FAIL\n")
+
+    if s.field_byte == 255b =>
+        print("field_byte: PASS\n")
+    else =>
+        print("field_byte: FAIL\n")
+
+fn test_nested_struct(): void =>
+    var n: NestedStruct = NestedStruct { point: Point { x: 3.14, y: 2.71 }, value: 42 }
+
+    if n.point.x == 3.14 =>
+        print("nested point.x: PASS\n")
+    else =>
+        print("nested point.x: FAIL\n")
+
+    if n.point.y == 2.71 =>
+        print("nested point.y: PASS\n")
+    else =>
+        print("nested point.y: FAIL\n")
+
+    if n.value == 42 =>
+        print("nested value: PASS\n")
+    else =>
+        print("nested value: FAIL\n")
+
+fn test_packed_struct_size(): void =>
+    # Packed struct should be 10 bytes: 4 + 1 + 1 + 4
+    var packed_size: int = sizeof(PackedData)
+    if packed_size == 10 =>
+        print($"PackedData sizeof={packed_size}: PASS (expected 10)\n")
+    else =>
+        print($"PackedData sizeof={packed_size}: FAIL (expected 10)\n")
+
+fn test_unpacked_struct_alignment(): void =>
+    # AfterPacked should have padding for proper alignment
+    var unpacked_size: int = sizeof(AfterPacked)
+    print($"AfterPacked sizeof={unpacked_size}: checking alignment\n")
+
+    # The struct should be at least 17 bytes (8 + 1 + 8 minimum)
+    if unpacked_size >= 17 =>
+        print("AfterPacked alignment: PASS (size >= 17)\n")
+    else =>
+        print("AfterPacked alignment: FAIL (size < 17)\n")
+
+fn test_c_type_sizes(): void =>
+    # Verify expected C type sizes
+    print($"int: {sizeof(int)} bytes\n")
+    print($"int32: {sizeof(int32)} bytes\n")
+    print($"double: {sizeof(double)} bytes\n")
+    print($"float: {sizeof(float)} bytes\n")
+    print($"char: {sizeof(char)} bytes\n")
+    print($"bool: {sizeof(bool)} bytes\n")
+    print($"byte: {sizeof(byte)} bytes\n")
+
+    # Verify key sizes individually
+    if sizeof(int) == 8 =>
+        print("sizeof(int) == 8: PASS\n")
+    else =>
+        print("sizeof(int) == 8: FAIL\n")
+
+    if sizeof(int32) == 4 =>
+        print("sizeof(int32) == 4: PASS\n")
+    else =>
+        print("sizeof(int32) == 4: FAIL\n")
+
+    if sizeof(double) == 8 =>
+        print("sizeof(double) == 8: PASS\n")
+    else =>
+        print("sizeof(double) == 8: FAIL\n")
+
+    if sizeof(float) == 4 =>
+        print("sizeof(float) == 4: PASS\n")
+    else =>
+        print("sizeof(float) == 4: FAIL\n")
+
+fn main(): void =>
+    print("=== Struct Code Generation Validation ===\n\n")
+
+    print("--- Testing Basic Field Types ---\n")
+    test_basic_types()
+
+    print("\n--- Testing Nested Structs ---\n")
+    test_nested_struct()
+
+    print("\n--- Testing Packed Struct Size ---\n")
+    test_packed_struct_size()
+
+    print("\n--- Testing Unpacked Struct Alignment ---\n")
+    test_unpacked_struct_alignment()
+
+    print("\n--- C Type Sizes ---\n")
+    test_c_type_sizes()
+
+    print("\n=== All Struct Code Generation Tests Completed ===\n")

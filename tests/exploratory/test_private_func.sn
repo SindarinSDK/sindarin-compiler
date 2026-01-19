@@ -1,0 +1,55 @@
+// Test 38: Private function modifier
+fn private_compute(a: int, b: int) private: int =>
+    var x: int = a * 2
+    var y: int = b * 3
+    return x + y
+
+fn private_factorial(n: int) private: int =>
+    if n <= 1 =>
+        return 1
+    return n * private_factorial(n - 1)
+
+fn private_sum(n: int) private: int =>
+    var total: int = 0
+    for var i: int = 1; i <= n; i++ =>
+        total = total + i
+    return total
+
+fn private_check(x: int) private: bool =>
+    return x > 0
+
+fn private_double(x: double) private: double =>
+    return x * 2.0
+
+fn main(): int =>
+    print("Test private functions:\n\n")
+
+    // Basic private call
+    var result1: int = private_compute(5, 3)
+    print($"private_compute(5, 3) = {result1}\n")
+
+    // Private recursive
+    var fact: int = private_factorial(6)
+    print($"private_factorial(6) = {fact}\n")
+
+    // Private with loop
+    var sum: int = private_sum(10)
+    print($"private_sum(10) = {sum}\n")
+
+    // Private returning bool
+    var check1: bool = private_check(5)
+    var check2: bool = private_check(-5)
+    print($"private_check(5) = {check1}\n")
+    print($"private_check(-5) = {check2}\n")
+
+    // Private returning double
+    var dbl: double = private_double(3.14)
+    print($"private_double(3.14) = {dbl}\n")
+
+    // Multiple private calls
+    print("\nMultiple calls:\n")
+    for var i: int = 1; i <= 5; i++ =>
+        var s: int = private_sum(i)
+        print($"  sum(1..{i}) = {s}\n")
+
+    return 0

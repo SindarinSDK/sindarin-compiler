@@ -1,0 +1,10 @@
+// lib/string_ops.sn - String operations for namespace testing
+
+fn greet(name: str): str =>
+    return $"Hello, {name}!"
+
+fn farewell(name: str): str =>
+    return $"Goodbye, {name}!"
+
+fn double_str(s: str): str =>
+    return $"{s}{s}"

@@ -1,0 +1,46 @@
+// ============================================================================
+// main.sn - Sindarin Language Demo
+// ============================================================================
+// This file demonstrates all features of the Sindarin language by importing
+// and running demo modules for each feature area.
+//
+// Run: bin/sn samples/main.sn -o /tmp/main.c && gcc /tmp/main.c bin/*.o -o /tmp/main && /tmp/main
+// ============================================================================
+
+import "lib/types"
+import "lib/loops"
+import "lib/conditionals"
+import "lib/strings"
+import "lib/functions"
+import "lib/arrays"
+import "lib/memory"
+import "lib/lambda"
+import "lib/closure"
+import "lib/bytes"
+import "lib/fileio"
+import "lib/date"
+import "lib/time"
+
+fn main(): void =>
+  print("╔══════════════════════════════════════════════════════════════════╗\n")
+  print("║           Welcome to the Sindarin Language Demo                  ║\n")
+  print("╚══════════════════════════════════════════════════════════════════╝\n\n")
+
+  // Run each feature demo
+  demo_types()
+  demo_loops()
+  demo_conditionals()
+  demo_strings()
+  demo_functions()
+  demo_arrays()
+  demo_memory()
+  demo_lambda()
+  demo_closure()
+  demo_bytes()
+  demo_fileio()
+  demo_date()
+  demo_time()
+
+  print("╔══════════════════════════════════════════════════════════════════╗\n")
+  print("║                    All Demos Complete!                           ║\n")
+  print("╚══════════════════════════════════════════════════════════════════╝\n")

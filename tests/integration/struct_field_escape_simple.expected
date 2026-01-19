@@ -1,0 +1,6 @@
+Testing simple field assignment escape detection:
+Simple escape test: PASS
+Escape with defaults test: PASS
+Multiple field escapes test: PASS
+Escape with computation test: PASS
+All simple field escape tests passed!

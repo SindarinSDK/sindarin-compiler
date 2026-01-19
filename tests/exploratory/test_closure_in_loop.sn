@@ -1,0 +1,6 @@
+// Test closure created inside loop - captures loop variable
+fn main(): void =>
+  for var i: int = 0; i < 3; i++ =>
+    var capture_i: fn(): int = fn(): int => i
+    var result: int = capture_i()
+    print($"result={result}\n")

@@ -1,0 +1,60 @@
+# Basic struct integration test
+# Tests: declaration, instantiation, field access, assignment
+
+# 1. DECLARATION - Simple struct with multiple fields
+struct Point =>
+    x: double
+    y: double
+
+# Declaration with default values
+struct Config =>
+    timeout: int = 30
+    retries: int = 3
+    verbose: bool = false
+
+fn main(): void =>
+    # 2. INSTANTIATION - Create struct instances
+    var p1: Point = Point { x: 10.0, y: 20.0 }
+    var p2: Point = Point { x: 0.0, y: 0.0 }
+
+    # Instantiation with defaults
+    var cfg: Config = Config {}
+    var cfg2: Config = Config { timeout: 60 }
+
+    # 3. FIELD ACCESS - Read field values
+    print($"p1.x = {p1.x}\n")
+    print($"p1.y = {p1.y}\n")
+    print($"p2.x = {p2.x}\n")
+    print($"p2.y = {p2.y}\n")
+
+    # Access default values
+    print($"cfg.timeout = {cfg.timeout}\n")
+    print($"cfg.retries = {cfg.retries}\n")
+    print($"cfg.verbose = {cfg.verbose}\n")
+
+    # Access overridden defaults
+    print($"cfg2.timeout = {cfg2.timeout}\n")
+    print($"cfg2.retries = {cfg2.retries}\n")
+
+    # 4. ASSIGNMENT - Modify field values
+    p2.x = 100.0
+    p2.y = 200.0
+    print($"After assignment: p2.x = {p2.x}\n")
+    print($"After assignment: p2.y = {p2.y}\n")
+
+    # Assignment to config fields
+    cfg.timeout = 120
+    cfg.verbose = true
+    print($"After assignment: cfg.timeout = {cfg.timeout}\n")
+    print($"After assignment: cfg.verbose = {cfg.verbose}\n")
+
+    # Struct copy (value semantics)
+    var p3: Point = p1
+    print($"p3.x (copied from p1) = {p3.x}\n")
+
+    # Modify copy - original should be unchanged
+    p3.x = 999.0
+    print($"After modifying copy: p1.x = {p1.x}\n")
+    print($"After modifying copy: p3.x = {p3.x}\n")
+
+    print("All struct tests passed!\n")

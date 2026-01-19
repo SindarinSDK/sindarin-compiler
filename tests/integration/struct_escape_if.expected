@@ -1,0 +1,8 @@
+Testing struct escaping from if-block to outer scope:
+Simple struct escape test: PASS
+Struct with string escape test: PASS
+Conditional struct escape test: PASS
+Struct escape with defaults test: PASS
+Nested if struct escape test: PASS
+Multiple struct escapes test: PASS
+All struct escape if-block tests passed!

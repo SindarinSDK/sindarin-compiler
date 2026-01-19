@@ -1,0 +1,9 @@
+// Test: Compile error - access pending variable before sync
+// Expected error: Cannot access pending thread variable 'r' before synchronization
+
+fn compute(): int =>
+    return 42
+
+fn main(): void =>
+    var r: int = &compute()
+    print($"Value: {r}\n")  // ERROR: r is pending, must sync first

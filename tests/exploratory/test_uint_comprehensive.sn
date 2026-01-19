@@ -1,0 +1,396 @@
+// Comprehensive test for uint type (64-bit unsigned integer)
+// Tests all expression contexts: literals, interpolation, arithmetic,
+// comparisons, arrays, any boxing/unboxing, lambdas, functions
+
+fn main(): void =>
+    print("=== uint Comprehensive Type Test ===\n\n")
+
+    test_literals()
+    test_string_interpolation()
+    test_arithmetic()
+    test_comparisons()
+    test_compound_expressions()
+    test_arrays()
+    test_array_equality()
+    test_2d_arrays()
+    test_any_boxing()
+    test_any_unboxing()
+    test_type_checking()
+    test_lambdas()
+    test_functions()
+    test_control_flow()
+    test_edge_cases()
+
+    print("\n=== All uint tests passed! ===\n")
+
+// --- 1. Literals and Variables ---
+fn test_literals(): void =>
+    print("1. Literals and variables\n")
+
+    var x: uint = 42
+    assert(x == 42, "basic literal")
+
+    var y: uint = 0
+    assert(y == 0, "zero literal")
+
+    var large: uint = 1000000000
+    assert(large == 1000000000, "large value")
+
+    // Very large values (beyond int range)
+    var huge: uint = 9223372036854775808
+    assert(huge > 0, "very large uint")
+
+    print("   PASS\n")
+
+// --- 2. String Interpolation ---
+fn test_string_interpolation(): void =>
+    print("2. String interpolation\n")
+
+    var x: uint = 42
+    var s1: str = $"Value: {x}"
+    assert(s1 == "Value: 42", "basic interpolation")
+
+    var y: uint = 1000000
+    var s2: str = $"Large: {y}"
+    assert(s2 == "Large: 1000000", "large interpolation")
+
+    // Expression in interpolation
+    var a: uint = 10
+    var b: uint = 5
+    var s3: str = $"Sum: {a + b}"
+    assert(s3 == "Sum: 15", "expression in interpolation")
+
+    var s4: str = $"Product: {a * b}"
+    assert(s4 == "Product: 50", "multiplication in interpolation")
+
+    // Multiple values
+    var s5: str = $"{a} + {b} = {a + b}"
+    assert(s5 == "10 + 5 = 15", "multiple interpolations")
+
+    print("   PASS\n")
+
+// --- 3. Arithmetic Operations ---
+fn test_arithmetic(): void =>
+    print("3. Arithmetic operations\n")
+
+    var a: uint = 100
+    var b: uint = 30
+
+    // Addition
+    var sum: uint = a + b
+    assert(sum == 130, "addition")
+
+    // Subtraction (a > b for unsigned)
+    var diff: uint = a - b
+    assert(diff == 70, "subtraction")
+
+    // Multiplication
+    var prod: uint = a * b
+    assert(prod == 3000, "multiplication")
+
+    // Division
+    var quot: uint = a / b
+    assert(quot == 3, "division")
+
+    // Modulo
+    var rem: uint = a % b
+    assert(rem == 10, "modulo")
+
+    // Large number arithmetic
+    var large1: uint = 1000000000
+    var large2: uint = 2000000000
+    var largeSum: uint = large1 + large2
+    assert(largeSum == 3000000000, "large addition")
+
+    print("   PASS\n")
+
+// --- 4. Comparison Operations ---
+fn test_comparisons(): void =>
+    print("4. Comparison operations\n")
+
+    var a: uint = 50
+    var b: uint = 30
+    var c: uint = 50
+
+    assert(a == c, "equality true")
+    assert(!(a == b), "equality false")
+
+    assert(a != b, "not equal true")
+    assert(!(a != c), "not equal false")
+
+    assert(a > b, "greater than true")
+    assert(!(b > a), "greater than false")
+
+    assert(b < a, "less than true")
+    assert(!(a < b), "less than false")
+
+    assert(a >= c, "gte equal")
+    assert(a >= b, "gte greater")
+    assert(!(b >= a), "gte false")
+
+    assert(b <= a, "lte less")
+    assert(a <= c, "lte equal")
+    assert(!(a <= b), "lte false")
+
+    // Large value comparisons
+    var large: uint = 9223372036854775808
+    var small: uint = 100
+    assert(large > small, "large > small")
+
+    print("   PASS\n")
+
+// --- 5. Compound Expressions ---
+fn test_compound_expressions(): void =>
+    print("5. Compound expressions\n")
+
+    var a: uint = 10
+    var b: uint = 5
+    var c: uint = 3
+
+    // Parenthesized expressions
+    var r1: uint = (a + b) * c
+    assert(r1 == 45, "parenthesized multiply")
+
+    var r2: uint = a * (b + c)
+    assert(r2 == 80, "parenthesized add")
+
+    // Nested expressions
+    var r3: uint = (a + b) * (c + 2)
+    assert(r3 == 75, "nested parentheses")
+
+    // Complex expression
+    var r4: uint = a * b + c * 2
+    assert(r4 == 56, "complex expression")
+
+    print("   PASS\n")
+
+// --- 6. Arrays ---
+fn test_arrays(): void =>
+    print("6. Arrays\n")
+
+    // Array creation
+    var arr: uint[] = {1, 2, 3, 4, 5}
+    assert(arr.length == 5, "array length")
+    assert(arr[0] == 1, "array index 0")
+    assert(arr[4] == 5, "array index 4")
+
+    // Array push
+    arr.push(6)
+    assert(arr.length == 6, "push length")
+    assert(arr[5] == 6, "push value")
+
+    // Array pop
+    var popped: uint = arr.pop()
+    assert(popped == 6, "pop value")
+    assert(arr.length == 5, "pop length")
+
+    // Array slicing
+    var slice: uint[] = arr[1..4]
+    assert(slice.length == 3, "slice length")
+    assert(slice[0] == 2, "slice first")
+    assert(slice[2] == 4, "slice last")
+
+    // Array contains
+    assert(arr.contains(3), "contains existing")
+    assert(!arr.contains(100), "contains missing")
+
+    // Array indexOf
+    assert(arr.indexOf(3) == 2, "indexOf existing")
+    assert(arr.indexOf(100) == -1, "indexOf missing")
+
+    print("   PASS\n")
+
+// --- 7. Array Equality ---
+fn test_array_equality(): void =>
+    print("7. Array equality\n")
+
+    var a: uint[] = {1, 2, 3}
+    var b: uint[] = {1, 2, 3}
+    var c: uint[] = {1, 2, 4}
+
+    assert(a == b, "equal arrays")
+    assert(a != c, "unequal arrays")
+
+    print("   PASS\n")
+
+// --- 8. 2D Arrays ---
+fn test_2d_arrays(): void =>
+    print("8. 2D arrays\n")
+
+    var arr: uint[][] = {{1, 2}, {3, 4}, {5, 6}}
+    assert(arr.length == 3, "2D outer length")
+    assert(arr[0].length == 2, "2D inner length")
+    assert(arr[1][1] == 4, "2D access")
+
+    print("   PASS\n")
+
+// --- 9. Any Boxing ---
+fn test_any_boxing(): void =>
+    print("9. Any boxing\n")
+
+    var x: uint = 42
+    var a: any = x
+    assert(a is uint, "boxed type check")
+
+    var y: uint = 1000000000
+    var b: any = y
+    assert(b is uint, "boxed large type check")
+
+    // Array boxing
+    var arr: uint[] = {10, 20, 30}
+    var boxed_arr: any = arr
+    assert(boxed_arr is uint[], "array boxing type check")
+
+    print("   PASS\n")
+
+// --- 10. Any Unboxing ---
+fn test_any_unboxing(): void =>
+    print("10. Any unboxing\n")
+
+    var x: uint = 42
+    var a: any = x
+    var unboxed: uint = a as uint
+    assert(unboxed == 42, "unboxed value")
+
+    var y: uint = 9223372036854775808
+    var b: any = y
+    var unboxed2: uint = b as uint
+    assert(unboxed2 > 0, "unboxed large value")
+
+    // Array unboxing
+    var arr: uint[] = {10, 20, 30}
+    var boxed: any = arr
+    var unboxed_arr: uint[] = boxed as uint[]
+    assert(unboxed_arr.length == 3, "unboxed array length")
+    assert(unboxed_arr[0] == 10, "unboxed array element 0")
+    assert(unboxed_arr[2] == 30, "unboxed array element 2")
+
+    print("   PASS\n")
+
+// --- 11. Type Checking ---
+fn test_type_checking(): void =>
+    print("11. Type checking with 'is'\n")
+
+    var x: uint = 42
+    var a: any = x
+
+    assert(a is uint, "is uint true")
+    assert(!(a is int), "is int false")
+    assert(!(a is double), "is double false")
+    assert(!(a is str), "is str false")
+
+    // Array type checking
+    var arr: uint[] = {1, 2}
+    var boxed: any = arr
+    assert(boxed is uint[], "array is uint[]")
+    assert(!(boxed is int[]), "array is not int[]")
+    assert(!(boxed is uint32[]), "array is not uint32[]")
+
+    print("   PASS\n")
+
+// --- 12. Lambdas ---
+fn test_lambdas(): void =>
+    print("12. Lambdas\n")
+
+    // Lambda with uint parameter
+    var double_it: fn(uint): uint = fn(x: uint): uint => x * 2
+    assert(double_it(21) == 42, "lambda call")
+
+    // Lambda with uint return
+    var get_value: fn(): uint = fn(): uint => 100
+    assert(get_value() == 100, "lambda return")
+
+    // Lambda with expression
+    var add: fn(uint, uint): uint = fn(a: uint, b: uint): uint => a + b
+    assert(add(10, 32) == 42, "lambda with two params")
+
+    // Lambda capturing uint
+    var base: uint = 10
+    var add_base: fn(uint): uint = fn(x: uint): uint => x + base
+    assert(add_base(5) == 15, "lambda capture")
+
+    // Higher-order with uint
+    var apply: fn(fn(uint): uint, uint): uint = fn(f: fn(uint): uint, x: uint): uint => f(x)
+    assert(apply(double_it, 21) == 42, "higher-order lambda")
+
+    print("   PASS\n")
+
+// --- 13. Functions ---
+fn test_functions(): void =>
+    print("13. Functions\n")
+
+    assert(identity_uint(42) == 42, "identity function")
+    assert(add_uint(10, 32) == 42, "add function")
+    assert(multiply_uint(6, 7) == 42, "multiply function")
+
+    // Function returning expression
+    assert(compute_uint(10, 5, 2) == 30, "complex function")
+
+    print("   PASS\n")
+
+fn identity_uint(x: uint): uint =>
+    return x
+
+fn add_uint(a: uint, b: uint): uint =>
+    return a + b
+
+fn multiply_uint(a: uint, b: uint): uint =>
+    return a * b
+
+fn compute_uint(a: uint, b: uint, c: uint): uint =>
+    return (a + b) * c
+
+// --- 14. Control Flow ---
+fn test_control_flow(): void =>
+    print("14. Control flow\n")
+
+    // If with uint comparison
+    var x: uint = 50
+    var result: uint = 0
+    if x > 40 =>
+        result = 1
+    else =>
+        result = 0
+    assert(result == 1, "if comparison")
+
+    // While with uint counter
+    var count: uint = 0
+    var sum: uint = 0
+    while count < 5 =>
+        sum = sum + count
+        count = count + 1
+    assert(sum == 10, "while loop") // 0+1+2+3+4=10
+
+    // For-each loop with uint[]
+    var arr: uint[] = {1, 2, 3, 4, 5}
+    var arr_sum: uint = 0
+    for v in arr =>
+        arr_sum = arr_sum + v
+    assert(arr_sum == 15, "for-each loop")
+
+    print("   PASS\n")
+
+// --- 15. Edge Cases ---
+fn test_edge_cases(): void =>
+    print("15. Edge cases\n")
+
+    // Zero operations
+    var zero: uint = 0
+    assert(zero + zero == 0, "zero + zero")
+    assert(zero * 100 == 0, "zero * n")
+
+    // Division edge cases
+    var hundred: uint = 100
+    assert(hundred / 100 == 1, "n / n")
+    assert(hundred % 100 == 0, "n % n")
+
+    // Large values
+    var large: uint = 1000000000
+    var result: uint = large * 2
+    assert(result == 2000000000, "large multiplication")
+
+    // Max boundary operations
+    var max: uint = 18446744073709551615
+    assert(max > 0, "max uint is positive")
+
+    print("   PASS\n")

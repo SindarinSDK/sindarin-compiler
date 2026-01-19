@@ -1,0 +1,93 @@
+// Comprehensive tests for expression-bodied functions
+
+// --- Simple constant-like functions ---
+fn Z_OK(): int => 0
+fn Z_BEST_SPEED(): int => 1
+fn Z_DATA_ERROR(): int => -3
+fn PI(): double => 3.14159
+fn DEFAULT_PORT(): uint => 8080
+fn MAX_BYTE(): byte => 255
+fn NEWLINE(): char => '\n'
+fn IS_DEBUG(): bool => false
+fn GREETING(): str => "Hello"
+
+// --- Single-parameter functions ---
+fn square(x: int): int => x * x
+fn negate(x: int): int => -x
+fn is_positive(x: int): bool => x > 0
+fn is_zero(x: int): bool => x == 0
+fn to_float(x: int): float => x as float
+fn byte_to_int(b: byte): int => b as int
+fn increment(x: int): int => x + 1
+fn decrement(x: int): int => x - 1
+
+// --- Multi-parameter functions ---
+fn add(a: int, b: int): int => a + b
+fn multiply(a: int, b: int): int => a * b
+fn max(a: int, b: int): int => a
+fn min(a: int, b: int): int => b
+fn average(a: double, b: double): double => (a + b) / 2.0
+
+// --- Functions with expressions ---
+fn area_circle(radius: double): double => 3.14159 * radius * radius
+fn area_rect(w: int, h: int): int => w * h
+fn distance(x: int, y: int): double => (x * x + y * y) as double
+fn clamp_byte(x: int): byte => (x % 256) as byte
+
+// --- Functions calling other functions ---
+fn cube(x: int): int => x * square(x)
+fn double_add(a: int, b: int): int => add(a, b) * 2
+
+// --- Native expression-bodied functions ---
+native fn native_const(): int => 42
+native fn native_compute(x: int): int => x * 10
+
+fn main(): void =>
+    print("=== Expression-Bodied Function Tests ===\n\n")
+
+    // Test constant functions
+    assert(Z_OK() == 0, "Z_OK")
+    assert(Z_BEST_SPEED() == 1, "Z_BEST_SPEED")
+    assert(Z_DATA_ERROR() == -3, "Z_DATA_ERROR")
+    assert(PI() > 3.14 && PI() < 3.15, "PI")
+    assert(DEFAULT_PORT() == 8080, "DEFAULT_PORT")
+    assert(MAX_BYTE() == 255, "MAX_BYTE")
+    assert(NEWLINE() == '\n', "NEWLINE")
+    assert(!IS_DEBUG(), "IS_DEBUG")
+    assert(GREETING() == "Hello", "GREETING")
+    print("test_constant_functions: PASS\n")
+
+    // Test single-parameter functions
+    assert(square(5) == 25, "square")
+    assert(negate(10) == -10, "negate")
+    assert(is_positive(5), "is_positive true")
+    assert(!is_positive(-5), "is_positive false")
+    assert(is_zero(0), "is_zero true")
+    assert(!is_zero(1), "is_zero false")
+    assert(byte_to_int(200) == 200, "byte_to_int")
+    assert(increment(41) == 42, "increment")
+    assert(decrement(43) == 42, "decrement")
+    print("test_single_param_functions: PASS\n")
+
+    // Test multi-parameter functions
+    assert(add(10, 32) == 42, "add")
+    assert(multiply(6, 7) == 42, "multiply")
+    assert(average(40.0, 44.0) == 42.0, "average")
+    print("test_multi_param_functions: PASS\n")
+
+    // Test expression functions
+    assert(area_rect(6, 7) == 42, "area_rect")
+    assert(clamp_byte(300) == 44, "clamp_byte")
+    print("test_expression_functions: PASS\n")
+
+    // Test nested calls
+    assert(cube(3) == 27, "cube")
+    assert(double_add(10, 11) == 42, "double_add")
+    print("test_nested_calls: PASS\n")
+
+    // Test native expression-bodied
+    assert(native_const() == 42, "native_const")
+    assert(native_compute(5) == 50, "native_compute")
+    print("test_native_expression_bodied: PASS\n")
+
+    print("\nAll expression-bodied function tests passed!\n")

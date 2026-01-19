@@ -1,0 +1,142 @@
+// Comprehensive tests for numeric type casting
+
+fn main(): void =>
+    print("=== Numeric Type Cast Tests ===\n\n")
+
+    // --- Byte conversions ---
+    var b: byte = 200
+    var b_to_int: int = b as int
+    var b_to_uint: uint = b as uint
+    var b_to_int32: int32 = b as int32
+    var b_to_uint32: uint32 = b as uint32
+    var b_to_long: long = b as long
+    var b_to_double: double = b as double
+    var b_to_float: float = b as float
+    var b_to_char: char = b as char
+    assert(b_to_int == 200, "byte to int")
+    assert(b_to_uint == 200, "byte to uint")
+    assert(b_to_int32 == 200, "byte to int32")
+    assert(b_to_uint32 == 200, "byte to uint32")
+    assert(b_to_long == 200, "byte to long")
+    assert(b_to_double == 200.0, "byte to double")
+    print("test_byte_conversions: PASS\n")
+
+    // --- Int conversions ---
+    var i: int = 42
+    var i_to_byte: byte = i as byte
+    var i_to_uint: uint = i as uint
+    var i_to_int32: int32 = i as int32
+    var i_to_uint32: uint32 = i as uint32
+    var i_to_long: long = i as long
+    var i_to_double: double = i as double
+    var i_to_float: float = i as float
+    var i_to_char: char = i as char
+    assert(i_to_byte == 42, "int to byte")
+    assert(i_to_uint == 42, "int to uint")
+    assert(i_to_int32 == 42, "int to int32")
+    assert(i_to_uint32 == 42, "int to uint32")
+    assert(i_to_long == 42, "int to long")
+    assert(i_to_double == 42.0, "int to double")
+    print("test_int_conversions: PASS\n")
+
+    // --- Int32 conversions ---
+    var i32: int32 = -500
+    var i32_to_int: int = i32 as int
+    var i32_to_long: long = i32 as long
+    var i32_to_double: double = i32 as double
+    assert(i32_to_int == -500, "int32 to int")
+    assert(i32_to_long == -500, "int32 to long")
+    print("test_int32_conversions: PASS\n")
+
+    // --- Uint conversions ---
+    var u: uint = 1000
+    var u_to_int: int = u as int
+    var u_to_uint32: uint32 = u as uint32
+    var u_to_double: double = u as double
+    assert(u_to_int == 1000, "uint to int")
+    assert(u_to_uint32 == 1000, "uint to uint32")
+    assert(u_to_double == 1000.0, "uint to double")
+    print("test_uint_conversions: PASS\n")
+
+    // --- Uint32 conversions ---
+    var u32: uint32 = 500
+    var u32_to_int: int = u32 as int
+    var u32_to_uint: uint = u32 as uint
+    var u32_to_double: double = u32 as double
+    assert(u32_to_int == 500, "uint32 to int")
+    assert(u32_to_uint == 500, "uint32 to uint")
+    print("test_uint32_conversions: PASS\n")
+
+    // --- Double conversions (truncation) ---
+    var d: double = 3.7
+    var d_to_int: int = d as int
+    var d_to_byte: byte = d as byte
+    var d_to_float: float = d as float
+    assert(d_to_int == 3, "double to int truncate")
+    assert(d_to_byte == 3, "double to byte truncate")
+    print("test_double_conversions: PASS\n")
+
+    // --- Negative double conversions ---
+    var nd: double = -3.9
+    var nd_to_int: int = nd as int
+    assert(nd_to_int == -3, "negative double to int truncate")
+    print("test_negative_double_conversions: PASS\n")
+
+    // --- Float conversions ---
+    var f: float = 2.5
+    var f_to_int: int = f as int
+    var f_to_double: double = f as double
+    var f_to_byte: byte = f as byte
+    assert(f_to_int == 2, "float to int truncate")
+    assert(f_to_byte == 2, "float to byte truncate")
+    print("test_float_conversions: PASS\n")
+
+    // --- Char conversions ---
+    var c: char = 'A'
+    var c_to_int: int = c as int
+    var c_to_byte: byte = c as byte
+    var c_to_uint: uint = c as uint
+    assert(c_to_int == 65, "char to int")
+    assert(c_to_byte == 65, "char to byte")
+    assert(c_to_uint == 65, "char to uint")
+    print("test_char_conversions: PASS\n")
+
+    // --- Int to char ---
+    var code: int = 66
+    var code_to_char: char = code as char
+    assert(code_to_char == 'B', "int to char")
+    print("test_int_to_char: PASS\n")
+
+    // --- Bool to numeric ---
+    var bool_t: bool = true
+    var bool_f: bool = false
+    var bool_t_to_int: int = bool_t as int
+    var bool_f_to_int: int = bool_f as int
+    var bool_t_to_byte: byte = bool_t as byte
+    var bool_t_to_double: double = bool_t as double
+    assert(bool_t_to_int == 1, "true to int")
+    assert(bool_f_to_int == 0, "false to int")
+    assert(bool_t_to_byte == 1, "true to byte")
+    assert(bool_t_to_double == 1.0, "true to double")
+    print("test_bool_to_numeric: PASS\n")
+
+    // --- Narrowing (truncation) ---
+    var big: int = 1000
+    var big_to_byte: byte = big as byte
+    assert(big_to_byte == 232, "int 1000 to byte truncate")
+    print("test_narrowing_truncation: PASS\n")
+
+    // --- Chained casts ---
+    var orig: double = 123.456
+    var chained: byte = (orig as int) as byte
+    assert(chained == 123, "chained cast")
+    print("test_chained_casts: PASS\n")
+
+    // --- Cast in expression ---
+    var x: double = 10.5
+    var y: double = 3.5
+    var result: int = (x as int) + (y as int)
+    assert(result == 13, "cast in expression")
+    print("test_cast_in_expression: PASS\n")
+
+    print("\nAll numeric type cast tests passed!\n")

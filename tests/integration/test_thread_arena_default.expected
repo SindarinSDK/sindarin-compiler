@@ -1,0 +1,7 @@
+Testing default arena mode (promotion)
+Array length: 6
+Array[0]: 10
+Array[5]: 60
+After push, length: 7
+String: Hello from thread
+SUCCESS: Default arena promotion works correctly

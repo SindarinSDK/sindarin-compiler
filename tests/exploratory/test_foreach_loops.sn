@@ -1,0 +1,70 @@
+// Test 14: For-each loops
+fn main(): int =>
+    // For-each over int array
+    print("Int array iteration:\n")
+    var nums: int[] = {10, 20, 30, 40, 50}
+    for n in nums =>
+        print($"  {n}\n")
+
+    // For-each over string array
+    print("\nString array iteration:\n")
+    var names: str[] = {"Alice", "Bob", "Charlie"}
+    for name in names =>
+        print($"  Hello, {name}!\n")
+
+    // For-each over double array
+    print("\nDouble array iteration:\n")
+    var vals: double[] = {1.1, 2.2, 3.3}
+    for v in vals =>
+        print($"  {v}\n")
+
+    // For-each over char array
+    print("\nChar array iteration:\n")
+    var chars: char[] = {'a', 'b', 'c'}
+    for c in chars =>
+        print($"  '{c}'\n")
+
+    // For-each over bool array
+    print("\nBool array iteration:\n")
+    var bools: bool[] = {true, false, true}
+    for b in bools =>
+        print($"  {b}\n")
+
+    // Sum with for-each
+    print("\nSum with for-each:\n")
+    var total: int = 0
+    for n in nums =>
+        total = total + n
+    print($"Total: {total}\n")
+
+    // For-each with break
+    print("\nFor-each with break at 30:\n")
+    for n in nums =>
+        if n == 30 =>
+            print("  breaking\n")
+            break
+        print($"  {n}\n")
+
+    // For-each with continue
+    print("\nFor-each with continue (skip 30):\n")
+    for n in nums =>
+        if n == 30 =>
+            continue
+        print($"  {n}\n")
+
+    // For-each over empty array
+    print("\nFor-each over empty array:\n")
+    var empty: int[] = {}
+    for e in empty =>
+        print("should not print\n")
+    print("after empty array iteration\n")
+
+    // Nested for-each
+    print("\nNested for-each:\n")
+    var arr1: int[] = {1, 2}
+    var arr2: int[] = {10, 20}
+    for a in arr1 =>
+        for b in arr2 =>
+            print($"  {a} + {b} = {a + b}\n")
+
+    return 0

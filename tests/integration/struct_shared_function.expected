@@ -1,0 +1,7 @@
+Testing struct allocation with shared functions:
+Simple shared struct: PASS
+Nested shared struct: PASS
+Modify shared struct: PASS
+Chained shared struct: PASS
+Multiple shared structs: PASS
+All struct shared function tests completed!

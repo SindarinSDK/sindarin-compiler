@@ -1,0 +1,71 @@
+// Test 28: Array slicing
+fn main(): int =>
+    print("Test array slicing:\n\n")
+
+    var arr: int[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+    print("arr = ")
+    print(arr)
+    print("\n\n")
+
+    // Start..end slice
+    var s1: int[] = arr[2..5]
+    print("arr[2..5] = ")
+    print(s1)
+    print("\n")
+
+    var s2: int[] = arr[0..3]
+    print("arr[0..3] = ")
+    print(s2)
+    print("\n")
+
+    // From start slice
+    var s3: int[] = arr[..4]
+    print("arr[..4] = ")
+    print(s3)
+    print("\n")
+
+    // To end slice
+    var s4: int[] = arr[6..]
+    print("arr[6..] = ")
+    print(s4)
+    print("\n")
+
+    // Full copy
+    var s5: int[] = arr[..]
+    print("arr[..] = ")
+    print(s5)
+    print("\n")
+
+    // With step
+    print("\nWith step:\n")
+    var s6: int[] = arr[..:2]
+    print("arr[..:2] = ")
+    print(s6)
+    print("\n")
+
+    var s7: int[] = arr[1..:2]
+    print("arr[1..:2] = ")
+    print(s7)
+    print("\n")
+
+    var s8: int[] = arr[..:3]
+    print("arr[..:3] = ")
+    print(s8)
+    print("\n")
+
+    // Slice of slice
+    var slice1: int[] = arr[2..8]
+    var slice2: int[] = slice1[1..4]
+    print("arr[2..8][1..4] = ")
+    print(slice2)
+    print("\n")
+
+    // String array slice
+    print("\nString array slice:\n")
+    var words: str[] = {"a", "b", "c", "d", "e"}
+    var wordslice: str[] = words[1..4]
+    print("words[1..4] = ")
+    print(wordslice)
+    print("\n")
+
+    return 0

@@ -1,0 +1,57 @@
+// Test: Interceptor call site transformation
+// Tests automatic interception of user-defined function calls
+
+var call_count: int = 0
+
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn myInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    call_count = call_count + 1
+    print($"Intercepting: {name}\n")
+    // Return a modified result instead of calling continue_fn
+    // This tests the case where an interceptor overrides the result entirely
+    var result: any = 42
+    return result
+
+fn main =>
+    // Without interceptor
+    var result: int = add(10, 20)
+    print($"Result without interceptor: {result}\n")
+    if result == 30 =>
+        print("Direct call works - PASS\n")
+    else =>
+        print("Direct call failed - FAIL\n")
+
+    // Register interceptor
+    Interceptor.register(myInterceptor)
+    print($"Interceptor count: {Interceptor.count()}\n")
+
+    // Call with interceptor - should return 42 from interceptor
+    result = add(5, 7)
+    print($"Result with interceptor: {result}\n")
+    if result == 42 =>
+        print("Intercepted call returns modified result - PASS\n")
+    else =>
+        print($"Intercepted call failed, got {result} expected 42 - FAIL\n")
+
+    if call_count == 1 =>
+        print("Interceptor was called once - PASS\n")
+    else =>
+        print($"Interceptor call count wrong: {call_count} - FAIL\n")
+
+    // Clear and verify no interception
+    Interceptor.clearAll()
+    call_count = 0
+    result = add(3, 4)
+    if result == 7 =>
+        print("Direct call after clearAll works - PASS\n")
+    else =>
+        print($"Direct call after clearAll failed, got {result} - FAIL\n")
+
+    if call_count == 0 =>
+        print("No interception after clearAll - PASS\n")
+    else =>
+        print("Interceptor still active after clearAll - FAIL\n")
+
+    print("All interceptor call tests passed!\n")

@@ -1,0 +1,39 @@
+# Test lock blocks for thread synchronization
+
+# Test 1: Basic lock block with sync variable
+fn test_basic_lock(): void =>
+    var counter: sync int = 0
+
+    lock(counter) =>
+        counter = counter + 1
+        counter = counter + 1
+
+    print($"Counter after lock: {counter}\n")
+
+
+# Test 2: Lock block with compound assignment
+fn test_lock_compound(): void =>
+    var value: sync int = 10
+
+    lock(value) =>
+        value += 5
+        value -= 2
+
+    print($"Value after lock: {value}\n")
+
+
+# Test 3: Nested operations in lock block
+fn test_lock_nested(): void =>
+    var total: sync int = 0
+
+    lock(total) =>
+        for i in 1..5 =>
+            total += i
+
+    print($"Total after lock: {total}\n")
+
+
+fn main(): void =>
+    test_basic_lock()
+    test_lock_compound()
+    test_lock_nested()

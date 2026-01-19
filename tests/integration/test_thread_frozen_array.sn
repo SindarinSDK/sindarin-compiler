@@ -1,0 +1,48 @@
+// Test: Frozen array references in thread spawn
+// Verifies that arrays passed to threads are frozen (reads allowed, writes blocked)
+// and unfrozen after sync
+
+fn sum_array(arr: int[]): int =>
+    var total: int = 0
+    for n in arr =>
+        total = total + n
+    return total
+
+fn main(): void =>
+    var data: int[] = {10, 20, 30, 40, 50}
+
+    // Spawn thread passing array - array becomes frozen
+    var result: int = &sum_array(data)
+
+    // While thread is running, reads are allowed on frozen array
+    var first: int = data[0]
+    var len: int = data.length
+    print($"First element: {first}\n")
+    print($"Array length: {len}\n")
+
+    // Sync to get result and unfreeze array
+    result!
+
+    // After sync, writes are allowed again
+    data[0] = 100
+    data.push(60)
+    print($"After write, data[0]: {data[0]}\n")
+    print($"After push, length: {data.length}\n")
+
+    // Validate results
+    if result == 150 =>
+        if first == 10 =>
+            if len == 5 =>
+                if data[0] == 100 =>
+                    if data.length == 6 =>
+                        print("SUCCESS: Freeze/unfreeze cycle works correctly\n")
+                    else =>
+                        print("FAILURE: push didn't work after unfreeze\n")
+                else =>
+                    print("FAILURE: write didn't work after unfreeze\n")
+            else =>
+                print("FAILURE: length read failed while frozen\n")
+        else =>
+            print("FAILURE: index read failed while frozen\n")
+    else =>
+        print($"FAILURE: sum result expected 150, got {result}\n")

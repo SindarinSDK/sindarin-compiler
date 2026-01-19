@@ -1,0 +1,61 @@
+// Test 93: Mixed numeric type expressions
+// Tests int, long, double, byte mixed arithmetic
+
+fn main(): int =>
+    print("Test mixed numeric types:\n\n")
+
+    // Test 1: Int and long
+    print("Test 1 - Int and long:\n")
+    var i: int = 100
+    var l: long = 1000000000l
+    var sum_long: long = i + l
+    print($"  int + long = {sum_long}\n")
+
+    // Test 2: Byte and int
+    print("\nTest 2 - Byte and int:\n")
+    var b: byte = 255
+    var n: int = 1000
+    var sum_int: int = b + n
+    print($"  byte + int = {sum_int}\n")
+
+    // Test 3: Int and double
+    print("\nTest 3 - Int and double:\n")
+    var x: int = 10
+    var d: double = 3.5
+    var sum_dbl: double = x + d
+    print($"  int + double = {sum_dbl}\n")
+
+    // Test 4: Byte multiplication to int
+    print("\nTest 4 - Byte multiplication:\n")
+    var b1: byte = 200
+    var b2: byte = 200
+    var prod: int = b1 * b2
+    print($"  byte * byte = {prod}\n")
+
+    // Test 5: Complex mixed expression
+    print("\nTest 5 - Complex expression:\n")
+    var aa: int = 10
+    var bb: int = 5
+    var ll: long = 100l
+    var result: long = aa + bb + ll
+    print($"  int + int + long = {result}\n")
+
+    // Test 6: Double with int division
+    print("\nTest 6 - Double division:\n")
+    var num: double = 10.0
+    var denom: int = 4
+    var quot: double = num / denom
+    print($"  10.0 / 4 = {quot}\n")
+
+    // Test 7: Comparison across types
+    print("\nTest 7 - Cross-type comparison:\n")
+    var small: byte = 50
+    var medium: int = 100
+    var large: long = 1000l
+    if small < medium =>
+        print("  byte < int: true\n")
+    if medium < large =>
+        print("  int < long: true\n")
+
+    print("\nAll mixed numeric type tests passed!\n")
+    return 0

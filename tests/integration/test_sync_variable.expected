@@ -1,0 +1,8 @@
+Initial counter: 0
+After ++: 1
+After --: 0
+After += 10: 10
+After -= 5: 5
+After 3 increments: 8
+Long counter: 1000000100
+All sync variable tests passed!

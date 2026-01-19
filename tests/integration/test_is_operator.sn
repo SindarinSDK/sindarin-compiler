@@ -1,0 +1,155 @@
+// Comprehensive tests for the 'is' type checking operator
+// Tests all primitive types and array element type discrimination
+
+fn test_primitive_is(): void =>
+    print("Test: Primitive type checks\n")
+    
+    var i: any = 42
+    var d: any = 3.14
+    var s: any = "hello"
+    var c: any = 'X'
+    var b: any = true
+    var byteVal: byte = 255
+    var by: any = byteVal
+    
+    // Positive checks
+    assert(i is int, "int is int")
+    assert(d is double, "double is double")
+    assert(s is str, "str is str")
+    assert(c is char, "char is char")
+    assert(b is bool, "bool is bool")
+    assert(by is byte, "byte is byte")
+    
+    // Negative checks - int
+    assert(!(i is double), "int is not double")
+    assert(!(i is str), "int is not str")
+    assert(!(i is char), "int is not char")
+    assert(!(i is bool), "int is not bool")
+    assert(!(i is byte), "int is not byte")
+    
+    // Negative checks - double
+    assert(!(d is int), "double is not int")
+    assert(!(d is str), "double is not str")
+    
+    // Negative checks - string
+    assert(!(s is int), "str is not int")
+    assert(!(s is double), "str is not double")
+    assert(!(s is char), "str is not char")
+    
+    print("  PASS\n")
+
+fn test_array_is(): void =>
+    print("Test: Array type checks\n")
+    
+    var intArr: int[] = {1, 2, 3}
+    var strArr: str[] = {"a", "b", "c"}
+    var charArr: char[] = {'x', 'y', 'z'}
+    var boolArr: bool[] = {true, false}
+    var doubleArr: double[] = {1.0, 2.0}
+    var byteArr: byte[] = {1, 2, 3}
+    
+    var a1: any = intArr
+    var a2: any = strArr
+    var a3: any = charArr
+    var a4: any = boolArr
+    var a5: any = doubleArr
+    var a6: any = byteArr
+    
+    // Positive checks - each array matches its own type
+    assert(a1 is int[], "int[] is int[]")
+    assert(a2 is str[], "str[] is str[]")
+    assert(a3 is char[], "char[] is char[]")
+    assert(a4 is bool[], "bool[] is bool[]")
+    assert(a5 is double[], "double[] is double[]")
+    assert(a6 is byte[], "byte[] is byte[]")
+    
+    // Negative checks - int[] vs other array types
+    assert(!(a1 is str[]), "int[] is not str[]")
+    assert(!(a1 is char[]), "int[] is not char[]")
+    assert(!(a1 is bool[]), "int[] is not bool[]")
+    assert(!(a1 is double[]), "int[] is not double[]")
+    assert(!(a1 is byte[]), "int[] is not byte[]")
+    
+    // Negative checks - str[] vs other array types
+    assert(!(a2 is int[]), "str[] is not int[]")
+    assert(!(a2 is char[]), "str[] is not char[]")
+    assert(!(a2 is bool[]), "str[] is not bool[]")
+    
+    // Negative checks - char[] vs other array types
+    assert(!(a3 is int[]), "char[] is not int[]")
+    assert(!(a3 is str[]), "char[] is not str[]")
+    assert(!(a3 is bool[]), "char[] is not bool[]")
+    
+    // Arrays are not primitives
+    assert(!(a1 is int), "int[] is not int")
+    assert(!(a2 is str), "str[] is not str")
+    assert(!(a3 is char), "char[] is not char")
+    
+    print("  PASS\n")
+
+fn test_extended_types(): void =>
+    print("Test: Extended integer types\n")
+    
+    var i32: int32 = 100
+    var u32: uint32 = 200
+    var u64: uint = 300
+    var f32: float = 1.5
+    
+    var a1: any = i32
+    var a2: any = u32
+    var a3: any = u64
+    var a4: any = f32
+    
+    // Positive checks
+    assert(a1 is int32, "int32 is int32")
+    assert(a2 is uint32, "uint32 is uint32")
+    assert(a3 is uint, "uint is uint")
+    assert(a4 is float, "float is float")
+    
+    // Negative checks - extended types are distinct
+    assert(!(a1 is int), "int32 is not int")
+    assert(!(a1 is uint32), "int32 is not uint32")
+    assert(!(a2 is int32), "uint32 is not int32")
+    assert(!(a4 is double), "float is not double")
+    
+    print("  PASS\n")
+
+fn test_if_dispatch(): void =>
+    print("Test: Type dispatch with if/is\n")
+    
+    var values: any[] = {42, "hello", true, 3.14}
+    var count_int: int = 0
+    var count_str: int = 0
+    var count_bool: int = 0
+    var count_double: int = 0
+    
+    var i: int = 0
+    while i < 4 =>
+        var v: any = values[i]
+        if v is int =>
+            count_int = count_int + 1
+        else if v is str =>
+            count_str = count_str + 1
+        else if v is bool =>
+            count_bool = count_bool + 1
+        else if v is double =>
+            count_double = count_double + 1
+        i = i + 1
+    
+    assert(count_int == 1, "found 1 int")
+    assert(count_str == 1, "found 1 str")
+    assert(count_bool == 1, "found 1 bool")
+    assert(count_double == 1, "found 1 double")
+    
+    print("  PASS\n")
+
+fn main(): int =>
+    print("=== Is Operator Tests ===\n\n")
+    
+    test_primitive_is()
+    test_array_is()
+    test_extended_types()
+    test_if_dispatch()
+    
+    print("\n=== All is operator tests passed! ===\n")
+    return 0

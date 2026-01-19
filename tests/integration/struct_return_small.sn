@@ -1,0 +1,128 @@
+# Test struct copy-on-return semantics for small structs
+# Verifies that structs returned from functions are properly copied to caller's arena
+
+struct Point =>
+    x: int
+    y: int
+
+struct Color =>
+    r: byte
+    g: byte
+    b: byte
+
+struct Rectangle =>
+    topLeft: Point
+    bottomRight: Point
+    color: Color
+
+# Simple function returning a small struct
+fn createPoint(x: int, y: int): Point =>
+    return Point { x: x, y: y }
+
+# Function returning struct with all fields set
+fn createColor(r: byte, g: byte, b: byte): Color =>
+    return Color { r: r, g: g, b: b }
+
+# Function returning nested struct
+fn createRectangle(x1: int, y1: int, x2: int, y2: int): Rectangle =>
+    var tl: Point = Point { x: x1, y: y1 }
+    var br: Point = Point { x: x2, y: y2 }
+    var c: Color = Color { r: 255, g: 0, b: 0 }
+    return Rectangle { topLeft: tl, bottomRight: br, color: c }
+
+# Function that modifies and returns struct
+fn movePoint(p: Point, dx: int, dy: int): Point =>
+    return Point { x: p.x + dx, y: p.y + dy }
+
+# Function with conditional return
+fn createPointConditional(useOrigin: bool): Point =>
+    if useOrigin =>
+        return Point { x: 0, y: 0 }
+    return Point { x: 100, y: 100 }
+
+# Test chained function calls returning structs
+fn doublePoint(p: Point): Point =>
+    return Point { x: p.x * 2, y: p.y * 2 }
+
+fn main(): void =>
+    print("Testing small struct return semantics:\n")
+
+    # Test 1: Simple struct return
+    var p1: Point = createPoint(10, 20)
+    if p1.x != 10 =>
+        print($"Simple struct return: FAIL (x={p1.x})\n")
+        return
+    if p1.y != 20 =>
+        print($"Simple struct return: FAIL (y={p1.y})\n")
+        return
+    print("Simple struct return: PASS\n")
+
+    # Test 2: Struct with byte fields
+    var c1: Color = createColor(255, 128, 64)
+    if c1.r != 255 =>
+        print($"Byte field struct return: FAIL (r={c1.r})\n")
+        return
+    if c1.g != 128 =>
+        print($"Byte field struct return: FAIL (g={c1.g})\n")
+        return
+    if c1.b != 64 =>
+        print($"Byte field struct return: FAIL (b={c1.b})\n")
+        return
+    print("Byte field struct return: PASS\n")
+
+    # Test 3: Nested struct return
+    var rect: Rectangle = createRectangle(0, 0, 100, 100)
+    if rect.topLeft.x != 0 =>
+        print($"Nested struct return: FAIL (topLeft.x={rect.topLeft.x})\n")
+        return
+    if rect.bottomRight.x != 100 =>
+        print($"Nested struct return: FAIL (bottomRight.x={rect.bottomRight.x})\n")
+        return
+    if rect.color.r != 255 =>
+        print($"Nested struct return: FAIL (color.r={rect.color.r})\n")
+        return
+    print("Nested struct return: PASS\n")
+
+    # Test 4: Struct modification and return
+    var p2: Point = createPoint(5, 5)
+    var p3: Point = movePoint(p2, 10, 20)
+    if p3.x != 15 =>
+        print($"Struct modify and return: FAIL (x={p3.x})\n")
+        return
+    if p3.y != 25 =>
+        print($"Struct modify and return: FAIL (y={p3.y})\n")
+        return
+    print("Struct modify and return: PASS\n")
+
+    # Test 5: Conditional struct return
+    var pOrigin: Point = createPointConditional(true)
+    var pFar: Point = createPointConditional(false)
+    if pOrigin.x != 0 =>
+        print($"Conditional struct return: FAIL (origin.x={pOrigin.x})\n")
+        return
+    if pFar.x != 100 =>
+        print($"Conditional struct return: FAIL (far.x={pFar.x})\n")
+        return
+    print("Conditional struct return: PASS\n")
+
+    # Test 6: Chained function calls
+    var p4: Point = doublePoint(createPoint(3, 4))
+    if p4.x != 6 =>
+        print($"Chained struct return: FAIL (x={p4.x})\n")
+        return
+    if p4.y != 8 =>
+        print($"Chained struct return: FAIL (y={p4.y})\n")
+        return
+    print("Chained struct return: PASS\n")
+
+    # Test 7: Multiple returns in one expression
+    var p5: Point = movePoint(movePoint(createPoint(1, 1), 2, 2), 3, 3)
+    if p5.x != 6 =>
+        print($"Multiple chained returns: FAIL (x={p5.x})\n")
+        return
+    if p5.y != 6 =>
+        print($"Multiple chained returns: FAIL (y={p5.y})\n")
+        return
+    print("Multiple chained returns: PASS\n")
+
+    print("All small struct return tests completed!\n")

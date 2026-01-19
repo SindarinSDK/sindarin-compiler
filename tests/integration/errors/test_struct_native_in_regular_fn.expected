@@ -1,0 +1,3 @@
+Native struct 'Buffer' can only be used in native function context. Declare the function with 'native fn':
+    native fn example(): void =>
+        var x: Buffer = Buffer { ... }

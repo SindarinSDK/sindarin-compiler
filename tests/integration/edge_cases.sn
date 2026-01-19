@@ -1,0 +1,102 @@
+// Integration test for edge cases
+// Tests behavior with large numbers, boundary conditions, and special values
+
+fn test_large_numbers(): void =>
+    // Large numbers that fit in int64
+    var large1: int = 1000000000
+    var large2: int = 2000000000
+    var sum: int = large1 + large2
+    print($"1B + 2B = {sum}\n")
+
+    // Multiplication of moderately large numbers
+    var a: int = 100000
+    var b: int = 100000
+    var product: int = a * b
+    print($"100000 * 100000 = {product}\n")
+
+fn test_negative_edge_cases(): void =>
+    // Negation of negative
+    var neg: int = -100
+    var double_neg: int = -neg
+    print($"-(-100) = {double_neg}\n")
+
+    // Subtracting larger from smaller
+    var small: int = 5
+    var large: int = 10
+    var diff: int = small - large
+    print($"5 - 10 = {diff}\n")
+
+fn test_division_edge_cases(): void =>
+    // Division with remainder
+    var quot1: int = 17 / 5
+    var rem1: int = 17 % 5
+    print($"17 / 5 = {quot1}\n")
+    print($"17 % 5 = {rem1}\n")
+
+    // Division of negative
+    var neg_div: int = -20 / 4
+    print($"-20 / 4 = {neg_div}\n")
+
+    // Modulo of negative
+    var neg_mod: int = -17 % 5
+    print($"-17 % 5 = {neg_mod}\n")
+
+fn test_double_precision(): void =>
+    // Very small doubles
+    var tiny: double = 0.000001
+    var result: double = tiny * 1000000.0
+    print($"0.000001 * 1000000 = {result}\n")
+
+    // Double subtraction precision
+    var a: double = 1.0
+    var b: double = 0.9
+    var diff: double = a - b
+    // Due to floating point, this might not be exactly 0.1
+    print($"1.0 - 0.9 approximately = {diff}\n")
+
+fn test_boolean_logic(): void =>
+    // Complex boolean expressions
+    var t: bool = true
+    var f: bool = false
+
+    // De Morgan's law: !(a && b) == !a || !b
+    var expr1: bool = !(t && f)
+    var expr2: bool = !t || !f
+    print($"!(true && false) = {expr1}\n")
+    print($"!true || !false = {expr2}\n")
+
+fn test_zero_operations(): void =>
+    // Operations with zero
+    var x: int = 42
+    var add_zero: int = x + 0
+    var sub_zero: int = x - 0
+    var mul_zero: int = x * 0
+    var mul_one: int = x * 1
+    var div_one: int = x / 1
+
+    print($"42 + 0 = {add_zero}\n")
+    print($"42 - 0 = {sub_zero}\n")
+    print($"42 * 0 = {mul_zero}\n")
+    print($"42 * 1 = {mul_one}\n")
+    print($"42 / 1 = {div_one}\n")
+
+fn main(): int =>
+    print("=== Large Numbers ===\n")
+    test_large_numbers()
+
+    print("=== Negative Edge Cases ===\n")
+    test_negative_edge_cases()
+
+    print("=== Division Edge Cases ===\n")
+    test_division_edge_cases()
+
+    print("=== Double Precision ===\n")
+    test_double_precision()
+
+    print("=== Boolean Logic ===\n")
+    test_boolean_logic()
+
+    print("=== Zero Operations ===\n")
+    test_zero_operations()
+
+    return 0

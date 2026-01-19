@@ -1,0 +1,121 @@
+// Test 128: Forward declaration with shared modifier
+// Tests shared functions that call other shared functions defined later
+
+// Shared helper functions that use caller's arena
+fn compute_value() shared: int =>
+    // Call another shared function defined below
+    var base: int = get_base_value()
+    var mult: int = get_multiplier()
+    return base * mult
+
+fn get_base_value() shared: int =>
+    return 10
+
+fn get_multiplier() shared: int =>
+    return 5
+
+// More complex: shared functions calling each other
+fn process_a(x: int) shared: int =>
+    if x <= 0 =>
+        return 0
+    return x + process_b(x - 1)
+
+fn process_b(x: int) shared: int =>
+    if x <= 0 =>
+        return 0
+    return x + process_a(x - 1)
+
+// Shared function returning string allocated in caller's arena
+fn build_message() shared: str =>
+    var prefix: str = get_prefix()
+    var suffix: str = get_suffix()
+    return prefix + " - " + suffix
+
+fn get_prefix() shared: str =>
+    return "Hello"
+
+fn get_suffix() shared: str =>
+    return "World"
+
+// Shared function creating arrays
+fn create_data() shared: int[] =>
+    var data: int[] = {1, 2, 3, 4, 5}
+    return data
+
+fn sum_created_data() shared: int =>
+    var data: int[] = create_data()
+    var total: int = 0
+    for x in data =>
+        total = total + x
+    return total
+
+fn main(): int =>
+    print("Test forward declaration with shared modifier:\n\n")
+    var errors: int = 0
+
+    // Test 1: Basic shared forward call
+    print("Test 1 - Shared function calling later-defined shared:\n")
+    var cv: int = compute_value()
+    print($"  compute_value() = {cv}\n")
+    if cv != 50 =>
+        print("  FAIL: expected 50\n")
+        errors++
+
+    // Test 2: Individual shared function calls
+    print("\nTest 2 - Direct shared function calls:\n")
+    var base: int = get_base_value()
+    var mult: int = get_multiplier()
+    print($"  get_base_value() = {base}\n")
+    print($"  get_multiplier() = {mult}\n")
+    if base != 10 => errors++
+    if mult != 5 => errors++
+
+    // Test 3: Mutual shared recursion
+    print("\nTest 3 - Shared mutual recursion:\n")
+    var pa5: int = process_a(5)
+    print($"  process_a(5) = {pa5}\n")
+    // process_a(5) = 5 + process_b(4) = 5 + 4 + process_a(3) = 5+4+3+2+1+0 = 15
+    if pa5 != 15 =>
+        print("  FAIL: expected 15\n")
+        errors++
+
+    var pb4: int = process_b(4)
+    print($"  process_b(4) = {pb4}\n")
+    // 4 + process_a(3) = 4 + 3 + process_b(2) = 4+3+2+1+0 = 10
+    if pb4 != 10 =>
+        print("  FAIL: expected 10\n")
+        errors++
+
+    // Test 4: Shared functions with strings
+    print("\nTest 4 - Shared functions with strings:\n")
+    var msg: str = build_message()
+    print($"  build_message() = {msg}\n")
+    if msg != "Hello - World" =>
+        print("  FAIL: expected 'Hello - World'\n")
+        errors++
+
+    // Test 5: Shared functions with arrays
+    print("\nTest 5 - Shared functions with arrays:\n")
+    var sum: int = sum_created_data()
+    print($"  sum_created_data() = {sum}\n")
+    if sum != 15 =>
+        print("  FAIL: expected 15\n")
+        errors++
+
+    // Test 6: Multiple calls to shared functions
+    print("\nTest 6 - Multiple calls:\n")
+    var total: int = 0
+    shared for i in 0..5 =>
+        total = total + compute_value()
+    print($"  5 calls to compute_value() sum = {total}\n")
+    if total != 250 =>
+        print("  FAIL: expected 250\n")
+        errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll shared forward declaration tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

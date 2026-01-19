@@ -1,0 +1,322 @@
+// ============================================================================
+// arrays.sn - Array Features in Sindarin
+// ============================================================================
+// Demonstrates: declaration, methods, slicing, negative indexing, for-each,
+//               range literals, spread operator
+// ============================================================================
+
+// Entry point for array demos
+fn demo_arrays(): void =>
+  print("\n┌──────────────────────────────────────────────────────────────────┐\n")
+  print("│                        Sindarin Arrays                           │\n")
+  print("└──────────────────────────────────────────────────────────────────┘\n\n")
+
+  // 1. Declaration and initialization
+  print("--- Declaration ---\n")
+  var numbers: int[] = {10, 20, 30, 40, 50}
+  print("numbers = ")
+  print(numbers)
+  print("\n")
+  print($"len(numbers) = {len(numbers)}\n")
+  print($"numbers.length = {numbers.length}\n")
+  print($"numbers[0] = {numbers[0]}\n")
+  print($"numbers[2] = {numbers[2]}\n")
+
+  // 2. Push and Pop
+  print("\n--- Push and Pop ---\n")
+  var arr: int[] = {}
+  print("Starting with empty array: ")
+  print(arr)
+  print($" (length = {len(arr)})\n")
+
+  arr.push(10)
+  arr.push(20)
+  arr.push(30)
+  print("After push(10), push(20), push(30): ")
+  print(arr)
+  print("\n")
+
+  var popped: int = arr.pop()
+  print($"pop() returned: {popped}\n")
+  print("After pop: ")
+  print(arr)
+  print("\n")
+
+  // 3. Insert and Remove
+  print("\n--- Insert and Remove ---\n")
+  var items: int[] = {1, 2, 3, 4, 5}
+  print("Starting: ")
+  print(items)
+  print("\n")
+
+  items.insert(99, 2)
+  print("After insert(99, 2): ")
+  print(items)
+  print("\n")
+
+  items.remove(2)
+  print("After remove(2): ")
+  print(items)
+  print("\n")
+
+  // 4. Reverse
+  print("\n--- Reverse ---\n")
+  var nums: int[] = {1, 2, 3, 4, 5}
+  print("Before reverse: ")
+  print(nums)
+  print("\n")
+
+  nums.reverse()
+  print("After reverse(): ")
+  print(nums)
+  print("\n")
+
+  // 5. Clone
+  print("\n--- Clone ---\n")
+  var original: int[] = {10, 20, 30}
+  var copy: int[] = original.clone()
+  print("Original: ")
+  print(original)
+  print("\n")
+  print("Clone: ")
+  print(copy)
+  print("\n")
+
+  copy.push(40)
+  print("After pushing 40 to clone:\n")
+  print("  Original: ")
+  print(original)
+  print("\n")
+  print("  Clone: ")
+  print(copy)
+  print("\n")
+
+  // 6. Concat (returns a NEW array, doesn't modify originals)
+  print("\n--- Concat ---\n")
+  var first: int[] = {1, 2, 3}
+  var second: int[] = {4, 5, 6}
+  print("First: ")
+  print(first)
+  print("\n")
+  print("Second: ")
+  print(second)
+  print("\n")
+
+  var combined: int[] = first.concat(second)
+  print("first.concat(second): ")
+  print(combined)
+  print("\n")
+  print("First after concat: ")
+  print(first)
+  print(" (unchanged)\n")
+
+  // 7. IndexOf and Contains
+  print("\n--- IndexOf and Contains ---\n")
+  var search: int[] = {10, 20, 30, 40, 50}
+  print("Array: ")
+  print(search)
+  print("\n")
+
+  print($"indexOf(30) = {search.indexOf(30)}\n")
+  print($"indexOf(99) = {search.indexOf(99)}\n")
+  print($"contains(30) = {search.contains(30)}\n")
+  print($"contains(99) = {search.contains(99)}\n")
+
+  // 8. Join
+  print("\n--- Join ---\n")
+  var words: str[] = {"apple", "banana", "cherry"}
+  print("Array: ")
+  print(words)
+  print("\n")
+  print($"join(\", \") = \"{words.join(", ")}\"\n")
+  print($"join(\" - \") = \"{words.join(" - ")}\"\n")
+
+  var digits: int[] = {1, 2, 3, 4, 5}
+  print($"Int array joined: \"{digits.join("-")}\"\n")
+
+  // 9. Clear
+  print("\n--- Clear ---\n")
+  var toclear: int[] = {1, 2, 3, 4, 5}
+  print("Before clear: ")
+  print(toclear)
+  print("\n")
+
+  toclear.clear()
+  print("After clear(): ")
+  print(toclear)
+  print($" (length = {len(toclear)})\n")
+
+  // 10. Slicing
+  print("\n--- Slicing ---\n")
+  var slicetest: int[] = {10, 20, 30, 40, 50}
+  print("Array: ")
+  print(slicetest)
+  print("\n")
+
+  var s1: int[] = slicetest[1..4]
+  print("arr[1..4] = ")
+  print(s1)
+  print("\n")
+
+  var s2: int[] = slicetest[..3]
+  print("arr[..3] = ")
+  print(s2)
+  print("\n")
+
+  var s3: int[] = slicetest[2..]
+  print("arr[2..] = ")
+  print(s3)
+  print("\n")
+
+  var s4: int[] = slicetest[..]
+  print("arr[..] (full copy) = ")
+  print(s4)
+  print("\n")
+
+  // 11. Step Slicing
+  print("\n--- Step Slicing ---\n")
+  var steptest: int[] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9}
+  print("Array: ")
+  print(steptest)
+  print("\n")
+
+  var evens: int[] = steptest[..:2]
+  print("arr[..:2] (every 2nd) = ")
+  print(evens)
+  print("\n")
+
+  var odds: int[] = steptest[1..:2]
+  print("arr[1..:2] (odds) = ")
+  print(odds)
+  print("\n")
+
+  var thirds: int[] = steptest[..:3]
+  print("arr[..:3] (every 3rd) = ")
+  print(thirds)
+  print("\n")
+
+  // 12. Negative Indexing
+  print("\n--- Negative Indexing ---\n")
+  var negtest: int[] = {10, 20, 30, 40, 50}
+  print("Array: ")
+  print(negtest)
+  print("\n")
+  print($"arr[-1] = {negtest[-1]}\n")
+  print($"arr[-2] = {negtest[-2]}\n")
+  print($"arr[-3] = {negtest[-3]}\n")
+
+  var lasttwo: int[] = negtest[-2..]
+  print("arr[-2..] = ")
+  print(lasttwo)
+  print("\n")
+
+  var notlast: int[] = negtest[..-1]
+  print("arr[..-1] = ")
+  print(notlast)
+  print("\n")
+
+  // 13. For-Each Iteration
+  print("\n--- For-Each Iteration ---\n")
+  var iterate: int[] = {10, 20, 30}
+  print("Iterating over ")
+  print(iterate)
+  print(":\n")
+  for x in iterate =>
+    print($"  value: {x}\n")
+
+  var sum: int = 0
+  for n in iterate =>
+    sum = sum + n
+  print($"Sum = {sum}\n")
+
+  // 14. Array Equality
+  print("\n--- Array Equality ---\n")
+  var eq1: int[] = {1, 2, 3}
+  var eq2: int[] = {1, 2, 3}
+  var eq3: int[] = {1, 2, 4}
+  var eq4: int[] = {1, 2}
+  print($"{{1,2,3}} == {{1,2,3}}: {eq1 == eq2}\n")
+  print($"{{1,2,3}} == {{1,2,4}}: {eq1 == eq3}\n")
+  print($"{{1,2,3}} == {{1,2}}: {eq1 == eq4}\n")
+  print($"{{1,2,3}} != {{1,2,4}}: {eq1 != eq3}\n")
+
+  // 15. Range Literals
+  print("\n--- Range Literals ---\n")
+  var range1: int[] = 1..6
+  print("1..6 = ")
+  print(range1)
+  print("\n")
+
+  var range2: int[] = 0..10
+  print("0..10 = ")
+  print(range2)
+  print("\n")
+
+  // Range in array literal
+  var withRange: int[] = {0, 1..4, 10}
+  print("{0, 1..4, 10} = ")
+  print(withRange)
+  print("\n")
+
+  // Combining multiple ranges
+  var multiRange: int[] = {1..3, 10..13}
+  print("{1..3, 10..13} = ")
+  print(multiRange)
+  print("\n")
+
+  // 16. Spread Operator
+  print("\n--- Spread Operator ---\n")
+  var source: int[] = {1, 2, 3}
+  print("source = ")
+  print(source)
+  print("\n")
+
+  // Clone with spread
+  var spreadCopy: int[] = {...source}
+  print("{...source} = ")
+  print(spreadCopy)
+  print("\n")
+
+  // Prepend and append
+  var extended: int[] = {0, ...source, 4, 5}
+  print("{0, ...source, 4, 5} = ")
+  print(extended)
+  print("\n")
+
+  // Combine arrays
+  var arr_a: int[] = {1, 2}
+  var arr_b: int[] = {3, 4}
+  var merged: int[] = {...arr_a, ...arr_b}
+  print("{...{1,2}, ...{3,4}} = ")
+  print(merged)
+  print("\n")
+
+  // Mix spread and range
+  var mixed: int[] = {...source, 10..13}
+  print("{...source, 10..13} = ")
+  print(mixed)
+  print("\n")
+
+  // 17. Different Array Types
+  print("\n--- Different Array Types ---\n")
+
+  var doubles: double[] = {1.5, 2.5, 3.5}
+  print("double[]: ")
+  print(doubles)
+  print("\n")
+
+  var chars: char[] = {'H', 'e', 'l', 'l', 'o'}
+  print("char[]: ")
+  print(chars)
+  print("\n")
+
+  var bools: bool[] = {true, false, true}
+  print("bool[]: ")
+  print(bools)
+  print("\n")
+
+  var strings: str[] = {"hello", "world"}
+  print("str[]: ")
+  print(strings)
+  print("\n")
+

@@ -1,0 +1,32 @@
+# Middle module in import chain - imports vector2d and builds on it
+# Tests that imported types can be re-exported/used in new structs
+
+import "vector2d"
+
+# A struct that USES an imported type as a field
+struct Particle =>
+    position: Vector2D
+    velocity: Vector2D
+    mass: int
+
+    fn kinetic_energy(): int =>
+        # KE = 0.5 * m * v^2 (simplified to integer math)
+        var v_squared: int = self.velocity.magnitude_squared()
+        return (self.mass * v_squared) / 2
+
+    fn momentum_magnitude(): int =>
+        # |p| = m * |v| (using squared magnitude for simplicity)
+        return self.mass * self.velocity.magnitude_squared()
+
+    static fn at_rest(pos: Vector2D, m: int): Particle =>
+        return Particle { position: pos, velocity: Vector2D.zero(), mass: m }
+
+# Function that works with both Vector2D (imported) and Particle (local)
+fn move_particle(p: Particle, dt: int): Particle =>
+    var delta: Vector2D = vec_scale(p.velocity, dt)
+    var new_pos: Vector2D = vec_add(p.position, delta)
+    return Particle { position: new_pos, velocity: p.velocity, mass: p.mass }
+
+# Re-export helper that uses imported type
+fn make_velocity(vx: int, vy: int): Vector2D =>
+    return Vector2D { x: vx, y: vy }

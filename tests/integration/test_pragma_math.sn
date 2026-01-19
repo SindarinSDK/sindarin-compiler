@@ -1,0 +1,18 @@
+# Test pragma directives for C interop
+# This test uses math.h to verify pragma include/link work correctly
+
+#pragma include <math.h>
+#pragma link m
+
+fn main(): int =>
+    # Test that the pragma directives are parsed correctly and compiled
+    # Note: We can't call C functions directly without `native fn` declarations,
+    # but this test verifies #pragma include and #pragma link are processed
+    var x: double = 2.0
+    var result: double = x * x
+
+    print($"Testing pragma directives")
+    print($"x = {x}")
+    print($"x * x = {result}")
+
+    return 0

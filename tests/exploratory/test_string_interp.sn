@@ -1,0 +1,5 @@
+// Test string interpolation
+fn main(): void =>
+  var name: str = "World"
+  var age: int = 25
+  print($"Hello {name}, you are {age} years old\n")

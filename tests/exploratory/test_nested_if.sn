@@ -1,0 +1,11 @@
+// Test nested if-else
+fn main(): void =>
+  var x: int = 10
+  var y: int = 5
+  if x > 5 =>
+    if y > 3 =>
+      print("both\n")
+    else =>
+      print("only x\n")
+  else =>
+    print("neither\n")

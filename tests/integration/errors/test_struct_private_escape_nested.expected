@@ -1,0 +1,1 @@
+Cannot assign to variable declared outside private block: struct 'Outer' contains heap data: field 'inner' contains field 'data' is str (heap-allocated string)

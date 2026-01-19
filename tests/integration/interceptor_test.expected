@@ -1,0 +1,24 @@
+=== Interceptor Tests ===
+
+Test 1: Direct calls (no interceptor)
+  Direct calls work correctly - PASS
+
+Test 2: Register interceptor
+  Interceptor registered - PASS
+
+Test 3: Intercepted calls
+  [Interceptor] Called: add
+  add() intercepted correctly - PASS
+  [Interceptor] Called: multiply
+  multiply() intercepted correctly - PASS
+  [Interceptor] Called: greet
+  greet() intercepted correctly - PASS
+
+Test 4: Interceptor call count
+  Interceptor called 3 times - PASS
+
+Test 5: Clear interceptors
+  Interceptors cleared - PASS
+  No interception after clear - PASS
+
+=== All Interceptor Tests Completed ===

@@ -1,0 +1,137 @@
+// Test 120: Nested interpolation and escape sequences
+// Tests complex string interpolation and escape character handling
+
+fn main(): int =>
+    print("Test nested interpolation and escape sequences:\n\n")
+    var errors: int = 0
+
+    // Test 1: Basic escape sequences
+    print("Test 1 - Basic escape sequences:\n")
+    var newline: str = "line1\nline2"
+    var tab: str = "col1\tcol2"
+    var quote: str = "say \"hello\""
+    var backslash: str = "path\\to\\file"
+    print($"  Newline string length: {newline.length}\n")
+    print($"  Tab string: {tab}\n")
+    print($"  Quote string: {quote}\n")
+    print($"  Backslash string: {backslash}\n")
+    // "line1\nline2" = 5 + 1 + 5 = 11 chars
+    if newline.length != 11 => errors++
+    // "col1\tcol2" = 4 + 1 + 4 = 9 chars
+    if tab.length != 9 => errors++
+
+    // Test 2: Multiple escapes in one string
+    print("\nTest 2 - Multiple escapes:\n")
+    var multi: str = "a\tb\tc\n1\t2\t3"
+    print($"  Multi-escape string:\n{multi}\n")
+    // Count: a\tb\tc\n1\t2\t3 = 1+1+1+1+1+1+1+1+1+1+1 = 11 chars
+    if multi.length != 11 => errors++
+
+    // Test 3: Escape in interpolation
+    print("\nTest 3 - Escapes with interpolation:\n")
+    var name: str = "Alice"
+    var greeting: str = $"Hello,\t{name}!\nWelcome."
+    print($"  Greeting:\n{greeting}\n")
+    // "Hello,\tAlice!\nWelcome." = 6+1+5+1+1+8 = 22 chars
+    if greeting.length != 22 => errors++
+
+    // Test 4: Nested variable references
+    print("\nTest 4 - Multiple interpolations:\n")
+    var first: str = "John"
+    var last: str = "Doe"
+    var age: int = 30
+    var full: str = $"{first} {last}, age {age}"
+    print($"  Full info: {full}\n")
+    if full != "John Doe, age 30" => errors++
+
+    // Test 5: Interpolation with expressions
+    print("\nTest 5 - Interpolation with expressions:\n")
+    var x: int = 10
+    var y: int = 5
+    var expr_str: str = $"Sum: {x + y}, Product: {x * y}"
+    print($"  Expression result: {expr_str}\n")
+    if expr_str != "Sum: 15, Product: 50" => errors++
+
+    // Test 6: Interpolation with method calls
+    print("\nTest 6 - Interpolation with methods:\n")
+    var text: str = "hello"
+    var method_str: str = $"Upper: {text.toUpper()}, Len: {text.length}"
+    print($"  Method result: {method_str}\n")
+    if method_str != "Upper: HELLO, Len: 5" => errors++
+
+    // Test 7: Escaped braces (if supported)
+    print("\nTest 7 - Literal braces test:\n")
+    // Test that regular strings with braces work
+    var with_braces: str = "JSON: {key: value}"
+    print($"  String with braces: {with_braces}\n")
+    if with_braces.length != 18 => errors++
+
+    // Test 8: Empty interpolation values
+    print("\nTest 8 - Empty values in interpolation:\n")
+    var empty: str = ""
+    var with_empty: str = $"start{empty}end"
+    print($"  With empty: \"{with_empty}\"\n")
+    if with_empty != "startend" => errors++
+
+    // Test 9: Consecutive interpolations
+    print("\nTest 9 - Consecutive interpolations:\n")
+    var a: str = "A"
+    var b: str = "B"
+    var c: str = "C"
+    var consecutive: str = $"{a}{b}{c}"
+    print($"  Consecutive: {consecutive}\n")
+    if consecutive != "ABC" => errors++
+
+    // Test 10: Interpolation with conditionally computed values
+    print("\nTest 10 - Computed values:\n")
+    var num: int = 42
+    var doubled: int = num * 2
+    var computed: str = $"Original: {num}, Doubled: {doubled}"
+    print($"  Computed: {computed}\n")
+    if computed != "Original: 42, Doubled: 84" => errors++
+
+    // Test 11: Carriage return escape
+    print("\nTest 11 - Carriage return:\n")
+    var cr: str = "before\rafter"
+    print($"  CR string length: {cr.length}\n")
+    // "before\rafter" = 6+1+5 = 12 chars
+    if cr.length != 12 => errors++
+
+    // Test 12: Mixed escape and interpolation
+    print("\nTest 12 - Mixed escapes and interpolation:\n")
+    var item: str = "apple"
+    var count: int = 3
+    var mixed: str = $"Item:\t{item}\nCount:\t{count}"
+    print($"  Mixed:\n{mixed}\n")
+    // "Item:\tapple\nCount:\t3" = 5+1+5+1+6+1+1 = 20 chars
+    if mixed.length != 20 => errors++
+
+    // Test 13: Unicode-like characters (ASCII printable special chars)
+    print("\nTest 13 - Special printable characters:\n")
+    var special: str = "Cost: $100 @ 50%"
+    print($"  Special chars: {special}\n")
+    if special.length != 16 => errors++
+
+    // Test 14: Interpolation at string boundaries
+    print("\nTest 14 - Boundary interpolations:\n")
+    var start_val: str = "START"
+    var end_val: str = "END"
+    var boundary: str = $"{start_val} middle {end_val}"
+    print($"  Boundary: {boundary}\n")
+    if boundary != "START middle END" => errors++
+
+    // Test 15: Bool interpolation
+    print("\nTest 15 - Bool interpolation:\n")
+    var flag: bool = true
+    var flag_str: str = $"Flag is: {flag}"
+    print($"  Bool string: {flag_str}\n")
+    // Should be "Flag is: true"
+    if flag_str != "Flag is: true" => errors++
+
+    // Results
+    if errors == 0 =>
+        print("\nAll interpolation and escape tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

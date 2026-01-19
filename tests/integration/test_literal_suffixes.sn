@@ -1,0 +1,141 @@
+// Comprehensive tests for numeric literal suffixes
+
+fn main(): void =>
+    print("=== Literal Suffix Tests ===\n\n")
+
+    // --- Int literals (no suffix) ---
+    var i1: int = 42
+    var i2: int = 0
+    var i3: int = -100
+    assert(i1 == 42, "int literal 42")
+    assert(i2 == 0, "int literal 0")
+    assert(i3 == -100, "int literal -100")
+    print("test_int_literals: PASS\n")
+
+    // --- Long literals (l/L suffix) ---
+    var l1: long = 42l
+    var l2: long = 42L
+    var l3: long = 0l
+    var l4: long = 0L
+    var l5: long = 1000000000l
+    var l6: long = 1000000000L
+    assert(l1 == 42, "long literal 42l")
+    assert(l2 == 42, "long literal 42L")
+    assert(l3 == 0, "long literal 0l")
+    assert(l4 == 0, "long literal 0L")
+    assert(l5 == 1000000000, "long literal 1000000000l")
+    assert(l6 == 1000000000, "long literal 1000000000L")
+    print("test_long_literals: PASS\n")
+
+    // --- Byte literals (b/B suffix) ---
+    var b1: byte = 0b
+    var b2: byte = 0B
+    var b3: byte = 255b
+    var b4: byte = 255B
+    var b5: byte = 128b
+    var b6: byte = 128B
+    assert(b1 == 0, "byte literal 0b")
+    assert(b2 == 0, "byte literal 0B")
+    assert(b3 == 255, "byte literal 255b")
+    assert(b4 == 255, "byte literal 255B")
+    assert(b5 == 128, "byte literal 128b")
+    assert(b6 == 128, "byte literal 128B")
+    print("test_byte_literals: PASS\n")
+
+    // --- Double literals (no suffix or d/D) ---
+    var d1: double = 3.14
+    var d2: double = 3.14d
+    var d3: double = 3.14D
+    var d4: double = 0.0
+    var d5: double = 0.0d
+    var d6: double = 0.0D
+    assert(d1 > 3.13 && d1 < 3.15, "double literal 3.14")
+    assert(d2 > 3.13 && d2 < 3.15, "double literal 3.14d")
+    assert(d3 > 3.13 && d3 < 3.15, "double literal 3.14D")
+    assert(d4 == 0.0, "double literal 0.0")
+    assert(d5 == 0.0, "double literal 0.0d")
+    assert(d6 == 0.0, "double literal 0.0D")
+    print("test_double_literals: PASS\n")
+
+    // --- Float literals (f/F suffix) ---
+    var f1: float = 3.14f
+    var f2: float = 3.14F
+    var f3: float = 0.0f
+    var f4: float = 0.0F
+    var f5: float = 1.5f
+    var f6: float = 1.5F
+    assert(f1 > 3.13 && f1 < 3.15, "float literal 3.14f")
+    assert(f2 > 3.13 && f2 < 3.15, "float literal 3.14F")
+    assert(f3 == 0.0, "float literal 0.0f")
+    assert(f4 == 0.0, "float literal 0.0F")
+    assert(f5 == 1.5, "float literal 1.5f")
+    assert(f6 == 1.5, "float literal 1.5F")
+    print("test_float_literals: PASS\n")
+
+    // --- Uint literals (u/U suffix) ---
+    var u1: uint = 42u
+    var u2: uint = 42U
+    var u3: uint = 0u
+    var u4: uint = 0U
+    var u5: uint = 1000000u
+    var u6: uint = 1000000U
+    assert(u1 == 42, "uint literal 42u")
+    assert(u2 == 42, "uint literal 42U")
+    assert(u3 == 0, "uint literal 0u")
+    assert(u4 == 0, "uint literal 0U")
+    assert(u5 == 1000000, "uint literal 1000000u")
+    assert(u6 == 1000000, "uint literal 1000000U")
+    print("test_uint_literals: PASS\n")
+
+    // --- Uint32 literals (u32/U32 suffix) ---
+    var u32_1: uint32 = 42u32
+    var u32_2: uint32 = 42U32
+    var u32_3: uint32 = 0u32
+    var u32_4: uint32 = 0U32
+    var u32_5: uint32 = 4000000000u32
+    var u32_6: uint32 = 4000000000U32
+    assert(u32_1 == 42, "uint32 literal 42u32")
+    assert(u32_2 == 42, "uint32 literal 42U32")
+    assert(u32_3 == 0, "uint32 literal 0u32")
+    assert(u32_4 == 0, "uint32 literal 0U32")
+    assert(u32_5 == 4000000000, "uint32 literal 4000000000u32")
+    assert(u32_6 == 4000000000, "uint32 literal 4000000000U32")
+    print("test_uint32_literals: PASS\n")
+
+    // --- Int32 literals (i32/I32 suffix) ---
+    var i32_1: int32 = 42i32
+    var i32_2: int32 = 42I32
+    var i32_3: int32 = 0i32
+    var i32_4: int32 = 0I32
+    var i32_5: int32 = 2000000000i32
+    var i32_6: int32 = 2000000000I32
+    assert(i32_1 == 42, "int32 literal 42i32")
+    assert(i32_2 == 42, "int32 literal 42I32")
+    assert(i32_3 == 0, "int32 literal 0i32")
+    assert(i32_4 == 0, "int32 literal 0I32")
+    assert(i32_5 == 2000000000, "int32 literal 2000000000i32")
+    assert(i32_6 == 2000000000, "int32 literal 2000000000I32")
+    print("test_int32_literals: PASS\n")
+
+    // --- Literals in expressions ---
+    var expr1: long = 10l + 20L
+    var expr2: float = 1.5f + 2.5F
+    var expr3: uint = 100u * 2U
+    assert(expr1 == 30, "long literals in expression")
+    assert(expr2 == 4.0, "float literals in expression")
+    assert(expr3 == 200, "uint literals in expression")
+    print("test_literals_in_expressions: PASS\n")
+
+    // --- Literals in function calls ---
+    assert(identity_int(42) == 42, "int literal as arg")
+    assert(identity_long(42l) == 42, "long literal as arg")
+    assert(identity_long(42L) == 42, "long literal L as arg")
+    assert(identity_byte(255b) == 255, "byte literal as arg")
+    assert(identity_byte(255B) == 255, "byte literal B as arg")
+    print("test_literals_as_args: PASS\n")
+
+    print("\nAll literal suffix tests passed!\n")
+
+fn identity_int(x: int): int => x
+fn identity_long(x: long): long => x
+fn identity_byte(x: byte): byte => x

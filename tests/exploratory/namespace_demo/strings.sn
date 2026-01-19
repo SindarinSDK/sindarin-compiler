@@ -1,0 +1,10 @@
+// strings.sn - String operations module
+
+fn concat(a: str, b: str): str =>
+    return $"{a}{b}"
+
+fn wrap(s: str, prefix: str, suffix: str): str =>
+    return $"{prefix}{s}{suffix}"
+
+fn quote(s: str): str =>
+    return $"\"{s}\""

@@ -1,0 +1,20 @@
+# Test: Compile error - struct with heap fields assignment from loop body to outer scope
+# Expected error: Cannot assign to variable declared outside private block: struct 'NamedPoint' contains heap data
+# Loops have private arena context. Only primitive-only structs can escape.
+# Structs with heap fields (str, arrays, pointers) cannot escape.
+
+struct NamedPoint =>
+    name: str   # This str field makes the struct unable to escape private blocks
+    x: int
+    y: int
+
+fn main(): void =>
+    var outer: NamedPoint = NamedPoint { name: "origin", x: 0, y: 0 }
+    var i: int = 0
+
+    while i < 3 =>
+        var inner: NamedPoint = NamedPoint { name: "inner", x: 42, y: 99 }
+        outer = inner  # ERROR: struct with heap field cannot escape from loop's private block
+        i = i + 1
+
+    print($"x: {outer.x}\n")

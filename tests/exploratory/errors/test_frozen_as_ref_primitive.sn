@@ -1,0 +1,24 @@
+// Test: 'as ref' primitive should be frozen after spawn when passed to as ref param
+// This test verifies that primitives passed via 'as ref' parameters are correctly
+// frozen while a thread is pending, preventing race conditions.
+//
+// Expected behavior:
+// - When a variable is passed to an 'as ref' parameter in a spawned thread,
+//   the variable becomes frozen (cannot be modified) until the thread is synced.
+// - This is consistent with how arrays are handled (always pass by reference).
+
+fn increment(counter: int as ref): int =>
+    counter = counter + 1
+    return 0
+
+fn main(): void =>
+    var count: int = 0
+
+    // Spawn thread that takes count as ref - count becomes frozen
+    var r: int = &increment(count)
+
+    // ERROR: Cannot modify frozen variable 'count' (captured by pending thread)
+    count = 5
+
+    r!
+    print("Should not reach here\n")

@@ -1,0 +1,40 @@
+// Test: Inline spawn-sync pattern (&fn()!)
+// Tests the pattern of spawning and immediately syncing a thread
+
+fn compute_int(): int =>
+    return 42
+
+fn compute_double(): double =>
+    return 3.14
+
+fn compute_string() shared: str =>
+    return "hello"
+
+fn void_work(): void =>
+    print("Void work executed\n")
+
+fn main(): void =>
+    // Test 1: Non-void inline spawn-sync with int
+    var result_int: int = &compute_int()!
+    print($"Int result: {result_int}\n")
+
+    // Test 2: Non-void inline spawn-sync with double
+    var result_double: double = &compute_double()!
+    print($"Double result: {result_double}\n")
+
+    // Test 3: Non-void inline spawn-sync with string
+    var result_string: str = &compute_string()!
+    print($"String result: {result_string}\n")
+
+    // Test 4: Void inline spawn-sync
+    &void_work()!
+    print("After void sync\n")
+
+    // Validate results
+    if result_int == 42 =>
+        if result_string == "hello" =>
+            print("SUCCESS: All inline spawn-sync results correct\n")
+        else =>
+            print("FAILURE: String result incorrect\n")
+    else =>
+        print("FAILURE: Int result incorrect\n")

@@ -1,0 +1,6 @@
+// Test basic array
+fn main(): void =>
+  var arr: int[] = {1, 2, 3, 4, 5}
+  print($"len={arr.length}\n")
+  print($"first={arr[0]}\n")
+  print($"last={arr[-1]}\n")

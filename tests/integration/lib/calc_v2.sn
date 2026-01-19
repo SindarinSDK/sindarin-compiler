@@ -1,0 +1,8 @@
+// lib/calc_v2.sn - Calculator version 2 (for collision testing)
+// Has same function names as calc_v1 but different implementations
+
+fn compute(x: int): int =>
+    return x * 10
+
+fn process(a: int, b: int): int =>
+    return a * b

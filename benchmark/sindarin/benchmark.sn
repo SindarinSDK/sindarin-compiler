@@ -1,0 +1,135 @@
+// ============================================================================
+// benchmark.sn - Performance Benchmark for Sindarin
+// ============================================================================
+// This benchmark tests: loops, arrays, arithmetic, and conditionals
+// Produces deterministic output for cross-language comparison
+// ============================================================================
+
+// Fibonacci recursive (tests function call overhead)
+fn fib_recursive(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib_recursive(n - 1) + fib_recursive(n - 2)
+
+// Fibonacci iterative (tests loop performance)
+fn fib_iterative(n: int): int =>
+    if n <= 1 =>
+        return n
+    var a: int = 0
+    var b: int = 1
+    for var i: int = 2; i <= n; i++ =>
+        var temp: int = a + b
+        a = b
+        b = temp
+    return b
+
+// Prime sieve (tests arrays and conditionals)
+fn count_primes(limit: int): int =>
+    // Create sieve array
+    var sieve: bool[] = {}
+    for var i: int = 0; i <= limit; i++ =>
+        sieve.push(true)
+
+    // Mark non-primes
+    sieve[0] = false
+    sieve[1] = false
+
+    var p: int = 2
+    while p * p <= limit =>
+        if sieve[p] =>
+            var multiple: int = p * p
+            while multiple <= limit =>
+                sieve[multiple] = false
+                multiple = multiple + p
+        p++
+
+    // Count primes
+    var count: int = 0
+    for isPrime in sieve =>
+        if isPrime =>
+            count++
+    return count
+
+// Sum of array elements (tests array iteration)
+fn sum_array(arr: int[]): int =>
+    var total: int = 0
+    for num in arr =>
+        total = total + num
+    return total
+
+// Reverse array in place (tests array mutation)
+fn reverse_array(arr: int[]): void =>
+    var left: int = 0
+    var right: int = len(arr) - 1
+    while left < right =>
+        var temp: int = arr[left]
+        arr[left] = arr[right]
+        arr[right] = temp
+        left++
+        right--
+
+// Arithmetic test (tests basic operations)
+fn arithmetic_test(n: int): int =>
+    var result: int = 0
+    for var i: int = 1; i <= n; i++ =>
+        result = result + i
+        result = result - (i / 2)
+        result = result + (i * 2)
+        result = result - i
+        if i % 2 == 0 =>
+            result = result + 1
+        else =>
+            result = result - 1
+    return result
+
+// Nested loop test (tests loop nesting)
+fn nested_loop_test(n: int): int =>
+    var count: int = 0
+    for var i: int = 0; i < n; i++ =>
+        for var j: int = 0; j < n; j++ =>
+            if i != j =>
+                count++
+    return count
+
+// Main benchmark runner
+fn main(): void =>
+    print("=== Sindarin Benchmark ===\n")
+    print("\n")
+
+    // Test 1: Fibonacci recursive
+    print("1. Fibonacci Recursive\n")
+    var fib35: int = fib_recursive(35)
+    print($"   fib(35) = {fib35}\n")
+
+    // Test 2: Fibonacci iterative
+    print("\n2. Fibonacci Iterative\n")
+    var fib50: int = fib_iterative(50)
+    print($"   fib(50) = {fib50}\n")
+
+    // Test 3: Prime sieve
+    print("\n3. Prime Sieve\n")
+    var primes: int = count_primes(100000)
+    print($"   primes up to 100000 = {primes}\n")
+
+    // Test 4: Array operations
+    print("\n4. Array Operations\n")
+    var arr: int[] = {}
+    for var i: int = 0; i < 10000; i++ =>
+        arr.push(i)
+    var s1: int = sum_array(arr)
+    print($"   sum before reverse = {s1}\n")
+    reverse_array(arr)
+    var s2: int = sum_array(arr)
+    print($"   sum after reverse = {s2}\n")
+
+    // Test 5: Arithmetic
+    print("\n5. Arithmetic Test\n")
+    var arith: int = arithmetic_test(100000)
+    print($"   arithmetic result = {arith}\n")
+
+    // Test 6: Nested loops
+    print("\n6. Nested Loop Test\n")
+    var nested: int = nested_loop_test(500)
+    print($"   nested count = {nested}\n")
+
+    print("\n=== Benchmark Complete ===\n")

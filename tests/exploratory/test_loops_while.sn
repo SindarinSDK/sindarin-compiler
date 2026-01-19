@@ -1,0 +1,63 @@
+// Test 10: While loops
+fn main(): int =>
+    print("=== Basic While Loop ===\n")
+    var i: int = 0
+    while i < 5 =>
+        print($"i = {i}\n")
+        i = i + 1
+
+    // Zero iterations
+    print("\n=== Zero Iterations ===\n")
+    var j: int = 10
+    while j < 5 =>
+        print("Should not print\n")
+    print("After zero-iteration while\n")
+
+    // Single iteration
+    print("\n=== Single Iteration ===\n")
+    var k: int = 0
+    while k < 1 =>
+        print($"k = {k}\n")
+        k++
+
+    // Nested while
+    print("\n=== Nested While ===\n")
+    var x: int = 0
+    while x < 3 =>
+        var y: int = 0
+        while y < 3 =>
+            print($"({x},{y}) ")
+            y++
+        print("\n")
+        x++
+
+    // While with complex condition
+    print("\n=== Complex Condition ===\n")
+    var a: int = 0
+    var b: int = 10
+    while a < 5 && b > 0 =>
+        print($"a={a}, b={b}\n")
+        a++
+        b = b - 2
+
+    // While modifying condition variable inside
+    print("\n=== Dynamic Condition ===\n")
+    var limit: int = 5
+    var counter: int = 0
+    while counter < limit =>
+        print($"counter={counter}, limit={limit}\n")
+        if counter == 2 =>
+            limit = 4
+        counter++
+
+    // While with boolean flag
+    print("\n=== Boolean Flag ===\n")
+    var done: bool = false
+    var count: int = 0
+    while !done =>
+        print($"count = {count}\n")
+        count++
+        if count >= 3 =>
+            done = true
+
+    return 0

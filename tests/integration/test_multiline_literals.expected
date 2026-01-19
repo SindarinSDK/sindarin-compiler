@@ -1,0 +1,14 @@
+=== Multi-line Literal Tests ===
+
+test_multiline_int_array: PASS
+test_multiline_byte_array: PASS
+test_multiline_double_array: PASS
+test_multiline_bool_array: PASS
+test_multiline_string_array: PASS
+test_nested_multiline_arrays: PASS
+test_multiline_struct: PASS
+test_multiline_point: PASS
+test_struct_values: PASS
+test_single_line_still_works: PASS
+
+All multi-line literal tests passed!

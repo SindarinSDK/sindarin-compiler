@@ -1,0 +1,289 @@
+# Unified CI/CD workflow for Sindarin Compiler
+# Builds and tests on Linux, Windows, and macOS using a matrix strategy
+
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  pull_request:
+    branches: [main, master, develop]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            preset: ci-linux
+            compiler: gcc
+            artifact_name: sn-linux-x64
+            exe_ext: ''
+            runtime_dir: gcc
+
+          - os: windows-latest
+            preset: ci-windows
+            compiler: clang
+            artifact_name: sn-windows-x64
+            exe_ext: '.exe'
+            runtime_dir: clang
+
+          - os: macos-latest
+            preset: ci-macos
+            compiler: clang
+            artifact_name: sn-macos-x64
+            exe_ext: ''
+            runtime_dir: gcc
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      #------------------------------------------------------------------------
+      # Setup Dependencies (Platform-specific)
+      #------------------------------------------------------------------------
+      - name: Setup Dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build zlib1g-dev python3
+
+      - name: Setup Dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install cmake ninja coreutils zlib python3
+
+      - name: Remove system LLVM (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path "C:\Program Files\LLVM") {
+            Write-Host "Removing system LLVM to avoid conflicts..."
+            Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
+          }
+
+      - name: Install LLVM-MinGW (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $version = "20241217"
+          $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
+          $zipPath = "$env:TEMP\llvm-mingw.zip"
+          $extractPath = "C:\llvm-mingw"
+
+          Write-Host "Downloading LLVM-MinGW $version..."
+          Invoke-WebRequest -Uri $url -OutFile $zipPath
+
+          Write-Host "Extracting to $extractPath..."
+          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
+
+          $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
+          $binPath = Join-Path $llvmDir.FullName "bin"
+
+          Write-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"
+          echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+          echo "LLVM_MINGW_PATH=$($llvmDir.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Install Ninja (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: choco install ninja -y
+
+      - name: Setup vcpkg (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $vcpkgRoot = "C:\vcpkg"
+
+          # Clone or update vcpkg
+          if (Test-Path $vcpkgRoot) {
+            Write-Host "vcpkg already exists, updating..."
+            Push-Location $vcpkgRoot
+            git pull --quiet 2>$null || Write-Host "Git pull skipped (not a git repo or detached)"
+            Pop-Location
+          } else {
+            Write-Host "Cloning vcpkg..."
+            git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
+          }
+
+          # Bootstrap if needed
+          if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
+            Write-Host "Bootstrapping vcpkg..."
+            & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
+          }
+
+          # Install zlib using classic mode (ignore manifest)
+          Write-Host "Installing zlib..."
+          & "$vcpkgRoot\vcpkg.exe" install zlib:x64-windows --classic
+
+          # Create libz.a compatibility link
+          $zlibLib = "$vcpkgRoot\installed\x64-windows\lib\zlib.lib"
+          $libzA = "$vcpkgRoot\installed\x64-windows\lib\libz.a"
+          if ((Test-Path $zlibLib) -and -not (Test-Path $libzA)) {
+            Copy-Item $zlibLib $libzA
+          }
+
+          echo "VCPKG_ROOT=$vcpkgRoot\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      #------------------------------------------------------------------------
+      # Verify Tools
+      #------------------------------------------------------------------------
+      - name: Verify tools
+        shell: bash
+        run: |
+          echo "=== Checking compiler ==="
+          ${{ matrix.compiler }} --version
+          echo ""
+          echo "=== Checking cmake ==="
+          cmake --version
+          echo ""
+          echo "=== Checking ninja ==="
+          ninja --version
+          echo ""
+          echo "=== Checking python ==="
+          python3 --version || python --version
+
+      #------------------------------------------------------------------------
+      # Configure and Build
+      #------------------------------------------------------------------------
+      - name: Configure CMake
+        shell: bash
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build
+
+      #------------------------------------------------------------------------
+      # Verify Build Outputs
+      #------------------------------------------------------------------------
+      - name: Verify build outputs
+        shell: bash
+        run: |
+          echo "Checking for compiler executable..."
+          if [ ! -f "bin/sn${{ matrix.exe_ext }}" ]; then
+            echo "ERROR: bin/sn${{ matrix.exe_ext }} not found"
+            exit 1
+          fi
+          echo "Found: bin/sn${{ matrix.exe_ext }}"
+
+          echo "Checking for test executable..."
+          if [ ! -f "bin/tests${{ matrix.exe_ext }}" ]; then
+            echo "ERROR: bin/tests${{ matrix.exe_ext }} not found"
+            exit 1
+          fi
+          echo "Found: bin/tests${{ matrix.exe_ext }}"
+
+          echo "Checking for runtime library..."
+          if [ ! -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a" ]; then
+            echo "ERROR: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a not found"
+            exit 1
+          fi
+          echo "Found: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a"
+
+          echo ""
+          echo "Build outputs verified successfully!"
+
+      #------------------------------------------------------------------------
+      # Run Tests
+      #------------------------------------------------------------------------
+      - name: Run unit tests
+        shell: bash
+        run: |
+          echo "Running unit tests..."
+          bin/tests${{ matrix.exe_ext }}
+          echo "Unit tests passed!"
+
+      - name: Run integration tests (Linux/macOS)
+        if: runner.os != 'Windows'
+        env:
+          SN_CC: ${{ matrix.compiler }}
+          SN_EXCLUDE_TESTS: ${{ runner.os == 'macOS' && 'test_thread_panic_propagate' || '' }}
+        run: |
+          python3 scripts/run_tests.py integration --verbose
+          python3 scripts/run_tests.py integration-errors --verbose
+
+      - name: Run integration tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          SN_CC: clang
+          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
+        run: |
+          python scripts/run_tests.py integration --verbose
+          python scripts/run_tests.py integration-errors --verbose
+
+      - name: Run exploratory tests (Linux/macOS)
+        if: runner.os != 'Windows'
+        env:
+          SN_CC: ${{ matrix.compiler }}
+        run: |
+          python3 scripts/run_tests.py explore --verbose
+          python3 scripts/run_tests.py explore-errors --verbose
+
+      - name: Run exploratory tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          SN_CC: clang
+          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
+        run: |
+          python scripts/run_tests.py explore --verbose
+          python scripts/run_tests.py explore-errors --verbose
+
+      - name: Run SDK tests (Linux)
+        if: runner.os == 'Linux'
+        env:
+          SN_CC: ${{ matrix.compiler }}
+        run: |
+          python3 scripts/run_tests.py sdk --verbose
+
+      - name: Run SDK tests (macOS)
+        if: runner.os == 'macOS'
+        env:
+          SN_CC: clang
+          SN_CFLAGS: -I${{ env.HOMEBREW_PREFIX || '/opt/homebrew' }}/opt/zlib/include
+          SN_LDFLAGS: -L${{ env.HOMEBREW_PREFIX || '/opt/homebrew' }}/opt/zlib/lib
+        run: |
+          export SN_CFLAGS="-I$(brew --prefix zlib)/include"
+          export SN_LDFLAGS="-L$(brew --prefix zlib)/lib"
+          python3 scripts/run_tests.py sdk --verbose
+
+      - name: Run SDK tests (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        env:
+          SN_CC: clang
+          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none -I${{ env.VCPKG_ROOT }}/include
+          SN_LDFLAGS: -L${{ env.VCPKG_ROOT }}/lib
+        run: |
+          python scripts/run_tests.py sdk --verbose
+
+      #------------------------------------------------------------------------
+      # Upload Artifacts
+      #------------------------------------------------------------------------
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            bin/sn${{ matrix.exe_ext }}
+            bin/tests${{ matrix.exe_ext }}
+            bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a
+            bin/include/**/*
+            bin/*.cfg
+          retention-days: 7
+

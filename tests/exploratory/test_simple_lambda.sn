@@ -1,0 +1,5 @@
+// Test simple lambda
+fn main(): void =>
+  var double_it: fn(int): int = fn(x: int): int => x * 2
+  var result: int = double_it(5)
+  print($"result={result}\n")

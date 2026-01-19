@@ -1,0 +1,16 @@
+// lib/math_ext.sn - Extended math with same function names (for collision testing)
+
+// Same name as math_ops.add but different behavior (doubles the result)
+fn add(a: int, b: int): int =>
+    return (a + b) * 2
+
+// Same name as math_ops.multiply but different behavior (squares the result)
+fn multiply(a: int, b: int): int =>
+    var result: int = a * b
+    return result * result
+
+fn power(base: int, exp: int): int =>
+    var result: int = 1
+    for var i: int = 0; i < exp; i++ =>
+        result = result * base
+    return result

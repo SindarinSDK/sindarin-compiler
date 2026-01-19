@@ -1,0 +1,74 @@
+// Test 51: Empty array operations
+fn main(): int =>
+    print("Test empty array operations:\n\n")
+
+    // Create empty array
+    var empty: int[] = {}
+    print("empty = ")
+    print(empty)
+    print("\n")
+    print($"empty.length = {empty.length}\n")
+    print($"len(empty) = {len(empty)}\n")
+
+    // Operations on empty array
+    print("\nOperations:\n")
+
+    // Push to empty
+    empty.push(42)
+    print("After push(42): ")
+    print(empty)
+    print("\n")
+
+    // Clear and verify
+    empty.clear()
+    print("After clear(): ")
+    print(empty)
+    print($" (length = {len(empty)})\n")
+
+    // Iterate over empty (should not execute body)
+    print("\nIterate over empty:\n")
+    var count: int = 0
+    for x in empty =>
+        count++
+        print("Should not print\n")
+    print($"Iterations: {count}\n")
+
+    // Concat empty arrays
+    var empty2: int[] = {}
+    var combined: int[] = empty.concat(empty2)
+    print($"\nConcat two empty: length = {len(combined)}\n")
+
+    // Concat empty with non-empty
+    var nonempty: int[] = {1, 2, 3}
+    var result1: int[] = empty.concat(nonempty)
+    print("empty.concat({1,2,3}): ")
+    print(result1)
+    print("\n")
+
+    var result2: int[] = nonempty.concat(empty)
+    print("{1,2,3}.concat(empty): ")
+    print(result2)
+    print("\n")
+
+    // Clone empty
+    var cloned: int[] = empty.clone()
+    print($"Clone empty: length = {len(cloned)}\n")
+
+    // Spread empty
+    var spread: int[] = {...empty}
+    print($"Spread empty: length = {len(spread)}\n")
+
+    // IndexOf on empty
+    print($"\nempty.indexOf(42) = {empty.indexOf(42)}\n")
+    print($"empty.contains(42) = {empty.contains(42)}\n")
+
+    // Join empty
+    var joined: str = empty.join(",")
+    print($"empty.join(\",\") = \"{joined}\"\n")
+
+    // Equality with empty
+    var e1: int[] = {}
+    var e2: int[] = {}
+    print($"\n{{}} == {{}}: {e1 == e2}\n")
+
+    return 0

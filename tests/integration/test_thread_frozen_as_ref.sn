@@ -1,0 +1,37 @@
+// Test: Frozen 'as ref' primitives in thread spawn
+// Verifies that primitives passed with 'as ref' are shared between threads
+// and that modifications by the thread are visible after sync
+
+fn increment(counter: int as ref): int =>
+    counter = counter + 10
+    return counter
+
+fn multiply(value: int as ref): int =>
+    value = value * 3
+    return value
+
+fn main(): void =>
+    var count: int as ref = 5
+
+    print($"Before thread: count = {count}\n")
+
+    // Spawn thread that will modify the shared primitive
+    var r: int = &increment(count)
+
+    // Sync to wait for thread and get result
+    var result: int = r!
+
+    print($"After sync: count = {count}\n")
+
+    // Spawn another thread to modify
+    var r2: int = &multiply(count)
+    var result2: int = r2!
+
+    print($"After second sync: count = {count}\n")
+
+    // Validate results
+    // count starts at 5, then +10 = 15, then *3 = 45
+    if count == 45 =>
+        print("SUCCESS: as ref primitive was correctly modified by threads\n")
+    else =>
+        print($"FAILURE: expected count = 45, got {count}\n")

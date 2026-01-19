@@ -1,0 +1,58 @@
+Test 1 - Basic multi-line:
+First line
+Second line
+Third line
+
+Test 2 - Expressions on different lines:
+Line with a: 10
+Line with b: 20
+Line with c: 30
+Sum on this line: 60
+
+Test 3 - Indentation preservation:
+No indent
+  Two spaces
+    Four spaces
+      Six spaces
+        Eight spaces
+
+Test 4 - Tab preservation:
+Start
+	One tab
+		Two tabs
+ 	Space then tab
+
+Test 5 - Empty lines:
+Before empty
+
+After empty
+
+Another gap
+
+End
+
+Test 6 - Interpolation at boundaries:
+START
+middle content
+END
+
+Test 7 - Multiple interpolations per line:
+First: 1 and 2
+Second: 2 and 3
+Third: 1 and 3
+
+Test 8 - Complex expressions:
+User Profile:
+Name: Alice
+Age: 25 years old
+Score: 95.5 points
+Status: Adult
+
+Test 9 - Whitespace-only lines:
+Content
+
+More content
+
+Test 10 - Trailing whitespace:
+Line with trailing spaces
+Next line

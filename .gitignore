@@ -1,0 +1,62 @@
+# Build outputs
+bin/
+log/
+logs/
+install/
+
+# Object files
+*.o
+*.obj
+
+# Debug files
+*.pdb
+*.dSYM/
+
+# IDE
+.idea/
+.vscode/
+*.sln
+*.vcxproj*
+
+# Test outputs
+tests/exploratory/output/
+test_lambda
+test_lambda_shared
+test_thread
+test_state.txt
+
+# Build directories
+build/
+build_*/
+out/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CMakeUserPresets.json
+compile_commands.json
+CPackConfig.cmake
+CPackSourceConfig.cmake
+_CPack_Packages/
+
+# vcpkg (installed locally)
+vcpkg/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Packages
+*.tar.gz
+*.zip
+*.deb
+*.rpm
+*.dmg
+*.pkg
+
+# Claude Code
+.claude/
+.claude-looper/

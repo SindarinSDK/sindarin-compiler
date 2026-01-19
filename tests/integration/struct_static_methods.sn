@@ -1,0 +1,100 @@
+# Test static methods on structs
+# Note: Methods cannot create struct literals of their own type due to parser limitations
+
+fn sqrt(x: double): double =>
+    # Simple Newton's method for square root
+    if x <= 0.0 =>
+        return 0.0
+    var guess: double = x / 2.0
+    for i in 0..10 =>
+        guess = (guess + x / guess) / 2.0
+    return guess
+
+# Counter struct with static utility methods
+struct Counter =>
+    value: int
+
+    # Static method returning primitive
+    static fn zero(): int =>
+        return 0
+
+    static fn defaultValue(): int =>
+        return 100
+
+    static fn add(a: int, b: int): int =>
+        return a + b
+
+    # Instance methods
+    fn getValue(): int =>
+        return self.value
+
+    fn increment(): void =>
+        self.value = self.value + 1
+
+    fn addValue(amount: int): int =>
+        self.value = self.value + amount
+        return self.value
+
+# Point struct with magnitude calculation
+struct Point =>
+    x: double
+    y: double
+
+    fn magnitude(): double =>
+        return sqrt(self.x * self.x + self.y * self.y)
+
+    fn getX(): double =>
+        return self.x
+
+    fn getY(): double =>
+        return self.y
+
+fn main(): int =>
+    # Test static methods returning primitives
+    var z: int = Counter.zero()
+    print($"Counter.zero(): {z}\n")
+    if z != 0 =>
+        print("FAIL: Counter.zero() should return 0\n")
+        return 1
+
+    var d: int = Counter.defaultValue()
+    print($"Counter.defaultValue(): {d}\n")
+    if d != 100 =>
+        print("FAIL: Counter.defaultValue() should return 100\n")
+        return 1
+
+    # Test static method with parameters
+    var sum: int = Counter.add(3, 7)
+    print($"Counter.add(3, 7): {sum}\n")
+    if sum != 10 =>
+        print("FAIL: Counter.add(3, 7) should return 10\n")
+        return 1
+
+    # Test instance methods work alongside static methods
+    var c: Counter = Counter { value: 42 }
+    var v: int = c.getValue()
+    print($"Initial value: {v}\n")
+    if v != 42 =>
+        print("FAIL: getValue() should return 42\n")
+        return 1
+
+    c.increment()
+    v = c.getValue()
+    print($"After increment: {v}\n")
+    if v != 43 =>
+        print("FAIL: increment() didn't work\n")
+        return 1
+
+    # Test Point instance methods
+    var p: Point = Point { x: 3.0, y: 4.0 }
+    var mag: double = p.magnitude()
+    print($"Point(3, 4) magnitude: {mag}\n")
+    if mag < 4.99 =>
+        print("FAIL: magnitude should be ~5.0\n")
+        return 1
+    if mag > 5.01 =>
+        print("FAIL: magnitude should be ~5.0\n")
+        return 1
+
+    print("All static method tests passed!\n")
+    return 0

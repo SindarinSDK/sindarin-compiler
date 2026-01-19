@@ -1,0 +1,12 @@
+// Test: frozen array push should error
+// Expected: Compilation should FAIL with frozen variable error
+// Mutating methods (push, pop, clear, etc.) are blocked on frozen arrays
+
+fn process(data: int[]): int =>
+    return data.length
+
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var r: int = &process(arr)  // arr is now frozen
+    arr.push(4)                  // ERROR: Cannot call mutating method on frozen array
+    print("Should not reach here\n")

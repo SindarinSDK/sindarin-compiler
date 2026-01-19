@@ -1,0 +1,19 @@
+// Test: Fire-and-forget void threads
+// Tests two patterns: bare spawn and immediate spawn-sync
+
+fn fire_and_forget_work(): void =>
+    print("Fire-and-forget thread executed\n")
+
+fn immediate_sync_work(): void =>
+    print("Immediate sync thread executed\n")
+
+fn main(): void =>
+    // Pattern 1: Spawn void with immediate sync (&fn()!)
+    &immediate_sync_work()!
+    print("After immediate sync\n")
+
+    // Pattern 2: We can also use inline spawn-sync multiple times
+    &fire_and_forget_work()!
+    print("After second sync\n")
+
+    print("SUCCESS: Both patterns completed\n")

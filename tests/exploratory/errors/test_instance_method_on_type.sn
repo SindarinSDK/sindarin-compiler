@@ -1,0 +1,15 @@
+# Test calling an instance method on a type (should error)
+
+struct Counter =>
+    value: int
+
+    static fn zero(): int =>
+        return 0
+
+    fn getValue(): int =>
+        return self.value
+
+fn main(): int =>
+    # Try to call instance method on type - should fail
+    var v: int = Counter.getValue()
+    return 0

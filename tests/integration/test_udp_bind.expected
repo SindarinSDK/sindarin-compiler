@@ -1,0 +1,5 @@
+Test 1 PASS: Bound with valid port
+Test 2 PASS: Port in valid range
+Test 3 PASS: Second bind successful
+Test 4 PASS: Different ports assigned
+All bind tests complete

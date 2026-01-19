@@ -1,0 +1,9 @@
+// Test array initialization with expressions
+fn compute(x: int): int =>
+  return x * 2
+
+fn main(): void =>
+  var a: int = 5
+  var arr: int[] = {a, a + 1, a * 2, compute(a)}
+  for x in arr =>
+    print($"x={x}\n")

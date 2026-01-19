@@ -1,0 +1,74 @@
+// Test 19: Edge cases and unusual combinations
+fn main(): int =>
+    print("=== Empty Blocks ===\n")
+    if true =>
+        // Empty if block - should compile
+        var x: int = 1
+
+    print("Empty if passed\n")
+
+    print("\n=== Single-line Expressions ===\n")
+    var a: int = 1 + 2 + 3 + 4 + 5
+    print($"Sum: {a}\n")
+
+    var b: int = 10 - 5 - 3 - 1
+    print($"Diff: {b}\n")
+
+    print("\n=== Deeply Nested Expressions ===\n")
+    var c: int = ((((1 + 2) * 3) - 4) / 2)
+    print($"Nested: {c}\n")
+
+    print("\n=== Many Variables ===\n")
+    var v1: int = 1
+    var v2: int = 2
+    var v3: int = 3
+    var v4: int = 4
+    var v5: int = 5
+    var v6: int = 6
+    var v7: int = 7
+    var v8: int = 8
+    var v9: int = 9
+    var v10: int = 10
+    print($"Sum of v1-v10: {v1 + v2 + v3 + v4 + v5 + v6 + v7 + v8 + v9 + v10}\n")
+
+    print("\n=== Boolean Chain ===\n")
+    var p: bool = true && true && true && true
+    var q: bool = false || false || false || true
+    print($"All true AND: {p}\n")
+    print($"All false OR one true: {q}\n")
+
+    print("\n=== String with Special Chars ===\n")
+    var special: str = "Line1\nLine2\tTabbed\t\"Quoted\""
+    print($"Special: {special}\n")
+
+    print("\n=== Array of Arrays (if supported) ===\n")
+    // Testing if 2D arrays work
+    // var matrix: int[][] = {{1,2}, {3,4}}
+
+    print("\n=== Conditional in Loop ===\n")
+    for i in 1..10 =>
+        if i % 2 == 0 =>
+            if i % 4 == 0 =>
+                print($"{i} divisible by 4\n")
+            else =>
+                print($"{i} divisible by 2 only\n")
+
+    print("\n=== Reassignment ===\n")
+    var r: int = 1
+    print($"r initial: {r}\n")
+    r = 2
+    print($"r after 1st assign: {r}\n")
+    r = 3
+    print($"r after 2nd assign: {r}\n")
+    r = r + 1
+    print($"r after r = r + 1: {r}\n")
+
+    print("\n=== Type Coercion in Print ===\n")
+    var i2: int = 42
+    var d2: double = 3.14
+    var s2: str = "text"
+    var c2: char = 'X'
+    var bl2: bool = true
+    print($"int={i2}, double={d2}, str={s2}, char={c2}, bool={bl2}\n")
+
+    return 0

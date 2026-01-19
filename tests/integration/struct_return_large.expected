@@ -1,0 +1,7 @@
+Testing large struct return semantics:
+Simple large struct return: PASS
+Modify large struct return: PASS
+Chained large struct: PASS
+Medium struct with string: PASS
+Multiple large struct returns: PASS
+All large struct return tests completed!

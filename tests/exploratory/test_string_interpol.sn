@@ -1,0 +1,56 @@
+// Test 34: String interpolation
+fn main(): int =>
+    print("Test string interpolation:\n\n")
+
+    // Basic interpolation
+    var name: str = "Alice"
+    var age: int = 30
+    print($"Name: {name}, Age: {age}\n")
+
+    // Multiple values
+    var a: int = 5
+    var b: int = 3
+    print($"{a} + {b} = {a + b}\n")
+    print($"{a} - {b} = {a - b}\n")
+    print($"{a} * {b} = {a * b}\n")
+
+    // Different types
+    var d: double = 3.14159
+    var c: char = 'X'
+    var flag: bool = true
+    print($"double: {d}\n")
+    print($"char: '{c}'\n")
+    print($"bool: {flag}\n")
+
+    // Expressions in interpolation
+    print($"\nExpressions:\n")
+    print($"5 + 3 = {5 + 3}\n")
+    print($"10 * 2 = {10 * 2}\n")
+    print($"10 > 5: {10 > 5}\n")
+
+    // Nested interpolation content
+    var greeting: str = "Hello"
+    var target: str = "World"
+    print($"{greeting}, {target}!\n")
+
+    // Empty and whitespace
+    print($"Empty: {""}\n")
+    print($"Spaces: {"   "}\n")
+
+    // Adjacent interpolations
+    print($"{a}{b}{a + b}\n")
+
+    // Interpolation at start and end
+    print($"{name} is here\n")
+    print($"Person: {name}\n")
+
+    // Complex expression
+    var x: int = 10
+    var y: int = 20
+    print($"avg of {x} and {y} is {(x + y) / 2}\n")
+
+    // Boolean expression
+    print($"x < y: {x < y}\n")
+    print($"x == 10: {x == 10}\n")
+
+    return 0

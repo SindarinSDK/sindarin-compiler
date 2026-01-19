@@ -1,0 +1,25 @@
+Testing 'as val' struct deep copy semantics:
+
+1. Before modification:
+   c1.items: [1, 2, 3]
+   c2.items: [1, 2, 3]
+   After c2.items[0] = 100 (shallow copy):
+   c1.items: [100, 2, 3]
+   c2.items: [100, 2, 3]
+
+2. With 'as val' (deep copy):
+   c3.items: [10, 20, 30]
+   c4.items: [10, 20, 30]
+   After c4.items[0] = 999 (deep copy):
+   c3.items: [10, 20, 30]
+   c4.items: [999, 20, 30]
+
+3. Deep copy with doubles:
+   d1.values[1]: 2.50000
+   d2.values[1]: 100.50000
+
+4. String field in deep copy:
+   c5.name: test_name
+   c6.name: test_name
+
+All 'as val' struct deep copy tests PASSED!

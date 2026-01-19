@@ -1,0 +1,27 @@
+# Base module in import chain - defines Vector2D
+# This is the "innermost" module in the chain test
+
+struct Vector2D =>
+    x: int
+    y: int
+
+    fn magnitude_squared(): int =>
+        return self.x * self.x + self.y * self.y
+
+    fn dot(other: Vector2D): int =>
+        return self.x * other.x + self.y * other.y
+
+    static fn zero(): Vector2D =>
+        return Vector2D { x: 0, y: 0 }
+
+    static fn unit_x(): Vector2D =>
+        return Vector2D { x: 1, y: 0 }
+
+    static fn unit_y(): Vector2D =>
+        return Vector2D { x: 0, y: 1 }
+
+fn vec_add(a: Vector2D, b: Vector2D): Vector2D =>
+    return Vector2D { x: a.x + b.x, y: a.y + b.y }
+
+fn vec_scale(v: Vector2D, s: int): Vector2D =>
+    return Vector2D { x: v.x * s, y: v.y * s }

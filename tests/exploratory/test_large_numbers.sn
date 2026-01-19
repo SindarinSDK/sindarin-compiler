@@ -1,0 +1,65 @@
+// Test 55: Large number values
+fn main(): int =>
+    print("Test large numbers:\n\n")
+
+    // Large integers
+    var large_pos: int = 1000000000
+    var large_neg: int = -1000000000
+    print($"large_pos = {large_pos}\n")
+    print($"large_neg = {large_neg}\n")
+
+    // Arithmetic with large numbers
+    var sum: int = large_pos + 999999999
+    print($"large_pos + 999999999 = {sum}\n")
+
+    var diff: int = large_pos - large_neg
+    print($"large_pos - large_neg = {diff}\n")
+
+    // Multiplication of moderately large numbers
+    var prod: int = 100000 * 10000
+    print($"100000 * 10000 = {prod}\n")
+
+    // Division of large numbers
+    var quot: int = large_pos / 1000
+    print($"large_pos / 1000 = {quot}\n")
+
+    // Large doubles
+    print("\nLarge doubles:\n")
+    var large_double: double = 999999999.999
+    print($"large_double = {large_double}\n")
+
+    var small_double: double = 0.000000001
+    print($"small_double = {small_double}\n")
+
+    // Double operations
+    var double_sum: double = large_double + large_double
+    print($"large_double + large_double = {double_sum}\n")
+
+    var double_prod: double = 100000.0 * 100000.0
+    print($"100000.0 * 100000.0 = {double_prod}\n")
+
+    // Comparison with large numbers
+    print("\nComparisons:\n")
+    print($"large_pos > 0: {large_pos > 0}\n")
+    print($"large_neg < 0: {large_neg < 0}\n")
+    print($"large_pos > large_neg: {large_pos > large_neg}\n")
+
+    // Loop with large bounds (limited iterations)
+    print("\nLoop near large number:\n")
+    var count: int = 0
+    for var i: int = 999999995; i < 1000000000; i++ =>
+        count++
+    print($"Counted: {count}\n")
+
+    // Array with large values
+    print("\nArray with large values:\n")
+    var arr: int[] = {1000000, 2000000, 3000000}
+    print("arr: ")
+    print(arr)
+    print("\n")
+    var total: int = 0
+    for n in arr =>
+        total = total + n
+    print($"Sum: {total}\n")
+
+    return 0

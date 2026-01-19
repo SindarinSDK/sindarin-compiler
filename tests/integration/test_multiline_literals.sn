@@ -1,0 +1,116 @@
+// Comprehensive tests for multi-line array and struct literals
+
+struct Point =>
+    x: int
+    y: int
+
+struct Config =>
+    name: str
+    port: int
+    debug: bool
+
+struct Person =>
+    name: str
+    age: int
+
+fn main(): void =>
+    print("=== Multi-line Literal Tests ===\n\n")
+
+    // Test multi-line int array
+    var ints: int[] = {
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
+    }
+    assert(ints.length == 9, "int array length")
+    assert(ints[0] == 1, "int array first")
+    assert(ints[8] == 9, "int array last")
+    assert(ints[4] == 5, "int array middle")
+    print("test_multiline_int_array: PASS\n")
+
+    // Test multi-line byte array (typical for binary data)
+    var bytes: byte[] = {
+        72, 101, 108, 108, 111,
+        44, 32,
+        87, 111, 114, 108, 100, 33
+    }
+    assert(bytes.length == 13, "byte array length")
+    assert(bytes[0] == 72, "byte array H")
+    assert(bytes[12] == 33, "byte array !")
+    print("test_multiline_byte_array: PASS\n")
+
+    // Test multi-line double array
+    var doubles: double[] = {
+        1.0, 2.5, 3.14,
+        4.0, 5.5
+    }
+    assert(doubles.length == 5, "double array length")
+    assert(doubles[2] > 3.1, "double array pi")
+    print("test_multiline_double_array: PASS\n")
+
+    // Test multi-line bool array
+    var bools: bool[] = {
+        true, false,
+        true, true,
+        false
+    }
+    assert(bools.length == 5, "bool array length")
+    assert(bools[0], "bool array first true")
+    assert(!bools[1], "bool array second false")
+    print("test_multiline_bool_array: PASS\n")
+
+    // Test multi-line string array
+    var strs: str[] = {
+        "hello",
+        "world",
+        "test"
+    }
+    assert(strs.length == 3, "string array length")
+    assert(strs[0] == "hello", "string array first")
+    assert(strs[2] == "test", "string array last")
+    print("test_multiline_string_array: PASS\n")
+
+    // Test nested multi-line arrays
+    var matrix: int[][] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    }
+    assert(matrix.length == 3, "matrix rows")
+    assert(matrix[0].length == 3, "matrix cols")
+    assert(matrix[1][1] == 5, "matrix center")
+    print("test_nested_multiline_arrays: PASS\n")
+
+    // Test multi-line struct literal
+    var config: Config = Config {
+        name: "myapp",
+        port: 8080,
+        debug: true
+    }
+    assert(config.name == "myapp", "config name")
+    assert(config.port == 8080, "config port")
+    assert(config.debug, "config debug")
+    print("test_multiline_struct: PASS\n")
+
+    // Test multi-line Point struct
+    var point: Point = Point {
+        x: 100,
+        y: 200
+    }
+    assert(point.x == 100, "point x")
+    assert(point.y == 200, "point y")
+    print("test_multiline_point: PASS\n")
+
+    // Test array of structs (single line due to nested struct complexity)
+    var p1: Person = Person { name: "Alice", age: 30 }
+    var p2: Person = Person { name: "Bob", age: 25 }
+    assert(p1.name == "Alice", "person 1 name")
+    assert(p2.age == 25, "person 2 age")
+    print("test_struct_values: PASS\n")
+
+    // Single-line still works
+    var single: int[] = {1, 2, 3}
+    assert(single.length == 3, "single line array")
+    print("test_single_line_still_works: PASS\n")
+
+    print("\nAll multi-line literal tests passed!\n")

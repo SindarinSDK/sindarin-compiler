@@ -1,0 +1,126 @@
+// Test 07: Arrays - methods
+fn main(): int =>
+    print("=== Push and Pop ===\n")
+    var arr: int[] = {}
+    arr.push(10)
+    arr.push(20)
+    arr.push(30)
+    print("After pushes: ")
+    print(arr)
+    print("\n")
+
+    var popped: int = arr.pop()
+    print($"Popped: {popped}\n")
+    print("After pop: ")
+    print(arr)
+    print("\n")
+
+    // Pop from single element
+    var single: int[] = {99}
+    var value: int = single.pop()
+    print($"Pop from single: {value}, remaining length: {single.length}\n")
+
+    print("\n=== Insert and Remove ===\n")
+    var items: int[] = {1, 2, 3, 4, 5}
+    print("Original: ")
+    print(items)
+    print("\n")
+
+    items.insert(99, 0)
+    print("Insert 99 at 0: ")
+    print(items)
+    print("\n")
+
+    items.insert(88, 3)
+    print("Insert 88 at 3: ")
+    print(items)
+    print("\n")
+
+    items.remove(0)
+    print("Remove at 0: ")
+    print(items)
+    print("\n")
+
+    print("\n=== Reverse ===\n")
+    var rev: int[] = {1, 2, 3, 4, 5}
+    print("Before: ")
+    print(rev)
+    print("\n")
+    rev.reverse()
+    print("After reverse: ")
+    print(rev)
+    print("\n")
+
+    // Reverse single element
+    var rev_single: int[] = {42}
+    rev_single.reverse()
+    print("Single reversed: ")
+    print(rev_single)
+    print("\n")
+
+    // Reverse empty
+    var rev_empty: int[] = {}
+    rev_empty.reverse()
+    print("Empty reversed: ")
+    print(rev_empty)
+    print("\n")
+
+    print("\n=== Clone ===\n")
+    var original: int[] = {10, 20, 30}
+    var clone: int[] = original.clone()
+    print("Original: ")
+    print(original)
+    print("\n")
+    print("Clone: ")
+    print(clone)
+    print("\n")
+    clone.push(40)
+    print("After modifying clone, original: ")
+    print(original)
+    print("\n")
+
+    print("\n=== Concat ===\n")
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {4, 5, 6}
+    var c: int[] = a.concat(b)
+    print("a.concat(b): ")
+    print(c)
+    print("\n")
+
+    // Concat empty
+    var d: int[] = a.concat({})
+    print("a.concat({}): ")
+    print(d)
+    print("\n")
+
+    print("\n=== IndexOf and Contains ===\n")
+    var search: int[] = {10, 20, 30, 40, 50}
+    print($"indexOf(30): {search.indexOf(30)}\n")
+    print($"indexOf(99): {search.indexOf(99)}\n")
+    print($"contains(30): {search.contains(30)}\n")
+    print($"contains(99): {search.contains(99)}\n")
+
+    // Empty array search
+    var empty_search: int[] = {}
+    print($"empty indexOf(1): {empty_search.indexOf(1)}\n")
+    print($"empty contains(1): {empty_search.contains(1)}\n")
+
+    print("\n=== Join ===\n")
+    var words: str[] = {"apple", "banana", "cherry"}
+    print($"join(\", \"): {words.join(", ")}\n")
+    print($"join(\"\"): {words.join("")}\n")
+
+    var nums: int[] = {1, 2, 3}
+    print($"int join(\"-\"): {nums.join("-")}\n")
+
+    // Empty array join
+    var empty_arr: str[] = {}
+    print($"empty join: \"{empty_arr.join(",")}\"\n")
+
+    print("\n=== Clear ===\n")
+    var to_clear: int[] = {1, 2, 3, 4, 5}
+    print($"Before clear, length: {to_clear.length}\n")
+    to_clear.clear()
+    print($"After clear, length: {to_clear.length}\n")
+
+    return 0

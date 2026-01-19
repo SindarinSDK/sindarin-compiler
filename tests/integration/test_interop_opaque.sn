@@ -1,0 +1,154 @@
+# Integration test for opaque types
+# Demonstrates: type X = opaque, pointer operations, nil checks
+
+# Declare a custom opaque type (simulating external C types)
+type OpaqueHandle = opaque
+
+# Native function that returns nil opaque pointer
+native fn get_null_handle(): *OpaqueHandle =>
+    return nil
+
+# Native function to check if opaque handle is nil
+native fn is_handle_nil(h: *OpaqueHandle): bool =>
+    return h == nil
+
+# Native function that accepts opaque pointer parameter
+native fn use_handle(h: *OpaqueHandle): void =>
+    return
+
+# Native function that stores and returns opaque pointers
+native fn pass_through(h: *OpaqueHandle): *OpaqueHandle =>
+    return h
+
+# Native function that compares two opaque pointers
+native fn handles_equal(a: *OpaqueHandle, b: *OpaqueHandle): bool =>
+    return a == b
+
+native fn test_nil_opaque(): bool =>
+    print("  Testing nil opaque pointer handling...\n")
+
+    # Get nil opaque pointer
+    var h: *OpaqueHandle = get_null_handle()
+    if h != nil =>
+        print("    FAIL: get_null_handle() should return nil\n")
+        return false
+
+    # Test nil check function
+    if !is_handle_nil(nil) =>
+        print("    FAIL: is_handle_nil(nil) should be true\n")
+        return false
+
+    if !is_handle_nil(h) =>
+        print("    FAIL: is_handle_nil(h) should be true for nil handle\n")
+        return false
+
+    print("    PASS: nil opaque pointer tests\n")
+    return true
+
+native fn test_opaque_passing(): bool =>
+    print("  Testing opaque pointer passing...\n")
+
+    # Test passing nil through functions
+    var h: *OpaqueHandle = get_null_handle()
+    use_handle(h)
+    use_handle(nil)
+
+    # Test pass-through
+    var passed: *OpaqueHandle = pass_through(nil)
+    if passed != nil =>
+        print("    FAIL: pass_through(nil) should return nil\n")
+        return false
+
+    print("    PASS: opaque pointer passing tests\n")
+    return true
+
+native fn test_opaque_comparison(): bool =>
+    print("  Testing opaque pointer comparison...\n")
+
+    # Both nil should be equal
+    if !handles_equal(nil, nil) =>
+        print("    FAIL: nil == nil should be true\n")
+        return false
+
+    var h1: *OpaqueHandle = get_null_handle()
+    var h2: *OpaqueHandle = get_null_handle()
+
+    # Both nil handles should be equal
+    if !handles_equal(h1, h2) =>
+        print("    FAIL: Two nil handles should be equal\n")
+        return false
+
+    # Same variable should equal itself
+    if !handles_equal(h1, h1) =>
+        print("    FAIL: Handle should equal itself\n")
+        return false
+
+    print("    PASS: opaque pointer comparison tests\n")
+    return true
+
+native fn test_opaque_in_native_fn(): bool =>
+    print("  Testing opaque variable in native function...\n")
+
+    # Can declare opaque pointer variable
+    var h: *OpaqueHandle = nil
+
+    # Can assign from native function
+    h = get_null_handle()
+
+    # Can compare
+    if h != nil =>
+        print("    FAIL: h should be nil\n")
+        return false
+
+    # Can pass to other native functions
+    use_handle(h)
+    var passed: *OpaqueHandle = pass_through(h)
+    if passed != nil =>
+        print("    FAIL: passed should be nil\n")
+        return false
+
+    print("    PASS: opaque variable tests\n")
+    return true
+
+fn test_opaque_from_regular_fn(): bool =>
+    print("  Testing opaque calls from regular function...\n")
+
+    # Regular function can call native returning opaque pointer
+    # but cannot store it in a variable (only use inline)
+    use_handle(get_null_handle())
+    use_handle(nil)
+
+    # Can pass nil directly
+    var is_nil: bool = is_handle_nil(nil)
+    if !is_nil =>
+        print("    FAIL: is_handle_nil(nil) should be true\n")
+        return false
+
+    # Can compare inline
+    if !handles_equal(nil, nil) =>
+        print("    FAIL: handles_equal(nil, nil) should be true\n")
+        return false
+
+    print("    PASS: regular function opaque tests\n")
+    return true
+
+fn main(): int =>
+    print("=== Opaque Type Interop Test ===\n\n")
+
+    if !test_nil_opaque() =>
+        return 1
+
+    if !test_opaque_passing() =>
+        return 1
+
+    if !test_opaque_comparison() =>
+        return 1
+
+    if !test_opaque_in_native_fn() =>
+        return 1
+
+    if !test_opaque_from_regular_fn() =>
+        return 1
+
+    print("\n=== All opaque type tests PASSED! ===\n")
+    return 0

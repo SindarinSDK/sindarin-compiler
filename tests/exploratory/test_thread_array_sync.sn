@@ -1,0 +1,21 @@
+// Test: Multiple threads spawned and synced sequentially
+// Expected: Compilation should SUCCEED and run correctly
+// Verifies multiple thread spawns with individual syncs
+
+fn work1(): int =>
+    return 10
+
+fn work2(): int =>
+    return 20
+
+fn work3(): int =>
+    return 30
+
+fn main(): void =>
+    var r1: int = &work1()
+    var r2: int = &work2()
+    var r3: int = &work3()
+    var v1: int = r1!
+    var v2: int = r2!
+    var v3: int = r3!
+    print($"{v1} {v2} {v3}\n")  // Should print "10 20 30"

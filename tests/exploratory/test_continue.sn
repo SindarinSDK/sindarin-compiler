@@ -1,0 +1,6 @@
+// Test continue statement
+fn main(): void =>
+  for var i: int = 0; i < 10; i++ =>
+    if i % 2 == 0 =>
+      continue
+    print($"i={i}\n")

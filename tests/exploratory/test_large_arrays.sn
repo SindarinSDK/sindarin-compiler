@@ -1,0 +1,129 @@
+// Test 116: Large arrays and memory handling
+// Tests array operations with larger data sets
+
+fn main(): int =>
+    print("Test large arrays and memory handling:\n\n")
+
+    // Test 1: Create a moderately large array with range
+    print("Test 1 - Create array with 1000 elements:\n")
+    var large1: int[] = 0..1000
+    print($"  Array length: {large1.length}\n")
+    print($"  First element: {large1[0]}\n")
+    print($"  Last element: {large1[999]}\n")
+    print($"  Middle element: {large1[500]}\n")
+
+    // Test 2: Sum of large array
+    print("\nTest 2 - Sum of 1000 elements:\n")
+    var sum: int = 0
+    for n in large1 =>
+        sum = sum + n
+    print($"  Sum of 0..999: {sum}\n")
+    // Expected: 0+1+2+...+999 = 999*1000/2 = 499500
+
+    // Test 3: Building array dynamically (using shared loop for memory safety)
+    print("\nTest 3 - Build array with push (500 elements):\n")
+    var dynamic: int[] = {}
+    shared for i in 0..500 =>
+        dynamic.push(i * 2)
+    print($"  Length after 500 pushes: {dynamic.length}\n")
+    print($"  First: {dynamic[0]}, Last: {dynamic[499]}\n")
+
+    // Test 4: Large array slicing
+    print("\nTest 4 - Slicing large array:\n")
+    var slice_start: int[] = large1[..10]
+    var slice_middle: int[] = large1[495..505]
+    var slice_end: int[] = large1[990..]
+    print("  First 10: ")
+    print(slice_start)
+    print("\n")
+    print("  Middle 10 (495-504): ")
+    print(slice_middle)
+    print("\n")
+    print("  Last 10: ")
+    print(slice_end)
+    print("\n")
+
+    // Test 5: Large array with step slicing
+    print("\nTest 5 - Step slicing (every 100th element):\n")
+    var step_slice: int[] = large1[..:100]
+    print("  Every 100th: ")
+    print(step_slice)
+    print("\n")
+    print($"  Length: {step_slice.length}\n")
+
+    // Test 6: Copy large array
+    print("\nTest 6 - Clone large array:\n")
+    var cloned: int[] = large1.clone()
+    print($"  Cloned length: {cloned.length}\n")
+    // Modify clone to verify independence
+    cloned[0] = 9999
+    print($"  Original first: {large1[0]}\n")
+    print($"  Cloned first (modified): {cloned[0]}\n")
+
+    // Test 7: Concat large arrays
+    print("\nTest 7 - Concat two 100-element arrays:\n")
+    var arr_a: int[] = 0..100
+    var arr_b: int[] = 100..200
+    var combined: int[] = arr_a.concat(arr_b)
+    print($"  Combined length: {combined.length}\n")
+    print($"  Element 99: {combined[99]}, Element 100: {combined[100]}\n")
+
+    // Test 8: Memory cleanup after scope
+    print("\nTest 8 - Array in private block (memory cleanup):\n")
+    var survived: int = 0
+    private =>
+        var temp_large: int[] = 0..500
+        var temp_sum: int = 0
+        for n in temp_large =>
+            temp_sum = temp_sum + n
+        survived = temp_sum
+    print($"  Sum survived from private block: {survived}\n")
+
+    // Test 9: Reverse large array
+    print("\nTest 9 - Reverse 100-element array:\n")
+    var to_reverse: int[] = 0..100
+    to_reverse.reverse()
+    print($"  First after reverse: {to_reverse[0]}\n")
+    print($"  Last after reverse: {to_reverse[99]}\n")
+
+    // Test 10: Contains/indexOf on large array
+    print("\nTest 10 - Search in large array:\n")
+    var search_target: int = 777
+    var found: bool = large1.contains(search_target)
+    var idx: int = large1.indexOf(search_target)
+    print($"  Contains 777: {found}\n")
+    print($"  Index of 777: {idx}\n")
+    var not_found: int = large1.indexOf(9999)
+    print($"  Index of 9999: {not_found}\n")
+
+    // Verification
+    var errors: int = 0
+    if large1.length != 1000 => errors++
+    if large1[0] != 0 => errors++
+    if large1[999] != 999 => errors++
+    if sum != 499500 => errors++
+    if dynamic.length != 500 => errors++
+    if slice_start.length != 10 => errors++
+    if slice_middle.length != 10 => errors++
+    if slice_end.length != 10 => errors++
+    if step_slice.length != 10 => errors++
+    if cloned.length != 1000 => errors++
+    if large1[0] != 0 => errors++
+    if cloned[0] != 9999 => errors++
+    if combined.length != 200 => errors++
+    if survived != 124750 => errors++
+    if to_reverse[0] != 99 => errors++
+    if to_reverse[99] != 0 => errors++
+    // Workaround for bool comparison bug - convert to int
+    var found_int: int = 0
+    if found => found_int = 1
+    if found_int != 1 => errors++
+    if idx != 777 => errors++
+    if not_found != -1 => errors++
+
+    if errors == 0 =>
+        print("\nAll large array tests PASSED!\n")
+    if errors > 0 =>
+        print($"\n{errors} tests FAILED!\n")
+
+    return 0

@@ -1,0 +1,13 @@
+# Exploratory test: Pointer arithmetic rejection
+# This should fail to compile because pointer arithmetic is not allowed.
+
+native fn get_pointer(): *int
+
+native fn try_pointer_arithmetic(): void =>
+    var p: *int = nil
+    # This should be a compile error - pointer arithmetic not allowed
+    var x: int = p + 1
+    return
+
+fn main(): int =>
+    return 0

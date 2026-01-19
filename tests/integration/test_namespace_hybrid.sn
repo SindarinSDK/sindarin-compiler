@@ -1,0 +1,16 @@
+// Test: Hybrid approach - one direct import, one namespaced import
+import "lib/math_basic"
+import "lib/math_advanced" as adv
+
+fn main(): void =>
+    // Direct import - call without namespace
+    print($"sum(10, 5) = {sum(10, 5)}\n")
+    print($"prod(6, 7) = {prod(6, 7)}\n")
+
+    // Namespaced import - call with namespace
+    print($"adv.power(3, 3) = {adv.power(3, 3)}\n")
+    print($"adv.square(5) = {adv.square(5)}\n")
+
+    // Mix in expressions
+    var result: int = sum(adv.power(2, 4), prod(2, 3))
+    print($"sum(adv.power(2, 4), prod(2, 3)) = {result}\n")

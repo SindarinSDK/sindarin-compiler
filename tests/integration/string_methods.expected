@@ -1,0 +1,11 @@
+Length: 13
+substring: Hello
+indexOf: 7
+toUpper: HELLO, WORLD!
+toLower: hello, world!
+trim: 'hello'
+startsWith: true
+endsWith: true
+contains: true
+replace: Hello, Sindarin!
+split: [a] [b] [c]

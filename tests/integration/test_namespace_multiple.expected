@@ -1,0 +1,5 @@
+math.add(10, 20) = 30
+math.multiply(3, 4) = 12
+strings.greet("World") = Hello, World!
+strings.farewell("World") = Goodbye, World!
+strings.double_str("ab") = abab

@@ -1,0 +1,61 @@
+Testing any arrays - all permutations
+======================================
+
+1. T[] -> any[] in declarations:
+  int[] -> any[]: {1, 2, 3}
+  str[] -> any[]: {"a", "b", "c"}
+  double[] -> any[]: {1.1, 2.2, 3.3}
+  bool[] -> any[]: {true, false, true}
+  long[] -> any[]: {1000000000000, 2000000000000, 3000000000000}
+  char[] -> any[]: {a, b, c}
+  byte[] -> any[]: {255, 128, 64}
+
+2. T[] -> any[] in assignments:
+  int[] -> any[]: {10, 20, 30}
+  str[] -> any[]: {"x", "y", "z"}
+  double[] -> any[]: {4.4, 5.5, 6.6}
+  bool[] -> any[]: {false, true, false}
+  long[] -> any[]: {9000000000000, 8000000000000}
+  char[] -> any[]: {x, y, z}
+  byte[] -> any[]: {200, 100, 50}
+
+3. any[] -> T[] casting:
+  any[] -> int[]: {100, 200, 300}
+  any[] -> str[]: {"hello", "world"}
+  any[] -> double[]: {1.5, 2.5}
+  any[] -> bool[]: {true, false}
+  any[] -> long[]: {5000000000000, 6000000000000}
+  any[] -> char[]: {'m', 'n', 'o'}
+  any[] -> byte[]: {10, 20, 30}
+
+4. T[][] -> any[][] in declarations:
+  int[][] -> any[][]: {{1, 2}, {3, 4}}
+  str[][] -> any[][]: {{"a", "b"}, {"c", "d"}}
+  double[][] -> any[][]: {{1.1, 2.2}, {3.3, 4.4}}
+  bool[][] -> any[][]: {{true, false}, {false, true}}
+  long[][] -> any[][]: {{1000000000000, 2000000000000}, {3000000000000, 4000000000000}}
+  char[][] -> any[][]: {{a, b}, {c, d}}
+  byte[][] -> any[][]: {{255, 128}, {64, 32}}
+
+5. T[][] -> any[][] in assignments:
+  int[][] -> any[][]: {{10, 20}, {30, 40}}
+  str[][] -> any[][]: {{"p", "q"}, {"r", "s"}}
+  double[][] -> any[][]: {{7.7, 8.8}, {9.9, 10.1}}
+  bool[][] -> any[][]: {{true, false}, {false, true}}
+  long[][] -> any[][]: {{100000000000, 200000000000}, {300000000000, 400000000000}}
+  char[][] -> any[][]: {{w, x}, {y, z}}
+  byte[][] -> any[][]: {{15, 25}, {35, 45}}
+
+6. any[] string interpolation:
+  mixed types: {1, "two", 3, true}
+
+7. any[][] string interpolation:
+  nested ints: {{1, 2, 3}, {4, 5, 6}}
+  nested strings: {{"a", "b"}, {"c", "d", "e"}}
+
+8. String values displayed with quotes:
+  strings show quotes: {"hello", "world"}
+  numeric strings (quoted): {"1", "2", "3"}
+  actual ints (no quotes): {1, 2, 3}
+
+All any array tests passed!

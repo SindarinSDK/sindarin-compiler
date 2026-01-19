@@ -1,0 +1,213 @@
+// Test 139: Comprehensive spread operator tests
+// Tests {...arr} copy syntax, prepend/append, multiple spreads, and ranges
+
+fn main(): int =>
+    print("Test comprehensive spread operator:\n\n")
+
+    // === Section 1: Basic {...arr} copy syntax ===
+    print("=== Section 1: Basic copy syntax ===\n")
+    var original: int[] = {1, 2, 3, 4, 5}
+    var copy: int[] = {...original}
+    print("original = ")
+    print(original)
+    print("\n")
+    print("copy = {...original} = ")
+    print(copy)
+    print("\n")
+    
+    // Verify copy independence
+    copy.push(6)
+    print("After copy.push(6):\n")
+    print("  original = ")
+    print(original)
+    print("\n")
+    print("  copy = ")
+    print(copy)
+    print("\n")
+    
+    // Empty array spread
+    var empty: int[] = {}
+    var emptyCopy: int[] = {...empty}
+    print("empty spread: {...{}} = ")
+    print(emptyCopy)
+    print($" (length: {emptyCopy.length})\n")
+
+    // === Section 2: Prepend/Append with spread ===
+    print("\n=== Section 2: Prepend/Append ===\n")
+    var arr: int[] = {1, 2, 3}
+    
+    // Prepend single element
+    var prepend1: int[] = {0, ...arr}
+    print("{0, ...arr} = ")
+    print(prepend1)
+    print("\n")
+    
+    // Prepend multiple elements
+    var prepend2: int[] = {-2, -1, 0, ...arr}
+    print("{-2, -1, 0, ...arr} = ")
+    print(prepend2)
+    print("\n")
+    
+    // Append single element
+    var append1: int[] = {...arr, 4}
+    print("{...arr, 4} = ")
+    print(append1)
+    print("\n")
+    
+    // Append multiple elements
+    var append2: int[] = {...arr, 4, 5, 6}
+    print("{...arr, 4, 5, 6} = ")
+    print(append2)
+    print("\n")
+    
+    // Both prepend and append
+    var both: int[] = {0, ...arr, 4}
+    print("{0, ...arr, 4} = ")
+    print(both)
+    print("\n")
+    
+    // Multiple prepend and append
+    var complex: int[] = {-1, 0, ...arr, 4, 5}
+    print("{-1, 0, ...arr, 4, 5} = ")
+    print(complex)
+    print("\n")
+
+    // === Section 3: Multiple spreads ===
+    print("\n=== Section 3: Multiple spreads ===\n")
+    var a: int[] = {1, 2}
+    var b: int[] = {3, 4}
+    var c: int[] = {5, 6}
+    
+    // Two spreads
+    var twoSpreads: int[] = {...a, ...b}
+    print("{...a, ...b} = ")
+    print(twoSpreads)
+    print("\n")
+    
+    // Three spreads
+    var threeSpreads: int[] = {...a, ...b, ...c}
+    print("{...a, ...b, ...c} = ")
+    print(threeSpreads)
+    print("\n")
+    
+    // Four spreads
+    var d: int[] = {7, 8}
+    var fourSpreads: int[] = {...a, ...b, ...c, ...d}
+    print("{...a, ...b, ...c, ...d} = ")
+    print(fourSpreads)
+    print("\n")
+    
+    // Spreads with values in between
+    var mixed: int[] = {...a, 100, ...b, 200, ...c}
+    print("{...a, 100, ...b, 200, ...c} = ")
+    print(mixed)
+    print("\n")
+    
+    // Same array spread multiple times
+    var doubled: int[] = {...a, ...a}
+    print("{...a, ...a} = ")
+    print(doubled)
+    print("\n")
+
+    // === Section 4: Spread with range literals ===
+    print("\n=== Section 4: Spread with range literals ===\n")
+    var base: int[] = {1, 2, 3}
+    
+    // Spread then range
+    var spreadRange: int[] = {...base, 10..15}
+    print("{...base, 10..15} = ")
+    print(spreadRange)
+    print("\n")
+    
+    // Range then spread
+    var rangeSpread: int[] = {10..13, ...base}
+    print("{10..13, ...base} = ")
+    print(rangeSpread)
+    print("\n")
+    
+    // Range, spread, range
+    var rangeSpreadRange: int[] = {0..3, ...base, 10..13}
+    print("{0..3, ...base, 10..13} = ")
+    print(rangeSpreadRange)
+    print("\n")
+    
+    // Multiple ranges with spread
+    var multiRange: int[] = {0..2, ...a, 5..7, ...b, 10..12}
+    print("{0..2, ...a, 5..7, ...b, 10..12} = ")
+    print(multiRange)
+    print("\n")
+
+    // === Section 5: Different types ===
+    print("\n=== Section 5: Different types ===\n")
+    
+    // String arrays
+    var strs: str[] = {"hello", "world"}
+    var strSpread: str[] = {"hi", ...strs, "bye"}
+    print("string spread: ")
+    print(strSpread)
+    print("\n")
+    
+    // Double arrays
+    var doubles: double[] = {1.1, 2.2, 3.3}
+    var doubleSpread: double[] = {0.0, ...doubles, 4.4}
+    print("double spread: ")
+    print(doubleSpread)
+    print("\n")
+    
+    // Bool arrays
+    var bools: bool[] = {true, false}
+    var boolSpread: bool[] = {false, ...bools, true}
+    print("bool spread: ")
+    print(boolSpread)
+    print("\n")
+    
+    // Char arrays
+    var chars: char[] = {'a', 'b', 'c'}
+    var charSpread: char[] = {'z', ...chars, 'z'}
+    print("char spread: ")
+    print(charSpread)
+    print("\n")
+
+    // === Section 6: Edge cases ===
+    print("\n=== Section 6: Edge cases ===\n")
+    
+    // Single element array spread
+    var single: int[] = {42}
+    var singleSpread: int[] = {...single}
+    print("single element spread: ")
+    print(singleSpread)
+    print("\n")
+    
+    // Spread with single value prepend/append
+    var singleBoth: int[] = {0, ...single, 99}
+    print("{0, ...single, 99} = ")
+    print(singleBoth)
+    print("\n")
+    
+    // Large array spread
+    var large: int[] = {1..20}
+    var largeSpread: int[] = {...large}
+    print($"large array spread length: {largeSpread.length}\n")
+    
+    // Deeply nested spreads
+    var level1: int[] = {1, 2}
+    var level2: int[] = {...level1, 3, 4}
+    var level3: int[] = {...level2, 5, 6}
+    var level4: int[] = {...level3, 7, 8}
+    print("nested spreads level4: ")
+    print(level4)
+    print("\n")
+
+    // === Section 7: Length verification ===
+    print("\n=== Section 7: Length verification ===\n")
+    var x: int[] = {1, 2, 3}
+    var y: int[] = {4, 5}
+    var z: int[] = {...x, ...y}
+    print($"x.length = {x.length}, y.length = {y.length}\n")
+    print($"{{...x, ...y}}.length = {z.length}\n")
+    
+    var withValues: int[] = {0, ...x, 100, ...y, 200}
+    print($"{{0, ...x, 100, ...y, 200}}.length = {withValues.length}\n")
+
+    print("\nAll spread operator tests passed!\n")
+    return 0

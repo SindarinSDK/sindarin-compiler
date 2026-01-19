@@ -1,0 +1,54 @@
+// Test 92: Byte array operations
+// Tests arrays of byte type
+
+fn main(): int =>
+    print("Test byte arrays:\n\n")
+
+    // Test 1: Create byte array
+    print("Test 1 - Byte array creation:\n")
+    var arr: byte[] = {10, 20, 30, 40, 50}
+    print($"  Array: {arr}\n")
+    print($"  Length: {arr.length}\n")
+
+    // Test 2: Access byte array elements
+    print("\nTest 2 - Element access:\n")
+    print($"  arr[0] = {arr[0]}\n")
+    print($"  arr[2] = {arr[2]}\n")
+    print($"  arr[4] = {arr[4]}\n")
+
+    // Test 3: Modify byte array
+    print("\nTest 3 - Modify elements:\n")
+    arr[0] = 100
+    arr[2] = 255
+    print($"  After modify: {arr}\n")
+
+    // Test 4: Sum byte array
+    print("\nTest 4 - Sum array:\n")
+    var bytes: byte[] = {1, 2, 3, 4, 5}
+    var sum: int = 0
+    shared for b in bytes =>
+        sum = sum + b
+    print($"  Sum: {sum}\n")
+
+    // Test 5: Push to byte array
+    print("\nTest 5 - Push:\n")
+    var data: byte[] = {1, 2, 3}
+    data.push(4)
+    data.push(5)
+    print($"  After push: {data}\n")
+    print($"  Length: {data.length}\n")
+
+    // Test 6: Empty byte array
+    print("\nTest 6 - Empty array:\n")
+    var empty: byte[] = {}
+    print($"  Empty length: {empty.length}\n")
+    empty.push(255)
+    print($"  After push: {empty}\n")
+
+    // Test 7: Byte array with max values
+    print("\nTest 7 - Max values:\n")
+    var max_bytes: byte[] = {255, 255, 255}
+    print($"  Max bytes: {max_bytes}\n")
+
+    print("\nAll byte array tests passed!\n")
+    return 0

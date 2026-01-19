@@ -1,0 +1,12 @@
+Hex of Hello: 48656c6c6f
+toString of Hello: Hello
+Base64 of Hello: SGVsbG8=
+Base64 of Man: TWFu
+Base64 of Ma: TWE=
+Base64 of M: TQ==
+Hex of 0xAB: ab
+Hex of empty: ''
+Base64 of empty: ''
+Latin1 string: café
+PNG header hex: 89504e47
+All byte encoding tests completed!

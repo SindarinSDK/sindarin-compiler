@@ -1,0 +1,57 @@
+// Integration test for qsort-style native comparator callback pattern
+// Demonstrates end-to-end native callback functionality:
+// - Declares 'type Comparator = native fn(a: *void, b: *void): int'
+// - Creates native lambda with void pointer parameters
+// - Passes native callback to native function
+// - Callback executes and returns correct value
+
+#pragma include <stdlib.h>
+
+// Define the qsort comparator callback type (exact signature from libc)
+type Comparator = native fn(a: *void, b: *void): int
+
+// Native function that accepts and invokes a comparator callback
+// This simulates how qsort would call the comparator
+native fn invoke_comparator(cmp: Comparator, a: *void, b: *void): int =>
+    return cmp(a, b)
+
+// Native function that tests the comparator with nil pointers
+native fn test_nil_comparison(cmp: Comparator): int =>
+    // Simulates qsort passing addresses to the comparator
+    return invoke_comparator(cmp, nil, nil)
+
+// Native function that creates a comparator and uses it
+native fn run_comparator_test(): int =>
+    // Create a native lambda matching the Comparator typedef signature
+    // This demonstrates native callback creation
+    var cmp: Comparator = fn(a: *void, b: *void): int =>
+        // Simple comparator logic: equal pointers are equal
+        if a == b =>
+            return 0
+        if a == nil =>
+            return -1  // nil < non-nil
+        if b == nil =>
+            return 1   // non-nil > nil
+        return 0       // Both non-nil, treat as equal for this test
+    
+    // Test the comparator via the native function
+    var result: int = test_nil_comparison(cmp)
+    
+    // Both pointers were nil, so should return 0 (equal)
+    return result
+
+fn main(): int =>
+    print("Testing qsort-style native comparator callback\n")
+    
+    var result: int = run_comparator_test()
+    
+    if result == 0 =>
+        print("PASS: Comparator callback executed correctly\n")
+        print("- Defined type Comparator = native fn(a: *void, b: *void): int\n")
+        print("- Created native lambda matching Comparator signature\n")
+        print("- Passed callback to native function\n")
+        print("- Callback returned expected comparison result\n")
+        return 0
+    else =>
+        print($"FAIL: Unexpected comparator result: {result}\n")
+        return 1

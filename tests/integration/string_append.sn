@@ -1,0 +1,23 @@
+// Test string append code generation
+// Verifies rt_string_append is called with proper reassignment
+
+fn main(): void =>
+    // Basic string append to empty string
+    var s: str = ""
+    s.append("hello")
+    print($"s: {s}\n")
+
+    // Multiple appends
+    var msg: str = ""
+    msg.append("a")
+    msg.append("b")
+    msg.append("c")
+    print($"msg: {msg}\n")
+
+    // Append to non-empty string
+    var greeting: str = "Hello"
+    greeting.append(" ")
+    greeting.append("World")
+    print($"greeting: {greeting}\n")
+
+    print("String append test complete\n")
