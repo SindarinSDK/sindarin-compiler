@@ -1,17 +1,17 @@
 // Test: Pattern-based interceptor registration with threads
 // Verifies registerWhere pattern matching works with spawned threads
 
-var get_calls: int = 0
-var set_calls: int = 0
+var get_calls: sync int = 0
+var set_calls: sync int = 0
 
 fn getInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
-    get_calls = get_calls + 1
+    get_calls++
     print($"GET intercepted: {name}\n")
     var result: any = 999
     return result
 
 fn setInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
-    set_calls = set_calls + 1
+    set_calls++
     print($"SET intercepted: {name}\n")
     var result: any = 0
     return result
