@@ -1,0 +1,103 @@
+// Test single-line if and else bodies (on separate lines)
+// Verifies that if condition => stmt (newline) else => stmt works
+
+fn main(): int =>
+    var errors: int = 0
+
+    // Test 1: Basic single-line if-else bodies
+    print("Test 1 - Single-line if-else bodies:\n")
+    var x: int = 10
+    var result1: int = 0
+    if x > 5 => result1 = 1
+    else => result1 = 0
+    if result1 != 1 => errors++
+
+    var y: int = 3
+    var result2: int = 0
+    if y > 5 => result2 = 1
+    else => result2 = 0
+    if result2 != 0 => errors++
+    print($"  x > 5 result: {result1}, y > 5 result: {result2}\n")
+
+    // Test 2: Single-line bodies with function calls
+    print("\nTest 2 - With function calls:\n")
+    var msg: str = ""
+    if x > 5 => msg = get_large()
+    else => msg = get_small()
+    if msg != "large" => errors++
+    print($"  Message: {msg}\n")
+
+    // Test 3: Single-line if-else in a loop
+    print("\nTest 3 - In a loop:\n")
+    var evens: int = 0
+    var odds: int = 0
+    for i in 1..10 =>
+        if i % 2 == 0 => evens++
+        else => odds++
+    if evens != 4 => errors++
+    if odds != 5 => errors++
+    print($"  Evens: {evens}, Odds: {odds}\n")
+
+    // Test 4: Chained else if with single-line bodies
+    print("\nTest 4 - Chained else if:\n")
+    var a: int = 15
+    var category: str = ""
+    if a < 10 => category = "small"
+    else if a < 20 => category = "medium"
+    else => category = "large"
+    if category != "medium" => errors++
+    print($"  Category for {a}: {category}\n")
+
+    // Test 5: Single-line if-else with expressions
+    print("\nTest 5 - With expressions:\n")
+    var p: int = 7
+    var q: int = 3
+    var max_val: int = 0
+    if p > q => max_val = p
+    else => max_val = q
+    if max_val != 7 => errors++
+    print($"  Max of {p} and {q}: {max_val}\n")
+
+    // Test 6: Single-line if-else with boolean result
+    print("\nTest 6 - Boolean assignments:\n")
+    var flag: bool = false
+    if x == 10 => flag = true
+    else => flag = false
+    var flag_int: int = 0
+    if flag => flag_int = 1
+    if flag_int != 1 => errors++
+    print($"  Flag is true: {flag_int}\n")
+
+    // Test 7: Long else-if chain with single-line bodies
+    print("\nTest 7 - Long else-if chain:\n")
+    var score: int = 75
+    var grade: str = ""
+    if score >= 90 => grade = "A"
+    else if score >= 80 => grade = "B"
+    else if score >= 70 => grade = "C"
+    else if score >= 60 => grade = "D"
+    else => grade = "F"
+    if grade != "C" => errors++
+    print($"  Grade for {score}: {grade}\n")
+
+    // Test 8: Mixed single-line and block bodies
+    print("\nTest 8 - Mixed bodies:\n")
+    var num: int = 50
+    var desc: str = ""
+    if num < 25 => desc = "low"
+    else if num < 75 =>
+        desc = "medium"
+        print("  (in medium block)\n")
+    else => desc = "high"
+    if desc != "medium" => errors++
+    print($"  Description: {desc}\n")
+
+    // Print results
+    print($"\nErrors: {errors}\n")
+    if errors == 0 => print("All single-line if-else tests passed!\n")
+    else => print("Some tests failed!\n")
+
+    return errors
+
+fn get_large(): str => "large"
+fn get_small(): str => "small"
