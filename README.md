@@ -46,7 +46,7 @@ sn --version
 
 ```bash
 # Download PKGBUILD from the release
-curl -LO https://github.com/RealOrko/sindarin/releases/latest/download/PKGBUILD
+curl -LO https://github.com/SindarinSDK/sindarin-compiler/releases/latest/download/PKGBUILD
 
 # Build and install
 makepkg -si
@@ -56,7 +56,7 @@ makepkg -si
 
 ```bash
 # Download the formula from the release
-curl -LO https://github.com/RealOrko/sindarin/releases/latest/download/sindarin.rb
+curl -LO https://github.com/SindarinSDK/sindarin-compiler/releases/latest/download/sindarin.rb
 
 # Install (will prompt for Xcode CLT if needed)
 brew install --formula ./sindarin.rb
