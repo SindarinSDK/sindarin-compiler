@@ -78,7 +78,7 @@ INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(ROOT_SRC) -I$(ROOT_SRC)/runtim
 
 # Linker flags
 ifeq ($(PLATFORM),windows)
-    LDFLAGS := -lws2_32 -lbcrypt -lpthread
+    LDFLAGS := -lws2_32 -lbcrypt -lpthread -ldbghelp
 else
     LDFLAGS := -lpthread -lm -ldl
 endif
@@ -353,6 +353,20 @@ run: build
 # test - Compile and run test_zlib.sn
 #------------------------------------------------------------------------------
 export VCPKG_ROOT
+# Debug symbols for symbol resolution in malloc hooks
+# On Windows, use CodeView format for DbgHelp compatibility
+ifeq ($(PLATFORM),windows)
+    export SN_CFLAGS := -g -gcodeview
+else
+    export SN_CFLAGS := -g
+endif
+
+ifeq ($(PLATFORM),windows)
+    # -pdb= tells lld to generate PDB debug database for DbgHelp symbol resolution
+    export SN_LDFLAGS := -ldbghelp -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc -Wl,-pdb=
+else
+    export SN_LDFLAGS := -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+endif
 
 test: build
 	@echo ""
