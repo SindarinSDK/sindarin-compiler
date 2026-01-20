@@ -405,39 +405,90 @@ gcc -Wl,--wrap=malloc -Wl,--wrap=free -o program program.c
 
 ## This Experiment's Approach
 
-This experiment uses **compile-time function wrapping** within the arena implementation. The `runtime_arena.c` file wraps low-level memory calls (malloc, calloc, free) through hook functions that:
+This experiment uses **linker-level hooking** to capture all memory allocations in compiled Sindarin programs, including allocations from statically linked libraries like zlib.
 
-1. Print diagnostic information (function name, size, pointer)
-2. Delegate to the real implementation
-3. Are conditionally compiled based on `SN_MALLOC_HOOKS` define
+### How It Works
 
-This approach was chosen because:
-- It doesn't require external libraries
-- Works consistently across all platforms
-- Only affects the arena code (not all allocations in the program)
-- Can be easily enabled/disabled at compile time
+The `runtime_malloc_hooks.c` file provides `__wrap_malloc`/`__wrap_free` functions that intercept **all** malloc/free calls in the executable:
+
+```
+[SN_ALLOC] malloc(65536) = 0x55555555b2a0
+[SN_ALLOC] malloc(5952) = 0x55555555c2b0
+[SN_ALLOC] free(0x55555555c2b0)
+```
+
+This is enabled via linker flags in `etc/sn.cfg`:
+```
+SN_LDFLAGS=-Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+```
+
+The `--wrap` linker flag redirects all calls to `malloc` to `__wrap_malloc`, which logs the call and then invokes `__real_malloc` (the actual libc function).
+
+### Critical: Static Linking Requirement
+
+**The `--wrap` linker flag only works for statically linked code.**
+
+Libraries that are dynamically linked (`.so`/`.dylib`/`.dll`) resolve their malloc calls directly to libc at runtime, bypassing the wrapper entirely.
+
+To capture allocations from a library like zlib:
+
+| Linking | SDK Directive | Hooks Capture |
+|---------|---------------|---------------|
+| Dynamic | `@link z` | Only Sindarin runtime allocations |
+| **Static** | `@link :libz.a` | **All allocations including zlib** |
+
+The experiment includes a modified `sdk/zlib.sn` that uses static linking:
+```sindarin
+@link :libz.a    # Static - hooks capture zlib allocations
+# vs
+@link z          # Dynamic - zlib allocations bypass hooks
+```
+
+### Platform Support
+
+| Platform | Linker Wrapping | Notes |
+|----------|-----------------|-------|
+| Linux (GCC/Clang) | `--wrap` | Fully supported |
+| Windows (MinGW/Clang) | `--wrap` | Fully supported |
+| macOS | Not supported | Apple linker lacks `--wrap`; use DYLD_INSERT_LIBRARIES instead |
 
 ### Building the Experiment
 
 ```bash
 cd experiments/malloc
-make build              # Build with hooks enabled
+make build              # Build compiler and runtime with hooks
+make test               # Compile and run tests/test_zlib.sn
 make run                # Compile and run samples/main.sn
 make clean              # Clean artifacts
 ```
 
 ### Files Modified
 
-- `src/runtime/runtime_arena.h` - Adds hook function declarations
-- `src/runtime/runtime_arena.c` - Implements hooks wrapping malloc/calloc/free
-- `Makefile` - Custom build that substitutes experimental arena files
+- `src/runtime/runtime_malloc_hooks.h` - Linker wrapper declarations
+- `src/runtime/runtime_malloc_hooks.c` - Linker-level `__wrap_*` functions
+- `src/runtime/runtime_arena.c` - Simplified (uses standard malloc/free)
+- `etc/sn.cfg` - Adds `--wrap` linker flags
+- `sdk/zlib.sn` - Uses static linking (`@link :libz.a`)
+- `Makefile` - Builds experimental compiler and runtime
 
 ### Expected Output
 
-When hooks are enabled, you'll see output like:
+When hooks are enabled, you'll see allocation logs for everything:
+
 ```
-[SN_HOOK] sn_malloc(65560) = 0x55555555a2a0
-[SN_HOOK] sn_malloc(65552) = 0x55555556a2b0
-[SN_HOOK] sn_free(0x55555556a2b0)
-[SN_HOOK] sn_free(0x55555555a2a0)
+[SN_ALLOC] malloc(72) = 0x5da648ac72a0        # arena struct
+[SN_ALLOC] malloc(65560) = 0x5da648ac72f0     # arena block
+[SN_ALLOC] malloc(5952) = 0x5da648ae8390      # zlib deflate state
+[SN_ALLOC] malloc(65536) = 0x5da648ae83e0     # zlib internal buffer
+[SN_ALLOC] malloc(7160) = 0x5da648af8400      # zlib inflate state
+[SN_ALLOC] free(0x5da648af8400)
 ```
+
+Typical allocation sizes:
+| Size | Source |
+|------|--------|
+| 72 | Sindarin arena struct |
+| 65560 | Sindarin arena block (64KB + header) |
+| 5952 | zlib deflate state |
+| 7160 | zlib inflate state |
+| 65536 | zlib internal buffers |
