@@ -1,503 +1,245 @@
-# Memory Management Hooks Experiment
+# Memory Allocation Hooks Experiment
 
-This experiment explores platform-specific hooks that override memory management functions (malloc, calloc, realloc, free) to add instrumentation while delegating to the original implementations.
+This experiment intercepts all memory allocation calls (malloc, calloc, realloc, free) in compiled Sindarin programs, including allocations from statically linked libraries like zlib.
 
 ## Experiment Rules
 
-These rules govern how experiments are conducted to maintain isolation from the main codebase:
+1. **Isolation**: All changes stay within `experiments/malloc/`
+2. **Copy Before Modify**: Files from the main codebase are copied here before modification
+3. **Backwards Compatibility**: Modified files remain API-compatible with originals
+4. **Build Isolation**: Compiles to `experiments/malloc/bin/`, substituting only changed files
+5. **Clear Output**: Hooked functions print diagnostic output identifying the caller
 
-1. **Isolation**: All experiment changes stay within `experiments/malloc/`
-2. **Copy Before Modify**: If files outside the experiment need changes, copy them into the experiment folder first
-3. **Backwards Compatibility**: Modified files (e.g., `runtime_arena.h`, `runtime_arena.c`) must remain API-compatible with the originals
-4. **Build Isolation**: The experiment Makefile compiles to `experiments/malloc/bin/`, substituting only the changed arena files
-5. **Clear Output**: Hooked functions must print clear diagnostic output before delegating to original implementations
-6. **Minimal Changes**: The main Makefile/CMakeLists.txt should not be modified; build changes go in `experiments/malloc/Makefile`
+## How the Interceptor Works
 
-## Platform-Specific Memory Hooking Techniques
+The interceptor uses the **linker's `--wrap` flag** to redirect memory allocation calls at link time.
 
-### Linux
+When you link with `--wrap=malloc`:
+- All calls to `malloc()` are redirected to `__wrap_malloc()`
+- The original `malloc()` becomes available as `__real_malloc()`
 
-Linux offers several approaches for hooking memory allocation:
+This happens at the linker level, meaning:
+- **ALL** code in the final executable goes through the wrapper
+- This includes the Sindarin runtime AND any statically linked libraries
+- No source code modifications are needed in the libraries
 
-#### 1. LD_PRELOAD (Recommended for instrumentation)
+### Caller Identification
 
-The simplest and most portable approach on Linux. Create a shared library that defines malloc/free/etc. and preload it.
+Each allocation log includes the caller's function name:
 
-```c
-// malloc_hook.c
-#define _GNU_SOURCE
-#include <dlfcn.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-// Function pointers to original implementations
-static void *(*real_malloc)(size_t) = NULL;
-static void (*real_free)(void *) = NULL;
-static void *(*real_calloc)(size_t, size_t) = NULL;
-static void *(*real_realloc)(void *, size_t) = NULL;
-
-// Initialization - resolve original functions
-static void init_hooks(void) {
-    if (!real_malloc) {
-        real_malloc = dlsym(RTLD_NEXT, "malloc");
-        real_free = dlsym(RTLD_NEXT, "free");
-        real_calloc = dlsym(RTLD_NEXT, "calloc");
-        real_realloc = dlsym(RTLD_NEXT, "realloc");
-    }
-}
-
-void *malloc(size_t size) {
-    init_hooks();
-    void *ptr = real_malloc(size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-void free(void *ptr) {
-    init_hooks();
-    fprintf(stderr, "[HOOK] free(%p)\n", ptr);
-    real_free(ptr);
-}
-
-void *calloc(size_t count, size_t size) {
-    init_hooks();
-    void *ptr = real_calloc(count, size);
-    fprintf(stderr, "[HOOK] calloc(%zu, %zu) = %p\n", count, size, ptr);
-    return ptr;
-}
-
-void *realloc(void *ptr, size_t size) {
-    init_hooks();
-    void *new_ptr = real_realloc(ptr, size);
-    fprintf(stderr, "[HOOK] realloc(%p, %zu) = %p\n", ptr, size, new_ptr);
-    return new_ptr;
-}
+```
+[SN_ALLOC] malloc(72) = 0x55652b12a0  [rt_arena_create_sized]
+[SN_ALLOC] malloc(5952) = 0x55652e2450  [deflateInit_]
 ```
 
-**Build and use:**
+This is achieved using:
+- **Linux**: `__builtin_return_address(0)` + `dladdr()` for symbol lookup
+- **Windows**: `__builtin_return_address(0)` + `DbgHelp` API for symbol lookup
+
+## Static Linking Requirement
+
+**The `--wrap` flag only intercepts statically linked code.**
+
+Dynamically linked libraries (`.so`, `.dylib`, `.dll`) resolve their malloc calls directly to libc at runtime, completely bypassing the wrapper.
+
+| Linking Type | SDK Directive | What Gets Captured |
+|--------------|---------------|-------------------|
+| Dynamic | `@link z` | Only Sindarin runtime |
+| **Static** | `@link :libz.a` | **Everything** (runtime + zlib) |
+
+The experiment includes a local `sdk/zlib.sn` configured for static linking.
+
+## Platform Setup
+
+### Linux (GCC/Clang)
+
+**Compiler flags** (set in `etc/sn.cfg`):
+
+```
+SN_CFLAGS=-g
+SN_LDFLAGS=-rdynamic -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+```
+
+| Flag | Purpose |
+|------|---------|
+| `-g` | Generate debug symbols for function name resolution |
+| `-rdynamic` | Export all symbols so `dladdr()` can resolve function names |
+| `-Wl,--wrap=malloc` | Redirect `malloc()` calls to `__wrap_malloc()` |
+
+**Runtime dependency**: The `-ldl` flag links libdl for `dladdr()` symbol resolution.
+
+**Build requirements**:
+- GCC or Clang
+- Static library for any SDK dependency you want to intercept (e.g., `libz.a`)
+
+### Windows (Clang/MinGW)
+
+**Compiler flags** (set in `etc/sn.cfg`):
+
+```
+SN_CFLAGS=-g -gcodeview
+SN_LDFLAGS=-ldbghelp -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc -Wl,-pdb=
+```
+
+| Flag | Purpose |
+|------|---------|
+| `-g` | Generate debug symbols |
+| `-gcodeview` | Use CodeView debug format (required for DbgHelp) |
+| `-Wl,-pdb=` | Generate PDB file alongside executable |
+| `-ldbghelp` | Link DbgHelp library for symbol resolution |
+| `-Wl,--wrap=malloc` | Redirect `malloc()` calls to `__wrap_malloc()` |
+
+**Build requirements**:
+- LLVM-MinGW or MinGW-w64 with Clang (NOT MSVC - it lacks `--wrap` support)
+- Windows SDK (for DbgHelp)
+- Static libraries for SDK dependencies (e.g., `zlib.lib` or `libz.a`)
+
+**Installing dependencies** (using vcpkg):
 ```bash
-gcc -shared -fPIC -o libmalloc_hook.so malloc_hook.c -ldl
-LD_PRELOAD=./libmalloc_hook.so ./your_program
+vcpkg install zlib:x64-mingw-static
 ```
-
-#### 2. Compile-Time Macro Replacement
-
-Define macros that replace malloc/free at compile time:
-
-```c
-// hook_macros.h
-#ifndef HOOK_MACROS_H
-#define HOOK_MACROS_H
-
-#include <stdio.h>
-#include <stdlib.h>
-
-static inline void *hooked_malloc(size_t size, const char *file, int line) {
-    void *ptr = malloc(size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p at %s:%d\n", size, ptr, file, line);
-    return ptr;
-}
-
-static inline void hooked_free(void *ptr, const char *file, int line) {
-    fprintf(stderr, "[HOOK] free(%p) at %s:%d\n", ptr, file, line);
-    free(ptr);
-}
-
-#define malloc(size) hooked_malloc(size, __FILE__, __LINE__)
-#define free(ptr) hooked_free(ptr, __FILE__, __LINE__)
-
-#endif
-```
-
-#### 3. GNU Malloc Hooks (Deprecated but available)
-
-```c
-#include <malloc.h>
-
-static void *(*old_malloc_hook)(size_t, const void *);
-static void (*old_free_hook)(void *, const void *);
-
-static void *my_malloc_hook(size_t size, const void *caller) {
-    void *result;
-    __malloc_hook = old_malloc_hook;
-    result = malloc(size);
-    old_malloc_hook = __malloc_hook;
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, result);
-    __malloc_hook = my_malloc_hook;
-    return result;
-}
-
-__attribute__((constructor))
-static void init_hooks(void) {
-    old_malloc_hook = __malloc_hook;
-    __malloc_hook = my_malloc_hook;
-}
-```
-
-**Note:** `__malloc_hook` is deprecated in glibc and not thread-safe.
-
----
 
 ### macOS
 
-macOS provides different mechanisms for memory hooking:
+**The Apple linker does not support `--wrap`.**
 
-#### 1. DYLD_INSERT_LIBRARIES (Similar to LD_PRELOAD)
+For macOS, use the `DYLD_INSERT_LIBRARIES` approach instead:
 
-```c
-// malloc_hook_macos.c
-#include <dlfcn.h>
-#include <stdio.h>
-#include <stdlib.h>
-
-// Use interposition to hook functions
-typedef struct {
-    const void *replacement;
-    const void *replacee;
-} interpose_t;
-
-void *my_malloc(size_t size);
-void my_free(void *ptr);
-void *my_calloc(size_t count, size_t size);
-void *my_realloc(void *ptr, size_t size);
-
-// Interposition array - tells dyld to replace functions
-__attribute__((used, section("__DATA,__interpose")))
-static const interpose_t interposers[] = {
-    { (const void *)my_malloc, (const void *)malloc },
-    { (const void *)my_free, (const void *)free },
-    { (const void *)my_calloc, (const void *)calloc },
-    { (const void *)my_realloc, (const void *)realloc },
-};
-
-void *my_malloc(size_t size) {
-    void *ptr = malloc(size);  // Calls original due to interposition
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-void my_free(void *ptr) {
-    fprintf(stderr, "[HOOK] free(%p)\n", ptr);
-    free(ptr);  // Calls original
-}
-
-void *my_calloc(size_t count, size_t size) {
-    void *ptr = calloc(count, size);
-    fprintf(stderr, "[HOOK] calloc(%zu, %zu) = %p\n", count, size, ptr);
-    return ptr;
-}
-
-void *my_realloc(void *ptr, size_t size) {
-    void *new_ptr = realloc(ptr, size);
-    fprintf(stderr, "[HOOK] realloc(%p, %zu) = %p\n", ptr, size, new_ptr);
-    return new_ptr;
-}
-```
-
-**Build and use:**
+1. Build a shared library containing hook functions:
 ```bash
-clang -shared -fPIC -o libmalloc_hook.dylib malloc_hook_macos.c
-DYLD_INSERT_LIBRARIES=./libmalloc_hook.dylib ./your_program
+clang -shared -fPIC -o libhooks.dylib malloc_hooks.c
 ```
 
-**Note:** On macOS 10.11+ with SIP enabled, `DYLD_INSERT_LIBRARIES` doesn't work for system binaries.
-
-#### 2. malloc_zone API (macOS-specific)
-
-macOS uses malloc zones for memory management. You can create a custom zone:
-
-```c
-#include <malloc/malloc.h>
-
-static malloc_zone_t *default_zone;
-static void *(*original_malloc)(malloc_zone_t *, size_t);
-
-static void *hooked_malloc(malloc_zone_t *zone, size_t size) {
-    void *ptr = original_malloc(zone, size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-__attribute__((constructor))
-static void init_hooks(void) {
-    default_zone = malloc_default_zone();
-
-    // Save original and replace
-    original_malloc = default_zone->malloc;
-    default_zone->malloc = hooked_malloc;
-}
-```
-
----
-
-### Windows
-
-Windows requires different techniques depending on the runtime:
-
-#### 1. Detours (Microsoft Research Library)
-
-Microsoft Detours is a professional-grade hooking library:
-
-```c
-#include <windows.h>
-#include <detours.h>
-#include <stdio.h>
-
-// Pointers to original functions
-static void *(*TrueMalloc)(size_t) = malloc;
-static void (*TrueFree)(void *) = free;
-static void *(*TrueCalloc)(size_t, size_t) = calloc;
-static void *(*TrueRealloc)(void *, size_t) = realloc;
-
-void *HookedMalloc(size_t size) {
-    void *ptr = TrueMalloc(size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-void HookedFree(void *ptr) {
-    fprintf(stderr, "[HOOK] free(%p)\n", ptr);
-    TrueFree(ptr);
-}
-
-void *HookedCalloc(size_t count, size_t size) {
-    void *ptr = TrueCalloc(count, size);
-    fprintf(stderr, "[HOOK] calloc(%zu, %zu) = %p\n", count, size, ptr);
-    return ptr;
-}
-
-void *HookedRealloc(void *ptr, size_t size) {
-    void *new_ptr = TrueRealloc(ptr, size);
-    fprintf(stderr, "[HOOK] realloc(%p, %zu) = %p\n", ptr, size, new_ptr);
-    return new_ptr;
-}
-
-BOOL WINAPI DllMain(HINSTANCE hinst, DWORD reason, LPVOID reserved) {
-    if (reason == DLL_PROCESS_ATTACH) {
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-        DetourAttach(&(PVOID&)TrueMalloc, HookedMalloc);
-        DetourAttach(&(PVOID&)TrueFree, HookedFree);
-        DetourAttach(&(PVOID&)TrueCalloc, HookedCalloc);
-        DetourAttach(&(PVOID&)TrueRealloc, HookedRealloc);
-        DetourTransactionCommit();
-    } else if (reason == DLL_PROCESS_DETACH) {
-        DetourTransactionBegin();
-        DetourUpdateThread(GetCurrentThread());
-        DetourDetach(&(PVOID&)TrueMalloc, HookedMalloc);
-        DetourDetach(&(PVOID&)TrueFree, HookedFree);
-        DetourDetach(&(PVOID&)TrueCalloc, HookedCalloc);
-        DetourDetach(&(PVOID&)TrueRealloc, HookedRealloc);
-        DetourTransactionCommit();
-    }
-    return TRUE;
-}
-```
-
-#### 2. Import Address Table (IAT) Hooking
-
-Modify the Import Address Table to redirect function calls:
-
-```c
-#include <windows.h>
-#include <stdio.h>
-
-static void *(*OriginalMalloc)(size_t) = NULL;
-
-void *HookedMalloc(size_t size) {
-    void *ptr = OriginalMalloc(size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-// Patch IAT for a specific module
-void HookIAT(HMODULE module, const char *targetDll,
-             const char *funcName, void *hookFunc, void **original) {
-    PIMAGE_DOS_HEADER dosHeader = (PIMAGE_DOS_HEADER)module;
-    PIMAGE_NT_HEADERS ntHeaders = (PIMAGE_NT_HEADERS)((BYTE *)module + dosHeader->e_lfanew);
-
-    PIMAGE_IMPORT_DESCRIPTOR importDesc = (PIMAGE_IMPORT_DESCRIPTOR)(
-        (BYTE *)module + ntHeaders->OptionalHeader.DataDirectory[IMAGE_DIRECTORY_ENTRY_IMPORT].VirtualAddress
-    );
-
-    while (importDesc->Name) {
-        const char *dllName = (const char *)((BYTE *)module + importDesc->Name);
-        if (_stricmp(dllName, targetDll) == 0) {
-            PIMAGE_THUNK_DATA thunk = (PIMAGE_THUNK_DATA)((BYTE *)module + importDesc->FirstThunk);
-            PIMAGE_THUNK_DATA origThunk = (PIMAGE_THUNK_DATA)((BYTE *)module + importDesc->OriginalFirstThunk);
-
-            while (origThunk->u1.AddressOfData) {
-                PIMAGE_IMPORT_BY_NAME importByName = (PIMAGE_IMPORT_BY_NAME)(
-                    (BYTE *)module + origThunk->u1.AddressOfData
-                );
-                if (strcmp(importByName->Name, funcName) == 0) {
-                    DWORD oldProtect;
-                    VirtualProtect(&thunk->u1.Function, sizeof(void *), PAGE_READWRITE, &oldProtect);
-                    *original = (void *)thunk->u1.Function;
-                    thunk->u1.Function = (ULONG_PTR)hookFunc;
-                    VirtualProtect(&thunk->u1.Function, sizeof(void *), oldProtect, &oldProtect);
-                    return;
-                }
-                thunk++;
-                origThunk++;
-            }
-        }
-        importDesc++;
-    }
-}
-```
-
-#### 3. Compile-Time Replacement (CRT-specific)
-
-For MSVC, you can define your own CRT allocation functions:
-
-```c
-// Replace _malloc_dbg and related functions
-#define _CRTDBG_MAP_ALLOC
-#include <crtdbg.h>
-
-// Custom allocation tracking
-_CRT_ALLOC_HOOK oldHook = NULL;
-
-int MyAllocHook(int allocType, void *userData, size_t size,
-                int blockType, long requestNumber,
-                const unsigned char *filename, int lineNumber) {
-    if (allocType == _HOOK_ALLOC) {
-        fprintf(stderr, "[HOOK] malloc(%zu) at %s:%d\n", size, filename, lineNumber);
-    } else if (allocType == _HOOK_FREE) {
-        fprintf(stderr, "[HOOK] free(%p)\n", userData);
-    }
-    return TRUE;  // Allow allocation
-}
-
-void InitHooks(void) {
-    oldHook = _CrtSetAllocHook(MyAllocHook);
-}
-```
-
-#### 4. MinGW/GCC on Windows
-
-Similar to Linux LD_PRELOAD, but uses different mechanisms:
-
-```c
-// For MinGW, use weak symbols
-void *__real_malloc(size_t size);
-void __real_free(void *ptr);
-
-void *__wrap_malloc(size_t size) {
-    void *ptr = __real_malloc(size);
-    fprintf(stderr, "[HOOK] malloc(%zu) = %p\n", size, ptr);
-    return ptr;
-}
-
-void __wrap_free(void *ptr) {
-    fprintf(stderr, "[HOOK] free(%p)\n", ptr);
-    __real_free(ptr);
-}
-```
-
-**Build with:**
+2. Run your program with the library preloaded:
 ```bash
-gcc -Wl,--wrap=malloc -Wl,--wrap=free -o program program.c
+DYLD_INSERT_LIBRARIES=./libhooks.dylib ./your_program
 ```
 
----
+The hooks use dyld interposition (see `__DATA,__interpose` section) to redirect calls.
 
-## This Experiment's Approach
+**Limitations**:
+- System Integrity Protection (SIP) blocks `DYLD_INSERT_LIBRARIES` for system binaries
+- Must be disabled or work with non-system executables only
+- Interposition affects ALL loaded code (similar to static linking benefit)
 
-This experiment uses **linker-level hooking** to capture all memory allocations in compiled Sindarin programs, including allocations from statically linked libraries like zlib.
-
-### How It Works
-
-The `runtime_malloc_hooks.c` file provides `__wrap_malloc`/`__wrap_free` functions that intercept **all** malloc/free calls in the executable:
-
-```
-[SN_ALLOC] malloc(65536) = 0x55555555b2a0
-[SN_ALLOC] malloc(5952) = 0x55555555c2b0
-[SN_ALLOC] free(0x55555555c2b0)
-```
-
-This is enabled via linker flags in `etc/sn.cfg`:
-```
-SN_LDFLAGS=-Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
-```
-
-The `--wrap` linker flag redirects all calls to `malloc` to `__wrap_malloc`, which logs the call and then invokes `__real_malloc` (the actual libc function).
-
-### Critical: Static Linking Requirement
-
-**The `--wrap` linker flag only works for statically linked code.**
-
-Libraries that are dynamically linked (`.so`/`.dylib`/`.dll`) resolve their malloc calls directly to libc at runtime, bypassing the wrapper entirely.
-
-To capture allocations from a library like zlib:
-
-| Linking | SDK Directive | Hooks Capture |
-|---------|---------------|---------------|
-| Dynamic | `@link z` | Only Sindarin runtime allocations |
-| **Static** | `@link :libz.a` | **All allocations including zlib** |
-
-The experiment includes a modified `sdk/zlib.sn` that uses static linking:
-```sindarin
-@link :libz.a    # Static - hooks capture zlib allocations
-# vs
-@link z          # Dynamic - zlib allocations bypass hooks
-```
-
-### Platform Support
-
-| Platform | Linker Wrapping | Notes |
-|----------|-----------------|-------|
-| Linux (GCC/Clang) | `--wrap` | Fully supported |
-| Windows (MinGW/Clang) | `--wrap` | Fully supported |
-| macOS | Not supported | Apple linker lacks `--wrap`; use DYLD_INSERT_LIBRARIES instead |
-
-### Building the Experiment
+## Building the Experiment
 
 ```bash
 cd experiments/malloc
-make build              # Build compiler and runtime with hooks
-make test               # Compile and run tests/test_zlib.sn
-make run                # Compile and run samples/main.sn
-make clean              # Clean artifacts
+
+# Build compiler and runtime with hooks
+make build
+
+# Run the test (compiles tests/test_zlib.sn and runs it)
+make test
+
+# Run samples/main.sn
+make run
+
+# Clean build artifacts
+make clean
 ```
 
-### Files Modified
+## Configuration Files
 
-- `src/runtime/runtime_malloc_hooks.h` - Linker wrapper declarations
-- `src/runtime/runtime_malloc_hooks.c` - Linker-level `__wrap_*` functions
-- `src/runtime/runtime_arena.c` - Simplified (uses standard malloc/free)
-- `etc/sn.cfg` - Adds `--wrap` linker flags
-- `sdk/zlib.sn` - Uses static linking (`@link :libz.a`)
-- `Makefile` - Builds experimental compiler and runtime
+### etc/sn.cfg
 
-### Expected Output
+This file configures the Sindarin compiler's C backend. Key settings for the hooks:
 
-When hooks are enabled, you'll see allocation logs with caller function names:
+```
+# Compiler flags - debug symbols for caller name resolution
+SN_CFLAGS=-g
+
+# Linker flags - wrap memory functions
+SN_LDFLAGS=-rdynamic -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+```
+
+### sdk/zlib.sn
+
+Local copy of the zlib SDK module configured for static linking:
+
+```sindarin
+@link :libz.a    # Colon prefix = static library
+```
+
+Compare to the standard SDK which uses dynamic linking:
+```sindarin
+@link z          # No colon = dynamic library (-lz)
+```
+
+## Runtime Flags
+
+The hooks are compiled into the runtime when `SN_MALLOC_HOOKS` is defined:
+
+```makefile
+CFLAGS += -DSN_MALLOC_HOOKS
+```
+
+This is set automatically in the experiment's Makefile.
+
+## Expected Output
+
+When running a program that uses zlib:
 
 ```
 [SN_ALLOC] malloc(72) = 0x5565282b12a0  [rt_arena_create_sized]
-[SN_ALLOC] malloc(65560) = 0x5565282b12f0  [rt_arena_create_sized]
+[SN_ALLOC] malloc(65560) = 0x5565282b12f0  [rt_arena_new_block]
 [SN_ALLOC] malloc(5952) = 0x5565282e2450  [deflateInit_]
 [SN_ALLOC] malloc(65536) = 0x5565282e3ba0  [deflateInit_]
-[SN_ALLOC] malloc(7160) = 0x5565282e2450  [inflateInit_]
+[SN_ALLOC] malloc(7160) = 0x5565282f3c00  [inflateInit_]
 [SN_ALLOC] free(0x5565282e2450)  [deflateEnd]
+[SN_ALLOC] free(0x5565282e3ba0)  [deflateEnd]
+[SN_ALLOC] free(0x5565282b12f0)  [rt_arena_destroy]
+[SN_ALLOC] free(0x5565282b12a0)  [rt_arena_destroy]
 ```
 
-Caller function names clearly identify the source:
-| Caller | Source |
-|--------|--------|
-| `rt_arena_create_sized` | Sindarin runtime |
-| `rt_arena_new_block` | Sindarin runtime |
-| `deflateInit_` | zlib compression |
-| `inflateInit_` | zlib decompression |
-| `deflateEnd` / `inflateEnd` | zlib cleanup |
+**Identifying the source by function name**:
 
-Typical allocation sizes:
-| Size | Source |
-|------|--------|
+| Function Name | Source |
+|---------------|--------|
+| `rt_arena_*` | Sindarin runtime |
+| `rt_string_*` | Sindarin runtime |
+| `deflateInit_`, `deflateEnd` | zlib compression |
+| `inflateInit_`, `inflateEnd` | zlib decompression |
+
+**Identifying the source by allocation size**:
+
+| Size | Typical Source |
+|------|----------------|
 | 72 | Sindarin arena struct |
 | 65560 | Sindarin arena block (64KB + header) |
 | 5952 | zlib deflate state |
 | 7160 | zlib inflate state |
 | 65536 | zlib internal buffers |
+
+## Troubleshooting
+
+### Function names show "???"
+
+**Linux**: Missing `-rdynamic` flag. This exports symbols so `dladdr()` can resolve them.
+
+**Windows**: Missing debug symbols. Ensure `-g -gcodeview` and `-Wl,-pdb=` are set.
+
+### Library allocations not captured
+
+The library is dynamically linked. Change from `@link z` to `@link :libz.a` in the SDK module.
+
+### Recursion or crashes in hooks
+
+The hooks include a thread-local guard (`sn_malloc_hook_guard`) to prevent recursion when `fprintf` itself calls malloc. If you see crashes, ensure the guard is working.
+
+### macOS: hooks not working
+
+Apple's linker doesn't support `--wrap`. Use `DYLD_INSERT_LIBRARIES` with interposition instead.
+
+## Files in This Experiment
+
+| File | Purpose |
+|------|---------|
+| `src/runtime/runtime_malloc_hooks.h` | Declares `__wrap_*` and `__real_*` functions |
+| `src/runtime/runtime_malloc_hooks.c` | Implements hooks with caller name resolution |
+| `src/runtime/runtime_arena.c` | Arena allocator (uses standard malloc, gets intercepted) |
+| `etc/sn.cfg` | Compiler config with `--wrap` linker flags |
+| `sdk/zlib.sn` | zlib SDK module with static linking |
+| `tests/test_zlib.sn` | Test file using zlib |
+| `Makefile` | Build system for the experiment |
