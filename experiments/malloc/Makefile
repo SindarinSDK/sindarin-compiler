@@ -39,13 +39,20 @@ endif
 # Directories
 #------------------------------------------------------------------------------
 # Experiment directories
-EXP_DIR := $(shell pwd)
+# On Windows, Make's internal functions (wildcard, pattern matching) don't work
+# with MSYS-style paths (/c/Users/...). Use cygpath -m to get Windows paths.
+ifeq ($(PLATFORM),windows)
+    EXP_DIR := $(shell cygpath -m "$$(pwd)")
+    ROOT_DIR := $(shell cygpath -m "$$(realpath ../..)")
+else
+    EXP_DIR := $(shell pwd)
+    ROOT_DIR := $(shell realpath ../..)
+endif
 EXP_SRC := $(EXP_DIR)/src
 EXP_BIN := $(EXP_DIR)/bin
 EXP_BUILD := $(EXP_DIR)/build
 
 # Main project directories (relative to experiment)
-ROOT_DIR := $(EXP_DIR)/../..
 ROOT_SRC := $(ROOT_DIR)/src
 ROOT_SAMPLES := $(ROOT_DIR)/samples
 
