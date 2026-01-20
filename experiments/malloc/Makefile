@@ -365,7 +365,8 @@ ifeq ($(PLATFORM),windows)
     # -pdb= tells lld to generate PDB debug database for DbgHelp symbol resolution
     export SN_LDFLAGS := -ldbghelp -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc -Wl,-pdb=
 else
-    export SN_LDFLAGS := -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+    # -rdynamic exports symbols for dladdr to resolve function names
+    export SN_LDFLAGS := -rdynamic -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
 endif
 
 test: build
