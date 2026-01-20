@@ -2,19 +2,29 @@
 #define RUNTIME_MALLOC_HOOKS_H
 
 /*
- * Linker-level malloc/free hooks for Sindarin compiled programs.
+ * Memory allocation hooks for Sindarin compiled programs.
  *
- * When linked with -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
- * these functions intercept ALL malloc/free calls in the executable,
- * including those from linked libraries like zlib.
+ * Platform-specific mechanisms:
  *
- * The __real_* functions are provided by the linker and call the actual
- * libc implementations.
+ * Linux/Windows (MinGW):
+ *   Uses linker-level wrapping (--wrap=malloc, etc.)
+ *   Link with: -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+ *   The __real_* functions are provided by the linker and call libc.
+ *
+ * macOS:
+ *   Uses Facebook's fishhook library for runtime symbol rebinding.
+ *   No special linker flags required - hooks are installed at startup.
  */
 
 #include <stddef.h>
 
 #ifdef SN_MALLOC_HOOKS
+
+#ifndef __APPLE__
+/*
+ * Linux/Windows: Linker-provided wrapper declarations
+ * These are only valid when using the --wrap linker flag
+ */
 
 /* Declarations for the real libc functions (provided by linker --wrap) */
 extern void *__real_malloc(size_t size);
@@ -27,6 +37,13 @@ void *__wrap_malloc(size_t size);
 void  __wrap_free(void *ptr);
 void *__wrap_calloc(size_t count, size_t size);
 void *__wrap_realloc(void *ptr, size_t size);
+
+#endif /* !__APPLE__ */
+
+/*
+ * macOS: Hooks are installed at runtime via fishhook constructor.
+ * No declarations needed here - see runtime_malloc_hooks.c
+ */
 
 #endif /* SN_MALLOC_HOOKS */
 

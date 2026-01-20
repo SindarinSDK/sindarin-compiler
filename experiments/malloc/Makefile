@@ -79,6 +79,8 @@ INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(ROOT_SRC) -I$(ROOT_SRC)/runtim
 # Linker flags
 ifeq ($(PLATFORM),windows)
     LDFLAGS := -lws2_32 -lbcrypt -lpthread -ldbghelp
+else ifeq ($(PLATFORM),darwin)
+    LDFLAGS := -lpthread -lm
 else
     LDFLAGS := -lpthread -lm -ldl
 endif
@@ -201,6 +203,11 @@ RUNTIME_LIB_SOURCES := \
     $(ROOT_SRC)/runtime/runtime_thread.c \
     $(ROOT_SRC)/runtime/runtime_any.c \
     $(ROOT_SRC)/runtime/runtime_intercept.c
+
+# macOS: Add fishhook for runtime symbol rebinding
+ifeq ($(PLATFORM),darwin)
+    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/fishhook.c
+endif
 
 RUNTIME_LIB_OBJECTS := $(patsubst $(ROOT_SRC)/%.c,$(EXP_BUILD)/lib/%.o,$(filter $(ROOT_SRC)/%,$(RUNTIME_LIB_SOURCES)))
 RUNTIME_LIB_OBJECTS += $(patsubst $(EXP_SRC)/%.c,$(EXP_BUILD)/lib-exp/%.o,$(filter $(EXP_SRC)/%,$(RUNTIME_LIB_SOURCES)))
@@ -364,8 +371,12 @@ endif
 ifeq ($(PLATFORM),windows)
     # -pdb= tells lld to generate PDB debug database for DbgHelp symbol resolution
     export SN_LDFLAGS := -ldbghelp -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc -Wl,-pdb=
+else ifeq ($(PLATFORM),darwin)
+    # macOS: fishhook handles symbol rebinding at runtime, no linker flags needed
+    # No --wrap support on Apple linker
+    export SN_LDFLAGS :=
 else
-    # -rdynamic exports symbols for dladdr to resolve function names
+    # Linux: -rdynamic exports symbols for dladdr to resolve function names
     export SN_LDFLAGS := -rdynamic -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
 endif
 
