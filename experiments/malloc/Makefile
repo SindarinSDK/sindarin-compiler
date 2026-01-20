@@ -9,7 +9,7 @@
 #------------------------------------------------------------------------------
 # Phony targets
 #------------------------------------------------------------------------------
-.PHONY: all build rebuild run clean help test-hooks
+.PHONY: all build rebuild run clean help test copy-headers setup-deps
 
 #------------------------------------------------------------------------------
 # Platform Detection (copied from main Makefile)
@@ -18,46 +18,43 @@ ifeq ($(OS),Windows_NT)
     PLATFORM := windows
     EXE_EXT := .exe
     PYTHON := python
+    TEMP_DIR := $(if $(TEMP),$(TEMP),/tmp)
 else
     UNAME_S := $(shell uname -s 2>/dev/null || echo Unknown)
     ifneq ($(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)),)
         PLATFORM := windows
         EXE_EXT := .exe
         PYTHON := python
+        TEMP_DIR := /tmp
     else ifeq ($(UNAME_S),Darwin)
         PLATFORM := darwin
         EXE_EXT :=
         PYTHON := python3
+        TEMP_DIR := /tmp
     else
         PLATFORM := linux
         EXE_EXT :=
         PYTHON := python3
+        TEMP_DIR := /tmp
     endif
 endif
 
 #------------------------------------------------------------------------------
 # Directories
 #------------------------------------------------------------------------------
-# Experiment directories
-# On Windows, Make's internal functions (wildcard, pattern matching) don't work
-# with MSYS-style paths (/c/Users/...). Use cygpath -m to get Windows paths.
-ifeq ($(PLATFORM),windows)
-    EXP_DIR := $(shell cygpath -m "$$(pwd)")
-    ROOT_DIR := $(shell cygpath -m "$$(realpath ../..)")
-else
-    EXP_DIR := $(shell pwd)
-    ROOT_DIR := $(shell realpath ../..)
-endif
+# Use Make built-ins for portable paths
+EXP_DIR := $(CURDIR)
+ROOT_DIR := $(abspath $(EXP_DIR)/../..)
 EXP_SRC := $(EXP_DIR)/src
 EXP_BIN := $(EXP_DIR)/bin
 EXP_BUILD := $(EXP_DIR)/build
 
-# Main project directories (relative to experiment)
+# Main project directories
 ROOT_SRC := $(ROOT_DIR)/src
 ROOT_SAMPLES := $(ROOT_DIR)/samples
 
-# Temp directory for outputs
-TEMP_DIR := /tmp
+# vcpkg location (in project root)
+VCPKG_ROOT := $(ROOT_DIR)/vcpkg
 
 #------------------------------------------------------------------------------
 # Compiler Configuration
@@ -249,7 +246,7 @@ all: build
 #------------------------------------------------------------------------------
 # build - Build the experimental compiler and runtime library
 #------------------------------------------------------------------------------
-build: $(SN) $(RUNTIME_LIB) copy-headers
+build: setup-deps $(SN) $(RUNTIME_LIB) copy-headers
 	@echo ""
 	@echo "=========================================="
 	@echo "Malloc Hooks Experiment Build Complete!"
@@ -268,12 +265,12 @@ $(SN): $(OBJECTS) | $(EXP_BIN)
 
 # Compile root source files
 $(EXP_BUILD)/root/%.o: $(ROOT_SRC)/%.c | $(EXP_BUILD)
-	@mkdir -p $(dir $@)
+	@cmake -E make_directory $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 # Compile experiment source files (takes priority for arena)
 $(EXP_BUILD)/exp/%.o: $(EXP_SRC)/%.c | $(EXP_BUILD)
-	@mkdir -p $(dir $@)
+	@cmake -E make_directory $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 #------------------------------------------------------------------------------
@@ -285,39 +282,45 @@ $(RUNTIME_LIB): $(RUNTIME_LIB_OBJECTS) | $(RUNTIME_LIB_DIR)
 
 # Compile runtime lib sources from root (without arena)
 $(EXP_BUILD)/lib/%.o: $(ROOT_SRC)/%.c | $(EXP_BUILD)
-	@mkdir -p $(dir $@)
+	@cmake -E make_directory $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 # Compile experiment runtime sources (hooked arena)
 $(EXP_BUILD)/lib-exp/%.o: $(EXP_SRC)/%.c | $(EXP_BUILD)
-	@mkdir -p $(dir $@)
+	@cmake -E make_directory $(dir $@)
 	$(CC) $(CFLAGS) $(INCLUDES) -c -o $@ $<
 
 $(RUNTIME_LIB_DIR):
-	@mkdir -p $@
+	@cmake -E make_directory $@
 
 #------------------------------------------------------------------------------
 # Copy headers, config, and SDK for runtime
 #------------------------------------------------------------------------------
-.PHONY: copy-headers
 copy-headers:
-	@mkdir -p $(EXP_BIN)/include/runtime $(EXP_BIN)/include/platform $(EXP_BIN)/sdk
-	@cp $(ROOT_SRC)/runtime.h $(EXP_BIN)/include/ 2>/dev/null || true
-	@cp $(ROOT_SRC)/runtime/*.h $(EXP_BIN)/include/runtime/ 2>/dev/null || true
-	@cp $(EXP_SRC)/runtime/*.h $(EXP_BIN)/include/runtime/ 2>/dev/null || true
-	@cp $(ROOT_SRC)/platform/*.h $(EXP_BIN)/include/platform/ 2>/dev/null || true
-	@cp $(ROOT_DIR)/etc/sn.cfg $(EXP_BIN)/sn.cfg 2>/dev/null || true
-	@cp $(ROOT_DIR)/sdk/*.sn $(EXP_BIN)/sdk/ 2>/dev/null || true
-	@cp $(ROOT_DIR)/sdk/*.sn.c $(EXP_BIN)/sdk/ 2>/dev/null || true
+	@cmake -E make_directory $(EXP_BIN)/include/runtime
+	@cmake -E make_directory $(EXP_BIN)/include/platform
+	@cmake -E make_directory $(EXP_BIN)/sdk
+	-@cmake -E copy $(ROOT_SRC)/runtime.h $(EXP_BIN)/include/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_arena.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_string.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_array.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_io.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_byte.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_thread.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_any.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_intercept.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(EXP_SRC)/runtime/runtime_arena.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/platform/platform.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_DIR)/etc/sn.cfg $(EXP_BIN)/sn.cfg
 
 #------------------------------------------------------------------------------
 # Directory creation
 #------------------------------------------------------------------------------
 $(EXP_BIN):
-	@mkdir -p $@
+	@cmake -E make_directory $@
 
 $(EXP_BUILD):
-	@mkdir -p $@
+	@cmake -E make_directory $@
 
 #------------------------------------------------------------------------------
 # rebuild - Clean and build
@@ -331,35 +334,41 @@ run: build
 	@echo ""
 	@echo "Compiling samples/main.sn with experimental compiler..."
 	@echo ""
-	timeout 30 $(SN) $(ROOT_SAMPLES)/main.sn -o $(TEMP_DIR)/hello-world-exp$(EXE_EXT) -l 3
+	$(SN) $(ROOT_SAMPLES)/main.sn -o $(TEMP_DIR)/hello-world-exp$(EXE_EXT) -l 3
 	@echo ""
 	@echo "Running compiled program..."
 	@echo ""
-	timeout 10 $(TEMP_DIR)/hello-world-exp$(EXE_EXT)
+	$(TEMP_DIR)/hello-world-exp$(EXE_EXT)
 
 #------------------------------------------------------------------------------
-# test-hooks - Run a simple test that shows hook output
+# test - Compile and run test_zlib.sn
 #------------------------------------------------------------------------------
-test-hooks: build
+export VCPKG_ROOT
+
+test: build
 	@echo ""
-	@echo "Testing memory hooks with a simple compilation..."
-	@echo "You should see [SN_HOOK] messages below:"
+	@echo "Compiling tests/test_zlib.sn..."
+	$(SN) $(EXP_DIR)/tests/test_zlib.sn -o $(TEMP_DIR)/test_zlib$(EXE_EXT)
 	@echo ""
-	@echo "--- Hook Output Start ---"
-	timeout 30 $(SN) $(ROOT_SAMPLES)/main.sn -o $(TEMP_DIR)/test-hooks$(EXE_EXT) 2>&1 | head -50
-	@echo "--- Hook Output End (truncated to 50 lines) ---"
-	@echo ""
-	@echo "Hook test complete. The [SN_HOOK] messages show memory allocations."
+	@echo "Running test_zlib..."
+	$(TEMP_DIR)/test_zlib$(EXE_EXT)
 
 #------------------------------------------------------------------------------
-# clean - Remove build artifacts
+# setup-deps - Install dependencies (vcpkg + zlib)
+#------------------------------------------------------------------------------
+setup-deps:
+	@echo "Setting up dependencies..."
+	$(PYTHON) $(ROOT_DIR)/scripts/setup_deps.py --vcpkg-root $(VCPKG_ROOT)
+
+#------------------------------------------------------------------------------
+# clean - Remove build artifacts (using cmake -E for cross-platform)
 #------------------------------------------------------------------------------
 clean:
 	@echo "Cleaning experiment build artifacts..."
-	rm -rf $(EXP_BUILD)
-	rm -rf $(EXP_BIN)
-	rm -f $(TEMP_DIR)/hello-world-exp$(EXE_EXT)
-	rm -f $(TEMP_DIR)/test-hooks$(EXE_EXT)
+	-cmake -E rm -rf $(EXP_BUILD)
+	-cmake -E rm -rf $(EXP_BIN)
+	-cmake -E rm -f $(TEMP_DIR)/hello-world-exp$(EXE_EXT)
+	-cmake -E rm -f $(TEMP_DIR)/test_zlib$(EXE_EXT)
 	@echo "Clean complete."
 
 #------------------------------------------------------------------------------
@@ -375,10 +384,11 @@ help:
 	@echo "  make build        Build experimental compiler to bin/sn"
 	@echo "  make rebuild      Clean and build"
 	@echo "  make clean        Remove build artifacts"
+	@echo "  make setup-deps   Install dependencies (vcpkg + zlib)"
 	@echo ""
 	@echo "Test Targets:"
 	@echo "  make run          Compile and run samples/main.sn"
-	@echo "  make test-hooks   Show hook output from compilation"
+	@echo "  make test         Compile and run tests/test_zlib.sn"
 	@echo ""
 	@echo "Info:"
 	@echo "  make help         Show this help message"
