@@ -473,16 +473,25 @@ make clean              # Clean artifacts
 
 ### Expected Output
 
-When hooks are enabled, you'll see allocation logs for everything:
+When hooks are enabled, you'll see allocation logs with caller function names:
 
 ```
-[SN_ALLOC] malloc(72) = 0x5da648ac72a0        # arena struct
-[SN_ALLOC] malloc(65560) = 0x5da648ac72f0     # arena block
-[SN_ALLOC] malloc(5952) = 0x5da648ae8390      # zlib deflate state
-[SN_ALLOC] malloc(65536) = 0x5da648ae83e0     # zlib internal buffer
-[SN_ALLOC] malloc(7160) = 0x5da648af8400      # zlib inflate state
-[SN_ALLOC] free(0x5da648af8400)
+[SN_ALLOC] malloc(72) = 0x5565282b12a0  [rt_arena_create_sized]
+[SN_ALLOC] malloc(65560) = 0x5565282b12f0  [rt_arena_create_sized]
+[SN_ALLOC] malloc(5952) = 0x5565282e2450  [deflateInit_]
+[SN_ALLOC] malloc(65536) = 0x5565282e3ba0  [deflateInit_]
+[SN_ALLOC] malloc(7160) = 0x5565282e2450  [inflateInit_]
+[SN_ALLOC] free(0x5565282e2450)  [deflateEnd]
 ```
+
+Caller function names clearly identify the source:
+| Caller | Source |
+|--------|--------|
+| `rt_arena_create_sized` | Sindarin runtime |
+| `rt_arena_new_block` | Sindarin runtime |
+| `deflateInit_` | zlib compression |
+| `inflateInit_` | zlib decompression |
+| `deflateEnd` / `inflateEnd` | zlib cleanup |
 
 Typical allocation sizes:
 | Size | Source |
