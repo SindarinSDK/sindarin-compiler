@@ -80,7 +80,7 @@ INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(ROOT_SRC) -I$(ROOT_SRC)/runtim
 ifeq ($(PLATFORM),windows)
     LDFLAGS := -lws2_32 -lbcrypt -lpthread
 else
-    LDFLAGS := -lpthread -lm
+    LDFLAGS := -lpthread -lm -ldl
 endif
 
 #------------------------------------------------------------------------------
