@@ -362,15 +362,17 @@ test: build
 	$(TEMP_DIR)/test_zlib$(EXE_EXT)
 
 #------------------------------------------------------------------------------
-# setup-deps - Install dependencies (vcpkg + zlib)
+# setup-deps - Install dependencies (platform-specific)
 #------------------------------------------------------------------------------
 setup-deps:
 	@echo "Setting up dependencies..."
 	$(PYTHON) $(ROOT_DIR)/scripts/setup_deps.py --vcpkg-root $(VCPKG_ROOT)
+ifeq ($(PLATFORM),windows)
 	@echo "Installing zlib via vcpkg (classic mode)..."
 	$(VCPKG_ROOT)/vcpkg install zlib:x64-windows --classic
 	@echo "Creating libz.a compatibility link..."
 	-cmake -E copy $(VCPKG_ROOT)/installed/x64-windows/lib/zlib.lib $(VCPKG_ROOT)/installed/x64-windows/lib/libz.a
+endif
 	@echo "Dependencies ready."
 
 #------------------------------------------------------------------------------
