@@ -309,8 +309,16 @@ copy-headers:
 	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_thread.h $(EXP_BIN)/include/runtime/
 	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_any.h $(EXP_BIN)/include/runtime/
 	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_intercept.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_atomic_compat.h $(EXP_BIN)/include/runtime/
+	-@cmake -E copy $(ROOT_SRC)/runtime/runtime_internal.h $(EXP_BIN)/include/runtime/
 	-@cmake -E copy $(EXP_SRC)/runtime/runtime_arena.h $(EXP_BIN)/include/runtime/
 	-@cmake -E copy $(ROOT_SRC)/platform/platform.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_pthread.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_dirent.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_io.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_net.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_time.h $(EXP_BIN)/include/platform/
+	-@cmake -E copy $(ROOT_SRC)/platform/compat_windows.h $(EXP_BIN)/include/platform/
 	-@cmake -E copy $(ROOT_DIR)/etc/sn.cfg $(EXP_BIN)/sn.cfg
 
 #------------------------------------------------------------------------------
@@ -359,6 +367,11 @@ test: build
 setup-deps:
 	@echo "Setting up dependencies..."
 	$(PYTHON) $(ROOT_DIR)/scripts/setup_deps.py --vcpkg-root $(VCPKG_ROOT)
+	@echo "Installing zlib via vcpkg (classic mode)..."
+	$(VCPKG_ROOT)/vcpkg install zlib:x64-windows --classic
+	@echo "Creating libz.a compatibility link..."
+	-cmake -E copy $(VCPKG_ROOT)/installed/x64-windows/lib/zlib.lib $(VCPKG_ROOT)/installed/x64-windows/lib/libz.a
+	@echo "Dependencies ready."
 
 #------------------------------------------------------------------------------
 # clean - Remove build artifacts (using cmake -E for cross-platform)
