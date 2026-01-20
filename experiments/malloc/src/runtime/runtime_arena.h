@@ -70,38 +70,6 @@ typedef struct RtArena {
 } RtArena;
 
 /* ============================================================================
- * Memory Hook Configuration (Experiment-specific)
- * ============================================================================
- * When SN_MALLOC_HOOKS is defined, memory allocation functions print
- * diagnostic output before delegating to the real implementations.
- * This section is for the malloc experiment only.
- * ============================================================================ */
-
-#ifdef SN_MALLOC_HOOKS
-
-/* Hook function declarations - wraps standard memory functions with diagnostics */
-void *sn_hooked_malloc(size_t size, const char *file, int line, const char *func);
-void *sn_hooked_calloc(size_t count, size_t size, const char *file, int line, const char *func);
-void *sn_hooked_realloc(void *ptr, size_t size, const char *file, int line, const char *func);
-void  sn_hooked_free(void *ptr, const char *file, int line, const char *func);
-
-/* Internal allocation functions that the arena uses (with hook output) */
-#define sn_malloc(size)        sn_hooked_malloc(size, __FILE__, __LINE__, __func__)
-#define sn_calloc(count, size) sn_hooked_calloc(count, size, __FILE__, __LINE__, __func__)
-#define sn_realloc(ptr, size)  sn_hooked_realloc(ptr, size, __FILE__, __LINE__, __func__)
-#define sn_free(ptr)           sn_hooked_free(ptr, __FILE__, __LINE__, __func__)
-
-#else
-
-/* Without hooks, map directly to standard library functions */
-#define sn_malloc(size)        malloc(size)
-#define sn_calloc(count, size) calloc(count, size)
-#define sn_realloc(ptr, size)  realloc(ptr, size)
-#define sn_free(ptr)           free(ptr)
-
-#endif /* SN_MALLOC_HOOKS */
-
-/* ============================================================================
  * Arena Function Declarations
  * ============================================================================ */
 

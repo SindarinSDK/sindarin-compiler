@@ -193,6 +193,7 @@ RUNTIME_LIB_SOURCES := \
     $(ROOT_SRC)/debug.c \
     $(ROOT_SRC)/runtime.c \
     $(EXP_SRC)/runtime/runtime_arena.c \
+    $(EXP_SRC)/runtime/runtime_malloc_hooks.c \
     $(ROOT_SRC)/runtime/runtime_string.c \
     $(ROOT_SRC)/runtime/runtime_array.c \
     $(ROOT_SRC)/runtime/runtime_io.c \
@@ -319,7 +320,7 @@ copy-headers:
 	-@cmake -E copy $(ROOT_SRC)/platform/compat_net.h $(EXP_BIN)/include/platform/
 	-@cmake -E copy $(ROOT_SRC)/platform/compat_time.h $(EXP_BIN)/include/platform/
 	-@cmake -E copy $(ROOT_SRC)/platform/compat_windows.h $(EXP_BIN)/include/platform/
-	-@cmake -E copy $(ROOT_DIR)/etc/sn.cfg $(EXP_BIN)/sn.cfg
+	-@cmake -E copy $(EXP_DIR)/etc/sn.cfg $(EXP_BIN)/sn.cfg
 
 #------------------------------------------------------------------------------
 # Directory creation

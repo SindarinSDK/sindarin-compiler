@@ -7,89 +7,17 @@
 extern void rt_thread_sync(RtThreadHandle *handle);
 
 /* ============================================================================
- * Memory Hook Implementation (Experiment-specific)
- * ============================================================================
- * When SN_MALLOC_HOOKS is defined, these functions wrap the standard memory
- * allocation functions with diagnostic output. They print to stderr and then
- * delegate to the real implementation.
- * ============================================================================ */
-
-#ifdef SN_MALLOC_HOOKS
-
-/* Thread-safe guard to prevent recursive hook calls during output */
-static __thread int sn_hook_recursion_guard = 0;
-
-void *sn_hooked_malloc(size_t size, const char *file, int line, const char *func)
-{
-    void *ptr = malloc(size);
-
-    /* Prevent recursive hook calls (fprintf may call malloc internally) */
-    if (sn_hook_recursion_guard == 0) {
-        sn_hook_recursion_guard = 1;
-        fprintf(stderr, "[SN_HOOK] malloc(%zu) = %p  [%s:%d in %s]\n",
-                size, ptr, file, line, func);
-        fflush(stderr);
-        sn_hook_recursion_guard = 0;
-    }
-
-    return ptr;
-}
-
-void *sn_hooked_calloc(size_t count, size_t size, const char *file, int line, const char *func)
-{
-    void *ptr = calloc(count, size);
-
-    if (sn_hook_recursion_guard == 0) {
-        sn_hook_recursion_guard = 1;
-        fprintf(stderr, "[SN_HOOK] calloc(%zu, %zu) = %p  [%s:%d in %s]\n",
-                count, size, ptr, file, line, func);
-        fflush(stderr);
-        sn_hook_recursion_guard = 0;
-    }
-
-    return ptr;
-}
-
-void *sn_hooked_realloc(void *ptr, size_t size, const char *file, int line, const char *func)
-{
-    /* Save old pointer for logging (avoids use-after-free warning) */
-    void *old_ptr = ptr;
-    void *new_ptr = realloc(ptr, size);
-
-    if (sn_hook_recursion_guard == 0) {
-        sn_hook_recursion_guard = 1;
-        fprintf(stderr, "[SN_HOOK] realloc(%p, %zu) = %p  [%s:%d in %s]\n",
-                old_ptr, size, new_ptr, file, line, func);
-        fflush(stderr);
-        sn_hook_recursion_guard = 0;
-    }
-
-    return new_ptr;
-}
-
-void sn_hooked_free(void *ptr, const char *file, int line, const char *func)
-{
-    if (sn_hook_recursion_guard == 0) {
-        sn_hook_recursion_guard = 1;
-        fprintf(stderr, "[SN_HOOK] free(%p)  [%s:%d in %s]\n",
-                ptr, file, line, func);
-        fflush(stderr);
-        sn_hook_recursion_guard = 0;
-    }
-
-    free(ptr);
-}
-
-#endif /* SN_MALLOC_HOOKS */
-
-/* ============================================================================
  * Arena Memory Management Implementation
+ * ============================================================================
+ * Memory hooks are provided via linker-level wrapping (--wrap=malloc, etc.)
+ * in runtime_malloc_hooks.c. This file uses standard malloc/free which get
+ * intercepted by the __wrap_* functions when linked with --wrap flags.
  * ============================================================================ */
 
 /* Allocate a new arena block */
 static RtArenaBlock *rt_arena_new_block(size_t size)
 {
-    RtArenaBlock *block = sn_malloc(sizeof(RtArenaBlock) + size);
+    RtArenaBlock *block = malloc(sizeof(RtArenaBlock) + size);
     if (block == NULL) {
         fprintf(stderr, "rt_arena_new_block: allocation failed\n");
         exit(1);
@@ -107,7 +35,7 @@ RtArena *rt_arena_create_sized(RtArena *parent, size_t block_size)
         block_size = RT_ARENA_DEFAULT_BLOCK_SIZE;
     }
 
-    RtArena *arena = sn_malloc(sizeof(RtArena));
+    RtArena *arena = malloc(sizeof(RtArena));
     if (arena == NULL) {
         fprintf(stderr, "rt_arena_create_sized: allocation failed\n");
         exit(1);
@@ -293,11 +221,11 @@ void rt_arena_destroy(RtArena *arena)
     RtArenaBlock *block = arena->first;
     while (block != NULL) {
         RtArenaBlock *next = block->next;
-        sn_free(block);
+        free(block);
         block = next;
     }
 
-    sn_free(arena);
+    free(arena);
 }
 
 /* Reset arena for reuse (keeps first block, frees rest) */
@@ -332,7 +260,7 @@ void rt_arena_reset(RtArena *arena)
     RtArenaBlock *block = arena->first->next;
     while (block != NULL) {
         RtArenaBlock *next = block->next;
-        sn_free(block);
+        free(block);
         block = next;
     }
 
