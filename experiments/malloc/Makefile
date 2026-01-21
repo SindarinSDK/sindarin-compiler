@@ -9,7 +9,7 @@
 #------------------------------------------------------------------------------
 # Phony targets
 #------------------------------------------------------------------------------
-.PHONY: all build rebuild run clean help test copy-headers setup-deps
+.PHONY: all build rebuild run clean help test test-redirect copy-headers setup-deps
 
 #------------------------------------------------------------------------------
 # Platform Detection (copied from main Makefile)
@@ -201,6 +201,7 @@ RUNTIME_LIB_SOURCES := \
     $(ROOT_SRC)/runtime.c \
     $(EXP_SRC)/runtime/runtime_arena.c \
     $(EXP_SRC)/runtime/runtime_malloc_hooks.c \
+    $(EXP_SRC)/runtime/runtime_malloc_redirect.c \
     $(ROOT_SRC)/runtime/runtime_string.c \
     $(ROOT_SRC)/runtime/runtime_array.c \
     $(ROOT_SRC)/runtime/runtime_io.c \
@@ -271,7 +272,7 @@ all: build
 #------------------------------------------------------------------------------
 # build - Build the experimental compiler and runtime library
 #------------------------------------------------------------------------------
-build: setup-deps $(SN) $(RUNTIME_LIB) copy-headers
+build: $(SN) $(RUNTIME_LIB) copy-headers
 	@echo ""
 	@echo "=========================================="
 	@echo "Malloc Hooks Experiment Build Complete!"
@@ -412,6 +413,41 @@ test: build
 	@echo ""
 	@echo "Running test_zlib..."
 	$(TEMP_DIR)/test_zlib$(EXE_EXT)
+
+#------------------------------------------------------------------------------
+# test-redirect - Test malloc redirect system
+#------------------------------------------------------------------------------
+TEST_REDIRECT_SOURCES := \
+    $(EXP_DIR)/tests/test_malloc_redirect.c \
+    $(EXP_SRC)/runtime/runtime_arena.c \
+    $(EXP_SRC)/runtime/runtime_malloc_redirect.c
+
+# Add platform-specific hooking library
+ifeq ($(PLATFORM),darwin)
+    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/fishhook.c
+else ifeq ($(PLATFORM),linux)
+    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/plthook_elf.c
+else ifeq ($(PLATFORM),windows)
+    TEST_REDIRECT_SOURCES += \
+        $(EXP_SRC)/runtime/minhook/hook.c \
+        $(EXP_SRC)/runtime/minhook/buffer.c \
+        $(EXP_SRC)/runtime/minhook/trampoline.c \
+        $(EXP_SRC)/runtime/minhook/hde/hde32.c \
+        $(EXP_SRC)/runtime/minhook/hde/hde64.c
+endif
+
+TEST_REDIRECT_BIN := $(TEMP_DIR)/test_malloc_redirect$(EXE_EXT)
+
+test-redirect: $(TEST_REDIRECT_BIN)
+	@echo ""
+	@echo "Running malloc redirect tests..."
+	@echo ""
+	timeout 30 $(TEST_REDIRECT_BIN)
+
+$(TEST_REDIRECT_BIN): $(TEST_REDIRECT_SOURCES) | $(EXP_BIN)
+	@echo ""
+	@echo "Compiling malloc redirect test..."
+	$(CC) -Wall -Wextra -Wno-unknown-pragmas -O0 -g -std=c99 -D_GNU_SOURCE -DSN_MALLOC_HOOKS -DSN_MALLOC_REDIRECT $(INCLUDES) -o $@ $(TEST_REDIRECT_SOURCES) $(LDFLAGS)
 
 #------------------------------------------------------------------------------
 # setup-deps - Install dependencies (platform-specific)
