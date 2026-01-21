@@ -1,0 +1,7 @@
+a is Point: PASS
+a is not Vector: PASS
+Unboxed Point values: PASS
+b is Vector: PASS
+b is not Point: PASS
+Unboxed Vector values: PASS
+All struct any tests passed!
