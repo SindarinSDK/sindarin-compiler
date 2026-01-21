@@ -112,7 +112,10 @@ jobs:
         if: runner.os == 'Windows'
         working-directory: experiments/malloc
         shell: pwsh
-        run: make test
+        run: |
+          $env:SN_CFLAGS = "-g -IC:\vcpkg\installed\x64-windows\include"
+          $env:SN_LDFLAGS = "-LC:\vcpkg\installed\x64-windows\lib"
+          make test
 
       - name: Run redirect test (Linux)
         if: runner.os == 'Linux'
