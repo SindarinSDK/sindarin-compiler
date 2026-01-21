@@ -113,3 +113,23 @@ jobs:
         working-directory: experiments/malloc
         shell: pwsh
         run: make test
+
+      - name: Run redirect test (Linux)
+        if: runner.os == 'Linux'
+        working-directory: experiments/malloc
+        run: make test-redirect
+
+      - name: Run redirect test (macOS)
+        if: runner.os == 'macOS'
+        working-directory: experiments/malloc
+        run: |
+          ZLIB_PREFIX=$(brew --prefix zlib)
+          export SN_CFLAGS="-g -I${ZLIB_PREFIX}/include"
+          export SN_LDFLAGS="-L${ZLIB_PREFIX}/lib"
+          make test-redirect
+
+      - name: Run redirect test (Windows)
+        if: runner.os == 'Windows'
+        working-directory: experiments/malloc
+        shell: pwsh
+        run: make test-redirect
