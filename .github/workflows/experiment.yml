@@ -207,10 +207,58 @@ jobs:
           echo ""
           echo "Experiment build verified successfully!"
 
-      - name: Run malloc hooks test (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Run malloc hooks test (Linux)
+        if: runner.os == 'Linux'
         working-directory: experiments/malloc
         run: |
+          echo "Running malloc hooks test..."
+          make test 2>&1 | tee /tmp/test_output.txt
+
+          echo ""
+          echo "=== Verifying hook output ==="
+          if grep -q "\[SN_ALLOC\]" /tmp/test_output.txt; then
+            echo "SUCCESS: Malloc hooks are working!"
+            echo ""
+            echo "Sample hook output:"
+            grep "\[SN_ALLOC\]" /tmp/test_output.txt | head -20
+          else
+            echo "ERROR: No [SN_ALLOC] output found - hooks may not be working"
+            exit 1
+          fi
+
+          echo ""
+          echo "=== Verifying zlib interception ==="
+          if grep -q "deflateInit_\|inflateInit_" /tmp/test_output.txt; then
+            echo "SUCCESS: zlib allocations are being intercepted!"
+          else
+            echo "WARNING: zlib allocations not seen in output (may be expected depending on linking)"
+          fi
+
+          echo ""
+          echo "=== Test Results ==="
+          if grep -q "All compression tests passed" /tmp/test_output.txt; then
+            echo "SUCCESS: All compression tests passed!"
+          else
+            echo "ERROR: Tests did not pass"
+            exit 1
+          fi
+
+      - name: Run malloc hooks test (macOS)
+        if: runner.os == 'macOS'
+        working-directory: experiments/malloc
+        env:
+          SN_CFLAGS: -g -I/opt/homebrew/opt/zlib/include -I/usr/local/opt/zlib/include
+          SN_LDFLAGS: -L/opt/homebrew/opt/zlib/lib -L/usr/local/opt/zlib/lib
+        run: |
+          # Get the actual zlib path from Homebrew
+          ZLIB_PREFIX=$(brew --prefix zlib)
+          export SN_CFLAGS="-g -I${ZLIB_PREFIX}/include"
+          export SN_LDFLAGS="-L${ZLIB_PREFIX}/lib"
+
+          echo "Using zlib from: ${ZLIB_PREFIX}"
+          echo "SN_CFLAGS: ${SN_CFLAGS}"
+          echo "SN_LDFLAGS: ${SN_LDFLAGS}"
+
           echo "Running malloc hooks test..."
           make test 2>&1 | tee /tmp/test_output.txt
 
@@ -275,10 +323,32 @@ jobs:
             exit 1
           }
 
-      - name: Run simple program test (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Run simple program test (Linux)
+        if: runner.os == 'Linux'
         working-directory: experiments/malloc
         run: |
+          echo "Running simple program test..."
+          make run 2>&1 | tee /tmp/run_output.txt
+
+          echo ""
+          echo "=== Verifying hook output for simple program ==="
+          if grep -q "\[SN_ALLOC\]" /tmp/run_output.txt; then
+            echo "SUCCESS: Malloc hooks working for simple program!"
+            grep "\[SN_ALLOC\]" /tmp/run_output.txt | head -10
+          else
+            echo "ERROR: No [SN_ALLOC] output found"
+            exit 1
+          fi
+
+      - name: Run simple program test (macOS)
+        if: runner.os == 'macOS'
+        working-directory: experiments/malloc
+        run: |
+          # Get the actual zlib path from Homebrew
+          ZLIB_PREFIX=$(brew --prefix zlib)
+          export SN_CFLAGS="-g -I${ZLIB_PREFIX}/include"
+          export SN_LDFLAGS="-L${ZLIB_PREFIX}/lib"
+
           echo "Running simple program test..."
           make run 2>&1 | tee /tmp/run_output.txt
 
