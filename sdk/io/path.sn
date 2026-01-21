@@ -37,27 +37,27 @@ native struct Path =>
 
     # Extract directory portion of a path
     static fn directory(path: str): str =>
-        return sn_path_directory(arena, path)
+        return sn_path_directory(path)
 
     # Extract filename (with extension) from a path
     static fn filename(path: str): str =>
-        return sn_path_filename(arena, path)
+        return sn_path_filename(path)
 
     # Extract file extension (without dot) from a path
     static fn extension(path: str): str =>
-        return sn_path_extension(arena, path)
+        return sn_path_extension(path)
 
     # Join two path components
     static fn join(path1: str, path2: str): str =>
-        return sn_path_join2(arena, path1, path2)
+        return sn_path_join2(path1, path2)
 
     # Join three path components
     static fn join3(path1: str, path2: str, path3: str): str =>
-        return sn_path_join3(arena, path1, path2, path3)
+        return sn_path_join3(path1, path2, path3)
 
     # Resolve to absolute path
     static fn absolute(path: str): str =>
-        return sn_path_absolute(arena, path)
+        return sn_path_absolute(path)
 
     # ==========================================================================
     # Path Queries
@@ -80,12 +80,12 @@ native struct Path =>
 # ==============================================================================
 
 # Path manipulation functions
-native fn sn_path_directory(a: *void, path: str): str
-native fn sn_path_filename(a: *void, path: str): str
-native fn sn_path_extension(a: *void, path: str): str
-native fn sn_path_join2(a: *void, path1: str, path2: str): str
-native fn sn_path_join3(a: *void, path1: str, path2: str, path3: str): str
-native fn sn_path_absolute(a: *void, path: str): str
+native fn sn_path_directory(arena, path: str): str
+native fn sn_path_filename(arena, path: str): str
+native fn sn_path_extension(arena, path: str): str
+native fn sn_path_join2(arena, path1: str, path2: str): str
+native fn sn_path_join3(arena, path1: str, path2: str, path3: str): str
+native fn sn_path_absolute(arena, path: str): str
 
 # Path query functions
 native fn sn_path_exists(path: str): int

@@ -439,8 +439,20 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                             func_name = arena_sprintf(gen->arena, "rt_%s_%s", struct_name_lower, method->name);
                         }
 
-                        /* Build args list - NO arena for native methods */
-                        char *args_list = arena_strdup(gen->arena, "");
+                        /* Build args list - prepend arena if method has has_arena_param */
+                        char *args_list;
+                        if (method->has_arena_param && gen->current_arena_var != NULL)
+                        {
+                            args_list = arena_strdup(gen->arena, gen->current_arena_var);
+                        }
+                        else if (method->has_arena_param)
+                        {
+                            args_list = arena_strdup(gen->arena, "NULL");
+                        }
+                        else
+                        {
+                            args_list = arena_strdup(gen->arena, "");
+                        }
 
                         /* For instance native methods, pass self as first arg */
                         /* Check pass_self_by_ref to determine if we pass by pointer or by value */
@@ -451,17 +463,38 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                             if (struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL)
                             {
                                 /* Opaque handle: self is already a pointer, pass directly */
-                                args_list = arena_strdup(gen->arena, self_str);
+                                if (args_list[0] != '\0')
+                                {
+                                    args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_str);
+                                }
+                                else
+                                {
+                                    args_list = arena_strdup(gen->arena, self_str);
+                                }
                             }
                             else if (struct_type->as.struct_type.pass_self_by_ref)
                             {
                                 /* Pass by reference (pointer) */
-                                args_list = arena_sprintf(gen->arena, "&%s", self_str);
+                                if (args_list[0] != '\0')
+                                {
+                                    args_list = arena_sprintf(gen->arena, "%s, &%s", args_list, self_str);
+                                }
+                                else
+                                {
+                                    args_list = arena_sprintf(gen->arena, "&%s", self_str);
+                                }
                             }
                             else
                             {
                                 /* Pass by value */
-                                args_list = arena_strdup(gen->arena, self_str);
+                                if (args_list[0] != '\0')
+                                {
+                                    args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_str);
+                                }
+                                else
+                                {
+                                    args_list = arena_strdup(gen->arena, self_str);
+                                }
                             }
                         }
 
@@ -1549,24 +1582,29 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
     }
 
     // New arena model: ALL Sindarin functions (with bodies) receive arena as first param.
-    // Native functions (no body) use their declared signature - if they need arena,
-    // it's explicitly in their parameter list.
+    // Native functions with 'arena' keyword also receive arena as first param.
+    // Native functions without 'arena' use their declared signature directly.
     //
-    // Check if callee has a body to determine if we should prepend arena.
+    // Check if callee has a body OR has_arena_param to determine if we should prepend arena.
     bool callee_has_body = false;
+    bool callee_needs_arena = false;  // for native functions with 'arena' keyword
 
     if (call->callee->type == EXPR_VARIABLE)
     {
         Symbol *callee_sym = symbol_table_lookup_symbol(gen->symbol_table, call->callee->as.variable.name);
 
-        // Check if function has a body via the symbol table's function type.
+        // Check if function has a body or has_arena_param via the symbol table's function type.
         if (callee_sym != NULL &&
             callee_sym->type != NULL &&
             callee_sym->type->kind == TYPE_FUNCTION)
         {
             callee_has_body = callee_sym->type->as.function.has_body;
+            callee_needs_arena = callee_sym->type->as.function.has_arena_param;
         }
     }
+
+    // Prepend arena if function has body (Sindarin function) or has explicit arena param (native with arena keyword)
+    bool prepend_arena = callee_has_body || callee_needs_arena;
 
     // Collect arg names for the call: use temp var if temp, else original str.
     // arg_base_names stores the temp variable names (for declaration and freeing)
@@ -1575,16 +1613,16 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
     char **arg_names = arena_alloc(gen->arena, sizeof(char *) * call->arg_count);
 
     // Build args list (comma-separated).
-    // If calling a Sindarin function (has body), prepend the current arena as first argument.
-    // Native functions (no body) don't get arena prepended - if they need it, it's in their declaration.
+    // If calling a Sindarin function (has body) or native function with 'arena' keyword,
+    // prepend the current arena as first argument.
     char *args_list;
-    if (callee_has_body && gen->current_arena_var != NULL)
+    if (prepend_arena && gen->current_arena_var != NULL)
     {
         args_list = arena_strdup(gen->arena, gen->current_arena_var);
     }
-    else if (callee_has_body)
+    else if (prepend_arena)
     {
-        // Function has body but no current arena (shouldn't happen in new model)
+        // Function needs arena but no current arena (shouldn't happen in new model)
         args_list = arena_strdup(gen->arena, "NULL");
     }
     else
@@ -1760,7 +1798,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             }
         }
 
-        bool need_comma = (i > 0) || callee_has_body;
+        bool need_comma = (i > 0) || prepend_arena;
         char *new_args = arena_sprintf(gen->arena, "%s%s%s", args_list, need_comma ? ", " : "", arg_names[i]);
         args_list = new_args;
     }

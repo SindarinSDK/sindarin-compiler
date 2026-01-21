@@ -108,6 +108,26 @@ int parser_match(Parser *parser, SnTokenType type)
     return 1;
 }
 
+Token parser_peek_token(Parser *parser)
+{
+    /* Save lexer state */
+    const char *saved_start = parser->lexer->start;
+    const char *saved_current = parser->lexer->current;
+    int saved_line = parser->lexer->line;
+    int saved_at_line_start = parser->lexer->at_line_start;
+
+    /* Scan the next token */
+    Token peeked = lexer_scan_token(parser->lexer);
+
+    /* Restore lexer state */
+    parser->lexer->start = saved_start;
+    parser->lexer->current = saved_current;
+    parser->lexer->line = saved_line;
+    parser->lexer->at_line_start = saved_at_line_start;
+
+    return peeked;
+}
+
 void synchronize(Parser *parser)
 {
     parser->panic_mode = 0;

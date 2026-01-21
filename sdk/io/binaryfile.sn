@@ -44,7 +44,7 @@ native struct BinaryFile as ref =>
 
     # Open a binary file for reading and writing
     static fn open(path: str): BinaryFile =>
-        return sn_binary_file_open(arena, path)
+        return sn_binary_file_open(path)
 
     # ==========================================================================
     # Static File Operations
@@ -56,7 +56,7 @@ native struct BinaryFile as ref =>
 
     # Read entire contents of a binary file as a byte array
     static fn readAll(path: str): byte[] =>
-        return sn_binary_file_read_all_static(arena, path)
+        return sn_binary_file_read_all_static(path)
 
     # Write byte array to binary file, replacing any existing content
     static fn writeAll(path: str, data: byte[]): void =>
@@ -84,11 +84,11 @@ native struct BinaryFile as ref =>
 
     # Read N bytes into new array
     fn readBytes(count: int): byte[] =>
-        return sn_binary_file_read_bytes(arena, self, count)
+        return sn_binary_file_read_bytes(self, count)
 
     # Read all remaining bytes from current position
     fn readRemaining(): byte[] =>
-        return sn_binary_file_read_remaining(arena, self)
+        return sn_binary_file_read_remaining(self)
 
     # Read into byte buffer, returns number of bytes read
     @alias "sn_binary_file_read_into"
@@ -144,11 +144,11 @@ native struct BinaryFile as ref =>
 
     # Get full file path
     fn path(): str =>
-        return sn_binary_file_get_path(arena, self)
+        return sn_binary_file_get_path(self)
 
     # Get filename only (without directory)
     fn name(): str =>
-        return sn_binary_file_get_name(arena, self)
+        return sn_binary_file_get_name(self)
 
     # Get file size in bytes
     @alias "sn_binary_file_get_size"
@@ -159,20 +159,20 @@ native struct BinaryFile as ref =>
 # ==============================================================================
 
 # Factory/open function
-native fn sn_binary_file_open(a: *void, path: str): BinaryFile
+native fn sn_binary_file_open(arena, path: str): BinaryFile
 
 # Static file operations
 native fn sn_binary_file_exists(path: str): int
-native fn sn_binary_file_read_all_static(a: *void, path: str): byte[]
+native fn sn_binary_file_read_all_static(arena, path: str): byte[]
 native fn sn_binary_file_write_all_static(path: str, data: byte[]): void
 native fn sn_binary_file_copy(source: str, dest: str): void
 native fn sn_binary_file_move(source: str, dest: str): void
 native fn sn_binary_file_delete(path: str): void
 
 # Instance reading functions that need arena
-native fn sn_binary_file_read_bytes(a: *void, f: BinaryFile, count: int): byte[]
-native fn sn_binary_file_read_remaining(a: *void, f: BinaryFile): byte[]
+native fn sn_binary_file_read_bytes(arena, f: BinaryFile, count: int): byte[]
+native fn sn_binary_file_read_remaining(arena, f: BinaryFile): byte[]
 
 # Property getters that need arena
-native fn sn_binary_file_get_path(a: *void, f: BinaryFile): str
-native fn sn_binary_file_get_name(a: *void, f: BinaryFile): str
+native fn sn_binary_file_get_path(arena, f: BinaryFile): str
+native fn sn_binary_file_get_name(arena, f: BinaryFile): str

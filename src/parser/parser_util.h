@@ -19,6 +19,7 @@ void parser_advance(Parser *parser);
 void parser_consume(Parser *parser, SnTokenType type, const char *message);
 int parser_check(Parser *parser, SnTokenType type);
 int parser_match(Parser *parser, SnTokenType type);
+Token parser_peek_token(Parser *parser);
 
 /* Error recovery */
 void synchronize(Parser *parser);

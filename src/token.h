@@ -55,6 +55,8 @@ typedef enum
     TOKEN_REF,
     // Native interop keyword
     TOKEN_NATIVE,
+    // Arena keyword for native function parameters
+    TOKEN_ARENA,
     // Type declaration keywords
     TOKEN_KEYWORD_TYPE,
     TOKEN_OPAQUE,

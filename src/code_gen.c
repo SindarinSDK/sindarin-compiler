@@ -508,6 +508,17 @@ static void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 
     indented_fprintf(gen, 0, "extern %s %s(", ret_c, fn_name);
 
+    /* If function has implicit arena param, prepend RtArena* */
+    bool has_other_params = fn->param_count > 0 || fn->is_variadic;
+    if (fn->has_arena_param)
+    {
+        fprintf(gen->output, "RtArena *");
+        if (has_other_params)
+        {
+            fprintf(gen->output, ", ");
+        }
+    }
+
     for (int i = 0; i < fn->param_count; i++)
     {
         const char *param_type = get_c_type(gen->arena, fn->params[i].type);
@@ -549,7 +560,7 @@ static void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
             fprintf(gen->output, "...");
         }
     }
-    else if (fn->param_count == 0)
+    else if (fn->param_count == 0 && !fn->has_arena_param)
     {
         fprintf(gen->output, "void");
     }
@@ -880,7 +891,16 @@ void code_gen_module(CodeGen *gen, Module *module)
                         /* Static native: extern RetType func_name(params); */
                         indented_fprintf(gen, 0, "extern %s %s(",
                                          ret_type, func_name);
-                        if (method->param_count == 0)
+                        /* If method has implicit arena param, prepend RtArena* */
+                        if (method->has_arena_param)
+                        {
+                            indented_fprintf(gen, 0, "RtArena *");
+                            if (method->param_count > 0)
+                            {
+                                indented_fprintf(gen, 0, ", ");
+                            }
+                        }
+                        if (method->param_count == 0 && !method->has_arena_param)
                         {
                             indented_fprintf(gen, 0, "void");
                         }
@@ -900,8 +920,17 @@ void code_gen_module(CodeGen *gen, Module *module)
                     else
                     {
                         /* Instance native: extern RetType func_name(self_type self, params); */
-                        indented_fprintf(gen, 0, "extern %s %s(%s",
-                                         ret_type, func_name, self_c_type);
+                        /* If method has implicit arena param, prepend RtArena* */
+                        if (method->has_arena_param)
+                        {
+                            indented_fprintf(gen, 0, "extern %s %s(RtArena *, %s",
+                                             ret_type, func_name, self_c_type);
+                        }
+                        else
+                        {
+                            indented_fprintf(gen, 0, "extern %s %s(%s",
+                                             ret_type, func_name, self_c_type);
+                        }
                         for (int k = 0; k < method->param_count; k++)
                         {
                             Parameter *param = &method->params[k];
