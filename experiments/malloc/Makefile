@@ -61,10 +61,13 @@ VCPKG_ROOT := $(ROOT_DIR)/vcpkg
 #------------------------------------------------------------------------------
 ifeq ($(PLATFORM),darwin)
     CC := clang
+    TIMEOUT := timeout 30
 else ifeq ($(PLATFORM),windows)
     CC := clang
+    TIMEOUT :=
 else
     CC := gcc
+    TIMEOUT := timeout 30
 endif
 
 # Common flags
@@ -442,7 +445,7 @@ test-redirect: $(TEST_REDIRECT_BIN)
 	@echo ""
 	@echo "Running malloc redirect tests..."
 	@echo ""
-	timeout 30 $(TEST_REDIRECT_BIN)
+	$(TIMEOUT) $(TEST_REDIRECT_BIN)
 
 $(TEST_REDIRECT_BIN): $(TEST_REDIRECT_SOURCES) | $(EXP_BIN)
 	@echo ""

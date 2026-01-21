@@ -564,23 +564,25 @@ static NOINLINE void *redirected_malloc(size_t size)
         }
     }
 
+    /* IMPORTANT: Set hook guard BEFORE any operations that might call malloc,
+     * including pthread_mutex_lock which may allocate internally.
+     * This prevents infinite recursion when pthread or arena calls malloc. */
+    tls_hook_guard = 1;
+
     /* Lock if thread-safe */
     if (state->mutex) {
         pthread_mutex_lock(state->mutex);
     }
 
-    /* Allocate with header.
-     * IMPORTANT: Set hook guard to prevent infinite recursion!
-     * The arena may call malloc() internally to allocate new blocks,
-     * which would be intercepted by us and cause infinite recursion. */
-    tls_hook_guard = 1;
+    /* Allocate with header */
     size_t total_size = sizeof(RtAllocHeader) + size;
     void *raw = rt_arena_alloc(state->arena, total_size);
-    tls_hook_guard = 0;
 
     if (state->mutex) {
         pthread_mutex_unlock(state->mutex);
     }
+
+    tls_hook_guard = 0;
 
     if (!raw) {
         /* Arena allocation failed */
