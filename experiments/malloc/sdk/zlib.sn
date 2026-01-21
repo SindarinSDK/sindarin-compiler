@@ -22,8 +22,9 @@
 # ==============================================================================
 
 @include <zlib.h>
-# Use static linking so --wrap hooks capture zlib's malloc calls
-@link :libz.a
+# Use dynamic linking - runtime hooks (plthook/fishhook/MinHook) capture
+# allocations from both static and dynamic libraries
+@link z
 
 # ==============================================================================
 # Error Codes
