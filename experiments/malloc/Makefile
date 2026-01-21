@@ -379,25 +379,31 @@ run: build
 export VCPKG_ROOT
 # Debug symbols for symbol resolution in malloc hooks
 # On Windows, use CodeView format for DbgHelp compatibility
+# Use ?= to allow environment variables to override (e.g., for zlib paths on macOS)
 ifeq ($(PLATFORM),windows)
-    export SN_CFLAGS := -g -gcodeview
+    SN_CFLAGS ?= -g -gcodeview
 else
-    export SN_CFLAGS := -g
+    SN_CFLAGS ?= -g
 endif
 
 # Runtime hooking - no --wrap linker flags needed anymore!
 # All platforms use runtime hooking libraries (plthook, fishhook, MinHook)
 ifeq ($(PLATFORM),windows)
     # Windows: DbgHelp for symbol resolution, PDB for debug info
-    export SN_LDFLAGS := -ldbghelp -Wl,-pdb=
+    SN_LDFLAGS ?= -ldbghelp -Wl,-pdb=
 else ifeq ($(PLATFORM),darwin)
     # macOS: fishhook handles symbol rebinding at runtime
-    export SN_LDFLAGS :=
+    # Allow environment to set library paths (e.g., for Homebrew zlib)
+    SN_LDFLAGS ?=
 else
     # Linux: -rdynamic exports symbols for dladdr to resolve function names
     # plthook handles malloc interception at runtime
-    export SN_LDFLAGS := -rdynamic
+    SN_LDFLAGS ?= -rdynamic
 endif
+
+# Export the variables to child processes (e.g., the compiler)
+export SN_CFLAGS
+export SN_LDFLAGS
 
 test: build
 	@echo ""
