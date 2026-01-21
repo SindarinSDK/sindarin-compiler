@@ -68,7 +68,7 @@ else
 endif
 
 # Common flags
-CFLAGS := -Wall -Wextra -Wno-unknown-pragmas -O2 -std=c99 -D_GNU_SOURCE
+CFLAGS := -Wall -Wextra -Wno-unknown-pragmas -O2 -std=gnu99 -D_GNU_SOURCE
 
 # Enable memory hooks
 CFLAGS += -DSN_MALLOC_HOOKS
@@ -447,7 +447,7 @@ test-redirect: $(TEST_REDIRECT_BIN)
 $(TEST_REDIRECT_BIN): $(TEST_REDIRECT_SOURCES) | $(EXP_BIN)
 	@echo ""
 	@echo "Compiling malloc redirect test..."
-	$(CC) -Wall -Wextra -Wno-unknown-pragmas -O0 -g -std=c99 -D_GNU_SOURCE -DSN_MALLOC_HOOKS -DSN_MALLOC_REDIRECT $(INCLUDES) -o $@ $(TEST_REDIRECT_SOURCES) $(LDFLAGS)
+	$(CC) -Wall -Wextra -Wno-unknown-pragmas -O0 -g -std=gnu99 -D_GNU_SOURCE -DSN_MALLOC_HOOKS -DSN_MALLOC_REDIRECT $(INCLUDES) -o $@ $(TEST_REDIRECT_SOURCES) $(LDFLAGS)
 
 #------------------------------------------------------------------------------
 # setup-deps - Install dependencies (platform-specific)
