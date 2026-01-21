@@ -633,6 +633,8 @@ static void type_check_function(Stmt *stmt, SymbolTable *table)
     func_type->as.function.is_native = stmt->as.function.is_native;
     /* Track whether function has a body (vs true extern declaration) */
     func_type->as.function.has_body = (stmt->as.function.body_count > 0);
+    /* Carry over arena param flag for native functions */
+    func_type->as.function.has_arena_param = stmt->as.function.has_arena_param;
 
     /* Store parameter memory qualifiers in the function type for thread safety analysis.
      * This allows detecting 'as ref' primitives when checking thread spawn arguments. */

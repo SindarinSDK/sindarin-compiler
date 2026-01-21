@@ -46,11 +46,11 @@ native struct Process as ref =>
 
     # Run a command with no arguments
     static fn run(cmd: str): Process =>
-        return sn_process_run(arena, cmd)
+        return sn_process_run(cmd)
 
     # Run a command with arguments
     static fn runArgs(cmd: str, args: str[]): Process =>
-        return sn_process_run_args(arena, cmd, args)
+        return sn_process_run_args(cmd, args)
 
     # ==========================================================================
     # Getter Methods (native - pass self by pointer via 'as ref')
@@ -91,5 +91,5 @@ native struct Process as ref =>
 # Process is an opaque handle type that generates as RtProcess* in C.
 
 # Factory functions - return Process (which is RtProcess*)
-native fn sn_process_run(a: *void, cmd: str): Process
-native fn sn_process_run_args(a: *void, cmd: str, args: str[]): Process
+native fn sn_process_run(arena, cmd: str): Process
+native fn sn_process_run_args(arena, cmd: str, args: str[]): Process

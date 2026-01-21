@@ -37,16 +37,16 @@ native struct Bytes =>
 
     # Decode a hexadecimal string to byte array
     static fn fromHex(hexString: str): byte[] =>
-        return sn_bytes_from_hex(arena, hexString)
+        return sn_bytes_from_hex(hexString)
 
     # Decode a Base64 string to byte array
     static fn fromBase64(base64String: str): byte[] =>
-        return sn_bytes_from_base64(arena, base64String)
+        return sn_bytes_from_base64(base64String)
 
 # ==============================================================================
 # Runtime Function Declarations
 # ==============================================================================
 
 # Decoding functions
-native fn sn_bytes_from_hex(a: *void, hex: str): byte[]
-native fn sn_bytes_from_base64(a: *void, b64: str): byte[]
+native fn sn_bytes_from_hex(arena, hex: str): byte[]
+native fn sn_bytes_from_base64(arena, b64: str): byte[]

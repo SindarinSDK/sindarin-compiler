@@ -48,7 +48,7 @@ native struct TcpStream as ref =>
 
     # Connect to a remote address (host:port)
     static fn connect(address: str): TcpStream =>
-        return sn_tcp_stream_connect(arena, address)
+        return sn_tcp_stream_connect(address)
 
     # ==========================================================================
     # Read Methods
@@ -56,15 +56,15 @@ native struct TcpStream as ref =>
 
     # Read up to maxBytes from the stream (may return fewer)
     fn read(maxBytes: int): byte[] =>
-        return sn_tcp_stream_read(arena, self, maxBytes)
+        return sn_tcp_stream_read(self, maxBytes)
 
     # Read until connection closes
     fn readAll(): byte[] =>
-        return sn_tcp_stream_read_all(arena, self)
+        return sn_tcp_stream_read_all(self)
 
     # Read until newline
     fn readLine(): str =>
-        return sn_tcp_stream_read_line(arena, self)
+        return sn_tcp_stream_read_line(self)
 
     # ==========================================================================
     # Write Methods
@@ -84,7 +84,7 @@ native struct TcpStream as ref =>
 
     # Get remote peer address
     fn remoteAddress(): str =>
-        return sn_tcp_stream_get_remote_address(arena, self)
+        return sn_tcp_stream_get_remote_address(self)
 
     # ==========================================================================
     # Lifecycle Methods
@@ -113,7 +113,7 @@ native struct TcpListener as ref =>
 
     # Create listener bound to address (host:port or :port)
     static fn bind(address: str): TcpListener =>
-        return sn_tcp_listener_bind(arena, address)
+        return sn_tcp_listener_bind(address)
 
     # ==========================================================================
     # Connection Methods
@@ -121,7 +121,7 @@ native struct TcpListener as ref =>
 
     # Wait for and accept a connection, returns TcpStream
     fn accept(): TcpStream =>
-        return sn_tcp_listener_accept(arena, self)
+        return sn_tcp_listener_accept(self)
 
     # ==========================================================================
     # Getter Methods
@@ -144,18 +144,18 @@ native struct TcpListener as ref =>
 # ==============================================================================
 
 # TcpStream factory functions
-native fn sn_tcp_stream_connect(a: *void, address: str): TcpStream
+native fn sn_tcp_stream_connect(arena, address: str): TcpStream
 
 # TcpStream read functions
-native fn sn_tcp_stream_read(a: *void, s: TcpStream, maxBytes: int): byte[]
-native fn sn_tcp_stream_read_all(a: *void, s: TcpStream): byte[]
-native fn sn_tcp_stream_read_line(a: *void, s: TcpStream): str
+native fn sn_tcp_stream_read(arena, s: TcpStream, maxBytes: int): byte[]
+native fn sn_tcp_stream_read_all(arena, s: TcpStream): byte[]
+native fn sn_tcp_stream_read_line(arena, s: TcpStream): str
 
 # TcpStream getter functions
-native fn sn_tcp_stream_get_remote_address(a: *void, s: TcpStream): str
+native fn sn_tcp_stream_get_remote_address(arena, s: TcpStream): str
 
 # TcpListener factory functions
-native fn sn_tcp_listener_bind(a: *void, address: str): TcpListener
+native fn sn_tcp_listener_bind(arena, address: str): TcpListener
 
 # TcpListener accept function
-native fn sn_tcp_listener_accept(a: *void, listener: TcpListener): TcpStream
+native fn sn_tcp_listener_accept(arena, listener: TcpListener): TcpStream

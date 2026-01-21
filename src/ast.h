@@ -91,6 +91,7 @@ struct StructMethod
     FunctionModifier modifier;  /* shared or private modifier */
     bool is_static;             /* True if declared with 'static' keyword */
     bool is_native;             /* True if declared with 'native' keyword */
+    bool has_arena_param;       /* True if first param is implicit arena (for native functions) */
     Token name_token;           /* Token for error reporting */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
 };
@@ -115,6 +116,7 @@ struct Type
             bool is_variadic;                 /* true if function accepts variadic arguments */
             bool is_native;                   /* true if this is a native callback type (C-compatible function pointer) */
             bool has_body;                    /* true if function has a Sindarin body (vs true extern) */
+            bool has_arena_param;             /* true if function has implicit arena param (for native functions) */
             const char *typedef_name;         /* Name of the typedef for native callback types (NULL if anonymous) */
         } function;
 
@@ -539,6 +541,7 @@ typedef struct
     FunctionModifier modifier;  /* shared or private modifier */
     bool is_native;             /* true if declared with 'native' keyword */
     bool is_variadic;           /* true if function has variadic parameters (...) */
+    bool has_arena_param;       /* true if first param is implicit arena (for native functions) */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
 } FunctionStmt;
 

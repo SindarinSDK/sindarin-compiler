@@ -40,23 +40,23 @@ native struct UUID as ref =>
 
     # Create a UUIDv7 (time-ordered) - recommended default
     static fn create(): UUID =>
-        return sn_uuid_create(arena)
+        return sn_uuid_create()
 
     # Alias for create() - matches common convention
     static fn new(): UUID =>
-        return sn_uuid_create(arena)
+        return sn_uuid_create()
 
     # Generate a UUIDv4 (random)
     static fn v4(): UUID =>
-        return sn_uuid_v4(arena)
+        return sn_uuid_v4()
 
     # Generate a UUIDv5 (SHA-1 hash of namespace + name)
     static fn v5(namespace: UUID, name: str): UUID =>
-        return sn_uuid_v5(arena, namespace, name)
+        return sn_uuid_v5(namespace, name)
 
     # Generate a UUIDv7 (timestamp + random)
     static fn v7(): UUID =>
-        return sn_uuid_v7(arena)
+        return sn_uuid_v7()
 
     # ==========================================================================
     # Static Factory Methods - Parsing
@@ -64,15 +64,15 @@ native struct UUID as ref =>
 
     # Parse from standard 36-char format (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     static fn fromString(s: str): UUID =>
-        return sn_uuid_from_string(arena, s)
+        return sn_uuid_from_string(s)
 
     # Parse from 32-char hex format (no dashes)
     static fn fromHex(s: str): UUID =>
-        return sn_uuid_from_hex(arena, s)
+        return sn_uuid_from_hex(s)
 
     # Parse from 22-char URL-safe base64 format
     static fn fromBase64(s: str): UUID =>
-        return sn_uuid_from_base64(arena, s)
+        return sn_uuid_from_base64(s)
 
     # ==========================================================================
     # Static Factory Methods - Special UUIDs
@@ -80,11 +80,11 @@ native struct UUID as ref =>
 
     # Get nil UUID (all zeros: 00000000-0000-0000-0000-000000000000)
     static fn zero(): UUID =>
-        return sn_uuid_nil(arena)
+        return sn_uuid_nil()
 
     # Get max UUID (all ones: ffffffff-ffff-ffff-ffff-ffffffffffff)
     static fn max(): UUID =>
-        return sn_uuid_max(arena)
+        return sn_uuid_max()
 
     # ==========================================================================
     # Static Factory Methods - Namespace Constants
@@ -92,19 +92,19 @@ native struct UUID as ref =>
 
     # Get DNS namespace UUID (6ba7b810-9dad-11d1-80b4-00c04fd430c8)
     static fn namespaceDns(): UUID =>
-        return sn_uuid_namespace_dns(arena)
+        return sn_uuid_namespace_dns()
 
     # Get URL namespace UUID (6ba7b811-9dad-11d1-80b4-00c04fd430c8)
     static fn namespaceUrl(): UUID =>
-        return sn_uuid_namespace_url(arena)
+        return sn_uuid_namespace_url()
 
     # Get OID namespace UUID (6ba7b812-9dad-11d1-80b4-00c04fd430c8)
     static fn namespaceOid(): UUID =>
-        return sn_uuid_namespace_oid(arena)
+        return sn_uuid_namespace_oid()
 
     # Get X.500 namespace UUID (6ba7b814-9dad-11d1-80b4-00c04fd430c8)
     static fn namespaceX500(): UUID =>
-        return sn_uuid_namespace_x500(arena)
+        return sn_uuid_namespace_x500()
 
     # ==========================================================================
     # Property Getters (native - pass self by pointer via 'as ref')
@@ -136,15 +136,15 @@ native struct UUID as ref =>
 
     # Format as standard 36-char string (xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)
     fn toString(): str =>
-        return sn_uuid_to_string(arena, self)
+        return sn_uuid_to_string(self)
 
     # Format as 32-char hex string (no dashes)
     fn toHex(): str =>
-        return sn_uuid_to_hex(arena, self)
+        return sn_uuid_to_hex(self)
 
     # Format as 22-char URL-safe base64 string
     fn toBase64(): str =>
-        return sn_uuid_to_base64(arena, self)
+        return sn_uuid_to_base64(self)
 
     # ==========================================================================
     # Comparison Methods (native - pass self by pointer)
@@ -173,27 +173,27 @@ native struct UUID as ref =>
 # UUID is an opaque handle type that generates as RtUuid* in C.
 
 # Factory functions - return UUID (which is RtUuid*)
-native fn sn_uuid_create(a: *void): UUID
-native fn sn_uuid_v4(a: *void): UUID
-native fn sn_uuid_v5(a: *void, namespace: UUID, name: str): UUID
-native fn sn_uuid_v7(a: *void): UUID
+native fn sn_uuid_create(arena): UUID
+native fn sn_uuid_v4(arena): UUID
+native fn sn_uuid_v5(arena, namespace: UUID, name: str): UUID
+native fn sn_uuid_v7(arena): UUID
 
 # Parsing functions - return UUID
-native fn sn_uuid_from_string(a: *void, s: str): UUID
-native fn sn_uuid_from_hex(a: *void, s: str): UUID
-native fn sn_uuid_from_base64(a: *void, s: str): UUID
+native fn sn_uuid_from_string(arena, s: str): UUID
+native fn sn_uuid_from_hex(arena, s: str): UUID
+native fn sn_uuid_from_base64(arena, s: str): UUID
 
 # Special UUIDs
-native fn sn_uuid_nil(a: *void): UUID
-native fn sn_uuid_max(a: *void): UUID
+native fn sn_uuid_nil(arena): UUID
+native fn sn_uuid_max(arena): UUID
 
 # Namespace UUIDs
-native fn sn_uuid_namespace_dns(a: *void): UUID
-native fn sn_uuid_namespace_url(a: *void): UUID
-native fn sn_uuid_namespace_oid(a: *void): UUID
-native fn sn_uuid_namespace_x500(a: *void): UUID
+native fn sn_uuid_namespace_dns(arena): UUID
+native fn sn_uuid_namespace_url(arena): UUID
+native fn sn_uuid_namespace_oid(arena): UUID
+native fn sn_uuid_namespace_x500(arena): UUID
 
 # Conversion functions - take UUID (which is RtUuid*)
-native fn sn_uuid_to_string(a: *void, u: UUID): str
-native fn sn_uuid_to_hex(a: *void, u: UUID): str
-native fn sn_uuid_to_base64(a: *void, u: UUID): str
+native fn sn_uuid_to_string(arena, u: UUID): str
+native fn sn_uuid_to_hex(arena, u: UUID): str
+native fn sn_uuid_to_base64(arena, u: UUID): str

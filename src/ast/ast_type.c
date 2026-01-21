@@ -110,6 +110,7 @@ Type *ast_clone_type(Arena *arena, Type *type)
                 dst->modifier = src->modifier;
                 dst->is_static = src->is_static;
                 dst->is_native = src->is_native;
+                dst->has_arena_param = src->has_arena_param;
                 dst->name_token = src->name_token;
                 dst->c_alias = src->c_alias ? arena_strdup(arena, src->c_alias) : NULL;
 
@@ -158,6 +159,7 @@ Type *ast_clone_type(Arena *arena, Type *type)
         clone->as.function.is_variadic = type->as.function.is_variadic;
         clone->as.function.is_native = type->as.function.is_native;
         clone->as.function.has_body = type->as.function.has_body;
+        clone->as.function.has_arena_param = type->as.function.has_arena_param;
 
         if (type->as.function.param_count > 0)
         {
@@ -606,6 +608,7 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
             type->as.struct_type.methods[i].modifier = methods[i].modifier;
             type->as.struct_type.methods[i].is_static = methods[i].is_static;
             type->as.struct_type.methods[i].is_native = methods[i].is_native;
+            type->as.struct_type.methods[i].has_arena_param = methods[i].has_arena_param;
             type->as.struct_type.methods[i].name_token = methods[i].name_token;
             type->as.struct_type.methods[i].c_alias = methods[i].c_alias
                 ? arena_strdup(arena, methods[i].c_alias) : NULL;

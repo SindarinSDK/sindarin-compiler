@@ -354,9 +354,30 @@ Stmt *parser_native_function_declaration(Parser *parser)
     int param_count = 0;
     int param_capacity = 0;
     bool is_variadic = false;
+    bool has_arena_param = false;
 
     if (parser_match(parser, TOKEN_LEFT_PAREN))
     {
+        /* Check for 'arena' identifier as first parameter (implicit arena passing) */
+        if (parser_check(parser, TOKEN_IDENTIFIER) &&
+            parser->current.length == 5 &&
+            memcmp(parser->current.start, "arena", 5) == 0)
+        {
+            /* Peek ahead to see if this is the contextual 'arena' keyword (followed by , or )) */
+            /* If followed by ':', it's a regular parameter named 'arena', not the keyword */
+            Token next = parser_peek_token(parser);
+            if (next.type == TOKEN_COMMA || next.type == TOKEN_RIGHT_PAREN)
+            {
+                parser_advance(parser);  /* consume 'arena' */
+                has_arena_param = true;
+                /* Consume comma if there are more parameters */
+                if (!parser_check(parser, TOKEN_RIGHT_PAREN))
+                {
+                    parser_consume(parser, TOKEN_COMMA, "Expected ',' after 'arena'");
+                }
+            }
+        }
+
         if (!parser_check(parser, TOKEN_RIGHT_PAREN))
         {
             do
@@ -454,6 +475,7 @@ Stmt *parser_native_function_declaration(Parser *parser)
     /* Mark function type as variadic and native */
     function_type->as.function.is_variadic = is_variadic;
     function_type->as.function.is_native = true;  /* Native functions need is_native on the type too */
+    function_type->as.function.has_arena_param = has_arena_param;
 
     symbol_table_add_symbol(parser->symbol_table, name, function_type);
 
@@ -532,6 +554,7 @@ Stmt *parser_native_function_declaration(Parser *parser)
         func_stmt->as.function.modifier = func_modifier;
         func_stmt->as.function.is_native = true;
         func_stmt->as.function.is_variadic = is_variadic;
+        func_stmt->as.function.has_arena_param = has_arena_param;
 
         /* Handle #pragma alias for native functions */
         if (parser->pending_alias != NULL)
@@ -664,9 +687,30 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
     int param_count = 0;
     int param_capacity = 0;
     bool is_variadic = false;
+    bool has_arena_param = false;
 
     if (parser_match(parser, TOKEN_LEFT_PAREN))
     {
+        /* Check for 'arena' identifier as first parameter (implicit arena passing) - only for native methods */
+        if (is_native_method &&
+            parser_check(parser, TOKEN_IDENTIFIER) &&
+            parser->current.length == 5 &&
+            memcmp(parser->current.start, "arena", 5) == 0)
+        {
+            /* Peek ahead to see if this is the contextual 'arena' keyword (followed by , or )) */
+            Token next = parser_peek_token(parser);
+            if (next.type == TOKEN_COMMA || next.type == TOKEN_RIGHT_PAREN)
+            {
+                parser_advance(parser);  /* consume 'arena' */
+                has_arena_param = true;
+                /* Consume comma if there are more parameters */
+                if (!parser_check(parser, TOKEN_RIGHT_PAREN))
+                {
+                    parser_consume(parser, TOKEN_COMMA, "Expected ',' after 'arena'");
+                }
+            }
+        }
+
         if (!parser_check(parser, TOKEN_RIGHT_PAREN))
         {
             do
@@ -809,6 +853,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
     method->modifier = func_modifier;
     method->is_static = is_static;
     method->is_native = is_native_method;
+    method->has_arena_param = has_arena_param;
     method->name_token = method_name;
     method->c_alias = NULL;  /* Set via #pragma alias if needed */
 

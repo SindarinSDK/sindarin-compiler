@@ -145,12 +145,25 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
                 func_name = arena_sprintf(gen->arena, "rt_%s_%s", struct_name_lower, method->name);
             }
 
-            /* Build args list - NO arena for native methods */
-            char *args_list = arena_strdup(gen->arena, "");
+            /* Build args list - prepend arena if method has has_arena_param */
+            char *args_list;
+            if (method->has_arena_param && gen->current_arena_var != NULL)
+            {
+                args_list = arena_strdup(gen->arena, gen->current_arena_var);
+            }
+            else if (method->has_arena_param)
+            {
+                args_list = arena_strdup(gen->arena, "NULL");
+            }
+            else
+            {
+                args_list = arena_strdup(gen->arena, "");
+            }
+
             for (int i = 0; i < call->arg_count; i++)
             {
                 char *arg_str = code_gen_expression(gen, call->arguments[i]);
-                if (i > 0)
+                if (args_list[0] != '\0')
                 {
                     args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
                 }

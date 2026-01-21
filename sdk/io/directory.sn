@@ -34,11 +34,11 @@ native struct Directory =>
 
     # List files in a directory (non-recursive)
     static fn list(path: str): str[] =>
-        return sn_directory_list(arena, path)
+        return sn_directory_list(path)
 
     # List files in a directory recursively
     static fn listRecursive(path: str): str[] =>
-        return sn_directory_list_recursive(arena, path)
+        return sn_directory_list_recursive(path)
 
     # Create a directory (creates parents if needed)
     static fn create(path: str): void =>
@@ -57,8 +57,8 @@ native struct Directory =>
 # ==============================================================================
 
 # Directory operations
-native fn sn_directory_list(a: *void, path: str): str[]
-native fn sn_directory_list_recursive(a: *void, path: str): str[]
+native fn sn_directory_list(arena, path: str): str[]
+native fn sn_directory_list_recursive(arena, path: str): str[]
 native fn sn_directory_create(path: str): void
 native fn sn_directory_delete(path: str): void
 native fn sn_directory_delete_recursive(path: str): void
