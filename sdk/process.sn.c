@@ -540,22 +540,19 @@ RtProcess *sn_process_run_args(RtArena *arena, const char *cmd, char **args)
  * ============================================================================ */
 
 /* Get exit code */
-long sn_process_get_exit_code(RtArena *arena, RtProcess *proc)
+long sn_process_get_exit_code(RtProcess *proc)
 {
-    (void)arena;  /* unused - exists for code generator compatibility */
     return proc ? proc->exit_code : 127;
 }
 
 /* Get captured stdout */
-char *sn_process_get_stdout(RtArena *arena, RtProcess *proc)
+char *sn_process_get_stdout(RtProcess *proc)
 {
-    (void)arena;  /* unused - exists for code generator compatibility */
     return proc ? proc->stdout_str : "";
 }
 
 /* Get captured stderr */
-char *sn_process_get_stderr(RtArena *arena, RtProcess *proc)
+char *sn_process_get_stderr(RtProcess *proc)
 {
-    (void)arena;  /* unused - exists for code generator compatibility */
     return proc ? proc->stderr_str : "";
 }
