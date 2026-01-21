@@ -445,6 +445,7 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
             stmt->as.struct_decl.methods[i].modifier = methods[i].modifier;
             stmt->as.struct_decl.methods[i].is_static = methods[i].is_static;
             stmt->as.struct_decl.methods[i].is_native = methods[i].is_native;
+            stmt->as.struct_decl.methods[i].has_arena_param = methods[i].has_arena_param;
             stmt->as.struct_decl.methods[i].name_token = methods[i].name_token;
             stmt->as.struct_decl.methods[i].c_alias = methods[i].c_alias
                 ? arena_strdup(arena, methods[i].c_alias) : NULL;
