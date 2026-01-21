@@ -35,26 +35,31 @@ typedef struct RtArenaBlock {
     char data[];                /* Flexible array member for actual data */
 } RtArenaBlock;
 
-/* Forward declaration for file handle types */
-typedef struct RtFileHandle RtFileHandle;
+/* ============================================================================
+ * Generic Cleanup Callback System
+ * ============================================================================
+ * Arenas support registering cleanup callbacks that are invoked when the arena
+ * is destroyed or reset. This allows any module to register resources for
+ * automatic cleanup without the arena needing type-specific knowledge.
+ * ============================================================================ */
 
-/* File handle - linked list node for tracking open files in arena */
-struct RtFileHandle {
-    void *fp;                   /* FILE* pointer (void* to avoid including stdio.h) */
-    char *path;                 /* Path to the file */
-    bool is_open;               /* Whether the file is still open */
-    bool is_text;               /* True for TextFile, false for BinaryFile */
-    RtFileHandle *next;         /* Next handle in chain */
-};
+/* Cleanup callback function type */
+typedef void (*RtCleanupFn)(void *data);
 
-/* Forward declaration for thread handle types */
-typedef struct RtThreadHandle RtThreadHandle;
+/* Cleanup priority - lower values are cleaned up first */
+typedef enum {
+    RT_CLEANUP_PRIORITY_HIGH = 0,     /* Threads synced first (highest priority) */
+    RT_CLEANUP_PRIORITY_MEDIUM = 10,      /* Files closed after threads */
+    RT_CLEANUP_PRIORITY_DEFAULT = 50     /* Default priority for user resources */
+} RtCleanupPriority;
 
-/* Thread tracking node - linked list node for tracking spawned threads in arena */
-typedef struct RtThreadTrackingNode {
-    RtThreadHandle *handle;               /* Pointer to the thread handle */
-    struct RtThreadTrackingNode *next;    /* Next node in chain */
-} RtThreadTrackingNode;
+/* Cleanup node - linked list node for tracking cleanup callbacks */
+typedef struct RtCleanupNode {
+    void *data;                     /* Data to pass to cleanup function */
+    RtCleanupFn cleanup_fn;         /* Cleanup function to call */
+    int priority;                   /* Cleanup priority (lower = earlier) */
+    struct RtCleanupNode *next;     /* Next node in chain */
+} RtCleanupNode;
 
 /* Arena - manages a collection of memory blocks */
 typedef struct RtArena {
@@ -63,8 +68,7 @@ typedef struct RtArena {
     RtArenaBlock *current;          /* Current block for allocations */
     size_t default_block_size;      /* Size for new blocks */
     size_t total_allocated;         /* Total bytes allocated (for stats) */
-    RtFileHandle *open_files;       /* Head of file handle list for auto-close */
-    RtThreadTrackingNode *active_threads;  /* Head of thread handle list for auto-join */
+    RtCleanupNode *cleanup_list;    /* Head of cleanup callback list (sorted by priority) */
     bool frozen;                    /* True if arena is frozen (shared thread executing) */
     pthread_t frozen_owner;         /* Thread ID that owns frozen arena (can still allocate) */
 } RtArena;
@@ -110,30 +114,24 @@ char *rt_arena_promote_string(RtArena *dest, const char *src);
 size_t rt_arena_total_allocated(RtArena *arena);
 
 /* ============================================================================
- * File Handle Tracking
+ * Cleanup Callback Registration
  * ============================================================================
- * Functions for managing file handles within arenas. Files are automatically
- * closed when the arena is destroyed.
+ * Functions for registering and removing cleanup callbacks. Callbacks are
+ * invoked in priority order (lower priority values first) when the arena
+ * is destroyed or reset.
  * ============================================================================ */
 
-/* Track a file handle in an arena (called internally by file open functions) */
-RtFileHandle *rt_arena_track_file(RtArena *arena, void *fp, const char *path, bool is_text);
+/* Register a cleanup callback for arena destruction/reset.
+ * The callback will be invoked with 'data' when the arena is destroyed or reset.
+ * Callbacks are invoked in priority order (lower values first).
+ * Returns the cleanup node (can be used for removal), or NULL on failure. */
+RtCleanupNode *rt_arena_on_cleanup(RtArena *arena, void *data,
+                                    RtCleanupFn cleanup_fn, int priority);
 
-/* Untrack a file handle from an arena (called when promoting to another arena) */
-void rt_arena_untrack_file(RtArena *arena, RtFileHandle *handle);
-
-/* ============================================================================
- * Thread Handle Tracking
- * ============================================================================
- * Functions for managing thread handles within arenas. Threads are automatically
- * joined when the arena is destroyed to prevent orphaned threads.
- * ============================================================================ */
-
-/* Track a thread handle in an arena (called when spawning threads in arena scope) */
-RtThreadTrackingNode *rt_arena_track_thread(RtArena *arena, RtThreadHandle *handle);
-
-/* Untrack a thread handle from an arena (called when thread is manually synced) */
-void rt_arena_untrack_thread(RtArena *arena, RtThreadHandle *handle);
+/* Remove a cleanup callback by data pointer.
+ * Finds and removes the first cleanup node matching 'data'.
+ * The callback will NOT be invoked when removed this way. */
+void rt_arena_remove_cleanup(RtArena *arena, void *data);
 
 /* ============================================================================
  * Arena Freezing (for shared thread mode)

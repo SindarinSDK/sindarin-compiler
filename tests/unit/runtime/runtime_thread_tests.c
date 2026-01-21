@@ -502,8 +502,9 @@ static void test_integration_arena_auto_joins_pending_threads(void)
     RtThreadHandle *handle = rt_thread_spawn(caller_arena, default_mode_thread_wrapper, args);
     assert(handle != NULL);
 
-    /* Track the thread in the arena */
-    rt_arena_track_thread(caller_arena, handle);
+    /* Note: rt_thread_spawn already registers the thread for cleanup via
+     * rt_arena_on_cleanup when caller_arena is provided. No explicit
+     * tracking call needed. */
 
     /* Destroying the arena should auto-join the thread */
     rt_arena_destroy(caller_arena);

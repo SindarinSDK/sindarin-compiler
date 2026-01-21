@@ -3,9 +3,6 @@
 #include <stdio.h>
 #include "runtime_arena.h"
 
-/* Forward declaration for thread join function to avoid circular include */
-extern void rt_thread_sync(RtThreadHandle *handle);
-
 /* ============================================================================
  * Arena Memory Management Implementation
  * ============================================================================ */
@@ -40,8 +37,7 @@ RtArena *rt_arena_create_sized(RtArena *parent, size_t block_size)
     arena->parent = parent;
     arena->default_block_size = block_size;
     arena->total_allocated = 0;
-    arena->open_files = NULL;       /* Initialize file handle list to empty */
-    arena->active_threads = NULL;   /* Initialize thread handle list to empty */
+    arena->cleanup_list = NULL;     /* Initialize cleanup list to empty */
     arena->frozen = false;          /* Initialize frozen flag to false */
 
     /* Create initial block */
@@ -190,28 +186,15 @@ void rt_arena_destroy(RtArena *arena)
         return;
     }
 
-    /* Join all tracked threads first to prevent orphaned threads
-     * Panics are silently discarded since arena destruction implies
-     * fire-and-forget semantics for unsynced threads */
-    RtThreadTrackingNode *tn = arena->active_threads;
-    while (tn != NULL) {
-        if (tn->handle != NULL) {
-            /* Sync the thread - this will join and propagate panics */
-            rt_thread_sync(tn->handle);
+    /* Invoke all cleanup callbacks in priority order (list is already sorted) */
+    RtCleanupNode *node = arena->cleanup_list;
+    while (node != NULL) {
+        if (node->cleanup_fn != NULL && node->data != NULL) {
+            node->cleanup_fn(node->data);
         }
-        tn = tn->next;
+        node = node->next;
     }
-    arena->active_threads = NULL;
-
-    /* Close all tracked file handles */
-    RtFileHandle *fh = arena->open_files;
-    while (fh != NULL) {
-        if (fh->is_open && fh->fp != NULL) {
-            fclose((FILE *)fh->fp);
-            fh->is_open = false;
-        }
-        fh = fh->next;
-    }
+    arena->cleanup_list = NULL;
 
     /* Free all blocks */
     RtArenaBlock *block = arena->first;
@@ -231,26 +214,15 @@ void rt_arena_reset(RtArena *arena)
         return;
     }
 
-    /* Join all tracked threads first */
-    RtThreadTrackingNode *tn = arena->active_threads;
-    while (tn != NULL) {
-        if (tn->handle != NULL) {
-            rt_thread_sync(tn->handle);
+    /* Invoke all cleanup callbacks in priority order (list is already sorted) */
+    RtCleanupNode *node = arena->cleanup_list;
+    while (node != NULL) {
+        if (node->cleanup_fn != NULL && node->data != NULL) {
+            node->cleanup_fn(node->data);
         }
-        tn = tn->next;
+        node = node->next;
     }
-    arena->active_threads = NULL;
-
-    /* Close all tracked file handles */
-    RtFileHandle *fh = arena->open_files;
-    while (fh != NULL) {
-        if (fh->is_open && fh->fp != NULL) {
-            fclose((FILE *)fh->fp);
-            fh->is_open = false;
-        }
-        fh = fh->next;
-    }
-    arena->open_files = NULL;
+    arena->cleanup_list = NULL;
 
     /* Free all blocks except the first */
     RtArenaBlock *block = arena->first->next;
@@ -296,94 +268,55 @@ size_t rt_arena_total_allocated(RtArena *arena)
 }
 
 /* ============================================================================
- * File Handle Tracking Implementation
+ * Generic Cleanup Callback Implementation
  * ============================================================================ */
 
-/* Track a file handle in an arena */
-RtFileHandle *rt_arena_track_file(RtArena *arena, void *fp, const char *path, bool is_text)
+/* Register a cleanup callback for arena destruction/reset */
+RtCleanupNode *rt_arena_on_cleanup(RtArena *arena, void *data,
+                                    RtCleanupFn cleanup_fn, int priority)
 {
-    if (arena == NULL || fp == NULL) {
+    if (arena == NULL || cleanup_fn == NULL) {
         return NULL;
     }
 
-    /* Allocate handle from arena */
-    RtFileHandle *handle = rt_arena_alloc(arena, sizeof(RtFileHandle));
-    if (handle == NULL) {
-        return NULL;
-    }
-
-    handle->fp = fp;
-    handle->path = rt_arena_strdup(arena, path);
-    handle->is_open = true;
-    handle->is_text = is_text;
-
-    /* Add to front of arena's file list */
-    handle->next = arena->open_files;
-    arena->open_files = handle;
-
-    return handle;
-}
-
-/* Untrack a file handle from an arena (removes from list but doesn't close) */
-void rt_arena_untrack_file(RtArena *arena, RtFileHandle *handle)
-{
-    if (arena == NULL || handle == NULL) {
-        return;
-    }
-
-    /* Find and remove from list */
-    RtFileHandle **curr = &arena->open_files;
-    while (*curr != NULL) {
-        if (*curr == handle) {
-            *curr = handle->next;
-            handle->next = NULL;
-            return;
-        }
-        curr = &(*curr)->next;
-    }
-}
-
-/* ============================================================================
- * Thread Handle Tracking Implementation
- * ============================================================================ */
-
-/* Track a thread handle in an arena */
-RtThreadTrackingNode *rt_arena_track_thread(RtArena *arena, RtThreadHandle *handle)
-{
-    if (arena == NULL || handle == NULL) {
-        return NULL;
-    }
-
-    /* Allocate tracking node from arena */
-    RtThreadTrackingNode *node = rt_arena_alloc(arena, sizeof(RtThreadTrackingNode));
+    /* Allocate cleanup node from arena */
+    RtCleanupNode *node = rt_arena_alloc(arena, sizeof(RtCleanupNode));
     if (node == NULL) {
         return NULL;
     }
 
-    node->handle = handle;
+    node->data = data;
+    node->cleanup_fn = cleanup_fn;
+    node->priority = priority;
+    node->next = NULL;
 
-    /* Add to front of arena's thread list */
-    node->next = arena->active_threads;
-    arena->active_threads = node;
+    /* Insert in sorted order by priority (lower values first) */
+    RtCleanupNode **curr = &arena->cleanup_list;
+    while (*curr != NULL && (*curr)->priority <= priority) {
+        curr = &(*curr)->next;
+    }
+    node->next = *curr;
+    *curr = node;
 
     return node;
 }
 
-/* Untrack a thread handle from an arena (removes from list but doesn't join) */
-void rt_arena_untrack_thread(RtArena *arena, RtThreadHandle *handle)
+/* Remove a cleanup callback by data pointer */
+void rt_arena_remove_cleanup(RtArena *arena, void *data)
 {
-    if (arena == NULL || handle == NULL) {
+    if (arena == NULL || data == NULL) {
         return;
     }
 
-    /* Find and remove from list */
-    RtThreadTrackingNode **curr = &arena->active_threads;
+    /* Find and remove the first node matching data */
+    RtCleanupNode **curr = &arena->cleanup_list;
     while (*curr != NULL) {
-        if ((*curr)->handle == handle) {
-            RtThreadTrackingNode *to_remove = *curr;
+        if ((*curr)->data == data) {
+            RtCleanupNode *to_remove = *curr;
             *curr = to_remove->next;
             to_remove->next = NULL;
-            to_remove->handle = NULL;
+            to_remove->data = NULL;
+            to_remove->cleanup_fn = NULL;
             return;
         }
         curr = &(*curr)->next;
