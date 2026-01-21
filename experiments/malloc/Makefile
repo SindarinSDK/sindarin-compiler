@@ -76,6 +76,11 @@ CFLAGS += -DSN_MALLOC_HOOKS
 # Include paths - experiment headers take priority
 INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(ROOT_SRC) -I$(ROOT_SRC)/runtime -I$(ROOT_SRC)/platform
 
+# Windows: Add MinHook include path
+ifeq ($(PLATFORM),windows)
+    INCLUDES += -I$(EXP_SRC)/runtime/minhook -I$(EXP_SRC)/runtime/minhook/hde
+endif
+
 # Linker flags
 ifeq ($(PLATFORM),windows)
     LDFLAGS := -lws2_32 -lbcrypt -lpthread -ldbghelp
@@ -204,9 +209,19 @@ RUNTIME_LIB_SOURCES := \
     $(ROOT_SRC)/runtime/runtime_any.c \
     $(ROOT_SRC)/runtime/runtime_intercept.c
 
-# macOS: Add fishhook for runtime symbol rebinding
+# Platform-specific hooking libraries for runtime symbol interception
 ifeq ($(PLATFORM),darwin)
+    # macOS: fishhook for runtime symbol rebinding
     RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/fishhook.c
+else ifeq ($(PLATFORM),linux)
+    # Linux: plthook for PLT/GOT modification
+    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/plthook_elf.c
+else ifeq ($(PLATFORM),windows)
+    # Windows: MinHook for inline function hooking
+    RUNTIME_LIB_SOURCES += \
+        $(EXP_SRC)/runtime/minhook/hook.c \
+        $(EXP_SRC)/runtime/minhook/buffer.c \
+        $(EXP_SRC)/runtime/minhook/trampoline.c
 endif
 
 RUNTIME_LIB_OBJECTS := $(patsubst $(ROOT_SRC)/%.c,$(EXP_BUILD)/lib/%.o,$(filter $(ROOT_SRC)/%,$(RUNTIME_LIB_SOURCES)))
@@ -368,16 +383,18 @@ else
     export SN_CFLAGS := -g
 endif
 
+# Runtime hooking - no --wrap linker flags needed anymore!
+# All platforms use runtime hooking libraries (plthook, fishhook, MinHook)
 ifeq ($(PLATFORM),windows)
-    # -pdb= tells lld to generate PDB debug database for DbgHelp symbol resolution
-    export SN_LDFLAGS := -ldbghelp -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc -Wl,-pdb=
+    # Windows: DbgHelp for symbol resolution, PDB for debug info
+    export SN_LDFLAGS := -ldbghelp -Wl,-pdb=
 else ifeq ($(PLATFORM),darwin)
-    # macOS: fishhook handles symbol rebinding at runtime, no linker flags needed
-    # No --wrap support on Apple linker
+    # macOS: fishhook handles symbol rebinding at runtime
     export SN_LDFLAGS :=
 else
     # Linux: -rdynamic exports symbols for dladdr to resolve function names
-    export SN_LDFLAGS := -rdynamic -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
+    # plthook handles malloc interception at runtime
+    export SN_LDFLAGS := -rdynamic
 endif
 
 test: build

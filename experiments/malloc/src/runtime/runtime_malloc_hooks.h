@@ -4,45 +4,33 @@
 /*
  * Memory allocation hooks for Sindarin compiled programs.
  *
- * Platform-specific mechanisms:
+ * Platform-specific runtime hooking mechanisms:
  *
- * Linux/Windows (MinGW):
- *   Uses linker-level wrapping (--wrap=malloc, etc.)
- *   Link with: -Wl,--wrap=malloc,--wrap=free,--wrap=calloc,--wrap=realloc
- *   The __real_* functions are provided by the linker and call libc.
+ * Linux:
+ *   Uses plthook library to modify PLT/GOT entries at runtime.
+ *   Hooks are installed via constructor, no special linker flags needed.
  *
  * macOS:
  *   Uses Facebook's fishhook library for runtime symbol rebinding.
- *   No special linker flags required - hooks are installed at startup.
+ *   Hooks are installed via constructor, no special linker flags needed.
+ *
+ * Windows:
+ *   Uses MinHook library for inline function hooking via trampolines.
+ *   Hooks are installed via constructor, no special linker flags needed.
+ *
+ * All platforms now use runtime hooking, which:
+ *   - Catches allocations from both static and dynamic libraries
+ *   - Requires no special linker flags (--wrap removed)
+ *   - Provides consistent behavior across all platforms
  */
 
 #include <stddef.h>
 
 #ifdef SN_MALLOC_HOOKS
 
-#ifndef __APPLE__
 /*
- * Linux/Windows: Linker-provided wrapper declarations
- * These are only valid when using the --wrap linker flag
- */
-
-/* Declarations for the real libc functions (provided by linker --wrap) */
-extern void *__real_malloc(size_t size);
-extern void  __real_free(void *ptr);
-extern void *__real_calloc(size_t count, size_t size);
-extern void *__real_realloc(void *ptr, size_t size);
-
-/* Our wrapper functions that intercept all calls */
-void *__wrap_malloc(size_t size);
-void  __wrap_free(void *ptr);
-void *__wrap_calloc(size_t count, size_t size);
-void *__wrap_realloc(void *ptr, size_t size);
-
-#endif /* !__APPLE__ */
-
-/*
- * macOS: Hooks are installed at runtime via fishhook constructor.
- * No declarations needed here - see runtime_malloc_hooks.c
+ * No declarations needed - hooks are installed at runtime via constructors.
+ * The hooking libraries (plthook, fishhook, MinHook) handle all redirection.
  */
 
 #endif /* SN_MALLOC_HOOKS */
