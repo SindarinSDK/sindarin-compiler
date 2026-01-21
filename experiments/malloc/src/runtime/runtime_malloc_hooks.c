@@ -25,8 +25,13 @@
 
 #ifdef SN_MALLOC_HOOKS
 
-/* Thread-local guard to prevent recursive hook calls (fprintf may call malloc) */
-static __thread int sn_malloc_hook_guard = 0;
+/* Linux/macOS: Need dlfcn.h for dlsym bootstrap in hooked functions */
+#ifndef _WIN32
+#ifndef _GNU_SOURCE
+#define _GNU_SOURCE
+#endif
+#include <dlfcn.h>
+#endif
 
 /* Original function pointers - populated by hooking libraries */
 static void *(*orig_malloc)(size_t) = NULL;
@@ -36,7 +41,13 @@ static void *(*orig_realloc)(void *, size_t) = NULL;
 
 /* ============================================================================
  * Platform-specific symbol resolution for caller identification
+ * Only compiled when verbose output is enabled.
  * ============================================================================ */
+
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+
+/* Thread-local guard to prevent recursive hook calls (fprintf may call malloc) */
+static __thread int sn_malloc_hook_guard = 0;
 
 #ifdef _WIN32
 /* Windows: Use DbgHelp for symbol resolution */
@@ -86,11 +97,7 @@ static const char *get_caller_name(void *addr)
 }
 
 #else
-/* Linux/macOS: Use dladdr for symbol resolution */
-#ifndef _GNU_SOURCE
-#define _GNU_SOURCE
-#endif
-#include <dlfcn.h>
+/* Linux/macOS: Use dladdr for symbol resolution (dlfcn.h already included above) */
 
 static const char *get_caller_name(void *addr)
 {
@@ -100,7 +107,9 @@ static const char *get_caller_name(void *addr)
     }
     return "???";
 }
-#endif
+#endif /* _WIN32 */
+
+#endif /* SN_MALLOC_HOOKS_VERBOSE */
 
 /* ============================================================================
  * Common hooked function implementations
@@ -121,6 +130,7 @@ static void *hooked_malloc(size_t size)
         ptr = orig_malloc(size);
     }
 
+#ifdef SN_MALLOC_HOOKS_VERBOSE
     if (sn_malloc_hook_guard == 0) {
         sn_malloc_hook_guard = 1;
         void *caller = __builtin_return_address(0);
@@ -128,12 +138,14 @@ static void *hooked_malloc(size_t size)
                 size, ptr, get_caller_name(caller));
         sn_malloc_hook_guard = 0;
     }
+#endif
 
     return ptr;
 }
 
 static void hooked_free(void *ptr)
 {
+#ifdef SN_MALLOC_HOOKS_VERBOSE
     if (sn_malloc_hook_guard == 0) {
         sn_malloc_hook_guard = 1;
         void *caller = __builtin_return_address(0);
@@ -141,6 +153,7 @@ static void hooked_free(void *ptr)
                 ptr, get_caller_name(caller));
         sn_malloc_hook_guard = 0;
     }
+#endif
 
     /* Bootstrap: if hooks not yet installed, use libc directly */
     if (orig_free == NULL) {
@@ -169,6 +182,7 @@ static void *hooked_calloc(size_t count, size_t size)
         ptr = orig_calloc(count, size);
     }
 
+#ifdef SN_MALLOC_HOOKS_VERBOSE
     if (sn_malloc_hook_guard == 0) {
         sn_malloc_hook_guard = 1;
         void *caller = __builtin_return_address(0);
@@ -176,14 +190,17 @@ static void *hooked_calloc(size_t count, size_t size)
                 count, size, ptr, get_caller_name(caller));
         sn_malloc_hook_guard = 0;
     }
+#endif
 
     return ptr;
 }
 
 static void *hooked_realloc(void *ptr, size_t size)
 {
-    void *old_ptr = ptr;
     void *new_ptr;
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+    void *old_ptr = ptr;
+#endif
 
     /* Bootstrap: if hooks not yet installed, use libc directly */
     if (orig_realloc == NULL) {
@@ -196,6 +213,7 @@ static void *hooked_realloc(void *ptr, size_t size)
         new_ptr = orig_realloc(ptr, size);
     }
 
+#ifdef SN_MALLOC_HOOKS_VERBOSE
     if (sn_malloc_hook_guard == 0) {
         sn_malloc_hook_guard = 1;
         void *caller = __builtin_return_address(0);
@@ -203,6 +221,7 @@ static void *hooked_realloc(void *ptr, size_t size)
                 old_ptr, size, new_ptr, get_caller_name(caller));
         sn_malloc_hook_guard = 0;
     }
+#endif
 
     return new_ptr;
 }
