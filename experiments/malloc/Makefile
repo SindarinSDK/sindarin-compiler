@@ -77,11 +77,11 @@ CFLAGS := -Wall -Wextra -Wno-unknown-pragmas -O2 -std=gnu99 -D_GNU_SOURCE
 CFLAGS += -DSN_MALLOC_HOOKS
 
 # Include paths - experiment headers take priority
-INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(ROOT_SRC) -I$(ROOT_SRC)/runtime -I$(ROOT_SRC)/platform
+INCLUDES := -I$(EXP_SRC) -I$(EXP_SRC)/runtime -I$(EXP_SRC)/runtime/hooks -I$(ROOT_SRC) -I$(ROOT_SRC)/runtime -I$(ROOT_SRC)/platform
 
 # Windows: Add MinHook include path
 ifeq ($(PLATFORM),windows)
-    INCLUDES += -I$(EXP_SRC)/runtime/minhook -I$(EXP_SRC)/runtime/minhook/hde
+    INCLUDES += -I$(EXP_SRC)/runtime/hooks/minhook -I$(EXP_SRC)/runtime/hooks/minhook/hde
 endif
 
 # Linker flags
@@ -216,18 +216,18 @@ RUNTIME_LIB_SOURCES := \
 # Platform-specific hooking libraries for runtime symbol interception
 ifeq ($(PLATFORM),darwin)
     # macOS: fishhook for runtime symbol rebinding
-    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/fishhook.c
+    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/hooks/fishhook.c
 else ifeq ($(PLATFORM),linux)
     # Linux: plthook for PLT/GOT modification
-    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/plthook_elf.c
+    RUNTIME_LIB_SOURCES += $(EXP_SRC)/runtime/hooks/plthook_elf.c
 else ifeq ($(PLATFORM),windows)
     # Windows: MinHook for inline function hooking
     RUNTIME_LIB_SOURCES += \
-        $(EXP_SRC)/runtime/minhook/hook.c \
-        $(EXP_SRC)/runtime/minhook/buffer.c \
-        $(EXP_SRC)/runtime/minhook/trampoline.c \
-        $(EXP_SRC)/runtime/minhook/hde/hde32.c \
-        $(EXP_SRC)/runtime/minhook/hde/hde64.c
+        $(EXP_SRC)/runtime/hooks/minhook/hook.c \
+        $(EXP_SRC)/runtime/hooks/minhook/buffer.c \
+        $(EXP_SRC)/runtime/hooks/minhook/trampoline.c \
+        $(EXP_SRC)/runtime/hooks/minhook/hde/hde32.c \
+        $(EXP_SRC)/runtime/hooks/minhook/hde/hde64.c
 endif
 
 RUNTIME_LIB_OBJECTS := $(patsubst $(ROOT_SRC)/%.c,$(EXP_BUILD)/lib/%.o,$(filter $(ROOT_SRC)/%,$(RUNTIME_LIB_SOURCES)))
@@ -427,16 +427,16 @@ TEST_REDIRECT_SOURCES := \
 
 # Add platform-specific hooking library
 ifeq ($(PLATFORM),darwin)
-    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/fishhook.c
+    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/hooks/fishhook.c
 else ifeq ($(PLATFORM),linux)
-    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/plthook_elf.c
+    TEST_REDIRECT_SOURCES += $(EXP_SRC)/runtime/hooks/plthook_elf.c
 else ifeq ($(PLATFORM),windows)
     TEST_REDIRECT_SOURCES += \
-        $(EXP_SRC)/runtime/minhook/hook.c \
-        $(EXP_SRC)/runtime/minhook/buffer.c \
-        $(EXP_SRC)/runtime/minhook/trampoline.c \
-        $(EXP_SRC)/runtime/minhook/hde/hde32.c \
-        $(EXP_SRC)/runtime/minhook/hde/hde64.c
+        $(EXP_SRC)/runtime/hooks/minhook/hook.c \
+        $(EXP_SRC)/runtime/hooks/minhook/buffer.c \
+        $(EXP_SRC)/runtime/hooks/minhook/trampoline.c \
+        $(EXP_SRC)/runtime/hooks/minhook/hde/hde32.c \
+        $(EXP_SRC)/runtime/hooks/minhook/hde/hde64.c
 endif
 
 TEST_REDIRECT_BIN := $(TEMP_DIR)/test_malloc_redirect$(EXE_EXT)
