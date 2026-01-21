@@ -116,7 +116,7 @@ jobs:
         shell: pwsh
         run: |
           $env:SN_CFLAGS = "-g -IC:\vcpkg\installed\x64-windows\include"
-          $env:SN_LDFLAGS = "-LC:\vcpkg\installed\x64-windows\lib"
+          $env:SN_LDFLAGS = "-LC:\vcpkg\installed\x64-windows\lib -ldbghelp -Wl,-pdb="
           make test
 
       - name: Run redirect test (Linux)
