@@ -58,15 +58,15 @@ native struct Process as ref =>
 
     # Get exit code (0 typically means success)
     @alias "sn_process_get_exit_code"
-    native fn exitCode(arena): int
+    native fn exitCode(): int
 
     # Get captured standard output
     @alias "sn_process_get_stdout"
-    native fn stdout(arena): str
+    native fn stdout(): str
 
     # Get captured standard error
     @alias "sn_process_get_stderr"
-    native fn stderr(arena): str
+    native fn stderr(): str
 
     # ==========================================================================
     # Convenience Methods (non-native)
