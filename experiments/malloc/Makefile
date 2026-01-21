@@ -221,7 +221,9 @@ else ifeq ($(PLATFORM),windows)
     RUNTIME_LIB_SOURCES += \
         $(EXP_SRC)/runtime/minhook/hook.c \
         $(EXP_SRC)/runtime/minhook/buffer.c \
-        $(EXP_SRC)/runtime/minhook/trampoline.c
+        $(EXP_SRC)/runtime/minhook/trampoline.c \
+        $(EXP_SRC)/runtime/minhook/hde/hde32.c \
+        $(EXP_SRC)/runtime/minhook/hde/hde64.c
 endif
 
 RUNTIME_LIB_OBJECTS := $(patsubst $(ROOT_SRC)/%.c,$(EXP_BUILD)/lib/%.o,$(filter $(ROOT_SRC)/%,$(RUNTIME_LIB_SOURCES)))
