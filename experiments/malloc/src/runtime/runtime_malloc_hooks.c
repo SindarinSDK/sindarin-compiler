@@ -235,54 +235,97 @@ static void sn_install_malloc_hooks(void)
 #elif defined(__linux__)
 
 #include "plthook.h"
+#include <link.h>
 
-static plthook_t *sn_plthook = NULL;
+/* Track all hooked libraries for cleanup */
+#define MAX_HOOKED_LIBS 64
+static plthook_t *sn_plthooks[MAX_HOOKED_LIBS];
+static int sn_plthook_count = 0;
+
+/* Hook a single library's PLT */
+static void hook_library(plthook_t *ph)
+{
+    /* Hook malloc - only save orig_malloc from first successful hook */
+    void *tmp_orig = NULL;
+    int rv = plthook_replace(ph, "malloc", (void *)hooked_malloc, &tmp_orig);
+    if (rv == 0 && orig_malloc == NULL && tmp_orig != NULL) {
+        orig_malloc = tmp_orig;
+    }
+
+    /* Hook free */
+    tmp_orig = NULL;
+    rv = plthook_replace(ph, "free", (void *)hooked_free, &tmp_orig);
+    if (rv == 0 && orig_free == NULL && tmp_orig != NULL) {
+        orig_free = tmp_orig;
+    }
+
+    /* Hook calloc */
+    tmp_orig = NULL;
+    rv = plthook_replace(ph, "calloc", (void *)hooked_calloc, &tmp_orig);
+    if (rv == 0 && orig_calloc == NULL && tmp_orig != NULL) {
+        orig_calloc = tmp_orig;
+    }
+
+    /* Hook realloc */
+    tmp_orig = NULL;
+    rv = plthook_replace(ph, "realloc", (void *)hooked_realloc, &tmp_orig);
+    if (rv == 0 && orig_realloc == NULL && tmp_orig != NULL) {
+        orig_realloc = tmp_orig;
+    }
+}
+
+/* Callback for dl_iterate_phdr - hooks each loaded shared object */
+static int hook_library_callback(struct dl_phdr_info *info, size_t size, void *data)
+{
+    (void)size;
+    (void)data;
+
+    if (sn_plthook_count >= MAX_HOOKED_LIBS) {
+        return 0; /* Stop iteration if we've reached the limit */
+    }
+
+    plthook_t *ph = NULL;
+    int rv;
+
+    /* Open by filename (info->dlpi_name), or NULL for main executable */
+    const char *name = info->dlpi_name;
+    if (name == NULL || name[0] == '\0') {
+        rv = plthook_open(&ph, NULL); /* Main executable */
+    } else {
+        rv = plthook_open(&ph, name);
+    }
+
+    if (rv != 0) {
+        return 0; /* Continue to next library */
+    }
+
+    /* Hook this library */
+    hook_library(ph);
+
+    /* Store for cleanup */
+    sn_plthooks[sn_plthook_count++] = ph;
+
+    return 0; /* Continue iteration */
+}
 
 /* Install hooks at program startup using constructor attribute */
 __attribute__((constructor))
 static void sn_install_malloc_hooks(void)
 {
-    int rv;
-
-    /* Open the main executable for PLT hooking */
-    rv = plthook_open(&sn_plthook, NULL);
-    if (rv != 0) {
-        fprintf(stderr, "[SN_ALLOC] Warning: plthook_open failed: %s\n", plthook_error());
-        return;
-    }
-
-    /* Hook malloc */
-    rv = plthook_replace(sn_plthook, "malloc", (void *)hooked_malloc, (void **)&orig_malloc);
-    if (rv != 0 && rv != PLTHOOK_FUNCTION_NOT_FOUND) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook malloc: %s\n", plthook_error());
-    }
-
-    /* Hook free */
-    rv = plthook_replace(sn_plthook, "free", (void *)hooked_free, (void **)&orig_free);
-    if (rv != 0 && rv != PLTHOOK_FUNCTION_NOT_FOUND) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook free: %s\n", plthook_error());
-    }
-
-    /* Hook calloc */
-    rv = plthook_replace(sn_plthook, "calloc", (void *)hooked_calloc, (void **)&orig_calloc);
-    if (rv != 0 && rv != PLTHOOK_FUNCTION_NOT_FOUND) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook calloc: %s\n", plthook_error());
-    }
-
-    /* Hook realloc */
-    rv = plthook_replace(sn_plthook, "realloc", (void *)hooked_realloc, (void **)&orig_realloc);
-    if (rv != 0 && rv != PLTHOOK_FUNCTION_NOT_FOUND) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook realloc: %s\n", plthook_error());
-    }
+    /* Iterate over all loaded shared objects and hook each one */
+    dl_iterate_phdr(hook_library_callback, NULL);
 }
 
 __attribute__((destructor))
 static void sn_uninstall_malloc_hooks(void)
 {
-    if (sn_plthook != NULL) {
-        plthook_close(sn_plthook);
-        sn_plthook = NULL;
+    for (int i = 0; i < sn_plthook_count; i++) {
+        if (sn_plthooks[i] != NULL) {
+            plthook_close(sn_plthooks[i]);
+            sn_plthooks[i] = NULL;
+        }
     }
+    sn_plthook_count = 0;
 }
 
 /* ============================================================================
@@ -292,6 +335,25 @@ static void sn_uninstall_malloc_hooks(void)
 #elif defined(_WIN32)
 
 #include "minhook/MinHook.h"
+
+/* Get the actual CRT function address from ucrtbase.dll or msvcrt.dll */
+static void *get_crt_function(const char *name)
+{
+    /* Try Universal CRT first (Windows 10+) */
+    HMODULE hCRT = GetModuleHandleA("ucrtbase.dll");
+    if (!hCRT) {
+        /* Fall back to legacy MSVCRT */
+        hCRT = GetModuleHandleA("msvcrt.dll");
+    }
+    if (!hCRT) {
+        /* Try api-ms-win-crt-heap (Windows 8+) */
+        hCRT = GetModuleHandleA("api-ms-win-crt-heap-l1-1-0.dll");
+    }
+    if (hCRT) {
+        return (void *)GetProcAddress(hCRT, name);
+    }
+    return NULL;
+}
 
 /* Install hooks at program startup using constructor attribute */
 __attribute__((constructor))
@@ -306,28 +368,42 @@ static void sn_install_malloc_hooks(void)
         return;
     }
 
+    /* Get actual CRT function addresses to hook all callers (including DLLs) */
+    void *crt_malloc = get_crt_function("malloc");
+    void *crt_free = get_crt_function("free");
+    void *crt_calloc = get_crt_function("calloc");
+    void *crt_realloc = get_crt_function("realloc");
+
     /* Hook malloc */
-    status = MH_CreateHook(&malloc, hooked_malloc, (void **)&orig_malloc);
-    if (status != MH_OK) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook malloc: %d\n", status);
+    if (crt_malloc) {
+        status = MH_CreateHook(crt_malloc, hooked_malloc, (void **)&orig_malloc);
+        if (status != MH_OK) {
+            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook malloc: %d\n", status);
+        }
     }
 
     /* Hook free */
-    status = MH_CreateHook(&free, hooked_free, (void **)&orig_free);
-    if (status != MH_OK) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook free: %d\n", status);
+    if (crt_free) {
+        status = MH_CreateHook(crt_free, hooked_free, (void **)&orig_free);
+        if (status != MH_OK) {
+            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook free: %d\n", status);
+        }
     }
 
     /* Hook calloc */
-    status = MH_CreateHook(&calloc, hooked_calloc, (void **)&orig_calloc);
-    if (status != MH_OK) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook calloc: %d\n", status);
+    if (crt_calloc) {
+        status = MH_CreateHook(crt_calloc, hooked_calloc, (void **)&orig_calloc);
+        if (status != MH_OK) {
+            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook calloc: %d\n", status);
+        }
     }
 
     /* Hook realloc */
-    status = MH_CreateHook(&realloc, hooked_realloc, (void **)&orig_realloc);
-    if (status != MH_OK) {
-        fprintf(stderr, "[SN_ALLOC] Warning: failed to hook realloc: %d\n", status);
+    if (crt_realloc) {
+        status = MH_CreateHook(crt_realloc, hooked_realloc, (void **)&orig_realloc);
+        if (status != MH_OK) {
+            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook realloc: %d\n", status);
+        }
     }
 
     /* Enable all hooks */
