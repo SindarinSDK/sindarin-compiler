@@ -49,6 +49,20 @@ static RtThreadPool g_thread_pool = {
 
 static bool g_thread_pool_initialized = false;
 
+/* ============================================================================
+ * Thread Cleanup Callback for Arena
+ * ============================================================================
+ * Called when an arena is destroyed to auto-join any tracked threads.
+ */
+
+static void rt_thread_cleanup(void *data)
+{
+    RtThreadHandle *handle = (RtThreadHandle *)data;
+    if (handle != NULL && !handle->synced) {
+        rt_thread_sync(handle);
+    }
+}
+
 /* Initial capacity for thread pool */
 #define RT_THREAD_POOL_INITIAL_CAPACITY 16
 
@@ -458,7 +472,8 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
 
     /* Track in caller's arena so arena destruction auto-joins the thread */
     if (args->caller_arena != NULL) {
-        rt_arena_track_thread(args->caller_arena, handle);
+        rt_arena_on_cleanup(args->caller_arena, handle,
+                            rt_thread_cleanup, RT_CLEANUP_PRIORITY_HIGH);
     }
 
     /* For shared mode, set frozen_owner to the spawned thread handle and freeze.
