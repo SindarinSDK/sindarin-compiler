@@ -1,6 +1,6 @@
 # Memory Allocation Hooks Experiment
 
-This experiment intercepts all memory allocation calls (malloc, calloc, realloc, free) in compiled Sindarin programs, including allocations from both statically and dynamically linked libraries.
+This experiment intercepts all memory allocation calls (malloc, calloc, realloc, free) in compiled Sindarin programs, including allocations from linked libraries like zlib.
 
 ## Experiment Rules
 
@@ -10,33 +10,17 @@ This experiment intercepts all memory allocation calls (malloc, calloc, realloc,
 4. **Build Isolation**: Compiles to `experiments/malloc/bin/`, substituting only changed files
 5. **Clear Output**: Hooked functions print diagnostic output identifying the caller
 
-## How the Interceptor Works
+## How It Works
 
-All platforms now use **runtime hooking** to intercept memory allocation calls. This means hooks are installed when the program starts (via constructor functions), not at link time.
+Runtime hooking intercepts memory allocation calls by modifying function pointers at program startup. A constructor function runs before `main()` and redirects malloc/free/calloc/realloc to wrapper functions that log each call before forwarding to the original implementation.
 
-### Runtime Hooking Libraries
+### Platform-Specific Hooking Libraries
 
 | Platform | Library | Mechanism |
 |----------|---------|-----------|
 | Linux | [plthook](https://github.com/kubo/plthook) | Modifies PLT/GOT entries in ELF binaries |
 | macOS | [fishhook](https://github.com/facebook/fishhook) | Modifies Mach-O symbol pointers |
 | Windows | [MinHook](https://github.com/TsudaKageyu/minhook) | Inline function hooking via trampolines |
-
-### Benefits of Runtime Hooking
-
-Unlike link-time hooking (e.g., `--wrap`), runtime hooking:
-
-- **Intercepts ALL allocations** - both static and dynamic libraries
-- **Consistent behavior** - same interception regardless of how libraries are linked
-- **No special linker flags** - hooks are installed at runtime via constructors
-- **Works with any C library** - doesn't depend on how the library was compiled
-
-### How It Works
-
-1. **At program startup**: A constructor function (`sn_install_malloc_hooks`) runs before `main()`
-2. **Hook installation**: The hooking library redirects malloc/free/calloc/realloc to our wrapper functions
-3. **Original function storage**: Original function pointers are saved for calling through to libc
-4. **Logging**: Each allocation/deallocation is logged with caller identification
 
 ### Caller Identification
 
@@ -52,71 +36,7 @@ This is achieved using:
 - **Linux/macOS**: `__builtin_return_address(0)` + `dladdr()` for symbol lookup
 - **Windows**: `__builtin_return_address(0)` + `DbgHelp` API for symbol lookup
 
-## Platform Setup
-
-### Linux (GCC/Clang)
-
-**Compiler flags** (set via Makefile → `etc/sn.cfg`):
-
-```
-SN_CFLAGS=-g
-SN_LDFLAGS=-rdynamic
-```
-
-| Flag | Purpose |
-|------|---------|
-| `-g` | Generate debug symbols for function name resolution |
-| `-rdynamic` | Export all symbols so `dladdr()` can resolve function names |
-
-**Runtime hooking library**: plthook (ELF PLT/GOT modification)
-
-**Build requirements**:
-- GCC or Clang
-- plthook source (included in `src/runtime/plthook_elf.c`)
-
-### macOS (Clang)
-
-**Compiler flags** (set via Makefile → `etc/sn.cfg`):
-
-```
-SN_CFLAGS=-g
-SN_LDFLAGS=
-```
-
-| Flag | Purpose |
-|------|---------|
-| `-g` | Generate debug symbols for function name resolution |
-
-**Runtime hooking library**: fishhook (Mach-O symbol rebinding)
-
-**Build requirements**:
-- Clang (Xcode command line tools)
-- fishhook source (included in `src/runtime/fishhook.c`)
-
-### Windows (Clang/MinGW)
-
-**Compiler flags** (set via Makefile → `etc/sn.cfg`):
-
-```
-SN_CFLAGS=-g -gcodeview
-SN_LDFLAGS=-ldbghelp -Wl,-pdb=
-```
-
-| Flag | Purpose |
-|------|---------|
-| `-g` | Generate debug symbols |
-| `-gcodeview` | Use CodeView debug format (required for DbgHelp) |
-| `-Wl,-pdb=` | Generate PDB file alongside executable |
-| `-ldbghelp` | Link DbgHelp library for symbol resolution |
-
-**Runtime hooking library**: MinHook (inline function hooking)
-
-**Build requirements**:
-- LLVM-MinGW or MinGW-w64 with Clang (NOT MSVC - constructor attribute support needed)
-- Windows SDK (for DbgHelp)
-- MinHook source (included in `src/runtime/minhook/`)
-
-## Building the Experiment
+## Building and Running
 
 ```bash
 cd experiments/malloc
@@ -138,37 +58,9 @@ make clean
 
 | Feature | Linux | macOS | Windows |
 |---------|-------|-------|---------|
-| Hooking Mechanism | plthook (PLT/GOT) | fishhook (Mach-O) | MinHook (trampolines) |
+| Hooking Library | plthook | fishhook | MinHook |
 | Symbol Resolution | `dladdr()` | `dladdr()` | DbgHelp API |
-| Static Libs Captured | **Yes** | **Yes** | **Yes** |
-| Dynamic Libs Captured | **Yes** | **Yes** | **Yes** |
-| Special Linker Flags | `-rdynamic` | None | `-ldbghelp` |
 | Debug Format | DWARF (`-g`) | DWARF (`-g`) | CodeView (`-gcodeview`) |
-
-## Configuration Files
-
-### etc/sn.cfg
-
-This file configures the Sindarin compiler's C backend. The Makefile exports the appropriate `SN_CFLAGS` and `SN_LDFLAGS` based on the detected platform.
-
-### sdk/zlib.sn
-
-Local copy of the zlib SDK module. With runtime hooking, both static and dynamic linking capture all allocations:
-
-```sindarin
-@link z          # Dynamic linking - allocations captured!
-@link :libz.a    # Static linking - allocations captured!
-```
-
-## Runtime Flags
-
-The hooks are compiled into the runtime when `SN_MALLOC_HOOKS` is defined:
-
-```makefile
-CFLAGS += -DSN_MALLOC_HOOKS
-```
-
-This is set automatically in the experiment's Makefile.
 
 ## Expected Output
 
@@ -209,11 +101,9 @@ When running a program that uses zlib:
 
 ### Function names show "???"
 
-**Linux**: Missing `-rdynamic` flag. This exports symbols so `dladdr()` can resolve them.
-
-**macOS**: Ensure `-g` flag is set for debug symbols.
-
-**Windows**: Missing debug symbols. Ensure `-g -gcodeview` and `-Wl,-pdb=` are set.
+- **Linux**: Missing `-rdynamic` flag. This exports symbols so `dladdr()` can resolve them.
+- **macOS**: Ensure `-g` flag is set for debug symbols.
+- **Windows**: Missing debug symbols. Ensure `-g -gcodeview` and `-Wl,-pdb=` are set.
 
 ### Recursion or crashes in hooks
 
@@ -223,24 +113,18 @@ The hooks include a thread-local guard (`sn_malloc_hook_guard`) to prevent recur
 
 Ensure the runtime library is linked and the constructor is running. The constructor uses `__attribute__((constructor))` which runs before `main()`.
 
-## Files in This Experiment
+## Files
 
 | File | Purpose |
 |------|---------|
-| `src/runtime/runtime_malloc_hooks.h` | Hook declarations and documentation |
 | `src/runtime/runtime_malloc_hooks.c` | Hook implementations (platform-dispatched) |
-| `src/runtime/plthook.h` | plthook library header (Linux) |
-| `src/runtime/plthook_elf.c` | plthook library implementation (Linux) |
-| `src/runtime/fishhook.h` | fishhook library header (macOS) |
-| `src/runtime/fishhook.c` | fishhook library implementation (macOS) |
+| `src/runtime/plthook.h`, `plthook_elf.c` | plthook library (Linux) |
+| `src/runtime/fishhook.h`, `fishhook.c` | fishhook library (macOS) |
 | `src/runtime/minhook/` | MinHook library (Windows) |
-| `src/runtime/runtime_arena.c` | Arena allocator (uses standard malloc, gets intercepted) |
-| `etc/sn.cfg` | Compiler config template |
-| `sdk/zlib.sn` | zlib SDK module |
+| `src/runtime/runtime_arena.c` | Arena allocator (allocations get intercepted) |
+| `sdk/zlib.sn` | zlib SDK module for testing |
 | `tests/test_zlib.sn` | Test file using zlib |
-| `Makefile` | Build system for the experiment |
-
----
+| `Makefile` | Build system |
 
 ## Future Direction: Arena-Managed Interop
 
@@ -256,7 +140,7 @@ Sindarin's memory model uses arenas with different behaviors based on function c
 | `shared` | Uses parent's arena | No copying needed |
 | `private` | New arena, disposed after call | Strict - only primitives escape |
 
-For interop to feel native, C library allocations should follow the same rules. When calling a C function:
+For interop to feel native, C library allocations should follow the same rules:
 
 ```
 sindarin_function()
@@ -295,12 +179,10 @@ sindarin_function()
 3. **Escape analysis** - Determine what data escapes from interop calls
 4. **Free handling** - Decide between no-op free vs mark-as-freed
 
----
-
 ## License
 
 The following third-party libraries are included:
 
-- **fishhook**: Copyright (c) 2013 Facebook, Inc. BSD 3-Clause License. See `src/runtime/fishhook.h`.
-- **plthook**: Copyright (c) 2013-2024 Kubo Takehiro. BSD 2-Clause License. See `src/runtime/plthook.h`.
-- **MinHook**: Copyright (c) 2009-2017 Tsuda Kageyu. BSD 2-Clause License. See `src/runtime/minhook/MinHook.h`.
+- **fishhook**: Copyright (c) 2013 Facebook, Inc. BSD 3-Clause License.
+- **plthook**: Copyright (c) 2013-2024 Kubo Takehiro. BSD 2-Clause License.
+- **MinHook**: Copyright (c) 2009-2017 Tsuda Kageyu. BSD 2-Clause License.
