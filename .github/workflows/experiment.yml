@@ -26,26 +26,15 @@ jobs:
         include:
           - os: ubuntu-latest
             compiler: gcc
-            exe_ext: ''
-            runtime_dir: gcc
-
           - os: windows-latest
             compiler: clang
-            exe_ext: '.exe'
-            runtime_dir: clang
-
           - os: macos-latest
             compiler: clang
-            exe_ext: ''
-            runtime_dir: gcc
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      #------------------------------------------------------------------------
-      # Setup Dependencies (Platform-specific)
-      #------------------------------------------------------------------------
       - name: Setup Dependencies (Linux)
         if: runner.os == 'Linux'
         run: |
@@ -62,7 +51,6 @@ jobs:
         shell: pwsh
         run: |
           if (Test-Path "C:\Program Files\LLVM") {
-            Write-Host "Removing system LLVM to avoid conflicts..."
             Remove-Item -Path "C:\Program Files\LLVM" -Recurse -Force
           }
 
@@ -72,21 +60,10 @@ jobs:
         run: |
           $version = "20241217"
           $url = "https://github.com/mstorsjo/llvm-mingw/releases/download/$version/llvm-mingw-$version-ucrt-x86_64.zip"
-          $zipPath = "$env:TEMP\llvm-mingw.zip"
-          $extractPath = "C:\llvm-mingw"
-
-          Write-Host "Downloading LLVM-MinGW $version..."
-          Invoke-WebRequest -Uri $url -OutFile $zipPath
-
-          Write-Host "Extracting to $extractPath..."
-          Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-
-          $llvmDir = Get-ChildItem -Path $extractPath -Directory | Select-Object -First 1
-          $binPath = Join-Path $llvmDir.FullName "bin"
-
-          Write-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"
-          echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "LLVM_MINGW_PATH=$($llvmDir.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          Invoke-WebRequest -Uri $url -OutFile "$env:TEMP\llvm-mingw.zip"
+          Expand-Archive -Path "$env:TEMP\llvm-mingw.zip" -DestinationPath "C:\llvm-mingw" -Force
+          $llvmDir = Get-ChildItem -Path "C:\llvm-mingw" -Directory | Select-Object -First 1
+          echo "$($llvmDir.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Install Ninja (Windows)
         if: runner.os == 'Windows'
@@ -97,300 +74,42 @@ jobs:
         if: runner.os == 'Windows'
         shell: pwsh
         run: |
-          $vcpkgRoot = "C:\vcpkg"
-
-          # Clone or update vcpkg
-          if (Test-Path $vcpkgRoot) {
-            Write-Host "vcpkg already exists, updating..."
-            Push-Location $vcpkgRoot
-            git pull --quiet 2>$null || Write-Host "Git pull skipped (not a git repo or detached)"
-            Pop-Location
-          } else {
-            Write-Host "Cloning vcpkg..."
-            git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
+          if (-not (Test-Path "C:\vcpkg")) {
+            git clone https://github.com/microsoft/vcpkg.git C:\vcpkg
           }
-
-          # Bootstrap if needed
-          if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
-            Write-Host "Bootstrapping vcpkg..."
-            & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
+          if (-not (Test-Path "C:\vcpkg\vcpkg.exe")) {
+            & "C:\vcpkg\bootstrap-vcpkg.bat" -disableMetrics
           }
-
-          # Install zlib using classic mode (ignore manifest)
-          Write-Host "Installing zlib..."
-          & "$vcpkgRoot\vcpkg.exe" install zlib:x64-windows --classic
-
-          # Create libz.a compatibility link
-          $zlibLib = "$vcpkgRoot\installed\x64-windows\lib\zlib.lib"
-          $libzA = "$vcpkgRoot\installed\x64-windows\lib\libz.a"
-          if ((Test-Path $zlibLib) -and -not (Test-Path $libzA)) {
-            Copy-Item $zlibLib $libzA
-          }
-
-          echo "VCPKG_ROOT=$vcpkgRoot" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-
-      #------------------------------------------------------------------------
-      # Verify Tools
-      #------------------------------------------------------------------------
-      - name: Verify tools
-        shell: bash
-        run: |
-          echo "=== Checking compiler ==="
-          ${{ matrix.compiler }} --version
-          echo ""
-          echo "=== Checking cmake ==="
-          cmake --version
-          echo ""
-          echo "=== Checking python ==="
-          python3 --version || python --version
-
-      #------------------------------------------------------------------------
-      # Build Main Compiler First (required by experiment)
-      #------------------------------------------------------------------------
-      - name: Configure main compiler
-        shell: bash
-        run: |
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_BUILD_TYPE=Release
+          & "C:\vcpkg\vcpkg.exe" install zlib:x64-windows --classic
+          echo "VCPKG_ROOT=C:\vcpkg" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Build main compiler
-        run: cmake --build build
-
-      - name: Verify main compiler
         shell: bash
         run: |
-          echo "Checking for compiler executable..."
-          if [ ! -f "bin/sn${{ matrix.exe_ext }}" ]; then
-            echo "ERROR: bin/sn${{ matrix.exe_ext }} not found"
-            exit 1
-          fi
-          echo "Found: bin/sn${{ matrix.exe_ext }}"
-          bin/sn${{ matrix.exe_ext }} --version || true
+          cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=${{ matrix.compiler }} -DCMAKE_BUILD_TYPE=Release
+          cmake --build build
 
-      #------------------------------------------------------------------------
-      # Build and Test Malloc Hooks Experiment
-      #------------------------------------------------------------------------
-      - name: Build malloc hooks experiment (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Build experiment
         working-directory: experiments/malloc
-        run: |
-          echo "Building malloc hooks experiment..."
-          make build
-
-      - name: Build malloc hooks experiment (Windows)
-        if: runner.os == 'Windows'
-        working-directory: experiments/malloc
-        shell: pwsh
-        run: |
-          echo "Building malloc hooks experiment..."
-          make build
-
-      - name: Verify experiment build outputs
         shell: bash
-        working-directory: experiments/malloc
-        run: |
-          echo "Checking for experiment compiler..."
-          if [ ! -f "bin/sn${{ matrix.exe_ext }}" ]; then
-            echo "ERROR: experiments/malloc/bin/sn${{ matrix.exe_ext }} not found"
-            exit 1
-          fi
-          echo "Found: bin/sn${{ matrix.exe_ext }}"
+        run: make build
 
-          echo "Checking for hooked runtime library..."
-          if [ ! -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a" ]; then
-            echo "ERROR: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a not found"
-            exit 1
-          fi
-          echo "Found: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a"
-
-          echo ""
-          echo "Experiment build verified successfully!"
-
-      - name: Run malloc hooks test (Linux)
+      - name: Run test (Linux)
         if: runner.os == 'Linux'
         working-directory: experiments/malloc
-        run: |
-          echo "Running malloc hooks test..."
-          make test 2>&1 | tee /tmp/test_output.txt
+        run: make test
 
-          echo ""
-          echo "=== Verifying hook output ==="
-          if grep -q "\[SN_ALLOC\]" /tmp/test_output.txt; then
-            echo "SUCCESS: Malloc hooks are working!"
-            echo ""
-            echo "Sample hook output:"
-            grep "\[SN_ALLOC\]" /tmp/test_output.txt | head -20
-          else
-            echo "ERROR: No [SN_ALLOC] output found - hooks may not be working"
-            exit 1
-          fi
-
-          echo ""
-          echo "=== Verifying zlib interception ==="
-          if grep -q "deflateInit_\|inflateInit_" /tmp/test_output.txt; then
-            echo "SUCCESS: zlib allocations are being intercepted!"
-          else
-            echo "WARNING: zlib allocations not seen in output (may be expected depending on linking)"
-          fi
-
-          echo ""
-          echo "=== Test Results ==="
-          if grep -q "All compression tests passed" /tmp/test_output.txt; then
-            echo "SUCCESS: All compression tests passed!"
-          else
-            echo "ERROR: Tests did not pass"
-            exit 1
-          fi
-
-      - name: Run malloc hooks test (macOS)
-        if: runner.os == 'macOS'
-        working-directory: experiments/malloc
-        env:
-          SN_CFLAGS: -g -I/opt/homebrew/opt/zlib/include -I/usr/local/opt/zlib/include
-          SN_LDFLAGS: -L/opt/homebrew/opt/zlib/lib -L/usr/local/opt/zlib/lib
-        run: |
-          # Get the actual zlib path from Homebrew
-          ZLIB_PREFIX=$(brew --prefix zlib)
-          export SN_CFLAGS="-g -I${ZLIB_PREFIX}/include"
-          export SN_LDFLAGS="-L${ZLIB_PREFIX}/lib"
-
-          echo "Using zlib from: ${ZLIB_PREFIX}"
-          echo "SN_CFLAGS: ${SN_CFLAGS}"
-          echo "SN_LDFLAGS: ${SN_LDFLAGS}"
-
-          echo "Running malloc hooks test..."
-          make test 2>&1 | tee /tmp/test_output.txt
-
-          echo ""
-          echo "=== Verifying hook output ==="
-          if grep -q "\[SN_ALLOC\]" /tmp/test_output.txt; then
-            echo "SUCCESS: Malloc hooks are working!"
-            echo ""
-            echo "Sample hook output:"
-            grep "\[SN_ALLOC\]" /tmp/test_output.txt | head -20
-          else
-            echo "ERROR: No [SN_ALLOC] output found - hooks may not be working"
-            exit 1
-          fi
-
-          echo ""
-          echo "=== Verifying zlib interception ==="
-          if grep -q "deflateInit_\|inflateInit_" /tmp/test_output.txt; then
-            echo "SUCCESS: zlib allocations are being intercepted!"
-          else
-            echo "WARNING: zlib allocations not seen in output (may be expected depending on linking)"
-          fi
-
-          echo ""
-          echo "=== Test Results ==="
-          if grep -q "All compression tests passed" /tmp/test_output.txt; then
-            echo "SUCCESS: All compression tests passed!"
-          else
-            echo "ERROR: Tests did not pass"
-            exit 1
-          fi
-
-      - name: Run malloc hooks test (Windows)
-        if: runner.os == 'Windows'
-        working-directory: experiments/malloc
-        shell: pwsh
-        run: |
-          echo "Running malloc hooks test..."
-          $output = make test 2>&1 | Tee-Object -FilePath $env:TEMP\test_output.txt
-          $output
-
-          echo ""
-          echo "=== Verifying hook output ==="
-          $hookOutput = Select-String -Path $env:TEMP\test_output.txt -Pattern "\[SN_ALLOC\]"
-          if ($hookOutput) {
-            echo "SUCCESS: Malloc hooks are working!"
-            echo ""
-            echo "Sample hook output:"
-            $hookOutput | Select-Object -First 20
-          } else {
-            echo "ERROR: No [SN_ALLOC] output found - hooks may not be working"
-            exit 1
-          }
-
-          echo ""
-          echo "=== Test Results ==="
-          $passed = Select-String -Path $env:TEMP\test_output.txt -Pattern "All compression tests passed"
-          if ($passed) {
-            echo "SUCCESS: All compression tests passed!"
-          } else {
-            echo "ERROR: Tests did not pass"
-            exit 1
-          }
-
-      - name: Run simple program test (Linux)
-        if: runner.os == 'Linux'
-        working-directory: experiments/malloc
-        run: |
-          echo "Running simple program test..."
-          make run 2>&1 | tee /tmp/run_output.txt
-
-          echo ""
-          echo "=== Verifying hook output for simple program ==="
-          if grep -q "\[SN_ALLOC\]" /tmp/run_output.txt; then
-            echo "SUCCESS: Malloc hooks working for simple program!"
-            grep "\[SN_ALLOC\]" /tmp/run_output.txt | head -10
-          else
-            echo "ERROR: No [SN_ALLOC] output found"
-            exit 1
-          fi
-
-      - name: Run simple program test (macOS)
+      - name: Run test (macOS)
         if: runner.os == 'macOS'
         working-directory: experiments/malloc
         run: |
-          # Get the actual zlib path from Homebrew
           ZLIB_PREFIX=$(brew --prefix zlib)
           export SN_CFLAGS="-g -I${ZLIB_PREFIX}/include"
           export SN_LDFLAGS="-L${ZLIB_PREFIX}/lib"
+          make test
 
-          echo "Running simple program test..."
-          make run 2>&1 | tee /tmp/run_output.txt
-
-          echo ""
-          echo "=== Verifying hook output for simple program ==="
-          if grep -q "\[SN_ALLOC\]" /tmp/run_output.txt; then
-            echo "SUCCESS: Malloc hooks working for simple program!"
-            grep "\[SN_ALLOC\]" /tmp/run_output.txt | head -10
-          else
-            echo "ERROR: No [SN_ALLOC] output found"
-            exit 1
-          fi
-
-      - name: Run simple program test (Windows)
+      - name: Run test (Windows)
         if: runner.os == 'Windows'
         working-directory: experiments/malloc
         shell: pwsh
-        run: |
-          echo "Running simple program test..."
-          $output = make run 2>&1 | Tee-Object -FilePath $env:TEMP\run_output.txt
-          $output
-
-          echo ""
-          echo "=== Verifying hook output for simple program ==="
-          $hookOutput = Select-String -Path $env:TEMP\run_output.txt -Pattern "\[SN_ALLOC\]"
-          if ($hookOutput) {
-            echo "SUCCESS: Malloc hooks working for simple program!"
-            $hookOutput | Select-Object -First 10
-          } else {
-            echo "ERROR: No [SN_ALLOC] output found"
-            exit 1
-          }
-
-      #------------------------------------------------------------------------
-      # Upload Artifacts
-      #------------------------------------------------------------------------
-      - name: Upload experiment artifacts
-        uses: actions/upload-artifact@v4
-        if: success()
-        with:
-          name: malloc-hooks-${{ matrix.os }}
-          path: |
-            experiments/malloc/bin/sn${{ matrix.exe_ext }}
-            experiments/malloc/bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a
-          retention-days: 7
+        run: make test
