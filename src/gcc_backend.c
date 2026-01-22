@@ -90,6 +90,38 @@ static bool dir_exists(const char *path)
 #endif
 }
 
+/*
+ * Platform-specific library name translation.
+ *
+ * Some libraries have different names on different platforms:
+ * - zlib: "z" on Unix, "zlib" on Windows (upstream zlib convention)
+ *
+ * This function translates SDK library names to platform-appropriate names.
+ * Returns the translated name, or the original if no translation is needed.
+ */
+static const char *translate_lib_name(const char *lib)
+{
+#ifdef _WIN32
+    /* Windows library name mappings */
+    static const struct {
+        const char *from;
+        const char *to;
+    } win_mappings[] = {
+        { "z", "zlib" },  /* zlib uses "zlib" on Windows, "z" on Unix */
+        { NULL, NULL }
+    };
+
+    for (int i = 0; win_mappings[i].from != NULL; i++) {
+        if (strcmp(lib, win_mappings[i].from) == 0) {
+            return win_mappings[i].to;
+        }
+    }
+#else
+    (void)lib;  /* Unused on non-Windows */
+#endif
+    return lib;
+}
+
 /* Backend type enumeration */
 typedef enum {
     BACKEND_GCC,
@@ -1338,7 +1370,9 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         int offset = 0;
         for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
         {
-            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", link_libs[i]);
+            /* Translate library name for current platform (e.g., "z" -> "zlib" on Windows) */
+            const char *lib = translate_lib_name(link_libs[i]);
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", lib);
             if (written > 0)
             {
                 offset += written;
