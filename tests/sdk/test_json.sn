@@ -1,6 +1,7 @@
 // Test SDK JSON module
 
 import "../../sdk/json"
+import "../../sdk/env"
 
 fn test_create_object(): void =>
     print("test_create_object: ")
@@ -284,11 +285,15 @@ fn test_file_io(): void =>
     items.append(Json.ofString("two"))
     data.set("items", items)
 
+    // Use platform temp directory (TEMP on Windows, /tmp on Unix)
+    var tmpDir: str = Environment.getOr("TEMP", "/tmp")
+    var filePath: str = $"{tmpDir}/test_json_sdk.json"
+
     // Write to file
-    data.writeFilePretty("/tmp/test_json_sdk.json")
+    data.writeFilePretty(filePath)
 
     // Read back
-    var loaded: Json = Json.parseFile("/tmp/test_json_sdk.json")
+    var loaded: Json = Json.parseFile(filePath)
     assert(loaded.isObject(), "Loaded should be object")
     assert(loaded.get("title").asString() == "Test", "Title should match")
     assert(loaded.get("count").asInt() == 42, "Count should match")
