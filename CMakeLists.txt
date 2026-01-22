@@ -440,7 +440,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
 )
 
 #------------------------------------------------------------------------------
-# VCPKG Dependencies Detection (zlib, yyjson)
+# VCPKG Dependencies Detection (zlib, yyjson, libxml2, libyaml)
 #------------------------------------------------------------------------------
 # Automatically detect vcpkg installed packages and copy them to bin/deps/
 # This makes the dependencies available for the compiler at runtime.
@@ -505,16 +505,22 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(INSTALL "${VCPKG_INSTALLED_DIR}/include/libxml2/libxml" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+        message(STATUS "  Copying libyaml headers...")
+        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/yaml.h" DESTINATION ${SN_DEPS_DIR}/include)
+    endif()
+
     # Copy libraries based on platform
     if(WIN32)
         # Windows (MinGW): Copy .a static libraries and .dll if present
         file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz*.a" "${VCPKG_INSTALLED_DIR}/lib/zlib*.a")
         file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson*.a" "${VCPKG_INSTALLED_DIR}/lib/yyjson*.a")
         file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2*.a" "${VCPKG_INSTALLED_DIR}/lib/xml2*.a")
+        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml*.a" "${VCPKG_INSTALLED_DIR}/lib/yaml*.a")
         file(GLOB ZLIB_DLLS "${VCPKG_INSTALLED_DIR}/bin/libz*.dll" "${VCPKG_INSTALLED_DIR}/bin/zlib*.dll")
         file(GLOB YYJSON_DLLS "${VCPKG_INSTALLED_DIR}/bin/libyyjson*.dll" "${VCPKG_INSTALLED_DIR}/bin/yyjson*.dll")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
@@ -527,8 +533,9 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.*")
         file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.*")
         file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2.*")
+        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml.*")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
@@ -537,8 +544,9 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.a")
         file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
         file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2.a")
+        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml.a")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
@@ -605,7 +613,7 @@ if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
             COMPONENT deps
         )
         set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk deps)
-        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson, libxml2)")
+        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson, libxml2, libyaml)")
         set(CPACK_COMPONENT_DEPS_DEPENDS runtime)
     endif()
 endif()
