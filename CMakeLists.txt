@@ -254,7 +254,31 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_thread.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_intercept.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_malloc_hooks.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_malloc_redirect.c
     )
+
+    # Platform-specific hooking libraries for malloc interception
+    if(APPLE)
+        # macOS: fishhook for runtime symbol rebinding
+        list(APPEND SN_RUNTIME_LIB_SOURCES
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/fishhook.c
+        )
+    elseif(WIN32)
+        # Windows: MinHook for inline function hooking
+        list(APPEND SN_RUNTIME_LIB_SOURCES
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hook.c
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/buffer.c
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/trampoline.c
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde/hde32.c
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde/hde64.c
+        )
+    else()
+        # Linux: plthook for PLT/GOT modification
+        list(APPEND SN_RUNTIME_LIB_SOURCES
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/plthook_elf.c
+        )
+    endif()
 
     # Create static library for runtime
     add_library(sn_runtime STATIC ${SN_RUNTIME_LIB_SOURCES})
@@ -262,8 +286,17 @@ if(NOT MSVC)
     target_include_directories(sn_runtime PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/runtime
+        ${CMAKE_SOURCE_DIR}/src/runtime/hooks
         ${CMAKE_SOURCE_DIR}/src/platform
     )
+
+    # Windows: Add MinHook include paths
+    if(WIN32)
+        target_include_directories(sn_runtime PRIVATE
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook
+            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde
+        )
+    endif()
 
     # Platform-specific compile definitions
     if(NOT WIN32)
@@ -272,6 +305,9 @@ if(NOT MSVC)
         # Force Windows API threading instead of pthreads for packaged builds
         target_compile_definitions(sn_runtime PRIVATE SN_USE_WIN32_THREADS)
     endif()
+
+    # Enable malloc hooks and redirect functionality
+    target_compile_definitions(sn_runtime PRIVATE SN_MALLOC_HOOKS SN_MALLOC_REDIRECT)
 
     # Optimization flags
     target_compile_options(sn_runtime PRIVATE -O2)

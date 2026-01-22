@@ -1,0 +1,26 @@
+# Test malloc redirect functionality
+# Verifies that malloc calls from native code can be redirected to an arena
+
+#pragma source "test_malloc_redirect.sn.c"
+
+# Native functions that test malloc redirect
+native fn test_redirect_basic(): bool
+native fn test_redirect_nested(): bool
+
+fn main(): int =>
+    print("Testing malloc redirect...\n")
+
+    # Test basic redirect enable/disable
+    if !test_redirect_basic() =>
+        print("FAIL: basic redirect test\n")
+        return 1
+    print("PASS: basic redirect test\n")
+
+    # Test nested redirect scopes
+    if !test_redirect_nested() =>
+        print("FAIL: nested redirect test\n")
+        return 1
+    print("PASS: nested redirect test\n")
+
+    print("All malloc redirect tests passed!\n")
+    return 0
