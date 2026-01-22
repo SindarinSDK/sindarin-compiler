@@ -1,0 +1,66 @@
+# ==============================================================================
+# test_dtls.sn - Tests for SDK DTLS Connection
+# ==============================================================================
+# Tests the DtlsConnection struct and its methods.
+#
+# NOTE: DTLS requires a DTLS echo server to test against. To run these tests:
+#   openssl s_server -dtls -accept 4433 -cert server.crt -key server.key -nocert
+#
+# For a self-signed test cert:
+#   openssl req -x509 -newkey rsa:2048 -keyout server.key -out server.crt \
+#     -days 365 -nodes -subj "/CN=localhost"
+#
+# Then set SN_CERTS=server.crt before running the test.
+# ==============================================================================
+
+import "../../../sdk/net/dtls"
+
+fn test_dtls_connect(): void =>
+    print("test_dtls_connect: ")
+
+    # Connect to local DTLS server
+    var conn: DtlsConnection = DtlsConnection.connect("127.0.0.1:4433")
+
+    var addr: str = conn.remoteAddress()
+    assert(addr == "127.0.0.1:4433", "Remote address should match")
+
+    conn.close()
+    print("PASS\n")
+
+fn test_dtls_send_receive(): void =>
+    print("test_dtls_send_receive: ")
+
+    var conn: DtlsConnection = DtlsConnection.connect("127.0.0.1:4433")
+
+    # Send a datagram
+    var msg: byte[] = "Hello DTLS".toBytes()
+    var sent: int = conn.send(msg)
+    assert(sent == 10, "Should send 10 bytes")
+
+    # Receive response (echo server sends it back)
+    var response: byte[] = conn.receive(1024)
+    assert(response.length > 0, "Should receive response")
+    assert(response.toString() == "Hello DTLS", "Should echo back message")
+
+    conn.close()
+    print("PASS\n")
+
+fn test_dtls_close(): void =>
+    print("test_dtls_close: ")
+
+    var conn: DtlsConnection = DtlsConnection.connect("127.0.0.1:4433")
+    conn.close()
+
+    # Closing again should be safe (no-op)
+    conn.close()
+
+    print("PASS\n")
+
+fn main(): void =>
+    print("=== SDK DTLS Tests ===\n\n")
+
+    test_dtls_connect()
+    test_dtls_send_receive()
+    test_dtls_close()
+
+    print("\nAll DTLS tests passed!\n")
