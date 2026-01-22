@@ -174,8 +174,8 @@ class VcpkgInstaller:
                 return 'arm64-osx'
             return 'x64-osx'
         else:
-            # Linux - use dynamic linking
-            return 'x64-linux-dynamic'
+            # Linux - use static linking for self-contained executables
+            return 'x64-linux'
 
     def get_vcpkg_exe(self) -> str:
         """Get the vcpkg executable path."""
