@@ -7,7 +7,7 @@ MinimumOSVersion: 10.0.0.0
 InstallerType: zip
 NestedInstallerType: portable
 NestedInstallerFiles:
-  - RelativeFilePath: sindarin-${VERSION}-windows-x64\bin\sn.exe
+  - RelativeFilePath: sindarin-${VERSION}-windows-x64\lib\sindarin\sn.exe
     PortableCommandAlias: sn
 Dependencies:
   PackageDependencies:

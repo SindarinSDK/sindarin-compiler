@@ -12,11 +12,10 @@ class Sindarin < Formula
   depends_on xcode: :build
 
   def install
-    bin.install "bin/sn"
-    (etc/"sindarin").install "etc/sindarin/sn.cfg"
+    # Install entire SDK root to lib/sindarin/
     (lib/"sindarin").install Dir["lib/sindarin/*"]
-    (include/"sindarin").install Dir["include/sindarin/*"]
-    (share/"sindarin/sdk").install Dir["share/sindarin/sdk/*"]
+    # Symlink the binary into bin/
+    bin.install_symlink lib/"sindarin/sn"
   end
 
   def caveats
