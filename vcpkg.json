@@ -15,7 +15,11 @@
         "features": ["zlib"]
     },
     "libyaml",
-    "openssl"
+    "openssl",
+    {
+        "name": "ngtcp2",
+        "features": ["openssl"]
+    }
   ],
   "features": {
     "tests": {
