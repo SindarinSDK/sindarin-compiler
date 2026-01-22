@@ -243,10 +243,10 @@ fn test_file_io(): void =>
     root.addChild(item2)
 
     // Write to file
-    root.writeFile("/tmp/test_xml_sdk.xml")
+    root.writeFile("test_xml_sdk_tmp.xml")
 
     // Read back
-    var loaded: Xml = Xml.parseFile("/tmp/test_xml_sdk.xml")
+    var loaded: Xml = Xml.parseFile("test_xml_sdk_tmp.xml")
     assert(loaded.name() == "config", "Root should be 'config'")
     assert(loaded.attr("version") == "2.0", "Version should be '2.0'")
     assert(loaded.childCount() == 2, "Should have 2 children")
