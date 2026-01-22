@@ -990,6 +990,34 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         }
     }
 
+    /* Append transitive dependencies for statically-linked libraries.
+     * When linking OpenSSL (ssl/crypto), we need platform-specific deps. */
+    if (link_libs != NULL && link_lib_count > 0)
+    {
+        bool needs_openssl_deps = false;
+        for (int i = 0; i < link_lib_count; i++)
+        {
+            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0)
+            {
+                needs_openssl_deps = true;
+                break;
+            }
+        }
+        if (needs_openssl_deps)
+        {
+            int offset = (int)strlen(extra_libs);
+#ifdef _WIN32
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lcrypt32");
+#elif defined(__APPLE__)
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -framework Security -framework CoreFoundation");
+#else
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -ldl");
+#endif
+            (void)written;
+        }
+    }
+
     /* Build extra source files from pragma source directives.
      * Source files are specified as quoted strings like "helper.c".
      * Paths are resolved relative to each pragma's defining module directory. */

@@ -324,6 +324,8 @@ class VcpkgInstaller:
                         'libxml2.so', 'libxml2.dylib'],
             'libyaml': ['libyaml.a', 'libyaml.dll.a', 'yaml.lib', 'libyaml.lib',
                         'libyaml.so', 'libyaml.dylib'],
+            'openssl': ['libssl.a', 'libssl.dll.a', 'ssl.lib', 'libssl.lib',
+                        'libssl.so', 'libssl.dylib'],
         }
 
         for dep_name, patterns in lib_patterns.items():
