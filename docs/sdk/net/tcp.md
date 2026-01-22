@@ -286,5 +286,7 @@ var conn: TcpStream = TcpStream.connect("example.com:80")
 
 - [Net Overview](readme.md) - Network I/O concepts
 - [UDP](udp.md) - UDP socket operations
+- [TLS](tls.md) - TLS-encrypted TCP streams
+- [DTLS](dtls.md) - DTLS-encrypted UDP datagrams
 - [SDK Overview](../readme.md) - All SDK modules
 - SDK source: `sdk/net/tcp.sn`

@@ -1,6 +1,6 @@
 # Network I/O in Sindarin
 
-Sindarin provides TCP and UDP socket types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
+Sindarin provides TCP, UDP, TLS, and DTLS socket types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
 
 ## SDK Modules
 
@@ -8,12 +8,16 @@ Sindarin provides TCP and UDP socket types through the SDK for network communica
 |--------|-------------|
 | [TCP](tcp.md) | TCP listener and stream for connection-oriented communication |
 | [UDP](udp.md) | UDP socket for connectionless datagram communication |
+| [TLS](tls.md) | TLS-encrypted TCP streams (HTTPS, secure connections) |
+| [DTLS](dtls.md) | DTLS-encrypted UDP datagrams (secure datagram communication) |
 
 ## Quick Start
 
 ```sindarin
 import "sdk/net/tcp"
 import "sdk/net/udp"
+import "sdk/net/tls"
+import "sdk/net/dtls"
 
 // TCP Server
 var server: TcpListener = TcpListener.bind(":8080")
@@ -31,11 +35,26 @@ var response: byte[] = conn.readAll()
 print(response.toString())
 conn.close()
 
+// TLS Client (HTTPS)
+var secure: TlsStream = TlsStream.connect("example.com:443")
+secure.writeLine("GET / HTTP/1.1")
+secure.writeLine("Host: example.com")
+secure.writeLine("Connection: close")
+secure.writeLine("")
+var body: byte[] = secure.readAll()
+secure.close()
+
 // UDP Echo
 var socket: UdpSocket = UdpSocket.bind(":9000")
 var result: UdpReceiveResult = socket.receiveFrom(1024)
 socket.sendTo(result.data(), result.sender())
 socket.close()
+
+// DTLS Client (encrypted datagrams)
+var dtls: DtlsConnection = DtlsConnection.connect("server:4433")
+dtls.send("Hello".toBytes())
+var reply: byte[] = dtls.receive(1024)
+dtls.close()
 ```
 
 ---
@@ -151,6 +170,8 @@ Network operations panic on errors:
 - `TcpListener.bind()` - Address in use, permission denied
 - `.read()` / `.write()` - Connection reset, broken pipe
 - `UdpSocket.bind()` - Address in use, permission denied
+- `TlsStream.connect()` - TLS handshake failure, certificate verification failure
+- `DtlsConnection.connect()` - DTLS handshake failure, certificate verification failure
 
 ```sindarin
 // Connection may fail

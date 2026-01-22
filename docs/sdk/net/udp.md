@@ -227,5 +227,7 @@ Note: UDP is connectionless, so `sendTo()` succeeds even if no one is listening.
 
 - [Net Overview](readme.md) - Network I/O concepts
 - [TCP](tcp.md) - TCP connection-oriented communication
+- [TLS](tls.md) - TLS-encrypted TCP streams
+- [DTLS](dtls.md) - DTLS-encrypted UDP datagrams
 - [SDK Overview](../readme.md) - All SDK modules
 - SDK source: `sdk/net/udp.sn`
