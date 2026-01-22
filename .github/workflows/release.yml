@@ -124,6 +124,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=install \
             -DSN_BUNDLE_ZLIB=ON \
+            -DSN_BUNDLE_YYJSON=ON \
             -DSN_VERSION="${VERSION}"
 
       - name: Configure CMake (Windows)
@@ -139,6 +140,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=install \
             -DSN_BUNDLE_ZLIB=ON \
+            -DSN_BUNDLE_YYJSON=ON \
             -DSN_VERSION="${VERSION}" \
             -DCMAKE_PREFIX_PATH="C:/vcpkg/installed/x64-windows"
 
