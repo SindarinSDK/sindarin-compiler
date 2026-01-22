@@ -46,12 +46,29 @@
 #endif
 
 /* ============================================================================
+ * Constants
+ * ============================================================================ */
+
+#define SN_TCP_DEFAULT_BUFFER_SIZE 8192
+#define SN_TCP_MIN_BUFFER_SIZE 256
+
+/* ============================================================================
  * Type Definitions
  * ============================================================================ */
 
 typedef struct RtTcpStream {
-    socket_t socket_fd;     /* Socket file descriptor */
-    char *remote_addr;      /* Remote address string (host:port) */
+    socket_t socket_fd;         /* Socket file descriptor */
+    char *remote_addr;          /* Remote address string (host:port) */
+
+    /* Read buffer - arena allocated */
+    unsigned char *read_buf;    /* Buffer storage */
+    size_t read_buf_capacity;   /* Total buffer size */
+    size_t read_buf_pos;        /* Current read position (start of unread data) */
+    size_t read_buf_end;        /* End of valid data */
+
+    /* Configuration */
+    int read_timeout_ms;        /* Read timeout: -1=blocking, 0=non-blocking, >0=timeout ms */
+    bool eof_reached;           /* True if EOF has been encountered */
 } RtTcpStream;
 
 typedef struct RtTcpListener {
@@ -82,6 +99,134 @@ static void ensure_winsock_initialized(void) {
 #endif
 
 /* ============================================================================
+ * Internal Buffer Management
+ * ============================================================================ */
+
+/* Returns number of bytes available in read buffer without syscall */
+static inline size_t stream_buffered(RtTcpStream *stream) {
+    return stream->read_buf_end - stream->read_buf_pos;
+}
+
+/* Returns available space at end of buffer */
+static inline size_t stream_space(RtTcpStream *stream) {
+    return stream->read_buf_capacity - stream->read_buf_end;
+}
+
+/* Compact buffer - move unread data to start to make room for more */
+static void stream_compact(RtTcpStream *stream) {
+    size_t buffered = stream_buffered(stream);
+    if (buffered > 0 && stream->read_buf_pos > 0) {
+        memmove(stream->read_buf,
+                stream->read_buf + stream->read_buf_pos,
+                buffered);
+    }
+    stream->read_buf_pos = 0;
+    stream->read_buf_end = buffered;
+}
+
+/* Wait for socket to be readable with timeout.
+ * Returns: 1 = readable, 0 = timeout, -1 = error */
+static int stream_wait_readable(RtTcpStream *stream) {
+    if (stream->read_timeout_ms < 0) {
+        return 1;  /* Blocking mode - assume readable */
+    }
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(stream->socket_fd, &readfds);
+
+    struct timeval tv;
+    struct timeval *tvp = NULL;
+
+    if (stream->read_timeout_ms > 0) {
+        tv.tv_sec = stream->read_timeout_ms / 1000;
+        tv.tv_usec = (stream->read_timeout_ms % 1000) * 1000;
+        tvp = &tv;
+    } else {
+        /* Non-blocking: zero timeout */
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
+        tvp = &tv;
+    }
+
+    int result = select((int)(stream->socket_fd + 1), &readfds, NULL, NULL, tvp);
+    return result;
+}
+
+/* Fill buffer from socket.
+ * Returns: >0 bytes read, 0 on EOF, -1 on error, -2 on timeout */
+static int stream_fill(RtTcpStream *stream) {
+    if (stream->eof_reached) {
+        return 0;
+    }
+
+    /* Compact if we've consumed more than half the buffer */
+    if (stream->read_buf_pos > stream->read_buf_capacity / 2) {
+        stream_compact(stream);
+    }
+
+    /* If buffer is full, compact to make room */
+    size_t space = stream_space(stream);
+    if (space == 0) {
+        stream_compact(stream);
+        space = stream_space(stream);
+        if (space == 0) {
+            /* Buffer truly full with unread data */
+            return -1;
+        }
+    }
+
+    /* Wait for data if timeout is configured */
+    if (stream->read_timeout_ms >= 0) {
+        int wait_result = stream_wait_readable(stream);
+        if (wait_result == 0) {
+            return -2;  /* Timeout */
+        }
+        if (wait_result < 0) {
+            return -1;  /* Error */
+        }
+    }
+
+    /* Read from socket into buffer */
+    int n = recv(stream->socket_fd,
+                 (char *)(stream->read_buf + stream->read_buf_end),
+                 (int)space, 0);
+
+    if (n > 0) {
+        stream->read_buf_end += n;
+    } else if (n == 0) {
+        stream->eof_reached = true;
+    }
+
+    return n;
+}
+
+/* Ensure at least 'need' bytes in buffer.
+ * Returns: true if enough data available, false on EOF/error/timeout */
+static bool stream_ensure(RtTcpStream *stream, size_t need) {
+    while (stream_buffered(stream) < need) {
+        if (stream->eof_reached) {
+            return false;
+        }
+        int n = stream_fill(stream);
+        if (n <= 0) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Consume n bytes from the buffer (advance read position) */
+static inline void stream_consume(RtTcpStream *stream, size_t n) {
+    stream->read_buf_pos += n;
+    if (stream->read_buf_pos >= stream->read_buf_end) {
+        /* Buffer empty - reset positions */
+        stream->read_buf_pos = 0;
+        stream->read_buf_end = 0;
+    }
+}
+
+/* ============================================================================
  * Helper Functions
  * ============================================================================ */
 
@@ -92,6 +237,20 @@ static RtTcpStream *sn_tcp_stream_create(RtArena *arena, socket_t sock, const ch
         exit(1);
     }
     stream->socket_fd = sock;
+
+    /* Initialize read buffer */
+    stream->read_buf_capacity = SN_TCP_DEFAULT_BUFFER_SIZE;
+    stream->read_buf = (unsigned char *)rt_arena_alloc(arena, stream->read_buf_capacity);
+    if (stream->read_buf == NULL) {
+        fprintf(stderr, "sn_tcp_stream_create: buffer allocation failed\n");
+        exit(1);
+    }
+    stream->read_buf_pos = 0;
+    stream->read_buf_end = 0;
+
+    /* Configuration defaults */
+    stream->read_timeout_ms = -1;  /* Blocking by default */
+    stream->eof_reached = false;
 
     /* Copy remote address string */
     if (remote_addr) {
@@ -219,43 +378,40 @@ RtTcpStream *sn_tcp_stream_connect(RtArena *arena, const char *address) {
  * TcpStream Read Operations
  * ============================================================================ */
 
-/* Read up to maxBytes (may return fewer) */
+/* Read up to maxBytes (may return fewer) - uses internal buffer */
 unsigned char *sn_tcp_stream_read(RtArena *arena, RtTcpStream *stream, long maxBytes) {
     if (stream == NULL || maxBytes <= 0) {
-        /* Return empty byte array */
         return rt_array_create_byte(arena, 0, NULL);
     }
 
-    /* Allocate temporary buffer for receiving */
-    unsigned char *temp = (unsigned char *)malloc((size_t)maxBytes);
-    if (temp == NULL) {
-        fprintf(stderr, "sn_tcp_stream_read: malloc failed\n");
-        exit(1);
+    /* If buffer is empty, fill it */
+    if (stream_buffered(stream) == 0 && !stream->eof_reached) {
+        int n = stream_fill(stream);
+        if (n < 0 && n != -2) {  /* Error (not timeout) */
+            fprintf(stderr, "sn_tcp_stream_read: recv failed (%d)\n", GET_SOCKET_ERROR());
+            exit(1);
+        }
     }
 
-    /* Read from socket */
-    int bytes_read = recv(stream->socket_fd, (char *)temp, (int)maxBytes, 0);
+    /* Return what we have (up to maxBytes) */
+    size_t available = stream_buffered(stream);
+    size_t to_read = ((size_t)maxBytes < available) ? (size_t)maxBytes : available;
 
-    if (bytes_read < 0) {
-        free(temp);
-        fprintf(stderr, "sn_tcp_stream_read: recv failed (%d)\n", GET_SOCKET_ERROR());
-        exit(1);
-    }
-
-    /* Create runtime array with received data */
-    unsigned char *result = rt_array_create_byte(arena, (size_t)bytes_read, temp);
-    free(temp);
+    unsigned char *result = rt_array_create_byte(arena, to_read,
+                                                  stream->read_buf + stream->read_buf_pos);
+    stream_consume(stream, to_read);
 
     return result;
 }
 
-/* Read until connection closes */
+/* Read until connection closes - uses internal buffer */
 unsigned char *sn_tcp_stream_read_all(RtArena *arena, RtTcpStream *stream) {
     if (stream == NULL) {
         return rt_array_create_byte(arena, 0, NULL);
     }
 
-    /* Use a growing buffer approach */
+    /* We still need a growing buffer for accumulating all data,
+     * but we read through our internal buffer for efficiency */
     size_t capacity = 4096;
     size_t total_read = 0;
     unsigned char *temp_buffer = (unsigned char *)malloc(capacity);
@@ -265,32 +421,43 @@ unsigned char *sn_tcp_stream_read_all(RtArena *arena, RtTcpStream *stream) {
         exit(1);
     }
 
-    while (1) {
-        /* Ensure we have space */
-        if (total_read + 1024 > capacity) {
-            capacity *= 2;
-            unsigned char *new_buffer = (unsigned char *)realloc(temp_buffer, capacity);
-            if (new_buffer == NULL) {
+    while (!stream->eof_reached) {
+        /* Fill internal buffer if empty */
+        if (stream_buffered(stream) == 0) {
+            int n = stream_fill(stream);
+            if (n < 0 && n != -2) {
                 free(temp_buffer);
-                fprintf(stderr, "sn_tcp_stream_read_all: realloc failed\n");
+                fprintf(stderr, "sn_tcp_stream_read_all: recv failed (%d)\n", GET_SOCKET_ERROR());
                 exit(1);
             }
-            temp_buffer = new_buffer;
+            if (n == 0 || n == -2) {
+                break;  /* EOF or timeout */
+            }
         }
 
-        int bytes_read = recv(stream->socket_fd, (char *)(temp_buffer + total_read), 1024, 0);
+        /* Copy from internal buffer to accumulator */
+        size_t available = stream_buffered(stream);
+        if (available > 0) {
+            /* Grow accumulator if needed */
+            if (total_read + available > capacity) {
+                while (total_read + available > capacity) {
+                    capacity *= 2;
+                }
+                unsigned char *new_buffer = (unsigned char *)realloc(temp_buffer, capacity);
+                if (new_buffer == NULL) {
+                    free(temp_buffer);
+                    fprintf(stderr, "sn_tcp_stream_read_all: realloc failed\n");
+                    exit(1);
+                }
+                temp_buffer = new_buffer;
+            }
 
-        if (bytes_read < 0) {
-            free(temp_buffer);
-            fprintf(stderr, "sn_tcp_stream_read_all: recv failed (%d)\n", GET_SOCKET_ERROR());
-            exit(1);
+            memcpy(temp_buffer + total_read,
+                   stream->read_buf + stream->read_buf_pos,
+                   available);
+            total_read += available;
+            stream_consume(stream, available);
         }
-
-        if (bytes_read == 0) {
-            break; /* Connection closed */
-        }
-
-        total_read += bytes_read;
     }
 
     /* Create runtime array with received data */
@@ -300,7 +467,7 @@ unsigned char *sn_tcp_stream_read_all(RtArena *arena, RtTcpStream *stream) {
     return result;
 }
 
-/* Read until newline */
+/* Read until newline - efficient buffered implementation */
 char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
     if (stream == NULL) {
         char *empty = (char *)rt_arena_alloc(arena, 1);
@@ -308,67 +475,330 @@ char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
         return empty;
     }
 
-    size_t capacity = 256;
-    size_t length = 0;
-    char *buffer = (char *)malloc(capacity);
-
-    if (buffer == NULL) {
-        fprintf(stderr, "sn_tcp_stream_read_line: malloc failed\n");
-        exit(1);
-    }
+    /* For lines that fit in buffer, we can avoid malloc entirely.
+     * For longer lines, we accumulate in a temp buffer. */
+    size_t line_start = stream->read_buf_pos;
+    size_t accum_capacity = 0;
+    size_t accum_len = 0;
+    char *accum_buffer = NULL;
 
     while (1) {
-        char ch;
-        int bytes_read = recv(stream->socket_fd, &ch, 1, 0);
+        /* Scan buffer for newline */
+        for (size_t i = stream->read_buf_pos; i < stream->read_buf_end; i++) {
+            unsigned char ch = stream->read_buf[i];
 
-        if (bytes_read < 0) {
-            free(buffer);
-            fprintf(stderr, "sn_tcp_stream_read_line: recv failed (%d)\n", GET_SOCKET_ERROR());
-            exit(1);
-        }
+            if (ch == '\n') {
+                /* Found newline - calculate line length */
+                size_t chunk_len = i - stream->read_buf_pos;
 
-        if (bytes_read == 0) {
-            break; /* Connection closed */
-        }
+                /* Total line length (accumulated + this chunk, minus trailing \r) */
+                size_t total_len = accum_len + chunk_len;
 
-        if (ch == '\n') {
-            break; /* End of line */
-        }
+                /* Check for \r at end of chunk */
+                if (chunk_len > 0 && stream->read_buf[i - 1] == '\r') {
+                    chunk_len--;
+                    total_len--;
+                } else if (chunk_len == 0 && accum_len > 0 && accum_buffer[accum_len - 1] == '\r') {
+                    /* \r was at end of accumulated buffer */
+                    accum_len--;
+                    total_len--;
+                }
 
-        /* Skip carriage return */
-        if (ch == '\r') {
-            continue;
-        }
+                /* Allocate result in arena */
+                char *result = (char *)rt_arena_alloc(arena, total_len + 1);
+                if (result == NULL) {
+                    if (accum_buffer) free(accum_buffer);
+                    fprintf(stderr, "sn_tcp_stream_read_line: arena alloc failed\n");
+                    exit(1);
+                }
 
-        /* Grow buffer if needed */
-        if (length + 2 > capacity) {
-            capacity *= 2;
-            char *new_buffer = (char *)realloc(buffer, capacity);
-            if (new_buffer == NULL) {
-                free(buffer);
-                fprintf(stderr, "sn_tcp_stream_read_line: realloc failed\n");
-                exit(1);
+                /* Copy accumulated data first */
+                if (accum_len > 0) {
+                    memcpy(result, accum_buffer, accum_len);
+                }
+
+                /* Copy this chunk (excluding \r if present) */
+                if (chunk_len > 0) {
+                    memcpy(result + accum_len,
+                           stream->read_buf + stream->read_buf_pos,
+                           chunk_len);
+                }
+
+                result[total_len] = '\0';
+
+                /* Consume up to and including the newline */
+                stream->read_buf_pos = i + 1;
+                if (stream->read_buf_pos >= stream->read_buf_end) {
+                    stream->read_buf_pos = 0;
+                    stream->read_buf_end = 0;
+                }
+
+                if (accum_buffer) free(accum_buffer);
+                return result;
             }
-            buffer = new_buffer;
         }
 
-        buffer[length++] = ch;
+        /* No newline found in current buffer content.
+         * Save what we have and try to get more data. */
+        size_t chunk_len = stream->read_buf_end - stream->read_buf_pos;
+
+        if (chunk_len > 0) {
+            /* Need to accumulate this chunk */
+            if (accum_buffer == NULL) {
+                accum_capacity = (chunk_len < 256) ? 256 : chunk_len * 2;
+                accum_buffer = (char *)malloc(accum_capacity);
+                if (accum_buffer == NULL) {
+                    fprintf(stderr, "sn_tcp_stream_read_line: malloc failed\n");
+                    exit(1);
+                }
+            } else if (accum_len + chunk_len > accum_capacity) {
+                while (accum_len + chunk_len > accum_capacity) {
+                    accum_capacity *= 2;
+                }
+                char *new_buffer = (char *)realloc(accum_buffer, accum_capacity);
+                if (new_buffer == NULL) {
+                    free(accum_buffer);
+                    fprintf(stderr, "sn_tcp_stream_read_line: realloc failed\n");
+                    exit(1);
+                }
+                accum_buffer = new_buffer;
+            }
+
+            memcpy(accum_buffer + accum_len,
+                   stream->read_buf + stream->read_buf_pos,
+                   chunk_len);
+            accum_len += chunk_len;
+            stream->read_buf_pos = stream->read_buf_end;
+        }
+
+        /* Reset buffer and fill with more data */
+        stream->read_buf_pos = 0;
+        stream->read_buf_end = 0;
+
+        if (stream->eof_reached) {
+            break;
+        }
+
+        int n = stream_fill(stream);
+        if (n <= 0) {
+            break;  /* EOF or error */
+        }
     }
 
-    buffer[length] = '\0';
+    /* EOF reached without newline - return accumulated data */
+    /* Strip trailing \r if present */
+    if (accum_len > 0 && accum_buffer && accum_buffer[accum_len - 1] == '\r') {
+        accum_len--;
+    }
 
-    /* Copy to arena */
-    char *result = (char *)rt_arena_alloc(arena, length + 1);
+    char *result = (char *)rt_arena_alloc(arena, accum_len + 1);
     if (result == NULL) {
-        free(buffer);
+        if (accum_buffer) free(accum_buffer);
         fprintf(stderr, "sn_tcp_stream_read_line: arena alloc failed\n");
         exit(1);
     }
 
-    memcpy(result, buffer, length + 1);
-    free(buffer);
+    if (accum_len > 0 && accum_buffer) {
+        memcpy(result, accum_buffer, accum_len);
+    }
+    result[accum_len] = '\0';
 
+    if (accum_buffer) free(accum_buffer);
     return result;
+}
+
+/* ============================================================================
+ * TcpStream Advanced Read Operations
+ * ============================================================================ */
+
+/* Peek at next n bytes without consuming them */
+unsigned char *sn_tcp_stream_peek(RtArena *arena, RtTcpStream *stream, long n) {
+    if (stream == NULL || n <= 0) {
+        return rt_array_create_byte(arena, 0, NULL);
+    }
+
+    /* Ensure we have enough data */
+    if (!stream_ensure(stream, (size_t)n)) {
+        /* Return what we have */
+        size_t available = stream_buffered(stream);
+        return rt_array_create_byte(arena, available,
+                                     stream->read_buf + stream->read_buf_pos);
+    }
+
+    /* Return n bytes without consuming */
+    return rt_array_create_byte(arena, (size_t)n,
+                                 stream->read_buf + stream->read_buf_pos);
+}
+
+/* Read exactly n bytes, blocking until all received or EOF/error */
+unsigned char *sn_tcp_stream_read_exact(RtArena *arena, RtTcpStream *stream, long n) {
+    if (stream == NULL || n <= 0) {
+        return rt_array_create_byte(arena, 0, NULL);
+    }
+
+    size_t needed = (size_t)n;
+
+    /* Fast path: if all data is already in buffer */
+    if (stream_buffered(stream) >= needed) {
+        unsigned char *result = rt_array_create_byte(arena, needed,
+                                                      stream->read_buf + stream->read_buf_pos);
+        stream_consume(stream, needed);
+        return result;
+    }
+
+    /* Slow path: need to accumulate from multiple fills */
+    unsigned char *temp = (unsigned char *)malloc(needed);
+    if (temp == NULL) {
+        fprintf(stderr, "sn_tcp_stream_read_exact: malloc failed\n");
+        exit(1);
+    }
+
+    size_t total_read = 0;
+
+    while (total_read < needed && !stream->eof_reached) {
+        /* Copy from buffer */
+        size_t available = stream_buffered(stream);
+        if (available > 0) {
+            size_t to_copy = (needed - total_read < available) ?
+                             (needed - total_read) : available;
+            memcpy(temp + total_read,
+                   stream->read_buf + stream->read_buf_pos,
+                   to_copy);
+            stream_consume(stream, to_copy);
+            total_read += to_copy;
+        }
+
+        /* Fill buffer if we need more */
+        if (total_read < needed && !stream->eof_reached) {
+            int fill_result = stream_fill(stream);
+            if (fill_result <= 0) {
+                break;  /* EOF or error */
+            }
+        }
+    }
+
+    unsigned char *result = rt_array_create_byte(arena, total_read, temp);
+    free(temp);
+    return result;
+}
+
+/* Read until delimiter byte is found (delimiter included in result) */
+unsigned char *sn_tcp_stream_read_until(RtArena *arena, RtTcpStream *stream, int delimiter) {
+    if (stream == NULL) {
+        return rt_array_create_byte(arena, 0, NULL);
+    }
+
+    unsigned char delim_byte = (unsigned char)delimiter;
+    size_t accum_capacity = 0;
+    size_t accum_len = 0;
+    unsigned char *accum_buffer = NULL;
+
+    while (1) {
+        /* Scan buffer for delimiter */
+        for (size_t i = stream->read_buf_pos; i < stream->read_buf_end; i++) {
+            if (stream->read_buf[i] == delim_byte) {
+                /* Found delimiter */
+                size_t chunk_len = i - stream->read_buf_pos + 1;  /* Include delimiter */
+                size_t total_len = accum_len + chunk_len;
+
+                unsigned char *result = rt_array_create_byte(arena, total_len, NULL);
+                if (result == NULL) {
+                    if (accum_buffer) free(accum_buffer);
+                    fprintf(stderr, "sn_tcp_stream_read_until: alloc failed\n");
+                    exit(1);
+                }
+
+                /* Get the underlying data pointer */
+                unsigned char *data = result;  /* rt_array_create_byte returns data pointer */
+
+                if (accum_len > 0 && accum_buffer) {
+                    memcpy(data, accum_buffer, accum_len);
+                }
+                memcpy(data + accum_len,
+                       stream->read_buf + stream->read_buf_pos,
+                       chunk_len);
+
+                stream_consume(stream, chunk_len);
+
+                if (accum_buffer) free(accum_buffer);
+                return result;
+            }
+        }
+
+        /* No delimiter found - accumulate and get more data */
+        size_t chunk_len = stream_buffered(stream);
+
+        if (chunk_len > 0) {
+            if (accum_buffer == NULL) {
+                accum_capacity = (chunk_len < 256) ? 256 : chunk_len * 2;
+                accum_buffer = (unsigned char *)malloc(accum_capacity);
+                if (accum_buffer == NULL) {
+                    fprintf(stderr, "sn_tcp_stream_read_until: malloc failed\n");
+                    exit(1);
+                }
+            } else if (accum_len + chunk_len > accum_capacity) {
+                while (accum_len + chunk_len > accum_capacity) {
+                    accum_capacity *= 2;
+                }
+                unsigned char *new_buffer = (unsigned char *)realloc(accum_buffer, accum_capacity);
+                if (new_buffer == NULL) {
+                    free(accum_buffer);
+                    fprintf(stderr, "sn_tcp_stream_read_until: realloc failed\n");
+                    exit(1);
+                }
+                accum_buffer = new_buffer;
+            }
+
+            memcpy(accum_buffer + accum_len,
+                   stream->read_buf + stream->read_buf_pos,
+                   chunk_len);
+            accum_len += chunk_len;
+            stream_consume(stream, chunk_len);
+        }
+
+        if (stream->eof_reached) {
+            break;
+        }
+
+        int n = stream_fill(stream);
+        if (n <= 0) {
+            break;
+        }
+    }
+
+    /* EOF without finding delimiter - return what we have */
+    unsigned char *result = rt_array_create_byte(arena, accum_len,
+                                                  accum_len > 0 ? accum_buffer : NULL);
+    if (accum_buffer) free(accum_buffer);
+    return result;
+}
+
+/* Check how many bytes are available without blocking */
+long sn_tcp_stream_available(RtTcpStream *stream) {
+    if (stream == NULL) return 0;
+    return (long)stream_buffered(stream);
+}
+
+/* Check if EOF has been reached */
+bool sn_tcp_stream_eof(RtTcpStream *stream) {
+    if (stream == NULL) return true;
+    return stream->eof_reached && stream_buffered(stream) == 0;
+}
+
+/* ============================================================================
+ * TcpStream Configuration
+ * ============================================================================ */
+
+/* Set read timeout in milliseconds (-1 = blocking, 0 = non-blocking) */
+void sn_tcp_stream_set_timeout(RtTcpStream *stream, long timeout_ms) {
+    if (stream == NULL) return;
+    stream->read_timeout_ms = (int)timeout_ms;
+}
+
+/* Get current read timeout */
+long sn_tcp_stream_get_timeout(RtTcpStream *stream) {
+    if (stream == NULL) return -1;
+    return stream->read_timeout_ms;
 }
 
 /* ============================================================================
