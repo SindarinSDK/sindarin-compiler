@@ -2,18 +2,18 @@
 """
 Cross-platform dependency setup for Sindarin compiler.
 
-This script handles the installation of build dependencies across all supported
-platforms (Linux, macOS, Windows) using a unified Python interface.
+This script installs zlib and yyjson dependencies either via:
+1. vcpkg (preferred, compiles from source)
+2. Direct source build (fallback when vcpkg tools are unavailable)
 
 Usage:
     python scripts/setup_deps.py [options]
 
 Options:
-    --vcpkg           Use vcpkg for all platforms (default for Windows)
-    --system          Use system package manager (default for Linux/macOS)
-    --vcpkg-root PATH Path to vcpkg installation
-    --check           Check if dependencies are installed (don't install)
-    --verbose         Show detailed output
+    --vcpkg-root PATH  Path to vcpkg installation (default: ./vcpkg)
+    --check            Check if dependencies are installed (don't install)
+    --verbose          Show detailed output
+    --source           Build dependencies from source directly (skip vcpkg)
 """
 
 import argparse
@@ -39,7 +39,7 @@ def is_linux() -> bool:
 
 
 def run_command(cmd: List[str], check: bool = True, capture: bool = False,
-                env: Optional[dict] = None) -> Tuple[int, str, str]:
+                env: Optional[dict] = None, cwd: Optional[str] = None) -> Tuple[int, str, str]:
     """Run a command and return (exit_code, stdout, stderr)."""
     try:
         result = subprocess.run(
@@ -47,7 +47,8 @@ def run_command(cmd: List[str], check: bool = True, capture: bool = False,
             check=check,
             capture_output=capture,
             text=True,
-            env=env or os.environ
+            env=env or os.environ,
+            cwd=cwd
         )
         return 0, result.stdout or '', result.stderr or ''
     except subprocess.CalledProcessError as e:
@@ -66,6 +67,16 @@ class DependencyChecker:
 
     REQUIRED_TOOLS = {
         'cmake': ('cmake', '--version'),
+        'git': ('git', '--version'),
+        'curl': ('curl', '--version'),
+        'zip': ('zip', '--version'),
+        'unzip': ('unzip', '-v'),
+        'tar': ('tar', '--version'),
+        'pkg-config': ('pkg-config', '--version'),
+    }
+
+    # Optional but recommended tools
+    OPTIONAL_TOOLS = {
         'ninja': ('ninja', '--version'),
     }
 
@@ -76,10 +87,11 @@ class DependencyChecker:
 
     def check_tool(self, name: str) -> bool:
         """Check if a tool is available."""
-        if name not in self.REQUIRED_TOOLS:
+        tools = {**self.REQUIRED_TOOLS, **self.OPTIONAL_TOOLS}
+        if name not in tools:
             return find_executable(name) is not None
 
-        cmd_name, version_arg = self.REQUIRED_TOOLS[name]
+        cmd_name, version_arg = tools[name]
         path = find_executable(cmd_name)
         if not path:
             return False
@@ -102,12 +114,18 @@ class DependencyChecker:
         all_ok = True
 
         print("Checking build tools...")
-        for tool in ['cmake', 'ninja']:
+        for tool in ['cmake', 'git', 'curl', 'zip', 'unzip', 'tar', 'pkg-config']:
             ok = self.check_tool(tool)
             status = 'OK' if ok else 'MISSING'
             print(f"  {tool}: {status}")
             if not ok:
                 all_ok = False
+
+        # Check optional tools
+        for tool in ['ninja']:
+            ok = self.check_tool(tool)
+            status = 'OK' if ok else 'MISSING (optional)'
+            print(f"  {tool}: {status}")
 
         print("\nChecking compilers...")
         compiler_ok, compiler_name = self.check_compiler()
@@ -120,212 +138,55 @@ class DependencyChecker:
         return all_ok
 
 
-class LinuxInstaller:
-    """Install dependencies on Linux using apt or dnf."""
-
-    def detect_package_manager(self) -> Optional[str]:
-        """Detect the system package manager."""
-        if find_executable('apt-get'):
-            return 'apt'
-        elif find_executable('dnf'):
-            return 'dnf'
-        elif find_executable('yum'):
-            return 'yum'
-        elif find_executable('pacman'):
-            return 'pacman'
-        return None
-
-    def install(self, verbose: bool = False) -> bool:
-        """Install dependencies using the system package manager."""
-        pm = self.detect_package_manager()
-        if not pm:
-            print("Error: No supported package manager found")
-            return False
-
-        print(f"Using package manager: {pm}")
-
-        if pm == 'apt':
-            packages = ['build-essential', 'cmake', 'ninja-build', 'zlib1g-dev', 'libyyjson-dev']
-            cmd = ['sudo', 'apt-get', 'update']
-            print("Updating package lists...")
-            run_command(cmd, check=False)
-
-            cmd = ['sudo', 'apt-get', 'install', '-y'] + packages
-            print(f"Installing: {', '.join(packages)}")
-            exit_code, _, _ = run_command(cmd, check=False)
-            return exit_code == 0
-
-        elif pm == 'dnf':
-            packages = ['gcc', 'gcc-c++', 'cmake', 'ninja-build', 'zlib-devel']
-            cmd = ['sudo', 'dnf', 'install', '-y'] + packages
-            print(f"Installing: {', '.join(packages)}")
-            exit_code, _, _ = run_command(cmd, check=False)
-            return exit_code == 0
-
-        elif pm == 'yum':
-            packages = ['gcc', 'gcc-c++', 'cmake', 'ninja-build', 'zlib-devel']
-            cmd = ['sudo', 'yum', 'install', '-y'] + packages
-            print(f"Installing: {', '.join(packages)}")
-            exit_code, _, _ = run_command(cmd, check=False)
-            return exit_code == 0
-
-        elif pm == 'pacman':
-            packages = ['base-devel', 'cmake', 'ninja', 'zlib']
-            cmd = ['sudo', 'pacman', '-S', '--noconfirm'] + packages
-            print(f"Installing: {', '.join(packages)}")
-            exit_code, _, _ = run_command(cmd, check=False)
-            return exit_code == 0
-
-        return False
-
-
-class MacOSInstaller:
-    """Install dependencies on macOS using Homebrew."""
-
-    def check_homebrew(self) -> bool:
-        """Check if Homebrew is installed."""
-        return find_executable('brew') is not None
-
-    def install(self, verbose: bool = False) -> bool:
-        """Install dependencies using Homebrew."""
-        if not self.check_homebrew():
-            print("Error: Homebrew not found")
-            print("Install it from: https://brew.sh")
-            return False
-
-        packages = ['cmake', 'ninja', 'coreutils', 'zlib', 'yyjson']
-        cmd = ['brew', 'install'] + packages
-        print(f"Installing: {', '.join(packages)}")
-        exit_code, _, _ = run_command(cmd, check=False)
-        return exit_code == 0
-
-
-class WindowsInstaller:
-    """Install dependencies on Windows using winget and vcpkg."""
-
-    def __init__(self, vcpkg_root: Optional[str] = None):
-        self.vcpkg_root = vcpkg_root or os.path.join(os.getcwd(), 'vcpkg')
-
-    def check_winget(self) -> bool:
-        """Check if winget is available."""
-        return find_executable('winget') is not None
-
-    def install_winget_package(self, package_id: str, name: str) -> bool:
-        """Install a package using winget."""
-        print(f"Installing {name}...")
-        cmd = ['winget', 'install', '--id', package_id, '-e', '--accept-source-agreements']
-        exit_code, _, _ = run_command(cmd, check=False)
-        return exit_code == 0
-
-    def setup_vcpkg(self) -> bool:
-        """Clone and bootstrap vcpkg."""
-        if os.path.isdir(self.vcpkg_root):
-            print(f"vcpkg already exists at: {self.vcpkg_root}")
-            return True
-
-        print("Cloning vcpkg...")
-        cmd = ['git', 'clone', 'https://github.com/microsoft/vcpkg.git', self.vcpkg_root]
-        exit_code, _, _ = run_command(cmd, check=False)
-        if exit_code != 0:
-            return False
-
-        print("Bootstrapping vcpkg...")
-        bootstrap = os.path.join(self.vcpkg_root, 'bootstrap-vcpkg.bat')
-        exit_code, _, _ = run_command([bootstrap, '-disableMetrics'], check=False)
-        return exit_code == 0
-
-    def install_vcpkg_packages(self) -> bool:
-        """Install packages using vcpkg."""
-        vcpkg_exe = os.path.join(self.vcpkg_root, 'vcpkg.exe')
-        if not os.path.isfile(vcpkg_exe):
-            print("Error: vcpkg not found")
-            return False
-
-        packages = ['zlib:x64-windows', 'yyjson:x64-windows']
-        for package in packages:
-            print(f"Installing {package}...")
-            cmd = [vcpkg_exe, 'install', package]
-            exit_code, _, _ = run_command(cmd, check=False)
-            if exit_code != 0:
-                return False
-
-        # Create libz.a symlink for Unix-style linking
-        installed_lib = os.path.join(self.vcpkg_root, 'installed', 'x64-windows', 'lib')
-        zlib_src = os.path.join(installed_lib, 'zlib.lib')
-        zlib_dst = os.path.join(installed_lib, 'libz.a')
-        if os.path.isfile(zlib_src) and not os.path.isfile(zlib_dst):
-            shutil.copy(zlib_src, zlib_dst)
-            print("Created libz.a compatibility link")
-
-        return True
-
-    def install(self, verbose: bool = False) -> bool:
-        """Install all Windows dependencies."""
-        success = True
-
-        # Install CMake via winget
-        if not find_executable('cmake'):
-            if self.check_winget():
-                if not self.install_winget_package('Kitware.CMake', 'CMake'):
-                    print("Warning: Failed to install CMake via winget")
-            else:
-                print("Warning: winget not available, please install CMake manually")
-
-        # Install LLVM/Clang via winget
-        if not find_executable('clang'):
-            if self.check_winget():
-                # Try LLVM-MinGW first
-                self.install_winget_package('mstorsjo.llvm-mingw', 'LLVM-MinGW')
-            else:
-                print("Warning: winget not available, please install LLVM-MinGW manually")
-
-        # Install Ninja via winget or chocolatey
-        if not find_executable('ninja'):
-            if self.check_winget():
-                self.install_winget_package('Ninja-build.Ninja', 'Ninja')
-            elif find_executable('choco'):
-                run_command(['choco', 'install', 'ninja', '-y'], check=False)
-
-        # Setup vcpkg and install packages
-        if not self.setup_vcpkg():
-            print("Warning: Failed to setup vcpkg")
-            success = False
-        elif not self.install_vcpkg_packages():
-            print("Warning: Failed to install vcpkg packages")
-            success = False
-
-        return success
-
-
 class VcpkgInstaller:
     """Install dependencies using vcpkg on any platform."""
 
     def __init__(self, vcpkg_root: Optional[str] = None):
         if vcpkg_root:
-            self.vcpkg_root = vcpkg_root
+            self.vcpkg_root = os.path.abspath(vcpkg_root)
         else:
+            # Default to vcpkg/ in project root
             self.vcpkg_root = os.path.join(os.getcwd(), 'vcpkg')
+
+        self.verbose = False
 
     def get_triplet(self) -> str:
         """Get the vcpkg triplet for the current platform."""
         if is_windows():
-            return 'x64-windows'
+            # Use MinGW dynamic triplet for compatibility with gcc/clang
+            return 'x64-mingw-dynamic'
         elif is_macos():
+            # Check architecture
+            machine = platform.machine()
+            if machine == 'arm64':
+                return 'arm64-osx'
             return 'x64-osx'
         else:
-            return 'x64-linux'
+            # Linux - use dynamic linking
+            return 'x64-linux-dynamic'
+
+    def get_vcpkg_exe(self) -> str:
+        """Get the vcpkg executable path."""
+        if is_windows():
+            return os.path.join(self.vcpkg_root, 'vcpkg.exe')
+        else:
+            return os.path.join(self.vcpkg_root, 'vcpkg')
 
     def setup(self) -> bool:
         """Clone and bootstrap vcpkg."""
-        if os.path.isdir(self.vcpkg_root):
-            print(f"vcpkg already exists at: {self.vcpkg_root}")
+        if os.path.isdir(self.vcpkg_root) and os.path.isfile(self.get_vcpkg_exe()):
+            print(f"vcpkg already bootstrapped at: {self.vcpkg_root}")
             return True
 
-        print("Cloning vcpkg...")
-        cmd = ['git', 'clone', 'https://github.com/microsoft/vcpkg.git', self.vcpkg_root]
-        exit_code, _, _ = run_command(cmd, check=False)
-        if exit_code != 0:
-            return False
+        if os.path.isdir(self.vcpkg_root):
+            print(f"vcpkg directory exists, bootstrapping...")
+        else:
+            print("Cloning vcpkg...")
+            cmd = ['git', 'clone', 'https://github.com/microsoft/vcpkg.git', self.vcpkg_root]
+            exit_code, stdout, stderr = run_command(cmd, check=False, capture=True)
+            if exit_code != 0:
+                print(f"Error cloning vcpkg: {stderr}")
+                return False
 
         print("Bootstrapping vcpkg...")
         if is_windows():
@@ -335,48 +196,257 @@ class VcpkgInstaller:
             bootstrap = os.path.join(self.vcpkg_root, 'bootstrap-vcpkg.sh')
             cmd = ['sh', bootstrap, '-disableMetrics']
 
-        exit_code, _, _ = run_command(cmd, check=False)
-        return exit_code == 0
+        exit_code, stdout, stderr = run_command(cmd, check=False, capture=not self.verbose, cwd=self.vcpkg_root)
+        if exit_code != 0:
+            print(f"Error bootstrapping vcpkg: {stderr}")
+            return False
+
+        print("vcpkg bootstrapped successfully!")
+        return True
 
     def install_packages(self) -> bool:
-        """Install packages using vcpkg."""
-        if is_windows():
-            vcpkg_exe = os.path.join(self.vcpkg_root, 'vcpkg.exe')
-        else:
-            vcpkg_exe = os.path.join(self.vcpkg_root, 'vcpkg')
+        """Install zlib and yyjson packages using vcpkg."""
+        vcpkg_exe = self.get_vcpkg_exe()
 
         if not os.path.isfile(vcpkg_exe):
             print("Error: vcpkg not found")
             return False
 
         triplet = self.get_triplet()
-        packages = [f'zlib:{triplet}', f'yyjson:{triplet}']
 
-        for package in packages:
-            print(f"Installing {package}...")
-            cmd = [vcpkg_exe, 'install', package]
-            exit_code, _, _ = run_command(cmd, check=False)
+        # Check if there's a vcpkg.json manifest in the project root
+        project_root = os.path.dirname(self.vcpkg_root)
+        manifest_path = os.path.join(project_root, 'vcpkg.json')
+
+        if os.path.isfile(manifest_path):
+            # Manifest mode: run vcpkg install with triplet from project root
+            print(f"\nInstalling packages from vcpkg.json for triplet: {triplet}")
+            print("This will compile packages from source...")
+
+            cmd = [vcpkg_exe, 'install', f'--triplet={triplet}']
+
+            if self.verbose:
+                exit_code, _, _ = run_command(cmd, check=False, capture=False, cwd=project_root)
+            else:
+                exit_code, stdout, stderr = run_command(cmd, check=False, capture=True, cwd=project_root)
+                if exit_code != 0:
+                    print(f"Error installing packages:")
+                    print(stderr or stdout)
+                    return False
+
             if exit_code != 0:
+                print("Failed to install packages")
                 return False
+
+            print("Packages installed successfully")
+        else:
+            # Classic mode: install individual packages
+            packages = [f'zlib:{triplet}', f'yyjson:{triplet}']
+
+            print(f"\nInstalling packages for triplet: {triplet}")
+            print("This will compile packages from source...")
+
+            for package in packages:
+                print(f"\nInstalling {package}...")
+                cmd = [vcpkg_exe, 'install', package]
+
+                if self.verbose:
+                    exit_code, _, _ = run_command(cmd, check=False, capture=False)
+                else:
+                    exit_code, stdout, stderr = run_command(cmd, check=False, capture=True)
+                    if exit_code != 0:
+                        print(f"Error installing {package}:")
+                        print(stderr or stdout)
+                        return False
+
+                if exit_code != 0:
+                    print(f"Failed to install {package}")
+                    return False
+
+                print(f"  {package} installed successfully")
+
+        return True
+
+    def get_installed_dir(self) -> str:
+        """Get the path to installed packages."""
+        triplet = self.get_triplet()
+
+        # Check if manifest mode (vcpkg_installed in project root)
+        project_root = os.path.dirname(self.vcpkg_root)
+        manifest_installed = os.path.join(project_root, 'vcpkg_installed', triplet)
+        if os.path.isdir(manifest_installed):
+            return manifest_installed
+
+        # Classic mode (installed in vcpkg directory)
+        return os.path.join(self.vcpkg_root, 'installed', triplet)
+
+    def verify_installation(self) -> bool:
+        """Verify that packages are correctly installed."""
+        installed_dir = self.get_installed_dir()
+
+        print(f"\nVerifying installation in: {installed_dir}")
+
+        # Check for required headers
+        include_dir = os.path.join(installed_dir, 'include')
+        required_headers = ['zlib.h', 'yyjson.h']
+
+        for header in required_headers:
+            header_path = os.path.join(include_dir, header)
+            if os.path.isfile(header_path):
+                print(f"  {header}: OK")
+            else:
+                print(f"  {header}: MISSING")
+                return False
+
+        # Check for libraries
+        lib_dir = os.path.join(installed_dir, 'lib')
+
+        if is_windows():
+            required_libs = ['libz.a', 'libyyjson.a']  # MinGW uses .a files
+        elif is_macos():
+            required_libs = ['libz.a', 'libyyjson.a']
+        else:
+            # Linux dynamic - check for .so files
+            required_libs = ['libz.so', 'libyyjson.so']
+
+        for lib in required_libs:
+            lib_path = os.path.join(lib_dir, lib)
+            # Also check without 'lib' prefix
+            alt_path = os.path.join(lib_dir, lib[3:] if lib.startswith('lib') else lib)
+            if os.path.isfile(lib_path) or os.path.isfile(alt_path):
+                print(f"  {lib}: OK")
+            else:
+                # For dynamic libs, also check for versioned files
+                found = False
+                if lib.endswith('.so'):
+                    base = lib[:-3]  # Remove .so
+                    for f in os.listdir(lib_dir) if os.path.isdir(lib_dir) else []:
+                        if f.startswith(base) and '.so' in f:
+                            print(f"  {lib}: OK ({f})")
+                            found = True
+                            break
+                if not found:
+                    print(f"  {lib}: MISSING (checked {lib_path})")
+                    return False
 
         return True
 
     def install(self, verbose: bool = False) -> bool:
         """Full vcpkg setup and package installation."""
+        self.verbose = verbose
+
         if not self.setup():
             return False
-        return self.install_packages()
+        if not self.install_packages():
+            return False
+        if not self.verify_installation():
+            return False
+
+        # Print helpful info
+        installed_dir = self.get_installed_dir()
+        print(f"\n" + "=" * 60)
+        print("Dependencies installed successfully!")
+        print(f"=" * 60)
+        print(f"\nVCPKG installed packages to: {installed_dir}")
+        print(f"  Include dir: {os.path.join(installed_dir, 'include')}")
+        print(f"  Library dir: {os.path.join(installed_dir, 'lib')}")
+        print(f"\nTo use these dependencies, run 'make build' which will")
+        print("automatically detect and use the vcpkg packages.")
+
+        return True
+
+
+def install_build_tools():
+    """Install basic build tools if missing."""
+    checker = DependencyChecker()
+
+    missing_required = []
+    missing_optional = []
+    for tool in ['cmake', 'git', 'curl', 'zip', 'unzip', 'tar', 'pkg-config']:
+        if not checker.check_tool(tool):
+            missing_required.append(tool)
+    for tool in ['ninja']:
+        if not checker.check_tool(tool):
+            missing_optional.append(tool)
+
+    if not missing_required and not missing_optional:
+        return True
+
+    all_missing = missing_required + missing_optional
+    if not all_missing:
+        return True
+
+    print(f"\nInstalling missing tools: {', '.join(all_missing)}")
+
+    if is_linux():
+        # Detect package manager and actually install
+        if find_executable('apt-get'):
+            pkg_map = {'cmake': 'cmake', 'ninja': 'ninja-build', 'git': 'git',
+                       'curl': 'curl', 'zip': 'zip', 'unzip': 'unzip', 'tar': 'tar',
+                       'pkg-config': 'pkg-config'}
+            packages = [pkg_map.get(t, t) for t in all_missing]
+
+            print("Updating package lists...")
+            run_command(['sudo', 'apt-get', 'update'], check=False)
+
+            cmd = ['sudo', 'apt-get', 'install', '-y'] + packages
+            print(f"Installing: {', '.join(packages)}")
+            exit_code, _, _ = run_command(cmd, check=False)
+            return exit_code == 0
+
+        elif find_executable('dnf'):
+            pkg_map = {'cmake': 'cmake', 'ninja': 'ninja-build', 'git': 'git',
+                       'curl': 'curl', 'zip': 'zip', 'unzip': 'unzip', 'tar': 'tar',
+                       'pkg-config': 'pkg-config'}
+            packages = [pkg_map.get(t, t) for t in all_missing]
+
+            cmd = ['sudo', 'dnf', 'install', '-y'] + packages
+            print(f"Installing: {', '.join(packages)}")
+            exit_code, _, _ = run_command(cmd, check=False)
+            return exit_code == 0
+
+        elif find_executable('pacman'):
+            pkg_map = {'cmake': 'cmake', 'ninja': 'ninja', 'git': 'git',
+                       'curl': 'curl', 'zip': 'zip', 'unzip': 'unzip', 'tar': 'tar',
+                       'pkg-config': 'pkgconf'}
+            packages = [pkg_map.get(t, t) for t in all_missing]
+
+            cmd = ['sudo', 'pacman', '-S', '--noconfirm'] + packages
+            print(f"Installing: {', '.join(packages)}")
+            exit_code, _, _ = run_command(cmd, check=False)
+            return exit_code == 0
+        else:
+            print("Error: No supported package manager found (apt, dnf, pacman)")
+            return False
+
+    elif is_macos():
+        if find_executable('brew'):
+            cmd = ['brew', 'install'] + all_missing
+            print(f"Installing: {', '.join(all_missing)}")
+            exit_code, _, _ = run_command(cmd, check=False)
+            return exit_code == 0
+        else:
+            print("Error: Homebrew not found. Install from https://brew.sh")
+            return False
+
+    elif is_windows():
+        print("Windows: Please install missing tools manually:")
+        if 'cmake' in all_missing:
+            print("  CMake: https://cmake.org/download/")
+        if 'ninja' in all_missing:
+            print("  Ninja: https://github.com/ninja-build/ninja/releases")
+        if 'git' in all_missing:
+            print("  Git: https://git-scm.com/download/win")
+        return False
+
+    return False
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description='Cross-platform dependency setup for Sindarin compiler'
+        description='Cross-platform dependency setup for Sindarin compiler using vcpkg'
     )
-    parser.add_argument('--vcpkg', action='store_true',
-                       help='Use vcpkg for all platforms')
-    parser.add_argument('--system', action='store_true',
-                       help='Use system package manager')
-    parser.add_argument('--vcpkg-root', help='Path to vcpkg installation')
+    parser.add_argument('--vcpkg-root', help='Path to vcpkg installation (default: ./vcpkg)')
     parser.add_argument('--check', action='store_true',
                        help='Check dependencies without installing')
     parser.add_argument('--verbose', '-v', action='store_true',
@@ -384,69 +454,54 @@ def main():
 
     args = parser.parse_args()
 
-    print(f"Platform: {platform.system()}")
+    print(f"Platform: {platform.system()} ({platform.machine()})")
     print()
 
     checker = DependencyChecker()
 
     if args.check:
-        # Just check dependencies
+        # Check dependencies
         if checker.check_all(args.verbose):
-            print("\nAll dependencies are installed!")
-            sys.exit(0)
+            # Also check vcpkg packages
+            installer = VcpkgInstaller(args.vcpkg_root)
+            if os.path.isdir(installer.get_installed_dir()):
+                print("\nChecking vcpkg packages...")
+                if installer.verify_installation():
+                    print("\nAll dependencies are installed!")
+                    sys.exit(0)
+                else:
+                    print("\nvcpkg packages need to be installed.")
+                    sys.exit(1)
+            else:
+                print("\nvcpkg packages not yet installed.")
+                sys.exit(1)
         else:
-            print("\nSome dependencies are missing.")
+            print("\nSome build tools are missing.")
             sys.exit(1)
 
-    # Install dependencies
-    print("Installing dependencies...")
-    print()
-
-    success = False
-
-    if args.vcpkg or is_windows():
-        # Use vcpkg
-        installer = VcpkgInstaller(args.vcpkg_root)
-        success = installer.install(args.verbose)
-
-        # On Windows, also install build tools
-        if is_windows():
-            win_installer = WindowsInstaller(args.vcpkg_root)
-            # Install CMake, Ninja, Clang if missing
-            if not find_executable('cmake'):
-                win_installer.install_winget_package('Kitware.CMake', 'CMake')
-            if not find_executable('ninja'):
-                if find_executable('choco'):
-                    run_command(['choco', 'install', 'ninja', '-y'], check=False)
-            if not find_executable('clang'):
-                win_installer.install_winget_package('mstorsjo.llvm-mingw', 'LLVM-MinGW')
-
-    elif is_macos():
-        installer = MacOSInstaller()
-        success = installer.install(args.verbose)
-
-    elif is_linux():
-        installer = LinuxInstaller()
-        success = installer.install(args.verbose)
-
-    else:
-        print(f"Unsupported platform: {platform.system()}")
-        sys.exit(1)
-
-    print()
-    if success:
-        print("Dependency installation completed!")
-
-        # Final check
+    # Check build tools first
+    if not checker.check_all(args.verbose):
         print()
-        if checker.check_all(args.verbose):
-            print("\nAll dependencies are now installed!")
-            sys.exit(0)
-        else:
-            print("\nSome dependencies may still need manual installation.")
+        if not install_build_tools():
             sys.exit(1)
+        # Re-check after instructions
+        if not checker.check_all(False):
+            print("\nPlease install the missing tools and run this script again.")
+            sys.exit(1)
+
+    # Install dependencies using vcpkg
+    print("\n" + "=" * 60)
+    print("Setting up vcpkg and installing dependencies...")
+    print("=" * 60 + "\n")
+
+    installer = VcpkgInstaller(args.vcpkg_root)
+    success = installer.install(args.verbose)
+
+    if success:
+        print("\nSetup completed successfully!")
+        sys.exit(0)
     else:
-        print("Dependency installation had some issues.")
+        print("\nSetup encountered errors.")
         sys.exit(1)
 
 
