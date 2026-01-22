@@ -78,6 +78,60 @@ native struct DtlsConnection as ref =>
     native fn close(): void
 
 # ==============================================================================
+# DtlsListener Native Struct Definition
+# ==============================================================================
+# A DTLS server that listens for incoming encrypted datagram connections.
+# Uses OpenSSL DTLS cookie exchange for DoS protection.
+#
+# Usage:
+#   var server: DtlsListener = DtlsListener.bind(":4433", "cert.pem", "key.pem")
+#   var conn: DtlsConnection = server.accept()
+#   var data: byte[] = conn.receive(1024)
+#   conn.send("Echo".toBytes())
+#   conn.close()
+#   server.close()
+
+@alias "RtDtlsListener"
+native struct DtlsListener as ref =>
+    @alias "socket_fd"
+    _socket_fd: int
+
+    @alias "bound_port"
+    _bound_port: int
+
+    # ==========================================================================
+    # Static Factory Methods
+    # ==========================================================================
+
+    # Bind to address with TLS certificate and key files
+    static fn bind(address: str, certFile: str, keyFile: str): DtlsListener =>
+        return sn_dtls_listener_bind(address, certFile, keyFile)
+
+    # ==========================================================================
+    # Connection Methods
+    # ==========================================================================
+
+    # Wait for and accept a new DTLS connection (blocks until client connects)
+    fn accept(): DtlsConnection =>
+        return sn_dtls_listener_accept(self)
+
+    # ==========================================================================
+    # Getter Methods
+    # ==========================================================================
+
+    # Get bound port number
+    @alias "sn_dtls_listener_get_port"
+    native fn port(): int
+
+    # ==========================================================================
+    # Lifecycle Methods
+    # ==========================================================================
+
+    # Close the listener
+    @alias "sn_dtls_listener_close"
+    native fn close(): void
+
+# ==============================================================================
 # Runtime Function Declarations
 # ==============================================================================
 
@@ -89,3 +143,9 @@ native fn sn_dtls_connection_receive(arena, conn: DtlsConnection, maxBytes: int)
 
 # DtlsConnection getter functions
 native fn sn_dtls_connection_get_remote_address(arena, conn: DtlsConnection): str
+
+# DtlsListener factory functions
+native fn sn_dtls_listener_bind(arena, address: str, certFile: str, keyFile: str): DtlsListener
+
+# DtlsListener accept function
+native fn sn_dtls_listener_accept(arena, listener: DtlsListener): DtlsConnection
