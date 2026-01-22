@@ -453,7 +453,7 @@ elseif(APPLE)
         set(VCPKG_TRIPLET "x64-osx")
     endif()
 else()
-    set(VCPKG_TRIPLET "x64-linux-dynamic")
+    set(VCPKG_TRIPLET "x64-linux")
 endif()
 
 # Find vcpkg installation directory
@@ -524,9 +524,9 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
     else()
-        # Linux: Copy shared libraries (.so files)
-        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.so*")
-        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.so*")
+        # Linux: Copy static libraries (.a files) for self-contained executables
+        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.a")
+        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
 
         foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS})
             message(STATUS "  Copying library: ${LIB}")

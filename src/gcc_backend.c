@@ -1239,11 +1239,11 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         {
             /* Platform-specific vcpkg triplets */
 #ifdef _WIN32
-            const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+            const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
 #elif defined(__APPLE__)
             const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
 #else
-            const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+            const char *triplets[] = {"x64-linux", NULL};
 #endif
             for (int i = 0; triplets[i] != NULL; i++)
             {
@@ -1262,11 +1262,11 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     if (deps_include_dir[0] == '\0')
     {
 #ifdef _WIN32
-        const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+        const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
 #elif defined(__APPLE__)
         const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
 #else
-        const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+        const char *triplets[] = {"x64-linux", NULL};
 #endif
         for (int i = 0; triplets[i] != NULL; i++)
         {
@@ -1284,11 +1284,11 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     if (deps_include_dir[0] == '\0')
     {
 #ifdef _WIN32
-        const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+        const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
 #elif defined(__APPLE__)
         const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
 #else
-        const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+        const char *triplets[] = {"x64-linux", NULL};
 #endif
         for (int i = 0; triplets[i] != NULL; i++)
         {
