@@ -101,7 +101,9 @@ static const char *translate_lib_name(const char *lib)
         const char *from;
         const char *to;
     } win_mappings[] = {
-        { "z", "zlib" },  /* zlib uses "libzlib.a" on Windows, "libz.a" on Unix */
+        { "z", "zlib" },       /* zlib uses "libzlib.a" on Windows, "libz.a" on Unix */
+        { "xml2", "libxml2" }, /* libxml2 uses "libxml2" on Windows */
+        { "yaml", "libyaml" }, /* libyaml uses "libyaml" on Windows */
         { NULL, NULL }
     };
 

@@ -300,7 +300,7 @@ class VcpkgInstaller:
 
         # Check for required headers
         include_dir = os.path.join(installed_dir, 'include')
-        required_headers = ['zlib.h', 'yyjson.h', 'libxml2/libxml/parser.h']
+        required_headers = ['zlib.h', 'yyjson.h', 'libxml2/libxml/parser.h', 'yaml.h']
 
         for header in required_headers:
             header_path = os.path.join(include_dir, header)
@@ -322,6 +322,8 @@ class VcpkgInstaller:
                        'libyyjson.so', 'libyyjson.dylib'],
             'libxml2': ['libxml2.a', 'libxml2.dll.a', 'xml2.lib', 'libxml2.lib',
                         'libxml2.so', 'libxml2.dylib'],
+            'libyaml': ['libyaml.a', 'libyaml.dll.a', 'yaml.lib', 'libyaml.lib',
+                        'libyaml.so', 'libyaml.dylib'],
         }
 
         for dep_name, patterns in lib_patterns.items():
