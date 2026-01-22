@@ -357,8 +357,14 @@ RtDtlsConnection *sn_dtls_connection_connect(RtArena *arena, const char *address
     /* Load certificates */
     dtls_load_certificates(ctx);
 
-    /* Enable certificate verification */
-    SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+    /* If SN_CERTS is set, verify peer; otherwise skip verification
+     * (allows self-signed certs in testing) */
+    const char *sn_certs_env = getenv("SN_CERTS");
+    if (sn_certs_env != NULL && sn_certs_env[0] != '\0') {
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_PEER, NULL);
+    } else {
+        SSL_CTX_set_verify(ctx, SSL_VERIFY_NONE, NULL);
+    }
 
     SSL *ssl = SSL_new(ctx);
     if (ssl == NULL) {
@@ -368,11 +374,11 @@ RtDtlsConnection *sn_dtls_connection_connect(RtArena *arena, const char *address
         exit(1);
     }
 
-    /* Set SNI hostname */
-    SSL_set_tlsext_host_name(ssl, host);
-
-    /* Enable hostname verification */
-    SSL_set1_host(ssl, host);
+    /* Set SNI hostname and enable hostname verification (only when verifying) */
+    if (sn_certs_env != NULL && sn_certs_env[0] != '\0') {
+        SSL_set_tlsext_host_name(ssl, host);
+        SSL_set1_host(ssl, host);
+    }
 
     /* Create BIO from connected socket for DTLS */
     BIO *bio = BIO_new_dgram((int)sock, BIO_NOCLOSE);
@@ -429,17 +435,19 @@ RtDtlsConnection *sn_dtls_connection_connect(RtArena *arena, const char *address
         exit(1);
     }
 
-    /* Verify certificate was validated */
-    long verify_result = SSL_get_verify_result(ssl);
-    if (verify_result != X509_V_OK) {
-        const char *verify_str = X509_verify_cert_error_string(verify_result);
-        SSL_shutdown(ssl);
-        SSL_free(ssl);
-        SSL_CTX_free(ctx);
-        CLOSE_SOCKET(sock);
-        fprintf(stderr, "DtlsConnection.connect: certificate verification failed for '%s': %s\n",
-                address, verify_str);
-        exit(1);
+    /* Verify certificate was validated (only when verification is enabled) */
+    if (sn_certs_env != NULL && sn_certs_env[0] != '\0') {
+        long verify_result = SSL_get_verify_result(ssl);
+        if (verify_result != X509_V_OK) {
+            const char *verify_str = X509_verify_cert_error_string(verify_result);
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            SSL_CTX_free(ctx);
+            CLOSE_SOCKET(sock);
+            fprintf(stderr, "DtlsConnection.connect: certificate verification failed for '%s': %s\n",
+                    address, verify_str);
+            exit(1);
+        }
     }
 
     /* Allocate and return connection */
@@ -571,4 +579,428 @@ void sn_dtls_connection_close(RtDtlsConnection *conn) {
         CLOSE_SOCKET(conn->socket_fd);
         conn->socket_fd = INVALID_SOCKET_VAL;
     }
+}
+
+/* ============================================================================
+ * Threading Primitives (same pattern as QUIC)
+ * ============================================================================ */
+
+#ifdef _WIN32
+    #include <process.h>
+    typedef HANDLE dtls_thread_t;
+    typedef CRITICAL_SECTION dtls_mutex_t;
+    typedef CONDITION_VARIABLE dtls_cond_t;
+
+    #define DTLS_MUTEX_INIT(m) InitializeCriticalSection(m)
+    #define DTLS_MUTEX_LOCK(m) EnterCriticalSection(m)
+    #define DTLS_MUTEX_UNLOCK(m) LeaveCriticalSection(m)
+    #define DTLS_MUTEX_DESTROY(m) DeleteCriticalSection(m)
+    #define DTLS_COND_INIT(c) InitializeConditionVariable(c)
+    #define DTLS_COND_WAIT(c, m) SleepConditionVariableCS(c, m, INFINITE)
+    #define DTLS_COND_SIGNAL(c) WakeConditionVariable(c)
+    #define DTLS_COND_BROADCAST(c) WakeAllConditionVariable(c)
+    #define DTLS_COND_DESTROY(c) /* no-op on Windows */
+#else
+    #include <pthread.h>
+    typedef pthread_t dtls_thread_t;
+    typedef pthread_mutex_t dtls_mutex_t;
+    typedef pthread_cond_t dtls_cond_t;
+
+    #define DTLS_MUTEX_INIT(m) pthread_mutex_init(m, NULL)
+    #define DTLS_MUTEX_LOCK(m) pthread_mutex_lock(m)
+    #define DTLS_MUTEX_UNLOCK(m) pthread_mutex_unlock(m)
+    #define DTLS_MUTEX_DESTROY(m) pthread_mutex_destroy(m)
+    #define DTLS_COND_INIT(c) pthread_cond_init(c, NULL)
+    #define DTLS_COND_WAIT(c, m) pthread_cond_wait(c, m)
+    #define DTLS_COND_SIGNAL(c) pthread_cond_signal(c)
+    #define DTLS_COND_BROADCAST(c) pthread_cond_broadcast(c)
+    #define DTLS_COND_DESTROY(c) pthread_cond_destroy(c)
+#endif
+
+/* ============================================================================
+ * DtlsListener Type Definition
+ * ============================================================================ */
+
+#define DTLS_MAX_ACCEPT_QUEUE 16
+
+typedef struct RtDtlsListener {
+    socket_t socket_fd;         /* Listening UDP socket */
+    int bound_port;             /* Bound port number */
+    SSL_CTX *ssl_ctx;           /* Server SSL context */
+    bool running;               /* Whether listener is active */
+
+    /* Accept queue (thread-safe) */
+    RtDtlsConnection *accept_queue[DTLS_MAX_ACCEPT_QUEUE];
+    int accept_head;
+    int accept_tail;
+    int accept_count;
+    dtls_mutex_t accept_mutex;
+    dtls_cond_t accept_cond;
+
+    /* Listener thread */
+    dtls_thread_t listen_thread;
+
+    /* Arena for allocations */
+    RtArena *arena;
+} RtDtlsListener;
+
+
+/* ============================================================================
+ * DtlsListener Thread Function
+ * ============================================================================ */
+
+static void dtls_listener_thread_func(RtDtlsListener *listener) {
+    while (listener->running) {
+        /* Wait for a ClientHello: peek to get the client's address.
+         * Buffer must be large enough for a full DTLS datagram on Windows
+         * (WSAEMSGSIZE returned if buffer is too small, even with MSG_PEEK). */
+        struct sockaddr_storage client_ss;
+        socklen_t client_len = sizeof(client_ss);
+        unsigned char peek_buf[65535];
+
+#ifdef _WIN32
+        int nread = recvfrom(listener->socket_fd, (char *)peek_buf, sizeof(peek_buf), MSG_PEEK,
+                            (struct sockaddr *)&client_ss, &client_len);
+#else
+        ssize_t nread = recvfrom(listener->socket_fd, peek_buf, sizeof(peek_buf), MSG_PEEK,
+                                 (struct sockaddr *)&client_ss, &client_len);
+#endif
+        if (nread < 0) {
+            if (!listener->running) break;
+            continue;
+        }
+        if (!listener->running) break;
+
+        /* Connect the listener socket to this client.
+         * This makes it a point-to-point socket for this handshake.
+         * Only one connection at a time is supported per listener. */
+        if (connect(listener->socket_fd, (struct sockaddr *)&client_ss, client_len) != 0) {
+            /* Consume the peeked packet and retry */
+            unsigned char discard[1];
+            recv(listener->socket_fd, (char *)discard, sizeof(discard), 0);
+            continue;
+        }
+
+        /* Create SSL for this connection */
+        SSL *ssl = SSL_new(listener->ssl_ctx);
+        if (ssl == NULL) {
+            if (listener->running) {
+                fprintf(stderr, "DtlsListener: SSL_new failed\n");
+            }
+            break;
+        }
+
+        /* Create BIO on the (now connected) listener socket */
+        BIO *bio = BIO_new_dgram((int)listener->socket_fd, BIO_NOCLOSE);
+        if (bio == NULL) {
+            SSL_free(ssl);
+            break;
+        }
+
+        /* Set connected peer */
+        BIO_ctrl(bio, BIO_CTRL_DGRAM_SET_CONNECTED, 0, &client_ss);
+
+        /* Set timeouts */
+        struct timeval timeout;
+        timeout.tv_sec = 5;
+        timeout.tv_usec = 0;
+        BIO_ctrl(bio, BIO_CTRL_DGRAM_SET_RECV_TIMEOUT, 0, &timeout);
+        BIO_ctrl(bio, BIO_CTRL_DGRAM_SET_SEND_TIMEOUT, 0, &timeout);
+
+        SSL_set_bio(ssl, bio, bio);
+
+        /* Perform DTLS handshake as server */
+        int accept_ret = SSL_accept(ssl);
+        if (accept_ret != 1) {
+            SSL_free(ssl);  /* Also frees the BIO */
+            if (!listener->running) break;
+            /* Disconnect the socket for reuse */
+            struct sockaddr_in unspec;
+            memset(&unspec, 0, sizeof(unspec));
+            unspec.sin_family = AF_UNSPEC;
+            connect(listener->socket_fd, (struct sockaddr *)&unspec, sizeof(unspec));
+            continue;
+        }
+
+        /* Build remote address string */
+        char addr_str[256];
+        if (client_ss.ss_family == AF_INET) {
+            struct sockaddr_in *sin = (struct sockaddr_in *)&client_ss;
+            char ip[INET_ADDRSTRLEN];
+            inet_ntop(AF_INET, &sin->sin_addr, ip, sizeof(ip));
+            snprintf(addr_str, sizeof(addr_str), "%s:%d", ip, ntohs(sin->sin_port));
+        } else {
+            snprintf(addr_str, sizeof(addr_str), "unknown:0");
+        }
+
+        /* Create DtlsConnection */
+        RtDtlsConnection *conn = (RtDtlsConnection *)rt_arena_alloc(listener->arena, sizeof(RtDtlsConnection));
+        if (conn == NULL) {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            continue;
+        }
+
+        conn->socket_fd = INVALID_SOCKET_VAL;  /* Don't own the socket - listener owns it */
+        conn->ssl_ptr = ssl;
+        conn->ctx = NULL;  /* Server connections don't own the context */
+
+        size_t addr_len = strlen(addr_str) + 1;
+        conn->remote_addr = (char *)rt_arena_alloc(listener->arena, addr_len);
+        if (conn->remote_addr) {
+            memcpy(conn->remote_addr, addr_str, addr_len);
+        }
+
+        /* Push to accept queue */
+        DTLS_MUTEX_LOCK(&listener->accept_mutex);
+        if (listener->accept_count < DTLS_MAX_ACCEPT_QUEUE) {
+            listener->accept_queue[listener->accept_tail] = conn;
+            listener->accept_tail = (listener->accept_tail + 1) % DTLS_MAX_ACCEPT_QUEUE;
+            listener->accept_count++;
+            DTLS_COND_SIGNAL(&listener->accept_cond);
+        } else {
+            SSL_shutdown(ssl);
+            SSL_free(ssl);
+            conn->ssl_ptr = NULL;
+        }
+        DTLS_MUTEX_UNLOCK(&listener->accept_mutex);
+    }
+}
+
+#ifdef _WIN32
+static unsigned __stdcall dtls_listener_thread_entry(void *arg) {
+    RtDtlsListener *listener = (RtDtlsListener *)arg;
+    dtls_listener_thread_func(listener);
+    return 0;
+}
+#else
+static void *dtls_listener_thread_entry(void *arg) {
+    RtDtlsListener *listener = (RtDtlsListener *)arg;
+    dtls_listener_thread_func(listener);
+    return NULL;
+}
+#endif
+
+/* ============================================================================
+ * DtlsListener Bind
+ * ============================================================================ */
+
+RtDtlsListener *sn_dtls_listener_bind(RtArena *arena, const char *address,
+                                        const char *cert_file, const char *key_file) {
+    ensure_winsock_initialized();
+    ensure_openssl_initialized();
+
+    if (address == NULL || cert_file == NULL || key_file == NULL) {
+        fprintf(stderr, "DtlsListener.bind: NULL argument\n");
+        exit(1);
+    }
+
+    char host[256];
+    int port;
+
+    if (!dtls_parse_address(address, host, sizeof(host), &port)) {
+        fprintf(stderr, "DtlsListener.bind: invalid address format '%s'\n", address);
+        exit(1);
+    }
+
+    /* Create server SSL context */
+    SSL_CTX *ctx = SSL_CTX_new(DTLS_server_method());
+    if (ctx == NULL) {
+        fprintf(stderr, "DtlsListener.bind: SSL_CTX_new failed\n");
+        exit(1);
+    }
+
+    /* Load certificate */
+    if (SSL_CTX_use_certificate_file(ctx, cert_file, SSL_FILETYPE_PEM) != 1) {
+        unsigned long err = ERR_get_error();
+        char err_buf[256];
+        ERR_error_string_n(err, err_buf, sizeof(err_buf));
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: failed to load certificate '%s': %s\n",
+                cert_file, err_buf);
+        exit(1);
+    }
+
+    /* Load private key */
+    if (SSL_CTX_use_PrivateKey_file(ctx, key_file, SSL_FILETYPE_PEM) != 1) {
+        unsigned long err = ERR_get_error();
+        char err_buf[256];
+        ERR_error_string_n(err, err_buf, sizeof(err_buf));
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: failed to load private key '%s': %s\n",
+                key_file, err_buf);
+        exit(1);
+    }
+
+    /* Verify key matches certificate */
+    if (SSL_CTX_check_private_key(ctx) != 1) {
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: private key does not match certificate\n");
+        exit(1);
+    }
+
+    /* Create and bind UDP socket */
+    struct addrinfo hints, *result;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_DGRAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    char port_str[16];
+    snprintf(port_str, sizeof(port_str), "%d", port);
+
+    int status = getaddrinfo(host[0] ? host : NULL, port_str, &hints, &result);
+    if (status != 0) {
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: getaddrinfo failed: %s\n", gai_strerror(status));
+        exit(1);
+    }
+
+    socket_t sock = socket(result->ai_family, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock == INVALID_SOCKET_VAL) {
+        freeaddrinfo(result);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: socket creation failed\n");
+        exit(1);
+    }
+
+    int optval = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
+
+    if (bind(sock, result->ai_addr, (int)result->ai_addrlen) != 0) {
+        freeaddrinfo(result);
+        CLOSE_SOCKET(sock);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: bind failed on '%s'\n", address);
+        exit(1);
+    }
+
+    freeaddrinfo(result);
+
+    /* Get actual bound port */
+    struct sockaddr_storage bound_addr;
+    socklen_t bound_len = sizeof(bound_addr);
+    getsockname(sock, (struct sockaddr *)&bound_addr, &bound_len);
+
+    int bound_port;
+    if (bound_addr.ss_family == AF_INET) {
+        bound_port = ntohs(((struct sockaddr_in *)&bound_addr)->sin_port);
+    } else {
+        bound_port = ntohs(((struct sockaddr_in6 *)&bound_addr)->sin6_port);
+    }
+
+    /* Create listener struct */
+    RtDtlsListener *listener = (RtDtlsListener *)rt_arena_alloc(arena, sizeof(RtDtlsListener));
+    if (listener == NULL) {
+        CLOSE_SOCKET(sock);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "DtlsListener.bind: allocation failed\n");
+        exit(1);
+    }
+
+    memset(listener, 0, sizeof(RtDtlsListener));
+    listener->socket_fd = sock;
+    listener->bound_port = bound_port;
+    listener->ssl_ctx = ctx;
+    listener->running = true;
+    listener->arena = arena;
+
+    /* Set receive timeout on listener socket so thread can check running flag */
+#ifdef _WIN32
+    DWORD tv_ms = 1000;
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char *)&tv_ms, sizeof(tv_ms));
+#else
+    struct timeval tv;
+    tv.tv_sec = 1;
+    tv.tv_usec = 0;
+    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv));
+#endif
+
+    DTLS_MUTEX_INIT(&listener->accept_mutex);
+    DTLS_COND_INIT(&listener->accept_cond);
+
+    /* Start listener thread */
+#ifdef _WIN32
+    listener->listen_thread = (HANDLE)_beginthreadex(NULL, 0,
+        dtls_listener_thread_entry, listener, 0, NULL);
+#else
+    pthread_create(&listener->listen_thread, NULL, dtls_listener_thread_entry, listener);
+#endif
+
+    return listener;
+}
+
+/* ============================================================================
+ * DtlsListener Accept (blocks until a connection is available)
+ * ============================================================================ */
+
+RtDtlsConnection *sn_dtls_listener_accept(RtArena *arena, RtDtlsListener *listener) {
+    if (listener == NULL || !listener->running) {
+        fprintf(stderr, "DtlsListener.accept: listener is NULL or closed\n");
+        exit(1);
+    }
+    (void)arena;
+
+    DTLS_MUTEX_LOCK(&listener->accept_mutex);
+
+    while (listener->accept_count == 0 && listener->running) {
+        DTLS_COND_WAIT(&listener->accept_cond, &listener->accept_mutex);
+    }
+
+    if (!listener->running || listener->accept_count == 0) {
+        DTLS_MUTEX_UNLOCK(&listener->accept_mutex);
+        return NULL;
+    }
+
+    RtDtlsConnection *conn = listener->accept_queue[listener->accept_head];
+    listener->accept_head = (listener->accept_head + 1) % DTLS_MAX_ACCEPT_QUEUE;
+    listener->accept_count--;
+
+    DTLS_MUTEX_UNLOCK(&listener->accept_mutex);
+    return conn;
+}
+
+/* ============================================================================
+ * DtlsListener Getters
+ * ============================================================================ */
+
+int sn_dtls_listener_get_port(RtDtlsListener *listener) {
+    return listener ? listener->bound_port : 0;
+}
+
+/* ============================================================================
+ * DtlsListener Lifecycle
+ * ============================================================================ */
+
+void sn_dtls_listener_close(RtDtlsListener *listener) {
+    if (listener == NULL || !listener->running) return;
+
+    listener->running = false;
+
+    /* Signal any waiters on accept */
+    DTLS_MUTEX_LOCK(&listener->accept_mutex);
+    DTLS_COND_BROADCAST(&listener->accept_cond);
+    DTLS_MUTEX_UNLOCK(&listener->accept_mutex);
+
+    /* Close socket first to unblock DTLSv1_listen in the thread */
+    if (listener->socket_fd != INVALID_SOCKET_VAL) {
+        CLOSE_SOCKET(listener->socket_fd);
+        listener->socket_fd = INVALID_SOCKET_VAL;
+    }
+
+    /* Wait for listener thread */
+#ifdef _WIN32
+    WaitForSingleObject(listener->listen_thread, 5000);
+    CloseHandle(listener->listen_thread);
+#else
+    pthread_join(listener->listen_thread, NULL);
+#endif
+
+    if (listener->ssl_ctx != NULL) {
+        SSL_CTX_free(listener->ssl_ctx);
+        listener->ssl_ctx = NULL;
+    }
+
+    DTLS_MUTEX_DESTROY(&listener->accept_mutex);
+    DTLS_COND_DESTROY(&listener->accept_cond);
 }
