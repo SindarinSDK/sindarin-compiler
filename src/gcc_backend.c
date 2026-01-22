@@ -1019,19 +1019,19 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         }
     }
 
-    /* When linking libssh2, add platform-specific transitive deps */
+    /* When linking libssh, add platform-specific transitive deps */
     if (link_libs != NULL && link_lib_count > 0)
     {
-        bool needs_ssh2_deps = false;
+        bool needs_ssh_deps = false;
         for (int i = 0; i < link_lib_count; i++)
         {
-            if (strcmp(link_libs[i], "ssh2") == 0)
+            if (strcmp(link_libs[i], "ssh") == 0)
             {
-                needs_ssh2_deps = true;
+                needs_ssh_deps = true;
                 break;
             }
         }
-        if (needs_ssh2_deps)
+        if (needs_ssh_deps)
         {
             int offset = (int)strlen(extra_libs);
 #ifdef _WIN32
@@ -1039,7 +1039,7 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                 " -lzlib -lbcrypt -lws2_32");
 #else
             int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lz");
+                " -lz -lpthread");
 #endif
             (void)written;
         }

@@ -46,6 +46,8 @@ const char *get_rt_result_type(Type *type)
             return "RT_TYPE_CHAR";
         case TYPE_STRING:
             return "RT_TYPE_STRING";
+        case TYPE_STRUCT:
+            return "RT_TYPE_STRUCT";
         case TYPE_ARRAY:
         {
             Type *elem = type->as.array.element_type;
@@ -376,6 +378,16 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "%s    RtAny __result = %s(%s(%s), %s);\n",
                     thunk_def, box_func, callee_str, unboxed_args, elem_tag);
             }
+            else if (return_type && return_type->kind == TYPE_STRUCT)
+            {
+                int type_id = get_struct_type_id(return_type);
+                const char *struct_name = get_c_type(gen->arena, return_type);
+                thunk_def = arena_sprintf(gen->arena,
+                    "%s    %s __tmp_result = %s(%s);\n"
+                    "    RtAny __result = rt_box_struct((RtArena *)__rt_thunk_arena, &__tmp_result, sizeof(%s), %d);\n",
+                    thunk_def, struct_name, callee_str, unboxed_args,
+                    struct_name, type_id);
+            }
             else
             {
                 thunk_def = arena_sprintf(gen->arena,
@@ -457,6 +469,14 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(args->arg%d, %s);\n",
                         wrapper_def, i, box_func, i, elem_tag);
+                }
+                else if (arg_type && arg_type->kind == TYPE_STRUCT)
+                {
+                    int type_id = get_struct_type_id(arg_type);
+                    const char *struct_name = get_c_type(gen->arena, arg_type);
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
+                        wrapper_def, i, i, struct_name, type_id);
                 }
                 else if (is_ref_primitive)
                 {
@@ -549,6 +569,14 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         "%s        __args[%d] = %s(args->arg%d, %s);\n",
                         wrapper_def, i, box_func, i, elem_tag);
                 }
+                else if (arg_type && arg_type->kind == TYPE_STRUCT)
+                {
+                    int type_id = get_struct_type_id(arg_type);
+                    const char *struct_name = get_c_type(gen->arena, arg_type);
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
+                        wrapper_def, i, i, struct_name, type_id);
+                }
                 else if (is_ref_primitive)
                 {
                     /* Dereference pointer for as ref primitives */
@@ -588,12 +616,27 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 }
             }
 
+            /* Generate the unbox expression for the intercepted result */
+            char *unbox_expr;
+            if (return_type && return_type->kind == TYPE_STRUCT)
+            {
+                int type_id = get_struct_type_id(return_type);
+                const char *struct_name = get_c_type(gen->arena, return_type);
+                unbox_expr = arena_sprintf(gen->arena,
+                    "*((%s *)rt_unbox_struct(__intercepted, %d))",
+                    struct_name, type_id);
+            }
+            else
+            {
+                unbox_expr = arena_sprintf(gen->arena, "%s(__intercepted)", unbox_func);
+            }
+
             wrapper_def = arena_sprintf(gen->arena,
                 "%s        __rt_thunk_args = __args;\n"
                 "        __rt_thunk_arena = __arena__;\n"
                 "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
                 "%s"
-                "        __result__ = %s(__intercepted);\n"
+                "        __result__ = %s;\n"
                 "    } else {\n"
                 "        __result__ = %s(%s);\n"
                 "    }\n"
@@ -607,7 +650,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, func_name_for_intercept, call->arg_count, thunk_name,
-                writeback_code, unbox_func, callee_str, call_args, ret_c_type);
+                writeback_code, unbox_expr, callee_str, call_args, ret_c_type);
         }
     }
     else if (is_void_return)

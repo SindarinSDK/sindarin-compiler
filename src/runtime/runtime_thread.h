@@ -200,7 +200,8 @@ typedef enum {
     RT_TYPE_ARRAY_BOOL,         /* bool[] */
     RT_TYPE_ARRAY_BYTE,         /* byte[] */
     RT_TYPE_ARRAY_CHAR,         /* char[] */
-    RT_TYPE_ARRAY_STRING        /* str[] */
+    RT_TYPE_ARRAY_STRING,       /* str[] */
+    RT_TYPE_STRUCT              /* native struct (opaque pointer) */
 } RtResultType;
 
 /* ============================================================================
