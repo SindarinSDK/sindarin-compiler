@@ -8,7 +8,12 @@
   "supports": "!uwp",
   "dependencies": [
     "zlib",
-    "yyjson"
+    "yyjson",
+    {
+        "name": "libxml2",
+        "default-features": false,
+        "features": ["zlib"]
+    }
   ],
   "features": {
     "tests": {

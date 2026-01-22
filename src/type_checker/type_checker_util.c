@@ -1187,7 +1187,20 @@ bool detect_struct_circular_dependency(Type *struct_type, SymbolTable *table, ch
 
 Type *resolve_struct_forward_reference(Type *type, SymbolTable *table)
 {
-    if (type == NULL || type->kind != TYPE_STRUCT || table == NULL)
+    if (type == NULL || table == NULL)
+    {
+        return type;
+    }
+
+    /* Recurse into array element types */
+    if (type->kind == TYPE_ARRAY)
+    {
+        type->as.array.element_type =
+            resolve_struct_forward_reference(type->as.array.element_type, table);
+        return type;
+    }
+
+    if (type->kind != TYPE_STRUCT)
     {
         return type;
     }
