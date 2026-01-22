@@ -1,0 +1,4 @@
+Testing malloc redirect...
+PASS: basic redirect test
+PASS: nested redirect test
+All malloc redirect tests passed!
