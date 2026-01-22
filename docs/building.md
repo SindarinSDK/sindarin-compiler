@@ -4,19 +4,23 @@ This document explains how to build the Sindarin compiler from source on Linux, 
 
 ## Prerequisites
 
-All platforms require:
+Minimum requirements (before running `make setup`):
+- **Make** (GNU Make)
+- **Python** 3.6 or later
+- A C99-compatible compiler (**GCC** on Linux, **Clang** on macOS/Windows)
+
+`make setup` will install these additional tools if missing:
 - **CMake** 3.16 or later
-- **Ninja** build system (recommended) or Make
-- **Python** 3.6 or later (for test runner)
-- A C99-compatible compiler (GCC or Clang)
+- **Ninja** build system (recommended, falls back to Unix Makefiles)
+- **vcpkg** dependencies (zlib, yyjson)
 
 ## Quick Start
 
 The simplest way to build is using the Makefile wrapper:
 
 ```bash
-# Install dependencies (platform-specific, see below)
-make setup-deps
+# Install dependencies (vcpkg: zlib, yyjson) + build tools (cmake, ninja)
+make setup
 
 # Build
 make build
@@ -63,36 +67,30 @@ cmake --build --preset windows-clang-release
 
 ### Linux
 
-**Install dependencies (Ubuntu/Debian):**
+**Prerequisites (provides make, gcc, python):**
 
 ```bash
+# Ubuntu/Debian
 sudo apt-get update
-sudo apt-get install -y build-essential cmake ninja-build zlib1g-dev python3
-```
+sudo apt-get install -y build-essential python3
 
-**Install dependencies (Fedora/RHEL):**
+# Fedora/RHEL
+sudo dnf install -y gcc make python3
 
-```bash
-sudo dnf install -y gcc cmake ninja-build zlib-devel python3
-```
-
-**Install dependencies (Arch Linux):**
-
-```bash
-sudo pacman -S base-devel cmake ninja zlib python
-```
-
-**Or use the setup script:**
-
-```bash
-python3 scripts/setup_deps.py
+# Arch Linux
+sudo pacman -S base-devel python
 ```
 
 **Build:**
 
 ```bash
+make setup   # Installs cmake, ninja, vcpkg deps (zlib, yyjson)
 make build
-# or
+```
+
+Or using CMake directly (if dependencies are already installed):
+
+```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
@@ -106,23 +104,24 @@ bin/tests  # Run unit tests
 
 ### macOS
 
-**Install dependencies (via Homebrew):**
-
-```bash
-brew install cmake ninja coreutils zlib python3
-```
-
-macOS includes Clang via Xcode Command Line Tools. Install if needed:
+**Prerequisites:** Xcode Command Line Tools (provides make, clang). Install if needed:
 
 ```bash
 xcode-select --install
 ```
 
+Ensure Python 3 is available (usually pre-installed, or `brew install python3`).
+
 **Build:**
 
 ```bash
+make setup   # Installs cmake, ninja, vcpkg deps (zlib, yyjson)
 make build
-# or
+```
+
+Or using CMake directly (if dependencies are already installed):
+
+```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release
 cmake --build build
 ```
@@ -136,23 +135,31 @@ bin/tests
 
 ### Windows
 
-**Option 1: Automated setup**
+**Prerequisites:** Install LLVM-MinGW (provides clang), Make, and Ninja:
 
 ```powershell
-python scripts/setup_deps.py
+# Via Chocolatey
+choco install make ninja -y
+
+# LLVM-MinGW (via winget or download from https://github.com/mstorsjo/llvm-mingw/releases)
+winget install mstorsjo.llvm-mingw
 ```
 
-This installs CMake, Ninja, LLVM-MinGW, and vcpkg with zlib.
-
-**Option 2: Manual setup (via winget)**
+Alternatively install CMake and Ninja via winget:
 
 ```powershell
 winget install Kitware.CMake
 winget install Ninja-build.Ninja
-winget install mstorsjo.llvm-mingw
 ```
 
 **Build:**
+
+```bash
+make setup   # Installs vcpkg deps (zlib, yyjson)
+make build
+```
+
+Or using CMake directly (if dependencies are already installed):
 
 ```powershell
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release
@@ -174,9 +181,10 @@ After a successful build:
 |------|-------------|
 | `bin/sn` (or `bin/sn.exe`) | The Sindarin compiler |
 | `bin/tests` (or `bin/tests.exe`) | Unit test runner |
-| `bin/lib/gcc/*.o` | Runtime objects (Linux/macOS) |
-| `bin/lib/clang/*.o` | Runtime objects (Windows) |
+| `bin/lib/gcc/libsn_runtime.a` | Runtime library (Linux/macOS) |
+| `bin/lib/clang/libsn_runtime.a` | Runtime library (Windows) |
 | `bin/include/` | Runtime headers |
+| `bin/deps/` | Bundled dependencies (zlib, yyjson headers + libs) |
 | `bin/sn.cfg` | Compiler configuration file |
 
 ## CMake Options
@@ -226,11 +234,13 @@ python3 scripts/run_tests.py sdk
 Or use Make targets:
 
 ```bash
-make test              # All tests
-make test-unit         # Unit tests only
-make test-integration  # Integration tests
-make test-explore      # Exploratory tests
-make test-sdk          # SDK tests
+make test                    # All tests
+make test-unit               # Unit tests only
+make test-integration        # Integration tests
+make test-integration-errors # Integration error tests
+make test-explore            # Exploratory tests
+make test-explore-errors     # Exploratory error tests
+make test-sdk                # SDK tests
 ```
 
 **Test runner options:**
@@ -392,4 +402,25 @@ winget install Ninja-build.Ninja
 
 ## CI/CD Reference
 
-The project uses GitHub Actions for continuous integration. See `.github/workflows/ci.yml` for the authoritative build configuration covering Linux, macOS, and Windows.
+The project uses GitHub Actions for continuous integration. CI uses the same `make` targets as local development:
+
+```bash
+make setup                   # Install vcpkg deps (zlib, yyjson) + build tools
+make build                   # Configure and build via cmake
+make test-unit               # Run unit tests
+make test-integration        # Run integration tests
+make test-integration-errors # Run integration error tests
+make test-explore            # Run exploratory tests
+make test-explore-errors     # Run exploratory error tests
+make test-sdk                # Run SDK tests
+```
+
+Platform-specific differences are handled via environment variables:
+
+| Platform | `SN_CC` | `SN_CFLAGS` | Notes |
+|----------|---------|-------------|-------|
+| Linux    | `gcc`   | (none)      | |
+| macOS    | `clang` | (none)      | Excludes `test_thread_panic_propagate` |
+| Windows  | `clang` | `--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none` | Requires LLVM-MinGW |
+
+See `.github/workflows/ci.yml` for the full configuration.
