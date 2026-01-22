@@ -385,9 +385,6 @@ static const char *static_type_names[] = {
     "Path",
     "Directory",
     "Bytes",
-    "Stdin",
-    "Stdout",
-    "Stderr",
     "Interceptor",
     NULL
 };

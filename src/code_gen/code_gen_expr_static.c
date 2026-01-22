@@ -25,69 +25,6 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
     char *arg0 = call->arg_count > 0 ? code_gen_expression(gen, call->arguments[0]) : NULL;
     char *arg1 = call->arg_count > 1 ? code_gen_expression(gen, call->arguments[1]) : NULL;
 
-    /* Stdin static methods */
-    if (codegen_token_equals(type_name, "Stdin"))
-    {
-        if (codegen_token_equals(method_name, "readLine"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_read_line(%s)", ARENA_VAR(gen));
-        }
-        else if (codegen_token_equals(method_name, "readChar"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_read_char()");
-        }
-        else if (codegen_token_equals(method_name, "readWord"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_read_word(%s)", ARENA_VAR(gen));
-        }
-        else if (codegen_token_equals(method_name, "hasChars"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_has_chars()");
-        }
-        else if (codegen_token_equals(method_name, "hasLines"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_has_lines()");
-        }
-        else if (codegen_token_equals(method_name, "isEof"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdin_is_eof()");
-        }
-    }
-
-    /* Stdout static methods */
-    if (codegen_token_equals(type_name, "Stdout"))
-    {
-        if (codegen_token_equals(method_name, "write"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdout_write(%s)", arg0);
-        }
-        else if (codegen_token_equals(method_name, "writeLine"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdout_write_line(%s)", arg0);
-        }
-        else if (codegen_token_equals(method_name, "flush"))
-        {
-            return arena_sprintf(gen->arena, "rt_stdout_flush()");
-        }
-    }
-
-    /* Stderr static methods */
-    if (codegen_token_equals(type_name, "Stderr"))
-    {
-        if (codegen_token_equals(method_name, "write"))
-        {
-            return arena_sprintf(gen->arena, "rt_stderr_write(%s)", arg0);
-        }
-        else if (codegen_token_equals(method_name, "writeLine"))
-        {
-            return arena_sprintf(gen->arena, "rt_stderr_write_line(%s)", arg0);
-        }
-        else if (codegen_token_equals(method_name, "flush"))
-        {
-            return arena_sprintf(gen->arena, "rt_stderr_flush()");
-        }
-    }
-
     /* Interceptor static methods */
     if (codegen_token_equals(type_name, "Interceptor"))
     {

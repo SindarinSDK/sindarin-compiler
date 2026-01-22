@@ -348,21 +348,7 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "/* Runtime range creation */\n");
     indented_fprintf(gen, 0, "extern long long *rt_array_range(RtArena *, long long, long long);\n\n");
 
-    indented_fprintf(gen, 0, "/* Standard streams (Stdin, Stdout, Stderr) */\n");
-    indented_fprintf(gen, 0, "extern char *rt_stdin_read_line(RtArena *);\n");
-    indented_fprintf(gen, 0, "extern long rt_stdin_read_char(void);\n");
-    indented_fprintf(gen, 0, "extern char *rt_stdin_read_word(RtArena *);\n");
-    indented_fprintf(gen, 0, "extern int rt_stdin_has_chars(void);\n");
-    indented_fprintf(gen, 0, "extern int rt_stdin_has_lines(void);\n");
-    indented_fprintf(gen, 0, "extern int rt_stdin_is_eof(void);\n");
-    indented_fprintf(gen, 0, "extern void rt_stdout_write(const char *);\n");
-    indented_fprintf(gen, 0, "extern void rt_stdout_write_line(const char *);\n");
-    indented_fprintf(gen, 0, "extern void rt_stdout_flush(void);\n");
-    indented_fprintf(gen, 0, "extern void rt_stderr_write(const char *);\n");
-    indented_fprintf(gen, 0, "extern void rt_stderr_write_line(const char *);\n");
-    indented_fprintf(gen, 0, "extern void rt_stderr_flush(void);\n\n");
-
-    indented_fprintf(gen, 0, "/* Global convenience functions */\n");
+    indented_fprintf(gen, 0, "/* Global convenience functions (readLine, println, printErr, printErrLn) */\n");
     indented_fprintf(gen, 0, "extern char *rt_read_line(RtArena *);\n");
     indented_fprintf(gen, 0, "extern void rt_println(const char *);\n");
     indented_fprintf(gen, 0, "extern void rt_print_err(const char *);\n");
