@@ -1164,65 +1164,109 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         }
     }
 
-    /* Build deps include directory path (for zlib headers) */
-    /* Build deps include/lib directory paths (for zlib) */
-    /* Deps are at lib_dir/../deps/ (e.g., lib/sindarin/deps/) */
+    /* Build deps include/lib directory paths (for zlib, yyjson)
+     * Search order:
+     *   1. bin/deps/ - bundled dependencies (copied during make build)
+     *   2. lib_dir/../deps/ - installed package dependencies
+     *   3. VCPKG_ROOT environment variable
+     *   4. vcpkg/ in project root (development mode)
+     */
     deps_include_dir[0] = '\0';
     deps_lib_dir[0] = '\0';
-    snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", lib_dir);
+
+    /* 1. Check bin/deps/ directory (compiler_dir is bin/) */
+    snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", compiler_dir);
     if (dir_exists(deps_include_dir))
     {
-        /* Found packaged deps */
-        snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", lib_dir);
+        snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", compiler_dir);
     }
     else
     {
-        /* Packaged deps not found, clear the path */
         deps_include_dir[0] = '\0';
-        /* Try VCPKG_ROOT environment variable first */
+    }
+
+    /* 2. Check lib_dir/../deps/ (installed package) */
+    if (deps_include_dir[0] == '\0')
+    {
+        snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", lib_dir);
+        if (dir_exists(deps_include_dir))
+        {
+            snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", lib_dir);
+        }
+        else
+        {
+            deps_include_dir[0] = '\0';
+        }
+    }
+
+    /* 3. Check VCPKG_ROOT environment variable */
+    if (deps_include_dir[0] == '\0')
+    {
         const char *vcpkg_root = getenv("VCPKG_ROOT");
         if (vcpkg_root != NULL && vcpkg_root[0] != '\0')
         {
-            /* Try MinGW triplet first (for clang/gcc), then MSVC triplet */
-            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-mingw-dynamic" SN_PATH_SEP_STR "include", vcpkg_root);
-            if (dir_exists(deps_include_dir))
+            /* Platform-specific vcpkg triplets */
+#ifdef _WIN32
+            const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+#elif defined(__APPLE__)
+            const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
+#else
+            const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+#endif
+            for (int i = 0; triplets[i] != NULL; i++)
             {
-                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-mingw-dynamic" SN_PATH_SEP_STR "lib", vcpkg_root);
-            }
-            else
-            {
-                snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-windows" SN_PATH_SEP_STR "include", vcpkg_root);
+                snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", vcpkg_root, triplets[i]);
                 if (dir_exists(deps_include_dir))
                 {
-                    snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-windows" SN_PATH_SEP_STR "lib", vcpkg_root);
+                    snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", vcpkg_root, triplets[i]);
+                    break;
                 }
-                else
-                {
-                    deps_include_dir[0] = '\0';
-                }
+                deps_include_dir[0] = '\0';
             }
         }
+    }
 
-        /* Try vcpkg path for local development (compiler_dir is bin/, vcpkg is at project root) */
-        if (deps_include_dir[0] == '\0')
+    /* 4. Check vcpkg_installed/ in project root (manifest mode, compiler_dir is bin/) */
+    if (deps_include_dir[0] == '\0')
+    {
+#ifdef _WIN32
+        const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+#elif defined(__APPLE__)
+        const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
+#else
+        const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+#endif
+        for (int i = 0; triplets[i] != NULL; i++)
         {
-            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-mingw-dynamic" SN_PATH_SEP_STR "include", compiler_dir);
+            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg_installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", compiler_dir, triplets[i]);
             if (dir_exists(deps_include_dir))
             {
-                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-mingw-dynamic" SN_PATH_SEP_STR "lib", compiler_dir);
+                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg_installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", compiler_dir, triplets[i]);
+                break;
             }
-            else
+            deps_include_dir[0] = '\0';
+        }
+    }
+
+    /* 5. Check vcpkg/ in project root (classic mode, compiler_dir is bin/) */
+    if (deps_include_dir[0] == '\0')
+    {
+#ifdef _WIN32
+        const char *triplets[] = {"x64-mingw-dynamic", "x64-windows", NULL};
+#elif defined(__APPLE__)
+        const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
+#else
+        const char *triplets[] = {"x64-linux-dynamic", "x64-linux", NULL};
+#endif
+        for (int i = 0; triplets[i] != NULL; i++)
+        {
+            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", compiler_dir, triplets[i]);
+            if (dir_exists(deps_include_dir))
             {
-                snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-windows" SN_PATH_SEP_STR "include", compiler_dir);
-                if (dir_exists(deps_include_dir))
-                {
-                    snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "x64-windows" SN_PATH_SEP_STR "lib", compiler_dir);
-                }
-                else
-                {
-                    deps_include_dir[0] = '\0';  /* Not found */
-                }
+                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", compiler_dir, triplets[i]);
+                break;
             }
+            deps_include_dir[0] = '\0';
         }
     }
 
@@ -1379,13 +1423,20 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
 
     /* Build deps include/lib options (empty if deps not found) */
     char deps_include_opt[PATH_MAX + 8];
-    char deps_lib_opt[PATH_MAX + 8];
+    char deps_lib_opt[PATH_MAX * 2 + 32];
     if (deps_include_dir[0])
         snprintf(deps_include_opt, sizeof(deps_include_opt), "-I\"%s\"", deps_include_dir);
     else
         deps_include_opt[0] = '\0';
     if (deps_lib_dir[0])
-        snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\"", deps_lib_dir);
+    {
+        /* Add both -L (link-time) and -rpath (run-time) so executables can find shared libs */
+#ifdef __APPLE__
+        snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\" -Wl,-rpath,\"%s\"", deps_lib_dir, deps_lib_dir);
+#else
+        snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\" -Wl,-rpath,\"%s\"", deps_lib_dir, deps_lib_dir);
+#endif
+    }
     else
         deps_lib_opt[0] = '\0';
 

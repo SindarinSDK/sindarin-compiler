@@ -3,6 +3,7 @@ bin/
 log/
 logs/
 install/
+vcpkg_installed/
 
 # Object files
 *.o

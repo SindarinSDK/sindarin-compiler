@@ -174,16 +174,42 @@ class TestRunner:
         if 'ASAN_OPTIONS' not in self.env:
             self.env['ASAN_OPTIONS'] = 'detect_leaks=0'
 
-        # On Windows, add vcpkg DLL directories to PATH for runtime linking
+        # Add library paths for runtime linking
         if is_windows():
+            # Windows: add vcpkg DLL directories to PATH
             vcpkg_bins = [
                 os.path.join('vcpkg', 'installed', 'x64-windows', 'bin'),
                 os.path.join('vcpkg', 'installed', 'x64-mingw-dynamic', 'bin'),
+                os.path.join('bin', 'deps', 'lib'),
             ]
             for vcpkg_bin in vcpkg_bins:
                 if os.path.isdir(vcpkg_bin):
                     abs_bin = os.path.abspath(vcpkg_bin)
                     self.env['PATH'] = abs_bin + os.pathsep + self.env.get('PATH', '')
+        else:
+            # Linux/macOS: add library directories to LD_LIBRARY_PATH/DYLD_LIBRARY_PATH
+            lib_paths = [
+                os.path.join('bin', 'deps', 'lib'),
+                os.path.join('vcpkg_installed', 'x64-linux-dynamic', 'lib'),
+                os.path.join('vcpkg_installed', 'arm64-osx', 'lib'),
+                os.path.join('vcpkg_installed', 'x64-osx', 'lib'),
+                os.path.join('vcpkg', 'installed', 'x64-linux-dynamic', 'lib'),
+                os.path.join('vcpkg', 'installed', 'arm64-osx', 'lib'),
+                os.path.join('vcpkg', 'installed', 'x64-osx', 'lib'),
+            ]
+            existing_paths = []
+            for lib_path in lib_paths:
+                if os.path.isdir(lib_path):
+                    existing_paths.append(os.path.abspath(lib_path))
+
+            if existing_paths:
+                ld_path_var = 'DYLD_LIBRARY_PATH' if sys.platform == 'darwin' else 'LD_LIBRARY_PATH'
+                current_path = self.env.get(ld_path_var, '')
+                new_paths = os.pathsep.join(existing_paths)
+                if current_path:
+                    self.env[ld_path_var] = new_paths + os.pathsep + current_path
+                else:
+                    self.env[ld_path_var] = new_paths
 
     def __enter__(self):
         self.temp_dir = tempfile.mkdtemp(prefix='sn_test_')

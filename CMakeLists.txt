@@ -438,99 +438,142 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
 )
 
 #------------------------------------------------------------------------------
-# Bundled Dependencies (zlib, yyjson)
+# VCPKG Dependencies Detection (zlib, yyjson)
 #------------------------------------------------------------------------------
-# Options to bundle libraries with the package (for self-contained distribution)
+# Automatically detect vcpkg installed packages and copy them to bin/deps/
+# This makes the dependencies available for the compiler at runtime.
+
+# Determine vcpkg triplet based on platform
+if(WIN32)
+    set(VCPKG_TRIPLET "x64-mingw-dynamic")
+elseif(APPLE)
+    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
+        set(VCPKG_TRIPLET "arm64-osx")
+    else()
+        set(VCPKG_TRIPLET "x64-osx")
+    endif()
+else()
+    set(VCPKG_TRIPLET "x64-linux-dynamic")
+endif()
+
+# Find vcpkg installation directory
+# In manifest mode, packages are installed to vcpkg_installed/ in project root
+# In classic mode, packages are in vcpkg/installed/
+set(VCPKG_INSTALLED_DIR "")
+
+# First check manifest mode (vcpkg_installed in project root)
+if(EXISTS "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
+    set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
+endif()
+
+# Then check VCPKG_ROOT environment variable
+if("${VCPKG_INSTALLED_DIR}" STREQUAL "" AND DEFINED ENV{VCPKG_ROOT})
+    set(VCPKG_INSTALLED_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_TRIPLET}")
+endif()
+
+# Finally check classic mode (vcpkg/installed in project root)
+if("${VCPKG_INSTALLED_DIR}" STREQUAL "" OR NOT EXISTS "${VCPKG_INSTALLED_DIR}")
+    set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/${VCPKG_TRIPLET}")
+endif()
+
+# Create bin/deps directory structure
+set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
+file(MAKE_DIRECTORY ${SN_DEPS_DIR})
+file(MAKE_DIRECTORY ${SN_DEPS_DIR}/include)
+file(MAKE_DIRECTORY ${SN_DEPS_DIR}/lib)
+
+# Copy vcpkg dependencies if found
+if(EXISTS "${VCPKG_INSTALLED_DIR}")
+    message(STATUS "Found vcpkg installation: ${VCPKG_INSTALLED_DIR}")
+
+    # Copy headers
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/zlib.h")
+        message(STATUS "  Copying zlib headers...")
+        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/zlib.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/zconf.h" DESTINATION ${SN_DEPS_DIR}/include)
+    endif()
+
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/yyjson.h")
+        message(STATUS "  Copying yyjson headers...")
+        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
+    endif()
+
+    # Copy libraries based on platform
+    if(WIN32)
+        # Windows (MinGW): Copy .a static libraries and .dll if present
+        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz*.a" "${VCPKG_INSTALLED_DIR}/lib/zlib*.a")
+        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson*.a" "${VCPKG_INSTALLED_DIR}/lib/yyjson*.a")
+        file(GLOB ZLIB_DLLS "${VCPKG_INSTALLED_DIR}/bin/libz*.dll" "${VCPKG_INSTALLED_DIR}/bin/zlib*.dll")
+        file(GLOB YYJSON_DLLS "${VCPKG_INSTALLED_DIR}/bin/libyyjson*.dll" "${VCPKG_INSTALLED_DIR}/bin/yyjson*.dll")
+
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS})
+            message(STATUS "  Copying library: ${LIB}")
+            file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
+        endforeach()
+        foreach(DLL ${ZLIB_DLLS} ${YYJSON_DLLS})
+            message(STATUS "  Copying DLL: ${DLL}")
+            file(INSTALL ${DLL} DESTINATION ${SN_DEPS_DIR}/lib)
+        endforeach()
+    elseif(APPLE)
+        # macOS: Copy static or dynamic libraries
+        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.*")
+        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.*")
+
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS})
+            message(STATUS "  Copying library: ${LIB}")
+            file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
+        endforeach()
+    else()
+        # Linux: Copy shared libraries (.so files)
+        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.so*")
+        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.so*")
+
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS})
+            message(STATUS "  Copying library: ${LIB}")
+            file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
+        endforeach()
+    endif()
+
+    message(STATUS "  Dependencies copied to: ${SN_DEPS_DIR}")
+else()
+    message(STATUS "vcpkg not found at: ${VCPKG_INSTALLED_DIR}")
+    message(STATUS "Run 'make setup' to install dependencies via vcpkg")
+endif()
+
+# Legacy options for manual bundling (kept for backwards compatibility)
 option(SN_BUNDLE_ZLIB "Bundle zlib with the package" OFF)
 option(SN_BUNDLE_YYJSON "Bundle yyjson with the package" OFF)
 
-# Create deps directory if any bundling is enabled
-if(SN_BUNDLE_ZLIB OR SN_BUNDLE_YYJSON)
-    set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
-    file(MAKE_DIRECTORY ${SN_DEPS_DIR})
-    file(MAKE_DIRECTORY ${SN_DEPS_DIR}/include)
-    file(MAKE_DIRECTORY ${SN_DEPS_DIR}/lib)
-endif()
-
 if(SN_BUNDLE_ZLIB)
-    # Look for zlib in common locations
+    # Look for zlib via find_package if not from vcpkg
     find_package(ZLIB QUIET)
-
-    if(ZLIB_FOUND)
-        message(STATUS "Found zlib: ${ZLIB_LIBRARIES}")
-
-        # Copy zlib headers
+    if(ZLIB_FOUND AND NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/zlib.h")
+        message(STATUS "Found system zlib: ${ZLIB_LIBRARIES}")
         if(ZLIB_INCLUDE_DIRS)
             file(GLOB ZLIB_HEADERS "${ZLIB_INCLUDE_DIRS}/zlib.h" "${ZLIB_INCLUDE_DIRS}/zconf.h")
             foreach(HEADER ${ZLIB_HEADERS})
                 file(INSTALL ${HEADER} DESTINATION ${SN_DEPS_DIR}/include)
             endforeach()
         endif()
-
-        # Copy zlib library (platform-specific)
-        if(WIN32)
-            # Windows: look for zlib1.dll
-            get_filename_component(ZLIB_LIB_DIR ${ZLIB_LIBRARIES} DIRECTORY)
-            file(GLOB ZLIB_DLLS "${ZLIB_LIB_DIR}/../bin/zlib*.dll" "${ZLIB_LIB_DIR}/zlib*.dll")
-            foreach(DLL ${ZLIB_DLLS})
-                file(INSTALL ${DLL} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-            # Also copy import library
-            file(GLOB ZLIB_LIBS "${ZLIB_LIB_DIR}/zlib*.lib" "${ZLIB_LIB_DIR}/libz*.a")
-            foreach(LIB ${ZLIB_LIBS})
-                file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-        elseif(APPLE)
-            # macOS: zlib is pre-installed, just note the path
-            message(STATUS "macOS: Using system zlib (pre-installed)")
-        else()
-            # Linux: copy shared library
-            get_filename_component(ZLIB_LIB_NAME ${ZLIB_LIBRARIES} NAME)
+        if(NOT WIN32 AND NOT APPLE)
             file(INSTALL ${ZLIB_LIBRARIES} DESTINATION ${SN_DEPS_DIR}/lib)
-            # Copy symlinks too
             get_filename_component(ZLIB_LIB_DIR ${ZLIB_LIBRARIES} DIRECTORY)
             file(GLOB ZLIB_SYMLINKS "${ZLIB_LIB_DIR}/libz.so*")
             foreach(LINK ${ZLIB_SYMLINKS})
                 file(INSTALL ${LINK} DESTINATION ${SN_DEPS_DIR}/lib)
             endforeach()
         endif()
-    else()
-        message(STATUS "zlib not found - skipping bundling (SDK compression features may require manual zlib installation)")
     endif()
 endif()
 
 if(SN_BUNDLE_YYJSON)
-    # Look for yyjson via pkg-config or find_library
+    # Look for yyjson via find_library if not from vcpkg
     find_library(YYJSON_LIBRARY NAMES yyjson)
     find_path(YYJSON_INCLUDE_DIR NAMES yyjson.h)
-
-    if(YYJSON_LIBRARY AND YYJSON_INCLUDE_DIR)
-        message(STATUS "Found yyjson: ${YYJSON_LIBRARY}")
-
-        # Copy yyjson header
+    if(YYJSON_LIBRARY AND YYJSON_INCLUDE_DIR AND NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/yyjson.h")
+        message(STATUS "Found system yyjson: ${YYJSON_LIBRARY}")
         file(INSTALL "${YYJSON_INCLUDE_DIR}/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
-
-        # Copy yyjson library (platform-specific)
-        if(WIN32)
-            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
-            file(GLOB YYJSON_DLLS "${YYJSON_LIB_DIR}/../bin/yyjson*.dll" "${YYJSON_LIB_DIR}/yyjson*.dll")
-            foreach(DLL ${YYJSON_DLLS})
-                file(INSTALL ${DLL} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-            file(GLOB YYJSON_LIBS "${YYJSON_LIB_DIR}/yyjson*.lib" "${YYJSON_LIB_DIR}/libyyjson*.a")
-            foreach(LIB ${YYJSON_LIBS})
-                file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-        elseif(APPLE)
-            # macOS: copy dylib
-            file(INSTALL ${YYJSON_LIBRARY} DESTINATION ${SN_DEPS_DIR}/lib)
-            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
-            file(GLOB YYJSON_DYLIBS "${YYJSON_LIB_DIR}/libyyjson*.dylib")
-            foreach(DYLIB ${YYJSON_DYLIBS})
-                file(INSTALL ${DYLIB} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-        else()
-            # Linux: copy shared library
+        if(NOT WIN32 AND NOT APPLE)
             file(INSTALL ${YYJSON_LIBRARY} DESTINATION ${SN_DEPS_DIR}/lib)
             get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
             file(GLOB YYJSON_SYMLINKS "${YYJSON_LIB_DIR}/libyyjson.so*")
@@ -538,14 +581,15 @@ if(SN_BUNDLE_YYJSON)
                 file(INSTALL ${LINK} DESTINATION ${SN_DEPS_DIR}/lib)
             endforeach()
         endif()
-    else()
-        message(STATUS "yyjson not found - skipping bundling (SDK JSON features may require manual yyjson installation)")
     endif()
 endif()
 
-# Install bundled deps if directory exists and has content
-if(SN_BUNDLE_ZLIB OR SN_BUNDLE_YYJSON)
-    if(EXISTS ${SN_DEPS_DIR})
+# Install bundled deps for packaging
+if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
+    # Check if there are any files to install
+    file(GLOB DEPS_HEADERS "${SN_DEPS_DIR}/include/*")
+    file(GLOB DEPS_LIBS "${SN_DEPS_DIR}/lib/*")
+    if(DEPS_HEADERS OR DEPS_LIBS)
         install(DIRECTORY ${SN_DEPS_DIR}/
             DESTINATION ${CMAKE_INSTALL_LIBDIR}/sindarin/deps
             COMPONENT deps
@@ -608,13 +652,13 @@ else()
     # DEB settings
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Sindarin Maintainers")
     set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17), gcc, libc6-dev, zlib1g-dev, libyyjson-dev")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17), gcc, libc6-dev")
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
     # RPM settings (only used if rpmbuild is available)
     set(CPACK_RPM_PACKAGE_LICENSE "MIT")
     set(CPACK_RPM_PACKAGE_GROUP "Development/Languages")
-    set(CPACK_RPM_PACKAGE_REQUIRES "gcc, glibc-devel, zlib-devel, yyjson-devel")
+    set(CPACK_RPM_PACKAGE_REQUIRES "gcc, glibc-devel")
     set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
 endif()
 

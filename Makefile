@@ -14,7 +14,7 @@
 .PHONY: test-unit test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors test-sdk
 .PHONY: configure install package
-.PHONY: setup-deps
+.PHONY: setup
 
 #------------------------------------------------------------------------------
 # Platform Detection
@@ -182,9 +182,9 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# setup-deps - Install build dependencies
+# setup - Install build dependencies (vcpkg: zlib, yyjson)
 #------------------------------------------------------------------------------
-setup-deps:
+setup:
 	@echo "Setting up build dependencies..."
 	@$(PYTHON) scripts/setup_deps.py
 
@@ -219,7 +219,7 @@ help:
 	@echo "  make package      Create distributable packages"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make setup-deps   Install build dependencies"
+	@echo "  make setup        Install build dependencies (vcpkg: zlib, yyjson)"
 	@echo ""
 	@echo "CMake Presets (Advanced):"
 	@echo "  cmake --preset linux-gcc-release    Linux with GCC"
