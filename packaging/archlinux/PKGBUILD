@@ -16,23 +16,13 @@ sha256sums=('${SHA256}')
 package() {
     cd "$srcdir/sindarin-${TAG}-linux-x64"
 
-    # Install binary
-    install -Dm755 bin/sn "$pkgdir/usr/bin/sn"
-
-    # Install config
-    install -Dm644 etc/sindarin/sn.cfg "$pkgdir/etc/sindarin/sn.cfg"
-
-    # Install runtime libraries
+    # Install SDK root (contains binary, config, libs, headers, sdk modules)
     install -dm755 "$pkgdir/usr/lib/sindarin"
     cp -r lib/sindarin/* "$pkgdir/usr/lib/sindarin/"
 
-    # Install headers
-    install -dm755 "$pkgdir/usr/include/sindarin"
-    cp -r include/sindarin/* "$pkgdir/usr/include/sindarin/"
-
-    # Install SDK standard library
-    install -dm755 "$pkgdir/usr/share/sindarin/sdk"
-    cp -r share/sindarin/sdk/* "$pkgdir/usr/share/sindarin/sdk/"
+    # Symlink binary into PATH
+    install -dm755 "$pkgdir/usr/bin"
+    ln -s ../lib/sindarin/sn "$pkgdir/usr/bin/sn"
 
     # Install license
     install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE" 2>/dev/null || true

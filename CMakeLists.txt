@@ -189,16 +189,6 @@ target_include_directories(sn PRIVATE
     ${CMAKE_SOURCE_DIR}/src/platform
 )
 
-# Add compile-time path defines for installed packages
-# These are used as fallback paths when the compiler can't find files relative to exe
-if(CMAKE_INSTALL_PREFIX)
-    target_compile_definitions(sn PRIVATE
-        SN_DEFAULT_CONFIG_FILE="${CMAKE_INSTALL_FULL_SYSCONFDIR}/sindarin/sn.cfg"
-        SN_DEFAULT_LIB_DIR="${CMAKE_INSTALL_FULL_LIBDIR}/sindarin"
-        SN_DEFAULT_INCLUDE_DIR="${CMAKE_INSTALL_FULL_INCLUDEDIR}/sindarin"
-        SN_DEFAULT_SDK_DIR="${CMAKE_INSTALL_FULL_DATADIR}/sindarin/sdk"
-    )
-endif()
 
 # Platform-specific libraries
 if(WIN32)
@@ -401,36 +391,50 @@ add_custom_target(run-integration-tests
 #------------------------------------------------------------------------------
 # Installation Rules
 #------------------------------------------------------------------------------
+# All Sindarin resources are installed to a single SDK root directory:
+#   <prefix>/lib/sindarin/
+# The compiler binary is installed there too, with a symlink from bin/.
+# This allows the compiler to find all resources relative to its own real path.
 include(GNUInstallDirs)
 
-# Install compiler
+set(SN_SDK_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/sindarin)
+
+# Install compiler binary into SDK root
 install(TARGETS sn
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    RUNTIME DESTINATION ${SN_SDK_INSTALL_DIR}
     COMPONENT compiler
 )
 
-# Install runtime library
+# Create symlink from bin/sn -> ../lib/sindarin/sn
+install(CODE "
+    set(LINK_SOURCE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/sn\")
+    set(LINK_TARGET \"../${SN_SDK_INSTALL_DIR}/sn\")
+    file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\")
+    execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink \${LINK_TARGET} \${LINK_SOURCE})
+" COMPONENT compiler)
+
+# Install runtime libraries
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/lib/"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/sindarin
+    DESTINATION ${SN_SDK_INSTALL_DIR}/lib
     COMPONENT runtime
     FILES_MATCHING PATTERN "*.a"
 )
 
 # Install headers
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/include/"
-    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/sindarin
+    DESTINATION ${SN_SDK_INSTALL_DIR}/include
     COMPONENT headers
 )
 
 # Install config file
 install(FILES "${CMAKE_SOURCE_DIR}/etc/sn.cfg"
-    DESTINATION ${CMAKE_INSTALL_SYSCONFDIR}/sindarin
+    DESTINATION ${SN_SDK_INSTALL_DIR}
     COMPONENT configs
 )
 
 # Install SDK files
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/sindarin/sdk
+    DESTINATION ${SN_SDK_INSTALL_DIR}/sdk
     COMPONENT sdk
     FILES_MATCHING
     PATTERN "*.sn"
@@ -599,7 +603,7 @@ if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
     file(GLOB DEPS_LIBS "${SN_DEPS_DIR}/lib/*")
     if(DEPS_HEADERS OR DEPS_LIBS)
         install(DIRECTORY ${SN_DEPS_DIR}/
-            DESTINATION ${CMAKE_INSTALL_LIBDIR}/sindarin/deps
+            DESTINATION ${SN_SDK_INSTALL_DIR}/deps
             COMPONENT deps
         )
         set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk deps)

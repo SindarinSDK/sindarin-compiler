@@ -56,14 +56,8 @@ static void normalize_path_separators(char *path)
 /* Static buffer for compiler directory path */
 static char compiler_dir_buf[PATH_MAX];
 
-/* Static buffer for resolved config file path */
-static char config_file_buf[PATH_MAX];
-
-/* Static buffer for resolved lib directory path */
-static char lib_dir_buf[PATH_MAX];
-
-/* Static buffer for resolved SDK directory path */
-static char sdk_dir_buf[PATH_MAX];
+/* Static buffer for resolved SDK root path */
+static char sdk_root_buf[PATH_MAX];
 
 /* Static buffer for resolved SDK file path */
 static char sdk_file_buf[PATH_MAX];
@@ -353,301 +347,46 @@ static BackendType detect_backend_from_exe(void)
 #endif
 }
 
-/* Find config file by searching multiple locations.
- * Search order:
- *   1. $SINDARIN_CONFIG environment variable (if set)
- *   2. <exe_dir>/sn.cfg (portable/development mode)
- *   3. Platform-specific system paths
- *   4. Compile-time default (if defined)
+/* Get the SDK root directory.
+ * This is the single location where all Sindarin resources live:
+ *   $SN_SDK/sn.cfg           - Configuration file
+ *   $SN_SDK/lib/<backend>/   - Runtime libraries
+ *   $SN_SDK/include/         - Runtime headers
+ *   $SN_SDK/sdk/             - SDK standard library modules
+ *   $SN_SDK/deps/            - Bundled dependencies (zlib, yyjson)
  *
- * Returns path to config file or NULL if not found.
- */
-static const char *find_config_file(const char *compiler_dir)
-{
-    /* 1. Check SINDARIN_CONFIG environment variable */
-    const char *env_config = getenv("SINDARIN_CONFIG");
-    if (env_config && env_config[0] && file_exists(env_config))
-    {
-        return env_config;
-    }
-
-    /* 2. Check next to executable (portable/dev mode) */
-    snprintf(config_file_buf, sizeof(config_file_buf), "%s" SN_PATH_SEP_STR "sn.cfg", compiler_dir);
-    if (file_exists(config_file_buf))
-    {
-        return config_file_buf;
-    }
-
-    /* 2b. Check FHS-relative: <exe_dir>/../etc/sindarin/sn.cfg */
-    snprintf(config_file_buf, sizeof(config_file_buf), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "etc" SN_PATH_SEP_STR "sindarin" SN_PATH_SEP_STR "sn.cfg", compiler_dir);
-    if (file_exists(config_file_buf))
-    {
-        return config_file_buf;
-    }
-
-#ifdef _WIN32
-    /* 3a. Windows: %LOCALAPPDATA%\Sindarin\sn.cfg */
-    const char *localappdata = getenv("LOCALAPPDATA");
-    if (localappdata && localappdata[0])
-    {
-        snprintf(config_file_buf, sizeof(config_file_buf), "%s\\Sindarin\\sn.cfg", localappdata);
-        if (file_exists(config_file_buf))
-        {
-            return config_file_buf;
-        }
-    }
-
-    /* 3b. Windows: %ProgramFiles%\Sindarin\sn.cfg */
-    const char *programfiles = getenv("ProgramFiles");
-    if (programfiles && programfiles[0])
-    {
-        snprintf(config_file_buf, sizeof(config_file_buf), "%s\\Sindarin\\sn.cfg", programfiles);
-        if (file_exists(config_file_buf))
-        {
-            return config_file_buf;
-        }
-    }
-#else
-    /* 3a. Unix: /etc/sindarin/sn.cfg */
-    if (file_exists("/etc/sindarin/sn.cfg"))
-    {
-        return "/etc/sindarin/sn.cfg";
-    }
-
-    /* 3b. Unix: /usr/local/etc/sindarin/sn.cfg */
-    if (file_exists("/usr/local/etc/sindarin/sn.cfg"))
-    {
-        return "/usr/local/etc/sindarin/sn.cfg";
-    }
-
-#ifdef __APPLE__
-    /* 3c. macOS: /opt/homebrew/etc/sindarin/sn.cfg (Apple Silicon Homebrew) */
-    if (file_exists("/opt/homebrew/etc/sindarin/sn.cfg"))
-    {
-        return "/opt/homebrew/etc/sindarin/sn.cfg";
-    }
-#endif
-#endif
-
-    /* 4. Compile-time default (if defined) */
-#ifdef SN_DEFAULT_CONFIG_FILE
-    if (file_exists(SN_DEFAULT_CONFIG_FILE))
-    {
-        return SN_DEFAULT_CONFIG_FILE;
-    }
-#endif
-
-    return NULL; /* No config file found, use defaults */
-}
-
-/* Find runtime library directory by searching multiple locations.
- * Search order:
- *   1. $SINDARIN_LIB environment variable (if set)
- *   2. <exe_dir>/lib/<backend>/ (portable/development mode)
- *   3. <exe_dir>/../lib/sindarin/<backend>/ (FHS-compliant relative)
- *   4. Platform-specific system paths
- *   5. Compile-time default (if defined)
+ * Resolution order:
+ *   1. $SN_SDK environment variable (if set and directory exists)
+ *   2. Compiler executable's directory (portable/development mode)
  *
- * Returns path to lib directory or NULL if not found.
+ * Returns path to SDK root directory.
+ * The returned path is statically allocated - do not free.
  */
-static const char *find_lib_dir(const char *compiler_dir, BackendType backend)
+static const char *get_sdk_root(const char *compiler_dir)
 {
-    const char *backend_subdir = backend_lib_subdir(backend);
-    /* backend_lib_subdir returns "lib/gcc", "lib/clang", etc. - extract just the backend name */
-    const char *backend_suffix = strrchr(backend_subdir, '/');
-    if (backend_suffix) backend_suffix++; else backend_suffix = backend_subdir;
-
-    /* 1. Check SINDARIN_LIB environment variable */
-    const char *env_lib = getenv("SINDARIN_LIB");
-    if (env_lib && env_lib[0])
-    {
-        snprintf(lib_dir_buf, sizeof(lib_dir_buf), "%s" SN_PATH_SEP_STR "%s", env_lib, backend_suffix);
-        if (dir_exists(lib_dir_buf))
-        {
-            return lib_dir_buf;
-        }
-        /* Also try without backend suffix (user may have set full path) */
-        if (dir_exists(env_lib))
-        {
-            strncpy(lib_dir_buf, env_lib, sizeof(lib_dir_buf) - 1);
-            lib_dir_buf[sizeof(lib_dir_buf) - 1] = '\0';
-            return lib_dir_buf;
-        }
-    }
-
-    /* 2. Check next to executable (portable/dev mode): <exe_dir>/lib/<backend>/ */
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), "%s" SN_PATH_SEP_STR "%s", compiler_dir, backend_subdir);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-
-    /* 3. Check FHS-relative: <exe_dir>/../lib/sindarin/<backend>/ */
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "lib" SN_PATH_SEP_STR "sindarin" SN_PATH_SEP_STR "%s", compiler_dir, backend_suffix);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-
-#ifdef _WIN32
-    /* 4a. Windows: %LOCALAPPDATA%\Sindarin\lib\<backend> */
-    const char *localappdata = getenv("LOCALAPPDATA");
-    if (localappdata && localappdata[0])
-    {
-        snprintf(lib_dir_buf, sizeof(lib_dir_buf), "%s\\Sindarin\\lib\\%s", localappdata, backend_suffix);
-        if (dir_exists(lib_dir_buf))
-        {
-            return lib_dir_buf;
-        }
-    }
-
-    /* 4b. Windows: %ProgramFiles%\Sindarin\lib\<backend> */
-    const char *programfiles = getenv("ProgramFiles");
-    if (programfiles && programfiles[0])
-    {
-        snprintf(lib_dir_buf, sizeof(lib_dir_buf), "%s\\Sindarin\\lib\\%s", programfiles, backend_suffix);
-        if (dir_exists(lib_dir_buf))
-        {
-            return lib_dir_buf;
-        }
-    }
-#else
-    /* 4a. Unix: /usr/lib/sindarin/<backend> */
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), "/usr/lib/sindarin/%s", backend_suffix);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-
-    /* 4b. Unix: /usr/local/lib/sindarin/<backend> */
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), "/usr/local/lib/sindarin/%s", backend_suffix);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-
-#ifdef __APPLE__
-    /* 4c. macOS: /opt/homebrew/lib/sindarin/<backend> (Apple Silicon Homebrew) */
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), "/opt/homebrew/lib/sindarin/%s", backend_suffix);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-#endif
-#endif
-
-    /* 5. Compile-time default (if defined) */
-#ifdef SN_DEFAULT_LIB_DIR
-    snprintf(lib_dir_buf, sizeof(lib_dir_buf), SN_DEFAULT_LIB_DIR "/%s", backend_suffix);
-    if (dir_exists(lib_dir_buf))
-    {
-        return lib_dir_buf;
-    }
-#endif
-
-    return NULL; /* No lib directory found */
-}
-
-/* Find SDK directory by searching multiple locations.
- * Search order:
- *   1. $SINDARIN_SDK environment variable (if set)
- *   2. <exe_dir>/sdk/ (portable/development mode)
- *   3. <exe_dir>/../share/sindarin/sdk/ (FHS-compliant relative)
- *   4. Platform-specific system paths
- *   5. Compile-time default (if defined)
- *
- * Returns path to SDK directory or NULL if not found.
- */
-static const char *find_sdk_dir(const char *compiler_dir)
-{
-    /* 1. Check SINDARIN_SDK environment variable */
-    const char *env_sdk = getenv("SINDARIN_SDK");
+    const char *env_sdk = getenv("SN_SDK");
     if (env_sdk && env_sdk[0] && dir_exists(env_sdk))
     {
-        strncpy(sdk_dir_buf, env_sdk, sizeof(sdk_dir_buf) - 1);
-        sdk_dir_buf[sizeof(sdk_dir_buf) - 1] = '\0';
-        return sdk_dir_buf;
+        strncpy(sdk_root_buf, env_sdk, sizeof(sdk_root_buf) - 1);
+        sdk_root_buf[sizeof(sdk_root_buf) - 1] = '\0';
+        return sdk_root_buf;
     }
 
-    /* 2. Check next to executable (portable/dev mode): <exe_dir>/sdk/ */
-    snprintf(sdk_dir_buf, sizeof(sdk_dir_buf), "%s" SN_PATH_SEP_STR "sdk", compiler_dir);
-    if (dir_exists(sdk_dir_buf))
-    {
-        return sdk_dir_buf;
-    }
-
-    /* 3. Check FHS-relative: <exe_dir>/../share/sindarin/sdk/ */
-    snprintf(sdk_dir_buf, sizeof(sdk_dir_buf), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "share" SN_PATH_SEP_STR "sindarin" SN_PATH_SEP_STR "sdk", compiler_dir);
-    if (dir_exists(sdk_dir_buf))
-    {
-        return sdk_dir_buf;
-    }
-
-#ifdef _WIN32
-    /* 4a. Windows: %LOCALAPPDATA%\Sindarin\sdk */
-    const char *localappdata = getenv("LOCALAPPDATA");
-    if (localappdata && localappdata[0])
-    {
-        snprintf(sdk_dir_buf, sizeof(sdk_dir_buf), "%s\\Sindarin\\sdk", localappdata);
-        if (dir_exists(sdk_dir_buf))
-        {
-            return sdk_dir_buf;
-        }
-    }
-
-    /* 4b. Windows: %ProgramFiles%\Sindarin\sdk */
-    const char *programfiles = getenv("ProgramFiles");
-    if (programfiles && programfiles[0])
-    {
-        snprintf(sdk_dir_buf, sizeof(sdk_dir_buf), "%s\\Sindarin\\sdk", programfiles);
-        if (dir_exists(sdk_dir_buf))
-        {
-            return sdk_dir_buf;
-        }
-    }
-#else
-    /* 4a. Unix: /usr/share/sindarin/sdk */
-    if (dir_exists("/usr/share/sindarin/sdk"))
-    {
-        return "/usr/share/sindarin/sdk";
-    }
-
-    /* 4b. Unix: /usr/local/share/sindarin/sdk */
-    if (dir_exists("/usr/local/share/sindarin/sdk"))
-    {
-        return "/usr/local/share/sindarin/sdk";
-    }
-
-#ifdef __APPLE__
-    /* 4c. macOS: /opt/homebrew/share/sindarin/sdk (Apple Silicon Homebrew) */
-    if (dir_exists("/opt/homebrew/share/sindarin/sdk"))
-    {
-        return "/opt/homebrew/share/sindarin/sdk";
-    }
-#endif
-#endif
-
-    /* 5. Compile-time default (if defined) */
-#ifdef SN_DEFAULT_SDK_DIR
-    if (dir_exists(SN_DEFAULT_SDK_DIR))
-    {
-        return SN_DEFAULT_SDK_DIR;
-    }
-#endif
-
-    return NULL; /* No SDK directory found */
+    /* Fall back to compiler directory (dev/portable mode) */
+    return compiler_dir;
 }
 
-/* Cached SDK directory path (computed once per session) */
-static const char *cached_sdk_dir = NULL;
-static bool sdk_dir_searched = false;
+
+
+/* Cached SDK root path (computed once per session) */
+static const char *cached_sdk_root = NULL;
 
 /* Resolve an SDK import to its full file path.
  * Given a module name (e.g., "math"), returns the full path to the SDK file
- * (e.g., "/usr/share/sindarin/sdk/math.sn") if it exists.
+ * (e.g., "$SN_SDK/sdk/math.sn") if it exists.
  *
  * Parameters:
- *   compiler_dir - Directory containing the compiler executable
+ *   compiler_dir - Directory containing the compiler executable (fallback for SN_SDK)
  *   module_name  - Name of the module to import (without .sn extension)
  *
  * Returns path to SDK file or NULL if not found.
@@ -655,19 +394,13 @@ static bool sdk_dir_searched = false;
  */
 const char *gcc_resolve_sdk_import(const char *compiler_dir, const char *module_name)
 {
-    /* Cache the SDK directory on first call */
-    if (!sdk_dir_searched)
+    /* Cache the SDK root on first call */
+    if (!cached_sdk_root)
     {
-        cached_sdk_dir = find_sdk_dir(compiler_dir);
-        sdk_dir_searched = true;
+        cached_sdk_root = get_sdk_root(compiler_dir);
     }
 
-    if (!cached_sdk_dir)
-    {
-        return NULL; /* No SDK directory found */
-    }
-
-    /* Strip "sdk/" prefix if present - the cached_sdk_dir already points to the SDK directory */
+    /* Strip "sdk/" prefix if present - we add it ourselves */
     const char *stripped_name = module_name;
     if (strncmp(module_name, "sdk/", 4) == 0)
     {
@@ -678,9 +411,9 @@ const char *gcc_resolve_sdk_import(const char *compiler_dir, const char *module_
         stripped_name = module_name + 4;
     }
 
-    /* Construct the full path to the SDK file */
-    snprintf(sdk_file_buf, sizeof(sdk_file_buf), "%s" SN_PATH_SEP_STR "%s.sn",
-             cached_sdk_dir, stripped_name);
+    /* Construct the full path: $SN_SDK/sdk/<module>.sn */
+    snprintf(sdk_file_buf, sizeof(sdk_file_buf), "%s" SN_PATH_SEP_STR "sdk" SN_PATH_SEP_STR "%s.sn",
+             cached_sdk_root, stripped_name);
 
     if (file_exists(sdk_file_buf))
     {
@@ -690,11 +423,10 @@ const char *gcc_resolve_sdk_import(const char *compiler_dir, const char *module_
     return NULL; /* SDK module not found */
 }
 
-/* Reset the SDK directory cache (for testing purposes) */
+/* Reset the SDK root cache (for testing purposes) */
 void gcc_reset_sdk_cache(void)
 {
-    cached_sdk_dir = NULL;
-    sdk_dir_searched = false;
+    cached_sdk_root = NULL;
 }
 
 /* Parse a single line from config file (KEY=VALUE format) */
@@ -782,22 +514,20 @@ static void parse_config_line(const char *line)
     }
 }
 
-/* Load config file from compiler directory if it exists */
+/* Load config file from SDK root directory if it exists */
 void cc_backend_load_config(const char *compiler_dir)
 {
     if (cfg_loaded) return;
     cfg_loaded = true;
 
-    /* Find config file using multi-path search */
-    const char *config_path = find_config_file(compiler_dir);
-    if (!config_path)
-    {
-        return; /* No config file found, use defaults */
-    }
+    /* Config file lives at $SN_SDK/sn.cfg */
+    const char *sdk_root = get_sdk_root(compiler_dir);
+    char config_path[PATH_MAX];
+    snprintf(config_path, sizeof(config_path), "%s" SN_PATH_SEP_STR "sn.cfg", sdk_root);
 
     /* Try to open config file */
     FILE *f = fopen(config_path, "r");
-    if (!f) return; /* Can't open config file, use defaults */
+    if (!f) return; /* No config file found, use defaults */
 
     /* Parse each line */
     char line[2048];
@@ -1161,146 +891,26 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     /* Detect backend type from compiler name */
     BackendType backend = detect_backend(config->cc);
 
-    /* Find runtime library directory using multi-path search */
-    const char *found_lib_dir = find_lib_dir(compiler_dir, backend);
-    if (found_lib_dir)
-    {
-        strncpy(lib_dir, found_lib_dir, sizeof(lib_dir) - 1);
-        lib_dir[sizeof(lib_dir) - 1] = '\0';
-    }
-    else
-    {
-        /* Fallback to original relative path (for error message) */
-        snprintf(lib_dir, sizeof(lib_dir), "%s" SN_PATH_SEP_STR "%s", compiler_dir, backend_lib_subdir(backend));
-    }
+    /* All paths are relative to the SDK root ($SN_SDK or compiler directory) */
+    const char *sdk_root = get_sdk_root(compiler_dir);
 
-    /* Build include directory path - also search multiple locations */
-    snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", compiler_dir);
-    if (!dir_exists(include_dir))
-    {
-        /* Try FHS-relative path */
-        snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "sindarin", compiler_dir);
-        if (!dir_exists(include_dir))
-        {
-#ifdef _WIN32
-            const char *pf = getenv("ProgramFiles");
-            if (pf) snprintf(include_dir, sizeof(include_dir), "%s\\Sindarin\\include", pf);
-#else
-            /* Try system paths */
-            if (dir_exists("/usr/include/sindarin"))
-                strcpy(include_dir, "/usr/include/sindarin");
-            else if (dir_exists("/usr/local/include/sindarin"))
-                strcpy(include_dir, "/usr/local/include/sindarin");
-            else
-                snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", compiler_dir);
-#endif
-        }
-    }
+    /* Build runtime library directory: $SN_SDK/lib/<backend>/ */
+    snprintf(lib_dir, sizeof(lib_dir), "%s" SN_PATH_SEP_STR "%s", sdk_root, backend_lib_subdir(backend));
 
-    /* Build deps include/lib directory paths (for zlib, yyjson)
-     * Search order:
-     *   1. bin/deps/ - bundled dependencies (copied during make build)
-     *   2. lib_dir/../deps/ - installed package dependencies
-     *   3. VCPKG_ROOT environment variable
-     *   4. vcpkg/ in project root (development mode)
-     */
+    /* Build include directory: $SN_SDK/include/ */
+    snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", sdk_root);
+
+    /* Build deps directories: $SN_SDK/deps/include/ and $SN_SDK/deps/lib/ */
     deps_include_dir[0] = '\0';
     deps_lib_dir[0] = '\0';
-
-    /* 1. Check bin/deps/ directory (compiler_dir is bin/) */
-    snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", compiler_dir);
+    snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", sdk_root);
     if (dir_exists(deps_include_dir))
     {
-        snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", compiler_dir);
+        snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", sdk_root);
     }
     else
     {
         deps_include_dir[0] = '\0';
-    }
-
-    /* 2. Check lib_dir/../deps/ (installed package) */
-    if (deps_include_dir[0] == '\0')
-    {
-        snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "include", lib_dir);
-        if (dir_exists(deps_include_dir))
-        {
-            snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "deps" SN_PATH_SEP_STR "lib", lib_dir);
-        }
-        else
-        {
-            deps_include_dir[0] = '\0';
-        }
-    }
-
-    /* 3. Check VCPKG_ROOT environment variable */
-    if (deps_include_dir[0] == '\0')
-    {
-        const char *vcpkg_root = getenv("VCPKG_ROOT");
-        if (vcpkg_root != NULL && vcpkg_root[0] != '\0')
-        {
-            /* Platform-specific vcpkg triplets */
-#ifdef _WIN32
-            const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
-#elif defined(__APPLE__)
-            const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
-#else
-            const char *triplets[] = {"x64-linux", NULL};
-#endif
-            for (int i = 0; triplets[i] != NULL; i++)
-            {
-                snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", vcpkg_root, triplets[i]);
-                if (dir_exists(deps_include_dir))
-                {
-                    snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", vcpkg_root, triplets[i]);
-                    break;
-                }
-                deps_include_dir[0] = '\0';
-            }
-        }
-    }
-
-    /* 4. Check vcpkg_installed/ in project root (manifest mode, compiler_dir is bin/) */
-    if (deps_include_dir[0] == '\0')
-    {
-#ifdef _WIN32
-        const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
-#elif defined(__APPLE__)
-        const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
-#else
-        const char *triplets[] = {"x64-linux", NULL};
-#endif
-        for (int i = 0; triplets[i] != NULL; i++)
-        {
-            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg_installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", compiler_dir, triplets[i]);
-            if (dir_exists(deps_include_dir))
-            {
-                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg_installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", compiler_dir, triplets[i]);
-                break;
-            }
-            deps_include_dir[0] = '\0';
-        }
-    }
-
-    /* 5. Check vcpkg/ in project root (classic mode, compiler_dir is bin/) */
-    if (deps_include_dir[0] == '\0')
-    {
-#ifdef _WIN32
-        const char *triplets[] = {"x64-mingw-static", "x64-windows", NULL};
-#elif defined(__APPLE__)
-        const char *triplets[] = {"arm64-osx", "x64-osx", NULL};
-#else
-        const char *triplets[] = {"x64-linux", NULL};
-#endif
-        for (int i = 0; triplets[i] != NULL; i++)
-        {
-            snprintf(deps_include_dir, sizeof(deps_include_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include", compiler_dir, triplets[i]);
-            if (dir_exists(deps_include_dir))
-            {
-                snprintf(deps_lib_dir, sizeof(deps_lib_dir), "%s" SN_PATH_SEP_STR ".." SN_PATH_SEP_STR "vcpkg" SN_PATH_SEP_STR "installed" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib", compiler_dir, triplets[i]);
-                break;
-            }
-            deps_include_dir[0] = '\0';
-        }
     }
 
     /* Normalize path separators for Windows cmd.exe compatibility */

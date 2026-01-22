@@ -21,10 +21,7 @@ typedef struct {
 
 /* Load backend configuration from config file (if it exists).
  * Must be called BEFORE cc_backend_init_config() to take effect.
- * The config file is determined by executable name:
- *   sn-gcc   -> sn-gcc.cfg
- *   sn-clang -> sn-clang.cfg
- *   sn-tcc   -> sn-tcc.cfg
+ * Config file location: $SN_SDK/sn.cfg (or <exe_dir>/sn.cfg in dev mode)
  * Config file format: KEY=VALUE (one per line), supports:
  *   SN_CC, SN_STD, SN_DEBUG_CFLAGS, SN_RELEASE_CFLAGS, SN_CFLAGS, SN_LDFLAGS, SN_LDLIBS
  */
@@ -69,7 +66,7 @@ bool gcc_validate_pragma_sources(PragmaSourceInfo *source_files, int source_file
  *   config        - Backend configuration (compiler, flags, etc.)
  *   c_file        - Path to the C source file to compile
  *   output_exe    - Path for the output executable (if NULL, derives from c_file)
- *   compiler_dir  - Directory containing runtime objects (arena.o, debug.o, runtime.o)
+ *   compiler_dir  - Compiler executable directory (fallback SDK root when $SN_SDK not set)
  *   verbose       - If true, print the compiler command being executed
  *   debug_mode    - If true, use debug flags; otherwise use release flags
  *   link_libs     - Array of library names to link (e.g., "m", "pthread") or NULL
@@ -86,24 +83,21 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                  PragmaSourceInfo *source_files, int source_file_count);
 
 /* Get the directory containing the compiler executable.
- * This is used to locate the runtime object files.
+ * Used as the default SDK root when $SN_SDK is not set.
  * Returns a statically allocated string (do not free).
  */
 const char *gcc_get_compiler_dir(const char *argv0);
 
 /* Resolve an SDK import to its full file path.
  * Given a module name (e.g., "math"), returns the full path to the SDK file
- * (e.g., "/usr/share/sindarin/sdk/math.sn") if it exists.
+ * (e.g., "$SN_SDK/sdk/math.sn") if it exists.
  *
- * Search order for SDK directory:
- *   1. $SINDARIN_SDK environment variable (if set)
- *   2. <exe_dir>/sdk/ (portable/development mode)
- *   3. <exe_dir>/../share/sindarin/sdk/ (FHS-compliant relative)
- *   4. Platform-specific system paths
- *   5. Compile-time default (if defined)
+ * SDK root resolution:
+ *   1. $SN_SDK environment variable (if set)
+ *   2. Compiler executable's directory (portable/development mode)
  *
  * Parameters:
- *   compiler_dir - Directory containing the compiler executable
+ *   compiler_dir - Directory containing the compiler executable (fallback for SN_SDK)
  *   module_name  - Name of the module to import (without .sn extension)
  *
  * Returns path to SDK file or NULL if not found.
