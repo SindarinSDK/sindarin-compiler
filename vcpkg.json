@@ -19,6 +19,11 @@
     {
         "name": "ngtcp2",
         "features": ["openssl"]
+    },
+    {
+        "name": "libssh2",
+        "default-features": false,
+        "features": ["openssl", "zlib"]
     }
   ],
   "features": {
