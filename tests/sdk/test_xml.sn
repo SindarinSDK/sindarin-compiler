@@ -1,6 +1,7 @@
 // Test SDK XML module
 
 import "../../sdk/xml"
+import "../../sdk/env"
 
 fn test_parse_string(): void =>
     print("test_parse_string: ")
@@ -243,10 +244,12 @@ fn test_file_io(): void =>
     root.addChild(item2)
 
     // Write to file
-    root.writeFile("test_xml_sdk_tmp.xml")
+    var tmpDir: str = Environment.getOr("TEMP", "/tmp")
+    var filePath: str = $"{tmpDir}/test_xml_sdk_tmp.xml"
+    root.writeFile(filePath)
 
     // Read back
-    var loaded: Xml = Xml.parseFile("test_xml_sdk_tmp.xml")
+    var loaded: Xml = Xml.parseFile(filePath)
     assert(loaded.name() == "config", "Root should be 'config'")
     assert(loaded.attr("version") == "2.0", "Version should be '2.0'")
     assert(loaded.childCount() == 2, "Should have 2 children")
