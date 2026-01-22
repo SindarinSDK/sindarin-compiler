@@ -438,20 +438,23 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
 )
 
 #------------------------------------------------------------------------------
-# Bundled Dependencies (zlib)
+# Bundled Dependencies (zlib, yyjson)
 #------------------------------------------------------------------------------
-# Option to bundle zlib with the package (for self-contained distribution)
+# Options to bundle libraries with the package (for self-contained distribution)
 option(SN_BUNDLE_ZLIB "Bundle zlib with the package" OFF)
+option(SN_BUNDLE_YYJSON "Bundle yyjson with the package" OFF)
 
-if(SN_BUNDLE_ZLIB)
-    # Look for zlib in common locations
-    find_package(ZLIB QUIET)
-
-    # Create deps directory for bundled files
+# Create deps directory if any bundling is enabled
+if(SN_BUNDLE_ZLIB OR SN_BUNDLE_YYJSON)
     set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
     file(MAKE_DIRECTORY ${SN_DEPS_DIR})
     file(MAKE_DIRECTORY ${SN_DEPS_DIR}/include)
     file(MAKE_DIRECTORY ${SN_DEPS_DIR}/lib)
+endif()
+
+if(SN_BUNDLE_ZLIB)
+    # Look for zlib in common locations
+    find_package(ZLIB QUIET)
 
     if(ZLIB_FOUND)
         message(STATUS "Found zlib: ${ZLIB_LIBRARIES}")
@@ -494,15 +497,61 @@ if(SN_BUNDLE_ZLIB)
     else()
         message(STATUS "zlib not found - skipping bundling (SDK compression features may require manual zlib installation)")
     endif()
+endif()
 
-    # Install bundled deps
+if(SN_BUNDLE_YYJSON)
+    # Look for yyjson via pkg-config or find_library
+    find_library(YYJSON_LIBRARY NAMES yyjson)
+    find_path(YYJSON_INCLUDE_DIR NAMES yyjson.h)
+
+    if(YYJSON_LIBRARY AND YYJSON_INCLUDE_DIR)
+        message(STATUS "Found yyjson: ${YYJSON_LIBRARY}")
+
+        # Copy yyjson header
+        file(INSTALL "${YYJSON_INCLUDE_DIR}/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
+
+        # Copy yyjson library (platform-specific)
+        if(WIN32)
+            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
+            file(GLOB YYJSON_DLLS "${YYJSON_LIB_DIR}/../bin/yyjson*.dll" "${YYJSON_LIB_DIR}/yyjson*.dll")
+            foreach(DLL ${YYJSON_DLLS})
+                file(INSTALL ${DLL} DESTINATION ${SN_DEPS_DIR}/lib)
+            endforeach()
+            file(GLOB YYJSON_LIBS "${YYJSON_LIB_DIR}/yyjson*.lib" "${YYJSON_LIB_DIR}/libyyjson*.a")
+            foreach(LIB ${YYJSON_LIBS})
+                file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
+            endforeach()
+        elseif(APPLE)
+            # macOS: copy dylib
+            file(INSTALL ${YYJSON_LIBRARY} DESTINATION ${SN_DEPS_DIR}/lib)
+            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
+            file(GLOB YYJSON_DYLIBS "${YYJSON_LIB_DIR}/libyyjson*.dylib")
+            foreach(DYLIB ${YYJSON_DYLIBS})
+                file(INSTALL ${DYLIB} DESTINATION ${SN_DEPS_DIR}/lib)
+            endforeach()
+        else()
+            # Linux: copy shared library
+            file(INSTALL ${YYJSON_LIBRARY} DESTINATION ${SN_DEPS_DIR}/lib)
+            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
+            file(GLOB YYJSON_SYMLINKS "${YYJSON_LIB_DIR}/libyyjson.so*")
+            foreach(LINK ${YYJSON_SYMLINKS})
+                file(INSTALL ${LINK} DESTINATION ${SN_DEPS_DIR}/lib)
+            endforeach()
+        endif()
+    else()
+        message(STATUS "yyjson not found - skipping bundling (SDK JSON features may require manual yyjson installation)")
+    endif()
+endif()
+
+# Install bundled deps if directory exists and has content
+if(SN_BUNDLE_ZLIB OR SN_BUNDLE_YYJSON)
     if(EXISTS ${SN_DEPS_DIR})
         install(DIRECTORY ${SN_DEPS_DIR}/
             DESTINATION ${CMAKE_INSTALL_LIBDIR}/sindarin/deps
             COMPONENT deps
         )
         set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk deps)
-        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib)")
+        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson)")
         set(CPACK_COMPONENT_DEPS_DEPENDS runtime)
     endif()
 endif()
@@ -559,13 +608,13 @@ else()
     # DEB settings
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Sindarin Maintainers")
     set(CPACK_DEBIAN_PACKAGE_SECTION "devel")
-    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17), gcc, libc6-dev, zlib1g-dev")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS "libc6 (>= 2.17), gcc, libc6-dev, zlib1g-dev, libyyjson-dev")
     set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
 
     # RPM settings (only used if rpmbuild is available)
     set(CPACK_RPM_PACKAGE_LICENSE "MIT")
     set(CPACK_RPM_PACKAGE_GROUP "Development/Languages")
-    set(CPACK_RPM_PACKAGE_REQUIRES "gcc, glibc-devel, zlib-devel")
+    set(CPACK_RPM_PACKAGE_REQUIRES "gcc, glibc-devel, zlib-devel, yyjson-devel")
     set(CPACK_RPM_FILE_NAME RPM-DEFAULT)
 endif()
 

@@ -10,6 +10,10 @@
     {
       "name": "zlib",
       "version>=": "1.2.11"
+    },
+    {
+      "name": "yyjson",
+      "version>=": "0.10.0"
     }
   ],
   "builtin-baseline": "25b458671af03578e6a34edd8f0d1ac85e084df4",
