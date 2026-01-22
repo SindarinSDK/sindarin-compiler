@@ -997,7 +997,8 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         bool needs_openssl_deps = false;
         for (int i = 0; i < link_lib_count; i++)
         {
-            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0)
+            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0 ||
+                strcmp(link_libs[i], "ngtcp2") == 0 || strcmp(link_libs[i], "ngtcp2_crypto_ossl") == 0)
             {
                 needs_openssl_deps = true;
                 break;
