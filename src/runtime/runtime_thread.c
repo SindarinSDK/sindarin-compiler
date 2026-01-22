@@ -820,6 +820,12 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
             return rt_array_clone_string(dest, arr);
         }
 
+        case RT_TYPE_STRUCT: {
+            /* Native struct pointers reference native heap memory, not arena memory.
+             * Just dereference to get the pointer value and return it directly. */
+            return *(void **)value;
+        }
+
         default:
             fprintf(stderr, "rt_thread_promote_result: unknown type %d\n", type);
             return NULL;

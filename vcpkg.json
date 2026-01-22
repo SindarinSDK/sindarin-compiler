@@ -21,9 +21,9 @@
         "features": ["openssl"]
     },
     {
-        "name": "libssh2",
+        "name": "libssh",
         "default-features": false,
-        "features": ["openssl", "zlib"]
+        "features": ["server"]
     }
   ],
   "features": {

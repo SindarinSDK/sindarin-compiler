@@ -293,8 +293,10 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 
         init_str = code_gen_expression(gen, stmt->initializer);
         // Wrap string literals in rt_to_string_string to create heap-allocated copies
-        // This is needed because string variables may be freed/reassigned later
-        if (stmt->type->kind == TYPE_STRING && stmt->initializer->type == EXPR_LITERAL)
+        // This is needed because string variables may be freed/reassigned later.
+        // Skip this at global scope since function calls aren't valid C constant initializers.
+        // Global string literals are fine as-is (static storage, never freed).
+        if (stmt->type->kind == TYPE_STRING && stmt->initializer->type == EXPR_LITERAL && !is_global_scope)
         {
             init_str = arena_sprintf(gen->arena, "rt_to_string_string(%s, %s)", ARENA_VAR(gen), init_str);
         }
@@ -927,10 +929,9 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
         }
         else if (kind == TYPE_STRUCT)
         {
-            // Promote struct to caller's arena - need size of the struct
-            // _return_value is a struct value (not pointer), so we take its address,
-            // promote to caller's arena, and dereference the result
-            const char *struct_name = stmt->return_type->as.struct_type.name;
+            // Promote struct to caller's arena - copies the struct/pointer value
+            // so it survives the function's arena destruction.
+            const char *struct_name = get_c_type(gen->arena, stmt->return_type);
             indented_fprintf(gen, 1, "_return_value = *(%s *)rt_arena_promote(__caller_arena__, &_return_value, sizeof(%s));\n", struct_name, struct_name);
         }
         else if (kind == TYPE_FUNCTION)

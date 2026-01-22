@@ -1,9 +1,10 @@
 # ==============================================================================
-# sdk/net/ssh.sn - SSH Connection Type for Sindarin
+# sdk/net/ssh.sn - SSH Client and Server Types for Sindarin
 # ==============================================================================
-# Provides SSH client connections using libssh2 with OpenSSL backend.
+# Provides SSH client connections and server (listener/session/channel) using
+# libssh with OpenSSL backend.
 #
-# Usage:
+# Client Usage:
 #   import "sdk/net/ssh"
 #
 #   var conn: SshConnection = SshConnection.connectPassword("host:22", "user", "pass")
@@ -11,6 +12,17 @@
 #   print(result.stdout())
 #   print(result.exitCode())
 #   conn.close()
+#
+# Server Usage:
+#   var listener: SshListener = SshListener.bind(":2222", "/path/to/host_key")
+#   var session: SshSession = listener.accept()
+#   var channel: SshChannel = session.acceptChannel()
+#   var cmd: str = channel.command()
+#   channel.writeLine("response")
+#   channel.sendExitStatus(0)
+#   channel.close()
+#   session.close()
+#   listener.close()
 #
 # Authentication methods:
 #   - connectPassword: Username/password authentication
@@ -28,7 +40,7 @@
 
 # Self-contained implementation - compile and link our own C source
 @source "ssh.sn.c"
-@link ssh2
+@link ssh
 @link ssl
 @link crypto
 
@@ -67,9 +79,6 @@ native struct SshExecResult as ref =>
 
 @alias "RtSshConnection"
 native struct SshConnection as ref =>
-    @alias "socket_fd"
-    _socket_fd: int
-
     @alias "session_ptr"
     _session_ptr: *byte
 
@@ -120,8 +129,159 @@ native struct SshConnection as ref =>
     # Lifecycle Methods
     # ==========================================================================
 
-    # Close the SSH connection and underlying socket
+    # Close the SSH connection
     @alias "sn_ssh_close"
+    native fn close(): void
+
+# ==============================================================================
+# SshServerConfig - Server Configuration (Builder Pattern)
+# ==============================================================================
+# Configures authentication and options for an SSH server.
+
+@alias "RtSshServerConfig"
+native struct SshServerConfig as ref =>
+    @alias "host_key_path"
+    _hostKeyPath: *byte
+
+    @alias "users"
+    _users: *byte
+
+    @alias "user_count"
+    _userCount: int
+
+    @alias "authorized_keys_dir"
+    _authorizedKeysDir: *byte
+
+    # Create a default configuration
+    static fn defaults(): SshServerConfig =>
+        return sn_ssh_server_config_defaults()
+
+    # Set the host key file path
+    fn setHostKey(path: str): SshServerConfig =>
+        return sn_ssh_server_config_set_host_key(self, path)
+
+    # Add a user with password authentication
+    fn addUser(username: str, password: str): SshServerConfig =>
+        return sn_ssh_server_config_add_user(self, username, password)
+
+    # Set directory for authorized_keys files
+    fn setAuthorizedKeysDir(path: str): SshServerConfig =>
+        return sn_ssh_server_config_set_authorized_keys_dir(self, path)
+
+# ==============================================================================
+# SshListener - SSH Server Listener
+# ==============================================================================
+# Listens for incoming SSH connections.
+
+@alias "RtSshListener"
+native struct SshListener as ref =>
+    @alias "bind_ptr"
+    _bindPtr: *byte
+
+    @alias "bound_port"
+    _boundPort: int
+
+    @alias "config_ptr"
+    _configPtr: *byte
+
+    # Bind to address with a host key file (simple form)
+    static fn bind(address: str, hostKeyPath: str): SshListener =>
+        return sn_ssh_listener_bind(address, hostKeyPath)
+
+    # Bind to address with full config
+    static fn bindWith(address: str, config: SshServerConfig): SshListener =>
+        return sn_ssh_listener_bind_with(address, config)
+
+    # Accept the next authenticated SSH session (blocks)
+    fn accept(): SshSession =>
+        return sn_ssh_listener_accept(self)
+
+    # Get bound port number
+    @alias "sn_ssh_listener_port"
+    native fn port(): int
+
+    # Close the listener
+    @alias "sn_ssh_listener_close"
+    native fn close(): void
+
+# ==============================================================================
+# SshSession - Authenticated SSH Session (server-side)
+# ==============================================================================
+# Represents an authenticated client session on the server.
+
+@alias "RtSshSession"
+native struct SshSession as ref =>
+    @alias "session_ptr"
+    _sessionPtr: *byte
+
+    @alias "username"
+    _username: *byte
+
+    @alias "remote_addr"
+    _remoteAddr: *byte
+
+    # Accept the next channel request (blocks)
+    fn acceptChannel(): SshChannel =>
+        return sn_ssh_session_accept_channel(self)
+
+    # Get authenticated username
+    fn username(): str =>
+        return sn_ssh_session_get_username(self)
+
+    # Get remote peer address
+    fn remoteAddress(): str =>
+        return sn_ssh_session_get_remote_address(self)
+
+    # Close the session
+    @alias "sn_ssh_session_close"
+    native fn close(): void
+
+# ==============================================================================
+# SshChannel - SSH Channel (server-side exec or shell)
+# ==============================================================================
+# Represents a channel for I/O with a connected client.
+
+@alias "RtSshChannel"
+native struct SshChannel as ref =>
+    @alias "channel_ptr"
+    _channelPtr: *byte
+
+    @alias "command_str"
+    _commandStr: *byte
+
+    @alias "is_shell"
+    _isShell: int
+
+    # Get the command requested by the client (empty for shell)
+    fn command(): str =>
+        return sn_ssh_channel_get_command(self)
+
+    # Check if this is a shell channel (vs exec)
+    @alias "sn_ssh_channel_is_shell"
+    native fn isShell(): bool
+
+    # Read up to maxBytes from the channel
+    fn read(maxBytes: int): byte[] =>
+        return sn_ssh_channel_read(self, maxBytes)
+
+    # Read a line from the channel
+    fn readLine(): str =>
+        return sn_ssh_channel_read_line(self)
+
+    # Write bytes to the channel
+    fn write(data: byte[]): int =>
+        return sn_ssh_channel_write(self, data)
+
+    # Write a line to the channel (appends \n)
+    fn writeLine(text: str): void =>
+        sn_ssh_channel_write_line(self, text)
+
+    # Send exit status to the client
+    @alias "sn_ssh_channel_send_exit_status"
+    native fn sendExitStatus(code: int): void
+
+    # Close the channel
+    @alias "sn_ssh_channel_close"
     native fn close(): void
 
 # ==============================================================================
@@ -144,3 +304,26 @@ native fn sn_ssh_get_remote_address(arena, conn: SshConnection): str
 # SshExecResult getters
 native fn sn_ssh_exec_result_get_stdout(arena, result: SshExecResult): str
 native fn sn_ssh_exec_result_get_stderr(arena, result: SshExecResult): str
+
+# SshServerConfig functions
+native fn sn_ssh_server_config_defaults(arena): SshServerConfig
+native fn sn_ssh_server_config_set_host_key(arena, config: SshServerConfig, path: str): SshServerConfig
+native fn sn_ssh_server_config_add_user(arena, config: SshServerConfig, username: str, password: str): SshServerConfig
+native fn sn_ssh_server_config_set_authorized_keys_dir(arena, config: SshServerConfig, path: str): SshServerConfig
+
+# SshListener functions
+native fn sn_ssh_listener_bind(arena, address: str, hostKeyPath: str): SshListener
+native fn sn_ssh_listener_bind_with(arena, address: str, config: SshServerConfig): SshListener
+native fn sn_ssh_listener_accept(arena, listener: SshListener): SshSession
+
+# SshSession functions
+native fn sn_ssh_session_accept_channel(arena, session: SshSession): SshChannel
+native fn sn_ssh_session_get_username(arena, session: SshSession): str
+native fn sn_ssh_session_get_remote_address(arena, session: SshSession): str
+
+# SshChannel functions
+native fn sn_ssh_channel_get_command(arena, channel: SshChannel): str
+native fn sn_ssh_channel_read(arena, channel: SshChannel, maxBytes: int): byte[]
+native fn sn_ssh_channel_read_line(arena, channel: SshChannel): str
+native fn sn_ssh_channel_write(channel: SshChannel, data: byte[]): int
+native fn sn_ssh_channel_write_line(channel: SshChannel, text: str): void
