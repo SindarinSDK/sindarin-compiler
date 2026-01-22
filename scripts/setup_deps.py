@@ -145,7 +145,7 @@ class LinuxInstaller:
         print(f"Using package manager: {pm}")
 
         if pm == 'apt':
-            packages = ['build-essential', 'cmake', 'ninja-build', 'zlib1g-dev']
+            packages = ['build-essential', 'cmake', 'ninja-build', 'zlib1g-dev', 'libyyjson-dev']
             cmd = ['sudo', 'apt-get', 'update']
             print("Updating package lists...")
             run_command(cmd, check=False)
@@ -193,7 +193,7 @@ class MacOSInstaller:
             print("Install it from: https://brew.sh")
             return False
 
-        packages = ['cmake', 'ninja', 'coreutils', 'zlib']
+        packages = ['cmake', 'ninja', 'coreutils', 'zlib', 'yyjson']
         cmd = ['brew', 'install'] + packages
         print(f"Installing: {', '.join(packages)}")
         exit_code, _, _ = run_command(cmd, check=False)
@@ -241,7 +241,7 @@ class WindowsInstaller:
             print("Error: vcpkg not found")
             return False
 
-        packages = ['zlib:x64-windows']
+        packages = ['zlib:x64-windows', 'yyjson:x64-windows']
         for package in packages:
             print(f"Installing {package}...")
             cmd = [vcpkg_exe, 'install', package]
@@ -350,7 +350,7 @@ class VcpkgInstaller:
             return False
 
         triplet = self.get_triplet()
-        packages = [f'zlib:{triplet}']
+        packages = [f'zlib:{triplet}', f'yyjson:{triplet}']
 
         for package in packages:
             print(f"Installing {package}...")
