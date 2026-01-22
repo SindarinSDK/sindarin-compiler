@@ -104,6 +104,14 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        with:
+          path: vcpkg_installed
+          key: vcpkg-${{ matrix.os }}-${{ hashFiles('vcpkg.json') }}
+          restore-keys: |
+            vcpkg-${{ matrix.os }}-
+
       - name: Setup dependencies
         shell: bash
         run: make setup
