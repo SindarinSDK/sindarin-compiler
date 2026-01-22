@@ -1,4 +1,5 @@
 # Build outputs
+nul
 bin/
 log/
 logs/

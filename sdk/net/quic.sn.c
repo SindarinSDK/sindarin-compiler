@@ -60,7 +60,7 @@
 
     #define MUTEX_INIT(m) InitializeCriticalSection(m)
     #define MUTEX_LOCK(m) EnterCriticalSection(m)
-    #define MUTEX_UNLOCK(m) UnlockCriticalSection(m)
+    #define MUTEX_UNLOCK(m) LeaveCriticalSection(m)
     #define MUTEX_DESTROY(m) DeleteCriticalSection(m)
     #define COND_INIT(c) InitializeConditionVariable(c)
     #define COND_WAIT(c, m) SleepConditionVariableCS(c, m, INFINITE)
@@ -133,6 +133,28 @@
     #define COND_SIGNAL(c) pthread_cond_signal(c)
     #define COND_BROADCAST(c) pthread_cond_broadcast(c)
     #define COND_DESTROY(c) pthread_cond_destroy(c)
+#endif
+
+/* ============================================================================
+ * WinSock Initialization (Windows only)
+ * ============================================================================ */
+
+#ifdef _WIN32
+static int winsock_initialized = 0;
+
+static void ensure_winsock_initialized(void) {
+    if (!winsock_initialized) {
+        WSADATA wsaData;
+        int result = WSAStartup(MAKEWORD(2, 2), &wsaData);
+        if (result != 0) {
+            fprintf(stderr, "QUIC: WSAStartup failed: %d\n", result);
+            exit(1);
+        }
+        winsock_initialized = 1;
+    }
+}
+#else
+#define ensure_winsock_initialized() ((void)0)
 #endif
 
 /* ============================================================================
@@ -913,6 +935,8 @@ static void quic_io_thread_func(RtQuicConnection *conn) {
 static RtQuicConnection *quic_connection_create(RtArena *arena, const char *address,
                                                  RtQuicConfig *config, bool early,
                                                  const uint8_t *token, size_t token_len) {
+    ensure_winsock_initialized();
+
     char host[256], port[16];
     if (parse_address(address, host, sizeof(host), port, sizeof(port)) != 0) {
         fprintf(stderr, "QUIC: Invalid address: %s\n", address);
@@ -2060,6 +2084,8 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
 static RtQuicListener *quic_listener_create(RtArena *arena, const char *address,
                                              const char *cert_file, const char *key_file,
                                              RtQuicConfig *config) {
+    ensure_winsock_initialized();
+
     char host[256], port[16];
     if (parse_address(address, host, sizeof(host), port, sizeof(port)) != 0) {
         fprintf(stderr, "QUIC: Invalid bind address: %s\n", address);
