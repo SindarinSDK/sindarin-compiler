@@ -12,8 +12,14 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 | [Process](process.md) | `import "sdk/process"` | Process execution and output capture |
 | [Random](random.md) | `import "sdk/random"` | Random number generation |
 | [UUID](uuid.md) | `import "sdk/uuid"` | UUID generation and parsing |
+| [Math](math.md) | `import "sdk/math"` | Mathematical functions and constants |
+| [JSON](json.md) | `import "sdk/json"` | JSON parsing and serialization |
+| [XML](xml.md) | `import "sdk/xml"` | XML parsing, XPath, and DOM manipulation |
+| [YAML](yaml.md) | `import "sdk/yaml"` | YAML parsing and serialization |
+| [ZLib](zlib.md) | `import "sdk/zlib"` | Compression and decompression |
+| [Stdio](stdio.md) | `import "sdk/stdio"` | Standard input/output/error streams |
 | [I/O](io/readme.md) | `import "sdk/io/..."` | File and directory operations |
-| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, and DTLS networking |
+| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, and QUIC networking |
 
 ## Quick Start
 
@@ -90,6 +96,19 @@ SDK types use the `Sn` prefix to distinguish them from built-in types:
 | `TcpListener` | TCP server socket |
 | `TcpStream` | TCP connection |
 | `UdpSocket` | UDP socket |
+| `TlsStream` | TLS-encrypted TCP connection |
+| `DtlsConnection` | DTLS-encrypted UDP connection |
+| `SshConnection` | SSH client connection |
+| `SshListener` | SSH server listener |
+| `QuicConnection` | QUIC connection |
+| `QuicListener` | QUIC server listener |
+| `QuicStream` | QUIC stream |
+| `Json` | JSON value |
+| `Xml` | XML node |
+| `Yaml` | YAML node |
+| `Stdin` | Standard input |
+| `Stdout` | Standard output |
+| `Stderr` | Standard error |
 
 Some types like `Random` and `UUID` don't use the prefix as they have no built-in equivalent.
 
@@ -236,6 +255,94 @@ print($"ID: {id}\n")
 
 [Full documentation →](uuid.md)
 
+### Math
+
+Mathematical functions, constants, and helpers for double and float precision.
+
+```sindarin
+import "sdk/math" as math
+
+var angle: double = math.degToRad(45.0)
+var s: double = math.sin(angle)
+var dist: double = math.distance2D(0.0, 0.0, 3.0, 4.0)
+```
+
+[Full documentation →](math.md)
+
+### JSON
+
+JSON parsing, manipulation, and serialization using yyjson.
+
+```sindarin
+import "sdk/json"
+
+var doc: Json = Json.parse("{\"name\": \"Alice\"}")
+var name: str = doc.get("name").asString()
+
+var obj: Json = Json.object()
+obj.set("key", Json.ofString("value"))
+print(obj.toPrettyString())
+```
+
+[Full documentation →](json.md)
+
+### XML
+
+XML parsing, XPath queries, and DOM manipulation using libxml2.
+
+```sindarin
+import "sdk/xml"
+
+var doc: Xml = Xml.parseFile("data.xml")
+var items: Xml[] = doc.findAll("//item")
+for i: int = 0; i < items.length; i += 1 =>
+    print($"{items[i].text()}\n")
+```
+
+[Full documentation →](xml.md)
+
+### YAML
+
+YAML parsing, manipulation, and serialization using libyaml.
+
+```sindarin
+import "sdk/yaml"
+
+var config: Yaml = Yaml.parseFile("config.yaml")
+var host: str = config.get("server").get("host").value()
+var port: int = config.get("server").get("port").asInt()
+```
+
+[Full documentation →](yaml.md)
+
+### ZLib
+
+Compression and decompression using zlib.
+
+```sindarin
+import "sdk/zlib"
+
+var compressed: byte[] = compressData(data)
+var original: byte[] = decompressData(compressed, expectedSize)
+```
+
+[Full documentation →](zlib.md)
+
+### Stdio
+
+Structured access to standard input, output, and error streams.
+
+```sindarin
+import "sdk/stdio"
+
+Stdout.write("Enter name: ")
+Stdout.flush()
+var name: str = Stdin.readLine()
+Stderr.writeLine("Debug: got input")
+```
+
+[Full documentation →](stdio.md)
+
 ### I/O
 
 File operations, path utilities, and directory management.
@@ -256,13 +363,15 @@ var files: str[] = Directory.list("/home/user")
 
 ### Net
 
-TCP, UDP, TLS, and DTLS socket operations for network communication.
+TCP, UDP, TLS, DTLS, SSH, and QUIC operations for network communication.
 
 ```sindarin
 import "sdk/net/tcp"
 import "sdk/net/udp"
 import "sdk/net/tls"
 import "sdk/net/dtls"
+import "sdk/net/ssh"
+import "sdk/net/quic"
 
 var server: TcpListener = TcpListener.bind(":8080")
 var client: TcpStream = server.accept()
@@ -274,6 +383,16 @@ var secure: TlsStream = TlsStream.connect("example.com:443")
 secure.writeLine("GET / HTTP/1.1")
 secure.writeLine("Host: example.com")
 secure.writeLine("")
+
+// SSH remote execution
+var ssh: SshConnection = SshConnection.connectPassword("server:22", "user", "pass")
+print(ssh.run("ls -la"))
+ssh.close()
+
+// QUIC multiplexed streams
+var quic: QuicConnection = QuicConnection.connect("server:4433")
+var stream: QuicStream = quic.openStream()
+stream.writeLine("hello")
 ```
 
 [Full documentation →](net/readme.md)

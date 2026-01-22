@@ -1,6 +1,6 @@
 # Network I/O in Sindarin
 
-Sindarin provides TCP, UDP, TLS, and DTLS socket types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
+Sindarin provides TCP, UDP, TLS, DTLS, SSH, and QUIC types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
 
 ## SDK Modules
 
@@ -10,6 +10,8 @@ Sindarin provides TCP, UDP, TLS, and DTLS socket types through the SDK for netwo
 | [UDP](udp.md) | UDP socket for connectionless datagram communication |
 | [TLS](tls.md) | TLS-encrypted TCP streams (HTTPS, secure connections) |
 | [DTLS](dtls.md) | DTLS-encrypted UDP datagrams (secure datagram communication) |
+| [SSH](ssh.md) | SSH client and server for secure remote command execution |
+| [QUIC](quic.md) | QUIC multiplexed encrypted streams over UDP |
 
 ## Quick Start
 
@@ -18,6 +20,8 @@ import "sdk/net/tcp"
 import "sdk/net/udp"
 import "sdk/net/tls"
 import "sdk/net/dtls"
+import "sdk/net/ssh"
+import "sdk/net/quic"
 
 // TCP Server
 var server: TcpListener = TcpListener.bind(":8080")
@@ -55,6 +59,20 @@ var dtls: DtlsConnection = DtlsConnection.connect("server:4433")
 dtls.send("Hello".toBytes())
 var reply: byte[] = dtls.receive(1024)
 dtls.close()
+
+// SSH Remote Command
+var ssh: SshConnection = SshConnection.connectPassword("server:22", "user", "pass")
+var output: str = ssh.run("hostname")
+print(output)
+ssh.close()
+
+// QUIC Multiplexed Streams
+var quic: QuicConnection = QuicConnection.connect("server:4433")
+var stream: QuicStream = quic.openStream()
+stream.writeLine("Hello, QUIC!")
+var response: str = stream.readLine()
+stream.close()
+quic.close()
 ```
 
 ---
@@ -172,6 +190,8 @@ Network operations panic on errors:
 - `UdpSocket.bind()` - Address in use, permission denied
 - `TlsStream.connect()` - TLS handshake failure, certificate verification failure
 - `DtlsConnection.connect()` - DTLS handshake failure, certificate verification failure
+- `SshConnection.connect*()` - Authentication failure, connection refused
+- `QuicConnection.connect()` - Handshake failure, certificate verification failure
 
 ```sindarin
 // Connection may fail
