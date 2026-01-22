@@ -14,7 +14,8 @@
         "default-features": false,
         "features": ["zlib"]
     },
-    "libyaml"
+    "libyaml",
+    "openssl"
   ],
   "features": {
     "tests": {
