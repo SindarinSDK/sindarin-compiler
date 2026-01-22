@@ -306,9 +306,6 @@ if(NOT MSVC)
         target_compile_definitions(sn_runtime PRIVATE SN_USE_WIN32_THREADS)
     endif()
 
-    # Enable malloc hooks and redirect functionality
-    target_compile_definitions(sn_runtime PRIVATE SN_MALLOC_HOOKS SN_MALLOC_REDIRECT)
-
     # Optimization flags
     target_compile_options(sn_runtime PRIVATE -O2)
 
