@@ -65,7 +65,8 @@ def find_executable(name: str) -> Optional[str]:
 class DependencyChecker:
     """Check for required dependencies."""
 
-    REQUIRED_TOOLS = {
+    # All known tools
+    ALL_TOOLS = {
         'cmake': ('cmake', '--version'),
         'git': ('git', '--version'),
         'curl': ('curl', '--version'),
@@ -73,25 +74,34 @@ class DependencyChecker:
         'unzip': ('unzip', '-v'),
         'tar': ('tar', '--version'),
         'pkg-config': ('pkg-config', '--version'),
-    }
-
-    # Optional but recommended tools
-    OPTIONAL_TOOLS = {
         'ninja': ('ninja', '--version'),
     }
+
+    # Platform-specific required tools
+    # On Windows, vcpkg uses PowerShell for archives and doesn't need pkg-config
+    REQUIRED_TOOLS_WINDOWS = ['cmake', 'git']
+    REQUIRED_TOOLS_UNIX = ['cmake', 'git', 'curl', 'zip', 'unzip', 'tar', 'pkg-config']
+
+    # Optional but recommended tools
+    OPTIONAL_TOOLS = ['ninja']
 
     REQUIRED_COMPILERS = {
         'gcc': ('gcc', '--version'),
         'clang': ('clang', '--version'),
     }
 
+    def get_required_tools(self) -> List[str]:
+        """Get list of required tools for current platform."""
+        if is_windows():
+            return self.REQUIRED_TOOLS_WINDOWS
+        return self.REQUIRED_TOOLS_UNIX
+
     def check_tool(self, name: str) -> bool:
         """Check if a tool is available."""
-        tools = {**self.REQUIRED_TOOLS, **self.OPTIONAL_TOOLS}
-        if name not in tools:
+        if name not in self.ALL_TOOLS:
             return find_executable(name) is not None
 
-        cmd_name, version_arg = tools[name]
+        cmd_name, version_arg = self.ALL_TOOLS[name]
         path = find_executable(cmd_name)
         if not path:
             return False
@@ -113,8 +123,10 @@ class DependencyChecker:
         """Check all dependencies."""
         all_ok = True
 
+        required_tools = self.get_required_tools()
+
         print("Checking build tools...")
-        for tool in ['cmake', 'git', 'curl', 'zip', 'unzip', 'tar', 'pkg-config']:
+        for tool in required_tools:
             ok = self.check_tool(tool)
             status = 'OK' if ok else 'MISSING'
             print(f"  {tool}: {status}")
@@ -122,7 +134,7 @@ class DependencyChecker:
                 all_ok = False
 
         # Check optional tools
-        for tool in ['ninja']:
+        for tool in self.OPTIONAL_TOOLS:
             ok = self.check_tool(tool)
             status = 'OK' if ok else 'MISSING (optional)'
             print(f"  {tool}: {status}")
@@ -153,8 +165,8 @@ class VcpkgInstaller:
     def get_triplet(self) -> str:
         """Get the vcpkg triplet for the current platform."""
         if is_windows():
-            # Use MinGW dynamic triplet for compatibility with gcc/clang
-            return 'x64-mingw-dynamic'
+            # Use MinGW static triplet for self-contained executables
+            return 'x64-mingw-static'
         elif is_macos():
             # Check architecture
             machine = platform.machine()
@@ -301,33 +313,36 @@ class VcpkgInstaller:
         # Check for libraries
         lib_dir = os.path.join(installed_dir, 'lib')
 
-        if is_windows():
-            required_libs = ['libz.a', 'libyyjson.a']  # MinGW uses .a files
-        elif is_macos():
-            required_libs = ['libz.a', 'libyyjson.a']
-        else:
-            # Linux dynamic - check for .so files
-            required_libs = ['libz.so', 'libyyjson.so']
+        # Define library patterns to search for each dependency
+        # We check multiple possible names since vcpkg naming varies by triplet
+        lib_patterns = {
+            'zlib': ['libz.a', 'libzlib.a', 'libzlib.dll.a', 'libz.dll.a', 'z.lib', 'zlib.lib',
+                     'libz.so', 'libz.dylib'],
+            'yyjson': ['libyyjson.a', 'libyyjson.dll.a', 'yyjson.lib',
+                       'libyyjson.so', 'libyyjson.dylib'],
+        }
 
-        for lib in required_libs:
-            lib_path = os.path.join(lib_dir, lib)
-            # Also check without 'lib' prefix
-            alt_path = os.path.join(lib_dir, lib[3:] if lib.startswith('lib') else lib)
-            if os.path.isfile(lib_path) or os.path.isfile(alt_path):
-                print(f"  {lib}: OK")
+        for dep_name, patterns in lib_patterns.items():
+            found = False
+            found_name = None
+            for pattern in patterns:
+                lib_path = os.path.join(lib_dir, pattern)
+                if os.path.isfile(lib_path):
+                    found = True
+                    found_name = pattern
+                    break
+            # Also check for versioned .so files
+            if not found and os.path.isdir(lib_dir):
+                for f in os.listdir(lib_dir):
+                    if f.startswith(f'lib{dep_name}') and ('.so' in f or '.dylib' in f or '.a' in f):
+                        found = True
+                        found_name = f
+                        break
+            if found:
+                print(f"  {dep_name}: OK ({found_name})")
             else:
-                # For dynamic libs, also check for versioned files
-                found = False
-                if lib.endswith('.so'):
-                    base = lib[:-3]  # Remove .so
-                    for f in os.listdir(lib_dir) if os.path.isdir(lib_dir) else []:
-                        if f.startswith(base) and '.so' in f:
-                            print(f"  {lib}: OK ({f})")
-                            found = True
-                            break
-                if not found:
-                    print(f"  {lib}: MISSING (checked {lib_path})")
-                    return False
+                print(f"  {dep_name}: MISSING")
+                return False
 
         return True
 
@@ -362,10 +377,10 @@ def install_build_tools():
 
     missing_required = []
     missing_optional = []
-    for tool in ['cmake', 'git', 'curl', 'zip', 'unzip', 'tar', 'pkg-config']:
+    for tool in checker.get_required_tools():
         if not checker.check_tool(tool):
             missing_required.append(tool)
-    for tool in ['ninja']:
+    for tool in checker.OPTIONAL_TOOLS:
         if not checker.check_tool(tool):
             missing_optional.append(tool)
 

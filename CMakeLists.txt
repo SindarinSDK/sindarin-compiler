@@ -445,7 +445,7 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
 
 # Determine vcpkg triplet based on platform
 if(WIN32)
-    set(VCPKG_TRIPLET "x64-mingw-dynamic")
+    set(VCPKG_TRIPLET "x64-mingw-static")
 elseif(APPLE)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
         set(VCPKG_TRIPLET "arm64-osx")
