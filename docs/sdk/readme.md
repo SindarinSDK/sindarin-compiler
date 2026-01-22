@@ -13,7 +13,7 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 | [Random](random.md) | `import "sdk/random"` | Random number generation |
 | [UUID](uuid.md) | `import "sdk/uuid"` | UUID generation and parsing |
 | [I/O](io/readme.md) | `import "sdk/io/..."` | File and directory operations |
-| [Net](net/readme.md) | `import "sdk/net/..."` | TCP and UDP networking |
+| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, and DTLS networking |
 
 ## Quick Start
 
@@ -256,16 +256,24 @@ var files: str[] = Directory.list("/home/user")
 
 ### Net
 
-TCP and UDP socket operations for network communication.
+TCP, UDP, TLS, and DTLS socket operations for network communication.
 
 ```sindarin
 import "sdk/net/tcp"
 import "sdk/net/udp"
+import "sdk/net/tls"
+import "sdk/net/dtls"
 
 var server: TcpListener = TcpListener.bind(":8080")
 var client: TcpStream = server.accept()
 var line: str = client.readLine()
 client.writeLine($"Echo: {line}")
+
+// Secure connections
+var secure: TlsStream = TlsStream.connect("example.com:443")
+secure.writeLine("GET / HTTP/1.1")
+secure.writeLine("Host: example.com")
+secure.writeLine("")
 ```
 
 [Full documentation →](net/readme.md)
