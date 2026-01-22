@@ -1,5 +1,6 @@
 # Unified CI/CD workflow for Sindarin Compiler
-# Builds and tests on Linux, Windows, and macOS using a matrix strategy
+# Builds and tests on Linux, Windows, and macOS using the same Make targets
+# developers use locally (make setup, make build, make test-*).
 
 name: CI
 
@@ -25,43 +26,45 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            preset: ci-linux
-            compiler: gcc
             artifact_name: sn-linux-x64
             exe_ext: ''
             runtime_dir: gcc
+            sn_cc: gcc
+            sn_cflags: ''
+            sn_exclude_tests: ''
 
           - os: windows-latest
-            preset: ci-windows
-            compiler: clang
             artifact_name: sn-windows-x64
             exe_ext: '.exe'
             runtime_dir: clang
+            sn_cc: clang
+            sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
+            sn_exclude_tests: ''
 
           - os: macos-latest
-            preset: ci-macos
-            compiler: clang
             artifact_name: sn-macos-x64
             exe_ext: ''
             runtime_dir: gcc
+            sn_cc: clang
+            sn_cflags: ''
+            sn_exclude_tests: 'test_thread_panic_propagate'
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       #------------------------------------------------------------------------
-      # Setup Dependencies (Platform-specific)
+      # Platform Pre-steps (minimal: ensure make, C compiler, python exist)
       #------------------------------------------------------------------------
-      - name: Setup Dependencies (Linux)
+      - name: Setup Prerequisites (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build zlib1g-dev python3
+          sudo apt-get install -y build-essential python3
 
-      - name: Setup Dependencies (macOS)
+      - name: Setup Prerequisites (macOS)
         if: runner.os == 'macOS'
-        run: |
-          brew install cmake ninja coreutils zlib python3
+        run: brew install python3
 
       - name: Remove system LLVM (Windows)
         if: runner.os == 'Windows'
@@ -92,85 +95,23 @@ jobs:
 
           Write-Host "LLVM-MinGW installed at: $($llvmDir.FullName)"
           echo "$binPath" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          echo "LLVM_MINGW_PATH=$($llvmDir.FullName)" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
-      - name: Install Ninja (Windows)
+      - name: Install Make and Ninja (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
-        run: choco install ninja -y
-
-      - name: Setup vcpkg (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: |
-          $vcpkgRoot = "C:\vcpkg"
-
-          # Clone or update vcpkg
-          if (Test-Path $vcpkgRoot) {
-            Write-Host "vcpkg already exists, updating..."
-            Push-Location $vcpkgRoot
-            git pull --quiet 2>$null || Write-Host "Git pull skipped (not a git repo or detached)"
-            Pop-Location
-          } else {
-            Write-Host "Cloning vcpkg..."
-            git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
-          }
-
-          # Bootstrap if needed
-          if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
-            Write-Host "Bootstrapping vcpkg..."
-            & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
-          }
-
-          # Install zlib using classic mode (ignore manifest)
-          Write-Host "Installing zlib..."
-          & "$vcpkgRoot\vcpkg.exe" install zlib:x64-windows --classic
-
-          # Create libz.a compatibility link
-          $zlibLib = "$vcpkgRoot\installed\x64-windows\lib\zlib.lib"
-          $libzA = "$vcpkgRoot\installed\x64-windows\lib\libz.a"
-          if ((Test-Path $zlibLib) -and -not (Test-Path $libzA)) {
-            Copy-Item $zlibLib $libzA
-          }
-
-          echo "VCPKG_ROOT=$vcpkgRoot\installed\x64-windows" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+        run: choco install make ninja -y
 
       #------------------------------------------------------------------------
-      # Verify Tools
+      # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      - name: Verify tools
+      - name: Setup dependencies
         shell: bash
-        run: |
-          echo "=== Checking compiler ==="
-          ${{ matrix.compiler }} --version
-          echo ""
-          echo "=== Checking cmake ==="
-          cmake --version
-          echo ""
-          echo "=== Checking ninja ==="
-          ninja --version
-          echo ""
-          echo "=== Checking python ==="
-          python3 --version || python --version
-
-      #------------------------------------------------------------------------
-      # Configure and Build
-      #------------------------------------------------------------------------
-      - name: Configure CMake
-        shell: bash
-        run: |
-          cmake -S . -B build -G Ninja \
-            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_BUILD_TYPE=Release \
-            -DSN_BUNDLE_ZLIB=ON \
-            -DSN_BUNDLE_YYJSON=ON
+        run: make setup
 
       - name: Build
-        run: cmake --build build
+        shell: bash
+        run: make build
 
-      #------------------------------------------------------------------------
-      # Verify Build Outputs
-      #------------------------------------------------------------------------
       - name: Verify build outputs
         shell: bash
         run: |
@@ -199,79 +140,47 @@ jobs:
           echo "Build outputs verified successfully!"
 
       #------------------------------------------------------------------------
-      # Run Tests
+      # Run Tests (same make targets for all platforms, env vars handle differences)
       #------------------------------------------------------------------------
       - name: Run unit tests
         shell: bash
-        run: |
-          echo "Running unit tests..."
-          bin/tests${{ matrix.exe_ext }}
-          echo "Unit tests passed!"
+        run: make test-unit
 
-      - name: Run integration tests (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Run integration tests
+        shell: bash
         env:
-          SN_CC: ${{ matrix.compiler }}
-          SN_EXCLUDE_TESTS: ${{ runner.os == 'macOS' && 'test_thread_panic_propagate' || '' }}
-        run: |
-          python3 scripts/run_tests.py integration --verbose
-          python3 scripts/run_tests.py integration-errors --verbose
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+          SN_EXCLUDE_TESTS: ${{ matrix.sn_exclude_tests }}
+        run: make test-integration
 
-      - name: Run integration tests (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+      - name: Run integration error tests
+        shell: bash
         env:
-          SN_CC: clang
-          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
-        run: |
-          python scripts/run_tests.py integration --verbose
-          python scripts/run_tests.py integration-errors --verbose
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+        run: make test-integration-errors
 
-      - name: Run exploratory tests (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Run exploratory tests
+        shell: bash
         env:
-          SN_CC: ${{ matrix.compiler }}
-        run: |
-          python3 scripts/run_tests.py explore --verbose
-          python3 scripts/run_tests.py explore-errors --verbose
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+        run: make test-explore
 
-      - name: Run exploratory tests (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
+      - name: Run exploratory error tests
+        shell: bash
         env:
-          SN_CC: clang
-          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none
-        run: |
-          python scripts/run_tests.py explore --verbose
-          python scripts/run_tests.py explore-errors --verbose
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+        run: make test-explore-errors
 
-      - name: Run SDK tests (Linux)
-        if: runner.os == 'Linux'
+      - name: Run SDK tests
+        shell: bash
         env:
-          SN_CC: ${{ matrix.compiler }}
-        run: |
-          python3 scripts/run_tests.py sdk --verbose
-
-      - name: Run SDK tests (macOS)
-        if: runner.os == 'macOS'
-        env:
-          SN_CC: clang
-          SN_CFLAGS: -I${{ env.HOMEBREW_PREFIX || '/opt/homebrew' }}/opt/zlib/include
-          SN_LDFLAGS: -L${{ env.HOMEBREW_PREFIX || '/opt/homebrew' }}/opt/zlib/lib
-        run: |
-          export SN_CFLAGS="-I$(brew --prefix zlib)/include"
-          export SN_LDFLAGS="-L$(brew --prefix zlib)/lib"
-          python3 scripts/run_tests.py sdk --verbose
-
-      - name: Run SDK tests (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        env:
-          SN_CC: clang
-          SN_CFLAGS: --target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none -I${{ env.VCPKG_ROOT }}/include
-          SN_LDFLAGS: -L${{ env.VCPKG_ROOT }}/lib
-        run: |
-          python scripts/run_tests.py sdk --verbose
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+        run: make test-sdk
 
       #------------------------------------------------------------------------
       # Upload Artifacts
@@ -288,4 +197,3 @@ jobs:
             bin/include/**/*
             bin/*.cfg
           retention-days: 7
-
