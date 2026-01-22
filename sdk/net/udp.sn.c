@@ -52,6 +52,7 @@
 typedef struct RtUdpSocket {
     socket_t socket_fd;     /* Socket file descriptor */
     int bound_port;         /* Port number we're bound to */
+    int recv_timeout_ms;    /* Receive timeout: -1=blocking, 0=non-blocking, >0=timeout ms */
 } RtUdpSocket;
 
 /* Result struct for receiveFrom */
@@ -86,6 +87,35 @@ static void ensure_winsock_initialized(void) {
  * Helper Functions
  * ============================================================================ */
 
+/* Wait for socket to be readable with timeout.
+ * Returns: 1 = readable, 0 = timeout, -1 = error */
+static int udp_wait_readable(RtUdpSocket *socket_obj) {
+    if (socket_obj->recv_timeout_ms < 0) {
+        return 1;  /* Blocking mode - assume readable */
+    }
+
+    fd_set readfds;
+    FD_ZERO(&readfds);
+    FD_SET(socket_obj->socket_fd, &readfds);
+
+    struct timeval tv;
+    struct timeval *tvp = NULL;
+
+    if (socket_obj->recv_timeout_ms > 0) {
+        tv.tv_sec = socket_obj->recv_timeout_ms / 1000;
+        tv.tv_usec = (socket_obj->recv_timeout_ms % 1000) * 1000;
+        tvp = &tv;
+    } else {
+        /* Non-blocking: zero timeout */
+        tv.tv_sec = 0;
+        tv.tv_usec = 0;
+        tvp = &tv;
+    }
+
+    int result = select((int)(socket_obj->socket_fd + 1), &readfds, NULL, NULL, tvp);
+    return result;
+}
+
 static RtUdpSocket *sn_udp_socket_create(RtArena *arena, socket_t sock, int port) {
     RtUdpSocket *socket_obj = (RtUdpSocket *)rt_arena_alloc(arena, sizeof(RtUdpSocket));
     if (socket_obj == NULL) {
@@ -94,6 +124,7 @@ static RtUdpSocket *sn_udp_socket_create(RtArena *arena, socket_t sock, int port
     }
     socket_obj->socket_fd = sock;
     socket_obj->bound_port = port;
+    socket_obj->recv_timeout_ms = -1;  /* Blocking by default */
     return socket_obj;
 }
 
@@ -321,6 +352,21 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
         return result;
     }
 
+    /* Wait for data with timeout if configured */
+    if (socket_obj->recv_timeout_ms >= 0) {
+        int wait_result = udp_wait_readable(socket_obj);
+        if (wait_result == 0) {
+            /* Timeout - return empty result */
+            result->data = rt_array_create_byte(arena, 0, NULL);
+            result->sender = rt_arena_strdup(arena, "");
+            return result;
+        }
+        if (wait_result < 0) {
+            fprintf(stderr, "sn_udp_socket_receive_from: select failed (%d)\n", GET_SOCKET_ERROR());
+            exit(1);
+        }
+    }
+
     /* Allocate temporary buffer for receiving */
     unsigned char *temp = (unsigned char *)malloc((size_t)maxBytes);
     if (temp == NULL) {
@@ -366,6 +412,22 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
 long sn_udp_socket_get_port(RtUdpSocket *socket_obj) {
     if (socket_obj == NULL) return 0;
     return socket_obj->bound_port;
+}
+
+/* ============================================================================
+ * UdpSocket Configuration
+ * ============================================================================ */
+
+/* Set receive timeout in milliseconds (-1 = blocking, 0 = non-blocking) */
+void sn_udp_socket_set_timeout(RtUdpSocket *socket_obj, long timeout_ms) {
+    if (socket_obj == NULL) return;
+    socket_obj->recv_timeout_ms = (int)timeout_ms;
+}
+
+/* Get current receive timeout */
+long sn_udp_socket_get_timeout(RtUdpSocket *socket_obj) {
+    if (socket_obj == NULL) return -1;
+    return socket_obj->recv_timeout_ms;
 }
 
 /* ============================================================================
