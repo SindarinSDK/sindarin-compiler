@@ -349,15 +349,13 @@ endif()
 set(SDK_DIR ${CMAKE_SOURCE_DIR}/bin/sdk)
 file(MAKE_DIRECTORY ${SDK_DIR})
 
-# Copy SDK files (.sn and .sn.c files)
-file(GLOB SDK_SN_FILES "${CMAKE_SOURCE_DIR}/sdk/*.sn")
-file(GLOB SDK_SN_C_FILES "${CMAKE_SOURCE_DIR}/sdk/*.sn.c")
-if(SDK_SN_FILES)
-    file(INSTALL ${SDK_SN_FILES} DESTINATION "${SDK_DIR}")
-endif()
-if(SDK_SN_C_FILES)
-    file(INSTALL ${SDK_SN_C_FILES} DESTINATION "${SDK_DIR}")
-endif()
+# Copy SDK files (.sn and .sn.c files), preserving subdirectory structure
+file(GLOB_RECURSE SDK_SN_FILES RELATIVE "${CMAKE_SOURCE_DIR}/sdk" "${CMAKE_SOURCE_DIR}/sdk/*.sn")
+file(GLOB_RECURSE SDK_SN_C_FILES RELATIVE "${CMAKE_SOURCE_DIR}/sdk" "${CMAKE_SOURCE_DIR}/sdk/*.sn.c")
+foreach(SDK_FILE IN LISTS SDK_SN_FILES SDK_SN_C_FILES)
+    get_filename_component(SDK_FILE_DIR "${SDK_FILE}" DIRECTORY)
+    file(INSTALL "${CMAKE_SOURCE_DIR}/sdk/${SDK_FILE}" DESTINATION "${SDK_DIR}/${SDK_FILE_DIR}")
+endforeach()
 
 #------------------------------------------------------------------------------
 # Custom Targets
