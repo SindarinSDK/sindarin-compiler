@@ -161,7 +161,9 @@ jobs:
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-            -DCMAKE_BUILD_TYPE=Release
+            -DCMAKE_BUILD_TYPE=Release \
+            -DSN_BUNDLE_ZLIB=ON \
+            -DSN_BUNDLE_YYJSON=ON
 
       - name: Build
         run: cmake --build build
