@@ -634,9 +634,20 @@ const char *gcc_resolve_sdk_import(const char *compiler_dir, const char *module_
         return NULL; /* No SDK directory found */
     }
 
+    /* Strip "sdk/" prefix if present - the cached_sdk_dir already points to the SDK directory */
+    const char *stripped_name = module_name;
+    if (strncmp(module_name, "sdk/", 4) == 0)
+    {
+        stripped_name = module_name + 4;
+    }
+    else if (strncmp(module_name, "sdk\\", 4) == 0)
+    {
+        stripped_name = module_name + 4;
+    }
+
     /* Construct the full path to the SDK file */
     snprintf(sdk_file_buf, sizeof(sdk_file_buf), "%s" SN_PATH_SEP_STR "%s.sn",
-             cached_sdk_dir, module_name);
+             cached_sdk_dir, stripped_name);
 
     if (file_exists(sdk_file_buf))
     {
