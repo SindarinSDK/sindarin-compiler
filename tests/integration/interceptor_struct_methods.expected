@@ -1,0 +1,18 @@
+getValue without interceptor: 10
+getValue with interceptor: 10
+Log: [Counter.getValue]
+After increment: 11
+Log: [Counter.increment]
+After add(5): 16
+Log: [Counter.add]
+zero(): 0
+Log: [Counter.zero]
+create(7): 14
+Log: [Counter.create]
+Overridden getValue: 99
+Log: [override:Counter.getValue]
+increment not intercepted: 17
+Not intercepted - PASS
+After clearAll getValue: 50
+No interception after clearAll - PASS
+All struct method interceptor tests passed!

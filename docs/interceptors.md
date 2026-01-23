@@ -221,13 +221,16 @@ fn main =>
 - Functions with any parameter types (including `as ref`)
 - Functions returning any non-pointer type
 - Functions in namespaces (via `import "module" as ns`)
+- Struct instance methods (intercepted as `"StructName.methodName"`)
+- Struct static methods (intercepted as `"StructName.methodName"`)
 
 ### Not Intercepted
 
-- Native functions (declared with `native fn`)
+- Native functions and native methods (declared with `native fn`)
 - Built-in methods (string methods, array methods)
-- Static type methods (e.g., `TextFile.readAll()`, `Random.int()`)
-- Functions with pointer parameters or return types
+- Built-in static type methods (e.g., `TextFile.readAll()`, `Random.int()`)
+- Functions/methods with pointer or struct parameters (other than implicit `self`)
+- Functions/methods with pointer or struct return types
 - Lambda expressions
 
 ## Performance Considerations
@@ -325,13 +328,83 @@ fn printProfile =>
         print($"  {function_names[i]}: {call_counts[i]}\n")
 ```
 
+## Struct Method Interception
+
+Interceptors can intercept struct instance and static methods. Methods are identified using the format `"StructName.methodName"`.
+
+### Instance Methods
+
+For instance methods, `self` is passed as `args[0]` (boxed as a struct). Explicit arguments follow at `args[1]`, `args[2]`, etc.
+
+```sindarin
+struct Counter =>
+    value: int
+
+    fn getValue(): int =>
+        return self.value
+
+    fn increment(): void =>
+        self.value = self.value + 1
+
+fn methodLogger(name: str, args: any[], continue_fn: fn(): any): any =>
+    print($"Method called: {name}\n")
+    var result: any = continue_fn()
+    return result
+
+fn main =>
+    var c: Counter = Counter { value: 10 }
+
+    // Intercept all Counter methods
+    Interceptor.registerWhere(methodLogger, "Counter.*")
+
+    c.increment()       // Prints: Method called: Counter.increment
+    var v: int = c.getValue()  // Prints: Method called: Counter.getValue
+```
+
+### Static Methods
+
+Static methods are also intercepted using the same naming convention. Since there is no `self`, only explicit arguments appear in `args`.
+
+```sindarin
+struct MathHelper =>
+    static fn double(n: int): int =>
+        return n * 2
+
+fn main =>
+    Interceptor.registerWhere(methodLogger, "MathHelper.*")
+    var result: int = MathHelper.double(5)  // Prints: Method called: MathHelper.double
+```
+
+### Pattern Matching for Methods
+
+Wildcard patterns work with dotted method names:
+
+- `"Counter.*"` - matches all methods on Counter (instance and static)
+- `"Counter.get*"` - matches Counter methods starting with "get"
+- `"*.increment"` - matches `increment` on any struct
+- `"Counter.getValue"` - exact match for a specific method
+
+### Self Mutation
+
+When an interceptor calls `continue_fn()`, any mutations to `self` inside the method are propagated back to the original struct instance.
+
+```sindarin
+fn main =>
+    var c: Counter = Counter { value: 0 }
+    Interceptor.registerWhere(methodLogger, "Counter.*")
+    c.increment()  // self.value is modified inside the method
+    print($"{c.value}\n")  // Prints: 1 (mutation is preserved)
+```
+
 ## Limitations
 
-1. **Pointer types excluded**: Functions with pointer parameters or return types cannot be intercepted due to boxing limitations.
+1. **Pointer types excluded**: Functions/methods with pointer parameters or return types cannot be intercepted due to boxing limitations.
 
-2. **Native functions excluded**: Functions declared with `native fn` bypass interception.
+2. **Native functions excluded**: Functions and methods declared with `native fn` bypass interception.
 
 3. **Single return value**: Interceptors can only return a single value, not multiple return values.
+
+4. **Struct parameters excluded**: Methods with struct-typed parameters (other than the implicit `self`) cannot be intercepted.
 
 ## Thread Safety
 

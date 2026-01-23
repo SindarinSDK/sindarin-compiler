@@ -65,4 +65,29 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
  */
 char *code_gen_string_length(CodeGen *gen, Expr *object);
 
+/* ============================================================================
+ * Struct Method Interception (code_gen_expr_call.c)
+ * ============================================================================ */
+
+/**
+ * Check if a struct method should be intercepted.
+ * Skips native methods, methods on native structs, and methods with
+ * unsupported parameter/return types.
+ */
+bool should_intercept_method(StructMethod *method, Type *struct_type, Type *return_type);
+
+/**
+ * Generate an intercepted struct method call (instance or static).
+ * Wraps the method call with interception logic including self boxing for instance methods.
+ */
+char *code_gen_intercepted_method_call(CodeGen *gen,
+                                        const char *struct_name,
+                                        StructMethod *method,
+                                        Type *struct_type,
+                                        int arg_count,
+                                        Expr **arguments,
+                                        const char *self_ptr_str,
+                                        bool is_self_pointer,
+                                        Type *return_type);
+
 #endif /* CODE_GEN_EXPR_CALL_H */
