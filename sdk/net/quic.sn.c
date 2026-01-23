@@ -690,7 +690,7 @@ static int quic_ssl_alpn_select_cb(SSL *ssl, const unsigned char **out, unsigned
     (void)arg;
     /* Select "hq" ALPN */
     if (SSL_select_next_proto((unsigned char **)out, outlen,
-                              (const unsigned char *)QUIC_ALPN + 1, sizeof(QUIC_ALPN) - 2,
+                              (const unsigned char *)QUIC_ALPN, sizeof(QUIC_ALPN) - 1,
                               in, inlen) != OPENSSL_NPN_NEGOTIATED) {
         return SSL_TLSEXT_ERR_NOACK;
     }
@@ -757,7 +757,7 @@ static SSL *create_client_ssl(SSL_CTX *ctx, const char *hostname, RtQuicConnecti
     SSL_set_tlsext_host_name(ssl, hostname);
 
     /* Set ALPN */
-    SSL_set_alpn_protos(ssl, (const unsigned char *)QUIC_ALPN + 1, sizeof(QUIC_ALPN) - 2);
+    SSL_set_alpn_protos(ssl, (const unsigned char *)QUIC_ALPN, sizeof(QUIC_ALPN) - 1);
 
     /* Configure SSL for ngtcp2 QUIC client */
     ngtcp2_crypto_ossl_configure_client_session(ssl);
