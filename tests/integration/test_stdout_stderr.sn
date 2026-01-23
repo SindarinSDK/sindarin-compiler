@@ -1,5 +1,5 @@
 # Test Stdout, Stderr static methods and convenience functions
-import "sdk/stdio"
+import "sdk/io/stdio"
 
 fn main(): int =>
     # Test Stdout.write

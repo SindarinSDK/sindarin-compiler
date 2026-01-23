@@ -6,8 +6,8 @@
 # ==============================================================================
 
 import "../../../sdk/net/ssh"
-import "../../../sdk/process"
-import "../../../sdk/env"
+import "../../../sdk/os/process"
+import "../../../sdk/os/env"
 import "../../../sdk/io/textfile"
 import "../../../sdk/io/path"
 

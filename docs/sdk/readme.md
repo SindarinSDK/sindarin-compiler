@@ -4,33 +4,37 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 
 ## Modules
 
-| Module | Import | Description |
-|--------|--------|-------------|
-| [Date](date.md) | `import "sdk/date"` | Calendar date operations |
-| [Time](time.md) | `import "sdk/time"` | Time and duration operations |
-| [Environment](env.md) | `import "sdk/env"` | Environment variable access |
-| [Process](process.md) | `import "sdk/process"` | Process execution and output capture |
-| [Random](random.md) | `import "sdk/random"` | Random number generation |
-| [UUID](uuid.md) | `import "sdk/uuid"` | UUID generation and parsing |
-| [Math](math.md) | `import "sdk/math"` | Mathematical functions and constants |
-| [JSON](json.md) | `import "sdk/json"` | JSON parsing and serialization |
-| [XML](xml.md) | `import "sdk/xml"` | XML parsing, XPath, and DOM manipulation |
-| [YAML](yaml.md) | `import "sdk/yaml"` | YAML parsing and serialization |
-| [ZLib](zlib.md) | `import "sdk/zlib"` | Compression and decompression |
-| [Crypto](crypto.md) | `import "sdk/crypto"` | Cryptographic hashing, encryption, and key derivation |
-| [Stdio](stdio.md) | `import "sdk/stdio"` | Standard input/output/error streams |
-| [I/O](io/readme.md) | `import "sdk/io/..."` | File and directory operations |
-| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, QUIC, and Git networking |
+| Category | Module | Import | Description |
+|----------|--------|--------|-------------|
+| **Core** | [Math](core/math.md) | `import "sdk/core/math"` | Mathematical functions and constants |
+| | [Random](core/random.md) | `import "sdk/core/random"` | Random number generation |
+| | [UUID](core/uuid.md) | `import "sdk/core/uuid"` | UUID generation and parsing |
+| **Crypto** | [Crypto](crypto/crypto.md) | `import "sdk/crypto/crypto"` | Cryptographic hashing, encryption, and key derivation |
+| **Encoding** | [JSON](encoding/json.md) | `import "sdk/encoding/json"` | JSON parsing and serialization |
+| | [XML](encoding/xml.md) | `import "sdk/encoding/xml"` | XML parsing, XPath, and DOM manipulation |
+| | [YAML](encoding/yaml.md) | `import "sdk/encoding/yaml"` | YAML parsing and serialization |
+| | [ZLib](encoding/zlib.md) | `import "sdk/encoding/zlib"` | Compression and decompression |
+| **I/O** | [Stdio](io/stdio.md) | `import "sdk/io/stdio"` | Standard input/output/error streams |
+| | [TextFile](io/readme.md) | `import "sdk/io/textfile"` | Text file reading/writing |
+| | [BinaryFile](io/readme.md) | `import "sdk/io/binaryfile"` | Binary file operations |
+| | [Path](io/readme.md) | `import "sdk/io/path"` | Path utilities |
+| | [Directory](io/readme.md) | `import "sdk/io/directory"` | Directory operations |
+| | [Bytes](io/readme.md) | `import "sdk/io/bytes"` | Byte encoding/decoding |
+| **Net** | [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, QUIC, and Git networking |
+| **OS** | [Environment](os/env.md) | `import "sdk/os/env"` | Environment variable access |
+| | [Process](os/process.md) | `import "sdk/os/process"` | Process execution and output capture |
+| **Time** | [Date](time/date.md) | `import "sdk/time/date"` | Calendar date operations |
+| | [Time](time/time.md) | `import "sdk/time/time"` | Time and duration operations |
 
 ## Quick Start
 
 ```sindarin
-import "sdk/date"
-import "sdk/time"
-import "sdk/env"
-import "sdk/process"
-import "sdk/random"
-import "sdk/uuid"
+import "sdk/time/date"
+import "sdk/time/time"
+import "sdk/os/env"
+import "sdk/os/process"
+import "sdk/core/random"
+import "sdk/core/uuid"
 import "sdk/io/textfile"
 import "sdk/net/tcp"
 
@@ -74,9 +78,9 @@ fn main(): int =>
 SDK modules are imported by path relative to the SDK root:
 
 ```sindarin
-import "sdk/date"           // Top-level module
-import "sdk/io/textfile"    // Nested module
-import "sdk/io/path"        // Another nested module
+import "sdk/time/date"      // Time module
+import "sdk/io/textfile"    // I/O module
+import "sdk/encoding/json"  // Encoding module
 ```
 
 ### Naming Conventions
@@ -175,202 +179,57 @@ See the [I/O documentation](io/readme.md) for detailed memory management pattern
 
 ## Module Reference
 
-### Date
+### Core
 
-Calendar date operations with formatting, arithmetic, and comparison.
-
-```sindarin
-import "sdk/date"
-
-var today: Date = Date.today()
-var birthday: Date = Date.fromYmd(2025, 6, 15)
-var days: int = birthday.diffDays(today)
-print($"Days until birthday: {days}\n")
-```
-
-[Full documentation →](date.md)
-
-### Time
-
-Timestamps, duration calculations, and time formatting.
+General-purpose utilities for math, randomness, and identifiers.
 
 ```sindarin
-import "sdk/time"
-
-var start: Time = Time.now()
-doWork()
-var elapsed: int = Time.now().diff(start)
-print($"Elapsed: {elapsed}ms\n")
-```
-
-[Full documentation →](time.md)
-
-### Environment
-
-Environment variable access with required and optional (default) variants.
-
-```sindarin
-import "sdk/env"
-
-var user: str = Environment.getOr("USER", "unknown")
-var apiKey: str = Environment.get("API_KEY")  // panics if not set
-if Environment.has("DEBUG") =>
-  enableDebugMode()
-```
-
-[Full documentation →](env.md)
-
-### Process
-
-Execute external commands and capture their output.
-
-```sindarin
-import "sdk/process"
-
-var p: Process = Process.runArgs("ls", {"-la"})
-if p.success() =>
-    print(p.stdout())
-else =>
-    print($"Failed: {p.stderr()}")
-```
-
-[Full documentation →](process.md)
-
-### Random
-
-Secure random number generation with optional seeding for reproducibility.
-
-```sindarin
-import "sdk/random"
-
-var dice: int = Random.int(1, 6)
-var coin: bool = Random.bool()
-var pick: str = Random.choice(colors)
-```
-
-[Full documentation →](random.md)
-
-### UUID
-
-UUID generation (v4, v5, v7) and parsing.
-
-```sindarin
-import "sdk/uuid"
-
-var id: UUID = UUID.create()     // v7 (recommended)
-var random: UUID = UUID.v4()     // v4 (pure random)
-print($"ID: {id}\n")
-```
-
-[Full documentation →](uuid.md)
-
-### Math
-
-Mathematical functions, constants, and helpers for double and float precision.
-
-```sindarin
-import "sdk/math" as math
+import "sdk/core/math" as math
+import "sdk/core/random"
+import "sdk/core/uuid"
 
 var angle: double = math.degToRad(45.0)
-var s: double = math.sin(angle)
-var dist: double = math.distance2D(0.0, 0.0, 3.0, 4.0)
+var dice: int = Random.int(1, 6)
+var id: UUID = UUID.create()
 ```
 
-[Full documentation →](math.md)
-
-### JSON
-
-JSON parsing, manipulation, and serialization using yyjson.
-
-```sindarin
-import "sdk/json"
-
-var doc: Json = Json.parse("{\"name\": \"Alice\"}")
-var name: str = doc.get("name").asString()
-
-var obj: Json = Json.object()
-obj.set("key", Json.ofString("value"))
-print(obj.toPrettyString())
-```
-
-[Full documentation →](json.md)
-
-### XML
-
-XML parsing, XPath queries, and DOM manipulation using libxml2.
-
-```sindarin
-import "sdk/xml"
-
-var doc: Xml = Xml.parseFile("data.xml")
-var items: Xml[] = doc.findAll("//item")
-for i: int = 0; i < items.length; i += 1 =>
-    print($"{items[i].text()}\n")
-```
-
-[Full documentation →](xml.md)
-
-### YAML
-
-YAML parsing, manipulation, and serialization using libyaml.
-
-```sindarin
-import "sdk/yaml"
-
-var config: Yaml = Yaml.parseFile("config.yaml")
-var host: str = config.get("server").get("host").value()
-var port: int = config.get("server").get("port").asInt()
-```
-
-[Full documentation →](yaml.md)
-
-### ZLib
-
-Compression and decompression using zlib.
-
-```sindarin
-import "sdk/zlib"
-
-var compressed: byte[] = compressData(data)
-var original: byte[] = decompressData(compressed, expectedSize)
-```
-
-[Full documentation →](zlib.md)
+[Math →](core/math.md) | [Random →](core/random.md) | [UUID →](core/uuid.md)
 
 ### Crypto
 
 Cryptographic hashing, HMAC, AES-256-GCM encryption, PBKDF2 key derivation, and secure random bytes.
 
 ```sindarin
-import "sdk/crypto"
+import "sdk/crypto/crypto"
 
 var hash: byte[] = Crypto.sha256Str("hello")
 var key: byte[] = Crypto.randomBytes(32)
 var encrypted: byte[] = Crypto.encrypt(key, plaintext)
 var decrypted: byte[] = Crypto.decrypt(key, encrypted)
-var derived: byte[] = Crypto.pbkdf2("password", salt, 100000, 32)
 ```
 
-[Full documentation →](crypto.md)
+[Full documentation →](crypto/crypto.md)
 
-### Stdio
+### Encoding
 
-Structured access to standard input, output, and error streams.
+Data serialization, parsing, and compression.
 
 ```sindarin
-import "sdk/stdio"
+import "sdk/encoding/json"
+import "sdk/encoding/xml"
+import "sdk/encoding/yaml"
+import "sdk/encoding/zlib"
 
-Stdout.write("Enter name: ")
-Stdout.flush()
-var name: str = Stdin.readLine()
-Stderr.writeLine("Debug: got input")
+var doc: Json = Json.parse("{\"name\": \"Alice\"}")
+var root: Xml = Xml.parseFile("data.xml")
+var config: Yaml = Yaml.parseFile("config.yaml")
 ```
 
-[Full documentation →](stdio.md)
+[JSON →](encoding/json.md) | [XML →](encoding/xml.md) | [YAML →](encoding/yaml.md) | [ZLib →](encoding/zlib.md)
 
 ### I/O
 
-File operations, path utilities, and directory management.
+File operations, path utilities, directory management, and standard streams.
 
 ```sindarin
 import "sdk/io/textfile"
@@ -378,13 +237,15 @@ import "sdk/io/binaryfile"
 import "sdk/io/path"
 import "sdk/io/directory"
 import "sdk/io/bytes"
+import "sdk/io/stdio"
 
 var content: str = TextFile.readAll("data.txt")
 var dir: str = Path.directory("/home/user/file.txt")
-var files: str[] = Directory.list("/home/user")
+Stdout.write("Enter name: ")
+var name: str = Stdin.readLine()
 ```
 
-[Full documentation →](io/readme.md)
+[Full documentation →](io/readme.md) | [Stdio →](io/stdio.md)
 
 ### Net
 
@@ -392,43 +253,50 @@ TCP, UDP, TLS, DTLS, SSH, QUIC, and Git operations for network communication.
 
 ```sindarin
 import "sdk/net/tcp"
-import "sdk/net/udp"
 import "sdk/net/tls"
-import "sdk/net/dtls"
 import "sdk/net/ssh"
 import "sdk/net/quic"
 import "sdk/net/git"
 
 var server: TcpListener = TcpListener.bind(":8080")
-var client: TcpStream = server.accept()
-var line: str = client.readLine()
-client.writeLine($"Echo: {line}")
-
-// Secure connections
 var secure: TlsStream = TlsStream.connect("example.com:443")
-secure.writeLine("GET / HTTP/1.1")
-secure.writeLine("Host: example.com")
-secure.writeLine("")
-
-// SSH remote execution
 var ssh: SshConnection = SshConnection.connectPassword("server:22", "user", "pass")
-print(ssh.run("ls -la"))
-ssh.close()
-
-// QUIC multiplexed streams
-var quic: QuicConnection = QuicConnection.connect("server:4433")
-var stream: QuicStream = quic.openStream()
-stream.writeLine("hello")
-
-// Git operations
 var repo: GitRepo = GitRepo.open(".")
-var commits: GitCommit[] = repo.log(5)
-for c in commits =>
-    print($"{c.id()[0..7]} {c.message()}\n")
-repo.close()
 ```
 
 [Full documentation →](net/readme.md)
+
+### OS
+
+Operating system and process interaction.
+
+```sindarin
+import "sdk/os/env"
+import "sdk/os/process"
+
+var user: str = Environment.getOr("USER", "unknown")
+var p: Process = Process.runArgs("ls", {"-la"})
+if p.success() =>
+    print(p.stdout())
+```
+
+[Environment →](os/env.md) | [Process →](os/process.md)
+
+### Time
+
+Calendar dates and timestamps.
+
+```sindarin
+import "sdk/time/date"
+import "sdk/time/time"
+
+var today: Date = Date.today()
+var now: Time = Time.now()
+var elapsed: int = Time.now().diff(now)
+print($"Today: {today.toIso()}\n")
+```
+
+[Date →](time/date.md) | [Time →](time/time.md)
 
 ---
 
