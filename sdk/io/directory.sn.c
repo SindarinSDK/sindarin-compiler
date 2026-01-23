@@ -391,8 +391,12 @@ static int delete_recursive_helper(const char *path)
                     result = rmdir(full_path);
                 }
             } else {
-                /* Delete file */
+                /* Delete file - handle read-only files (e.g. .git/objects) */
                 result = unlink(full_path);
+                if (result != 0) {
+                    chmod(full_path, S_IRUSR | S_IWUSR);
+                    result = unlink(full_path);
+                }
             }
         }
 

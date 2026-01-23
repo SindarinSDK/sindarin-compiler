@@ -19,7 +19,7 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 | [ZLib](zlib.md) | `import "sdk/zlib"` | Compression and decompression |
 | [Stdio](stdio.md) | `import "sdk/stdio"` | Standard input/output/error streams |
 | [I/O](io/readme.md) | `import "sdk/io/..."` | File and directory operations |
-| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, and QUIC networking |
+| [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, QUIC, and Git networking |
 
 ## Quick Start
 
@@ -103,6 +103,13 @@ SDK types use the `Sn` prefix to distinguish them from built-in types:
 | `QuicConnection` | QUIC connection |
 | `QuicListener` | QUIC server listener |
 | `QuicStream` | QUIC stream |
+| `GitRepo` | Git repository |
+| `GitCommit` | Git commit metadata |
+| `GitBranch` | Git branch reference |
+| `GitRemote` | Git remote configuration |
+| `GitDiff` | Git diff entry |
+| `GitStatus` | Git working tree status entry |
+| `GitTag` | Git tag reference |
 | `Json` | JSON value |
 | `Xml` | XML node |
 | `Yaml` | YAML node |
@@ -363,7 +370,7 @@ var files: str[] = Directory.list("/home/user")
 
 ### Net
 
-TCP, UDP, TLS, DTLS, SSH, and QUIC operations for network communication.
+TCP, UDP, TLS, DTLS, SSH, QUIC, and Git operations for network communication.
 
 ```sindarin
 import "sdk/net/tcp"
@@ -372,6 +379,7 @@ import "sdk/net/tls"
 import "sdk/net/dtls"
 import "sdk/net/ssh"
 import "sdk/net/quic"
+import "sdk/net/git"
 
 var server: TcpListener = TcpListener.bind(":8080")
 var client: TcpStream = server.accept()
@@ -393,6 +401,13 @@ ssh.close()
 var quic: QuicConnection = QuicConnection.connect("server:4433")
 var stream: QuicStream = quic.openStream()
 stream.writeLine("hello")
+
+// Git operations
+var repo: GitRepo = GitRepo.open(".")
+var commits: GitCommit[] = repo.log(5)
+for c in commits =>
+    print($"{c.id()[0..7]} {c.message()}\n")
+repo.close()
 ```
 
 [Full documentation →](net/readme.md)

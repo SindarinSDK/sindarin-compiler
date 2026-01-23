@@ -24,6 +24,11 @@
         "name": "libssh",
         "default-features": false,
         "features": ["server"]
+    },
+    {
+        "name": "libgit2",
+        "default-features": false,
+        "features": ["ssh", "openssl", "pcre2"]
     }
   ],
   "features": {
