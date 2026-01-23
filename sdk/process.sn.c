@@ -164,8 +164,8 @@ static char *build_command_line(const char *cmd, char **args, size_t args_len)
     /* Add arguments */
     if (args != NULL) {
         for (size_t i = 0; i < args_len; i++) {
-            /* Quote arguments that contain spaces */
-            if (strchr(args[i], ' ') != NULL) {
+            /* Quote arguments that contain spaces or are empty */
+            if (strchr(args[i], ' ') != NULL || args[i][0] == '\0') {
                 ptr += sprintf(ptr, " \"%s\"", args[i]);
             } else {
                 ptr += sprintf(ptr, " %s", args[i]);

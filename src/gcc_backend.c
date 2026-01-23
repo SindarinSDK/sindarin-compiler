@@ -1036,7 +1036,7 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
             int offset = (int)strlen(extra_libs);
 #ifdef _WIN32
             int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lzlib -lbcrypt -lws2_32");
+                " -lzlib -lbcrypt -lws2_32 -liphlpapi");
 #else
             int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
                 " -lz -lpthread");

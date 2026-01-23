@@ -7,13 +7,22 @@
 
 import "../../../sdk/net/ssh"
 import "../../../sdk/process"
+import "../../../sdk/env"
+
+fn getTempDir(): str =>
+    return Environment.getOr("TEMP", Environment.getOr("TMPDIR", "/tmp")).replace("\\", "/")
+
+fn hostKeyPath(): str =>
+    return $"{getTempDir()}/sn_test_ssh_host_key"
 
 fn setup_host_key(): void =>
+    var keyPath: str = hostKeyPath()
+
     # Remove any existing key files
-    Process.runArgs("rm", {"-f", "/tmp/sn_test_ssh_host_key", "/tmp/sn_test_ssh_host_key.pub"})
+    Process.runArgs("rm", {"-f", keyPath, $"{keyPath}.pub"})
 
     # Generate a fresh ED25519 host key
-    var p: Process = Process.runArgs("ssh-keygen", {"-t", "ed25519", "-f", "/tmp/sn_test_ssh_host_key", "-N", ""})
+    var p: Process = Process.runArgs("ssh-keygen", {"-t", "ed25519", "-f", keyPath, "-N", ""})
     assert(p.success(), $"ssh-keygen failed: {p.stderr()}")
 
 # --- Client functions for threaded execution ---
@@ -27,10 +36,10 @@ fn client_run_command(port: int): str =>
 fn client_exec_and_check(port: int): str =>
     var conn: SshConnection = SshConnection.connectPassword($"127.0.0.1:{port}", "testuser", "testpass")
     var result: SshExecResult = conn.exec("uptime")
-    var stdout: str = result.stdout()
+    var output: str = result.stdout()
     var code: int = result.exitCode()
     conn.close()
-    return $"{code}:{stdout}"
+    return $"{code}:{output}"
 
 fn client_shell_session(port: int): str =>
     var conn: SshConnection = SshConnection.connectPassword($"127.0.0.1:{port}", "shelluser", "shellpass")
@@ -44,7 +53,7 @@ fn test_listener_bind(): void =>
     print("test_listener_bind: ")
 
     var config: SshServerConfig = SshServerConfig.defaults()
-    config.setHostKey("/tmp/sn_test_ssh_host_key")
+    config.setHostKey(hostKeyPath())
     config.addUser("testuser", "testpass")
 
     var listener: SshListener = SshListener.bindWith(":0", config)
@@ -60,7 +69,7 @@ fn test_password_auth_and_exec(): void =>
     print("test_password_auth_and_exec: ")
 
     var config: SshServerConfig = SshServerConfig.defaults()
-    config.setHostKey("/tmp/sn_test_ssh_host_key")
+    config.setHostKey(hostKeyPath())
     config.addUser("testuser", "testpass")
 
     var listener: SshListener = SshListener.bindWith(":0", config)
@@ -97,7 +106,7 @@ fn test_exec_with_exit_code(): void =>
     print("test_exec_with_exit_code: ")
 
     var config: SshServerConfig = SshServerConfig.defaults()
-    config.setHostKey("/tmp/sn_test_ssh_host_key")
+    config.setHostKey(hostKeyPath())
     config.addUser("testuser", "testpass")
 
     var listener: SshListener = SshListener.bindWith(":0", config)
@@ -128,7 +137,7 @@ fn test_simple_bind_form(): void =>
     print("test_simple_bind_form: ")
 
     # Test the simpler SshListener.bind(address, keyPath) form
-    var listener: SshListener = SshListener.bind(":0", "/tmp/sn_test_ssh_host_key")
+    var listener: SshListener = SshListener.bind(":0", hostKeyPath())
     var port: int = listener.port()
 
     assert(port > 0, "Port should be assigned")
@@ -141,7 +150,7 @@ fn test_bidirectional_comm(): void =>
     print("test_bidirectional_comm: ")
 
     var config: SshServerConfig = SshServerConfig.defaults()
-    config.setHostKey("/tmp/sn_test_ssh_host_key")
+    config.setHostKey(hostKeyPath())
     config.addUser("shelluser", "shellpass")
 
     var listener: SshListener = SshListener.bindWith(":0", config)
@@ -181,6 +190,7 @@ fn main(): void =>
     test_bidirectional_comm()
 
     # Cleanup
-    Process.runArgs("rm", {"-f", "/tmp/sn_test_ssh_host_key", "/tmp/sn_test_ssh_host_key.pub"})
+    var keyPath: str = hostKeyPath()
+    Process.runArgs("rm", {"-f", keyPath, $"{keyPath}.pub"})
 
     print("\nAll SSH server tests passed!\n")
