@@ -7,7 +7,7 @@
 # ==============================================================================
 
 import "../../../sdk/net/tls"
-import "../../../sdk/env"
+import "../../../sdk/os/env"
 
 # --- Client functions for threaded execution ---
 

@@ -1,6 +1,6 @@
 // Exploratory test to verify compressBound works from zlib C library
 
-import "../../sdk/zlib" as zlib
+import "../../sdk/encoding/zlib" as zlib
 
 fn main(): void =>
     print("=== Testing compressBound from zlib ===\n\n")

@@ -6,7 +6,7 @@
 # ==============================================================================
 
 import "../../../sdk/io/path"
-import "../../../sdk/env"
+import "../../../sdk/os/env"
 
 # Cross-platform temp directory helper
 fn getTempDir(): str =>

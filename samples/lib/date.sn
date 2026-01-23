@@ -5,7 +5,7 @@
 //               and common date patterns
 // ============================================================================
 
-import "../../sdk/date"
+import "../../sdk/time/date"
 
 // Entry point for date demos
 fn demo_date(): void =>
