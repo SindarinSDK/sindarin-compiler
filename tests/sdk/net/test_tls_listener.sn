@@ -30,6 +30,8 @@ fn client_write_bytes(port: int): int =>
     var msg: byte[] = "Hello Bytes".toBytes()
     var sent: int = client.write(msg)
 
+    # Wait for server to acknowledge receipt before closing
+    client.readLine()
     client.close()
     return sent
 
@@ -108,6 +110,9 @@ fn test_tls_write_bytes(): void =>
     var received: byte[] = serverConn.read(1024)
     assert(received.length == 11, $"Should receive 11 bytes, got {received.length}")
     assert(received.toString() == "Hello Bytes", $"Should receive 'Hello Bytes', got '{received.toString()}'")
+
+    # Acknowledge receipt so client can close cleanly
+    serverConn.writeLine("ok")
 
     # Sync with client
     var sent: int = client_result!

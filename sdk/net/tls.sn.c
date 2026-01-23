@@ -205,6 +205,10 @@ static int tls_stream_fill(RtTlsStream *stream) {
             return 0;
         } else if (ssl_err == SSL_ERROR_WANT_READ || ssl_err == SSL_ERROR_WANT_WRITE) {
             return 0; /* Retry needed */
+        } else if (ssl_err == SSL_ERROR_SYSCALL && ERR_peek_error() == 0) {
+            /* Peer disconnected without close_notify - treat as EOF */
+            stream->eof_reached = true;
+            return 0;
         } else {
             return -1; /* Error */
         }
