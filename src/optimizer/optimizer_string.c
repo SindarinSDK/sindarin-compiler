@@ -172,6 +172,19 @@ Expr *optimize_string_expr(Optimizer *opt, Expr *expr)
         }
         break;
 
+    case EXPR_MATCH:
+        expr->as.match_expr.subject = optimize_string_expr(opt, expr->as.match_expr.subject);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (!arm->is_else)
+            {
+                for (int j = 0; j < arm->pattern_count; j++)
+                    arm->patterns[j] = optimize_string_expr(opt, arm->patterns[j]);
+            }
+        }
+        break;
+
     default:
         break;
     }

@@ -1,0 +1,239 @@
+# ==============================================================================
+# test_match_as_val_ref.sn - Match with as val and as ref parameters
+# ==============================================================================
+
+struct Config =>
+    mode: int
+    name: str
+    values: int[]
+
+    fn modeStr(): str =>
+        var result: str = match self.mode =>
+            0 => "off"
+            1 => "on"
+            2 => "auto"
+            else => "unknown"
+        return result
+
+struct Selector =>
+    choice: int
+
+native struct NativePoint =>
+    x: int
+    y: int
+
+native fn init_point(p: NativePoint as ref, px: int, py: int): void =>
+    p.x = px
+    p.y = py
+
+native fn classify_point(p: NativePoint as ref): int =>
+    if p.x == 0 && p.y == 0 =>
+        return 0
+    if p.x > 0 && p.y > 0 =>
+        return 1
+    if p.x < 0 && p.y > 0 =>
+        return 2
+    if p.x < 0 && p.y < 0 =>
+        return 3
+    return 4
+
+native fn scale_point(p: NativePoint as ref, factor: int): void =>
+    p.x = p.x * factor
+    p.y = p.y * factor
+
+# Function taking struct as val (deep copy) - match on copied data
+fn match_on_val_copy(cfg: Config as val): str =>
+    # cfg is a deep copy - modifications don't affect original
+    cfg.mode = cfg.mode + 1
+    var result: str = match cfg.mode =>
+        1 => "was-off"
+        2 => "was-on"
+        3 => "was-auto"
+        else => "was-unknown"
+    return result
+
+# Function taking struct as ref (pointer) - match and modify
+fn match_and_modify_ref(cfg: Config as ref): str =>
+    var result: str = match cfg.mode =>
+        0 =>
+            cfg.name = "disabled"
+            "off"
+        1 =>
+            cfg.name = "enabled"
+            "on"
+        2 =>
+            cfg.name = "automatic"
+            "auto"
+        else =>
+            cfg.name = "error"
+            "unknown"
+    return result
+
+# Function using match on as-ref struct field
+fn categorize_by_ref(sel: Selector as ref): str =>
+    var result: str = match sel.choice =>
+        1, 2, 3 => "low"
+        4, 5, 6 => "medium"
+        7, 8, 9 => "high"
+        else => "invalid"
+    return result
+
+# Match on native struct field passed by ref
+fn classify_quadrant(p: NativePoint as ref): str =>
+    var q: int = classify_point(p)
+    var result: str = match q =>
+        0 => "origin"
+        1 => "Q1"
+        2 => "Q2"
+        3 => "Q3"
+        4 => "Q4"
+        else => "unknown"
+    return result
+
+# Match used to determine operation on as-ref struct
+fn transform_point(p: NativePoint as ref, op: int): void =>
+    match op =>
+        0 => scale_point(p, 2)
+        1 =>
+            p.x = 0 - p.x
+            p.y = 0 - p.y
+        2 =>
+            var temp: int = p.x
+            p.x = p.y
+            p.y = temp
+        else => scale_point(p, 1)
+
+fn test_match_as_val_basic(): void =>
+    print("test_match_as_val_basic: ")
+    var cfg: Config = Config { mode: 0, name: "test", values: {1, 2, 3} }
+    var result: str = match_on_val_copy(cfg)
+    assert(result == "was-off", "mode 0 should give was-off")
+    # Original should be unmodified
+    assert(cfg.mode == 0, "original mode should be unchanged")
+    assert(cfg.name == "test", "original name should be unchanged")
+    print("PASS\n")
+
+fn test_match_as_val_all_modes(): void =>
+    print("test_match_as_val_all_modes: ")
+    var c0: Config = Config { mode: 0, name: "", values: {} }
+    var c1: Config = Config { mode: 1, name: "", values: {} }
+    var c2: Config = Config { mode: 2, name: "", values: {} }
+    var c3: Config = Config { mode: 99, name: "", values: {} }
+    assert(match_on_val_copy(c0) == "was-off", "mode 0")
+    assert(match_on_val_copy(c1) == "was-on", "mode 1")
+    assert(match_on_val_copy(c2) == "was-auto", "mode 2")
+    assert(match_on_val_copy(c3) == "was-unknown", "mode 99")
+    print("PASS\n")
+
+fn test_match_as_ref_modify(): void =>
+    print("test_match_as_ref_modify: ")
+    var cfg: Config = Config { mode: 1, name: "original", values: {} }
+    var result: str = match_and_modify_ref(cfg)
+    assert(result == "on", "mode 1 should give on")
+    # as ref should have modified the original
+    assert(cfg.name == "enabled", "name should be modified to enabled")
+    print("PASS\n")
+
+fn test_match_as_ref_all_modes(): void =>
+    print("test_match_as_ref_all_modes: ")
+    var c0: Config = Config { mode: 0, name: "", values: {} }
+    match_and_modify_ref(c0)
+    assert(c0.name == "disabled", "mode 0 name")
+
+    var c2: Config = Config { mode: 2, name: "", values: {} }
+    match_and_modify_ref(c2)
+    assert(c2.name == "automatic", "mode 2 name")
+
+    var c9: Config = Config { mode: 9, name: "", values: {} }
+    match_and_modify_ref(c9)
+    assert(c9.name == "error", "mode 9 name")
+    print("PASS\n")
+
+fn test_match_selector_ref(): void =>
+    print("test_match_selector_ref: ")
+    var sel: Selector = Selector { choice: 5 }
+    assert(categorize_by_ref(sel) == "medium", "5 should be medium")
+
+    sel.choice = 1
+    assert(categorize_by_ref(sel) == "low", "1 should be low")
+
+    sel.choice = 9
+    assert(categorize_by_ref(sel) == "high", "9 should be high")
+
+    sel.choice = 0
+    assert(categorize_by_ref(sel) == "invalid", "0 should be invalid")
+    print("PASS\n")
+
+native fn test_match_native_as_ref(): void =>
+    print("test_match_native_as_ref: ")
+    var p: NativePoint = NativePoint { x: 0, y: 0 }
+    init_point(p, 3, 4)
+    assert(classify_quadrant(p) == "Q1", "3,4 should be Q1")
+
+    init_point(p, -2, 5)
+    assert(classify_quadrant(p) == "Q2", "-2,5 should be Q2")
+
+    init_point(p, -1, -1)
+    assert(classify_quadrant(p) == "Q3", "-1,-1 should be Q3")
+
+    init_point(p, 0, 0)
+    assert(classify_quadrant(p) == "origin", "0,0 should be origin")
+    print("PASS\n")
+
+native fn test_match_transform_native_ref(): void =>
+    print("test_match_transform_native_ref: ")
+    var p: NativePoint = NativePoint { x: 0, y: 0 }
+    init_point(p, 5, 3)
+
+    # op 0: scale by 2
+    transform_point(p, 0)
+    assert(p.x == 10, "after scale x")
+    assert(p.y == 6, "after scale y")
+
+    # op 1: negate
+    transform_point(p, 1)
+    assert(p.x == -10, "after negate x")
+    assert(p.y == -6, "after negate y")
+
+    # op 2: swap x,y
+    transform_point(p, 2)
+    assert(p.x == -6, "after swap x")
+    assert(p.y == -10, "after swap y")
+    print("PASS\n")
+
+fn test_match_val_preserves_array(): void =>
+    print("test_match_val_preserves_array: ")
+    var cfg: Config = Config { mode: 1, name: "test", values: {10, 20, 30} }
+    # as val copy should preserve values array independently
+    var result: str = match_on_val_copy(cfg)
+    assert(result == "was-on", "result should be was-on")
+    assert(cfg.values[0] == 10, "original values[0] preserved")
+    assert(cfg.values[1] == 20, "original values[1] preserved")
+    assert(cfg.values[2] == 30, "original values[2] preserved")
+    print("PASS\n")
+
+fn test_match_on_struct_method_result(): void =>
+    print("test_match_on_struct_method_result: ")
+    var cfg: Config = Config { mode: 2, name: "", values: {} }
+    var desc: str = match cfg.modeStr() =>
+        "off" => "disabled"
+        "on" => "active"
+        "auto" => "smart"
+        else => "?"
+    assert(desc == "smart", "auto should give smart")
+    print("PASS\n")
+
+fn main(): void =>
+    print("=== Match As Val/Ref Tests ===\n\n")
+
+    test_match_as_val_basic()
+    test_match_as_val_all_modes()
+    test_match_as_ref_modify()
+    test_match_as_ref_all_modes()
+    test_match_selector_ref()
+    test_match_native_as_ref()
+    test_match_transform_native_ref()
+    test_match_val_preserves_array()
+    test_match_on_struct_method_result()
+
+    print("\nAll match as val/ref tests passed!\n")

@@ -1,0 +1,13 @@
+fn status_message(code: int): str =>
+    var msg: str = match code =>
+        200 => "OK"
+        404 => "Not Found"
+        500 => "Internal Server Error"
+        else => "Unknown"
+    return msg
+
+fn main(): void =>
+    print($"{status_message(200)}\n")
+    print($"{status_message(404)}\n")
+    print($"{status_message(500)}\n")
+    print($"{status_message(302)}\n")

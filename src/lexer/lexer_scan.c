@@ -130,6 +130,8 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
             }
         }
         break;
+    case 'm':
+        return lexer_check_keyword(lexer, 1, 4, "atch", TOKEN_MATCH);
     case 'n':
         if (lexer->current - lexer->start > 1)
         {

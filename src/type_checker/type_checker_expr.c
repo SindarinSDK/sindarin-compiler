@@ -2066,6 +2066,121 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
             DEBUG_VERBOSE("Compound assignment type check passed: target type %d, op %d", target_type->kind, op);
         }
         break;
+
+    case EXPR_MATCH:
+        {
+            MatchExpr *match = &expr->as.match_expr;
+
+            /* Type check the subject expression */
+            Type *subject_type = type_check_expr(match->subject, table);
+            if (subject_type == NULL)
+            {
+                type_error(expr->token, "Invalid match subject expression");
+                t = NULL;
+                break;
+            }
+
+            bool has_else = false;
+            Type *arm_result_type = NULL;
+            bool all_arms_same_type = true;
+
+            for (int i = 0; i < match->arm_count; i++)
+            {
+                MatchArm *arm = &match->arms[i];
+
+                if (arm->is_else)
+                {
+                    has_else = true;
+                }
+                else
+                {
+                    /* Type check each pattern expression */
+                    for (int j = 0; j < arm->pattern_count; j++)
+                    {
+                        Type *pattern_type = type_check_expr(arm->patterns[j], table);
+                        if (pattern_type == NULL)
+                        {
+                            type_error(expr->token, "Invalid match arm pattern");
+                            t = NULL;
+                            break;
+                        }
+                        if (!ast_type_equals(pattern_type, subject_type))
+                        {
+                            /* Allow numeric type widening (int patterns matching int subject) */
+                            bool compatible = false;
+                            if ((subject_type->kind == TYPE_INT || subject_type->kind == TYPE_INT32 ||
+                                 subject_type->kind == TYPE_UINT || subject_type->kind == TYPE_UINT32 ||
+                                 subject_type->kind == TYPE_LONG) &&
+                                (pattern_type->kind == TYPE_INT || pattern_type->kind == TYPE_INT32 ||
+                                 pattern_type->kind == TYPE_UINT || pattern_type->kind == TYPE_UINT32 ||
+                                 pattern_type->kind == TYPE_LONG))
+                            {
+                                compatible = true;
+                            }
+                            if ((subject_type->kind == TYPE_DOUBLE || subject_type->kind == TYPE_FLOAT) &&
+                                (pattern_type->kind == TYPE_DOUBLE || pattern_type->kind == TYPE_FLOAT))
+                            {
+                                compatible = true;
+                            }
+                            if (!compatible)
+                            {
+                                type_error(arm->patterns[j]->token, "Match arm pattern type does not match subject type");
+                            }
+                        }
+                    }
+                }
+
+                /* Type check the arm body */
+                if (arm->body != NULL)
+                {
+                    type_check_stmt(arm->body, table, NULL);
+
+                    /* Determine arm result type from last expression in body */
+                    if (arm->body->type == STMT_BLOCK && arm->body->as.block.count > 0)
+                    {
+                        Stmt *last_stmt = arm->body->as.block.statements[arm->body->as.block.count - 1];
+                        if (last_stmt->type == STMT_EXPR && last_stmt->as.expression.expression != NULL)
+                        {
+                            Type *this_arm_type = last_stmt->as.expression.expression->expr_type;
+                            if (this_arm_type != NULL && this_arm_type->kind != TYPE_VOID)
+                            {
+                                if (arm_result_type == NULL)
+                                {
+                                    arm_result_type = this_arm_type;
+                                }
+                                else if (!ast_type_equals(arm_result_type, this_arm_type))
+                                {
+                                    all_arms_same_type = false;
+                                }
+                            }
+                            else
+                            {
+                                all_arms_same_type = false;
+                            }
+                        }
+                        else
+                        {
+                            all_arms_same_type = false;
+                        }
+                    }
+                    else
+                    {
+                        all_arms_same_type = false;
+                    }
+                }
+            }
+
+            /* If all arms have the same type and else exists, match is an expression */
+            if (has_else && all_arms_same_type && arm_result_type != NULL)
+            {
+                t = arm_result_type;
+            }
+            else
+            {
+                t = ast_create_primitive_type(table->arena, TYPE_VOID);
+            }
+        }
+        break;
     }
     expr->expr_type = t;
     if (t != NULL)

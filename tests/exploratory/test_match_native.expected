@@ -1,0 +1,13 @@
+=== Match Native Tests ===
+
+test_match_native_int: PASS
+test_match_native_long: PASS
+test_match_native_double: PASS
+test_match_native_char: PASS
+test_match_native_struct_field: PASS
+test_match_native_struct_sizes: PASS
+test_match_in_struct_with_native: PASS
+test_match_native_multivalue: PASS
+test_match_native_as_expression: PASS
+
+All match native tests passed!

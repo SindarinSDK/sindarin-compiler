@@ -368,6 +368,22 @@ void collect_used_variables(Expr *expr, Token **used_vars, int *used_count,
         collect_used_variables(expr->as.member_assign.value, used_vars, used_count, used_capacity, arena);
         break;
 
+    case EXPR_MATCH:
+        /* Match uses subject and pattern expressions, and arm bodies */
+        collect_used_variables(expr->as.match_expr.subject, used_vars, used_count, used_capacity, arena);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (!arm->is_else)
+            {
+                for (int j = 0; j < arm->pattern_count; j++)
+                    collect_used_variables(arm->patterns[j], used_vars, used_count, used_capacity, arena);
+            }
+            if (arm->body != NULL)
+                collect_used_variables_stmt(arm->body, used_vars, used_count, used_capacity, arena);
+        }
+        break;
+
     case EXPR_LITERAL:
     default:
         break;

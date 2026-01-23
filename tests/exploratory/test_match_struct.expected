@@ -1,0 +1,11 @@
+=== Match Struct Tests ===
+
+test_http_status: PASS
+test_http_category: PASS
+test_http_is_success: PASS
+test_direction: PASS
+test_token_describe: PASS
+test_calculator: PASS
+test_match_with_field_subject: PASS
+
+All match struct tests passed!

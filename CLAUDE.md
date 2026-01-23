@@ -85,6 +85,7 @@ fn add(a: int, b: int): int => a + b
 var x: int = 42
 var b: byte = 255
 if cond => ... else => ...
+match expr => value => body, else => body
 $"Hello {name}"
 ```
 

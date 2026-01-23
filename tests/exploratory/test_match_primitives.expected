@@ -1,0 +1,19 @@
+=== Match Primitives Tests ===
+
+test_match_int: PASS
+test_match_int_expr: PASS
+test_match_long: PASS
+test_match_long_large: PASS
+test_match_double: PASS
+test_match_str: PASS
+test_match_str_interpolated: PASS
+test_match_char: PASS
+test_match_bool: PASS
+test_match_bool_false: PASS
+test_match_byte: PASS
+test_match_int_multivalue: PASS
+test_match_else_only: PASS
+test_match_statement_context: PASS
+test_match_nested: PASS
+
+All match primitives tests passed!

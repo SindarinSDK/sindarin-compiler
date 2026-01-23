@@ -1,0 +1,164 @@
+# ==============================================================================
+# test_match_native.sn - Match with native functions and pointers
+# ==============================================================================
+
+# Native expression-body functions returning different types
+native fn native_add(a: int, b: int): int => a + b
+native fn native_mul_long(a: long, b: long): long => a * b
+native fn native_div_double(a: double, b: double): double => a / b
+native fn native_byte_max(a: byte, b: byte): byte => a
+native fn native_identity_char(c: char): char => c
+
+# Regular struct for size-based matching
+struct Buffer =>
+    size: int
+
+fn buffer_create(sz: int): Buffer =>
+    return Buffer { size: sz }
+
+fn buffer_size_category(buf: Buffer): int =>
+    if buf.size < 10 =>
+        return 1
+    if buf.size < 100 =>
+        return 2
+    if buf.size < 1000 =>
+        return 3
+    return 4
+
+# Struct with match that calls native functions
+struct Evaluator =>
+    base: int
+
+    fn evaluate(op: int): int =>
+        var a: int = self.base
+        var b: int = 10
+        var result: int = match op =>
+            1 => native_add(a, b)
+            2 => native_add(a, native_add(b, b))
+            else => 0
+        return result
+
+fn test_match_native_int(): void =>
+    print("test_match_native_int: ")
+    var n: int = native_add(20, 22)
+    var result: str = match n =>
+        0 => "zero"
+        42 => "answer"
+        else => "other"
+    assert(result == "answer", "native int match failed")
+    print("PASS\n")
+
+fn test_match_native_long(): void =>
+    print("test_match_native_long: ")
+    var n: long = native_mul_long(7l, 6l)
+    var result: str = match n =>
+        0l => "zero"
+        42l => "answer"
+        else => "other"
+    assert(result == "answer", "native long match failed")
+    print("PASS\n")
+
+fn test_match_native_double(): void =>
+    print("test_match_native_double: ")
+    var n: double = native_div_double(10.0, 2.0)
+    var result: str = match n =>
+        0.0 => "zero"
+        5.0 => "five"
+        else => "other"
+    assert(result == "five", "native double match failed")
+    print("PASS\n")
+
+fn test_match_native_char(): void =>
+    print("test_match_native_char: ")
+    var c: char = native_identity_char('Z')
+    var result: str = match c =>
+        'A' => "first"
+        'Z' => "last"
+        else => "middle"
+    assert(result == "last", "native char match failed")
+    print("PASS\n")
+
+fn test_match_native_struct_field(): void =>
+    print("test_match_native_struct_field: ")
+    var buf: Buffer = buffer_create(50)
+    var cat: int = buffer_size_category(buf)
+    var desc: str = match cat =>
+        1 => "tiny"
+        2 => "small"
+        3 => "medium"
+        4 => "large"
+        else => "unknown"
+    assert(desc == "small", "native struct field match failed")
+    print("PASS\n")
+
+fn test_match_native_struct_sizes(): void =>
+    print("test_match_native_struct_sizes: ")
+    var sizes: int[] = {5, 50, 500, 5000}
+    var expected: str[] = {"tiny", "small", "medium", "large"}
+    for i in 0..4 =>
+        var buf: Buffer = buffer_create(sizes[i])
+        var cat: int = buffer_size_category(buf)
+        var desc: str = match cat =>
+            1 => "tiny"
+            2 => "small"
+            3 => "medium"
+            4 => "large"
+            else => "unknown"
+        assert(desc == expected[i], $"size {sizes[i]} mismatch")
+    print("PASS\n")
+
+fn test_match_in_struct_with_native(): void =>
+    print("test_match_in_struct_with_native: ")
+    var ev: Evaluator = Evaluator { base: 5 }
+    assert(ev.evaluate(1) == 15, "op 1: base + 10")
+    assert(ev.evaluate(2) == 25, "op 2: base + 20")
+    assert(ev.evaluate(99) == 0, "op 99: default 0")
+    print("PASS\n")
+
+fn test_match_native_multivalue(): void =>
+    print("test_match_native_multivalue: ")
+    var results: str[] = {}
+    var inputs: int[] = {1, 5, 10, 50, 100, 500, 1000}
+    for i in 0..7 =>
+        var buf: Buffer = buffer_create(inputs[i])
+        var cat: int = buffer_size_category(buf)
+        var desc: str = match cat =>
+            1, 2 => "small-ish"
+            3, 4 => "big-ish"
+            else => "unknown"
+        results.push(desc)
+    assert(results[0] == "small-ish", "1 is small-ish")
+    assert(results[1] == "small-ish", "5 is small-ish")
+    assert(results[2] == "small-ish", "10 is small-ish")
+    assert(results[3] == "small-ish", "50 is small-ish")
+    assert(results[4] == "big-ish", "100 is big-ish")
+    assert(results[5] == "big-ish", "500 is big-ish")
+    assert(results[6] == "big-ish", "1000 is big-ish")
+    print("PASS\n")
+
+fn test_match_native_as_expression(): void =>
+    print("test_match_native_as_expression: ")
+    var a: int = native_add(1, 2)
+    var b: int = native_add(3, 4)
+    var sum: int = native_add(a, b)
+    var result: str = match sum =>
+        10 => "ten"
+        7 => "seven"
+        else => "other"
+    assert(result == "ten", "sum should be 10")
+    print("PASS\n")
+
+fn main(): void =>
+    print("=== Match Native Tests ===\n\n")
+
+    test_match_native_int()
+    test_match_native_long()
+    test_match_native_double()
+    test_match_native_char()
+    test_match_native_struct_field()
+    test_match_native_struct_sizes()
+    test_match_in_struct_with_native()
+    test_match_native_multivalue()
+    test_match_native_as_expression()
+
+    print("\nAll match native tests passed!\n")

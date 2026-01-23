@@ -927,3 +927,26 @@ Expr *ast_create_compound_assign_expr(Arena *arena, Expr *target, SnTokenType op
     expr->token = ast_clone_token(arena, loc_token);
     return expr;
 }
+
+Expr *ast_create_match_expr(Arena *arena, Expr *subject, MatchArm *arms, int arm_count, const Token *loc_token)
+{
+    if (subject == NULL)
+    {
+        DEBUG_ERROR("Cannot create match expression with NULL subject");
+        return NULL;
+    }
+    Expr *expr = arena_alloc(arena, sizeof(Expr));
+    if (expr == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(expr, 0, sizeof(Expr));
+    expr->type = EXPR_MATCH;
+    expr->as.match_expr.subject = subject;
+    expr->as.match_expr.arms = arms;
+    expr->as.match_expr.arm_count = arm_count;
+    expr->expr_type = NULL;
+    expr->token = ast_clone_token(arena, loc_token);
+    return expr;
+}

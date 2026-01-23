@@ -262,14 +262,14 @@ fn test_seeded_determinism(): void =>
     var rng1: Random = Random.createWithSeed(42l)
     var rng2: Random = Random.createWithSeed(42l)
 
-    var match: bool = true
+    var all_same: bool = true
     for i in 0..10 =>
         var a: int = rng1.nextInt(1, 1000)
         var b: int = rng2.nextInt(1, 1000)
         if a != b =>
-            match = false
+            all_same = false
 
-    assert(match, "Same seed should produce identical sequences")
+    assert(all_same, "Same seed should produce identical sequences")
     print("PASS\n")
 
 fn test_different_seeds(): void =>

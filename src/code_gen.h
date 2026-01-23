@@ -104,6 +104,9 @@ typedef struct {
     int pragma_source_count;
     int pragma_source_capacity;
 
+    /* Match expression support */
+    int match_count;                // Counter for unique match temp variable IDs
+
     /* Interceptor thunk support */
     int thunk_count;                // Counter for unique thunk IDs
     char *thunk_forward_decls;      // Buffer for thunk forward declarations

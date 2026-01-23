@@ -170,6 +170,20 @@ static void scan_expr_for_captures(CodeGen *gen, Expr *expr, SymbolTable *table,
         for (int i = 0; i < expr->as.static_call.arg_count; i++)
             scan_expr_for_captures(gen, expr->as.static_call.arguments[i], table, lambda_depth);
         break;
+    case EXPR_MATCH:
+        scan_expr_for_captures(gen, expr->as.match_expr.subject, table, lambda_depth);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (!arm->is_else)
+            {
+                for (int j = 0; j < arm->pattern_count; j++)
+                    scan_expr_for_captures(gen, arm->patterns[j], table, lambda_depth);
+            }
+            if (arm->body != NULL)
+                scan_stmt_for_captures(gen, arm->body, table, lambda_depth);
+        }
+        break;
     default:
         break;
     }

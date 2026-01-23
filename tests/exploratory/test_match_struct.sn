@@ -1,0 +1,177 @@
+# ==============================================================================
+# test_match_struct.sn - Match inside struct methods and with struct fields
+# ==============================================================================
+
+struct HttpResponse =>
+    code: int
+    message: str
+
+    fn status(): str =>
+        var result: str = match self.code =>
+            200 => "OK"
+            201 => "Created"
+            204 => "No Content"
+            301 => "Moved Permanently"
+            400 => "Bad Request"
+            401 => "Unauthorized"
+            403 => "Forbidden"
+            404 => "Not Found"
+            500 => "Internal Server Error"
+            else => "Unknown"
+        return result
+
+    fn category(): str =>
+        var c: int = self.code / 100
+        var result: str = match c =>
+            2 => "Success"
+            3 => "Redirect"
+            4 => "Client Error"
+            5 => "Server Error"
+            else => "Unknown"
+        return result
+
+    fn isSuccess(): bool =>
+        var result: bool = match self.code =>
+            200, 201, 202, 204 => true
+            else => false
+        return result
+
+struct Direction =>
+    name: str
+
+    fn opposite(): str =>
+        var result: str = match self.name =>
+            "north" => "south"
+            "south" => "north"
+            "east" => "west"
+            "west" => "east"
+            else => "unknown"
+        return result
+
+    fn degrees(): int =>
+        var result: int = match self.name =>
+            "north" => 0
+            "east" => 90
+            "south" => 180
+            "west" => 270
+            else => -1
+        return result
+
+struct Token =>
+    kind: int
+    value: str
+
+    fn describe(): str =>
+        var kind_str: str = match self.kind =>
+            1 => "NUMBER"
+            2 => "STRING"
+            3 => "IDENT"
+            4 => "OPERATOR"
+            else => "UNKNOWN"
+        return $"{kind_str}({self.value})"
+
+struct Calculator =>
+    result: int
+
+    fn apply(op: str, amount: int): void =>
+        match op =>
+            "add" => self.result = self.result + amount
+            "sub" => self.result = self.result - amount
+            "mul" => self.result = self.result * amount
+            "reset" => self.result = 0
+            else => print("")
+
+fn test_http_status(): void =>
+    print("test_http_status: ")
+    var r200: HttpResponse = HttpResponse { code: 200, message: "" }
+    var r404: HttpResponse = HttpResponse { code: 404, message: "" }
+    var r500: HttpResponse = HttpResponse { code: 500, message: "" }
+    var r999: HttpResponse = HttpResponse { code: 999, message: "" }
+
+    assert(r200.status() == "OK", "200 should be OK")
+    assert(r404.status() == "Not Found", "404 should be Not Found")
+    assert(r500.status() == "Internal Server Error", "500 should be ISE")
+    assert(r999.status() == "Unknown", "999 should be Unknown")
+    print("PASS\n")
+
+fn test_http_category(): void =>
+    print("test_http_category: ")
+    var r: HttpResponse = HttpResponse { code: 201, message: "" }
+    assert(r.category() == "Success", "2xx should be Success")
+
+    var r4: HttpResponse = HttpResponse { code: 403, message: "" }
+    assert(r4.category() == "Client Error", "4xx should be Client Error")
+    print("PASS\n")
+
+fn test_http_is_success(): void =>
+    print("test_http_is_success: ")
+    var r200: HttpResponse = HttpResponse { code: 200, message: "" }
+    var r201: HttpResponse = HttpResponse { code: 201, message: "" }
+    var r404: HttpResponse = HttpResponse { code: 404, message: "" }
+    assert(r200.isSuccess(), "200 should be success")
+    assert(r201.isSuccess(), "201 should be success")
+    assert(!r404.isSuccess(), "404 should not be success")
+    print("PASS\n")
+
+fn test_direction(): void =>
+    print("test_direction: ")
+    var d: Direction = Direction { name: "north" }
+    assert(d.opposite() == "south", "north opposite should be south")
+    assert(d.degrees() == 0, "north should be 0 degrees")
+
+    var d2: Direction = Direction { name: "west" }
+    assert(d2.opposite() == "east", "west opposite should be east")
+    assert(d2.degrees() == 270, "west should be 270 degrees")
+
+    var d3: Direction = Direction { name: "diagonal" }
+    assert(d3.opposite() == "unknown", "unknown direction")
+    assert(d3.degrees() == -1, "unknown degrees")
+    print("PASS\n")
+
+fn test_token_describe(): void =>
+    print("test_token_describe: ")
+    var t1: Token = Token { kind: 1, value: "42" }
+    var t2: Token = Token { kind: 2, value: "hello" }
+    var t3: Token = Token { kind: 3, value: "foo" }
+    var t4: Token = Token { kind: 99, value: "?" }
+    assert(t1.describe() == "NUMBER(42)", "number token")
+    assert(t2.describe() == "STRING(hello)", "string token")
+    assert(t3.describe() == "IDENT(foo)", "ident token")
+    assert(t4.describe() == "UNKNOWN(?)", "unknown token")
+    print("PASS\n")
+
+fn test_calculator(): void =>
+    print("test_calculator: ")
+    var calc: Calculator = Calculator { result: 0 }
+    calc.apply("add", 10)
+    assert(calc.result == 10, "after add 10")
+    calc.apply("mul", 3)
+    assert(calc.result == 30, "after mul 3")
+    calc.apply("sub", 5)
+    assert(calc.result == 25, "after sub 5")
+    calc.apply("reset", 0)
+    assert(calc.result == 0, "after reset")
+    print("PASS\n")
+
+fn test_match_with_field_subject(): void =>
+    print("test_match_with_field_subject: ")
+    var resp: HttpResponse = HttpResponse { code: 204, message: "No Content" }
+    var desc: str = match resp.message =>
+        "OK" => "success"
+        "No Content" => "empty"
+        else => "other"
+    assert(desc == "empty", "field subject match failed")
+    print("PASS\n")
+
+fn main(): void =>
+    print("=== Match Struct Tests ===\n\n")
+
+    test_http_status()
+    test_http_category()
+    test_http_is_success()
+    test_direction()
+    test_token_describe()
+    test_calculator()
+    test_match_with_field_subject()
+
+    print("\nAll match struct tests passed!\n")

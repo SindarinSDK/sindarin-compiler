@@ -15,7 +15,7 @@
 - **Structs** for structured data and C library interop
 - **String methods** (toUpper, toLower, trim, split, splitLines, isBlank, etc.)
 - **File I/O** with TextFile and BinaryFile types
-- **Control flow** with for, for-each, while, break, continue
+- **Control flow** with for, for-each, while, match, break, continue
 - **Module imports** for code organization
 - **Arena memory** with shared/private scopes and copy semantics
 - **C interoperability** with native functions, pointers, and callbacks
@@ -153,6 +153,7 @@ fn main(): void =>
 | [Strings](docs/strings.md) | String methods and interpolation |
 | [Arrays](docs/arrays.md) | Array operations and slicing |
 | [Structs](docs/structs.md) | Struct declarations and C interop |
+| [Match](docs/match.md) | Match expressions for multi-way branching |
 | [Lambdas](docs/lambdas.md) | Lambda expressions and closures |
 | [Memory](docs/memory.md) | Arena memory management |
 | [Threading](docs/threading.md) | Threading with spawn and sync |

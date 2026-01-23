@@ -28,6 +28,7 @@ typedef enum
     TOKEN_RETURN,
     TOKEN_IF,
     TOKEN_ELSE,
+    TOKEN_MATCH,
     TOKEN_FOR,
     TOKEN_WHILE,
     TOKEN_BREAK,
