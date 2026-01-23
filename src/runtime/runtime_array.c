@@ -2252,6 +2252,25 @@ void **rt_array_create_ptr(RtArena *arena, size_t count, void **data) {
     return arr;
 }
 
+/* Create array for arbitrary-sized elements (e.g., structs).
+ * Allocates metadata + count * elem_size bytes and memcpy's data. */
+void *rt_array_create_generic(RtArena *arena, size_t count, size_t elem_size, const void *data) {
+    size_t capacity = count > 4 ? count : 4;
+    ArrayMetadata *meta = rt_arena_alloc(arena, sizeof(ArrayMetadata) + capacity * elem_size);
+    if (meta == NULL) {
+        fprintf(stderr, "rt_array_create_generic: allocation failed\n");
+        exit(1);
+    }
+    meta->arena = arena;
+    meta->size = count;
+    meta->capacity = capacity;
+    void *arr = (void *)(meta + 1);
+    if (count > 0 && data != NULL) {
+        memcpy(arr, data, count * elem_size);
+    }
+    return arr;
+}
+
 /* Create str[] array from command-line arguments (argc/argv).
  * Copies all arguments into the arena and creates an array with metadata. */
 char **rt_args_create(RtArena *arena, int argc, char **argv) {

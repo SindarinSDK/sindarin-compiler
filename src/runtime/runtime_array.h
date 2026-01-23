@@ -258,6 +258,10 @@ uint32_t *rt_array_create_uint32(RtArena *arena, size_t count, const uint32_t *d
 uint64_t *rt_array_create_uint(RtArena *arena, size_t count, const uint64_t *data);
 float *rt_array_create_float(RtArena *arena, size_t count, const float *data);
 
+/* Create array for arbitrary-sized elements (e.g., structs).
+ * Allocates metadata + count * elem_size bytes and memcpy's data. */
+void *rt_array_create_generic(RtArena *arena, size_t count, size_t elem_size, const void *data);
+
 /* Create str[] array from command-line arguments (argc/argv).
  * Used by main() when it accepts a str[] parameter. */
 char **rt_args_create(RtArena *arena, int argc, char **argv);
