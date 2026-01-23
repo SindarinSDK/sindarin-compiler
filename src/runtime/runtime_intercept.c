@@ -38,14 +38,14 @@ RtInterceptTLS *__rt_get_intercept_tls(void) {
 }
 #else
 // Per-thread interception depth
-#ifdef _WIN32
+#ifdef _MSC_VER
 __declspec(thread) int __rt_intercept_depth = 0;
 #else
 __thread int __rt_intercept_depth = 0;
 #endif
 
 // Per-thread arguments array and arena for thunk functions
-#ifdef _WIN32
+#ifdef _MSC_VER
 __declspec(thread) RtAny *__rt_thunk_args = NULL;
 __declspec(thread) void *__rt_thunk_arena = NULL;
 #else
@@ -64,7 +64,7 @@ static int interceptor_registry_count = 0;
 
 /* Static thread-local buffer for wrapped args (avoids allocations).
  * Layout: [RtArrayMetadata][RtAny data...] */
-#ifdef _WIN32
+#ifdef _MSC_VER
 __declspec(thread) char __rt_wrapped_args_buffer[sizeof(RtArrayMetadata) + MAX_INTERCEPT_ARGS * sizeof(RtAny)];
 #elif !defined(__TINYC__)
 /* TCC uses __rt_wrapped_args_buffer macro from header pointing to TLS struct */
@@ -255,7 +255,7 @@ typedef struct InterceptContext
 } InterceptContext;
 
 // Thread-local context for the continue callback
-#ifdef _WIN32
+#ifdef _MSC_VER
 static __declspec(thread) InterceptContext *current_context = NULL;
 #elif defined(__TINYC__)
 /* TCC: use pthread TLS via macro - cast void* to InterceptContext** for lvalue access */
