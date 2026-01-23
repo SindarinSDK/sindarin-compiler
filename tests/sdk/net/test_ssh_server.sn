@@ -8,6 +8,8 @@
 import "../../../sdk/net/ssh"
 import "../../../sdk/process"
 import "../../../sdk/env"
+import "../../../sdk/io/textfile"
+import "../../../sdk/io/path"
 
 fn getTempDir(): str =>
     return Environment.getOr("TEMP", Environment.getOr("TMPDIR", "/tmp")).replace("\\", "/")
@@ -15,11 +17,16 @@ fn getTempDir(): str =>
 fn hostKeyPath(): str =>
     return $"{getTempDir()}/sn_test_ssh_host_key"
 
+fn cleanup_host_key(): void =>
+    var keyPath: str = hostKeyPath()
+    if Path.exists(keyPath) => TextFile.delete(keyPath)
+    if Path.exists($"{keyPath}.pub") => TextFile.delete($"{keyPath}.pub")
+
 fn setup_host_key(): void =>
     var keyPath: str = hostKeyPath()
 
     # Remove any existing key files
-    Process.runArgs("rm", {"-f", keyPath, $"{keyPath}.pub"})
+    cleanup_host_key()
 
     # Generate a fresh ED25519 host key
     var p: Process = Process.runArgs("ssh-keygen", {"-t", "ed25519", "-f", keyPath, "-N", ""})
@@ -190,7 +197,6 @@ fn main(): void =>
     test_bidirectional_comm()
 
     # Cleanup
-    var keyPath: str = hostKeyPath()
-    Process.runArgs("rm", {"-f", keyPath, $"{keyPath}.pub"})
+    cleanup_host_key()
 
     print("\nAll SSH server tests passed!\n")
