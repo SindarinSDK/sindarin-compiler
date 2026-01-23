@@ -1,4 +1,5 @@
 #include "code_gen/code_gen_expr.h"
+#include "code_gen/code_gen_expr_call.h"
 #include "code_gen/code_gen_util.h"
 #include "debug.h"
 #include "symbol_table.h"
@@ -114,7 +115,16 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
         }
         else
         {
-            /* Non-native static method: StructName_methodName(arena, args) */
+            /* Non-native static method: check for interception */
+            if (should_intercept_method(method, struct_type, method->return_type))
+            {
+                return code_gen_intercepted_method_call(gen, struct_name, method,
+                                                        struct_type, call->arg_count,
+                                                        call->arguments, NULL,
+                                                        false, method->return_type);
+            }
+
+            /* Direct call (no interception) */
             char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
             char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 

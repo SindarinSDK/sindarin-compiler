@@ -1,0 +1,99 @@
+// Test: Interceptor support for struct methods
+// Tests interception of both instance and static methods on structs
+
+struct Counter =>
+    value: int
+
+    fn getValue(): int =>
+        return self.value
+
+    fn increment(): void =>
+        self.value = self.value + 1
+
+    fn add(n: int): int =>
+        self.value = self.value + n
+        return self.value
+
+    static fn zero(): int =>
+        return 0
+
+    static fn create(v: int): int =>
+        return v * 2
+
+var intercept_log: str = ""
+
+fn methodInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercept_log = $"{intercept_log}[{name}]"
+    var result: any = continue_fn()
+    return result
+
+fn overrideInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
+    intercept_log = $"{intercept_log}[override:{name}]"
+    var result: any = 99
+    return result
+
+fn main =>
+    // Test 1: Instance method without interceptor
+    var c: Counter = Counter { value: 10 }
+    var v: int = c.getValue()
+    print($"getValue without interceptor: {v}\n")
+
+    // Test 2: Register interceptor and call instance method
+    Interceptor.registerWhere(methodInterceptor, "Counter.*")
+    v = c.getValue()
+    print($"getValue with interceptor: {v}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 3: Void instance method (self mutation)
+    intercept_log = ""
+    c.increment()
+    print($"After increment: {c.value}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 4: Instance method with args
+    intercept_log = ""
+    v = c.add(5)
+    print($"After add(5): {v}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 5: Static method interception
+    intercept_log = ""
+    v = Counter.zero()
+    print($"zero(): {v}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 6: Static method with args
+    intercept_log = ""
+    v = Counter.create(7)
+    print($"create(7): {v}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 7: Override method result
+    Interceptor.clearAll()
+    intercept_log = ""
+    Interceptor.registerWhere(overrideInterceptor, "Counter.getValue")
+    v = c.getValue()
+    print($"Overridden getValue: {v}\n")
+    print($"Log: {intercept_log}\n")
+
+    // Test 8: Exact name match does not intercept other methods
+    intercept_log = ""
+    c.increment()
+    print($"increment not intercepted: {c.value}\n")
+    if intercept_log == "" =>
+        print("Not intercepted - PASS\n")
+    else =>
+        print($"Unexpectedly intercepted: {intercept_log} - FAIL\n")
+
+    // Test 9: After clearAll, no interception
+    Interceptor.clearAll()
+    intercept_log = ""
+    c = Counter { value: 50 }
+    v = c.getValue()
+    print($"After clearAll getValue: {v}\n")
+    if intercept_log == "" =>
+        print("No interception after clearAll - PASS\n")
+    else =>
+        print($"Still intercepting: {intercept_log} - FAIL\n")
+
+    print("All struct method interceptor tests passed!\n")
