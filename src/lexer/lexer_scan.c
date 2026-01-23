@@ -765,10 +765,6 @@ Token lexer_scan_pipe_string(Lexer *lexer, int is_interpolated)
     /* Track minimum indentation for stripping */
     int min_content_indent = INT_MAX;
 
-    /* First pass: collect all lines and determine minimum indent */
-    const char *content_start = lexer->current;
-    int start_line = lexer->line;
-
     /* Count lines and find minimum indentation */
     typedef struct {
         const char *start;

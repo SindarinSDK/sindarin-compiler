@@ -871,6 +871,11 @@ void code_gen_module(CodeGen *gen, Module *module)
                         /* Opaque handle: self type is already a pointer (e.g., RtDate *) */
                         self_c_type = arena_sprintf(gen->arena, "%s *", struct_decl->c_alias);
                     }
+                    else if (struct_decl->pass_self_by_ref)
+                    {
+                        /* as ref: self is passed by pointer */
+                        self_c_type = arena_sprintf(gen->arena, "%s *", struct_name);
+                    }
                     else
                     {
                         self_c_type = struct_name;
@@ -1161,9 +1166,9 @@ void code_gen_module(CodeGen *gen, Module *module)
 
                 /* Set up code generator state for method */
                 char *method_full_name = arena_sprintf(gen->arena, "%s_%s", struct_name, method->name);
-                const char *saved_function = gen->current_function;
+                char *saved_function = gen->current_function;
                 Type *saved_return_type = gen->current_return_type;
-                const char *saved_arena_var = gen->current_arena_var;
+                char *saved_arena_var = gen->current_arena_var;
 
                 gen->current_function = method_full_name;
                 gen->current_return_type = method->return_type;

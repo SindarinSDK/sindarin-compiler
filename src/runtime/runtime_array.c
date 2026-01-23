@@ -1303,7 +1303,7 @@ RtAny **rt_array2_to_any_long(RtArena *arena, long long **arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_long(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1316,7 +1316,7 @@ RtAny **rt_array2_to_any_double(RtArena *arena, double **arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_double(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1329,7 +1329,7 @@ RtAny **rt_array2_to_any_char(RtArena *arena, char **arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_char(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1342,7 +1342,7 @@ RtAny **rt_array2_to_any_bool(RtArena *arena, int **arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_bool(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1355,7 +1355,7 @@ RtAny **rt_array2_to_any_byte(RtArena *arena, unsigned char **arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_byte(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1368,7 +1368,7 @@ RtAny **rt_array2_to_any_string(RtArena *arena, char ***arr) {
     RtAny **result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny *inner = rt_array_to_any_string(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny **)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1383,7 +1383,7 @@ RtAny ***rt_array3_to_any_long(RtArena *arena, long long ***arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_long(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1396,7 +1396,7 @@ RtAny ***rt_array3_to_any_double(RtArena *arena, double ***arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_double(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1409,7 +1409,7 @@ RtAny ***rt_array3_to_any_char(RtArena *arena, char ***arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_char(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1422,7 +1422,7 @@ RtAny ***rt_array3_to_any_bool(RtArena *arena, int ***arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_bool(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1435,7 +1435,7 @@ RtAny ***rt_array3_to_any_byte(RtArena *arena, unsigned char ***arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_byte(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }
@@ -1448,7 +1448,7 @@ RtAny ***rt_array3_to_any_string(RtArena *arena, char ****arr) {
     RtAny ***result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtAny **inner = rt_array2_to_any_string(arena, arr[i]);
-        result = rt_array_push_ptr(arena, result, inner);
+        result = (RtAny ***)rt_array_push_ptr(arena, (void **)result, (void *)inner);
     }
     return result;
 }

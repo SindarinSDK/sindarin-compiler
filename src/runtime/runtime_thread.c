@@ -714,6 +714,7 @@ void rt_thread_sync_all(RtThreadHandle **handles, size_t count)
 void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
                                 void *value, RtResultType type)
 {
+    (void)src_arena;
     if (dest == NULL) {
         fprintf(stderr, "rt_thread_promote_result: NULL dest arena\n");
         return NULL;

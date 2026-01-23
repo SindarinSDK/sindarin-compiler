@@ -1,0 +1,295 @@
+# Exploratory test: Self-method-call patterns
+# Tests various patterns of instance methods calling other instance methods,
+# including deep chaining, string field methods, struct returns, and bool logic.
+
+struct Range =>
+    min: int = 0
+    max: int = 0
+    label: str = ""
+
+    fn getMin(): int =>
+        return self.min
+
+    fn getMax(): int =>
+        return self.max
+
+    fn size(): int =>
+        return self.getMax() - self.getMin()
+
+    fn contains(value: int): bool =>
+        if value < self.getMin() =>
+            return false
+        if value > self.getMax() =>
+            return false
+        return true
+
+    fn overlaps(other: Range): bool =>
+        if self.getMax() < other.getMin() =>
+            return false
+        if self.getMin() > other.getMax() =>
+            return false
+        return true
+
+    fn toString(): str =>
+        return $"[{self.getMin()}, {self.getMax()}]"
+
+    fn toLabelled(): str =>
+        if self.label != "" =>
+            return $"{self.label}: {self.toString()}"
+        return self.toString()
+
+struct ChainTest =>
+    value: int = 0
+    name: str = ""
+
+    fn a(): int =>
+        return self.value + 1
+
+    fn b(): int =>
+        return self.a() + 1
+
+    fn c(): int =>
+        return self.b() + 1
+
+    fn d(): int =>
+        return self.c() + 1
+
+    fn e(): int =>
+        # 5 levels deep
+        return self.d() + 1
+
+    fn result(): str =>
+        return $"{self.name}={self.e()}"
+
+struct Point3D =>
+    x: int = 0
+    y: int = 0
+    z: int = 0
+    tag: str = ""
+
+    fn getX(): int =>
+        return self.x
+
+    fn getY(): int =>
+        return self.y
+
+    fn getZ(): int =>
+        return self.z
+
+    fn magnitudeSquared(): int =>
+        return self.getX() * self.getX() + self.getY() * self.getY() + self.getZ() * self.getZ()
+
+    fn dot(other: Point3D): int =>
+        return self.getX() * other.getX() + self.getY() * other.getY() + self.getZ() * other.getZ()
+
+    fn add(other: Point3D): Point3D =>
+        var result: Point3D = Point3D { x: self.getX() + other.getX(), y: self.getY() + other.getY(), z: self.getZ() + other.getZ(), tag: self.tag }
+        return result
+
+    fn scale(factor: int): Point3D =>
+        var result: Point3D = Point3D { x: self.getX() * factor, y: self.getY() * factor, z: self.getZ() * factor, tag: self.tag }
+        return result
+
+    fn isOrigin(): bool =>
+        return self.magnitudeSquared() == 0
+
+    fn toString(): str =>
+        if self.tag != "" =>
+            return $"{self.tag}({self.getX()}, {self.getY()}, {self.getZ()})"
+        return $"({self.getX()}, {self.getY()}, {self.getZ()})"
+
+struct StringOps =>
+    value: str = ""
+    prefix: str = ""
+    suffix: str = ""
+
+    fn getValue(): str =>
+        return self.value
+
+    fn getPrefix(): str =>
+        return self.prefix
+
+    fn getSuffix(): str =>
+        return self.suffix
+
+    fn wrapped(): str =>
+        return $"{self.getPrefix()}{self.getValue()}{self.getSuffix()}"
+
+    fn trimmedValue(): str =>
+        return self.value.trim()
+
+    fn upperValue(): str =>
+        return self.value.toUpper()
+
+    fn lowerValue(): str =>
+        return self.value.toLower()
+
+    fn trimmedWrapped(): str =>
+        return $"{self.getPrefix()}{self.trimmedValue()}{self.getSuffix()}"
+
+    fn valueLength(): int =>
+        return self.value.length
+
+    fn hasValue(): bool =>
+        return self.valueLength() > 0
+
+    fn describe(): str =>
+        if self.hasValue() =>
+            return $"StringOps({self.trimmedWrapped()})"
+        return "StringOps(empty)"
+
+fn main(): int =>
+    var failures: int = 0
+
+    # --- Range with self-method-calls for containment/overlap ---
+    print("--- Range ---\n")
+    var r1: Range = Range { min: 0, max: 10, label: "first" }
+    var r2: Range = Range { min: 5, max: 15, label: "second" }
+    var r3: Range = Range { min: 20, max: 30, label: "" }
+
+    print($"r1: {r1.toLabelled()}\n")
+    print($"r2: {r2.toLabelled()}\n")
+    print($"r3: {r3.toLabelled()}\n")
+    print($"r1.size: {r1.size()}\n")
+
+    if r1.size() != 10 =>
+        print("FAIL: r1.size\n")
+        failures = failures + 1
+
+    if !r1.contains(5) =>
+        print("FAIL: r1 contains 5\n")
+        failures = failures + 1
+
+    if r1.contains(11) =>
+        print("FAIL: r1 should not contain 11\n")
+        failures = failures + 1
+
+    if !r1.overlaps(r2) =>
+        print("FAIL: r1 should overlap r2\n")
+        failures = failures + 1
+
+    if r1.overlaps(r3) =>
+        print("FAIL: r1 should not overlap r3\n")
+        failures = failures + 1
+
+    if r1.toLabelled() != "first: [0, 10]" =>
+        print("FAIL: r1 toLabelled\n")
+        failures = failures + 1
+
+    if r3.toLabelled() != "[20, 30]" =>
+        print("FAIL: r3 toLabelled (no label)\n")
+        failures = failures + 1
+
+    # --- Deep chain (5 levels of self.method() calls) ---
+    print("\n--- Chain ---\n")
+    var chain: ChainTest = ChainTest { value: 10, name: "chain" }
+    print($"chain.e: {chain.e()}\n")
+    if chain.e() != 15 =>
+        print("FAIL: chain.e should be 15\n")
+        failures = failures + 1
+    print($"chain.result: {chain.result()}\n")
+    if chain.result() != "chain=15" =>
+        print("FAIL: chain.result\n")
+        failures = failures + 1
+
+    # --- Point3D: struct return from methods, dot product via self-calls ---
+    print("\n--- Point3D ---\n")
+    var p1: Point3D = Point3D { x: 1, y: 2, z: 3, tag: "p1" }
+    var p2: Point3D = Point3D { x: 4, y: 5, z: 6, tag: "p2" }
+
+    print($"p1: {p1.toString()}\n")
+    print($"p2: {p2.toString()}\n")
+    print($"p1.magnitudeSquared: {p1.magnitudeSquared()}\n")
+
+    if p1.magnitudeSquared() != 14 =>
+        print("FAIL: magnitudeSquared\n")
+        failures = failures + 1
+
+    var dotProduct: int = p1.dot(p2)
+    print($"p1.dot(p2): {dotProduct}\n")
+    if dotProduct != 32 =>
+        print("FAIL: dot product\n")
+        failures = failures + 1
+
+    var sum: Point3D = p1.add(p2)
+    print($"p1.add(p2): {sum.toString()}\n")
+    if sum.getX() != 5 =>
+        print("FAIL: add x\n")
+        failures = failures + 1
+    if sum.getY() != 7 =>
+        print("FAIL: add y\n")
+        failures = failures + 1
+    if sum.getZ() != 9 =>
+        print("FAIL: add z\n")
+        failures = failures + 1
+
+    var scaled: Point3D = p1.scale(3)
+    print($"p1.scale(3): {scaled.toString()}\n")
+    if scaled.getX() != 3 =>
+        print("FAIL: scale x\n")
+        failures = failures + 1
+    if scaled.getY() != 6 =>
+        print("FAIL: scale y\n")
+        failures = failures + 1
+    if scaled.getZ() != 9 =>
+        print("FAIL: scale z\n")
+        failures = failures + 1
+
+    var origin: Point3D = Point3D { x: 0, y: 0, z: 0, tag: "" }
+    if !origin.isOrigin() =>
+        print("FAIL: origin.isOrigin\n")
+        failures = failures + 1
+    if p1.isOrigin() =>
+        print("FAIL: p1 should not be origin\n")
+        failures = failures + 1
+
+    # Test method chaining: add then scale (direct chain, no temp)
+    var addThenScale: Point3D = p1.add(p2).scale(2)
+    print($"add then scale(2): {addThenScale.toString()}\n")
+    if addThenScale.getX() != 10 =>
+        print("FAIL: chained x\n")
+        failures = failures + 1
+    if addThenScale.getY() != 14 =>
+        print("FAIL: chained y\n")
+        failures = failures + 1
+
+    # --- StringOps: string methods on self fields ---
+    print("\n--- StringOps ---\n")
+    var s: StringOps = StringOps { value: "  Hello World  ", prefix: "[", suffix: "]" }
+    print($"wrapped: {s.wrapped()}\n")
+    print($"trimmedValue: [{s.trimmedValue()}]\n")
+    print($"upperValue: [{s.upperValue()}]\n")
+    print($"lowerValue: [{s.lowerValue()}]\n")
+    print($"trimmedWrapped: {s.trimmedWrapped()}\n")
+    print($"valueLength: {s.valueLength()}\n")
+    print($"hasValue: {s.hasValue()}\n")
+    print($"describe: {s.describe()}\n")
+
+    if s.trimmedValue() != "Hello World" =>
+        print("FAIL: trimmedValue\n")
+        failures = failures + 1
+    if s.upperValue() != "  HELLO WORLD  " =>
+        print("FAIL: upperValue\n")
+        failures = failures + 1
+    if s.trimmedWrapped() != "[Hello World]" =>
+        print("FAIL: trimmedWrapped\n")
+        failures = failures + 1
+    if s.describe() != "StringOps([Hello World])" =>
+        print("FAIL: describe\n")
+        failures = failures + 1
+
+    var emptyS: StringOps = StringOps { value: "", prefix: "<", suffix: ">" }
+    if emptyS.hasValue() =>
+        print("FAIL: empty hasValue\n")
+        failures = failures + 1
+    if emptyS.describe() != "StringOps(empty)" =>
+        print("FAIL: empty describe\n")
+        failures = failures + 1
+
+    # --- Summary ---
+    print("\n")
+    if failures == 0 =>
+        print("All exploratory self-method-call tests PASSED!\n")
+    else =>
+        print($"{failures} test(s) FAILED!\n")
+    return failures

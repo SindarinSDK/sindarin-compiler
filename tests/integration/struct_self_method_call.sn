@@ -1,0 +1,152 @@
+# Test: Instance methods calling other instance methods on self
+# This exercises the pointer-to-struct method resolution path,
+# which applies when structs contain str/array fields (self becomes a pointer).
+
+struct Calculator =>
+    value: int = 0
+    label: str = ""
+
+    fn getValue(): int =>
+        return self.value
+
+    fn getLabel(): str =>
+        return self.label
+
+    fn doubled(): int =>
+        return self.getValue() * 2
+
+    fn quadrupled(): int =>
+        return self.doubled() * 2
+
+    fn describe(): str =>
+        return $"{self.getLabel()}: {self.getValue()}"
+
+    fn describeDoubled(): str =>
+        return $"{self.getLabel()}: {self.doubled()}"
+
+struct TextProcessor =>
+    text: str = ""
+
+    fn getText(): str =>
+        return self.text
+
+    fn trimmed(): str =>
+        return self.text.trim()
+
+    fn upper(): str =>
+        return self.text.toUpper()
+
+    fn trimmedUpper(): str =>
+        return self.trimmed().toUpper()
+
+    fn getLength(): int =>
+        return self.text.length
+
+    fn isEmpty(): bool =>
+        return self.getLength() == 0
+
+    fn isNotEmpty(): bool =>
+        return !self.isEmpty()
+
+    fn describe(): str =>
+        if self.isNotEmpty() =>
+            return $"TextProcessor({self.trimmedUpper()})"
+        return "TextProcessor(empty)"
+
+struct Versioned =>
+    major: int = 0
+    minor: int = 0
+    patch: int = 0
+    tag: str = ""
+
+    fn getTag(): str =>
+        return self.tag
+
+    fn compare(other: Versioned): int =>
+        if self.major < other.major =>
+            return -1
+        if self.major > other.major =>
+            return 1
+        if self.minor < other.minor =>
+            return -1
+        if self.minor > other.minor =>
+            return 1
+        if self.patch < other.patch =>
+            return -1
+        if self.patch > other.patch =>
+            return 1
+        return 0
+
+    fn eq(other: Versioned): bool =>
+        return self.compare(other) == 0
+
+    fn gt(other: Versioned): bool =>
+        return self.compare(other) == 1
+
+    fn lt(other: Versioned): bool =>
+        return self.compare(other) == -1
+
+    fn bumpMajor(): Versioned =>
+        var result: Versioned = Versioned { major: self.major + 1, minor: 0, patch: 0, tag: "" }
+        return result
+
+    fn bumpMinor(): Versioned =>
+        var result: Versioned = Versioned { major: self.major, minor: self.minor + 1, patch: 0, tag: "" }
+        return result
+
+    fn toString(): str =>
+        var base: str = $"{self.major}.{self.minor}.{self.patch}"
+        if self.getTag() != "" =>
+            return $"{base}-{self.getTag()}"
+        return base
+
+fn main(): int =>
+    # --- Calculator: int methods calling int methods, with str field ---
+    var calc: Calculator = Calculator { value: 5, label: "calc" }
+    print($"getValue: {calc.getValue()}\n")
+    print($"doubled: {calc.doubled()}\n")
+    print($"quadrupled: {calc.quadrupled()}\n")
+    print($"describe: {calc.describe()}\n")
+    print($"describeDoubled: {calc.describeDoubled()}\n")
+
+    # --- TextProcessor: string methods on self fields, chained self calls ---
+    var tp: TextProcessor = TextProcessor { text: "  hello  " }
+    print($"getText: [{tp.getText()}]\n")
+    print($"trimmed: [{tp.trimmed()}]\n")
+    print($"upper: [{tp.upper()}]\n")
+    print($"trimmedUpper: [{tp.trimmedUpper()}]\n")
+    print($"getLength: {tp.getLength()}\n")
+    print($"isEmpty: {tp.isEmpty()}\n")
+    print($"isNotEmpty: {tp.isNotEmpty()}\n")
+    print($"describe: {tp.describe()}\n")
+
+    var empty: TextProcessor = TextProcessor { text: "" }
+    print($"empty.isEmpty: {empty.isEmpty()}\n")
+    print($"empty.describe: {empty.describe()}\n")
+
+    # --- Versioned: self.compare() pattern, struct return from method ---
+    var v1: Versioned = Versioned { major: 1, minor: 2, patch: 3, tag: "beta" }
+    var v2: Versioned = Versioned { major: 2, minor: 0, patch: 0, tag: "" }
+    print($"v1.toString: {v1.toString()}\n")
+    print($"v2.toString: {v2.toString()}\n")
+    print($"v1.lt(v2): {v1.lt(v2)}\n")
+    print($"v2.gt(v1): {v2.gt(v1)}\n")
+    print($"v1.eq(v1): {v1.eq(v1)}\n")
+
+    var bumped: Versioned = v1.bumpMajor()
+    print($"bumped: {bumped.toString()}\n")
+    var bumpedMinor: Versioned = v1.bumpMinor()
+    print($"bumpedMinor: {bumpedMinor.toString()}\n")
+
+    # --- Method chaining: rvalue self ---
+    print("--- Method chaining ---\n")
+    var chained1: Versioned = v1.bumpMajor().bumpMinor()
+    print($"v1.bumpMajor().bumpMinor(): {chained1.toString()}\n")
+
+    var chained2: Versioned = v1.bumpMinor().bumpMinor().bumpMinor()
+    print($"v1.bumpMinor()x3: {chained2.toString()}\n")
+
+    var chained3: Versioned = v1.bumpMajor().bumpMajor()
+    print($"v1.bumpMajor()x2: {chained3.toString()}\n")
+
+    return 0

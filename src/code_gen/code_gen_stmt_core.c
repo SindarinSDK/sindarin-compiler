@@ -936,6 +936,27 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             // so it survives the function's arena destruction.
             const char *struct_name = get_c_type(gen->arena, stmt->return_type);
             indented_fprintf(gen, 1, "_return_value = *(%s *)rt_arena_promote(__caller_arena__, &_return_value, sizeof(%s));\n", struct_name, struct_name);
+
+            // Deep-promote string and array fields to caller's arena
+            int field_count = stmt->return_type->as.struct_type.field_count;
+            for (int i = 0; i < field_count; i++)
+            {
+                StructField *field = &stmt->return_type->as.struct_type.fields[i];
+                if (field->type == NULL) continue;
+                const char *c_field_name = field->c_alias != NULL ? field->c_alias : field->name;
+                if (field->type->kind == TYPE_STRING)
+                {
+                    indented_fprintf(gen, 1, "if (_return_value.%s) _return_value.%s = rt_arena_promote_string(__caller_arena__, _return_value.%s);\n",
+                                     c_field_name, c_field_name, c_field_name);
+                }
+                else if (field->type->kind == TYPE_ARRAY)
+                {
+                    Type *elem_type = field->type->as.array.element_type;
+                    const char *suffix = code_gen_type_suffix(elem_type);
+                    indented_fprintf(gen, 1, "_return_value.%s = rt_array_clone_%s(__caller_arena__, _return_value.%s);\n",
+                                     c_field_name, suffix, c_field_name);
+                }
+            }
         }
         else if (kind == TYPE_FUNCTION)
         {
@@ -1100,6 +1121,7 @@ void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent)
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_statement");
+    gen->current_indent = indent;
     switch (stmt->type)
     {
     case STMT_EXPR:

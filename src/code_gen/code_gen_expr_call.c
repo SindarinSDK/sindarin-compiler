@@ -43,6 +43,30 @@ bool expression_produces_temp(Expr *expr)
 }
 
 /**
+ * Generate a pointer to the self object for method calls.
+ * If the object is an lvalue (variable), simply takes &obj.
+ * If the object is an rvalue (function call / method chain), emits a
+ * temporary variable declaration and returns a pointer to it.
+ */
+static char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str)
+{
+    if (object->type == EXPR_CALL)
+    {
+        /* Object is an rvalue (method chaining) - emit temp variable */
+        int tmp_id = gen->temp_count++;
+        char *tmp_name = arena_sprintf(gen->arena, "_chain_tmp_%d", tmp_id);
+        indented_fprintf(gen, gen->current_indent, "%s %s = %s;\n",
+                         struct_c_type, tmp_name, self_str);
+        return arena_sprintf(gen->arena, "&%s", tmp_name);
+    }
+    else
+    {
+        /* Object is an lvalue - take address directly */
+        return arena_sprintf(gen->arena, "&%s", self_str);
+    }
+}
+
+/**
  * Generate an intercepted function call.
  * This wraps a user-defined function call with interception logic:
  * - Fast path when no interceptors registered
@@ -478,14 +502,16 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                             }
                             else if (struct_type->as.struct_type.pass_self_by_ref)
                             {
-                                /* Pass by reference (pointer) */
+                                /* Pass by reference (pointer) - handle rvalue chaining */
+                                char *mangled_type = sn_mangle_name(gen->arena, struct_name);
+                                char *self_ref = code_gen_self_ref(gen, member->object, mangled_type, self_str);
                                 if (args_list[0] != '\0')
                                 {
-                                    args_list = arena_sprintf(gen->arena, "%s, &%s", args_list, self_str);
+                                    args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_ref);
                                 }
                                 else
                                 {
-                                    args_list = arena_sprintf(gen->arena, "&%s", self_str);
+                                    args_list = arena_strdup(gen->arena, self_ref);
                                 }
                             }
                             else
@@ -534,10 +560,18 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                                 /* Opaque handle: self is already a pointer */
                                 args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_str);
                             }
+                            else if (member->object->expr_type != NULL &&
+                                     member->object->expr_type->kind == TYPE_POINTER)
+                            {
+                                /* Object is already a pointer (e.g., self inside a method body) */
+                                args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_str);
+                            }
                             else
                             {
-                                /* Regular struct: take address of self */
-                                args_list = arena_sprintf(gen->arena, "%s, &%s", args_list, self_str);
+                                /* Regular struct: take address of self (handle rvalue chaining) */
+                                char *mangled_type = sn_mangle_name(gen->arena, struct_name);
+                                char *self_ref = code_gen_self_ref(gen, member->object, mangled_type, self_str);
+                                args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_ref);
                             }
                         }
 
@@ -551,6 +585,39 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                         return arena_sprintf(gen->arena, "%s_%s(%s)",
                                              mangled_struct, method->name, args_list);
                     }
+                }
+                break;
+            }
+            case TYPE_POINTER: {
+                /* Handle pointer-to-struct method calls (e.g., self.method() inside a method body) */
+                if (object_type->as.pointer.base_type != NULL &&
+                    object_type->as.pointer.base_type->kind == TYPE_STRUCT &&
+                    member->resolved_method != NULL)
+                {
+                    StructMethod *method = member->resolved_method;
+                    Type *struct_type = member->resolved_struct_type;
+                    const char *struct_name = struct_type->as.struct_type.name;
+
+                    /* Non-native method call: StructName_methodName(arena, self, args) */
+                    char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
+                    char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
+
+                    /* For instance methods, pass self (already a pointer) */
+                    if (!method->is_static)
+                    {
+                        char *self_str = code_gen_expression(gen, member->object);
+                        args_list = arena_sprintf(gen->arena, "%s, %s", args_list, self_str);
+                    }
+
+                    /* Generate other arguments */
+                    for (int i = 0; i < call->arg_count; i++)
+                    {
+                        char *arg_str = code_gen_expression(gen, call->arguments[i]);
+                        args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
+                    }
+
+                    return arena_sprintf(gen->arena, "%s_%s(%s)",
+                                         mangled_struct, method->name, args_list);
                 }
                 break;
             }

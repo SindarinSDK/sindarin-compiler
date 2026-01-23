@@ -690,7 +690,6 @@ Type *parser_native_function_type(Parser *parser)
 /* Helper function to parse a struct method declaration */
 static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool is_native_method, FunctionModifier modifier)
 {
-    Token fn_token = parser->previous;  /* Points to 'fn' */
     Token method_name;
 
     if (parser_check(parser, TOKEN_IDENTIFIER))
@@ -805,6 +804,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
         }
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after parameters");
     }
+    (void)is_variadic;  /* Struct methods don't use variadic flag yet */
 
     /* Check for misplaced modifiers after parameters */
     if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE) || parser_check(parser, TOKEN_STATIC))

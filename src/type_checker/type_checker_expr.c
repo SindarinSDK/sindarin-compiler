@@ -730,6 +730,34 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
 
         Type *struct_type = object_type->as.pointer.base_type;
         Token field_name = expr->as.member.member_name;
+
+        /* Check for instance methods first (e.g., self.method() inside a method body) */
+        for (int i = 0; i < struct_type->as.struct_type.method_count; i++)
+        {
+            StructMethod *method = &struct_type->as.struct_type.methods[i];
+            if (!method->is_static &&
+                field_name.length == (int)strlen(method->name) &&
+                strncmp(field_name.start, method->name, field_name.length) == 0)
+            {
+                int total_params = method->param_count;
+                Type **param_types = NULL;
+                if (total_params > 0)
+                {
+                    param_types = arena_alloc(table->arena, sizeof(Type *) * total_params);
+                    for (int j = 0; j < method->param_count; j++)
+                    {
+                        param_types[j] = method->params[j].type;
+                    }
+                }
+                Type *func_type = ast_create_function_type(table->arena, method->return_type, param_types, total_params);
+                func_type->as.function.is_native = method->is_native;
+                expr->as.member.resolved_method = method;
+                expr->as.member.resolved_struct_type = struct_type;
+                return func_type;
+            }
+        }
+
+        /* Check for fields */
         for (int i = 0; i < struct_type->as.struct_type.field_count; i++)
         {
             StructField *field = &struct_type->as.struct_type.fields[i];
@@ -739,7 +767,7 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
                 return field->type;
             }
         }
-        /* Field not found - fall through to error handling */
+        /* Field/method not found - fall through to error handling */
     }
 
     /* No valid method found */
@@ -1425,7 +1453,7 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                         for (int j = 0; j < struct_type->as.struct_type.field_count; j++)
                         {
                             StructField *field = &struct_type->as.struct_type.fields[j];
-                            if (init->name.length == strlen(field->name) &&
+                            if ((size_t)init->name.length == strlen(field->name) &&
                                 strncmp(init->name.start, field->name, init->name.length) == 0)
                             {
                                 found = true;
@@ -1603,7 +1631,7 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                 for (int i = 0; i < object_type->as.struct_type.field_count; i++)
                 {
                     StructField *field = &object_type->as.struct_type.fields[i];
-                    if (field_name.length == strlen(field->name) &&
+                    if ((size_t)field_name.length == strlen(field->name) &&
                         strncmp(field_name.start, field->name, field_name.length) == 0)
                     {
                         found = true;
@@ -1677,7 +1705,7 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                     for (int i = 0; i < struct_type->as.struct_type.field_count; i++)
                     {
                         StructField *field = &struct_type->as.struct_type.fields[i];
-                        if (field_name.length == strlen(field->name) &&
+                        if ((size_t)field_name.length == strlen(field->name) &&
                             strncmp(field_name.start, field->name, field_name.length) == 0)
                         {
                             found = true;
@@ -1749,7 +1777,7 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                 for (int i = 0; i < object_type->as.struct_type.field_count; i++)
                 {
                     StructField *field = &object_type->as.struct_type.fields[i];
-                    if (field_name.length == strlen(field->name) &&
+                    if ((size_t)field_name.length == strlen(field->name) &&
                         strncmp(field_name.start, field->name, field_name.length) == 0)
                     {
                         found = true;
@@ -1821,7 +1849,7 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                 for (int i = 0; i < struct_type->as.struct_type.field_count; i++)
                 {
                     StructField *field = &struct_type->as.struct_type.fields[i];
-                    if (field_name.length == strlen(field->name) &&
+                    if ((size_t)field_name.length == strlen(field->name) &&
                         strncmp(field_name.start, field->name, field_name.length) == 0)
                     {
                         found = true;
