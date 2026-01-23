@@ -1,0 +1,173 @@
+// Exploratory test: Lambda/closure edge cases
+// Tests lambda patterns that could produce invalid C code generation
+// Uses correct Sn lambda syntax: fn(params): type => expr
+
+// --- Lambda with many captures ---
+fn test_many_captures(): void =>
+    var a: int = 1
+    var b: int = 2
+    var c: int = 3
+    var d: int = 4
+    var e: int = 5
+    var f: int = 6
+    var g: int = 7
+    var h: int = 8
+    var i: int = 9
+    var j: int = 10
+
+    var sum_all: fn(): int = fn(): int =>
+        return a + b + c + d + e + f + g + h + i + j
+
+    var result: int = sum_all()
+    print($"Many captures sum: {result}\n")
+    assert(result == 55, "Sum of 1..10 should be 55")
+
+// --- Nested lambdas ---
+fn test_nested_lambdas(): void =>
+    var x: int = 10
+
+    var outer: fn(): fn(): int = fn(): fn(): int =>
+        var y: int = 20
+        var inner: fn(): int = fn(): int => x + y
+        return inner
+
+    var middle: fn(): int = outer()
+    var result: int = middle()
+    print($"Nested lambda result: {result}\n")
+    assert(result == 30, "Should be 10+20=30")
+
+// --- Lambda as function parameter ---
+fn apply_twice(f: fn(int): int, x: int): int =>
+    return f(f(x))
+
+fn apply_n(f: fn(int): int, x: int, n: int): int =>
+    var result: int = x
+    for var i: int = 0; i < n; i++ =>
+        result = f(result)
+    return result
+
+fn test_lambda_params(): void =>
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var add_one: fn(int): int = fn(x: int): int => x + 1
+
+    var r1: int = apply_twice(double_it, 3)
+    print($"double twice(3): {r1}\n")
+    assert(r1 == 12, "3*2*2=12")
+
+    var r2: int = apply_n(add_one, 0, 10)
+    print($"add_one 10 times: {r2}\n")
+    assert(r2 == 10, "0+1*10=10")
+
+// --- Lambda used in pipeline ---
+fn test_lambda_pipeline(): void =>
+    var add_one: fn(int): int = fn(x: int): int => x + 1
+    var mul_two: fn(int): int = fn(x: int): int => x * 2
+    var sub_three: fn(int): int = fn(x: int): int => x - 3
+
+    var v: int = 10
+    v = add_one(v)
+    v = mul_two(v)
+    v = sub_three(v)
+
+    print($"Lambda pipeline: {v}\n")
+    assert(v == 19, "Pipeline should give 19")
+
+// --- Lambda capturing loop variable ---
+fn test_lambda_loop_capture(): void =>
+    var captured0: int = 0
+    var captured1: int = 1
+    var captured2: int = 2
+
+    var f0: fn(): int = fn(): int => captured0
+    var f1: fn(): int = fn(): int => captured1
+    var f2: fn(): int = fn(): int => captured2
+
+    print($"  f0() = {f0()}\n")
+    print($"  f1() = {f1()}\n")
+    print($"  f2() = {f2()}\n")
+
+// --- Lambda with string captures ---
+fn test_string_capture(): void =>
+    var greeting: str = "Hello"
+    var name: str = "World"
+
+    var make_msg: fn(): str = fn(): str =>
+        return $"{greeting}, {name}!"
+
+    var msg: str = make_msg()
+    print($"String capture: {msg}\n")
+
+// --- Lambda modifying captured variable ---
+fn test_capture_modify(): void =>
+    var counter: int = 0
+
+    var inc: fn(): void = fn(): void =>
+        counter = counter + 1
+
+    var get: fn(): int = fn(): int => counter
+
+    inc()
+    inc()
+    inc()
+    var v: int = get()
+    print($"Counter after 3 incs: {v}\n")
+
+// --- Lambda with struct capture ---
+struct Point =>
+    x: int = 0
+    y: int = 0
+
+fn test_struct_capture(): void =>
+    var p: Point = Point { x: 10, y: 20 }
+
+    var get_sum: fn(): int = fn(): int => p.x + p.y
+
+    var result: int = get_sum()
+    print($"Struct capture sum: {result}\n")
+    assert(result == 30, "10+20=30")
+
+// --- Higher-order function returning lambda ---
+fn make_adder(n: int): fn(int): int =>
+    var adder: fn(int): int = fn(x: int): int => x + n
+    return adder
+
+fn make_multiplier(n: int): fn(int): int =>
+    var mult: fn(int): int = fn(x: int): int => x * n
+    return mult
+
+fn test_higher_order(): void =>
+    var add5: fn(int): int = make_adder(5)
+    var mul3: fn(int): int = make_multiplier(3)
+
+    var r1: int = add5(10)
+    var r2: int = mul3(7)
+    var r3: int = add5(mul3(4))
+
+    print($"add5(10)={r1} mul3(7)={r2} add5(mul3(4))={r3}\n")
+    assert(r1 == 15, "10+5=15")
+    assert(r2 == 21, "7*3=21")
+    assert(r3 == 17, "4*3+5=17")
+
+// --- Lambda with many parameters ---
+fn test_multi_param_lambda(): void =>
+    var add3: fn(int, int, int): int = fn(a: int, b: int, c: int): int => a + b + c
+    var add5: fn(int, int, int, int, int): int = fn(a: int, b: int, c: int, d: int, e: int): int => a + b + c + d + e
+
+    print($"add3(1,2,3) = {add3(1, 2, 3)}\n")
+    print($"add5(1,2,3,4,5) = {add5(1, 2, 3, 4, 5)}\n")
+
+fn main(): void =>
+    print("=== Lambda Edge Case Tests ===\n\n")
+
+    test_many_captures()
+    test_nested_lambdas()
+    test_lambda_params()
+    test_lambda_pipeline()
+    test_lambda_loop_capture()
+    test_string_capture()
+    test_capture_modify()
+    test_struct_capture()
+    test_higher_order()
+    test_multi_param_lambda()
+
+    print("\n=== All Lambda Tests Done ===\n")

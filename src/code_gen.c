@@ -489,6 +489,49 @@ static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
     fprintf(gen->output, ");\n");
 }
 
+/**
+ * Check if a function name is a C standard library function declared in
+ * headers that the generated code always includes (stdlib.h, string.h,
+ * stdio.h, stdint.h, limits.h, setjmp.h).
+ * We must not emit conflicting extern declarations for these.
+ */
+static bool is_c_stdlib_function(const char *name)
+{
+    static const char *stdlib_names[] = {
+        /* stdlib.h */
+        "atoi", "atol", "atoll", "atof", "strtol", "strtoll", "strtoul",
+        "strtoull", "strtod", "strtof", "strtold", "malloc", "calloc",
+        "realloc", "free", "abort", "exit", "_Exit", "atexit", "at_quick_exit",
+        "quick_exit", "system", "getenv", "abs", "labs", "llabs", "div",
+        "ldiv", "lldiv", "rand", "srand", "qsort", "bsearch", "mblen",
+        "mbtowc", "wctomb", "mbstowcs", "wcstombs",
+        /* string.h */
+        "strlen", "strcmp", "strncmp", "strcpy", "strncpy", "strcat",
+        "strncat", "memcpy", "memmove", "memcmp", "memset", "memchr",
+        "strchr", "strrchr", "strstr", "strtok", "strerror", "strpbrk",
+        "strspn", "strcspn", "strcoll", "strxfrm",
+        /* stdio.h */
+        "printf", "fprintf", "sprintf", "snprintf", "vprintf", "vfprintf",
+        "vsprintf", "vsnprintf", "scanf", "fscanf", "sscanf", "fopen",
+        "fclose", "fread", "fwrite", "fgets", "fputs", "gets", "puts",
+        "getchar", "putchar", "getc", "putc", "fgetc", "fputc", "ungetc",
+        "fseek", "ftell", "rewind", "feof", "ferror", "clearerr", "perror",
+        "remove", "rename", "tmpfile", "tmpnam", "fflush", "freopen",
+        "setbuf", "setvbuf", "fgetpos", "fsetpos",
+        /* setjmp.h */
+        "setjmp", "longjmp",
+        NULL
+    };
+    for (int i = 0; stdlib_names[i] != NULL; i++)
+    {
+        if (strcmp(name, stdlib_names[i]) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 /* Generate extern declaration for native function without body */
 static void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 {
@@ -803,7 +846,12 @@ void code_gen_module(CodeGen *gen, Module *module)
             {
                 StructField *field = &struct_decl->fields[j];
                 const char *c_type = get_c_type(gen->arena, field->type);
-                indented_fprintf(gen, 1, "%s %s;\n", c_type, field->name);
+                /* Use c_alias for native struct fields, otherwise mangle the field name
+                 * to avoid conflicts with C reserved words */
+                const char *c_field_name = field->c_alias != NULL
+                    ? field->c_alias
+                    : sn_mangle_name(gen->arena, field->name);
+                indented_fprintf(gen, 1, "%s %s;\n", c_type, c_field_name);
             }
             char *struct_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length));
             indented_fprintf(gen, 0, "} %s;\n", struct_name);
@@ -1033,6 +1081,14 @@ void code_gen_module(CodeGen *gen, Module *module)
                  * since they are already declared in runtime headers. */
                 char *fn_name = arena_strndup(gen->arena, fn->name.start, fn->name.length);
                 if (strncmp(fn_name, "rt_", 3) == 0)
+                {
+                    continue;
+                }
+                /* Skip extern declaration for C standard library functions that are
+                 * already declared in the always-included headers (stdlib.h, string.h,
+                 * stdio.h, etc). Emitting our own extern with different types would
+                 * cause GCC conflicting type errors. */
+                if (is_c_stdlib_function(fn_name))
                 {
                     continue;
                 }

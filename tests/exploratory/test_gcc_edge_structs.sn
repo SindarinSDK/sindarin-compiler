@@ -1,0 +1,202 @@
+// Exploratory test: Struct edge cases
+// Tests struct patterns that could produce invalid C code generation
+// Focus on naming conflicts, nesting, and method interactions
+
+// --- Struct with C-only keyword field names (not Sn keywords) ---
+struct KeywordFields =>
+    register: int = 0
+    volatile: int = 0
+    auto: int = 0
+    extern: int = 0
+    unsigned: int = 0
+    signed: int = 0
+    inline: int = 0
+    restrict: int = 0
+    typedef: int = 0
+
+fn test_keyword_fields(): void =>
+    var s: KeywordFields = KeywordFields {
+        register: 1,
+        volatile: 2,
+        auto: 3,
+        extern: 4,
+        unsigned: 5,
+        signed: 6,
+        inline: 7,
+        restrict: 8,
+        typedef: 9
+    }
+    var sum: int = s.register + s.volatile + s.auto + s.extern
+    sum = sum + s.unsigned + s.signed + s.inline + s.restrict + s.typedef
+    print($"Keyword fields sum: {sum}\n")
+
+// --- Deeply nested structs ---
+struct Level1 =>
+    value: int = 1
+
+struct Level2 =>
+    inner: Level1
+    value: int = 2
+
+struct Level3 =>
+    inner: Level2
+    value: int = 3
+
+struct Level4 =>
+    inner: Level3
+    value: int = 4
+
+struct Level5 =>
+    inner: Level4
+    value: int = 5
+
+fn test_deep_nesting(): void =>
+    var l1: Level1 = Level1 { value: 10 }
+    var l2: Level2 = Level2 { inner: l1, value: 20 }
+    var l3: Level3 = Level3 { inner: l2, value: 30 }
+    var l4: Level4 = Level4 { inner: l3, value: 40 }
+    var l5: Level5 = Level5 { inner: l4, value: 50 }
+
+    print($"l5.value: {l5.value}\n")
+    print($"l5.inner.value: {l5.inner.value}\n")
+    print($"l5.inner.inner.value: {l5.inner.inner.value}\n")
+    print($"l5.inner.inner.inner.value: {l5.inner.inner.inner.value}\n")
+    print($"l5.inner.inner.inner.inner.value: {l5.inner.inner.inner.inner.value}\n")
+
+// --- Large struct with many fields ---
+struct LargeStruct =>
+    f01: int = 1
+    f02: int = 2
+    f03: int = 3
+    f04: int = 4
+    f05: int = 5
+    f06: int = 6
+    f07: int = 7
+    f08: int = 8
+    f09: int = 9
+    f10: int = 10
+    f11: int = 11
+    f12: int = 12
+    f13: int = 13
+    f14: int = 14
+    f15: int = 15
+    f16: int = 16
+    f17: int = 17
+    f18: int = 18
+    f19: int = 19
+    f20: int = 20
+    f21: str = "a"
+    f22: str = "b"
+    f23: str = "c"
+    f24: double = 1.0
+    f25: double = 2.0
+    f26: bool = true
+    f27: bool = false
+    f28: byte = 255
+    f29: char = 'X'
+    f30: int = 30
+
+fn test_large_struct(): void =>
+    var s: LargeStruct = LargeStruct {}
+    var sum: int = s.f01 + s.f02 + s.f03 + s.f04 + s.f05
+    sum = sum + s.f06 + s.f07 + s.f08 + s.f09 + s.f10
+    sum = sum + s.f11 + s.f12 + s.f13 + s.f14 + s.f15
+    sum = sum + s.f16 + s.f17 + s.f18 + s.f19 + s.f20 + s.f30
+    print($"Large struct sum: {sum}\n")
+    print($"String fields: {s.f21} {s.f22} {s.f23}\n")
+    print($"Other fields: {s.f24} {s.f25} {s.f26} {s.f27} {s.f28} {s.f29}\n")
+
+// --- Struct with array fields ---
+struct WithArrays =>
+    ints: int[] = {}
+    strs: str[] = {}
+    name: str = "default"
+
+fn test_struct_arrays(): void =>
+    var s: WithArrays = WithArrays {
+        ints: {1, 2, 3, 4, 5},
+        strs: {"hello", "world"},
+        name: "test"
+    }
+    print($"ints length: {s.ints.length}\n")
+    print($"strs length: {s.strs.length}\n")
+    print($"name: {s.name}\n")
+
+    s.ints.push(6)
+    s.strs.push("!")
+    print($"after push - ints: {s.ints.length}, strs: {s.strs.length}\n")
+
+// --- Struct with methods (correct Sn syntax) ---
+struct Counter =>
+    count: int = 0
+    name: str = "default"
+
+    fn increment(): void =>
+        self.count = self.count + 1
+
+    fn decrement(): void =>
+        self.count = self.count - 1
+
+    fn reset(): void =>
+        self.count = 0
+
+    fn getCount(): int =>
+        return self.count
+
+    fn display(): void =>
+        print($"Counter '{self.name}': {self.count}\n")
+
+fn test_struct_methods(): void =>
+    var c: Counter = Counter { name: "test" }
+    c.increment()
+    c.increment()
+    c.increment()
+    c.display()
+
+    c.decrement()
+    c.display()
+
+    var v: int = c.getCount()
+    print($"getCount: {v}\n")
+
+    c.reset()
+    c.display()
+
+// --- Struct passed to functions ---
+fn modify_struct(s: Counter): Counter =>
+    s.count = s.count + 100
+    s.name = "modified"
+    return s
+
+fn test_struct_passing(): void =>
+    var original: Counter = Counter { count: 5, name: "original" }
+    var modified: Counter = modify_struct(original)
+
+    print($"original: {original.name} count={original.count}\n")
+    print($"modified: {modified.name} count={modified.count}\n")
+
+// --- Struct in array ---
+fn test_struct_array(): void =>
+    var counters: Counter[] = {
+        Counter { count: 1, name: "first" },
+        Counter { count: 2, name: "second" },
+        Counter { count: 3, name: "third" }
+    }
+
+    for c in counters =>
+        c.display()
+
+    print($"Array length: {counters.length}\n")
+
+fn main(): void =>
+    print("=== Struct Edge Case Tests ===\n\n")
+
+    test_keyword_fields()
+    test_deep_nesting()
+    test_large_struct()
+    test_struct_arrays()
+    test_struct_methods()
+    test_struct_passing()
+    test_struct_array()
+
+    print("\n=== All Struct Tests Done ===\n")

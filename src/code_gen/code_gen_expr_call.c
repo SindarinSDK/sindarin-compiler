@@ -687,7 +687,8 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                         fprintf(stderr, "Error: Unsupported array element type for push\n");
                         exit(1);
                 }
-                // push returns new array pointer, assign back to variable if object is a variable
+                // push returns new array pointer, assign back to the lvalue (variable or struct field)
+                // so the pointer stays valid after potential reallocation.
                 // For global variables, use NULL arena to trigger malloc-based allocation
                 // that persists beyond any function's lifetime.
                 // Global variables are detected by declaration_scope_depth <= 1 (the initial global scope).
@@ -699,14 +700,20 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                     }
                 }
 
+                // Check if the object is an assignable lvalue (variable or struct field).
+                // EXPR_MEMBER is used for struct field access in call chains (e.g., data.values.push()).
+                bool is_lvalue = (member->object->type == EXPR_VARIABLE ||
+                                  member->object->type == EXPR_MEMBER_ACCESS ||
+                                  member->object->type == EXPR_MEMBER);
+
                 // For pointer types (function/array), we need to cast to void**
                 if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
-                    if (member->object->type == EXPR_VARIABLE) {
+                    if (is_lvalue) {
                         return arena_sprintf(gen->arena, "(%s = (void *)%s(%s, (void **)%s, (void *)%s))", object_str, push_func, arena_to_use, object_str, arg_str);
                     }
                     return arena_sprintf(gen->arena, "(void *)%s(%s, (void **)%s, (void *)%s)", push_func, arena_to_use, object_str, arg_str);
                 }
-                if (member->object->type == EXPR_VARIABLE) {
+                if (is_lvalue) {
                     return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))", object_str, push_func, arena_to_use, object_str, arg_str);
                 }
                 return arena_sprintf(gen->arena, "%s(%s, %s, %s)", push_func, arena_to_use, object_str, arg_str);

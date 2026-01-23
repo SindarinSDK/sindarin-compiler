@@ -1,0 +1,135 @@
+// Exploratory test: String literal edge cases
+// Tests strings with special characters that could break C string escaping
+
+// --- Strings with special characters ---
+fn test_special_chars(): void =>
+    var tab: str = "hello\tworld"
+    var newline: str = "hello\nworld"
+    var cr: str = "hello\rworld"
+    var backslash: str = "hello\\world"
+    var quote: str = "hello\"world"
+
+    print($"tab: [{tab}]\n")
+    print($"backslash: [{backslash}]\n")
+    print($"quote: [{quote}]\n")
+
+// --- Strings with percent characters (printf format specifiers) ---
+fn test_percent_chars(): void =>
+    var pct_s: str = "100%s complete"
+    var pct_d: str = "value is %d"
+    var pct_n: str = "dangerous %n here"
+    var pct_x: str = "hex %x value"
+    var pct_pct: str = "50%% done"
+    var many_pct: str = "%s%d%f%x%n%p%u"
+
+    print($"pct_s: {pct_s}\n")
+    print($"pct_d: {pct_d}\n")
+    print($"pct_n: {pct_n}\n")
+    print($"pct_x: {pct_x}\n")
+    print($"pct_pct: {pct_pct}\n")
+    print($"many_pct: {many_pct}\n")
+
+// --- String with multiple special chars together ---
+fn test_mixed_specials(): void =>
+    var mixed: str = "tab\there\nnewline\ttab\\backslash\"quote"
+    print($"mixed length: {mixed.length}\n")
+
+    var multi_bs: str = "one\\two\\\\three\\\\\\four"
+    print($"multi_bs length: {multi_bs.length}\n")
+
+    var inner_quote: str = "she said \"hello\""
+    print($"inner_quote: {inner_quote}\n")
+
+// --- Empty and near-empty strings ---
+fn test_empty_strings(): void =>
+    var empty: str = ""
+    var single_char: str = "x"
+    var single_escape: str = "\n"
+    var single_backslash: str = "\\"
+    var single_quote: str = "\""
+
+    print($"empty length: {empty.length}\n")
+    print($"single_char: [{single_char}]\n")
+    print($"single_escape length: {single_escape.length}\n")
+    print($"single_backslash: [{single_backslash}]\n")
+    print($"single_quote: [{single_quote}]\n")
+
+// --- String interpolation edge cases ---
+fn test_interp_edges(): void =>
+    var name: str = "wo\"rld"
+    var greeting: str = $"Hello, {name}!"
+    print($"greeting: {greeting}\n")
+
+    var num: int = 42
+    var interp: str = $"value is {num}"
+    print($"interp: {interp}\n")
+
+    var a: int = 10
+    var b: int = 20
+    var expr: str = $"sum={a + b} prod={a * b} diff={a - b}"
+    print($"expr: {expr}\n")
+
+    var x: int = 1
+    var y: int = 2
+    var z: int = 3
+    var multi: str = $"{x}{y}{z}{x}{y}{z}{x}{y}{z}"
+    print($"multi: {multi}\n")
+
+// --- Long strings ---
+fn test_long_strings(): void =>
+    var long1: str = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    print($"long1 length: {long1.length}\n")
+
+    var many_tabs: str = "\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t"
+    print($"many_tabs length: {many_tabs.length}\n")
+
+    var many_escapes: str = "\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\"\\\""
+    print($"many_escapes length: {many_escapes.length}\n")
+
+// --- Strings used in various contexts ---
+fn test_string_contexts(): void =>
+    var a: str = "hello\tworld"
+    var b: str = "hello\tworld"
+    if a == b =>
+        print("tab strings equal: PASS\n")
+    else =>
+        print("tab strings equal: FAIL\n")
+
+    var left: str = "before\\"
+    var right: str = "\\after"
+    var combined: str = left + right
+    print($"combined: [{combined}]\n")
+
+    var arr: str[] = {"hello\n", "world\t", "test\\"}
+    for s in arr =>
+        print($"  arr item length: {s.length}\n")
+
+// --- String with format-like patterns ---
+fn test_format_patterns(): void =>
+    var fmt1: str = "%d items in %s"
+    var fmt2: str = "%.2f percent"
+    var fmt3: str = "%05d"
+    var fmt4: str = "%-20s"
+    var fmt5: str = "%lld"
+    var fmt6: str = "%zu"
+
+    print($"fmt1: {fmt1}\n")
+    print($"fmt2: {fmt2}\n")
+    print($"fmt3: {fmt3}\n")
+    print($"fmt4: {fmt4}\n")
+    print($"fmt5: {fmt5}\n")
+    print($"fmt6: {fmt6}\n")
+
+fn main(): void =>
+    print("=== String Edge Case Tests ===\n\n")
+
+    test_special_chars()
+    test_percent_chars()
+    test_mixed_specials()
+    test_empty_strings()
+    test_interp_edges()
+    test_long_strings()
+    test_string_contexts()
+    test_format_patterns()
+
+    print("\n=== All String Tests Done ===\n")
