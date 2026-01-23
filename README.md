@@ -19,7 +19,7 @@
 - **Module imports** for code organization
 - **Arena memory** with shared/private scopes and copy semantics
 - **C interoperability** with native functions, pointers, and callbacks
-- **SDK modules** for compression, math, and more
+- **SDK modules** for crypto, networking, JSON/XML/YAML, compression, and more
 
 ## Installation
 
@@ -165,14 +165,21 @@ fn main(): void =>
 | Document | Description |
 |----------|-------------|
 | [SDK Overview](docs/sdk/readme.md) | All SDK modules |
+| [Crypto](docs/sdk/crypto.md) | Hashing, encryption, HMAC, PBKDF2, secure random |
 | [Date](docs/sdk/date.md) | Calendar date operations |
 | [Time](docs/sdk/time.md) | Time and duration operations |
 | [Random](docs/sdk/random.md) | Random number generation |
 | [UUID](docs/sdk/uuid.md) | UUID generation and manipulation |
 | [Environment](docs/sdk/env.md) | Environment variable access |
 | [Process](docs/sdk/process.md) | Process execution and output capture |
-| [File I/O](docs/sdk/io/readme.md) | TextFile, BinaryFile, Path, Directory |
-| [Networking](docs/sdk/net/readme.md) | TCP and UDP operations |
+| [Math](docs/sdk/math.md) | Mathematical functions and constants |
+| [JSON](docs/sdk/json.md) | JSON parsing and serialization |
+| [XML](docs/sdk/xml.md) | XML parsing, XPath, and DOM manipulation |
+| [YAML](docs/sdk/yaml.md) | YAML parsing and serialization |
+| [ZLib](docs/sdk/zlib.md) | Compression and decompression |
+| [Stdio](docs/sdk/stdio.md) | Standard input/output/error streams |
+| [File I/O](docs/sdk/io/readme.md) | TextFile, BinaryFile, Path, Directory, Bytes |
+| [Networking](docs/sdk/net/readme.md) | TCP, UDP, TLS, DTLS, SSH, QUIC |
 
 ## Architecture
 
@@ -189,28 +196,35 @@ See `src/` for compiler implementation details.
 ## Testing
 
 ```bash
-bin/tests                              # Unit tests
-./scripts/run_tests.sh integration     # Integration tests
-./scripts/run_tests.sh explore         # Exploratory tests
+make test              # All tests (unit + integration + SDK + exploratory)
+make test-unit         # Unit tests only
+make test-integration  # Integration tests only
+make test-sdk          # SDK tests only
+make test-explore      # Exploratory tests only
 ```
 
-On Windows, use the PowerShell test runner:
+Or use the test runner directly (cross-platform):
 
-```powershell
-.\scripts\run_integration_test.ps1 -TestType integration -All
-.\scripts\run_integration_test.ps1 -TestType explore -All
+```bash
+python3 scripts/run_tests.py all            # All tests
+python3 scripts/run_tests.py unit           # Unit tests
+python3 scripts/run_tests.py integration    # Integration tests
+python3 scripts/run_tests.py sdk            # SDK tests
+python3 scripts/run_tests.py explore        # Exploratory tests
 ```
 
 ## Project Structure
 
 ```
-├── src/           # Compiler source code
-├── tests/         # Unit, integration, and exploratory tests
+├── src/           # Compiler source (lexer, parser, type checker, codegen, runtime)
+├── sdk/           # SDK modules (.sn definitions + .c implementations)
+├── tests/         # Unit, integration, SDK, and exploratory tests
+├── docs/          # Language and SDK documentation
 ├── samples/       # Example .sn programs
-├── docs/          # Documentation
+├── scripts/       # Test runner and dependency setup
+├── packaging/     # Distribution packaging (deb, rpm, homebrew, winget, arch)
 ├── benchmark/     # Performance benchmarks
-├── bin/           # Compiled outputs (sn, tests, runtime)
-├── build/         # CMake build directory
+├── bin/           # Compiled outputs (sn compiler, runtime library, SDK)
 └── CMakeLists.txt # CMake build configuration
 ```
 

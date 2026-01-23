@@ -1,6 +1,6 @@
 # DTLS
 
-DTLS (Datagram TLS) provides TLS-level encryption over UDP datagrams. Unlike TLS which operates over TCP streams, DTLS preserves message boundaries — each `send()` corresponds to exactly one `receive()` on the other end.
+DTLS (Datagram TLS) provides TLS-level encryption over UDP datagrams. Unlike TLS which operates over TCP streams, DTLS preserves message boundaries — each `send()` corresponds to exactly one `receive()` on the other end. `DtlsListener` provides server-side DTLS with cookie exchange for DoS protection.
 
 ## Import
 
@@ -76,6 +76,81 @@ Performs a DTLS shutdown and closes the underlying UDP socket. Safe to call mult
 
 ```sindarin
 conn.close()
+```
+
+---
+
+## DtlsListener
+
+A DTLS server that listens for incoming encrypted datagram connections. Uses OpenSSL DTLS cookie exchange for DoS protection.
+
+```sindarin
+var server: DtlsListener = DtlsListener.bind(":4433", "cert.pem", "key.pem")
+var conn: DtlsConnection = server.accept()
+var data: byte[] = conn.receive(1024)
+conn.send(data)  // echo back
+conn.close()
+server.close()
+```
+
+### Static Methods
+
+#### DtlsListener.bind(address, certFile, keyFile)
+
+Creates a DTLS server listening on the specified address. Requires paths to a PEM-encoded certificate file and private key file.
+
+```sindarin
+// Listen on all interfaces, port 4433
+var server: DtlsListener = DtlsListener.bind(":4433", "cert.pem", "key.pem")
+
+// OS-assigned port
+var dynamic: DtlsListener = DtlsListener.bind(":0", "cert.pem", "key.pem")
+print($"Listening on port {dynamic.port()}\n")
+```
+
+### Instance Methods
+
+#### accept()
+
+Waits for and accepts a new DTLS connection. Blocks until a client connects and the DTLS handshake (including cookie exchange) completes. Returns a `DtlsConnection` for bidirectional encrypted datagram communication.
+
+```sindarin
+var client: DtlsConnection = server.accept()
+```
+
+#### port()
+
+Returns the port number the listener is bound to. Useful when binding to port `0` (OS-assigned).
+
+```sindarin
+var p: int = server.port()
+```
+
+#### close()
+
+Closes the listener socket. Safe to call multiple times.
+
+```sindarin
+server.close()
+```
+
+---
+
+## Example: DTLS Echo Server
+
+```sindarin
+import "sdk/net/dtls"
+
+fn main(): void =>
+    var server: DtlsListener = DtlsListener.bind(":4433", "server.crt", "server.key")
+    print($"DTLS server listening on port {server.port()}\n")
+
+    while true =>
+        var conn: DtlsConnection = server.accept()
+        var data: byte[] = conn.receive(1024)
+        if data.length > 0 =>
+            conn.send(data)
+        conn.close()
 ```
 
 ---

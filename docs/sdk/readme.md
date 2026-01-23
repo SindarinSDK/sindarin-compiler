@@ -17,6 +17,7 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 | [XML](xml.md) | `import "sdk/xml"` | XML parsing, XPath, and DOM manipulation |
 | [YAML](yaml.md) | `import "sdk/yaml"` | YAML parsing and serialization |
 | [ZLib](zlib.md) | `import "sdk/zlib"` | Compression and decompression |
+| [Crypto](crypto.md) | `import "sdk/crypto"` | Cryptographic hashing, encryption, and key derivation |
 | [Stdio](stdio.md) | `import "sdk/stdio"` | Standard input/output/error streams |
 | [I/O](io/readme.md) | `import "sdk/io/..."` | File and directory operations |
 | [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, QUIC, and Git networking |
@@ -110,6 +111,7 @@ SDK types use the `Sn` prefix to distinguish them from built-in types:
 | `GitDiff` | Git diff entry |
 | `GitStatus` | Git working tree status entry |
 | `GitTag` | Git tag reference |
+| `Crypto` | Cryptographic operations |
 | `Json` | JSON value |
 | `Xml` | XML node |
 | `Yaml` | YAML node |
@@ -334,6 +336,22 @@ var original: byte[] = decompressData(compressed, expectedSize)
 ```
 
 [Full documentation →](zlib.md)
+
+### Crypto
+
+Cryptographic hashing, HMAC, AES-256-GCM encryption, PBKDF2 key derivation, and secure random bytes.
+
+```sindarin
+import "sdk/crypto"
+
+var hash: byte[] = Crypto.sha256Str("hello")
+var key: byte[] = Crypto.randomBytes(32)
+var encrypted: byte[] = Crypto.encrypt(key, plaintext)
+var decrypted: byte[] = Crypto.decrypt(key, encrypted)
+var derived: byte[] = Crypto.pbkdf2("password", salt, 100000, 32)
+```
+
+[Full documentation →](crypto.md)
 
 ### Stdio
 
