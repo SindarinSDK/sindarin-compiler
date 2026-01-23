@@ -269,7 +269,7 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     const char *arr_c_type = get_c_type(gen->arena, iterable_type);
 
     // Get the loop variable name
-    char *var_name = get_var_name(gen->arena, stmt->var_name);
+    char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->var_name));
 
     // Create a new scope
     symbol_table_push_scope(gen->symbol_table);

@@ -469,8 +469,8 @@ static char *code_gen_native_lambda_expression(CodeGen *gen, Expr *expr)
     for (int i = 0; i < lambda->param_count; i++)
     {
         const char *param_c_type = get_c_type(gen->arena, lambda->params[i].type);
-        char *param_name = arena_strndup(gen->arena, lambda->params[i].name.start,
-                                         lambda->params[i].name.length);
+        char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, lambda->params[i].name.start,
+                                         lambda->params[i].name.length));
         if (i > 0)
         {
             params_decl = arena_sprintf(gen->arena, "%s, %s %s", params_decl, param_c_type, param_name);
@@ -608,8 +608,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     for (int i = 0; i < lambda->param_count; i++)
     {
         const char *param_c_type = get_c_type(gen->arena, lambda->params[i].type);
-        char *param_name = arena_strndup(gen->arena, lambda->params[i].name.start,
-                                         lambda->params[i].name.length);
+        char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, lambda->params[i].name.start,
+                                         lambda->params[i].name.length));
         params_decl = arena_sprintf(gen->arena, "%s, %s %s", params_decl, param_c_type, param_name);
     }
 
@@ -678,6 +678,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         for (int i = 0; i < cv.count; i++)
         {
             const char *c_type = get_c_type(gen->arena, cv.types[i]);
+            char *mangled_cv_name = sn_mangle_name(gen->arena, cv.names[i]);
             if (needs_capture_by_ref(cv.types[i]))
             {
                 /* For types captured by ref, the closure stores a pointer. We declare
@@ -687,14 +688,14 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                  * this lambda creates nested closures. */
                 capture_decls = arena_sprintf(gen->arena,
                     "%s    %s *%s = ((__closure_%d__ *)__closure__)->%s;\n",
-                    capture_decls, c_type, cv.names[i], lambda_id, cv.names[i]);
+                    capture_decls, c_type, mangled_cv_name, lambda_id, cv.names[i]);
             }
             else
             {
                 /* Other types: copy the value */
                 capture_decls = arena_sprintf(gen->arena,
                     "%s    %s %s = ((__closure_%d__ *)__closure__)->%s;\n",
-                    capture_decls, c_type, cv.names[i], lambda_id, cv.names[i]);
+                    capture_decls, c_type, mangled_cv_name, lambda_id, cv.names[i]);
             }
         }
 
@@ -920,12 +921,13 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                 name_token.line = 0;
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, name_token);
 
+                char *mangled_cv_name = sn_mangle_name(gen->arena, cv.names[i]);
                 bool already_pointer = (sym != NULL && sym->mem_qual == MEM_AS_REF);
                 if (already_pointer)
                 {
                     /* The variable is already a pointer - just copy it to the closure */
                     closure_init = arena_sprintf(gen->arena, "%s    __cl__->%s = %s;\n",
-                                                 closure_init, cv.names[i], cv.names[i]);
+                                                 closure_init, cv.names[i], mangled_cv_name);
                 }
                 else
                 {
@@ -933,13 +935,13 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     const char *c_type = get_c_type(gen->arena, cv.types[i]);
                     closure_init = arena_sprintf(gen->arena,
                         "%s    __cl__->%s = ({ %s *__tmp__ = rt_arena_alloc(%s, sizeof(%s)); *__tmp__ = %s; __tmp__; });\n",
-                        closure_init, cv.names[i], c_type, closure_arena, c_type, cv.names[i]);
+                        closure_init, cv.names[i], c_type, closure_arena, c_type, mangled_cv_name);
                 }
             }
             else
             {
                 closure_init = arena_sprintf(gen->arena, "%s    __cl__->%s = %s;\n",
-                                             closure_init, cv.names[i], cv.names[i]);
+                                             closure_init, cv.names[i], sn_mangle_name(gen->arena, cv.names[i]));
             }
         }
         closure_init = arena_sprintf(gen->arena,

@@ -128,7 +128,7 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
     // Handle struct comparison (== and !=) using memcmp
     if (type->kind == TYPE_STRUCT && (op == TOKEN_EQUAL_EQUAL || op == TOKEN_BANG_EQUAL))
     {
-        const char *struct_name = type->as.struct_type.name;
+        const char *struct_name = sn_mangle_name(gen->arena, type->as.struct_type.name);
         if (op == TOKEN_EQUAL_EQUAL)
         {
             return arena_sprintf(gen->arena, "(memcmp(&(%s), &(%s), sizeof(%s)) == 0)",

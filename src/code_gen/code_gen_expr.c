@@ -26,7 +26,7 @@ char *code_gen_increment_expression(CodeGen *gen, Expr *expr)
     {
         exit(1);
     }
-    char *var_name = get_var_name(gen->arena, expr->as.operand->as.variable.name);
+    char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, expr->as.operand->as.variable.name));
     Symbol *symbol = symbol_table_lookup_symbol(gen->symbol_table, expr->as.operand->as.variable.name);
 
     /* For sync variables, use atomic increment */
@@ -62,7 +62,7 @@ char *code_gen_decrement_expression(CodeGen *gen, Expr *expr)
     {
         exit(1);
     }
-    char *var_name = get_var_name(gen->arena, expr->as.operand->as.variable.name);
+    char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, expr->as.operand->as.variable.name));
     Symbol *symbol = symbol_table_lookup_symbol(gen->symbol_table, expr->as.operand->as.variable.name);
 
     /* For sync variables, use atomic decrement */
@@ -104,15 +104,15 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
      * since C functions are referenced by name without namespace prefix. */
     if (object_type == NULL && member->object->type == EXPR_VARIABLE)
     {
-        /* Look up the namespace symbol to check for c_alias */
+        /* Look up the namespace symbol to check for native/c_alias */
         Token ns_name = member->object->as.variable.name;
         Symbol *func_sym = symbol_table_lookup_in_namespace(gen->symbol_table, ns_name, member->member_name);
-        if (func_sym != NULL && func_sym->is_native && func_sym->c_alias != NULL)
+        if (func_sym != NULL && func_sym->is_native)
         {
-            return arena_strdup(gen->arena, func_sym->c_alias);
+            return arena_strdup(gen->arena, func_sym->c_alias != NULL ? func_sym->c_alias : member_name_str);
         }
         /* Namespace member access - emit just the function name */
-        return member_name_str;
+        return sn_mangle_name(gen->arena, member_name_str);
     }
 
     char *object_str = code_gen_expression(gen, member->object);
@@ -257,7 +257,7 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
      * 1. Copies the struct itself (shallow copy)
      * 2. For each array field, creates an independent copy
      */
-    const char *struct_name = struct_type->as.struct_type.name;
+    const char *struct_name = sn_mangle_name(gen->arena, struct_type->as.struct_type.name);
     int field_count = struct_type->as.struct_type.field_count;
 
     /* Check if any fields need deep copying (arrays or strings) */
@@ -614,10 +614,10 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
         exit(1);
     }
 
-    /* Use c_alias for C type name if available, otherwise use Sindarin name */
+    /* Use c_alias for C type name if available, otherwise use mangled Sindarin name */
     const char *c_type_name = struct_type->as.struct_type.c_alias != NULL
         ? struct_type->as.struct_type.c_alias
-        : struct_type->as.struct_type.name;
+        : sn_mangle_name(gen->arena, struct_type->as.struct_type.name);
     int total_fields = struct_type->as.struct_type.field_count;
 
     /* Build the C compound literal: (StructName){ .field1 = val1, .field2 = val2, ... }
@@ -752,7 +752,7 @@ static char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
     /* For sync variables, use atomic operations */
     if (symbol != NULL && symbol->sync_mod == SYNC_ATOMIC)
     {
-        char *var_name = get_var_name(gen->arena, target->as.variable.name);
+        char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, target->as.variable.name));
         const char *c_type = get_c_type(gen->arena, target_type);
 
         switch (op)

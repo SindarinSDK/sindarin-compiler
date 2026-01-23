@@ -33,6 +33,7 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
 
 /* Name helpers */
 char *get_var_name(Arena *arena, Token name);
+char *sn_mangle_name(Arena *arena, const char *name);
 
 /* Code generation helpers */
 void indented_fprintf(CodeGen *gen, int indent, const char *fmt, ...);
