@@ -21,20 +21,20 @@ struct Rectangle =>
     origin: Point
     size: Dimensions
 
-fn get_point() private: Point =>
+private fn get_point(): Point =>
     # Point has only primitive fields (int, int)
     var p: Point = Point { x: 42, y: 99 }
     return p  # OK: struct contains only primitives
 
-fn get_dimensions() private: Dimensions =>
+private fn get_dimensions(): Dimensions =>
     # Dimensions has only primitive fields (double, double, double)
     return Dimensions { width: 10.5, height: 20.5, depth: 30.5 }
 
-fn get_flags() private: Flags =>
+private fn get_flags(): Flags =>
     # Flags has only primitive fields (bool, bool, byte)
     return Flags { enabled: true, active: false, count: 255 }
 
-fn get_rectangle() private: Rectangle =>
+private fn get_rectangle(): Rectangle =>
     # Rectangle contains nested structs with only primitives
     var rect: Rectangle = Rectangle { origin: Point { x: 5, y: 10 }, size: Dimensions { width: 100.0, height: 200.0, depth: 300.0 } }
     return rect  # OK: nested structs contain only primitives

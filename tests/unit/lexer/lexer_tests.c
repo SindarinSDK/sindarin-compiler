@@ -1,7 +1,6 @@
 // tests/lexer_tests.c
 // Lexer tests - main entry point
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "../arena.h"

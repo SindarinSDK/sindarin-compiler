@@ -1,7 +1,6 @@
 // tests/type_checker_tests_thread_spawn.c
 // Tests for thread spawn validation and freeze mechanics
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "../type_checker/type_checker_expr.h"

@@ -1,7 +1,6 @@
 // tests/unit/standalone/symbol_table_tests_core.c
 // Core symbol table tests: initialization, scope management, symbol operations, lookup
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

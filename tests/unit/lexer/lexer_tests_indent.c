@@ -282,7 +282,8 @@ static void test_lexer_unexpected_character(void)
 {
     DEBUG_INFO("Starting test_lexer_unexpected_character");
 
-    const char *source = "@";
+    /* '@' is now a pragma directive prefix, so use a truly unexpected character */
+    const char *source = "`";
     Arena arena;
     arena_init(&arena, 1024);
     Lexer lexer;
@@ -290,7 +291,7 @@ static void test_lexer_unexpected_character(void)
 
     Token t1 = lexer_scan_token(&lexer);
     assert(t1.type == TOKEN_ERROR);
-    assert(strstr(t1.start, "Unexpected character '@'") != NULL);
+    assert(strstr(t1.start, "Unexpected character '`'") != NULL);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);

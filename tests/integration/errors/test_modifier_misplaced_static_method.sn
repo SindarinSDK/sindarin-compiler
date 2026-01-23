@@ -1,0 +1,11 @@
+# Test: Compile error - 'static' placed after parameter list in struct method
+
+struct Foo =>
+    value: int
+
+    fn helper() static: int =>
+        return 0
+
+fn main(): void =>
+    var f: Foo = Foo{value: 1}
+    print($"{f.value}\n")

@@ -1,7 +1,6 @@
 // tests/type_checker_tests_thread_sync.c
 // Tests for thread sync validation and array sync
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "../type_checker/type_checker_expr.h"

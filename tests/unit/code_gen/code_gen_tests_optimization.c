@@ -2,7 +2,6 @@
 // Comprehensive tests for code generation optimizations
 // Tests: constant folding, native operators, edge cases, and behavior verification
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

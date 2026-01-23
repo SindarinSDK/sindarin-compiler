@@ -2,7 +2,7 @@
 // Expected: Compilation should SUCCEED and run correctly
 // Verifies is_shared=true flag generation and caller arena usage
 
-fn shared_work() shared: str =>
+shared fn shared_work(): str =>
     return "shared result"
 
 fn main(): void =>

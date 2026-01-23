@@ -1,7 +1,6 @@
 // tests/type_checker_tests.c
 // Type checker tests - main entry point
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

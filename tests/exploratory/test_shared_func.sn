@@ -1,20 +1,20 @@
 // Test 37: Shared function modifier
-fn helper_add(a: int, b: int) shared: int =>
+shared fn helper_add(a: int, b: int): int =>
     return a + b
 
-fn helper_multiply(a: int, b: int) shared: int =>
+shared fn helper_multiply(a: int, b: int): int =>
     return a * b
 
-fn helper_greet(name: str) shared: void =>
+shared fn helper_greet(name: str): void =>
     print($"Hello, {name}!\n")
 
-fn helper_double(x: int) shared: int =>
+shared fn helper_double(x: int): int =>
     return x * 2
 
-fn helper_triple(x: int) shared: int =>
+shared fn helper_triple(x: int): int =>
     return x * 3
 
-fn compute(a: int, b: int) shared: int =>
+shared fn compute(a: int, b: int): int =>
     var sum: int = helper_add(a, b)
     var prod: int = helper_multiply(a, b)
     return sum + prod

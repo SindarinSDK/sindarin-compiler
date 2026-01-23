@@ -1,14 +1,30 @@
 // tests/parser_tests_static.c
 // Parser tests for static method call syntax (TypeName.method())
 
+/* Register a struct type name in the symbol table so the parser recognizes it
+ * as a static type for TypeName.method() syntax. SDK types (Path, Directory,
+ * Bytes) are no longer hardcoded in the parser. */
+static void register_static_type(Arena *arena, SymbolTable *symbol_table, const char *name)
+{
+    Token type_tok;
+    type_tok.start = name;
+    type_tok.length = (int)strlen(name);
+    type_tok.type = TOKEN_IDENTIFIER;
+    type_tok.line = 0;
+    type_tok.filename = "test.sn";
+    Type *struct_type = ast_create_struct_type(arena, name, NULL, 0, NULL, 0, true, false, false, NULL);
+    symbol_table_add_type(symbol_table, type_tok, struct_type);
+}
+
 static void test_static_call_no_args_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "TextFile.exists()\n";
+    const char *source = "Path.separator()\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Path");
 
     Module *module = parser_execute(&parser, "test.sn");
 
@@ -18,8 +34,8 @@ static void test_static_call_no_args_parsing()
     assert(stmt->type == STMT_EXPR);
     Expr *expr = stmt->as.expression.expression;
     assert(expr->type == EXPR_STATIC_CALL);
-    assert(strncmp(expr->as.static_call.type_name.start, "TextFile", 8) == 0);
-    assert(strncmp(expr->as.static_call.method_name.start, "exists", 6) == 0);
+    assert(strncmp(expr->as.static_call.type_name.start, "Path", 4) == 0);
+    assert(strncmp(expr->as.static_call.method_name.start, "separator", 9) == 0);
     assert(expr->as.static_call.arg_count == 0);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
@@ -31,8 +47,9 @@ static void test_static_call_one_arg_parsing()
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "TextFile.open(\"data.txt\")\n";
+    const char *source = "Path.exists(\"/tmp/data.txt\")\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Path");
 
     Module *module = parser_execute(&parser, "test.sn");
 
@@ -42,11 +59,11 @@ static void test_static_call_one_arg_parsing()
     assert(stmt->type == STMT_EXPR);
     Expr *expr = stmt->as.expression.expression;
     assert(expr->type == EXPR_STATIC_CALL);
-    assert(strncmp(expr->as.static_call.type_name.start, "TextFile", 8) == 0);
-    assert(strncmp(expr->as.static_call.method_name.start, "open", 4) == 0);
+    assert(strncmp(expr->as.static_call.type_name.start, "Path", 4) == 0);
+    assert(strncmp(expr->as.static_call.method_name.start, "exists", 6) == 0);
     assert(expr->as.static_call.arg_count == 1);
     assert(expr->as.static_call.arguments[0]->type == EXPR_LITERAL);
-    assert(strcmp(expr->as.static_call.arguments[0]->as.literal.value.string_value, "data.txt") == 0);
+    assert(strcmp(expr->as.static_call.arguments[0]->as.literal.value.string_value, "/tmp/data.txt") == 0);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -59,6 +76,7 @@ static void test_static_call_multiple_args_parsing()
     SymbolTable symbol_table;
     const char *source = "Path.join(\"home\", \"user\", \"file.txt\")\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Path");
 
     Module *module = parser_execute(&parser, "test.sn");
 
@@ -83,6 +101,7 @@ static void test_static_call_in_var_decl_parsing()
     SymbolTable symbol_table;
     const char *source = "var exists: bool = Path.exists(\"/tmp\")\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Path");
 
     Module *module = parser_execute(&parser, "test.sn");
 
@@ -105,6 +124,7 @@ static void test_static_call_bytes_from_hex_parsing()
     SymbolTable symbol_table;
     const char *source = "var data: byte[] = Bytes.fromHex(\"48656c6c6f\")\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Bytes");
 
     Module *module = parser_execute(&parser, "test.sn");
 
@@ -127,6 +147,7 @@ static void test_static_call_directory_list_parsing()
     SymbolTable symbol_table;
     const char *source = "var files: str[] = Directory.list(\"/home\")\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+    register_static_type(&arena, &symbol_table, "Directory");
 
     Module *module = parser_execute(&parser, "test.sn");
 

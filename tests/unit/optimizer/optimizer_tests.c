@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include "../test_harness.h"
 #include "../optimizer.h"
 #include "../arena.h"

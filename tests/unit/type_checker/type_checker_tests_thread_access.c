@@ -1,7 +1,6 @@
 // tests/type_checker_tests_thread_access.c
 // Tests for variable access rules, frozen method tests, and function constraints
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "../type_checker/type_checker_expr.h"

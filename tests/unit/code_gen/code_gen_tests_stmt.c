@@ -100,11 +100,11 @@ static void test_code_gen_function_simple_void(void)
 
     /* All non-main functions receive arena as first parameter */
     const char *expected = get_expected(&arena,
-                                  "void myfn(RtArena *);\n\n"
-                                  "void myfn(RtArena *__caller_arena__) {\n"
+                                  "void __sn__myfn(RtArena *);\n\n"
+                                  "void __sn__myfn(RtArena *__caller_arena__) {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(__caller_arena__);\n"
-                                  "    goto myfn_return;\n"
-                                  "myfn_return:\n"
+                                  "    goto __sn__myfn_return;\n"
+                                  "__sn__myfn_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
                                   "    return;\n"
                                   "}\n\n"
@@ -180,13 +180,13 @@ static void test_code_gen_function_with_params_and_return(void)
 
     /* All non-main functions receive arena as first parameter */
     const char *expected = get_expected(&arena,
-                                  "long long add(RtArena *, long long);\n\n"
-                                  "long long add(RtArena *__caller_arena__, long long a) {\n"
+                                  "long long __sn__add(RtArena *, long long);\n\n"
+                                  "long long __sn__add(RtArena *__caller_arena__, long long __sn__a) {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(__caller_arena__);\n"
                                   "    long long _return_value = 0;\n"
-                                  "    _return_value = a;\n"
-                                  "    goto add_return;\n"
-                                  "add_return:\n"
+                                  "    _return_value = __sn__a;\n"
+                                  "    goto __sn__add_return;\n"
+                                  "__sn__add_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n\n"
@@ -296,7 +296,7 @@ static void test_code_gen_block_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "{\n"
-                                  "    long long block_var = 0;\n"
+                                  "    long long __sn__block_var = 0;\n"
                                   "}\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
@@ -359,7 +359,7 @@ static void test_code_gen_if_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "if (1L) {\n"
-                                  "    print;\n"
+                                  "    __sn__print;\n"
                                   "}\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
@@ -422,7 +422,7 @@ static void test_code_gen_while_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "while (1L) {\n"
-                                  "    print;\n"
+                                  "    __sn__print;\n"
                                   "}\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
@@ -527,11 +527,11 @@ static void test_code_gen_for_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "{\n"
-                                  "    long long k = 0LL;\n"
-                                  "    while (rt_lt_long(k, 5LL)) {\n"
-                                  "        rt_print_long(k);\n"
+                                  "    long long __sn__k = 0LL;\n"
+                                  "    while (rt_lt_long(__sn__k, 5LL)) {\n"
+                                  "        rt_print_long(__sn__k);\n"
                                   "    __for_continue_0__:;\n"
-                                  "        rt_post_inc_long(&k);\n"
+                                  "        rt_post_inc_long(&__sn__k);\n"
                                   "    }\n"
                                   "}\n"
                                   "int main() {\n"
@@ -594,9 +594,9 @@ static void test_code_gen_string_free_in_block(void)
 
     const char *expected = get_expected(&arena,
                                   "{\n"
-                                  "    char * s = rt_to_string_string(NULL, \"test\");\n"
-                                  "    if (s) {\n"
-                                  "        rt_free_string(s);\n"
+                                  "    char * __sn__s = \"test\";\n"
+                                  "    if (__sn__s) {\n"
+                                  "        rt_free_string(__sn__s);\n"
                                   "    }\n"
                                   "}\n"
                                   "int main() {\n"
@@ -652,8 +652,8 @@ static void test_code_gen_increment_decrement(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "long long counter = 0;\n"
-                                  "rt_post_inc_long(&counter);\n"
+                                  "long long __sn__counter = 0;\n"
+                                  "rt_post_inc_long(&__sn__counter);\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"

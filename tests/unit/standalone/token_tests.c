@@ -1,6 +1,5 @@
 // tests/token_tests.c
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

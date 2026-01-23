@@ -5,6 +5,7 @@
 #include "ast/ast_expr.h"
 #include "ast/ast_stmt.h"
 #include "debug.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -150,7 +151,7 @@ Stmt *parser_var_declaration(Parser *parser)
     return stmt;
 }
 
-Stmt *parser_function_declaration(Parser *parser)
+Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
 {
     Token fn_token = parser->previous;
     Token name;
@@ -251,8 +252,22 @@ Stmt *parser_function_declaration(Parser *parser)
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after parameters");
     }
 
-    // Parse optional function modifier (shared/private) before return type
-    FunctionModifier func_modifier = parser_function_modifier(parser);
+    /* Check for misplaced modifiers after parameters */
+    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE) || parser_check(parser, TOKEN_STATIC))
+    {
+        const char *keyword = parser_check(parser, TOKEN_SHARED) ? "shared" :
+                              parser_check(parser, TOKEN_PRIVATE) ? "private" : "static";
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg),
+            "'%s' must be declared before 'fn', not after the parameter list. "
+            "Example: %s fn %.*s(...): type => ...",
+            keyword, keyword, name.length, name.start);
+        parser_error_at_current(parser, error_msg);
+        /* Consume the misplaced modifier to allow continued parsing */
+        parser_advance(parser);
+    }
+
+    FunctionModifier func_modifier = modifier;
 
     Type *return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
     if (parser_match(parser, TOKEN_COLON))
@@ -322,7 +337,7 @@ Stmt *parser_function_declaration(Parser *parser)
     return func_stmt;
 }
 
-Stmt *parser_native_function_declaration(Parser *parser)
+Stmt *parser_native_function_declaration(Parser *parser, FunctionModifier modifier)
 {
     Token native_token = parser->previous;  /* Points to 'fn' after 'native' */
     Token name;
@@ -453,8 +468,21 @@ Stmt *parser_native_function_declaration(Parser *parser)
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after parameters");
     }
 
-    /* Parse optional function modifier (shared/private) before return type */
-    FunctionModifier func_modifier = parser_function_modifier(parser);
+    /* Check for misplaced modifiers after parameters */
+    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE) || parser_check(parser, TOKEN_STATIC))
+    {
+        const char *keyword = parser_check(parser, TOKEN_SHARED) ? "shared" :
+                              parser_check(parser, TOKEN_PRIVATE) ? "private" : "static";
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg),
+            "'%s' must be declared before 'fn', not after the parameter list. "
+            "Example: %s native fn %.*s(...): type",
+            keyword, keyword, name.length, name.start);
+        parser_error_at_current(parser, error_msg);
+        parser_advance(parser);
+    }
+
+    FunctionModifier func_modifier = modifier;
 
     Type *return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
     if (parser_match(parser, TOKEN_COLON))
@@ -660,7 +688,7 @@ Type *parser_native_function_type(Parser *parser)
 }
 
 /* Helper function to parse a struct method declaration */
-static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool is_native_method)
+static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool is_native_method, FunctionModifier modifier)
 {
     Token fn_token = parser->previous;  /* Points to 'fn' */
     Token method_name;
@@ -778,8 +806,21 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after parameters");
     }
 
-    /* Parse optional function modifier (shared/private) before return type */
-    FunctionModifier func_modifier = parser_function_modifier(parser);
+    /* Check for misplaced modifiers after parameters */
+    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE) || parser_check(parser, TOKEN_STATIC))
+    {
+        const char *keyword = parser_check(parser, TOKEN_SHARED) ? "shared" :
+                              parser_check(parser, TOKEN_PRIVATE) ? "private" : "static";
+        char error_msg[256];
+        snprintf(error_msg, sizeof(error_msg),
+            "'%s' must be declared before 'fn', not after the parameter list. "
+            "Example: %s fn %.*s(...): type => ...",
+            keyword, keyword, method_name.length, method_name.start);
+        parser_error_at_current(parser, error_msg);
+        parser_advance(parser);
+    }
+
+    FunctionModifier func_modifier = modifier;
 
     /* Parse return type */
     Type *return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
@@ -863,7 +904,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
 /* Helper function to check if the current tokens indicate a method declaration */
 static bool parser_is_method_start(Parser *parser)
 {
-    /* Methods can start with: fn, static fn, native fn, static native fn */
+    /* Methods can start with any combination of: shared/private, static, native, fn */
     if (parser_check(parser, TOKEN_FN))
     {
         return true;
@@ -872,12 +913,12 @@ static bool parser_is_method_start(Parser *parser)
     {
         return true;
     }
+    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE))
+    {
+        return true;
+    }
     if (parser_check(parser, TOKEN_NATIVE))
     {
-        /* In a struct body context, 'native' can only start a method (native fn).
-         * We don't peek ahead because parser_advance() modifies lexer state
-         * that cannot be easily restored. The actual 'fn' requirement is
-         * validated when we try to match TOKEN_FN after consuming 'native'. */
         return true;
     }
     return false;
@@ -992,31 +1033,77 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             /* Check if this is a method declaration */
             if (parser_is_method_start(parser))
             {
-                /* Parse method modifiers */
+                /* Parse method modifiers (shared/private/static/native in any order before fn) */
                 bool is_method_static = false;
                 bool is_method_native = false;
+                FunctionModifier method_modifier = FUNC_DEFAULT;
+                bool modifier_done = false;
 
-                /* Check for 'static' modifier */
-                if (parser_match(parser, TOKEN_STATIC))
+                while (!modifier_done && !parser_is_at_end(parser))
                 {
-                    is_method_static = true;
-                }
-
-                /* Check for 'native' modifier */
-                if (parser_match(parser, TOKEN_NATIVE))
-                {
-                    is_method_native = true;
+                    if (parser_check(parser, TOKEN_STATIC))
+                    {
+                        if (is_method_static)
+                        {
+                            parser_error_at_current(parser, "Duplicate 'static' modifier");
+                        }
+                        is_method_static = true;
+                        parser_advance(parser);
+                    }
+                    else if (parser_check(parser, TOKEN_SHARED))
+                    {
+                        if (method_modifier == FUNC_PRIVATE)
+                        {
+                            parser_error_at_current(parser,
+                                "'shared' and 'private' cannot be used together. "
+                                "A function is either shared (uses caller's arena) or private (isolated arena)");
+                        }
+                        if (method_modifier == FUNC_SHARED)
+                        {
+                            parser_error_at_current(parser, "Duplicate 'shared' modifier");
+                        }
+                        method_modifier = FUNC_SHARED;
+                        parser_advance(parser);
+                    }
+                    else if (parser_check(parser, TOKEN_PRIVATE))
+                    {
+                        if (method_modifier == FUNC_SHARED)
+                        {
+                            parser_error_at_current(parser,
+                                "'shared' and 'private' cannot be used together. "
+                                "A function is either shared (uses caller's arena) or private (isolated arena)");
+                        }
+                        if (method_modifier == FUNC_PRIVATE)
+                        {
+                            parser_error_at_current(parser, "Duplicate 'private' modifier");
+                        }
+                        method_modifier = FUNC_PRIVATE;
+                        parser_advance(parser);
+                    }
+                    else if (parser_check(parser, TOKEN_NATIVE))
+                    {
+                        if (is_method_native)
+                        {
+                            parser_error_at_current(parser, "Duplicate 'native' modifier");
+                        }
+                        is_method_native = true;
+                        parser_advance(parser);
+                    }
+                    else
+                    {
+                        modifier_done = true;
+                    }
                 }
 
                 /* Now we should be at 'fn' */
                 if (!parser_match(parser, TOKEN_FN))
                 {
-                    parser_error_at_current(parser, "Expected 'fn' keyword");
+                    parser_error_at_current(parser, "Expected 'fn' after method modifiers");
                     continue;
                 }
 
                 /* Parse method */
-                StructMethod *method = parser_struct_method(parser, is_method_static, is_method_native);
+                StructMethod *method = parser_struct_method(parser, is_method_static, is_method_native, method_modifier);
                 if (method == NULL)
                 {
                     /* Error already reported */

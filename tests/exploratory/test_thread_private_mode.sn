@@ -2,7 +2,7 @@
 // Expected: Compilation should SUCCEED and run correctly
 // Verifies is_private=true flag generation and isolated arena
 
-fn private_compute() private: int =>
+private fn private_compute(): int =>
     return 99
 
 fn main(): void =>

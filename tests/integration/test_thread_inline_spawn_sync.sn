@@ -7,7 +7,7 @@ fn compute_int(): int =>
 fn compute_double(): double =>
     return 3.14
 
-fn compute_string() shared: str =>
+shared fn compute_string(): str =>
     return "hello"
 
 fn void_work(): void =>

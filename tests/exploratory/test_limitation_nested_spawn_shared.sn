@@ -1,10 +1,10 @@
 # Test Known Limitation: Nested thread spawns with shared arena
 # Try to trigger arena issues with shared functions
 
-fn inner_work() shared: str =>
+shared fn inner_work(): str =>
     return "inner-shared"
 
-fn outer_work() shared: str =>
+shared fn outer_work(): str =>
     # Spawn a thread from within a shared thread
     var inner: str = &inner_work()
     var inner_result = inner!

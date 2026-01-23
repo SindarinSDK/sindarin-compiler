@@ -1,7 +1,6 @@
 // tests/ast_tests.c
 // AST tests - main entry point
 
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -2,47 +2,47 @@
 // Tests shared functions that call other shared functions defined later
 
 // Shared helper functions that use caller's arena
-fn compute_value() shared: int =>
+shared fn compute_value(): int =>
     // Call another shared function defined below
     var base: int = get_base_value()
     var mult: int = get_multiplier()
     return base * mult
 
-fn get_base_value() shared: int =>
+shared fn get_base_value(): int =>
     return 10
 
-fn get_multiplier() shared: int =>
+shared fn get_multiplier(): int =>
     return 5
 
 // More complex: shared functions calling each other
-fn process_a(x: int) shared: int =>
+shared fn process_a(x: int): int =>
     if x <= 0 =>
         return 0
     return x + process_b(x - 1)
 
-fn process_b(x: int) shared: int =>
+shared fn process_b(x: int): int =>
     if x <= 0 =>
         return 0
     return x + process_a(x - 1)
 
 // Shared function returning string allocated in caller's arena
-fn build_message() shared: str =>
+shared fn build_message(): str =>
     var prefix: str = get_prefix()
     var suffix: str = get_suffix()
     return prefix + " - " + suffix
 
-fn get_prefix() shared: str =>
+shared fn get_prefix(): str =>
     return "Hello"
 
-fn get_suffix() shared: str =>
+shared fn get_suffix(): str =>
     return "World"
 
 // Shared function creating arrays
-fn create_data() shared: int[] =>
+shared fn create_data(): int[] =>
     var data: int[] = {1, 2, 3, 4, 5}
     return data
 
-fn sum_created_data() shared: int =>
+shared fn sum_created_data(): int =>
     var data: int[] = create_data()
     var total: int = 0
     for x in data =>

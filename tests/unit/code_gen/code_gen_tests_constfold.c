@@ -1,7 +1,6 @@
 // tests/code_gen_tests_constfold.c
 // Tests for constant folding optimization in code generation
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

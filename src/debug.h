@@ -61,4 +61,15 @@ void init_debug(int level);
         abort();                                                                         \
     }
 
+// Override standard assert() so it is never compiled out.
+// The standard <assert.h> disables assert() when NDEBUG is defined (e.g. Release builds).
+// In this project, assertions must always be active.
+#undef assert
+#define assert(condition)                                                                 \
+    if (!(condition))                                                                    \
+    {                                                                                    \
+        fprintf(stderr, "[ASSERT] %s:%d: %s\n", __FILE__, __LINE__, #condition);         \
+        abort();                                                                         \
+    }
+
 #endif

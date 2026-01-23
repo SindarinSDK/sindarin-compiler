@@ -1,7 +1,6 @@
 // tests/unit/standalone/symbol_table_tests_thread.c
 // Thread state and frozen state tracking tests for symbol table
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
