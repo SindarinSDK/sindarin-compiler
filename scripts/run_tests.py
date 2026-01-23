@@ -407,7 +407,7 @@ class TestRunner:
         else:
             print(f"{Colors.RED}FAIL{Colors.NC} ({reason})")
             if self.verbose and details:
-                for line in details[:3]:
+                for line in details[:20]:
                     print(f"    {line}")
 
     def _run_error_test_internal(self, test_file: str, expected_file: str,
@@ -434,8 +434,12 @@ class TestRunner:
         else:
             details = [
                 f"Expected: {expected_error}",
-                f"Got:      {stderr.split(chr(10))[0] if stderr else '(empty)'}"
+                f"Got:",
             ]
+            if stderr:
+                details.extend(f"  {line}" for line in stderr.split('\n')[:15])
+            else:
+                details.append("  (empty)")
             return ('fail', 'wrong error', details)
 
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
@@ -458,7 +462,7 @@ class TestRunner:
         )
 
         if exit_code != 0:
-            details = stderr.split('\n')[:3] if stderr else None
+            details = stderr.split('\n')[:20] if stderr else None
             return ('fail', 'compile error', details)
 
         # Run with merged stdout/stderr (like bash's 2>&1)
@@ -474,9 +478,9 @@ class TestRunner:
         else:
             if exit_code != 0:
                 if timeout_marker == 'TIMEOUT':
-                    return ('fail', 'timeout', output.split('\n')[:3] if output else None)
+                    return ('fail', 'timeout', output.split('\n')[:20] if output else None)
                 else:
-                    details = output.split('\n')[:3] if output else None
+                    details = output.split('\n')[:20] if output else None
                     return ('fail', f'exit code: {exit_code}', details)
 
         # Compare output if expected file exists
@@ -491,11 +495,20 @@ class TestRunner:
             if normalized_output == normalized_expected:
                 return ('pass', '', None)
             else:
-                details = [
-                    f"Expected: {expected_output.split(chr(10))[0]}",
-                    f"Got:      {output.split(chr(10))[0] if output else '(empty)'}"
-                ]
-                return ('fail', 'output mismatch', details)
+                expected_lines = normalized_expected.split('\n')
+                actual_lines = normalized_output.split('\n')
+                details = []
+                max_lines = min(20, max(len(expected_lines), len(actual_lines)))
+                for i in range(max_lines):
+                    exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                    act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                    if exp != act:
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp}")
+                        details.append(f"    got:      {act}")
+                if not details:
+                    details = ["Output differs (trailing whitespace/newlines)"]
+                return ('fail', 'output mismatch', details[:20])
 
         return ('pass', '', None)
 
