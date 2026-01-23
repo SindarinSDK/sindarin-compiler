@@ -369,6 +369,18 @@ static void set_socket_nonblocking(socket_t sock) {
 #endif
 }
 
+/* Send a QUIC packet on the connection's socket.
+ * Client sockets are connected, so we use send() to avoid EISCONN on macOS/BSD.
+ * Server sockets are unconnected (shared listener socket), so we use sendto(). */
+static ssize_t quic_send_packet(RtQuicConnection *conn, const uint8_t *buf, size_t len) {
+    if (conn->is_server) {
+        return sendto(conn->socket_fd, (const char *)buf, len, 0,
+                      (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+    } else {
+        return send(conn->socket_fd, (const char *)buf, len, 0);
+    }
+}
+
 static int parse_address(const char *address, char *host, size_t hostlen, char *port, size_t portlen) {
     const char *colon = NULL;
 
@@ -818,9 +830,9 @@ static int quic_flush_tx(RtQuicConnection *conn) {
         }
         if (nwrite == 0) break;
 
-        /* Send packet */
-        ssize_t sent = sendto(conn->socket_fd, (const char *)buf, (size_t)nwrite, 0,
-                              (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+        /* Send packet (socket is connected, use send not sendto to avoid
+         * EISCONN on macOS/BSD which rejects sendto with address on connected sockets) */
+        ssize_t sent = send(conn->socket_fd, (const char *)buf, (size_t)nwrite, 0);
         if (sent < 0) {
             /* EAGAIN/EWOULDBLOCK is ok */
 #ifdef _WIN32
@@ -1685,8 +1697,7 @@ long sn_quic_stream_write(RtQuicStream *stream, unsigned char *data) {
         if (ndatalen > 0) total_written += ndatalen;
 
         if (nwrite > 0) {
-            sendto(conn->socket_fd, (const char *)buf, (size_t)nwrite, 0,
-                   (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+            quic_send_packet(conn, buf, (size_t)nwrite);
         }
 
         if (nwrite == 0) break;
@@ -1746,8 +1757,7 @@ void sn_quic_stream_write_line(RtQuicStream *stream, const char *text) {
         if (ndatalen > 0) total_written += ndatalen;
 
         if (nwrite > 0) {
-            sendto(conn->socket_fd, (const char *)pkt, (size_t)nwrite, 0,
-                   (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+            quic_send_packet(conn, pkt, (size_t)nwrite);
         }
 
         if (nwrite == 0) break;
@@ -1788,8 +1798,7 @@ void sn_quic_stream_close(RtQuicStream *stream) {
             stream->stream_id, NULL, 0, quic_timestamp());
 
         if (nwrite > 0) {
-            sendto(conn->socket_fd, (const char *)buf, (size_t)nwrite, 0,
-                   (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+            quic_send_packet(conn, buf, (size_t)nwrite);
         }
     }
 
@@ -2004,8 +2013,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
             buf, sizeof(buf), &ccerr, quic_timestamp());
 
         if (nwrite > 0) {
-            sendto(conn->socket_fd, (const char *)buf, (size_t)nwrite, 0,
-                   (struct sockaddr *)&conn->remote_addr, conn->remote_addrlen);
+            quic_send_packet(conn, buf, (size_t)nwrite);
         }
     }
 
