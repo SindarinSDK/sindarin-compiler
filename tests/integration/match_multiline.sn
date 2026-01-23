@@ -1,0 +1,17 @@
+fn process(code: int): str =>
+    var result: str = match code =>
+        200 =>
+            print("Processing 200...\n")
+            "OK"
+        404 =>
+            print("Processing 404...\n")
+            "Not Found"
+        else =>
+            print("Processing unknown...\n")
+            "Unknown"
+    return result
+
+fn main(): void =>
+    print($"{process(200)}\n")
+    print($"{process(404)}\n")
+    print($"{process(999)}\n")

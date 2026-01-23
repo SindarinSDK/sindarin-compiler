@@ -498,6 +498,28 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
         ast_print_expr(arena, expr->as.as_ref.operand, indent_level + 1);
         break;
 
+    case EXPR_MATCH:
+        DEBUG_VERBOSE_INDENT(indent_level, "Match (%d arms):", expr->as.match_expr.arm_count);
+        DEBUG_VERBOSE_INDENT(indent_level + 1, "Subject:");
+        ast_print_expr(arena, expr->as.match_expr.subject, indent_level + 2);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (arm->is_else)
+            {
+                DEBUG_VERBOSE_INDENT(indent_level + 1, "Arm %d: else", i);
+            }
+            else
+            {
+                DEBUG_VERBOSE_INDENT(indent_level + 1, "Arm %d (%d patterns):", i, arm->pattern_count);
+                for (int j = 0; j < arm->pattern_count; j++)
+                {
+                    ast_print_expr(arena, arm->patterns[j], indent_level + 2);
+                }
+            }
+        }
+        break;
+
     /* Not handled by AST printer */
     case EXPR_TYPEOF:
     case EXPR_IS:

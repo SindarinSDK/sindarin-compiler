@@ -190,7 +190,8 @@ typedef enum
     EXPR_MEMBER_ASSIGN,
     EXPR_SIZEOF,
     EXPR_COMPOUND_ASSIGN,
-    EXPR_METHOD_CALL
+    EXPR_METHOD_CALL,
+    EXPR_MATCH
 } ExprType;
 
 typedef struct
@@ -433,6 +434,23 @@ typedef struct
     bool is_static;            /* True if this is a static method call (Type.method()) */
 } MethodCallExpr;
 
+/* Match arm: a single arm in a match expression */
+typedef struct
+{
+    Expr **patterns;           /* Arm pattern expressions (multi-value: 1, 2, 3) */
+    int pattern_count;         /* Number of patterns in this arm */
+    Stmt *body;                /* Arm body (block statement) */
+    bool is_else;              /* True for the else/default arm */
+} MatchArm;
+
+/* Match expression: match subject => arms */
+typedef struct
+{
+    Expr *subject;             /* The expression being matched */
+    MatchArm *arms;            /* Array of match arms */
+    int arm_count;             /* Number of arms */
+} MatchExpr;
+
 struct Expr
 {
     ExprType type;
@@ -472,6 +490,7 @@ struct Expr
         SizeofExpr sizeof_expr;
         CompoundAssignExpr compound_assign;
         MethodCallExpr method_call;
+        MatchExpr match_expr;
     } as;
 
     Type *expr_type;
@@ -740,6 +759,7 @@ Expr *ast_create_member_access_expr(Arena *arena, Expr *object, Token field_name
 Expr *ast_create_member_assign_expr(Arena *arena, Expr *object, Token field_name, Expr *value, const Token *loc_token);
 Expr *ast_create_sizeof_type_expr(Arena *arena, Type *type_operand, const Token *loc_token);
 Expr *ast_create_sizeof_expr_expr(Arena *arena, Expr *expr_operand, const Token *loc_token);
+Expr *ast_create_match_expr(Arena *arena, Expr *subject, MatchArm *arms, int arm_count, const Token *loc_token);
 
 Stmt *ast_create_expr_stmt(Arena *arena, Expr *expression, const Token *loc_token);
 Stmt *ast_create_var_decl_stmt(Arena *arena, Token name, Type *type, Expr *initializer, const Token *loc_token);

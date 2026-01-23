@@ -385,6 +385,20 @@ static void collect_captured_vars_internal(Expr *expr, LambdaExpr *lambda, Symbo
             collect_captured_vars_internal(expr->as.static_call.arguments[i], lambda, table, cv, lv, enclosing, arena);
         }
         break;
+    case EXPR_MATCH:
+        collect_captured_vars_internal(expr->as.match_expr.subject, lambda, table, cv, lv, enclosing, arena);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (!arm->is_else)
+            {
+                for (int j = 0; j < arm->pattern_count; j++)
+                    collect_captured_vars_internal(arm->patterns[j], lambda, table, cv, lv, enclosing, arena);
+            }
+            if (arm->body != NULL)
+                collect_captured_vars_from_stmt(arm->body, lambda, table, cv, lv, enclosing, arena);
+        }
+        break;
     case EXPR_LITERAL:
     default:
         break;

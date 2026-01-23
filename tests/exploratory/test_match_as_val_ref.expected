@@ -1,0 +1,13 @@
+=== Match As Val/Ref Tests ===
+
+test_match_as_val_basic: PASS
+test_match_as_val_all_modes: PASS
+test_match_as_ref_modify: PASS
+test_match_as_ref_all_modes: PASS
+test_match_selector_ref: PASS
+test_match_native_as_ref: PASS
+test_match_transform_native_ref: PASS
+test_match_val_preserves_array: PASS
+test_match_on_struct_method_result: PASS
+
+All match as val/ref tests passed!

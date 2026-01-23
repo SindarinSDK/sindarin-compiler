@@ -1,0 +1,12 @@
+fn check_status(code: int): void =>
+    match code =>
+        200 => print("OK\n")
+        404 => print("Not Found\n")
+        500 => print("Server Error\n")
+        else => print("Unknown\n")
+
+fn main(): void =>
+    check_status(200)
+    check_status(404)
+    check_status(500)
+    check_status(301)

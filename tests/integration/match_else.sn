@@ -1,0 +1,10 @@
+fn day_type(day: int): void =>
+    match day =>
+        1, 7 => print("Weekend\n")
+        else => print("Weekday\n")
+
+fn main(): void =>
+    day_type(1)
+    day_type(2)
+    day_type(5)
+    day_type(7)

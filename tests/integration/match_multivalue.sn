@@ -1,0 +1,16 @@
+fn categorize(code: int): void =>
+    match code =>
+        200, 201, 202 => print("Success\n")
+        301, 302 => print("Redirect\n")
+        400, 401, 403, 404 => print("Client Error\n")
+        500, 502, 503 => print("Server Error\n")
+        else => print("Other\n")
+
+fn main(): void =>
+    categorize(200)
+    categorize(201)
+    categorize(301)
+    categorize(400)
+    categorize(404)
+    categorize(500)
+    categorize(100)

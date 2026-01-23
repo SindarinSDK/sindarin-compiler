@@ -158,6 +158,18 @@ for var i: int = 0; i < 10; i++ =>
 // For-each loop
 for item in items =>
   process(item)
+
+// Match expression
+match status =>
+    200 => print("OK\n")
+    404, 405 => print("Not Found\n")
+    else => print("Error\n")
+
+// Match as expression
+var msg: str = match code =>
+    200 => "OK"
+    404 => "Not Found"
+    else => "Unknown"
 ```
 
 ### Boolean Operators
@@ -347,6 +359,7 @@ Note: The default runtime objects are compiled with GCC's LTO. To use a differen
 - [Strings](strings.md) - String methods and interpolation
 - [Arrays](arrays.md) - Array operations and slicing
 - [Structs](structs.md) - Struct declarations and C interop
+- [Match](match.md) - Match expressions for multi-way branching
 - [Lambdas](lambdas.md) - Lambda expressions and closures
 - [Memory](memory.md) - Arena memory management
 

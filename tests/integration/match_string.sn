@@ -1,0 +1,12 @@
+fn describe(color: str): void =>
+    match color =>
+        "red" => print("warm\n")
+        "blue" => print("cool\n")
+        "green" => print("natural\n")
+        else => print("unknown color\n")
+
+fn main(): void =>
+    describe("red")
+    describe("blue")
+    describe("green")
+    describe("yellow")

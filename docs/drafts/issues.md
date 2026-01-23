@@ -21,29 +21,7 @@ enum Operator => EQ, GT, GTE, LT, LTE, CARET, TILDE
 var op: Operator = Operator.CARET
 ```
 
-### 2. No match/switch statement
-
-Multi-way branching requires chains of `if`/`else if`. Error-prone and verbose, especially combined with the lack of enums.
-
-```
-# Current: repetitive if-chains
-if self.op == OP_EQ() =>
-    return cmp == 0
-if self.op == OP_GT() =>
-    return cmp == 1
-if self.op == OP_GTE() =>
-    return cmp >= 0
-...
-
-# Desired:
-match self.op =>
-    Operator.EQ => return cmp == 0
-    Operator.GT => return cmp == 1
-    Operator.GTE => return cmp >= 0
-    ...
-```
-
-### 3. No error/result type
+### 2. No error/result type
 
 Functions like `Version.parse` cannot signal failure. A malformed input silently returns a zero-value struct.
 
@@ -57,7 +35,7 @@ if result.isErr() =>
     print($"Parse error: {result.error()}\n")
 ```
 
-### 4. No operator overloading
+### 3. No operator overloading
 
 Comparison must use named methods rather than natural operators.
 
@@ -71,7 +49,7 @@ if v1 < v2 => ...
 if v1 == v2 => ...
 ```
 
-### 5. Missing string utilities
+### 4. Missing string utilities
 
 Common operations require manual implementation. The following had to be written from scratch for the version module:
 

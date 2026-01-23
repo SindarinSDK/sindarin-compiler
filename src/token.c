@@ -95,6 +95,8 @@ const char *token_type_to_string(SnTokenType type)
         return "IF";
     case TOKEN_ELSE:
         return "ELSE";
+    case TOKEN_MATCH:
+        return "MATCH";
     case TOKEN_FOR:
         return "FOR";
     case TOKEN_WHILE:

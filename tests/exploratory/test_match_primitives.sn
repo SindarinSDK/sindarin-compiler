@@ -1,0 +1,193 @@
+# ==============================================================================
+# test_match_primitives.sn - Match with all primitive types
+# ==============================================================================
+
+fn test_match_int(): void =>
+    print("test_match_int: ")
+    var result: str = match 42 =>
+        0 => "zero"
+        42 => "forty-two"
+        else => "other"
+    assert(result == "forty-two", "int match failed")
+    print("PASS\n")
+
+fn test_match_int_expr(): void =>
+    print("test_match_int_expr: ")
+    var x: int = 10 + 5
+    var result: str = match x =>
+        10 => "ten"
+        15 => "fifteen"
+        20 => "twenty"
+        else => "other"
+    assert(result == "fifteen", "int expr match failed")
+    print("PASS\n")
+
+fn test_match_long(): void =>
+    print("test_match_long: ")
+    var v: long = 100l
+    var result: str = match v =>
+        0l => "zero"
+        50l => "fifty"
+        100l => "hundred"
+        else => "other"
+    assert(result == "hundred", "long match failed")
+    print("PASS\n")
+
+fn test_match_long_large(): void =>
+    print("test_match_long_large: ")
+    var v: long = 9223372036854775807l
+    var result: str = match v =>
+        0l => "zero"
+        9223372036854775807l => "max"
+        else => "other"
+    assert(result == "max", "long max match failed")
+    print("PASS\n")
+
+fn test_match_double(): void =>
+    print("test_match_double: ")
+    var v: double = 3.14
+    var result: str = match v =>
+        0.0 => "zero"
+        3.14 => "pi"
+        2.71 => "e"
+        else => "other"
+    assert(result == "pi", "double match failed")
+    print("PASS\n")
+
+fn test_match_str(): void =>
+    print("test_match_str: ")
+    var v: str = "hello"
+    var result: str = match v =>
+        "world" => "world"
+        "hello" => "greeting"
+        "bye" => "farewell"
+        else => "unknown"
+    assert(result == "greeting", "str match failed")
+    print("PASS\n")
+
+fn test_match_str_interpolated(): void =>
+    print("test_match_str_interpolated: ")
+    var name: str = "World"
+    var greeting: str = $"Hello {name}"
+    var result: str = match greeting =>
+        "Hello World" => "found"
+        else => "not found"
+    assert(result == "found", "interpolated str match failed")
+    print("PASS\n")
+
+fn test_match_char(): void =>
+    print("test_match_char: ")
+    var v: char = 'B'
+    var result: str = match v =>
+        'A' => "A"
+        'B' => "B"
+        'C' => "C"
+        else => "other"
+    assert(result == "B", "char match failed")
+    print("PASS\n")
+
+fn test_match_bool(): void =>
+    print("test_match_bool: ")
+    var v: bool = true
+    var result: str = match v =>
+        true => "yes"
+        false => "no"
+        else => "impossible"
+    assert(result == "yes", "bool match failed")
+    print("PASS\n")
+
+fn test_match_bool_false(): void =>
+    print("test_match_bool_false: ")
+    var v: bool = false
+    var result: str = match v =>
+        true => "yes"
+        false => "no"
+        else => "impossible"
+    assert(result == "no", "bool false match failed")
+    print("PASS\n")
+
+fn test_match_byte(): void =>
+    print("test_match_byte: ")
+    var v: byte = 255
+    var result: str = match v =>
+        0 => "zero"
+        128 => "half"
+        255 => "max"
+        else => "other"
+    assert(result == "max", "byte match failed")
+    print("PASS\n")
+
+fn test_match_int_multivalue(): void =>
+    print("test_match_int_multivalue: ")
+    var results: str[] = {}
+    for i in 0..8 =>
+        var r: str = match i =>
+            0, 6, 7 => "weekend"
+            1, 2, 3, 4, 5 => "weekday"
+            else => "invalid"
+        results.push(r)
+    assert(results[0] == "weekend", "0 should be weekend")
+    assert(results[1] == "weekday", "1 should be weekday")
+    assert(results[5] == "weekday", "5 should be weekday")
+    assert(results[6] == "weekend", "6 should be weekend")
+    assert(results[7] == "weekend", "7 should be weekend")
+    print("PASS\n")
+
+fn test_match_else_only(): void =>
+    print("test_match_else_only: ")
+    var v: int = 999
+    var result: str = match v =>
+        1 => "one"
+        2 => "two"
+        else => "else"
+    assert(result == "else", "else-only match failed")
+    print("PASS\n")
+
+fn test_match_statement_context(): void =>
+    print("test_match_statement_context: ")
+    var found: bool = false
+    var v: int = 3
+    match v =>
+        1 => found = false
+        3 => found = true
+        else => found = false
+    assert(found, "statement context match failed")
+    print("PASS\n")
+
+fn test_match_nested(): void =>
+    print("test_match_nested: ")
+    var x: int = 2
+    var y: int = 5
+    var result: str = match x =>
+        1 =>
+            match y =>
+                5 => "1-5"
+                else => "1-other"
+        2 =>
+            match y =>
+                5 => "2-5"
+                else => "2-other"
+        else => "other"
+    assert(result == "2-5", "nested match failed")
+    print("PASS\n")
+
+fn main(): void =>
+    print("=== Match Primitives Tests ===\n\n")
+
+    test_match_int()
+    test_match_int_expr()
+    test_match_long()
+    test_match_long_large()
+    test_match_double()
+    test_match_str()
+    test_match_str_interpolated()
+    test_match_char()
+    test_match_bool()
+    test_match_bool_false()
+    test_match_byte()
+    test_match_int_multivalue()
+    test_match_else_only()
+    test_match_statement_context()
+    test_match_nested()
+
+    print("\nAll match primitives tests passed!\n")
