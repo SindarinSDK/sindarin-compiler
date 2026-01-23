@@ -115,6 +115,7 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Non-native static method: StructName_methodName(arena, args) */
+            char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
             char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
             for (int i = 0; i < call->arg_count; i++)
@@ -124,7 +125,7 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             }
 
             return arena_sprintf(gen->arena, "%s_%s(%s)",
-                                 struct_name, method->name, args_list);
+                                 mangled_struct, method->name, args_list);
         }
     }
 

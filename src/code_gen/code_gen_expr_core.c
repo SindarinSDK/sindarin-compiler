@@ -91,7 +91,7 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         if (is_lambda_param(innermost, var_name))
         {
             // It's a parameter of the innermost lambda - use directly, no dereference
-            return var_name;
+            return sn_mangle_name(gen->arena, var_name);
         }
     }
 
@@ -99,22 +99,26 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
     Symbol *symbol = symbol_table_lookup_symbol(gen->symbol_table, expr->name);
     if (symbol && symbol->mem_qual == MEM_AS_REF)
     {
-        return arena_sprintf(gen->arena, "(*%s)", var_name);
+        return arena_sprintf(gen->arena, "(*%s)", sn_mangle_name(gen->arena, var_name));
     }
 
-    /* For native functions with c_alias, use the C name instead of Sindarin name */
-    if (symbol && symbol->is_native && symbol->c_alias != NULL)
+    /* For native functions/variables, use the C name (c_alias or raw name) */
+    if (symbol && symbol->is_native)
     {
-        return arena_strdup(gen->arena, symbol->c_alias);
+        if (symbol->c_alias != NULL)
+        {
+            return arena_strdup(gen->arena, symbol->c_alias);
+        }
+        return var_name;  /* Native without alias: Sindarin name IS the C name */
     }
 
-    return var_name;
+    return sn_mangle_name(gen->arena, var_name);
 }
 
 char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
 {
     DEBUG_VERBOSE("Entering code_gen_assign_expression");
-    char *var_name = get_var_name(gen->arena, expr->name);
+    char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, expr->name));
     char *value_str = code_gen_expression(gen, expr->value);
     Symbol *symbol = symbol_table_lookup_symbol(gen->symbol_table, expr->name);
     if (symbol == NULL)
@@ -284,7 +288,7 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         gen->current_arena_var != NULL)
     {
         // Get the struct type name for sizeof
-        const char *struct_name = type->as.struct_type.name;
+        const char *struct_name = sn_mangle_name(gen->arena, type->as.struct_type.name);
         if (struct_name != NULL)
         {
             // Generate: ({ StructType *_tmp = (StructType *)rt_arena_alloc(arena, sizeof(StructType));

@@ -422,10 +422,10 @@ static void code_gen_native_callback_typedef(CodeGen *gen, TypeDeclStmt *type_de
 
 static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
 {
-    char *fn_name = get_var_name(gen->arena, fn->name);
+    char *raw_fn_name = get_var_name(gen->arena, fn->name);
 
     // Skip main - it doesn't need a forward declaration
-    if (strcmp(fn_name, "main") == 0)
+    if (strcmp(raw_fn_name, "main") == 0)
     {
         return;
     }
@@ -437,6 +437,9 @@ static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
     {
         return;
     }
+
+    /* Native functions keep their raw name (no mangling) */
+    char *fn_name = fn->is_native ? raw_fn_name : sn_mangle_name(gen->arena, raw_fn_name);
 
     /* New arena model: ALL non-main Sindarin functions receive __caller_arena__ as first param.
      * This is true regardless of whether they are shared, default, or private.
@@ -802,7 +805,7 @@ void code_gen_module(CodeGen *gen, Module *module)
                 const char *c_type = get_c_type(gen->arena, field->type);
                 indented_fprintf(gen, 1, "%s %s;\n", c_type, field->name);
             }
-            char *struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+            char *struct_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length));
             indented_fprintf(gen, 0, "} %s;\n", struct_name);
             /* Close #pragma pack for packed structs */
             if (struct_decl->is_packed)
@@ -825,10 +828,11 @@ void code_gen_module(CodeGen *gen, Module *module)
         if (stmt->type == STMT_STRUCT_DECL)
         {
             StructDeclStmt *struct_decl = &stmt->as.struct_decl;
-            char *struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+            char *raw_struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+            char *struct_name = sn_mangle_name(gen->arena, raw_struct_name);
 
-            /* Create lowercase struct name for native method naming */
-            char *struct_name_lower = arena_strdup(gen->arena, struct_name);
+            /* Create lowercase struct name for native method naming (uses raw name) */
+            char *struct_name_lower = arena_strdup(gen->arena, raw_struct_name);
             for (char *p = struct_name_lower; *p; p++)
             {
                 *p = (char)tolower((unsigned char)*p);
@@ -945,7 +949,7 @@ void code_gen_module(CodeGen *gen, Module *module)
                             {
                                 Parameter *param = &method->params[k];
                                 const char *param_type = get_c_type(gen->arena, param->type);
-                                char *param_name = arena_strndup(gen->arena, param->name.start, param->name.length);
+                                char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                                 indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                             }
                             indented_fprintf(gen, 0, ");\n");
@@ -958,20 +962,20 @@ void code_gen_module(CodeGen *gen, Module *module)
                         if (struct_decl->is_native && struct_decl->c_alias != NULL)
                         {
                             /* Opaque handle: self type is the C alias pointer */
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *self",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
                                              ret_type, struct_name, method->name, struct_decl->c_alias);
                         }
                         else
                         {
                             /* Regular struct: self is pointer to struct */
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *self",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
                                              ret_type, struct_name, method->name, struct_name);
                         }
                         for (int k = 0; k < method->param_count; k++)
                         {
                             Parameter *param = &method->params[k];
                             const char *param_type = get_c_type(gen->arena, param->type);
-                            char *param_name = arena_strndup(gen->arena, param->name.start, param->name.length);
+                            char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                             indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                         }
                         indented_fprintf(gen, 0, ");\n");
@@ -1093,7 +1097,7 @@ void code_gen_module(CodeGen *gen, Module *module)
         if (stmt->type == STMT_STRUCT_DECL)
         {
             StructDeclStmt *struct_decl = &stmt->as.struct_decl;
-            char *struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+            char *struct_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length));
 
             for (int j = 0; j < struct_decl->method_count; j++)
             {
@@ -1123,7 +1127,7 @@ void code_gen_module(CodeGen *gen, Module *module)
                         {
                             Parameter *param = &method->params[k];
                             const char *param_type = get_c_type(gen->arena, param->type);
-                            char *param_name = arena_strndup(gen->arena, param->name.start, param->name.length);
+                            char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                             indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                         }
                         indented_fprintf(gen, 0, ") {\n");
@@ -1136,20 +1140,20 @@ void code_gen_module(CodeGen *gen, Module *module)
                     if (struct_decl->is_native && struct_decl->c_alias != NULL)
                     {
                         /* Opaque handle: self type is the C alias pointer */
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *self",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
                                          ret_type, struct_name, method->name, struct_decl->c_alias);
                     }
                     else
                     {
                         /* Regular struct: self is pointer to struct */
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *self",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
                                          ret_type, struct_name, method->name, struct_name);
                     }
                     for (int k = 0; k < method->param_count; k++)
                     {
                         Parameter *param = &method->params[k];
                         const char *param_type = get_c_type(gen->arena, param->type);
-                        char *param_name = arena_strndup(gen->arena, param->name.start, param->name.length);
+                        char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                         indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                     }
                     indented_fprintf(gen, 0, ") {\n");

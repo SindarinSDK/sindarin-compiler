@@ -52,7 +52,8 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 exit(1);
             }
 
-            char *var_name = get_var_name(gen->arena, elem->as.variable.name);
+            char *raw_var_name = get_var_name(gen->arena, elem->as.variable.name);
+            char *var_name = sn_mangle_name(gen->arena, raw_var_name);
 
             /* Look up the variable's type from the symbol table
              * The elem->expr_type may not be set for array elements */
@@ -81,7 +82,7 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 /* For primitives, we declared two variables: __var_pending__ (RtThreadHandle*)
                  * and var (actual type). Sync the pending handle and assign to the typed var.
                  * Pattern: var = *(type *)sync(__var_pending__, ...) */
-                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", var_name);
+                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
                 indented_fprintf(gen, indent, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
                     var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
             }
@@ -102,7 +103,8 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
 
         if (handle->type == EXPR_VARIABLE)
         {
-            char *var_name = get_var_name(gen->arena, handle->as.variable.name);
+            char *raw_var_name = get_var_name(gen->arena, handle->as.variable.name);
+            char *var_name = sn_mangle_name(gen->arena, raw_var_name);
             Type *result_type = expr->expr_type;
 
             /* Check if void - just sync, no assignment */
@@ -127,7 +129,7 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 /* For primitives, we declared two variables: __var_pending__ (RtThreadHandle*)
                  * and var (actual type). Sync the pending handle and assign to the typed var.
                  * Pattern: var = *(type *)sync(__var_pending__, ...) */
-                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", var_name);
+                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
                 indented_fprintf(gen, indent, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
                     var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
             }
@@ -190,7 +192,8 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
 void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_var_declaration");
-    char *var_name = get_var_name(gen->arena, stmt->name);
+    char *raw_var_name = get_var_name(gen->arena, stmt->name);
+    char *var_name = sn_mangle_name(gen->arena, raw_var_name);
 
     // Detect global scope: no current arena means we're at file scope
     // Global arrays with empty initializers must be initialized to NULL since C
@@ -244,7 +247,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     // For thread spawn with primitive result, generate two declarations
     if (is_thread_spawn && is_primitive_type)
     {
-        char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", var_name);
+        char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
         char *init_str = code_gen_expression(gen, stmt->initializer);
 
         // Declare the pending handle variable
@@ -267,7 +270,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     // Check if this primitive is captured by a closure - if so, treat it like 'as ref'
     // This ensures mutations inside closures are visible to the outer scope
     MemoryQualifier effective_qual = stmt->mem_qualifier;
-    if (effective_qual == MEM_DEFAULT && code_gen_is_captured_primitive(gen, var_name))
+    if (effective_qual == MEM_DEFAULT && code_gen_is_captured_primitive(gen, raw_var_name))
     {
         effective_qual = MEM_AS_REF;
     }
@@ -287,7 +290,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         /* For lambda initializers, track the variable name so we can detect recursive lambdas */
         if (stmt->initializer->type == EXPR_LAMBDA)
         {
-            gen->current_decl_var_name = var_name;
+            gen->current_decl_var_name = raw_var_name;
             gen->recursive_lambda_id = -1;  /* Will be set by lambda codegen if recursive */
         }
 
@@ -540,9 +543,9 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         stmt->initializer->type == EXPR_LAMBDA)
     {
         int lambda_id = gen->recursive_lambda_id;
-        /* Generate: ((__closure_N__ *)var)->var = var; */
+        /* Generate: ((__closure_N__ *)var)->field = var; */
         indented_fprintf(gen, indent, "((__closure_%d__ *)%s)->%s = %s;\n",
-                         lambda_id, var_name, var_name, var_name);
+                         lambda_id, var_name, raw_var_name, var_name);
         gen->recursive_lambda_id = -1;
     }
 
@@ -565,7 +568,7 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
     {
         if (sym->type && sym->type->kind == TYPE_STRING && sym->kind == SYMBOL_LOCAL)
         {
-            char *var_name = get_var_name(gen->arena, sym->name);
+            char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, sym->name));
             indented_fprintf(gen, indent, "if (%s) {\n", var_name);
             if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
             {
@@ -581,7 +584,7 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
         }
         else if (sym->type && sym->type->kind == TYPE_ARRAY && sym->kind == SYMBOL_LOCAL)
         {
-            char *var_name = get_var_name(gen->arena, sym->name);
+            char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, sym->name));
             Type *elem_type = sym->type->as.array.element_type;
             indented_fprintf(gen, indent, "if (%s) {\n", var_name);
             if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_ARRAY)
@@ -699,11 +702,11 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     char *old_arena_var = gen->current_arena_var;
     int old_arena_depth = gen->arena_depth;
 
-    gen->current_function = get_var_name(gen->arena, stmt->name);
+    char *raw_fn_name = get_var_name(gen->arena, stmt->name);
+    bool is_main = strcmp(raw_fn_name, "main") == 0;
+    gen->current_function = (is_main || stmt->is_native) ? raw_fn_name : sn_mangle_name(gen->arena, raw_fn_name);
     gen->current_return_type = stmt->return_type;
     gen->current_func_modifier = stmt->modifier;
-
-    bool is_main = strcmp(gen->current_function, "main") == 0;
     bool main_has_args = is_main && stmt->param_count == 1;  // Type checker validated it's str[]
     bool is_private = stmt->modifier == FUNC_PRIVATE;
     bool is_shared = stmt->modifier == FUNC_SHARED;
@@ -766,7 +769,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
         for (int i = 0; i < stmt->param_count; i++)
         {
             const char *param_type_c = get_c_type(gen->arena, stmt->params[i].type);
-            char *param_name = get_var_name(gen->arena, stmt->params[i].name);
+            char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
 
             /* 'as ref' primitive and struct parameters become pointer types */
             bool is_ref_param = false;
@@ -826,7 +829,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     // Initialize args array for main if it has parameters
     if (main_has_args)
     {
-        char *param_name = get_var_name(gen->arena, stmt->params[0].name);
+        char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[0].name));
         indented_fprintf(gen, 1, "char **%s = rt_args_create(%s, argc, argv);\n",
                          param_name, gen->current_arena_var);
     }
@@ -839,7 +842,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             Type *param_type = stmt->params[i].type;
             if (param_type->kind == TYPE_ARRAY)
             {
-                char *param_name = get_var_name(gen->arena, stmt->params[i].name);
+                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 Type *elem_type = param_type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
                 indented_fprintf(gen, 1, "%s = rt_array_clone_%s(%s, %s);\n",
@@ -847,7 +850,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             }
             else if (param_type->kind == TYPE_STRING)
             {
-                char *param_name = get_var_name(gen->arena, stmt->params[i].name);
+                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 indented_fprintf(gen, 1, "%s = rt_to_string_string(%s, %s);\n",
                                  param_name, ARENA_VAR(gen), param_name);
             }
@@ -1011,7 +1014,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             /* Then, assign temps to actual parameters */
             for (int i = 0; i < call->arg_count; i++)
             {
-                char *param_name = get_var_name(gen->arena, fn->params[i].name);
+                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, fn->params[i].name));
                 indented_fprintf(gen, indent, "%s = __tail_arg_%d__;\n",
                                  param_name, i);
             }
@@ -1019,7 +1022,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         else if (fn->param_count == 1)
         {
             /* Single parameter - direct assignment is safe */
-            char *param_name = get_var_name(gen->arena, fn->params[0].name);
+            char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, fn->params[0].name));
             char *arg_str = code_gen_expression(gen, call->arguments[0]);
             indented_fprintf(gen, indent, "%s = %s;\n", param_name, arg_str);
         }

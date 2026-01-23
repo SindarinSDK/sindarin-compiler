@@ -208,7 +208,7 @@ const char *get_c_type(Arena *arena, Type *type)
         }
         if (type->as.struct_type.name != NULL)
         {
-            return arena_strdup(arena, type->as.struct_type.name);
+            return sn_mangle_name(arena, type->as.struct_type.name);
         }
         return arena_strdup(arena, "void");  /* Fallback for unnamed struct types */
     }
@@ -615,6 +615,11 @@ char *get_var_name(Arena *arena, Token name)
     strncpy(var_name, name.start, name.length);
     var_name[name.length] = '\0';
     return var_name;
+}
+
+char *sn_mangle_name(Arena *arena, const char *name)
+{
+    return arena_sprintf(arena, "__sn__%s", name);
 }
 
 void indented_fprintf(CodeGen *gen, int indent, const char *fmt, ...)

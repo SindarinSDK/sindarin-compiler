@@ -345,11 +345,15 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                                     func_sym->type->kind == TYPE_FUNCTION &&
                                     func_sym->type->as.function.has_body);
 
-            /* Use c_alias for native functions if available */
-            const char *func_name_to_use = member_name_str;
-            if (func_sym != NULL && func_sym->is_native && func_sym->c_alias != NULL)
+            /* Use c_alias for native functions, or raw name for native without alias */
+            const char *func_name_to_use;
+            if (func_sym != NULL && func_sym->is_native)
             {
-                func_name_to_use = func_sym->c_alias;
+                func_name_to_use = (func_sym->c_alias != NULL) ? func_sym->c_alias : member_name_str;
+            }
+            else
+            {
+                func_name_to_use = sn_mangle_name(gen->arena, member_name_str);
             }
 
             /* Generate arguments */
@@ -517,6 +521,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                     else
                     {
                         /* Non-native method call: StructName_methodName(arena, self, args) */
+                        char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
                         char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
                         /* For instance methods, pass self */
@@ -544,7 +549,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                         }
 
                         return arena_sprintf(gen->arena, "%s_%s(%s)",
-                                             struct_name, method->name, args_list);
+                                             mangled_struct, method->name, args_list);
                     }
                 }
                 break;

@@ -974,8 +974,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                  *   type var;
                  * Now sync using __var_pending__ and assign result to var.
                  * Pattern: ({ var = *(type*)sync(__var_pending__, ...); var; }) */
-                char *var_name = get_var_name(gen->arena, sync->handle->as.variable.name);
-                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", var_name);
+                char *raw_var_name = get_var_name(gen->arena, sync->handle->as.variable.name);
+                char *var_name = sn_mangle_name(gen->arena, raw_var_name);
+                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
                 return arena_sprintf(gen->arena,
                     "({\n"
                     "    %s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n"
