@@ -50,6 +50,7 @@
     #include <unistd.h>
     #include <errno.h>
     #include <fcntl.h>
+    #include <signal.h>
     #include <Security/Security.h>
 
     typedef int socket_t;
@@ -66,6 +67,7 @@
     #include <unistd.h>
     #include <errno.h>
     #include <fcntl.h>
+    #include <signal.h>
 
     typedef int socket_t;
     #define INVALID_SOCKET_VAL (-1)
@@ -115,6 +117,10 @@ static void ensure_openssl_initialized(void) {
         OpenSSL_add_all_algorithms();
 #else
         OPENSSL_init_ssl(OPENSSL_INIT_LOAD_SSL_STRINGS | OPENSSL_INIT_LOAD_CRYPTO_STRINGS, NULL);
+#endif
+#ifndef _WIN32
+        /* Ignore SIGPIPE to prevent crashes when writing to closed connections */
+        signal(SIGPIPE, SIG_IGN);
 #endif
         openssl_initialized = 1;
     }
@@ -859,5 +865,249 @@ void sn_tls_stream_close(RtTlsStream *stream) {
     if (stream->socket_fd != INVALID_SOCKET_VAL) {
         CLOSE_SOCKET(stream->socket_fd);
         stream->socket_fd = INVALID_SOCKET_VAL;
+    }
+}
+
+/* ============================================================================
+ * TlsListener Type Definition
+ * ============================================================================ */
+
+typedef struct RtTlsListener {
+    socket_t socket_fd;         /* Listening TCP socket */
+    int bound_port;             /* Bound port number */
+    SSL_CTX *ssl_ctx;           /* Server SSL context (shared across accepts) */
+} RtTlsListener;
+
+/* ============================================================================
+ * TlsListener Bind
+ * ============================================================================ */
+
+RtTlsListener *sn_tls_listener_bind(RtArena *arena, const char *address,
+                                      const char *cert_file, const char *key_file) {
+    ensure_winsock_initialized();
+    ensure_openssl_initialized();
+
+    if (address == NULL || cert_file == NULL || key_file == NULL) {
+        fprintf(stderr, "TlsListener.bind: NULL argument\n");
+        exit(1);
+    }
+
+    char host[256];
+    int port;
+
+    if (!tls_parse_address(address, host, sizeof(host), &port)) {
+        fprintf(stderr, "TlsListener.bind: invalid address format '%s'\n", address);
+        exit(1);
+    }
+
+    /* Create server SSL context */
+    SSL_CTX *ctx = SSL_CTX_new(TLS_server_method());
+    if (ctx == NULL) {
+        fprintf(stderr, "TlsListener.bind: SSL_CTX_new failed\n");
+        exit(1);
+    }
+
+    /* Load certificate */
+    if (SSL_CTX_use_certificate_file(ctx, cert_file, SSL_FILETYPE_PEM) != 1) {
+        unsigned long err = ERR_get_error();
+        char err_buf[256];
+        ERR_error_string_n(err, err_buf, sizeof(err_buf));
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: failed to load certificate '%s': %s\n",
+                cert_file, err_buf);
+        exit(1);
+    }
+
+    /* Load private key */
+    if (SSL_CTX_use_PrivateKey_file(ctx, key_file, SSL_FILETYPE_PEM) != 1) {
+        unsigned long err = ERR_get_error();
+        char err_buf[256];
+        ERR_error_string_n(err, err_buf, sizeof(err_buf));
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: failed to load private key '%s': %s\n",
+                key_file, err_buf);
+        exit(1);
+    }
+
+    /* Verify key matches certificate */
+    if (SSL_CTX_check_private_key(ctx) != 1) {
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: private key does not match certificate\n");
+        exit(1);
+    }
+
+    /* Create and bind TCP socket */
+    struct addrinfo hints, *result;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_PASSIVE;
+
+    char port_str[16];
+    snprintf(port_str, sizeof(port_str), "%d", port);
+
+    int status = getaddrinfo(host[0] ? host : NULL, port_str, &hints, &result);
+    if (status != 0) {
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: getaddrinfo failed: %s\n", gai_strerror(status));
+        exit(1);
+    }
+
+    socket_t sock = socket(result->ai_family, SOCK_STREAM, IPPROTO_TCP);
+    if (sock == INVALID_SOCKET_VAL) {
+        freeaddrinfo(result);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: socket creation failed\n");
+        exit(1);
+    }
+
+    int optval = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, (const char *)&optval, sizeof(optval));
+
+    if (bind(sock, result->ai_addr, (int)result->ai_addrlen) != 0) {
+        freeaddrinfo(result);
+        CLOSE_SOCKET(sock);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: bind failed on '%s'\n", address);
+        exit(1);
+    }
+
+    freeaddrinfo(result);
+
+    /* Listen for connections */
+    if (listen(sock, SOMAXCONN) != 0) {
+        CLOSE_SOCKET(sock);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: listen failed\n");
+        exit(1);
+    }
+
+    /* Get actual bound port */
+    struct sockaddr_storage bound_addr;
+    socklen_t bound_len = sizeof(bound_addr);
+    getsockname(sock, (struct sockaddr *)&bound_addr, &bound_len);
+
+    int bound_port;
+    if (bound_addr.ss_family == AF_INET) {
+        bound_port = ntohs(((struct sockaddr_in *)&bound_addr)->sin_port);
+    } else {
+        bound_port = ntohs(((struct sockaddr_in6 *)&bound_addr)->sin6_port);
+    }
+
+    /* Create listener struct */
+    RtTlsListener *listener = (RtTlsListener *)rt_arena_alloc(arena, sizeof(RtTlsListener));
+    if (listener == NULL) {
+        CLOSE_SOCKET(sock);
+        SSL_CTX_free(ctx);
+        fprintf(stderr, "TlsListener.bind: allocation failed\n");
+        exit(1);
+    }
+
+    listener->socket_fd = sock;
+    listener->bound_port = bound_port;
+    listener->ssl_ctx = ctx;
+
+    return listener;
+}
+
+/* ============================================================================
+ * TlsListener Accept (blocks until a connection is available)
+ * ============================================================================ */
+
+RtTlsStream *sn_tls_listener_accept(RtArena *arena, RtTlsListener *listener) {
+    if (listener == NULL) {
+        fprintf(stderr, "TlsListener.accept: listener is NULL\n");
+        exit(1);
+    }
+
+    /* Accept TCP connection */
+    struct sockaddr_storage client_addr;
+    socklen_t client_len = sizeof(client_addr);
+
+    socket_t client_sock = accept(listener->socket_fd,
+                                   (struct sockaddr *)&client_addr, &client_len);
+    if (client_sock == INVALID_SOCKET_VAL) {
+        fprintf(stderr, "TlsListener.accept: accept failed (errno %d)\n", GET_SOCKET_ERROR());
+        exit(1);
+    }
+
+    /* Create SSL object from the listener's shared context */
+    SSL *ssl = SSL_new(listener->ssl_ctx);
+    if (ssl == NULL) {
+        CLOSE_SOCKET(client_sock);
+        fprintf(stderr, "TlsListener.accept: SSL_new failed\n");
+        exit(1);
+    }
+
+    /* Attach the client socket to SSL */
+    if (SSL_set_fd(ssl, (int)client_sock) != 1) {
+        SSL_free(ssl);
+        CLOSE_SOCKET(client_sock);
+        fprintf(stderr, "TlsListener.accept: SSL_set_fd failed\n");
+        exit(1);
+    }
+
+    /* Perform server-side TLS handshake */
+    int accept_ret = SSL_accept(ssl);
+    if (accept_ret != 1) {
+        int ssl_err = SSL_get_error(ssl, accept_ret);
+        unsigned long err_code = ERR_get_error();
+        char err_buf[256];
+        ERR_error_string_n(err_code, err_buf, sizeof(err_buf));
+
+        SSL_free(ssl);
+        CLOSE_SOCKET(client_sock);
+
+        if (ssl_err == SSL_ERROR_SSL) {
+            fprintf(stderr, "TlsListener.accept: TLS handshake failed: %s\n", err_buf);
+        } else {
+            fprintf(stderr, "TlsListener.accept: TLS handshake failed (error %d)\n", ssl_err);
+        }
+        exit(1);
+    }
+
+    /* Build remote address string */
+    char addr_str[256];
+    if (client_addr.ss_family == AF_INET) {
+        struct sockaddr_in *sin = (struct sockaddr_in *)&client_addr;
+        char ip[INET_ADDRSTRLEN];
+        inet_ntop(AF_INET, &sin->sin_addr, ip, sizeof(ip));
+        snprintf(addr_str, sizeof(addr_str), "%s:%d", ip, ntohs(sin->sin_port));
+    } else if (client_addr.ss_family == AF_INET6) {
+        struct sockaddr_in6 *sin6 = (struct sockaddr_in6 *)&client_addr;
+        char ip[INET6_ADDRSTRLEN];
+        inet_ntop(AF_INET6, &sin6->sin6_addr, ip, sizeof(ip));
+        snprintf(addr_str, sizeof(addr_str), "[%s]:%d", ip, ntohs(sin6->sin6_port));
+    } else {
+        snprintf(addr_str, sizeof(addr_str), "unknown:0");
+    }
+
+    /* Create TlsStream - pass NULL for ctx since the listener owns the context */
+    return sn_tls_stream_create(arena, client_sock, NULL, ssl, addr_str);
+}
+
+/* ============================================================================
+ * TlsListener Getters
+ * ============================================================================ */
+
+int sn_tls_listener_get_port(RtTlsListener *listener) {
+    return listener ? listener->bound_port : 0;
+}
+
+/* ============================================================================
+ * TlsListener Lifecycle
+ * ============================================================================ */
+
+void sn_tls_listener_close(RtTlsListener *listener) {
+    if (listener == NULL) return;
+
+    if (listener->socket_fd != INVALID_SOCKET_VAL) {
+        CLOSE_SOCKET(listener->socket_fd);
+        listener->socket_fd = INVALID_SOCKET_VAL;
+    }
+
+    if (listener->ssl_ctx != NULL) {
+        SSL_CTX_free(listener->ssl_ctx);
+        listener->ssl_ctx = NULL;
     }
 }
