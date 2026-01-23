@@ -144,6 +144,24 @@ int sn_env_has(const char *name)
     return size > 0 ? 1 : 0;
 }
 
+void sn_env_set(const char *name, const char *value)
+{
+    if (name == NULL) {
+        fprintf(stderr, "RuntimeError: Environment variable name cannot be null\n");
+        exit(1);
+    }
+    if (value == NULL) {
+        fprintf(stderr, "RuntimeError: Environment variable value cannot be null\n");
+        exit(1);
+    }
+    if (!SetEnvironmentVariableA(name, value)) {
+        fprintf(stderr, "RuntimeError: Failed to set environment variable '%s'\n", name);
+        exit(1);
+    }
+    /* Also set for CRT so getenv() sees the change */
+    _putenv_s(name, value);
+}
+
 char ***sn_env_all(RtArena *arena)
 {
     if (arena == NULL) {
@@ -252,6 +270,22 @@ int sn_env_has(const char *name)
         return 0;
     }
     return getenv(name) != NULL ? 1 : 0;
+}
+
+void sn_env_set(const char *name, const char *value)
+{
+    if (name == NULL) {
+        fprintf(stderr, "RuntimeError: Environment variable name cannot be null\n");
+        exit(1);
+    }
+    if (value == NULL) {
+        fprintf(stderr, "RuntimeError: Environment variable value cannot be null\n");
+        exit(1);
+    }
+    if (setenv(name, value, 1) != 0) {
+        fprintf(stderr, "RuntimeError: Failed to set environment variable '%s'\n", name);
+        exit(1);
+    }
 }
 
 char ***sn_env_all(RtArena *arena)
