@@ -27,6 +27,7 @@ typedef struct {
     char *current_function;
     Type *current_return_type;
     int temp_count;
+    int current_indent;        // Current statement indent level (for temp var emission)
     char *for_continue_label;  // Label to jump to for continue in for loops
 
     /* Arena context for memory management */

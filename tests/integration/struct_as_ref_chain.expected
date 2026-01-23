@@ -1,0 +1,5 @@
+v1.add(v2): (4, 6)
+v1.add(v2).scale(2): (8, 12)
+v1.add(v2).scale(3).negate(): (-12, -18)
+v1.add(v2).add(v1).add(v2): (8, 12)
+v1.negate().add(v2).scale(2): (4, 4)

@@ -60,8 +60,8 @@ if(SN_DEBUG)
         add_link_options(-fsanitize=address)
     endif()
 else()
-    add_compile_options(-O3 -flto)
-    add_link_options(-flto -O3)
+    add_compile_options(-O3 -flto=auto)
+    add_link_options(-flto=auto -O3)
 endif()
 
 #------------------------------------------------------------------------------
@@ -210,6 +210,10 @@ target_include_directories(tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src/runtime
     ${CMAKE_SOURCE_DIR}/src/platform
 )
+
+# Suppress unused-variable warnings in test code - test patterns intentionally
+# allocate variables to exercise allocation paths without reading them back.
+target_compile_options(tests PRIVATE -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function)
 
 if(WIN32)
     target_link_libraries(tests PRIVATE ws2_32 bcrypt pthread)

@@ -1,0 +1,26 @@
+getValue: 5
+doubled: 10
+quadrupled: 20
+describe: calc: 5
+describeDoubled: calc: 10
+getText: [  hello  ]
+trimmed: [hello]
+upper: [  HELLO  ]
+trimmedUpper: [HELLO]
+getLength: 9
+isEmpty: false
+isNotEmpty: true
+describe: TextProcessor(HELLO)
+empty.isEmpty: true
+empty.describe: TextProcessor(empty)
+v1.toString: 1.2.3-beta
+v2.toString: 2.0.0
+v1.lt(v2): true
+v2.gt(v1): true
+v1.eq(v1): true
+bumped: 2.0.0
+bumpedMinor: 1.3.0
+--- Method chaining ---
+v1.bumpMajor().bumpMinor(): 2.1.0
+v1.bumpMinor()x3: 1.5.0
+v1.bumpMajor()x2: 3.0.0

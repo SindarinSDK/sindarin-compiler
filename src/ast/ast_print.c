@@ -264,6 +264,11 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
                              stmt->as.type_decl.name.start,
                              ast_type_to_string(arena, stmt->as.type_decl.type));
         break;
+
+    /* Not handled by AST printer */
+    case STMT_STRUCT_DECL:
+    case STMT_LOCK:
+        break;
     }
 }
 
@@ -491,6 +496,18 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
     case EXPR_AS_REF:
         DEBUG_VERBOSE_INDENT(indent_level, "AsRef:");
         ast_print_expr(arena, expr->as.as_ref.operand, indent_level + 1);
+        break;
+
+    /* Not handled by AST printer */
+    case EXPR_TYPEOF:
+    case EXPR_IS:
+    case EXPR_AS_TYPE:
+    case EXPR_STRUCT_LITERAL:
+    case EXPR_MEMBER_ACCESS:
+    case EXPR_MEMBER_ASSIGN:
+    case EXPR_SIZEOF:
+    case EXPR_COMPOUND_ASSIGN:
+    case EXPR_METHOD_CALL:
         break;
     }
 }

@@ -1,0 +1,43 @@
+# Test: Method chaining on native struct declared 'as ref'
+# This exercises the pass_self_by_ref code path in code_gen_expr_call.c
+# where rvalue struct returns must be stored in temporaries before
+# taking their address for the next method call in the chain.
+
+#pragma source "vec2_native.c"
+
+native struct Vec2 as ref =>
+    x: int
+    y: int
+
+    native fn add(other: Vec2): Vec2
+    native fn scale(factor: int): Vec2
+    native fn negate(): Vec2
+
+native fn test_chaining(): int =>
+    var v1: Vec2 = Vec2 { x: 1, y: 2 }
+    var v2: Vec2 = Vec2 { x: 3, y: 4 }
+
+    # Single method call (lvalue self - baseline)
+    var sum: Vec2 = v1.add(v2)
+    print($"v1.add(v2): ({sum.x}, {sum.y})\n")
+
+    # Method chaining: two calls (rvalue self)
+    var chained: Vec2 = v1.add(v2).scale(2)
+    print($"v1.add(v2).scale(2): ({chained.x}, {chained.y})\n")
+
+    # Three-level chain
+    var deep: Vec2 = v1.add(v2).scale(3).negate()
+    print($"v1.add(v2).scale(3).negate(): ({deep.x}, {deep.y})\n")
+
+    # Chain with repeated add (different rvalue sources)
+    var triple: Vec2 = v1.add(v2).add(v1).add(v2)
+    print($"v1.add(v2).add(v1).add(v2): ({triple.x}, {triple.y})\n")
+
+    # Chain with negate in the middle
+    var negChain: Vec2 = v1.negate().add(v2).scale(2)
+    print($"v1.negate().add(v2).scale(2): ({negChain.x}, {negChain.y})\n")
+
+    return 0
+
+fn main(): int =>
+    return test_chaining()
