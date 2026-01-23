@@ -172,6 +172,15 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
         if (arr->element_count == 0 && (elem_type->kind == TYPE_FUNCTION || elem_type->kind == TYPE_ARRAY)) {
             return arena_strdup(gen->arena, "NULL");
         }
+        // For struct arrays, use rt_array_create_generic so the array has proper metadata
+        if (is_struct_array) {
+            if (arr->element_count == 0) {
+                return arena_sprintf(gen->arena, "rt_array_create_generic(%s, 0, sizeof(%s), NULL)",
+                                     ARENA_VAR(gen), elem_c);
+            }
+            return arena_sprintf(gen->arena, "(%s *)rt_array_create_generic(%s, %d, sizeof(%s), (%s[]){%s})",
+                                 elem_c, ARENA_VAR(gen), arr->element_count, elem_c, elem_c, inits);
+        }
         // For unsupported element types (like nested arrays), fall back to
         // compound literal without runtime wrapper
         return arena_sprintf(gen->arena, "(%s[]){%s}", elem_c, inits);
