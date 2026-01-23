@@ -48,9 +48,7 @@ struct Version =>
         # Strip optional 'v' or 'V' prefix
         if input.length > 0 =>
             var first: char = input.charAt(0)
-            if first == 'v' =>
-                input = input.substring(1, input.length)
-            else if first == 'V' =>
+            if first == 'v' || first == 'V' =>
                 input = input.substring(1, input.length)
         return _parseVersionString(input)
 
@@ -93,9 +91,7 @@ struct Version =>
 
     # True if major > 0 and no prerelease
     fn isStable(): bool =>
-        if self.major == 0 =>
-            return false
-        return self.prerelease == ""
+        return self.major > 0 && self.prerelease == ""
 
     # Bump major version (resets minor, patch, prerelease, build)
     fn bumpMajor(): Version =>
@@ -158,8 +154,9 @@ struct VersionConstraint =>
             versionStr = input.substring(1, input.length)
 
         # Parse the version part
-        var base: VersionConstraint = _parseConstraintVersion(versionStr.trim())
-        return _makeConstraint(op, base.major, base.minor, base.patch, base.prerelease)
+        var base: Version = _parseConstraintVersion(versionStr.trim())
+        var result: VersionConstraint = VersionConstraint { op: op, major: base.major, minor: base.minor, patch: base.patch, prerelease: base.prerelease }
+        return result
 
     # ==========================================================================
     # Instance Methods
@@ -167,21 +164,22 @@ struct VersionConstraint =>
 
     # Check if a version satisfies this constraint
     fn satisfiedBy(v: Version): bool =>
+        var cmp: int = _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease)
+
         if self.op == OP_EQ() =>
-            return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease) == 0
+            return cmp == 0
         if self.op == OP_GT() =>
-            return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease) == 1
+            return cmp == 1
         if self.op == OP_GTE() =>
-            return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease) >= 0
+            return cmp >= 0
         if self.op == OP_LT() =>
-            return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease) == -1
+            return cmp == -1
         if self.op == OP_LTE() =>
-            return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease) <= 0
+            return cmp <= 0
 
         if self.op == OP_CARET() =>
             # Caret: >=version, <next major/minor/patch boundary
-            var cmpTarget: int = _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease)
-            if cmpTarget == -1 =>
+            if cmp == -1 =>
                 return false
             if self.major != 0 =>
                 # ^1.2.3 -> >=1.2.3, <2.0.0
@@ -195,8 +193,7 @@ struct VersionConstraint =>
         if self.op == OP_TILDE() =>
             # Tilde: >=version, <next minor
             # ~1.2.3 -> >=1.2.3, <1.3.0
-            var cmpTarget: int = _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor, self.patch, self.prerelease)
-            if cmpTarget == -1 =>
+            if cmp == -1 =>
                 return false
             return _versionCmp(v.major, v.minor, v.patch, v.prerelease, self.major, self.minor + 1, 0, "") == -1
 
@@ -236,9 +233,10 @@ fn _strToInt(s: str): int =>
     var result: int = 0
     var i: int = 0
     while i < s.length =>
-        var ch: char = s.charAt(i)
-        var digit: int = ch as int - 48
-        result = result * 10 + digit
+        var code: int = s.charAt(i) as int
+        if code < 48 || code > 57 =>
+            return result
+        result = result * 10 + (code - 48)
         i = i + 1
     return result
 
@@ -278,16 +276,10 @@ fn _strcmp(a: str, b: str): int =>
     return 0
 
 # Compare two prerelease strings according to SemVer 2.0.0 rules
+# Expects: both empty or both non-empty (asymmetric cases handled by _versionCmp)
 fn _comparePrerelease(a: str, b: str): int =>
-    # Both empty = equal
-    if a == "" =>
-        if b == "" =>
-            return 0
-        # a has no prerelease, b has prerelease: a > b (release > prerelease)
-        return 1
-    if b == "" =>
-        # a has prerelease, b has no prerelease: a < b
-        return -1
+    if a == "" && b == "" =>
+        return 0
 
     var partsA: str[] = a.split(".")
     var partsB: str[] = b.split(".")
@@ -333,15 +325,6 @@ fn _comparePrerelease(a: str, b: str): int =>
         return 1
     return 0
 
-# Create a Version struct
-fn _makeVersion(major: int, minor: int, patch: int, prerelease: str, build: str): Version =>
-    var v: Version = Version { major: major, minor: minor, patch: patch, prerelease: prerelease, build: build }
-    return v
-
-# Create a VersionConstraint struct
-fn _makeConstraint(op: int, major: int, minor: int, patch: int, prerelease: str): VersionConstraint =>
-    var c: VersionConstraint = VersionConstraint { op: op, major: major, minor: minor, patch: patch, prerelease: prerelease }
-    return c
 
 # Parse a version string into a Version
 fn _parseVersionString(s: str): Version =>
@@ -378,7 +361,7 @@ fn _parseVersionString(s: str): Version =>
     return result
 
 # Parse a constraint version string
-fn _parseConstraintVersion(s: str): VersionConstraint =>
+fn _parseConstraintVersion(s: str): Version =>
     var prerelease: str = ""
     var core: str = s
 
@@ -399,7 +382,7 @@ fn _parseConstraintVersion(s: str): VersionConstraint =>
     if parts.length >= 3 =>
         patch = _strToInt(parts[2])
 
-    var result: VersionConstraint = VersionConstraint { op: OP_EQ(), major: major, minor: minor, patch: patch, prerelease: prerelease }
+    var result: Version = Version { major: major, minor: minor, patch: patch, prerelease: prerelease, build: "" }
     return result
 
 # ==============================================================================

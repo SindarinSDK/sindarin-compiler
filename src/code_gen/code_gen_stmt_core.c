@@ -943,7 +943,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             {
                 StructField *field = &stmt->return_type->as.struct_type.fields[i];
                 if (field->type == NULL) continue;
-                const char *c_field_name = field->c_alias != NULL ? field->c_alias : field->name;
+                const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
                 if (field->type->kind == TYPE_STRING)
                 {
                     indented_fprintf(gen, 1, "if (_return_value.%s) _return_value.%s = rt_arena_promote_string(__caller_arena__, _return_value.%s);\n",
