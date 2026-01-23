@@ -313,6 +313,13 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         // Skip freeing old value in arena context - arena handles cleanup
         if (gen->current_arena_var != NULL)
         {
+            // If target is a global variable, strdup the value to heap memory.
+            // Arena-allocated strings are freed when the function returns, but
+            // globals must outlive the function's arena.
+            if (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1)
+            {
+                return arena_sprintf(gen->arena, "(%s = strdup(%s))", var_name, value_str);
+            }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         return arena_sprintf(gen->arena, "({ char *_val = %s; if (%s) rt_free_string(%s); %s = _val; _val; })",
