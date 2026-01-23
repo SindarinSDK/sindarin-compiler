@@ -66,7 +66,7 @@ extern volatile int __rt_interceptor_count;
  * Per-thread interception depth for recursion detection.
  * Used by Interceptor.isActive() to detect if we're inside an interceptor.
  */
-#ifdef _WIN32
+#ifdef _MSC_VER
 extern __declspec(thread) int __rt_intercept_depth;
 #elif defined(__TINYC__)
 /* TinyCC: use pthread TLS for thread-safety */
@@ -107,7 +107,7 @@ extern __thread int __rt_intercept_depth;
  * Used to pass boxed arguments to file-scope thunk functions without
  * requiring nested functions (which are a GCC extension).
  */
-#ifdef _WIN32
+#ifdef _MSC_VER
 extern __declspec(thread) RtAny *__rt_thunk_args;
 extern __declspec(thread) void *__rt_thunk_arena;
 #elif !defined(__TINYC__)
