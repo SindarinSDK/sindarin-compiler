@@ -1045,6 +1045,37 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         }
     }
 
+    /* When linking libgit2, add platform-specific transitive deps */
+    if (link_libs != NULL && link_lib_count > 0)
+    {
+        bool needs_git2_deps = false;
+        for (int i = 0; i < link_lib_count; i++)
+        {
+            if (strcmp(link_libs[i], "git2") == 0)
+            {
+                needs_git2_deps = true;
+                break;
+            }
+        }
+        if (needs_git2_deps)
+        {
+            int offset = (int)strlen(extra_libs);
+#ifdef _WIN32
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto"
+                " -lws2_32 -lsecur32 -lbcrypt -lcrypt32 -lrpcrt4 -lole32");
+#elif defined(__APPLE__)
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv"
+                " -framework Security -framework CoreFoundation");
+#else
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
+#endif
+            (void)written;
+        }
+    }
+
     /* Build extra source files from pragma source directives.
      * Source files are specified as quoted strings like "helper.c".
      * Paths are resolved relative to each pragma's defining module directory. */

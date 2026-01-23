@@ -1,6 +1,6 @@
 # Network I/O in Sindarin
 
-Sindarin provides TCP, UDP, TLS, DTLS, SSH, and QUIC types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
+Sindarin provides TCP, UDP, TLS, DTLS, SSH, QUIC, and Git types through the SDK for network communication. All network types integrate with Sindarin's arena-based memory management and threading model.
 
 ## SDK Modules
 
@@ -12,6 +12,7 @@ Sindarin provides TCP, UDP, TLS, DTLS, SSH, and QUIC types through the SDK for n
 | [DTLS](dtls.md) | DTLS-encrypted UDP datagrams (secure datagram communication) |
 | [SSH](ssh.md) | SSH client and server for secure remote command execution |
 | [QUIC](quic.md) | QUIC multiplexed encrypted streams over UDP |
+| [Git](git.md) | Git repository operations (clone, commit, branch, push/pull) |
 
 ## Quick Start
 
@@ -22,6 +23,7 @@ import "sdk/net/tls"
 import "sdk/net/dtls"
 import "sdk/net/ssh"
 import "sdk/net/quic"
+import "sdk/net/git"
 
 // TCP Server
 var server: TcpListener = TcpListener.bind(":8080")
@@ -73,6 +75,13 @@ stream.writeLine("Hello, QUIC!")
 var response: str = stream.readLine()
 stream.close()
 quic.close()
+
+// Git Repository
+var repo: GitRepo = GitRepo.open(".")
+var commits: GitCommit[] = repo.log(5)
+for c in commits =>
+    print($"{c.id()[0..7]} {c.message()}\n")
+repo.close()
 ```
 
 ---
@@ -192,6 +201,9 @@ Network operations panic on errors:
 - `DtlsConnection.connect()` - DTLS handshake failure, certificate verification failure
 - `SshConnection.connect*()` - Authentication failure, connection refused
 - `QuicConnection.connect()` - Handshake failure, certificate verification failure
+- `GitRepo.open()` - Path not found, not a git repository
+- `GitRepo.clone()` - Network failure, authentication failure
+- `GitRepo.push()` / `.pull()` / `.fetch()` - Network failure, authentication failure
 
 ```sindarin
 // Connection may fail

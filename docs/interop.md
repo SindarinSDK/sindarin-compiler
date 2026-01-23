@@ -178,6 +178,13 @@ Sindarin types naturally map to C types.
 | `TcpListener` | `RtTcpListener *` | Pointer to TCP listener |
 | `TcpStream` | `RtTcpStream *` | Pointer to TCP connection |
 | `UdpSocket` | `RtUdpSocket *` | Pointer to UDP socket |
+| `GitRepo` | `RtGitRepo *` | Pointer to Git repository handle |
+| `GitCommit` | `RtGitCommit *` | Pointer to commit metadata |
+| `GitBranch` | `RtGitBranch *` | Pointer to branch info |
+| `GitRemote` | `RtGitRemote *` | Pointer to remote info |
+| `GitDiff` | `RtGitDiff *` | Pointer to diff entry |
+| `GitStatus` | `RtGitStatus *` | Pointer to status entry |
+| `GitTag` | `RtGitTag *` | Pointer to tag info |
 
 ### Composite Types
 
