@@ -1,0 +1,151 @@
+// Exploratory test: C identifier conflicts
+// Tests variables and functions named like C reserved words and standard types
+// Some are also Sn keywords (static, switch, etc.) - those should be caught by parser
+// Focus: names that pass Sn parser but could conflict with generated C code
+
+// --- C types as variable names (not Sn keywords) ---
+fn test_c_types(): void =>
+    var size_t: int = 100
+    var int32_t: int = 200
+    var uint64_t: int = 300
+    var int64_t: int = 400
+    var uint32_t: int = 500
+    var int8_t: int = 600
+    var uint8_t: int = 700
+    var ptrdiff_t: int = 800
+    var intptr_t: int = 900
+    var uintptr_t: int = 1000
+    var ssize_t: int = 1100
+
+    var sum: int = size_t + int32_t + uint64_t + int64_t + uint32_t
+    sum = sum + int8_t + uint8_t + ptrdiff_t + intptr_t + uintptr_t + ssize_t
+    print($"C types as vars sum: {sum}\n")
+
+// --- C reserved words that are NOT Sn keywords ---
+fn test_c_only_keywords(): void =>
+    var register: int = 1
+    var volatile: int = 2
+    var auto: int = 3
+    var extern: int = 4
+    var unsigned: int = 5
+    var signed: int = 6
+    var typedef: int = 7
+    var union: int = 8
+    var goto: int = 9
+    var inline: int = 10
+    var restrict: int = 11
+
+    var sum: int = register + volatile + auto + extern + unsigned
+    sum = sum + signed + typedef + union + goto + inline + restrict
+    print($"C-only keywords sum: {sum}\n")
+
+// --- C standard library function names as Sn functions ---
+fn printf(): int =>
+    print("Custom printf called\n")
+    return 42
+
+fn malloc(): int =>
+    print("Custom malloc called\n")
+    return 100
+
+fn free(): void =>
+    print("Custom free called\n")
+
+fn strlen(): int =>
+    print("Custom strlen called\n")
+    return 5
+
+fn memcpy(): void =>
+    print("Custom memcpy called\n")
+
+fn strcmp(): int =>
+    print("Custom strcmp called\n")
+    return 0
+
+fn atoi(): int =>
+    print("Custom atoi called\n")
+    return 123
+
+// --- C preprocessor-like names ---
+fn test_preprocessor_names(): void =>
+    var NULL: int = 0
+    var TRUE: int = 1
+    var FALSE: int = 0
+    var EOF: int = -1
+    var BUFSIZ: int = 8192
+    var FILENAME_MAX: int = 260
+    var STDIN_FILENO: int = 0
+    var STDOUT_FILENO: int = 1
+    var STDERR_FILENO: int = 2
+
+    print($"NULL={NULL} TRUE={TRUE} FALSE={FALSE}\n")
+    print($"EOF={EOF} BUFSIZ={BUFSIZ}\n")
+
+// --- Names matching C standard header symbols ---
+fn test_stdio_names(): void =>
+    var stdin: int = 0
+    var stdout: int = 1
+    var stderr: int = 2
+    var errno: int = 0
+    var optarg: int = 0
+
+    print($"stdio names: {stdin} {stdout} {stderr} {errno} {optarg}\n")
+
+// --- Struct names matching C types ---
+struct FILE =>
+    fd: int = -1
+    mode: str = "r"
+
+struct size_t =>
+    value: int = 0
+
+struct time_t =>
+    seconds: int = 0
+
+struct pid_t =>
+    id: int = -1
+
+fn test_struct_c_names(): void =>
+    var f: FILE = FILE { fd: 3, mode: "w" }
+    var s: size_t = size_t { value: 42 }
+    var t: time_t = time_t { seconds: 1000 }
+    var p: pid_t = pid_t { id: 12345 }
+    print($"FILE.fd={f.fd} size_t.value={s.value}\n")
+    print($"time_t.seconds={t.seconds} pid_t.id={p.id}\n")
+
+// --- Function names matching C types (removed bool/double/float as they are Sn keywords) ---
+fn test_type_as_var(): void =>
+    // These are C type names used as variables
+    var int32_t: int = 100
+    var FILE: int = 200
+    print($"type vars: {int32_t} {FILE}\n")
+
+fn main(): void =>
+    print("=== C Identifier Conflict Tests ===\n\n")
+
+    test_c_types()
+    test_c_only_keywords()
+
+    var p: int = printf()
+    print($"printf returned: {p}\n")
+
+    var m: int = malloc()
+    print($"malloc returned: {m}\n")
+
+    free()
+    var sl: int = strlen()
+    print($"strlen returned: {sl}\n")
+
+    memcpy()
+    var sc: int = strcmp()
+    print($"strcmp returned: {sc}\n")
+
+    var a: int = atoi()
+    print($"atoi returned: {a}\n")
+
+    test_preprocessor_names()
+    test_stdio_names()
+    test_struct_c_names()
+    test_type_as_var()
+
+    print("\n=== All Identifier Tests Done ===\n")

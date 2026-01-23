@@ -1,0 +1,113 @@
+// Exploratory test: Name mangling collisions
+// Tests identifiers that could collide with internally generated C names
+// The compiler mangles names with __sn__ prefix, uses __local_arena__, _return_value, etc.
+
+// --- Variables that match internal codegen names ---
+fn test_internal_names(): void =>
+    // These match generated internal variable names
+    var _return_value: int = 42
+    var __local_arena__: int = 100
+    var __caller_arena__: int = 200
+
+    print($"_return_value={_return_value}\n")
+    print($"__local_arena__={__local_arena__}\n")
+    print($"__caller_arena__={__caller_arena__}\n")
+
+// --- Variables with the __sn__ prefix (matches mangled function names) ---
+fn test_mangled_prefix(): void =>
+    var __sn__main: int = 1
+    var __sn__test: int = 2
+    var __sn__foo: int = 3
+
+    print($"__sn__main={__sn__main}\n")
+    print($"__sn__test={__sn__test}\n")
+    print($"__sn__foo={__sn__foo}\n")
+
+// --- Double underscore prefix (reserved in C) ---
+fn test_double_underscore(): void =>
+    var __x: int = 10
+    var __y: int = 20
+    var __result: int = __x + __y
+    var ___triple: int = 30
+
+    print($"__x={__x} __y={__y} __result={__result}\n")
+    print($"___triple={___triple}\n")
+
+// --- Names matching runtime function patterns ---
+fn test_runtime_names(): void =>
+    var rt_str_concat: int = 1
+    var rt_array_push: int = 2
+    var rt_arena_create: int = 3
+    var rt_print_long: int = 4
+    var rt_to_string_int: int = 5
+
+    var sum: int = rt_str_concat + rt_array_push + rt_arena_create
+    sum = sum + rt_print_long + rt_to_string_int
+    print($"Runtime name sum: {sum}\n")
+
+// --- Names matching closure/lambda internals ---
+fn test_closure_names(): void =>
+    var __Closure__: int = 1
+    var __sn_lambda_0: int = 2
+    var __sn_lambda_1: int = 3
+
+    print($"__Closure__={__Closure__}\n")
+    print($"__sn_lambda_0={__sn_lambda_0}\n")
+    print($"__sn_lambda_1={__sn_lambda_1}\n")
+
+// --- Names matching goto labels ---
+fn test_goto_labels(): void =>
+    // The codegen generates labels like main_return, funcname_return
+    var main_return: int = 1
+    var test_goto_labels_return: int = 2
+
+    print($"main_return={main_return}\n")
+    print($"test_goto_labels_return={test_goto_labels_return}\n")
+
+// --- Function names that after mangling could collide ---
+fn _return_value(): int =>
+    return 999
+
+fn __local_arena__(): int =>
+    return 888
+
+// --- Very long identifier names ---
+fn test_long_names(): void =>
+    var abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ: int = 42
+    print($"Long name value: {abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ}\n")
+
+// --- Struct with internal-name fields ---
+struct InternalNames =>
+    _return_value: int = 0
+    __local_arena__: int = 0
+    __caller_arena__: int = 0
+    __Closure__: int = 0
+
+fn test_struct_internal_names(): void =>
+    var s: InternalNames = InternalNames {
+        _return_value: 10,
+        __local_arena__: 20,
+        __caller_arena__: 30,
+        __Closure__: 40
+    }
+    print($"Struct internal names: {s._return_value} {s.__local_arena__} {s.__caller_arena__} {s.__Closure__}\n")
+
+fn main(): void =>
+    print("=== Name Mangling Collision Tests ===\n\n")
+
+    test_internal_names()
+    test_mangled_prefix()
+    test_double_underscore()
+    test_runtime_names()
+    test_closure_names()
+    test_goto_labels()
+
+    var rv: int = _return_value()
+    print($"_return_value() = {rv}\n")
+    var la: int = __local_arena__()
+    print($"__local_arena__() = {la}\n")
+
+    test_long_names()
+    test_struct_internal_names()
+
+    print("\n=== All Mangling Tests Done ===\n")

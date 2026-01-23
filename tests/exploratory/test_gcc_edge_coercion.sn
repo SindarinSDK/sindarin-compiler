@@ -1,0 +1,161 @@
+// Exploratory test: Type coercion gaps
+// Tests type conversions that might produce invalid C code or GCC warnings
+// Focus on cases where the Sn type checker may not catch mismatches
+
+// --- Byte overflow in array context ---
+fn test_byte_overflow(): void =>
+    // Large int values assigned to byte array
+    var bytes: byte[] = {0, 127, 128, 255}
+    print($"bytes: {bytes[0]} {bytes[1]} {bytes[2]} {bytes[3]}\n")
+
+    // Byte from int expression
+    var x: int = 200
+    var b: byte = 200
+    print($"byte val: {b}\n")
+
+// --- Bool in numeric contexts ---
+fn test_bool_numeric(): void =>
+    var t: bool = true
+    var f: bool = false
+
+    // Bool to string interpolation
+    print($"true={t} false={f}\n")
+
+    // Bool in if condition with comparison
+    var x: int = 1
+    if x == 1 == true =>
+        print("chained comparison: true\n")
+
+// --- Any type complex unboxing ---
+fn test_any_unboxing(): void =>
+    // Box and unbox various types
+    var a1: any = 42
+    var a2: any = "hello"
+    var a3: any = true
+    var a4: any = 3.14
+    var a5: any = 'X'
+
+    // Unbox and use immediately
+    var i: int = a1 as int
+    var s: str = a2 as str
+    var b: bool = a3 as bool
+    var d: double = a4 as double
+    var c: char = a5 as char
+
+    print($"unboxed: i={i} s={s} b={b} d={d} c={c}\n")
+
+    // Re-box a different type
+    a1 = "now a string"
+    var s2: str = a1 as str
+    print($"re-boxed: {s2}\n")
+
+// --- Any type in array ---
+fn test_any_array(): void =>
+    var arr: any[] = {1, "hello", true, 3.14}
+    print($"any array length: {arr.length}\n")
+
+    var i: int = arr[0] as int
+    var s: str = arr[1] as str
+    var b: bool = arr[2] as bool
+    var d: double = arr[3] as double
+    print($"any array: {i} {s} {b} {d}\n")
+
+// --- Char/int boundary ---
+fn test_char_int(): void =>
+    var c: char = 'A'
+    // Char used in print (should use char formatting)
+    print($"char: {c}\n")
+
+    // Multiple chars
+    var chars: char[] = {'H', 'e', 'l', 'l', 'o'}
+    for ch in chars =>
+        print($"{ch}")
+    print("\n")
+
+// --- Double to int contexts ---
+fn test_double_int_context(): void =>
+    var d: double = 42.7
+    var i: int = 42
+
+    // Double in comparison with int-like value
+    if d > 42.0 =>
+        print("d > 42.0: true\n")
+
+    // Integer division results
+    var div: int = 100 / 3
+    print($"100/3 = {div}\n")
+
+    var div2: int = -100 / 3
+    print($"-100/3 = {div2}\n")
+
+// --- Struct field type interactions ---
+struct TypeMix =>
+    i: int = 0
+    d: double = 0.0
+    b: bool = false
+    s: str = ""
+    c: char = ' '
+    by: byte = 0
+
+fn test_struct_type_mix(): void =>
+    var t: TypeMix = TypeMix {
+        i: 42,
+        d: 3.14,
+        b: true,
+        s: "hello",
+        c: 'X',
+        by: 200
+    }
+
+    // Access all fields in interpolation
+    print($"i={t.i} d={t.d} b={t.b} s={t.s} c={t.c} by={t.by}\n")
+
+    // Modify and re-read
+    t.i = -1
+    t.d = -0.5
+    t.b = false
+    t.s = "world"
+    t.c = 'Y'
+    t.by = 0
+    print($"modified: i={t.i} d={t.d} b={t.b} s={t.s} c={t.c} by={t.by}\n")
+
+// --- Array of different numeric types ---
+fn test_numeric_arrays(): void =>
+    var ints: int[] = {-100, -1, 0, 1, 100, 9999999}
+    var doubles: double[] = {-1.5, 0.0, 1.5, 3.14, 99.99}
+    var bytes: byte[] = {0, 1, 127, 128, 254, 255}
+
+    print($"ints: {ints.length} items\n")
+    print($"doubles: {doubles.length} items\n")
+    print($"bytes: {bytes.length} items\n")
+
+    // Sum of different types
+    var isum: int = 0
+    for v in ints =>
+        isum = isum + v
+
+    var dsum: double = 0.0
+    for v in doubles =>
+        dsum = dsum + v
+
+    var bsum: int = 0
+    for v in bytes =>
+        bsum = bsum + v
+
+    print($"int sum: {isum}\n")
+    print($"double sum: {dsum}\n")
+    print($"byte sum: {bsum}\n")
+
+fn main(): void =>
+    print("=== Type Coercion Edge Case Tests ===\n\n")
+
+    test_byte_overflow()
+    test_bool_numeric()
+    test_any_unboxing()
+    test_any_array()
+    test_char_int()
+    test_double_int_context()
+    test_struct_type_mix()
+    test_numeric_arrays()
+
+    print("\n=== All Coercion Tests Done ===\n")

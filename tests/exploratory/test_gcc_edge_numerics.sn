@@ -1,0 +1,136 @@
+// Exploratory test: Numeric literal edge cases
+// Tests boundary values, overflow behavior, and precision limits
+// These could produce GCC warnings/errors if the generated C literals are malformed
+
+// --- Integer boundary values ---
+fn test_int_boundaries(): void =>
+    // INT64_MAX and related
+    var max_int: int = 9223372036854775807
+    var min_plus_one: int = -9223372036854775807
+    var zero: int = 0
+    var neg_one: int = -1
+    var one: int = 1
+
+    print($"max_int: {max_int}\n")
+    print($"min_plus_one: {min_plus_one}\n")
+    print($"zero: {zero}\n")
+    print($"neg_one: {neg_one}\n")
+
+    // Arithmetic near boundaries
+    var near_max: int = 9223372036854775806
+    var result: int = near_max + 1
+    print($"near_max + 1: {result}\n")
+
+// --- Byte boundary values ---
+fn test_byte_boundaries(): void =>
+    var min_byte: byte = 0
+    var max_byte: byte = 255
+    var mid_byte: byte = 128
+
+    print($"min_byte: {min_byte}\n")
+    print($"max_byte: {max_byte}\n")
+    print($"mid_byte: {mid_byte}\n")
+
+    // Byte arithmetic at boundaries
+    var b1: byte = 200
+    var b2: byte = 50
+    var sum: int = b1 + b2
+    print($"byte 200 + 50 as int: {sum}\n")
+
+// --- Double precision edge cases ---
+fn test_double_edges(): void =>
+    // Very small values
+    var tiny: double = 0.000000000000001
+    var neg_tiny: double = -0.000000000000001
+
+    // Very large values
+    var huge: double = 999999999999999.0
+    var neg_huge: double = -999999999999999.0
+
+    // Values that could cause precision issues in printf
+    var pi_long: double = 3.141592653589793238
+    var e_long: double = 2.718281828459045235
+
+    print($"tiny: {tiny}\n")
+    print($"neg_tiny: {neg_tiny}\n")
+    print($"huge: {huge}\n")
+    print($"neg_huge: {neg_huge}\n")
+    print($"pi: {pi_long}\n")
+    print($"e: {e_long}\n")
+
+    // Operations that produce edge values
+    var very_small: double = 1.0 / 1000000000000.0
+    print($"1/trillion: {very_small}\n")
+
+// --- Integer arithmetic that could overflow ---
+fn test_overflow_arithmetic(): void =>
+    // These should trigger overflow checking (rt_add_long, etc.)
+    var a: int = 4611686018427387903
+    var b: int = 4611686018427387903
+    // The sum would overflow - should panic or be caught
+    // We test near-overflow that doesn't actually overflow
+    var half_max: int = 4611686018427387903
+    var result: int = half_max + half_max
+    print($"near-overflow result: {result}\n")
+
+// --- Integer expressions with complex nesting ---
+fn test_complex_int_expr(): void =>
+    var a: int = 100
+    var b: int = 200
+    var c: int = 300
+
+    // Deep nesting of arithmetic
+    var result: int = ((((a + b) * c) - (a * b)) + ((c - a) * (b + a))) / 2
+    print($"Complex expr: {result}\n")
+
+    // Many operations in sequence
+    var x: int = a + b + c + a + b + c + a + b + c + a
+    x = x * 2 - 1 + 3 - 5 + 7 - 9 + 11 - 13 + 15 - 17
+    print($"Sequential ops: {x}\n")
+
+// --- Negative number edge cases ---
+fn test_negatives(): void =>
+    var neg: int = -1
+    var pos: int = 1
+
+    // Negation of negation
+    var double_neg: int = -(-1)
+    print($"double_neg: {double_neg}\n")
+
+    // Multiply negatives
+    var prod: int = neg * neg * neg * neg * neg
+    print($"5 negatives multiplied: {prod}\n")
+
+    // Division edge cases
+    var div_neg: int = -100 / 3
+    print($"-100/3: {div_neg}\n")
+
+    var mod_neg: int = -100 % 3
+    print($"-100%%3: {mod_neg}\n")
+
+// --- Mixed type numeric expressions ---
+fn test_mixed_numeric(): void =>
+    var i: int = 42
+    var d: double = 3.14
+    var b: byte = 200
+
+    // Byte to int promotion
+    var byte_as_int: int = b
+    print($"byte as int: {byte_as_int}\n")
+
+    // Int in double context
+    var int_to_double: double = i * 1.0
+    print($"int*1.0: {int_to_double}\n")
+
+fn main(): void =>
+    print("=== Numeric Edge Case Tests ===\n\n")
+
+    test_int_boundaries()
+    test_byte_boundaries()
+    test_double_edges()
+    test_overflow_arithmetic()
+    test_complex_int_expr()
+    test_negatives()
+    test_mixed_numeric()
+
+    print("\n=== All Numeric Tests Done ===\n")

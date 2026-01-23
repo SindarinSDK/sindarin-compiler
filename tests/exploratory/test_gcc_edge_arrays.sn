@@ -1,0 +1,202 @@
+// Exploratory test: Array edge cases
+// Tests array patterns that could produce invalid C code generation
+
+// --- Multi-dimensional arrays ---
+fn test_2d_arrays(): void =>
+    var matrix: int[][] = {
+        {1, 2, 3},
+        {4, 5, 6},
+        {7, 8, 9}
+    }
+
+    print($"matrix[0][0]={matrix[0][0]} matrix[1][1]={matrix[1][1]} matrix[2][2]={matrix[2][2]}\n")
+
+    var sum: int = 0
+    for row in matrix =>
+        for v in row =>
+            sum = sum + v
+    print($"Matrix sum: {sum}\n")
+    assert(sum == 45, "1+2+...+9=45")
+
+// --- 3D array ---
+fn test_3d_arrays(): void =>
+    var cube: int[][][] = {
+        {{1, 2}, {3, 4}},
+        {{5, 6}, {7, 8}}
+    }
+
+    print($"cube[0][0][0]={cube[0][0][0]}\n")
+    print($"cube[1][1][1]={cube[1][1][1]}\n")
+
+    var sum: int = 0
+    for layer in cube =>
+        for row in layer =>
+            for v in row =>
+                sum = sum + v
+    print($"Cube sum: {sum}\n")
+    assert(sum == 36, "1+2+...+8=36")
+
+// --- Large array literal ---
+fn test_large_literal(): void =>
+    var big: int[] = {
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
+        11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+        21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+        31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+        41, 42, 43, 44, 45, 46, 47, 48, 49, 50,
+        51, 52, 53, 54, 55, 56, 57, 58, 59, 60,
+        61, 62, 63, 64, 65, 66, 67, 68, 69, 70,
+        71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+        81, 82, 83, 84, 85, 86, 87, 88, 89, 90,
+        91, 92, 93, 94, 95, 96, 97, 98, 99, 100
+    }
+    print($"Big array length: {big.length}\n")
+    assert(big.length == 100, "Should have 100 elements")
+
+    var sum: int = 0
+    for v in big =>
+        sum = sum + v
+    print($"Big array sum: {sum}\n")
+    assert(sum == 5050, "1+2+...+100=5050")
+
+// --- Empty array operations ---
+fn test_empty_arrays(): void =>
+    var empty_ints: int[] = {}
+    var empty_strs: str[] = {}
+    var empty_bools: bool[] = {}
+
+    print($"Empty int length: {empty_ints.length}\n")
+    print($"Empty str length: {empty_strs.length}\n")
+    print($"Empty bool length: {empty_bools.length}\n")
+
+    empty_ints.push(42)
+    empty_strs.push("hello")
+    empty_bools.push(true)
+
+    print($"After push: {empty_ints.length} {empty_strs.length} {empty_bools.length}\n")
+
+// --- Array slicing edge cases ---
+fn test_slice_edges(): void =>
+    var arr: int[] = {10, 20, 30, 40, 50, 60, 70, 80, 90, 100}
+
+    var full: int[] = arr[0..arr.length]
+    print($"Full slice length: {full.length}\n")
+
+    var single: int[] = arr[0..1]
+    print($"Single slice: [{single[0]}]\n")
+
+    var start: int = 2
+    var end_idx: int = 7
+    var computed: int[] = arr[start..end_idx]
+    print($"Computed slice length: {computed.length}\n")
+    print($"Computed first: {computed[0]} last: {computed[-1]}\n")
+
+// --- Array of strings with special content ---
+fn test_string_array(): void =>
+    var strs: str[] = {
+        "hello\tworld",
+        "line1\nline2",
+        "back\\slash",
+        "quote\"here",
+        "",
+        "normal"
+    }
+
+    print($"String array length: {strs.length}\n")
+    for var i: int = 0; i < strs.length; i++ =>
+        print($"  [{i}]: length={strs[i].length}\n")
+
+// --- Array push/pop stress ---
+fn test_push_pop_stress(): void =>
+    var arr: int[] = {}
+
+    for var i: int = 0; i < 50; i++ =>
+        arr.push(i * i)
+
+    print($"After 50 pushes: length={arr.length}\n")
+    assert(arr.length == 50, "Should have 50 elements")
+
+    for var i: int = 0; i < 25; i++ =>
+        arr.pop()
+
+    print($"After 25 pops: length={arr.length}\n")
+    assert(arr.length == 25, "Should have 25 elements")
+
+// --- Array of byte ---
+fn test_byte_array(): void =>
+    var bytes: byte[] = {0, 1, 127, 128, 254, 255}
+    print($"Byte array length: {bytes.length}\n")
+
+    var sum: int = 0
+    for b in bytes =>
+        sum = sum + b
+    print($"Byte sum: {sum}\n")
+
+    bytes.push(100)
+    print($"After push: length={bytes.length}\n")
+
+// --- Array of double ---
+fn test_double_array(): void =>
+    var doubles: double[] = {1.1, 2.2, 3.3, 4.4, 5.5}
+
+    var sum: double = 0.0
+    for d in doubles =>
+        sum = sum + d
+
+    print($"Double array sum: {sum}\n")
+    doubles.push(6.6)
+    print($"After push: length={doubles.length}\n")
+
+// --- Array of bool ---
+fn test_bool_array(): void =>
+    var bools: bool[] = {true, false, true, true, false, false, true}
+
+    var true_count: int = 0
+    for b in bools =>
+        if b =>
+            true_count = true_count + 1
+
+    print($"True count: {true_count}\n")
+    assert(true_count == 4, "Should have 4 trues")
+
+// --- Array passed to function and returned ---
+fn sum_array(arr: int[]): int =>
+    var total: int = 0
+    for v in arr =>
+        total = total + v
+    return total
+
+fn double_array(arr: int[]): int[] =>
+    var result: int[] = {}
+    for v in arr =>
+        result.push(v * 2)
+    return result
+
+fn test_array_functions(): void =>
+    var data: int[] = {5, 10, 15, 20, 25}
+
+    var s: int = sum_array(data)
+    print($"Sum: {s}\n")
+    assert(s == 75, "5+10+15+20+25=75")
+
+    var doubled: int[] = double_array(data)
+    print($"Doubled first: {doubled[0]} last: {doubled[-1]}\n")
+    assert(doubled[0] == 10, "First doubled = 10")
+    assert(doubled[4] == 50, "Last doubled = 50")
+
+fn main(): void =>
+    print("=== Array Edge Case Tests ===\n\n")
+
+    test_2d_arrays()
+    test_3d_arrays()
+    test_large_literal()
+    test_empty_arrays()
+    test_slice_edges()
+    test_string_array()
+    test_push_pop_stress()
+    test_byte_array()
+    test_double_array()
+    test_bool_array()
+    test_array_functions()
+
+    print("\n=== All Array Tests Done ===\n")

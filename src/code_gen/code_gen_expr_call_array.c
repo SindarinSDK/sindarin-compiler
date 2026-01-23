@@ -80,10 +80,16 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
             exit(1);
     }
 
-    /* push returns new array pointer, assign back to variable if object is a variable */
+    /* push returns new array pointer, assign back to the lvalue (variable or struct field)
+     * so the pointer stays valid after potential reallocation.
+     * EXPR_MEMBER is used for struct field access in call chains (e.g., data.values.push()). */
+    bool is_lvalue = (object->type == EXPR_VARIABLE ||
+                      object->type == EXPR_MEMBER_ACCESS ||
+                      object->type == EXPR_MEMBER);
+
     /* For pointer types (function/array), we need to cast to void** */
     if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
-        if (object->type == EXPR_VARIABLE) {
+        if (is_lvalue) {
             return arena_sprintf(gen->arena, "(%s = (void *)%s(%s, (void **)%s, (void *)%s))",
                                  object_str, push_func, arena_to_use, object_str, arg_str);
         }
@@ -91,7 +97,7 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                              push_func, arena_to_use, object_str, arg_str);
     }
 
-    if (object->type == EXPR_VARIABLE) {
+    if (is_lvalue) {
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))",
                              object_str, push_func, arena_to_use, object_str, arg_str);
     }

@@ -1,0 +1,150 @@
+// Exploratory test: Function edge cases
+// Tests function patterns that could produce invalid C code generation
+
+// --- Function with many parameters ---
+fn many_params(a: int, b: int, c: int, d: int, e: int, f: int, g: int, h: int, i: int, j: int, k: int, l: int, m: int, n: int, o: int, p: int, q: int, r: int, s: int, t: int): int =>
+    return a + b + c + d + e + f + g + h + i + j + k + l + m + n + o + p + q + r + s + t
+
+fn test_many_params(): void =>
+    var result: int = many_params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20)
+    print($"20 params sum: {result}\n")
+    assert(result == 210, "Sum of 1..20 = 210")
+
+// --- Deeply nested function calls in expression ---
+fn add1(x: int): int => x + 1
+fn mul2(x: int): int => x * 2
+fn sub3(x: int): int => x - 3
+
+fn test_deep_call_nesting(): void =>
+    var result: int = add1(mul2(sub3(add1(mul2(sub3(add1(mul2(sub3(add1(5))))))))))
+    print($"Deep nesting result: {result}\n")
+
+    var r2: int = add1(add1(add1(add1(add1(add1(add1(add1(add1(add1(0))))))))))
+    print($"10x add1(0): {r2}\n")
+    assert(r2 == 10, "add1 10 times from 0 = 10")
+
+// --- Mutual recursion ---
+fn is_even(n: int): bool =>
+    if n == 0 =>
+        return true
+    return is_odd(n - 1)
+
+fn is_odd(n: int): bool =>
+    if n == 0 =>
+        return false
+    return is_even(n - 1)
+
+fn test_mutual_recursion(): void =>
+    for var i: int = 0; i < 10; i++ =>
+        var even: bool = is_even(i)
+        var odd: bool = is_odd(i)
+        print($"  {i}: even={even} odd={odd}\n")
+
+// --- Expression-bodied with complex expressions ---
+fn complex_expr(a: int, b: int, c: int): int => (a * b + c) * (a - b) + (b * c - a)
+fn chain_expr(x: int): int => x * x + x * 2 + 1
+
+fn test_expr_bodied(): void =>
+    var r1: int = complex_expr(3, 4, 5)
+    print($"complex_expr(3,4,5): {r1}\n")
+
+    var r2: int = chain_expr(5)
+    print($"chain_expr(5): {r2}\n")
+    assert(r2 == 36, "5*5+5*2+1=36")
+
+// --- Functions returning various types ---
+fn ret_int(): int => 42
+fn ret_double(): double => 3.14
+fn ret_str(): str => "hello"
+fn ret_bool(): bool => true
+fn ret_char(): char => 'X'
+fn ret_byte(): byte => 200
+
+fn test_return_types(): void =>
+    var i: int = ret_int()
+    var d: double = ret_double()
+    var s: str = ret_str()
+    var b: bool = ret_bool()
+    var c: char = ret_char()
+    var by: byte = ret_byte()
+
+    print($"returns: i={i} d={d} s={s} b={b} c={c} by={by}\n")
+
+// --- Function returning array ---
+fn make_range(start: int, count: int): int[] =>
+    var result: int[] = {}
+    for var i: int = 0; i < count; i++ =>
+        result.push(start + i)
+    return result
+
+fn test_return_array(): void =>
+    var arr: int[] = make_range(5, 10)
+    print($"Range length: {arr.length}\n")
+    print($"First: {arr[0]} Last: {arr[-1]}\n")
+    assert(arr.length == 10, "Should have 10 elements")
+    assert(arr[0] == 5, "First should be 5")
+    assert(arr[9] == 14, "Last should be 14")
+
+// --- Function returning struct ---
+struct Pair =>
+    first: int = 0
+    second: int = 0
+
+fn make_pair(a: int, b: int): Pair =>
+    return Pair { first: a, second: b }
+
+fn swap_pair(p: Pair): Pair =>
+    return Pair { first: p.second, second: p.first }
+
+fn test_return_struct(): void =>
+    var p: Pair = make_pair(10, 20)
+    print($"Pair: ({p.first}, {p.second})\n")
+
+    var swapped: Pair = swap_pair(p)
+    print($"Swapped: ({swapped.first}, {swapped.second})\n")
+
+// --- Recursive ---
+fn fib(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib(n - 1) + fib(n - 2)
+
+fn test_recursive(): void =>
+    for var i: int = 0; i < 15; i++ =>
+        var f: int = fib(i)
+        print($"  fib({i}) = {f}\n")
+
+// --- Function with all parameter types ---
+fn all_types(i: int, d: double, s: str, b: bool, c: char, by: byte): str =>
+    return $"i={i} d={d} s={s} b={b} c={c} by={by}"
+
+fn test_all_param_types(): void =>
+    var result: str = all_types(42, 3.14, "test", true, 'Z', 128)
+    print($"All types: {result}\n")
+
+// --- Void function with side effects ---
+fn print_separator(width: int): void =>
+    for var i: int = 0; i < width; i++ =>
+        print("=")
+    print("\n")
+
+fn test_void_functions(): void =>
+    print_separator(20)
+    print("TEST\n")
+    print_separator(20)
+
+fn main(): void =>
+    print("=== Function Edge Case Tests ===\n\n")
+
+    test_many_params()
+    test_deep_call_nesting()
+    test_mutual_recursion()
+    test_expr_bodied()
+    test_return_types()
+    test_return_array()
+    test_return_struct()
+    test_recursive()
+    test_all_param_types()
+    test_void_functions()
+
+    print("\n=== All Function Tests Done ===\n")

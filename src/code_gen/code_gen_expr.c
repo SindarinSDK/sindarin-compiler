@@ -127,16 +127,38 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         return arena_sprintf(gen->arena, "rt_str_length(%s)", object_str);
     }
 
-    /* Handle struct field access - generates object.field */
+    /* Handle struct field access - generates object.__sn__field */
     if (object_type->kind == TYPE_STRUCT) {
-        return arena_sprintf(gen->arena, "%s.%s", object_str, member_name_str);
+        /* Look up field to check for c_alias */
+        const char *c_field_name = member_name_str;
+        StructField *field = ast_struct_get_field(object_type, member_name_str);
+        if (field != NULL && field->c_alias != NULL)
+        {
+            c_field_name = field->c_alias;
+        }
+        else
+        {
+            c_field_name = sn_mangle_name(gen->arena, member_name_str);
+        }
+        return arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
     }
 
-    /* Handle pointer-to-struct field access - generates object->field */
+    /* Handle pointer-to-struct field access - generates object->__sn__field */
     if (object_type->kind == TYPE_POINTER &&
         object_type->as.pointer.base_type != NULL &&
         object_type->as.pointer.base_type->kind == TYPE_STRUCT) {
-        return arena_sprintf(gen->arena, "%s->%s", object_str, member_name_str);
+        Type *base_struct = object_type->as.pointer.base_type;
+        const char *c_field_name = member_name_str;
+        StructField *field = ast_struct_get_field(base_struct, member_name_str);
+        if (field != NULL && field->c_alias != NULL)
+        {
+            c_field_name = field->c_alias;
+        }
+        else
+        {
+            c_field_name = sn_mangle_name(gen->arena, member_name_str);
+        }
+        return arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
     }
 
     // Generic struct member access (not currently supported)
@@ -286,6 +308,11 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
     for (int i = 0; i < field_count; i++)
     {
         StructField *field = &struct_type->as.struct_type.fields[i];
+        /* Use c_alias for native struct fields, otherwise mangle */
+        const char *c_field_name = field->c_alias != NULL
+            ? field->c_alias
+            : sn_mangle_name(gen->arena, field->name);
+
         if (field->type != NULL && field->type->kind == TYPE_ARRAY)
         {
             /* Get the element type and corresponding clone function */
@@ -295,7 +322,7 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
             {
                 /* Copy array field using rt_array_clone_<type> */
                 result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s(%s, __deep_copy.%s);\n",
-                                       result, field->name, suffix, ARENA_VAR(gen), field->name);
+                                       result, c_field_name, suffix, ARENA_VAR(gen), c_field_name);
             }
             /* If no clone function available (e.g., nested arrays), leave as shallow copy */
         }
@@ -304,7 +331,7 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
             /* Copy string field using rt_arena_strdup */
             result = arena_sprintf(gen->arena,
                                    "%s        __deep_copy.%s = __deep_copy.%s ? rt_arena_strdup(%s, __deep_copy.%s) : NULL;\n",
-                                   result, field->name, field->name, ARENA_VAR(gen), field->name);
+                                   result, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
         }
     }
 
@@ -664,8 +691,10 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
             {
                 result = arena_sprintf(gen->arena, "%s, ", result);
             }
-            /* Use c_alias for field name if available, otherwise use Sindarin name */
-            const char *c_field_name = field->c_alias != NULL ? field->c_alias : field->name;
+            /* Use c_alias for field name if available, otherwise mangle Sindarin name */
+            const char *c_field_name = field->c_alias != NULL
+                ? field->c_alias
+                : sn_mangle_name(gen->arena, field->name);
             result = arena_sprintf(gen->arena, "%s.%s = %s", result, c_field_name, value_code);
             first = false;
         }
@@ -708,6 +737,11 @@ static char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
         if (field != NULL && field->c_alias != NULL)
         {
             field_name = arena_strdup(gen->arena, field->c_alias);
+        }
+        else if (field != NULL)
+        {
+            /* Mangle field name to avoid C reserved word conflicts */
+            field_name = sn_mangle_name(gen->arena, field_name);
         }
     }
 
@@ -846,6 +880,11 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         if (field != NULL && field->c_alias != NULL)
         {
             field_name = arena_strdup(gen->arena, field->c_alias);
+        }
+        else if (field != NULL)
+        {
+            /* Mangle field name to avoid C reserved word conflicts */
+            field_name = sn_mangle_name(gen->arena, field_name);
         }
     }
 
