@@ -4,13 +4,13 @@
 // 2. Return values need no promotion (already in caller's arena)
 // 3. Results are accessible after sync
 
-fn build_array() shared: int[] =>
+shared fn build_array(): int[] =>
     // Array is created directly in caller's arena
     var result: int[] = {10, 20, 30}
     result.push(40)
     return result
 
-fn build_string() shared: str =>
+shared fn build_string(): str =>
     // String is created directly in caller's arena
     var msg: str = "Shared"
     msg = msg + " arena"

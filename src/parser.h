@@ -89,7 +89,7 @@ Expr *parser_array_access(Parser *parser, Expr *array);
 Stmt *parser_statement(Parser *parser);
 Stmt *parser_declaration(Parser *parser);
 Stmt *parser_var_declaration(Parser *parser);
-Stmt *parser_function_declaration(Parser *parser);
+Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier);
 Stmt *parser_return_statement(Parser *parser);
 Stmt *parser_if_statement(Parser *parser);
 Stmt *parser_while_statement(Parser *parser, bool is_shared);

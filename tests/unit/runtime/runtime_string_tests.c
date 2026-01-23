@@ -1,7 +1,6 @@
 // tests/unit/runtime/runtime_string_tests.c
 // Tests for runtime string operations
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

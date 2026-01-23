@@ -1,7 +1,6 @@
 // tests/unit/runtime/runtime_arithmetic_tests.c
 // Tests for runtime arithmetic operations with overflow checking
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <limits.h>

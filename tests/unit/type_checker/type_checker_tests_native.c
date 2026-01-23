@@ -10,7 +10,6 @@
 #include "../ast/ast_stmt.h"
 #include "../symbol_table.h"
 #include "../arena.h"
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 

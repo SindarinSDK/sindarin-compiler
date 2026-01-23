@@ -94,7 +94,7 @@ static void test_function_shared_modifier_parsing()
     Parser parser;
     SymbolTable symbol_table;
     const char *source =
-        "fn helper() shared: int =>\n"
+        "shared fn helper(): int =>\n"
         "  return 42\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
@@ -117,7 +117,7 @@ static void test_function_private_modifier_parsing()
     Parser parser;
     SymbolTable symbol_table;
     const char *source =
-        "fn compute() private: double =>\n"
+        "private fn compute(): double =>\n"
         "  return 3.14\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
@@ -129,6 +129,104 @@ static void test_function_private_modifier_parsing()
     assert(fn->type == STMT_FUNCTION);
     assert(fn->as.function.modifier == FUNC_PRIVATE);
     assert(fn->as.function.return_type->kind == TYPE_DOUBLE);
+
+    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
+}
+
+/* Negative tests: modifiers in wrong position should produce errors */
+static void test_function_shared_misplaced_error()
+{
+    Arena arena;
+    Lexer lexer;
+    Parser parser;
+    SymbolTable symbol_table;
+    const char *source =
+        "fn helper() shared: int =>\n"
+        "  return 42\n";
+    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+
+    parser_execute(&parser, "test.sn");
+
+    /* Parser should report error for misplaced modifier */
+    assert(parser.had_error == true);
+
+    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
+}
+
+static void test_function_private_misplaced_error()
+{
+    Arena arena;
+    Lexer lexer;
+    Parser parser;
+    SymbolTable symbol_table;
+    const char *source =
+        "fn compute() private: double =>\n"
+        "  return 3.14\n";
+    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+
+    parser_execute(&parser, "test.sn");
+
+    /* Parser should report error for misplaced modifier */
+    assert(parser.had_error == true);
+
+    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
+}
+
+static void test_function_static_toplevel_error()
+{
+    Arena arena;
+    Lexer lexer;
+    Parser parser;
+    SymbolTable symbol_table;
+    const char *source =
+        "static fn helper(): int =>\n"
+        "  return 42\n";
+    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+
+    parser_execute(&parser, "test.sn");
+
+    /* 'static' at top-level should produce an error */
+    assert(parser.had_error == true);
+
+    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
+}
+
+static void test_shared_native_fn_modifier_parsing()
+{
+    Arena arena;
+    Lexer lexer;
+    Parser parser;
+    SymbolTable symbol_table;
+    const char *source = "shared native fn helper(): int\n";
+    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+
+    Module *module = parser_execute(&parser, "test.sn");
+
+    assert(module != NULL);
+    assert(module->count == 1);
+    Stmt *fn = module->statements[0];
+    assert(fn->type == STMT_FUNCTION);
+    assert(fn->as.function.modifier == FUNC_SHARED);
+
+    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
+}
+
+static void test_private_native_fn_modifier_parsing()
+{
+    Arena arena;
+    Lexer lexer;
+    Parser parser;
+    SymbolTable symbol_table;
+    const char *source = "private native fn compute(): int\n";
+    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
+
+    Module *module = parser_execute(&parser, "test.sn");
+
+    assert(module != NULL);
+    assert(module->count == 1);
+    Stmt *fn = module->statements[0];
+    assert(fn->type == STMT_FUNCTION);
+    assert(fn->as.function.modifier == FUNC_PRIVATE);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -530,6 +628,11 @@ static void test_parser_memory_main()
     TEST_RUN("function_shared_modifier_parsing", test_function_shared_modifier_parsing);
     TEST_RUN("function_private_modifier_parsing", test_function_private_modifier_parsing);
     TEST_RUN("function_default_modifier_parsing", test_function_default_modifier_parsing);
+    TEST_RUN("function_shared_misplaced_error", test_function_shared_misplaced_error);
+    TEST_RUN("function_private_misplaced_error", test_function_private_misplaced_error);
+    TEST_RUN("function_static_toplevel_error", test_function_static_toplevel_error);
+    TEST_RUN("shared_native_fn_modifier_parsing", test_shared_native_fn_modifier_parsing);
+    TEST_RUN("private_native_fn_modifier_parsing", test_private_native_fn_modifier_parsing);
     TEST_RUN("shared_block_parsing", test_shared_block_parsing);
     TEST_RUN("private_block_parsing", test_private_block_parsing);
     TEST_RUN("shared_while_loop_parsing", test_shared_while_loop_parsing);

@@ -2,11 +2,11 @@
 // Private functions should not be visible to importers
 
 // Private helper function - should NOT be callable from importers
-fn internal_helper(x: int) private: int =>
+private fn internal_helper(x: int): int =>
     return x * 2
 
 // Private validation function
-fn validate_input(n: int) private: bool =>
+private fn validate_input(n: int): bool =>
     return n >= 0
 
 // Public function that uses private helpers internally

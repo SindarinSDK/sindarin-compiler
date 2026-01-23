@@ -4,7 +4,6 @@
 #include "../test_harness.h"
 #include "../type_checker/type_checker_util.h"
 #include "../type_checker.h"
-#include <assert.h>
 #include <stdio.h>
 
 /* Test that native_context_is_active returns false by default */

@@ -10,7 +10,7 @@ fn sum_12(a1: int, a2: int, a3: int, a4: int, a5: int, a6: int, a7: int, a8: int
     return a1 + a2 + a3 + a4 + a5 + a6 + a7 + a8 + a9 + a10 + a11 + a12
 
 // Function with mixed types (10 parameters) - needs shared to return string
-fn mixed_10(s1: str, i1: int, b1: bool, s2: str, i2: int, d1: double, i3: int, s3: str, i4: int, b2: bool) shared: str =>
+shared fn mixed_10(s1: str, i1: int, b1: bool, s2: str, i2: int, d1: double, i3: int, s3: str, i4: int, b2: bool): str =>
     var result: str = s1 + s2 + s3
     var sum: int = i1 + i2 + i3 + i4
     result = result + $" sum={sum}"

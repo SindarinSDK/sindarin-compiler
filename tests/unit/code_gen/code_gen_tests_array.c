@@ -133,10 +133,10 @@ static void test_code_gen_array_var_declaration_with_init(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL}); arr;
+    // Expected: long * __sn__arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL}); __sn__arr;
     const char *expected = get_expected(&arena,
-                                  "long long * arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL});\n"
-                                  "arr;\n"
+                                  "long long * __sn__arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL});\n"
+                                  "__sn__arr;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -191,10 +191,10 @@ static void test_code_gen_array_var_declaration_without_init(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * empty_arr = NULL; empty_arr;
+    // Expected: long * __sn__empty_arr = NULL; __sn__empty_arr;
     const char *expected = get_expected(&arena,
-                                  "long long * empty_arr = NULL;\n"
-                                  "empty_arr;\n"
+                                  "long long * __sn__empty_arr = NULL;\n"
+                                  "__sn__empty_arr;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -292,10 +292,10 @@ static void test_code_gen_array_access(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL}); arr[1];
+    // Expected: long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL}); __sn__arr[1];
     const char *expected = get_expected(&arena,
-                                  "long long * arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL});\n"
-                                  "arr[1LL];\n"
+                                  "long long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL});\n"
+                                  "__sn__arr[1LL];\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -406,12 +406,12 @@ static void test_code_gen_array_pop(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long result = rt_array_pop_long(arr); result; arr;
+    // Expected: long __sn__result = rt_array_pop_long(__sn__arr); __sn__result; __sn__arr;
     const char *expected = get_expected(&arena,
-                                  "long long * arr = rt_array_create_long(NULL, 3, (long long[]){1LL, 2LL, 3LL});\n"
-                                  "long long result = rt_array_pop_long(arr);\n"
-                                  "result;\n"
-                                  "arr;\n"
+                                  "long long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){1LL, 2LL, 3LL});\n"
+                                  "long long __sn__result = rt_array_pop_long(__sn__arr);\n"
+                                  "__sn__result;\n"
+                                  "__sn__arr;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"

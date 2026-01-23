@@ -1,0 +1,8 @@
+# Test: Compile error - 'shared' placed after parameter list instead of before 'fn'
+
+fn helper() shared: int =>
+    return 42
+
+fn main(): void =>
+    var x: int = helper()
+    print($"{x}\n")

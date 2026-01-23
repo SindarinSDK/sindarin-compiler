@@ -1,7 +1,6 @@
 // tests/unit/runtime/runtime_array_tests.c
 // Tests for runtime array operations
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

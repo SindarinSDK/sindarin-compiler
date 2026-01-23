@@ -10,21 +10,21 @@ struct Rectangle =>
     bottomRight: Point
 
 # Explicitly shared function returning struct - uses caller's arena
-fn createPoint(x: int, y: int) shared: Point =>
+shared fn createPoint(x: int, y: int): Point =>
     return Point { x: x, y: y }
 
 # Shared function that creates nested struct
-fn createRectangle(x1: int, y1: int, x2: int, y2: int) shared: Rectangle =>
+shared fn createRectangle(x1: int, y1: int, x2: int, y2: int): Rectangle =>
     var tl: Point = Point { x: x1, y: y1 }
     var br: Point = Point { x: x2, y: y2 }
     return Rectangle { topLeft: tl, bottomRight: br }
 
 # Shared function that modifies struct
-fn offsetPoint(p: Point, dx: int, dy: int) shared: Point =>
+shared fn offsetPoint(p: Point, dx: int, dy: int): Point =>
     return Point { x: p.x + dx, y: p.y + dy }
 
 # Chain of shared function calls
-fn doubleAndOffset(p: Point) shared: Point =>
+shared fn doubleAndOffset(p: Point): Point =>
     var doubled: Point = Point { x: p.x * 2, y: p.y * 2 }
     return offsetPoint(doubled, 10, 10)
 

@@ -1,7 +1,6 @@
 // tests/runtime_thread_tests.c
 // Tests for thread arena mode selection in the runtime
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

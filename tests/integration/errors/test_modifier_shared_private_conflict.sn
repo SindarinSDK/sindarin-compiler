@@ -1,0 +1,11 @@
+# Test: Compile error - 'shared' and 'private' cannot be used together
+
+struct Foo =>
+    value: int
+
+    shared private fn bad(): int =>
+        return 0
+
+fn main(): void =>
+    var f: Foo = Foo{value: 1}
+    print($"{f.value}\n")

@@ -278,16 +278,79 @@ Stmt *parser_declaration(Parser *parser)
     {
         return parser_var_declaration(parser);
     }
+    /* Parse function modifiers (shared/private) before fn keyword.
+     * These can appear in any order, but shared and private are mutually exclusive.
+     * 'static' is only valid in struct method declarations. */
+    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE))
+    {
+        /* Peek ahead to see if this is a function declaration context.
+         * shared/private can be followed by: fn, native fn
+         * If not, fall through to parser_statement for block/loop handling. */
+        Token modifier_token = parser->current;
+        bool is_fn_context = false;
+
+        if (parser->current.type == TOKEN_SHARED || parser->current.type == TOKEN_PRIVATE)
+        {
+            Token peeked = parser_peek_token(parser);
+            if (peeked.type == TOKEN_FN || peeked.type == TOKEN_NATIVE)
+            {
+                is_fn_context = true;
+            }
+        }
+
+        if (is_fn_context)
+        {
+            FunctionModifier func_modifier = FUNC_DEFAULT;
+            if (parser_match(parser, TOKEN_SHARED))
+            {
+                func_modifier = FUNC_SHARED;
+            }
+            else if (parser_match(parser, TOKEN_PRIVATE))
+            {
+                func_modifier = FUNC_PRIVATE;
+            }
+
+            if (parser_match(parser, TOKEN_FN))
+            {
+                return parser_function_declaration(parser, func_modifier);
+            }
+            else if (parser_match(parser, TOKEN_NATIVE))
+            {
+                if (parser_match(parser, TOKEN_FN))
+                {
+                    return parser_native_function_declaration(parser, func_modifier);
+                }
+                else
+                {
+                    parser_error_at(parser, &modifier_token,
+                        "Function modifiers (shared/private) can only be used before 'fn'");
+                    return NULL;
+                }
+            }
+        }
+        /* If not a function context, fall through to parser_statement
+         * which handles shared/private blocks and shared loops */
+    }
+
+    if (parser_check(parser, TOKEN_STATIC))
+    {
+        /* 'static' is only valid in struct method declarations */
+        parser_error_at_current(parser,
+            "'static' can only be used in struct method declarations. "
+            "Did you mean 'shared fn' or 'private fn'?");
+        return NULL;
+    }
+
     if (parser_match(parser, TOKEN_FN))
     {
-        return parser_function_declaration(parser);
+        return parser_function_declaration(parser, FUNC_DEFAULT);
     }
     if (parser_match(parser, TOKEN_NATIVE))
     {
         /* Check for 'native fn' or 'native struct' */
         if (parser_match(parser, TOKEN_FN))
         {
-            return parser_native_function_declaration(parser);
+            return parser_native_function_declaration(parser, FUNC_DEFAULT);
         }
         else if (parser_match(parser, TOKEN_STRUCT))
         {

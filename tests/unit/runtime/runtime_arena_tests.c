@@ -1,7 +1,6 @@
 // tests/runtime_arena_tests.c
 // Tests for the runtime arena memory management system (RtArena)
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

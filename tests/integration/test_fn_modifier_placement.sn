@@ -1,0 +1,76 @@
+# Test: Function modifier placement
+# Modifiers (shared, private, static) must be declared before 'fn'
+# They can appear in any order (with constraints)
+
+# shared fn at top level
+shared fn add(a: int, b: int): int =>
+    return a + b
+
+# private fn at top level
+private fn square(x: int): int =>
+    return x * x
+
+# struct with various modifier combinations
+struct Helper =>
+    value: int
+
+    # shared instance method
+    shared fn getValue(): int =>
+        return self.value
+
+    # private instance method
+    private fn compute(): int =>
+        return self.value * 2
+
+    # static method
+    static fn zero(): int =>
+        return 0
+
+    # shared static method
+    shared static fn fromInt(v: int): int =>
+        return v + 100
+
+    # static shared method (reversed order)
+    static shared fn doubleIt(v: int): int =>
+        return v * 2
+
+    # private static method
+    private static fn triple(v: int): int =>
+        return v * 3
+
+    # static private method (reversed order)
+    static private fn quad(v: int): int =>
+        return v * 4
+
+fn main(): void =>
+    # Test top-level shared fn
+    var r1: int = add(3, 4)
+    print($"add: {r1}\n")
+
+    # Test top-level private fn
+    var r2: int = square(5)
+    print($"square: {r2}\n")
+
+    # Test struct methods
+    var h: Helper = Helper{value: 10}
+
+    var r3: int = h.getValue()
+    print($"getValue: {r3}\n")
+
+    var r4: int = h.compute()
+    print($"compute: {r4}\n")
+
+    var r5: int = Helper.zero()
+    print($"zero: {r5}\n")
+
+    var r6: int = Helper.fromInt(50)
+    print($"fromInt: {r6}\n")
+
+    var r7: int = Helper.doubleIt(8)
+    print($"doubleIt: {r7}\n")
+
+    var r8: int = Helper.triple(3)
+    print($"triple: {r8}\n")
+
+    var r9: int = Helper.quad(2)
+    print($"quad: {r9}\n")

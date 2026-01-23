@@ -1,7 +1,6 @@
 // tests/code_gen_tests_util.c
 // Helper functions and basic code gen tests
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

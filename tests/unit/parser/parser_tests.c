@@ -1,7 +1,6 @@
 // tests/parser_tests.c
 // Parser tests - main entry point
 
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include "../arena.h"

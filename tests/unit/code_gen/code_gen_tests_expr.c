@@ -86,8 +86,8 @@ static void test_code_gen_variable_expression(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "long long x = 0;\n"
-                                  "x;\n"
+                                  "long long __sn__x = 0;\n"
+                                  "__sn__x;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -342,8 +342,8 @@ static void test_code_gen_assign_expression(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "long long x = 0;\n"
-                                  "(x = 10LL);\n"
+                                  "long long __sn__x = 0;\n"
+                                  "(__sn__x = 10LL);\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -411,10 +411,10 @@ static void test_code_gen_as_val_int_pointer(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    /* The key assertion: *int as val should generate *(ptr) */
+    /* The key assertion: *int as val should generate *(__sn__ptr) */
     const char *expected = get_expected(&arena,
-                                  "long long* ptr = 0;\n"
-                                  "(*(ptr));\n"
+                                  "long long* __sn__ptr = 0;\n"
+                                  "(*(__sn__ptr));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -482,10 +482,10 @@ static void test_code_gen_as_val_double_pointer(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    /* The key assertion: *double as val should generate *(dptr) */
+    /* The key assertion: *double as val should generate *(__sn__dptr) */
     const char *expected = get_expected(&arena,
-                                  "double* dptr = 0;\n"
-                                  "(*(dptr));\n"
+                                  "double* __sn__dptr = 0;\n"
+                                  "(*(__sn__dptr));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"
@@ -564,8 +564,8 @@ static void test_code_gen_as_val_char_pointer(void)
      * Generated pattern: ((cptr) ? rt_arena_strdup(arena, cptr) : rt_arena_strdup(arena, ""))
      * At global scope, arena is NULL */
     const char *expected = get_expected(&arena,
-                                  "char* cptr = 0;\n"
-                                  "((cptr) ? rt_arena_strdup(NULL, cptr) : rt_arena_strdup(NULL, \"\"));\n"
+                                  "char* __sn__cptr = 0;\n"
+                                  "((__sn__cptr) ? rt_arena_strdup(NULL, __sn__cptr) : rt_arena_strdup(NULL, \"\"));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    int _return_value = 0;\n"

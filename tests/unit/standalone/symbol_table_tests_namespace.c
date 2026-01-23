@@ -1,7 +1,6 @@
 // tests/unit/standalone/symbol_table_tests_namespace.c
 // Namespace tests for symbol table
 
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

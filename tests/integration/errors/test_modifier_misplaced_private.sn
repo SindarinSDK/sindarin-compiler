@@ -1,0 +1,8 @@
+# Test: Compile error - 'private' placed after parameter list instead of before 'fn'
+
+fn compute() private: int =>
+    return 99
+
+fn main(): void =>
+    var x: int = compute()
+    print($"{x}\n")

@@ -4,7 +4,7 @@
 // 2. Only primitives can be returned (non-primitives are freed)
 // 3. Thread arena is cleaned up after sync
 
-fn count_elements() private: int =>
+private fn count_elements(): int =>
     // Create arrays and strings in thread's private arena
     var numbers: int[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
     var words: str[] = {"one", "two", "three", "four", "five"}
@@ -18,7 +18,7 @@ fn count_elements() private: int =>
     // Only the primitive result escapes - all arrays/strings freed
     return numbers.length + words.length
 
-fn compute_sum() private: int =>
+private fn compute_sum(): int =>
     // Heavy temporary allocations that are cleaned up
     var data: int[] = {100, 200, 300, 400, 500}
     var more: int[] = {1, 2, 3, 4, 5}
@@ -32,7 +32,7 @@ fn compute_sum() private: int =>
     // Return just the sum - arrays freed after return
     return total
 
-fn get_length() private: int =>
+private fn get_length(): int =>
     // Allocate some temporary data in thread's arena
     var temp: str = "temporary string that will be freed"
     var arr: int[] = {1, 2, 3, 4, 5}

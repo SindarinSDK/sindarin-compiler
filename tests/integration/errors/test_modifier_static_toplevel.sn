@@ -1,0 +1,8 @@
+# Test: Compile error - 'static' used at top-level (only valid in struct methods)
+
+static fn helper(): int =>
+    return 42
+
+fn main(): void =>
+    var x: int = helper()
+    print($"{x}\n")

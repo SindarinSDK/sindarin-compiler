@@ -2,7 +2,6 @@
 // Tests for enhanced type checker error messages with suggestions
 
 #include "../type_checker/type_checker_util.h"
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 

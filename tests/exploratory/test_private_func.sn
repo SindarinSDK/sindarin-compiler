@@ -1,24 +1,24 @@
 // Test 38: Private function modifier
-fn private_compute(a: int, b: int) private: int =>
+private fn private_compute(a: int, b: int): int =>
     var x: int = a * 2
     var y: int = b * 3
     return x + y
 
-fn private_factorial(n: int) private: int =>
+private fn private_factorial(n: int): int =>
     if n <= 1 =>
         return 1
     return n * private_factorial(n - 1)
 
-fn private_sum(n: int) private: int =>
+private fn private_sum(n: int): int =>
     var total: int = 0
     for var i: int = 1; i <= n; i++ =>
         total = total + i
     return total
 
-fn private_check(x: int) private: bool =>
+private fn private_check(x: int): bool =>
     return x > 0
 
-fn private_double(x: double) private: double =>
+private fn private_double(x: double): double =>
     return x * 2.0
 
 fn main(): int =>

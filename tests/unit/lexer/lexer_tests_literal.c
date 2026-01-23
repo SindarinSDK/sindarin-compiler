@@ -626,59 +626,6 @@ static void test_lexer_spread_operator(void)
     DEBUG_INFO("Finished test_lexer_spread_operator");
 }
 
-static void test_lexer_environment_keyword(void)
-{
-    DEBUG_INFO("Starting test_lexer_environment_keyword");
-
-    const char *source = "Environment";
-    Arena arena;
-    arena_init(&arena, 1024);
-    Lexer lexer;
-    lexer_init(&arena, &lexer, source, "test.sn");
-
-    Token t1 = lexer_scan_token(&lexer);
-    assert(t1.type == TOKEN_ENV);
-    assert(t1.length == 11);
-
-    Token t2 = lexer_scan_token(&lexer);
-    assert(t2.type == TOKEN_EOF);
-
-    lexer_cleanup(&lexer);
-    arena_free(&arena);
-
-    DEBUG_INFO("Finished test_lexer_environment_keyword");
-}
-
-static void test_lexer_environment_in_context(void)
-{
-    DEBUG_INFO("Starting test_lexer_environment_in_context");
-
-    const char *source = "Environment.get";
-    Arena arena;
-    arena_init(&arena, 1024);
-    Lexer lexer;
-    lexer_init(&arena, &lexer, source, "test.sn");
-
-    Token t1 = lexer_scan_token(&lexer);
-    assert(t1.type == TOKEN_ENV);
-    assert(t1.length == 11);
-
-    Token t2 = lexer_scan_token(&lexer);
-    assert(t2.type == TOKEN_DOT);
-
-    Token t3 = lexer_scan_token(&lexer);
-    assert(t3.type == TOKEN_IDENTIFIER);
-    assert(t3.length == 3);
-
-    Token t4 = lexer_scan_token(&lexer);
-    assert(t4.type == TOKEN_EOF);
-
-    lexer_cleanup(&lexer);
-    arena_free(&arena);
-
-    DEBUG_INFO("Finished test_lexer_environment_in_context");
-}
-
 static void test_lexer_struct_keyword(void)
 {
     DEBUG_INFO("Starting test_lexer_struct_keyword");
@@ -824,8 +771,6 @@ void test_lexer_literal_main(void)
     TEST_RUN("lexer_pointer_type_syntax", test_lexer_pointer_type_syntax);
     TEST_RUN("lexer_spread_operator", test_lexer_spread_operator);
     // Environment keyword tests
-    TEST_RUN("lexer_environment_keyword", test_lexer_environment_keyword);
-    TEST_RUN("lexer_environment_in_context", test_lexer_environment_in_context);
     // Struct keyword tests
     TEST_RUN("lexer_struct_keyword", test_lexer_struct_keyword);
     TEST_RUN("lexer_struct_in_context", test_lexer_struct_in_context);

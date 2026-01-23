@@ -380,11 +380,9 @@ ParsedType parser_type_with_size(Parser *parser)
     return result;
 }
 
-/* List of known static type names that support static method calls */
+/* List of built-in static type names that support static method calls.
+ * SDK types (Path, Directory, Bytes) are recognized via symbol table lookup. */
 static const char *static_type_names[] = {
-    "Path",
-    "Directory",
-    "Bytes",
     "Interceptor",
     NULL
 };

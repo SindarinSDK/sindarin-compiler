@@ -1,7 +1,7 @@
 // Test: Compile error - private function returns array (non-primitive)
 // Expected error: Private function can only return primitive types
 
-fn build_array() private: int[] =>
+private fn build_array(): int[] =>
     return {1, 2, 3}  // ERROR: private can only return primitives
 
 fn main(): void =>

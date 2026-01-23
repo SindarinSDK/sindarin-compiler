@@ -1,10 +1,10 @@
 // Test shared function modifier
 // Shared functions use the caller's arena context
 
-fn helper() shared: int =>
+shared fn helper(): int =>
     return 42
 
-fn compute() shared: int =>
+shared fn compute(): int =>
     var x: int = helper()
     return x + 10
 
