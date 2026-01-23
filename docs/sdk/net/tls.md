@@ -1,6 +1,6 @@
 # TLS
 
-TLS provides encrypted TCP connections using OpenSSL. `TlsStream` wraps a TCP socket with TLS encryption, enabling secure communication with HTTPS servers and other TLS-enabled services.
+TLS provides encrypted TCP connections using OpenSSL. `TlsStream` wraps a TCP socket with TLS encryption, enabling secure communication with HTTPS servers and other TLS-enabled services. `TlsListener` provides server-side TLS, accepting incoming connections and wrapping them with encryption.
 
 ## Import
 
@@ -107,6 +107,83 @@ Performs a TLS shutdown, frees the SSL context, and closes the underlying TCP so
 
 ```sindarin
 conn.close()
+```
+
+---
+
+## TlsListener
+
+A TLS server that listens for incoming encrypted TCP connections. Accepts connections and wraps them with TLS, returning `TlsStream` instances.
+
+```sindarin
+var server: TlsListener = TlsListener.bind(":8443", "cert.pem", "key.pem")
+var conn: TlsStream = server.accept()
+var line: str = conn.readLine()
+conn.writeLine($"Echo: {line}")
+conn.close()
+server.close()
+```
+
+### Static Methods
+
+#### TlsListener.bind(address, certFile, keyFile)
+
+Creates a TLS server listening on the specified address. Requires paths to a PEM-encoded certificate file and private key file.
+
+```sindarin
+// Listen on all interfaces, port 8443
+var server: TlsListener = TlsListener.bind(":8443", "cert.pem", "key.pem")
+
+// Listen on specific interface
+var local: TlsListener = TlsListener.bind("127.0.0.1:8443", "cert.pem", "key.pem")
+
+// OS-assigned port
+var dynamic: TlsListener = TlsListener.bind(":0", "cert.pem", "key.pem")
+print($"Listening on port {dynamic.port()}\n")
+```
+
+### Instance Methods
+
+#### accept()
+
+Waits for and accepts a new TLS connection. Blocks until a client connects and the TLS handshake completes. Returns a `TlsStream` for bidirectional encrypted communication.
+
+```sindarin
+var client: TlsStream = server.accept()
+```
+
+#### port()
+
+Returns the port number the listener is bound to. Useful when binding to port `0` (OS-assigned).
+
+```sindarin
+var p: int = server.port()
+```
+
+#### close()
+
+Closes the listener socket. Safe to call multiple times.
+
+```sindarin
+server.close()
+```
+
+---
+
+## Example: TLS Echo Server
+
+```sindarin
+import "sdk/net/tls"
+
+fn main(): void =>
+    var server: TlsListener = TlsListener.bind(":8443", "server.crt", "server.key")
+    print($"TLS server listening on port {server.port()}\n")
+
+    while true =>
+        var client: TlsStream = server.accept()
+        var line: str = client.readLine()
+        client.writeLine($"Echo: {line}")
+        client.close()
 ```
 
 ---

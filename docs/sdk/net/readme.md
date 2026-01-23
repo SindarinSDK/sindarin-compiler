@@ -8,8 +8,8 @@ Sindarin provides TCP, UDP, TLS, DTLS, SSH, and QUIC types through the SDK for n
 |--------|-------------|
 | [TCP](tcp.md) | TCP listener and stream for connection-oriented communication |
 | [UDP](udp.md) | UDP socket for connectionless datagram communication |
-| [TLS](tls.md) | TLS-encrypted TCP streams (HTTPS, secure connections) |
-| [DTLS](dtls.md) | DTLS-encrypted UDP datagrams (secure datagram communication) |
+| [TLS](tls.md) | TLS-encrypted TCP streams and listener (HTTPS, secure connections) |
+| [DTLS](dtls.md) | DTLS-encrypted UDP datagrams and listener (secure datagram communication) |
 | [SSH](ssh.md) | SSH client and server for secure remote command execution |
 | [QUIC](quic.md) | QUIC multiplexed encrypted streams over UDP |
 
@@ -189,7 +189,9 @@ Network operations panic on errors:
 - `.read()` / `.write()` - Connection reset, broken pipe
 - `UdpSocket.bind()` - Address in use, permission denied
 - `TlsStream.connect()` - TLS handshake failure, certificate verification failure
+- `TlsListener.bind()` - Address in use, certificate/key file error
 - `DtlsConnection.connect()` - DTLS handshake failure, certificate verification failure
+- `DtlsListener.bind()` - Address in use, certificate/key file error
 - `SshConnection.connect*()` - Authentication failure, connection refused
 - `QuicConnection.connect()` - Handshake failure, certificate verification failure
 
