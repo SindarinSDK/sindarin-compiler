@@ -54,7 +54,7 @@
     #define GET_SOCKET_ERROR() WSAGetLastError()
     #define POLL WSAPoll
 
-    typedef HANDLE thread_t;
+    typedef HANDLE sn_thread_t;
     typedef CRITICAL_SECTION mutex_t;
     typedef CONDITION_VARIABLE cond_t;
 
@@ -88,7 +88,7 @@
     #define GET_SOCKET_ERROR() errno
     #define POLL poll
 
-    typedef pthread_t thread_t;
+    typedef pthread_t sn_thread_t;
     typedef pthread_mutex_t mutex_t;
     typedef pthread_cond_t cond_t;
 
@@ -120,7 +120,7 @@
     #define GET_SOCKET_ERROR() errno
     #define POLL poll
 
-    typedef pthread_t thread_t;
+    typedef pthread_t sn_thread_t;
     typedef pthread_mutex_t mutex_t;
     typedef pthread_cond_t cond_t;
 
@@ -245,7 +245,7 @@ typedef struct RtQuicConnection {
     bool is_server;
 
     /* I/O thread */
-    thread_t io_thread;
+    sn_thread_t io_thread;
     bool io_running;
 
     /* Resumption token */
@@ -276,7 +276,7 @@ typedef struct RtQuicListener {
     mutex_t conn_list_mutex;
 
     /* Listener thread */
-    thread_t listen_thread;
+    sn_thread_t listen_thread;
     bool running;
 
     /* Config */
