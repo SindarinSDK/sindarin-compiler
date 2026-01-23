@@ -764,6 +764,11 @@ static void dtls_listener_thread_func(RtDtlsListener *listener) {
             conn->ssl_ptr = NULL;
         }
         DTLS_MUTEX_UNLOCK(&listener->accept_mutex);
+
+        /* Stop listening - only one connection at a time is supported.
+         * The listener socket is now connected to this client and used by
+         * the accepted connection's BIO, so we must not read from it. */
+        break;
     }
 }
 
