@@ -37,7 +37,7 @@ typedef struct {
 typedef struct RtManagedBlock {
     struct RtManagedBlock *next;  /* Next block in chain */
     size_t size;                  /* Block capacity */
-    size_t used;                  /* Bytes used */
+    atomic_size_t used;           /* Bytes used (atomic for lock-free bump) */
     bool retired;                 /* Marked for deallocation */
     char data[];                  /* Flexible array member */
 } RtManagedBlock;
@@ -118,6 +118,7 @@ typedef struct RtManagedArena {
 
     /* Synchronization */
     pthread_mutex_t alloc_mutex;  /* Protects table/block mutations */
+    atomic_uint block_epoch;      /* Incremented when compactor swaps blocks */
 
     /* Stats */
     atomic_size_t live_bytes;     /* Bytes in live allocations */
