@@ -19,7 +19,7 @@ static RtManagedBlock *managed_block_create(size_t size)
     }
     block->next = NULL;
     block->size = size;
-    block->used = 0;
+    atomic_init(&block->used, 0);
     block->retired = false;
     return block;
 }
@@ -39,20 +39,27 @@ static inline size_t align_up(size_t value, size_t alignment)
     return (value + alignment - 1) & ~(alignment - 1);
 }
 
-/* Allocate raw bytes from the backing block chain */
-static void *block_alloc(RtManagedArena *ma, size_t size)
+/* Lock-free bump allocation from current block.
+ * Returns pointer on success, NULL if block is full. */
+static void *block_try_alloc(RtManagedBlock *block, size_t aligned_size)
 {
-    size_t aligned_size = align_up(size, sizeof(void *));
-    RtManagedBlock *block = ma->current;
-
-    /* Try current block */
-    if (block->used + aligned_size <= block->size) {
-        void *ptr = block->data + block->used;
-        block->used += aligned_size;
-        return ptr;
+    size_t old_used = atomic_load_explicit(&block->used, memory_order_relaxed);
+    while (old_used + aligned_size <= block->size) {
+        if (atomic_compare_exchange_weak_explicit(&block->used, &old_used,
+                                                   old_used + aligned_size,
+                                                   memory_order_acquire,
+                                                   memory_order_relaxed)) {
+            return block->data + old_used;
+        }
+        /* CAS failed, old_used updated by CAS — retry */
     }
+    return NULL;
+}
 
-    /* Need a new block */
+/* Slow path: allocate a new block and bump from it.
+ * Caller must hold alloc_mutex. */
+static void *block_alloc_new(RtManagedArena *ma, size_t aligned_size)
+{
     size_t new_size = ma->block_size;
     if (aligned_size > new_size) {
         new_size = aligned_size;
@@ -60,12 +67,11 @@ static void *block_alloc(RtManagedArena *ma, size_t size)
 
     RtManagedBlock *new_block = managed_block_create(new_size);
     ma->total_allocated += sizeof(RtManagedBlock) + new_size;
-    block->next = new_block;
+    ma->current->next = new_block;
     ma->current = new_block;
 
-    void *ptr = new_block->data;
-    new_block->used = aligned_size;
-    return ptr;
+    atomic_store_explicit(&new_block->used, aligned_size, memory_order_relaxed);
+    return new_block->data;
 }
 
 
@@ -149,6 +155,7 @@ static void arena_init_common(RtManagedArena *ma)
 
     /* Synchronization */
     pthread_mutex_init(&ma->alloc_mutex, NULL);
+    atomic_init(&ma->block_epoch, 0);
 
     /* Tree linkage defaults */
     ma->parent = NULL;
@@ -372,7 +379,26 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
 {
     if (ma == NULL || size == 0) return RT_HANDLE_NULL;
 
+    size_t aligned_size = align_up(size, sizeof(void *));
+
+    /* Fast path: try lock-free bump on current block.
+     * Read block_epoch before and after to detect if the compactor
+     * swapped blocks (which would invalidate our pointer). */
+    unsigned epoch_before = atomic_load_explicit(&ma->block_epoch, memory_order_acquire);
+    void *ptr = block_try_alloc(ma->current, aligned_size);
+
+    /* Lock for handle table operations (and slow-path block alloc if needed) */
     pthread_mutex_lock(&ma->alloc_mutex);
+
+    /* Discard bump result if compactor ran (block may have been retired) */
+    if (ptr != NULL && atomic_load_explicit(&ma->block_epoch, memory_order_relaxed) != epoch_before) {
+        ptr = NULL;
+    }
+
+    /* Slow path: block was full or compactor invalidated the bump */
+    if (ptr == NULL) {
+        ptr = block_alloc_new(ma, aligned_size);
+    }
 
     /* Mark old allocation as dead */
     if (old != RT_HANDLE_NULL && old < ma->table_count) {
@@ -383,9 +409,6 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
             atomic_fetch_sub(&ma->live_bytes, old_entry->size);
         }
     }
-
-    /* Allocate from backing store */
-    void *ptr = block_alloc(ma, size);
 
     /* Create handle entry */
     uint32_t index = next_handle(ma);
@@ -423,8 +446,16 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     size_t size = src_entry->size;
 
     /* Allocate in destination arena */
+    size_t aligned_size = align_up(size, sizeof(void *));
+    unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_acquire);
+    void *new_ptr = block_try_alloc(dest->current, aligned_size);
     pthread_mutex_lock(&dest->alloc_mutex);
-    void *new_ptr = block_alloc(dest, size);
+    if (new_ptr != NULL && atomic_load_explicit(&dest->block_epoch, memory_order_relaxed) != epoch_before) {
+        new_ptr = NULL;
+    }
+    if (new_ptr == NULL) {
+        new_ptr = block_alloc_new(dest, aligned_size);
+    }
     uint32_t new_index = next_handle(dest);
     RtHandleEntry *dest_entry = &dest->table[new_index];
     dest_entry->ptr = new_ptr;
@@ -660,7 +691,7 @@ size_t rt_managed_arena_used(RtManagedArena *ma)
     if (ma == NULL) return 0;
     size_t used = 0;
     for (RtManagedBlock *b = ma->first; b != NULL; b = b->next) {
-        used += b->used;
+        used += atomic_load_explicit(&b->used, memory_order_relaxed);
     }
     return used;
 }
