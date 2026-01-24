@@ -481,14 +481,8 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     /* Pin source to get stable pointer */
     RtHandleEntry *src_entry = rt_handle_get(src, h);
     atomic_fetch_add(&src_entry->leased, 1);
-    if (src_entry->block != NULL) {
-        atomic_fetch_add(&src_entry->block->lease_count, 1);
-    }
 
     if (src_entry->ptr == NULL || src_entry->dead) {
-        if (src_entry->block != NULL) {
-            atomic_fetch_sub(&src_entry->block->lease_count, 1);
-        }
         atomic_fetch_sub(&src_entry->leased, 1);
         return RT_HANDLE_NULL;
     }
@@ -524,9 +518,6 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     memcpy(new_ptr, src_entry->ptr, size);
 
     /* Unpin source and mark dead */
-    if (src_entry->block != NULL) {
-        atomic_fetch_sub(&src_entry->block->lease_count, 1);
-    }
     atomic_fetch_sub(&src_entry->leased, 1);
 
     pthread_mutex_lock(&src->alloc_mutex);
@@ -557,11 +548,9 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Increment lease on both entry and block */
+    /* Increment entry lease (block lease_count eliminated —
+     * retire_drained_blocks scans entries instead) */
     atomic_fetch_add(&entry->leased, 1);
-    if (entry->block != NULL) {
-        atomic_fetch_add(&entry->block->lease_count, 1);
-    }
 
     return entry->ptr;
 }
@@ -574,10 +563,7 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Decrement lease on both entry and block */
-    if (entry->block != NULL) {
-        atomic_fetch_sub(&entry->block->lease_count, 1);
-    }
+    /* Decrement entry lease */
     atomic_fetch_sub(&entry->leased, 1);
 }
 
