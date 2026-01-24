@@ -217,6 +217,7 @@ var m: int[][] = build_matrix()        // All nested arrays live in caller's are
 
 ### Assignment Semantics
 
+{% raw %}
 ```sindarin
 var a: int[][] = {{1, 2}, {3, 4}}
 var b: int[][] = a                    // b references same outer array
@@ -228,6 +229,7 @@ b[0][0] = 5                           // a[0][0] is now 5
 var c: int[][] = a.clone()            // c is independent
 c[0][0] = 100                         // a[0][0] unchanged
 ```
+{% endraw %}
 
 ---
 
