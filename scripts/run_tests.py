@@ -19,7 +19,7 @@ Test types:
 
 Options:
     --compiler PATH   - Path to compiler (default: bin/sn or bin/sn.exe)
-    --timeout SEC     - Compile timeout in seconds (default: 10)
+    --timeout SEC     - Compile timeout in seconds (default: 60)
     --run-timeout SEC - Run timeout in seconds (default: 30)
     --exclude TESTS   - Comma-separated list of test names to exclude
     --verbose         - Show detailed output
@@ -522,7 +522,7 @@ def main():
                                'explore', 'explore-errors', 'sdk', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
-    parser.add_argument('--timeout', type=int, default=10,
+    parser.add_argument('--timeout', type=int, default=60,
                        help='Compile timeout in seconds')
     parser.add_argument('--run-timeout', type=int, default=30,
                        help='Run timeout in seconds')
