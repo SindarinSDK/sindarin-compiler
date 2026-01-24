@@ -78,9 +78,9 @@ static char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_
  * @param gen           Code generator context
  * @param func_name     Name of the function being called
  * @param callee_str    Generated C code for the callee
- * @param args_list     Comma-separated list of generated argument expressions
  * @param call          The call expression AST node
- * @param arg_strs      Array of generated argument expression strings
+ * @param arg_strs      Array of raw generated argument expression strings
+ * @param arg_names     Array of transformed argument strings (with boxing, as-ref, closure wrapping applied)
  * @param param_types   Array of parameter types from function signature
  * @param param_count   Number of parameters
  * @param return_type   Return type of the function
@@ -88,8 +88,8 @@ static char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_
  * @return Generated C code for the intercepted call
  */
 static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
-                                       const char *callee_str, const char *args_list,
-                                       CallExpr *call, char **arg_strs,
+                                       const char *callee_str,
+                                       CallExpr *call, char **arg_strs, char **arg_names,
                                        Type **param_types, MemoryQualifier *param_quals,
                                        int param_count, Type *return_type, bool callee_has_body)
 {
@@ -236,6 +236,82 @@ static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
     /* Now generate the call site code */
     char *result = arena_strdup(arena, "({\n");
 
+    /* Evaluate complex arguments into temporaries to avoid exponential code
+     * duplication when intercepted calls are nested (each arg expression would
+     * otherwise be duplicated in both the interceptor and fast-path branches).
+     * Only function calls need temps - simple expressions (variables, literals)
+     * are cheap to duplicate and may need special handling (lvalues, closures). */
+    char **arg_temps = arena_alloc(arena, call->arg_count * sizeof(char *));
+    for (int i = 0; i < call->arg_count; i++)
+    {
+        bool needs_temp = (call->arguments[i]->type == EXPR_CALL);
+        if (needs_temp)
+        {
+            Type *arg_type = call->arguments[i]->expr_type;
+            const char *arg_c_type = get_c_type(arena, arg_type);
+            char *temp_name = arena_sprintf(arena, "__iarg_%d_%d", thunk_id, i);
+            result = arena_sprintf(arena, "%s    %s %s = %s;\n", result, arg_c_type, temp_name, arg_strs[i]);
+            arg_temps[i] = temp_name;
+        }
+        else
+        {
+            arg_temps[i] = arg_strs[i];
+        }
+    }
+
+    /* Build direct-call args list. For temped args (EXPR_CALL), use the temp
+     * with any-boxing applied. For non-temped args, use arg_names which already
+     * has all transformations applied (closure wrapping, boxing, as-ref). */
+    char *direct_args;
+    if (callee_has_body)
+    {
+        if (gen->current_arena_var != NULL)
+        {
+            direct_args = arena_strdup(arena, gen->current_arena_var);
+        }
+        else
+        {
+            direct_args = arena_strdup(arena, "NULL");
+        }
+    }
+    else
+    {
+        direct_args = arena_strdup(arena, "");
+    }
+    for (int i = 0; i < call->arg_count; i++)
+    {
+        char *arg_val;
+        bool was_temped = (call->arguments[i]->type == EXPR_CALL);
+
+        if (was_temped)
+        {
+            /* Temped args: use the temp name, box for 'any' params if needed */
+            arg_val = arg_temps[i];
+            if (param_types != NULL && i < param_count &&
+                param_types[i] != NULL && param_types[i]->kind == TYPE_ANY &&
+                call->arguments[i]->expr_type != NULL &&
+                call->arguments[i]->expr_type->kind != TYPE_ANY)
+            {
+                arg_val = code_gen_box_value(gen, arg_val, call->arguments[i]->expr_type);
+            }
+        }
+        else
+        {
+            /* Non-temped args: use pre-transformed arg_names (has closure
+             * wrapping, any-boxing, as-ref already applied by caller) */
+            arg_val = arg_names[i];
+        }
+
+        if (i == 0 && !callee_has_body)
+        {
+            direct_args = arena_strdup(arena, arg_val);
+        }
+        else
+        {
+            direct_args = arena_sprintf(arena, "%s, %s", direct_args, arg_val);
+        }
+    }
+
     /* Declare result variable */
     if (!returns_void)
     {
@@ -255,18 +331,18 @@ static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         {
             /* Argument is already 'any' - no boxing needed */
             result = arena_sprintf(arena, "%s        __args[%d] = %s;\n",
-                                   result, i, arg_strs[i]);
+                                   result, i, arg_temps[i]);
         }
         else if (arg_type && arg_type->kind == TYPE_ARRAY)
         {
             const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
             result = arena_sprintf(arena, "%s        __args[%d] = %s(%s, %s);\n",
-                                   result, i, box_func, arg_strs[i], elem_tag);
+                                   result, i, box_func, arg_temps[i], elem_tag);
         }
         else
         {
             result = arena_sprintf(arena, "%s        __args[%d] = %s(%s);\n",
-                                   result, i, box_func, arg_strs[i]);
+                                   result, i, box_func, arg_temps[i]);
         }
     }
 
@@ -323,11 +399,11 @@ static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
     result = arena_sprintf(arena, "%s    } else {\n", result);
     if (returns_void)
     {
-        result = arena_sprintf(arena, "%s        %s(%s);\n", result, callee_str, args_list);
+        result = arena_sprintf(arena, "%s        %s(%s);\n", result, callee_str, direct_args);
     }
     else
     {
-        result = arena_sprintf(arena, "%s        __intercept_result = %s(%s);\n", result, callee_str, args_list);
+        result = arena_sprintf(arena, "%s        __intercept_result = %s(%s);\n", result, callee_str, direct_args);
     }
     result = arena_sprintf(arena, "%s    }\n", result);
 
@@ -505,6 +581,19 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     /* Now generate the call site code */
     char *result = arena_strdup(arena, "({\n");
 
+    /* Evaluate arguments into temporaries to avoid exponential code duplication
+     * when intercepted calls are nested */
+    char **arg_temps = arena_alloc(arena, arg_count * sizeof(char *));
+    for (int i = 0; i < arg_count; i++)
+    {
+        char *arg_str = code_gen_expression(gen, arguments[i]);
+        Type *arg_type = arguments[i]->expr_type;
+        const char *arg_c_type = get_c_type(arena, arg_type);
+        char *temp_name = arena_sprintf(arena, "__iarg_%d_%d", thunk_id, i);
+        result = arena_sprintf(arena, "%s    %s %s = %s;\n", result, arg_c_type, temp_name, arg_str);
+        arg_temps[i] = temp_name;
+    }
+
     /* Declare result variable */
     if (!returns_void)
     {
@@ -524,10 +613,9 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
                                result, ARENA_VAR(gen), self_ptr_str, mangled_struct, type_id);
     }
 
-    /* Box remaining arguments */
+    /* Box remaining arguments using temporaries */
     for (int i = 0; i < arg_count; i++)
     {
-        char *arg_str = code_gen_expression(gen, arguments[i]);
         Type *arg_type = arguments[i]->expr_type;
         const char *box_func = get_boxing_function(arg_type);
         int arg_idx = i + arg_offset;
@@ -535,18 +623,18 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         if (box_func == NULL)
         {
             result = arena_sprintf(arena, "%s        __args[%d] = %s;\n",
-                                   result, arg_idx, arg_str);
+                                   result, arg_idx, arg_temps[i]);
         }
         else if (arg_type && arg_type->kind == TYPE_ARRAY)
         {
             const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
             result = arena_sprintf(arena, "%s        __args[%d] = %s(%s, %s);\n",
-                                   result, arg_idx, box_func, arg_str, elem_tag);
+                                   result, arg_idx, box_func, arg_temps[i], elem_tag);
         }
         else
         {
             result = arena_sprintf(arena, "%s        __args[%d] = %s(%s);\n",
-                                   result, arg_idx, box_func, arg_str);
+                                   result, arg_idx, box_func, arg_temps[i]);
         }
     }
 
@@ -590,7 +678,7 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
                                result, self_ptr_str, type_id, mangled_struct);
     }
 
-    /* Close interceptor branch, add fast path */
+    /* Close interceptor branch, add fast path using temporaries */
     result = arena_sprintf(arena, "%s    } else {\n", result);
 
     /* Build direct call args for fast path */
@@ -601,8 +689,7 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     }
     for (int i = 0; i < arg_count; i++)
     {
-        char *arg_str = code_gen_expression(gen, arguments[i]);
-        direct_args = arena_sprintf(arena, "%s, %s", direct_args, arg_str);
+        direct_args = arena_sprintf(arena, "%s, %s", direct_args, arg_temps[i]);
     }
 
     if (returns_void)
@@ -2269,7 +2356,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
         if (is_user_defined_function && func_name_for_intercept != NULL && !skip_interception)
         {
             return code_gen_intercepted_call(gen, func_name_for_intercept,
-                                             callee_str, args_list, call, arg_strs,
+                                             callee_str, call, arg_strs, arg_names,
                                              param_types, param_quals, param_count,
                                              expr->expr_type, callee_has_body);
         }
