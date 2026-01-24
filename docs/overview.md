@@ -214,7 +214,7 @@ Sindarin uses arena-based memory with optional control:
 
 ```sindarin
 // Shared function - uses caller's arena
-fn helper(a: int, b: int) shared: int =>
+shared fn helper(a: int, b: int): int =>
   return a + b
 
 // Private block - isolated arena, freed on exit

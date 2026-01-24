@@ -126,7 +126,7 @@ private =>
 Shared functions use the caller's arena:
 
 ```sindarin
-fn processFile(f: TextFile) shared: str =>
+shared fn processFile(f: TextFile): str =>
   // Uses caller's arena - no new arena created
   // f remains open (caller owns it)
   return f.readLine()
@@ -158,7 +158,7 @@ for path in paths =>
 
 ```sindarin
 var f: TextFile = TextFile.open("log.txt")
-for item in items shared =>
+shared for item in items =>
   f.writeLine(item)    // Same file handle, no re-open
 f.close()
 ```

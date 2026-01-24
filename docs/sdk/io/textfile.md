@@ -254,9 +254,9 @@ f.close()
 ## Properties
 
 ```sindarin
-var p: str = f.path   // Full file path
-var n: str = f.name   // Filename only (without directory)
-var s: int = f.size   // File size in bytes
+var p: str = f.path()   // Full file path
+var n: str = f.name()   // Filename only (without directory)
+var s: int = f.size()   // File size in bytes
 ```
 
 ## Common Patterns

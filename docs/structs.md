@@ -178,7 +178,7 @@ var result: Point = make_point(1.0, 2.0)
 Use `shared` functions to avoid copy overhead:
 
 ```sindarin
-fn make_point(x: double, y: double) shared: Point =>
+shared fn make_point(x: double, y: double): Point =>
     var p: Point = Point { x: x, y: y }  // Allocated in caller's arena
     return p                              // No copy needed
 ```
@@ -188,7 +188,7 @@ fn make_point(x: double, y: double) shared: Point =>
 Structs with only primitive fields can escape `private` blocks:
 
 ```sindarin
-fn get_origin() private: Point =>
+private fn get_origin(): Point =>
     var p: Point = Point { x: 0.0, y: 0.0 }
     return p  // OK: struct contains only primitives
 
@@ -479,17 +479,25 @@ Structs use value semantics (copy on assignment) to:
 - Prevent hidden aliasing
 - Keep code predictable
 
-### No Methods
+### Struct Methods
 
-Structs are plain data containers without methods. Use standalone functions:
+Structs support both instance methods and static methods:
 
 ```sindarin
-// Instead of p.distance(other)
-fn point_distance(a: Point, b: Point): double =>
-    var dx: double = b.x - a.x
-    var dy: double = b.y - a.y
-    return sqrt(dx * dx + dy * dy)
+struct Point =>
+    x: double
+    y: double
+
+    fn distance(other: Point): double =>
+        var dx: double = other.x - self.x
+        var dy: double = other.y - self.y
+        return sqrt(dx * dx + dy * dy)
+
+    static fn origin(): Point =>
+        return Point { x: 0.0, y: 0.0 }
 ```
+
+Instance methods access fields via `self`. Static methods are called on the type: `Point.origin()`.
 
 ### No Inheritance
 
@@ -514,7 +522,7 @@ All struct fields are publicly accessible. There are no access modifiers.
 ## Limitations
 
 1. **No anonymous structs** - All structs must have named declarations
-2. **No struct methods** - Use standalone functions instead
+2. **No inheritance** - Use composition (nested structs) instead
 3. **Native structs require native context** - Can only be used in `native fn` functions
 
 ## See Also

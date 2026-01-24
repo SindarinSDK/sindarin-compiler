@@ -522,7 +522,7 @@ print(r)                  // safe - lives in caller's arena
 Thread allocates directly in caller's arena. Parent's writes frozen until sync:
 
 ```sindarin
-fn build() shared: str[] =>
+shared fn build(): str[] =>
     var result: str[] = {"a", "b", "c"}  // caller's arena
     return result                         // no promotion needed
 
@@ -539,7 +539,7 @@ data.push("x")            // OK - unfrozen
 Thread has isolated arena. Only primitives can be returned:
 
 ```sindarin
-fn count_lines(path: str) private: int =>
+private fn count_lines(path: str): int =>
     var contents: str = read_file(path)  // thread's private arena
     var lines: str[] = contents.split("\n")
     return lines.length                   // primitive escapes, rest freed
@@ -551,7 +551,7 @@ print(r)                  // just the count, file contents already freed
 
 ```sindarin
 // COMPILE ERROR: can't return array from private function
-fn bad(path: str) private: str[] =>
+private fn bad(path: str): str[] =>
     return read_file(path).split("\n")
 ```
 
