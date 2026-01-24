@@ -193,13 +193,15 @@ ARENA_TEST_SRCS := $(ARENA_DIR)/tests/test_main.c \
 	$(ARENA_DIR)/tests/test_stress_profiles.c
 ARENA_TEST_BIN := $(BIN_DIR)/test_arena$(EXE_EXT)
 ARENA_CFLAGS := -Wall -Wextra -g -pthread
+# ASAN for arena tests (override with ARENA_SANITIZE= to disable, e.g. on LLVM-MinGW)
+ARENA_SANITIZE ?= -fsanitize=address
 
 arena:
 	@echo "Building managed arena..."
 	@$(MKDIR) $(ARENA_BUILD)
-	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) -fsanitize=address \
+	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
 		-c $(ARENA_DIR)/managed_arena.c -o $(ARENA_BUILD)/managed_arena.o
-	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) -fsanitize=address \
+	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
 		-c $(ARENA_DIR)/managed_arena_gc.c -o $(ARENA_BUILD)/managed_arena_gc.o
 	@echo "Managed arena built."
 
@@ -210,7 +212,7 @@ test-arena:
 	@echo "Building and running managed arena tests..."
 	@$(MKDIR) $(ARENA_BUILD)
 	@$(MKDIR) $(BIN_DIR)
-	$(CMAKE_C_COMPILER) -Wall -Wextra -g -fsanitize=address -pthread \
+	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
 		$(ARENA_SRCS) $(ARENA_TEST_SRCS) \
 		-o $(ARENA_TEST_BIN)
 	@echo ""
