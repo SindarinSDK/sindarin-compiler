@@ -172,32 +172,36 @@ void rt_managed_compact(RtManagedArena *ma)
 
     pthread_mutex_lock(&ma->alloc_mutex);
 
-    /* Count live entries to estimate new arena size */
-    size_t live_total = 0;
-    uint32_t live_count = 0;
-    for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = rt_handle_get(ma, i);
-        if (!entry->dead && entry->ptr != NULL) {
-            live_total += align_up_compact(entry->size, sizeof(void *));
-            live_count++;
-        }
-    }
-
-    /* Nothing to compact */
-    if (live_count == 0) {
-        pthread_mutex_unlock(&ma->alloc_mutex);
-        return;
-    }
-
-    /* Allocate new block chain — single block if possible */
-    size_t new_block_size = live_total > ma->block_size ? live_total : ma->block_size;
-    RtManagedBlock *new_first = managed_block_create_compact(new_block_size);
-
-    /* Copy live entries to new block */
+    /* Single pass: copy live entries to new block chain.
+     * Previous implementation did a counting pass first to pre-size the block,
+     * but block overflow is already handled by allocating new blocks on demand.
+     * This eliminates one full table traversal. */
+    RtManagedBlock *new_first = managed_block_create_compact(ma->block_size);
     RtManagedBlock *new_current = new_first;
-    for (uint32_t i = 1; i < ma->table_count; i++) {
+    uint32_t live_count = 0;
+
+    RtManagedBlock *old_first = ma->first;
+    uint32_t table_count = ma->table_count;
+
+    for (uint32_t i = 1; i < table_count; i++) {
         RtHandleEntry *entry = rt_handle_get(ma, i);
-        if (entry->dead || entry->ptr == NULL) continue;
+
+        if (entry->dead || entry->ptr == NULL) {
+            /* Recycle dead + unleased entries in the same pass.
+             * Since we hold alloc_mutex, no state changes can occur.
+             * All dead entries point to old blocks (live ones are being moved).
+             * This replaces the O(entries * blocks) third scan that previously
+             * searched the old block chain per entry. */
+            if (entry->dead && entry->ptr != NULL && atomic_load(&entry->leased) == 0) {
+                atomic_fetch_sub(&ma->dead_bytes, entry->size);
+                entry->ptr = NULL;
+                entry->block = NULL;
+                entry->size = 0;
+                entry->dead = false;
+                recycle_handle_gc(ma, i);
+            }
+            continue;
+        }
 
         /* Try to acquire entry for moving — CAS leased: 0 → MOVING */
         int expected = 0;
@@ -227,26 +231,14 @@ void rt_managed_compact(RtManagedArena *ma)
 
         /* Release moving lock */
         atomic_store(&entry->leased, 0);
+        live_count++;
     }
 
-    /* Null out dead + unleased entries that point into old blocks */
-    RtManagedBlock *old_first = ma->first;
-    for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = rt_handle_get(ma, i);
-        if (entry->dead && entry->ptr != NULL && atomic_load(&entry->leased) == 0) {
-            /* Check if ptr is in any old block */
-            for (RtManagedBlock *b = old_first; b != NULL; b = b->next) {
-                char *p = (char *)entry->ptr;
-                if (p >= b->data && p < b->data + b->size) {
-                    entry->ptr = NULL;
-                    entry->block = NULL;
-                    entry->size = 0;
-                    entry->dead = false;
-                    recycle_handle_gc(ma, i);
-                    break;
-                }
-            }
-        }
+    /* If no live entries were moved, free the unused new block */
+    if (live_count == 0) {
+        managed_block_free_gc(new_first);
+        pthread_mutex_unlock(&ma->alloc_mutex);
+        return;
     }
 
     /* Retire old blocks */
@@ -273,7 +265,7 @@ void rt_managed_compact(RtManagedArena *ma)
     }
     ma->total_allocated = new_total;
 
-    /* Reset dead bytes counter (all dead entries were in old blocks) */
+    /* Reset dead bytes counter (recycled entries already decremented) */
     atomic_store(&ma->dead_bytes, 0);
 
     pthread_mutex_unlock(&ma->alloc_mutex);
