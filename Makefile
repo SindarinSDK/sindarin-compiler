@@ -61,7 +61,8 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
-        TIMEOUT_CMD := timeout
+        # macOS doesn't ship GNU timeout; use it only if available
+        TIMEOUT_CMD := $(shell command -v timeout >/dev/null 2>&1 && echo timeout || echo)
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
         CMAKE_GENERATOR := $(if $(filter yes,$(NINJA_EXISTS)),Ninja,Unix Makefiles)
