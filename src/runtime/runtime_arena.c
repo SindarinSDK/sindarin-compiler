@@ -68,8 +68,10 @@ void *rt_arena_alloc_aligned(RtArena *arena, size_t size, size_t alignment)
     }
 
     /* Check if arena is frozen (shared thread mode)
-     * Only block allocations from non-owner threads */
-    if (arena->frozen) {
+     * Only block allocations from non-owner threads.
+     * Use __builtin_expect to hint that frozen is almost never true,
+     * avoiding expensive pthread_self()/pthread_equal() on the hot path. */
+    if (__builtin_expect(arena->frozen, 0)) {
         pthread_t current_thread = pthread_self();
         if (!pthread_equal(current_thread, arena->frozen_owner)) {
             fprintf(stderr, "panic: cannot allocate from frozen arena (shared thread executing)\n");

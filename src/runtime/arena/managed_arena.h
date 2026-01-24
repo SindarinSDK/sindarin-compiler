@@ -22,31 +22,39 @@ typedef uint32_t RtHandle;
 #define RT_LEASE_MOVING (-1)
 
 /* ============================================================================
- * Handle Table Entry
- * ============================================================================ */
-typedef struct {
-    void *ptr;            /* Pointer to data in backing arena */
-    size_t size;          /* Size of the allocation */
-    atomic_int leased;    /* Pin/lease counter (atomic) */
-    bool dead;            /* Marked for reclamation */
-} RtHandleEntry;
-
-/* ============================================================================
  * Arena Block (backing store)
  * ============================================================================ */
 typedef struct RtManagedBlock {
     struct RtManagedBlock *next;  /* Next block in chain */
     size_t size;                  /* Block capacity */
-    size_t used;                  /* Bytes used */
+    atomic_size_t used;           /* Bytes used (atomic for lock-free bump) */
+    atomic_int lease_count;       /* Number of pinned entries in this block */
     bool retired;                 /* Marked for deallocation */
     char data[];                  /* Flexible array member */
 } RtManagedBlock;
 
+/* ============================================================================
+ * Handle Table Entry
+ * ============================================================================ */
+typedef struct {
+    void *ptr;              /* Pointer to data in backing arena */
+    RtManagedBlock *block;  /* Block containing this allocation */
+    size_t size;            /* Size of the allocation */
+    atomic_int leased;      /* Pin/lease counter (atomic) */
+    bool dead;              /* Marked for reclamation */
+} RtHandleEntry;
+
 /* Default block size: 64KB */
 #define RT_MANAGED_BLOCK_SIZE (64 * 1024)
 
-/* Default handle table initial capacity */
-#define RT_MANAGED_TABLE_INIT_CAP 256
+/* Maximum block size for geometric growth: 4MB */
+#define RT_MANAGED_BLOCK_MAX_SIZE (4 * 1024 * 1024)
+
+/* Handle table page size (entries per page) */
+#define RT_HANDLE_PAGE_SIZE 256
+
+/* Initial page directory capacity (number of page pointers) */
+#define RT_HANDLE_DIR_INIT_CAP 16
 
 /* Compaction threshold: trigger when fragmentation exceeds this ratio */
 #define RT_MANAGED_COMPACT_THRESHOLD 0.5
@@ -90,10 +98,11 @@ typedef struct RtManagedArena {
     /* Retired arenas (pending free when pins drain) */
     RtManagedBlock *retired_list; /* Chain of retired blocks */
 
-    /* Handle table */
-    RtHandleEntry *table;         /* Handle table array */
-    uint32_t table_capacity;      /* Table capacity */
-    uint32_t table_count;         /* Number of entries (including dead) */
+    /* Handle table (paged — no copying on growth) */
+    RtHandleEntry **pages;        /* Array of page pointers */
+    uint32_t pages_count;         /* Number of allocated pages */
+    uint32_t pages_capacity;      /* Capacity of pages pointer array */
+    uint32_t table_count;         /* Total entries allocated (across all pages) */
 
     /* Free list (recycled handle indices) */
     uint32_t *free_list;          /* Stack of recyclable handle indices */
@@ -118,6 +127,7 @@ typedef struct RtManagedArena {
 
     /* Synchronization */
     pthread_mutex_t alloc_mutex;  /* Protects table/block mutations */
+    atomic_uint block_epoch;      /* Incremented when compactor swaps blocks */
 
     /* Stats */
     atomic_size_t live_bytes;     /* Bytes in live allocations */
@@ -129,6 +139,17 @@ typedef struct RtManagedArena {
     /* Retired arena list (root only): destroyed child structs awaiting final free */
     struct RtManagedArena *retired_arenas; /* Linked via next_sibling */
 } RtManagedArena;
+
+/* ============================================================================
+ * Handle Table Access (paged)
+ * ============================================================================ */
+
+/* Get a pointer to the handle entry at the given index.
+ * The returned pointer remains valid even after table growth. */
+static inline RtHandleEntry *rt_handle_get(RtManagedArena *ma, uint32_t index)
+{
+    return &ma->pages[index / RT_HANDLE_PAGE_SIZE][index % RT_HANDLE_PAGE_SIZE];
+}
 
 /* ============================================================================
  * Public API: Lifecycle

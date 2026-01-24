@@ -12,23 +12,30 @@ static void invoke_cleanup_list(RtManagedArena *ma);
 
 static RtManagedBlock *managed_block_create(size_t size)
 {
-    RtManagedBlock *block = malloc(sizeof(RtManagedBlock) + size);
+    size_t total = sizeof(RtManagedBlock) + size;
+    RtManagedBlock *block = rt_arena_mmap(total);
     if (block == NULL) {
-        fprintf(stderr, "managed_block_create: allocation failed\n");
+        fprintf(stderr, "managed_block_create: mmap failed\n");
         exit(1);
     }
     block->next = NULL;
     block->size = size;
-    block->used = 0;
+    atomic_init(&block->used, 0);
+    atomic_init(&block->lease_count, 0);
     block->retired = false;
     return block;
+}
+
+static void managed_block_free(RtManagedBlock *block)
+{
+    rt_arena_munmap(block, sizeof(RtManagedBlock) + block->size);
 }
 
 static void managed_block_destroy(RtManagedBlock *block)
 {
     while (block != NULL) {
         RtManagedBlock *next = block->next;
-        free(block);
+        managed_block_free(block);
         block = next;
     }
 }
@@ -39,20 +46,28 @@ static inline size_t align_up(size_t value, size_t alignment)
     return (value + alignment - 1) & ~(alignment - 1);
 }
 
-/* Allocate raw bytes from the backing block chain */
-static void *block_alloc(RtManagedArena *ma, size_t size)
+/* Lock-free bump allocation from current block.
+ * Returns pointer on success, NULL if block is full. */
+static void *block_try_alloc(RtManagedBlock *block, size_t aligned_size)
 {
-    size_t aligned_size = align_up(size, sizeof(void *));
-    RtManagedBlock *block = ma->current;
-
-    /* Try current block */
-    if (block->used + aligned_size <= block->size) {
-        void *ptr = block->data + block->used;
-        block->used += aligned_size;
-        return ptr;
+    size_t old_used = atomic_load_explicit(&block->used, memory_order_relaxed);
+    while (old_used + aligned_size <= block->size) {
+        if (atomic_compare_exchange_weak_explicit(&block->used, &old_used,
+                                                   old_used + aligned_size,
+                                                   memory_order_acquire,
+                                                   memory_order_relaxed)) {
+            return block->data + old_used;
+        }
+        /* CAS failed, old_used updated by CAS — retry */
     }
+    return NULL;
+}
 
-    /* Need a new block */
+/* Slow path: allocate a new block and bump from it.
+ * Uses geometric growth (doubles block_size up to RT_MANAGED_BLOCK_MAX_SIZE).
+ * Caller must hold alloc_mutex. */
+static void *block_alloc_new(RtManagedArena *ma, size_t aligned_size)
+{
     size_t new_size = ma->block_size;
     if (aligned_size > new_size) {
         new_size = aligned_size;
@@ -60,32 +75,49 @@ static void *block_alloc(RtManagedArena *ma, size_t size)
 
     RtManagedBlock *new_block = managed_block_create(new_size);
     ma->total_allocated += sizeof(RtManagedBlock) + new_size;
-    block->next = new_block;
+    ma->current->next = new_block;
     ma->current = new_block;
 
-    void *ptr = new_block->data;
-    new_block->used = aligned_size;
-    return ptr;
+    /* Geometric growth: double for next allocation, capped at max */
+    if (ma->block_size < RT_MANAGED_BLOCK_MAX_SIZE) {
+        ma->block_size = (ma->block_size * 2 <= RT_MANAGED_BLOCK_MAX_SIZE)
+            ? ma->block_size * 2 : RT_MANAGED_BLOCK_MAX_SIZE;
+    }
+
+    atomic_store_explicit(&new_block->used, aligned_size, memory_order_relaxed);
+    return new_block->data;
 }
 
 
 /* ============================================================================
- * Internal: Handle Table Management
+ * Internal: Handle Table Management (paged)
  * ============================================================================ */
 
-static void table_grow(RtManagedArena *ma)
+/* Allocate a new page of handle entries */
+static RtHandleEntry *table_alloc_page(void)
 {
-    uint32_t new_cap = ma->table_capacity * 2;
-    RtHandleEntry *new_table = realloc(ma->table, new_cap * sizeof(RtHandleEntry));
-    if (new_table == NULL) {
-        fprintf(stderr, "table_grow: allocation failed\n");
+    RtHandleEntry *page = calloc(RT_HANDLE_PAGE_SIZE, sizeof(RtHandleEntry));
+    if (page == NULL) {
+        fprintf(stderr, "table_alloc_page: allocation failed\n");
         exit(1);
     }
-    /* Zero new entries */
-    memset(&new_table[ma->table_capacity], 0,
-           (new_cap - ma->table_capacity) * sizeof(RtHandleEntry));
-    ma->table = new_table;
-    ma->table_capacity = new_cap;
+    return page;
+}
+
+/* Add a new page to the table. Grows the page directory if needed. */
+static void table_add_page(RtManagedArena *ma)
+{
+    if (ma->pages_count >= ma->pages_capacity) {
+        uint32_t new_cap = ma->pages_capacity * 2;
+        RtHandleEntry **new_dir = realloc(ma->pages, new_cap * sizeof(RtHandleEntry *));
+        if (new_dir == NULL) {
+            fprintf(stderr, "table_add_page: directory realloc failed\n");
+            exit(1);
+        }
+        ma->pages = new_dir;
+        ma->pages_capacity = new_cap;
+    }
+    ma->pages[ma->pages_count++] = table_alloc_page();
 }
 
 /* Get next available handle index */
@@ -96,9 +128,9 @@ static uint32_t next_handle(RtManagedArena *ma)
         return ma->free_list[--ma->free_count];
     }
 
-    /* Grow table if needed */
-    if (ma->table_count >= ma->table_capacity) {
-        table_grow(ma);
+    /* Add a new page if current pages are full */
+    if (ma->table_count >= ma->pages_count * RT_HANDLE_PAGE_SIZE) {
+        table_add_page(ma);
     }
 
     return ma->table_count++;
@@ -125,17 +157,19 @@ static void arena_init_common(RtManagedArena *ma)
     ma->total_allocated = sizeof(RtManagedBlock) + ma->block_size;
     ma->retired_list = NULL;
 
-    /* Handle table — index 0 is reserved as RT_HANDLE_NULL */
-    ma->table_capacity = RT_MANAGED_TABLE_INIT_CAP;
-    ma->table = calloc(ma->table_capacity, sizeof(RtHandleEntry));
-    if (ma->table == NULL) {
-        fprintf(stderr, "arena_init_common: table allocation failed\n");
+    /* Handle table (paged) — index 0 is reserved as RT_HANDLE_NULL */
+    ma->pages_capacity = RT_HANDLE_DIR_INIT_CAP;
+    ma->pages = calloc(ma->pages_capacity, sizeof(RtHandleEntry *));
+    if (ma->pages == NULL) {
+        fprintf(stderr, "arena_init_common: page directory allocation failed\n");
         exit(1);
     }
+    ma->pages[0] = table_alloc_page();
+    ma->pages_count = 1;
     ma->table_count = 1; /* Skip index 0 (null handle) */
 
     /* Free list */
-    ma->free_capacity = RT_MANAGED_TABLE_INIT_CAP;
+    ma->free_capacity = RT_HANDLE_PAGE_SIZE;
     ma->free_list = malloc(ma->free_capacity * sizeof(uint32_t));
     if (ma->free_list == NULL) {
         fprintf(stderr, "arena_init_common: free list allocation failed\n");
@@ -149,6 +183,7 @@ static void arena_init_common(RtManagedArena *ma)
 
     /* Synchronization */
     pthread_mutex_init(&ma->alloc_mutex, NULL);
+    atomic_init(&ma->block_epoch, 0);
 
     /* Tree linkage defaults */
     ma->parent = NULL;
@@ -228,7 +263,7 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     /* Mark all live entries as dead */
     pthread_mutex_lock(&child->alloc_mutex);
     for (uint32_t i = 1; i < child->table_count; i++) {
-        RtHandleEntry *entry = &child->table[i];
+        RtHandleEntry *entry = rt_handle_get(child, i);
         if (!entry->dead && entry->ptr != NULL) {
             entry->dead = true;
             atomic_fetch_add(&child->dead_bytes, entry->size);
@@ -275,7 +310,7 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     while (has_leases && max_wait-- > 0) {
         has_leases = false;
         for (uint32_t i = 1; i < child->table_count; i++) {
-            if (atomic_load(&child->table[i].leased) > 0) {
+            if (atomic_load(&rt_handle_get(child, i)->leased) > 0) {
                 has_leases = true;
                 break;
             }
@@ -296,8 +331,12 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     child->current = NULL;
     child->retired_list = NULL;
 
-    free(child->table);
-    child->table = NULL;
+    for (uint32_t p = 0; p < child->pages_count; p++) {
+        free(child->pages[p]);
+    }
+    free(child->pages);
+    child->pages = NULL;
+    child->pages_count = 0;
     child->table_count = 0;
 
     free(child->free_list);
@@ -347,8 +386,11 @@ void rt_managed_arena_destroy(RtManagedArena *ma)
     /* Free active blocks */
     managed_block_destroy(ma->first);
 
-    /* Free handle table and free list */
-    free(ma->table);
+    /* Free handle table pages and free list */
+    for (uint32_t p = 0; p < ma->pages_count; p++) {
+        free(ma->pages[p]);
+    }
+    free(ma->pages);
     free(ma->free_list);
 
     /* Free retired arena structs (deferred from destroy_child) */
@@ -372,11 +414,32 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
 {
     if (ma == NULL || size == 0) return RT_HANDLE_NULL;
 
+    size_t aligned_size = align_up(size, sizeof(void *));
+
+    /* Fast path: try lock-free bump on current block.
+     * Read block_epoch before and after to detect if the compactor
+     * swapped blocks (which would invalidate our pointer). */
+    unsigned epoch_before = atomic_load_explicit(&ma->block_epoch, memory_order_acquire);
+    RtManagedBlock *alloc_block = ma->current;
+    void *ptr = block_try_alloc(alloc_block, aligned_size);
+
+    /* Lock for handle table operations (and slow-path block alloc if needed) */
     pthread_mutex_lock(&ma->alloc_mutex);
+
+    /* Discard bump result if compactor ran (block may have been retired) */
+    if (ptr != NULL && atomic_load_explicit(&ma->block_epoch, memory_order_relaxed) != epoch_before) {
+        ptr = NULL;
+    }
+
+    /* Slow path: block was full or compactor invalidated the bump */
+    if (ptr == NULL) {
+        ptr = block_alloc_new(ma, aligned_size);
+        alloc_block = ma->current;
+    }
 
     /* Mark old allocation as dead */
     if (old != RT_HANDLE_NULL && old < ma->table_count) {
-        RtHandleEntry *old_entry = &ma->table[old];
+        RtHandleEntry *old_entry = rt_handle_get(ma, old);
         if (!old_entry->dead) {
             old_entry->dead = true;
             atomic_fetch_add(&ma->dead_bytes, old_entry->size);
@@ -384,13 +447,11 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
         }
     }
 
-    /* Allocate from backing store */
-    void *ptr = block_alloc(ma, size);
-
     /* Create handle entry */
     uint32_t index = next_handle(ma);
-    RtHandleEntry *entry = &ma->table[index];
+    RtHandleEntry *entry = rt_handle_get(ma, index);
     entry->ptr = ptr;
+    entry->block = alloc_block;
     entry->size = size;
     atomic_init(&entry->leased, 0);
     entry->dead = false;
@@ -412,10 +473,16 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     if (h >= src->table_count) return RT_HANDLE_NULL;
 
     /* Pin source to get stable pointer */
-    RtHandleEntry *src_entry = &src->table[h];
+    RtHandleEntry *src_entry = rt_handle_get(src, h);
     atomic_fetch_add(&src_entry->leased, 1);
+    if (src_entry->block != NULL) {
+        atomic_fetch_add(&src_entry->block->lease_count, 1);
+    }
 
     if (src_entry->ptr == NULL || src_entry->dead) {
+        if (src_entry->block != NULL) {
+            atomic_fetch_sub(&src_entry->block->lease_count, 1);
+        }
         atomic_fetch_sub(&src_entry->leased, 1);
         return RT_HANDLE_NULL;
     }
@@ -423,11 +490,22 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     size_t size = src_entry->size;
 
     /* Allocate in destination arena */
+    size_t aligned_size = align_up(size, sizeof(void *));
+    unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_acquire);
+    RtManagedBlock *alloc_block = dest->current;
+    void *new_ptr = block_try_alloc(alloc_block, aligned_size);
     pthread_mutex_lock(&dest->alloc_mutex);
-    void *new_ptr = block_alloc(dest, size);
+    if (new_ptr != NULL && atomic_load_explicit(&dest->block_epoch, memory_order_relaxed) != epoch_before) {
+        new_ptr = NULL;
+    }
+    if (new_ptr == NULL) {
+        new_ptr = block_alloc_new(dest, aligned_size);
+        alloc_block = dest->current;
+    }
     uint32_t new_index = next_handle(dest);
-    RtHandleEntry *dest_entry = &dest->table[new_index];
+    RtHandleEntry *dest_entry = rt_handle_get(dest, new_index);
     dest_entry->ptr = new_ptr;
+    dest_entry->block = alloc_block;
     dest_entry->size = size;
     atomic_init(&dest_entry->leased, 0);
     dest_entry->dead = false;
@@ -438,6 +516,9 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     memcpy(new_ptr, src_entry->ptr, size);
 
     /* Unpin source and mark dead */
+    if (src_entry->block != NULL) {
+        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+    }
     atomic_fetch_sub(&src_entry->leased, 1);
 
     pthread_mutex_lock(&src->alloc_mutex);
@@ -461,10 +542,13 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
         return NULL;
     }
 
-    RtHandleEntry *entry = &ma->table[h];
+    RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Increment lease — pointer is now safe from compaction */
+    /* Increment lease on both entry and block */
     atomic_fetch_add(&entry->leased, 1);
+    if (entry->block != NULL) {
+        atomic_fetch_add(&entry->block->lease_count, 1);
+    }
 
     return entry->ptr;
 }
@@ -475,9 +559,12 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
         return;
     }
 
-    RtHandleEntry *entry = &ma->table[h];
+    RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Decrement lease */
+    /* Decrement lease on both entry and block */
+    if (entry->block != NULL) {
+        atomic_fetch_sub(&entry->block->lease_count, 1);
+    }
     atomic_fetch_sub(&entry->leased, 1);
 }
 
@@ -601,7 +688,7 @@ void rt_managed_arena_reset(RtManagedArena *ma)
 
     /* Mark all live entries as dead */
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
+        RtHandleEntry *entry = rt_handle_get(ma, i);
         if (!entry->dead && entry->ptr != NULL) {
             entry->dead = true;
             atomic_fetch_add(&ma->dead_bytes, entry->size);
@@ -626,7 +713,8 @@ size_t rt_managed_live_count(RtManagedArena *ma)
     if (ma == NULL) return 0;
     size_t count = 0;
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        if (!ma->table[i].dead && ma->table[i].ptr != NULL) {
+        RtHandleEntry *entry = rt_handle_get(ma, i);
+        if (!entry->dead && entry->ptr != NULL) {
             count++;
         }
     }
@@ -638,7 +726,8 @@ size_t rt_managed_dead_count(RtManagedArena *ma)
     if (ma == NULL) return 0;
     size_t count = 0;
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        if (ma->table[i].dead && ma->table[i].ptr != NULL) {
+        RtHandleEntry *entry = rt_handle_get(ma, i);
+        if (entry->dead && entry->ptr != NULL) {
             count++;
         }
     }
@@ -660,7 +749,7 @@ size_t rt_managed_arena_used(RtManagedArena *ma)
     if (ma == NULL) return 0;
     size_t used = 0;
     for (RtManagedBlock *b = ma->first; b != NULL; b = b->next) {
-        used += b->used;
+        used += atomic_load_explicit(&b->used, memory_order_relaxed);
     }
     return used;
 }

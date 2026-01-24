@@ -120,4 +120,50 @@ static inline void rt_arena_sleep_ms(int ms)
 #endif
 }
 
+/* ============================================================================
+ * Portable Memory Mapping
+ * ============================================================================
+ * Uses mmap/munmap on POSIX, VirtualAlloc/VirtualFree on Windows.
+ * Provides page-aligned memory without malloc heap fragmentation.
+ * ============================================================================ */
+
+#ifdef _WIN32
+    #if !(defined(__MINGW32__) || defined(__MINGW64__)) || defined(SN_USE_WIN32_THREADS)
+    /* Windows API already included above for threading */
+    #else
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
+    #endif
+
+static inline void *rt_arena_mmap(size_t size)
+{
+    void *ptr = VirtualAlloc(NULL, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    return ptr;
+}
+
+static inline void rt_arena_munmap(void *ptr, size_t size)
+{
+    (void)size;
+    VirtualFree(ptr, 0, MEM_RELEASE);
+}
+
+#else /* POSIX */
+#include <sys/mman.h>
+
+static inline void *rt_arena_mmap(size_t size)
+{
+    void *ptr = mmap(NULL, size, PROT_READ | PROT_WRITE,
+                     MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    return (ptr == MAP_FAILED) ? NULL : ptr;
+}
+
+static inline void rt_arena_munmap(void *ptr, size_t size)
+{
+    munmap(ptr, size);
+}
+
+#endif /* _WIN32 */
+
 #endif /* ARENA_COMPAT_H */
