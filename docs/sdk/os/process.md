@@ -1,4 +1,8 @@
-# Process in Sindarin
+---
+title: "Process"
+description: "Process execution and output capture"
+permalink: /sdk/os/process/
+---
 
 The built-in `Process` type has been deprecated. Please use the SDK-based `Process` type instead.
 

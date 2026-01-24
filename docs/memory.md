@@ -1,4 +1,8 @@
-# Sindarin Memory Management
+---
+title: "Memory"
+description: "Arena-based memory management and ownership"
+permalink: /language/memory/
+---
 
 ## First Principles
 

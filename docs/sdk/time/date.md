@@ -1,4 +1,8 @@
-# Date in Sindarin
+---
+title: "Date"
+description: "Calendar date operations"
+permalink: /sdk/time/date/
+---
 
 The built-in `Date` type has been deprecated. Please use the SDK-based `Date` type instead.
 

@@ -1,4 +1,8 @@
-# Building Sindarin
+---
+title: "Building"
+description: "Compile and run the Sindarin compiler"
+permalink: /language/building/
+---
 
 This document explains how to build the Sindarin compiler from source on Linux, macOS, and Windows.
 

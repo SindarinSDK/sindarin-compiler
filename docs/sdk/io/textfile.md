@@ -1,4 +1,8 @@
-# TextFile
+---
+title: "TextFile"
+description: "Text file reading and writing"
+permalink: /sdk/io/textfile/
+---
 
 `TextFile` is used for reading and writing text content. It works with `str` values.
 

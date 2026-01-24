@@ -1,4 +1,8 @@
-# Stdio
+---
+title: "Stdio"
+description: "Standard input, output, and error streams"
+permalink: /sdk/io/stdio/
+---
 
 Provides structured access to standard input, output, and error streams through the `Stdin`, `Stdout`, and `Stderr` types.
 

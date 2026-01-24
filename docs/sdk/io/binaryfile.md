@@ -1,4 +1,8 @@
-# BinaryFile
+---
+title: "BinaryFile"
+description: "Binary file read and write operations"
+permalink: /sdk/io/binaryfile/
+---
 
 `BinaryFile` is used for reading and writing raw bytes.
 

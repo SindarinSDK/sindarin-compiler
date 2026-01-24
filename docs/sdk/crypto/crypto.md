@@ -1,4 +1,8 @@
-# Crypto
+---
+title: "Crypto"
+description: "Cryptographic hashing, encryption, and key derivation"
+permalink: /sdk/crypto/crypto/
+---
 
 Provides cryptographic operations using OpenSSL's libcrypto: hashing, HMAC, AES-256-GCM encryption, PBKDF2 key derivation, secure random, and timing-safe comparison.
 

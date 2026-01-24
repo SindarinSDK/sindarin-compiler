@@ -1,4 +1,8 @@
-# Random Number Generation
+---
+title: "Random"
+description: "Random number generation"
+permalink: /sdk/core/random/
+---
 
 Sindarin provides secure random number generation through the `Random` type. By default, all random operations use operating system entropy for cryptographically suitable randomness, with an optional seeded mode for reproducible sequences.
 

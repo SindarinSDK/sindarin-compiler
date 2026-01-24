@@ -1,4 +1,8 @@
-# Lambdas and Closures
+---
+title: "Lambdas"
+description: "Lambda expressions and closures"
+permalink: /language/lambdas/
+---
 
 Sindarin supports first-class functions through lambdas (anonymous functions) and closures (lambdas that capture variables from their enclosing scope).
 
