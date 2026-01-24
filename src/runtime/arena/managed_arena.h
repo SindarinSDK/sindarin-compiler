@@ -50,8 +50,11 @@ typedef struct {
 /* Maximum block size for geometric growth: 4MB */
 #define RT_MANAGED_BLOCK_MAX_SIZE (4 * 1024 * 1024)
 
-/* Default handle table initial capacity */
-#define RT_MANAGED_TABLE_INIT_CAP 256
+/* Handle table page size (entries per page) */
+#define RT_HANDLE_PAGE_SIZE 256
+
+/* Initial page directory capacity (number of page pointers) */
+#define RT_HANDLE_DIR_INIT_CAP 16
 
 /* Compaction threshold: trigger when fragmentation exceeds this ratio */
 #define RT_MANAGED_COMPACT_THRESHOLD 0.5
@@ -95,10 +98,11 @@ typedef struct RtManagedArena {
     /* Retired arenas (pending free when pins drain) */
     RtManagedBlock *retired_list; /* Chain of retired blocks */
 
-    /* Handle table */
-    RtHandleEntry *table;         /* Handle table array */
-    uint32_t table_capacity;      /* Table capacity */
-    uint32_t table_count;         /* Number of entries (including dead) */
+    /* Handle table (paged — no copying on growth) */
+    RtHandleEntry **pages;        /* Array of page pointers */
+    uint32_t pages_count;         /* Number of allocated pages */
+    uint32_t pages_capacity;      /* Capacity of pages pointer array */
+    uint32_t table_count;         /* Total entries allocated (across all pages) */
 
     /* Free list (recycled handle indices) */
     uint32_t *free_list;          /* Stack of recyclable handle indices */
@@ -135,6 +139,17 @@ typedef struct RtManagedArena {
     /* Retired arena list (root only): destroyed child structs awaiting final free */
     struct RtManagedArena *retired_arenas; /* Linked via next_sibling */
 } RtManagedArena;
+
+/* ============================================================================
+ * Handle Table Access (paged)
+ * ============================================================================ */
+
+/* Get a pointer to the handle entry at the given index.
+ * The returned pointer remains valid even after table growth. */
+static inline RtHandleEntry *rt_handle_get(RtManagedArena *ma, uint32_t index)
+{
+    return &ma->pages[index / RT_HANDLE_PAGE_SIZE][index % RT_HANDLE_PAGE_SIZE];
+}
 
 /* ============================================================================
  * Public API: Lifecycle

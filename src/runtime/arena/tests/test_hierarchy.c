@@ -388,7 +388,7 @@ static void test_promote_with_reassignment(void)
 
     /* Now mark the old global dead (simulates reassignment) */
     pthread_mutex_lock(&root->alloc_mutex);
-    RtHandleEntry *old_entry = &root->table[global];
+    RtHandleEntry *old_entry = rt_handle_get(root, global);
     if (!old_entry->dead) {
         old_entry->dead = true;
         atomic_fetch_add(&root->dead_bytes, old_entry->size);
@@ -455,7 +455,7 @@ static void test_promote_stress(void)
         /* Reassign global (mark old dead) */
         if (global != RT_HANDLE_NULL) {
             pthread_mutex_lock(&root->alloc_mutex);
-            RtHandleEntry *old = &root->table[global];
+            RtHandleEntry *old = rt_handle_get(root, global);
             if (!old->dead) {
                 old->dead = true;
                 atomic_fetch_add(&root->dead_bytes, old->size);
