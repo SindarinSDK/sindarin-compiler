@@ -22,6 +22,7 @@ static RtManagedBlock *managed_block_create_compact(size_t size)
     block->next = NULL;
     block->size = size;
     atomic_init(&block->used, 0);
+    atomic_init(&block->lease_count, 0);
     block->retired = false;
     return block;
 }
@@ -99,6 +100,7 @@ static bool clean_arena(RtManagedArena *ma)
         /* Entry is dead and unleased — recycle immediately */
         atomic_fetch_sub(&ma->dead_bytes, entry->size);
         entry->ptr = NULL;
+        entry->block = NULL;
         entry->size = 0;
         entry->dead = false;
         recycle_handle_gc(ma, i);
@@ -213,8 +215,9 @@ void rt_managed_compact(RtManagedArena *ma)
         memcpy(new_ptr, entry->ptr, entry->size);
         atomic_store_explicit(&new_current->used, cur_used + aligned, memory_order_relaxed);
 
-        /* Update handle table pointer */
+        /* Update handle table pointer and block reference */
         entry->ptr = new_ptr;
+        entry->block = new_current;
 
         /* Release moving lock */
         atomic_store(&entry->leased, 0);
@@ -230,6 +233,7 @@ void rt_managed_compact(RtManagedArena *ma)
                 char *p = (char *)entry->ptr;
                 if (p >= b->data && p < b->data + b->size) {
                     entry->ptr = NULL;
+                    entry->block = NULL;
                     entry->size = 0;
                     entry->dead = false;
                     recycle_handle_gc(ma, i);
@@ -276,19 +280,11 @@ void rt_managed_compact(RtManagedArena *ma)
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
 
-/* Check if any leased entry points into this block */
+/* Check if any leased entry points into this block — O(1) via atomic counter */
 static bool block_has_leased_entries(RtManagedArena *ma, RtManagedBlock *block)
 {
-    for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
-        if (entry->ptr == NULL) continue;
-        if (atomic_load(&entry->leased) <= 0) continue;
-        char *p = (char *)entry->ptr;
-        if (p >= block->data && p < block->data + block->size) {
-            return true;
-        }
-    }
-    return false;
+    (void)ma;
+    return atomic_load_explicit(&block->lease_count, memory_order_acquire) > 0;
 }
 
 /* Try to free retired blocks whose entries are all unleased */

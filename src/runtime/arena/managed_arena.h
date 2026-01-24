@@ -22,28 +22,33 @@ typedef uint32_t RtHandle;
 #define RT_LEASE_MOVING (-1)
 
 /* ============================================================================
- * Handle Table Entry
- * ============================================================================ */
-typedef struct {
-    void *ptr;            /* Pointer to data in backing arena */
-    size_t size;          /* Size of the allocation */
-    atomic_int leased;    /* Pin/lease counter (atomic) */
-    bool dead;            /* Marked for reclamation */
-} RtHandleEntry;
-
-/* ============================================================================
  * Arena Block (backing store)
  * ============================================================================ */
 typedef struct RtManagedBlock {
     struct RtManagedBlock *next;  /* Next block in chain */
     size_t size;                  /* Block capacity */
     atomic_size_t used;           /* Bytes used (atomic for lock-free bump) */
+    atomic_int lease_count;       /* Number of pinned entries in this block */
     bool retired;                 /* Marked for deallocation */
     char data[];                  /* Flexible array member */
 } RtManagedBlock;
 
+/* ============================================================================
+ * Handle Table Entry
+ * ============================================================================ */
+typedef struct {
+    void *ptr;              /* Pointer to data in backing arena */
+    RtManagedBlock *block;  /* Block containing this allocation */
+    size_t size;            /* Size of the allocation */
+    atomic_int leased;      /* Pin/lease counter (atomic) */
+    bool dead;              /* Marked for reclamation */
+} RtHandleEntry;
+
 /* Default block size: 64KB */
 #define RT_MANAGED_BLOCK_SIZE (64 * 1024)
+
+/* Maximum block size for geometric growth: 4MB */
+#define RT_MANAGED_BLOCK_MAX_SIZE (4 * 1024 * 1024)
 
 /* Default handle table initial capacity */
 #define RT_MANAGED_TABLE_INIT_CAP 256
