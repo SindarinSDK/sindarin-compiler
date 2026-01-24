@@ -328,7 +328,7 @@ A `shared` function uses the caller's arena directly, avoiding promotion overhea
 ### Syntax
 
 ```sindarin
-fn build_message(name: str) shared: str =>
+shared fn build_message(name: str): str =>
   var greeting: str = "Hello, "
   var result: str = greeting + name + "!"
   return result                       // No promotion - already in caller's arena
@@ -350,7 +350,7 @@ fn format(n: int): str =>
   return $"Value: {n}"
 
 // With shared: allocates directly in caller's arena
-fn format_fast(n: int) shared: str =>
+shared fn format_fast(n: int): str =>
   return $"Value: {n}"
 
 fn main(): void =>
@@ -362,10 +362,10 @@ fn main(): void =>
 ### `shared` Propagation
 
 ```sindarin
-fn helper() shared: str =>
+shared fn helper(): str =>
   return "helper result"
 
-fn outer() shared: str =>
+shared fn outer(): str =>
   var h: str = helper()               // helper uses outer's arena
   return "outer: " + h                // which is caller's arena
 ```
@@ -392,7 +392,7 @@ fn collect_names_fast(ids: int[]): str[] =>
   var names: str[] = {}
 
   // Shared: loop uses function's arena directly
-  for id in ids shared =>
+  shared for id in ids =>
     var name: str = lookup_name(id)   // Allocated in function arena
     names.push(name)                  // No promotion needed
     // No arena destruction
@@ -417,7 +417,7 @@ fn collect_names_fast(ids: int[]): str[] =>
 
 ```sindarin
 // Dangerous: memory grows with each iteration
-for var i: int = 0; i < 1000000 shared =>
+shared for var i: int = 0; i < 1000000 =>
   var temp: str = compute_something()  // Never freed until loop ends!
   process(temp)
 
@@ -585,20 +585,20 @@ private =>
 
 ```sindarin
 // Returns primitive - OK
-fn count_lines(path: str) private: int =>
+private fn count_lines(path: str): int =>
   var contents: str = read_file(path)
   var lines: str[] = contents.split("\n")
   return lines.length                 // int escapes, rest freed
 
 // COMPILE ERROR: cannot return array from private
-fn get_histogram(data: str) private: int[256] =>
+private fn get_histogram(data: str): int[256] =>
   var counts: int[256] = {}
   for c in data =>
     counts[c]++
   return counts                       // ERROR: array cannot escape
 
 // COMPILE ERROR: cannot return str from private
-fn bad(path: str) private: str =>
+private fn bad(path: str): str =>
   return read_file(path)              // ERROR: string cannot escape
 ```
 
@@ -725,18 +725,18 @@ error[E0101]: cannot escape `private` block
 ### Invalid Return from `private` Function
 
 ```sindarin
-fn bad() private: str[] =>
+private fn bad(): str[] =>
   return {1, 2, 3}            // ERROR: array cannot escape private function
 ```
 
 ```
 error[E0102]: invalid return type for `private` function
-  --> example.sn:1:20
+  --> example.sn:1:1
    |
- 1 | fn bad() private: str[] =>
-   |          -------  ^^^^^ arrays cannot be returned from private functions
-   |          |
-   |          function marked private here
+ 1 | private fn bad(): str[] =>
+   | -------           ^^^^^ arrays cannot be returned from private functions
+   | |
+   | function marked private here
    |
    = note: private functions can only return primitives (int, double, bool, char)
 ```
@@ -836,9 +836,9 @@ fn slow(items: str[]): str[] =>
   return results
 
 // Fast: shared loop, no per-iteration arena
-fn fast(items: str[]) shared: str[] =>
+shared fn fast(items: str[]): str[] =>
   var results: str[] = {}
-  for item in items shared =>
+  shared for item in items =>
     results.push(item.toUpper())
   return results
 ```

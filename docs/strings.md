@@ -384,6 +384,8 @@ var words: str[] = "  One Two Three  ".trim().toLower().split(" ")  // {"one", "
 ### Reading and Processing Lines
 
 ```sindarin
+import "sdk/io/textfile"
+
 var content: str = TextFile.readAll("data.txt")
 var lines: str[] = content.splitLines()
 for line in lines =>
@@ -394,6 +396,8 @@ for line in lines =>
 ### Word Counting
 
 ```sindarin
+import "sdk/io/textfile"
+
 var text: str = TextFile.readAll("document.txt")
 var words: str[] = text.splitWhitespace()
 print($"Word count: {words.length}\n")

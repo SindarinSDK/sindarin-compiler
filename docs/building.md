@@ -298,22 +298,20 @@ The Sindarin compiler uses a C backend. It reads configuration from `sn.cfg` and
 
 The compiler searches for `sn.cfg` in these locations (first found wins):
 
-1. `$SINDARIN_CONFIG` environment variable (if set)
-2. Next to the compiler executable (portable/development mode)
-3. Platform-specific system paths:
+1. Next to the compiler executable (portable/development mode)
+2. Platform-specific system paths:
    - **Linux**: `/etc/sindarin/sn.cfg`, `/usr/local/etc/sindarin/sn.cfg`
    - **macOS**: `/usr/local/etc/sindarin/sn.cfg`, `/opt/homebrew/etc/sindarin/sn.cfg`
    - **Windows**: `%LOCALAPPDATA%\Sindarin\sn.cfg`, `%ProgramFiles%\Sindarin\sn.cfg`
-4. Built-in defaults
+3. Built-in defaults
 
 ### Runtime Library Search Order
 
-The compiler searches for runtime objects (`.o` files) in:
+The compiler searches for the runtime library archive (`libsn_runtime.a`) in:
 
-1. `$SINDARIN_LIB` environment variable (if set)
-2. Next to the compiler executable: `<exe_dir>/lib/<backend>/`
-3. FHS-relative: `<exe_dir>/../lib/sindarin/<backend>/`
-4. Platform-specific system paths:
+1. Next to the compiler executable: `<exe_dir>/lib/<backend>/`
+2. FHS-relative: `<exe_dir>/../lib/sindarin/<backend>/`
+3. Platform-specific system paths:
    - **Linux**: `/usr/lib/sindarin/<backend>`, `/usr/local/lib/sindarin/<backend>`
    - **macOS**: `/usr/local/lib/sindarin/<backend>`, `/opt/homebrew/lib/sindarin/<backend>`
    - **Windows**: `%ProgramFiles%\Sindarin\lib\<backend>`
@@ -329,8 +327,6 @@ The compiler searches for runtime objects (`.o` files) in:
 | `SN_CFLAGS` | (empty) | Additional compiler flags |
 | `SN_LDFLAGS` | (empty) | Additional linker flags |
 | `SN_LDLIBS` | (empty) | Additional libraries |
-| `SINDARIN_CONFIG` | (none) | Override config file path |
-| `SINDARIN_LIB` | (none) | Override runtime library directory |
 
 **Example: Using Clang on Linux:**
 
@@ -354,9 +350,9 @@ SINDARIN_LIB=/opt/sindarin/lib/gcc bin/sn myprogram.sn -o myprogram
 
 ### "Runtime object not found"
 
-The compiler can't find pre-built runtime objects. This can happen if:
+The compiler can't find the pre-built runtime library. This can happen if:
 
-1. **Development mode**: Ensure CMake completed successfully and check that `bin/lib/gcc/` (Linux/macOS) or `bin/lib/clang/` (Windows) contains `.o` files.
+1. **Development mode**: Ensure CMake completed successfully and check that `bin/lib/gcc/` (Linux/macOS) or `bin/lib/clang/` (Windows) contains `libsn_runtime.a`.
 
 2. **Installed package**: The compiler searches system paths like `/usr/lib/sindarin/gcc/`. Ensure the package was installed correctly.
 
