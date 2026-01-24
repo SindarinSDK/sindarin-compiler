@@ -190,6 +190,10 @@ jobs:
           SN_CFLAGS: ${{ matrix.sn_cflags }}
         run: make test-sdk
 
+      - name: Run managed arena tests
+        shell: bash
+        run: make test-arena
+
       #------------------------------------------------------------------------
       # Upload Artifacts
       #------------------------------------------------------------------------
