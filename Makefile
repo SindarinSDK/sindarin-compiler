@@ -241,8 +241,11 @@ docs:
 	cmake -E copy_directory docs $(SITE_DIR)/language
 	cmake -E rm -rf $(SITE_DIR)/language/sdk
 	cmake -E rm -rf $(SITE_DIR)/language/drafts
+	cmake -E rm -f $(SITE_DIR)/language/readme.md
 	cmake -E copy_directory docs/sdk $(SITE_DIR)/sdk
 	cmake -E rm -f $(SITE_DIR)/sdk/readme.md
+	cmake -E rm -f $(SITE_DIR)/sdk/io/readme.md
+	cmake -E rm -f $(SITE_DIR)/sdk/net/readme.md
 	@echo "Docs published."
 
 #------------------------------------------------------------------------------
