@@ -20,6 +20,7 @@ static RtManagedBlock *managed_block_create(size_t size)
     block->next = NULL;
     block->size = size;
     atomic_init(&block->used, 0);
+    atomic_init(&block->lease_count, 0);
     block->retired = false;
     return block;
 }
@@ -57,6 +58,7 @@ static void *block_try_alloc(RtManagedBlock *block, size_t aligned_size)
 }
 
 /* Slow path: allocate a new block and bump from it.
+ * Uses geometric growth (doubles block_size up to RT_MANAGED_BLOCK_MAX_SIZE).
  * Caller must hold alloc_mutex. */
 static void *block_alloc_new(RtManagedArena *ma, size_t aligned_size)
 {
@@ -69,6 +71,12 @@ static void *block_alloc_new(RtManagedArena *ma, size_t aligned_size)
     ma->total_allocated += sizeof(RtManagedBlock) + new_size;
     ma->current->next = new_block;
     ma->current = new_block;
+
+    /* Geometric growth: double for next allocation, capped at max */
+    if (ma->block_size < RT_MANAGED_BLOCK_MAX_SIZE) {
+        ma->block_size = (ma->block_size * 2 <= RT_MANAGED_BLOCK_MAX_SIZE)
+            ? ma->block_size * 2 : RT_MANAGED_BLOCK_MAX_SIZE;
+    }
 
     atomic_store_explicit(&new_block->used, aligned_size, memory_order_relaxed);
     return new_block->data;
@@ -385,7 +393,8 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
      * Read block_epoch before and after to detect if the compactor
      * swapped blocks (which would invalidate our pointer). */
     unsigned epoch_before = atomic_load_explicit(&ma->block_epoch, memory_order_acquire);
-    void *ptr = block_try_alloc(ma->current, aligned_size);
+    RtManagedBlock *alloc_block = ma->current;
+    void *ptr = block_try_alloc(alloc_block, aligned_size);
 
     /* Lock for handle table operations (and slow-path block alloc if needed) */
     pthread_mutex_lock(&ma->alloc_mutex);
@@ -398,6 +407,7 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     /* Slow path: block was full or compactor invalidated the bump */
     if (ptr == NULL) {
         ptr = block_alloc_new(ma, aligned_size);
+        alloc_block = ma->current;
     }
 
     /* Mark old allocation as dead */
@@ -414,6 +424,7 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     uint32_t index = next_handle(ma);
     RtHandleEntry *entry = &ma->table[index];
     entry->ptr = ptr;
+    entry->block = alloc_block;
     entry->size = size;
     atomic_init(&entry->leased, 0);
     entry->dead = false;
@@ -437,8 +448,14 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     /* Pin source to get stable pointer */
     RtHandleEntry *src_entry = &src->table[h];
     atomic_fetch_add(&src_entry->leased, 1);
+    if (src_entry->block != NULL) {
+        atomic_fetch_add(&src_entry->block->lease_count, 1);
+    }
 
     if (src_entry->ptr == NULL || src_entry->dead) {
+        if (src_entry->block != NULL) {
+            atomic_fetch_sub(&src_entry->block->lease_count, 1);
+        }
         atomic_fetch_sub(&src_entry->leased, 1);
         return RT_HANDLE_NULL;
     }
@@ -448,17 +465,20 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     /* Allocate in destination arena */
     size_t aligned_size = align_up(size, sizeof(void *));
     unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_acquire);
-    void *new_ptr = block_try_alloc(dest->current, aligned_size);
+    RtManagedBlock *alloc_block = dest->current;
+    void *new_ptr = block_try_alloc(alloc_block, aligned_size);
     pthread_mutex_lock(&dest->alloc_mutex);
     if (new_ptr != NULL && atomic_load_explicit(&dest->block_epoch, memory_order_relaxed) != epoch_before) {
         new_ptr = NULL;
     }
     if (new_ptr == NULL) {
         new_ptr = block_alloc_new(dest, aligned_size);
+        alloc_block = dest->current;
     }
     uint32_t new_index = next_handle(dest);
     RtHandleEntry *dest_entry = &dest->table[new_index];
     dest_entry->ptr = new_ptr;
+    dest_entry->block = alloc_block;
     dest_entry->size = size;
     atomic_init(&dest_entry->leased, 0);
     dest_entry->dead = false;
@@ -469,6 +489,9 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     memcpy(new_ptr, src_entry->ptr, size);
 
     /* Unpin source and mark dead */
+    if (src_entry->block != NULL) {
+        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+    }
     atomic_fetch_sub(&src_entry->leased, 1);
 
     pthread_mutex_lock(&src->alloc_mutex);
@@ -494,8 +517,11 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = &ma->table[h];
 
-    /* Increment lease — pointer is now safe from compaction */
+    /* Increment lease on both entry and block */
     atomic_fetch_add(&entry->leased, 1);
+    if (entry->block != NULL) {
+        atomic_fetch_add(&entry->block->lease_count, 1);
+    }
 
     return entry->ptr;
 }
@@ -508,7 +534,10 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = &ma->table[h];
 
-    /* Decrement lease */
+    /* Decrement lease on both entry and block */
+    if (entry->block != NULL) {
+        atomic_fetch_sub(&entry->block->lease_count, 1);
+    }
     atomic_fetch_sub(&entry->leased, 1);
 }
 
