@@ -14,7 +14,7 @@
 .PHONY: test-unit test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors test-sdk
 .PHONY: arena test-arena
-.PHONY: configure install package
+.PHONY: configure install package docs
 .PHONY: setup
 
 #------------------------------------------------------------------------------
@@ -228,6 +228,22 @@ package: build
 setup:
 	@echo "Setting up build dependencies..."
 	@$(PYTHON) scripts/setup_deps.py
+
+#------------------------------------------------------------------------------
+# docs - Publish docs to sindarinsdk.github.io
+#------------------------------------------------------------------------------
+SITE_DIR := ../sindarinsdk.github.io
+
+docs:
+	@echo "Publishing docs to $(SITE_DIR)..."
+	cmake -E rm -rf $(SITE_DIR)/language
+	cmake -E rm -rf $(SITE_DIR)/sdk
+	cmake -E copy_directory docs $(SITE_DIR)/language
+	cmake -E rm -rf $(SITE_DIR)/language/sdk
+	cmake -E rm -rf $(SITE_DIR)/language/drafts
+	cmake -E copy_directory docs/sdk $(SITE_DIR)/sdk
+	cmake -E rm -f $(SITE_DIR)/sdk/readme.md
+	@echo "Docs published."
 
 #------------------------------------------------------------------------------
 # help - Show available targets
