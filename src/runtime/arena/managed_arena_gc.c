@@ -103,11 +103,10 @@ static bool clean_arena(RtManagedArena *ma)
         if (!entry->dead || entry->ptr == NULL || atomic_load(&entry->leased) != 0) {
             continue;
         }
-        /* Entry is dead and unleased — recycle immediately */
+        /* Entry is dead and unleased — recycle immediately.
+         * Only ptr and dead need clearing (block/size overwritten on reuse). */
         atomic_fetch_sub(&ma->dead_bytes, entry->size);
         entry->ptr = NULL;
-        entry->block = NULL;
-        entry->size = 0;
         entry->dead = false;
         recycle_handle_gc(ma, i);
         did_work = true;
@@ -195,8 +194,6 @@ void rt_managed_compact(RtManagedArena *ma)
             if (entry->dead && entry->ptr != NULL && atomic_load(&entry->leased) == 0) {
                 atomic_fetch_sub(&ma->dead_bytes, entry->size);
                 entry->ptr = NULL;
-                entry->block = NULL;
-                entry->size = 0;
                 entry->dead = false;
                 recycle_handle_gc(ma, i);
             }
@@ -278,11 +275,19 @@ void rt_managed_compact(RtManagedArena *ma)
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
 
-/* Check if any leased entry points into this block — O(1) via atomic counter */
-static bool block_has_leased_entries(RtManagedArena *ma, RtManagedBlock *block)
+/* Check if any live entry still resides in this block (caller holds alloc_mutex).
+ * Replaces per-pin/unpin atomic counter with a cold-path scan, eliminating
+ * 2 atomic RMW ops from every pin/unpin on the hot path. */
+static bool block_has_live_entries(RtManagedArena *ma, RtManagedBlock *block)
 {
-    (void)ma;
-    return atomic_load_explicit(&block->lease_count, memory_order_acquire) > 0;
+    uint32_t count = ma->table_count;
+    for (uint32_t i = 1; i < count; i++) {
+        RtHandleEntry *entry = rt_handle_get(ma, i);
+        if (entry->block == block && entry->ptr != NULL) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /* Try to free retired blocks whose entries are all unleased */
@@ -295,7 +300,7 @@ static void retire_drained_blocks(RtManagedArena *ma)
 
     while (block != NULL) {
         RtManagedBlock *next = block->next;
-        if (!block_has_leased_entries(ma, block)) {
+        if (!block_has_live_entries(ma, block)) {
             *prev = next;
             managed_block_free_gc(block);
         } else {
