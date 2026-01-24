@@ -3,6 +3,7 @@
 /* Shared test counters */
 int tests_passed = 0;
 int tests_failed = 0;
+double tests_total_ms = 0.0;
 
 /* Test module runners */
 extern void test_alloc_run(void);
@@ -27,6 +28,7 @@ int main(void)
     test_api_run();
     test_stress_run();
 
-    printf("\n=== Results: %d passed, %d failed ===\n", tests_passed, tests_failed);
+    printf("\n=== Results: %d passed, %d failed (%.2fms total) ===\n",
+           tests_passed, tests_failed, tests_total_ms);
     return tests_failed > 0 ? 1 : 0;
 }
