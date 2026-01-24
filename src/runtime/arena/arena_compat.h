@@ -1,0 +1,123 @@
+#ifndef ARENA_COMPAT_H
+#define ARENA_COMPAT_H
+
+/*
+ * Platform compatibility layer for the managed arena.
+ * Self-contained — no dependencies on the rest of the project.
+ *
+ * Provides:
+ *   - pthread (mutex, thread create/join) across all platforms
+ *   - Portable rt_arena_sleep_ms() for timed waits
+ *   - C11 atomics (required; checked at compile time)
+ */
+
+/* ============================================================================
+ * C11 Atomics
+ * ============================================================================
+ * Required. Available in GCC 4.9+, Clang 3.1+, MSVC 2022 17.5+ (/std:c17).
+ * ============================================================================ */
+#include <stdatomic.h>
+
+/* ============================================================================
+ * Threading: pthread
+ * ============================================================================ */
+#ifdef _WIN32
+    #if (defined(__MINGW32__) || defined(__MINGW64__)) && !defined(SN_USE_WIN32_THREADS)
+        /* MinGW provides native pthreads */
+        #include <pthread.h>
+    #else
+        /* MSVC / clang-cl: minimal pthread compat using Windows API */
+        #ifndef WIN32_LEAN_AND_MEAN
+            #define WIN32_LEAN_AND_MEAN
+        #endif
+        #ifndef NOGDI
+            #define NOGDI
+        #endif
+        #include <windows.h>
+        #include <process.h>
+        #include <stdlib.h>
+
+        typedef HANDLE pthread_t;
+        typedef CRITICAL_SECTION pthread_mutex_t;
+
+        /* Thread start wrapper */
+        typedef void *(*_arena_thread_fn)(void *);
+        typedef struct { _arena_thread_fn fn; void *arg; } _arena_thread_data;
+
+        static inline unsigned __stdcall _arena_thread_wrapper(void *data) {
+            _arena_thread_data *td = (_arena_thread_data *)data;
+            _arena_thread_fn fn = td->fn;
+            void *arg = td->arg;
+            free(td);
+            fn(arg);
+            return 0;
+        }
+
+        static inline int pthread_create(pthread_t *thread, const void *attr,
+                                          void *(*start)(void *), void *arg) {
+            (void)attr;
+            _arena_thread_data *td = (_arena_thread_data *)malloc(sizeof(_arena_thread_data));
+            if (!td) return -1;
+            td->fn = start;
+            td->arg = arg;
+            uintptr_t h = _beginthreadex(NULL, 0, _arena_thread_wrapper, td, 0, NULL);
+            if (h == 0) { free(td); return -1; }
+            *thread = (HANDLE)h;
+            return 0;
+        }
+
+        static inline int pthread_join(pthread_t thread, void **retval) {
+            (void)retval;
+            WaitForSingleObject(thread, INFINITE);
+            CloseHandle(thread);
+            return 0;
+        }
+
+        static inline int pthread_mutex_init(pthread_mutex_t *m, const void *attr) {
+            (void)attr;
+            InitializeCriticalSection(m);
+            return 0;
+        }
+
+        static inline int pthread_mutex_destroy(pthread_mutex_t *m) {
+            DeleteCriticalSection(m);
+            return 0;
+        }
+
+        static inline int pthread_mutex_lock(pthread_mutex_t *m) {
+            EnterCriticalSection(m);
+            return 0;
+        }
+
+        static inline int pthread_mutex_unlock(pthread_mutex_t *m) {
+            LeaveCriticalSection(m);
+            return 0;
+        }
+    #endif /* MinGW vs MSVC */
+#else
+    /* POSIX (Linux, macOS) */
+    #include <pthread.h>
+#endif /* _WIN32 */
+
+/* ============================================================================
+ * Portable Sleep
+ * ============================================================================ */
+#include <time.h>
+
+static inline void rt_arena_sleep_ms(int ms)
+{
+#ifdef _WIN32
+    #if (defined(__MINGW32__) || defined(__MINGW64__)) && !defined(SN_USE_WIN32_THREADS)
+        /* MinGW has nanosleep */
+        struct timespec ts = { .tv_sec = ms / 1000, .tv_nsec = (ms % 1000) * 1000000L };
+        nanosleep(&ts, NULL);
+    #else
+        Sleep((DWORD)ms);
+    #endif
+#else
+    struct timespec ts = { .tv_sec = ms / 1000, .tv_nsec = (ms % 1000) * 1000000L };
+    nanosleep(&ts, NULL);
+#endif
+}
+
+#endif /* ARENA_COMPAT_H */

@@ -147,6 +147,7 @@ static void test_code_gen_headers_and_externs(void)
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
