@@ -504,6 +504,72 @@ static void test_profile_concurrent_multi_arena(void)
 }
 
 /* ============================================================================
+ * Profile 7: Compaction Benchmark (Direct timing of rt_managed_compact)
+ * Goal: Measure compaction cost with large handle tables and many blocks.
+ *       No GC flush (avoids sleep noise). Exercises the table-scan + block-walk
+ *       path directly.
+ * ============================================================================ */
+
+static void test_profile_compaction_bench(void)
+{
+    RtManagedArena *root = rt_managed_arena_create();
+
+    #define COMPACT_ENTRIES 10000
+    #define COMPACT_REASSIGN 8000
+    #define COMPACT_ENTRY_SIZE 128
+
+    RtHandle handles[COMPACT_ENTRIES];
+
+    /* Phase 1: Allocate entries to fill multiple blocks.
+     * 10000 entries x 128 bytes = 1.28MB → ~20 blocks at 64KB each */
+    for (int i = 0; i < COMPACT_ENTRIES; i++) {
+        handles[i] = rt_managed_alloc(root, RT_HANDLE_NULL, COMPACT_ENTRY_SIZE);
+        char *ptr = (char *)rt_managed_pin(root, handles[i]);
+        snprintf(ptr, COMPACT_ENTRY_SIZE, "entry-%05d-initial", i);
+        rt_managed_unpin(root, handles[i]);
+    }
+
+    /* Phase 2: Reassign most entries (marks old as dead, allocates new).
+     * Creates heavy fragmentation: dead entries scattered across old blocks,
+     * new live entries in newer blocks. */
+    for (int i = 0; i < COMPACT_REASSIGN; i++) {
+        handles[i] = rt_managed_alloc(root, handles[i], COMPACT_ENTRY_SIZE);
+        char *ptr = (char *)rt_managed_pin(root, handles[i]);
+        snprintf(ptr, COMPACT_ENTRY_SIZE, "entry-%05d-updated", i);
+        rt_managed_unpin(root, handles[i]);
+    }
+
+    /* Phase 3: Compact directly (this is what we're benchmarking).
+     * Old code: 3 table scans, inner loop walks all blocks per dead entry.
+     * New code: single pass, no inner block search. */
+    double t0 = test_timer_now();
+    rt_managed_compact(root);
+    double compact_ms = (test_timer_now() - t0) * 1000.0;
+
+    /* Print compaction time as a sub-metric */
+    printf("\n    compact: %.3fms (%d entries, %d dead) ",
+           compact_ms, COMPACT_ENTRIES + COMPACT_REASSIGN, COMPACT_REASSIGN);
+
+    /* Verify: all live entries still accessible and correct */
+    for (int i = 0; i < COMPACT_ENTRIES; i++) {
+        char *ptr = (char *)rt_managed_pin(root, handles[i]);
+        ASSERT(ptr != NULL, "live entry accessible after compaction");
+        if (i < COMPACT_REASSIGN) {
+            ASSERT(strncmp(ptr, "entry-", 6) == 0, "updated entry has correct prefix");
+        } else {
+            ASSERT(strncmp(ptr, "entry-", 6) == 0, "initial entry has correct prefix");
+        }
+        rt_managed_unpin(root, handles[i]);
+    }
+
+    rt_managed_arena_destroy(root);
+
+    #undef COMPACT_ENTRIES
+    #undef COMPACT_REASSIGN
+    #undef COMPACT_ENTRY_SIZE
+}
+
+/* ============================================================================
  * Runner
  * ============================================================================ */
 
@@ -516,4 +582,5 @@ void test_stress_run(void)
     TEST_RUN("recursive tree walk (depth 20)", test_profile_recursive_tree_walk);
     TEST_RUN("event loop with periodic reset", test_profile_event_loop_reset);
     TEST_RUN("concurrent multi-arena (4 threads x 500)", test_profile_concurrent_multi_arena);
+    TEST_RUN("compaction bench (10k entries, 8k dead)", test_profile_compaction_bench);
 }
