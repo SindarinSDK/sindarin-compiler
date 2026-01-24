@@ -91,6 +91,9 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->pragma_source_count = 0;
     gen->pragma_source_capacity = 0;
 
+    /* Initialize match expression support */
+    gen->match_count = 0;
+
     /* Initialize interceptor thunk support */
     gen->thunk_count = 0;
     gen->thunk_forward_decls = arena_strdup(arena, "");
