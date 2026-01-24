@@ -1,4 +1,8 @@
-# C Interoperability in Sindarin
+---
+title: "C Interop"
+description: "Calling C code and native function bindings"
+permalink: /language/interop/
+---
 
 Since Sindarin compiles to C, interoperability is natural but requires explicit declarations for external functions, headers, and linking.
 
@@ -163,28 +167,6 @@ Sindarin types naturally map to C types.
 | `nil` | `NULL` | pointer | Null pointer constant |
 | `str` | `char *` | pointer | Null-terminated UTF-8 string |
 | `any` | `RtAny` | 16 bytes | Tagged union for dynamic typing |
-
-### Built-in Object Types
-
-| Sindarin Type | C Type | Notes |
-|---------------|--------|-------|
-| `Date` | `RtDate *` | Pointer to runtime date struct |
-| `Time` | `RtTime *` | Pointer to runtime time struct |
-| `UUID` | `RtUuid *` | Pointer to runtime UUID struct |
-| `Random` | `RtRandom *` | Pointer to PRNG state |
-| `TextFile` | `RtTextFile *` | Pointer to text file handle |
-| `BinaryFile` | `RtBinaryFile *` | Pointer to binary file handle |
-| `Process` | `RtProcess *` | Pointer to subprocess handle |
-| `TcpListener` | `RtTcpListener *` | Pointer to TCP listener |
-| `TcpStream` | `RtTcpStream *` | Pointer to TCP connection |
-| `UdpSocket` | `RtUdpSocket *` | Pointer to UDP socket |
-| `GitRepo` | `RtGitRepo *` | Pointer to Git repository handle |
-| `GitCommit` | `RtGitCommit *` | Pointer to commit metadata |
-| `GitBranch` | `RtGitBranch *` | Pointer to branch info |
-| `GitRemote` | `RtGitRemote *` | Pointer to remote info |
-| `GitDiff` | `RtGitDiff *` | Pointer to diff entry |
-| `GitStatus` | `RtGitStatus *` | Pointer to status entry |
-| `GitTag` | `RtGitTag *` | Pointer to tag info |
 
 ### Composite Types
 

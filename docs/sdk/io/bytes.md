@@ -1,4 +1,8 @@
-# Bytes
+---
+title: "Bytes"
+description: "Byte encoding and decoding utilities"
+permalink: /sdk/io/bytes/
+---
 
 The `byte` primitive type and `Bytes` utility class for binary data encoding and decoding.
 

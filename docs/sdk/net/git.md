@@ -1,4 +1,8 @@
-# Git
+---
+title: "Git"
+description: "Git repository operations"
+permalink: /sdk/net/git/
+---
 
 Git provides local and remote repository operations using libgit2. Sindarin's Git module supports repository initialization, cloning, staging, committing, branching, tagging, diffing, and network operations (fetch, push, pull) with SSH and HTTPS authentication.
 

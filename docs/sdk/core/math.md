@@ -1,4 +1,8 @@
-# Math
+---
+title: "Math"
+description: "Mathematical functions and constants"
+permalink: /sdk/core/math/
+---
 
 Provides C math library bindings, mathematical constants, and helper functions for both `double` and `float` precision arithmetic.
 

@@ -1,4 +1,8 @@
-# XML
+---
+title: "XML"
+description: "XML parsing, XPath, and DOM manipulation"
+permalink: /sdk/encoding/xml/
+---
 
 Provides XML parsing, DOM manipulation, XPath queries, and serialization using libxml2. The `Xml` type represents an XML node (element, document, or text) with full tree navigation and mutation support.
 

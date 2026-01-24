@@ -1,4 +1,8 @@
-# SSH
+---
+title: "SSH"
+description: "SSH client and server connections"
+permalink: /sdk/net/ssh/
+---
 
 SSH provides secure remote command execution and interactive shell access using libssh with OpenSSL. Sindarin's SSH module supports both client connections (with multiple authentication methods) and server listeners for building SSH services.
 

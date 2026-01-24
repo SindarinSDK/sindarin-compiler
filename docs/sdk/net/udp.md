@@ -1,4 +1,8 @@
-# UDP
+---
+title: "UDP"
+description: "UDP socket for datagram communication"
+permalink: /sdk/net/udp/
+---
 
 UDP provides connectionless datagram communication using `UdpSocket`.
 

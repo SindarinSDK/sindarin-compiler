@@ -1,4 +1,8 @@
-# TLS
+---
+title: "TLS"
+description: "TLS-encrypted TCP connections"
+permalink: /sdk/net/tls/
+---
 
 TLS provides encrypted TCP connections using OpenSSL. `TlsStream` wraps a TCP socket with TLS encryption, enabling secure communication with HTTPS servers and other TLS-enabled services. `TlsListener` provides server-side TLS, accepting incoming connections and wrapping them with encryption.
 

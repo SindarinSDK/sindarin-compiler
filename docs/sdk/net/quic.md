@@ -1,4 +1,8 @@
-# QUIC
+---
+title: "QUIC"
+description: "QUIC multiplexed encrypted streams"
+permalink: /sdk/net/quic/
+---
 
 QUIC provides multiplexed, encrypted transport over UDP with low-latency connection establishment. Built on ngtcp2 with OpenSSL, QUIC offers TLS 1.3 encryption, stream multiplexing without head-of-line blocking, and connection migration.
 

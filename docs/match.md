@@ -1,4 +1,8 @@
-# Match Expressions
+---
+title: "Match"
+description: "Pattern matching with match expressions"
+permalink: /language/match/
+---
 
 Sindarin supports pattern matching with the `match` expression. Match compares a subject expression against a series of arms using equality, executing the body of the first matching arm.
 

@@ -1,4 +1,8 @@
-# JSON
+---
+title: "JSON"
+description: "JSON parsing and serialization"
+permalink: /sdk/encoding/json/
+---
 
 Provides JSON parsing, manipulation, and serialization using the yyjson library. The `Json` type represents any JSON value (object, array, string, number, boolean, or null) and supports both reading and mutation.
 

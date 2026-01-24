@@ -1,4 +1,8 @@
-# ZLib
+---
+title: "ZLib"
+description: "Compression and decompression"
+permalink: /sdk/encoding/zlib/
+---
 
 Provides zlib compression and decompression bindings with high-level convenience wrappers and low-level C library access.
 

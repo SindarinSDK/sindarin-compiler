@@ -1,4 +1,8 @@
-# Namespaces in Sindarin
+---
+title: "Namespaces"
+description: "Module namespaces and code organization"
+permalink: /language/namespaces/
+---
 
 Sindarin extends its import system with optional namespace support. The existing import behavior remains unchanged, but a new `as` clause allows imports to be scoped under a namespace prefix.
 

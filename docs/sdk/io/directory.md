@@ -1,4 +1,8 @@
-# Directory
+---
+title: "Directory"
+description: "Directory listing and manipulation"
+permalink: /sdk/io/directory/
+---
 
 Static methods for directory operations.
 

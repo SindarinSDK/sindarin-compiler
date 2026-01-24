@@ -1,4 +1,8 @@
-# Path
+---
+title: "Path"
+description: "File path utilities and manipulation"
+permalink: /sdk/io/path/
+---
 
 Static methods for path manipulation and file system queries.
 

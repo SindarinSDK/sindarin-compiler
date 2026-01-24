@@ -1,4 +1,8 @@
-# Function Interceptors in Sindarin
+---
+title: "Interceptors"
+description: "Function interceptors for cross-cutting concerns"
+permalink: /language/interceptors/
+---
 
 Interceptors provide a way to intercept and modify the behavior of user-defined function calls at runtime. This enables debugging, profiling, mocking, logging, and aspect-oriented programming patterns.
 

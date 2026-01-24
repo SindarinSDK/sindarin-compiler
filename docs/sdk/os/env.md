@@ -1,4 +1,8 @@
-# Environment in Sindarin
+---
+title: "Environment"
+description: "Environment variable access"
+permalink: /sdk/os/env/
+---
 
 The SDK `Environment` type provides access to environment variables.
 

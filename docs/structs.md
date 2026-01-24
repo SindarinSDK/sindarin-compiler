@@ -1,4 +1,8 @@
-# Structs in Sindarin
+---
+title: "Structs"
+description: "Struct types, fields, and methods"
+permalink: /language/structs/
+---
 
 Sindarin supports C-compatible structs for structured data and C library interoperability. Structs enable accessing fields of C library data structures (like zlib's `z_stream`), parsing binary file formats, and organizing related data.
 

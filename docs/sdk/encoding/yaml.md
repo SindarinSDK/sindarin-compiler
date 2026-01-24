@@ -1,4 +1,8 @@
-# YAML
+---
+title: "YAML"
+description: "YAML parsing and serialization"
+permalink: /sdk/encoding/yaml/
+---
 
 Provides YAML parsing, manipulation, and serialization using libyaml. The `Yaml` type represents a YAML node (scalar, sequence, or mapping) with full mutation support.
 

@@ -1,4 +1,8 @@
-# TCP
+---
+title: "TCP"
+description: "TCP listener and stream connections"
+permalink: /sdk/net/tcp/
+---
 
 TCP provides connection-oriented, reliable communication using `TcpListener` for servers and `TcpStream` for connections.
 

@@ -1,4 +1,8 @@
-# Time in Sindarin
+---
+title: "Time"
+description: "Time and duration operations"
+permalink: /sdk/time/time/
+---
 
 The built-in `Time` type has been deprecated. Please use the SDK-based `Time` type instead.
 

@@ -1,4 +1,8 @@
-# Threading in Sindarin
+---
+title: "Threading"
+description: "Concurrency with spawn, sync, and shared memory"
+permalink: /language/threading/
+---
 
 Sindarin provides OS-level threading with minimal syntax for concurrent execution. The `&` operator spawns threads and the `!` operator synchronizes them. Thread safety is enforced at compile time through pending and frozen state tracking.
 

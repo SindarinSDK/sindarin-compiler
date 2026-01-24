@@ -1,4 +1,8 @@
-# Strings in Sindarin
+---
+title: "Strings"
+description: "String interpolation, methods, and operations"
+permalink: /language/strings/
+---
 
 Sindarin provides powerful string manipulation with string interpolation, comprehensive methods, and escape sequences.
 
