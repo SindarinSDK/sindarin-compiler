@@ -29,6 +29,9 @@ ifeq ($(OS),Windows_NT)
     # Always use Ninja on Windows (it's required for this project)
     CMAKE_GENERATOR := Ninja
     TEMP_DIR := $(if $(TEMP),$(TEMP),/tmp)
+    MKDIR := cmake -E make_directory
+    # Native Windows has no Unix-style timeout command
+    TIMEOUT_CMD :=
 else
     UNAME_S := $(shell uname -s 2>/dev/null || echo Unknown)
     ifneq ($(filter MINGW% MSYS% CYGWIN%,$(UNAME_S)),)
@@ -42,6 +45,7 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        TIMEOUT_CMD := timeout
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
         CMAKE_GENERATOR := $(if $(filter yes,$(NINJA_EXISTS)),Ninja,Unix Makefiles)
@@ -57,6 +61,7 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        TIMEOUT_CMD := timeout
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
         CMAKE_GENERATOR := $(if $(filter yes,$(NINJA_EXISTS)),Ninja,Unix Makefiles)
@@ -72,6 +77,7 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        TIMEOUT_CMD := timeout
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
         CMAKE_GENERATOR := $(if $(filter yes,$(NINJA_EXISTS)),Ninja,Unix Makefiles)
@@ -202,11 +208,12 @@ arena:
 test-arena:
 	@echo "Building and running managed arena tests..."
 	@$(MKDIR) $(ARENA_BUILD)
+	@$(MKDIR) $(BIN_DIR)
 	$(CMAKE_C_COMPILER) -Wall -Wextra -g -fsanitize=address -pthread \
 		$(ARENA_SRCS) $(ARENA_TEST_SRCS) \
 		-o $(ARENA_TEST_BIN)
 	@echo ""
-	timeout 30 $(ARENA_TEST_BIN)
+	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA_TEST_BIN)
 
 #------------------------------------------------------------------------------
 # install - Install to system

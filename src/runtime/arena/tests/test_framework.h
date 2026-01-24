@@ -9,10 +9,41 @@
 /* Portable microsecond sleep for tests */
 #define usleep(us) rt_arena_sleep_ms(((us) + 999) / 1000)
 
-/* Shared counters (defined in test_main.c) */
+/* ============================================================================
+ * High-resolution timer
+ * ============================================================================ */
+#ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+
+static inline double test_timer_now(void) {
+    LARGE_INTEGER freq, count;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    return (double)count.QuadPart / (double)freq.QuadPart;
+}
+#else
+#include <time.h>
+
+static inline double test_timer_now(void) {
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (double)ts.tv_sec + (double)ts.tv_nsec / 1e9;
+}
+#endif
+
+/* ============================================================================
+ * Test counters and timing (defined in test_main.c)
+ * ============================================================================ */
 extern int tests_passed;
 extern int tests_failed;
+extern double tests_total_ms;
 
+/* ============================================================================
+ * Assertions
+ * ============================================================================ */
 #define ASSERT(cond, msg) do { \
     if (!(cond)) { \
         fprintf(stderr, "  FAIL: %s (line %d): %s\n", __func__, __LINE__, msg); \
@@ -30,10 +61,19 @@ extern int tests_failed;
     } \
 } while(0)
 
+/* ============================================================================
+ * Test runner with per-test timing
+ * ============================================================================ */
 #define TEST_RUN(name, func) do { \
     printf("  %-50s", name); \
+    double _t0 = test_timer_now(); \
     func(); \
-    printf("PASS\n"); \
+    double _elapsed_ms = (test_timer_now() - _t0) * 1000.0; \
+    tests_total_ms += _elapsed_ms; \
+    if (_elapsed_ms >= 1000.0) \
+        printf("PASS  %7.2fs\n", _elapsed_ms / 1000.0); \
+    else \
+        printf("PASS  %7.2fms\n", _elapsed_ms); \
     tests_passed++; \
 } while(0)
 
