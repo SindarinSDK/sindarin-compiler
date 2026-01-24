@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define ARENA_ALIGNMENT 8 // Align allocations to 8 bytes (common for x64)
+#define ARENA_ALIGNMENT 16 // Align to 16 bytes (max_align_t on x86-64)
 
 static size_t align_up(size_t size, size_t alignment)
 {
