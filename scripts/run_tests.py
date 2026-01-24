@@ -219,8 +219,8 @@ class TestRunner:
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def run_unit_tests(self) -> bool:
-        """Run unit tests."""
+    def run_unit_tests(self) -> Tuple[bool, float]:
+        """Run unit tests. Returns (passed, elapsed_seconds)."""
         print()
         print(f"{Colors.BOLD}Unit Tests{Colors.NC}")
         print("=" * 60)
@@ -230,14 +230,16 @@ class TestRunner:
 
         if not os.path.isfile(test_binary):
             print(f"{Colors.RED}FAIL{Colors.NC}: Test binary not found: {test_binary}")
-            return False
+            return False, 0.0
 
         # Use absolute path for Windows subprocess compatibility
         test_binary = os.path.abspath(test_binary)
 
+        start_time = time.perf_counter()
         exit_code, stdout, stderr = run_with_timeout(
             [test_binary], self.run_timeout, env=self.env
         )
+        elapsed = time.perf_counter() - start_time
 
         if stdout:
             print(stdout)
@@ -246,11 +248,11 @@ class TestRunner:
 
         print("-" * 60)
         if exit_code == 0:
-            print(f"{Colors.GREEN}Unit tests passed{Colors.NC}")
-            return True
+            print(f"{Colors.GREEN}Unit tests passed{Colors.NC}  ({self._format_elapsed(elapsed)})")
+            return True, elapsed
         else:
-            print(f"{Colors.RED}Unit tests failed{Colors.NC}")
-            return False
+            print(f"{Colors.RED}Unit tests failed{Colors.NC}  ({self._format_elapsed(elapsed)})")
+            return False, elapsed
 
     def _run_single_test(self, test_info: Dict[str, Any]) -> Dict[str, Any]:
         """Run a single test and return result dict. Thread-safe."""
@@ -266,11 +268,14 @@ class TestRunner:
                 'test_name': test_name,
                 'status': 'skip',
                 'reason': 'excluded',
-                'details': None
+                'details': None,
+                'elapsed': 0.0
             }
         else:
             expected_file = test_file.replace('.sn', '.expected')
             panic_file = test_file.replace('.sn', '.panic')
+
+            start_time = time.perf_counter()
 
             if config.expect_compile_fail:
                 status, reason, details = self._run_error_test_internal(
@@ -281,11 +286,14 @@ class TestRunner:
                     test_file, expected_file, panic_file, exe_file, test_type
                 )
 
+            elapsed = time.perf_counter() - start_time
+
             result = {
                 'test_name': test_name,
                 'status': status,
                 'reason': reason,
-                'details': details
+                'details': details,
+                'elapsed': elapsed
             }
 
         # Update progress counter
@@ -298,16 +306,17 @@ class TestRunner:
 
         return result
 
-    def run_sn_tests(self, test_type: str) -> bool:
-        """Run Sindarin source file tests."""
+    def run_sn_tests(self, test_type: str) -> Tuple[bool, float]:
+        """Run Sindarin source file tests. Returns (passed, elapsed_seconds)."""
         config = TEST_CONFIGS.get(test_type)
         if not config:
             print(f"Unknown test type: {test_type}")
-            return False
+            return False, 0.0
 
         print()
         print(f"{Colors.BOLD}{config.title}{Colors.NC}")
         print("=" * 60)
+        suite_start = time.perf_counter()
 
         # Find test files
         pattern = os.path.join(config.test_dir, config.pattern)
@@ -315,7 +324,7 @@ class TestRunner:
 
         if not test_files:
             print(f"No test files found matching: {pattern}")
-            return True
+            return True, 0.0
 
         exe_ext = get_exe_extension()
 
@@ -382,13 +391,24 @@ class TestRunner:
             else:
                 failed += 1
 
+        suite_elapsed = time.perf_counter() - suite_start
+
         print()
         print("-" * 60)
         print(f"Results: {Colors.GREEN}{passed} passed{Colors.NC}, "
               f"{Colors.RED}{failed} failed{Colors.NC}, "
-              f"{Colors.YELLOW}{skipped} skipped{Colors.NC}")
+              f"{Colors.YELLOW}{skipped} skipped{Colors.NC}"
+              f"  ({self._format_elapsed(suite_elapsed)})")
 
-        return failed == 0
+        return failed == 0, suite_elapsed
+
+    @staticmethod
+    def _format_elapsed(elapsed: float) -> str:
+        """Format elapsed time for display."""
+        if elapsed >= 1.0:
+            return f"{elapsed:.2f}s"
+        else:
+            return f"{elapsed * 1000:.0f}ms"
 
     def _print_test_result(self, result: Dict[str, Any], include_name: bool = False):
         """Print a single test result."""
@@ -396,16 +416,19 @@ class TestRunner:
         status = result['status']
         reason = result['reason']
         details = result['details']
+        elapsed = result.get('elapsed', 0.0)
 
         if include_name:
             print(f"  {test_name:45} ", end='')
 
+        time_str = f"  ({self._format_elapsed(elapsed)})" if elapsed > 0 else ""
+
         if status == 'pass':
-            print(f"{Colors.GREEN}PASS{Colors.NC}")
+            print(f"{Colors.GREEN}PASS{Colors.NC}{time_str}")
         elif status == 'skip':
             print(f"{Colors.YELLOW}SKIP{Colors.NC} ({reason})")
         else:
-            print(f"{Colors.RED}FAIL{Colors.NC} ({reason})")
+            print(f"{Colors.RED}FAIL{Colors.NC} ({reason}){time_str}")
             if self.verbose and details:
                 for line in details[:20]:
                     print(f"    {line}")
@@ -571,26 +594,36 @@ def main():
         print(f"Parallel: {args.parallel} workers")
 
     all_passed = True
+    total_elapsed = 0.0
 
     with TestRunner(compiler, args.timeout, args.run_timeout,
                     excluded, args.verbose, args.parallel) as runner:
         if args.test_type == 'all':
             # Run all test types
-            all_passed &= runner.run_unit_tests()
+            passed, elapsed = runner.run_unit_tests()
+            all_passed &= passed
+            total_elapsed += elapsed
             for test_type in ['integration', 'integration-errors',
                              'explore', 'explore-errors', 'sdk']:
-                all_passed &= runner.run_sn_tests(test_type)
+                passed, elapsed = runner.run_sn_tests(test_type)
+                all_passed &= passed
+                total_elapsed += elapsed
         elif args.test_type == 'unit':
-            all_passed = runner.run_unit_tests()
+            passed, elapsed = runner.run_unit_tests()
+            all_passed = passed
+            total_elapsed = elapsed
         else:
-            all_passed = runner.run_sn_tests(args.test_type)
+            passed, elapsed = runner.run_sn_tests(args.test_type)
+            all_passed = passed
+            total_elapsed = elapsed
 
     print()
+    time_str = TestRunner._format_elapsed(total_elapsed)
     if all_passed:
-        print(f"{Colors.GREEN}{Colors.BOLD}All tests passed!{Colors.NC}")
+        print(f"{Colors.GREEN}{Colors.BOLD}All tests passed!{Colors.NC}  (total: {time_str})")
         sys.exit(0)
     else:
-        print(f"{Colors.RED}{Colors.BOLD}Some tests failed!{Colors.NC}")
+        print(f"{Colors.RED}{Colors.BOLD}Some tests failed!{Colors.NC}  (total: {time_str})")
         sys.exit(1)
 
 

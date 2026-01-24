@@ -7,6 +7,24 @@
 #include <stdio.h>
 #include <string.h>
 
+// Cross-platform high-resolution timing
+#ifdef _WIN32
+#include <windows.h>
+static double _test_get_time_ms(void) {
+    LARGE_INTEGER freq, count;
+    QueryPerformanceFrequency(&freq);
+    QueryPerformanceCounter(&count);
+    return (double)count.QuadPart * 1000.0 / (double)freq.QuadPart;
+}
+#else
+#include <sys/time.h>
+static double _test_get_time_ms(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+}
+#endif
+
 // ANSI color codes
 #define TEST_COLOR_GREEN  "\033[0;32m"
 #define TEST_COLOR_RED    "\033[0;31m"
@@ -19,6 +37,10 @@ static int _test_passed = 0;
 static int _test_failed = 0;
 static int _test_section_passed = 0;
 static int _test_section_failed = 0;
+
+// Timing state
+static double _test_suite_start_ms = 0;
+static double _test_current_start_ms = 0;
 
 // Print section header
 // Usage: TEST_SECTION("Runtime Arena");
@@ -44,8 +66,13 @@ static int _test_section_failed = 0;
 #define TEST(name, code) do { \
     printf("  %-50s ", name); \
     fflush(stdout); \
+    _test_current_start_ms = _test_get_time_ms(); \
     { code } \
-    printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "\n"); \
+    double _test_elapsed = _test_get_time_ms() - _test_current_start_ms; \
+    if (_test_elapsed >= 1000.0) \
+        printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fs)\n", _test_elapsed / 1000.0); \
+    else \
+        printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fms)\n", _test_elapsed); \
     _test_passed++; \
     _test_section_passed++; \
 } while(0)
@@ -55,8 +82,13 @@ static int _test_section_failed = 0;
 #define TEST_RUN(name, func) do { \
     printf("  %-50s ", name); \
     fflush(stdout); \
+    _test_current_start_ms = _test_get_time_ms(); \
     func(); \
-    printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "\n"); \
+    double _test_elapsed = _test_get_time_ms() - _test_current_start_ms; \
+    if (_test_elapsed >= 1000.0) \
+        printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fs)\n", _test_elapsed / 1000.0); \
+    else \
+        printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fms)\n", _test_elapsed); \
     _test_passed++; \
     _test_section_passed++; \
 } while(0)
@@ -76,16 +108,25 @@ static int _test_section_failed = 0;
 
 // Print final summary
 #define TEST_SUMMARY() do { \
+    double _test_total_elapsed = _test_get_time_ms() - _test_suite_start_ms; \
     printf("\n------------------------------------------------------------\n"); \
-    printf("Results: " TEST_COLOR_GREEN "%d passed" TEST_COLOR_RESET ", " \
-           TEST_COLOR_RED "%d failed" TEST_COLOR_RESET "\n", \
-           _test_passed, _test_failed); \
+    if (_test_total_elapsed >= 1000.0) \
+        printf("Results: " TEST_COLOR_GREEN "%d passed" TEST_COLOR_RESET ", " \
+               TEST_COLOR_RED "%d failed" TEST_COLOR_RESET \
+               "  (total: %.2fs)\n", \
+               _test_passed, _test_failed, _test_total_elapsed / 1000.0); \
+    else \
+        printf("Results: " TEST_COLOR_GREEN "%d passed" TEST_COLOR_RESET ", " \
+               TEST_COLOR_RED "%d failed" TEST_COLOR_RESET \
+               "  (total: %.2fms)\n", \
+               _test_passed, _test_failed, _test_total_elapsed); \
 } while(0)
 
 // Initialize test counters (call at start of main)
 #define TEST_INIT() do { \
     _test_passed = 0; \
     _test_failed = 0; \
+    _test_suite_start_ms = _test_get_time_ms(); \
 } while(0)
 
 // Get total passed count
