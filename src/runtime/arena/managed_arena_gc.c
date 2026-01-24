@@ -14,16 +14,23 @@ static inline size_t align_up_compact(size_t value, size_t alignment)
 
 static RtManagedBlock *managed_block_create_compact(size_t size)
 {
-    RtManagedBlock *block = malloc(sizeof(RtManagedBlock) + size);
+    size_t total = sizeof(RtManagedBlock) + size;
+    RtManagedBlock *block = rt_arena_mmap(total);
     if (block == NULL) {
-        fprintf(stderr, "managed_block_create_compact: allocation failed\n");
+        fprintf(stderr, "managed_block_create_compact: mmap failed\n");
         exit(1);
     }
     block->next = NULL;
     block->size = size;
-    block->used = 0;
+    atomic_init(&block->used, 0);
+    atomic_init(&block->lease_count, 0);
     block->retired = false;
     return block;
+}
+
+static void managed_block_free_gc(RtManagedBlock *block)
+{
+    rt_arena_munmap(block, sizeof(RtManagedBlock) + block->size);
 }
 
 /* Recycle a handle index back to the free list (caller must hold alloc_mutex) */
@@ -85,44 +92,28 @@ static bool clean_arena(RtManagedArena *ma)
 {
     bool did_work = false;
 
-    /* Read table_count under lock (only grows, so stale value is safe upper bound) */
+    /* Single lock acquisition to process all dead+unleased entries.
+     * Previous implementation locked/unlocked per entry (2x per entry)
+     * and performed an unnecessary memset on dead memory. */
     pthread_mutex_lock(&ma->alloc_mutex);
+
     uint32_t count = ma->table_count;
-    pthread_mutex_unlock(&ma->alloc_mutex);
-
     for (uint32_t i = 1; i < count; i++) {
-        /* Phase 1: Read entry under lock, check eligibility */
-        void *ptr_copy;
-        size_t size_copy;
-
-        pthread_mutex_lock(&ma->alloc_mutex);
-        RtHandleEntry *entry = &ma->table[i];
+        RtHandleEntry *entry = rt_handle_get(ma, i);
         if (!entry->dead || entry->ptr == NULL || atomic_load(&entry->leased) != 0) {
-            pthread_mutex_unlock(&ma->alloc_mutex);
             continue;
         }
-        ptr_copy = entry->ptr;
-        size_copy = entry->size;
-        pthread_mutex_unlock(&ma->alloc_mutex);
-
-        /* Phase 2: Zero memory outside the lock (expensive operation) */
-        memset(ptr_copy, 0, size_copy);
-
-        /* Phase 3: Re-verify and clear under lock */
-        pthread_mutex_lock(&ma->alloc_mutex);
-        entry = &ma->table[i];
-        if (entry->ptr == ptr_copy && entry->size == size_copy &&
-            entry->dead && atomic_load(&entry->leased) == 0) {
-            /* Entry unchanged — safe to recycle */
-            atomic_fetch_sub(&ma->dead_bytes, entry->size);
-            entry->ptr = NULL;
-            entry->size = 0;
-            entry->dead = false;
-            recycle_handle_gc(ma, i);
-            did_work = true;
-        }
-        pthread_mutex_unlock(&ma->alloc_mutex);
+        /* Entry is dead and unleased — recycle immediately */
+        atomic_fetch_sub(&ma->dead_bytes, entry->size);
+        entry->ptr = NULL;
+        entry->block = NULL;
+        entry->size = 0;
+        entry->dead = false;
+        recycle_handle_gc(ma, i);
+        did_work = true;
     }
+
+    pthread_mutex_unlock(&ma->alloc_mutex);
 
     return did_work;
 }
@@ -185,7 +176,7 @@ void rt_managed_compact(RtManagedArena *ma)
     size_t live_total = 0;
     uint32_t live_count = 0;
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
+        RtHandleEntry *entry = rt_handle_get(ma, i);
         if (!entry->dead && entry->ptr != NULL) {
             live_total += align_up_compact(entry->size, sizeof(void *));
             live_count++;
@@ -205,7 +196,7 @@ void rt_managed_compact(RtManagedArena *ma)
     /* Copy live entries to new block */
     RtManagedBlock *new_current = new_first;
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
+        RtHandleEntry *entry = rt_handle_get(ma, i);
         if (entry->dead || entry->ptr == NULL) continue;
 
         /* Try to acquire entry for moving — CAS leased: 0 → MOVING */
@@ -218,18 +209,21 @@ void rt_managed_compact(RtManagedArena *ma)
 
         /* Copy data to new block */
         size_t aligned = align_up_compact(entry->size, sizeof(void *));
-        if (new_current->used + aligned > new_current->size) {
+        size_t cur_used = atomic_load_explicit(&new_current->used, memory_order_relaxed);
+        if (cur_used + aligned > new_current->size) {
             /* Need another block */
             RtManagedBlock *next = managed_block_create_compact(ma->block_size);
             new_current->next = next;
             new_current = next;
+            cur_used = 0;
         }
-        void *new_ptr = new_current->data + new_current->used;
+        void *new_ptr = new_current->data + cur_used;
         memcpy(new_ptr, entry->ptr, entry->size);
-        new_current->used += aligned;
+        atomic_store_explicit(&new_current->used, cur_used + aligned, memory_order_relaxed);
 
-        /* Update handle table pointer */
+        /* Update handle table pointer and block reference */
         entry->ptr = new_ptr;
+        entry->block = new_current;
 
         /* Release moving lock */
         atomic_store(&entry->leased, 0);
@@ -238,13 +232,14 @@ void rt_managed_compact(RtManagedArena *ma)
     /* Null out dead + unleased entries that point into old blocks */
     RtManagedBlock *old_first = ma->first;
     for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
+        RtHandleEntry *entry = rt_handle_get(ma, i);
         if (entry->dead && entry->ptr != NULL && atomic_load(&entry->leased) == 0) {
             /* Check if ptr is in any old block */
             for (RtManagedBlock *b = old_first; b != NULL; b = b->next) {
                 char *p = (char *)entry->ptr;
                 if (p >= b->data && p < b->data + b->size) {
                     entry->ptr = NULL;
+                    entry->block = NULL;
                     entry->size = 0;
                     entry->dead = false;
                     recycle_handle_gc(ma, i);
@@ -265,9 +260,11 @@ void rt_managed_compact(RtManagedArena *ma)
     old_tail->next = ma->retired_list;
     ma->retired_list = old_first;
 
-    /* Install new blocks */
+    /* Install new blocks and bump epoch to invalidate any in-flight
+     * lock-free bumps that targeted the old blocks */
     ma->first = new_first;
     ma->current = new_current;
+    atomic_fetch_add_explicit(&ma->block_epoch, 1, memory_order_release);
 
     /* Update total_allocated to reflect new state */
     size_t new_total = 0;
@@ -289,19 +286,11 @@ void rt_managed_compact(RtManagedArena *ma)
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
 
-/* Check if any leased entry points into this block */
+/* Check if any leased entry points into this block — O(1) via atomic counter */
 static bool block_has_leased_entries(RtManagedArena *ma, RtManagedBlock *block)
 {
-    for (uint32_t i = 1; i < ma->table_count; i++) {
-        RtHandleEntry *entry = &ma->table[i];
-        if (entry->ptr == NULL) continue;
-        if (atomic_load(&entry->leased) <= 0) continue;
-        char *p = (char *)entry->ptr;
-        if (p >= block->data && p < block->data + block->size) {
-            return true;
-        }
-    }
-    return false;
+    (void)ma;
+    return atomic_load_explicit(&block->lease_count, memory_order_acquire) > 0;
 }
 
 /* Try to free retired blocks whose entries are all unleased */
@@ -316,7 +305,7 @@ static void retire_drained_blocks(RtManagedArena *ma)
         RtManagedBlock *next = block->next;
         if (!block_has_leased_entries(ma, block)) {
             *prev = next;
-            free(block);
+            managed_block_free_gc(block);
         } else {
             prev = &block->next;
         }
