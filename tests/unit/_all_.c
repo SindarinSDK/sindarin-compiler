@@ -22,6 +22,8 @@ int main()
     printf("Running tests with debug level: %d\n", DEBUG_LEVEL_ERROR);
     init_debug(DEBUG_LEVEL_ERROR);
 
+    TEST_INIT();
+
     // *** Arena ***
 
     test_arena_main();
@@ -82,6 +84,11 @@ int main()
 
     // *** Complete ***
 
+    TEST_SUMMARY();
+
+    if (TEST_GET_FAILED() > 0) {
+        return 1;
+    }
     printf("All tests passed!\n");
 
     return 0;
