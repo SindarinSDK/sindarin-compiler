@@ -97,9 +97,9 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
  
  - This project uses ASAN not valgrind. All memory issues are detected using `-fsanitize=address`. Do not introduce valgrind into this project!
 
- - Always execute compiled artifacts (both the compiler and sindarin code files) using a `timeout` prefix to avoid crashing the host machine if there is an accidental/unintended infinite loops.
+ - ALWAYS execute compiled artifacts (both the compiler and sindarin code files) using a `timeout` prefix to avoid crashing the host machine if there is an accidental/unintended infinite loops.
 
- - Always debug with output written to the /tmp/ directory, this avoids accidentally comitting generated artifacts which do not form part of the solution. 
+ - ALWAYS debug with output written to the /tmp/ directory, this avoids accidentally comitting generated artifacts which do not form part of the solution. 
 
  - When tests fail, ALWAYS FIX THEM. Do not label them as "pre-existing issue" and ignore.
 
@@ -108,8 +108,9 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
    - timeout 300 python3 scripts/run_tests.py integration
    - timeout 900 python3 scripts/run_tests.py all
 
- - Do not work arround issues, describe the issue and stop immediately and let's discuss a solution.
+ - NEVER implement work arounds, ALWAYS FIX THE PROBLEMS PROPERLY.
+ - NEVER ignore test failures as "pre-existing", TESTS SHOULD ALWAYS PASS. 
 
 ## 📖 Documentation
 
-Is available at 'docs/language/'
+Is available at 'docs/'
