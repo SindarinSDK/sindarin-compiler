@@ -246,7 +246,7 @@ docs:
 	cmake -E rm -f $(SITE_DIR)/sdk/readme.md
 	cmake -E rm -f $(SITE_DIR)/sdk/io/readme.md
 	cmake -E rm -f $(SITE_DIR)/sdk/net/readme.md
-	cd $(SITE_DIR) && git add -A && git commit -m "Sync docs from sindarin-compiler" && git push
+	cd $(SITE_DIR) && make build && git add -A && git commit -m "Sync docs from sindarin-compiler" && git push
 	@echo "Docs published."
 
 #------------------------------------------------------------------------------
