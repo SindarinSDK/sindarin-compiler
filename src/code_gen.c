@@ -1111,6 +1111,8 @@ void code_gen_module(CodeGen *gen, Module *module)
 
     // Second pass: emit forward declarations for all user-defined functions
     indented_fprintf(gen, 0, "/* Forward declarations */\n");
+    // Emit global arena reference (set by main at startup)
+    indented_fprintf(gen, 0, "static RtArena *__main_arena__ = NULL;\n\n");
     int forward_decl_count = 0;
     for (int i = 0; i < module->count; i++)
     {
@@ -1279,6 +1281,7 @@ void code_gen_module(CodeGen *gen, Module *module)
         // Generate main with arena lifecycle
         indented_fprintf(gen, 0, "int main() {\n");
         indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(NULL);\n");
+        indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
         indented_fprintf(gen, 1, "int _return_value = 0;\n");
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");

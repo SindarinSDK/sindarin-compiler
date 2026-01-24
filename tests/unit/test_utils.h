@@ -283,7 +283,8 @@ static const char *CODE_GEN_RUNTIME_HEADER =
     "/* Environment operations */\n"
     "extern char *rt_env_get(RtArena *, const char *);\n"
     "extern char **rt_env_names(RtArena *);\n\n"
-    "/* Forward declarations */\n";
+    "/* Forward declarations */\n"
+    "static RtArena *__main_arena__ = NULL;\n\n";
 
 /*
  * Helper to build expected code gen output.

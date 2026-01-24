@@ -1,0 +1,155 @@
+// Test: Global variable safety through deep interceptor chains
+// Tests that globals of all types survive arena destruction when assigned
+// from within functions called through 5-deep interceptor chains.
+// Each interceptor in the chain also assigns to globals.
+
+struct Point =>
+    x: int
+    y: int
+
+struct Named =>
+    label: str
+    value: int
+
+// === Global variables of all types ===
+var g_int: int = 0
+var g_double: double = 0.0
+var g_bool: bool = false
+var g_str: str = ""
+var g_arr: int[] = {}
+var g_struct: Point = Point { x: 0, y: 0 }
+var g_named: Named = Named { label: "", value: 0 }
+
+// Track which interceptors fired
+var g_chain: str = ""
+var g_depth: int = 0
+
+// === The target function that sets globals ===
+fn setAllGlobals(n: int): int =>
+    g_int = n * 10
+    g_double = 3.14
+    g_bool = true
+    g_str = $"final-value-{n}"
+    g_arr = {n, n * 2, n * 3}
+    g_struct = Point { x: n, y: n * 100 }
+    g_named = Named { label: $"named-{n}", value: n * 7 }
+    g_chain = $"{g_chain}[target]"
+    return n * 10
+
+// === 5 interceptor handlers, each modifying globals ===
+fn interceptor1(name: str, args: any[], continue_fn: fn(): any): any =>
+    g_depth = g_depth + 1
+    g_chain = $"{g_chain}[i1]"
+    g_str = "from-interceptor-1"
+    var result: any = continue_fn()
+    return result
+
+fn interceptor2(name: str, args: any[], continue_fn: fn(): any): any =>
+    g_depth = g_depth + 1
+    g_chain = $"{g_chain}[i2]"
+    g_str = "from-interceptor-2"
+    var result: any = continue_fn()
+    return result
+
+fn interceptor3(name: str, args: any[], continue_fn: fn(): any): any =>
+    g_depth = g_depth + 1
+    g_chain = $"{g_chain}[i3]"
+    g_str = "from-interceptor-3"
+    var result: any = continue_fn()
+    return result
+
+fn interceptor4(name: str, args: any[], continue_fn: fn(): any): any =>
+    g_depth = g_depth + 1
+    g_chain = $"{g_chain}[i4]"
+    g_str = "from-interceptor-4"
+    var result: any = continue_fn()
+    return result
+
+fn interceptor5(name: str, args: any[], continue_fn: fn(): any): any =>
+    g_depth = g_depth + 1
+    g_chain = $"{g_chain}[i5]"
+    g_str = "from-interceptor-5"
+    var result: any = continue_fn()
+    return result
+
+fn main =>
+    // Register 5 interceptors to create a deep chain
+    Interceptor.register(interceptor1)
+    Interceptor.register(interceptor2)
+    Interceptor.register(interceptor3)
+    Interceptor.register(interceptor4)
+    Interceptor.register(interceptor5)
+
+    // Call through the chain - all 5 interceptors + target run
+    var result: int = setAllGlobals(5)
+
+    // === Assertions: verify all globals survived ===
+    print("=== Primitive globals ===\n")
+    assert(g_int == 50, $"g_int: expected 50, got {g_int}")
+    print($"PASS: g_int = {g_int}\n")
+
+    assert(g_double == 3.14, $"g_double: expected 3.14, got {g_double}")
+    print($"PASS: g_double = {g_double}\n")
+
+    assert(g_bool == true, "g_bool: expected true")
+    print("PASS: g_bool = true\n")
+
+    assert(result == 50, $"result: expected 50, got {result}")
+    print($"PASS: result = {result}\n")
+
+    // String: the target writes last, so its value should persist
+    print("\n=== String globals ===\n")
+    assert(g_str == "final-value-5", $"g_str: expected 'final-value-5', got '{g_str}'")
+    print($"PASS: g_str = {g_str}\n")
+
+    // Chain: verify all 5 interceptors + target fired
+    print("\n=== Interceptor chain ===\n")
+    assert(g_depth == 5, $"g_depth: expected 5, got {g_depth}")
+    print($"PASS: g_depth = {g_depth}\n")
+    print($"Chain: {g_chain}\n")
+
+    // Array: verify elements survived arena destruction
+    print("\n=== Array globals ===\n")
+    assert(len(g_arr) == 3, $"g_arr length: expected 3, got {len(g_arr)}")
+    print($"PASS: len(g_arr) = {len(g_arr)}\n")
+    assert(g_arr[0] == 5, $"g_arr[0]: expected 5, got {g_arr[0]}")
+    assert(g_arr[1] == 10, $"g_arr[1]: expected 10, got {g_arr[1]}")
+    assert(g_arr[2] == 15, $"g_arr[2]: expected 15, got {g_arr[2]}")
+    print($"PASS: g_arr = [{g_arr[0]}, {g_arr[1]}, {g_arr[2]}]\n")
+
+    // Struct: verify fields survived
+    print("\n=== Struct globals ===\n")
+    assert(g_struct.x == 5, $"g_struct.x: expected 5, got {g_struct.x}")
+    assert(g_struct.y == 500, $"g_struct.y: expected 500, got {g_struct.y}")
+    print($"PASS: g_struct = ({g_struct.x}, {g_struct.y})\n")
+
+    // Struct with string field: verify string survived
+    assert(g_named.value == 35, $"g_named.value: expected 35, got {g_named.value}")
+    assert(g_named.label == "named-5", $"g_named.label: expected 'named-5', got '{g_named.label}'")
+    print($"PASS: g_named = ({g_named.label}, {g_named.value})\n")
+
+    // === Test repeated assignment to same global (leak check) ===
+    print("\n=== Repeated string assignment (arena accumulation test) ===\n")
+    Interceptor.clearAll()
+    Interceptor.register(interceptor1)
+    Interceptor.register(interceptor2)
+    Interceptor.register(interceptor3)
+    Interceptor.register(interceptor4)
+    Interceptor.register(interceptor5)
+
+    // Each call: 5 interceptors each assign g_str + target assigns g_str = 6 writes per call
+    // 10 calls = 60 string promotions to __main_arena__
+    var i: int = 0
+    while i < 10 =>
+        g_depth = 0
+        result = setAllGlobals(i + 100)
+        i = i + 1
+
+    // After 10 iterations, g_str should be the last target's value
+    assert(g_str == "final-value-109", $"after loop g_str: expected 'final-value-109', got '{g_str}'")
+    print($"PASS: after 10 iterations g_str = {g_str}\n")
+    assert(g_int == 1090, $"after loop g_int: expected 1090, got {g_int}")
+    print($"PASS: after 10 iterations g_int = {g_int}\n")
+
+    Interceptor.clearAll()
+    print("\nAll global interceptor chain tests passed!\n")

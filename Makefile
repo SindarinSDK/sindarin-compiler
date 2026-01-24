@@ -13,6 +13,7 @@
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors test-sdk
+.PHONY: arena test-arena
 .PHONY: configure install package
 .PHONY: setup
 
@@ -169,6 +170,45 @@ test-sdk: build
 	@$(PYTHON) scripts/run_tests.py sdk --verbose
 
 #------------------------------------------------------------------------------
+# arena - Build the managed arena library (standalone)
+#------------------------------------------------------------------------------
+ARENA_DIR := src/runtime/arena
+ARENA_BUILD := $(BUILD_DIR)/arena
+ARENA_SRCS := $(ARENA_DIR)/managed_arena.c $(ARENA_DIR)/managed_arena_gc.c
+ARENA_TEST_SRCS := $(ARENA_DIR)/tests/test_main.c \
+	$(ARENA_DIR)/tests/test_alloc.c \
+	$(ARENA_DIR)/tests/test_pin.c \
+	$(ARENA_DIR)/tests/test_reassignment.c \
+	$(ARENA_DIR)/tests/test_gc.c \
+	$(ARENA_DIR)/tests/test_concurrency.c \
+	$(ARENA_DIR)/tests/test_hierarchy.c \
+	$(ARENA_DIR)/tests/test_api.c \
+	$(ARENA_DIR)/tests/test_stress_profiles.c
+ARENA_TEST_BIN := $(BIN_DIR)/test_arena$(EXE_EXT)
+ARENA_CFLAGS := -Wall -Wextra -g -pthread
+
+arena:
+	@echo "Building managed arena..."
+	@$(MKDIR) $(ARENA_BUILD)
+	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) -fsanitize=address \
+		-c $(ARENA_DIR)/managed_arena.c -o $(ARENA_BUILD)/managed_arena.o
+	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) -fsanitize=address \
+		-c $(ARENA_DIR)/managed_arena_gc.c -o $(ARENA_BUILD)/managed_arena_gc.o
+	@echo "Managed arena built."
+
+#------------------------------------------------------------------------------
+# test-arena - Build and run managed arena tests
+#------------------------------------------------------------------------------
+test-arena:
+	@echo "Building and running managed arena tests..."
+	@$(MKDIR) $(ARENA_BUILD)
+	$(CMAKE_C_COMPILER) -Wall -Wextra -g -fsanitize=address -pthread \
+		$(ARENA_SRCS) $(ARENA_TEST_SRCS) \
+		-o $(ARENA_TEST_BIN)
+	@echo ""
+	timeout 30 $(ARENA_TEST_BIN)
+
+#------------------------------------------------------------------------------
 # install - Install to system
 #------------------------------------------------------------------------------
 install: build
@@ -214,6 +254,8 @@ help:
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
 	@echo "  make test-sdk               Run SDK tests"
+	@echo "  make arena                  Build managed arena library"
+	@echo "  make test-arena             Build and run managed arena tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to system"

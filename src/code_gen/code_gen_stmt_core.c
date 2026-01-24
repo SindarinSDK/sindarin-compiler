@@ -808,6 +808,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (is_main)
     {
         indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(NULL);\n");
+        indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
     }
     else if (is_shared)
     {

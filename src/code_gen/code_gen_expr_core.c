@@ -308,22 +308,76 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         }
     }
 
+    // Check if target is a global variable (needs promotion to main arena)
+    bool is_global = (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1);
+    bool in_arena_context = (gen->current_arena_var != NULL);
+
     if (type->kind == TYPE_STRING)
     {
         // Skip freeing old value in arena context - arena handles cleanup
-        if (gen->current_arena_var != NULL)
+        if (in_arena_context)
         {
-            // If target is a global variable, strdup the value to heap memory.
-            // Arena-allocated strings are freed when the function returns, but
-            // globals must outlive the function's arena.
-            if (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1)
+            // If target is a global variable, promote the value to main's arena.
+            // The local arena is destroyed when the function returns, but globals
+            // must outlive the function's arena scope. Main's arena persists for
+            // the program's lifetime, so promoting there is safe.
+            if (is_global)
             {
-                return arena_sprintf(gen->arena, "(%s = strdup(%s))", var_name, value_str);
+                return arena_sprintf(gen->arena, "(%s = rt_arena_promote_string(__main_arena__, %s))", var_name, value_str);
             }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         return arena_sprintf(gen->arena, "({ char *_val = %s; if (%s) rt_free_string(%s); %s = _val; _val; })",
                              value_str, var_name, var_name, var_name);
+    }
+    else if (type->kind == TYPE_ARRAY && in_arena_context && is_global)
+    {
+        // Clone array to main's arena so it outlives the function's local arena.
+        Type *elem_type = type->as.array.element_type;
+        const char *suffix = code_gen_type_suffix(elem_type);
+        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s(__main_arena__, %s))", var_name, suffix, value_str);
+    }
+    else if (type->kind == TYPE_STRUCT && in_arena_context && is_global)
+    {
+        // Struct is value-copied, but string/array fields point to local arena memory.
+        // Deep-promote those fields to main's arena.
+        int field_count = type->as.struct_type.field_count;
+        bool needs_deep_promote = false;
+        for (int i = 0; i < field_count; i++)
+        {
+            StructField *field = &type->as.struct_type.fields[i];
+            if (field->type && (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+            {
+                needs_deep_promote = true;
+                break;
+            }
+        }
+        if (needs_deep_promote)
+        {
+            // Build: ({ var = value; promote fields...; var; })
+            char *result = arena_sprintf(gen->arena, "({ %s = %s; ", var_name, value_str);
+            for (int i = 0; i < field_count; i++)
+            {
+                StructField *field = &type->as.struct_type.fields[i];
+                if (field->type == NULL) continue;
+                const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
+                if (field->type->kind == TYPE_STRING)
+                {
+                    result = arena_sprintf(gen->arena, "%sif (%s.%s) %s.%s = rt_arena_promote_string(__main_arena__, %s.%s); ",
+                                           result, var_name, c_field_name, var_name, c_field_name, var_name, c_field_name);
+                }
+                else if (field->type->kind == TYPE_ARRAY)
+                {
+                    Type *elem_type = field->type->as.array.element_type;
+                    const char *suffix = code_gen_type_suffix(elem_type);
+                    result = arena_sprintf(gen->arena, "%s%s.%s = rt_array_clone_%s(__main_arena__, %s.%s); ",
+                                           result, var_name, c_field_name, suffix, var_name, c_field_name);
+                }
+            }
+            result = arena_sprintf(gen->arena, "%s%s; })", result, var_name);
+            return result;
+        }
+        return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
     }
     else
     {
