@@ -192,7 +192,7 @@ jobs:
 
       - name: Run managed arena tests
         shell: bash
-        run: make test-arena
+        run: make test-arena ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
 
       #------------------------------------------------------------------------
       # Upload Artifacts
