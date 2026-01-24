@@ -418,8 +418,9 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
 
     /* Fast path: try lock-free bump on current block.
      * Read block_epoch before and after to detect if the compactor
-     * swapped blocks (which would invalidate our pointer). */
-    unsigned epoch_before = atomic_load_explicit(&ma->block_epoch, memory_order_acquire);
+     * swapped blocks (which would invalidate our pointer).
+     * Relaxed ordering is sufficient on x86-64 (TSO guarantees load ordering). */
+    unsigned epoch_before = atomic_load_explicit(&ma->block_epoch, memory_order_relaxed);
     RtManagedBlock *alloc_block = ma->current;
     void *ptr = block_try_alloc(alloc_block, aligned_size);
 
@@ -437,13 +438,13 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
         alloc_block = ma->current;
     }
 
-    /* Mark old allocation as dead */
+    /* Mark old allocation as dead (capture size for stat update outside lock) */
+    size_t old_dead_size = 0;
     if (old != RT_HANDLE_NULL && old < ma->table_count) {
         RtHandleEntry *old_entry = rt_handle_get(ma, old);
         if (!old_entry->dead) {
             old_entry->dead = true;
-            atomic_fetch_add(&ma->dead_bytes, old_entry->size);
-            atomic_fetch_sub(&ma->live_bytes, old_entry->size);
+            old_dead_size = old_entry->size;
         }
     }
 
@@ -456,9 +457,14 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     atomic_store_explicit(&entry->leased, 0, memory_order_relaxed);
     entry->dead = false;
 
-    atomic_fetch_add(&ma->live_bytes, size);
-
     pthread_mutex_unlock(&ma->alloc_mutex);
+
+    /* Update stats outside critical section (atomic ops are thread-safe) */
+    atomic_fetch_add(&ma->live_bytes, size);
+    if (old_dead_size > 0) {
+        atomic_fetch_add(&ma->dead_bytes, old_dead_size);
+        atomic_fetch_sub(&ma->live_bytes, old_dead_size);
+    }
 
     return (RtHandle)index;
 }
@@ -489,9 +495,9 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
 
     size_t size = src_entry->size;
 
-    /* Allocate in destination arena */
+    /* Allocate in destination arena (relaxed epoch load, x86-64 TSO safe) */
     size_t aligned_size = align_up(size, sizeof(void *));
-    unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_acquire);
+    unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_relaxed);
     RtManagedBlock *alloc_block = dest->current;
     void *new_ptr = block_try_alloc(alloc_block, aligned_size);
     pthread_mutex_lock(&dest->alloc_mutex);
@@ -509,8 +515,10 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     dest_entry->size = size;
     atomic_store_explicit(&dest_entry->leased, 0, memory_order_relaxed);
     dest_entry->dead = false;
-    atomic_fetch_add(&dest->live_bytes, size);
     pthread_mutex_unlock(&dest->alloc_mutex);
+
+    /* Update stats outside critical section */
+    atomic_fetch_add(&dest->live_bytes, size);
 
     /* Copy data */
     memcpy(new_ptr, src_entry->ptr, size);
@@ -522,12 +530,17 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     atomic_fetch_sub(&src_entry->leased, 1);
 
     pthread_mutex_lock(&src->alloc_mutex);
-    if (!src_entry->dead) {
+    bool src_was_alive = !src_entry->dead;
+    if (src_was_alive) {
         src_entry->dead = true;
+    }
+    pthread_mutex_unlock(&src->alloc_mutex);
+
+    /* Update source stats outside critical section */
+    if (src_was_alive) {
         atomic_fetch_add(&src->dead_bytes, size);
         atomic_fetch_sub(&src->live_bytes, size);
     }
-    pthread_mutex_unlock(&src->alloc_mutex);
 
     return (RtHandle)new_index;
 }

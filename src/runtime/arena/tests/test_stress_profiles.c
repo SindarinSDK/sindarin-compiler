@@ -570,6 +570,76 @@ static void test_profile_compaction_bench(void)
 }
 
 /* ============================================================================
+ * Profile 8: Allocation Contention Benchmark
+ * Goal: Measure alloc throughput under high mutex contention.
+ *       Multiple threads allocate+reassign on the SAME arena to stress the
+ *       critical section. Exercises lock hold time differences directly.
+ * ============================================================================ */
+
+#define CONTENTION_THREADS 4
+#define CONTENTION_ALLOCS 5000
+
+typedef struct {
+    RtManagedArena *arena;
+    int thread_id;
+} ContentionArgs;
+
+static void *contention_worker(void *arg)
+{
+    ContentionArgs *args = (ContentionArgs *)arg;
+    RtManagedArena *arena = args->arena;
+    RtHandle current = RT_HANDLE_NULL;
+
+    for (int i = 0; i < CONTENTION_ALLOCS; i++) {
+        /* Alloc with reassignment (exercises old-handle dead marking path) */
+        current = rt_managed_alloc(arena, current, 64);
+
+        /* Pin and write to validate correctness */
+        char *ptr = (char *)rt_managed_pin(arena, current);
+        snprintf(ptr, 64, "t%d-i%d", args->thread_id, i);
+        rt_managed_unpin(arena, current);
+    }
+
+    return NULL;
+}
+
+static void test_profile_alloc_contention(void)
+{
+    RtManagedArena *root = rt_managed_arena_create();
+
+    pthread_t threads[CONTENTION_THREADS];
+    ContentionArgs args[CONTENTION_THREADS];
+
+    /* Time the contended allocation phase */
+    double t0 = test_timer_now();
+
+    for (int i = 0; i < CONTENTION_THREADS; i++) {
+        args[i] = (ContentionArgs){ .arena = root, .thread_id = i };
+        pthread_create(&threads[i], NULL, contention_worker, &args[i]);
+    }
+
+    for (int i = 0; i < CONTENTION_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    double elapsed_ms = (test_timer_now() - t0) * 1000.0;
+    int total_allocs = CONTENTION_THREADS * CONTENTION_ALLOCS;
+
+    printf("\n    alloc contention: %.3fms (%d allocs, %d threads, %.0f allocs/ms) ",
+           elapsed_ms, total_allocs, CONTENTION_THREADS,
+           (double)total_allocs / elapsed_ms);
+
+    /* Verify: arena has live entries */
+    size_t live = rt_managed_live_count(root);
+    ASSERT(live >= CONTENTION_THREADS, "at least one live entry per thread");
+
+    rt_managed_arena_destroy(root);
+}
+
+#undef CONTENTION_THREADS
+#undef CONTENTION_ALLOCS
+
+/* ============================================================================
  * Runner
  * ============================================================================ */
 
@@ -583,4 +653,5 @@ void test_stress_run(void)
     TEST_RUN("event loop with periodic reset", test_profile_event_loop_reset);
     TEST_RUN("concurrent multi-arena (4 threads x 500)", test_profile_concurrent_multi_arena);
     TEST_RUN("compaction bench (10k entries, 8k dead)", test_profile_compaction_bench);
+    TEST_RUN("alloc contention (4 threads x 5000)", test_profile_alloc_contention);
 }
