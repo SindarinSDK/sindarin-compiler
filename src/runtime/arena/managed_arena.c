@@ -453,7 +453,7 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     entry->ptr = ptr;
     entry->block = alloc_block;
     entry->size = size;
-    atomic_init(&entry->leased, 0);
+    atomic_store_explicit(&entry->leased, 0, memory_order_relaxed);
     entry->dead = false;
 
     atomic_fetch_add(&ma->live_bytes, size);
@@ -507,7 +507,7 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     dest_entry->ptr = new_ptr;
     dest_entry->block = alloc_block;
     dest_entry->size = size;
-    atomic_init(&dest_entry->leased, 0);
+    atomic_store_explicit(&dest_entry->leased, 0, memory_order_relaxed);
     dest_entry->dead = false;
     atomic_fetch_add(&dest->live_bytes, size);
     pthread_mutex_unlock(&dest->alloc_mutex);
@@ -591,8 +591,7 @@ RtHandle rt_managed_strndup(RtManagedArena *ma, RtHandle old, const char *str, s
 {
     if (ma == NULL || str == NULL) return RT_HANDLE_NULL;
 
-    size_t len = strlen(str);
-    if (n < len) len = n;
+    size_t len = strnlen(str, n);
 
     RtHandle h = rt_managed_alloc(ma, old, len + 1);
     if (h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
