@@ -27,7 +27,9 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * BinaryFile Type Definition
@@ -97,7 +99,7 @@ int sn_binary_file_exists(const char *path)
 }
 
 /* Read entire binary file contents as byte array (static method) */
-unsigned char *sn_binary_file_read_all_static(RtArena *arena, const char *path)
+RtHandle sn_binary_file_read_all_static(RtManagedArena *arena, const char *path)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnBinaryFile.readAll: arena is NULL\n");
@@ -138,22 +140,36 @@ unsigned char *sn_binary_file_read_all_static(RtArena *arena, const char *path)
         exit(1);
     }
 
-    /* Create byte array with metadata */
-    unsigned char *data = rt_array_create_byte_uninit(arena, (size_t)size);
+    /* Handle empty file case */
+    if (size == 0) {
+        fclose(fp);
+        return rt_array_create_byte_h(arena, 0, NULL);
+    }
+
+    /* Allocate temp buffer */
+    unsigned char *buf = (unsigned char *)malloc((size_t)size);
+    if (buf == NULL) {
+        fclose(fp);
+        fprintf(stderr, "SnBinaryFile.readAll: memory allocation failed\n");
+        exit(1);
+    }
 
     /* Read file contents */
-    if (size > 0) {
-        size_t bytes_read = fread(data, 1, (size_t)size, fp);
-        if (bytes_read != (size_t)size) {
-            fclose(fp);
-            fprintf(stderr, "SnBinaryFile.readAll: failed to read file '%s': %s\n",
-                    path, strerror(errno));
-            exit(1);
-        }
+    size_t bytes_read = fread(buf, 1, (size_t)size, fp);
+    if (bytes_read != (size_t)size) {
+        free(buf);
+        fclose(fp);
+        fprintf(stderr, "SnBinaryFile.readAll: failed to read file '%s': %s\n",
+                path, strerror(errno));
+        exit(1);
     }
 
     fclose(fp);
-    return data;
+
+    /* Create handle-based array */
+    RtHandle result = rt_array_create_byte_h(arena, (size_t)size, buf);
+    free(buf);
+    return result;
 }
 
 /* Write byte array to binary file (creates or overwrites) */
@@ -310,7 +326,7 @@ long sn_binary_file_read_byte(RtSnBinaryFile *file)
 }
 
 /* Read N bytes into new array */
-unsigned char *sn_binary_file_read_bytes(RtArena *arena, RtSnBinaryFile *file, long count)
+RtHandle sn_binary_file_read_bytes(RtManagedArena *arena, RtSnBinaryFile *file, long count)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnBinaryFile.readBytes: arena is NULL\n");
@@ -329,24 +345,29 @@ unsigned char *sn_binary_file_read_bytes(RtArena *arena, RtSnBinaryFile *file, l
         exit(1);
     }
 
-    /* Create byte array */
-    unsigned char *data = rt_array_create_byte_uninit(arena, (size_t)count);
-
-    /* Read bytes */
-    if (count > 0) {
-        size_t bytes_read = fread(data, 1, (size_t)count, (FILE *)file->fp);
-        /* If we read fewer bytes, update the array length */
-        if (bytes_read < (size_t)count) {
-            RtArrayMetadata *meta = ((RtArrayMetadata *)data) - 1;
-            meta->size = bytes_read;
-        }
+    /* Handle zero count case */
+    if (count == 0) {
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
-    return data;
+    /* Allocate temp buffer */
+    unsigned char *buf = (unsigned char *)malloc((size_t)count);
+    if (buf == NULL) {
+        fprintf(stderr, "SnBinaryFile.readBytes: memory allocation failed\n");
+        exit(1);
+    }
+
+    /* Read bytes */
+    size_t bytes_read = fread(buf, 1, (size_t)count, (FILE *)file->fp);
+
+    /* Create handle-based array with actual bytes read */
+    RtHandle result = rt_array_create_byte_h(arena, bytes_read, buf);
+    free(buf);
+    return result;
 }
 
 /* Read all remaining bytes from open file */
-unsigned char *sn_binary_file_read_remaining(RtArena *arena, RtSnBinaryFile *file)
+RtHandle sn_binary_file_read_remaining(RtManagedArena *arena, RtSnBinaryFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnBinaryFile.readAll: arena is NULL\n");
@@ -394,25 +415,31 @@ unsigned char *sn_binary_file_read_remaining(RtArena *arena, RtSnBinaryFile *fil
     /* Calculate remaining bytes */
     size_t remaining = (size_t)(end_pos - current_pos);
 
-    /* Create byte array */
-    unsigned char *data = rt_array_create_byte_uninit(arena, remaining);
-
-    /* Read remaining content */
-    if (remaining > 0) {
-        size_t bytes_read = fread(data, 1, remaining, fp);
-        if (ferror(fp)) {
-            fprintf(stderr, "SnBinaryFile.readAll: failed to read file '%s': %s\n",
-                    file->path ? file->path : "(unknown)", strerror(errno));
-            exit(1);
-        }
-        /* Update length if fewer bytes read */
-        if (bytes_read < remaining) {
-            RtArrayMetadata *meta = ((RtArrayMetadata *)data) - 1;
-            meta->size = bytes_read;
-        }
+    /* Handle empty remaining case */
+    if (remaining == 0) {
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
-    return data;
+    /* Allocate temp buffer */
+    unsigned char *buf = (unsigned char *)malloc(remaining);
+    if (buf == NULL) {
+        fprintf(stderr, "SnBinaryFile.readAll: memory allocation failed\n");
+        exit(1);
+    }
+
+    /* Read remaining content */
+    size_t bytes_read = fread(buf, 1, remaining, fp);
+    if (ferror(fp)) {
+        free(buf);
+        fprintf(stderr, "SnBinaryFile.readAll: failed to read file '%s': %s\n",
+                file->path ? file->path : "(unknown)", strerror(errno));
+        exit(1);
+    }
+
+    /* Create handle-based array with actual bytes read */
+    RtHandle result = rt_array_create_byte_h(arena, bytes_read, buf);
+    free(buf);
+    return result;
 }
 
 /* Read into byte buffer, returns number of bytes read */
@@ -647,7 +674,7 @@ void sn_binary_file_close(RtSnBinaryFile *file)
  * ============================================================================ */
 
 /* Get full file path */
-char *sn_binary_file_get_path(RtArena *arena, RtSnBinaryFile *file)
+RtHandle sn_binary_file_get_path(RtManagedArena *arena, RtSnBinaryFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnBinaryFile.path: arena is NULL\n");
@@ -659,16 +686,14 @@ char *sn_binary_file_get_path(RtArena *arena, RtSnBinaryFile *file)
     }
 
     if (file->path == NULL) {
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
-    return rt_arena_strdup(arena, file->path);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, file->path);
 }
 
 /* Get filename only (without directory) */
-char *sn_binary_file_get_name(RtArena *arena, RtSnBinaryFile *file)
+RtHandle sn_binary_file_get_name(RtManagedArena *arena, RtSnBinaryFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnBinaryFile.name: arena is NULL\n");
@@ -680,9 +705,7 @@ char *sn_binary_file_get_name(RtArena *arena, RtSnBinaryFile *file)
     }
 
     if (file->path == NULL) {
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* Find last path separator */
@@ -696,7 +719,7 @@ char *sn_binary_file_get_name(RtArena *arena, RtSnBinaryFile *file)
 #endif
 
     const char *name = (last_sep != NULL) ? last_sep + 1 : path;
-    return rt_arena_strdup(arena, name);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, name);
 }
 
 /* Get file size in bytes */

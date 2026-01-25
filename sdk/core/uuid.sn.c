@@ -51,6 +51,7 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 
 /* ============================================================================
  * UUID Type Definition
@@ -589,14 +590,9 @@ long long sn_uuid_get_timestamp(RtUuid *uuid) {
  * Conversion Methods
  * ============================================================================ */
 
-char *sn_uuid_to_string(RtArena *arena, RtUuid *uuid) {
+RtHandle sn_uuid_to_string(RtManagedArena *arena, RtUuid *uuid) {
     if (arena == NULL || uuid == NULL) {
-        return NULL;
-    }
-
-    char *str = rt_arena_alloc(arena, 37);
-    if (str == NULL) {
-        return NULL;
+        return RT_HANDLE_NULL;
     }
 
     uint32_t time_low = (uint32_t)(uuid->high >> 32);
@@ -605,37 +601,34 @@ char *sn_uuid_to_string(RtArena *arena, RtUuid *uuid) {
     uint16_t clock_seq = (uint16_t)((uuid->low >> 48) & 0xFFFF);
     uint64_t node = uuid->low & 0xFFFFFFFFFFFFULL;
 
-    snprintf(str, 37, "%08x-%04x-%04x-%04x-%012llx",
+    char buf[37];
+    snprintf(buf, 37, "%08x-%04x-%04x-%04x-%012llx",
              time_low, time_mid, time_hi_version, clock_seq,
              (unsigned long long)node);
 
-    return str;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
-char *sn_uuid_to_hex(RtArena *arena, RtUuid *uuid) {
+RtHandle sn_uuid_to_hex(RtManagedArena *arena, RtUuid *uuid) {
     if (arena == NULL || uuid == NULL) {
-        return NULL;
+        return RT_HANDLE_NULL;
     }
 
-    char *str = rt_arena_alloc(arena, 33);
-    if (str == NULL) {
-        return NULL;
-    }
-
-    snprintf(str, 33, "%016llx%016llx",
+    char buf[33];
+    snprintf(buf, 33, "%016llx%016llx",
              (unsigned long long)uuid->high,
              (unsigned long long)uuid->low);
 
-    return str;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* URL-safe base64 alphabet (RFC 4648 section 5) */
 static const char BASE64_URL_ALPHABET[] =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
 
-char *sn_uuid_to_base64(RtArena *arena, RtUuid *uuid) {
+RtHandle sn_uuid_to_base64(RtManagedArena *arena, RtUuid *uuid) {
     if (arena == NULL || uuid == NULL) {
-        return NULL;
+        return RT_HANDLE_NULL;
     }
 
     unsigned char bytes[16];
@@ -656,11 +649,7 @@ char *sn_uuid_to_base64(RtArena *arena, RtUuid *uuid) {
     bytes[14] = (unsigned char)(uuid->low >> 8);
     bytes[15] = (unsigned char)(uuid->low);
 
-    char *str = rt_arena_alloc(arena, 23);
-    if (str == NULL) {
-        return NULL;
-    }
-
+    char buf[23];
     int out_idx = 0;
     int i;
 
@@ -668,18 +657,17 @@ char *sn_uuid_to_base64(RtArena *arena, RtUuid *uuid) {
         uint32_t triplet = ((uint32_t)bytes[i] << 16) |
                            ((uint32_t)bytes[i + 1] << 8) |
                            ((uint32_t)bytes[i + 2]);
-        str[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 18) & 0x3F];
-        str[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 12) & 0x3F];
-        str[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 6) & 0x3F];
-        str[out_idx++] = BASE64_URL_ALPHABET[triplet & 0x3F];
+        buf[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 18) & 0x3F];
+        buf[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 12) & 0x3F];
+        buf[out_idx++] = BASE64_URL_ALPHABET[(triplet >> 6) & 0x3F];
+        buf[out_idx++] = BASE64_URL_ALPHABET[triplet & 0x3F];
     }
 
-    str[out_idx++] = BASE64_URL_ALPHABET[(bytes[15] >> 2) & 0x3F];
-    str[out_idx++] = BASE64_URL_ALPHABET[(bytes[15] << 4) & 0x3F];
+    buf[out_idx++] = BASE64_URL_ALPHABET[(bytes[15] >> 2) & 0x3F];
+    buf[out_idx++] = BASE64_URL_ALPHABET[(bytes[15] << 4) & 0x3F];
+    buf[out_idx] = '\0';
 
-    str[out_idx] = '\0';
-
-    return str;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* ============================================================================

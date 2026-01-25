@@ -18,7 +18,9 @@
 
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* OpenSSL includes */
 #include <openssl/ssl.h>
@@ -495,9 +497,9 @@ long sn_dtls_connection_send(RtDtlsConnection *conn, unsigned char *data) {
 }
 
 /* Receive an encrypted datagram (up to maxBytes) */
-unsigned char *sn_dtls_connection_receive(RtArena *arena, RtDtlsConnection *conn, long maxBytes) {
+RtHandle sn_dtls_connection_receive(RtManagedArena *arena, RtDtlsConnection *conn, long maxBytes) {
     if (conn == NULL || maxBytes <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     SSL *ssl = (SSL *)conn->ssl_ptr;
@@ -517,10 +519,10 @@ unsigned char *sn_dtls_connection_receive(RtArena *arena, RtDtlsConnection *conn
 
         if (ssl_err == SSL_ERROR_ZERO_RETURN) {
             /* Connection closed cleanly */
-            return rt_array_create_byte(arena, 0, NULL);
+            return rt_array_create_byte_h(arena, 0, NULL);
         } else if (ssl_err == SSL_ERROR_WANT_READ) {
             /* Timeout - return empty */
-            return rt_array_create_byte(arena, 0, NULL);
+            return rt_array_create_byte_h(arena, 0, NULL);
         } else {
             fprintf(stderr, "DtlsConnection.receive: SSL_read failed (error %d)\n", ssl_err);
             exit(1);
@@ -528,7 +530,7 @@ unsigned char *sn_dtls_connection_receive(RtArena *arena, RtDtlsConnection *conn
     }
 
     /* Create runtime byte array with received data */
-    unsigned char *result = rt_array_create_byte(arena, (size_t)n, temp);
+    RtHandle result = rt_array_create_byte_h(arena, (size_t)n, temp);
     free(temp);
 
     return result;
@@ -538,22 +540,11 @@ unsigned char *sn_dtls_connection_receive(RtArena *arena, RtDtlsConnection *conn
  * DtlsConnection Getters
  * ============================================================================ */
 
-char *sn_dtls_connection_get_remote_address(RtArena *arena, RtDtlsConnection *conn) {
+RtHandle sn_dtls_connection_get_remote_address(RtManagedArena *arena, RtDtlsConnection *conn) {
     if (conn == NULL || conn->remote_addr == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(conn->remote_addr) + 1;
-    char *result = (char *)rt_arena_alloc(arena, len);
-    if (result == NULL) {
-        fprintf(stderr, "DtlsConnection.remoteAddress: allocation failed\n");
-        exit(1);
-    }
-
-    memcpy(result, conn->remote_addr, len);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, conn->remote_addr);
 }
 
 /* ============================================================================

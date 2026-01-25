@@ -11,8 +11,7 @@
 #include "runtime_any.h"
 #include <stdbool.h>
 
-// Forward declaration for arena
-typedef struct RtArena RtArena;
+/* RtArena is defined via runtime_any.h -> runtime_arena.h */
 
 /**
  * Continue callback type - calls the original function (or next interceptor in chain)
@@ -42,8 +41,8 @@ typedef struct RtClosure {
  */
 typedef RtAny (*RtInterceptHandler)(
     RtArena *arena,
-    const char *name,
-    RtAny *args,
+    RtHandle name,
+    RtHandle args,
     RtClosure *continue_fn
 );
 

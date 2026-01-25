@@ -41,6 +41,8 @@
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Directory Type Definition (unused, just for namespace)
@@ -166,39 +168,155 @@ static char **push_string_to_array(RtArena *arena, char **arr, const char *str)
  * ============================================================================ */
 
 /* List files in a directory (non-recursive) */
-char **sn_directory_list(RtArena *arena, const char *path)
+RtHandle sn_directory_list(RtManagedArena *arena, const char *path)
 {
     if (path == NULL) {
-        return create_string_array(arena, 4);  /* Return empty array */
+        return rt_array_create_string_h(arena, 0, NULL);  /* Return empty array */
     }
 
     DIR *dir = opendir(path);
     if (dir == NULL) {
         /* Directory doesn't exist or can't be opened - return empty array */
-        return create_string_array(arena, 4);
+        return rt_array_create_string_h(arena, 0, NULL);
     }
 
-    char **result = create_string_array(arena, 16);
-    struct dirent *entry;
+    /* Collect strings into temporary buffer */
+    size_t capacity = 16;
+    size_t count = 0;
+    char **buf = malloc(capacity * sizeof(char *));
+    if (buf == NULL) {
+        closedir(dir);
+        return RT_HANDLE_NULL;
+    }
 
+    struct dirent *entry;
     while ((entry = readdir(dir)) != NULL) {
         /* Skip . and .. */
         if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
             continue;
         }
-        result = push_string_to_array(arena, result, entry->d_name);
+
+        /* Grow buffer if needed */
+        if (count >= capacity) {
+            capacity *= 2;
+            char **new_buf = realloc(buf, capacity * sizeof(char *));
+            if (new_buf == NULL) {
+                for (size_t i = 0; i < count; i++) free(buf[i]);
+                free(buf);
+                closedir(dir);
+                return RT_HANDLE_NULL;
+            }
+            buf = new_buf;
+        }
+
+        buf[count] = strdup(entry->d_name);
+        if (buf[count] == NULL) {
+            for (size_t i = 0; i < count; i++) free(buf[i]);
+            free(buf);
+            closedir(dir);
+            return RT_HANDLE_NULL;
+        }
+        count++;
     }
 
     closedir(dir);
+
+    /* Create handle-based array */
+    RtHandle result = rt_array_create_string_h(arena, count, (const char **)buf);
+
+    /* Free temporary buffer */
+    for (size_t i = 0; i < count; i++) free(buf[i]);
+    free(buf);
+
     return result;
 }
 
-/* Helper for recursive directory listing */
-static char **list_recursive_helper(RtArena *arena, char **result, const char *base_path, const char *rel_prefix)
+/* Helper struct for collecting strings during recursive listing */
+typedef struct {
+    char **buf;
+    size_t count;
+    size_t capacity;
+} StringCollector;
+
+/* Initialize a string collector */
+static int string_collector_init(StringCollector *sc, size_t initial_capacity)
+{
+    sc->buf = malloc(initial_capacity * sizeof(char *));
+    if (sc->buf == NULL) return -1;
+    sc->count = 0;
+    sc->capacity = initial_capacity;
+    return 0;
+}
+
+/* Add a string to the collector (takes ownership of the string) */
+static int string_collector_add(StringCollector *sc, char *str)
+{
+    if (sc->count >= sc->capacity) {
+        size_t new_capacity = sc->capacity * 2;
+        char **new_buf = realloc(sc->buf, new_capacity * sizeof(char *));
+        if (new_buf == NULL) return -1;
+        sc->buf = new_buf;
+        sc->capacity = new_capacity;
+    }
+    sc->buf[sc->count++] = str;
+    return 0;
+}
+
+/* Free all strings and the buffer in the collector */
+static void string_collector_free(StringCollector *sc)
+{
+    if (sc->buf) {
+        for (size_t i = 0; i < sc->count; i++) {
+            free(sc->buf[i]);
+        }
+        free(sc->buf);
+        sc->buf = NULL;
+    }
+    sc->count = 0;
+    sc->capacity = 0;
+}
+
+/* Build a relative path by joining prefix and name with forward slash */
+static char *build_rel_path(const char *prefix, const char *name)
+{
+    if (prefix[0] == '\0') {
+        return strdup(name);
+    }
+    size_t prefix_len = strlen(prefix);
+    size_t name_len = strlen(name);
+    char *result = malloc(prefix_len + 1 + name_len + 1);
+    if (result == NULL) return NULL;
+    memcpy(result, prefix, prefix_len);
+    result[prefix_len] = '/';
+    memcpy(result + prefix_len + 1, name, name_len);
+    result[prefix_len + 1 + name_len] = '\0';
+    return result;
+}
+
+/* Build a full path by joining base and name */
+static char *build_full_path(const char *base, const char *name)
+{
+    size_t base_len = strlen(base);
+    size_t name_len = strlen(name);
+    int has_sep = (base_len > 0 && is_path_separator(base[base_len - 1]));
+    char *result = malloc(base_len + (has_sep ? 0 : 1) + name_len + 1);
+    if (result == NULL) return NULL;
+    memcpy(result, base, base_len);
+    size_t pos = base_len;
+    if (!has_sep) {
+        result[pos++] = '/';
+    }
+    memcpy(result + pos, name, name_len);
+    result[pos + name_len] = '\0';
+    return result;
+}
+
+/* Helper for recursive directory listing - collects into StringCollector */
+static int list_recursive_helper_collect(StringCollector *sc, const char *base_path, const char *rel_prefix)
 {
     DIR *dir = opendir(base_path);
     if (dir == NULL) {
-        return result;  /* Skip directories we can't open */
+        return 0;  /* Skip directories we can't open - not an error */
     }
 
     struct dirent *entry;
@@ -209,32 +327,50 @@ static char **list_recursive_helper(RtArena *arena, char **result, const char *b
         }
 
         /* Build full path for stat check */
-        char *full_path = join_path(arena, base_path, entry->d_name);
-
-        /* Build relative path for result (always use '/' for cross-platform consistency) */
-        char *rel_path;
-        if (rel_prefix[0] == '\0') {
-            rel_path = rt_arena_strdup(arena, entry->d_name);
-        } else {
-            rel_path = join_with_forward_slash(arena, rel_prefix, entry->d_name);
+        char *full_path = build_full_path(base_path, entry->d_name);
+        if (full_path == NULL) {
+            closedir(dir);
+            return -1;
         }
 
-        /* Add this entry */
-        result = push_string_to_array(arena, result, rel_path);
+        /* Build relative path for result (always use '/' for cross-platform consistency) */
+        char *rel_path = build_rel_path(rel_prefix, entry->d_name);
+        if (rel_path == NULL) {
+            free(full_path);
+            closedir(dir);
+            return -1;
+        }
+
+        /* Add this entry to collector */
+        if (string_collector_add(sc, rel_path) != 0) {
+            free(rel_path);
+            free(full_path);
+            closedir(dir);
+            return -1;
+        }
+        /* rel_path is now owned by collector */
 
         /* If it's a directory, recurse */
         struct stat st;
         if (stat(full_path, &st) == 0 && S_ISDIR(st.st_mode)) {
-            result = list_recursive_helper(arena, result, full_path, rel_path);
+            /* Get the rel_path we just added (it's at count-1) */
+            const char *added_rel_path = sc->buf[sc->count - 1];
+            if (list_recursive_helper_collect(sc, full_path, added_rel_path) != 0) {
+                free(full_path);
+                closedir(dir);
+                return -1;
+            }
         }
+
+        free(full_path);
     }
 
     closedir(dir);
-    return result;
+    return 0;
 }
 
 /* List files in a directory recursively */
-char **sn_directory_list_recursive(RtArena *arena, const char *path)
+RtHandle sn_directory_list_recursive(RtManagedArena *arena, const char *path)
 {
     if (path == NULL) {
         fprintf(stderr, "SnDirectory.listRecursive: path cannot be null\n");
@@ -246,8 +382,25 @@ char **sn_directory_list_recursive(RtArena *arena, const char *path)
         exit(1);
     }
 
-    char **result = create_string_array(arena, 64);
-    return list_recursive_helper(arena, result, path, "");
+    /* Initialize collector */
+    StringCollector sc;
+    if (string_collector_init(&sc, 64) != 0) {
+        return RT_HANDLE_NULL;
+    }
+
+    /* Collect all paths recursively */
+    if (list_recursive_helper_collect(&sc, path, "") != 0) {
+        string_collector_free(&sc);
+        return RT_HANDLE_NULL;
+    }
+
+    /* Create handle-based array */
+    RtHandle result = rt_array_create_string_h(arena, sc.count, (const char **)sc.buf);
+
+    /* Free temporary buffer */
+    string_collector_free(&sc);
+
+    return result;
 }
 
 /* Helper: Create directory and all parents */

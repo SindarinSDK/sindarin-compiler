@@ -107,6 +107,37 @@ char *escape_c_string(Arena *arena, const char *str)
     return buf;
 }
 
+Type *resolve_struct_type(CodeGen *gen, Type *type)
+{
+    /* Resolve a struct type that might be an unresolved forward reference.
+     * Forward references lack c_alias because they were created before the
+     * complete struct definition was parsed. Look up the complete type
+     * from the symbol table to get the correct c_alias and other metadata. */
+    if (type == NULL || type->kind != TYPE_STRUCT)
+    {
+        return type;
+    }
+    if (type->as.struct_type.c_alias != NULL)
+    {
+        /* Already has c_alias, no need to resolve */
+        return type;
+    }
+    if (type->as.struct_type.name == NULL)
+    {
+        return type;
+    }
+
+    Token lookup_tok;
+    lookup_tok.start = type->as.struct_type.name;
+    lookup_tok.length = strlen(type->as.struct_type.name);
+    Symbol *sym = symbol_table_lookup_type(gen->symbol_table, lookup_tok);
+    if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_STRUCT)
+    {
+        return sym->type;
+    }
+    return type;
+}
+
 const char *get_c_type(Arena *arena, Type *type)
 {
     DEBUG_VERBOSE("Entering get_c_type");
@@ -135,7 +166,7 @@ const char *get_c_type(Arena *arena, Type *type)
     case TYPE_CHAR:
         return arena_strdup(arena, "char");
     case TYPE_STRING:
-        return arena_strdup(arena, "char *");
+        return arena_strdup(arena, "RtHandle");
     case TYPE_BOOL:
         return arena_strdup(arena, "bool");
     case TYPE_BYTE:
@@ -147,24 +178,7 @@ const char *get_c_type(Arena *arena, Type *type)
     case TYPE_ANY:
         return arena_strdup(arena, "RtAny");
     case TYPE_ARRAY:
-    {
-        // For bool arrays, use int* since runtime stores bools as int internally
-        const char *element_c_type;
-        if (type->as.array.element_type->kind == TYPE_BOOL)
-        {
-            element_c_type = "int";
-        }
-        else
-        {
-            element_c_type = get_c_type(arena, type->as.array.element_type);
-        }
-        // For nested arrays (e.g., str[][]), just add another pointer level
-        // str[][] -> char*** (array of string arrays)
-        size_t len = strlen(element_c_type) + 3;
-        char *result = arena_alloc(arena, len);
-        snprintf(result, len, "%s *", element_c_type);
-        return result;
-    }
+        return arena_strdup(arena, "RtHandle");
     case TYPE_POINTER:
     {
         /* For pointer types: *T becomes T* in C */
@@ -218,6 +232,53 @@ const char *get_c_type(Arena *arena, Type *type)
     }
 
     return NULL;
+}
+
+bool is_handle_type(Type *type)
+{
+    if (type == NULL) return false;
+    return (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY);
+}
+
+const char *get_c_param_type(Arena *arena, Type *type)
+{
+    /* After handle migration, function parameters use the same types as variables:
+     * TYPE_STRING and TYPE_ARRAY are both RtHandle. */
+    return get_c_type(arena, type);
+}
+
+const char *get_c_native_param_type(Arena *arena, Type *type)
+{
+    /* Native C functions expect raw pointer types, not RtHandle.
+     * TYPE_STRING → const char *, TYPE_ARRAY → element_type * */
+    if (type == NULL) return arena_strdup(arena, "void *");
+
+    if (type->kind == TYPE_STRING)
+    {
+        return arena_strdup(arena, "const char *");
+    }
+    if (type->kind == TYPE_ARRAY)
+    {
+        const char *elem_c = get_c_array_elem_type(arena, type->as.array.element_type);
+        return arena_sprintf(arena, "%s *", elem_c);
+    }
+    /* All other types use the standard C type */
+    return get_c_type(arena, type);
+}
+
+const char *get_c_array_elem_type(Arena *arena, Type *elem_type)
+{
+    /* Returns the C storage type for elements within an array.
+     * This is what you get after pinning the array and casting to pointer.
+     * Special case: bool is stored as int in arrays for alignment. */
+    if (elem_type == NULL) return arena_strdup(arena, "void");
+
+    if (elem_type->kind == TYPE_BOOL)
+    {
+        return arena_strdup(arena, "int");
+    }
+    /* String and array elements are stored as RtHandle values in the array data */
+    return get_c_type(arena, elem_type);
 }
 
 const char *get_rt_to_string_func(TypeKind kind)
@@ -346,12 +407,75 @@ const char *get_rt_to_string_func_for_type(Type *type)
     return get_rt_to_string_func(type->kind);
 }
 
+const char *get_rt_to_string_func_for_type_h(Type *type)
+{
+    /* Handle-aware version: uses _h variants for arrays with RtHandle elements.
+     * 2D arrays have RtHandle outer elements (handles to inner arrays).
+     * 1D string arrays have RtHandle elements (handles to strings). */
+    if (type == NULL) return "rt_to_string_pointer";
+
+    if (type->kind == TYPE_ARRAY && type->as.array.element_type != NULL)
+    {
+        Type *elem_type = type->as.array.element_type;
+        TypeKind elem_kind = elem_type->kind;
+
+        /* 2D arrays: outer stores RtHandle → use _h versions */
+        if (elem_kind == TYPE_ARRAY && elem_type->as.array.element_type != NULL)
+        {
+            TypeKind inner_kind = elem_type->as.array.element_type->kind;
+            switch (inner_kind)
+            {
+            case TYPE_INT:
+            case TYPE_INT32:
+            case TYPE_UINT:
+            case TYPE_UINT32:
+            case TYPE_LONG:
+                return "rt_to_string_array2_long_h";
+            case TYPE_DOUBLE:
+            case TYPE_FLOAT:
+                return "rt_to_string_array2_double_h";
+            case TYPE_CHAR:
+                return "rt_to_string_array2_char_h";
+            case TYPE_BOOL:
+                return "rt_to_string_array2_bool_h";
+            case TYPE_BYTE:
+                return "rt_to_string_array2_byte_h";
+            case TYPE_STRING:
+                return "rt_to_string_array2_string_h";
+            case TYPE_ANY:
+                return "rt_to_string_array2_any_h";
+            case TYPE_ARRAY:
+                /* 3D array: check if innermost is any */
+                if (elem_type->as.array.element_type->as.array.element_type != NULL &&
+                    elem_type->as.array.element_type->as.array.element_type->kind == TYPE_ANY) {
+                    return "rt_to_string_array3_any_h";
+                }
+                return "rt_to_string_pointer";
+            default:
+                return "rt_to_string_pointer";
+            }
+        }
+
+        /* 1D string arrays: elements are RtHandle → use _h version */
+        if (elem_kind == TYPE_STRING)
+        {
+            return "rt_to_string_array_string_h";
+        }
+
+        /* 1D arrays of other types: elements are NOT handles, use regular versions */
+        return get_rt_to_string_func_for_type(type);
+    }
+
+    /* Non-arrays: same as regular */
+    return get_rt_to_string_func(type->kind);
+}
+
 const char *get_default_value(Type *type)
 {
     DEBUG_VERBOSE("Entering get_default_value");
     if (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY)
     {
-        return "NULL";
+        return "RT_HANDLE_NULL";
     }
     else if (type->kind == TYPE_ANY)
     {
@@ -546,10 +670,13 @@ char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type)
         return arena_strdup(gen->arena, value_str);
     }
 
-    /* Arrays need the element type tag as second argument */
+    /* Arrays need the element type tag as second argument.
+     * In handle mode, value_str is an RtHandle (uint32_t) - cast to void* for storage. */
     if (value_type->kind == TYPE_ARRAY)
     {
         const char *elem_tag = get_element_type_tag(value_type->as.array.element_type);
+        if (gen->current_arena_var != NULL)
+            return arena_sprintf(gen->arena, "%s((void *)(uintptr_t)%s, %s)", box_func, value_str, elem_tag);
         return arena_sprintf(gen->arena, "%s(%s, %s)", box_func, value_str, elem_tag);
     }
 
@@ -586,9 +713,12 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
         return arena_strdup(gen->arena, any_str);
     }
 
-    /* Arrays need a cast after unboxing */
+    /* Arrays need a cast after unboxing.
+     * In handle mode, the stored value is an RtHandle (via void*) - cast back. */
     if (target_type->kind == TYPE_ARRAY)
     {
+        if (gen->current_arena_var != NULL)
+            return arena_sprintf(gen->arena, "(RtHandle)(uintptr_t)%s(%s)", unbox_func, any_str);
         const char *c_type = get_c_type(gen->arena, target_type);
         return arena_sprintf(gen->arena, "(%s)%s(%s)", c_type, unbox_func, any_str);
     }
@@ -600,6 +730,16 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
         const char *struct_name = get_c_type(gen->arena, target_type);
         return arena_sprintf(gen->arena, "(*((%s *)rt_unbox_struct(%s, %d)))",
                              struct_name, any_str, type_id);
+    }
+
+    /* Strings in arena mode with handle context: unbox returns char*, wrap in handle.
+     * When expr_as_handle is false (e.g. inside string interpolation), just return
+     * the raw char* from rt_unbox_string directly. */
+    if (target_type->kind == TYPE_STRING && gen->current_arena_var != NULL
+        && gen->expr_as_handle)
+    {
+        return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s(%s))",
+                             ARENA_VAR(gen), unbox_func, any_str);
     }
 
     return arena_sprintf(gen->arena, "%s(%s)", unbox_func, any_str);
@@ -677,16 +817,22 @@ char *code_gen_type_suffix(Type *type)
     switch (type->kind)
     {
     case TYPE_INT:
-    case TYPE_INT32:
-    case TYPE_UINT:
-    case TYPE_UINT32:
     case TYPE_LONG:
-    case TYPE_CHAR:
-    case TYPE_BYTE:
         return "long";
+    case TYPE_INT32:
+        return "int32";
+    case TYPE_UINT:
+        return "uint";
+    case TYPE_UINT32:
+        return "uint32";
+    case TYPE_CHAR:
+        return "char";
+    case TYPE_BYTE:
+        return "byte";
     case TYPE_DOUBLE:
-    case TYPE_FLOAT:
         return "double";
+    case TYPE_FLOAT:
+        return "float";
     case TYPE_STRING:
         return "string";
     case TYPE_BOOL:

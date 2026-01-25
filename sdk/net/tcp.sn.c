@@ -12,7 +12,9 @@
 
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* Platform-specific socket includes */
 #ifdef _WIN32
@@ -379,9 +381,9 @@ RtTcpStream *sn_tcp_stream_connect(RtArena *arena, const char *address) {
  * ============================================================================ */
 
 /* Read up to maxBytes (may return fewer) - uses internal buffer */
-unsigned char *sn_tcp_stream_read(RtArena *arena, RtTcpStream *stream, long maxBytes) {
+RtHandle sn_tcp_stream_read(RtManagedArena *arena, RtTcpStream *stream, long maxBytes) {
     if (stream == NULL || maxBytes <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     /* If buffer is empty, fill it */
@@ -397,17 +399,17 @@ unsigned char *sn_tcp_stream_read(RtArena *arena, RtTcpStream *stream, long maxB
     size_t available = stream_buffered(stream);
     size_t to_read = ((size_t)maxBytes < available) ? (size_t)maxBytes : available;
 
-    unsigned char *result = rt_array_create_byte(arena, to_read,
-                                                  stream->read_buf + stream->read_buf_pos);
+    RtHandle result = rt_array_create_byte_h(arena, to_read,
+                                              stream->read_buf + stream->read_buf_pos);
     stream_consume(stream, to_read);
 
     return result;
 }
 
 /* Read until connection closes - uses internal buffer */
-unsigned char *sn_tcp_stream_read_all(RtArena *arena, RtTcpStream *stream) {
+RtHandle sn_tcp_stream_read_all(RtManagedArena *arena, RtTcpStream *stream) {
     if (stream == NULL) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     /* We still need a growing buffer for accumulating all data,
@@ -461,23 +463,20 @@ unsigned char *sn_tcp_stream_read_all(RtArena *arena, RtTcpStream *stream) {
     }
 
     /* Create runtime array with received data */
-    unsigned char *result = rt_array_create_byte(arena, total_read, temp_buffer);
+    RtHandle result = rt_array_create_byte_h(arena, total_read, temp_buffer);
     free(temp_buffer);
 
     return result;
 }
 
 /* Read until newline - efficient buffered implementation */
-char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
+RtHandle sn_tcp_stream_read_line(RtManagedArena *arena, RtTcpStream *stream) {
     if (stream == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* For lines that fit in buffer, we can avoid malloc entirely.
      * For longer lines, we accumulate in a temp buffer. */
-    size_t line_start = stream->read_buf_pos;
     size_t accum_capacity = 0;
     size_t accum_len = 0;
     char *accum_buffer = NULL;
@@ -504,27 +503,27 @@ char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
                     total_len--;
                 }
 
-                /* Allocate result in arena */
-                char *result = (char *)rt_arena_alloc(arena, total_len + 1);
-                if (result == NULL) {
+                /* Allocate temp buffer and build final string */
+                char *temp = (char *)malloc(total_len + 1);
+                if (temp == NULL) {
                     if (accum_buffer) free(accum_buffer);
-                    fprintf(stderr, "sn_tcp_stream_read_line: arena alloc failed\n");
+                    fprintf(stderr, "sn_tcp_stream_read_line: malloc failed\n");
                     exit(1);
                 }
 
                 /* Copy accumulated data first */
                 if (accum_len > 0) {
-                    memcpy(result, accum_buffer, accum_len);
+                    memcpy(temp, accum_buffer, accum_len);
                 }
 
                 /* Copy this chunk (excluding \r if present) */
                 if (chunk_len > 0) {
-                    memcpy(result + accum_len,
+                    memcpy(temp + accum_len,
                            stream->read_buf + stream->read_buf_pos,
                            chunk_len);
                 }
 
-                result[total_len] = '\0';
+                temp[total_len] = '\0';
 
                 /* Consume up to and including the newline */
                 stream->read_buf_pos = i + 1;
@@ -534,6 +533,8 @@ char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
                 }
 
                 if (accum_buffer) free(accum_buffer);
+                RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
+                free(temp);
                 return result;
             }
         }
@@ -591,19 +592,22 @@ char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
         accum_len--;
     }
 
-    char *result = (char *)rt_arena_alloc(arena, accum_len + 1);
-    if (result == NULL) {
+    /* Allocate temp buffer for final string */
+    char *temp = (char *)malloc(accum_len + 1);
+    if (temp == NULL) {
         if (accum_buffer) free(accum_buffer);
-        fprintf(stderr, "sn_tcp_stream_read_line: arena alloc failed\n");
+        fprintf(stderr, "sn_tcp_stream_read_line: malloc failed\n");
         exit(1);
     }
 
     if (accum_len > 0 && accum_buffer) {
-        memcpy(result, accum_buffer, accum_len);
+        memcpy(temp, accum_buffer, accum_len);
     }
-    result[accum_len] = '\0';
+    temp[accum_len] = '\0';
 
     if (accum_buffer) free(accum_buffer);
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
+    free(temp);
     return result;
 }
 
@@ -612,36 +616,36 @@ char *sn_tcp_stream_read_line(RtArena *arena, RtTcpStream *stream) {
  * ============================================================================ */
 
 /* Peek at next n bytes without consuming them */
-unsigned char *sn_tcp_stream_peek(RtArena *arena, RtTcpStream *stream, long n) {
+RtHandle sn_tcp_stream_peek(RtManagedArena *arena, RtTcpStream *stream, long n) {
     if (stream == NULL || n <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     /* Ensure we have enough data */
     if (!stream_ensure(stream, (size_t)n)) {
         /* Return what we have */
         size_t available = stream_buffered(stream);
-        return rt_array_create_byte(arena, available,
-                                     stream->read_buf + stream->read_buf_pos);
+        return rt_array_create_byte_h(arena, available,
+                                       stream->read_buf + stream->read_buf_pos);
     }
 
     /* Return n bytes without consuming */
-    return rt_array_create_byte(arena, (size_t)n,
-                                 stream->read_buf + stream->read_buf_pos);
+    return rt_array_create_byte_h(arena, (size_t)n,
+                                   stream->read_buf + stream->read_buf_pos);
 }
 
 /* Read exactly n bytes, blocking until all received or EOF/error */
-unsigned char *sn_tcp_stream_read_exact(RtArena *arena, RtTcpStream *stream, long n) {
+RtHandle sn_tcp_stream_read_exact(RtManagedArena *arena, RtTcpStream *stream, long n) {
     if (stream == NULL || n <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     size_t needed = (size_t)n;
 
     /* Fast path: if all data is already in buffer */
     if (stream_buffered(stream) >= needed) {
-        unsigned char *result = rt_array_create_byte(arena, needed,
-                                                      stream->read_buf + stream->read_buf_pos);
+        RtHandle result = rt_array_create_byte_h(arena, needed,
+                                                  stream->read_buf + stream->read_buf_pos);
         stream_consume(stream, needed);
         return result;
     }
@@ -677,15 +681,15 @@ unsigned char *sn_tcp_stream_read_exact(RtArena *arena, RtTcpStream *stream, lon
         }
     }
 
-    unsigned char *result = rt_array_create_byte(arena, total_read, temp);
+    RtHandle result = rt_array_create_byte_h(arena, total_read, temp);
     free(temp);
     return result;
 }
 
 /* Read until delimiter byte is found (delimiter included in result) */
-unsigned char *sn_tcp_stream_read_until(RtArena *arena, RtTcpStream *stream, int delimiter) {
+RtHandle sn_tcp_stream_read_until(RtManagedArena *arena, RtTcpStream *stream, int delimiter) {
     if (stream == NULL) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     unsigned char delim_byte = (unsigned char)delimiter;
@@ -701,26 +705,26 @@ unsigned char *sn_tcp_stream_read_until(RtArena *arena, RtTcpStream *stream, int
                 size_t chunk_len = i - stream->read_buf_pos + 1;  /* Include delimiter */
                 size_t total_len = accum_len + chunk_len;
 
-                unsigned char *result = rt_array_create_byte(arena, total_len, NULL);
-                if (result == NULL) {
+                /* First accumulate all data into temp buffer */
+                unsigned char *temp = (unsigned char *)malloc(total_len);
+                if (temp == NULL) {
                     if (accum_buffer) free(accum_buffer);
                     fprintf(stderr, "sn_tcp_stream_read_until: alloc failed\n");
                     exit(1);
                 }
 
-                /* Get the underlying data pointer */
-                unsigned char *data = result;  /* rt_array_create_byte returns data pointer */
-
                 if (accum_len > 0 && accum_buffer) {
-                    memcpy(data, accum_buffer, accum_len);
+                    memcpy(temp, accum_buffer, accum_len);
                 }
-                memcpy(data + accum_len,
+                memcpy(temp + accum_len,
                        stream->read_buf + stream->read_buf_pos,
                        chunk_len);
 
                 stream_consume(stream, chunk_len);
 
                 if (accum_buffer) free(accum_buffer);
+                RtHandle result = rt_array_create_byte_h(arena, total_len, temp);
+                free(temp);
                 return result;
             }
         }
@@ -767,8 +771,8 @@ unsigned char *sn_tcp_stream_read_until(RtArena *arena, RtTcpStream *stream, int
     }
 
     /* EOF without finding delimiter - return what we have */
-    unsigned char *result = rt_array_create_byte(arena, accum_len,
-                                                  accum_len > 0 ? accum_buffer : NULL);
+    RtHandle result = rt_array_create_byte_h(arena, accum_len,
+                                              accum_len > 0 ? accum_buffer : NULL);
     if (accum_buffer) free(accum_buffer);
     return result;
 }
@@ -849,22 +853,11 @@ void sn_tcp_stream_write_line(RtTcpStream *stream, const char *text) {
  * TcpStream Getters
  * ============================================================================ */
 
-char *sn_tcp_stream_get_remote_address(RtArena *arena, RtTcpStream *stream) {
+RtHandle sn_tcp_stream_get_remote_address(RtManagedArena *arena, RtTcpStream *stream) {
     if (stream == NULL || stream->remote_addr == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(stream->remote_addr) + 1;
-    char *result = (char *)rt_arena_alloc(arena, len);
-    if (result == NULL) {
-        fprintf(stderr, "sn_tcp_stream_get_remote_address: allocation failed\n");
-        exit(1);
-    }
-
-    memcpy(result, stream->remote_addr, len);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, stream->remote_addr);
 }
 
 /* ============================================================================

@@ -107,6 +107,12 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->current_decl_var_name = NULL;
     gen->recursive_lambda_id = -1;
 
+    /* Initialize deferred global initialization tracking */
+    gen->deferred_global_names = NULL;
+    gen->deferred_global_values = NULL;
+    gen->deferred_global_count = 0;
+    gen->deferred_global_capacity = 0;
+
     if (gen->output == NULL)
     {
         exit(1);
@@ -153,12 +159,11 @@ static void code_gen_externs(CodeGen *gen)
 {
     DEBUG_VERBOSE("Entering code_gen_externs");
 
-    /* Runtime arena operations - declare first since other functions use RtArena */
-    indented_fprintf(gen, 0, "/* Runtime arena operations */\n");
-    indented_fprintf(gen, 0, "typedef struct RtArena RtArena;\n");
-    indented_fprintf(gen, 0, "extern RtArena *rt_arena_create(RtArena *parent);\n");
-    indented_fprintf(gen, 0, "extern void rt_arena_destroy(RtArena *arena);\n");
-    indented_fprintf(gen, 0, "extern void *rt_arena_alloc(RtArena *arena, size_t size);\n\n");
+    /* Types already provided by runtime.h includes:
+     * RtHandle, RT_HANDLE_NULL, RtManagedArena, RtArena, RtArrayMetadata,
+     * and all managed arena / runtime function declarations.
+     * Only need __Closure__ typedef and non-header function declarations below. */
+    indented_fprintf(gen, 0, "\n");
 
     /* Generic closure type for lambdas */
     indented_fprintf(gen, 0, "/* Closure type for lambdas */\n");
@@ -202,6 +207,125 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "extern char *rt_format_double(RtArena *, double, const char *);\n");
     indented_fprintf(gen, 0, "extern char *rt_format_string(RtArena *, const char *, const char *);\n\n");
 
+    /* Handle-based string functions */
+    indented_fprintf(gen, 0, "/* Handle-based string functions */\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_concat_h(RtManagedArena *, RtHandle, const char *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_append_h(RtManagedArena *, RtHandle, const char *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_long_h(RtManagedArena *, long long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_double_h(RtManagedArena *, double);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_char_h(RtManagedArena *, char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_bool_h(RtManagedArena *, int);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_byte_h(RtManagedArena *, unsigned char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_to_string_string_h(RtManagedArena *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_substring_h(RtManagedArena *, const char *, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_toUpper_h(RtManagedArena *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_toLower_h(RtManagedArena *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_trim_h(RtManagedArena *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_replace_h(RtManagedArena *, const char *, const char *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_str_split_h(RtManagedArena *, const char *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_format_long_h(RtManagedArena *, long long, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_format_double_h(RtManagedArena *, double, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_format_string_h(RtManagedArena *, const char *, const char *);\n\n");
+
+    /* Handle-based array functions */
+    indented_fprintf(gen, 0, "/* Handle-based array functions */\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_long_h(RtManagedArena *, size_t, const long long *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_double_h(RtManagedArena *, size_t, const double *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_char_h(RtManagedArena *, size_t, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_bool_h(RtManagedArena *, size_t, const int *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_byte_h(RtManagedArena *, size_t, const unsigned char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_string_h(RtManagedArena *, size_t, const char **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_create_ptr_h(RtManagedArena *, size_t, void **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_long_h(RtManagedArena *, RtHandle, long long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_double_h(RtManagedArena *, RtHandle, double);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_char_h(RtManagedArena *, RtHandle, char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_bool_h(RtManagedArena *, RtHandle, int);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_byte_h(RtManagedArena *, RtHandle, unsigned char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_string_h(RtManagedArena *, RtHandle, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_ptr_h(RtManagedArena *, RtHandle, void *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_voidptr_h(RtManagedArena *, RtHandle, void *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_any_h(RtManagedArena *, RtHandle, RtAny);\n");
+    indented_fprintf(gen, 0, "extern long long rt_array_pop_long_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern double rt_array_pop_double_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern char rt_array_pop_char_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern int rt_array_pop_bool_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern unsigned char rt_array_pop_byte_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_pop_string_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern void *rt_array_pop_ptr_h(RtManagedArena *, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_long_h(RtManagedArena *, RtHandle, const long long *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_double_h(RtManagedArena *, RtHandle, const double *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_char_h(RtManagedArena *, RtHandle, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_bool_h(RtManagedArena *, RtHandle, const int *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_byte_h(RtManagedArena *, RtHandle, const unsigned char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_string_h(RtManagedArena *, RtHandle, const char **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_ptr_h(RtManagedArena *, RtHandle, void **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_int32_h(RtManagedArena *, RtHandle, const int32_t *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_uint32_h(RtManagedArena *, RtHandle, const uint32_t *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_uint_h(RtManagedArena *, RtHandle, const uint64_t *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_float_h(RtManagedArena *, RtHandle, const float *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_clone_void_h(RtManagedArena *, RtHandle, const RtAny *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_from_raw_strings_h(RtManagedArena *, RtHandle, const char **);\n");
+    indented_fprintf(gen, 0, "extern int rt_array_eq_string_h(RtManagedArena *, RtHandle, RtHandle);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array_string_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_long_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_double_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_char_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_bool_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_byte_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_to_string_array2_string_h(RtManagedArena *, RtHandle *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_long_h(RtManagedArena *, RtHandle, const long long *, const long long *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_double_h(RtManagedArena *, RtHandle, const double *, const double *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_char_h(RtManagedArena *, RtHandle, const char *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_bool_h(RtManagedArena *, RtHandle, const int *, const int *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_byte_h(RtManagedArena *, RtHandle, const unsigned char *, const unsigned char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_string_h(RtManagedArena *, RtHandle, const char **, const char **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_concat_ptr_h(RtManagedArena *, RtHandle, void **, void **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_long_h(RtManagedArena *, const long long *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_double_h(RtManagedArena *, const double *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_char_h(RtManagedArena *, const char *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_bool_h(RtManagedArena *, const int *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_byte_h(RtManagedArena *, const unsigned char *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_string_h(RtManagedArena *, const char **, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_int32_h(RtManagedArena *, const int32_t *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_uint32_h(RtManagedArena *, const uint32_t *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_uint_h(RtManagedArena *, const uint64_t *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_slice_float_h(RtManagedArena *, const float *, long, long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_long_h(RtManagedArena *, const long long *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_double_h(RtManagedArena *, const double *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_char_h(RtManagedArena *, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_bool_h(RtManagedArena *, const int *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_byte_h(RtManagedArena *, const unsigned char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rev_string_h(RtManagedArena *, const char **);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_long_h(RtManagedArena *, const long long *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_double_h(RtManagedArena *, const double *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_char_h(RtManagedArena *, const char *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_bool_h(RtManagedArena *, const int *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_byte_h(RtManagedArena *, const unsigned char *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_rem_string_h(RtManagedArena *, const char **, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_long_h(RtManagedArena *, const long long *, long long, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_double_h(RtManagedArena *, const double *, double, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_char_h(RtManagedArena *, const char *, char, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_bool_h(RtManagedArena *, const int *, int, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_byte_h(RtManagedArena *, const unsigned char *, unsigned char, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_ins_string_h(RtManagedArena *, const char **, const char *, long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_long_h(RtManagedArena *, const long long *, long long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_double_h(RtManagedArena *, const double *, double);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_char_h(RtManagedArena *, const char *, char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_bool_h(RtManagedArena *, const int *, int);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_byte_h(RtManagedArena *, const unsigned char *, unsigned char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_push_copy_string_h(RtManagedArena *, const char **, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_long_h(RtManagedArena *, size_t, long long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_double_h(RtManagedArena *, size_t, double);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_char_h(RtManagedArena *, size_t, char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_bool_h(RtManagedArena *, size_t, int);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_byte_h(RtManagedArena *, size_t, unsigned char);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_alloc_string_h(RtManagedArena *, size_t, const char *);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_array_range_h(RtManagedArena *, long long, long long);\n");
+    indented_fprintf(gen, 0, "extern RtHandle rt_args_create_h(RtManagedArena *, int, char **);\n\n");
+
+    /* RtArrayMetadata and array helpers are provided by runtime_array.h */
+
+
     indented_fprintf(gen, 0, "/* Runtime long arithmetic (comparisons are static inline in runtime.h) */\n");
     indented_fprintf(gen, 0, "extern long long rt_add_long(long long, long long);\n");
     indented_fprintf(gen, 0, "extern long long rt_sub_long(long long, long long);\n");
@@ -238,7 +362,8 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "extern void rt_print_array_char(char *);\n");
     indented_fprintf(gen, 0, "extern void rt_print_array_bool(int *);\n");
     indented_fprintf(gen, 0, "extern void rt_print_array_byte(unsigned char *);\n");
-    indented_fprintf(gen, 0, "extern void rt_print_array_string(char **);\n\n");
+    indented_fprintf(gen, 0, "extern void rt_print_array_string(char **);\n");
+    indented_fprintf(gen, 0, "extern void rt_print_array_string_h(RtManagedArena *, RtHandle *);\n\n");
 
     indented_fprintf(gen, 0, "/* Runtime array clear */\n");
     indented_fprintf(gen, 0, "extern void rt_array_clear(void *);\n\n");
@@ -307,7 +432,8 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "extern long rt_array_indexOf_char(char *, char);\n");
     indented_fprintf(gen, 0, "extern long rt_array_indexOf_bool(int *, int);\n");
     indented_fprintf(gen, 0, "extern long rt_array_indexOf_byte(unsigned char *, unsigned char);\n");
-    indented_fprintf(gen, 0, "extern long rt_array_indexOf_string(char **, const char *);\n\n");
+    indented_fprintf(gen, 0, "extern long rt_array_indexOf_string(char **, const char *);\n");
+    indented_fprintf(gen, 0, "extern long rt_array_indexOf_string_h(RtManagedArena *, RtHandle *, const char *);\n\n");
 
     indented_fprintf(gen, 0, "/* Runtime array contains functions */\n");
     indented_fprintf(gen, 0, "extern int rt_array_contains_long(long long *, long long);\n");
@@ -315,7 +441,8 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "extern int rt_array_contains_char(char *, char);\n");
     indented_fprintf(gen, 0, "extern int rt_array_contains_bool(int *, int);\n");
     indented_fprintf(gen, 0, "extern int rt_array_contains_byte(unsigned char *, unsigned char);\n");
-    indented_fprintf(gen, 0, "extern int rt_array_contains_string(char **, const char *);\n\n");
+    indented_fprintf(gen, 0, "extern int rt_array_contains_string(char **, const char *);\n");
+    indented_fprintf(gen, 0, "extern int rt_array_contains_string_h(RtManagedArena *, RtHandle *, const char *);\n\n");
 
     indented_fprintf(gen, 0, "/* Runtime array clone functions */\n");
     indented_fprintf(gen, 0, "extern long long *rt_array_clone_long(RtArena *, long long *);\n");
@@ -331,7 +458,8 @@ static void code_gen_externs(CodeGen *gen)
     indented_fprintf(gen, 0, "extern char *rt_array_join_char(RtArena *, char *, const char *);\n");
     indented_fprintf(gen, 0, "extern char *rt_array_join_bool(RtArena *, int *, const char *);\n");
     indented_fprintf(gen, 0, "extern char *rt_array_join_byte(RtArena *, unsigned char *, const char *);\n");
-    indented_fprintf(gen, 0, "extern char *rt_array_join_string(RtArena *, char **, const char *);\n\n");
+    indented_fprintf(gen, 0, "extern char *rt_array_join_string(RtArena *, char **, const char *);\n");
+    indented_fprintf(gen, 0, "extern char *rt_array_join_string_h(RtManagedArena *, RtHandle *, const char *);\n\n");
 
     indented_fprintf(gen, 0, "/* Runtime array create from static data */\n");
     indented_fprintf(gen, 0, "extern long long *rt_array_create_long(RtArena *, size_t, const long long *);\n");
@@ -452,7 +580,7 @@ static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
     indented_fprintf(gen, 0, "%s %s(", ret_c, fn_name);
 
     /* All non-main functions receive caller's arena as first parameter */
-    fprintf(gen->output, "RtArena *");
+    fprintf(gen->output, "RtManagedArena *");
     if (fn->param_count > 0)
     {
         fprintf(gen->output, ", ");
@@ -460,7 +588,7 @@ static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
 
     for (int i = 0; i < fn->param_count; i++)
     {
-        const char *param_type = get_c_type(gen->arena, fn->params[i].type);
+        const char *param_type = get_c_param_type(gen->arena, fn->params[i].type);
         if (i > 0)
         {
             fprintf(gen->output, ", ");
@@ -540,15 +668,33 @@ static bool is_c_stdlib_function(const char *name)
 static void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 {
     char *fn_name = get_var_name(gen->arena, fn->name);
-    const char *ret_c = get_c_type(gen->arena, fn->return_type);
+    /* Native functions with arena param use handle-based types:
+     * TYPE_STRING → RtHandle, TYPE_ARRAY → element_type *
+     * Native functions without arena use raw C types:
+     * TYPE_STRING → char *, TYPE_ARRAY → element_type * */
+    const char *ret_c;
+    if (fn->return_type && fn->return_type->kind == TYPE_STRING && fn->has_arena_param) {
+        /* String returns with arena use RtHandle (handle-based strings) */
+        ret_c = "RtHandle";
+    } else if (fn->return_type && fn->return_type->kind == TYPE_STRING) {
+        ret_c = "char *";
+    } else if (fn->return_type && fn->return_type->kind == TYPE_ARRAY && fn->has_arena_param) {
+        /* Array returns with arena use RtHandle (handle-based arrays) */
+        ret_c = "RtHandle";
+    } else if (fn->return_type && fn->return_type->kind == TYPE_ARRAY) {
+        const char *elem_c = get_c_array_elem_type(gen->arena, fn->return_type->as.array.element_type);
+        ret_c = arena_sprintf(gen->arena, "%s *", elem_c);
+    } else {
+        ret_c = get_c_type(gen->arena, fn->return_type);
+    }
 
     indented_fprintf(gen, 0, "extern %s %s(", ret_c, fn_name);
 
-    /* If function has implicit arena param, prepend RtArena* */
+    /* If function has implicit arena param, prepend RtManagedArena* for managed arena system */
     bool has_other_params = fn->param_count > 0 || fn->is_variadic;
     if (fn->has_arena_param)
     {
-        fprintf(gen->output, "RtArena *");
+        fprintf(gen->output, "RtManagedArena *");
         if (has_other_params)
         {
             fprintf(gen->output, ", ");
@@ -557,7 +703,7 @@ static void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 
     for (int i = 0; i < fn->param_count; i++)
     {
-        const char *param_type = get_c_type(gen->arena, fn->params[i].type);
+        const char *param_type = get_c_native_param_type(gen->arena, fn->params[i].type);
         if (i > 0)
         {
             fprintf(gen->output, ", ");
@@ -899,7 +1045,18 @@ void code_gen_module(CodeGen *gen, Module *module)
                     indented_fprintf(gen, 0, "/* Struct method forward declarations */\n");
                 }
 
-                const char *ret_type = get_c_type(gen->arena, method->return_type);
+                const char *ret_type;
+                if (method->is_native && method->body == NULL &&
+                    method->return_type != NULL && method->return_type->kind == TYPE_STRING) {
+                    /* Native methods returning str use RtHandle (handle-based strings) */
+                    ret_type = "RtHandle";
+                } else if (method->is_native && method->body == NULL &&
+                           method->return_type != NULL && method->return_type->kind == TYPE_ARRAY) {
+                    /* Native methods returning arrays now return RtHandle directly */
+                    ret_type = "RtHandle";
+                } else {
+                    ret_type = get_c_type(gen->arena, method->return_type);
+                }
 
                 if (method->is_native && method->body == NULL)
                 {
@@ -958,7 +1115,7 @@ void code_gen_module(CodeGen *gen, Module *module)
                                 if (k > 0)
                                     indented_fprintf(gen, 0, ", ");
                                 Parameter *param = &method->params[k];
-                                const char *param_type = get_c_type(gen->arena, param->type);
+                                const char *param_type = get_c_native_param_type(gen->arena, param->type);
                                 indented_fprintf(gen, 0, "%s", param_type);
                             }
                         }
@@ -981,7 +1138,7 @@ void code_gen_module(CodeGen *gen, Module *module)
                         for (int k = 0; k < method->param_count; k++)
                         {
                             Parameter *param = &method->params[k];
-                            const char *param_type = get_c_type(gen->arena, param->type);
+                            const char *param_type = get_c_native_param_type(gen->arena, param->type);
                             indented_fprintf(gen, 0, ", %s", param_type);
                         }
                         indented_fprintf(gen, 0, ");\n");
@@ -995,17 +1152,17 @@ void code_gen_module(CodeGen *gen, Module *module)
                         /* Static method: no self parameter */
                         if (method->param_count == 0)
                         {
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena);\n",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__);\n",
                                              ret_type, struct_name, method->name);
                         }
                         else
                         {
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__",
                                              ret_type, struct_name, method->name);
                             for (int k = 0; k < method->param_count; k++)
                             {
                                 Parameter *param = &method->params[k];
-                                const char *param_type = get_c_type(gen->arena, param->type);
+                                const char *param_type = get_c_param_type(gen->arena, param->type);
                                 char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                                 indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                             }
@@ -1019,19 +1176,19 @@ void code_gen_module(CodeGen *gen, Module *module)
                         if (struct_decl->is_native && struct_decl->c_alias != NULL)
                         {
                             /* Opaque handle: self type is the C alias pointer */
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
                                              ret_type, struct_name, method->name, struct_decl->c_alias);
                         }
                         else
                         {
                             /* Regular struct: self is pointer to struct */
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
+                            indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
                                              ret_type, struct_name, method->name, struct_name);
                         }
                         for (int k = 0; k < method->param_count; k++)
                         {
                             Parameter *param = &method->params[k];
-                            const char *param_type = get_c_type(gen->arena, param->type);
+                            const char *param_type = get_c_param_type(gen->arena, param->type);
                             char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                             indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                         }
@@ -1113,7 +1270,7 @@ void code_gen_module(CodeGen *gen, Module *module)
     // Second pass: emit forward declarations for all user-defined functions
     indented_fprintf(gen, 0, "/* Forward declarations */\n");
     // Emit global arena reference (set by main at startup)
-    indented_fprintf(gen, 0, "static RtArena *__main_arena__ = NULL;\n\n");
+    indented_fprintf(gen, 0, "static RtManagedArena *__main_arena__ = NULL;\n\n");
     int forward_decl_count = 0;
     for (int i = 0; i < module->count; i++)
     {
@@ -1202,17 +1359,17 @@ void code_gen_module(CodeGen *gen, Module *module)
                 {
                     if (method->param_count == 0)
                     {
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena) {\n",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__) {\n",
                                          ret_type, struct_name, method->name);
                     }
                     else
                     {
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__",
                                          ret_type, struct_name, method->name);
                         for (int k = 0; k < method->param_count; k++)
                         {
                             Parameter *param = &method->params[k];
-                            const char *param_type = get_c_type(gen->arena, param->type);
+                            const char *param_type = get_c_param_type(gen->arena, param->type);
                             char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                             indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                         }
@@ -1226,19 +1383,19 @@ void code_gen_module(CodeGen *gen, Module *module)
                     if (struct_decl->is_native && struct_decl->c_alias != NULL)
                     {
                         /* Opaque handle: self type is the C alias pointer */
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
                                          ret_type, struct_name, method->name, struct_decl->c_alias);
                     }
                     else
                     {
                         /* Regular struct: self is pointer to struct */
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArena *arena, %s *__sn__self",
+                        indented_fprintf(gen, 0, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
                                          ret_type, struct_name, method->name, struct_name);
                     }
                     for (int k = 0; k < method->param_count; k++)
                     {
                         Parameter *param = &method->params[k];
-                        const char *param_type = get_c_type(gen->arena, param->type);
+                        const char *param_type = get_c_param_type(gen->arena, param->type);
                         char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
                         indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
                     }
@@ -1250,10 +1407,22 @@ void code_gen_module(CodeGen *gen, Module *module)
                 char *saved_function = gen->current_function;
                 Type *saved_return_type = gen->current_return_type;
                 char *saved_arena_var = gen->current_arena_var;
+                char *saved_function_arena = gen->function_arena_var;
 
                 gen->current_function = method_full_name;
                 gen->current_return_type = method->return_type;
-                gen->current_arena_var = "arena";  /* Methods receive arena as first parameter */
+                gen->current_arena_var = "__caller_arena__";
+                gen->function_arena_var = "__caller_arena__";
+
+                /* Push scope and add method params to symbol table for proper pinning */
+                symbol_table_push_scope(gen->symbol_table);
+                symbol_table_enter_arena(gen->symbol_table);
+                for (int k = 0; k < method->param_count; k++)
+                {
+                    symbol_table_add_symbol_full(gen->symbol_table, method->params[k].name,
+                                                 method->params[k].type, SYMBOL_PARAM,
+                                                 method->params[k].mem_qualifier);
+                }
 
                 /* Determine if we need a _return_value variable */
                 bool has_return_value = (method->return_type && method->return_type->kind != TYPE_VOID);
@@ -1285,10 +1454,14 @@ void code_gen_module(CodeGen *gen, Module *module)
                     indented_fprintf(gen, 1, "return;\n");
                 }
 
+                /* Pop method scope */
+                symbol_table_pop_scope(gen->symbol_table);
+
                 /* Restore code generator state */
                 gen->current_function = saved_function;
                 gen->current_return_type = saved_return_type;
                 gen->current_arena_var = saved_arena_var;
+                gen->function_arena_var = saved_function_arena;
 
                 /* Close function */
                 indented_fprintf(gen, 0, "}\n\n");
@@ -1298,10 +1471,18 @@ void code_gen_module(CodeGen *gen, Module *module)
 
     if (!has_main)
     {
-        // Generate main with arena lifecycle containing top-level executable statements
+        // Generate main with managed arena lifecycle
         indented_fprintf(gen, 0, "int main() {\n");
-        indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(NULL);\n");
+        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create();\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
+        // Emit deferred global initializations (handle-type globals that couldn't
+        // be initialized at file scope because C doesn't allow non-constant initializers)
+        for (int i = 0; i < gen->deferred_global_count; i++)
+        {
+            indented_fprintf(gen, 1, "%s = %s;\n",
+                             gen->deferred_global_names[i],
+                             gen->deferred_global_values[i]);
+        }
         indented_fprintf(gen, 1, "int _return_value = 0;\n");
 
         // Set up arena context for top-level statements
@@ -1325,7 +1506,7 @@ void code_gen_module(CodeGen *gen, Module *module)
 
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
-        indented_fprintf(gen, 1, "rt_arena_destroy(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_managed_arena_destroy(__local_arena__);\n");
         indented_fprintf(gen, 1, "return _return_value;\n");
         indented_fprintf(gen, 0, "}\n");
     }

@@ -24,6 +24,7 @@ static RtManagedBlock *managed_block_create_compact(size_t size)
     block->size = size;
     atomic_init(&block->used, 0);
     atomic_init(&block->lease_count, 0);
+    atomic_init(&block->pinned_count, 0);
     block->retired = false;
     return block;
 }
@@ -200,11 +201,15 @@ void rt_managed_compact(RtManagedArena *ma)
             continue;
         }
 
+        /* Skip permanently pinned entries — they must never be moved.
+         * These contain pthread_mutex_t, pthread_cond_t, or other OS resources. */
+        if (entry->pinned) continue;
+
         /* Try to acquire entry for moving — CAS leased: 0 → MOVING */
         int expected = 0;
         if (!atomic_compare_exchange_strong(&entry->leased, &expected, RT_LEASE_MOVING)) {
-            /* Entry is pinned — skip, best effort.
-             * Pinned data stays in old block (which remains alive until drained). */
+            /* Entry is temporarily leased — skip, best effort.
+             * Leased data stays in old block (which remains alive until drained). */
             continue;
         }
 
@@ -275,19 +280,13 @@ void rt_managed_compact(RtManagedArena *ma)
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
 
-/* Check if any live entry still resides in this block (caller holds alloc_mutex).
- * Replaces per-pin/unpin atomic counter with a cold-path scan, eliminating
- * 2 atomic RMW ops from every pin/unpin on the hot path. */
-static bool block_has_live_entries(RtManagedArena *ma, RtManagedBlock *block)
+/* Check if block has any leased or pinned entries — O(1) via atomic counters */
+static bool block_has_active_entries(RtManagedArena *ma, RtManagedBlock *block)
 {
-    uint32_t count = ma->table_count;
-    for (uint32_t i = 1; i < count; i++) {
-        RtHandleEntry *entry = rt_handle_get(ma, i);
-        if (entry->block == block && entry->ptr != NULL) {
-            return true;
-        }
-    }
-    return false;
+    (void)ma;
+    /* Block cannot be freed if it has temporarily leased OR permanently pinned entries */
+    return atomic_load_explicit(&block->lease_count, memory_order_acquire) > 0 ||
+           atomic_load_explicit(&block->pinned_count, memory_order_acquire) > 0;
 }
 
 /* Try to free retired blocks whose entries are all unleased */
@@ -300,7 +299,7 @@ static void retire_drained_blocks(RtManagedArena *ma)
 
     while (block != NULL) {
         RtManagedBlock *next = block->next;
-        if (!block_has_live_entries(ma, block)) {
+        if (!block_has_active_entries(ma, block)) {
             *prev = next;
             managed_block_free_gc(block);
         } else {

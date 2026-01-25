@@ -13,6 +13,8 @@
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Bytes Type Definition (unused, just for namespace)
@@ -50,10 +52,10 @@ static const signed char base64_decode_table[256] = {
  * ============================================================================ */
 
 /* Decode hexadecimal string to byte array */
-unsigned char *sn_bytes_from_hex(RtArena *arena, const char *hex)
+RtHandle sn_bytes_from_hex(RtManagedArena *arena, const char *hex)
 {
     if (hex == NULL) {
-        return rt_array_create_byte_uninit(arena, 0);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     size_t hex_len = strlen(hex);
@@ -65,7 +67,13 @@ unsigned char *sn_bytes_from_hex(RtArena *arena, const char *hex)
     }
 
     size_t byte_len = hex_len / 2;
-    unsigned char *bytes = rt_array_create_byte_uninit(arena, byte_len);
+
+    /* Allocate temporary buffer for decoded bytes */
+    unsigned char *temp_bytes = malloc(byte_len);
+    if (temp_bytes == NULL && byte_len > 0) {
+        fprintf(stderr, "SnBytes.fromHex: memory allocation failed\n");
+        exit(1);
+    }
 
     for (size_t i = 0; i < byte_len; i++) {
         unsigned char hi = hex[i * 2];
@@ -81,6 +89,7 @@ unsigned char *sn_bytes_from_hex(RtArena *arena, const char *hex)
         } else if (hi >= 'A' && hi <= 'F') {
             hi_val = hi - 'A' + 10;
         } else {
+            free(temp_bytes);
             fprintf(stderr, "SnBytes.fromHex: invalid hex character '%c'\n", hi);
             exit(1);
         }
@@ -93,26 +102,29 @@ unsigned char *sn_bytes_from_hex(RtArena *arena, const char *hex)
         } else if (lo >= 'A' && lo <= 'F') {
             lo_val = lo - 'A' + 10;
         } else {
+            free(temp_bytes);
             fprintf(stderr, "SnBytes.fromHex: invalid hex character '%c'\n", lo);
             exit(1);
         }
 
-        bytes[i] = (unsigned char)((hi_val << 4) | lo_val);
+        temp_bytes[i] = (unsigned char)((hi_val << 4) | lo_val);
     }
 
-    return bytes;
+    RtHandle result = rt_array_create_byte_h(arena, byte_len, temp_bytes);
+    free(temp_bytes);
+    return result;
 }
 
 /* Decode Base64 string to byte array */
-unsigned char *sn_bytes_from_base64(RtArena *arena, const char *b64)
+RtHandle sn_bytes_from_base64(RtManagedArena *arena, const char *b64)
 {
     if (b64 == NULL) {
-        return rt_array_create_byte_uninit(arena, 0);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     size_t len = strlen(b64);
     if (len == 0) {
-        return rt_array_create_byte_uninit(arena, 0);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     /* Count padding characters */
@@ -122,7 +134,13 @@ unsigned char *sn_bytes_from_base64(RtArena *arena, const char *b64)
 
     /* Calculate output size: 3 output bytes for every 4 input chars */
     size_t out_len = (len / 4) * 3 - padding;
-    unsigned char *bytes = rt_array_create_byte_uninit(arena, out_len);
+
+    /* Allocate temporary buffer for decoded bytes */
+    unsigned char *temp_bytes = malloc(out_len);
+    if (temp_bytes == NULL && out_len > 0) {
+        fprintf(stderr, "SnBytes.fromBase64: memory allocation failed\n");
+        exit(1);
+    }
 
     size_t i = 0;
     size_t out_idx = 0;
@@ -144,6 +162,7 @@ unsigned char *sn_bytes_from_base64(RtArena *arena, const char *b64)
             } else {
                 signed char val = base64_decode_table[(unsigned char)b64[i]];
                 if (val < 0) {
+                    free(temp_bytes);
                     fprintf(stderr, "SnBytes.fromBase64: invalid Base64 character '%c'\n", b64[i]);
                     exit(1);
                 }
@@ -156,15 +175,17 @@ unsigned char *sn_bytes_from_base64(RtArena *arena, const char *b64)
         unsigned int combined = (vals[0] << 18) | (vals[1] << 12) | (vals[2] << 6) | vals[3];
 
         if (out_idx < out_len) {
-            bytes[out_idx++] = (unsigned char)((combined >> 16) & 0xFF);
+            temp_bytes[out_idx++] = (unsigned char)((combined >> 16) & 0xFF);
         }
         if (out_idx < out_len && valid_chars >= 3) {
-            bytes[out_idx++] = (unsigned char)((combined >> 8) & 0xFF);
+            temp_bytes[out_idx++] = (unsigned char)((combined >> 8) & 0xFF);
         }
         if (out_idx < out_len && valid_chars >= 4) {
-            bytes[out_idx++] = (unsigned char)(combined & 0xFF);
+            temp_bytes[out_idx++] = (unsigned char)(combined & 0xFF);
         }
     }
 
-    return bytes;
+    RtHandle result = rt_array_create_byte_h(arena, out_len, temp_bytes);
+    free(temp_bytes);
+    return result;
 }

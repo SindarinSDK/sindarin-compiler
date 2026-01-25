@@ -4,134 +4,38 @@
 #include "runtime_arena.h"
 
 /* ============================================================================
- * Arena Memory Management Implementation
+ * Legacy Arena API Bridge
+ * ============================================================================
+ * These functions delegate to the managed arena. Allocations use permanent
+ * pins (no unpin) so pointers remain valid for the arena's lifetime.
+ * This is appropriate for internal runtime allocations that don't participate
+ * in GC (format buffers, diagnostic strings, temporary conversions, etc.).
  * ============================================================================ */
 
-/* Allocate a new arena block */
-static RtArenaBlock *rt_arena_new_block(size_t size)
-{
-    RtArenaBlock *block = malloc(sizeof(RtArenaBlock) + size);
-    if (block == NULL) {
-        fprintf(stderr, "rt_arena_new_block: allocation failed\n");
-        exit(1);
-    }
-    block->next = NULL;
-    block->size = size;
-    block->used = 0;
-    return block;
-}
-
-/* Create a new arena with custom block size */
-RtArena *rt_arena_create_sized(RtArena *parent, size_t block_size)
-{
-    if (block_size == 0) {
-        block_size = RT_ARENA_DEFAULT_BLOCK_SIZE;
-    }
-
-    RtArena *arena = malloc(sizeof(RtArena));
-    if (arena == NULL) {
-        fprintf(stderr, "rt_arena_create_sized: allocation failed\n");
-        exit(1);
-    }
-
-    arena->parent = parent;
-    arena->default_block_size = block_size;
-    arena->total_allocated = 0;
-    arena->cleanup_list = NULL;     /* Initialize cleanup list to empty */
-    arena->frozen = false;          /* Initialize frozen flag to false */
-
-    /* Create initial block */
-    arena->first = rt_arena_new_block(block_size);
-    arena->current = arena->first;
-    arena->total_allocated += sizeof(RtArenaBlock) + block_size;
-
-    return arena;
-}
-
-/* Create a new arena with default block size */
+/* Create a new arena, optionally with a parent */
 RtArena *rt_arena_create(RtArena *parent)
 {
-    return rt_arena_create_sized(parent, RT_ARENA_DEFAULT_BLOCK_SIZE);
+    if (parent != NULL) {
+        return rt_managed_arena_create_child(parent);
+    }
+    return rt_managed_arena_create();
 }
 
-/* Align a pointer up to the given alignment */
-static inline size_t rt_align_up(size_t value, size_t alignment)
-{
-    return (value + alignment - 1) & ~(alignment - 1);
-}
-
-/* Allocate aligned memory from arena */
-void *rt_arena_alloc_aligned(RtArena *arena, size_t size, size_t alignment)
-{
-    if (arena == NULL || size == 0) {
-        return NULL;
-    }
-
-    /* Check if arena is frozen (shared thread mode)
-     * Only block allocations from non-owner threads.
-     * Use __builtin_expect to hint that frozen is almost never true,
-     * avoiding expensive pthread_self()/pthread_equal() on the hot path. */
-    if (__builtin_expect(arena->frozen, 0)) {
-        pthread_t current_thread = pthread_self();
-        if (!pthread_equal(current_thread, arena->frozen_owner)) {
-            fprintf(stderr, "panic: cannot allocate from frozen arena (shared thread executing)\n");
-            exit(1);
-        }
-    }
-
-    /* Ensure alignment is at least sizeof(void*) and a power of 2 */
-    if (alignment < sizeof(void *)) {
-        alignment = sizeof(void *);
-    }
-
-    RtArenaBlock *block = arena->current;
-
-    /* Calculate the actual address where we'd allocate next */
-    char *current_ptr = block->data + block->used;
-
-    /* Calculate alignment padding needed for the actual memory address */
-    size_t addr = (size_t)current_ptr;
-    size_t aligned_addr = rt_align_up(addr, alignment);
-    size_t padding = aligned_addr - addr;
-
-    /* Calculate total space needed */
-    size_t end_offset = block->used + padding + size;
-
-    /* Check if allocation fits in current block */
-    if (end_offset <= block->size) {
-        block->used = end_offset;
-        return (char *)aligned_addr;
-    }
-
-    /* Need a new block - calculate size needed */
-    size_t needed = size + alignment;  /* Extra for alignment */
-    size_t new_block_size = arena->default_block_size;
-    if (needed > new_block_size) {
-        new_block_size = needed;
-    }
-
-    /* Allocate new block */
-    RtArenaBlock *new_block = rt_arena_new_block(new_block_size);
-    arena->total_allocated += sizeof(RtArenaBlock) + new_block_size;
-
-    /* Link new block */
-    block->next = new_block;
-    arena->current = new_block;
-
-    /* Allocate from new block with proper alignment */
-    current_ptr = new_block->data;
-    addr = (size_t)current_ptr;
-    aligned_addr = rt_align_up(addr, alignment);
-    padding = aligned_addr - addr;
-
-    new_block->used = padding + size;
-    return (char *)aligned_addr;
-}
-
-/* Allocate memory from arena (uninitialized) */
+/* Allocate memory from arena (permanently pinned — not compactable) */
 void *rt_arena_alloc(RtArena *arena, size_t size)
 {
-    return rt_arena_alloc_aligned(arena, size, sizeof(void *));
+    if (arena == NULL || size == 0) return NULL;
+
+    /* Use pinned allocation — the entry is marked as permanently unmovable
+     * so the compactor will never relocate it. This is necessary because
+     * rt_arena_alloc returns a raw pointer that callers expect to remain
+     * stable for the arena's lifetime. */
+    RtHandle h = rt_managed_alloc_pinned(arena, RT_HANDLE_NULL, size);
+    if (h == RT_HANDLE_NULL) return NULL;
+
+    /* Get the raw pointer. We still pin to get the pointer, but the entry
+     * is already permanently pinned so this is just for the pointer lookup. */
+    return rt_managed_pin(arena, h);
 }
 
 /* Allocate zeroed memory from arena */
@@ -145,108 +49,66 @@ void *rt_arena_calloc(RtArena *arena, size_t count, size_t size)
     return ptr;
 }
 
-/* Duplicate a string into arena.
- * IMMUTABLE STRING: Creates a simple arena-allocated copy with NO metadata.
- * This function can remain unchanged - it creates immutable strings that are
- * compatible with all existing code. Use rt_string_from() if you need a
- * mutable string with metadata that can be efficiently appended to. */
+/* Duplicate a string into arena */
 char *rt_arena_strdup(RtArena *arena, const char *str)
 {
-    if (str == NULL) {
-        return NULL;
+    if (arena == NULL || str == NULL) return NULL;
+
+    size_t len = strlen(str) + 1;
+    RtHandle h = rt_managed_alloc_pinned(arena, RT_HANDLE_NULL, len);
+    if (h == RT_HANDLE_NULL) return NULL;
+
+    /* Get pointer (entry is already permanently pinned) */
+    char *ptr = (char *)rt_managed_pin(arena, h);
+    if (ptr != NULL) {
+        memcpy(ptr, str, len);
     }
-    size_t len = strlen(str);
-    char *copy = rt_arena_alloc(arena, len + 1);
-    if (copy != NULL) {
-        memcpy(copy, str, len + 1);
-    }
-    return copy;
+    return ptr;
 }
 
 /* Duplicate n bytes of a string into arena */
 char *rt_arena_strndup(RtArena *arena, const char *str, size_t n)
 {
-    if (str == NULL) {
-        return NULL;
-    }
+    if (arena == NULL || str == NULL) return NULL;
+
     size_t len = strlen(str);
-    if (n < len) {
-        len = n;
+    if (n < len) len = n;
+
+    RtHandle h = rt_managed_alloc_pinned(arena, RT_HANDLE_NULL, len + 1);
+    if (h == RT_HANDLE_NULL) return NULL;
+
+    /* Get pointer (entry is already permanently pinned) */
+    char *ptr = (char *)rt_managed_pin(arena, h);
+    if (ptr != NULL) {
+        memcpy(ptr, str, len);
+        ptr[len] = '\0';
     }
-    char *copy = rt_arena_alloc(arena, len + 1);
-    if (copy != NULL) {
-        memcpy(copy, str, len);
-        copy[len] = '\0';
-    }
-    return copy;
+    return ptr;
 }
 
 /* Destroy arena and free all memory */
 void rt_arena_destroy(RtArena *arena)
 {
-    if (arena == NULL) {
-        return;
-    }
+    if (arena == NULL) return;
 
-    /* Invoke all cleanup callbacks in priority order (list is already sorted) */
-    RtCleanupNode *node = arena->cleanup_list;
-    while (node != NULL) {
-        if (node->cleanup_fn != NULL && node->data != NULL) {
-            node->cleanup_fn(node->data);
-        }
-        node = node->next;
+    if (arena->is_root) {
+        rt_managed_arena_destroy(arena);
+    } else {
+        rt_managed_arena_destroy_child(arena);
     }
-    arena->cleanup_list = NULL;
-
-    /* Free all blocks */
-    RtArenaBlock *block = arena->first;
-    while (block != NULL) {
-        RtArenaBlock *next = block->next;
-        free(block);
-        block = next;
-    }
-
-    free(arena);
 }
 
-/* Reset arena for reuse (keeps first block, frees rest) */
+/* Reset arena for reuse */
 void rt_arena_reset(RtArena *arena)
 {
-    if (arena == NULL) {
-        return;
-    }
-
-    /* Invoke all cleanup callbacks in priority order (list is already sorted) */
-    RtCleanupNode *node = arena->cleanup_list;
-    while (node != NULL) {
-        if (node->cleanup_fn != NULL && node->data != NULL) {
-            node->cleanup_fn(node->data);
-        }
-        node = node->next;
-    }
-    arena->cleanup_list = NULL;
-
-    /* Free all blocks except the first */
-    RtArenaBlock *block = arena->first->next;
-    while (block != NULL) {
-        RtArenaBlock *next = block->next;
-        free(block);
-        block = next;
-    }
-
-    /* Reset first block */
-    arena->first->next = NULL;
-    arena->first->used = 0;
-    arena->current = arena->first;
-    arena->total_allocated = sizeof(RtArenaBlock) + arena->first->size;
+    rt_managed_arena_reset(arena);
 }
 
 /* Copy data from one arena to another (for promotion) */
 void *rt_arena_promote(RtArena *dest, const void *src, size_t size)
 {
-    if (dest == NULL || src == NULL || size == 0) {
-        return NULL;
-    }
+    if (dest == NULL || src == NULL || size == 0) return NULL;
+
     void *copy = rt_arena_alloc(dest, size);
     if (copy != NULL) {
         memcpy(copy, src, size);
@@ -260,98 +122,25 @@ char *rt_arena_promote_string(RtArena *dest, const char *src)
     return rt_arena_strdup(dest, src);
 }
 
-/* Get total bytes allocated by arena */
+/* Get total bytes allocated by arena (sum of used bytes across all blocks) */
 size_t rt_arena_total_allocated(RtArena *arena)
 {
-    if (arena == NULL) {
-        return 0;
-    }
-    return arena->total_allocated;
+    return rt_managed_arena_used(arena);
 }
 
 /* ============================================================================
- * Generic Cleanup Callback Implementation
+ * Cleanup Callback Bridge
  * ============================================================================ */
 
 /* Register a cleanup callback for arena destruction/reset */
 RtCleanupNode *rt_arena_on_cleanup(RtArena *arena, void *data,
                                     RtCleanupFn cleanup_fn, int priority)
 {
-    if (arena == NULL || cleanup_fn == NULL) {
-        return NULL;
-    }
-
-    /* Allocate cleanup node from arena */
-    RtCleanupNode *node = rt_arena_alloc(arena, sizeof(RtCleanupNode));
-    if (node == NULL) {
-        return NULL;
-    }
-
-    node->data = data;
-    node->cleanup_fn = cleanup_fn;
-    node->priority = priority;
-    node->next = NULL;
-
-    /* Insert in sorted order by priority (lower values first) */
-    RtCleanupNode **curr = &arena->cleanup_list;
-    while (*curr != NULL && (*curr)->priority <= priority) {
-        curr = &(*curr)->next;
-    }
-    node->next = *curr;
-    *curr = node;
-
-    return node;
+    return rt_managed_on_cleanup(arena, data, cleanup_fn, priority);
 }
 
 /* Remove a cleanup callback by data pointer */
 void rt_arena_remove_cleanup(RtArena *arena, void *data)
 {
-    if (arena == NULL || data == NULL) {
-        return;
-    }
-
-    /* Find and remove the first node matching data */
-    RtCleanupNode **curr = &arena->cleanup_list;
-    while (*curr != NULL) {
-        if ((*curr)->data == data) {
-            RtCleanupNode *to_remove = *curr;
-            *curr = to_remove->next;
-            to_remove->next = NULL;
-            to_remove->data = NULL;
-            to_remove->cleanup_fn = NULL;
-            return;
-        }
-        curr = &(*curr)->next;
-    }
-}
-
-/* ============================================================================
- * Arena Freezing Implementation (for shared thread mode)
- * ============================================================================ */
-
-/* Freeze an arena to prevent allocations (used during shared thread execution) */
-void rt_arena_freeze(RtArena *arena)
-{
-    if (arena == NULL) {
-        return;
-    }
-    arena->frozen = true;
-}
-
-/* Unfreeze an arena to allow allocations again (called after thread sync) */
-void rt_arena_unfreeze(RtArena *arena)
-{
-    if (arena == NULL) {
-        return;
-    }
-    arena->frozen = false;
-}
-
-/* Check if an arena is frozen */
-bool rt_arena_is_frozen(RtArena *arena)
-{
-    if (arena == NULL) {
-        return false;
-    }
-    return arena->frozen;
+    rt_managed_remove_cleanup(arena, data);
 }

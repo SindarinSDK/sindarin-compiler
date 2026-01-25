@@ -418,8 +418,9 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     Symbol *existing = symbol_table_lookup_symbol_current(table, name);
     if (existing != NULL)
     {
-        DEBUG_VERBOSE("Existing symbol found: '%s', updating type", name_str);
+        DEBUG_VERBOSE("Existing symbol found: '%s', updating type and kind", name_str);
         existing->type = ast_clone_type(table->arena, type);
+        existing->kind = kind;  /* Update kind for correct arena selection (e.g., SYMBOL_GLOBAL) */
         return;
     }
 
@@ -476,6 +477,7 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     symbol->is_function = false;
     symbol->is_native = false;
     symbol->c_alias = NULL;
+    symbol->pin_arena = NULL;
     symbol->thread_state = THREAD_STATE_NORMAL;
     symbol->frozen_state.freeze_count = 0;
     symbol->frozen_state.frozen = false;

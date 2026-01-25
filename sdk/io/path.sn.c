@@ -31,6 +31,7 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 
 /* ============================================================================
  * Path Type Definition (unused, just for namespace)
@@ -89,65 +90,62 @@ static int is_absolute_path(const char *path)
  * ============================================================================ */
 
 /* Extract directory portion of a path */
-char *sn_path_directory(RtArena *arena, const char *path)
+RtHandle sn_path_directory(RtManagedArena *arena, const char *path)
 {
     if (path == NULL || *path == '\0') {
-        return rt_arena_strdup(arena, ".");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, ".");
     }
 
     const char *last_sep = find_last_separator(path);
     if (last_sep == NULL) {
         /* No separator found - return current directory */
-        return rt_arena_strdup(arena, ".");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, ".");
     }
 
     /* Handle root path (/ or C:\) */
     if (last_sep == path) {
-        return rt_arena_strdup(arena, "/");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "/");
     }
 
 #ifdef _WIN32
     /* Handle Windows drive letter like C:\ */
     if (last_sep == path + 2 && path[1] == ':') {
-        char *result = rt_arena_alloc(arena, 4);
-        result[0] = path[0];
-        result[1] = ':';
-        result[2] = '/';
-        result[3] = '\0';
-        return result;
+        char buf[4];
+        buf[0] = path[0];
+        buf[1] = ':';
+        buf[2] = '/';
+        buf[3] = '\0';
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
     }
 #endif
 
     /* Return everything up to (not including) the last separator */
     size_t dir_len = last_sep - path;
-    char *result = rt_arena_alloc(arena, dir_len + 1);
-    memcpy(result, path, dir_len);
-    result[dir_len] = '\0';
-    return result;
+    return rt_managed_strndup(arena, RT_HANDLE_NULL, path, dir_len);
 }
 
 /* Extract filename (with extension) from a path */
-char *sn_path_filename(RtArena *arena, const char *path)
+RtHandle sn_path_filename(RtManagedArena *arena, const char *path)
 {
     if (path == NULL || *path == '\0') {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     const char *last_sep = find_last_separator(path);
     if (last_sep == NULL) {
         /* No separator - the whole thing is the filename */
-        return rt_arena_strdup(arena, path);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, path);
     }
 
     /* Return everything after the last separator */
-    return rt_arena_strdup(arena, last_sep + 1);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, last_sep + 1);
 }
 
 /* Extract file extension (without dot) from a path */
-char *sn_path_extension(RtArena *arena, const char *path)
+RtHandle sn_path_extension(RtManagedArena *arena, const char *path)
 {
     if (path == NULL || *path == '\0') {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* Get just the filename part first */
@@ -164,15 +162,15 @@ char *sn_path_extension(RtArena *arena, const char *path)
 
     /* No dot, or dot is at start (hidden file like .bashrc) */
     if (last_dot == NULL || last_dot == filename) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* Return extension without the dot */
-    return rt_arena_strdup(arena, last_dot + 1);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, last_dot + 1);
 }
 
 /* Join two path components */
-char *sn_path_join2(RtArena *arena, const char *path1, const char *path2)
+RtHandle sn_path_join2(RtManagedArena *arena, const char *path1, const char *path2)
 {
     if (path1 == NULL) path1 = "";
     if (path2 == NULL) path2 = "";
@@ -182,18 +180,18 @@ char *sn_path_join2(RtArena *arena, const char *path1, const char *path2)
 
     /* If path2 is absolute, return it directly */
     if (len2 > 0 && is_path_separator(path2[0])) {
-        return rt_arena_strdup(arena, path2);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, path2);
     }
 #ifdef _WIN32
     /* Check for Windows absolute path like C:\ */
     if (len2 > 2 && path2[1] == ':' && is_path_separator(path2[2])) {
-        return rt_arena_strdup(arena, path2);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, path2);
     }
 #endif
 
     /* If path1 is empty, return path2 */
     if (len1 == 0) {
-        return rt_arena_strdup(arena, path2);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, path2);
     }
 
     /* Check if path1 already ends with separator */
@@ -201,55 +199,74 @@ char *sn_path_join2(RtArena *arena, const char *path1, const char *path2)
 
     /* Allocate: path1 + optional separator + path2 + null */
     size_t result_len = len1 + (has_trailing_sep ? 0 : 1) + len2 + 1;
-    char *result = rt_arena_alloc(arena, result_len);
+    char *buf = (char *)malloc(result_len);
+    if (buf == NULL) {
+        fprintf(stderr, "sn_path_join2: allocation failed\n");
+        exit(1);
+    }
 
-    memcpy(result, path1, len1);
+    memcpy(buf, path1, len1);
     size_t pos = len1;
     if (!has_trailing_sep) {
-        result[pos++] = '/';  /* Always use forward slash for consistency */
+        buf[pos++] = '/';  /* Always use forward slash for consistency */
     }
-    memcpy(result + pos, path2, len2);
-    result[pos + len2] = '\0';
+    memcpy(buf + pos, path2, len2);
+    buf[pos + len2] = '\0';
+
+    RtHandle h = rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
+    free(buf);
+    return h;
+}
+
+/* Join three path components */
+RtHandle sn_path_join3(RtManagedArena *arena, const char *path1, const char *path2, const char *path3)
+{
+    /* First join path1 and path2 */
+    RtHandle temp_h = sn_path_join2(arena, path1, path2);
+
+    /* Pin to get pointer for second join */
+    char *temp = rt_managed_pin_str(arena, temp_h);
+
+    /* Join temp with path3 */
+    RtHandle result = sn_path_join2(arena, temp, path3);
+
+    rt_managed_unpin(arena, temp_h);
+
+    /* Mark temp as dead since we don't need it anymore */
+    rt_managed_mark_dead(arena, temp_h);
 
     return result;
 }
 
-/* Join three path components */
-char *sn_path_join3(RtArena *arena, const char *path1, const char *path2, const char *path3)
-{
-    char *temp = sn_path_join2(arena, path1, path2);
-    return sn_path_join2(arena, temp, path3);
-}
-
 /* Resolve a path to its absolute form */
-char *sn_path_absolute(RtArena *arena, const char *path)
+RtHandle sn_path_absolute(RtManagedArena *arena, const char *path)
 {
     if (path == NULL || *path == '\0') {
         /* Empty path - return current working directory */
         char cwd[4096];
         if (getcwd(cwd, sizeof(cwd)) != NULL) {
-            return rt_arena_strdup(arena, cwd);
+            return rt_managed_strdup(arena, RT_HANDLE_NULL, cwd);
         }
         /* Fallback if getcwd fails */
-        return rt_arena_strdup(arena, ".");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, ".");
     }
 
 #ifdef _WIN32
     char resolved[PATH_MAX];
     if (_fullpath(resolved, path, PATH_MAX) != NULL) {
-        return rt_arena_strdup(arena, resolved);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, resolved);
     }
 #else
     char resolved[PATH_MAX];
     if (realpath(path, resolved) != NULL) {
-        return rt_arena_strdup(arena, resolved);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, resolved);
     }
 #endif
 
     /* realpath/_fullpath fails if path doesn't exist - try to resolve manually */
     if (is_absolute_path(path)) {
         /* Already absolute */
-        return rt_arena_strdup(arena, path);
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, path);
     }
 
     /* Prepend current working directory */
@@ -259,7 +276,7 @@ char *sn_path_absolute(RtArena *arena, const char *path)
     }
 
     /* Fallback - return as-is */
-    return rt_arena_strdup(arena, path);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, path);
 }
 
 /* ============================================================================

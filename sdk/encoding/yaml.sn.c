@@ -18,7 +18,9 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Internal Tree Data Structures
@@ -375,12 +377,12 @@ bool sn_yaml_is_mapping(SnYaml *y)
  * Value Access Functions (Scalars)
  * ============================================================================ */
 
-const char *sn_yaml_value(RtArena *arena, SnYaml *y)
+RtHandle sn_yaml_value(RtManagedArena *arena, SnYaml *y)
 {
     if (y == NULL || y->node == NULL || y->node->type != SN_YAML_SCALAR) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    return rt_arena_strdup(arena, y->node->scalar_value ? y->node->scalar_value : "");
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, y->node->scalar_value ? y->node->scalar_value : "");
 }
 
 int64_t sn_yaml_as_int(SnYaml *y)
@@ -469,16 +471,16 @@ bool sn_yaml_has(SnYaml *y, const char *key)
     return false;
 }
 
-char **sn_yaml_keys(RtArena *arena, SnYaml *y)
+RtHandle sn_yaml_keys(RtManagedArena *arena, SnYaml *y)
 {
     if (y == NULL || y->node == NULL || y->node->type != SN_YAML_MAPPING) {
-        return rt_array_create_string(arena, 0, NULL);
+        return rt_array_create_string_h(arena, 0, NULL);
     }
 
-    char **keys = rt_array_create_string(arena, 0, NULL);
+    RtHandle keys = rt_array_create_string_h(arena, 0, NULL);
     for (int i = 0; i < y->node->map_count; i++) {
-        char *dup = rt_arena_strdup(arena, y->node->map_pairs[i].key ? y->node->map_pairs[i].key : "");
-        keys = rt_array_push_string(arena, keys, dup);
+        RtHandle dup = rt_managed_strdup(arena, RT_HANDLE_NULL, y->node->map_pairs[i].key ? y->node->map_pairs[i].key : "");
+        keys = rt_array_push_string_h(arena, keys, (const char *)rt_managed_pin(arena, dup));
     }
     return keys;
 }
@@ -750,15 +752,15 @@ error:
     return sn_yaml_strdup("");
 }
 
-const char *sn_yaml_to_string(RtArena *arena, SnYaml *y)
+RtHandle sn_yaml_to_string(RtManagedArena *arena, SnYaml *y)
 {
     if (y == NULL || y->node == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     size_t len;
     char *str = sn_yaml_serialize(y->node, &len);
-    const char *result = rt_arena_strdup(arena, str ? str : "");
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, str ? str : "");
     free(str);
     return result;
 }
@@ -857,15 +859,15 @@ SnYaml *sn_yaml_copy(RtArena *arena, SnYaml *y)
     return sn_yaml_wrap(arena, copy, copy, 1);
 }
 
-const char *sn_yaml_type_name(RtArena *arena, SnYaml *y)
+RtHandle sn_yaml_type_name(RtManagedArena *arena, SnYaml *y)
 {
     if (y == NULL || y->node == NULL) {
-        return rt_arena_strdup(arena, "scalar");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "scalar");
     }
     switch (y->node->type) {
-        case SN_YAML_SCALAR: return rt_arena_strdup(arena, "scalar");
-        case SN_YAML_SEQUENCE: return rt_arena_strdup(arena, "sequence");
-        case SN_YAML_MAPPING: return rt_arena_strdup(arena, "mapping");
+        case SN_YAML_SCALAR: return rt_managed_strdup(arena, RT_HANDLE_NULL, "scalar");
+        case SN_YAML_SEQUENCE: return rt_managed_strdup(arena, RT_HANDLE_NULL, "sequence");
+        case SN_YAML_MAPPING: return rt_managed_strdup(arena, RT_HANDLE_NULL, "mapping");
     }
-    return rt_arena_strdup(arena, "scalar");
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, "scalar");
 }

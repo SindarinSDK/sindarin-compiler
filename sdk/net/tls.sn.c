@@ -18,6 +18,9 @@
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_string_h.h"
+#include "runtime/runtime_array_h.h"
 
 /* OpenSSL includes */
 #include <openssl/ssl.h>
@@ -571,9 +574,9 @@ RtTlsStream *sn_tls_stream_connect(RtArena *arena, const char *address) {
  * ============================================================================ */
 
 /* Read up to maxBytes (may return fewer) */
-unsigned char *sn_tls_stream_read(RtArena *arena, RtTlsStream *stream, long maxBytes) {
+RtHandle sn_tls_stream_read(RtManagedArena *arena, RtTlsStream *stream, long maxBytes) {
     if (stream == NULL || maxBytes <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     /* If buffer is empty, fill it */
@@ -589,17 +592,17 @@ unsigned char *sn_tls_stream_read(RtArena *arena, RtTlsStream *stream, long maxB
     size_t available = tls_stream_buffered(stream);
     size_t to_read = ((size_t)maxBytes < available) ? (size_t)maxBytes : available;
 
-    unsigned char *result = rt_array_create_byte(arena, to_read,
-                                                  stream->read_buf + stream->read_buf_pos);
+    RtHandle result = rt_array_create_byte_h(arena, to_read,
+                                              stream->read_buf + stream->read_buf_pos);
     tls_stream_consume(stream, to_read);
 
     return result;
 }
 
 /* Read until connection closes */
-unsigned char *sn_tls_stream_read_all(RtArena *arena, RtTlsStream *stream) {
+RtHandle sn_tls_stream_read_all(RtManagedArena *arena, RtTlsStream *stream) {
     if (stream == NULL) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     size_t capacity = 4096;
@@ -646,18 +649,16 @@ unsigned char *sn_tls_stream_read_all(RtArena *arena, RtTlsStream *stream) {
         }
     }
 
-    unsigned char *result = rt_array_create_byte(arena, total_read, temp_buffer);
+    RtHandle result = rt_array_create_byte_h(arena, total_read, temp_buffer);
     free(temp_buffer);
 
     return result;
 }
 
 /* Read until newline */
-char *sn_tls_stream_read_line(RtArena *arena, RtTlsStream *stream) {
+RtHandle sn_tls_stream_read_line(RtManagedArena *arena, RtTlsStream *stream) {
     if (stream == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     size_t accum_capacity = 0;
@@ -682,22 +683,22 @@ char *sn_tls_stream_read_line(RtArena *arena, RtTlsStream *stream) {
                     total_len--;
                 }
 
-                char *result = (char *)rt_arena_alloc(arena, total_len + 1);
-                if (result == NULL) {
+                char *temp = (char *)rt_arena_alloc((RtArena *)arena, total_len + 1);
+                if (temp == NULL) {
                     if (accum_buffer) free(accum_buffer);
                     fprintf(stderr, "TlsStream.readLine: arena alloc failed\n");
                     exit(1);
                 }
 
                 if (accum_len > 0) {
-                    memcpy(result, accum_buffer, accum_len);
+                    memcpy(temp, accum_buffer, accum_len);
                 }
                 if (chunk_len > 0) {
-                    memcpy(result + accum_len,
+                    memcpy(temp + accum_len,
                            stream->read_buf + stream->read_buf_pos,
                            chunk_len);
                 }
-                result[total_len] = '\0';
+                temp[total_len] = '\0';
 
                 stream->read_buf_pos = i + 1;
                 if (stream->read_buf_pos >= stream->read_buf_end) {
@@ -706,7 +707,7 @@ char *sn_tls_stream_read_line(RtArena *arena, RtTlsStream *stream) {
                 }
 
                 if (accum_buffer) free(accum_buffer);
-                return result;
+                return rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
             }
         }
 
@@ -763,20 +764,20 @@ char *sn_tls_stream_read_line(RtArena *arena, RtTlsStream *stream) {
         total_len--;
     }
 
-    char *result = (char *)rt_arena_alloc(arena, total_len + 1);
-    if (result == NULL) {
+    char *temp = (char *)rt_arena_alloc((RtArena *)arena, total_len + 1);
+    if (temp == NULL) {
         if (accum_buffer) free(accum_buffer);
         fprintf(stderr, "TlsStream.readLine: arena alloc failed\n");
         exit(1);
     }
 
     if (total_len > 0 && accum_buffer) {
-        memcpy(result, accum_buffer, total_len);
+        memcpy(temp, accum_buffer, total_len);
     }
-    result[total_len] = '\0';
+    temp[total_len] = '\0';
 
     if (accum_buffer) free(accum_buffer);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
 }
 
 /* ============================================================================
@@ -829,22 +830,11 @@ void sn_tls_stream_write_line(RtTlsStream *stream, const char *text) {
  * TlsStream Getters
  * ============================================================================ */
 
-char *sn_tls_stream_get_remote_address(RtArena *arena, RtTlsStream *stream) {
+RtHandle sn_tls_stream_get_remote_address(RtManagedArena *arena, RtTlsStream *stream) {
     if (stream == NULL || stream->remote_addr == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(stream->remote_addr) + 1;
-    char *result = (char *)rt_arena_alloc(arena, len);
-    if (result == NULL) {
-        fprintf(stderr, "TlsStream.remoteAddress: allocation failed\n");
-        exit(1);
-    }
-
-    memcpy(result, stream->remote_addr, len);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, stream->remote_addr);
 }
 
 /* ============================================================================

@@ -3,10 +3,12 @@
  * ==============================================================================
  * This file provides the C implementation for Stdin, Stdout, and Stderr types.
  * It is compiled via @source and linked with Sindarin code.
- *
- * These are thin wrappers around the runtime I/O functions in runtime_io.c.
  * ============================================================================== */
 
+#include <stdio.h>
+#include <string.h>
+#include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_io.h"
 
 /* ============================================================================
@@ -30,9 +32,23 @@ typedef struct RtStderr {
  * ============================================================================ */
 
 /* Read a line from standard input (strips trailing newline) */
-char *sn_stdin_read_line(RtArena *arena)
+RtHandle sn_stdin_read_line(RtManagedArena *arena)
 {
-    return rt_stdin_read_line(arena);
+    /* Read a line from stdin, stripping trailing newline */
+    char buffer[4096];
+    if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
+        /* EOF or error - return empty string */
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
+    }
+
+    /* Strip trailing newline if present */
+    size_t len = strlen(buffer);
+    if (len > 0 && buffer[len - 1] == '\n') {
+        buffer[len - 1] = '\0';
+        len--;
+    }
+
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buffer);
 }
 
 /* Read a single character from standard input (returns -1 on EOF) */
@@ -42,9 +58,15 @@ long sn_stdin_read_char(void)
 }
 
 /* Read a whitespace-delimited word from standard input */
-char *sn_stdin_read_word(RtArena *arena)
+RtHandle sn_stdin_read_word(RtManagedArena *arena)
 {
-    return rt_stdin_read_word(arena);
+    char buffer[4096];
+    if (scanf("%4095s", buffer) != 1) {
+        /* EOF or error - return empty string */
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
+    }
+
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buffer);
 }
 
 /* Check if characters are available on stdin */

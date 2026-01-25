@@ -35,6 +35,7 @@ typedef struct {
     bool in_shared_context;     // Are we in a shared block/loop?
     bool in_private_context;    // Are we in a private block/function?
     char *current_arena_var;    // Name of current arena variable (e.g., "__arena__")
+    char *function_arena_var;   // Arena variable for the function scope (doesn't change in loops)
     FunctionModifier current_func_modifier;  // Current function's modifier
 
     /* Loop arena for per-iteration cleanup */
@@ -128,6 +129,23 @@ typedef struct {
      * in __caller_arena__ instead of __local_arena__. This is set when
      * generating lambda expressions that are directly returned from functions. */
     bool allocate_closure_in_caller_arena;
+
+    /* Handle-based expression mode:
+     * When true, expression generator returns RtHandle form for string/array expressions.
+     * When false (default), returns raw pointer form (pinned).
+     * Used for variable initialization and assignment RHS. */
+    bool expr_as_handle;
+
+    /* Pin counter for unique pin variable names in generated code */
+    int pin_counter;
+
+    /* Deferred global initializations - for handle-type globals that need
+     * runtime initialization in main() because C doesn't allow non-constant
+     * initializers at file scope. */
+    char **deferred_global_names;   /* Variable names (mangled) */
+    char **deferred_global_values;  /* Initializer expressions */
+    int deferred_global_count;
+    int deferred_global_capacity;
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

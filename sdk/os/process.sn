@@ -34,10 +34,10 @@ native struct Process as ref =>
     @alias "exit_code"
     _exitCode: int32
 
-    @alias "stdout_str"
+    @alias "stdout_h"
     _stdout: str
 
-    @alias "stderr_str"
+    @alias "stderr_h"
     _stderr: str
 
     # ==========================================================================

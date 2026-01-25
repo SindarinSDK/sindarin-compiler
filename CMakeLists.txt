@@ -152,8 +152,12 @@ set(SN_BACKEND_SOURCES
 set(SN_RUNTIME_SOURCES
     src/runtime.c
     src/runtime/runtime_arena.c
+    src/runtime/arena/managed_arena.c
+    src/runtime/arena/managed_arena_gc.c
     src/runtime/runtime_string.c
+    src/runtime/runtime_string_h.c
     src/runtime/runtime_array.c
+    src/runtime/runtime_array_h.c
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
     src/runtime/runtime_thread.c
@@ -241,8 +245,12 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/debug.c
         ${CMAKE_SOURCE_DIR}/src/runtime.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_arena.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/managed_arena.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/managed_arena_gc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_string.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_string_h.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_h.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_thread.c
@@ -339,6 +347,14 @@ endif()
 file(GLOB RUNTIME_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/*.h")
 if(RUNTIME_HEADERS)
     file(INSTALL ${RUNTIME_HEADERS} DESTINATION "${RUNTIME_INCLUDE_DIR}")
+endif()
+
+# Copy arena headers (managed arena)
+set(ARENA_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/arena)
+file(MAKE_DIRECTORY ${ARENA_INCLUDE_DIR})
+file(GLOB ARENA_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/arena/*.h")
+if(ARENA_HEADERS)
+    file(INSTALL ${ARENA_HEADERS} DESTINATION "${ARENA_INCLUDE_DIR}")
 endif()
 
 # Copy platform headers

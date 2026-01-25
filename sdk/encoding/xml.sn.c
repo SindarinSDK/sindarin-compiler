@@ -18,7 +18,9 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Xml Type Definition
@@ -235,46 +237,46 @@ SnXml *sn_xml_document(RtArena *arena, const char *rootName)
  * Node Info Functions
  * ============================================================================ */
 
-const char *sn_xml_name(RtArena *arena, SnXml *x)
+RtHandle sn_xml_name(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
     const char *name = (const char *)x->node->name;
-    return rt_arena_strdup(arena, name ? name : "");
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, name ? name : "");
 }
 
-const char *sn_xml_text(RtArena *arena, SnXml *x)
+RtHandle sn_xml_text(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     xmlChar *content = xmlNodeGetContent(x->node);
     if (content == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
-    const char *result = rt_arena_strdup(arena, (const char *)content);
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, (const char *)content);
     xmlFree(content);
     return result;
 }
 
-const char *sn_xml_type_name(RtArena *arena, SnXml *x)
+RtHandle sn_xml_type_name(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
     switch (x->node->type) {
-        case XML_ELEMENT_NODE:       return rt_arena_strdup(arena, "element");
-        case XML_TEXT_NODE:          return rt_arena_strdup(arena, "text");
-        case XML_COMMENT_NODE:       return rt_arena_strdup(arena, "comment");
-        case XML_DOCUMENT_NODE:      return rt_arena_strdup(arena, "document");
-        case XML_ATTRIBUTE_NODE:     return rt_arena_strdup(arena, "attribute");
-        case XML_CDATA_SECTION_NODE: return rt_arena_strdup(arena, "cdata");
-        case XML_PI_NODE:            return rt_arena_strdup(arena, "processing-instruction");
-        default:                     return rt_arena_strdup(arena, "unknown");
+        case XML_ELEMENT_NODE:       return rt_managed_strdup(arena, RT_HANDLE_NULL, "element");
+        case XML_TEXT_NODE:          return rt_managed_strdup(arena, RT_HANDLE_NULL, "text");
+        case XML_COMMENT_NODE:       return rt_managed_strdup(arena, RT_HANDLE_NULL, "comment");
+        case XML_DOCUMENT_NODE:      return rt_managed_strdup(arena, RT_HANDLE_NULL, "document");
+        case XML_ATTRIBUTE_NODE:     return rt_managed_strdup(arena, RT_HANDLE_NULL, "attribute");
+        case XML_CDATA_SECTION_NODE: return rt_managed_strdup(arena, RT_HANDLE_NULL, "cdata");
+        case XML_PI_NODE:            return rt_managed_strdup(arena, RT_HANDLE_NULL, "processing-instruction");
+        default:                     return rt_managed_strdup(arena, RT_HANDLE_NULL, "unknown");
     }
 }
 
@@ -300,21 +302,21 @@ bool sn_xml_is_document(SnXml *x)
  * Attribute Functions
  * ============================================================================ */
 
-const char *sn_xml_attr(RtArena *arena, SnXml *x, const char *name)
+RtHandle sn_xml_attr(RtManagedArena *arena, SnXml *x, const char *name)
 {
     if (x == NULL || x->node == NULL || name == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
     if (x->node->type != XML_ELEMENT_NODE) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     xmlChar *value = xmlGetProp(x->node, BAD_CAST name);
     if (value == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
-    const char *result = rt_arena_strdup(arena, (const char *)value);
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, (const char *)value);
     xmlFree(value);
     return result;
 }
@@ -351,19 +353,20 @@ void sn_xml_remove_attr(SnXml *x, const char *name)
     }
 }
 
-char **sn_xml_attrs(RtArena *arena, SnXml *x)
+RtHandle sn_xml_attrs(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL || x->node->type != XML_ELEMENT_NODE) {
-        return rt_array_create_string(arena, 0, NULL);
+        return rt_array_create_string_h(arena, 0, NULL);
     }
 
-    char **names = rt_array_create_string(arena, 0, NULL);
+    RtHandle names = rt_array_create_string_h(arena, 0, NULL);
 
     xmlAttrPtr attr = x->node->properties;
     while (attr != NULL) {
         if (attr->name != NULL) {
-            char *name = rt_arena_strdup(arena, (const char *)attr->name);
-            names = rt_array_push_string(arena, names, name);
+            RtHandle name = rt_managed_strdup(arena, RT_HANDLE_NULL, (const char *)attr->name);
+            char *name_ptr = (char *)rt_managed_pin(arena, name);
+            names = rt_array_push_string_h(arena, names, name_ptr);
         }
         attr = attr->next;
     }
@@ -375,19 +378,19 @@ char **sn_xml_attrs(RtArena *arena, SnXml *x)
  * Child Navigation Functions
  * ============================================================================ */
 
-SnXml **sn_xml_children(RtArena *arena, SnXml *x)
+RtHandle sn_xml_children(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+        return RT_HANDLE_NULL;
     }
 
-    SnXml **children = (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+    RtHandle children = RT_HANDLE_NULL;
 
     xmlNodePtr cur = x->node->children;
     while (cur != NULL) {
         if (cur->type == XML_ELEMENT_NODE) {
-            SnXml *child = sn_xml_wrap(arena, x->doc, cur, 0);
-            children = (SnXml **)rt_array_push_ptr(arena, (void **)children, child);
+            SnXml *child = sn_xml_wrap((RtArena *)arena, x->doc, cur, 0);
+            children = rt_array_push_voidptr_h(arena, children, child);
         }
         cur = cur->next;
     }
@@ -514,17 +517,17 @@ SnXml *sn_xml_find(RtArena *arena, SnXml *x, const char *xpath)
     return found;
 }
 
-SnXml **sn_xml_find_all(RtArena *arena, SnXml *x, const char *xpath)
+RtHandle sn_xml_find_all(RtManagedArena *arena, SnXml *x, const char *xpath)
 {
     if (x == NULL || x->doc == NULL || xpath == NULL) {
-        return (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+        return RT_HANDLE_NULL;
     }
 
     sn_xml_init();
 
     xmlXPathContextPtr ctx = xmlXPathNewContext(x->doc);
     if (ctx == NULL) {
-        return (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+        return RT_HANDLE_NULL;
     }
 
     /* Set context node if we have one */
@@ -535,16 +538,16 @@ SnXml **sn_xml_find_all(RtArena *arena, SnXml *x, const char *xpath)
     xmlXPathObjectPtr result = xmlXPathEvalExpression(BAD_CAST xpath, ctx);
     if (result == NULL) {
         xmlXPathFreeContext(ctx);
-        return (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+        return RT_HANDLE_NULL;
     }
 
-    SnXml **nodes = (SnXml **)rt_array_create_ptr(arena, 0, NULL);
+    RtHandle nodes = RT_HANDLE_NULL;
 
     if (result->nodesetval != NULL) {
         for (int i = 0; i < result->nodesetval->nodeNr; i++) {
             xmlNodePtr node = result->nodesetval->nodeTab[i];
-            SnXml *wrapped = sn_xml_wrap(arena, x->doc, node, 0);
-            nodes = (SnXml **)rt_array_push_ptr(arena, (void **)nodes, wrapped);
+            SnXml *wrapped = sn_xml_wrap((RtArena *)arena, x->doc, node, 0);
+            nodes = rt_array_push_voidptr_h(arena, nodes, wrapped);
         }
     }
 
@@ -620,48 +623,48 @@ void sn_xml_remove(SnXml *x)
  * Serialization Functions
  * ============================================================================ */
 
-const char *sn_xml_to_string(RtArena *arena, SnXml *x)
+RtHandle sn_xml_to_string(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     xmlBufferPtr buf = xmlBufferCreate();
     if (buf == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     int size = xmlNodeDump(buf, x->doc, x->node, 0, 0);
     if (size < 0) {
         xmlBufferFree(buf);
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     const char *content = (const char *)xmlBufferContent(buf);
-    const char *result = rt_arena_strdup(arena, content ? content : "");
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, content ? content : "");
     xmlBufferFree(buf);
     return result;
 }
 
-const char *sn_xml_to_pretty_string(RtArena *arena, SnXml *x)
+RtHandle sn_xml_to_pretty_string(RtManagedArena *arena, SnXml *x)
 {
     if (x == NULL || x->node == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     xmlBufferPtr buf = xmlBufferCreate();
     if (buf == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     int size = xmlNodeDump(buf, x->doc, x->node, 0, 1);
     if (size < 0) {
         xmlBufferFree(buf);
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     const char *content = (const char *)xmlBufferContent(buf);
-    const char *result = rt_arena_strdup(arena, content ? content : "");
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, content ? content : "");
     xmlBufferFree(buf);
     return result;
 }

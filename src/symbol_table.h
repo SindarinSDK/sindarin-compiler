@@ -65,6 +65,7 @@ typedef struct Symbol
     bool is_namespace;          /* True if this symbol represents a namespace */
     char *namespace_name;       /* Namespace identifier (for namespaced imports) */
     struct Symbol *namespace_symbols;  /* Linked list of symbols within this namespace */
+    const char *pin_arena;      /* Arena variable name for pinning this handle (code gen only) */
 } Symbol;
 
 typedef struct Scope

@@ -362,14 +362,14 @@ native fn sn_random_static_gaussian_many(arena, mean: double, stddev: double, co
 native fn sn_random_static_choice_int(arr: int[]): int
 native fn sn_random_static_choice_long(arr: long[]): long
 native fn sn_random_static_choice_double(arr: double[]): double
-native fn sn_random_static_choice_str(arr: str[]): str
+native fn sn_random_static_choice_str(arena, arr: str[]): str
 native fn sn_random_static_choice_bool(arr: bool[]): int
 native fn sn_random_static_choice_byte(arr: byte[]): byte
 
 native fn sn_random_static_weighted_choice_int(arr: int[], weights: double[]): int
 native fn sn_random_static_weighted_choice_long(arr: long[], weights: double[]): long
 native fn sn_random_static_weighted_choice_double(arr: double[], weights: double[]): double
-native fn sn_random_static_weighted_choice_str(arr: str[], weights: double[]): str
+native fn sn_random_static_weighted_choice_str(arena, arr: str[], weights: double[]): str
 
 native fn sn_random_static_shuffle_int(arr: int[]): void
 native fn sn_random_static_shuffle_long(arr: long[]): void
@@ -403,14 +403,14 @@ native fn sn_random_gaussian_many(arena, rng: Random, mean: double, stddev: doub
 native fn sn_random_choice_int(rng: Random, arr: int[]): int
 native fn sn_random_choice_long(rng: Random, arr: long[]): long
 native fn sn_random_choice_double(rng: Random, arr: double[]): double
-native fn sn_random_choice_str(rng: Random, arr: str[]): str
+native fn sn_random_choice_str(arena, rng: Random, arr: str[]): str
 native fn sn_random_choice_bool(rng: Random, arr: bool[]): int
 native fn sn_random_choice_byte(rng: Random, arr: byte[]): byte
 
 native fn sn_random_weighted_choice_int(rng: Random, arr: int[], weights: double[]): int
 native fn sn_random_weighted_choice_long(rng: Random, arr: long[], weights: double[]): long
 native fn sn_random_weighted_choice_double(rng: Random, arr: double[], weights: double[]): double
-native fn sn_random_weighted_choice_str(rng: Random, arr: str[], weights: double[]): str
+native fn sn_random_weighted_choice_str(arena, rng: Random, arr: str[], weights: double[]): str
 
 native fn sn_random_shuffle_int(rng: Random, arr: int[]): void
 native fn sn_random_shuffle_long(rng: Random, arr: long[]): void

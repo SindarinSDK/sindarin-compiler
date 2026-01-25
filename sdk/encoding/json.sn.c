@@ -16,7 +16,9 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Json Type Definition
@@ -318,16 +320,16 @@ bool sn_json_is_null(SnJson *j)
  * Value Extraction Functions
  * ============================================================================ */
 
-const char *sn_json_as_string(RtArena *arena, SnJson *j)
+RtHandle sn_json_as_string(RtManagedArena *arena, SnJson *j)
 {
     if (j == NULL || j->val == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
     if (!yyjson_mut_is_str(j->val)) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
     const char *str = yyjson_mut_get_str(j->val);
-    return rt_arena_strdup(arena, str ? str : "");
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, str ? str : "");
 }
 
 int64_t sn_json_as_int(SnJson *j)
@@ -382,14 +384,14 @@ bool sn_json_has(SnJson *j, const char *key)
     return yyjson_mut_obj_get(j->val, key) != NULL;
 }
 
-char **sn_json_keys(RtArena *arena, SnJson *j)
+RtHandle sn_json_keys(RtManagedArena *arena, SnJson *j)
 {
     if (j == NULL || j->val == NULL || !yyjson_mut_is_obj(j->val)) {
-        return rt_array_create_string(arena, 0, NULL);
+        return rt_array_create_string_h(arena, 0, NULL);
     }
 
     /* Start with empty string array */
-    char **keys = rt_array_create_string(arena, 0, NULL);
+    RtHandle keys = rt_array_create_string_h(arena, 0, NULL);
 
     yyjson_mut_obj_iter iter;
     yyjson_mut_obj_iter_init(j->val, &iter);
@@ -397,8 +399,7 @@ char **sn_json_keys(RtArena *arena, SnJson *j)
 
     while ((key = yyjson_mut_obj_iter_next(&iter)) != NULL) {
         const char *key_str = yyjson_mut_get_str(key);
-        char *dup = rt_arena_strdup(arena, key_str ? key_str : "");
-        keys = rt_array_push_string(arena, keys, dup);
+        keys = rt_array_push_string_h(arena, keys, key_str ? key_str : "");
     }
 
     return keys;
@@ -552,36 +553,36 @@ void sn_json_remove_at(SnJson *j, int64_t index)
  * Serialization Functions
  * ============================================================================ */
 
-const char *sn_json_to_string(RtArena *arena, SnJson *j)
+RtHandle sn_json_to_string(RtManagedArena *arena, SnJson *j)
 {
     if (j == NULL || j->val == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
     size_t len;
     char *str = yyjson_mut_val_write(j->val, 0, &len);
     if (str == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
-    char *result = rt_arena_strdup(arena, str);
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, str);
     free(str);
     return result;
 }
 
-const char *sn_json_to_pretty_string(RtArena *arena, SnJson *j)
+RtHandle sn_json_to_pretty_string(RtManagedArena *arena, SnJson *j)
 {
     if (j == NULL || j->val == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
     size_t len;
     char *str = yyjson_mut_val_write(j->val, YYJSON_WRITE_PRETTY, &len);
     if (str == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
-    char *result = rt_arena_strdup(arena, str);
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, str);
     free(str);
     return result;
 }
@@ -637,18 +638,18 @@ SnJson *sn_json_copy(RtArena *arena, SnJson *j)
     return sn_json_wrap(arena, new_doc, val_copy, 1);
 }
 
-const char *sn_json_type_name(RtArena *arena, SnJson *j)
+RtHandle sn_json_type_name(RtManagedArena *arena, SnJson *j)
 {
     if (j == NULL || j->val == NULL) {
-        return rt_arena_strdup(arena, "null");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
     }
 
-    if (yyjson_mut_is_obj(j->val)) return rt_arena_strdup(arena, "object");
-    if (yyjson_mut_is_arr(j->val)) return rt_arena_strdup(arena, "array");
-    if (yyjson_mut_is_str(j->val)) return rt_arena_strdup(arena, "string");
-    if (yyjson_mut_is_bool(j->val)) return rt_arena_strdup(arena, "bool");
-    if (yyjson_mut_is_null(j->val)) return rt_arena_strdup(arena, "null");
-    if (yyjson_mut_is_num(j->val)) return rt_arena_strdup(arena, "number");
+    if (yyjson_mut_is_obj(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "object");
+    if (yyjson_mut_is_arr(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "array");
+    if (yyjson_mut_is_str(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "string");
+    if (yyjson_mut_is_bool(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "bool");
+    if (yyjson_mut_is_null(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "null");
+    if (yyjson_mut_is_num(j->val)) return rt_managed_strdup(arena, RT_HANDLE_NULL, "number");
 
-    return rt_arena_strdup(arena, "unknown");
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, "unknown");
 }

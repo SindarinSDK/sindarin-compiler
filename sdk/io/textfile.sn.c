@@ -27,7 +27,9 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * TextFile Type Definition
@@ -95,7 +97,7 @@ int sn_text_file_exists(const char *path)
 }
 
 /* Read entire file contents as string (static method) */
-char *sn_text_file_read_all_static(RtArena *arena, const char *path)
+RtHandle sn_text_file_read_all_static(RtManagedArena *arena, const char *path)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.readAll: arena is NULL\n");
@@ -132,8 +134,8 @@ char *sn_text_file_read_all_static(RtArena *arena, const char *path)
         exit(1);
     }
 
-    /* Allocate buffer from arena */
-    char *content = rt_arena_alloc(arena, (size_t)size + 1);
+    /* Allocate temporary buffer */
+    char *content = (char *)malloc((size_t)size + 1);
     if (content == NULL) {
         fclose(fp);
         fprintf(stderr, "SnTextFile.readAll: memory allocation failed\n");
@@ -143,6 +145,7 @@ char *sn_text_file_read_all_static(RtArena *arena, const char *path)
     /* Read file contents */
     size_t bytes_read = fread(content, 1, (size_t)size, fp);
     if (ferror(fp)) {
+        free(content);
         fclose(fp);
         fprintf(stderr, "SnTextFile.readAll: failed to read file '%s': %s\n", path, strerror(errno));
         exit(1);
@@ -151,7 +154,9 @@ char *sn_text_file_read_all_static(RtArena *arena, const char *path)
     content[bytes_read] = '\0';
     fclose(fp);
 
-    return content;
+    RtHandle h = rt_managed_strdup(arena, RT_HANDLE_NULL, content);
+    free(content);
+    return h;
 }
 
 /* Write string to file (creates or overwrites) */
@@ -302,7 +307,7 @@ long sn_text_file_read_char(RtSnTextFile *file)
 }
 
 /* Read single line (strips trailing newline) */
-char *sn_text_file_read_line(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_read_line(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.readLine: arena is NULL\n");
@@ -328,22 +333,28 @@ char *sn_text_file_read_line(RtArena *arena, RtSnTextFile *file)
             exit(1);
         }
         /* Return empty string on EOF */
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
     ungetc(c, fp);
 
     /* Read line into buffer */
     size_t capacity = 256;
     size_t length = 0;
-    char *buffer = rt_arena_alloc(arena, capacity);
+    char *buffer = (char *)malloc(capacity);
+    if (buffer == NULL) {
+        fprintf(stderr, "SnTextFile.readLine: memory allocation failed\n");
+        exit(1);
+    }
 
     while ((c = fgetc(fp)) != EOF && c != '\n') {
         if (length >= capacity - 1) {
             size_t new_capacity = capacity * 2;
-            char *new_buffer = rt_arena_alloc(arena, new_capacity);
-            memcpy(new_buffer, buffer, length);
+            char *new_buffer = (char *)realloc(buffer, new_capacity);
+            if (new_buffer == NULL) {
+                free(buffer);
+                fprintf(stderr, "SnTextFile.readLine: memory allocation failed\n");
+                exit(1);
+            }
             buffer = new_buffer;
             capacity = new_capacity;
         }
@@ -356,11 +367,13 @@ char *sn_text_file_read_line(RtArena *arena, RtSnTextFile *file)
     }
 
     buffer[length] = '\0';
-    return buffer;
+    RtHandle h = rt_managed_strdup(arena, RT_HANDLE_NULL, buffer);
+    free(buffer);
+    return h;
 }
 
 /* Read all remaining content from open file */
-char *sn_text_file_read_remaining(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_read_remaining(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.readAll: arena is NULL\n");
@@ -408,8 +421,8 @@ char *sn_text_file_read_remaining(RtArena *arena, RtSnTextFile *file)
     /* Calculate remaining bytes */
     size_t remaining = (size_t)(end_pos - current_pos);
 
-    /* Allocate buffer from arena */
-    char *content = rt_arena_alloc(arena, remaining + 1);
+    /* Allocate temporary buffer */
+    char *content = (char *)malloc(remaining + 1);
     if (content == NULL) {
         fprintf(stderr, "SnTextFile.readAll: memory allocation failed\n");
         exit(1);
@@ -418,17 +431,20 @@ char *sn_text_file_read_remaining(RtArena *arena, RtSnTextFile *file)
     /* Read remaining content */
     size_t bytes_read = fread(content, 1, remaining, fp);
     if (ferror(fp)) {
+        free(content);
         fprintf(stderr, "SnTextFile.readAll: failed to read file '%s': %s\n",
                 file->path ? file->path : "(unknown)", strerror(errno));
         exit(1);
     }
 
     content[bytes_read] = '\0';
-    return content;
+    RtHandle h = rt_managed_strdup(arena, RT_HANDLE_NULL, content);
+    free(content);
+    return h;
 }
 
 /* Read all remaining lines as array of strings */
-char **sn_text_file_read_lines(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_read_lines(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.readLines: arena is NULL\n");
@@ -444,15 +460,16 @@ char **sn_text_file_read_lines(RtArena *arena, RtSnTextFile *file)
     }
 
     /* Start with empty array */
-    char **lines = rt_array_create_string(arena, 0, NULL);
+    RtHandle lines = rt_array_create_string_h(arena, 0, NULL);
 
     /* Read lines until EOF */
     FILE *fp = (FILE *)file->fp;
     int c = fgetc(fp);
     while (c != EOF) {
         ungetc(c, fp);
-        char *line = sn_text_file_read_line(arena, file);
-        lines = rt_array_push_string(arena, lines, line);
+        RtHandle line = sn_text_file_read_line(arena, file);
+        const char *line_str = (const char *)rt_managed_pin((RtArena *)arena, line);
+        lines = rt_array_push_string_h(arena, lines, line_str);
         c = fgetc(fp);
     }
 
@@ -460,7 +477,7 @@ char **sn_text_file_read_lines(RtArena *arena, RtSnTextFile *file)
 }
 
 /* Read whitespace-delimited word */
-char *sn_text_file_read_word(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_read_word(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.readWord: arena is NULL\n");
@@ -485,23 +502,29 @@ char *sn_text_file_read_word(RtArena *arena, RtSnTextFile *file)
 
     if (c == EOF) {
         /* Return empty string on EOF */
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* Read word into buffer */
     size_t capacity = 64;
     size_t length = 0;
-    char *buffer = rt_arena_alloc(arena, capacity);
+    char *buffer = (char *)malloc(capacity);
+    if (buffer == NULL) {
+        fprintf(stderr, "SnTextFile.readWord: memory allocation failed\n");
+        exit(1);
+    }
 
     buffer[length++] = (char)c;
 
     while ((c = fgetc(fp)) != EOF && c != ' ' && c != '\t' && c != '\n' && c != '\r') {
         if (length >= capacity - 1) {
             size_t new_capacity = capacity * 2;
-            char *new_buffer = rt_arena_alloc(arena, new_capacity);
-            memcpy(new_buffer, buffer, length);
+            char *new_buffer = (char *)realloc(buffer, new_capacity);
+            if (new_buffer == NULL) {
+                free(buffer);
+                fprintf(stderr, "SnTextFile.readWord: memory allocation failed\n");
+                exit(1);
+            }
             buffer = new_buffer;
             capacity = new_capacity;
         }
@@ -514,7 +537,9 @@ char *sn_text_file_read_word(RtArena *arena, RtSnTextFile *file)
     }
 
     buffer[length] = '\0';
-    return buffer;
+    RtHandle h = rt_managed_strdup(arena, RT_HANDLE_NULL, buffer);
+    free(buffer);
+    return h;
 }
 
 /* ============================================================================
@@ -811,7 +836,7 @@ void sn_text_file_close(RtSnTextFile *file)
  * ============================================================================ */
 
 /* Get full file path */
-char *sn_text_file_get_path(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_get_path(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.path: arena is NULL\n");
@@ -823,16 +848,14 @@ char *sn_text_file_get_path(RtArena *arena, RtSnTextFile *file)
     }
 
     if (file->path == NULL) {
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
-    return rt_arena_strdup(arena, file->path);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, file->path);
 }
 
 /* Get filename only (without directory) */
-char *sn_text_file_get_name(RtArena *arena, RtSnTextFile *file)
+RtHandle sn_text_file_get_name(RtManagedArena *arena, RtSnTextFile *file)
 {
     if (arena == NULL) {
         fprintf(stderr, "SnTextFile.name: arena is NULL\n");
@@ -844,9 +867,7 @@ char *sn_text_file_get_name(RtArena *arena, RtSnTextFile *file)
     }
 
     if (file->path == NULL) {
-        char *empty = rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     /* Find last path separator */
@@ -860,7 +881,7 @@ char *sn_text_file_get_name(RtArena *arena, RtSnTextFile *file)
 #endif
 
     const char *name = (last_sep != NULL) ? last_sep + 1 : path;
-    return rt_arena_strdup(arena, name);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, name);
 }
 
 /* Get file size in bytes */

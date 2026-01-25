@@ -23,6 +23,9 @@
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_array_h.h"
+#include "runtime/runtime_string_h.h"
 
 /* ngtcp2 includes */
 #include <ngtcp2/ngtcp2.h>
@@ -990,7 +993,9 @@ static RtQuicConnection *quic_connection_create(RtArena *arena, const char *addr
     socklen_t local_len = sizeof(local_addr);
     getsockname(sock, (struct sockaddr *)&local_addr, &local_len);
 
-    /* Allocate connection */
+    /* Allocate connection from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor, which is required because
+     * RtQuicConnection contains pthread_mutex_t and pthread_cond_t. */
     RtQuicConnection *conn = (RtQuicConnection *)rt_arena_alloc(arena, sizeof(RtQuicConnection));
     memset(conn, 0, sizeof(RtQuicConnection));
     conn->arena = arena;
@@ -1181,6 +1186,8 @@ static RtQuicConnection *quic_server_connection_create(RtArena *arena, socket_t 
                                                         const uint8_t *pkt, size_t pktlen,
                                                         const ngtcp2_pkt_hd *hd,
                                                         RtQuicConfig *config) {
+    /* Allocate connection from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor. */
     RtQuicConnection *conn = (RtQuicConnection *)rt_arena_alloc(arena, sizeof(RtQuicConnection));
     memset(conn, 0, sizeof(RtQuicConnection));
     conn->arena = arena;
@@ -1553,9 +1560,9 @@ RtQuicConfig *sn_quic_config_set_idle_timeout(RtArena *arena, RtQuicConfig *conf
  * QuicStream API
  * ============================================================================ */
 
-unsigned char *sn_quic_stream_read(RtArena *arena, RtQuicStream *stream, long maxBytes) {
+RtHandle sn_quic_stream_read(RtManagedArena *arena, RtQuicStream *stream, long maxBytes) {
     if (!stream || maxBytes <= 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     MUTEX_LOCK(&stream->stream_mutex);
@@ -1569,11 +1576,11 @@ unsigned char *sn_quic_stream_read(RtArena *arena, RtQuicStream *stream, long ma
     size_t avail = stream_buf_available(&stream->recv_buf);
     if (avail == 0) {
         MUTEX_UNLOCK(&stream->stream_mutex);
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     size_t to_read = avail < (size_t)maxBytes ? avail : (size_t)maxBytes;
-    unsigned char *result = rt_array_create_byte(arena, to_read,
+    RtHandle result = rt_array_create_byte_h(arena, to_read,
         stream->recv_buf.data + stream->recv_buf.read_pos);
     stream->recv_buf.read_pos += to_read;
 
@@ -1581,9 +1588,9 @@ unsigned char *sn_quic_stream_read(RtArena *arena, RtQuicStream *stream, long ma
     return result;
 }
 
-unsigned char *sn_quic_stream_read_all(RtArena *arena, RtQuicStream *stream) {
+RtHandle sn_quic_stream_read_all(RtManagedArena *arena, RtQuicStream *stream) {
     if (!stream) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
     MUTEX_LOCK(&stream->stream_mutex);
@@ -1594,24 +1601,22 @@ unsigned char *sn_quic_stream_read_all(RtArena *arena, RtQuicStream *stream) {
     }
 
     size_t avail = stream_buf_available(&stream->recv_buf);
-    unsigned char *result;
+    RtHandle result;
     if (avail > 0) {
-        result = rt_array_create_byte(arena, avail,
+        result = rt_array_create_byte_h(arena, avail,
             stream->recv_buf.data + stream->recv_buf.read_pos);
         stream->recv_buf.read_pos += avail;
     } else {
-        result = rt_array_create_byte(arena, 0, NULL);
+        result = rt_array_create_byte_h(arena, 0, NULL);
     }
 
     MUTEX_UNLOCK(&stream->stream_mutex);
     return result;
 }
 
-char *sn_quic_stream_read_line(RtArena *arena, RtQuicStream *stream) {
+RtHandle sn_quic_stream_read_line(RtManagedArena *arena, RtQuicStream *stream) {
     if (!stream) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     MUTEX_LOCK(&stream->stream_mutex);
@@ -1629,23 +1634,23 @@ char *sn_quic_stream_read_line(RtArena *arena, RtQuicStream *stream) {
                 /* Strip \r if present */
                 if (line_len > 0 && start[line_len - 1] == '\r') line_len--;
 
-                char *result = (char *)rt_arena_alloc(arena, line_len + 1);
-                memcpy(result, start, line_len);
-                result[line_len] = '\0';
+                char *temp = (char *)rt_arena_alloc((RtArena *)arena, line_len + 1);
+                memcpy(temp, start, line_len);
+                temp[line_len] = '\0';
                 stream->recv_buf.read_pos += i + 1;
                 MUTEX_UNLOCK(&stream->stream_mutex);
-                return result;
+                return rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
             }
         }
 
         if (stream->recv_buf.fin_received || stream->closed) {
             /* Return remaining data as last line */
-            char *result = (char *)rt_arena_alloc(arena, avail + 1);
-            if (avail > 0) memcpy(result, start, avail);
-            result[avail] = '\0';
+            char *temp = (char *)rt_arena_alloc((RtArena *)arena, avail + 1);
+            if (avail > 0) memcpy(temp, start, avail);
+            temp[avail] = '\0';
             stream->recv_buf.read_pos += avail;
             MUTEX_UNLOCK(&stream->stream_mutex);
-            return result;
+            return rt_managed_strdup(arena, RT_HANDLE_NULL, temp);
         }
 
         COND_WAIT(&stream->read_cond, &stream->stream_mutex);
@@ -1896,12 +1901,12 @@ RtQuicStream *sn_quic_connection_accept_stream(RtArena *arena, RtQuicConnection 
     return stream;
 }
 
-unsigned char *sn_quic_connection_resumption_token(RtArena *arena, RtQuicConnection *conn) {
+RtHandle sn_quic_connection_resumption_token(RtManagedArena *arena, RtQuicConnection *conn) {
     if (!conn || !conn->resumption_token || conn->resumption_token_len == 0) {
-        return rt_array_create_byte(arena, 0, NULL);
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
 
-    return rt_array_create_byte(arena, conn->resumption_token_len, conn->resumption_token);
+    return rt_array_create_byte_h(arena, conn->resumption_token_len, conn->resumption_token);
 }
 
 void sn_quic_connection_migrate(RtQuicConnection *conn, const char *newLocalAddress) {
@@ -1981,16 +1986,11 @@ void sn_quic_connection_migrate(RtQuicConnection *conn, const char *newLocalAddr
     freeaddrinfo(res);
 }
 
-char *sn_quic_connection_remote_address(RtArena *arena, RtQuicConnection *conn) {
+RtHandle sn_quic_connection_remote_address(RtManagedArena *arena, RtQuicConnection *conn) {
     if (!conn || !conn->remote_addr_str) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    size_t len = strlen(conn->remote_addr_str) + 1;
-    char *result = (char *)rt_arena_alloc(arena, len);
-    memcpy(result, conn->remote_addr_str, len);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, conn->remote_addr_str);
 }
 
 void sn_quic_connection_close(RtQuicConnection *conn) {
@@ -2033,8 +2033,16 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         }
     }
 
+    /* For server connections, we only mark closed and signal waiters.
+     * The listener thread may still be using qconn, SSL, and streams,
+     * so cleanup is deferred to sn_quic_listener_close() after the
+     * listener thread is joined. */
+    if (conn->is_server) {
+        return;
+    }
+
     /* Stop and join I/O thread (client connections only) */
-    if (!conn->is_server && conn->io_running) {
+    if (conn->io_running) {
         conn->io_running = false;
 #ifdef _WIN32
         WaitForSingleObject(conn->io_thread, 5000);
@@ -2044,7 +2052,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
 #endif
     }
 
-    /* Cleanup */
+    /* Cleanup (client connections only) */
     if (conn->ssl) {
         SSL_set_app_data(conn->ssl, NULL);
         SSL_free(conn->ssl);
@@ -2054,7 +2062,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         ngtcp2_crypto_ossl_ctx_del(conn->ossl_ctx);
         conn->ossl_ctx = NULL;
     }
-    if (conn->ssl_ctx && !conn->is_server) {
+    if (conn->ssl_ctx) {
         SSL_CTX_free(conn->ssl_ctx);
         conn->ssl_ctx = NULL;
     }
@@ -2062,8 +2070,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         ngtcp2_conn_del(conn->qconn);
         conn->qconn = NULL;
     }
-    /* Only close socket for client connections (server shares listener socket) */
-    if (!conn->is_server && conn->socket_fd != INVALID_SOCKET_VAL) {
+    if (conn->socket_fd != INVALID_SOCKET_VAL) {
         CLOSE_SOCKET(conn->socket_fd);
         conn->socket_fd = INVALID_SOCKET_VAL;
     }
@@ -2083,6 +2090,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
     MUTEX_DESTROY(&conn->conn_mutex);
     COND_DESTROY(&conn->handshake_cond);
     COND_DESTROY(&conn->accept_stream_cond);
+    /* Memory is arena-allocated, no need to free */
 }
 
 /* ============================================================================
@@ -2154,7 +2162,8 @@ static RtQuicListener *quic_listener_create(RtArena *arena, const char *address,
         bound_port = ntohs(((struct sockaddr_in6 *)&bound_addr)->sin6_port);
     }
 
-    /* Create listener struct */
+    /* Create listener struct from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor. */
     RtQuicListener *listener = (RtQuicListener *)rt_arena_alloc(arena, sizeof(RtQuicListener));
     memset(listener, 0, sizeof(RtQuicListener));
     listener->arena = arena;
@@ -2247,7 +2256,8 @@ void sn_quic_listener_close(RtQuicListener *listener) {
     pthread_join(listener->listen_thread, NULL);
 #endif
 
-    /* Close all server connections */
+    /* Mark all server connections as closed (sn_quic_connection_close for
+     * server connections just sets closed=true and signals waiters). */
     MUTEX_LOCK(&listener->conn_list_mutex);
     for (int i = 0; i < listener->connection_count; i++) {
         if (listener->connections[i] && !listener->connections[i]->closed) {
@@ -2255,6 +2265,50 @@ void sn_quic_listener_close(RtQuicListener *listener) {
         }
     }
     MUTEX_UNLOCK(&listener->conn_list_mutex);
+
+    /* Now that listener thread is stopped, do full cleanup for all server
+     * connections. This was deferred because the listener thread was using
+     * these resources (qconn, SSL, streams). */
+    for (int i = 0; i < listener->connection_count; i++) {
+        RtQuicConnection *conn = listener->connections[i];
+        if (!conn) continue;
+
+        /* Cleanup SSL */
+        if (conn->ssl) {
+            SSL_set_app_data(conn->ssl, NULL);
+            SSL_free(conn->ssl);
+            conn->ssl = NULL;
+        }
+        if (conn->ossl_ctx) {
+            ngtcp2_crypto_ossl_ctx_del(conn->ossl_ctx);
+            conn->ossl_ctx = NULL;
+        }
+        /* Server connections share listener's ssl_ctx, don't free it here */
+
+        /* Delete ngtcp2 connection */
+        if (conn->qconn) {
+            ngtcp2_conn_del(conn->qconn);
+            conn->qconn = NULL;
+        }
+
+        /* Free streams */
+        for (int j = 0; j < conn->stream_count; j++) {
+            quic_stream_free(conn->streams[j]);
+            conn->streams[j] = NULL;
+        }
+
+        /* Free resumption token */
+        if (conn->resumption_token) {
+            free(conn->resumption_token);
+            conn->resumption_token = NULL;
+        }
+
+        /* Destroy mutex/cond */
+        MUTEX_DESTROY(&conn->conn_mutex);
+        COND_DESTROY(&conn->handshake_cond);
+        COND_DESTROY(&conn->accept_stream_cond);
+        /* Memory is arena-allocated, no need to free */
+    }
 
     /* Cleanup */
     if (listener->ssl_ctx) {
@@ -2269,4 +2323,5 @@ void sn_quic_listener_close(RtQuicListener *listener) {
     MUTEX_DESTROY(&listener->accept_mutex);
     COND_DESTROY(&listener->accept_cond);
     MUTEX_DESTROY(&listener->conn_list_mutex);
+    /* Memory is arena-allocated, no need to free */
 }

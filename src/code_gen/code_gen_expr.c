@@ -116,7 +116,15 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         return sn_mangle_name(gen->arena, member_name_str);
     }
 
+    /* For array/string member access (.length, etc.), the object must be
+     * evaluated in raw-pointer mode so handle variables get pinned. */
+    bool saved_as_handle = gen->expr_as_handle;
+    if (object_type != NULL && (object_type->kind == TYPE_ARRAY || object_type->kind == TYPE_STRING))
+    {
+        gen->expr_as_handle = false;
+    }
     char *object_str = code_gen_expression(gen, member->object);
+    gen->expr_as_handle = saved_as_handle;
 
     // Handle array.length
     if (object_type->kind == TYPE_ARRAY && strcmp(member_name_str, "length") == 0) {
@@ -141,7 +149,23 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         {
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
-        return arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
+        char *result = arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
+        {
+            if (field->type->kind == TYPE_STRING)
+            {
+                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
+                                       ARENA_VAR(gen), result);
+            }
+            else if (field->type->kind == TYPE_ARRAY)
+            {
+                const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
+                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                       elem_c, ARENA_VAR(gen), result);
+            }
+        }
+        return result;
     }
 
     /* Handle pointer-to-struct field access - generates object->__sn__field */
@@ -159,7 +183,23 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         {
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
-        return arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
+        char *result = arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
+        {
+            if (field->type->kind == TYPE_STRING)
+            {
+                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
+                                       ARENA_VAR(gen), result);
+            }
+            else if (field->type->kind == TYPE_ARRAY)
+            {
+                const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
+                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                       elem_c, ARENA_VAR(gen), result);
+            }
+        }
+        return result;
     }
 
     // Generic struct member access (not currently supported)
@@ -175,6 +215,10 @@ char *code_gen_range_expression(CodeGen *gen, Expr *expr)
     char *start_str = code_gen_expression(gen, range->start);
     char *end_str = code_gen_expression(gen, range->end);
 
+    if (gen->expr_as_handle && gen->current_arena_var != NULL)
+    {
+        return arena_sprintf(gen->arena, "rt_array_range_h(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
+    }
     return arena_sprintf(gen->arena, "rt_array_range(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
 }
 
@@ -221,7 +265,14 @@ static char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
     /* Generate code for the default value */
     char *default_str;
     if (default_value != NULL) {
+        /* For string arrays, the alloc function takes a raw char* and converts
+           to RtHandle internally, so we must evaluate in raw mode */
+        bool saved_handle = gen->expr_as_handle;
+        if (element_type->kind == TYPE_STRING) {
+            gen->expr_as_handle = false;
+        }
         default_str = code_gen_expression(gen, default_value);
+        gen->expr_as_handle = saved_handle;
     } else {
         /* Use type-appropriate zero value when no default provided */
         switch (element_type->kind) {
@@ -240,9 +291,10 @@ static char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Construct the runtime function call: rt_array_alloc_{suffix}(arena, size, default) */
-    return arena_sprintf(gen->arena, "rt_array_alloc_%s(%s, %s, %s)",
-                         suffix, ARENA_VAR(gen), size_str, default_str);
+    /* Construct the runtime function call: rt_array_alloc_{suffix}[_h](arena, size, default) */
+    const char *h_suffix = (gen->expr_as_handle && gen->current_arena_var != NULL) ? "_h" : "";
+    return arena_sprintf(gen->arena, "rt_array_alloc_%s%s(%s, %s, %s)",
+                         suffix, h_suffix, ARENA_VAR(gen), size_str, default_str);
 }
 
 /**
@@ -321,18 +373,18 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
             const char *suffix = get_array_clone_suffix(element_type);
             if (suffix != NULL)
             {
-                /* Copy array field using rt_array_clone_<type> */
-                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s(%s, __deep_copy.%s);\n",
-                                       result, c_field_name, suffix, ARENA_VAR(gen), c_field_name);
+                /* Copy array field: pin source handle → clone to new handle */
+                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, rt_managed_pin_array(%s, __deep_copy.%s));\n",
+                                       result, c_field_name, suffix, ARENA_VAR(gen), ARENA_VAR(gen), c_field_name);
             }
             /* If no clone function available (e.g., nested arrays), leave as shallow copy */
         }
         else if (field->type != NULL && field->type->kind == TYPE_STRING)
         {
-            /* Copy string field using rt_arena_strdup */
+            /* Copy string field: pin source handle → strdup to new handle */
             result = arena_sprintf(gen->arena,
-                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_arena_strdup(%s, __deep_copy.%s) : NULL;\n",
-                                   result, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
+                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(%s, __deep_copy.%s)) : RT_HANDLE_NULL;\n",
+                                   result, c_field_name, c_field_name, ARENA_VAR(gen), ARENA_VAR(gen), c_field_name);
         }
     }
 
@@ -390,8 +442,15 @@ static char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
     }
     else if (as_val->is_cstr_to_str)
     {
-        /* *char => str: use rt_arena_strdup to copy null-terminated C string to arena.
+        /* *char => str: convert C string to arena-managed string.
          * Handle NULL pointer by returning empty string. */
+        if (gen->expr_as_handle && gen->current_arena_var != NULL)
+        {
+            /* Handle mode: produce RtHandle via managed strdup */
+            return arena_sprintf(gen->arena, "((%s) ? rt_managed_strdup(%s, RT_HANDLE_NULL, %s) : rt_managed_strdup(%s, RT_HANDLE_NULL, \"\"))",
+                                operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
+        }
+        /* Raw pointer mode: use bridge layer for permanent pin */
         return arena_sprintf(gen->arena, "((%s) ? rt_arena_strdup(%s, %s) : rt_arena_strdup(%s, \"\"))",
                             operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
     }
@@ -453,16 +512,16 @@ static char *code_gen_sizeof_expression(CodeGen *gen, Expr *expr)
 
     if (sizeof_expr->type_operand != NULL)
     {
-        /* sizeof(Type) - compile-time size of the type */
-        const char *c_type = get_c_type(gen->arena, sizeof_expr->type_operand);
+        /* sizeof(Type) - compile-time size of the type.
+         * String and array types are RtHandle (uint32_t = 4 bytes). */
+        const char *c_type = get_c_param_type(gen->arena, sizeof_expr->type_operand);
         return arena_sprintf(gen->arena, "(long long)sizeof(%s)", c_type);
     }
     else
     {
         /* sizeof(expr) - size of the expression's type */
-        /* For expressions, we get the type from the type-checked expression */
         Type *expr_type = sizeof_expr->expr_operand->expr_type;
-        const char *c_type = get_c_type(gen->arena, expr_type);
+        const char *c_type = get_c_param_type(gen->arena, expr_type);
         return arena_sprintf(gen->arena, "(long long)sizeof(%s)", c_type);
     }
 }
@@ -607,6 +666,24 @@ static char *code_gen_as_type_expression(CodeGen *gen, Expr *expr)
         }
         if (conv_func != NULL)
         {
+            if (gen->current_arena_var != NULL)
+            {
+                /* In handle mode: pin the source any[] handle, call legacy from_any,
+                 * convert the raw result into a new handle. */
+                if (target_elem->kind == TYPE_STRING)
+                {
+                    /* Strings need special handling: legacy from_any returns char**
+                     * (8-byte pointers) but handle arrays store RtHandle (4-byte).
+                     * Use dedicated conversion that rt_managed_strdup's each element. */
+                    return arena_sprintf(gen->arena,
+                        "rt_array_from_legacy_string_h(%s, %s(%s, (RtAny *)rt_managed_pin_array(%s, %s)))",
+                        ARENA_VAR(gen), conv_func, ARENA_VAR(gen), ARENA_VAR(gen), operand_code);
+                }
+                const char *suffix = code_gen_type_suffix(target_elem);
+                return arena_sprintf(gen->arena,
+                    "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s(%s, (RtAny *)rt_managed_pin_array(%s, %s)))",
+                    suffix, ARENA_VAR(gen), conv_func, ARENA_VAR(gen), ARENA_VAR(gen), operand_code);
+            }
             return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), operand_code);
         }
     }
@@ -687,7 +764,32 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
         /* Generate field initializer */
         if (init_value != NULL)
         {
-            char *value_code = code_gen_expression(gen, init_value);
+            /* For string/array fields stored as RtHandle, force handle mode so the
+               value is properly wrapped with rt_managed_strdup / handle creation.
+               For other field types, use raw mode.
+               At file scope (no arena), string/array fields must be RT_HANDLE_NULL
+               since we can't call runtime functions in global initializers. */
+            char *value_code;
+            if (gen->current_arena_var == NULL &&
+                (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+            {
+                value_code = arena_strdup(gen->arena, "RT_HANDLE_NULL");
+            }
+            else
+            {
+                bool saved_handle = gen->expr_as_handle;
+                if (gen->current_arena_var != NULL &&
+                    (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+                {
+                    gen->expr_as_handle = true;
+                }
+                else
+                {
+                    gen->expr_as_handle = false;
+                }
+                value_code = code_gen_expression(gen, init_value);
+                gen->expr_as_handle = saved_handle;
+            }
             if (!first)
             {
                 result = arena_sprintf(gen->arena, "%s, ", result);
@@ -720,7 +822,13 @@ static char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Generating member access expression");
 
     MemberAccessExpr *access = &expr->as.member_access;
+
+    /* Object evaluation should not be in handle mode (structs aren't handles) */
+    bool saved_handle = gen->expr_as_handle;
+    gen->expr_as_handle = false;
     char *object_code = code_gen_expression(gen, access->object);
+    gen->expr_as_handle = saved_handle;
+
     Type *object_type = access->object->expr_type;
 
     /* Get field name - start with Sindarin name */
@@ -732,27 +840,54 @@ static char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     {
         struct_type = struct_type->as.pointer.base_type;
     }
+    Type *field_type = NULL;
     if (struct_type != NULL && struct_type->kind == TYPE_STRUCT)
     {
         StructField *field = ast_struct_get_field(struct_type, field_name);
-        if (field != NULL && field->c_alias != NULL)
+        if (field != NULL)
         {
-            field_name = arena_strdup(gen->arena, field->c_alias);
-        }
-        else if (field != NULL)
-        {
-            /* Mangle field name to avoid C reserved word conflicts */
-            field_name = sn_mangle_name(gen->arena, field_name);
+            field_type = field->type;
+            if (field->c_alias != NULL)
+            {
+                field_name = arena_strdup(gen->arena, field->c_alias);
+            }
+            else
+            {
+                /* Mangle field name to avoid C reserved word conflicts */
+                field_name = sn_mangle_name(gen->arena, field_name);
+            }
         }
     }
 
-    /* Check if this is pointer-to-struct (needs -> instead of .) */
+    /* Build the access expression */
+    char *result;
     if (object_type != NULL && object_type->kind == TYPE_POINTER)
     {
-        return arena_sprintf(gen->arena, "%s->%s", object_code, field_name);
+        result = arena_sprintf(gen->arena, "%s->%s", object_code, field_name);
+    }
+    else
+    {
+        result = arena_sprintf(gen->arena, "%s.%s", object_code, field_name);
     }
 
-    return arena_sprintf(gen->arena, "%s.%s", object_code, field_name);
+    /* If the field is a string/array stored as RtHandle, and the caller expects
+       a raw pointer (not a handle), pin the handle to get the raw pointer. */
+    if (gen->current_arena_var != NULL && !gen->expr_as_handle && field_type != NULL)
+    {
+        if (field_type->kind == TYPE_STRING)
+        {
+            result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
+                                   ARENA_VAR(gen), result);
+        }
+        else if (field_type->kind == TYPE_ARRAY)
+        {
+            const char *elem_c = get_c_array_elem_type(gen->arena, field_type->as.array.element_type);
+            result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                   elem_c, ARENA_VAR(gen), result);
+        }
+    }
+
+    return result;
 }
 
 /**
@@ -844,12 +979,21 @@ static char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
     /* Generate code for the target */
     char *target_code = code_gen_expression(gen, target);
 
-    /* For string concatenation (str += ...), use runtime function */
+    /* For string concatenation (str += ...), use handle-based runtime function */
     if (target_type != NULL && target_type->kind == TYPE_STRING && op == TOKEN_PLUS)
     {
-        /* Generate: target = rt_str_concat(arena, target, value) */
-        return arena_sprintf(gen->arena, "%s = rt_str_concat(%s, %s, %s)",
-                             target_code, ARENA_VAR(gen), target_code, value_code);
+        if (gen->current_arena_var != NULL && target->type == EXPR_VARIABLE)
+        {
+            /* Handle-based: target is an RtHandle variable.
+             * Generate: var = rt_str_concat_h(arena, var, pinned_var, value)
+             * target_code is already the pinned form from variable expression. */
+            char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, target->as.variable.name));
+            return arena_sprintf(gen->arena, "%s = rt_str_concat_h(%s, %s, %s, %s)",
+                                 var_name, ARENA_VAR(gen), var_name, target_code, value_code);
+        }
+        /* Legacy non-arena context */
+        return arena_sprintf(gen->arena, "%s = rt_str_concat(NULL, %s, %s)",
+                             target_code, target_code, value_code);
     }
 
     /* For numeric types, generate: target = target op value */
@@ -867,22 +1011,21 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Generating member assign expression");
 
     MemberAssignExpr *assign = &expr->as.member_assign;
-    char *object_code = code_gen_expression(gen, assign->object);
-    char *value_code = code_gen_expression(gen, assign->value);
     Type *object_type = assign->object->expr_type;
 
     /* Get field name - start with Sindarin name */
     char *field_name = arena_strndup(gen->arena, assign->field_name.start, assign->field_name.length);
 
-    /* Look up field in struct type to get c_alias if available */
+    /* Look up field in struct type to get c_alias and type info */
     Type *struct_type = object_type;
     if (struct_type != NULL && struct_type->kind == TYPE_POINTER)
     {
         struct_type = struct_type->as.pointer.base_type;
     }
+    StructField *field = NULL;
     if (struct_type != NULL && struct_type->kind == TYPE_STRUCT)
     {
-        StructField *field = ast_struct_get_field(struct_type, field_name);
+        field = ast_struct_get_field(struct_type, field_name);
         if (field != NULL && field->c_alias != NULL)
         {
             field_name = arena_strdup(gen->arena, field->c_alias);
@@ -893,6 +1036,43 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             field_name = sn_mangle_name(gen->arena, field_name);
         }
     }
+
+    /* Generate object in non-handle mode (structs aren't handles) */
+    bool saved_handle = gen->expr_as_handle;
+    gen->expr_as_handle = false;
+    char *object_code = code_gen_expression(gen, assign->object);
+
+    /* For string/array fields stored as RtHandle, value must be in handle mode */
+    if (field != NULL && gen->current_arena_var != NULL &&
+        (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+    {
+        gen->expr_as_handle = true;
+    }
+    else
+    {
+        gen->expr_as_handle = false;
+    }
+
+    /* If assigning to a ref parameter's field, allocate the value in
+     * __caller_arena__ since the struct lives in the caller's scope.
+     * The callee's __local_arena__ is destroyed on return, which would leave
+     * dangling handles in the caller's struct. */
+    char *prev_arena_var = gen->current_arena_var;
+    bool is_ref_target = false;
+    if (assign->object->type == EXPR_VARIABLE && gen->current_arena_var != NULL &&
+        field != NULL && (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+    {
+        Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table, assign->object->as.variable.name);
+        if (obj_sym != NULL && obj_sym->mem_qual == MEM_AS_REF)
+        {
+            is_ref_target = true;
+            gen->current_arena_var = "__caller_arena__";
+        }
+    }
+
+    char *value_code = code_gen_expression(gen, assign->value);
+    gen->current_arena_var = prev_arena_var;
+    gen->expr_as_handle = saved_handle;
 
     /* Check if this is pointer-to-struct (needs -> instead of .) */
     if (object_type != NULL && object_type->kind == TYPE_POINTER)
@@ -909,12 +1089,31 @@ static char *code_gen_match_expression(CodeGen *gen, Expr *expr)
     MatchExpr *match = &expr->as.match_expr;
     int match_id = gen->match_count++;
 
-    /* Generate subject expression */
-    char *subject_str = code_gen_expression(gen, match->subject);
-
-    /* Get C type for subject */
+    /* Generate subject expression - always as raw pointer for comparisons */
+    bool saved_as_handle = gen->expr_as_handle;
     Type *subject_type = match->subject->expr_type;
-    const char *subject_c_type = get_c_type(gen->arena, subject_type);
+    if (subject_type && is_handle_type(subject_type))
+    {
+        gen->expr_as_handle = false;
+    }
+    char *subject_str = code_gen_expression(gen, match->subject);
+    gen->expr_as_handle = saved_as_handle;
+
+    /* Get C type for subject - subject is evaluated as raw pointer for handle types */
+    const char *subject_c_type;
+    if (subject_type && subject_type->kind == TYPE_STRING)
+    {
+        subject_c_type = "char *";
+    }
+    else if (subject_type && subject_type->kind == TYPE_ARRAY)
+    {
+        const char *elem_c = get_c_array_elem_type(gen->arena, subject_type->as.array.element_type);
+        subject_c_type = arena_sprintf(gen->arena, "%s *", elem_c);
+    }
+    else
+    {
+        subject_c_type = get_c_type(gen->arena, subject_type);
+    }
 
     /* Determine if expression context (non-void result type) */
     bool is_expr_context = (expr->expr_type != NULL && expr->expr_type->kind != TYPE_VOID);
@@ -948,7 +1147,14 @@ static char *code_gen_match_expression(CodeGen *gen, Expr *expr)
             char *condition = arena_strdup(gen->arena, "");
             for (int j = 0; j < arm->pattern_count; j++)
             {
+                /* Pattern values for string comparisons must be raw char*, not handles */
+                bool saved_pat_handle = gen->expr_as_handle;
+                if (subject_type && subject_type->kind == TYPE_STRING)
+                {
+                    gen->expr_as_handle = false;
+                }
                 char *pattern_str = code_gen_expression(gen, arm->patterns[j]);
+                gen->expr_as_handle = saved_pat_handle;
                 char *cmp;
                 if (subject_type->kind == TYPE_STRING)
                 {
@@ -995,8 +1201,18 @@ static char *code_gen_match_expression(CodeGen *gen, Expr *expr)
 
                 if (is_expr_context && is_last && stmt->type == STMT_EXPR)
                 {
-                    /* Last expression in expression context: assign to result variable */
+                    /* Last expression in expression context: assign to result variable.
+                     * For handle types (string/array), set expr_as_handle so variables
+                     * return handles and concat returns handles. */
+                    bool saved_as_handle = gen->expr_as_handle;
+                    if (expr->expr_type && is_handle_type(expr->expr_type) &&
+                        gen->current_arena_var != NULL)
+                    {
+                        gen->expr_as_handle = true;
+                    }
                     char *val_str = code_gen_expression(gen, stmt->as.expression.expression);
+                    gen->expr_as_handle = saved_as_handle;
+
                     fprintf(gen->output, "%s = %s; ", result_var, val_str);
                 }
                 else
