@@ -13,6 +13,7 @@
 
 /* Include runtime arena for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 
 #ifdef _WIN32
     #define LOCALTIME_R(time_ptr, tm_ptr) localtime_s(tm_ptr, time_ptr)
@@ -295,16 +296,16 @@ int sn_date_is_weekday(RtDate *date)
  * Date Formatters
  * ============================================================================ */
 
-char *sn_date_format(RtArena *arena, RtDate *date, const char *pattern)
+RtHandle sn_date_format(RtManagedArena *arena, RtDate *date, const char *pattern)
 {
-    if (date == NULL || pattern == NULL) return NULL;
+    if (date == NULL || pattern == NULL) return RT_HANDLE_NULL;
 
     int year, month, day;
     sn_date_ymd_from_days(date->days, &year, &month, &day);
 
-    /* Allocate a large enough buffer */
+    /* Allocate a large enough buffer on stack */
     size_t buf_size = strlen(pattern) * 4 + 64;
-    char *result = (char *)rt_arena_alloc(arena, buf_size);
+    char *result = (char *)malloc(buf_size);
     if (result == NULL) {
         fprintf(stderr, "sn_date_format: allocation failed\n");
         exit(1);
@@ -353,40 +354,34 @@ char *sn_date_format(RtArena *arena, RtDate *date, const char *pattern)
     }
 
     result[out_pos] = '\0';
-    return result;
+    RtHandle handle = rt_managed_strdup(arena, RT_HANDLE_NULL, result);
+    free(result);
+    return handle;
 }
 
-char *sn_date_to_iso(RtArena *arena, RtDate *date)
+RtHandle sn_date_to_iso(RtManagedArena *arena, RtDate *date)
 {
-    if (date == NULL) return NULL;
-
-    char *result = (char *)rt_arena_alloc(arena, 16);
-    if (result == NULL) {
-        fprintf(stderr, "sn_date_to_iso: allocation failed\n");
-        exit(1);
-    }
+    if (date == NULL) return RT_HANDLE_NULL;
 
     long year = sn_date_get_year(date);
     long month = sn_date_get_month(date);
     long day = sn_date_get_day(date);
-    sprintf(result, "%04ld-%02ld-%02ld", year, month, day);
-    return result;
+
+    char buf[16];
+    sprintf(buf, "%04ld-%02ld-%02ld", year, month, day);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
-char *sn_date_to_string(RtArena *arena, RtDate *date)
+RtHandle sn_date_to_string(RtManagedArena *arena, RtDate *date)
 {
-    if (date == NULL) return NULL;
-
-    char *result = (char *)rt_arena_alloc(arena, 32);
-    if (result == NULL) {
-        fprintf(stderr, "sn_date_to_string: allocation failed\n");
-        exit(1);
-    }
+    if (date == NULL) return RT_HANDLE_NULL;
 
     int year, month, day;
     sn_date_ymd_from_days(date->days, &year, &month, &day);
-    sprintf(result, "%s %d, %d", MONTH_NAMES_FULL[month - 1], day, year);
-    return result;
+
+    char buf[32];
+    sprintf(buf, "%s %d, %d", MONTH_NAMES_FULL[month - 1], day, year);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* ============================================================================

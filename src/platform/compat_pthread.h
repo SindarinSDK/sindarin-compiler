@@ -8,8 +8,9 @@
 
 /* Only needed for MSVC/clang-cl on Windows, not MinGW (which provides pthreads)
  * However, SN_USE_WIN32_THREADS forces use of Windows API even with MinGW
- * for creating standalone packages that don't require pthread DLLs */
-#if defined(_WIN32) && (!defined(__MINGW32__) && !defined(__MINGW64__) || defined(SN_USE_WIN32_THREADS))
+ * for creating standalone packages that don't require pthread DLLs.
+ * Skip if arena_compat.h already provided pthread definitions. */
+#if defined(_WIN32) && (!defined(__MINGW32__) && !defined(__MINGW64__) || defined(SN_USE_WIN32_THREADS)) && !defined(ARENA_COMPAT_PTHREAD_DEFINED)
 
 #ifndef WIN32_LEAN_AND_MEAN
     #define WIN32_LEAN_AND_MEAN

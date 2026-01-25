@@ -12,7 +12,9 @@
 
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* Platform-specific socket includes */
 #ifdef _WIN32
@@ -57,7 +59,7 @@ typedef struct RtUdpSocket {
 
 /* Result struct for receiveFrom */
 typedef struct RtUdpReceiveResult {
-    unsigned char *data;    /* byte[] runtime array */
+    RtHandle data;          /* byte[] runtime array handle */
     char *sender;           /* Sender address string "ip:port" */
 } RtUdpReceiveResult;
 
@@ -338,8 +340,8 @@ long sn_udp_socket_send_to(RtUdpSocket *socket_obj, unsigned char *data, const c
 }
 
 /* Receive datagram and sender address */
-RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *socket_obj, long maxBytes) {
-    RtUdpReceiveResult *result = (RtUdpReceiveResult *)rt_arena_alloc(arena, sizeof(RtUdpReceiveResult));
+RtUdpReceiveResult *sn_udp_socket_receive_from(RtManagedArena *arena, RtUdpSocket *socket_obj, long maxBytes) {
+    RtUdpReceiveResult *result = (RtUdpReceiveResult *)rt_arena_alloc((RtArena *)arena, sizeof(RtUdpReceiveResult));
     if (result == NULL) {
         fprintf(stderr, "sn_udp_socket_receive_from: allocation failed\n");
         exit(1);
@@ -347,8 +349,8 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
 
     if (socket_obj == NULL || maxBytes <= 0) {
         /* Return empty result */
-        result->data = rt_array_create_byte(arena, 0, NULL);
-        result->sender = rt_arena_strdup(arena, "");
+        result->data = rt_array_create_byte_h(arena, 0, NULL);
+        result->sender = rt_arena_strdup((RtArena *)arena, "");
         return result;
     }
 
@@ -357,8 +359,8 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
         int wait_result = udp_wait_readable(socket_obj);
         if (wait_result == 0) {
             /* Timeout - return empty result */
-            result->data = rt_array_create_byte(arena, 0, NULL);
-            result->sender = rt_arena_strdup(arena, "");
+            result->data = rt_array_create_byte_h(arena, 0, NULL);
+            result->sender = rt_arena_strdup((RtArena *)arena, "");
             return result;
         }
         if (wait_result < 0) {
@@ -387,7 +389,7 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
     }
 
     /* Create runtime array with received data */
-    result->data = rt_array_create_byte(arena, (size_t)bytes_received, temp);
+    result->data = rt_array_create_byte_h(arena, (size_t)bytes_received, temp);
     free(temp);
 
     /* Format sender address as "ip:port" */
@@ -396,7 +398,7 @@ RtUdpReceiveResult *sn_udp_socket_receive_from(RtArena *arena, RtUdpSocket *sock
     inet_ntop(AF_INET, &sender_addr.sin_addr, ip_str, sizeof(ip_str));
     snprintf(sender_str, sizeof(sender_str), "%s:%d", ip_str, ntohs(sender_addr.sin_port));
 
-    result->sender = rt_arena_strdup(arena, sender_str);
+    result->sender = rt_arena_strdup((RtArena *)arena, sender_str);
     if (result->sender == NULL) {
         fprintf(stderr, "sn_udp_socket_receive_from: sender allocation failed\n");
         exit(1);
@@ -447,16 +449,16 @@ void sn_udp_socket_close(RtUdpSocket *socket_obj) {
  * UdpReceiveResult Getters
  * ============================================================================ */
 
-unsigned char *sn_udp_result_get_data(RtArena *arena, RtUdpReceiveResult *result) {
-    if (result == NULL || result->data == NULL) {
-        return rt_array_create_byte(arena, 0, NULL);
+RtHandle sn_udp_result_get_data(RtManagedArena *arena, RtUdpReceiveResult *result) {
+    if (result == NULL || result->data == RT_HANDLE_NULL) {
+        return rt_array_create_byte_h(arena, 0, NULL);
     }
     return result->data;
 }
 
-char *sn_udp_result_get_sender(RtArena *arena, RtUdpReceiveResult *result) {
+RtHandle sn_udp_result_get_sender(RtManagedArena *arena, RtUdpReceiveResult *result) {
     if (result == NULL || result->sender == NULL) {
-        return rt_arena_strdup(arena, "");
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    return result->sender;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, result->sender);
 }

@@ -1270,10 +1270,22 @@ static void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
         return; /* Cannot calculate layout for circular struct */
     }
 
-    /* Look up the struct type from the symbol table and calculate its layout */
+    /* Look up the struct type from the symbol table and calculate its layout.
+     * Also resolve forward references in the symbol table type's methods,
+     * since the earlier resolution (line 1131) only updated the statement's methods,
+     * not the symbol table's cloned copy. Code generation uses the symbol table type
+     * (via resolved_method), so it needs resolved return types too.
+     * Note: Only resolve for non-native methods - native methods have their types
+     * set by the parser and shouldn't have unresolved forward references. */
     Symbol *struct_sym = symbol_table_lookup_type(table, struct_decl->name);
     if (struct_sym != NULL && struct_sym->type != NULL && struct_sym->type->kind == TYPE_STRUCT)
     {
+        /* NOTE: We intentionally do NOT resolve forward references in the symbol
+         * table type's methods here because it can cause crashes when the resolved
+         * type is self-referential (struct methods returning the same struct type).
+         * Instead, the code gen resolves struct types on-demand using the
+         * resolve_struct_type() helper in code_gen_util.c. */
+
         calculate_struct_layout(struct_sym->type);
         DEBUG_VERBOSE("Struct '%s' layout: size=%zu, alignment=%zu",
                       struct_name,

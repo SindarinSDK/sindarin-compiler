@@ -210,12 +210,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "     * the caller's arena. For default/private modes, it's a new arena. */\n"
         "    RtArena *__arena__ = args->thread_arena;\n"
         "\n"
-        "    /* For shared mode, set ourselves as the frozen arena owner so we can allocate.\n"
-        "     * This must be done before any allocation to avoid race with rt_thread_spawn. */\n"
-        "    if (args->is_shared && args->caller_arena != NULL) {\n"
-        "        args->caller_arena->frozen_owner = pthread_self();\n"
-        "    }\n"
-        "\n"
         "    /* Set up panic context to catch panics in this thread */\n"
         "    RtThreadPanicContext __panic_ctx__;\n"
         "    rt_thread_panic_context_init(&__panic_ctx__, args->result, __arena__);\n"
@@ -271,7 +265,21 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         {
             call_args = arena_sprintf(gen->arena, "%s, ", call_args);
         }
-        call_args = arena_sprintf(gen->arena, "%sargs->arg%d", call_args, i);
+
+        /* For handle-type args in non-shared mode, promote from caller's arena
+         * to thread's arena since handles are per-arena */
+        Type *arg_type = call->arguments[i]->expr_type;
+        bool is_handle_arg = gen->current_arena_var != NULL && arg_type != NULL &&
+                             (arg_type->kind == TYPE_ARRAY || arg_type->kind == TYPE_STRING);
+        if (is_handle_arg && modifier != FUNC_SHARED)
+        {
+            call_args = arena_sprintf(gen->arena, "%srt_managed_clone(__arena__, args->caller_arena, args->arg%d)",
+                                      call_args, i);
+        }
+        else
+        {
+            call_args = arena_sprintf(gen->arena, "%sargs->arg%d", call_args, i);
+        }
     }
 
     /* Generate thunk for interceptor support if this is a user function */
@@ -356,6 +364,22 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 /* For 'any' type or unknown, pass directly */
                 unboxed_args = arena_sprintf(gen->arena, "%s__rt_thunk_args[%d]", unboxed_args, i);
             }
+            else if (arg_type && arg_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
+            {
+                /* In handle mode, clone the unboxed array into the thunk's arena */
+                const char *suffix = code_gen_type_suffix(arg_type->as.array.element_type);
+                const char *elem_c = get_c_array_elem_type(gen->arena, arg_type->as.array.element_type);
+                unboxed_args = arena_sprintf(gen->arena,
+                    "%srt_array_clone_%s_h((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, (%s *)%s(__rt_thunk_args[%d]))",
+                    unboxed_args, suffix, elem_c, unbox_func, i);
+            }
+            else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+            {
+                /* In handle mode, convert unboxed char* back to RtHandle */
+                unboxed_args = arena_sprintf(gen->arena,
+                    "%srt_managed_strdup((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, %s(__rt_thunk_args[%d]))",
+                    unboxed_args, unbox_func, i);
+            }
             else
             {
                 unboxed_args = arena_sprintf(gen->arena, "%s%s(__rt_thunk_args[%d])", unboxed_args, unbox_func, i);
@@ -374,9 +398,19 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             if (return_type && return_type->kind == TYPE_ARRAY)
             {
                 const char *elem_tag = get_element_type_tag(return_type->as.array.element_type);
-                thunk_def = arena_sprintf(gen->arena,
-                    "%s    RtAny __result = %s(%s(%s), %s);\n",
-                    thunk_def, box_func, callee_str, unboxed_args, elem_tag);
+                if (gen->current_arena_var != NULL)
+                {
+                    /* In handle mode, array result is RtHandle — cast to void* for boxing */
+                    thunk_def = arena_sprintf(gen->arena,
+                        "%s    RtAny __result = %s((void *)(uintptr_t)%s(%s), %s);\n",
+                        thunk_def, box_func, callee_str, unboxed_args, elem_tag);
+                }
+                else
+                {
+                    thunk_def = arena_sprintf(gen->arena,
+                        "%s    RtAny __result = %s(%s(%s), %s);\n",
+                        thunk_def, box_func, callee_str, unboxed_args, elem_tag);
+                }
             }
             else if (return_type && return_type->kind == TYPE_STRUCT)
             {
@@ -387,6 +421,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    RtAny __result = rt_box_struct((RtArena *)__rt_thunk_arena, &__tmp_result, sizeof(%s), %d);\n",
                     thunk_def, struct_name, callee_str, unboxed_args,
                     struct_name, type_id);
+            }
+            else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+            {
+                /* In handle mode, string result is RtHandle — pin to get char* for boxing */
+                thunk_def = arena_sprintf(gen->arena,
+                    "%s    RtAny __result = %s((char *)rt_managed_pin((RtArena *)__rt_thunk_arena, %s(%s)));\n",
+                    thunk_def, box_func, callee_str, unboxed_args);
             }
             else
             {
@@ -466,9 +507,19 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 if (arg_type && arg_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
-                    wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                        wrapper_def, i, box_func, i, elem_tag);
+                    if (gen->current_arena_var != NULL)
+                    {
+                        /* In handle mode, pin the handle to get void* for boxing */
+                        wrapper_def = arena_sprintf(gen->arena,
+                            "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
+                            wrapper_def, i, box_func, i, elem_tag);
+                    }
+                    else
+                    {
+                        wrapper_def = arena_sprintf(gen->arena,
+                            "%s        __args[%d] = %s(args->arg%d, %s);\n",
+                            wrapper_def, i, box_func, i, elem_tag);
+                    }
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
                 {
@@ -483,6 +534,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
+                        wrapper_def, i, box_func, i);
+                }
+                else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+                {
+                    /* In handle mode, pin the string handle to get char* for boxing */
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
                         wrapper_def, i, box_func, i);
                 }
                 else
@@ -565,9 +623,19 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 if (arg_type && arg_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
-                    wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                        wrapper_def, i, box_func, i, elem_tag);
+                    if (gen->current_arena_var != NULL)
+                    {
+                        /* In handle mode, pin the handle to get void* for boxing */
+                        wrapper_def = arena_sprintf(gen->arena,
+                            "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
+                            wrapper_def, i, box_func, i, elem_tag);
+                    }
+                    else
+                    {
+                        wrapper_def = arena_sprintf(gen->arena,
+                            "%s        __args[%d] = %s(args->arg%d, %s);\n",
+                            wrapper_def, i, box_func, i, elem_tag);
+                    }
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
                 {
@@ -582,6 +650,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
+                        wrapper_def, i, box_func, i);
+                }
+                else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+                {
+                    /* In handle mode, pin the string handle to get char* for boxing */
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
                         wrapper_def, i, box_func, i);
                 }
                 else
@@ -625,6 +700,17 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 unbox_expr = arena_sprintf(gen->arena,
                     "*((%s *)rt_unbox_struct(__intercepted, %d))",
                     struct_name, type_id);
+            }
+            else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+            {
+                /* String result: unbox to raw char*, then convert to handle */
+                unbox_expr = arena_sprintf(gen->arena, "rt_managed_strdup(__arena__, RT_HANDLE_NULL, %s(__intercepted))",
+                                           unbox_func);
+            }
+            else if (return_type && return_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
+            {
+                /* Array result: unbox to raw pointer, cast back to RtHandle */
+                unbox_expr = arena_sprintf(gen->arena, "(RtHandle)(uintptr_t)%s(__intercepted)", unbox_func);
             }
             else
             {
@@ -704,7 +790,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     for (int i = 0; i < call->arg_count; i++)
     {
         Expr *arg_expr = call->arguments[i];
+
+        /* For handle-type args (array/string in arena mode), generate as handle
+         * so we store the RtHandle value directly instead of pinning */
+        bool is_handle_arg = gen->current_arena_var != NULL && arg_expr->expr_type != NULL &&
+                             (arg_expr->expr_type->kind == TYPE_ARRAY || arg_expr->expr_type->kind == TYPE_STRING);
+        bool saved_handle = gen->expr_as_handle;
+        if (is_handle_arg) gen->expr_as_handle = true;
         char *arg_code = code_gen_expression(gen, arg_expr);
+        gen->expr_as_handle = saved_handle;
 
         /* Check if this is an 'as ref' primitive parameter */
         bool is_ref_primitive = false;
@@ -956,12 +1050,16 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                              result_type->kind == TYPE_BOOL ||
                              result_type->kind == TYPE_BYTE ||
                              result_type->kind == TYPE_CHAR);
+        /* Handle types (array/string in arena mode) also use the pending var pattern
+         * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
+        bool is_handle_type = gen->current_arena_var != NULL &&
+                              (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
 
         /* Check if the handle is a variable - if so, we need to update it after sync
          * This ensures that after x! is used, subsequent uses of x return the synced value */
         bool is_variable_handle = (sync->handle->type == EXPR_VARIABLE);
 
-        if (is_primitive)
+        if (is_primitive || is_handle_type)
         {
             /* Primitive type: cast pointer and dereference
              * Uses rt_thread_sync_with_result for panic propagation + result promotion

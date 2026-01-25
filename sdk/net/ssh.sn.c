@@ -19,6 +19,8 @@
 /* Include runtime for proper memory management */
 #include "runtime/runtime_arena.h"
 #include "runtime/runtime_array.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_string_h.h"
 
 /* libssh includes */
 #include <libssh/libssh.h>
@@ -560,9 +562,9 @@ static RtSshExecResult *ssh_exec_internal(RtArena *arena, RtSshConnection *conn,
  * ============================================================================ */
 
 /* Execute command, return stdout only */
-char *sn_ssh_run(RtArena *arena, RtSshConnection *conn, const char *command) {
-    RtSshExecResult *result = ssh_exec_internal(arena, conn, command);
-    return result->stdout_str;
+RtHandle sn_ssh_run(RtManagedArena *arena, RtSshConnection *conn, const char *command) {
+    RtSshExecResult *result = ssh_exec_internal((RtArena *)arena, conn, command);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, result->stdout_str ? result->stdout_str : "");
 }
 
 /* Execute command, return full result struct */
@@ -574,55 +576,25 @@ RtSshExecResult *sn_ssh_exec(RtArena *arena, RtSshConnection *conn, const char *
  * Getters
  * ============================================================================ */
 
-char *sn_ssh_get_remote_address(RtArena *arena, RtSshConnection *conn) {
+RtHandle sn_ssh_get_remote_address(RtManagedArena *arena, RtSshConnection *conn) {
     if (conn == NULL || conn->remote_addr == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(conn->remote_addr) + 1;
-    char *result = (char *)rt_arena_alloc(arena, len);
-    if (result == NULL) {
-        fprintf(stderr, "SshConnection.remoteAddress: allocation failed\n");
-        exit(1);
-    }
-    memcpy(result, conn->remote_addr, len);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, conn->remote_addr);
 }
 
-char *sn_ssh_exec_result_get_stdout(RtArena *arena, RtSshExecResult *result) {
+RtHandle sn_ssh_exec_result_get_stdout(RtManagedArena *arena, RtSshExecResult *result) {
     if (result == NULL || result->stdout_str == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(result->stdout_str) + 1;
-    char *copy = (char *)rt_arena_alloc(arena, len);
-    if (copy == NULL) {
-        fprintf(stderr, "SshExecResult.stdout: allocation failed\n");
-        exit(1);
-    }
-    memcpy(copy, result->stdout_str, len);
-    return copy;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, result->stdout_str);
 }
 
-char *sn_ssh_exec_result_get_stderr(RtArena *arena, RtSshExecResult *result) {
+RtHandle sn_ssh_exec_result_get_stderr(RtManagedArena *arena, RtSshExecResult *result) {
     if (result == NULL || result->stderr_str == NULL) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-
-    size_t len = strlen(result->stderr_str) + 1;
-    char *copy = (char *)rt_arena_alloc(arena, len);
-    if (copy == NULL) {
-        fprintf(stderr, "SshExecResult.stderr: allocation failed\n");
-        exit(1);
-    }
-    memcpy(copy, result->stderr_str, len);
-    return copy;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, result->stderr_str);
 }
 
 long sn_ssh_exec_result_get_exit_code(RtSshExecResult *result) {
@@ -963,28 +935,18 @@ RtSshSession *sn_ssh_listener_accept(RtArena *arena, RtSshListener *listener) {
  * Server: SshSession
  * ============================================================================ */
 
-char *sn_ssh_session_get_username(RtArena *arena, RtSshSession *session) {
+RtHandle sn_ssh_session_get_username(RtManagedArena *arena, RtSshSession *session) {
     if (!session || !session->username) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    size_t len = strlen(session->username) + 1;
-    char *copy = (char *)rt_arena_alloc(arena, len);
-    if (copy) memcpy(copy, session->username, len);
-    return copy;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, session->username);
 }
 
-char *sn_ssh_session_get_remote_address(RtArena *arena, RtSshSession *session) {
+RtHandle sn_ssh_session_get_remote_address(RtManagedArena *arena, RtSshSession *session) {
     if (!session || !session->remote_addr) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    size_t len = strlen(session->remote_addr) + 1;
-    char *copy = (char *)rt_arena_alloc(arena, len);
-    if (copy) memcpy(copy, session->remote_addr, len);
-    return copy;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, session->remote_addr);
 }
 
 void sn_ssh_session_close(RtSshSession *session) {
@@ -1084,16 +1046,11 @@ RtSshChannel *sn_ssh_session_accept_channel(RtArena *arena, RtSshSession *sessio
  * Server: SshChannel Operations
  * ============================================================================ */
 
-char *sn_ssh_channel_get_command(RtArena *arena, RtSshChannel *channel) {
+RtHandle sn_ssh_channel_get_command(RtManagedArena *arena, RtSshChannel *channel) {
     if (!channel || !channel->command_str) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
-    size_t len = strlen(channel->command_str) + 1;
-    char *copy = (char *)rt_arena_alloc(arena, len);
-    if (copy) memcpy(copy, channel->command_str, len);
-    return copy;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, channel->command_str);
 }
 
 long sn_ssh_channel_is_shell(RtSshChannel *channel) {
@@ -1126,11 +1083,9 @@ unsigned char *sn_ssh_channel_read(RtArena *arena, RtSshChannel *channel, long m
     return result;
 }
 
-char *sn_ssh_channel_read_line(RtArena *arena, RtSshChannel *channel) {
+RtHandle sn_ssh_channel_read_line(RtManagedArena *arena, RtSshChannel *channel) {
     if (!channel || !channel->channel_ptr) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     ssh_channel ch = (ssh_channel)channel->channel_ptr;
@@ -1139,9 +1094,7 @@ char *sn_ssh_channel_read_line(RtArena *arena, RtSshChannel *channel) {
     size_t cap = 256, len = 0;
     char *buf = (char *)malloc(cap);
     if (!buf) {
-        char *empty = (char *)rt_arena_alloc(arena, 1);
-        if (empty) empty[0] = '\0';
-        return empty;
+        return rt_managed_strdup(arena, RT_HANDLE_NULL, "");
     }
 
     while (1) {
@@ -1161,11 +1114,8 @@ char *sn_ssh_channel_read_line(RtArena *arena, RtSshChannel *channel) {
     }
     buf[len] = '\0';
 
-    /* Copy to arena */
-    char *result = (char *)rt_arena_alloc(arena, len + 1);
-    if (result) {
-        memcpy(result, buf, len + 1);
-    }
+    /* Copy to managed arena */
+    RtHandle result = rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
     free(buf);
     return result;
 }

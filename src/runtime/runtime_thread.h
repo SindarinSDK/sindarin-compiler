@@ -68,7 +68,6 @@ typedef struct RtThreadHandle {
     bool done;                /* True when thread has completed */
     bool synced;              /* True when ! operator has been applied */
     RtArena *thread_arena;    /* Arena used by the thread (for cleanup) */
-    RtArena *frozen_arena;    /* Arena that was frozen for shared mode (NULL if none) */
     RtArena *caller_arena;    /* Caller's arena (for default mode promotion) */
     int result_type;          /* RtResultType for result promotion (-1 if void) */
     bool is_shared;           /* True if function uses shared arena semantics */

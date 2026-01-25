@@ -27,6 +27,7 @@
 #endif
 
 #include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
 
 /* ============================================================================
  * RtTime Structure (matches runtime definition)
@@ -280,49 +281,46 @@ long sn_time_get_weekday(RtTime *time)
  * ============================================================================ */
 
 /* Format as date string (YYYY-MM-DD) */
-char *sn_time_to_date(RtArena *arena, RtTime *time)
+RtHandle sn_time_to_date(RtManagedArena *arena, RtTime *time)
 {
-    if (arena == NULL || time == NULL) return NULL;
+    if (arena == NULL || time == NULL) return RT_HANDLE_NULL;
     struct tm tm;
     sn_time_to_tm(time, &tm);
-    char *result = (char *)rt_arena_alloc(arena, 16);
-    if (result == NULL) exit(1);
-    sprintf(result, "%04d-%02d-%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-    return result;
+    char buf[16];
+    sprintf(buf, "%04d-%02d-%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* Format as time string (HH:mm:ss) */
-char *sn_time_to_time(RtArena *arena, RtTime *time)
+RtHandle sn_time_to_time(RtManagedArena *arena, RtTime *time)
 {
-    if (arena == NULL || time == NULL) return NULL;
+    if (arena == NULL || time == NULL) return RT_HANDLE_NULL;
     struct tm tm;
     sn_time_to_tm(time, &tm);
-    char *result = (char *)rt_arena_alloc(arena, 16);
-    if (result == NULL) exit(1);
-    sprintf(result, "%02d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
-    return result;
+    char buf[16];
+    sprintf(buf, "%02d:%02d:%02d", tm.tm_hour, tm.tm_min, tm.tm_sec);
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* Format as ISO 8601 string (YYYY-MM-DDTHH:mm:ss.SSSZ) */
-char *sn_time_to_iso(RtArena *arena, RtTime *time)
+RtHandle sn_time_to_iso(RtManagedArena *arena, RtTime *time)
 {
-    if (arena == NULL || time == NULL) return NULL;
+    if (arena == NULL || time == NULL) return RT_HANDLE_NULL;
     time_t secs = time->milliseconds / 1000;
     long millis = time->milliseconds % 1000;
     struct tm tm;
     GMTIME_R(&secs, &tm);
-    char *result = (char *)rt_arena_alloc(arena, 32);
-    if (result == NULL) exit(1);
-    sprintf(result, "%04d-%02d-%02dT%02d:%02d:%02d.%03ldZ",
+    char buf[32];
+    sprintf(buf, "%04d-%02d-%02dT%02d:%02d:%02d.%03ldZ",
             tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday,
             tm.tm_hour, tm.tm_min, tm.tm_sec, millis);
-    return result;
+    return rt_managed_strdup(arena, RT_HANDLE_NULL, buf);
 }
 
 /* Format time using pattern string */
-char *sn_time_format(RtArena *arena, RtTime *time, const char *pattern)
+RtHandle sn_time_format(RtManagedArena *arena, RtTime *time, const char *pattern)
 {
-    if (arena == NULL || time == NULL || pattern == NULL) return NULL;
+    if (arena == NULL || time == NULL || pattern == NULL) return RT_HANDLE_NULL;
 
     struct tm tm;
     sn_time_to_tm(time, &tm);
@@ -334,7 +332,7 @@ char *sn_time_format(RtArena *arena, RtTime *time, const char *pattern)
 
     /* Allocate output buffer */
     size_t buf_size = strlen(pattern) * 3 + 1;
-    char *result = (char *)rt_arena_alloc(arena, buf_size);
+    char *result = (char *)malloc(buf_size);
     if (result == NULL) exit(1);
 
     size_t out_pos = 0;
@@ -396,7 +394,9 @@ char *sn_time_format(RtArena *arena, RtTime *time, const char *pattern)
     }
 
     result[out_pos] = '\0';
-    return result;
+    RtHandle handle = rt_managed_strdup(arena, RT_HANDLE_NULL, result);
+    free(result);
+    return handle;
 }
 
 /* ============================================================================

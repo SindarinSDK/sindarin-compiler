@@ -105,7 +105,9 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
 
  - Timeouts for running tests using python3 scripts/run_tests.py are as follows: 
    - timeout 60 python3 scripts/run_tests.py unit
-   - timeout 300 python3 scripts/run_tests.py integration
+   - timeout 600 python3 scripts/run_tests.py integration
+   - timeout 600 python3 scripts/run_tests.py explore
+   - timeout 600 python3 scripts/run_tests.py sdk
    - timeout 900 python3 scripts/run_tests.py all
 
  - NEVER implement work arounds, ALWAYS FIX THE PROBLEMS PROPERLY.

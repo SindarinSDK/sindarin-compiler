@@ -25,8 +25,11 @@
     #if (defined(__MINGW32__) || defined(__MINGW64__)) && !defined(SN_USE_WIN32_THREADS)
         /* MinGW provides native pthreads */
         #include <pthread.h>
+    #elif defined(SN_COMPAT_PTHREAD_H)
+        /* compat_pthread.h already included - use its definitions */
     #else
         /* MSVC / clang-cl: minimal pthread compat using Windows API */
+        #define ARENA_COMPAT_PTHREAD_DEFINED 1
         #ifndef WIN32_LEAN_AND_MEAN
             #define WIN32_LEAN_AND_MEAN
         #endif

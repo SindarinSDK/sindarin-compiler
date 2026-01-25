@@ -143,15 +143,15 @@ static void test_code_gen_headers_and_externs(void)
     ast_init_module(&arena, &module, "test.sn");
     code_gen_module(&gen, &module);
 
-    // Expected with full headers and externs + dummy main with arena
+    // Expected with full headers and externs + dummy main with managed arena
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

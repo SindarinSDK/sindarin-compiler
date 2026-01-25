@@ -22,6 +22,7 @@ static RtManagedBlock *managed_block_create(size_t size)
     block->size = size;
     atomic_init(&block->used, 0);
     atomic_init(&block->lease_count, 0);
+    atomic_init(&block->pinned_count, 0);
     block->retired = false;
     return block;
 }
@@ -304,20 +305,13 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
         rt_arena_sleep_ms(1);
     }
 
-    /* Wait for all leases to drain, then free blocks */
-    bool has_leases = true;
-    max_wait = 1000;
-    while (has_leases && max_wait-- > 0) {
-        has_leases = false;
-        for (uint32_t i = 1; i < child->table_count; i++) {
-            if (atomic_load(&rt_handle_get(child, i)->leased) > 0) {
-                has_leases = true;
-                break;
-            }
-        }
-        if (has_leases) {
-            rt_arena_sleep_ms(1);
-        }
+    /* Force-release all leases - the child arena is being destroyed and the
+     * caller guarantees no outstanding accesses (ensured by lexical scoping).
+     * Legacy API (rt_arena_alloc) creates permanent pins that would otherwise
+     * never drain, making child arena destruction hang. */
+    for (uint32_t i = 1; i < child->table_count; i++) {
+        RtHandleEntry *entry = rt_handle_get(child, i);
+        atomic_store(&entry->leased, 0);
     }
 
     /* Free blocks and table — but NOT the arena struct itself.
@@ -456,15 +450,55 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     entry->size = size;
     atomic_store_explicit(&entry->leased, 0, memory_order_relaxed);
     entry->dead = false;
+    entry->pinned = false;
+
+    atomic_fetch_add(&ma->live_bytes, size);
+
+    pthread_mutex_unlock(&ma->alloc_mutex);
+
+    return (RtHandle)index;
+}
+
+RtHandle rt_managed_alloc_pinned(RtManagedArena *ma, RtHandle old, size_t size)
+{
+    if (ma == NULL || size == 0) return RT_HANDLE_NULL;
+
+    size_t aligned_size = align_up(size, sizeof(void *));
+
+    /* For pinned allocations, we always use the slow path with mutex held.
+     * This ensures the allocation is properly tracked and won't be moved. */
+    pthread_mutex_lock(&ma->alloc_mutex);
+
+    void *ptr = block_alloc_new(ma, aligned_size);
+    RtManagedBlock *alloc_block = ma->current;
+
+    /* Mark old allocation as dead */
+    if (old != RT_HANDLE_NULL && old < ma->table_count) {
+        RtHandleEntry *old_entry = rt_handle_get(ma, old);
+        if (!old_entry->dead) {
+            old_entry->dead = true;
+            atomic_fetch_add(&ma->dead_bytes, old_entry->size);
+            atomic_fetch_sub(&ma->live_bytes, old_entry->size);
+        }
+    }
+
+    /* Create handle entry with pinned flag set */
+    uint32_t index = next_handle(ma);
+    RtHandleEntry *entry = rt_handle_get(ma, index);
+    entry->ptr = ptr;
+    entry->block = alloc_block;
+    entry->size = size;
+    atomic_init(&entry->leased, 0);
+    entry->dead = false;
+    entry->pinned = true;  /* Permanently pinned - compactor will never move */
+
+    /* Increment the block's pinned count to prevent it from being freed */
+    atomic_fetch_add(&alloc_block->pinned_count, 1);
 
     pthread_mutex_unlock(&ma->alloc_mutex);
 
     /* Update stats outside critical section (atomic ops are thread-safe) */
     atomic_fetch_add(&ma->live_bytes, size);
-    if (old_dead_size > 0) {
-        atomic_fetch_add(&ma->dead_bytes, old_dead_size);
-        atomic_fetch_sub(&ma->live_bytes, old_dead_size);
-    }
 
     return (RtHandle)index;
 }
@@ -474,6 +508,74 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
  * ============================================================================ */
 
 RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
+{
+    if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+    /* Invalid handle - out of range for source arena */
+    if (h >= src->table_count) return RT_HANDLE_NULL;
+
+    /* Pin source to get stable pointer */
+    RtHandleEntry *src_entry = rt_handle_get(src, h);
+    atomic_fetch_add(&src_entry->leased, 1);
+    if (src_entry->block != NULL) {
+        atomic_fetch_add(&src_entry->block->lease_count, 1);
+    }
+
+    if (src_entry->ptr == NULL || src_entry->dead) {
+        if (src_entry->block != NULL) {
+            atomic_fetch_sub(&src_entry->block->lease_count, 1);
+        }
+        atomic_fetch_sub(&src_entry->leased, 1);
+        /* Entry is dead or empty - nothing to promote */
+        return RT_HANDLE_NULL;
+    }
+
+    size_t size = src_entry->size;
+
+    /* Allocate in destination arena */
+    size_t aligned_size = align_up(size, sizeof(void *));
+    unsigned epoch_before = atomic_load_explicit(&dest->block_epoch, memory_order_acquire);
+    RtManagedBlock *alloc_block = dest->current;
+    void *new_ptr = block_try_alloc(alloc_block, aligned_size);
+    pthread_mutex_lock(&dest->alloc_mutex);
+    if (new_ptr != NULL && atomic_load_explicit(&dest->block_epoch, memory_order_relaxed) != epoch_before) {
+        new_ptr = NULL;
+    }
+    if (new_ptr == NULL) {
+        new_ptr = block_alloc_new(dest, aligned_size);
+        alloc_block = dest->current;
+    }
+    uint32_t new_index = next_handle(dest);
+    RtHandleEntry *dest_entry = rt_handle_get(dest, new_index);
+    dest_entry->ptr = new_ptr;
+    dest_entry->block = alloc_block;
+    dest_entry->size = size;
+    atomic_init(&dest_entry->leased, 0);
+    dest_entry->dead = false;
+    dest_entry->pinned = false;
+    atomic_fetch_add(&dest->live_bytes, size);
+    pthread_mutex_unlock(&dest->alloc_mutex);
+
+    /* Copy data */
+    memcpy(new_ptr, src_entry->ptr, size);
+
+    /* Unpin source and mark dead */
+    if (src_entry->block != NULL) {
+        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+    }
+    atomic_fetch_sub(&src_entry->leased, 1);
+
+    pthread_mutex_lock(&src->alloc_mutex);
+    if (!src_entry->dead) {
+        src_entry->dead = true;
+        atomic_fetch_add(&src->dead_bytes, size);
+        atomic_fetch_sub(&src->live_bytes, size);
+    }
+    pthread_mutex_unlock(&src->alloc_mutex);
+
+    return (RtHandle)new_index;
+}
+
+RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
 {
     if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
     if (h >= src->table_count) return RT_HANDLE_NULL;
@@ -509,29 +611,18 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     dest_entry->size = size;
     atomic_store_explicit(&dest_entry->leased, 0, memory_order_relaxed);
     dest_entry->dead = false;
-    pthread_mutex_unlock(&dest->alloc_mutex);
-
-    /* Update stats outside critical section */
+    dest_entry->pinned = false;
     atomic_fetch_add(&dest->live_bytes, size);
+    pthread_mutex_unlock(&dest->alloc_mutex);
 
     /* Copy data */
     memcpy(new_ptr, src_entry->ptr, size);
 
-    /* Unpin source and mark dead */
+    /* Unpin source (do NOT mark dead — source remains valid) */
+    if (src_entry->block != NULL) {
+        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+    }
     atomic_fetch_sub(&src_entry->leased, 1);
-
-    pthread_mutex_lock(&src->alloc_mutex);
-    bool src_was_alive = !src_entry->dead;
-    if (src_was_alive) {
-        src_entry->dead = true;
-    }
-    pthread_mutex_unlock(&src->alloc_mutex);
-
-    /* Update source stats outside critical section */
-    if (src_was_alive) {
-        atomic_fetch_add(&src->dead_bytes, size);
-        atomic_fetch_sub(&src->live_bytes, size);
-    }
 
     return (RtHandle)new_index;
 }
@@ -565,6 +656,50 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
     /* Decrement entry lease */
     atomic_fetch_sub(&entry->leased, 1);
+}
+
+/* Pin from any arena in the tree (self, parents, or root).
+ * Tries the given arena first, then walks up to parent arenas.
+ * Used when handles may come from parent scopes (e.g., globals in main arena). */
+void *rt_managed_pin_any(RtManagedArena *ma, RtHandle h)
+{
+    if (ma == NULL || h == RT_HANDLE_NULL) {
+        return NULL;
+    }
+
+    /* Try current arena first (most common case) */
+    if (h < ma->table_count) {
+        return rt_managed_pin(ma, h);
+    }
+
+    /* Walk up parent chain to find the arena containing this handle */
+    RtManagedArena *search = ma->parent;
+    while (search != NULL) {
+        if (h < search->table_count) {
+            return rt_managed_pin(search, h);
+        }
+        search = search->parent;
+    }
+
+    return NULL;
+}
+
+/* ============================================================================
+ * Public API: Mark Dead
+ * ============================================================================ */
+
+void rt_managed_mark_dead(RtManagedArena *ma, RtHandle h)
+{
+    if (ma == NULL || h == RT_HANDLE_NULL || h >= ma->table_count) return;
+
+    pthread_mutex_lock(&ma->alloc_mutex);
+    RtHandleEntry *entry = rt_handle_get(ma, h);
+    if (!entry->dead && entry->ptr != NULL) {
+        entry->dead = true;
+        atomic_fetch_add(&ma->dead_bytes, entry->size);
+        atomic_fetch_sub(&ma->live_bytes, entry->size);
+    }
+    pthread_mutex_unlock(&ma->alloc_mutex);
 }
 
 /* ============================================================================
