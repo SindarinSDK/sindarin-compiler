@@ -510,12 +510,12 @@ static void test_code_gen_as_val_double_pointer(void)
 }
 
 /**
- * Test that *char as val generates rt_arena_strdup call with NULL pointer fallback.
+ * Test that *char as val generates rt_managed_strdup call with NULL pointer fallback.
  * This tests the C string conversion case in code_gen_as_val_expression.
  * The generated code should:
  * 1. Check if the pointer is NULL
- * 2. If not NULL, call rt_arena_strdup with the pointer
- * 3. If NULL, return empty string via rt_arena_strdup(arena, "")
+ * 2. If not NULL, call rt_managed_strdup with the pointer
+ * 3. If NULL, return empty string via rt_managed_strdup(arena, RT_HANDLE_NULL, "")
  */
 static void test_code_gen_as_val_char_pointer(void)
 {
@@ -563,9 +563,9 @@ static void test_code_gen_as_val_char_pointer(void)
     symbol_table_cleanup(&sym_table);
 
     /* The key assertions:
-     * 1. *char as val emits rt_arena_strdup call
+     * 1. *char as val emits rt_managed_strdup call
      * 2. NULL pointer is handled with empty string fallback
-     * Generated pattern: ((cptr) ? rt_arena_strdup(arena, cptr) : rt_arena_strdup(arena, ""))
+     * Generated pattern: ((cptr) ? rt_managed_strdup(arena, RT_HANDLE_NULL, cptr) : rt_managed_strdup(arena, RT_HANDLE_NULL, ""))
      * Inside main, arena is __local_arena__ */
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
@@ -573,7 +573,7 @@ static void test_code_gen_as_val_char_pointer(void)
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    char* __sn__cptr = 0;\n"
-                                  "    ((__sn__cptr) ? rt_arena_strdup(__local_arena__, __sn__cptr) : rt_arena_strdup(__local_arena__, \"\"));\n"
+                                  "    ((__sn__cptr) ? rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, __sn__cptr) : rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, \"\"));\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_managed_arena_destroy(__local_arena__);\n"

@@ -103,6 +103,9 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     /* Initialize array compound literal context flag */
     gen->in_array_compound_literal = false;
 
+    /* Initialize handle-mode flag for expressions */
+    gen->expr_as_handle = false;
+
     /* Initialize recursive lambda support */
     gen->current_decl_var_name = NULL;
     gen->recursive_lambda_id = -1;
@@ -1488,6 +1491,7 @@ void code_gen_module(CodeGen *gen, Module *module)
         // Set up arena context for top-level statements
         gen->current_arena_var = "__local_arena__";
         gen->current_function = "main";
+        gen->expr_as_handle = true;
 
         // Emit all non-declaration top-level statements inside main
         for (int i = 0; i < module->count; i++)
@@ -1503,6 +1507,7 @@ void code_gen_module(CodeGen *gen, Module *module)
 
         gen->current_arena_var = NULL;
         gen->current_function = NULL;
+        gen->expr_as_handle = false;
 
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
