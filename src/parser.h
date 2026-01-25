@@ -27,6 +27,9 @@ typedef struct
     int pack_alignment;        /* Current pack alignment: 0 = default, 1 = packed */
     ImportContext *import_ctx; /* Context for import-first processing (NULL if not tracking imports) */
     const char *pending_alias; /* C alias from #pragma alias, applied to next declaration */
+    const char **pending_comments; /* Pending // comments to attach to next statement */
+    int pending_comment_count;     /* Number of pending comments */
+    int pending_comment_capacity;  /* Capacity of pending_comments array */
 } Parser;
 
 /* Forward declare Parser for function pointer type */

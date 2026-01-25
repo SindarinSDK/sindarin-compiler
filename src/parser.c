@@ -20,6 +20,9 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     parser->in_native_function = 0;
     parser->pack_alignment = 0;  /* 0 = default alignment, 1 = packed */
     parser->pending_alias = NULL;  /* No pending alias initially */
+    parser->pending_comments = NULL;  /* No pending comments initially */
+    parser->pending_comment_count = 0;
+    parser->pending_comment_capacity = 0;
 
     Token print_token;
     print_token.start = arena_strdup(arena, "print");

@@ -1327,6 +1327,19 @@ void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent)
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_statement");
+
+    /* Emit any attached comments (// comments are preserved) */
+    if (stmt->comment_count > 0 && stmt->comments != NULL)
+    {
+        for (int i = 0; i < stmt->comment_count; i++)
+        {
+            if (stmt->comments[i] != NULL)
+            {
+                indented_fprintf(gen, indent, "//%s\n", stmt->comments[i]);
+            }
+        }
+    }
+
     gen->current_indent = indent;
     switch (stmt->type)
     {

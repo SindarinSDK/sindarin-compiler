@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_chained(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = __caller_arena__;
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 3 Nested Loop Arena Escape (Shared, Chained)
+    //
+    // Tests that string values are allocated directly in caller's arena
+    // when using shared functions and loops - no promotion needed.
     RtHandle __sn__result = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__i = 1LL;
@@ -53,6 +57,7 @@ RtHandle __sn__build_chained(RtManagedArena *__caller_arena__) {
         _r = rt_str_concat(__local_arena__, _r, "]");
         rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, _r);
     });
+                                        // No escape needed - all in same arena
                                         (__sn__middle = rt_str_concat_h(__local_arena__, RT_HANDLE_NULL, (char *)rt_managed_pin(__local_arena__, rt_str_concat_h(__local_arena__, RT_HANDLE_NULL, (char *)rt_managed_pin(__local_arena__, __sn__middle), (char *)rt_managed_pin(__local_arena__, __sn__inner))), "->d3 "));
                                     }
                                 __for_continue_2__:;

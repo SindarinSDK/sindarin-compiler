@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 long long __sn__compute_chained(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
+    // Code Generation Test: 3 Nested Loop Arena Escape (Private, Chained)
+    //
+    // Tests that primitive values escape correctly from private functions
+    // through 3 nested loops. Only primitives can escape private blocks.
     long long __sn__result = 0LL;
     {
         long long __sn__i = 1LL;
@@ -45,6 +49,7 @@ long long __sn__compute_chained(RtManagedArena *__caller_arena__) {
                                     RtManagedArena *__loop_arena_4__ = rt_managed_arena_create_child(__loop_arena_2__);
                                     {
                                         long long __sn__inner = rt_add_long(rt_add_long(rt_mul_long(__sn__i, 100LL), rt_mul_long(__sn__j, 10LL)), __sn__k);
+                                        // Escape from d4 to d3
                                         (__sn__middle_sum = rt_add_long(__sn__middle_sum, __sn__inner));
                                     }
                                 __loop_cleanup_4__:
@@ -95,6 +100,7 @@ int main() {
     }
     __intercept_result;
 });
+    // Expected: (111+112+121+122) + (211+212+221+222) = 466 + 866 = 1332
     rt_println(({
         char *_p0 = rt_to_string_long(__local_arena__, __sn__computed);
         rt_str_concat(__local_arena__, "Computed checksum: ", _p0);

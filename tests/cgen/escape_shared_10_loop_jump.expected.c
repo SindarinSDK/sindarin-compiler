@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = __caller_arena__;
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 10 Nested Loop Arena Escape (Shared, Jump)
+    //
+    // Tests that with shared functions and loops, all allocations
+    // go directly to the caller's arena - no jump escapes needed.
     RtHandle __sn__to_d1 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__a = 1LL;
@@ -76,6 +80,7 @@ RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
                                                                                                                     long long __sn__j = 1LL;
                                                                                                                     while (rt_le_long(__sn__j, 1LL)) {
                                                                                                                         {
+                                                                                                                            // All allocations in same arena
                                                                                                                             (__sn__to_d10 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "d11->d10"));
                                                                                                                             (__sn__to_d9 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "d11->d9"));
                                                                                                                             (__sn__to_d8 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "d11->d8"));

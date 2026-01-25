@@ -18,6 +18,7 @@ void lexer_init(Arena *arena, Lexer *lexer, const char *source, const char *file
     lexer->at_line_start = 1;
     lexer->pending_indent = -1;
     lexer->pending_current = NULL;
+    lexer->pending_standalone_comment = 0;
     lexer->arena = arena;
 }
 
@@ -107,18 +108,9 @@ void lexer_skip_whitespace(Lexer *lexer)
         case '\n':
             return;
         case '/':
-            if (lexer_peek_next(lexer) == '/')
-            {
-                while (lexer_peek(lexer) != '\n' && !lexer_is_at_end(lexer))
-                {
-                    lexer_advance(lexer);
-                }
-            }
-            else
-            {
-                return;
-            }
-            break;
+            // Don't skip // comments - they should be tokenized
+            // to be preserved in code generation
+            return;
         case '#':
             // Check if this is a pragma directive (not a comment)
             // lexer->current points to '#', check if next chars are "pragma"

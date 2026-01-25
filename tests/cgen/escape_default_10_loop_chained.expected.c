@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_chained(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 10 Nested Loop Arena Escape (Chained)
+    //
+    // Tests that string values escape correctly through 10 nested loops,
+    // one level at a time: depth 11 -> 10 -> 9 -> ... -> 1
     RtHandle __sn__result = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__a = 1LL;
