@@ -725,8 +725,8 @@ def main():
                        help='Show detailed output')
     parser.add_argument('--no-color', action='store_true',
                        help='Disable colored output')
-    parser.add_argument('--parallel', '-j', type=int, default=(os.cpu_count() or 2) * 2,
-                       help=f'Number of parallel test workers (default: {(os.cpu_count() or 2) * 2})')
+    parser.add_argument('--parallel', '-j', type=int, default=(os.cpu_count() or 2),
+                       help=f'Number of parallel test workers (default: {(os.cpu_count() or 2)})')
     parser.add_argument('--no-cleanup', action='store_true',
                        help='Skip cleanup of orphaned temp directories')
 
