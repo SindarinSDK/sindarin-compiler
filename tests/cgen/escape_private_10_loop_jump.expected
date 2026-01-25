@@ -1,0 +1,4 @@
+Private jump test (10 loops):
+Primitives jump directly to each target depth
+Computed checksum: 55
+PASS: Checksum correct - primitives escaped properly

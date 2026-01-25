@@ -1,0 +1,54 @@
+// Code Generation Test: 10 Nested Loop Arena Escape (Shared, Jump)
+//
+// Tests that with shared functions and loops, all allocations
+// go directly to the caller's arena - no jump escapes needed.
+
+shared fn build_with_jumps(): str =>
+    var to_d1: str = ""
+    shared for var a: int = 1; a <= 1; a++ =>
+        var to_d2: str = ""
+        shared for var b: int = 1; b <= 1; b++ =>
+            var to_d3: str = ""
+            shared for var c: int = 1; c <= 1; c++ =>
+                var to_d4: str = ""
+                shared for var d: int = 1; d <= 1; d++ =>
+                    var to_d5: str = ""
+                    shared for var e: int = 1; e <= 1; e++ =>
+                        var to_d6: str = ""
+                        shared for var f: int = 1; f <= 1; f++ =>
+                            var to_d7: str = ""
+                            shared for var g: int = 1; g <= 1; g++ =>
+                                var to_d8: str = ""
+                                shared for var h: int = 1; h <= 1; h++ =>
+                                    var to_d9: str = ""
+                                    shared for var i: int = 1; i <= 1; i++ =>
+                                        var to_d10: str = ""
+                                        shared for var j: int = 1; j <= 1; j++ =>
+                                            // All allocations in same arena
+                                            to_d10 = "d11->d10"
+                                            to_d9 = "d11->d9"
+                                            to_d8 = "d11->d8"
+                                            to_d7 = "d11->d7"
+                                            to_d6 = "d11->d6"
+                                            to_d5 = "d11->d5"
+                                            to_d4 = "d11->d4"
+                                            to_d3 = "d11->d3"
+                                            to_d2 = "d11->d2"
+                                            to_d1 = "d11->d1"
+                                        to_d9 = to_d9 + " | at_d10:" + to_d10
+                                    to_d8 = to_d8 + " | at_d9:" + to_d9
+                                to_d7 = to_d7 + " | at_d8:" + to_d8
+                            to_d6 = to_d6 + " | at_d7:" + to_d7
+                        to_d5 = to_d5 + " | at_d6:" + to_d6
+                    to_d4 = to_d4 + " | at_d5:" + to_d5
+                to_d3 = to_d3 + " | at_d4:" + to_d4
+            to_d2 = to_d2 + " | at_d3:" + to_d3
+        to_d1 = to_d1 + " | at_d2:" + to_d2
+    return to_d1
+
+fn main(): int =>
+    println("Shared jump test (10 loops):")
+    println("All values in same arena - no jump escapes needed")
+    println(build_with_jumps())
+    println("PASS: All shared allocations succeeded")
+    return 0
