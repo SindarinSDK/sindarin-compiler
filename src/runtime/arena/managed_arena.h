@@ -80,6 +80,12 @@ typedef struct RtManagedCleanupNode {
     struct RtManagedCleanupNode *next;   /* Next node in list */
 } RtManagedCleanupNode;
 
+/* Retired page directory node — for deferred freeing */
+typedef struct RtRetiredPagesNode {
+    RtHandleEntry **pages;               /* Old page directory to free */
+    struct RtRetiredPagesNode *next;     /* Next in list */
+} RtRetiredPagesNode;
+
 /* ============================================================================
  * Managed Arena
  * ============================================================================
@@ -102,10 +108,11 @@ typedef struct RtManagedArena {
     RtManagedBlock *retired_list; /* Chain of retired blocks */
 
     /* Handle table (paged — no copying on growth) */
-    RtHandleEntry **pages;        /* Array of page pointers */
+    RtHandleEntry **pages;        /* Array of page pointers (accessed atomically) */
     uint32_t pages_count;         /* Number of allocated pages */
     uint32_t pages_capacity;      /* Capacity of pages pointer array */
     uint32_t table_count;         /* Total entries allocated (across all pages) */
+    RtRetiredPagesNode *retired_pages; /* Old page directories pending free */
 
     /* Free list (recycled handle indices) */
     uint32_t *free_list;          /* Stack of recyclable handle indices */
@@ -148,10 +155,12 @@ typedef struct RtManagedArena {
  * ============================================================================ */
 
 /* Get a pointer to the handle entry at the given index.
- * The returned pointer remains valid even after table growth. */
+ * The returned pointer remains valid even after table growth.
+ * Uses atomic load to safely read pages pointer during concurrent growth. */
 static inline RtHandleEntry *rt_handle_get(RtManagedArena *ma, uint32_t index)
 {
-    return &ma->pages[index / RT_HANDLE_PAGE_SIZE][index % RT_HANDLE_PAGE_SIZE];
+    RtHandleEntry **pages = __atomic_load_n(&ma->pages, __ATOMIC_ACQUIRE);
+    return &pages[index / RT_HANDLE_PAGE_SIZE][index % RT_HANDLE_PAGE_SIZE];
 }
 
 /* ============================================================================
