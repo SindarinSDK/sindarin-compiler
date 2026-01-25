@@ -1,0 +1,80 @@
+// Integration test: Arena Escape in Nested Loops
+//
+// This test verifies that string values escaping from inner loop scopes
+// to outer scopes are cloned to the correct target arena.
+//
+// ARENA DEPTH MAPPING:
+// ====================
+// The symbol table tracks arena_depth for escape analysis:
+//   - depth=1: function scope (after function's enter_arena)
+//   - depth=2: first nested loop
+//   - depth=3: second nested loop (inside first)
+//   - depth=4: third nested loop (inside second)
+//   ... and so on
+//
+// The code generator's loop_arena_stack is 0-indexed:
+//   - stack[0] = first loop's arena  (corresponds to depth=2)
+//   - stack[1] = second loop's arena (corresponds to depth=3)
+//   - stack[2] = third loop's arena  (corresponds to depth=4)
+//
+// ESCAPE TARGET FORMULA:
+// ======================
+// For a variable with arena_depth=D:
+//   - If D <= 1: escape to function_arena_var (__local_arena__)
+//   - If D > 1:  escape to loop_arena_stack[D - 2]
+//
+// Examples:
+//   - Variable at depth=1 (function scope) -> __local_arena__
+//   - Variable at depth=2 (outer loop)     -> stack[0] = __loop_arena_0__
+//   - Variable at depth=3 (middle loop)    -> stack[1] = __loop_arena_2__
+//   - Variable at depth=4 (inner loop)     -> stack[2] = __loop_arena_4__
+//
+// GENERATED CODE VERIFICATION:
+// ============================
+// When assigning to `outer_str` from inside the inner loop, the generated
+// C code should use:
+//   rt_managed_clone(__loop_arena_0__, __loop_arena_2__, ...)
+//                    ^target (outer)   ^source (inner)
+//
+// When assigning to `result` from inside the outer loop, the generated
+// C code should use:
+//   rt_managed_clone(__local_arena__, __loop_arena_0__, ...)
+//                    ^target (func)   ^source (outer)
+
+fn main(): int =>
+    print("Arena Escape Nested Loop Test\n")
+    print("=============================\n\n")
+
+    // Variable at function scope (depth=1)
+    // Escapes from outer loop should target __local_arena__
+    var result: str = ""
+
+    for var i: int = 1; i <= 2; i++ =>
+        // Variable at outer loop scope (depth=2)
+        // Escapes from inner loop should target __loop_arena_0__
+        var outer_str: str = ""
+
+        for var j: int = 1; j <= 2; j++ =>
+            // This assignment escapes from depth=3 to depth=2
+            // Should generate: rt_managed_clone(__loop_arena_0__, __loop_arena_2__, ...)
+            outer_str = outer_str + $"({i},{j}) "
+
+        // This assignment escapes from depth=2 to depth=1
+        // Should generate: rt_managed_clone(__local_arena__, __loop_arena_0__, ...)
+        result = result + "[" + outer_str + "]\n"
+
+    print("Result:\n")
+    print(result)
+
+    print("\nExpected:\n")
+    print("[(1,1) (1,2) ]\n")
+    print("[(2,1) (2,2) ]\n")
+
+    var expected: str = "[(1,1) (1,2) ]\n[(2,1) (2,2) ]\n"
+
+    if result == expected =>
+        print("\nPASS: Arena escapes work correctly!\n")
+        return 0
+    else =>
+        print("\nFAIL: Result doesn't match expected!\n")
+        return 1

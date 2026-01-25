@@ -3,6 +3,7 @@ nul
 bin/
 log/
 logs/
+tmp/
 install/
 vcpkg_installed/
 

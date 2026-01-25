@@ -1,0 +1,73 @@
+// Code Generation Test: Triple Nested Loop Arena Escape
+//
+// This test verifies that string values escaping from inner loop scopes
+// to outer scopes are cloned to the correct target arena.
+//
+// ARENA DEPTH MAPPING:
+// ====================
+// The symbol table tracks arena_depth for escape analysis:
+//   - depth=1: function scope (after function's enter_arena)
+//   - depth=2: first nested loop
+//   - depth=3: second nested loop (inside first)
+//   - depth=4: third nested loop (inside second)
+//
+// The code generator's loop_arena_stack is 0-indexed:
+//   - stack[0] = first loop's arena  (corresponds to depth=2)
+//   - stack[1] = second loop's arena (corresponds to depth=3)
+//   - stack[2] = third loop's arena  (corresponds to depth=4)
+//
+// ESCAPE TARGET FORMULA:
+// ======================
+// For a variable with arena_depth=D:
+//   - If D <= 1: escape to function_arena_var (__local_arena__)
+//   - If D > 1:  escape to loop_arena_stack[D - 2]
+//
+// EXPECTED rt_managed_clone PATTERNS:
+// ===================================
+// In the generated C code, assignments should use these arena targets:
+//
+// 1. inner_str assigned from innermost loop (depth=4) to middle loop (depth=3):
+//    rt_managed_clone(__loop_arena_X__, __loop_arena_Y__, ...)
+//    where X is middle loop arena, Y is inner loop arena
+//
+// 2. middle_str assigned from middle loop (depth=3) to outer loop (depth=2):
+//    rt_managed_clone(__loop_arena_A__, __loop_arena_X__, ...)
+//    where A is outer loop arena, X is middle loop arena
+//
+// 3. result assigned from outer loop (depth=2) to function scope (depth=1):
+//    rt_managed_clone(__local_arena__, __loop_arena_A__, ...)
+//    where A is outer loop arena
+//
+// 4. g_result (global) assigned from function scope:
+//    rt_managed_promote(__main_arena__, __local_arena__, ...)
+
+var g_result: str = ""
+
+fn build_nested(): str =>
+    var result: str = ""
+
+    for var i: int = 1; i <= 2; i++ =>
+        var outer_str: str = ""
+
+        for var j: int = 1; j <= 2; j++ =>
+            var middle_str: str = ""
+
+            for var k: int = 1; k <= 2; k++ =>
+                var inner_str: str = $"({i},{j},{k})"
+                // Escape from depth=4 to depth=3
+                middle_str = middle_str + inner_str + " "
+
+            // Escape from depth=3 to depth=2
+            outer_str = outer_str + "[" + middle_str + "] "
+
+        // Escape from depth=2 to depth=1
+        result = result + "<" + outer_str + ">\n"
+
+    return result
+
+fn main(): int =>
+    var local_result: str = build_nested()
+    // Escape from function to global
+    g_result = local_result
+    print(g_result)
+    return 0

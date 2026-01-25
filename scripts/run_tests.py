@@ -10,6 +10,7 @@ Usage:
 
 Test types:
     unit              - Run unit tests (bin/tests executable)
+    cgen              - Run code generation tests (tests/cgen/*.sn - compares generated C)
     integration       - Run integration tests (tests/integration/*.sn)
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
@@ -188,6 +189,9 @@ TEST_CONFIGS = {
     'sdk': TestConfig(
         'tests/sdk', '**/test_*.sn', False, 'SDK Tests'
     ),
+    'cgen': TestConfig(
+        'tests/cgen', '*.sn', False, 'Code Generation Tests'
+    ),
 }
 
 
@@ -319,7 +323,13 @@ class TestRunner:
 
             start_time = time.perf_counter()
 
-            if config.expect_compile_fail:
+            if test_type == 'cgen':
+                # Code generation tests: compare generated C code
+                c_file = exe_file.replace(get_exe_extension(), '.c')
+                status, reason, details = self._run_cgen_test_internal(
+                    test_file, expected_file, c_file
+                )
+            elif config.expect_compile_fail:
                 status, reason, details = self._run_error_test_internal(
                     test_file, expected_file, exe_file
                 )
@@ -507,6 +517,63 @@ class TestRunner:
                 details.append("  (empty)")
             return ('fail', 'wrong error', details)
 
+    def _run_cgen_test_internal(self, test_file: str, expected_file: str,
+                                 c_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Run a code generation test that compares generated C code. Returns (status, reason, details)."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected', None)
+
+        # Compile with --emit-c to generate C code
+        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'compile error', details)
+
+        # Read generated C code
+        if not os.path.isfile(c_file):
+            return ('fail', 'no C output', None)
+
+        with open(c_file, 'r') as f:
+            generated_c = f.read()
+
+        # Read expected C code
+        with open(expected_file, 'r') as f:
+            expected_c = f.read()
+
+        # Normalize line endings for cross-platform comparison
+        normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
+        normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
+
+        if normalized_generated == normalized_expected:
+            return ('pass', '', None)
+        else:
+            # Show diff details
+            expected_lines = normalized_expected.split('\n')
+            actual_lines = normalized_generated.split('\n')
+            details = []
+
+            # Find first difference
+            max_lines = max(len(expected_lines), len(actual_lines))
+            diff_count = 0
+            for i in range(max_lines):
+                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                if exp != act:
+                    if diff_count < 10:  # Show first 10 differences
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp[:80]}")
+                        details.append(f"    got:      {act[:80]}")
+                    diff_count += 1
+
+            if diff_count > 10:
+                details.append(f"  ... and {diff_count - 10} more differences")
+
+            return ('fail', 'C code mismatch', details)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -583,7 +650,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'sdk', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -650,11 +717,11 @@ def main():
     with TestRunner(compiler, args.timeout, args.run_timeout,
                     excluded, args.verbose, args.parallel) as runner:
         if args.test_type == 'all':
-            # Run all test types
+            # Run all test types (cgen runs right after unit tests)
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['integration', 'integration-errors',
+            for test_type in ['cgen', 'integration', 'integration-errors',
                              'explore', 'explore-errors', 'sdk']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed

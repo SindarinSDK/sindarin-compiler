@@ -513,6 +513,46 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     bool is_global = (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1);
     bool in_arena_context = (gen->current_arena_var != NULL);
 
+    // Check if value escapes from a loop arena to outer scope
+    // The type checker marks expressions as escaping via ast_expr_mark_escapes()
+    bool escapes_loop = (gen->loop_arena_depth > 0 &&
+                         gen->function_arena_var != NULL &&
+                         expr->value != NULL &&
+                         ast_expr_escapes_scope(expr->value));
+
+    // Determine the target arena for escaping values based on where the variable was declared.
+    // symbol->arena_depth: 0 = function scope, 1 = first loop, 2 = second loop, etc.
+    // gen->loop_arena_stack[i] corresponds to depth i+1 (stack[0] is depth 1)
+    const char *escape_target_arena = NULL;
+    if (escapes_loop)
+    {
+        // symbol->arena_depth accounts for function scope (depth=1) + loops
+        // So depth=1 means function scope, depth=2 means first loop, etc.
+        // loop_arena_stack[0] = first loop, stack[1] = second loop, etc.
+        // Formula: for depth > 1, use stack[depth - 2]
+        int target_depth = symbol->arena_depth;
+        if (target_depth <= 1)
+        {
+            // Variable declared at function scope (depth 0 or 1)
+            escape_target_arena = gen->function_arena_var;
+        }
+        else
+        {
+            // Variable declared in a loop arena - find the right one
+            // depth=2 -> stack[0], depth=3 -> stack[1], etc.
+            int stack_index = target_depth - 2;
+            if (stack_index >= 0 && stack_index < gen->loop_arena_depth && gen->loop_arena_stack[stack_index] != NULL)
+            {
+                escape_target_arena = gen->loop_arena_stack[stack_index];
+            }
+            else
+            {
+                // Fallback to function arena if something is wrong
+                escape_target_arena = gen->function_arena_var;
+            }
+        }
+    }
+
     if (type->kind == TYPE_STRING)
     {
         if (in_arena_context)
@@ -526,14 +566,20 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
                     return arena_sprintf(gen->arena, "(%s = rt_managed_promote(__main_arena__, %s, %s))",
                                          var_name, ARENA_VAR(gen), value_str);
                 }
+                // For values escaping a loop, clone to the target variable's arena
+                if (escapes_loop && escape_target_arena)
+                {
+                    return arena_sprintf(gen->arena, "(%s = rt_managed_clone(%s, %s, %s))",
+                                         var_name, escape_target_arena, ARENA_VAR(gen), value_str);
+                }
                 // For locals, just do a direct assignment.
                 return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
             }
             // For handle-based strings: use rt_managed_strdup with old handle.
             // The value_str is a raw pointer (pinned by expression generator).
-            // For globals, promote to main arena. For locals, use local arena.
-            // The old handle is passed so the managed arena can mark it dead.
-            const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+            // For globals, promote to main arena. For escaping, use target arena. Otherwise local.
+            const char *target_arena = is_global ? "__main_arena__" :
+                                       (escapes_loop && escape_target_arena ? escape_target_arena : ARENA_VAR(gen));
             return arena_sprintf(gen->arena, "(%s = rt_managed_strdup(%s, %s, %s))",
                                  var_name, target_arena, var_name, value_str);
         }
@@ -545,12 +591,21 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         if (value_is_new_handle)
         {
             // 2D/3D conversion already produced a new handle — just assign.
+            // But if escaping, need to clone to target variable's arena
+            if (escapes_loop && escape_target_arena)
+            {
+                Type *elem_type = type->as.array.element_type;
+                const char *suffix = code_gen_type_suffix(elem_type);
+                return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s_h(%s, 0, %s))",
+                                     var_name, suffix, escape_target_arena, value_str);
+            }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         // For handle-based arrays: clone to target arena with old handle.
         Type *elem_type = type->as.array.element_type;
         const char *suffix = code_gen_type_suffix(elem_type);
-        const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+        const char *target_arena = is_global ? "__main_arena__" :
+                                   (escapes_loop && escape_target_arena ? escape_target_arena : ARENA_VAR(gen));
         return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s_h(%s, %s, %s))",
                              var_name, suffix, target_arena, var_name, value_str);
     }
