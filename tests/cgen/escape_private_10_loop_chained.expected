@@ -1,0 +1,4 @@
+Private chained test (10 loops):
+Primitives escape one level at a time
+Computed checksum: 66
+PASS: Checksum correct - primitives escaped through all 10 levels

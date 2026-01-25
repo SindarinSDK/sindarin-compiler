@@ -1,0 +1,32 @@
+// Code Generation Test: 3 Nested Loop Arena Escape (Private, Chained)
+//
+// Tests that primitive values escape correctly from private functions
+// through 3 nested loops. Only primitives can escape private blocks.
+
+private fn compute_chained(): int =>
+    var result: int = 0
+    for var i: int = 1; i <= 2; i++ =>
+        var outer_sum: int = 0
+        for var j: int = 1; j <= 2; j++ =>
+            var middle_sum: int = 0
+            for var k: int = 1; k <= 2; k++ =>
+                var inner: int = i * 100 + j * 10 + k
+                // Escape from d4 to d3
+                middle_sum = middle_sum + inner
+            // Escape from d3 to d2
+            outer_sum = outer_sum + middle_sum
+        // Escape from d2 to d1
+        result = result + outer_sum
+    return result
+
+fn main(): int =>
+    println("Private chained test (3 loops):")
+    println("Only primitives escape from private function")
+    var computed: int = compute_chained()
+    // Expected: (111+112+121+122) + (211+212+221+222) = 466 + 866 = 1332
+    println($"Computed checksum: {computed}")
+    if computed == 1332 =>
+        println("PASS: Checksum correct - primitives escaped properly")
+    else =>
+        println("FAIL: Checksum incorrect")
+    return 0

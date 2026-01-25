@@ -1,0 +1,4 @@
+Private jump test (3 loops):
+Primitives jump directly to outer scopes
+Computed checksum: 7992
+PASS: Checksum correct - primitives escaped properly
