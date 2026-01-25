@@ -180,21 +180,19 @@ static void test_thread_arena_cleanup_logic(void)
     rt_arena_destroy(caller3);
 }
 
-/* Test arena freezing for shared mode */
+/* Test arena is thread-safe for shared mode (managed arena is lock-free) */
 static void test_thread_shared_mode_arena_freezing(void)
 {
 
     RtArena *caller_arena = rt_arena_create(NULL);
     assert(caller_arena != NULL);
-    assert(!rt_arena_is_frozen(caller_arena));
 
-    /* Freeze the arena as would happen in shared mode spawn */
-    rt_arena_freeze(caller_arena);
-    assert(rt_arena_is_frozen(caller_arena));
-
-    /* Unfreeze as would happen after sync */
-    rt_arena_unfreeze(caller_arena);
-    assert(!rt_arena_is_frozen(caller_arena));
+    /* Managed arena is thread-safe by design — no freezing needed.
+     * Verify concurrent allocations work. */
+    void *p1 = rt_arena_alloc(caller_arena, 32);
+    void *p2 = rt_arena_alloc(caller_arena, 64);
+    assert(p1 != NULL);
+    assert(p2 != NULL);
 
     rt_arena_destroy(caller_arena);
 }
@@ -347,16 +345,13 @@ static void test_integration_shared_mode_thread(void)
     args->is_private = false;
     args->caller_arena = caller_arena;
 
-    /* Spawn the thread - should freeze caller arena */
+    /* Spawn the thread - shared mode reuses caller's arena (thread-safe by design) */
     RtThreadHandle *handle = rt_thread_spawn(caller_arena, shared_mode_thread_wrapper, args);
     assert(handle != NULL);
     assert(handle->thread_arena == NULL);  /* Shared mode: no separate arena */
-    assert(handle->frozen_arena == caller_arena);  /* Caller frozen */
-    assert(rt_arena_is_frozen(caller_arena));  /* Verify frozen */
 
-    /* Join the thread - should unfreeze */
+    /* Join the thread */
     void *result = rt_thread_join(handle);
-    assert(!rt_arena_is_frozen(caller_arena));  /* Unfrozen after join */
 
     /* Result is in caller arena (no promotion needed) */
     (void)result;
@@ -422,32 +417,22 @@ static void test_integration_private_mode_thread(void)
 
 }
 
-/* Test shared mode freeze prevents allocation */
+/* Test shared mode arena supports concurrent allocation (thread-safe by design) */
 static void test_integration_shared_mode_freeze_blocks_alloc(void)
 {
 
     RtArena *caller_arena = rt_arena_create(NULL);
     assert(caller_arena != NULL);
 
-    /* Verify we can allocate before freeze */
+    /* Managed arena supports concurrent allocation — no freeze/unfreeze needed */
     void *p1 = rt_arena_alloc(caller_arena, 16);
     assert(p1 != NULL);
 
-    /* Freeze the arena as would happen during shared thread spawn */
-    rt_arena_freeze(caller_arena);
-    assert(rt_arena_is_frozen(caller_arena));
-
-    /* Attempting to allocate from frozen arena should panic
-     * We can't easily test this without catching the exit,
-     * so we verify the frozen state instead */
-
-    /* Unfreeze */
-    rt_arena_unfreeze(caller_arena);
-    assert(!rt_arena_is_frozen(caller_arena));
-
-    /* Verify we can allocate after unfreeze */
-    void *p2 = rt_arena_alloc(caller_arena, 16);
+    void *p2 = rt_arena_alloc(caller_arena, 32);
     assert(p2 != NULL);
+
+    void *p3 = rt_arena_alloc(caller_arena, 64);
+    assert(p3 != NULL);
 
     /* Cleanup */
     rt_arena_destroy(caller_arena);

@@ -326,7 +326,6 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena)
     handle->done = false;
     handle->synced = false;
     handle->thread_arena = NULL;
-    handle->frozen_arena = NULL;
     handle->caller_arena = NULL;
     handle->result_type = -1;  /* -1 indicates void/unknown */
     handle->is_shared = false;
@@ -424,11 +423,11 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
      * - default mode (both false): thread_arena = rt_arena_create(caller_arena) (own with parent)
      */
     if (args->is_shared) {
-        /* Shared mode: reuse caller's arena directly */
+        /* Shared mode: reuse caller's arena directly.
+         * The managed arena is thread-safe (lock-free bump + mutex fallback),
+         * so no freezing is needed. */
         args->thread_arena = args->caller_arena;
         handle->thread_arena = NULL;  /* Don't destroy - it's the caller's */
-        /* Note: Arena freezing happens AFTER thread tracking to allow allocation */
-        handle->frozen_arena = args->caller_arena;
     } else if (args->is_private) {
         /* Private mode: create isolated arena with no parent */
         args->thread_arena = rt_arena_create(NULL);
@@ -455,17 +454,8 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         if (handle->thread_arena != NULL && !args->is_shared) {
             rt_arena_destroy(handle->thread_arena);
         }
-        /* Unfreeze arena if it was frozen */
-        if (handle->frozen_arena != NULL) {
-            rt_arena_unfreeze(handle->frozen_arena);
-            handle->frozen_arena = NULL;
-        }
         return NULL;
     }
-
-    /* Note: For shared mode, frozen_owner is set by the thread wrapper itself
-     * using pthread_self() to avoid a race condition where the thread starts
-     * before we can set frozen_owner here. */
 
     /* Track in global pool */
     rt_thread_pool_add(handle);
@@ -474,17 +464,6 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
     if (args->caller_arena != NULL) {
         rt_arena_on_cleanup(args->caller_arena, handle,
                             rt_thread_cleanup, RT_CLEANUP_PRIORITY_HIGH);
-    }
-
-    /* For shared mode, set frozen_owner to the spawned thread handle and freeze.
-     * The thread wrapper also sets frozen_owner = pthread_self() as its first
-     * action, but this may not happen before we freeze due to thread scheduling.
-     * Setting it here with the real handle ensures it's set before the freeze.
-     * On Windows, pthread_equal uses GetThreadId() which works for both real
-     * handles and pseudo-handles (GetCurrentThread()), returning the same ID. */
-    if (args->is_shared && handle->frozen_arena != NULL) {
-        handle->frozen_arena->frozen_owner = handle->thread;
-        rt_arena_freeze(handle->frozen_arena);
     }
 
     return handle;
@@ -540,12 +519,6 @@ void *rt_thread_join(RtThreadHandle *handle)
     /* Mark thread as done/synchronized */
     handle->done = true;
     handle->synced = true;
-
-    /* Unfreeze caller arena if it was frozen for shared mode */
-    if (handle->frozen_arena != NULL) {
-        rt_arena_unfreeze(handle->frozen_arena);
-        handle->frozen_arena = NULL;
-    }
 
     /* Remove from global pool since thread has completed */
     rt_thread_pool_remove(handle);
@@ -653,17 +626,10 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
 
     /* For shared mode (thread_arena == NULL), the result is already in
      * the caller's arena, so no promotion is needed.
-     * However, result_value is a pointer to where the actual value is stored
-     * (due to how rt_thread_result_set_value works), so we need to dereference
-     * once for reference types (strings, arrays, etc.). For primitives, we
-     * return the pointer as-is so caller can dereference to get the value.
-     * For reference types, we dereference to get the actual pointer. */
+     * result_value is a pointer to where the actual value is stored.
+     * With handle-based arenas, all types (primitives and handles) are
+     * stored by value and the caller dereferences to get the result. */
     if (handle->thread_arena == NULL) {
-        /* Shared mode - no promotion needed, but need to dereference for ref types */
-        if (result_value != NULL && !rt_result_type_is_primitive(result_type)) {
-            /* For reference types, dereference once to get actual pointer */
-            return *(void **)result_value;
-        }
         return result_value;
     }
 
@@ -714,7 +680,6 @@ void rt_thread_sync_all(RtThreadHandle **handles, size_t count)
 void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
                                 void *value, RtResultType type)
 {
-    (void)src_arena;
     if (dest == NULL) {
         fprintf(stderr, "rt_thread_promote_result: NULL dest arena\n");
         return NULL;
@@ -774,51 +739,27 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
             return promoted;
         }
 
-        /* String type - use arena string promotion
-         * Note: value is a pointer to the char* (from rt_thread_result_set_value),
-         * so we need to dereference once to get the actual string pointer. */
-        case RT_TYPE_STRING: {
-            const char *str = *(const char **)value;
-            return rt_arena_promote_string(dest, str);
-        }
-
-        /* Array types - use appropriate clone function
-         * Note: value is a pointer to the array pointer (from rt_thread_result_set_value),
-         * so we need to dereference once to get the actual array pointer. */
-        case RT_TYPE_ARRAY_INT: {
-            /* int[] is stored as long long[] in runtime */
-            long long *arr = *(long long **)value;
-            return rt_array_clone_long(dest, arr);
-        }
-
-        case RT_TYPE_ARRAY_LONG: {
-            long long *arr = *(long long **)value;
-            return rt_array_clone_long(dest, arr);
-        }
-
-        case RT_TYPE_ARRAY_DOUBLE: {
-            double *arr = *(double **)value;
-            return rt_array_clone_double(dest, arr);
-        }
-
-        case RT_TYPE_ARRAY_BOOL: {
-            int *arr = *(int **)value;
-            return rt_array_clone_bool(dest, arr);
-        }
-
-        case RT_TYPE_ARRAY_BYTE: {
-            unsigned char *arr = *(unsigned char **)value;
-            return rt_array_clone_byte(dest, arr);
-        }
-
-        case RT_TYPE_ARRAY_CHAR: {
-            char *arr = *(char **)value;
-            return rt_array_clone_char(dest, arr);
-        }
-
+        /* String and array types use handle-based promotion.
+         * value points to an RtHandle (uint32_t) stored by the thread.
+         * We promote the handle from src_arena to dest arena. */
+        case RT_TYPE_STRING:
+        case RT_TYPE_ARRAY_INT:
+        case RT_TYPE_ARRAY_LONG:
+        case RT_TYPE_ARRAY_DOUBLE:
+        case RT_TYPE_ARRAY_BOOL:
+        case RT_TYPE_ARRAY_BYTE:
+        case RT_TYPE_ARRAY_CHAR:
         case RT_TYPE_ARRAY_STRING: {
-            char **arr = *(char ***)value;
-            return rt_array_clone_string(dest, arr);
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            RtHandle promoted_handle = rt_managed_promote(dest, src_arena, src_handle);
+            /* Allocate space in dest arena to store the promoted handle
+             * so the caller can dereference to get the value */
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
         }
 
         case RT_TYPE_STRUCT: {

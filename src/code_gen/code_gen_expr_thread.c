@@ -210,12 +210,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "     * the caller's arena. For default/private modes, it's a new arena. */\n"
         "    RtArena *__arena__ = args->thread_arena;\n"
         "\n"
-        "    /* For shared mode, set ourselves as the frozen arena owner so we can allocate.\n"
-        "     * This must be done before any allocation to avoid race with rt_thread_spawn. */\n"
-        "    if (args->is_shared && args->caller_arena != NULL) {\n"
-        "        args->caller_arena->frozen_owner = pthread_self();\n"
-        "    }\n"
-        "\n"
         "    /* Set up panic context to catch panics in this thread */\n"
         "    RtThreadPanicContext __panic_ctx__;\n"
         "    rt_thread_panic_context_init(&__panic_ctx__, args->result, __arena__);\n"
@@ -271,7 +265,21 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         {
             call_args = arena_sprintf(gen->arena, "%s, ", call_args);
         }
-        call_args = arena_sprintf(gen->arena, "%sargs->arg%d", call_args, i);
+
+        /* For handle-type args in non-shared mode, promote from caller's arena
+         * to thread's arena since handles are per-arena */
+        Type *arg_type = call->arguments[i]->expr_type;
+        bool is_handle_arg = gen->current_arena_var != NULL && arg_type != NULL &&
+                             (arg_type->kind == TYPE_ARRAY || arg_type->kind == TYPE_STRING);
+        if (is_handle_arg && modifier != FUNC_SHARED)
+        {
+            call_args = arena_sprintf(gen->arena, "%srt_managed_clone(__arena__, args->caller_arena, args->arg%d)",
+                                      call_args, i);
+        }
+        else
+        {
+            call_args = arena_sprintf(gen->arena, "%sargs->arg%d", call_args, i);
+        }
     }
 
     /* Generate thunk for interceptor support if this is a user function */
@@ -704,7 +712,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     for (int i = 0; i < call->arg_count; i++)
     {
         Expr *arg_expr = call->arguments[i];
+
+        /* For handle-type args (array/string in arena mode), generate as handle
+         * so we store the RtHandle value directly instead of pinning */
+        bool is_handle_arg = gen->current_arena_var != NULL && arg_expr->expr_type != NULL &&
+                             (arg_expr->expr_type->kind == TYPE_ARRAY || arg_expr->expr_type->kind == TYPE_STRING);
+        bool saved_handle = gen->expr_as_handle;
+        if (is_handle_arg) gen->expr_as_handle = true;
         char *arg_code = code_gen_expression(gen, arg_expr);
+        gen->expr_as_handle = saved_handle;
 
         /* Check if this is an 'as ref' primitive parameter */
         bool is_ref_primitive = false;
@@ -956,12 +972,16 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                              result_type->kind == TYPE_BOOL ||
                              result_type->kind == TYPE_BYTE ||
                              result_type->kind == TYPE_CHAR);
+        /* Handle types (array/string in arena mode) also use the pending var pattern
+         * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
+        bool is_handle_type = gen->current_arena_var != NULL &&
+                              (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
 
         /* Check if the handle is a variable - if so, we need to update it after sync
          * This ensures that after x! is used, subsequent uses of x return the synced value */
         bool is_variable_handle = (sync->handle->type == EXPR_VARIABLE);
 
-        if (is_primitive)
+        if (is_primitive || is_handle_type)
         {
             /* Primitive type: cast pointer and dereference
              * Uses rt_thread_sync_with_result for panic propagation + result promotion

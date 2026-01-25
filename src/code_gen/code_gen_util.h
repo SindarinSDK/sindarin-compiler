@@ -18,8 +18,13 @@ char *escape_c_string(Arena *arena, const char *str);
 
 /* Type conversion helpers */
 const char *get_c_type(Arena *arena, Type *type);
+const char *get_c_param_type(Arena *arena, Type *type);  /* C types for function params (RtHandle for str/arr) */
+const char *get_c_native_param_type(Arena *arena, Type *type);  /* C types for native function params (const char * for str) */
+const char *get_c_array_elem_type(Arena *arena, Type *elem_type);  /* Storage type for array elements */
+bool is_handle_type(Type *type);  /* True if type uses RtHandle storage */
 const char *get_rt_to_string_func(TypeKind kind);
 const char *get_rt_to_string_func_for_type(Type *type);
+const char *get_rt_to_string_func_for_type_h(Type *type);  /* Handle-aware version for arena mode */
 const char *get_default_value(Type *type);
 const char *get_rt_result_type(Type *type);
 
@@ -30,6 +35,9 @@ const char *get_element_type_tag(Type *element_type);
 int get_struct_type_id(Type *struct_type);
 char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type);
 char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type);
+
+/* Struct type resolution for code gen */
+Type *resolve_struct_type(CodeGen *gen, Type *type);
 
 /* Name helpers */
 char *get_var_name(Arena *arena, Token name);

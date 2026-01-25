@@ -28,9 +28,11 @@ typedef struct RtManagedBlock {
     struct RtManagedBlock *next;  /* Next block in chain */
     size_t size;                  /* Block capacity */
     atomic_size_t used;           /* Bytes used (atomic for lock-free bump) */
-    atomic_int lease_count;       /* Number of pinned entries in this block */
+    atomic_int lease_count;       /* Number of temporarily leased entries in this block */
+    atomic_int pinned_count;      /* Number of permanently pinned entries in this block */
     bool retired;                 /* Marked for deallocation */
-    char data[];                  /* Flexible array member */
+    char _padding[7];             /* Padding to ensure data[] is 8-byte aligned */
+    char data[];                  /* Flexible array member (8-byte aligned) */
 } RtManagedBlock;
 
 /* ============================================================================
@@ -42,6 +44,7 @@ typedef struct {
     size_t size;            /* Size of the allocation */
     atomic_int leased;      /* Pin/lease counter (atomic) */
     bool dead;              /* Marked for reclamation */
+    bool pinned;            /* Permanently pinned - compactor will never move this */
 } RtHandleEntry;
 
 /* Default block size: 64KB */
@@ -177,18 +180,72 @@ RtManagedArena *rt_managed_arena_root(RtManagedArena *ma);
  * Returns a new handle. Thread-safe. */
 RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size);
 
+/* Allocate permanently pinned memory that will never be moved by the compactor.
+ * Use for structures containing pthread_mutex_t, pthread_cond_t, or other
+ * OS resources that cannot be relocated. Returns a new handle. Thread-safe. */
+RtHandle rt_managed_alloc_pinned(RtManagedArena *ma, RtHandle old, size_t size);
+
 /* Promote a handle from src arena to dest arena.
  * Copies the data, marks the source handle dead, returns new handle in dest.
  * Use for escaping allocations (child → parent on scope exit). */
 RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
 
+/* Clone a handle from one arena to another without marking source dead.
+ * Unlike promote, the source entry remains valid after cloning.
+ * Used for thread spawn arguments where multiple threads read the same source. */
+RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
 /* Pin a handle — returns raw pointer, increments lease counter.
  * The pointer is valid until rt_managed_unpin is called. */
 void *rt_managed_pin(RtManagedArena *ma, RtHandle h);
 
+/* Pin from any arena in the tree (self, parents, or root).
+ * Tries the given arena first, then walks up to parent arenas.
+ * Used when handles may come from parent scopes (e.g., globals in main arena). */
+void *rt_managed_pin_any(RtManagedArena *ma, RtHandle h);
+
 /* Unpin a handle — decrements lease counter.
  * After unpin, the previously returned pointer may become invalid. */
 void rt_managed_unpin(RtManagedArena *ma, RtHandle h);
+
+/* ============================================================================
+ * Public API: Mark Dead (escape analysis support)
+ * ============================================================================ */
+
+/* Mark a handle as dead without allocating. GC will reclaim the memory.
+ * Used by escape analysis to mark scope-local handles at scope exit. */
+void rt_managed_mark_dead(RtManagedArena *ma, RtHandle h);
+
+/* ============================================================================
+ * Public API: Pin Helpers
+ * ============================================================================ */
+
+/* Array metadata — stored immediately before array data.
+ * Forward-declared here for rt_managed_pin_array offset calculation. */
+struct RtArrayMetadata_tag;
+
+/* Pin a string handle — returns char* pointing to string data */
+static inline char *rt_managed_pin_str(RtManagedArena *ma, RtHandle h) {
+    return (char *)rt_managed_pin(ma, h);
+}
+
+/* Pin an array handle — returns pointer to array DATA (past metadata).
+ * Array handle layout: [RtArrayMetadata][element data...]
+ * This returns a pointer to element data, which is what existing
+ * array access patterns (arr[i]) expect. */
+static inline void *rt_managed_pin_array(RtManagedArena *ma, RtHandle h) {
+    void *raw = rt_managed_pin(ma, h);
+    if (!raw) return NULL;
+    /* Skip past the RtArrayMetadata (3 pointer-sized fields: arena, size, capacity) */
+    return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
+}
+
+/* Pin an array from any arena in tree (for parameters that may hold global handles) */
+static inline void *rt_managed_pin_array_any(RtManagedArena *ma, RtHandle h) {
+    void *raw = rt_managed_pin_any(ma, h);
+    if (!raw) return NULL;
+    return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
+}
 
 /* ============================================================================
  * Public API: String Helpers

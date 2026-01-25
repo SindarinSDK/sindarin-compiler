@@ -20,7 +20,9 @@
 
 /* Data type modules - depend on arena */
 #include "runtime/runtime_string.h"
+#include "runtime/runtime_string_h.h"
 #include "runtime/runtime_array.h"
+#include "runtime/runtime_array_h.h"
 
 /* I/O modules - depend on arena and string */
 #include "runtime/runtime_io.h"

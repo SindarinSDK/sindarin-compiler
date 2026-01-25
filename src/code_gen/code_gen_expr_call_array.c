@@ -14,14 +14,24 @@
 #include <stdlib.h>
 
 /* Helper to get the arena to use for array mutations.
- * Returns "NULL" for global variables to use malloc-based allocation,
- * otherwise returns the current arena. */
+ * Mutations (push/pop/insert/remove/reverse) must use the function-level arena
+ * so that reallocated handles survive loop iterations (loop arenas are child arenas
+ * that get destroyed each iteration). */
 static const char *get_arena_for_mutation(CodeGen *gen, Expr *object)
 {
     if (object->type == EXPR_VARIABLE) {
         Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, object->as.variable.name);
-        if (sym != NULL && (sym->kind == SYMBOL_GLOBAL || sym->declaration_scope_depth <= 1)) {
-            return "NULL";
+        if (sym && is_handle_type(sym->type)) {
+            if (sym->pin_arena == NULL && sym->kind != SYMBOL_PARAM) {
+                /* Global variables (declared without an arena context) must be mutated
+                 * using __main_arena__ so that reallocated handles persist across function calls. */
+                return "__main_arena__";
+            }
+            if (sym->pin_arena != NULL) {
+                /* Use the arena where the variable was created — the handle
+                 * is only valid in that arena's handle table. */
+                return sym->pin_arena;
+            }
         }
     }
     return ARENA_VAR(gen);
@@ -31,7 +41,34 @@ static const char *get_arena_for_mutation(CodeGen *gen, Expr *object)
 static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                                   Expr *arg)
 {
-    char *object_str = code_gen_expression(gen, object);
+    char *handle_str = NULL;
+    char *lvalue_str = NULL;
+
+    /* For global handle-type variables in a local arena context, we must NOT
+     * use rt_managed_clone because:
+     * 1. Clone creates a handle in the local arena
+     * 2. But push_h expects a handle in the mutation arena (main arena for globals)
+     * 3. The returned handle must be assigned back to the global variable
+     * So we use the raw global variable directly for both reading and writing. */
+    if (object->type == EXPR_VARIABLE && gen->current_arena_var != NULL) {
+        Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, object->as.variable.name);
+        if (sym && sym->kind == SYMBOL_GLOBAL && is_handle_type(sym->type)) {
+            char *var_name = get_var_name(gen->arena, object->as.variable.name);
+            char *mangled = sn_mangle_name(gen->arena, var_name);
+            handle_str = mangled;
+            lvalue_str = mangled;
+        }
+    }
+
+    /* For non-global variables, evaluate in handle mode as before */
+    if (handle_str == NULL) {
+        bool prev_as_handle = gen->expr_as_handle;
+        gen->expr_as_handle = true;
+        handle_str = code_gen_expression(gen, object);
+        gen->expr_as_handle = prev_as_handle;
+        lvalue_str = handle_str;
+    }
+
     char *arg_str = code_gen_expression(gen, arg);
     const char *arena_to_use = get_arena_for_mutation(gen, object);
 
@@ -39,70 +76,71 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     switch (element_type->kind) {
         case TYPE_LONG:
         case TYPE_INT:
-            push_func = "rt_array_push_long";
+            push_func = "rt_array_push_long_h";
             break;
         case TYPE_INT32:
-            push_func = "rt_array_push_int32";
+            push_func = "rt_array_push_int32_h";
             break;
         case TYPE_UINT:
-            push_func = "rt_array_push_uint";
+            push_func = "rt_array_push_uint_h";
             break;
         case TYPE_UINT32:
-            push_func = "rt_array_push_uint32";
+            push_func = "rt_array_push_uint32_h";
             break;
         case TYPE_FLOAT:
-            push_func = "rt_array_push_float";
+            push_func = "rt_array_push_float_h";
             break;
         case TYPE_DOUBLE:
-            push_func = "rt_array_push_double";
+            push_func = "rt_array_push_double_h";
             break;
         case TYPE_CHAR:
-            push_func = "rt_array_push_char";
+            push_func = "rt_array_push_char_h";
             break;
         case TYPE_STRING:
-            push_func = "rt_array_push_string";
+            push_func = "rt_array_push_string_h";
             break;
         case TYPE_BOOL:
-            push_func = "rt_array_push_bool";
+            push_func = "rt_array_push_bool_h";
             break;
         case TYPE_BYTE:
-            push_func = "rt_array_push_byte";
+            push_func = "rt_array_push_byte_h";
             break;
         case TYPE_FUNCTION:
+            push_func = "rt_array_push_voidptr_h";
+            break;
         case TYPE_ARRAY:
-            push_func = "rt_array_push_ptr";
+            push_func = "rt_array_push_ptr_h";
             break;
         case TYPE_ANY:
-            push_func = "rt_array_push_any";
+            push_func = "rt_array_push_any_h";
             break;
         default:
             fprintf(stderr, "Error: Unsupported array element type for push\n");
             exit(1);
     }
 
-    /* push returns new array pointer, assign back to the lvalue (variable or struct field)
-     * so the pointer stays valid after potential reallocation.
-     * EXPR_MEMBER is used for struct field access in call chains (e.g., data.values.push()). */
+    /* push_h takes the RtHandle and returns the new handle.
+     * Assign back to the lvalue so the handle stays valid after reallocation. */
     bool is_lvalue = (object->type == EXPR_VARIABLE ||
                       object->type == EXPR_MEMBER_ACCESS ||
                       object->type == EXPR_MEMBER);
 
-    /* For pointer types (function/array), we need to cast to void** */
+    /* For pointer types (function/array), cast element to void* */
     if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
         if (is_lvalue) {
-            return arena_sprintf(gen->arena, "(%s = (void *)%s(%s, (void **)%s, (void *)%s))",
-                                 object_str, push_func, arena_to_use, object_str, arg_str);
+            return arena_sprintf(gen->arena, "(%s = %s(%s, %s, (void *)%s))",
+                                 lvalue_str, push_func, arena_to_use, handle_str, arg_str);
         }
-        return arena_sprintf(gen->arena, "(void *)%s(%s, (void **)%s, (void *)%s)",
-                             push_func, arena_to_use, object_str, arg_str);
+        return arena_sprintf(gen->arena, "%s(%s, %s, (void *)%s)",
+                             push_func, arena_to_use, handle_str, arg_str);
     }
 
     if (is_lvalue) {
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))",
-                             object_str, push_func, arena_to_use, object_str, arg_str);
+                             lvalue_str, push_func, arena_to_use, handle_str, arg_str);
     }
     return arena_sprintf(gen->arena, "%s(%s, %s, %s)",
-                         push_func, arena_to_use, object_str, arg_str);
+                         push_func, arena_to_use, handle_str, arg_str);
 }
 
 /* Generate code for array.clear() method */
@@ -115,63 +153,69 @@ static char *code_gen_array_clear(CodeGen *gen, Expr *object)
 /* Generate code for array.pop() method */
 static char *code_gen_array_pop(CodeGen *gen, Expr *object, Type *element_type)
 {
-    char *object_str = code_gen_expression(gen, object);
+    /* Evaluate object in handle mode to get the RtHandle */
+    bool prev_as_handle = gen->expr_as_handle;
+    gen->expr_as_handle = true;
+    char *handle_str = code_gen_expression(gen, object);
+    gen->expr_as_handle = prev_as_handle;
 
     const char *pop_func = NULL;
     switch (element_type->kind) {
         case TYPE_LONG:
         case TYPE_INT:
-            pop_func = "rt_array_pop_long";
+            pop_func = "rt_array_pop_long_h";
             break;
         case TYPE_INT32:
-            pop_func = "rt_array_pop_int32";
+            pop_func = "rt_array_pop_int32_h";
             break;
         case TYPE_UINT:
-            pop_func = "rt_array_pop_uint";
+            pop_func = "rt_array_pop_uint_h";
             break;
         case TYPE_UINT32:
-            pop_func = "rt_array_pop_uint32";
+            pop_func = "rt_array_pop_uint32_h";
             break;
         case TYPE_FLOAT:
-            pop_func = "rt_array_pop_float";
+            pop_func = "rt_array_pop_float_h";
             break;
         case TYPE_DOUBLE:
-            pop_func = "rt_array_pop_double";
+            pop_func = "rt_array_pop_double_h";
             break;
         case TYPE_CHAR:
-            pop_func = "rt_array_pop_char";
+            pop_func = "rt_array_pop_char_h";
             break;
         case TYPE_STRING:
-            pop_func = "rt_array_pop_string";
+            pop_func = "rt_array_pop_string_h";
             break;
         case TYPE_BOOL:
-            pop_func = "rt_array_pop_bool";
+            pop_func = "rt_array_pop_bool_h";
             break;
         case TYPE_BYTE:
-            pop_func = "rt_array_pop_byte";
+            pop_func = "rt_array_pop_byte_h";
             break;
         case TYPE_FUNCTION:
         case TYPE_ARRAY:
-            pop_func = "rt_array_pop_ptr";
+            pop_func = "rt_array_pop_ptr_h";
             break;
         default:
             fprintf(stderr, "Error: Unsupported array element type for pop\n");
             exit(1);
     }
 
-    /* For pointer types (function/array), we need to cast the result */
+    /* pop_h takes the RtHandle and the arena, returns the popped value */
+    const char *arena_to_use = get_arena_for_mutation(gen, object);
     if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
-        const char *elem_type_str = get_c_type(gen->arena, element_type);
-        return arena_sprintf(gen->arena, "(%s)%s((void **)%s)",
-                             elem_type_str, pop_func, object_str);
+        const char *elem_type_str = get_c_array_elem_type(gen->arena, element_type);
+        return arena_sprintf(gen->arena, "(%s)%s(%s, %s)",
+                             elem_type_str, pop_func, arena_to_use, handle_str);
     }
-    return arena_sprintf(gen->arena, "%s(%s)", pop_func, object_str);
+    return arena_sprintf(gen->arena, "%s(%s, %s)", pop_func, arena_to_use, handle_str);
 }
 
 /* Generate code for array.concat(other_array) method */
 static char *code_gen_array_concat(CodeGen *gen, Expr *object, Type *element_type,
-                                    Expr *arg)
+                                    Expr *arg, bool caller_wants_handle)
 {
+    /* Evaluate both arrays in raw pointer mode (pinned) for concat data */
     char *object_str = code_gen_expression(gen, object);
     char *arg_str = code_gen_expression(gen, arg);
 
@@ -179,53 +223,55 @@ static char *code_gen_array_concat(CodeGen *gen, Expr *object, Type *element_typ
     switch (element_type->kind) {
         case TYPE_LONG:
         case TYPE_INT:
-            concat_func = "rt_array_concat_long";
+            concat_func = "rt_array_concat_long_h";
             break;
         case TYPE_INT32:
-            concat_func = "rt_array_concat_int32";
+            concat_func = "rt_array_concat_int32_h";
             break;
         case TYPE_UINT:
-            concat_func = "rt_array_concat_uint";
+            concat_func = "rt_array_concat_uint_h";
             break;
         case TYPE_UINT32:
-            concat_func = "rt_array_concat_uint32";
+            concat_func = "rt_array_concat_uint32_h";
             break;
         case TYPE_FLOAT:
-            concat_func = "rt_array_concat_float";
+            concat_func = "rt_array_concat_float_h";
             break;
         case TYPE_DOUBLE:
-            concat_func = "rt_array_concat_double";
+            concat_func = "rt_array_concat_double_h";
             break;
         case TYPE_CHAR:
-            concat_func = "rt_array_concat_char";
+            concat_func = "rt_array_concat_char_h";
             break;
         case TYPE_STRING:
-            concat_func = "rt_array_concat_string";
+            concat_func = "rt_array_concat_string_h";
             break;
         case TYPE_BOOL:
-            concat_func = "rt_array_concat_bool";
+            concat_func = "rt_array_concat_bool_h";
             break;
         case TYPE_BYTE:
-            concat_func = "rt_array_concat_byte";
+            concat_func = "rt_array_concat_byte_h";
             break;
         case TYPE_FUNCTION:
         case TYPE_ARRAY:
-            concat_func = "rt_array_concat_ptr";
+            concat_func = "rt_array_concat_ptr_h";
             break;
         default:
             fprintf(stderr, "Error: Unsupported array element type for concat\n");
             exit(1);
     }
 
-    /* concat returns a new array, doesn't modify the original */
-    /* For pointer types (function/array), we need to cast */
-    if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
-        const char *elem_type_str = get_c_type(gen->arena, element_type);
-        return arena_sprintf(gen->arena, "(%s *)%s(%s, (void **)%s, (void **)%s)",
-                             elem_type_str, concat_func, ARENA_VAR(gen), object_str, arg_str);
+    /* concat_h takes two raw pointers and returns a new RtHandle.
+     * If caller wants handle, return handle directly. Otherwise pin for raw pointer. */
+    char *call_expr = arena_sprintf(gen->arena, "%s(%s, RT_HANDLE_NULL, %s, %s)",
+                                    concat_func, ARENA_VAR(gen), object_str, arg_str);
+    if (!caller_wants_handle && gen->current_arena_var != NULL)
+    {
+        const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
+        return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                             elem_c, ARENA_VAR(gen), call_expr);
     }
-    return arena_sprintf(gen->arena, "%s(%s, %s, %s)",
-                         concat_func, ARENA_VAR(gen), object_str, arg_str);
+    return call_expr;
 }
 
 /* Generate code for array.indexOf(element) method */
@@ -260,6 +306,10 @@ static char *code_gen_array_indexof(CodeGen *gen, Expr *object, Type *element_ty
             indexof_func = "rt_array_indexOf_char";
             break;
         case TYPE_STRING:
+            if (gen->current_arena_var) {
+                return arena_sprintf(gen->arena, "rt_array_indexOf_string_h(%s, %s, %s)",
+                                     ARENA_VAR(gen), object_str, arg_str);
+            }
             indexof_func = "rt_array_indexOf_string";
             break;
         case TYPE_BOOL:
@@ -308,6 +358,10 @@ static char *code_gen_array_contains(CodeGen *gen, Expr *object, Type *element_t
             contains_func = "rt_array_contains_char";
             break;
         case TYPE_STRING:
+            if (gen->current_arena_var) {
+                return arena_sprintf(gen->arena, "rt_array_contains_string_h(%s, %s, %s)",
+                                     ARENA_VAR(gen), object_str, arg_str);
+            }
             contains_func = "rt_array_contains_string";
             break;
         case TYPE_BOOL:
@@ -325,49 +379,21 @@ static char *code_gen_array_contains(CodeGen *gen, Expr *object, Type *element_t
 }
 
 /* Generate code for array.clone() method */
-static char *code_gen_array_clone(CodeGen *gen, Expr *object, Type *element_type)
+static char *code_gen_array_clone(CodeGen *gen, Expr *object, Type *element_type, bool handle_mode)
 {
     char *object_str = code_gen_expression(gen, object);
 
-    const char *clone_func = NULL;
-    switch (element_type->kind) {
-        case TYPE_LONG:
-        case TYPE_INT:
-            clone_func = "rt_array_clone_long";
-            break;
-        case TYPE_INT32:
-            clone_func = "rt_array_clone_int32";
-            break;
-        case TYPE_UINT:
-            clone_func = "rt_array_clone_uint";
-            break;
-        case TYPE_UINT32:
-            clone_func = "rt_array_clone_uint32";
-            break;
-        case TYPE_FLOAT:
-            clone_func = "rt_array_clone_float";
-            break;
-        case TYPE_DOUBLE:
-            clone_func = "rt_array_clone_double";
-            break;
-        case TYPE_CHAR:
-            clone_func = "rt_array_clone_char";
-            break;
-        case TYPE_STRING:
-            clone_func = "rt_array_clone_string";
-            break;
-        case TYPE_BOOL:
-            clone_func = "rt_array_clone_bool";
-            break;
-        case TYPE_BYTE:
-            clone_func = "rt_array_clone_byte";
-            break;
-        default:
-            fprintf(stderr, "Error: Unsupported array element type for clone\n");
-            exit(1);
+    const char *suffix = code_gen_type_suffix(element_type);
+    if (suffix == NULL) {
+        fprintf(stderr, "Error: Unsupported array element type for clone\n");
+        exit(1);
     }
 
-    return arena_sprintf(gen->arena, "%s(%s, %s)", clone_func, ARENA_VAR(gen), object_str);
+    if (handle_mode && gen->current_arena_var != NULL) {
+        return arena_sprintf(gen->arena, "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s)",
+                             suffix, ARENA_VAR(gen), object_str);
+    }
+    return arena_sprintf(gen->arena, "rt_array_clone_%s(%s, %s)", suffix, ARENA_VAR(gen), object_str);
 }
 
 /* Generate code for array.join(separator) method */
@@ -402,7 +428,7 @@ static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
             join_func = "rt_array_join_char";
             break;
         case TYPE_STRING:
-            join_func = "rt_array_join_string";
+            join_func = gen->current_arena_var ? "rt_array_join_string_h" : "rt_array_join_string";
             break;
         case TYPE_BOOL:
             join_func = "rt_array_join_bool";
@@ -463,6 +489,15 @@ static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_ty
 
     /* reverse in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
+        /* In handle mode, use _h variant and assign to the handle variable */
+        if (gen->current_arena_var != NULL && object->expr_type != NULL &&
+            object->expr_type->kind == TYPE_ARRAY)
+        {
+            char *var_name = sn_mangle_name(gen->arena,
+                get_var_name(gen->arena, object->as.variable.name));
+            return arena_sprintf(gen->arena, "(%s = %s_h(%s, %s))",
+                                 var_name, rev_func, ARENA_VAR(gen), object_str);
+        }
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s))", object_str, rev_func, ARENA_VAR(gen), object_str);
     }
     return arena_sprintf(gen->arena, "%s(%s, %s)", rev_func, ARENA_VAR(gen), object_str);
@@ -516,6 +551,15 @@ static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_typ
 
     /* insert in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
+        /* In handle mode, use _h variant and assign to the handle variable */
+        if (gen->current_arena_var != NULL && object->expr_type != NULL &&
+            object->expr_type->kind == TYPE_ARRAY)
+        {
+            char *var_name = sn_mangle_name(gen->arena,
+                get_var_name(gen->arena, object->as.variable.name));
+            return arena_sprintf(gen->arena, "(%s = %s_h(%s, %s, %s, %s))",
+                                 var_name, ins_func, ARENA_VAR(gen), object_str, elem_str, idx_str);
+        }
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s, %s))",
                              object_str, ins_func, ARENA_VAR(gen), object_str, elem_str, idx_str);
     }
@@ -570,6 +614,15 @@ static char *code_gen_array_remove(CodeGen *gen, Expr *object, Type *element_typ
 
     /* remove in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
+        /* In handle mode, use _h variant and assign to the handle variable */
+        if (gen->current_arena_var != NULL && object->expr_type != NULL &&
+            object->expr_type->kind == TYPE_ARRAY)
+        {
+            char *var_name = sn_mangle_name(gen->arena,
+                get_var_name(gen->arena, object->as.variable.name));
+            return arena_sprintf(gen->arena, "(%s = %s_h(%s, %s, %s))",
+                                 var_name, rem_func, ARENA_VAR(gen), object_str, idx_str);
+        }
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))",
                              object_str, rem_func, ARENA_VAR(gen), object_str, idx_str);
     }
@@ -616,84 +669,93 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
 {
     (void)expr; /* May be used for future enhancements */
 
+    /* Most array methods need the object as a raw pointer (pinned form).
+     * Force expr_as_handle=false so object evaluates to pinned pointer.
+     * Methods that need the handle form (push, pop) manage their own state. */
+    bool saved_handle_mode = gen->expr_as_handle;
+    gen->expr_as_handle = false;
+
+    char *result = NULL;
+
     /* Handle push(element) */
     if (strcmp(method_name, "push") == 0 && arg_count == 1) {
-        return code_gen_array_push(gen, object, element_type, arguments[0]);
+        result = code_gen_array_push(gen, object, element_type, arguments[0]);
     }
-
     /* Handle clear() */
-    if (strcmp(method_name, "clear") == 0 && arg_count == 0) {
-        return code_gen_array_clear(gen, object);
+    else if (strcmp(method_name, "clear") == 0 && arg_count == 0) {
+        result = code_gen_array_clear(gen, object);
     }
-
     /* Handle pop() */
-    if (strcmp(method_name, "pop") == 0 && arg_count == 0) {
-        return code_gen_array_pop(gen, object, element_type);
+    else if (strcmp(method_name, "pop") == 0 && arg_count == 0) {
+        result = code_gen_array_pop(gen, object, element_type);
     }
-
     /* Handle concat(other_array) */
-    if (strcmp(method_name, "concat") == 0 && arg_count == 1) {
-        return code_gen_array_concat(gen, object, element_type, arguments[0]);
+    else if (strcmp(method_name, "concat") == 0 && arg_count == 1) {
+        result = code_gen_array_concat(gen, object, element_type, arguments[0], saved_handle_mode);
     }
-
     /* Handle indexOf(element) */
-    if (strcmp(method_name, "indexOf") == 0 && arg_count == 1) {
-        return code_gen_array_indexof(gen, object, element_type, arguments[0]);
+    else if (strcmp(method_name, "indexOf") == 0 && arg_count == 1) {
+        result = code_gen_array_indexof(gen, object, element_type, arguments[0]);
     }
-
     /* Handle contains(element) */
-    if (strcmp(method_name, "contains") == 0 && arg_count == 1) {
-        return code_gen_array_contains(gen, object, element_type, arguments[0]);
+    else if (strcmp(method_name, "contains") == 0 && arg_count == 1) {
+        result = code_gen_array_contains(gen, object, element_type, arguments[0]);
     }
-
     /* Handle clone() */
-    if (strcmp(method_name, "clone") == 0 && arg_count == 0) {
-        return code_gen_array_clone(gen, object, element_type);
+    else if (strcmp(method_name, "clone") == 0 && arg_count == 0) {
+        result = code_gen_array_clone(gen, object, element_type, saved_handle_mode);
     }
-
     /* Handle join(separator) */
-    if (strcmp(method_name, "join") == 0 && arg_count == 1) {
-        return code_gen_array_join(gen, object, element_type, arguments[0]);
+    else if (strcmp(method_name, "join") == 0 && arg_count == 1) {
+        result = code_gen_array_join(gen, object, element_type, arguments[0]);
     }
-
     /* Handle reverse() */
-    if (strcmp(method_name, "reverse") == 0 && arg_count == 0) {
-        return code_gen_array_reverse(gen, object, element_type);
+    else if (strcmp(method_name, "reverse") == 0 && arg_count == 0) {
+        result = code_gen_array_reverse(gen, object, element_type);
     }
-
     /* Handle insert(element, index) */
-    if (strcmp(method_name, "insert") == 0 && arg_count == 2) {
-        return code_gen_array_insert(gen, object, element_type, arguments[0], arguments[1]);
+    else if (strcmp(method_name, "insert") == 0 && arg_count == 2) {
+        result = code_gen_array_insert(gen, object, element_type, arguments[0], arguments[1]);
     }
-
     /* Handle remove(index) */
-    if (strcmp(method_name, "remove") == 0 && arg_count == 1) {
-        return code_gen_array_remove(gen, object, element_type, arguments[0]);
+    else if (strcmp(method_name, "remove") == 0 && arg_count == 1) {
+        result = code_gen_array_remove(gen, object, element_type, arguments[0]);
     }
-
     /* Byte array extension methods - only for byte[] */
-    if (element_type->kind == TYPE_BYTE) {
-        /* Handle toString() - UTF-8 decoding */
+    else if (element_type->kind == TYPE_BYTE) {
         if (strcmp(method_name, "toString") == 0 && arg_count == 0) {
-            return code_gen_byte_array_to_string(gen, object);
+            result = code_gen_byte_array_to_string(gen, object);
         }
-
-        /* Handle toStringLatin1() - Latin-1/ISO-8859-1 decoding */
-        if (strcmp(method_name, "toStringLatin1") == 0 && arg_count == 0) {
-            return code_gen_byte_array_to_string_latin1(gen, object);
+        else if (strcmp(method_name, "toStringLatin1") == 0 && arg_count == 0) {
+            result = code_gen_byte_array_to_string_latin1(gen, object);
         }
-
-        /* Handle toHex() - hexadecimal encoding */
-        if (strcmp(method_name, "toHex") == 0 && arg_count == 0) {
-            return code_gen_byte_array_to_hex(gen, object);
+        else if (strcmp(method_name, "toHex") == 0 && arg_count == 0) {
+            result = code_gen_byte_array_to_hex(gen, object);
         }
-
-        /* Handle toBase64() - Base64 encoding */
-        if (strcmp(method_name, "toBase64") == 0 && arg_count == 0) {
-            return code_gen_byte_array_to_base64(gen, object);
+        else if (strcmp(method_name, "toBase64") == 0 && arg_count == 0) {
+            result = code_gen_byte_array_to_base64(gen, object);
         }
     }
 
-    /* Method not handled here - return NULL to let caller handle it */
-    return NULL;
+    gen->expr_as_handle = saved_handle_mode;
+
+    /* If handle mode was active and the method returns a string (raw char *),
+     * wrap the result to produce an RtHandle. Methods like toHex, toBase64,
+     * toString return raw char* from C runtime functions. */
+    if (saved_handle_mode && result != NULL && gen->current_arena_var != NULL)
+    {
+        /* Check if this is a string-returning method (byte encoding, join, etc.) */
+        if ((element_type && element_type->kind == TYPE_BYTE &&
+             (strcmp(method_name, "toHex") == 0 ||
+              strcmp(method_name, "toBase64") == 0 ||
+              strcmp(method_name, "toString") == 0 ||
+              strcmp(method_name, "toStringLatin1") == 0)) ||
+            strcmp(method_name, "join") == 0)
+        {
+            result = arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)",
+                                   ARENA_VAR(gen), result);
+        }
+    }
+
+    return result;
 }
