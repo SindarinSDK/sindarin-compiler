@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{factorial(5)}\n")
+    print($"{factorial(0)}\n")
+
+fn factorial(n: int): int =>
+    if n <= 1 =>
+        return 1
+    return n * factorial(n - 1)

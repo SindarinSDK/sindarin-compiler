@@ -1,0 +1,4 @@
+fn main(): void =>
+    var op: fn(int): int = fn(x) => x * 2
+    var result: int = op(5)
+    print($"{result}\n")

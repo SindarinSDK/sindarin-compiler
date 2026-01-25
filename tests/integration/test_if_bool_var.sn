@@ -1,0 +1,5 @@
+fn main(): void =>
+    var flag: bool = true
+    var other: bool = false
+    if flag && !other =>
+        print("correct\n")

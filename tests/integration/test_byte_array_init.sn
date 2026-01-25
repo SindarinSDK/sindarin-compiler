@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: byte[] = {10, 20, 30, 40, 50}
+    print($"{arr.length}\n")
+    print($"{arr[0]} {arr[2]} {arr[4]}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    print_n_times("hello", 3)
+
+fn print_n_times(s: str, n: int): void =>
+    for var i: int = 0; i < n; i++ =>
+        print($"{s}\n")

@@ -1,0 +1,8 @@
+fn main(): void =>
+    var i: int = 0
+    while i < 3 =>
+        var temp: int = i + 100
+        print($"{temp} ")
+        i++
+    print("
+")

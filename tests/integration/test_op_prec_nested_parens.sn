@@ -1,0 +1,3 @@
+fn main(): void =>
+    var result: int = ((2 + 3) * (4 - 1)) / 3
+    print($"{result}\n")

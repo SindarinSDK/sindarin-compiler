@@ -1,0 +1,3 @@
+fn main(): void =>
+    var b: bool = true
+    print($"{b}\n")

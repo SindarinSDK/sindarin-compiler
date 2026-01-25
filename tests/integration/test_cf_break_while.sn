@@ -1,0 +1,8 @@
+fn main(): void =>
+    var i: int = 0
+    while true =>
+        if i >= 5 =>
+            break
+        print($"{i} ")
+        i++
+    print("\n")

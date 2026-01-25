@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {5, 10, 15, 20}
+    for var i: int = 0; i < arr.length; i++ =>
+        arr[i] = arr[i] * 2
+    print($"{arr.join(" ")}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    for var i: int = 0; i < 10; i += 2 =>
+        print($"{i} ")
+    print("\n")

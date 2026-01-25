@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var s: int[] = arr[1..4]
+    print($"{s.join(", ")}\n")

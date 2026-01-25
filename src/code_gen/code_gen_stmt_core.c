@@ -299,7 +299,9 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         // This is needed because string variables may be freed/reassigned later.
         // Skip this at global scope since function calls aren't valid C constant initializers.
         // Global string literals are fine as-is (static storage, never freed).
-        if (stmt->type->kind == TYPE_STRING && stmt->initializer->type == EXPR_LITERAL && !is_global_scope)
+        // Skip nil literals - they should remain as NULL, not be converted to empty string.
+        if (stmt->type->kind == TYPE_STRING && stmt->initializer->type == EXPR_LITERAL && !is_global_scope &&
+            !(stmt->initializer->expr_type != NULL && stmt->initializer->expr_type->kind == TYPE_NIL))
         {
             init_str = arena_sprintf(gen->arena, "rt_to_string_string(%s, %s)", ARENA_VAR(gen), init_str);
         }

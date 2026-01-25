@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: str = "hello"
+    var b: str = "world"
+    print($"{a != b}\n")
+    print($"{a != a}\n")

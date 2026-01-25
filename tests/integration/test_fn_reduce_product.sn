@@ -1,0 +1,9 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    print($"{reduce_product(arr)}\n")
+
+fn reduce_product(arr: int[]): int =>
+    var acc: int = 1
+    for x in arr =>
+        acc *= x
+    return acc

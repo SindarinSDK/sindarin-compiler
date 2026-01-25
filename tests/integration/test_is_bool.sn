@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: any = true
+    print($"{x is bool}\n")
+    print($"{x is int}\n")

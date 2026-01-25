@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {4, 5, 6}
+    var sum: int = 0
+    for var i: int = 0; i < 3; i++ =>
+        sum += a[i] + b[i]
+    print($"{sum}\n")

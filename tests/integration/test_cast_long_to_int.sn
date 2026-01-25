@@ -1,0 +1,4 @@
+fn main(): void =>
+    var l: long = 42l
+    var x: int = l as int
+    print($"{x}\n")

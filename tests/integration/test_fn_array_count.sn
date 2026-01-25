@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{count_evens({1, 2, 3, 4, 5, 6})}\n")
+
+fn count_evens(arr: int[]): int =>
+    var count: int = 0
+    for x in arr =>
+        if x % 2 == 0 =>
+            count++
+    return count

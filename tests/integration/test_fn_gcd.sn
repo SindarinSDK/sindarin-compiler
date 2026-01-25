@@ -1,0 +1,10 @@
+fn main(): void =>
+    print($"{gcd(48, 18)}\n")
+    print($"{gcd(100, 75)}\n")
+
+fn gcd(a: int, b: int): int =>
+    while b != 0 =>
+        var temp: int = b
+        b = a % b
+        a = temp
+    return a

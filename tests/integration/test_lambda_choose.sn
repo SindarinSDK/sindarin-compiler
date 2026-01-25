@@ -1,0 +1,7 @@
+fn main(): void =>
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+    var sub: fn(int, int): int = fn(a: int, b: int): int => a - b
+    print($"{apply2(add, 10, 3)}\n")
+    print($"{apply2(sub, 10, 3)}\n")
+
+fn apply2(f: fn(int, int): int, x: int, y: int): int => f(x, y)

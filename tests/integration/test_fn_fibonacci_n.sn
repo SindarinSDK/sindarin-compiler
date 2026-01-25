@@ -1,0 +1,15 @@
+fn main(): void =>
+    print($"{fib(0)}\n")
+    print($"{fib(1)}\n")
+    print($"{fib(10)}\n")
+
+fn fib(n: int): int =>
+    if n <= 1 =>
+        return n
+    var a: int = 0
+    var b: int = 1
+    for var i: int = 2; i <= n; i++ =>
+        var c: int = a + b
+        a = b
+        b = c
+    return b

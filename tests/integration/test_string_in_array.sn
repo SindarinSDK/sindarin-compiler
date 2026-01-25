@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: str[] = {"hello", "world", "foo"}
+    print($"{arr.contains("world")}\n")
+    print($"{arr.indexOf("foo")}\n")

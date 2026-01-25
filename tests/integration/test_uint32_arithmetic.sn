@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: uint32 = 100u32
+    var b: uint32 = 50u32
+    print($"{a + b}\n")
+    print($"{a - b}\n")

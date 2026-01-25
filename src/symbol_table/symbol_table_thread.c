@@ -49,6 +49,30 @@ int symbol_table_get_scope_depth(SymbolTable *table)
 }
 
 /* ============================================================================
+ * Private Block Depth Management
+ * ============================================================================ */
+
+void symbol_table_enter_private(SymbolTable *table)
+{
+    table->current_private_depth++;
+    DEBUG_VERBOSE("Entered private block, new depth: %d", table->current_private_depth);
+}
+
+void symbol_table_exit_private(SymbolTable *table)
+{
+    if (table->current_private_depth > 0)
+    {
+        table->current_private_depth--;
+    }
+    DEBUG_VERBOSE("Exited private block, new depth: %d", table->current_private_depth);
+}
+
+int symbol_table_get_private_depth(SymbolTable *table)
+{
+    return table->current_private_depth;
+}
+
+/* ============================================================================
  * Thread State Management
  * ============================================================================ */
 

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var get42: fn(): int = fn(): int => 42
+    print($"{get42()}\n")

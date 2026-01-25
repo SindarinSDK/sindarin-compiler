@@ -1,0 +1,7 @@
+fn main(): void =>
+    var x: int = 5
+    var y: int = 10
+    print($"{x > 0 && y > 0}\n")
+    print($"{x > 0 && y < 0}\n")
+    print($"{x < 0 || y > 0}\n")
+    print($"{x < 0 || y < 0}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var a: long = 1000000000l
+    var b: long = 2000000000l
+    print($"{a + b}\n")

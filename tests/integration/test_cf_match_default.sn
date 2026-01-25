@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 99
+    match x =>
+        1 => print("one\n")
+        2 => print("two\n")
+        else => print("other\n")

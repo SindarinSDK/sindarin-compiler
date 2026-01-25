@@ -1,0 +1,11 @@
+fn main(): void =>
+    print($"{clamp(5, 0, 10)}\n")
+    print($"{clamp(-5, 0, 10)}\n")
+    print($"{clamp(15, 0, 10)}\n")
+
+fn clamp(v: int, lo: int, hi: int): int =>
+    if v < lo =>
+        return lo
+    if v > hi =>
+        return hi
+    return v

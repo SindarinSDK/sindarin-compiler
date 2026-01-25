@@ -1,0 +1,7 @@
+fn main(): void =>
+    do_work(42)
+
+fn do_work(n: int): void =>
+    var doubled: int = n * 2
+    var msg: str = "Result"
+    print($"{msg}: {doubled}\n")

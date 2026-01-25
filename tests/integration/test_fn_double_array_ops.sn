@@ -1,0 +1,9 @@
+fn main(): void =>
+    var arr: double[] = {1.0, 2.0, 3.0, 4.0}
+    print($"{sum_doubles(arr)}\n")
+
+fn sum_doubles(arr: double[]): double =>
+    var total: double = 0.0
+    for x in arr =>
+        total += x
+    return total

@@ -1,0 +1,7 @@
+fn main(): void =>
+    var found: int = -1
+    for var i: int = 0; i < 10; i++ =>
+        if i * i > 50 =>
+            found = i
+            break
+    print($"{found}\n")

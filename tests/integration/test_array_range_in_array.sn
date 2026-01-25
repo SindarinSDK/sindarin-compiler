@@ -1,0 +1,4 @@
+fn main(): void =>
+    var r: int[] = 5..10
+    print($"{r.length}\n")
+    print($"{r[0]} {r[4]}\n")

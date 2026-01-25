@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{has_negative({1, -2, 3})}\n")
+    print($"{has_negative({1, 2, 3})}\n")
+
+fn has_negative(arr: int[]): bool =>
+    for x in arr =>
+        if x < 0 =>
+            return true
+    return false

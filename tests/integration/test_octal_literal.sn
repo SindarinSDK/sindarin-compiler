@@ -1,0 +1,9 @@
+fn main(): void =>
+    var a: int = 0o77
+    var b: int = 0o10
+    var c: int = 0o755
+    var d: long = 0o777l
+    println(a)
+    println(b)
+    println(c)
+    println(d)

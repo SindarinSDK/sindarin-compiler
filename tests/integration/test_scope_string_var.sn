@@ -1,0 +1,4 @@
+fn main(): void =>
+    var greeting: str = "Hello"
+    var name: str = "World"
+    print($"{greeting}, {name}!\n")

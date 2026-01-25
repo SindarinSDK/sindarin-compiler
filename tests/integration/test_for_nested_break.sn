@@ -1,0 +1,8 @@
+fn main(): void =>
+    var total: int = 0
+    for var i: int = 0; i < 5; i++ =>
+        for var j: int = 0; j < 5; j++ =>
+            if j >= 3 =>
+                break
+            total++
+    print($"{total}\n")

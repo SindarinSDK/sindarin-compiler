@@ -1,0 +1,13 @@
+fn main(): void =>
+    print($"{day_name(1)}\n")
+    print($"{day_name(5)}\n")
+    print($"{day_name(9)}\n")
+
+fn day_name(n: int): str =>
+    return match n =>
+        1 => "Mon"
+        2 => "Tue"
+        3 => "Wed"
+        4 => "Thu"
+        5 => "Fri"
+        else => "?"

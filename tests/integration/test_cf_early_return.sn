@@ -1,0 +1,11 @@
+fn main(): void =>
+    print($"{classify(95)}\n")
+    print($"{classify(42)}\n")
+    print($"{classify(-5)}\n")
+
+fn classify(n: int): str =>
+    if n > 90 =>
+        return "excellent"
+    if n > 40 =>
+        return "ok"
+    return "poor"

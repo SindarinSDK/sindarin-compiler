@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{classify(5)}\n")
+    print($"{classify(0)}\n")
+    print($"{classify(-3)}\n")
+
+fn classify(n: int): str =>
+    if n > 0 =>
+        return "positive"
+    else if n == 0 =>
+        return "zero"
+    else =>
+        return "negative"

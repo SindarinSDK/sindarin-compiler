@@ -1,0 +1,10 @@
+fn main(): void =>
+    var score: int = 85
+    if score >= 90 =>
+        print("A\n")
+    else if score >= 80 =>
+        print("B\n")
+    else if score >= 70 =>
+        print("C\n")
+    else =>
+        print("F\n")

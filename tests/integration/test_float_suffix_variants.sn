@@ -1,0 +1,4 @@
+fn main(): void =>
+    var a: float = 1.5f
+    var b: float = 1.5F
+    print($"{a + b}\n")

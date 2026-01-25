@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = get_magic()
+    print($"{x}\n")
+
+fn get_magic(): int =>
+    return 42

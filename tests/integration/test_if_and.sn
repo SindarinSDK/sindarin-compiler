@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    if x > 0 && x < 10 =>
+        print("in range\n")
+    else =>
+        print("out of range\n")

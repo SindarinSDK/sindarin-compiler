@@ -1,0 +1,7 @@
+fn main(): void =>
+    var is_even: fn(int): bool = fn(n: int): bool => n % 2 == 0
+    var count: int = 0
+    for var i: int = 0; i < 10; i++ =>
+        if is_even(i) =>
+            count++
+    print($"{count}\n")

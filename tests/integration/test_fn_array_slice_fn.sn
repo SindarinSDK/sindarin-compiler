@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5, 6, 7, 8}
+    var first3: int[] = take(arr, 3)
+    print($"{first3.join(" ")}\n")
+
+fn take(arr: int[], n: int): int[] =>
+    var result: int[] = {}
+    for var i: int = 0; i < n && i < arr.length; i++ =>
+        result.push(arr[i])
+    return result

@@ -1,0 +1,7 @@
+fn main(): void =>
+    var last: int = 0
+    for var i: int = 0; i < 100; i++ =>
+        if i == 7 =>
+            break
+        last = i
+    print($"{last}\n")

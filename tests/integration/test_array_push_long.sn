@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: long[] = {}
+    arr.push(1000000000l)
+    arr.push(2000000000l)
+    print($"{arr.length}\n")
+    print($"{arr[0]} {arr[1]}\n")

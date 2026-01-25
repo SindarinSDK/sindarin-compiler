@@ -1,0 +1,8 @@
+fn main(): void =>
+    var n: int = 17
+    var isPrime: bool = true
+    for var i: int = 2; i * i <= n; i++ =>
+        if n % i == 0 =>
+            isPrime = false
+            break
+    print($"{isPrime}\n")

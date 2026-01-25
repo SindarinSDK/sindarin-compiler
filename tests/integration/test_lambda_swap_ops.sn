@@ -1,0 +1,5 @@
+fn main(): void =>
+    var f: fn(int, int): int = fn(a: int, b: int): int => a + b
+    print($"{f(3, 4)}\n")
+    f = fn(a: int, b: int): int => a * b
+    print($"{f(3, 4)}\n")

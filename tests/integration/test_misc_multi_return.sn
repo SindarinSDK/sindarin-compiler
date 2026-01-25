@@ -1,0 +1,17 @@
+fn main(): void =>
+    print($"{grade(95)}\n")
+    print($"{grade(85)}\n")
+    print($"{grade(75)}\n")
+    print($"{grade(65)}\n")
+    print($"{grade(55)}\n")
+
+fn grade(score: int): str =>
+    if score >= 90 =>
+        return "A"
+    if score >= 80 =>
+        return "B"
+    if score >= 70 =>
+        return "C"
+    if score >= 60 =>
+        return "D"
+    return "F"

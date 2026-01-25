@@ -1,0 +1,3 @@
+fn main(): void =>
+    var arr: bool[] = {true, false, true}
+    print($"{arr.join(", ")}\n")

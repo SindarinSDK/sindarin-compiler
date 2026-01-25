@@ -40,6 +40,7 @@ typedef struct {
     /* Loop arena for per-iteration cleanup */
     char *loop_arena_var;       // Name of current loop's per-iteration arena (NULL if shared loop)
     char *loop_cleanup_label;   // Label for loop cleanup (used by break/continue)
+    char *loop_outer_arena_var; // Arena var that was current before entering the loop (for escape cloning)
 
     /* Loop arena stack for nested loops - tracks active loop arenas for proper cleanup */
     char **loop_arena_stack;    // Stack of loop arena variable names

@@ -1,1 +1,1 @@
-Cannot assign non-primitive type to variable declared outside private block
+Cannot assign to variable declared outside private block: str type contains heap-allocated string data

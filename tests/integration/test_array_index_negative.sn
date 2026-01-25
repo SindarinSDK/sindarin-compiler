@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {10, 20, 30, 40, 50}
+    print($"{arr[-1]}\n")
+    print($"{arr[-2]}\n")
+    print($"{arr[-5]}\n")

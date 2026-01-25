@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: uint = 100u
+    var b: uint = 50u
+    print($"{a + b}\n")
+    print($"{a - b}\n")
+    print($"{a * b}\n")

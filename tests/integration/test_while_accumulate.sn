@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 1
+    var sum: int = 0
+    while sum < 20 =>
+        sum += x
+        x++
+    print($"{sum}\n")
+    print($"{x}\n")

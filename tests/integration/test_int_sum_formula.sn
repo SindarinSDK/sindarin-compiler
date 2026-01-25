@@ -1,0 +1,4 @@
+fn main(): void =>
+    var n: int = 10
+    var sum: int = n * (n + 1) / 2
+    print($"{sum}\n")

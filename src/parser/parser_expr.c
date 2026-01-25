@@ -90,6 +90,26 @@ Expr *parser_assignment(Parser *parser)
     {
         compound_op = TOKEN_MODULO;
     }
+    else if (parser_match(parser, TOKEN_AMPERSAND_EQUAL))
+    {
+        compound_op = TOKEN_AMPERSAND;
+    }
+    else if (parser_match(parser, TOKEN_PIPE_EQUAL))
+    {
+        compound_op = TOKEN_PIPE;
+    }
+    else if (parser_match(parser, TOKEN_CARET_EQUAL))
+    {
+        compound_op = TOKEN_CARET;
+    }
+    else if (parser_match(parser, TOKEN_LSHIFT_EQUAL))
+    {
+        compound_op = TOKEN_LSHIFT;
+    }
+    else if (parser_match(parser, TOKEN_RSHIFT_EQUAL))
+    {
+        compound_op = TOKEN_RSHIFT;
+    }
 
     if (compound_op != TOKEN_EOF)
     {
@@ -116,8 +136,47 @@ Expr *parser_logical_or(Parser *parser)
 
 Expr *parser_logical_and(Parser *parser)
 {
-    Expr *expr = parser_equality(parser);
+    Expr *expr = parser_bitwise_or(parser);
     while (parser_match(parser, TOKEN_AND))
+    {
+        Token op = parser->previous;
+        SnTokenType operator = op.type;
+        Expr *right = parser_bitwise_or(parser);
+        expr = ast_create_binary_expr(parser->arena, expr, operator, right, &op);
+    }
+    return expr;
+}
+
+Expr *parser_bitwise_or(Parser *parser)
+{
+    Expr *expr = parser_bitwise_xor(parser);
+    while (parser_match(parser, TOKEN_PIPE))
+    {
+        Token op = parser->previous;
+        SnTokenType operator = op.type;
+        Expr *right = parser_bitwise_xor(parser);
+        expr = ast_create_binary_expr(parser->arena, expr, operator, right, &op);
+    }
+    return expr;
+}
+
+Expr *parser_bitwise_xor(Parser *parser)
+{
+    Expr *expr = parser_bitwise_and(parser);
+    while (parser_match(parser, TOKEN_CARET))
+    {
+        Token op = parser->previous;
+        SnTokenType operator = op.type;
+        Expr *right = parser_bitwise_and(parser);
+        expr = ast_create_binary_expr(parser->arena, expr, operator, right, &op);
+    }
+    return expr;
+}
+
+Expr *parser_bitwise_and(Parser *parser)
+{
+    Expr *expr = parser_equality(parser);
+    while (parser_match(parser, TOKEN_AMPERSAND))
     {
         Token op = parser->previous;
         SnTokenType operator = op.type;
@@ -142,9 +201,22 @@ Expr *parser_equality(Parser *parser)
 
 Expr *parser_comparison(Parser *parser)
 {
-    Expr *expr = parser_range(parser);
+    Expr *expr = parser_shift(parser);
     while (parser_match(parser, TOKEN_LESS) || parser_match(parser, TOKEN_LESS_EQUAL) ||
            parser_match(parser, TOKEN_GREATER) || parser_match(parser, TOKEN_GREATER_EQUAL))
+    {
+        Token op = parser->previous;
+        SnTokenType operator = op.type;
+        Expr *right = parser_shift(parser);
+        expr = ast_create_binary_expr(parser->arena, expr, operator, right, &op);
+    }
+    return expr;
+}
+
+Expr *parser_shift(Parser *parser)
+{
+    Expr *expr = parser_range(parser);
+    while (parser_match(parser, TOKEN_LSHIFT) || parser_match(parser, TOKEN_RSHIFT))
     {
         Token op = parser->previous;
         SnTokenType operator = op.type;
@@ -197,7 +269,7 @@ Expr *parser_factor(Parser *parser)
 
 Expr *parser_unary(Parser *parser)
 {
-    if (parser_match(parser, TOKEN_BANG) || parser_match(parser, TOKEN_MINUS))
+    if (parser_match(parser, TOKEN_BANG) || parser_match(parser, TOKEN_MINUS) || parser_match(parser, TOKEN_TILDE))
     {
         Token op = parser->previous;
         SnTokenType operator = op.type;
@@ -1024,6 +1096,7 @@ Expr *parser_primary(Parser *parser)
                 int state_stack[MAX_NESTING];
                 int stack_top = 0;
                 state_stack[stack_top] = 0;  // Start in code mode (within our brace)
+                int paren_depth = 0;  // Track parenthesis nesting at top level
 
                 while (*p && stack_top >= 0)
                 {
@@ -1094,6 +1167,18 @@ Expr *parser_primary(Parser *parser)
                         p++;
                         continue;
                     }
+                    if (*p == '(')
+                    {
+                        if (stack_top == 0) paren_depth++;
+                        p++;
+                        continue;
+                    }
+                    if (*p == ')')
+                    {
+                        if (stack_top == 0 && paren_depth > 0) paren_depth--;
+                        p++;
+                        continue;
+                    }
                     if (*p == '{')
                     {
                         // Nested brace in code
@@ -1126,9 +1211,9 @@ Expr *parser_primary(Parser *parser)
                         p++;
                         continue;
                     }
-                    if (*p == ':' && stack_top == 0 && colon_pos == NULL)
+                    if (*p == ':' && stack_top == 0 && paren_depth == 0 && colon_pos == NULL)
                     {
-                        // Track colon for format specifier (only at our expression level)
+                        // Track colon for format specifier (only at top level, outside parens)
                         colon_pos = p;
                     }
                     p++;

@@ -1,0 +1,6 @@
+fn main(): void =>
+    println(~0)
+    println(~1)
+    println(~(-1))
+    var x: int = 0xFF
+    println(~x & 0xFF)

@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{square(7)}\n")
+
+fn square(n: int): int => n * n

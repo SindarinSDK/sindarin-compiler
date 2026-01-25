@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 42
+    if x == 42 =>
+        print("match\n")
+    else =>
+        print("no match\n")

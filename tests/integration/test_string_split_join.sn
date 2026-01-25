@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "a,b,c"
+    var parts: str[] = s.split(",")
+    var joined: str = parts.join("-")
+    print($"{joined}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "aaa bbb aaa"
+    var r: str = s.replace("aaa", "xxx")
+    print($"{r}\n")

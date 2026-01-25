@@ -1,0 +1,9 @@
+fn main(): void =>
+    var arr: int[] = {}
+    var single: int[] = {0}
+    for var i: int = 0; i < 4; i++ =>
+        single = {i}
+        arr = arr.concat(single)
+    println(arr.length)
+    for var i: int = 0; i < arr.length; i++ =>
+        println(arr[i])

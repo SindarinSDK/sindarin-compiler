@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: int = 0xFF
+    var b: int = 0x0F
+    println(a & b)
+    println(0xAB & 0xF0)
+    println(7 & 3)

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = "one two three"
+    var r: str = s.replace("one", "1")
+    r = r.replace("two", "2")
+    r = r.replace("three", "3")
+    print($"{r}\n")

@@ -297,17 +297,25 @@ static void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_typ
         }
     }
 
-    // Check: nil can only be assigned to pointer types
-    if (init_type && init_type->kind == TYPE_NIL && decl_type->kind != TYPE_POINTER)
+    // Check: nil can only be assigned to reference/pointer types
+    if (init_type && init_type->kind == TYPE_NIL &&
+        decl_type->kind != TYPE_POINTER &&
+        decl_type->kind != TYPE_STRING &&
+        decl_type->kind != TYPE_ARRAY &&
+        decl_type->kind != TYPE_ANY &&
+        decl_type->kind != TYPE_FUNCTION)
     {
-        type_error(&stmt->as.var_decl.name, "'nil' can only be assigned to pointer types");
+        type_error(&stmt->as.var_decl.name, "'nil' can only be assigned to reference or pointer types");
         return;
     }
 
     // Allow assigning any concrete type to an 'any' variable (boxing)
     // Also allow assigning T[] to any[], T[][] to any[][], etc. (each element will be boxed)
     bool types_compatible = ast_type_equals(init_type, decl_type) ||
-                           (decl_type->kind == TYPE_ANY && init_type != NULL);
+                           (decl_type->kind == TYPE_ANY && init_type != NULL) ||
+                           (init_type != NULL && init_type->kind == TYPE_NIL &&
+                            (decl_type->kind == TYPE_POINTER || decl_type->kind == TYPE_STRING ||
+                             decl_type->kind == TYPE_ARRAY || decl_type->kind == TYPE_FUNCTION));
 
     // Check for any[] assignment compatibility at any nesting level
     if (!types_compatible && decl_type->kind == TYPE_ARRAY && init_type != NULL && init_type->kind == TYPE_ARRAY)
@@ -339,6 +347,22 @@ static void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_typ
         {
             types_compatible = true;
         }
+    }
+
+    // Allow int literal to be assigned to char variable (narrowing for character codes)
+    if (!types_compatible && decl_type->kind == TYPE_CHAR && init_type != NULL &&
+        (init_type->kind == TYPE_INT || init_type->kind == TYPE_BYTE))
+    {
+        types_compatible = true;
+        stmt->as.var_decl.initializer->expr_type = decl_type;
+        init_type = decl_type;
+    }
+
+    // Allow numeric widening promotions (int to double, int to long, float to double, etc.)
+    if (!types_compatible && decl_type != NULL && init_type != NULL &&
+        can_promote_numeric(init_type, decl_type))
+    {
+        types_compatible = true;
     }
 
     if (init_type && !types_compatible)
@@ -862,8 +886,9 @@ static void type_check_block(Stmt *stmt, SymbolTable *table, Type *return_type)
 
     if (is_private)
     {
-        DEBUG_VERBOSE("Entering private block - escape analysis will be enforced");
+        DEBUG_VERBOSE("Entering private block - strict escape analysis will be enforced");
         symbol_table_enter_arena(table);
+        symbol_table_enter_private(table);
     }
     else if (modifier == BLOCK_SHARED)
     {
@@ -880,6 +905,7 @@ static void type_check_block(Stmt *stmt, SymbolTable *table, Type *return_type)
 
     if (is_private)
     {
+        symbol_table_exit_private(table);
         symbol_table_exit_arena(table);
     }
 }

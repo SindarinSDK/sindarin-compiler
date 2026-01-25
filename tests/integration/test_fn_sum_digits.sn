@@ -1,0 +1,11 @@
+fn main(): void =>
+    print($"{sum_digits(123)}\n")
+    print($"{sum_digits(9999)}\n")
+
+fn sum_digits(n: int): int =>
+    var sum: int = 0
+    var x: int = n
+    while x > 0 =>
+        sum += x % 10
+        x = x / 10
+    return sum

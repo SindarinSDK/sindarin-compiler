@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: double[] = {1.5, 2.5, 3.5}
+    arr.reverse()
+    print($"{arr[0]} {arr[1]} {arr[2]}\n")

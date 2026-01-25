@@ -1,0 +1,10 @@
+fn main(): void =>
+    var i: int = 0
+    var count: int = 0
+    while i < 3 =>
+        var j: int = 0
+        while j < 3 =>
+            count++
+            j++
+        i++
+    print($"{count}\n")

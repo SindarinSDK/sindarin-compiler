@@ -1,0 +1,7 @@
+fn main(): void =>
+    print($"{power(2, 10)}\n")
+
+fn power(base: int, exp: int): int =>
+    if exp == 0 =>
+        return 1
+    return base * power(base, exp - 1)

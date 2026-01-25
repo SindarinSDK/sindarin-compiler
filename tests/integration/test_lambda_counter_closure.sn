@@ -1,0 +1,8 @@
+fn main(): void =>
+    var count: int = 0
+    var inc: fn(): int = fn() shared: int =>
+        count++
+        return count
+    print($"{inc()}\n")
+    print($"{inc()}\n")
+    print($"{inc()}\n")

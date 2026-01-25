@@ -1,0 +1,13 @@
+fn main(): void =>
+    var arr: int[] = {5, 2, 8, 1, 9}
+    for var i: int = 0; i < arr.length - 1; i++ =>
+        var minIdx: int = i
+        for var j: int = i + 1; j < arr.length; j++ =>
+            if arr[j] < arr[minIdx] =>
+                minIdx = j
+        var tmp: int = arr[i]
+        arr[i] = arr[minIdx]
+        arr[minIdx] = tmp
+    for var i: int = 0; i < arr.length; i++ =>
+        print($"{arr[i]} ")
+    print("\n")

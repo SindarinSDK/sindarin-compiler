@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: char[] = {'a', 'b', 'c'}
+    print($"{arr.length}\n")
+    print($"{arr[0]}{arr[1]}{arr[2]}\n")

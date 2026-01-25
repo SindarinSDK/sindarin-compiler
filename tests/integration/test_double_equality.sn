@@ -1,0 +1,8 @@
+fn main(): void =>
+    var a: double = 1.0
+    var b: double = 1.0
+    print($"{a == b}
+")
+    var c: double = 2.0
+    print($"{a == c}
+")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: long = 42l
+    var b: long = 42L
+    print($"{a}\n")
+    print($"{b}\n")
+    print($"{a == b}\n")

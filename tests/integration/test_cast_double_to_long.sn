@@ -1,0 +1,4 @@
+fn main(): void =>
+    var d: double = 12345.67
+    var l: long = d as long
+    print($"{l}\n")

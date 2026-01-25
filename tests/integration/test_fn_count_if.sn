@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10}
+    var c: int = count_if(arr, fn(x: int): bool => x > 5)
+    print($"{c}\n")
+
+fn count_if(arr: int[], pred: fn(int): bool): int =>
+    var count: int = 0
+    for var i: int = 0; i < arr.length; i++ =>
+        if pred(arr[i]) =>
+            count++
+    return count

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello world"
+    print($"{s.indexOf("xyz")}\n")
+    print($"{s.indexOf("hello")}\n")

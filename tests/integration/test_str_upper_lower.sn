@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "Hello World"
+    print($"{s.toUpper()}\n")
+    print($"{s.toLower()}\n")

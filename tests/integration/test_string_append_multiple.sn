@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = "a"
+    s = s.append("b")
+    s = s.append("c")
+    print($"{s}\n")
+    print($"{s.length}\n")

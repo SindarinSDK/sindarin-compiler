@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 10
+    x--
+    print($"{x}\n")
+    x--
+    print($"{x}\n")

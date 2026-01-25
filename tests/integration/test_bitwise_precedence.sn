@@ -1,0 +1,12 @@
+fn main(): void =>
+    // & binds tighter than |
+    println(0xFF & 0x0F | 0xF0)
+    // ^ binds between & and |
+    println(0x0F & 0xFF ^ 0x0F)
+    // << binds tighter than &
+    println(1 << 4 & 0xFF)
+    // Parentheses override precedence
+    println(1 << (3 & 7))
+    // Bitwise with comparison
+    var ok: bool = (0xFF & 0x0F) == 15
+    println(ok)

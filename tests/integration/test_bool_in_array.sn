@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: bool[] = {true, false, true, false, true}
+    var count: int = 0
+    for b in arr =>
+        if b =>
+            count++
+    print($"{count}\n")

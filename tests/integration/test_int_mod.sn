@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{10 % 3}\n")
+    print($"{7 % 2}\n")
+    print($"{9 % 3}\n")

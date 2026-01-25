@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "hello world"
+    var sub: str = s.substring(0, 5)
+    print($"{sub}\n")
+    print($"{sub.toUpper()}\n")

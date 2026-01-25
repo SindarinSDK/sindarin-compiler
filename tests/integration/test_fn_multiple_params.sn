@@ -1,0 +1,6 @@
+fn main(): void =>
+    var result: int = add3(1, 2, 3)
+    print($"{result}\n")
+
+fn add3(a: int, b: int, c: int): int =>
+    return a + b + c

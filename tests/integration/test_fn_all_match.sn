@@ -1,0 +1,13 @@
+fn main(): void =>
+    var arr: int[] = {2, 4, 6, 8}
+    var r1: bool = all_match(arr, fn(x: int): bool => x % 2 == 0)
+    print($"{r1}\n")
+    var arr2: int[] = {2, 4, 5, 8}
+    var r2: bool = all_match(arr2, fn(x: int): bool => x % 2 == 0)
+    print($"{r2}\n")
+
+fn all_match(arr: int[], pred: fn(int): bool): bool =>
+    for var i: int = 0; i < arr.length; i++ =>
+        if !pred(arr[i]) =>
+            return false
+    return true

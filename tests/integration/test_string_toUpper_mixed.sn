@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "Hello World 123"
+    print($"{s.toUpper()}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{3.14}\n")
+    print($"{0.0}\n")
+    print($"{-1.5}\n")

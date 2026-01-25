@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {}
+    arr.push(42)
+    var x: int = arr.pop()
+    print($"{x}\n")
+    print($"{arr.length}\n")

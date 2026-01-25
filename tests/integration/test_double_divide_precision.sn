@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: double = 1.0
+    var y: double = 3.0
+    var r: double = x / y
+    print($"{r}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    print($"{double_it(7)}\n")
+    print($"{triple_it(3)}\n")
+
+fn double_it(n: int): int => n * 2
+fn triple_it(n: int): int => n * 3

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    if true =>
+        var x: int = 50
+        print($"{x}\n")
+    print($"{x}\n")

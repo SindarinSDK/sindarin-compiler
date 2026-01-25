@@ -1,0 +1,9 @@
+fn main(): void =>
+    var result: int[] = gen_fib(10)
+    print($"{result.join(" ")}\n")
+
+fn gen_fib(n: int): int[] =>
+    var arr: int[] = {0, 1}
+    for var i: int = 2; i < n; i++ =>
+        arr.push(arr[i-1] + arr[i-2])
+    return arr

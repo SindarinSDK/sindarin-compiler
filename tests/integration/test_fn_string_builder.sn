@@ -1,0 +1,6 @@
+fn main(): void =>
+    var result: str = build_csv({1, 2, 3, 4, 5})
+    print($"{result}\n")
+
+fn build_csv(arr: int[]): str =>
+    return arr.join(",")

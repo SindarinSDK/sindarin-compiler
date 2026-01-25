@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var result: int[] = map_double(arr)
+    print($"{result.join(", ")}\n")
+
+fn map_double(arr: int[]): int[] =>
+    var result: int[] = {}
+    for x in arr =>
+        result.push(x * 2)
+    return result

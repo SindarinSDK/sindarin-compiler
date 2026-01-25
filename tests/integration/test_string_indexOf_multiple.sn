@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "abcabc"
+    print($"{s.indexOf("abc")}\n")
+    print($"{s.indexOf("bc")}\n")

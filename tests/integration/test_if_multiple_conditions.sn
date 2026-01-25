@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: int = 5
+    var b: int = 10
+    var c: int = 15
+    if a < b && b < c =>
+        print("ascending\n")

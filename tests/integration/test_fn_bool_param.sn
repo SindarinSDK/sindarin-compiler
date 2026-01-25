@@ -1,0 +1,9 @@
+fn main(): void =>
+    show_flag(true)
+    show_flag(false)
+
+fn show_flag(b: bool): void =>
+    if b =>
+        print("on\n")
+    else =>
+        print("off\n")

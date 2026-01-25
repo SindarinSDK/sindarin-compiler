@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = -2147483647
+    print($"{x}\n")
+    print($"{x + 1}\n")

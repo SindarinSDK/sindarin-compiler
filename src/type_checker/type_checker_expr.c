@@ -166,6 +166,32 @@ static Type *type_check_binary(Expr *expr, SymbolTable *table)
         DEBUG_VERBOSE("Returning BOOL type for logical operator");
         return ast_create_primitive_type(table->arena, TYPE_BOOL);
     }
+    else if (op == TOKEN_AMPERSAND || op == TOKEN_PIPE || op == TOKEN_CARET ||
+             op == TOKEN_LSHIFT || op == TOKEN_RSHIFT)
+    {
+        /* Bitwise operators require integer operands (not float/double) */
+        bool left_int = left->kind == TYPE_INT || left->kind == TYPE_INT32 ||
+                        left->kind == TYPE_UINT || left->kind == TYPE_UINT32 ||
+                        left->kind == TYPE_LONG || left->kind == TYPE_BYTE ||
+                        left->kind == TYPE_CHAR;
+        bool right_int = right->kind == TYPE_INT || right->kind == TYPE_INT32 ||
+                         right->kind == TYPE_UINT || right->kind == TYPE_UINT32 ||
+                         right->kind == TYPE_LONG || right->kind == TYPE_BYTE ||
+                         right->kind == TYPE_CHAR;
+        if (!left_int || !right_int)
+        {
+            type_error(expr->token, "Bitwise operators require integer operands");
+            return NULL;
+        }
+        Type *promoted = get_promoted_type(table->arena, left, right);
+        if (promoted == NULL)
+        {
+            type_error(expr->token, "Invalid types for bitwise operator");
+            return NULL;
+        }
+        DEBUG_VERBOSE("Returning promoted type for bitwise operator");
+        return promoted;
+    }
     else
     {
         type_error(expr->token, "Invalid binary operator");
@@ -200,6 +226,20 @@ static Type *type_check_unary(Expr *expr, SymbolTable *table)
             return NULL;
         }
         DEBUG_VERBOSE("Returning operand type for unary !");
+        return operand;
+    }
+    else if (expr->as.unary.operator == TOKEN_TILDE)
+    {
+        bool is_int = operand->kind == TYPE_INT || operand->kind == TYPE_INT32 ||
+                      operand->kind == TYPE_UINT || operand->kind == TYPE_UINT32 ||
+                      operand->kind == TYPE_LONG || operand->kind == TYPE_BYTE ||
+                      operand->kind == TYPE_CHAR;
+        if (!is_int)
+        {
+            type_error(expr->token, "Bitwise NOT (~) requires integer operand");
+            return NULL;
+        }
+        DEBUG_VERBOSE("Returning operand type for bitwise NOT");
         return operand;
     }
     type_error(expr->token, "Invalid unary operator");
@@ -405,26 +445,43 @@ static Type *type_check_assign(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
-    // Escape analysis: check if non-primitive is escaping a private block
-    // Symbol's arena_depth tells us when it was declared
-    // Current arena_depth tells us if we're in a private block
-    int current_depth = symbol_table_get_arena_depth(table);
-    if (current_depth > sym->arena_depth && !can_escape_private(value_type))
+    // Escape analysis for private blocks and loop arenas.
+    // Private blocks (strict): only primitives can escape.
+    // Loop arenas (lenient): strings/arrays can escape via cloning.
+    int current_private_depth = symbol_table_get_private_depth(table);
+    int current_arena_depth = symbol_table_get_arena_depth(table);
+
+    if (current_private_depth > sym->private_depth && !can_escape_private(value_type))
     {
+        // Escaping from a private block - strict rules apply, no cloning allowed
         const char *reason = get_private_escape_block_reason(value_type);
-        char error_msg[512];
-        if (reason != NULL)
+        char msg[512];
+        snprintf(msg, sizeof(msg), "Cannot assign to variable declared outside private block: %s",
+                 reason ? reason : "type contains heap data");
+        type_error(&expr->as.assign.name, msg);
+        return NULL;
+    }
+    else if (current_arena_depth > sym->arena_depth && !can_escape_private(value_type))
+    {
+        // Escaping from a loop arena (same private depth) - cloning allowed for strings/arrays
+        if (value_type->kind == TYPE_STRING || value_type->kind == TYPE_ARRAY)
         {
-            snprintf(error_msg, sizeof(error_msg),
-                     "Cannot assign to variable declared outside private block: %s", reason);
+            ast_expr_mark_escapes(value_expr);
+            DEBUG_VERBOSE("Loop arena escape (will clone): '%.*s' (arena_depth %d) assigned from depth %d",
+                          expr->as.assign.name.length, expr->as.assign.name.start,
+                          sym->arena_depth, current_arena_depth);
         }
         else
         {
-            snprintf(error_msg, sizeof(error_msg),
-                     "Cannot assign non-primitive type to variable declared outside private block");
+            // Other non-escapable types (structs with heap fields, etc.): error
+            // Use "private block" wording for consistency since loops have private arena semantics
+            const char *reason = get_private_escape_block_reason(value_type);
+            char msg[512];
+            snprintf(msg, sizeof(msg), "Cannot assign to variable declared outside private block: %s",
+                     reason ? reason : "type contains heap data");
+            type_error(&expr->as.assign.name, msg);
+            return NULL;
         }
-        type_error(&expr->as.assign.name, error_msg);
-        return NULL;
     }
 
     // Mark variable as pending if assigned a thread spawn (non-void)
@@ -2042,6 +2099,28 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                     type_error(expr->token, "Only += is valid for string compound assignment");
                     t = NULL;
                 }
+                break;
+            }
+
+            /* For bitwise compound operators, require integer types */
+            if (op == TOKEN_AMPERSAND || op == TOKEN_PIPE || op == TOKEN_CARET ||
+                op == TOKEN_LSHIFT || op == TOKEN_RSHIFT)
+            {
+                bool target_int = target_type->kind == TYPE_INT || target_type->kind == TYPE_INT32 ||
+                                  target_type->kind == TYPE_UINT || target_type->kind == TYPE_UINT32 ||
+                                  target_type->kind == TYPE_LONG || target_type->kind == TYPE_BYTE ||
+                                  target_type->kind == TYPE_CHAR;
+                bool value_int = value_type->kind == TYPE_INT || value_type->kind == TYPE_INT32 ||
+                                 value_type->kind == TYPE_UINT || value_type->kind == TYPE_UINT32 ||
+                                 value_type->kind == TYPE_LONG || value_type->kind == TYPE_BYTE ||
+                                 value_type->kind == TYPE_CHAR;
+                if (!target_int || !value_int)
+                {
+                    type_error(expr->token, "Bitwise compound assignment requires integer operands");
+                    t = NULL;
+                    break;
+                }
+                t = target_type;
                 break;
             }
 

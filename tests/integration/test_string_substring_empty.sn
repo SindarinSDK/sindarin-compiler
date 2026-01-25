@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "hello"
+    var r: str = s.substring(2, 2)
+    print($"[{r}]\n")
+    print($"{r.length}\n")

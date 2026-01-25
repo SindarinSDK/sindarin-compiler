@@ -1,0 +1,4 @@
+fn main(): void =>
+    var flag: bool = true
+    var x: int = 42
+    print($"flag={flag} x={x}\n")

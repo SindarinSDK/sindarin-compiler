@@ -1,0 +1,6 @@
+fn main(): void =>
+    var result: str = ""
+    result = result.append("a")
+    result = result.append("b")
+    result = result.append("c")
+    print($"{result}\n")

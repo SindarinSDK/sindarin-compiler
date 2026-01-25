@@ -1,0 +1,10 @@
+fn main(): void =>
+    var b: byte[] = {}
+    b.push(10)
+    b.push(20)
+    b.push(30)
+    var last: byte = b.pop()
+    print($"{last}
+")
+    print($"{b.length}
+")

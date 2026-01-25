@@ -1,0 +1,5 @@
+fn main(): void =>
+    var i: int = 42
+    var d: double = 42.0
+    print($"{i == 42}\n")
+    print($"{d == 42.0}\n")

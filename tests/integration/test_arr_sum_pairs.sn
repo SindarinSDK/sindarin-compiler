@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5, 6}
+    var sums: int[] = {}
+    for var i: int = 0; i < arr.length; i += 2 =>
+        sums.push(arr[i] + arr[i+1])
+    print($"{sums.join(" ")}\n")

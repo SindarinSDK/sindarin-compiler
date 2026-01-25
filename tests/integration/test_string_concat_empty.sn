@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = "hello"
+    var r: str = s + ""
+    var r2: str = "" + s
+    print($"{r}\n")
+    print($"{r2}\n")

@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {10, 20, 30, 40, 50}
+    var i: int = 2
+    print($"{arr[i]}\n")
+    print($"{arr[i + 1]}\n")

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var double_it: fn(int): int = fn(x) => x * 2
+    print($"{double_it(5)}\n")

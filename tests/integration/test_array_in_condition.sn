@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    if arr.length > 0 =>
+        print("nonempty\n")
+    if arr.contains(2) =>
+        print("has two\n")

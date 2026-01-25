@@ -1,0 +1,5 @@
+fn main(): void =>
+    print("start ")
+    var x: int = 42
+    print($"{x} ")
+    print("end\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: long = 9000000000l
+    var y: long = 3l
+    print($"{x / y}\n")

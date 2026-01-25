@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: char = 'a'
+    var b: char = 'b'
+    print($"{a < b}\n")
+    print($"{a == a}\n")

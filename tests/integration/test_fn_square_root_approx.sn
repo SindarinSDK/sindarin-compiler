@@ -1,0 +1,6 @@
+fn main(): void =>
+    var n: double = 25.0
+    var guess: double = n / 2.0
+    for var i: int = 0; i < 10; i++ =>
+        guess = (guess + n / guess) / 2.0
+    print($"{guess}\n")

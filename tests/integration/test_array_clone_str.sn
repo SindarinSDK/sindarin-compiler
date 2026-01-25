@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: str[] = {"hello", "world"}
+    var b: str[] = a.clone()
+    print($"{b[0]} {b[1]}\n")
+    print($"{b.length}\n")

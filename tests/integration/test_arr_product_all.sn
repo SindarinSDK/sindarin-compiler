@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {2, 3, 4, 5}
+    var prod: int = 1
+    for var i: int = 0; i < arr.length; i++ =>
+        prod *= arr[i]
+    print($"{prod}\n")

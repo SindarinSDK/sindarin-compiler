@@ -1,0 +1,7 @@
+fn main(): void =>
+    var src: int[] = {1, 2, 3, 4, 5, 6, 7, 8}
+    var evens: int[] = {}
+    for var i: int = 0; i < src.length; i++ =>
+        if src[i] % 2 == 0 =>
+            evens.push(src[i])
+    print($"{evens.join(" ")}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 15
+    if x < 5 || x > 10 =>
+        print("outside\n")
+    else =>
+        print("inside\n")

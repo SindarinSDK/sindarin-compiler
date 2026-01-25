@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var a: int = arr.pop()
+    var b: int = arr.pop()
+    var c: int = arr.pop()
+    print($"{a} {b} {c}\n")
+    print($"{arr.length}\n")

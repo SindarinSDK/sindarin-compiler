@@ -1,0 +1,10 @@
+fn main(): void =>
+    var x: int = 2
+    match x =>
+        1 =>
+            print("a\n")
+            print("b\n")
+        2 =>
+            print("c\n")
+            print("d\n")
+        else => print("e\n")

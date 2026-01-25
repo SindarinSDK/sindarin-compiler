@@ -1,0 +1,6 @@
+fn main(): void =>
+    print_header("Test")
+    print("body\n")
+
+fn print_header(title: str): void =>
+    print($"=== {title} ===\n")

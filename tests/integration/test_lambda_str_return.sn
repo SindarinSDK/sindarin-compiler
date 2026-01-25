@@ -1,0 +1,3 @@
+fn main(): void =>
+    var label: fn(int): str = fn(n: int): str => $"value={n}"
+    print($"{label(42)}\n")

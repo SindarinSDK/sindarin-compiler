@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "hello"
+    print($"{s.length}\n")
+    var e: str = ""
+    print($"{e.length}\n")

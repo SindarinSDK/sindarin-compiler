@@ -1,0 +1,5 @@
+fn main(): void =>
+    var b: byte = 200
+    var c: byte = 55
+    var sum: int = b + c
+    print($"{sum}\n")

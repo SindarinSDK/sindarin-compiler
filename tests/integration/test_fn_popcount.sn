@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{popcount(0)}\n")
+    print($"{popcount(7)}\n")
+    print($"{popcount(255)}\n")
+
+fn popcount(n: int): int =>
+    var count: int = 0
+    while n > 0 =>
+        if n % 2 == 1 =>
+            count++
+        n /= 2
+    return count

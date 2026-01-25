@@ -1,0 +1,8 @@
+fn main(): void =>
+    var total: int = 0
+    var add_to: fn(int): void = fn(x: int) shared: void =>
+        total = total + x
+    add_to(10)
+    add_to(20)
+    add_to(30)
+    print($"{total}\n")

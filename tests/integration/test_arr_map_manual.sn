@@ -1,0 +1,6 @@
+fn main(): void =>
+    var src: int[] = {1, 2, 3, 4, 5}
+    var doubled: int[] = {}
+    for var i: int = 0; i < src.length; i++ =>
+        doubled.push(src[i] * 2)
+    print($"{doubled.join(" ")}\n")

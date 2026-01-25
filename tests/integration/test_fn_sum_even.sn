@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{sum_even(10)}\n")
+
+fn sum_even(n: int): int =>
+    var sum: int = 0
+    for var i: int = 2; i <= n; i += 2 =>
+        sum += i
+    return sum

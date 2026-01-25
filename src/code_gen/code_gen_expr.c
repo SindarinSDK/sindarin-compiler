@@ -831,6 +831,11 @@ static char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
         case TOKEN_STAR: op_str = "*"; break;
         case TOKEN_SLASH: op_str = "/"; break;
         case TOKEN_MODULO: op_str = "%"; break;
+        case TOKEN_AMPERSAND: op_str = "&"; break;
+        case TOKEN_PIPE: op_str = "|"; break;
+        case TOKEN_CARET: op_str = "^"; break;
+        case TOKEN_LSHIFT: op_str = "<<"; break;
+        case TOKEN_RSHIFT: op_str = ">>"; break;
         default:
             fprintf(stderr, "Error: Unknown compound assignment operator\n");
             exit(1);

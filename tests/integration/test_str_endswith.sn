@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello world"
+    print($"{s.endsWith("world")}\n")
+    print($"{s.endsWith("hello")}\n")

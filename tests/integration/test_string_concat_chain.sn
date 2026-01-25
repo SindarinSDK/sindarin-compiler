@@ -1,0 +1,4 @@
+fn main(): void =>
+    var r: str = "a" + "b" + "c" + "d"
+    print($"{r}\n")
+    print($"{r.length}\n")

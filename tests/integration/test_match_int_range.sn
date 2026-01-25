@@ -1,0 +1,9 @@
+fn main(): void =>
+    for var i: int = 0; i < 5; i++ =>
+        match i =>
+            0 => print("zero ")
+            1 => print("one ")
+            2 => print("two ")
+            3 => print("three ")
+            else => print("other ")
+    print("\n")

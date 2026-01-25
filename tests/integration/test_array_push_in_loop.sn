@@ -1,0 +1,8 @@
+fn main(): void =>
+    var arr: int[] = {}
+    for var i: int = 0; i < 5; i++ =>
+        arr.push(i * 10)
+    print($"{arr.length}\n")
+    for x in arr =>
+        print($"{x} ")
+    print("\n")

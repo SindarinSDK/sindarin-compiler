@@ -1,0 +1,7 @@
+fn main(): void =>
+    repeat_print(5)
+
+fn repeat_print(n: int): void =>
+    for var i: int = 0; i < n; i++ =>
+        print("*")
+    print("\n")

@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{lcm(4, 6)}\n")
+    print($"{lcm(7, 5)}\n")
+
+fn lcm(a: int, b: int): int => a / gcd2(a, b) * b
+
+fn gcd2(a: int, b: int): int =>
+    while b != 0 =>
+        var t: int = b
+        b = a % b
+        a = t
+    return a

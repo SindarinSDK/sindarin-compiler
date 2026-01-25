@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 7
+    if x == 3 || x == 5 || x == 7 =>
+        print("prime\n")
+    else =>
+        print("not prime\n")

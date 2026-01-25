@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = ""
+    print($"{s.length}\n")
+    print($"{s.isBlank()}\n")
+    var r: str = s + "hello"
+    print($"{r}\n")

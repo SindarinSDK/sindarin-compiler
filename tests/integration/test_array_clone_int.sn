@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3}
+    var b: int[] = a.clone()
+    b[0] = 99
+    print($"{a[0]} {a[1]} {a[2]}\n")
+    print($"{b[0]} {b[1]} {b[2]}\n")

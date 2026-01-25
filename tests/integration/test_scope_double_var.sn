@@ -1,0 +1,5 @@
+fn main(): void =>
+    var pi: double = 3.14159
+    var r: double = 5.0
+    var area: double = pi * r * r
+    print($"{area}\n")

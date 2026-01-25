@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "  Hello World  "
+    var r: str = s.trim().toLower()
+    print($"{r}\n")

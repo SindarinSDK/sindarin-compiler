@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var doubled: int[] = arr.concat(arr)
+    print($"{doubled.length}\n")
+    print($"{doubled[0]} {doubled[3]}\n")

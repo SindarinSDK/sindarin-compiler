@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{array_max({3, 7, 2, 9, 4})}\n")
+
+fn array_max(arr: int[]): int =>
+    var m: int = arr[0]
+    for var i: int = 1; i < arr.length; i++ =>
+        if arr[i] > m =>
+            m = arr[i]
+    return m

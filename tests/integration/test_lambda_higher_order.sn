@@ -1,0 +1,6 @@
+fn main(): void =>
+    var double_fn: fn(int): int = fn(n) => n * 2
+    var result: int = apply_fn(5, double_fn)
+    print($"{result}\n")
+
+fn apply_fn(x: int, f: fn(int): int): int => f(x)

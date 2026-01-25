@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 42
+    print($"{-x}\n")
+    var y: int = -10
+    print($"{-y}\n")

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var x: long = 9223372036854775807l
+    print($"{x}\n")

@@ -1,0 +1,5 @@
+fn main(): void =>
+    var double_it: fn(int): int = fn(x: int): int => x * 2
+    var add_one: fn(int): int = fn(x: int): int => x + 1
+    var result: int = add_one(double_it(5))
+    print($"{result}\n")

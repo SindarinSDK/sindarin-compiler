@@ -1,0 +1,7 @@
+fn main(): void =>
+    var x: int = 5
+    var result: int = add1(double_fn(x))
+    print($"{result}\n")
+
+fn double_fn(n: int): int => n * 2
+fn add1(n: int): int => n + 1

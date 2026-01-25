@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: long = 1000000000l
+    var y: long = 2000000000l
+    var sum: long = x + y
+    print($"{sum}\n")

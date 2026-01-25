@@ -1,0 +1,7 @@
+fn main(): void =>
+    var flags: bool[] = {true, false, true, true, false}
+    var trueCount: int = 0
+    for var i: int = 0; i < flags.length; i++ =>
+        if flags[i] =>
+            trueCount++
+    print($"{trueCount}\n")

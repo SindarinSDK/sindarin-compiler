@@ -1,0 +1,8 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var sum: int = 0
+    for x in arr =>
+        if x == 4 =>
+            break
+        sum = sum + x
+    print($"{sum}\n")

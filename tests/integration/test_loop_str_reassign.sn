@@ -1,0 +1,5 @@
+fn main(): void =>
+    var result: str = ""
+    for var i: int = 0; i < 3; i++ =>
+        result = result + $"{i}"
+    println(result)

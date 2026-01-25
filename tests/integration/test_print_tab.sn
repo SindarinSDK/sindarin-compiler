@@ -1,0 +1,3 @@
+fn main(): void =>
+    print("a\tb\tc\n")
+    print("1\t2\t3\n")

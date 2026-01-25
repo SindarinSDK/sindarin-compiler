@@ -1,0 +1,9 @@
+fn main(): void =>
+    var squares: int[] = make_squares(5)
+    print($"{squares.join(" ")}\n")
+
+fn make_squares(n: int): int[] =>
+    var result: int[] = {}
+    for var i: int = 1; i <= n; i++ =>
+        result.push(i * i)
+    return result

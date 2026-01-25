@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = greeting("world")
+    print($"{s}\n")
+
+fn greeting(name: str): str =>
+    return $"hello {name}"

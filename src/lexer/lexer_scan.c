@@ -276,6 +276,148 @@ Token lexer_scan_identifier(Lexer *lexer)
 
 Token lexer_scan_number(Lexer *lexer)
 {
+    /* Check for hex (0x/0X), binary (0b/0B), or octal (0o/0O) prefix.
+     * At this point, the caller has already consumed the first digit into lexer->start[0],
+     * and lexer->current points to the next character (lexer_peek). */
+    if (lexer->start[0] == '0')
+    {
+        char prefix = lexer_peek(lexer);
+
+        /* Hex: 0x or 0X */
+        if (prefix == 'x' || prefix == 'X')
+        {
+            lexer_advance(lexer); /* consume 'x'/'X' */
+            if (!isxdigit(lexer_peek(lexer)))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Expected hex digit after '0%c'", prefix);
+                return lexer_error_token(lexer, error_buffer);
+            }
+            while (isxdigit(lexer_peek(lexer)))
+            {
+                lexer_advance(lexer);
+            }
+            /* Extract hex digits (skip "0x" prefix) */
+            char buffer[256];
+            const char *digits_start = lexer->start + 2;
+            int digits_len = (int)(lexer->current - digits_start);
+            /* Check for long suffix */
+            if (lexer_peek(lexer) == 'l' || lexer_peek(lexer) == 'L')
+            {
+                lexer_advance(lexer);
+                if (digits_len >= (int)sizeof(buffer))
+                {
+                    snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                    return lexer_error_token(lexer, error_buffer);
+                }
+                strncpy(buffer, digits_start, digits_len);
+                buffer[digits_len] = '\0';
+                Token token = lexer_make_token(lexer, TOKEN_LONG_LITERAL);
+                int64_t value = strtoll(buffer, NULL, 16);
+                token_set_int_literal(&token, value);
+                return token;
+            }
+            if (digits_len >= (int)sizeof(buffer))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            strncpy(buffer, digits_start, digits_len);
+            buffer[digits_len] = '\0';
+            Token token = lexer_make_token(lexer, TOKEN_INT_LITERAL);
+            int64_t value = strtoll(buffer, NULL, 16);
+            token_set_int_literal(&token, value);
+            return token;
+        }
+
+        /* Binary: 0b or 0B (disambiguate from byte suffix: only if next char is 0 or 1) */
+        if ((prefix == 'b' || prefix == 'B') &&
+            (lexer_peek_next(lexer) == '0' || lexer_peek_next(lexer) == '1'))
+        {
+            lexer_advance(lexer); /* consume 'b'/'B' */
+            while (lexer_peek(lexer) == '0' || lexer_peek(lexer) == '1')
+            {
+                lexer_advance(lexer);
+            }
+            /* Extract binary digits (skip "0b" prefix) */
+            char buffer[256];
+            const char *digits_start = lexer->start + 2;
+            int digits_len = (int)(lexer->current - digits_start);
+            /* Check for long suffix */
+            if (lexer_peek(lexer) == 'l' || lexer_peek(lexer) == 'L')
+            {
+                lexer_advance(lexer);
+                if (digits_len >= (int)sizeof(buffer))
+                {
+                    snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                    return lexer_error_token(lexer, error_buffer);
+                }
+                strncpy(buffer, digits_start, digits_len);
+                buffer[digits_len] = '\0';
+                Token token = lexer_make_token(lexer, TOKEN_LONG_LITERAL);
+                int64_t value = strtoll(buffer, NULL, 2);
+                token_set_int_literal(&token, value);
+                return token;
+            }
+            if (digits_len >= (int)sizeof(buffer))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            strncpy(buffer, digits_start, digits_len);
+            buffer[digits_len] = '\0';
+            Token token = lexer_make_token(lexer, TOKEN_INT_LITERAL);
+            int64_t value = strtoll(buffer, NULL, 2);
+            token_set_int_literal(&token, value);
+            return token;
+        }
+
+        /* Octal: 0o or 0O */
+        if (prefix == 'o' || prefix == 'O')
+        {
+            lexer_advance(lexer); /* consume 'o'/'O' */
+            if (!(lexer_peek(lexer) >= '0' && lexer_peek(lexer) <= '7'))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Expected octal digit after '0%c'", prefix);
+                return lexer_error_token(lexer, error_buffer);
+            }
+            while (lexer_peek(lexer) >= '0' && lexer_peek(lexer) <= '7')
+            {
+                lexer_advance(lexer);
+            }
+            /* Extract octal digits (skip "0o" prefix) */
+            char buffer[256];
+            const char *digits_start = lexer->start + 2;
+            int digits_len = (int)(lexer->current - digits_start);
+            /* Check for long suffix */
+            if (lexer_peek(lexer) == 'l' || lexer_peek(lexer) == 'L')
+            {
+                lexer_advance(lexer);
+                if (digits_len >= (int)sizeof(buffer))
+                {
+                    snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                    return lexer_error_token(lexer, error_buffer);
+                }
+                strncpy(buffer, digits_start, digits_len);
+                buffer[digits_len] = '\0';
+                Token token = lexer_make_token(lexer, TOKEN_LONG_LITERAL);
+                int64_t value = strtoll(buffer, NULL, 8);
+                token_set_int_literal(&token, value);
+                return token;
+            }
+            if (digits_len >= (int)sizeof(buffer))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            strncpy(buffer, digits_start, digits_len);
+            buffer[digits_len] = '\0';
+            Token token = lexer_make_token(lexer, TOKEN_INT_LITERAL);
+            int64_t value = strtoll(buffer, NULL, 8);
+            token_set_int_literal(&token, value);
+            return token;
+        }
+    }
+
     while (isdigit(lexer_peek(lexer)))
     {
         lexer_advance(lexer);

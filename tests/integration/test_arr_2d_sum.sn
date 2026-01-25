@@ -1,0 +1,7 @@
+fn main(): void =>
+    var grid: int[][] = {{1, 2}, {3, 4}, {5, 6}}
+    var sum: int = 0
+    for var i: int = 0; i < 3; i++ =>
+        for var j: int = 0; j < 2; j++ =>
+            sum += grid[i][j]
+    print($"{sum}\n")

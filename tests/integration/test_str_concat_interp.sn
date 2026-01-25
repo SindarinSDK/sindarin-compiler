@@ -1,0 +1,4 @@
+fn main(): void =>
+    var a: str = "foo"
+    var b: str = "bar"
+    print($"{a}{b}\n")

@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 10
+    match x > 5 =>
+        true => print("big\n")
+        false => print("small\n")

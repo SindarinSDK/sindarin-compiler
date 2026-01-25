@@ -1,0 +1,4 @@
+fn main(): void =>
+    var square: fn(int): int = fn(x: int): int => x * x
+    print($"{square(3)}\n")
+    print($"{square(7)}\n")

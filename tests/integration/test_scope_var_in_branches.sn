@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 7
+    if x > 5 =>
+        var big: int = x * 10
+        print($"{big}\n")
+    if x < 10 =>
+        var small: int = x * 2
+        print($"{small}\n")

@@ -42,6 +42,13 @@ void symbol_table_enter_arena(SymbolTable *table);
 void symbol_table_exit_arena(SymbolTable *table);
 int symbol_table_get_arena_depth(SymbolTable *table);
 
+/* Private block depth tracking for strict escape analysis.
+ * Private blocks have strict escape rules: only primitives can escape.
+ * Loop arenas use arena_depth but not private_depth, allowing cloning. */
+void symbol_table_enter_private(SymbolTable *table);
+void symbol_table_exit_private(SymbolTable *table);
+int symbol_table_get_private_depth(SymbolTable *table);
+
 /* Scope depth tracking for type checking context.
  * Unlike arena_depth (which tracks private/arena blocks for memory management),
  * scope_depth tracks general block/function nesting depth.

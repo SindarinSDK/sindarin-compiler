@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    if !(x > 10) =>
+        print("not big\n")
+    if !(x < 0) =>
+        print("not negative\n")

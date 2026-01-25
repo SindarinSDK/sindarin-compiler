@@ -1,0 +1,3 @@
+fn main(): void =>
+    print("")
+    print("done\n")

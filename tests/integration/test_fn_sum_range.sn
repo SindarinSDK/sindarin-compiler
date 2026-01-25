@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{sum_range(1, 100)}\n")
+
+fn sum_range(lo: int, hi: int): int =>
+    var sum: int = 0
+    for var i: int = lo; i <= hi; i++ =>
+        sum += i
+    return sum

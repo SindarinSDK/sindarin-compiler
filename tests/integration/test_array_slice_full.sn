@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var s: int[] = arr[0..3]
+    print($"{s.length}\n")
+    print($"{s[0]} {s[1]} {s[2]}\n")

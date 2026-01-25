@@ -1,0 +1,6 @@
+fn main(): void =>
+    var flag: bool = false
+    if !flag =>
+        print("not set\n")
+    else =>
+        print("set\n")

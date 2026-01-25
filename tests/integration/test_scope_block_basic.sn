@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 10
+    if true =>
+        var y: int = 20
+        print($"{x + y}\n")
+    print($"{x}\n")

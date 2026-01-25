@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int32 = -100i32
+    var y: int32 = 50i32
+    print($"{x + y}\n")

@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: int[] = {}
+    var b: int[] = {1, ...a, 2}
+    print($"{b.length}\n")
+    print($"{b[0]} {b[1]}\n")

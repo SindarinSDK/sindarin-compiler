@@ -3,13 +3,17 @@
 // to assign non-primitive types (arrays, strings) to variables declared
 // outside a private block.
 //
+// Only primitive types (int, long, double, float, char, byte, bool) can
+// escape private blocks. Strings, arrays, and other heap-allocated types
+// cannot escape.
+//
 // EXPECTED BEHAVIOR: This test should FAIL COMPILATION with an error about
 // non-primitive types not being able to escape private blocks.
 
 fn main(): int =>
     print("Test non-primitive escape analysis:\n\n")
 
-    // Attempt 1: Try to escape a string from private block
+    // Attempt to escape a string from private block
     var escaped_str: str = ""
     private =>
         var temp_str: str = "hello from private"

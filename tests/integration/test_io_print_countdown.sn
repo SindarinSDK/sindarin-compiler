@@ -1,0 +1,6 @@
+fn main(): void =>
+    var i: int = 3
+    while i > 0 =>
+        print($"{i}...")
+        i--
+    print("go!\n")

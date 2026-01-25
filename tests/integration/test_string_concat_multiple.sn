@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: str = "a"
+    var b: str = "b"
+    var c: str = "c"
+    var result: str = a + b + c
+    print($"{result}\n")

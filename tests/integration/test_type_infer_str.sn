@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s = "hello"
+    print($"{s}\n")

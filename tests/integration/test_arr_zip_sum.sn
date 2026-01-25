@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3, 4}
+    var b: int[] = {10, 20, 30, 40}
+    var c: int[] = {}
+    for var i: int = 0; i < 4; i++ =>
+        c.push(a[i] + b[i])
+    print($"{c.join(" ")}\n")

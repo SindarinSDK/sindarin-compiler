@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: str[] = {"a", "b", "c"}
+    print($"{arr.length}\n")
+    arr.clear()
+    print($"{arr.length}\n")
+    arr.push("x")
+    print($"{arr.length}\n")

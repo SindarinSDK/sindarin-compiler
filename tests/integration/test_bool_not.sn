@@ -1,0 +1,4 @@
+fn main(): void =>
+    var a: bool = true
+    print($"{!a}\n")
+    print($"{!false}\n")

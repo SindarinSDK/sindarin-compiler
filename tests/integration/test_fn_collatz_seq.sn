@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {}
+    var n: int = 10
+    arr.push(n)
+    while n != 1 =>
+        if n % 2 == 0 =>
+            n /= 2
+        else =>
+            n = 3 * n + 1
+        arr.push(n)
+    print($"{arr.join(" ")}\n")

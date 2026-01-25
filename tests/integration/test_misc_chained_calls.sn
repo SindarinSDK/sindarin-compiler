@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{add_one(add_one(add_one(0)))}\n")
+
+fn add_one(x: int): int => x + 1

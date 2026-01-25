@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 42
+    var s: str = "test"
+    var b: bool = true
+    print($"{x} {s} {b}\n")

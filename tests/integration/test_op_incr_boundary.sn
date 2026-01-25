@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 0
+    x++
+    print($"{x}\n")
+    x--
+    print($"{x}\n")
+    x--
+    print($"{x}\n")

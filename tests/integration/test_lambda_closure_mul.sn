@@ -1,0 +1,5 @@
+fn main(): void =>
+    var factor: int = 3
+    var mulBy: fn(int): int = fn(x: int) shared: int => x * factor
+    print($"{mulBy(10)}\n")
+    print($"{mulBy(7)}\n")

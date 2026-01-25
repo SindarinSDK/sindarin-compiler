@@ -1,0 +1,6 @@
+fn main(): void =>
+    var b: byte[] = {10, 20, 30, 40, 50}
+    print($"{b.indexOf(30)}
+")
+    print($"{b.indexOf(99)}
+")

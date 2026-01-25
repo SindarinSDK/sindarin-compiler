@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    x = inc(inc(inc(x)))
+    print($"{x}\n")
+
+fn inc(n: int): int => n + 1

@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{is_armstrong(153)}\n")
+    print($"{is_armstrong(123)}\n")
+
+fn is_armstrong(n: int): bool =>
+    var sum: int = 0
+    var tmp: int = n
+    while tmp > 0 =>
+        var d: int = tmp % 10
+        sum += d * d * d
+        tmp /= 10
+    return sum == n

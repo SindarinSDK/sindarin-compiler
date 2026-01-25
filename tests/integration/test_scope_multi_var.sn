@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: int = 1
+    var b: int = 2
+    var c: int = 3
+    print($"{a + b + c}\n")
+    var d: int = a + b
+    print($"{d + c}\n")

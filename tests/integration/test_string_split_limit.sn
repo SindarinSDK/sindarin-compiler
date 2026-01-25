@@ -1,0 +1,7 @@
+fn main(): void =>
+    var s: str = "a.b.c.d.e"
+    var parts: str[] = s.split(".")
+    print($"{parts.length}\n")
+    for p in parts =>
+        print($"{p} ")
+    print("\n")

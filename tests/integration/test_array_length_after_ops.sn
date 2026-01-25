@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    print($"{arr.length}\n")
+    arr.push(4)
+    print($"{arr.length}\n")
+    arr.pop()
+    print($"{arr.length}\n")
+    arr.insert(99, 0)
+    print($"{arr.length}\n")
+    arr.remove(0)
+    print($"{arr.length}\n")

@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: bool = 5 > 3
+    var b: bool = 10 == 10
+    var c: bool = a && b
+    print($"{a}\n")
+    print($"{b}\n")
+    print($"{c}\n")

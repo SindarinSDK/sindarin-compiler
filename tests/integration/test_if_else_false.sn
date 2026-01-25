@@ -1,0 +1,5 @@
+fn main(): void =>
+    if false =>
+        print("true\n")
+    else =>
+        print("false\n")

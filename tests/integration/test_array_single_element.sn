@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: int[] = {42}
+    var b: str[] = {"only"}
+    var c: bool[] = {true}
+    print($"{a[0]}\n")
+    print($"{b[0]}\n")
+    print($"{c[0]}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 3
+    match x =>
+        1, 2 => print("low\n")
+        3, 4 => print("mid\n")
+        else => print("high\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: str[] = {}
+    arr.push("hello")
+    arr.push("world")
+    print($"{arr.length}\n")
+    print($"{arr[0]} {arr[1]}\n")

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var x: uint32 = 4000000000u32
+    print($"{x}\n")

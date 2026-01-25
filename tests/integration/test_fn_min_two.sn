@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{min_val(3, 7)}\n")
+    print($"{min_val(10, 2)}\n")
+
+fn min_val(a: int, b: int): int =>
+    if a < b =>
+        return a
+    return b

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {10, 20, 30}
+    var sum: int = 0
+    for x in arr =>
+        sum = sum + x
+    print($"{sum}\n")

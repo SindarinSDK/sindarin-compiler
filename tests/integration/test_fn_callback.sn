@@ -1,0 +1,9 @@
+fn main(): void =>
+    do_twice(say_hello)
+
+fn say_hello(): void =>
+    print("hello\n")
+
+fn do_twice(f: fn(): void): void =>
+    f()
+    f()

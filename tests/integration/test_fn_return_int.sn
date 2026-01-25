@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = double_val(5)
+    print($"{x}\n")
+
+fn double_val(n: int): int =>
+    return n * 2

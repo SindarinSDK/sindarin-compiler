@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: str[] = {"hello", "world", "foo"}
+    var last: str = arr.pop()
+    print($"{last}\n")
+    print($"{arr.length}\n")

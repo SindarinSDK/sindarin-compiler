@@ -1,0 +1,8 @@
+fn main(): void =>
+    var a: int = 10
+    var b: int = 3
+    print($"{a + b}\n")
+    print($"{a - b}\n")
+    print($"{a * b}\n")
+    print($"{a / b}\n")
+    print($"{a % b}\n")

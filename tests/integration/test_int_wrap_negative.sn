@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 5
+    var y: int = 10
+    var diff: int = x - y
+    print($"{diff}\n")

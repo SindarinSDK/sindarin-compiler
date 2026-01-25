@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var rest: int[] = drop(arr, 2)
+    print($"{rest.join(" ")}\n")
+
+fn drop(arr: int[], n: int): int[] =>
+    var result: int[] = {}
+    for var i: int = n; i < arr.length; i++ =>
+        result.push(arr[i])
+    return result

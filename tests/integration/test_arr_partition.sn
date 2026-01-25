@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {5, 2, 8, 1, 9, 3, 7}
+    var lo: int[] = {}
+    var hi: int[] = {}
+    for var i: int = 0; i < arr.length; i++ =>
+        if arr[i] <= 5 =>
+            lo.push(arr[i])
+        else =>
+            hi.push(arr[i])
+    print($"{lo.join(" ")}\n")
+    print($"{hi.join(" ")}\n")

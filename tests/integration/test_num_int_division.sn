@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{7 / 2}\n")
+    print($"{-7 / 2}\n")
+    print($"{15 / 4}\n")

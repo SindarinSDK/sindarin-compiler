@@ -1,0 +1,9 @@
+fn main(): void =>
+    countdown(5)
+
+fn countdown(n: int): void =>
+    if n <= 0 =>
+        print("done\n")
+        return
+    print($"{n} ")
+    countdown(n - 1)

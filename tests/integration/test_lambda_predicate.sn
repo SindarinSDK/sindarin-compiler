@@ -1,0 +1,5 @@
+fn main(): void =>
+    var is_pos: fn(int): bool = fn(x: int): bool => x > 0
+    print($"{is_pos(5)}\n")
+    print($"{is_pos(-3)}\n")
+    print($"{is_pos(0)}\n")

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "hello world"
+    print($"{s.substring(0, 5)}\n")

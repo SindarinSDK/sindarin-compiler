@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: str = ""
+    var b: str = "  "
+    var c: str = "hi"
+    print($"{a.isBlank()}\n")
+    print($"{b.isBlank()}\n")
+    print($"{c.isBlank()}\n")

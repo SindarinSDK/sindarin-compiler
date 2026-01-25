@@ -1,0 +1,3 @@
+fn main(): void =>
+    var arr: char[] = {}
+    print($"{arr.length}\n")
