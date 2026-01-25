@@ -641,7 +641,9 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
 
     /* Increment entry lease and block lease count */
     atomic_fetch_add(&entry->leased, 1);
-    atomic_fetch_add(&entry->block->lease_count, 1);
+    if (entry->block != NULL) {
+        atomic_fetch_add(&entry->block->lease_count, 1);
+    }
 
     return entry->ptr;
 }
@@ -656,7 +658,9 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
     /* Decrement entry lease and block lease count */
     atomic_fetch_sub(&entry->leased, 1);
-    atomic_fetch_sub(&entry->block->lease_count, 1);
+    if (entry->block != NULL) {
+        atomic_fetch_sub(&entry->block->lease_count, 1);
+    }
 }
 
 /* Pin from any arena in the tree (self, parents, or root).
