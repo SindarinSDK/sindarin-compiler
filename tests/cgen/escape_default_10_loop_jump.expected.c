@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 10 Nested Loop Arena Escape (Jump)
+    //
+    // Tests that string values can jump directly from innermost loop (depth 11)
+    // to any outer scope, skipping intermediate arenas.
     RtHandle __sn__to_d1 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__a = 1LL;
@@ -86,6 +90,7 @@ RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
                                                                                                                     while (rt_le_long(__sn__j, 1LL)) {
                                                                                                                         RtManagedArena *__loop_arena_18__ = rt_managed_arena_create_child(__loop_arena_16__);
                                                                                                                         {
+                                                                                                                            // All jumps originate from depth 11
                                                                                                                             (__sn__to_d10 = rt_managed_clone(__loop_arena_16__, __loop_arena_18__, rt_managed_strdup(__loop_arena_18__, RT_HANDLE_NULL, "d11->d10")));
                                                                                                                             (__sn__to_d9 = rt_managed_clone(__loop_arena_14__, __loop_arena_18__, rt_managed_strdup(__loop_arena_18__, RT_HANDLE_NULL, "d11->d9")));
                                                                                                                             (__sn__to_d8 = rt_managed_clone(__loop_arena_12__, __loop_arena_18__, rt_managed_strdup(__loop_arena_18__, RT_HANDLE_NULL, "d11->d8")));

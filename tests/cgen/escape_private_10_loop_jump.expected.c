@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 long long __sn__compute_with_jumps(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
+    // Code Generation Test: 10 Nested Loop Arena Escape (Private, Jump)
+    //
+    // Tests that primitives can jump directly from innermost loop to any
+    // outer scope in private functions through 10 nested loops.
     long long __sn__to_d1 = 0LL;
     {
         long long __sn__a = 1LL;
@@ -86,6 +90,7 @@ long long __sn__compute_with_jumps(RtManagedArena *__caller_arena__) {
                                                                                                                     while (rt_le_long(__sn__j, 1LL)) {
                                                                                                                         RtManagedArena *__loop_arena_18__ = rt_managed_arena_create_child(__loop_arena_16__);
                                                                                                                         {
+                                                                                                                            // All jumps from depth 11
                                                                                                                             (__sn__to_d10 = 10LL);
                                                                                                                             (__sn__to_d9 = 9LL);
                                                                                                                             (__sn__to_d8 = 8LL);
@@ -201,6 +206,8 @@ int main() {
     }
     __intercept_result;
 });
+    // After jumps: d10=10, d9=9+10=19, d8=8+19=27, d7=7+27=34, d6=6+34=40
+    // d5=5+40=45, d4=4+45=49, d3=3+49=52, d2=2+52=54, d1=1+54=55
     rt_println(({
         char *_p0 = rt_to_string_long(__local_arena__, __sn__computed);
         rt_str_concat(__local_arena__, "Computed checksum: ", _p0);

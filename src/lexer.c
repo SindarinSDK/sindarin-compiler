@@ -16,6 +16,7 @@ Token lexer_scan_token(Lexer *lexer)
     {
         int current_indent;
         const char *temp;
+        int top;  /* Declare top here so it's in scope for process_dedent */
 
         // Check if we have pending indent from previous multi-dedent
         if (lexer->pending_indent >= 0)
@@ -60,18 +61,70 @@ Token lexer_scan_token(Lexer *lexer)
             }
             if (is_comment_line)
             {
-                DEBUG_VERBOSE("Line %d: Ignoring line (whitespace or comment only)", lexer->line);
-                lexer->current = indent_start;
-                lexer->start = indent_start;
-                goto skip_indent_processing;
+                DEBUG_VERBOSE("Line %d: Comment-only line", lexer->line);
+                if (lexer_peek(lexer) == '/' && lexer_peek_next(lexer) == '/')
+                {
+                    /* // comment - handle INDENT/DEDENT if needed, then emit TOKEN_COMMENT.
+                     * If indent differs from stack top, we need to emit INDENT/DEDENT first. */
+                    top = lexer->indent_stack[lexer->indent_size - 1];
+                    if (current_indent > top)
+                    {
+                        /* Need INDENT - emit it, comment will be emitted on next scan */
+                        lexer->current = temp;
+                        lexer->start = temp;
+                        lexer->pending_standalone_comment = 1;
+                        goto emit_indent;
+                    }
+                    if (current_indent < top)
+                    {
+                        /* Need DEDENT - process normally, comment will be emitted
+                         * after dedent processing completes on subsequent scan.
+                         * IMPORTANT: Must set current and start before goto to ensure
+                         * lexer_make_token has valid pointers for the DEDENT token. */
+                        lexer->current = temp;
+                        lexer->start = temp;
+                        goto process_dedent;
+                    }
+                    /* Same indentation - emit comment directly.
+                     * We handle standalone comments here rather than in the '/' case
+                     * because the '/' case skips inline comments. */
+                    lexer->at_line_start = 0;
+                    lexer->start = lexer->current;
+                    lexer_advance(lexer); /* skip first / */
+                    lexer_advance(lexer); /* skip second / */
+                    const char *comment_start = lexer->current;
+                    while (lexer_peek(lexer) != '\n' && !lexer_is_at_end(lexer))
+                    {
+                        lexer_advance(lexer);
+                    }
+                    Token token = lexer_make_token(lexer, TOKEN_COMMENT);
+                    int comment_length = (int)(lexer->current - comment_start);
+                    char *comment_text = arena_alloc(lexer->arena, comment_length + 1);
+                    if (comment_text != NULL)
+                    {
+                        memcpy(comment_text, comment_start, comment_length);
+                        comment_text[comment_length] = '\0';
+                        token_set_string_literal(&token, comment_text);
+                    }
+                    DEBUG_VERBOSE("Line %d: Emitting COMMENT (standalone)", lexer->line);
+                    return token;
+                }
+                else
+                {
+                    /* Empty line or # comment - skip entirely */
+                    lexer->current = indent_start;
+                    lexer->start = indent_start;
+                    goto skip_indent_processing;
+                }
             }
         }
 
         lexer->current = temp;
         lexer->start = lexer->current;
-        int top = lexer->indent_stack[lexer->indent_size - 1];
+        top = lexer->indent_stack[lexer->indent_size - 1];
         DEBUG_VERBOSE("Line %d: Top of indent_stack = %d, indent_size = %d",
                       lexer->line, top, lexer->indent_size);
+emit_indent:
         if (current_indent > top)
         {
             if (lexer->indent_size >= lexer->indent_capacity)
@@ -102,7 +155,8 @@ Token lexer_scan_token(Lexer *lexer)
                           lexer->line, current_indent);
             return lexer_make_token(lexer, TOKEN_INDENT);
         }
-        else if (current_indent < top)
+process_dedent:
+        if (current_indent < top)
         {
             lexer->indent_size--;
             int new_top = lexer->indent_stack[lexer->indent_size - 1];
@@ -207,6 +261,49 @@ skip_indent_processing:
         DEBUG_VERBOSE("Line %d: Emitting MODULO", lexer->line);
         return lexer_make_token(lexer, TOKEN_MODULO);
     case '/':
+        if (lexer_match(lexer, '/'))
+        {
+            // Check if this is a standalone comment (after INDENT for comment line)
+            if (lexer->pending_standalone_comment)
+            {
+                lexer->pending_standalone_comment = 0;
+                const char *comment_start = lexer->current;
+                while (lexer_peek(lexer) != '\n' && !lexer_is_at_end(lexer))
+                {
+                    lexer_advance(lexer);
+                }
+                Token token = lexer_make_token(lexer, TOKEN_COMMENT);
+                int comment_length = (int)(lexer->current - comment_start);
+                char *comment_text = arena_alloc(lexer->arena, comment_length + 1);
+                if (comment_text != NULL)
+                {
+                    memcpy(comment_text, comment_start, comment_length);
+                    comment_text[comment_length] = '\0';
+                    token_set_string_literal(&token, comment_text);
+                }
+                DEBUG_VERBOSE("Line %d: Emitting COMMENT (after INDENT)", lexer->line);
+                return token;
+            }
+            // // comment - skip to end of line
+            // Inline comments (after code) are stripped; standalone comments
+            // on their own line were already handled in the at_line_start block
+            while (lexer_peek(lexer) != '\n' && !lexer_is_at_end(lexer))
+            {
+                lexer_advance(lexer);
+            }
+            // Return NEWLINE if we're at end of line
+            if (lexer_peek(lexer) == '\n')
+            {
+                lexer_advance(lexer);
+                lexer->line++;
+                lexer->at_line_start = 1;
+                DEBUG_VERBOSE("Line %d: Skipped inline comment, emitting NEWLINE", lexer->line - 1);
+                return lexer_make_token(lexer, TOKEN_NEWLINE);
+            }
+            // At EOF after comment
+            DEBUG_VERBOSE("Line %d: Skipped inline comment, at EOF", lexer->line);
+            return lexer_make_token(lexer, TOKEN_EOF);
+        }
         if (lexer_match(lexer, '='))
         {
             DEBUG_VERBOSE("Line %d: Emitting SLASH_EQUAL", lexer->line);

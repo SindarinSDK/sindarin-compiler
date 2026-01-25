@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_chained(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 3 Nested Loop Arena Escape (Chained)
+    //
+    // Tests that string values escape correctly through 3 nested loops,
+    // one level at a time: depth 4 -> 3 -> 2 -> 1
     RtHandle __sn__result = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__i = 1LL;
@@ -56,6 +60,7 @@ RtHandle __sn__build_chained(RtManagedArena *__caller_arena__) {
         _r = rt_str_concat(__loop_arena_4__, _r, "]");
         rt_managed_strdup(__loop_arena_4__, RT_HANDLE_NULL, _r);
     });
+                                        // Escape from d4 to d3
                                         (__sn__middle = rt_managed_clone(__loop_arena_2__, __loop_arena_4__, rt_str_concat_h(__loop_arena_4__, RT_HANDLE_NULL, (char *)rt_managed_pin(__loop_arena_4__, rt_str_concat_h(__loop_arena_4__, RT_HANDLE_NULL, (char *)rt_managed_pin(__loop_arena_2__, __sn__middle), (char *)rt_managed_pin(__loop_arena_4__, __sn__inner))), "->d3 ")));
                                     }
                                 __loop_cleanup_4__:

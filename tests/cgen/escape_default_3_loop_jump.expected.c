@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     RtHandle _return_value = RT_HANDLE_NULL;
+    // Code Generation Test: 3 Nested Loop Arena Escape (Jump)
+    //
+    // Tests that string values can jump directly from innermost loop (depth 4)
+    // to any outer scope, skipping intermediate arenas.
     RtHandle __sn__to_d1 = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, "");
     {
         long long __sn__i = 1LL;
@@ -44,6 +48,7 @@ RtHandle __sn__build_with_jumps(RtManagedArena *__caller_arena__) {
                                 while (rt_le_long(__sn__k, 2LL)) {
                                     RtManagedArena *__loop_arena_4__ = rt_managed_arena_create_child(__loop_arena_2__);
                                     {
+                                        // All jumps originate from depth 4
                                         RtHandle __sn__tag = ({
         char *_p0 = rt_to_string_long(__loop_arena_4__, __sn__i);
         char *_p1 = rt_to_string_long(__loop_arena_4__, __sn__j);

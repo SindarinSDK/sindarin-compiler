@@ -26,6 +26,10 @@ static RtAny __thunk_0(void);
 long long __sn__compute_with_jumps(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
+    // Code Generation Test: 3 Nested Loop Arena Escape (Private, Jump)
+    //
+    // Tests that primitives can jump directly from innermost loop to any
+    // outer scope in private functions. Only primitives can escape.
     long long __sn__to_d1 = 0LL;
     {
         long long __sn__i = 1LL;
@@ -44,6 +48,7 @@ long long __sn__compute_with_jumps(RtManagedArena *__caller_arena__) {
                                 while (rt_le_long(__sn__k, 2LL)) {
                                     RtManagedArena *__loop_arena_4__ = rt_managed_arena_create_child(__loop_arena_2__);
                                     {
+                                        // All jumps originate from depth 4
                                         long long __sn__value = rt_add_long(rt_add_long(rt_mul_long(__sn__i, 100LL), rt_mul_long(__sn__j, 10LL)), __sn__k);
                                         (__sn__to_d3 = rt_add_long(__sn__to_d3, __sn__value));
                                         (__sn__to_d2 = rt_add_long(__sn__to_d2, rt_mul_long(__sn__value, 2LL)));
@@ -97,6 +102,9 @@ int main() {
     }
     __intercept_result;
 });
+    // d3 contributions: (111+112)*1 + (121+122)*1 + (211+212)*1 + (221+222)*1 = 223+243+423+443 = 1332
+    // d2 contributions: (111+112)*2 + 223 + (121+122)*2 + 243 + ... = 446+223 + 486+243 + 846+423 + 886+443 = 3996
+    // d1 contributions: (111+112+121+122+211+212+221+222)*3 + 3996 = 1332*3 + 3996 = 3996 + 3996 = 7992
     rt_println(({
         char *_p0 = rt_to_string_long(__local_arena__, __sn__computed);
         rt_str_concat(__local_arena__, "Computed checksum: ", _p0);

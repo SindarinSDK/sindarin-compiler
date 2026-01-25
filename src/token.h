@@ -128,6 +128,7 @@ typedef enum
     TOKEN_PRAGMA_SOURCE,      /* #pragma source "file.c" */
     TOKEN_PRAGMA_PACK,        /* #pragma pack(1) or #pragma pack() */
     TOKEN_PRAGMA_ALIAS,       /* #pragma alias "c_name" for next declaration */
+    TOKEN_COMMENT,            /* // comment (preserved in code generation) */
     TOKEN_ERROR
 } SnTokenType;
 

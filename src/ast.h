@@ -661,6 +661,10 @@ struct Stmt
     StmtType type;
     Token *token;
 
+    /* Comments attached to this statement (// comments are preserved in codegen) */
+    const char **comments;
+    int comment_count;
+
     union
     {
         ExprStmt expression;
