@@ -127,6 +127,7 @@ static bool clean_arena(RtManagedArena *ma)
 void *rt_managed_cleaner_thread(void *arg)
 {
     RtManagedArena *root = (RtManagedArena *)arg;
+    if (root == NULL) return NULL;
 
     while (atomic_load(&root->running)) {
         bool did_work = false;
@@ -314,6 +315,7 @@ static void retire_drained_blocks(RtManagedArena *ma)
 void *rt_managed_compactor_thread(void *arg)
 {
     RtManagedArena *root = (RtManagedArena *)arg;
+    if (root == NULL) return NULL;
 
     while (atomic_load(&root->running)) {
         /* Snapshot the tree */
