@@ -55,12 +55,12 @@ static void test_code_gen_array_literal(void)
     const char *expected = get_expected(&arena,
                                   "rt_array_create_long(NULL, 2, (long long[]){1LL, 2LL});\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -134,17 +134,19 @@ static void test_code_gen_array_var_declaration_with_init(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * __sn__arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL}); __sn__arr;
+    // Global scope handles can't use function-call initializers in C.
+    // Arrays with initializers get deferred initialization in main().
     const char *expected = get_expected(&arena,
-                                  "long long * __sn__arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL});\n"
+                                  "RtHandle __sn__arr = RT_HANDLE_NULL;\n"
                                   "__sn__arr;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
+                                  "    __sn__arr = rt_array_create_long(NULL, 2, (long long[]){3LL, 4LL});\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -193,17 +195,17 @@ static void test_code_gen_array_var_declaration_without_init(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * __sn__empty_arr = NULL; __sn__empty_arr;
+    // Expected: RtHandle __sn__empty_arr = RT_HANDLE_NULL; __sn__empty_arr;
     const char *expected = get_expected(&arena,
-                                  "long long * __sn__empty_arr = NULL;\n"
+                                  "RtHandle __sn__empty_arr = RT_HANDLE_NULL;\n"
                                   "__sn__empty_arr;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -295,17 +297,18 @@ static void test_code_gen_array_access(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL}); __sn__arr[1];
+    // Global arrays with initializers get deferred initialization in main()
     const char *expected = get_expected(&arena,
-                                  "long long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL});\n"
+                                  "RtHandle __sn__arr = RT_HANDLE_NULL;\n"
                                   "__sn__arr[1LL];\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
+                                  "    __sn__arr = rt_array_create_long(NULL, 3, (long long[]){10LL, 20LL, 30LL});\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -410,19 +413,20 @@ static void test_code_gen_array_pop(void)
     code_gen_cleanup(&gen);
     symbol_table_cleanup(&sym_table);
 
-    // Expected: long __sn__result = rt_array_pop_long(__sn__arr); __sn__result; __sn__arr;
+    // Global arrays with initializers get deferred initialization in main()
     const char *expected = get_expected(&arena,
-                                  "long long * __sn__arr = rt_array_create_long(NULL, 3, (long long[]){1LL, 2LL, 3LL});\n"
-                                  "long long __sn__result = rt_array_pop_long(__sn__arr);\n"
+                                  "RtHandle __sn__arr = RT_HANDLE_NULL;\n"
+                                  "long long __sn__result = rt_array_pop_long_h(__main_arena__, __sn__arr);\n"
                                   "__sn__result;\n"
                                   "__sn__arr;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
+                                  "    __sn__arr = rt_array_create_long(NULL, 3, (long long[]){1LL, 2LL, 3LL});\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

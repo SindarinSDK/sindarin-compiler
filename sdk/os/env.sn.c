@@ -9,8 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 
-/* Include runtime arena for proper memory management */
+/* Include runtime arena and array for proper memory management */
 #include "runtime/runtime_arena.h"
+#include "runtime/runtime_array_h.h"
 
 /* ============================================================================
  * Platform-Specific Includes
@@ -162,7 +163,7 @@ void sn_env_set(const char *name, const char *value)
     _putenv_s(name, value);
 }
 
-char ***sn_env_all(RtArena *arena)
+RtHandle *sn_env_all(RtManagedArena *arena)
 {
     if (arena == NULL) {
         return NULL;
@@ -185,20 +186,21 @@ char ***sn_env_all(RtArena *arena)
         ptr += strlen(ptr) + 1;
     }
 
-    /* Create outer array to hold pairs */
-    char ***result = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + count * sizeof(char **));
-    if (result == NULL) {
+    /* Create outer array with metadata to hold inner array handles */
+    size_t outer_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+    void *outer_raw = rt_arena_alloc((RtArena *)arena, outer_size);
+    if (outer_raw == NULL) {
         FreeEnvironmentStringsA(envStrings);
         fprintf(stderr, "sn_env_all: allocation failed\n");
         exit(1);
     }
 
-    /* Set up array metadata */
-    RtArrayMetadata *meta = (RtArrayMetadata *)result;
-    meta->arena = arena;
-    meta->size = count;
-    meta->capacity = count;
-    result = (char ***)(meta + 1);
+    /* Set up outer array metadata */
+    RtArrayMetadata *outer_meta = (RtArrayMetadata *)outer_raw;
+    outer_meta->arena = (RtArena *)arena;
+    outer_meta->size = count;
+    outer_meta->capacity = count;
+    RtHandle *outer_data = (RtHandle *)(outer_meta + 1);
 
     /* Second pass: populate array */
     ptr = envStrings;
@@ -210,19 +212,24 @@ char ***sn_env_all(RtArena *arena)
             if (eq != NULL) {
                 size_t name_len = eq - ptr;
 
-                /* Create pair array [name, value] */
-                char **pair = sn_create_string_array(arena, 2);
-                pair[0] = rt_arena_strndup(arena, ptr, name_len);
-                pair[1] = rt_arena_strdup(arena, eq + 1);
+                /* Create pair as string handles */
+                RtHandle name_h = rt_managed_strndup(arena, RT_HANDLE_NULL, ptr, name_len);
+                RtHandle value_h = rt_managed_strdup(arena, RT_HANDLE_NULL, eq + 1);
 
-                result[idx++] = pair;
+                /* Create inner array of 2 string handles */
+                RtHandle pair_handles[2] = { name_h, value_h };
+                RtHandle inner_h = rt_array_create_uint32_h(arena, 2, pair_handles);
+                outer_data[idx++] = inner_h;
             }
         }
         ptr += strlen(ptr) + 1;
     }
 
+    /* Update actual count in case some entries were skipped */
+    outer_meta->size = idx;
+
     FreeEnvironmentStringsA(envStrings);
-    return result;
+    return outer_data;
 }
 
 #else
@@ -288,7 +295,7 @@ void sn_env_set(const char *name, const char *value)
     }
 }
 
-char ***sn_env_all(RtArena *arena)
+RtHandle *sn_env_all(RtManagedArena *arena)
 {
     if (arena == NULL) {
         return NULL;
@@ -300,42 +307,45 @@ char ***sn_env_all(RtArena *arena)
         count++;
     }
 
-    /* Create outer array to hold pairs */
-    char ***result = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + count * sizeof(char **));
-    if (result == NULL) {
+    /* Create outer array with metadata to hold inner array handles */
+    size_t outer_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+    void *outer_raw = rt_arena_alloc((RtArena *)arena, outer_size);
+    if (outer_raw == NULL) {
         fprintf(stderr, "sn_env_all: allocation failed\n");
         exit(1);
     }
 
-    /* Set up array metadata */
-    RtArrayMetadata *meta = (RtArrayMetadata *)result;
-    meta->arena = arena;
-    meta->size = count;
-    meta->capacity = count;
-    result = (char ***)(meta + 1);
+    /* Set up outer array metadata */
+    RtArrayMetadata *outer_meta = (RtArrayMetadata *)outer_raw;
+    outer_meta->arena = (RtArena *)arena;
+    outer_meta->size = count;
+    outer_meta->capacity = count;
+    RtHandle *outer_data = (RtHandle *)(outer_meta + 1);
 
-    /* Populate array */
+    /* Populate outer array with inner string array handles */
     for (size_t i = 0; i < count; i++) {
         const char *entry = environ[i];
         const char *eq = strchr(entry, '=');
 
-        /* Create pair array [name, value] */
-        char **pair = sn_create_string_array(arena, 2);
-
+        /* Create inner pair as handle array using handle-based allocation */
+        RtHandle name_h, value_h;
         if (eq != NULL) {
             size_t name_len = eq - entry;
-            pair[0] = rt_arena_strndup(arena, entry, name_len);
-            pair[1] = rt_arena_strdup(arena, eq + 1);
+            name_h = rt_managed_strndup(arena, RT_HANDLE_NULL, entry, name_len);
+            value_h = rt_managed_strdup(arena, RT_HANDLE_NULL, eq + 1);
         } else {
             /* Malformed entry (no '='), use empty value */
-            pair[0] = rt_arena_strdup(arena, entry);
-            pair[1] = rt_arena_strdup(arena, "");
+            name_h = rt_managed_strdup(arena, RT_HANDLE_NULL, entry);
+            value_h = rt_managed_strdup(arena, RT_HANDLE_NULL, "");
         }
 
-        result[i] = pair;
+        /* Create inner array of 2 string handles using handle-based allocation */
+        RtHandle pair_handles[2] = { name_h, value_h };
+        RtHandle inner_h = rt_array_create_uint32_h(arena, 2, pair_handles);
+        outer_data[i] = inner_h;
     }
 
-    return result;
+    return outer_data;
 }
 
 #endif

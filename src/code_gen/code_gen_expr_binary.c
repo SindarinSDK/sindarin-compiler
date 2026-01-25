@@ -47,10 +47,18 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         return folded;
     }
 
-    char *left_str = code_gen_expression(gen, expr->left);
-    char *right_str = code_gen_expression(gen, expr->right);
+    /* For string/array operations, operands must be raw pointers (char *, type *).
+     * Force expr_as_handle=false so handle variables get pinned and produce raw pointers. */
     Type *left_type = expr->left->expr_type;
     Type *right_type = expr->right->expr_type;
+    bool saved_as_handle = gen->expr_as_handle;
+    if ((left_type && is_handle_type(left_type)) || (right_type && is_handle_type(right_type)))
+    {
+        gen->expr_as_handle = false;
+    }
+    char *left_str = code_gen_expression(gen, expr->left);
+    char *right_str = code_gen_expression(gen, expr->right);
+    gen->expr_as_handle = saved_as_handle;
     /* Use promoted type for mixed numeric operations */
     Type *type = get_binary_promoted_type(left_type, right_type);
     SnTokenType op = expr->operator;
@@ -67,6 +75,27 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
     if (type->kind == TYPE_ARRAY && (op == TOKEN_EQUAL_EQUAL || op == TOKEN_BANG_EQUAL))
     {
         Type *elem_type = type->as.array.element_type;
+
+        /* String arrays in arena mode: use handle-based comparison.
+         * Re-evaluate operands in handle mode since they were pinned above. */
+        if (elem_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+        {
+            gen->expr_as_handle = true;
+            char *left_h = code_gen_expression(gen, expr->left);
+            char *right_h = code_gen_expression(gen, expr->right);
+            gen->expr_as_handle = saved_as_handle;
+            if (op == TOKEN_EQUAL_EQUAL)
+            {
+                return arena_sprintf(gen->arena, "rt_array_eq_string_h(%s, %s, %s)",
+                                     ARENA_VAR(gen), left_h, right_h);
+            }
+            else
+            {
+                return arena_sprintf(gen->arena, "(!rt_array_eq_string_h(%s, %s, %s))",
+                                     ARENA_VAR(gen), left_h, right_h);
+            }
+        }
+
         const char *arr_suffix;
         switch (elem_type->kind)
         {
@@ -142,21 +171,46 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
     }
 
     char *op_str = code_gen_binary_op_str(op);
-    char *suffix = code_gen_type_suffix(type);
+    /* Arithmetic/comparison runtime functions: "long", "double", or "string" */
+    char *suffix = "long";
+    if (type != NULL) {
+        if (type->kind == TYPE_DOUBLE || type->kind == TYPE_FLOAT)
+            suffix = "double";
+        else if (type->kind == TYPE_STRING)
+            suffix = "string";
+        else if (type->kind == TYPE_BOOL)
+            suffix = "bool";
+    }
     if (op == TOKEN_PLUS && type->kind == TYPE_STRING)
     {
+        /* In arena context: use handle-based concat.
+         * The operands are already raw pointers (pinned by variable expression).
+         * If expr_as_handle: return RtHandle directly.
+         * Otherwise: wrap result with pin to get raw pointer. */
+        if (gen->current_arena_var != NULL)
+        {
+            if (gen->expr_as_handle)
+            {
+                return arena_sprintf(gen->arena, "rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s)",
+                                     ARENA_VAR(gen), left_str, right_str);
+            }
+            else
+            {
+                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s))",
+                                     ARENA_VAR(gen), ARENA_VAR(gen), left_str, right_str);
+            }
+        }
+        /* Non-arena context (legacy): use old approach */
         bool free_left = expression_produces_temp(expr->left);
         bool free_right = expression_produces_temp(expr->right);
-        // Optimization: Direct call if no temps (common for literals/variables).
         if (!free_left && !free_right)
         {
-            return arena_sprintf(gen->arena, "rt_str_concat(%s, %s, %s)", ARENA_VAR(gen), left_str, right_str);
+            return arena_sprintf(gen->arena, "rt_str_concat(NULL, %s, %s)", left_str, right_str);
         }
-        // Otherwise, use temps/block for safe freeing (skip freeing in arena context).
-        char *free_l_str = (free_left && gen->current_arena_var == NULL) ? "rt_free_string(_left); " : "";
-        char *free_r_str = (free_right && gen->current_arena_var == NULL) ? "rt_free_string(_right); " : "";
-        return arena_sprintf(gen->arena, "({ char *_left = %s; char *_right = %s; char *_res = rt_str_concat(%s, _left, _right); %s%s _res; })",
-                             left_str, right_str, ARENA_VAR(gen), free_l_str, free_r_str);
+        char *free_l_str = free_left ? "rt_free_string(_left); " : "";
+        char *free_r_str = free_right ? "rt_free_string(_right); " : "";
+        return arena_sprintf(gen->arena, "({ char *_left = %s; char *_right = %s; char *_res = rt_str_concat(NULL, _left, _right); %s%s _res; })",
+                             left_str, right_str, free_l_str, free_r_str);
     }
     else
     {

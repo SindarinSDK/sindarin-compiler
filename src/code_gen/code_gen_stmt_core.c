@@ -76,10 +76,12 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_BOOL ||
                                 result_type->kind == TYPE_BYTE ||
                                 result_type->kind == TYPE_CHAR);
+            bool is_handle = gen->current_arena_var != NULL &&
+                            (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
 
-            if (is_primitive)
+            if (is_primitive || is_handle)
             {
-                /* For primitives, we declared two variables: __var_pending__ (RtThreadHandle*)
+                /* For primitives/handle types, we declared two variables: __var_pending__ (RtThreadHandle*)
                  * and var (actual type). Sync the pending handle and assign to the typed var.
                  * Pattern: var = *(type *)sync(__var_pending__, ...) */
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
@@ -88,8 +90,8 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* For reference types (arrays, strings), direct assignment works
-                 * because both are pointer types */
+                /* For reference types (arrays, strings) without arena mode,
+                 * direct assignment works because both are pointer types */
                 indented_fprintf(gen, indent, "%s = (%s)rt_thread_sync_with_result(%s, %s, %s);\n",
                     var_name, c_type, var_name, ARENA_VAR(gen), rt_type);
             }
@@ -123,10 +125,12 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_BOOL ||
                                 result_type->kind == TYPE_BYTE ||
                                 result_type->kind == TYPE_CHAR);
+            bool is_handle = gen->current_arena_var != NULL &&
+                            (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
 
-            if (is_primitive)
+            if (is_primitive || is_handle)
             {
-                /* For primitives, we declared two variables: __var_pending__ (RtThreadHandle*)
+                /* For primitives/handle types, we declared two variables: __var_pending__ (RtThreadHandle*)
                  * and var (actual type). Sync the pending handle and assign to the typed var.
                  * Pattern: var = *(type *)sync(__var_pending__, ...) */
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
@@ -135,8 +139,8 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* For reference types (arrays, strings), direct assignment works
-                 * because both are pointer types */
+                /* For reference types (arrays, strings) without arena mode,
+                 * direct assignment works because both are pointer types */
                 indented_fprintf(gen, indent, "%s = (%s)rt_thread_sync_with_result(%s, %s, %s);\n",
                     var_name, c_type, var_name, ARENA_VAR(gen), rt_type);
             }
@@ -212,14 +216,15 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         if (is_empty)
         {
             const char *type_c = get_c_type(gen->arena, stmt->type);
-            symbol_table_add_symbol_full(gen->symbol_table, stmt->name, stmt->type, SYMBOL_LOCAL, stmt->mem_qualifier);
+            /* Global variables use SYMBOL_GLOBAL for correct pinning with __main_arena__ */
+            symbol_table_add_symbol_full(gen->symbol_table, stmt->name, stmt->type, SYMBOL_GLOBAL, stmt->mem_qualifier);
             /* Set sync modifier if present */
             if (stmt->sync_modifier == SYNC_ATOMIC)
             {
                 Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
                 if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
             }
-            indented_fprintf(gen, indent, "%s %s = NULL;\n", type_c, var_name);
+            indented_fprintf(gen, indent, "%s %s = RT_HANDLE_NULL;\n", type_c, var_name);
             return;
         }
         // Non-empty global arrays will fall through and get the function call initializer,
@@ -241,11 +246,15 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                               stmt->type->kind == TYPE_BOOL ||
                               stmt->type->kind == TYPE_BYTE ||
                               stmt->type->kind == TYPE_CHAR);
+    /* Handle types (array/string in arena mode) also need a pending variable
+     * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
+    bool is_spawn_handle_result = gen->current_arena_var != NULL &&
+                                  (stmt->type->kind == TYPE_STRING || stmt->type->kind == TYPE_ARRAY);
 
     const char *type_c = get_c_type(gen->arena, stmt->type);
 
-    // For thread spawn with primitive result, generate two declarations
-    if (is_thread_spawn && is_primitive_type)
+    // For thread spawn with primitive/handle result, generate two declarations
+    if (is_thread_spawn && (is_primitive_type || is_spawn_handle_result))
     {
         char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
         char *init_str = code_gen_expression(gen, stmt->initializer);
@@ -276,12 +285,24 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     }
 
     // Add to symbol table with effective qualifier so accesses are dereferenced correctly
-    symbol_table_add_symbol_full(gen->symbol_table, stmt->name, stmt->type, SYMBOL_LOCAL, effective_qual);
-    /* Set sync modifier if present */
-    if (stmt->sync_modifier == SYNC_ATOMIC)
+    // Global variables use SYMBOL_GLOBAL for correct pinning with __main_arena__
+    SymbolKind sym_kind = is_global_scope ? SYMBOL_GLOBAL : SYMBOL_LOCAL;
+    symbol_table_add_symbol_full(gen->symbol_table, stmt->name, stmt->type, sym_kind, effective_qual);
     {
         Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
-        if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
+        if (sym != NULL)
+        {
+            /* Track which arena owns this handle for correct pinning */
+            if (gen->current_arena_var != NULL && is_handle_type(stmt->type))
+            {
+                sym->pin_arena = ARENA_VAR(gen);
+            }
+            /* Set sync modifier if present */
+            if (stmt->sync_modifier == SYNC_ATOMIC)
+            {
+                sym->sync_mod = SYNC_ATOMIC;
+            }
+        }
     }
 
     char *init_str;
@@ -294,14 +315,91 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             gen->recursive_lambda_id = -1;  /* Will be set by lambda codegen if recursive */
         }
 
-        init_str = code_gen_expression(gen, stmt->initializer);
-        // Wrap string literals in rt_to_string_string to create heap-allocated copies
-        // This is needed because string variables may be freed/reassigned later.
-        // Skip this at global scope since function calls aren't valid C constant initializers.
-        // Global string literals are fine as-is (static storage, never freed).
-        if (stmt->type->kind == TYPE_STRING && stmt->initializer->type == EXPR_LITERAL && !is_global_scope)
+        /* For handle-type variables, evaluate initializer in handle mode
+         * so that expression generators return RtHandle expressions.
+         * Exception: 'as val' needs raw pointer for clone functions.
+         * Also: when boxing an array into 'any', use handle mode
+         * so the RtHandle value gets stored (not a pinned pointer).
+         * Note: strings stay as raw char* in 'any' boxes because runtime
+         * functions (like rt_any_promote) need real pointers. */
+        bool prev_as_handle = gen->expr_as_handle;
+        if (!is_global_scope && gen->current_arena_var != NULL
+            && stmt->mem_qualifier != MEM_AS_VAL)
         {
-            init_str = arena_sprintf(gen->arena, "rt_to_string_string(%s, %s)", ARENA_VAR(gen), init_str);
+            if (is_handle_type(stmt->type))
+            {
+                gen->expr_as_handle = true;
+            }
+            else if (stmt->type->kind == TYPE_ANY && stmt->initializer != NULL &&
+                     stmt->initializer->expr_type != NULL &&
+                     stmt->initializer->expr_type->kind == TYPE_ARRAY)
+            {
+                gen->expr_as_handle = true;
+            }
+        }
+
+        init_str = code_gen_expression(gen, stmt->initializer);
+
+        gen->expr_as_handle = prev_as_handle;
+
+        // When a local string variable is initialized from a parameter handle,
+        // copy it to the local arena. Handles are arena-scoped and the parameter's
+        // handle belongs to the caller's arena, so it can't be pinned locally.
+        if (!is_global_scope && gen->current_arena_var != NULL &&
+            stmt->type->kind == TYPE_STRING && stmt->mem_qualifier != MEM_AS_VAL &&
+            stmt->initializer != NULL && stmt->initializer->type == EXPR_VARIABLE)
+        {
+            Symbol *init_sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->initializer->as.variable.name);
+            if (init_sym != NULL && init_sym->kind == SYMBOL_PARAM)
+            {
+                init_str = arena_sprintf(gen->arena,
+                    "rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(__caller_arena__, %s))",
+                    ARENA_VAR(gen), init_str);
+            }
+        }
+
+        // Global-scope handle variables (string/array) can't use function calls or
+        // non-constant initializers in C. Use RT_HANDLE_NULL and record deferred
+        // initialization to be emitted at the start of main().
+        if (is_global_scope && is_handle_type(stmt->type))
+        {
+            // Record deferred initialization: the original init_str contains the
+            // expression that should be assigned in main().
+            // For strings, wrap in rt_managed_strdup; for arrays, use as-is.
+            char *deferred_value;
+            if (stmt->type->kind == TYPE_STRING)
+            {
+                deferred_value = arena_sprintf(gen->arena,
+                    "rt_managed_strdup(__main_arena__, RT_HANDLE_NULL, %s)", init_str);
+            }
+            else
+            {
+                // Array - the init_str should already include the arena call
+                // but needs to use __main_arena__ instead
+                deferred_value = arena_strdup(gen->arena, init_str);
+            }
+
+            // Grow the deferred list if needed
+            if (gen->deferred_global_count >= gen->deferred_global_capacity)
+            {
+                int new_cap = gen->deferred_global_capacity == 0 ? 8 : gen->deferred_global_capacity * 2;
+                char **new_names = arena_alloc(gen->arena, new_cap * sizeof(char *));
+                char **new_values = arena_alloc(gen->arena, new_cap * sizeof(char *));
+                for (int i = 0; i < gen->deferred_global_count; i++)
+                {
+                    new_names[i] = gen->deferred_global_names[i];
+                    new_values[i] = gen->deferred_global_values[i];
+                }
+                gen->deferred_global_names = new_names;
+                gen->deferred_global_values = new_values;
+                gen->deferred_global_capacity = new_cap;
+            }
+            gen->deferred_global_names[gen->deferred_global_count] = var_name;
+            gen->deferred_global_values[gen->deferred_global_count] = deferred_value;
+            gen->deferred_global_count++;
+
+            // Use RT_HANDLE_NULL for the declaration
+            init_str = arena_strdup(gen->arena, "RT_HANDLE_NULL");
         }
 
         // Handle boxing when assigning to 'any' type
@@ -366,7 +464,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 }
                 if (conv_func != NULL)
                 {
-                    init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    if (gen->current_arena_var != NULL) {
+                        init_str = arena_sprintf(gen->arena, "%s_h(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    } else {
+                        init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    }
                 }
             }
             // Check for 2D array: any[][] = T[][]
@@ -409,7 +511,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 }
                 if (conv_func != NULL)
                 {
-                    init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    if (gen->current_arena_var != NULL) {
+                        init_str = arena_sprintf(gen->arena, "%s_h(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    } else {
+                        init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    }
                 }
             }
             // Check for 1D array: any[] = T[]
@@ -446,12 +552,34 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 }
                 if (conv_func != NULL)
                 {
-                    init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    if (gen->current_arena_var != NULL)
+                    {
+                        if (src_elem->kind == TYPE_STRING)
+                        {
+                            /* String arrays store RtHandle elements — use dedicated _h function.
+                             * Clone result to handle for the declaration. */
+                            init_str = arena_sprintf(gen->arena,
+                                "rt_array_clone_void_h(%s, RT_HANDLE_NULL, rt_array_to_any_string_h(%s, %s))",
+                                ARENA_VAR(gen), ARENA_VAR(gen), init_str);
+                        }
+                        else
+                        {
+                            /* Non-string types: pin source, legacy convert, clone to handle. */
+                            const char *elem_c = get_c_type(gen->arena, src_elem);
+                            init_str = arena_sprintf(gen->arena,
+                                "rt_array_clone_void_h(%s, RT_HANDLE_NULL, %s(%s, (%s *)rt_managed_pin_array(%s, %s)))",
+                                ARENA_VAR(gen), conv_func, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), init_str);
+                        }
+                    }
+                    else
+                    {
+                        init_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+                    }
                 }
             }
         }
 
-        // Handle 'as val' - create a copy for arrays and strings
+        // Handle 'as val' - create a copy for arrays and strings (handle-based)
         if (stmt->mem_qualifier == MEM_AS_VAL)
         {
             if (stmt->type->kind == TYPE_ARRAY)
@@ -459,11 +587,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 // Get element type suffix for the clone function
                 Type *elem_type = stmt->type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s(%s, %s)", suffix, ARENA_VAR(gen), init_str);
+                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s)", suffix, ARENA_VAR(gen), init_str);
             }
             else if (stmt->type->kind == TYPE_STRING)
             {
-                init_str = arena_sprintf(gen->arena, "rt_to_string_string(%s, %s)", ARENA_VAR(gen), init_str);
+                init_str = arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), init_str);
             }
         }
     }
@@ -650,10 +778,10 @@ void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent)
 
     indented_fprintf(gen, indent, "{\n");
 
-    // For private blocks, create a local arena
+    // For private blocks, create a child arena
     if (is_private)
     {
-        indented_fprintf(gen, indent + 1, "RtArena *%s = rt_arena_create(NULL);\n", gen->current_arena_var);
+        indented_fprintf(gen, indent + 1, "RtManagedArena *%s = rt_managed_arena_create_child(__local_arena__);\n", gen->current_arena_var);
     }
 
     for (int i = 0; i < stmt->count; i++)
@@ -662,10 +790,10 @@ void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent)
     }
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
 
-    // For private blocks, destroy the arena
+    // For private blocks, destroy the child arena
     if (is_private)
     {
-        indented_fprintf(gen, indent + 1, "rt_arena_destroy(%s);\n", gen->current_arena_var);
+        indented_fprintf(gen, indent + 1, "rt_managed_arena_destroy_child(%s);\n", gen->current_arena_var);
         symbol_table_exit_arena(gen->symbol_table);
         /* Pop arena name from stack */
         pop_arena_from_stack(gen);
@@ -726,6 +854,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (is_private) gen->in_private_context = true;
     gen->in_shared_context = is_shared;
     gen->current_arena_var = "__local_arena__";
+    gen->function_arena_var = "__local_arena__";
 
     // Special case for main: always use "int" return type in C for standard entry point.
     const char *ret_c = is_main ? "int" : get_c_type(gen->arena, gen->current_return_type);
@@ -759,7 +888,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
         // All non-main functions receive caller's arena as first parameter
         if (!is_main)
         {
-            fprintf(gen->output, "RtArena *__caller_arena__");
+            fprintf(gen->output, "RtManagedArena *__caller_arena__");
             if (stmt->param_count > 0)
             {
                 fprintf(gen->output, ", ");
@@ -768,7 +897,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
         for (int i = 0; i < stmt->param_count; i++)
         {
-            const char *param_type_c = get_c_type(gen->arena, stmt->params[i].type);
+            const char *param_type_c = get_c_param_type(gen->arena, stmt->params[i].type);
             char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
 
             /* 'as ref' primitive and struct parameters become pointer types */
@@ -807,17 +936,66 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     //   private: new arena with caller as parent (strict escape rules enforced at compile time)
     if (is_main)
     {
-        indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(NULL);\n");
+        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create();\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
+        // Emit deferred global initializations (handle-type globals that couldn't
+        // be initialized at file scope because C doesn't allow non-constant initializers)
+        for (int i = 0; i < gen->deferred_global_count; i++)
+        {
+            indented_fprintf(gen, 1, "%s = %s;\n",
+                             gen->deferred_global_names[i],
+                             gen->deferred_global_values[i]);
+        }
     }
     else if (is_shared)
     {
-        indented_fprintf(gen, 1, "RtArena *__local_arena__ = __caller_arena__;\n");
+        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = __caller_arena__;\n");
     }
     else
     {
-        // default or private - create new arena with caller as parent
-        indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(__caller_arena__);\n");
+        // default or private - create new child arena
+        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n");
+    }
+
+    // Clone handle-type parameters from __caller_arena__ to __local_arena__.
+    // This ensures handles passed to sub-functions (which receive __local_arena__
+    // as their __caller_arena__) can be correctly resolved.
+    if (!is_main && !is_shared && !main_has_args)
+    {
+        for (int i = 0; i < stmt->param_count; i++)
+        {
+            Type *param_type = stmt->params[i].type;
+            if (param_type == NULL) continue;
+
+            if (param_type->kind == TYPE_STRING)
+            {
+                /* Strings are immutable — cloning is safe and ensures the handle
+                 * is resolvable when passed to sub-functions via __local_arena__. */
+                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
+                indented_fprintf(gen, 1, "%s = rt_managed_clone(__local_arena__, __caller_arena__, %s);\n",
+                                 param_name, param_name);
+                /* Update symbol kind so pin calls use __local_arena__ instead of __caller_arena__ */
+                Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
+                if (sym) sym->kind = SYMBOL_LOCAL;
+            }
+            else if (param_type->kind == TYPE_STRUCT && stmt->params[i].mem_qualifier != MEM_AS_REF)
+            {
+                /* Clone string handle fields of value struct parameters (not 'as ref' pointers).
+                 * Array fields are NOT cloned to preserve pass-by-reference mutation semantics. */
+                int field_count = param_type->as.struct_type.field_count;
+                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
+                for (int f = 0; f < field_count; f++)
+                {
+                    StructField *field = &param_type->as.struct_type.fields[f];
+                    if (field->type && field->type->kind == TYPE_STRING)
+                    {
+                        const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
+                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone(__local_arena__, __caller_arena__, %s.%s);\n",
+                                         param_name, c_field_name, param_name, c_field_name);
+                    }
+                }
+            }
+        }
     }
 
     // Add _return_value only if needed (non-void or main).
@@ -831,8 +1009,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (main_has_args)
     {
         char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[0].name));
-        indented_fprintf(gen, 1, "char **%s = rt_args_create(%s, argc, argv);\n",
+        indented_fprintf(gen, 1, "RtHandle %s = rt_args_create_h(%s, argc, argv);\n",
                          param_name, gen->current_arena_var);
+        /* Update the symbol kind from SYMBOL_PARAM to SYMBOL_LOCAL so that the
+         * pin logic in code_gen_variable_expression recognizes it as a handle. */
+        Symbol *args_sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[0].name);
+        if (args_sym) args_sym->kind = SYMBOL_LOCAL;
     }
 
     // Clone 'as val' array parameters to ensure copy semantics
@@ -846,8 +1028,18 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 Type *elem_type = param_type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                indented_fprintf(gen, 1, "%s = rt_array_clone_%s(%s, %s);\n",
-                                 param_name, suffix, ARENA_VAR(gen), param_name);
+                if (gen->current_arena_var != NULL)
+                {
+                    /* Handle mode: pin the source handle, clone into a new handle */
+                    const char *elem_c = get_c_type(gen->arena, elem_type);
+                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, ((%s *)rt_managed_pin_array(%s, %s)));\n",
+                                     param_name, suffix, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), param_name);
+                }
+                else
+                {
+                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s(%s, %s);\n",
+                                     param_name, suffix, ARENA_VAR(gen), param_name);
+                }
             }
             else if (param_type->kind == TYPE_STRING)
             {
@@ -920,49 +1112,36 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (needs_promotion)
     {
         TypeKind kind = stmt->return_type->kind;
-        if (kind == TYPE_STRING)
+        if (kind == TYPE_STRING || kind == TYPE_ARRAY)
         {
-            indented_fprintf(gen, 1, "_return_value = rt_arena_promote_string(__caller_arena__, _return_value);\n");
-        }
-        else if (kind == TYPE_ARRAY)
-        {
-            // Clone array to caller's arena (effectively promotes it)
-            Type *elem_type = stmt->return_type->as.array.element_type;
-            const char *suffix = code_gen_type_suffix(elem_type);
-            indented_fprintf(gen, 1, "_return_value = rt_array_clone_%s(__caller_arena__, _return_value);\n", suffix);
+            // Promote handle from local arena to caller's arena
+            indented_fprintf(gen, 1, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
         }
         else if (kind == TYPE_STRUCT)
         {
-            // Promote struct to caller's arena - copies the struct/pointer value
-            // so it survives the function's arena destruction.
-            const char *struct_name = get_c_type(gen->arena, stmt->return_type);
-            indented_fprintf(gen, 1, "_return_value = *(%s *)rt_arena_promote(__caller_arena__, &_return_value, sizeof(%s));\n", struct_name, struct_name);
-
-            // Deep-promote string and array fields to caller's arena
+            // Struct is returned by value — only handle fields need promotion
+            // to the caller's arena so they survive local arena destruction.
             int field_count = stmt->return_type->as.struct_type.field_count;
             for (int i = 0; i < field_count; i++)
             {
                 StructField *field = &stmt->return_type->as.struct_type.fields[i];
                 if (field->type == NULL) continue;
                 const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                if (field->type->kind == TYPE_STRING)
+                if (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY)
                 {
-                    indented_fprintf(gen, 1, "if (_return_value.%s) _return_value.%s = rt_arena_promote_string(__caller_arena__, _return_value.%s);\n",
-                                     c_field_name, c_field_name, c_field_name);
-                }
-                else if (field->type->kind == TYPE_ARRAY)
-                {
-                    Type *elem_type = field->type->as.array.element_type;
-                    const char *suffix = code_gen_type_suffix(elem_type);
-                    indented_fprintf(gen, 1, "_return_value.%s = rt_array_clone_%s(__caller_arena__, _return_value.%s);\n",
-                                     c_field_name, suffix, c_field_name);
+                    indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
+                                     c_field_name, c_field_name);
                 }
             }
         }
         else if (kind == TYPE_FUNCTION)
         {
-            // Closures - promote the closure struct using its actual size
-            indented_fprintf(gen, 1, "_return_value = rt_arena_promote(__caller_arena__, _return_value, _return_value->size);\n");
+            // Closures - copy closure struct to caller's arena so it survives
+            // local arena destruction. Uses actual size to include captures.
+            indented_fprintf(gen, 1, "{ __Closure__ *__src_cl__ = _return_value;\n");
+            indented_fprintf(gen, 1, "  _return_value = (__Closure__ *)rt_arena_alloc(__caller_arena__, __src_cl__->size);\n");
+            indented_fprintf(gen, 1, "  memcpy(_return_value, __src_cl__, __src_cl__->size);\n");
+            indented_fprintf(gen, 1, "  _return_value->arena = __caller_arena__; }\n");
         }
         else if (kind == TYPE_ANY)
         {
@@ -974,9 +1153,13 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
     // Destroy local arena for main and non-shared functions
     // (shared functions just alias the caller's arena, so don't destroy)
-    if (is_main || !is_shared)
+    if (is_main)
     {
-        indented_fprintf(gen, 1, "rt_arena_destroy(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_managed_arena_destroy(__local_arena__);\n");
+    }
+    else if (!is_shared)
+    {
+        indented_fprintf(gen, 1, "rt_managed_arena_destroy_child(__local_arena__);\n");
     }
 
     // Return _return_value only if needed; otherwise, plain return.
@@ -1064,7 +1247,29 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->allocate_closure_in_caller_arena = true;
         }
 
+        /* If the function returns a handle type (string/array), the return expression
+         * must produce an RtHandle value (expr_as_handle = true). */
+        bool prev_as_handle = gen->expr_as_handle;
+        if (gen->current_return_type != NULL && is_handle_type(gen->current_return_type) &&
+            gen->current_arena_var != NULL)
+        {
+            gen->expr_as_handle = true;
+        }
+
+        /* If inside a loop, allocate the return value in __local_arena__ (the function's
+         * arena) rather than the innermost loop arena. Loop arenas are destroyed before
+         * the goto to the return label, so handles in them would be dangling when
+         * rt_managed_promote tries to find them in __local_arena__. */
+        char *prev_arena_var = gen->current_arena_var;
+        if (gen->loop_arena_depth > 0 && gen->current_arena_var != NULL)
+        {
+            gen->current_arena_var = "__local_arena__";
+        }
+
         char *value_str = code_gen_expression(gen, stmt->value);
+
+        gen->current_arena_var = prev_arena_var;
+        gen->expr_as_handle = prev_as_handle;
 
         if (is_lambda_return)
         {
@@ -1086,7 +1291,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
     {
         if (gen->loop_arena_stack[i] != NULL)
         {
-            indented_fprintf(gen, indent, "rt_arena_destroy(%s);\n", gen->loop_arena_stack[i]);
+            indented_fprintf(gen, indent, "rt_managed_arena_destroy_child(%s);\n", gen->loop_arena_stack[i]);
         }
     }
 
@@ -1097,7 +1302,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
     {
         if (gen->arena_stack[i] != NULL)
         {
-            indented_fprintf(gen, indent, "rt_arena_destroy(%s);\n", gen->arena_stack[i]);
+            indented_fprintf(gen, indent, "rt_managed_arena_destroy_child(%s);\n", gen->arena_stack[i]);
         }
     }
 
@@ -1156,7 +1361,7 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
         // If in a loop with per-iteration arena, destroy it before breaking
         if (gen->loop_arena_var)
         {
-            indented_fprintf(gen, indent, "{ rt_arena_destroy(%s); break; }\n", gen->loop_arena_var);
+            indented_fprintf(gen, indent, "{ rt_managed_arena_destroy_child(%s); break; }\n", gen->loop_arena_var);
         }
         else
         {

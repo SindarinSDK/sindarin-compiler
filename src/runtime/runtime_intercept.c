@@ -297,9 +297,6 @@ static RtAny call_next_interceptor(void)
     // Increment depth before calling handler
     __rt_intercept_depth++;
 
-    // Wrap args into a proper Sindarin array so handlers can use args.length
-    RtAny *wrapped_args = wrap_args_as_sindarin_array(ctx->args, ctx->arg_count);
-
     // Create a closure wrapper for the continue callback
     // This matches the __Closure__ type expected by generated Sindarin code
     RtClosure continue_closure = {
@@ -307,14 +304,32 @@ static RtAny call_next_interceptor(void)
         .arena = (RtArena *)__rt_thunk_arena
     };
 
-    // Call the interceptor with wrapped args and the closure-wrapped continue callback
-    // Note: arg_count is not passed - the wrapped_args array has length info in its header
-    RtAny result = entry->handler((RtArena *)__rt_thunk_arena, ctx->name, wrapped_args, &continue_closure);
+    // Convert name and args to handles for the Sindarin handler
+    RtManagedArena *arena = (RtManagedArena *)__rt_thunk_arena;
+    RtHandle name_h = rt_managed_strdup(arena, RT_HANDLE_NULL, ctx->name);
+
+    // Create args array handle: [RtArrayMetadata][RtAny elements...]
+    size_t args_alloc = sizeof(RtArrayMetadata) + ctx->arg_count * sizeof(RtAny);
+    RtHandle args_h = rt_managed_alloc(arena, RT_HANDLE_NULL, args_alloc);
+    void *args_raw = rt_managed_pin(arena, args_h);
+    RtArrayMetadata *meta = (RtArrayMetadata *)args_raw;
+    meta->arena = NULL;
+    meta->size = ctx->arg_count;
+    meta->capacity = ctx->arg_count;
+    RtAny *args_data = (RtAny *)((char *)args_raw + sizeof(RtArrayMetadata));
+    if (ctx->arg_count > 0 && ctx->args != NULL)
+    {
+        memcpy(args_data, ctx->args, ctx->arg_count * sizeof(RtAny));
+    }
+
+    // Call the interceptor handler with handle-based parameters
+    RtAny result = entry->handler((RtArena *)arena, name_h, args_h, &continue_closure);
 
     // Copy any modifications back to the original args array
-    if (wrapped_args != ctx->args && ctx->arg_count > 0)
+    if (ctx->arg_count > 0)
     {
-        memcpy(ctx->args, wrapped_args, ctx->arg_count * sizeof(RtAny));
+        RtAny *args_after = (RtAny *)rt_managed_pin_array(arena, args_h);
+        memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));
     }
 
     // Decrement depth after handler returns

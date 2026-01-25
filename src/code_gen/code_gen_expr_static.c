@@ -128,14 +128,37 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
             char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
+            /* Non-native struct methods take RtHandle for string/array params */
+            bool saved_handle = gen->expr_as_handle;
+            gen->expr_as_handle = (gen->current_arena_var != NULL);
             for (int i = 0; i < call->arg_count; i++)
             {
                 char *arg_str = code_gen_expression(gen, call->arguments[i]);
                 args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
             }
+            gen->expr_as_handle = saved_handle;
 
-            return arena_sprintf(gen->arena, "%s_%s(%s)",
-                                 mangled_struct, method->name, args_list);
+            char *result = arena_sprintf(gen->arena, "%s_%s(%s)",
+                                         mangled_struct, method->name, args_list);
+
+            /* Pin result if method returns string/array and we need raw pointer */
+            if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
+                method->return_type != NULL && is_handle_type(method->return_type))
+            {
+                if (method->return_type->kind == TYPE_STRING)
+                {
+                    return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
+                                         ARENA_VAR(gen), result);
+                }
+                else if (method->return_type->kind == TYPE_ARRAY)
+                {
+                    Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
+                    const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
+                    return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                         elem_c, ARENA_VAR(gen), result);
+                }
+            }
+            return result;
         }
     }
 

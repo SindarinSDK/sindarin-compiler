@@ -56,23 +56,23 @@ static void test_code_gen_private_function(void)
     // Expected: private function receives arena and creates/destroys its own local arena
     // Note: forward declaration is emitted first
     const char *expected = get_expected(&arena,
-                                        "long long __sn__compute(RtArena *);\n\n"
-                                        "long long __sn__compute(RtArena *__caller_arena__) {\n"
-                                        "    RtArena *__local_arena__ = rt_arena_create(__caller_arena__);\n"
+                                        "long long __sn__compute(RtManagedArena *);\n\n"
+                                        "long long __sn__compute(RtManagedArena *__caller_arena__) {\n"
+                                        "    RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n"
                                         "    long long _return_value = 0;\n"
                                         "    _return_value = 42LL;\n"
                                         "    goto __sn__compute_return;\n"
                                         "__sn__compute_return:\n"
-                                        "    rt_arena_destroy(__local_arena__);\n"
+                                        "    rt_managed_arena_destroy_child(__local_arena__);\n"
                                         "    return _return_value;\n"
                                         "}\n\n"
                                         "int main() {\n"
-                                        "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                        "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                         "    __main_arena__ = __local_arena__;\n"
                                         "    int _return_value = 0;\n"
                                         "    goto main_return;\n"
                                         "main_return:\n"
-                                        "    rt_arena_destroy(__local_arena__);\n"
+                                        "    rt_managed_arena_destroy(__local_arena__);\n"
                                         "    return _return_value;\n"
                                         "}\n");
 
@@ -122,9 +122,9 @@ static void test_code_gen_shared_function(void)
     // Expected: shared function aliases caller's arena (no new arena, no destroy)
     // Note: forward declaration is emitted first
     const char *expected = get_expected(&arena,
-                                        "long long __sn__helper(RtArena *);\n\n"
-                                        "long long __sn__helper(RtArena *__caller_arena__) {\n"
-                                        "    RtArena *__local_arena__ = __caller_arena__;\n"
+                                        "long long __sn__helper(RtManagedArena *);\n\n"
+                                        "long long __sn__helper(RtManagedArena *__caller_arena__) {\n"
+                                        "    RtManagedArena *__local_arena__ = __caller_arena__;\n"
                                         "    long long _return_value = 0;\n"
                                         "    _return_value = 1LL;\n"
                                         "    goto __sn__helper_return;\n"
@@ -132,12 +132,12 @@ static void test_code_gen_shared_function(void)
                                         "    return _return_value;\n"
                                         "}\n\n"
                                         "int main() {\n"
-                                        "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                        "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                         "    __main_arena__ = __local_arena__;\n"
                                         "    int _return_value = 0;\n"
                                         "    goto main_return;\n"
                                         "main_return:\n"
-                                        "    rt_arena_destroy(__local_arena__);\n"
+                                        "    rt_managed_arena_destroy(__local_arena__);\n"
                                         "    return _return_value;\n"
                                         "}\n");
 
@@ -187,23 +187,23 @@ static void test_code_gen_default_function(void)
     // Expected: default function receives arena and creates/destroys its own local arena
     // Note: forward declaration is emitted first
     const char *expected = get_expected(&arena,
-                                        "long long __sn__regular(RtArena *);\n\n"
-                                        "long long __sn__regular(RtArena *__caller_arena__) {\n"
-                                        "    RtArena *__local_arena__ = rt_arena_create(__caller_arena__);\n"
+                                        "long long __sn__regular(RtManagedArena *);\n\n"
+                                        "long long __sn__regular(RtManagedArena *__caller_arena__) {\n"
+                                        "    RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n"
                                         "    long long _return_value = 0;\n"
                                         "    _return_value = 5LL;\n"
                                         "    goto __sn__regular_return;\n"
                                         "__sn__regular_return:\n"
-                                        "    rt_arena_destroy(__local_arena__);\n"
+                                        "    rt_managed_arena_destroy_child(__local_arena__);\n"
                                         "    return _return_value;\n"
                                         "}\n\n"
                                         "int main() {\n"
-                                        "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                        "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                         "    __main_arena__ = __local_arena__;\n"
                                         "    int _return_value = 0;\n"
                                         "    goto main_return;\n"
                                         "main_return:\n"
-                                        "    rt_arena_destroy(__local_arena__);\n"
+                                        "    rt_managed_arena_destroy(__local_arena__);\n"
                                         "    return _return_value;\n"
                                         "}\n");
 

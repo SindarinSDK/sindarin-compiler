@@ -75,6 +75,12 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     int needs_conversion_count = 0;
     bool uses_format_specs = has_any_format_spec(expr);
 
+    /* Parts are always evaluated in raw-pointer mode (expr_as_handle=false)
+     * because the intermediate rt_str_concat calls need char* arguments.
+     * The final result is wrapped in a handle if handle_mode is active. */
+    bool saved_as_handle = gen->expr_as_handle;
+    gen->expr_as_handle = false;
+
     for (int i = 0; i < count; i++)
     {
         part_strs[i] = code_gen_expression(gen, expr->parts[i]);
@@ -85,15 +91,26 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         if (part_types[i]->kind != TYPE_STRING) needs_conversion_count++;
     }
 
+    gen->expr_as_handle = saved_as_handle;
+
     /* Optimization: Single string literal without format - use directly */
     if (count == 1 && is_literal[0] && !uses_format_specs)
     {
+        if (gen->expr_as_handle && gen->current_arena_var != NULL)
+        {
+            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), part_strs[0]);
+        }
         return part_strs[0];
     }
 
     /* Optimization: Single string variable/temp without format - return as is or copy */
     if (count == 1 && part_types[0]->kind == TYPE_STRING && !uses_format_specs)
     {
+        if (gen->expr_as_handle && gen->current_arena_var != NULL)
+        {
+            /* In handle mode: create a new handle from the string value */
+            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), part_strs[0]);
+        }
         if (is_temp[0])
         {
             return part_strs[0];
@@ -104,14 +121,18 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         }
         else
         {
-            /* Variable needs to be copied to arena */
-            return arena_sprintf(gen->arena, "rt_to_string_string(%s, %s)", ARENA_VAR(gen), part_strs[0]);
+            /* Variable - already pinned by variable expression, return as is */
+            return part_strs[0];
         }
     }
 
     /* Optimization: Two string literals or all literals without format - simple concat */
     if (count == 2 && needs_conversion_count == 0 && !is_temp[0] && !is_temp[1] && !uses_format_specs)
     {
+        if (gen->expr_as_handle && gen->current_arena_var != NULL)
+        {
+            return arena_sprintf(gen->arena, "rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
+        }
         return arena_sprintf(gen->arena, "rt_str_concat(%s, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
     }
 
@@ -139,7 +160,9 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
             else
             {
                 /* Fallback: convert to string first, then format */
-                const char *to_str = get_rt_to_string_func_for_type(part_types[i]);
+                const char *to_str = gen->current_arena_var
+                    ? get_rt_to_string_func_for_type_h(part_types[i])
+                    : get_rt_to_string_func_for_type(part_types[i]);
                 result = arena_sprintf(gen->arena, "%s        char *_tmp%d = %s(%s, %s);\n",
                                        result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
                 result = arena_sprintf(gen->arena, "%s        char *_p%d = rt_format_string(%s, _tmp%d, \"%s\");\n",
@@ -151,7 +174,9 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         else if (part_types[i]->kind != TYPE_STRING)
         {
             /* Non-string needs conversion (no format specifier) */
-            const char *to_str = get_rt_to_string_func_for_type(part_types[i]);
+            const char *to_str = gen->current_arena_var
+                ? get_rt_to_string_func_for_type_h(part_types[i])
+                : get_rt_to_string_func_for_type(part_types[i]);
             result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
                                    result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
             use_strs[i] = arena_sprintf(gen->arena, "_p%d", temp_var_count);
@@ -178,20 +203,38 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     }
 
     /* Build concatenation chain */
+    bool handle_mode = (gen->expr_as_handle && gen->current_arena_var != NULL);
+
     if (count == 1)
     {
-        result = arena_sprintf(gen->arena, "%s        %s;\n    })", result, use_strs[0]);
+        if (handle_mode)
+        {
+            result = arena_sprintf(gen->arena, "%s        rt_managed_strdup(%s, RT_HANDLE_NULL, %s);\n    })",
+                                   result, ARENA_VAR(gen), use_strs[0]);
+        }
+        else
+        {
+            result = arena_sprintf(gen->arena, "%s        %s;\n    })", result, use_strs[0]);
+        }
         return result;
     }
     else if (count == 2)
     {
-        result = arena_sprintf(gen->arena, "%s        rt_str_concat(%s, %s, %s);\n    })",
-                               result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
+        if (handle_mode)
+        {
+            result = arena_sprintf(gen->arena, "%s        rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s);\n    })",
+                                   result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
+        }
+        else
+        {
+            result = arena_sprintf(gen->arena, "%s        rt_str_concat(%s, %s, %s);\n    })",
+                                   result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
+        }
         return result;
     }
     else
     {
-        /* Chain of concats - minimize intermediate vars */
+        /* Chain of concats - use intermediate char* temps, convert final to handle if needed */
         result = arena_sprintf(gen->arena, "%s        char *_r = rt_str_concat(%s, %s, %s);\n",
                                result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
 
@@ -201,7 +244,14 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
                                    result, ARENA_VAR(gen), use_strs[i]);
         }
 
-        result = arena_sprintf(gen->arena, "%s        _r;\n    })", result);
+        if (handle_mode)
+        {
+            result = arena_sprintf(gen->arena, "%s        rt_managed_strdup(%s, RT_HANDLE_NULL, _r);\n    })", result, ARENA_VAR(gen));
+        }
+        else
+        {
+            result = arena_sprintf(gen->arena, "%s        _r;\n    })", result);
+        }
         return result;
     }
 }

@@ -633,18 +633,18 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
 
     if (modifier == FUNC_PRIVATE)
     {
-        /* Private lambda: create isolated arena, destroy before return */
+        /* Private lambda: create child arena, destroy before return */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtArena *__lambda_arena__ = rt_arena_create(NULL);\n"
+            "    RtManagedArena *__lambda_arena__ = rt_managed_arena_create_child(((__Closure__ *)__closure__)->arena);\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
-            "    rt_arena_destroy(__lambda_arena__);\n");
+            "    rt_managed_arena_destroy_child(__lambda_arena__);\n");
     }
     else
     {
         /* Default/Shared lambda: use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtArena *__lambda_arena__ = ((__Closure__ *)__closure__)->arena;\n");
+            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)((__Closure__ *)__closure__)->arena;\n");
     }
 
     if (cv.count > 0)
@@ -715,7 +715,9 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
 
         /* Generate the static lambda function body - use lambda's arena */
         char *saved_arena_var = gen->current_arena_var;
+        char *saved_function_arena = gen->function_arena_var;
         gen->current_arena_var = "__lambda_arena__";
+        gen->function_arena_var = "__lambda_arena__";
 
         /* Push this lambda to enclosing context for nested lambdas */
         if (gen->enclosing_lambda_count >= gen->enclosing_lambda_capacity)
@@ -836,7 +838,12 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
+            bool is_handle_return = gen->current_arena_var != NULL &&
+                                    (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
+            bool saved_expr_handle = gen->expr_as_handle;
+            if (is_handle_return) gen->expr_as_handle = true;
             char *body_code = code_gen_expression(gen, lambda->body);
+            gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
                 /* Private: create arena, compute result, destroy arena, return */
@@ -863,6 +870,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             }
         }
         gen->current_arena_var = saved_arena_var;
+        gen->function_arena_var = saved_function_arena;
 
         /* Pop the scope we pushed for captured primitives */
         symbol_table_pop_scope(gen->symbol_table);
@@ -976,7 +984,9 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* No captures - use simple generic closure */
         /* Generate the static lambda function body - use lambda's arena */
         char *saved_arena_var = gen->current_arena_var;
+        char *saved_function_arena = gen->function_arena_var;
         gen->current_arena_var = "__lambda_arena__";
+        gen->function_arena_var = "__lambda_arena__";
 
         /* Push this lambda to enclosing context for nested lambdas */
         if (gen->enclosing_lambda_count >= gen->enclosing_lambda_capacity)
@@ -1076,7 +1086,12 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
+            bool is_handle_return = gen->current_arena_var != NULL &&
+                                    (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
+            bool saved_expr_handle = gen->expr_as_handle;
+            if (is_handle_return) gen->expr_as_handle = true;
             char *body_code = code_gen_expression(gen, lambda->body);
+            gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
                 /* Private: create arena, compute result, destroy arena, return */
@@ -1101,6 +1116,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             }
         }
         gen->current_arena_var = saved_arena_var;
+        gen->function_arena_var = saved_function_arena;
 
         /* Append to definitions buffer */
         gen->lambda_definitions = arena_sprintf(gen->arena, "%s%s",

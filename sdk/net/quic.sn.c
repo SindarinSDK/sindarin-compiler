@@ -990,7 +990,9 @@ static RtQuicConnection *quic_connection_create(RtArena *arena, const char *addr
     socklen_t local_len = sizeof(local_addr);
     getsockname(sock, (struct sockaddr *)&local_addr, &local_len);
 
-    /* Allocate connection */
+    /* Allocate connection from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor, which is required because
+     * RtQuicConnection contains pthread_mutex_t and pthread_cond_t. */
     RtQuicConnection *conn = (RtQuicConnection *)rt_arena_alloc(arena, sizeof(RtQuicConnection));
     memset(conn, 0, sizeof(RtQuicConnection));
     conn->arena = arena;
@@ -1181,6 +1183,8 @@ static RtQuicConnection *quic_server_connection_create(RtArena *arena, socket_t 
                                                         const uint8_t *pkt, size_t pktlen,
                                                         const ngtcp2_pkt_hd *hd,
                                                         RtQuicConfig *config) {
+    /* Allocate connection from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor. */
     RtQuicConnection *conn = (RtQuicConnection *)rt_arena_alloc(arena, sizeof(RtQuicConnection));
     memset(conn, 0, sizeof(RtQuicConnection));
     conn->arena = arena;
@@ -2033,8 +2037,16 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         }
     }
 
+    /* For server connections, we only mark closed and signal waiters.
+     * The listener thread may still be using qconn, SSL, and streams,
+     * so cleanup is deferred to sn_quic_listener_close() after the
+     * listener thread is joined. */
+    if (conn->is_server) {
+        return;
+    }
+
     /* Stop and join I/O thread (client connections only) */
-    if (!conn->is_server && conn->io_running) {
+    if (conn->io_running) {
         conn->io_running = false;
 #ifdef _WIN32
         WaitForSingleObject(conn->io_thread, 5000);
@@ -2044,7 +2056,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
 #endif
     }
 
-    /* Cleanup */
+    /* Cleanup (client connections only) */
     if (conn->ssl) {
         SSL_set_app_data(conn->ssl, NULL);
         SSL_free(conn->ssl);
@@ -2054,7 +2066,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         ngtcp2_crypto_ossl_ctx_del(conn->ossl_ctx);
         conn->ossl_ctx = NULL;
     }
-    if (conn->ssl_ctx && !conn->is_server) {
+    if (conn->ssl_ctx) {
         SSL_CTX_free(conn->ssl_ctx);
         conn->ssl_ctx = NULL;
     }
@@ -2062,8 +2074,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
         ngtcp2_conn_del(conn->qconn);
         conn->qconn = NULL;
     }
-    /* Only close socket for client connections (server shares listener socket) */
-    if (!conn->is_server && conn->socket_fd != INVALID_SOCKET_VAL) {
+    if (conn->socket_fd != INVALID_SOCKET_VAL) {
         CLOSE_SOCKET(conn->socket_fd);
         conn->socket_fd = INVALID_SOCKET_VAL;
     }
@@ -2083,6 +2094,7 @@ void sn_quic_connection_close(RtQuicConnection *conn) {
     MUTEX_DESTROY(&conn->conn_mutex);
     COND_DESTROY(&conn->handshake_cond);
     COND_DESTROY(&conn->accept_stream_cond);
+    /* Memory is arena-allocated, no need to free */
 }
 
 /* ============================================================================
@@ -2154,7 +2166,8 @@ static RtQuicListener *quic_listener_create(RtArena *arena, const char *address,
         bound_port = ntohs(((struct sockaddr_in6 *)&bound_addr)->sin6_port);
     }
 
-    /* Create listener struct */
+    /* Create listener struct from arena. rt_arena_alloc uses pinned allocations
+     * that will never be moved by the compactor. */
     RtQuicListener *listener = (RtQuicListener *)rt_arena_alloc(arena, sizeof(RtQuicListener));
     memset(listener, 0, sizeof(RtQuicListener));
     listener->arena = arena;
@@ -2247,7 +2260,8 @@ void sn_quic_listener_close(RtQuicListener *listener) {
     pthread_join(listener->listen_thread, NULL);
 #endif
 
-    /* Close all server connections */
+    /* Mark all server connections as closed (sn_quic_connection_close for
+     * server connections just sets closed=true and signals waiters). */
     MUTEX_LOCK(&listener->conn_list_mutex);
     for (int i = 0; i < listener->connection_count; i++) {
         if (listener->connections[i] && !listener->connections[i]->closed) {
@@ -2255,6 +2269,50 @@ void sn_quic_listener_close(RtQuicListener *listener) {
         }
     }
     MUTEX_UNLOCK(&listener->conn_list_mutex);
+
+    /* Now that listener thread is stopped, do full cleanup for all server
+     * connections. This was deferred because the listener thread was using
+     * these resources (qconn, SSL, streams). */
+    for (int i = 0; i < listener->connection_count; i++) {
+        RtQuicConnection *conn = listener->connections[i];
+        if (!conn) continue;
+
+        /* Cleanup SSL */
+        if (conn->ssl) {
+            SSL_set_app_data(conn->ssl, NULL);
+            SSL_free(conn->ssl);
+            conn->ssl = NULL;
+        }
+        if (conn->ossl_ctx) {
+            ngtcp2_crypto_ossl_ctx_del(conn->ossl_ctx);
+            conn->ossl_ctx = NULL;
+        }
+        /* Server connections share listener's ssl_ctx, don't free it here */
+
+        /* Delete ngtcp2 connection */
+        if (conn->qconn) {
+            ngtcp2_conn_del(conn->qconn);
+            conn->qconn = NULL;
+        }
+
+        /* Free streams */
+        for (int j = 0; j < conn->stream_count; j++) {
+            quic_stream_free(conn->streams[j]);
+            conn->streams[j] = NULL;
+        }
+
+        /* Free resumption token */
+        if (conn->resumption_token) {
+            free(conn->resumption_token);
+            conn->resumption_token = NULL;
+        }
+
+        /* Destroy mutex/cond */
+        MUTEX_DESTROY(&conn->conn_mutex);
+        COND_DESTROY(&conn->handshake_cond);
+        COND_DESTROY(&conn->accept_stream_cond);
+        /* Memory is arena-allocated, no need to free */
+    }
 
     /* Cleanup */
     if (listener->ssl_ctx) {
@@ -2269,4 +2327,5 @@ void sn_quic_listener_close(RtQuicListener *listener) {
     MUTEX_DESTROY(&listener->accept_mutex);
     COND_DESTROY(&listener->accept_cond);
     MUTEX_DESTROY(&listener->conn_list_mutex);
+    /* Memory is arena-allocated, no need to free */
 }

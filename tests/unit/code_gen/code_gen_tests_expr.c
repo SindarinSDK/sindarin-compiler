@@ -34,12 +34,12 @@ static void test_code_gen_literal_expression(void)
     const char *expected = get_expected(&arena,
                                   "42LL;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -90,12 +90,12 @@ static void test_code_gen_variable_expression(void)
                                   "long long __sn__x = 0;\n"
                                   "__sn__x;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -157,12 +157,12 @@ static void test_code_gen_binary_expression_int_add(void)
     const char *expected = get_expected(&arena,
                                   "3LL;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -225,12 +225,12 @@ static void test_code_gen_binary_expression_string_concat(void)
                                   "    rt_free_string(_tmp);\n"
                                   "}\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -286,12 +286,12 @@ static void test_code_gen_unary_expression_negate(void)
     const char *expected = get_expected(&arena,
                                   "-5LL;\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -350,12 +350,12 @@ static void test_code_gen_assign_expression(void)
                                   "long long __sn__x = 0;\n"
                                   "(__sn__x = 10LL);\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -422,12 +422,12 @@ static void test_code_gen_as_val_int_pointer(void)
                                   "long long* __sn__ptr = 0;\n"
                                   "(*(__sn__ptr));\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -494,12 +494,12 @@ static void test_code_gen_as_val_double_pointer(void)
                                   "double* __sn__dptr = 0;\n"
                                   "(*(__sn__dptr));\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -575,12 +575,12 @@ static void test_code_gen_as_val_char_pointer(void)
                                   "char* __sn__cptr = 0;\n"
                                   "((__sn__cptr) ? rt_arena_strdup(NULL, __sn__cptr) : rt_arena_strdup(NULL, \"\"));\n"
                                   "int main() {\n"
-                                  "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
+                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_arena_destroy(__local_arena__);\n"
+                                  "    rt_managed_arena_destroy(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

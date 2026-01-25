@@ -48,8 +48,8 @@
 #include <pthread.h>
 #endif
 
-/* Forward declaration */
-typedef struct RtArena RtArena;
+/* Include arena header for RtArena type */
+#include "runtime_arena.h"
 
 /* ============================================================================
  * Policy Enums
