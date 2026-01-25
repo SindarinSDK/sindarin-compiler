@@ -28,9 +28,11 @@ Options:
 """
 
 import argparse
+import atexit
 import glob
 import os
 import platform
+import signal
 import shutil
 import subprocess
 import sys
@@ -40,6 +42,42 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
+
+# Global reference for signal handler cleanup
+_active_runner: Optional['TestRunner'] = None
+
+
+def cleanup_orphaned_temp_dirs():
+    """Remove any orphaned sn_test_* temp directories from previous runs."""
+    temp_base = tempfile.gettempdir()
+    pattern = os.path.join(temp_base, 'sn_test_*')
+    orphaned = glob.glob(pattern)
+
+    if orphaned:
+        print(f"Cleaning up {len(orphaned)} orphaned test directories...")
+        for path in orphaned:
+            try:
+                shutil.rmtree(path, ignore_errors=True)
+            except Exception:
+                pass  # Best effort cleanup
+
+
+def _signal_handler(signum, frame):
+    """Handle interrupt signals to ensure cleanup."""
+    global _active_runner
+    if _active_runner and _active_runner.temp_dir:
+        print(f"\nInterrupted, cleaning up...")
+        shutil.rmtree(_active_runner.temp_dir, ignore_errors=True)
+    sys.exit(1)
+
+
+def setup_signal_handlers():
+    """Setup signal handlers for graceful cleanup on interruption."""
+    signal.signal(signal.SIGINT, _signal_handler)
+    signal.signal(signal.SIGTERM, _signal_handler)
+    if hasattr(signal, 'SIGBREAK'):  # Windows
+        signal.signal(signal.SIGBREAK, _signal_handler)
+
 
 # ANSI color codes
 class Colors:
@@ -212,12 +250,16 @@ class TestRunner:
                     self.env[ld_path_var] = new_paths
 
     def __enter__(self):
+        global _active_runner
         self.temp_dir = tempfile.mkdtemp(prefix='sn_test_')
+        _active_runner = self
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
+        global _active_runner
         if self.temp_dir and os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir, ignore_errors=True)
+        _active_runner = None
 
     def run_unit_tests(self) -> Tuple[bool, float]:
         """Run unit tests. Returns (passed, elapsed_seconds)."""
@@ -556,8 +598,17 @@ def main():
                        help='Disable colored output')
     parser.add_argument('--parallel', '-j', type=int, default=(os.cpu_count() or 2) * 2,
                        help=f'Number of parallel test workers (default: {(os.cpu_count() or 2) * 2})')
+    parser.add_argument('--no-cleanup', action='store_true',
+                       help='Skip cleanup of orphaned temp directories')
 
     args = parser.parse_args()
+
+    # Setup signal handlers for graceful cleanup
+    setup_signal_handlers()
+
+    # Clean up orphaned temp directories from previous runs
+    if not args.no_cleanup:
+        cleanup_orphaned_temp_dirs()
 
     # Handle color
     if args.no_color or not sys.stdout.isatty():

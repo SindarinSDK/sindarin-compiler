@@ -141,6 +141,8 @@ clean:
 	-cmake -E rm -f $(BIN_DIR)/sn$(EXE_EXT) $(BIN_DIR)/tests$(EXE_EXT)
 	-cmake -E rm -rf $(BIN_DIR)/lib
 	-cmake -E rm -rf $(BIN_DIR)/deps
+	@echo "Cleaning test temp directories..."
+	$(PYTHON) -c "import glob, shutil, tempfile, os; [shutil.rmtree(d, ignore_errors=True) for d in glob.glob(os.path.join(tempfile.gettempdir(), 'sn_test_*'))]"
 	@echo "Clean complete."
 
 #------------------------------------------------------------------------------
