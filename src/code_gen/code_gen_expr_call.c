@@ -2407,8 +2407,15 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                     break;
                 case TYPE_STRING:
                     if (gen->current_arena_var) {
-                        return arena_sprintf(gen->arena, "rt_print_array_string_h(%s, %s)",
-                                             ARENA_VAR(gen), arg_strs[0]);
+                        /* For print(str_array), we need the raw handle array (RtHandle*),
+                         * not the char** that rt_managed_pin_string_array returns.
+                         * Regenerate the expression in handle mode. */
+                        bool prev = gen->expr_as_handle;
+                        gen->expr_as_handle = true;
+                        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+                        gen->expr_as_handle = prev;
+                        return arena_sprintf(gen->arena, "rt_print_array_string_h(%s, (RtHandle *)rt_managed_pin_array(%s, %s))",
+                                             ARENA_VAR(gen), ARENA_VAR(gen), handle_expr);
                     }
                     print_func = "rt_print_array_string";
                     break;
