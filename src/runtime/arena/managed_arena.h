@@ -62,6 +62,14 @@ typedef struct {
 /* Compaction threshold: trigger when fragmentation exceeds this ratio */
 #define RT_MANAGED_COMPACT_THRESHOLD 0.5
 
+/* Block utilization threshold: trigger compaction when live_bytes/block_capacity
+ * falls below this ratio. This catches cases where the cleaner recycles handles
+ * faster than dead_bytes accumulates, leaving blocks mostly empty. */
+#define RT_MANAGED_UTILIZATION_THRESHOLD 0.25
+
+/* Minimum block count before utilization-based compaction triggers */
+#define RT_MANAGED_UTILIZATION_MIN_BLOCKS 2
+
 /* Cleaner/compactor sleep interval in milliseconds */
 #define RT_MANAGED_GC_INTERVAL_MS 10
 

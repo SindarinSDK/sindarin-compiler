@@ -281,6 +281,37 @@ void rt_managed_compact(RtManagedArena *ma)
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
 
+/* Check block utilization: live_bytes / total_block_capacity.
+ * Returns true if utilization is below threshold and we have enough blocks
+ * to make compaction worthwhile. This catches cases where the cleaner
+ * recycles handles faster than dead_bytes can accumulate. */
+static bool should_compact_low_utilization(RtManagedArena *ma)
+{
+    size_t live = atomic_load(&ma->live_bytes);
+    size_t total_capacity = 0;
+    int block_count = 0;
+
+    /* Sum capacity across all active blocks */
+    for (RtManagedBlock *b = ma->first; b != NULL; b = b->next) {
+        total_capacity += b->size;
+        block_count++;
+    }
+
+    /* Need at least minimum blocks to consider utilization-based compaction */
+    if (block_count < RT_MANAGED_UTILIZATION_MIN_BLOCKS) {
+        return false;
+    }
+
+    /* Avoid division by zero */
+    if (total_capacity == 0) {
+        return false;
+    }
+
+    double utilization = (double)live / (double)total_capacity;
+
+    return utilization < RT_MANAGED_UTILIZATION_THRESHOLD;
+}
+
 /* Check if block has any leased or pinned entries — O(1) via atomic counters */
 static bool block_has_active_entries(RtManagedArena *ma, RtManagedBlock *block)
 {
@@ -333,8 +364,14 @@ void *rt_managed_compactor_thread(void *arg)
                 continue;
             }
 
+            /* Compact if EITHER condition is met:
+             * 1. High fragmentation: many dead handles waiting (existing check)
+             * 2. Low block utilization: blocks mostly empty after cleaner recycled handles */
             double frag = rt_managed_fragmentation(ma);
-            if (frag >= RT_MANAGED_COMPACT_THRESHOLD) {
+            bool high_frag = (frag >= RT_MANAGED_COMPACT_THRESHOLD);
+            bool low_util = should_compact_low_utilization(ma);
+
+            if (high_frag || low_util) {
                 rt_managed_compact(ma);
             }
 

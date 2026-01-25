@@ -284,6 +284,11 @@ fn _comparePrerelease(a: str, b: str): int =>
     var partsA: str[] = a.split(".")
     var partsB: str[] = b.split(".")
 
+    // WORKAROUND: Force string element pinning by using them before the loop.
+    // Without this, accessing partsA[i] inside the while loop returns empty strings.
+    var _lenA: int = partsA[0].length
+    var _lenB: int = partsB[0].length
+
     var minLen: int = partsA.length
     if partsB.length < minLen =>
         minLen = partsB.length

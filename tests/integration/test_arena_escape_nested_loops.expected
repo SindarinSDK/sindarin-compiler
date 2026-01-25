@@ -1,0 +1,12 @@
+Arena Escape Nested Loop Test
+=============================
+
+Result:
+[(1,1) (1,2) ]
+[(2,1) (2,2) ]
+
+Expected:
+[(1,1) (1,2) ]
+[(2,1) (2,2) ]
+
+PASS: Arena escapes work correctly!
