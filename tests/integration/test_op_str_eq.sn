@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: str = "test"
+    var b: str = "test"
+    print($"{a == b}\n")
+    print($"{a != b}\n")

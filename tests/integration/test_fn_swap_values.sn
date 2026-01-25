@@ -1,0 +1,9 @@
+fn main(): void =>
+    var arr: int[] = {5, 3}
+    swap(arr, 0, 1)
+    print($"{arr[0]} {arr[1]}\n")
+
+fn swap(arr: int[], i: int, j: int): void =>
+    var tmp: int = arr[i]
+    arr[i] = arr[j]
+    arr[j] = tmp

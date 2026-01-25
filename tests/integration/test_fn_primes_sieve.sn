@@ -1,0 +1,15 @@
+fn main(): void =>
+    var primes: int[] = get_primes(30)
+    print($"{primes.join(" ")}\n")
+
+fn get_primes(limit: int): int[] =>
+    var result: int[] = {}
+    for var n: int = 2; n <= limit; n++ =>
+        var is_prime: bool = true
+        for var i: int = 2; i * i <= n; i++ =>
+            if n % i == 0 =>
+                is_prime = false
+                break
+        if is_prime =>
+            result.push(n)
+    return result

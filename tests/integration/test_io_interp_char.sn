@@ -1,0 +1,3 @@
+fn main(): void =>
+    var b: byte = 88
+    print($"{b}\n")

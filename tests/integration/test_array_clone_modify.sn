@@ -1,0 +1,8 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3}
+    var b: int[] = a.clone()
+    a.push(4)
+    b.push(5)
+    print($"{a.length} {b.length}\n")
+    print($"{a[3]}\n")
+    print($"{b[3]}\n")

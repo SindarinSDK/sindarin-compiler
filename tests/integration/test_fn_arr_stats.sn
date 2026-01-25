@@ -1,0 +1,12 @@
+fn main(): void =>
+    var arr: int[] = {4, 8, 15, 16, 23, 42}
+    var sum: int = 0
+    var mn: int = arr[0]
+    var mx: int = arr[0]
+    for var i: int = 0; i < arr.length; i++ =>
+        sum += arr[i]
+        if arr[i] < mn =>
+            mn = arr[i]
+        if arr[i] > mx =>
+            mx = arr[i]
+    print($"{sum} {mn} {mx}\n")

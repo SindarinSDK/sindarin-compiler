@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    arr.reverse()
+    for var i: int = 0; i < arr.length; i++ =>
+        print($"{arr[i]} ")
+    print("\n")

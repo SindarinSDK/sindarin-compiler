@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "one two three"
+    var parts: str[] = s.split(" ")
+    print($"{parts[0]}\n")
+    print($"{parts[2]}\n")

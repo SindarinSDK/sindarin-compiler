@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: double = 1.0
+    var y: double = 0.5
+    print($"{x}\n")
+    print($"{y}\n")
+    print($"{x + y}\n")

@@ -1,0 +1,10 @@
+fn main(): void =>
+    var a: int = 0
+    var b: int = 10
+    a++
+    a++
+    a++
+    b--
+    b--
+    print($"{a}\n")
+    print($"{b}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: bool[] = {true, false, true}
+    print($"{arr.contains(true)}\n")
+    print($"{arr.contains(false)}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 65
+    var b: byte = x as byte
+    print($"{b}\n")

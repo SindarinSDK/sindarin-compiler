@@ -1,0 +1,6 @@
+fn main(): void =>
+    var avg: double = average(10.0, 20.0)
+    print($"{avg}\n")
+
+fn average(a: double, b: double): double =>
+    return (a + b) / 2.0

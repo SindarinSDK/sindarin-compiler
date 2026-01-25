@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: bool[] = {true, false}
+    var b: bool[] = {false, true}
+    var c: bool[] = a.concat(b)
+    print($"{c.length}\n")
+    print($"{c[0]} {c[1]} {c[2]} {c[3]}\n")

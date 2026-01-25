@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "ABC"
+    var b: byte[] = s.toBytes()
+    print($"{b.length}\n")
+    print($"{b[0]} {b[1]} {b[2]}\n")

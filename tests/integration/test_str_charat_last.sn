@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "abcdef"
+    print($"{s.charAt(5)}\n")

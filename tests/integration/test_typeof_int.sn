@@ -1,0 +1,3 @@
+fn main(): void =>
+    var x: any = 42
+    print($"{typeof(x)}\n")

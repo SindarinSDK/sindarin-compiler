@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{fib(10)}\n")
+    print($"{fib(15)}\n")
+
+fn fib(n: int): int =>
+    if n <= 1 =>
+        return n
+    return fib(n - 1) + fib(n - 2)

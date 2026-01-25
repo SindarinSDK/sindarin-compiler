@@ -1,0 +1,3 @@
+fn main(): void =>
+    var arr: int[] = 1..6
+    print($"{arr.join(" ")}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: long = 100l
+    x += 50l
+    print($"{x}\n")
+    x *= 2l
+    print($"{x}\n")

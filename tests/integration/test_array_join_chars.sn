@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: char[] = {'h', 'e', 'l', 'l', 'o'}
+    print($"{arr.join("")}\n")
+    print($"{arr.join("-")}\n")

@@ -317,6 +317,25 @@ static void collect_captured_vars_internal(Expr *expr, LambdaExpr *lambda, Symbo
         break;
     case EXPR_ASSIGN:
         collect_captured_vars_internal(expr->as.assign.value, lambda, table, cv, lv, enclosing, arena);
+        /* Also capture the assignment target variable itself */
+        {
+            char name[256];
+            int len = expr->as.assign.name.length < 255 ? expr->as.assign.name.length : 255;
+            strncpy(name, expr->as.assign.name.start, len);
+            name[len] = '\0';
+            if (!is_lambda_param(lambda, name) && !(lv != NULL && is_local_var(lv, name)))
+            {
+                Symbol *sym = symbol_table_lookup_symbol(table, expr->as.assign.name);
+                if (sym != NULL)
+                {
+                    captured_vars_add(cv, arena, name, sym->type);
+                }
+            }
+        }
+        break;
+    case EXPR_COMPOUND_ASSIGN:
+        collect_captured_vars_internal(expr->as.compound_assign.target, lambda, table, cv, lv, enclosing, arena);
+        collect_captured_vars_internal(expr->as.compound_assign.value, lambda, table, cv, lv, enclosing, arena);
         break;
     case EXPR_INDEX_ASSIGN:
         collect_captured_vars_internal(expr->as.index_assign.array, lambda, table, cv, lv, enclosing, arena);

@@ -1,0 +1,6 @@
+fn main(): void =>
+    for var i: int = 0; i < 6; i++ =>
+        if i == 3 =>
+            continue
+        print($"{i} ")
+    print("\n")

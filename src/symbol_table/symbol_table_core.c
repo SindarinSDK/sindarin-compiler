@@ -273,6 +273,7 @@ void symbol_table_init(Arena *arena, SymbolTable *table)
     table->scopes_capacity = 8;
     table->current = NULL;
     table->current_arena_depth = 0;
+    table->current_private_depth = 0;
     table->scope_depth = 0;
     table->loop_depth = 0;
 
@@ -337,10 +338,11 @@ void symbol_table_push_scope(SymbolTable *table)
     scope->next_local_offset = enclosing ? enclosing->next_local_offset : LOCAL_BASE_OFFSET;
     scope->next_param_offset = enclosing ? enclosing->next_param_offset : PARAM_BASE_OFFSET;
     scope->arena_depth = table->current_arena_depth;
+    scope->private_depth = table->current_private_depth;
     table->current = scope;
     table->scope_depth++;
-    DEBUG_VERBOSE("New scope created: %p, enclosing: %p, local_offset: %d, param_offset: %d, arena_depth: %d, scope_depth: %d",
-                  (void *)scope, (void *)enclosing, scope->next_local_offset, scope->next_param_offset, scope->arena_depth, table->scope_depth);
+    DEBUG_VERBOSE("New scope created: %p, enclosing: %p, local_offset: %d, param_offset: %d, arena_depth: %d, private_depth: %d, scope_depth: %d",
+                  (void *)scope, (void *)enclosing, scope->next_local_offset, scope->next_param_offset, scope->arena_depth, scope->private_depth, table->scope_depth);
 
     if (table->scopes_count >= table->scopes_capacity)
     {
@@ -466,6 +468,7 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     symbol->name.line = name.line;
     symbol->name.type = name.type;
     symbol->arena_depth = table->current_arena_depth;
+    symbol->private_depth = table->current_private_depth;
     symbol->declaration_scope_depth = table->scope_depth;
     symbol->mem_qual = MEM_DEFAULT;
     symbol->func_mod = FUNC_DEFAULT;

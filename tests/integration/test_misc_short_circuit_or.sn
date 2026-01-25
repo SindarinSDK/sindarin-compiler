@@ -1,0 +1,5 @@
+fn main(): void =>
+    if true || never_called() =>
+        print("yes\n")
+
+fn never_called(): bool => false

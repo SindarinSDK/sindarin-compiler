@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: long = 10000000007l
+    var y: long = 1000000007l
+    print($"{x % y}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{add5(1, 2, 3, 4, 5)}\n")
+
+fn add5(a: int, b: int, c: int, d: int, e: int): int => a + b + c + d + e

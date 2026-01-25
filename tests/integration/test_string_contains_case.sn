@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "Hello World"
+    print($"{s.contains("Hello")}\n")
+    print($"{s.contains("hello")}\n")

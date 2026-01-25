@@ -1,0 +1,11 @@
+fn main(): void =>
+    print($"{is_perfect(6)}\n")
+    print($"{is_perfect(28)}\n")
+    print($"{is_perfect(12)}\n")
+
+fn is_perfect(n: int): bool =>
+    var sum: int = 0
+    for var i: int = 1; i < n; i++ =>
+        if n % i == 0 =>
+            sum += i
+    return sum == n

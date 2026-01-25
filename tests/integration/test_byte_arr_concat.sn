@@ -1,0 +1,8 @@
+fn main(): void =>
+    var a: byte[] = {1, 2, 3}
+    var b: byte[] = {4, 5, 6}
+    var c: byte[] = a.concat(b)
+    print($"{c.length}
+")
+    print($"{c[0]} {c[5]}
+")

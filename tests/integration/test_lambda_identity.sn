@@ -1,0 +1,3 @@
+fn main(): void =>
+    var id: fn(int): int = fn(x: int): int => x
+    print($"{id(99)}\n")

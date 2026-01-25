@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{abs_val(-5)}\n")
+    print($"{abs_val(5)}\n")
+    print($"{abs_val(0)}\n")
+
+fn abs_val(x: int): int =>
+    if x < 0 =>
+        return -x
+    return x

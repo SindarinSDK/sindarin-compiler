@@ -1,0 +1,6 @@
+fn main(): void =>
+    for var i: int = 0; i < 3; i++ =>
+        var x: int = i * 10
+        print($"{x} ")
+    print("
+")

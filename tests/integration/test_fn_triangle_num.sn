@@ -1,0 +1,6 @@
+fn main(): void =>
+    print($"{triangle(1)}\n")
+    print($"{triangle(5)}\n")
+    print($"{triangle(10)}\n")
+
+fn triangle(n: int): int => n * (n + 1) / 2

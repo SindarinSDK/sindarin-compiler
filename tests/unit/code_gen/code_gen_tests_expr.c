@@ -32,11 +32,11 @@ static void test_code_gen_literal_expression(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "42LL;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    42LL;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -87,12 +87,12 @@ static void test_code_gen_variable_expression(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "long long __sn__x = 0;\n"
-                                  "__sn__x;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    long long __sn__x = 0;\n"
+                                  "    __sn__x;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -155,11 +155,11 @@ static void test_code_gen_binary_expression_int_add(void)
 
     /* Constant folding optimization: 1 + 2 is folded to 3L at compile time */
     const char *expected = get_expected(&arena,
-                                  "3LL;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    3LL;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -219,15 +219,11 @@ static void test_code_gen_binary_expression_string_concat(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "{\n"
-                                  "    char *_tmp = rt_str_concat(NULL, \"hello\", \"world\");\n"
-                                  "    (void)_tmp;\n"
-                                  "    rt_free_string(_tmp);\n"
-                                  "}\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    rt_str_concat(__local_arena__, \"hello\", \"world\");\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -284,11 +280,11 @@ static void test_code_gen_unary_expression_negate(void)
 
     /* Constant folding optimization: -5 is folded to -5L at compile time */
     const char *expected = get_expected(&arena,
-                                  "-5LL;\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    -5LL;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -347,12 +343,12 @@ static void test_code_gen_assign_expression(void)
     symbol_table_cleanup(&sym_table);
 
     const char *expected = get_expected(&arena,
-                                  "long long __sn__x = 0;\n"
-                                  "(__sn__x = 10LL);\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    long long __sn__x = 0;\n"
+                                  "    (__sn__x = 10LL);\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -419,12 +415,12 @@ static void test_code_gen_as_val_int_pointer(void)
 
     /* The key assertion: *int as val should generate *(__sn__ptr) */
     const char *expected = get_expected(&arena,
-                                  "long long* __sn__ptr = 0;\n"
-                                  "(*(__sn__ptr));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    long long* __sn__ptr = 0;\n"
+                                  "    (*(__sn__ptr));\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -491,12 +487,12 @@ static void test_code_gen_as_val_double_pointer(void)
 
     /* The key assertion: *double as val should generate *(__sn__dptr) */
     const char *expected = get_expected(&arena,
-                                  "double* __sn__dptr = 0;\n"
-                                  "(*(__sn__dptr));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    double* __sn__dptr = 0;\n"
+                                  "    (*(__sn__dptr));\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"
@@ -570,14 +566,14 @@ static void test_code_gen_as_val_char_pointer(void)
      * 1. *char as val emits rt_arena_strdup call
      * 2. NULL pointer is handled with empty string fallback
      * Generated pattern: ((cptr) ? rt_arena_strdup(arena, cptr) : rt_arena_strdup(arena, ""))
-     * At global scope, arena is NULL */
+     * Inside main, arena is __local_arena__ */
     const char *expected = get_expected(&arena,
-                                  "char* __sn__cptr = 0;\n"
-                                  "((__sn__cptr) ? rt_arena_strdup(NULL, __sn__cptr) : rt_arena_strdup(NULL, \"\"));\n"
                                   "int main() {\n"
                                   "    RtArena *__local_arena__ = rt_arena_create(NULL);\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
+                                  "    char* __sn__cptr = 0;\n"
+                                  "    ((__sn__cptr) ? rt_arena_strdup(__local_arena__, __sn__cptr) : rt_arena_strdup(__local_arena__, \"\"));\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_destroy(__local_arena__);\n"

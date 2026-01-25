@@ -1,0 +1,9 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    print($"{reduce_sum(arr)}\n")
+
+fn reduce_sum(arr: int[]): int =>
+    var acc: int = 0
+    for x in arr =>
+        acc += x
+    return acc

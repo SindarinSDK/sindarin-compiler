@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var rev: int[] = {}
+    for var i: int = arr.length - 1; i >= 0; i-- =>
+        rev.push(arr[i])
+    print($"{rev.join(" ")}\n")

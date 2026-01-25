@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello world"
+    print($"{s.startsWith("hello")}\n")
+    print($"{s.startsWith("world")}\n")

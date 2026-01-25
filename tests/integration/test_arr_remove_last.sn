@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {10, 20, 30, 40}
+    arr.remove(3)
+    print($"{arr.length}\n")
+    print($"{arr[2]}\n")

@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var result: int[] = transform(arr, square_fn)
+    print($"{result.join(", ")}\n")
+
+fn square_fn(n: int): int => n * n
+fn transform(arr: int[], f: fn(int): int): int[] =>
+    var result: int[] = {}
+    for x in arr =>
+        result.push(f(x))
+    return result

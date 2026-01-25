@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "abcde"
+    print($"{s.charAt(0)}\n")
+    print($"{s.charAt(s.length - 1)}\n")

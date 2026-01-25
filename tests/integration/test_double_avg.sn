@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: double = 10.0
+    var b: double = 20.0
+    var c: double = 30.0
+    var avg: double = (a + b + c) / 3.0
+    print($"{avg}\n")

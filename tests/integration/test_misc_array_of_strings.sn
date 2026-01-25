@@ -1,0 +1,4 @@
+fn main(): void =>
+    var words: str[] = {"hello", "world", "foo", "bar"}
+    print($"{words.length}\n")
+    print($"{words[0]} {words[3]}\n")

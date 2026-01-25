@@ -1,0 +1,7 @@
+fn main(): void =>
+    print($"{pascal(5, 0)} {pascal(5, 1)} {pascal(5, 2)} {pascal(5, 3)} {pascal(5, 4)} {pascal(5, 5)}\n")
+
+fn pascal(n: int, k: int): int =>
+    if k == 0 || k == n =>
+        return 1
+    return pascal(n - 1, k - 1) + pascal(n - 1, k)

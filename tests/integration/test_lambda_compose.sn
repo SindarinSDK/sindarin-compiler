@@ -1,0 +1,7 @@
+fn main(): void =>
+    var f: fn(int): int = fn(x: int): int => x * x
+    var g: fn(int): int = fn(x: int): int => x + 1
+    print($"{f(g(5))}
+")
+    print($"{g(f(5))}
+")

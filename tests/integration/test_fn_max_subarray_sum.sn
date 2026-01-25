@@ -1,0 +1,15 @@
+fn main(): void =>
+    var arr: int[] = {-2, 1, -3, 4, -1, 2, 1, -5, 4}
+    print($"{max_subarray(arr)}\n")
+
+fn max_subarray(arr: int[]): int =>
+    var maxSum: int = arr[0]
+    var curSum: int = arr[0]
+    for var i: int = 1; i < arr.length; i++ =>
+        if curSum + arr[i] > arr[i] =>
+            curSum = curSum + arr[i]
+        else =>
+            curSum = arr[i]
+        if curSum > maxSum =>
+            maxSum = curSum
+    return maxSum

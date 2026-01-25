@@ -1,0 +1,14 @@
+fn main(): void =>
+    print($"{sign_str(5)}\n")
+    print($"{sign_str(-3)}\n")
+    print($"{sign_str(0)}\n")
+
+fn is_positive(n: int): bool => n > 0
+fn is_negative(n: int): bool => n < 0
+fn sign_str(n: int): str =>
+    if is_positive(n) =>
+        return "+"
+    else if is_negative(n) =>
+        return "-"
+    else =>
+        return "0"

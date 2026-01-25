@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello hello hello"
+    var r: str = s.replace("hello", "world")
+    print($"{r}\n")

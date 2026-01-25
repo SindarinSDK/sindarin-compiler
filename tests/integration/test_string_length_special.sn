@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "a\tb\nc"
+    print($"{s.length}\n")

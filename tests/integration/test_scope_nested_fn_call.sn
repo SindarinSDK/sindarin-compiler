@@ -1,0 +1,9 @@
+fn main(): void =>
+    var x: int = outer(5)
+    print($"{x}\n")
+
+fn outer(n: int): int =>
+    var a: int = inner(n)
+    return a + n
+
+fn inner(n: int): int => n * 3

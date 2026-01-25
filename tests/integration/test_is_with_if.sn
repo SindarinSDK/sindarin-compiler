@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: any = 42
+    if x is int =>
+        print("is int\n")
+    else =>
+        print("not int\n")

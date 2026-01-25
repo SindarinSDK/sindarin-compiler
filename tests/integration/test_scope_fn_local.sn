@@ -1,0 +1,7 @@
+fn main(): void =>
+    print($"{compute(5)}\n")
+
+fn compute(n: int): int =>
+    var result: int = n * n
+    var bonus: int = 10
+    return result + bonus

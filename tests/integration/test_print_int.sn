@@ -1,0 +1,4 @@
+fn main(): void =>
+    print($"{42}\n")
+    print($"{-7}\n")
+    print($"{0}\n")

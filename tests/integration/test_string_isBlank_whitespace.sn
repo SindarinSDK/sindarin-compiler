@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: str = "\t"
+    var b: str = "\n"
+    print($"{a.isBlank()}\n")
+    print($"{b.isBlank()}\n")

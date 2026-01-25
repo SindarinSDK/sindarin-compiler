@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: int[] = {}
+    arr.reverse()
+    print($"{arr.length}\n")

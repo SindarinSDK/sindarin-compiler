@@ -1,0 +1,3 @@
+fn main(): void =>
+    var a: str = "hello" + " " + "world"
+    print($"{a}\n")

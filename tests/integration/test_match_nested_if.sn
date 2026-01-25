@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 5
+    match x =>
+        1 => print("one\n")
+        5 =>
+            if x > 3 =>
+                print("five and big\n")
+        else => print("other\n")

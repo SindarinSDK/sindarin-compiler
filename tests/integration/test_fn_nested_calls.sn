@@ -1,0 +1,6 @@
+fn main(): void =>
+    var result: int = add(mul(2, 3), mul(4, 5))
+    print($"{result}\n")
+
+fn add(a: int, b: int): int => a + b
+fn mul(a: int, b: int): int => a * b

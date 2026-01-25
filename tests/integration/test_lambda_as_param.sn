@@ -1,0 +1,5 @@
+fn main(): void =>
+    var sq: fn(int): int = fn(x: int): int => x * x
+    print($"{apply(sq, 7)}\n")
+
+fn apply(f: fn(int): int, x: int): int => f(x)

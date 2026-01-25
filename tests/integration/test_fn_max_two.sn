@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{max_val(3, 7)}\n")
+    print($"{max_val(10, 2)}\n")
+
+fn max_val(a: int, b: int): int =>
+    if a > b =>
+        return a
+    return b

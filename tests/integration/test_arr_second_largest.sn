@@ -1,0 +1,11 @@
+fn main(): void =>
+    var arr: int[] = {5, 2, 9, 1, 7}
+    var first: int = arr[0]
+    var second: int = arr[0]
+    for var i: int = 1; i < arr.length; i++ =>
+        if arr[i] > first =>
+            second = first
+            first = arr[i]
+        else if arr[i] > second && arr[i] != first =>
+            second = arr[i]
+    print($"{second}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    if false =>
+        print("yes\n")
+    print("done\n")

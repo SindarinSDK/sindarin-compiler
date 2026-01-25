@@ -1,0 +1,7 @@
+fn main(): void =>
+    var x: int = 0
+    if false && inc_check(x) =>
+        print("no\n")
+    print("done\n")
+
+fn inc_check(n: int): bool => true

@@ -1,1 +1,1 @@
-'nil' can only be assigned to pointer types
+'nil' can only be assigned to reference or pointer types

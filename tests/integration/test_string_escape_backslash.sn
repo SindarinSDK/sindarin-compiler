@@ -1,0 +1,8 @@
+fn main(): void =>
+    var s: str = "line1
+line2
+line3"
+    print($"{s.length}
+")
+    print($"{s.contains("line2")}
+")

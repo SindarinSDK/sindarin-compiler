@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{digital_root(9875)}\n")
+    print($"{digital_root(493)}\n")
+
+fn digital_root(n: int): int =>
+    while n >= 10 =>
+        var sum: int = 0
+        while n > 0 =>
+            sum += n % 10
+            n /= 10
+        n = sum
+    return n

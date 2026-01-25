@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: int = 1
+    var b: int = 2
+    var c: int = 3
+    print($"a={a} b={b} c={c} sum={a+b+c}\n")

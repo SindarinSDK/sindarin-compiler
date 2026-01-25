@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var doubled: int[] = {}
+    for x in arr =>
+        doubled.push(x * 2)
+    print($"{doubled.length}\n")
+    print($"{doubled[0]} {doubled[1]} {doubled[2]} {doubled[3]} {doubled[4]}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 10
+    var y: int = 3
+    print($"{x / y} remainder {x % y}\n")

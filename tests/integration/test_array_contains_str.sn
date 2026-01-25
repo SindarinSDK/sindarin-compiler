@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: str[] = {"hello", "world"}
+    print($"{arr.contains("world")}\n")
+    print($"{arr.contains("foo")}\n")

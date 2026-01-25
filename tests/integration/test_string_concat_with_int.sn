@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 42
+    var s: str = $"value: {x}"
+    print($"{s}\n")
+    print($"{s.length}\n")

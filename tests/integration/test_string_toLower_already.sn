@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "already lower"
+    print($"{s.toLower()}\n")

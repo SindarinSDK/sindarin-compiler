@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: byte = 100
+    var b: byte = 50
+    print($"{a + b}\n")
+    print($"{a - b}\n")

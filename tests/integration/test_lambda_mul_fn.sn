@@ -1,0 +1,3 @@
+fn main(): void =>
+    var mul: fn(int, int): int = fn(a: int, b: int): int => a * b
+    print($"{mul(6, 7)}\n")

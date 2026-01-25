@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{contains_any("hello", {"x", "e", "z"})}\n")
+    print($"{contains_any("hello", {"x", "y", "z"})}\n")
+
+fn contains_any(s: str, patterns: str[]): bool =>
+    for p in patterns =>
+        if s.contains(p) =>
+            return true
+    return false

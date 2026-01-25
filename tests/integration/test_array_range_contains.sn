@@ -1,0 +1,5 @@
+fn main(): void =>
+    var r: int[] = 1..10
+    print($"{r.contains(5)}\n")
+    print($"{r.contains(10)}\n")
+    print($"{r.contains(0)}\n")

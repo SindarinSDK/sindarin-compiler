@@ -184,6 +184,11 @@ skip_indent_processing:
             DEBUG_VERBOSE("Line %d: Emitting AND", lexer->line);
             return lexer_make_token(lexer, TOKEN_AND);
         }
+        if (lexer_match(lexer, '='))
+        {
+            DEBUG_VERBOSE("Line %d: Emitting AMPERSAND_EQUAL", lexer->line);
+            return lexer_make_token(lexer, TOKEN_AMPERSAND_EQUAL);
+        }
         DEBUG_VERBOSE("Line %d: Emitting AMPERSAND", lexer->line);
         return lexer_make_token(lexer, TOKEN_AMPERSAND);
     case '%':
@@ -264,6 +269,16 @@ skip_indent_processing:
         DEBUG_VERBOSE("Line %d: Emitting EQUAL", lexer->line);
         return lexer_make_token(lexer, TOKEN_EQUAL);
     case '<':
+        if (lexer_match(lexer, '<'))
+        {
+            if (lexer_match(lexer, '='))
+            {
+                DEBUG_VERBOSE("Line %d: Emitting LSHIFT_EQUAL", lexer->line);
+                return lexer_make_token(lexer, TOKEN_LSHIFT_EQUAL);
+            }
+            DEBUG_VERBOSE("Line %d: Emitting LSHIFT", lexer->line);
+            return lexer_make_token(lexer, TOKEN_LSHIFT);
+        }
         if (lexer_match(lexer, '='))
         {
             DEBUG_VERBOSE("Line %d: Emitting LESS_EQUAL", lexer->line);
@@ -272,6 +287,16 @@ skip_indent_processing:
         DEBUG_VERBOSE("Line %d: Emitting LESS", lexer->line);
         return lexer_make_token(lexer, TOKEN_LESS);
     case '>':
+        if (lexer_match(lexer, '>'))
+        {
+            if (lexer_match(lexer, '='))
+            {
+                DEBUG_VERBOSE("Line %d: Emitting RSHIFT_EQUAL", lexer->line);
+                return lexer_make_token(lexer, TOKEN_RSHIFT_EQUAL);
+            }
+            DEBUG_VERBOSE("Line %d: Emitting RSHIFT", lexer->line);
+            return lexer_make_token(lexer, TOKEN_RSHIFT);
+        }
         if (lexer_match(lexer, '='))
         {
             DEBUG_VERBOSE("Line %d: Emitting GREATER_EQUAL", lexer->line);
@@ -329,6 +354,11 @@ skip_indent_processing:
             DEBUG_VERBOSE("Line %d: Emitting OR", lexer->line);
             return lexer_make_token(lexer, TOKEN_OR);
         }
+        if (lexer_match(lexer, '='))
+        {
+            DEBUG_VERBOSE("Line %d: Emitting PIPE_EQUAL", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PIPE_EQUAL);
+        }
         /* Check for pipe block string: | followed by optional whitespace then newline */
         {
             const char *check = lexer->current;
@@ -339,8 +369,8 @@ skip_indent_processing:
                 return lexer_scan_pipe_string(lexer, 0);
             }
         }
-        DEBUG_VERBOSE("Line %d: Emitting OR (single)", lexer->line);
-        return lexer_make_token(lexer, TOKEN_OR);
+        DEBUG_VERBOSE("Line %d: Emitting PIPE", lexer->line);
+        return lexer_make_token(lexer, TOKEN_PIPE);
     case '!':
         if (lexer_match(lexer, '='))
         {
@@ -349,6 +379,17 @@ skip_indent_processing:
         }
         DEBUG_VERBOSE("Line %d: Emitting BANG", lexer->line);
         return lexer_make_token(lexer, TOKEN_BANG);
+    case '^':
+        if (lexer_match(lexer, '='))
+        {
+            DEBUG_VERBOSE("Line %d: Emitting CARET_EQUAL", lexer->line);
+            return lexer_make_token(lexer, TOKEN_CARET_EQUAL);
+        }
+        DEBUG_VERBOSE("Line %d: Emitting CARET", lexer->line);
+        return lexer_make_token(lexer, TOKEN_CARET);
+    case '~':
+        DEBUG_VERBOSE("Line %d: Emitting TILDE", lexer->line);
+        return lexer_make_token(lexer, TOKEN_TILDE);
     case '$':
         if (lexer_peek(lexer) == '"')
         {

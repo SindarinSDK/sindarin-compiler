@@ -48,6 +48,7 @@ typedef struct Symbol
     int offset;
     struct Symbol *next;
     int arena_depth;            /* Which arena depth owns this symbol */
+    int private_depth;          /* Which private block depth owns this symbol (strict escape) */
     int declaration_scope_depth; /* Scope depth at time of declaration */
     MemoryQualifier mem_qual;   /* as val, as ref, or default */
     SyncModifier sync_mod;      /* sync for atomic operations */
@@ -73,6 +74,7 @@ typedef struct Scope
     int next_local_offset;
     int next_param_offset;
     int arena_depth;            /* Arena depth level for this scope */
+    int private_depth;          /* Private block depth level for this scope */
 } Scope;
 
 typedef struct {
@@ -83,6 +85,7 @@ typedef struct {
     int scopes_count;
     int scopes_capacity;
     int current_arena_depth;    /* Current arena nesting depth */
+    int current_private_depth;  /* Current private block nesting depth (strict escape) */
     int scope_depth;            /* Current scope nesting depth (blocks, functions) */
     int loop_depth;             /* Current loop nesting depth (for break/continue validation) */
 } SymbolTable;

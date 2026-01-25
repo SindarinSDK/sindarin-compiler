@@ -244,8 +244,9 @@ const char *get_rt_to_string_func(TypeKind kind)
         return "rt_to_string_byte";
     case TYPE_VOID:
         return "rt_to_string_void";
-    case TYPE_NIL:
     case TYPE_ANY:
+        return "rt_any_to_string";
+    case TYPE_NIL:
     case TYPE_ARRAY:
     case TYPE_FUNCTION:
     case TYPE_POINTER:
@@ -836,6 +837,11 @@ bool try_fold_constant(Expr *expr, int64_t *out_int_value, double *out_double_va
             }
             *out_is_double = false;
             return true;
+        case TOKEN_TILDE:
+            if (operand_is_double) return false;
+            *out_int_value = ~operand_int;
+            *out_is_double = false;
+            return true;
         default:
             return false;
         }
@@ -963,6 +969,21 @@ bool try_fold_constant(Expr *expr, int64_t *out_int_value, double *out_double_va
                     return false;
                 }
                 *out_int_value = left_int % right_int;
+                return true;
+            case TOKEN_AMPERSAND:
+                *out_int_value = left_int & right_int;
+                return true;
+            case TOKEN_PIPE:
+                *out_int_value = left_int | right_int;
+                return true;
+            case TOKEN_CARET:
+                *out_int_value = left_int ^ right_int;
+                return true;
+            case TOKEN_LSHIFT:
+                *out_int_value = left_int << right_int;
+                return true;
+            case TOKEN_RSHIFT:
+                *out_int_value = left_int >> right_int;
                 return true;
             default:
                 return false;
@@ -1172,6 +1193,8 @@ char *gen_native_unary(CodeGen *gen, const char *operand_str, SnTokenType op, Ty
         break;
     case TOKEN_BANG:
         return arena_sprintf(gen->arena, "(!(%s))", operand_str);
+    case TOKEN_TILDE:
+        return arena_sprintf(gen->arena, "((long long)(~(%s)))", operand_str);
     default:
         break;
     }

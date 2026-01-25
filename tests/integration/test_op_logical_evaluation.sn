@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    var result: bool = (x > 3) && (x < 10) && (x != 7)
+    print($"{result}\n")
+    result = (x == 1) || (x == 3) || (x == 5)
+    print($"{result}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    arr[-1] = 99
+    print($"{arr[4]}\n")

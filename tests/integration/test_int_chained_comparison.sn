@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 5
+    var inRange: bool = x >= 1 && x <= 10
+    print($"{inRange}\n")

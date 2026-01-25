@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: str = "hello"
+    var b: str = "hello"
+    var c: str = "world"
+    print($"{a == b}\n")
+    print($"{a == c}\n")

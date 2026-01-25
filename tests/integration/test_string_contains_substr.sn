@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "programming"
+    print($"{s.contains("gram")}\n")
+    print($"{s.contains("pro")}\n")
+    print($"{s.contains("xyz")}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = nil
+    println(s == nil)
+    s = "hello"
+    println(s == nil)
+    println(s)

@@ -1,0 +1,3 @@
+fn main(): void =>
+    var x: uint32 = 42u32
+    print($"{x}\n")

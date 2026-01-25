@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 3
+    var y: int = x * 2 + 1
+    var z: int = y - x
+    print($"{x} {y} {z}\n")

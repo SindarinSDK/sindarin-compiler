@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 15
+    var label: str = "big"
+    if x < 10 =>
+        label = "small"
+    print($"{label}\n")

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var i: int = 5
+    var d: double = i * 1.0
+    print($"{d}\n")

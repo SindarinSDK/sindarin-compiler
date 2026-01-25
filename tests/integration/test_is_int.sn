@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: any = 42
+    print($"{x is int}\n")
+    print($"{x is str}\n")

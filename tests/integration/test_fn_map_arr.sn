@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var result: int[] = map_arr(arr, fn(x: int): int => x * x)
+    print($"{result.join(" ")}\n")
+
+fn map_arr(arr: int[], f: fn(int): int): int[] =>
+    var out: int[] = {}
+    for var i: int = 0; i < arr.length; i++ =>
+        out.push(f(arr[i]))
+    return out

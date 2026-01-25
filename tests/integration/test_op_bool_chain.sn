@@ -1,0 +1,7 @@
+fn main(): void =>
+    var a: bool = true
+    var b: bool = false
+    var c: bool = true
+    print($"{a && b || c}\n")
+    print($"{a || b && c}\n")
+    print($"{!(a && b)}\n")

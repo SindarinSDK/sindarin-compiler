@@ -1,0 +1,10 @@
+fn main(): void =>
+    print($"{reverse_int(123)}\n")
+    print($"{reverse_int(9000)}\n")
+
+fn reverse_int(n: int): int =>
+    var rev: int = 0
+    while n > 0 =>
+        rev = rev * 10 + n % 10
+        n /= 10
+    return rev

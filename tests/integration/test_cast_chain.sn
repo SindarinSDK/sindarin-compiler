@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 42
+    var l: long = x as long
+    var d: double = l as double
+    print($"{d}\n")

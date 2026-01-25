@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{pow_iter(2, 10)}\n")
+    print($"{pow_iter(3, 4)}\n")
+
+fn pow_iter(base: int, exp: int): int =>
+    var result: int = 1
+    for var i: int = 0; i < exp; i++ =>
+        result *= base
+    return result

@@ -1,0 +1,8 @@
+fn main(): void =>
+    print($"{safe_div(10, 2)}\n")
+    print($"{safe_div(10, 0)}\n")
+
+fn safe_div(a: int, b: int): int =>
+    if b == 0 =>
+        return 0
+    return a / b

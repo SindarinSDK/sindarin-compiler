@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "hello"
+    for var i: int = 0; i < s.length; i++ =>
+        print($"{s.charAt(i)}")
+    print("\n")

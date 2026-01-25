@@ -1,0 +1,10 @@
+fn main(): void =>
+    var found: bool = false
+    for var i: int = 0; i < 5; i++ =>
+        for var j: int = 0; j < 5; j++ =>
+            if i == 2 && j == 3 =>
+                found = true
+                break
+        if found =>
+            break
+    print($"{found}\n")

@@ -1,0 +1,12 @@
+fn main(): void =>
+    var x: int = 2
+    var result: int = 0
+    match x =>
+        1 =>
+            result = 10
+        2 =>
+            result = 20
+            result = result + 5
+        else =>
+            result = -1
+    print($"{result}\n")

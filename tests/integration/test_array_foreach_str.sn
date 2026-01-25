@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: str[] = {"hello", "world", "foo"}
+    for s in arr =>
+        print($"{s}\n")

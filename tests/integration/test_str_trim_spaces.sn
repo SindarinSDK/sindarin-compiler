@@ -1,0 +1,3 @@
+fn main(): void =>
+    var s: str = "  hello  "
+    print($"{s.trim()}\n")

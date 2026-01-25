@@ -1,0 +1,12 @@
+fn main(): void =>
+    var x: int = outer_fn()
+    print($"{x}\n")
+
+fn outer_fn(): int =>
+    var a: int = 10
+    var b: int = inner_fn(a)
+    return a + b
+
+fn inner_fn(n: int): int =>
+    var local: int = n * 2
+    return local

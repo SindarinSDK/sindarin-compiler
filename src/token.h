@@ -95,6 +95,17 @@ typedef enum
     TOKEN_STAR_EQUAL,
     TOKEN_SLASH_EQUAL,
     TOKEN_MODULO_EQUAL,
+    TOKEN_AMPERSAND_EQUAL,
+    TOKEN_PIPE_EQUAL,
+    TOKEN_CARET_EQUAL,
+    TOKEN_LSHIFT_EQUAL,
+    TOKEN_RSHIFT_EQUAL,
+    // Bitwise operators
+    TOKEN_PIPE,
+    TOKEN_CARET,
+    TOKEN_TILDE,
+    TOKEN_LSHIFT,
+    TOKEN_RSHIFT,
     // Synchronization keywords
     TOKEN_SYNC,
     TOKEN_LOCK,

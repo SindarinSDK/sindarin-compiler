@@ -1,0 +1,6 @@
+fn main(): void =>
+    var result: str = wrap("hello", "[", "]")
+    print($"{result}\n")
+
+fn wrap(s: str, prefix: str, suffix: str): str =>
+    return prefix + s + suffix

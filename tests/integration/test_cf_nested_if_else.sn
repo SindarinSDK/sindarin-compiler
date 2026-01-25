@@ -1,0 +1,9 @@
+fn main(): void =>
+    var x: int = 15
+    if x > 10 =>
+        if x > 20 =>
+            print("very big\n")
+        else =>
+            print("medium\n")
+    else =>
+        print("small\n")

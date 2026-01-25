@@ -1,0 +1,4 @@
+fn main(): void =>
+    var neg: fn(int): int = fn(x: int): int => -x
+    print($"{neg(5)}\n")
+    print($"{neg(-3)}\n")

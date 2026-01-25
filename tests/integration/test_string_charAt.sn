@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello"
+    print($"{s.charAt(0)}\n")
+    print($"{s.charAt(4)}\n")

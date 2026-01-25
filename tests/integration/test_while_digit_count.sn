@@ -1,0 +1,7 @@
+fn main(): void =>
+    var n: int = 12345
+    var count: int = 0
+    while n > 0 =>
+        n = n / 10
+        count++
+    print($"{count}\n")

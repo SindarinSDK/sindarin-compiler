@@ -1,0 +1,6 @@
+fn main(): void =>
+    var day: str = "Mon"
+    match day =>
+        "Mon" => print("Monday\n")
+        "Tue" => print("Tuesday\n")
+        else => print("Other\n")

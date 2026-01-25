@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: str[] = {"apple", "banana", "cherry"}
+    print($"{arr.indexOf("banana")}\n")
+    print($"{arr.indexOf("grape")}\n")

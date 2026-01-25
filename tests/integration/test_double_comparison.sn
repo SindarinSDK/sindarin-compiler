@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: double = 3.14
+    var b: double = 2.71
+    print($"{a > b}\n")
+    print($"{a < b}\n")
+    print($"{a >= a}\n")

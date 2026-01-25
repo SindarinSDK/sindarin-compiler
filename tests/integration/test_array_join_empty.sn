@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    print($"{arr.join("")}\n")
+    var empty: int[] = {}
+    print($"{empty.join(", ")}\n")

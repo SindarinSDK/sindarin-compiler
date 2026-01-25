@@ -1,0 +1,5 @@
+fn main(): void =>
+    var words: str[] = {"one", "two", "three"}
+    for w in words =>
+        print($"{w.length} ")
+    print("\n")

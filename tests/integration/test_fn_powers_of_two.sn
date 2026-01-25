@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: int[] = {}
+    var p: int = 1
+    for var i: int = 0; i < 10; i++ =>
+        arr.push(p)
+        p *= 2
+    print($"{arr.join(" ")}\n")

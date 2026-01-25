@@ -1,0 +1,4 @@
+fn main(): void =>
+    for var i: int = 0; i < 0; i++ =>
+        print("nope")
+    print("done\n")

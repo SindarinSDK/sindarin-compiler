@@ -1,0 +1,12 @@
+fn main(): void =>
+    var x: int = 10
+    x += 5
+    print($"{x}\n")
+    x -= 3
+    print($"{x}\n")
+    x *= 2
+    print($"{x}\n")
+    x /= 4
+    print($"{x}\n")
+    x %= 3
+    print($"{x}\n")

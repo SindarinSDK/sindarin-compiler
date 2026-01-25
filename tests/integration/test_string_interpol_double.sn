@@ -1,0 +1,3 @@
+fn main(): void =>
+    var pi: double = 3.14159
+    print($"pi={pi}\n")

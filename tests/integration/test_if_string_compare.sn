@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = "hello"
+    if s == "hello" =>
+        print("match\n")
+    if s != "world" =>
+        print("different\n")

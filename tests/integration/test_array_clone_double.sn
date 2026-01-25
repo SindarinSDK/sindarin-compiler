@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: double[] = {1.1, 2.2, 3.3}
+    var b: double[] = a.clone()
+    b[0] = 9.9
+    print($"{a[0]}\n")
+    print($"{b[0]}\n")

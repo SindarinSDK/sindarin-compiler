@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: double[] = {1.5, 2.5, 3.5}
+    var last: double = arr.pop()
+    print($"{last}\n")
+    print($"{arr.length}\n")

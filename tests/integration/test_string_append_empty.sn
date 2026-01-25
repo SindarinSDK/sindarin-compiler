@@ -1,0 +1,5 @@
+fn main(): void =>
+    var s: str = "hello"
+    s = s.append("")
+    print($"{s}\n")
+    print($"{s.length}\n")

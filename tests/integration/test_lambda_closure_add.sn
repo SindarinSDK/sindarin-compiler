@@ -1,0 +1,5 @@
+fn main(): void =>
+    var base: int = 100
+    var addBase: fn(int): int = fn(x: int) shared: int => x + base
+    print($"{addBase(5)}\n")
+    print($"{addBase(50)}\n")

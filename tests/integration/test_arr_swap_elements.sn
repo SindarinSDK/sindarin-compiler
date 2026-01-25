@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {5, 10, 15, 20}
+    var tmp: int = arr[0]
+    arr[0] = arr[3]
+    arr[3] = tmp
+    print($"{arr[0]} {arr[3]}\n")

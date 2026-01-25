@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 42
+    print($"value: {x}\n")
+    print($"tab:\there\n")

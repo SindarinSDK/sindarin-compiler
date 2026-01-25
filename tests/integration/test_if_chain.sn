@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 5
+    if x == 1 =>
+        print("one\n")
+    else if x == 5 =>
+        print("five\n")
+    else =>
+        print("other\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    print($"{round_down(3.7)}\n")
+    print($"{round_down(3.2)}\n")
+
+fn round_down(d: double): int =>
+    return d as int

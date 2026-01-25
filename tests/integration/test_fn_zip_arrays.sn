@@ -1,0 +1,11 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {10, 20, 30}
+    var result: int[] = zip_add(a, b)
+    print($"{result.join(" ")}\n")
+
+fn zip_add(a: int[], b: int[]): int[] =>
+    var result: int[] = {}
+    for var i: int = 0; i < a.length; i++ =>
+        result.push(a[i] + b[i])
+    return result

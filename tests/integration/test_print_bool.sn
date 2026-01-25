@@ -1,0 +1,3 @@
+fn main(): void =>
+    print($"{true}\n")
+    print($"{false}\n")

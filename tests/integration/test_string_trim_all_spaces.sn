@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "   "
+    print($"[{s.trim()}]\n")
+    print($"{s.trim().length}\n")

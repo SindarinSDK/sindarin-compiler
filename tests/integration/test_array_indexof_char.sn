@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: char[] = {'a', 'b', 'c', 'd'}
+    print($"{arr.indexOf('c')}\n")
+    print($"{arr.indexOf('z')}\n")

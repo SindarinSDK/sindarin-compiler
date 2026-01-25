@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    print($"{arr.contains(3)}\n")
+    print($"{arr.contains(6)}\n")

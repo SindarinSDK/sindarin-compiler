@@ -1,0 +1,4 @@
+fn main(): void =>
+    var f: fn(int): int = fn(x: int): int => x + 1
+    var result: int = f(f(f(0)))
+    print($"{result}\n")

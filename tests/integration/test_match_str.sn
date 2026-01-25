@@ -1,0 +1,6 @@
+fn main(): void =>
+    var s: str = "hello"
+    match s =>
+        "hi" => print("casual\n")
+        "hello" => print("formal\n")
+        else => print("unknown\n")

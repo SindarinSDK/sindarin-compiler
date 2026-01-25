@@ -61,6 +61,7 @@ void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
 
     bool old_in_shared_context = gen->in_shared_context;
     char *old_current_arena_var = gen->current_arena_var;
+    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
 
     bool is_shared = stmt->is_shared;
     // Don't create loop arena if: loop is shared, OR we're inside a shared context
@@ -80,6 +81,7 @@ void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
         int label_num = code_gen_new_label(gen);
         loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", label_num);
         loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", label_num);
+        gen->loop_outer_arena_var = gen->current_arena_var;
         push_loop_arena(gen, loop_arena, loop_cleanup);
     }
 
@@ -113,6 +115,10 @@ void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
 
     indented_fprintf(gen, indent, "}\n");
 
+    if (needs_loop_arena)
+    {
+        gen->loop_outer_arena_var = old_loop_outer_arena_var;
+    }
     gen->in_shared_context = old_in_shared_context;
 }
 
@@ -122,6 +128,7 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
 
     bool old_in_shared_context = gen->in_shared_context;
     char *old_current_arena_var = gen->current_arena_var;
+    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
 
     bool is_shared = stmt->is_shared;
     // Don't create loop arena if: loop is shared, OR we're inside a shared context
@@ -141,6 +148,7 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
         int arena_label_num = code_gen_new_label(gen);
         loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", arena_label_num);
         loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", arena_label_num);
+        gen->loop_outer_arena_var = gen->current_arena_var;
         push_loop_arena(gen, loop_arena, loop_cleanup);
     }
 
@@ -223,6 +231,10 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
 
     symbol_table_pop_scope(gen->symbol_table);
 
+    if (needs_loop_arena)
+    {
+        gen->loop_outer_arena_var = old_loop_outer_arena_var;
+    }
     gen->in_shared_context = old_in_shared_context;
 }
 
@@ -231,6 +243,7 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     DEBUG_VERBOSE("Entering code_gen_for_each_statement");
 
     bool old_in_shared_context = gen->in_shared_context;
+    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
 
     bool is_shared = stmt->is_shared;
     // Don't create loop arena if: loop is shared, OR we're inside a shared context
@@ -250,6 +263,7 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
         int arena_label_num = code_gen_new_label(gen);
         loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", arena_label_num);
         loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", arena_label_num);
+        gen->loop_outer_arena_var = gen->current_arena_var;
         push_loop_arena(gen, loop_arena, loop_cleanup);
     }
 
@@ -327,6 +341,10 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
     indented_fprintf(gen, indent, "}\n");
 
+    if (needs_loop_arena)
+    {
+        gen->loop_outer_arena_var = old_loop_outer_arena_var;
+    }
     gen->in_shared_context = old_in_shared_context;
 
     symbol_table_pop_scope(gen->symbol_table);

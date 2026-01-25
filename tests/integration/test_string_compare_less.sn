@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: str = "apple"
+    var b: str = "banana"
+    print($"{a < b}\n")
+    print($"{b < a}\n")

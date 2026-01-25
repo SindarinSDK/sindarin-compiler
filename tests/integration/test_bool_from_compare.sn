@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    var bigger: bool = x > 3
+    var smaller: bool = x < 3
+    print($"{bigger}\n")
+    print($"{smaller}\n")

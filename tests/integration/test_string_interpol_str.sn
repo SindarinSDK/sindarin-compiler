@@ -1,0 +1,4 @@
+fn main(): void =>
+    var first: str = "John"
+    var last: str = "Doe"
+    print($"{first} {last}\n")

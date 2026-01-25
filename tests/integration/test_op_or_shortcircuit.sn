@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 0
+    if true || x / 0 == 0 =>
+        print("ok\n")

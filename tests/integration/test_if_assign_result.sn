@@ -1,0 +1,14 @@
+fn main(): void =>
+    var x: int = 10
+    var abs_val: int = 0
+    if x >= 0 =>
+        abs_val = x
+    else =>
+        abs_val = -x
+    print($"{abs_val}\n")
+    x = -7
+    if x >= 0 =>
+        abs_val = x
+    else =>
+        abs_val = -x
+    print($"{abs_val}\n")

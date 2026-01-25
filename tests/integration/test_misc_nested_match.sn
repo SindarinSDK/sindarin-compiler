@@ -1,0 +1,10 @@
+fn main(): void =>
+    var x: int = 2
+    var y: int = 3
+    match x =>
+        1 => print("one\n")
+        2 =>
+            match y =>
+                3 => print("two-three\n")
+                else => print("two-other\n")
+        else => print("other\n")

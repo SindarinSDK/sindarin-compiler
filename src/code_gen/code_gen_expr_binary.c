@@ -141,6 +141,23 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         }
     }
 
+    /* Bitwise operators always use native C operators (no overflow concerns) */
+    if (op == TOKEN_AMPERSAND || op == TOKEN_PIPE || op == TOKEN_CARET ||
+        op == TOKEN_LSHIFT || op == TOKEN_RSHIFT)
+    {
+        const char *c_op;
+        switch (op)
+        {
+        case TOKEN_AMPERSAND: c_op = "&"; break;
+        case TOKEN_PIPE:      c_op = "|"; break;
+        case TOKEN_CARET:     c_op = "^"; break;
+        case TOKEN_LSHIFT:    c_op = "<<"; break;
+        case TOKEN_RSHIFT:    c_op = ">>"; break;
+        default:              c_op = "&"; break;
+        }
+        return arena_sprintf(gen->arena, "((long long)((%s) %s (%s)))", left_str, c_op, right_str);
+    }
+
     char *op_str = code_gen_binary_op_str(op);
     char *suffix = code_gen_type_suffix(type);
     if (op == TOKEN_PLUS && type->kind == TYPE_STRING)
@@ -207,6 +224,8 @@ char *code_gen_unary_expression(CodeGen *gen, UnaryExpr *expr)
         }
     case TOKEN_BANG:
         return arena_sprintf(gen->arena, "rt_not_bool(%s)", operand_str);
+    case TOKEN_TILDE:
+        return arena_sprintf(gen->arena, "((long long)(~(%s)))", operand_str);
     default:
         exit(1);
     }

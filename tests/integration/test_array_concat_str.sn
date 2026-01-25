@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: str[] = {"hello", "world"}
+    var b: str[] = {"foo", "bar"}
+    var c: str[] = a.concat(b)
+    print($"{c.length}\n")
+    print($"{c[0]} {c[1]} {c[2]} {c[3]}\n")

@@ -1,0 +1,11 @@
+fn main(): void =>
+    print($"{describe(1)}\n")
+    print($"{describe(5)}\n")
+    print($"{describe(10)}\n")
+
+fn describe(x: int): str =>
+    return match x =>
+        1 => "one"
+        5 => "five"
+        10 => "ten"
+        else => "unknown"

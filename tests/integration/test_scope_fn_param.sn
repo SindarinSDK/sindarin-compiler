@@ -1,0 +1,5 @@
+fn main(): void =>
+    print($"{double_it(7)}\n")
+    print($"{double_it(13)}\n")
+
+fn double_it(x: int): int => x * 2

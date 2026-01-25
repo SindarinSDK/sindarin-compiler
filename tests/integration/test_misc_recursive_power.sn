@@ -1,0 +1,7 @@
+fn main(): void =>
+    print($"{rec_pow(2, 8)}\n")
+
+fn rec_pow(b: int, e: int): int =>
+    if e == 0 =>
+        return 1
+    return b * rec_pow(b, e - 1)

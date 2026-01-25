@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: bool[] = {}
+    arr.push(true)
+    arr.push(false)
+    arr.push(true)
+    print($"{arr.length}\n")
+    print($"{arr[0]} {arr[1]} {arr[2]}\n")

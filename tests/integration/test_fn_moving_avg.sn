@@ -1,0 +1,7 @@
+fn main(): void =>
+    var arr: int[] = {2, 4, 6, 8, 10}
+    var avgs: int[] = {}
+    for var i: int = 0; i < arr.length - 2; i++ =>
+        var avg: int = (arr[i] + arr[i+1] + arr[i+2]) / 3
+        avgs.push(avg)
+    print($"{avgs.join(" ")}\n")

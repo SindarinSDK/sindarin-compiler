@@ -1,0 +1,7 @@
+fn main(): void =>
+    var c: char = 'b'
+    match c =>
+        'a' => print("first\n")
+        'b' => print("second\n")
+        'c' => print("third\n")
+        else => print("other\n")

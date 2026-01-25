@@ -312,30 +312,37 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     bool is_global = (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1);
     bool in_arena_context = (gen->current_arena_var != NULL);
 
+    // Detect escape from loop: value escapes a per-iteration arena to outer scope
+    bool escapes_loop = (gen->loop_arena_var != NULL && ast_expr_escapes_scope(expr->value));
+
     if (type->kind == TYPE_STRING)
     {
         // Skip freeing old value in arena context - arena handles cleanup
         if (in_arena_context)
         {
             // If target is a global variable, promote the value to main's arena.
-            // The local arena is destroyed when the function returns, but globals
-            // must outlive the function's arena scope. Main's arena persists for
-            // the program's lifetime, so promoting there is safe.
             if (is_global)
             {
                 return arena_sprintf(gen->arena, "(%s = rt_arena_promote_string(__main_arena__, %s))", var_name, value_str);
+            }
+            // If value escapes from a loop, promote to the loop's outer arena
+            if (escapes_loop && gen->loop_outer_arena_var != NULL)
+            {
+                return arena_sprintf(gen->arena, "(%s = rt_arena_promote_string(%s, %s))", var_name, gen->loop_outer_arena_var, value_str);
             }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         return arena_sprintf(gen->arena, "({ char *_val = %s; if (%s) rt_free_string(%s); %s = _val; _val; })",
                              value_str, var_name, var_name, var_name);
     }
-    else if (type->kind == TYPE_ARRAY && in_arena_context && is_global)
+    else if (type->kind == TYPE_ARRAY && in_arena_context && (is_global || escapes_loop))
     {
-        // Clone array to main's arena so it outlives the function's local arena.
+        // Clone array to appropriate arena so it outlives the per-iteration arena.
         Type *elem_type = type->as.array.element_type;
         const char *suffix = code_gen_type_suffix(elem_type);
-        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s(__main_arena__, %s))", var_name, suffix, value_str);
+        const char *target_arena = is_global ? "__main_arena__" :
+            (gen->loop_outer_arena_var != NULL ? gen->loop_outer_arena_var : "__main_arena__");
+        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s(%s, %s))", var_name, suffix, target_arena, value_str);
     }
     else if (type->kind == TYPE_STRUCT && in_arena_context && is_global)
     {

@@ -1,0 +1,8 @@
+fn main(): void =>
+    var arr: int[] = {3, 7, 2, 8, 5}
+    var first_even: int = -1
+    for var i: int = 0; i < arr.length; i++ =>
+        if arr[i] % 2 == 0 =>
+            first_even = arr[i]
+            break
+    print($"{first_even}\n")

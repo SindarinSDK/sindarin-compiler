@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int = 1
+    for var i: int = 0; i < 5; i++ =>
+        x = x * 2
+    print($"{x}\n")

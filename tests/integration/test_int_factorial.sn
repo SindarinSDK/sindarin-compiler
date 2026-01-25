@@ -1,0 +1,5 @@
+fn main(): void =>
+    var result: int = 1
+    var n: int = 5
+    result = 1 * 2 * 3 * 4 * 5
+    print($"{result}\n")

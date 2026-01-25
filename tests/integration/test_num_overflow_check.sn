@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 1000000
+    var y: int = x * 1000
+    print($"{y}\n")

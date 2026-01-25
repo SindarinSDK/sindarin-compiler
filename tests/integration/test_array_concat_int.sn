@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: int[] = {1, 2, 3}
+    var b: int[] = {4, 5, 6}
+    var c: int[] = a.concat(b)
+    print($"{c.length}\n")
+    print($"{c[0]} {c[1]} {c[2]} {c[3]} {c[4]} {c[5]}\n")

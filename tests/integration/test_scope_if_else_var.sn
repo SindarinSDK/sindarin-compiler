@@ -1,0 +1,8 @@
+fn main(): void =>
+    var x: int = 10
+    var result: int = 0
+    if x > 5 =>
+        result = 100
+    else =>
+        result = 200
+    print($"{result}\n")

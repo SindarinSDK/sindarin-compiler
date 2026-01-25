@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{is_palindrome(121)}\n")
+    print($"{is_palindrome(123)}\n")
+    print($"{is_palindrome(12321)}\n")
+
+fn is_palindrome(n: int): bool =>
+    var original: int = n
+    var reversed: int = 0
+    while n > 0 =>
+        reversed = reversed * 10 + n % 10
+        n = n / 10
+    return original == reversed

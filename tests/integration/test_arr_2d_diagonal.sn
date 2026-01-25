@@ -1,0 +1,4 @@
+fn main(): void =>
+    var m: int[][] = {{1, 0, 0}, {0, 2, 0}, {0, 0, 3}}
+    var diag: int = m[0][0] + m[1][1] + m[2][2]
+    print($"{diag}\n")

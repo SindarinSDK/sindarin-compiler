@@ -1,0 +1,12 @@
+fn main(): void =>
+    print($"{max3(1, 2, 3)}\n")
+    print($"{max3(3, 1, 2)}\n")
+    print($"{max3(2, 3, 1)}\n")
+
+fn max3(a: int, b: int, c: int): int =>
+    var m: int = a
+    if b > m =>
+        m = b
+    if c > m =>
+        m = c
+    return m

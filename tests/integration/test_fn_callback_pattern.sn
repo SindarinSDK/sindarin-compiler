@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {5, 3, 8, 1, 9}
+    var sum: int = fold(arr, 0, fn(a: int, b: int): int => a + b)
+    print($"{sum}\n")
+
+fn fold(arr: int[], init: int, f: fn(int, int): int): int =>
+    var result: int = init
+    for var i: int = 0; i < arr.length; i++ =>
+        result = f(result, arr[i])
+    return result

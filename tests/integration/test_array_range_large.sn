@@ -1,0 +1,4 @@
+fn main(): void =>
+    var arr: int[] = 0..10
+    print($"{arr.length}\n")
+    print($"{arr[0]} {arr[9]}\n")

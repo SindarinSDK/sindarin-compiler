@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = -15
+    var abs_x: int = x
+    if abs_x < 0 =>
+        abs_x = -abs_x
+    print($"{abs_x}\n")

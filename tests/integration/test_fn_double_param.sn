@@ -1,0 +1,5 @@
+fn main(): void =>
+    print($"{circle_area(2.0)}\n")
+
+fn circle_area(r: double): double =>
+    return 3.14159 * r * r

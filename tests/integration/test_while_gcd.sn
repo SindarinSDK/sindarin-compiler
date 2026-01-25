@@ -1,0 +1,8 @@
+fn main(): void =>
+    var a: int = 48
+    var b: int = 18
+    while b != 0 =>
+        var temp: int = b
+        b = a % b
+        a = temp
+    print($"{a}\n")

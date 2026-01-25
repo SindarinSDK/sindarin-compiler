@@ -1,0 +1,10 @@
+fn main(): void =>
+    var x: int = 3
+    if x == 1 =>
+        print("one\n")
+    else if x == 2 =>
+        print("two\n")
+    else if x == 3 =>
+        print("three\n")
+    else =>
+        print("other\n")

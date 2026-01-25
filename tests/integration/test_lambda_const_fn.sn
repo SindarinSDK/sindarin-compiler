@@ -1,0 +1,3 @@
+fn main(): void =>
+    var always42: fn(): int = fn(): int => 42
+    print($"{always42()}\n")

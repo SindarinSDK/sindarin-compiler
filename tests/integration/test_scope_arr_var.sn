@@ -1,0 +1,4 @@
+fn main(): void =>
+    var nums: int[] = {5, 10, 15}
+    var sum: int = nums[0] + nums[1] + nums[2]
+    print($"{sum}\n")

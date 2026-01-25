@@ -1,0 +1,7 @@
+fn main(): void =>
+    var mx: fn(int, int): int = fn(a: int, b: int): int =>
+        if a > b =>
+            return a
+        return b
+    print($"{mx(3, 7)}\n")
+    print($"{mx(10, 2)}\n")

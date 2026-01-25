@@ -1,0 +1,5 @@
+fn main(): void =>
+    var b: byte[] = {72, 101, 108, 108, 111}
+    var s: str = b.toString()
+    print($"{s}
+")

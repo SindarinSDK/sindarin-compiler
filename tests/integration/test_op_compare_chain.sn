@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 5
+    var lt: bool = x < 10
+    var gt: bool = x > 0
+    var both: bool = lt && gt
+    print($"{both}\n")

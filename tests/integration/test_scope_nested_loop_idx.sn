@@ -1,0 +1,6 @@
+fn main(): void =>
+    var count: int = 0
+    for var i: int = 0; i < 3; i++ =>
+        for var j: int = 0; j < 3; j++ =>
+            count++
+    print($"{count}\n")

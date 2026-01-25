@@ -32,6 +32,7 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     /* Initialize loop arena fields */
     gen->loop_arena_var = NULL;
     gen->loop_cleanup_label = NULL;
+    gen->loop_outer_arena_var = NULL;
 
     /* Initialize loop arena stack for nested loops */
     gen->loop_arena_stack = NULL;
@@ -1143,6 +1144,7 @@ void code_gen_module(CodeGen *gen, Module *module)
     }
     gen->output = func_temp;
 
+    /* First, detect if there's a user-defined main function */
     bool has_main = false;
     for (int i = 0; i < module->count; i++)
     {
@@ -1152,8 +1154,26 @@ void code_gen_module(CodeGen *gen, Module *module)
             strncmp(stmt->as.function.name.start, "main", 4) == 0)
         {
             has_main = true;
+            break;
         }
-        code_gen_statement(gen, stmt, 0);
+    }
+
+    /* Emit declarations at global scope; defer executable statements to generated main */
+    for (int i = 0; i < module->count; i++)
+    {
+        Stmt *stmt = module->statements[i];
+        if (stmt->type == STMT_FUNCTION || stmt->type == STMT_STRUCT_DECL ||
+            stmt->type == STMT_TYPE_DECL || stmt->type == STMT_IMPORT ||
+            stmt->type == STMT_PRAGMA)
+        {
+            code_gen_statement(gen, stmt, 0);
+        }
+        else if (has_main && stmt->type == STMT_VAR_DECL)
+        {
+            /* When there's a user-defined main, global var decls go at file scope
+             * so they're accessible by all functions */
+            code_gen_statement(gen, stmt, 0);
+        }
     }
 
     /* Emit struct method implementations */
@@ -1278,11 +1298,31 @@ void code_gen_module(CodeGen *gen, Module *module)
 
     if (!has_main)
     {
-        // Generate main with arena lifecycle
+        // Generate main with arena lifecycle containing top-level executable statements
         indented_fprintf(gen, 0, "int main() {\n");
         indented_fprintf(gen, 1, "RtArena *__local_arena__ = rt_arena_create(NULL);\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
         indented_fprintf(gen, 1, "int _return_value = 0;\n");
+
+        // Set up arena context for top-level statements
+        gen->current_arena_var = "__local_arena__";
+        gen->current_function = "main";
+
+        // Emit all non-declaration top-level statements inside main
+        for (int i = 0; i < module->count; i++)
+        {
+            Stmt *stmt = module->statements[i];
+            if (stmt->type != STMT_FUNCTION && stmt->type != STMT_STRUCT_DECL &&
+                stmt->type != STMT_TYPE_DECL && stmt->type != STMT_IMPORT &&
+                stmt->type != STMT_PRAGMA)
+            {
+                code_gen_statement(gen, stmt, 1);
+            }
+        }
+
+        gen->current_arena_var = NULL;
+        gen->current_function = NULL;
+
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
         indented_fprintf(gen, 1, "rt_arena_destroy(__local_arena__);\n");

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var b: byte[] = {65, 66, 67}
+    print($"{b.length}
+")
+    print($"{b[0]} {b[1]} {b[2]}
+")

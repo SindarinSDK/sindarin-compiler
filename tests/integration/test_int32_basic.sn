@@ -1,0 +1,5 @@
+fn main(): void =>
+    var x: int32 = 42i32
+    print($"{x}\n")
+    var y: int32 = -100i32
+    print($"{y}\n")

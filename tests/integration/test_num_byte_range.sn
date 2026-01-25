@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: byte = 0
+    var b: byte = 127
+    var c: byte = 255
+    print($"{a} {b} {c}\n")

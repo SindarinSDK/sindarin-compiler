@@ -1,0 +1,9 @@
+fn main(): void =>
+    print($"{bin_to_dec({1, 0, 1, 1})}\n")
+    print($"{bin_to_dec({1, 1, 1, 1})}\n")
+
+fn bin_to_dec(bits: int[]): int =>
+    var result: int = 0
+    for b in bits =>
+        result = result * 2 + b
+    return result

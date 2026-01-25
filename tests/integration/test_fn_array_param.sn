@@ -1,0 +1,10 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3, 4, 5}
+    var s: int = sum_array(arr)
+    print($"{s}\n")
+
+fn sum_array(arr: int[]): int =>
+    var total: int = 0
+    for x in arr =>
+        total += x
+    return total

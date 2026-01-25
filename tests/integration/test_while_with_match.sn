@@ -1,0 +1,9 @@
+fn main(): void =>
+    var i: int = 1
+    while i <= 3 =>
+        match i =>
+            1 => print("one\n")
+            2 => print("two\n")
+            3 => print("three\n")
+            else => print("?\n")
+        i++

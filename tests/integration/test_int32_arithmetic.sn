@@ -1,0 +1,5 @@
+fn main(): void =>
+    var a: int32 = 10i32
+    var b: int32 = 20i32
+    print($"{a + b}\n")
+    print($"{a * b}\n")

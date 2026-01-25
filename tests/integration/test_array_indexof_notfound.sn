@@ -1,0 +1,5 @@
+fn main(): void =>
+    var arr: int[] = {10, 20, 30}
+    print($"{arr.indexOf(10)}\n")
+    print($"{arr.indexOf(30)}\n")
+    print($"{arr.indexOf(99)}\n")

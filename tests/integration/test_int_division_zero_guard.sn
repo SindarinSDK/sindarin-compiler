@@ -1,0 +1,9 @@
+fn main(): void =>
+    var x: int = 10
+    var divisor: int = 2
+    if divisor != 0 =>
+        print($"{x / divisor}
+")
+    else =>
+        print("div by zero
+")

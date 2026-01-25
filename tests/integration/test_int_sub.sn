@@ -1,0 +1,4 @@
+fn main(): void =>
+    var a: int = 30
+    var b: int = 12
+    print($"{a - b}\n")

@@ -1,0 +1,6 @@
+fn main(): void =>
+    var a: char = 'x'
+    var b: char = 'x'
+    var c: char = 'y'
+    print($"{a == b}\n")
+    print($"{a == c}\n")

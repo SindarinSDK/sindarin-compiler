@@ -1,0 +1,4 @@
+fn main(): void =>
+    println(0xAA ^ 0x55)
+    println(0xFF ^ 0xFF)
+    println(5 ^ 3)

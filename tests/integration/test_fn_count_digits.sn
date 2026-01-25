@@ -1,0 +1,16 @@
+fn main(): void =>
+    print($"{count_digits(12345)}\n")
+    print($"{count_digits(1)}\n")
+    print($"{count_digits(1000000)}\n")
+
+fn count_digits(n: int): int =>
+    if n == 0 =>
+        return 1
+    var count: int = 0
+    var x: int = n
+    if x < 0 =>
+        x = -x
+    while x > 0 =>
+        x = x / 10
+        count++
+    return count
