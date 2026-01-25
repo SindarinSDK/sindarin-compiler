@@ -292,10 +292,62 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
         if (sym != NULL)
         {
-            /* Track which arena owns this handle for correct pinning */
-            if (gen->current_arena_var != NULL && is_handle_type(stmt->type))
+            /* Track which arena owns handles for correct pinning.
+             * This applies to handle types (string/array) AND struct types
+             * (since structs may contain string/array fields).
+             * Default to current arena, but may be updated below if the
+             * initializer is an array access from a different arena. */
+            bool needs_pin_arena = is_handle_type(stmt->type) ||
+                                   (stmt->type != NULL && stmt->type->kind == TYPE_STRUCT);
+            if (gen->current_arena_var != NULL && needs_pin_arena)
             {
                 sym->pin_arena = ARENA_VAR(gen);
+
+                /* If initializer is an array access, propagate the array's pin_arena
+                 * to this variable. Element handles belong to the same arena as the
+                 * array, which may be a parent arena (e.g., when accessing inside a loop). */
+                if (stmt->initializer != NULL && stmt->initializer->type == EXPR_ARRAY_ACCESS)
+                {
+                    Expr *arr_expr = stmt->initializer->as.array_access.array;
+                    if (arr_expr->type == EXPR_VARIABLE)
+                    {
+                        Symbol *arr_sym = symbol_table_lookup_symbol(gen->symbol_table, arr_expr->as.variable.name);
+                        if (arr_sym != NULL && arr_sym->pin_arena != NULL)
+                        {
+                            sym->pin_arena = arr_sym->pin_arena;
+                        }
+                    }
+                }
+                /* If initializer is a struct field access and the field is a handle type,
+                 * use the function's arena (not loop arena) since struct fields contain
+                 * handles that were created in the scope where the struct was created.
+                 * This handles cases like: var x: str = myStruct.stringField
+                 * Note: EXPR_MEMBER is used for field access (e.g., v.field),
+                 *       EXPR_MEMBER_ACCESS is used for chained access after type checking */
+                else if (stmt->initializer != NULL &&
+                         (stmt->initializer->type == EXPR_MEMBER_ACCESS ||
+                          stmt->initializer->type == EXPR_MEMBER))
+                {
+                    /* EXPR_MEMBER uses .member.object, EXPR_MEMBER_ACCESS uses .member_access.object */
+                    Expr *obj_expr = (stmt->initializer->type == EXPR_MEMBER)
+                        ? stmt->initializer->as.member.object
+                        : stmt->initializer->as.member_access.object;
+                    if (obj_expr != NULL && obj_expr->type == EXPR_VARIABLE)
+                    {
+                        Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table, obj_expr->as.variable.name);
+                        if (obj_sym != NULL && obj_sym->pin_arena != NULL)
+                        {
+                            /* Use the struct's pin_arena for the field handle */
+                            sym->pin_arena = obj_sym->pin_arena;
+                        }
+                        else if (gen->function_arena_var != NULL)
+                        {
+                            /* Struct doesn't have pin_arena (e.g., local struct outside loop),
+                             * use the function's arena as the safe default */
+                            sym->pin_arena = gen->function_arena_var;
+                        }
+                    }
+                }
             }
             /* Set sync modifier if present */
             if (stmt->sync_modifier == SYNC_ATOMIC)
@@ -970,9 +1022,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             if (param_type->kind == TYPE_STRING)
             {
                 /* Strings are immutable — cloning is safe and ensures the handle
-                 * is resolvable when passed to sub-functions via __local_arena__. */
+                 * is resolvable when passed to sub-functions via __local_arena__.
+                 * Use clone_any to search current arena first, then parent arenas.
+                 * Index collisions are avoided by child arenas starting their indices
+                 * at an offset from their parent's current count. */
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
-                indented_fprintf(gen, 1, "%s = rt_managed_clone(__local_arena__, __caller_arena__, %s);\n",
+                indented_fprintf(gen, 1, "%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s);\n",
                                  param_name, param_name);
                 /* Update symbol kind so pin calls use __local_arena__ instead of __caller_arena__ */
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
@@ -981,7 +1036,8 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             else if (param_type->kind == TYPE_STRUCT && stmt->params[i].mem_qualifier != MEM_AS_REF)
             {
                 /* Clone string handle fields of value struct parameters (not 'as ref' pointers).
-                 * Array fields are NOT cloned to preserve pass-by-reference mutation semantics. */
+                 * Array fields are NOT cloned to preserve pass-by-reference mutation semantics.
+                 * Use clone_any to search current arena first, then parent arenas. */
                 int field_count = param_type->as.struct_type.field_count;
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 for (int f = 0; f < field_count; f++)
@@ -990,7 +1046,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                     if (field->type && field->type->kind == TYPE_STRING)
                     {
                         const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone(__local_arena__, __caller_arena__, %s.%s);\n",
+                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s.%s);\n",
                                          param_name, c_field_name, param_name, c_field_name);
                     }
                 }
@@ -1030,10 +1086,20 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 const char *suffix = code_gen_type_suffix(elem_type);
                 if (gen->current_arena_var != NULL)
                 {
-                    /* Handle mode: pin the source handle, clone into a new handle */
+                    /* Handle mode: pin the source handle from caller arena, clone into local arena.
+                     * Use pin_array_any to search the caller's arena tree since the parameter
+                     * handle was allocated in the caller or one of its ancestors. */
                     const char *elem_c = get_c_type(gen->arena, elem_type);
-                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, ((%s *)rt_managed_pin_array(%s, %s)));\n",
-                                     param_name, suffix, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), param_name);
+                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, ((%s *)rt_managed_pin_array_any(__caller_arena__, %s)));\n",
+                                     param_name, suffix, ARENA_VAR(gen), elem_c, param_name);
+                    /* Update symbol to local: change kind from PARAM to LOCAL so that
+                     * code_gen_variable_expression uses pin_arena instead of __caller_arena__ */
+                    Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
+                    if (sym)
+                    {
+                        sym->kind = SYMBOL_LOCAL;
+                        sym->pin_arena = ARENA_VAR(gen);
+                    }
                 }
                 else
                 {
@@ -1046,6 +1112,14 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 indented_fprintf(gen, 1, "%s = rt_to_string_string(%s, %s);\n",
                                  param_name, ARENA_VAR(gen), param_name);
+                /* Update symbol to local: change kind from PARAM to LOCAL so that
+                 * code_gen_variable_expression uses pin_arena instead of __caller_arena__ */
+                Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
+                if (sym)
+                {
+                    sym->kind = SYMBOL_LOCAL;
+                    sym->pin_arena = ARENA_VAR(gen);
+                }
             }
         }
     }

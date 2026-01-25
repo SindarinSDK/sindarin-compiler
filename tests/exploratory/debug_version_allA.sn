@@ -1,0 +1,32 @@
+import "../../sdk/core/version"
+
+fn myCompare(a: str, b: str): int =>
+    print($"  myCompare called: a='{a}' (len={a.length}), b='{b}' (len={b.length})\n")
+    if a == "" && b == "" =>
+        return 0
+    return 999
+
+fn main(): int =>
+    print("=== Debug struct field passing ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"v.prerelease = '{v.prerelease}'\n\n")
+    
+    # Test outside loop
+    print("Outside loop:\n")
+    var r1: int = myCompare(v.prerelease, "")
+    print($"  result = {r1}\n\n")
+    
+    # Test inside loop
+    print("Inside loop:\n")
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        if part.startsWith("<") =>
+            var r2: int = myCompare(v.prerelease, "")
+            print($"  result = {r2}\n")
+        i = i + 1
+
+    return 0

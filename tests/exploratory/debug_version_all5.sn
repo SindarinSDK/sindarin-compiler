@@ -1,0 +1,37 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug satisfiedBy ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"v: major={v.major}, minor={v.minor}, patch={v.patch}, prerelease='{v.prerelease}'\n\n")
+    
+    # Parse constraint directly
+    var c1: str = "<2.0.0"
+    print("Direct parse:\n")
+    var constraint1: VersionConstraint = VersionConstraint.parse(c1)
+    print($"  constraint: op={constraint1.op}, major={constraint1.major}, minor={constraint1.minor}, patch={constraint1.patch}, prerelease='{constraint1.prerelease}'\n")
+    
+    # Call _versionCmp manually
+    var cmp1: int = _versionCmp(v.major, v.minor, v.patch, v.prerelease, constraint1.major, constraint1.minor, constraint1.patch, constraint1.prerelease)
+    print($"  _versionCmp = {cmp1}\n")
+    print($"  satisfiedBy = {constraint1.satisfiedBy(v)}\n\n")
+    
+    # Parse same constraint from split in a loop
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        if part.startsWith("<") =>
+            print("From loop:\n")
+            var constraint2: VersionConstraint = VersionConstraint.parse(part)
+            print($"  constraint: op={constraint2.op}, major={constraint2.major}, minor={constraint2.minor}, patch={constraint2.patch}, prerelease='{constraint2.prerelease}'\n")
+            
+            # Call _versionCmp manually
+            var cmp2: int = _versionCmp(v.major, v.minor, v.patch, v.prerelease, constraint2.major, constraint2.minor, constraint2.patch, constraint2.prerelease)
+            print($"  _versionCmp = {cmp2}\n")
+            print($"  satisfiedBy = {constraint2.satisfiedBy(v)}\n\n")
+        i = i + 1
+
+    return 0

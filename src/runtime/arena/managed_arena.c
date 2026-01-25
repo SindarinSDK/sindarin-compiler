@@ -234,6 +234,17 @@ RtManagedArena *rt_managed_arena_create_child(RtManagedArena *parent)
     child->is_root = false;
     child->parent = parent;
 
+    /* Start child's handle indices at an offset to avoid collision with parent.
+     * This ensures that handles allocated in the child arena won't have the same
+     * index as existing entries in the parent, preventing incorrect lookups when
+     * parameters come from different arenas.
+     *
+     * We inherit the parent's current table_count as our starting index.
+     * The index_offset tracks the starting point; table_count will grow from there.
+     * Pages are only allocated for indices >= index_offset as needed. */
+    child->index_offset = parent->table_count;
+    child->table_count = parent->table_count;
+
     /* Link into parent's child list */
     pthread_mutex_lock(&parent->children_mutex);
     child->next_sibling = parent->first_child;
@@ -261,9 +272,12 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     /* Invoke cleanup callbacks */
     invoke_cleanup_list(child);
 
-    /* Mark all live entries as dead */
+    /* Mark all live entries as dead.
+     * Only iterate entries this arena actually allocated (from index_offset onwards).
+     * Entries at indices < index_offset don't exist in this arena's page table. */
     pthread_mutex_lock(&child->alloc_mutex);
-    for (uint32_t i = 1; i < child->table_count; i++) {
+    uint32_t start_idx = child->index_offset > 0 ? child->index_offset : 1;
+    for (uint32_t i = start_idx; i < child->table_count; i++) {
         RtHandleEntry *entry = rt_handle_get(child, i);
         if (!entry->dead && entry->ptr != NULL) {
             entry->dead = true;
@@ -308,8 +322,9 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     /* Force-release all leases - the child arena is being destroyed and the
      * caller guarantees no outstanding accesses (ensured by lexical scoping).
      * Legacy API (rt_arena_alloc) creates permanent pins that would otherwise
-     * never drain, making child arena destruction hang. */
-    for (uint32_t i = 1; i < child->table_count; i++) {
+     * never drain, making child arena destruction hang.
+     * Only iterate entries this arena actually allocated (from index_offset onwards). */
+    for (uint32_t i = start_idx; i < child->table_count; i++) {
         RtHandleEntry *entry = rt_handle_get(child, i);
         atomic_store(&entry->leased, 0);
     }
@@ -627,6 +642,100 @@ RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
     return (RtHandle)new_index;
 }
 
+/* Helper to check if a handle is valid in an arena (has non-null, non-dead entry) */
+static bool is_handle_valid_in_arena(RtManagedArena *ma, RtHandle h)
+{
+    if (ma == NULL || h == RT_HANDLE_NULL || h >= ma->table_count) return false;
+    /* For child arenas with index_offset, reject indices below the offset.
+     * Those indices don't exist in this arena's page table - they belong to parents. */
+    if (h < ma->index_offset) return false;
+    RtHandleEntry *entry = rt_handle_get(ma, h);
+    return entry != NULL && entry->ptr != NULL && !entry->dead;
+}
+
+/* Clone from any arena in the tree (self, parents, or root).
+ * Like rt_managed_pin_any, walks up the parent chain to find the source handle.
+ * Used when handles may come from parent scopes (e.g., loop parent arena).
+ * Important: Verifies the handle is actually valid in each arena before cloning,
+ * to avoid incorrectly matching an index that exists in the wrong arena. */
+RtHandle rt_managed_clone_any(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
+{
+    if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* Try current arena first (most common case) - verify entry is valid */
+    if (is_handle_valid_in_arena(src, h)) {
+        return rt_managed_clone(dest, src, h);
+    }
+
+    /* Walk up parent chain to find the arena containing this handle */
+    RtManagedArena *search = src->parent;
+    while (search != NULL) {
+        if (is_handle_valid_in_arena(search, h)) {
+            return rt_managed_clone(dest, search, h);
+        }
+        search = search->parent;
+    }
+
+    return RT_HANDLE_NULL;
+}
+
+/* Clone from parent arenas only, skipping the immediate source arena.
+ * Used for cloning function parameters where the handle likely came from a
+ * parent scope (not the immediate caller arena). This avoids index collisions
+ * when the caller arena (e.g., loop arena) has a different entry at the same index. */
+RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
+{
+    if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* Skip the immediate source arena - start searching from its parent.
+     * This is because parameters typically come from scopes OUTSIDE the
+     * immediate caller, and index collisions can occur in child arenas. */
+    RtManagedArena *search = src->parent;
+    while (search != NULL) {
+        if (is_handle_valid_in_arena(search, h)) {
+            return rt_managed_clone(dest, search, h);
+        }
+        search = search->parent;
+    }
+
+    /* Fallback: try the source arena itself (in case it's the root) */
+    if (src->parent == NULL && is_handle_valid_in_arena(src, h)) {
+        return rt_managed_clone(dest, src, h);
+    }
+
+    return RT_HANDLE_NULL;
+}
+
+/* Clone preferring parent arenas over the immediate source arena.
+ * Used for function parameter cloning where handles typically come from scopes
+ * OUTSIDE the immediate caller. If both src and src->parent have valid entries
+ * at the same index, prefers the parent's entry (which was allocated first).
+ *
+ * This handles the common case of loop arenas that create new entries at low
+ * indices that collide with handles from the parent scope.
+ *
+ * Search order: parent chain first (if parent has valid entry), then src itself. */
+RtHandle rt_managed_clone_prefer_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
+{
+    if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* First check parent chain - parent entries predate child entries */
+    RtManagedArena *search = src->parent;
+    while (search != NULL) {
+        if (is_handle_valid_in_arena(search, h)) {
+            return rt_managed_clone(dest, search, h);
+        }
+        search = search->parent;
+    }
+
+    /* No parent has this handle - check the source arena itself */
+    if (is_handle_valid_in_arena(src, h)) {
+        return rt_managed_clone(dest, src, h);
+    }
+
+    return RT_HANDLE_NULL;
+}
+
 /* ============================================================================
  * Public API: Pin / Unpin
  * ============================================================================ */
@@ -665,22 +774,24 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
 /* Pin from any arena in the tree (self, parents, or root).
  * Tries the given arena first, then walks up to parent arenas.
- * Used when handles may come from parent scopes (e.g., globals in main arena). */
+ * Used when handles may come from parent scopes (e.g., globals in main arena).
+ * Important: Verifies the handle is actually valid in each arena before pinning,
+ * to avoid incorrectly matching an index that exists in the wrong arena. */
 void *rt_managed_pin_any(RtManagedArena *ma, RtHandle h)
 {
     if (ma == NULL || h == RT_HANDLE_NULL) {
         return NULL;
     }
 
-    /* Try current arena first (most common case) */
-    if (h < ma->table_count) {
+    /* Try current arena first (most common case) - verify entry is valid */
+    if (is_handle_valid_in_arena(ma, h)) {
         return rt_managed_pin(ma, h);
     }
 
     /* Walk up parent chain to find the arena containing this handle */
     RtManagedArena *search = ma->parent;
     while (search != NULL) {
-        if (h < search->table_count) {
+        if (is_handle_valid_in_arena(search, h)) {
             return rt_managed_pin(search, h);
         }
         search = search->parent;

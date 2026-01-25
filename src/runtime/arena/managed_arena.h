@@ -113,7 +113,8 @@ typedef struct RtManagedArena {
     RtHandleEntry **pages;        /* Array of page pointers */
     uint32_t pages_count;         /* Number of allocated pages */
     uint32_t pages_capacity;      /* Capacity of pages pointer array */
-    uint32_t table_count;         /* Total entries allocated (across all pages) */
+    uint32_t table_count;         /* Next index to allocate (may start > 0 for children) */
+    uint32_t index_offset;        /* Starting index for this arena (inherited from parent) */
 
     /* Free list (recycled handle indices) */
     uint32_t *free_list;          /* Stack of recyclable handle indices */
@@ -202,6 +203,22 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
  * Unlike promote, the source entry remains valid after cloning.
  * Used for thread spawn arguments where multiple threads read the same source. */
 RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
+/* Clone from any arena in the tree (self, parents, or root).
+ * Like rt_managed_pin_any, walks up the parent chain to find the source handle.
+ * Used when handles may come from parent scopes (e.g., loop parent arena). */
+RtHandle rt_managed_clone_any(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
+/* Clone from parent arenas only, skipping the immediate source arena.
+ * Used for cloning function parameters where the handle likely came from a
+ * parent scope, avoiding index collisions in child arenas (e.g., loop arena). */
+RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
+/* Clone preferring parent arenas over the immediate source arena.
+ * Used for function parameter cloning where handles typically come from outer
+ * scopes. If both src and src->parent have valid entries at the same index,
+ * prefers the parent's entry (which was allocated first). */
+RtHandle rt_managed_clone_prefer_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
 
 /* Pin a handle — returns raw pointer, increments lease counter.
  * The pointer is valid until rt_managed_unpin is called. */
