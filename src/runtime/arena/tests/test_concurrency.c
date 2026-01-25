@@ -114,9 +114,9 @@ static void test_concurrent_pin_compact(void)
 
 void test_concurrency_run(void)
 {
-    printf("\n-- Stress --\n");
+    TEST_SECTION("Stress");
     TEST_RUN("5 globals x 1000 reassignments", test_stress_alloc_reassign);
 
-    printf("\n-- Concurrency --\n");
+    TEST_SECTION("Concurrency");
     TEST_RUN("concurrent pin + compact", test_concurrent_pin_compact);
 }

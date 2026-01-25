@@ -481,7 +481,7 @@ static void test_promote_stress(void)
 
 void test_hierarchy_run(void)
 {
-    printf("\n-- Arena Hierarchy --\n");
+    TEST_SECTION("Arena Hierarchy");
     TEST_RUN("create child arena", test_create_child);
     TEST_RUN("child independent allocation", test_child_independent_alloc);
     TEST_RUN("destroy child marks handles dead", test_destroy_child_marks_dead);
@@ -492,7 +492,7 @@ void test_hierarchy_run(void)
     TEST_RUN("GC walks child arenas", test_gc_walks_children);
     TEST_RUN("child reassignment stress (5x100)", test_child_reassignment_stress);
 
-    printf("\n-- Promotion (child → parent) --\n");
+    TEST_SECTION("Promotion (child -> parent)");
     TEST_RUN("basic promote", test_promote_basic);
     TEST_RUN("promote multiple values", test_promote_multiple);
     TEST_RUN("promote across levels (deep)", test_promote_deep);

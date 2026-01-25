@@ -156,7 +156,7 @@ run: build
 #------------------------------------------------------------------------------
 # Test targets - Delegate to Python test runner
 #------------------------------------------------------------------------------
-test: build
+test: build test-arena
 	@echo "Running all tests..."
 	$(PYTHON) scripts/run_tests.py all --verbose
 

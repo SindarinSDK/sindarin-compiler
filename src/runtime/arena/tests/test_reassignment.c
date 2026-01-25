@@ -88,11 +88,11 @@ static void test_fragmentation_ratio(void)
 
 void test_reassignment_run(void)
 {
-    printf("\n-- Reassignment --\n");
+    TEST_SECTION("Reassignment");
     TEST_RUN("reassignment marks old as dead", test_reassignment_marks_dead);
     TEST_RUN("rapid reassignment (100x)", test_rapid_reassignment);
     TEST_RUN("multiple globals (3x50 reassignments)", test_multiple_globals_reassignment);
 
-    printf("\n-- Diagnostics --\n");
+    TEST_SECTION("Diagnostics");
     TEST_RUN("fragmentation ratio", test_fragmentation_ratio);
 }

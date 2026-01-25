@@ -66,7 +66,7 @@ static void test_large_allocation(void)
 
 void test_alloc_run(void)
 {
-    printf("-- Basic Allocation --\n");
+    TEST_SECTION("Basic Allocation");
     TEST_RUN("create and destroy", test_create_destroy);
     TEST_RUN("single allocation", test_single_alloc);
     TEST_RUN("multiple allocations", test_multiple_allocs);
