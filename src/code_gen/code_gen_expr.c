@@ -1058,14 +1058,12 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
      * The callee's __local_arena__ is destroyed on return, which would leave
      * dangling handles in the caller's struct. */
     char *prev_arena_var = gen->current_arena_var;
-    bool is_ref_target = false;
     if (assign->object->type == EXPR_VARIABLE && gen->current_arena_var != NULL &&
         field != NULL && (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
     {
         Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table, assign->object->as.variable.name);
         if (obj_sym != NULL && obj_sym->mem_qual == MEM_AS_REF)
         {
-            is_ref_target = true;
             gen->current_arena_var = "__caller_arena__";
         }
     }
