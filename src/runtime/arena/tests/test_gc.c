@@ -154,15 +154,15 @@ static void test_handle_recycling(void)
 
 void test_gc_run(void)
 {
-    printf("\n-- Cleaner Thread --\n");
+    TEST_SECTION("Cleaner Thread");
     TEST_RUN("cleaner zeros dead entries", test_cleaner_zeros_dead);
     TEST_RUN("cleaner preserves live entries", test_cleaner_preserves_live);
     TEST_RUN("cleaner respects leases", test_cleaner_respects_leases);
 
-    printf("\n-- Compaction --\n");
+    TEST_SECTION("Compaction");
     TEST_RUN("compact reduces fragmentation", test_compact_reduces_fragmentation);
     TEST_RUN("compact skips pinned entries", test_compact_skips_pinned);
 
-    printf("\n-- Handle Recycling --\n");
+    TEST_SECTION("Handle Recycling");
     TEST_RUN("handle recycling after cleanup", test_handle_recycling);
 }

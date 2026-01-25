@@ -61,7 +61,7 @@ static void test_pin_null_handle(void)
 
 void test_pin_run(void)
 {
-    printf("\n-- Pin / Unpin --\n");
+    TEST_SECTION("Pin / Unpin");
     TEST_RUN("basic pin and unpin", test_pin_unpin);
     TEST_RUN("pin read/write data", test_pin_read_write);
     TEST_RUN("multiple pins (nested)", test_multiple_pins);

@@ -645,7 +645,7 @@ static void test_profile_alloc_contention(void)
 
 void test_stress_run(void)
 {
-    printf("\n-- Stress Profiles --\n");
+    TEST_SECTION("Stress Profiles");
     TEST_RUN("fragmentation storm (8 arenas x 200 handles)", test_profile_fragmentation_storm);
     TEST_RUN("mixed scope modes (50 function calls)", test_profile_mixed_scope_modes);
     TEST_RUN("web server (100 requests + session)", test_profile_web_server);

@@ -336,7 +336,7 @@ static void test_total_allocated_null(void)
 
 void test_api_run(void)
 {
-    printf("\n-- String Helpers --\n");
+    TEST_SECTION("String Helpers");
     TEST_RUN("strdup basic", test_strdup_basic);
     TEST_RUN("strdup with reassignment", test_strdup_reassignment);
     TEST_RUN("strdup empty string", test_strdup_empty);
@@ -345,7 +345,7 @@ void test_api_run(void)
     TEST_RUN("strndup n > strlen", test_strndup_longer_than_string);
     TEST_RUN("promote_string convenience", test_promote_string);
 
-    printf("\n-- Cleanup Callbacks --\n");
+    TEST_SECTION("Cleanup Callbacks");
     TEST_RUN("cleanup invoked on destroy", test_cleanup_on_destroy);
     TEST_RUN("cleanup priority order", test_cleanup_priority_order);
     TEST_RUN("cleanup on child destroy", test_cleanup_on_child_destroy);
@@ -353,12 +353,12 @@ void test_api_run(void)
     TEST_RUN("cleanup null data fires", test_cleanup_null_data_fires);
     TEST_RUN("cleanup null cases", test_cleanup_null_cases);
 
-    printf("\n-- Reset --\n");
+    TEST_SECTION("Reset");
     TEST_RUN("reset marks all dead", test_reset_marks_all_dead);
     TEST_RUN("reset invokes cleanup", test_reset_invokes_cleanup);
     TEST_RUN("reset allows reuse", test_reset_allows_reuse);
 
-    printf("\n-- total_allocated --\n");
+    TEST_SECTION("total_allocated");
     TEST_RUN("total_allocated grows", test_total_allocated);
     TEST_RUN("total_allocated null arena", test_total_allocated_null);
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "test_framework.h"
 
 /* Shared test counters */
 int tests_passed = 0;
@@ -17,7 +18,8 @@ extern void test_stress_run(void);
 
 int main(void)
 {
-    printf("=== Managed Arena Tests ===\n\n");
+    printf("\n" TEST_COLOR_BOLD "Managed Arena" TEST_COLOR_RESET "\n");
+    printf("------------------------------------------------------------\n");
 
     test_alloc_run();
     test_pin_run();
@@ -28,7 +30,15 @@ int main(void)
     test_api_run();
     test_stress_run();
 
-    printf("\n=== Results: %d passed, %d failed (%.2fms total) ===\n",
-           tests_passed, tests_failed, tests_total_ms);
+    printf("\n------------------------------------------------------------\n");
+    if (tests_total_ms >= 1000.0)
+        printf("Results: " TEST_COLOR_GREEN "%d passed" TEST_COLOR_RESET ", "
+               TEST_COLOR_RED "%d failed" TEST_COLOR_RESET "  (total: %.2fs)\n",
+               tests_passed, tests_failed, tests_total_ms / 1000.0);
+    else
+        printf("Results: " TEST_COLOR_GREEN "%d passed" TEST_COLOR_RESET ", "
+               TEST_COLOR_RED "%d failed" TEST_COLOR_RESET "  (total: %.2fms)\n",
+               tests_passed, tests_failed, tests_total_ms);
+
     return tests_failed > 0 ? 1 : 0;
 }

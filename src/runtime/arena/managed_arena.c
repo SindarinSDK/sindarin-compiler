@@ -437,6 +437,8 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
         RtHandleEntry *old_entry = rt_handle_get(ma, old);
         if (!old_entry->dead) {
             old_entry->dead = true;
+            atomic_fetch_add(&ma->dead_bytes, old_entry->size);
+            atomic_fetch_sub(&ma->live_bytes, old_entry->size);
         }
     }
 
@@ -637,9 +639,9 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Increment entry lease (block lease_count eliminated —
-     * retire_drained_blocks scans entries instead) */
+    /* Increment entry lease and block lease count */
     atomic_fetch_add(&entry->leased, 1);
+    atomic_fetch_add(&entry->block->lease_count, 1);
 
     return entry->ptr;
 }
@@ -652,8 +654,9 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
 
-    /* Decrement entry lease */
+    /* Decrement entry lease and block lease count */
     atomic_fetch_sub(&entry->leased, 1);
+    atomic_fetch_sub(&entry->block->lease_count, 1);
 }
 
 /* Pin from any arena in the tree (self, parents, or root).
