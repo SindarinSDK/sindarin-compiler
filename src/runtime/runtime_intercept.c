@@ -58,47 +58,6 @@ __thread void *__rt_thunk_arena = NULL;
 static RtInterceptorEntry interceptor_registry[MAX_INTERCEPTORS];
 static int interceptor_registry_count = 0;
 
-/* Maximum number of arguments for intercepted functions.
- * Functions with more arguments than this cannot use args.length in interceptors. */
-#define MAX_INTERCEPT_ARGS 32
-
-/* Static thread-local buffer for wrapped args (avoids allocations).
- * Layout: [RtArrayMetadata][RtAny data...] */
-#ifdef _MSC_VER
-__declspec(thread) char __rt_wrapped_args_buffer[sizeof(RtArrayMetadata) + MAX_INTERCEPT_ARGS * sizeof(RtAny)];
-#elif !defined(__TINYC__)
-/* TCC uses __rt_wrapped_args_buffer macro from header pointing to TLS struct */
-__thread char __rt_wrapped_args_buffer[sizeof(RtArrayMetadata) + MAX_INTERCEPT_ARGS * sizeof(RtAny)];
-#endif
-
-/* Wrap raw RtAny* args into a proper Sindarin array with metadata.
- * Uses a static thread-local buffer to avoid allocations. */
-static RtAny *wrap_args_as_sindarin_array(RtAny *raw_args, int arg_count)
-{
-    /* If too many args, fall back to raw args (no length support) */
-    if (arg_count > MAX_INTERCEPT_ARGS)
-    {
-        return raw_args;
-    }
-
-    /* Point to the data area after the metadata */
-    RtAny *wrapped_args = (RtAny *)(__rt_wrapped_args_buffer + sizeof(RtArrayMetadata));
-
-    /* Set up the metadata */
-    RtArrayMetadata *meta = ((RtArrayMetadata *)wrapped_args) - 1;
-    meta->arena = NULL;  /* Not arena-managed */
-    meta->size = arg_count;
-    meta->capacity = MAX_INTERCEPT_ARGS;
-
-    /* Copy the args data */
-    if (arg_count > 0 && raw_args != NULL)
-    {
-        memcpy(wrapped_args, raw_args, arg_count * sizeof(RtAny));
-    }
-
-    return wrapped_args;
-}
-
 // Simple mutex for thread safety (platform-specific)
 #ifdef _WIN32
 #include <windows.h>

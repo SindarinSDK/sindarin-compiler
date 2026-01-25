@@ -432,13 +432,11 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
         alloc_block = ma->current;
     }
 
-    /* Mark old allocation as dead (capture size for stat update outside lock) */
-    size_t old_dead_size = 0;
+    /* Mark old allocation as dead */
     if (old != RT_HANDLE_NULL && old < ma->table_count) {
         RtHandleEntry *old_entry = rt_handle_get(ma, old);
         if (!old_entry->dead) {
             old_entry->dead = true;
-            old_dead_size = old_entry->size;
         }
     }
 

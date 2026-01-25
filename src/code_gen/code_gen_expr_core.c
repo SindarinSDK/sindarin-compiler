@@ -513,9 +513,6 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     bool is_global = (symbol->kind == SYMBOL_GLOBAL || symbol->declaration_scope_depth <= 1);
     bool in_arena_context = (gen->current_arena_var != NULL);
 
-    // Detect escape from loop: value escapes a per-iteration arena to outer scope
-    bool escapes_loop = (gen->loop_arena_var != NULL && ast_expr_escapes_scope(expr->value));
-
     if (type->kind == TYPE_STRING)
     {
         if (in_arena_context)

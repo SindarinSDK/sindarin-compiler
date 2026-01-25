@@ -478,18 +478,6 @@ bool rt_thread_is_done(RtThreadHandle *handle)
     return handle->done;
 }
 
-/* Check if a result type is a primitive (does not need promotion) */
-static bool rt_result_type_is_primitive(int result_type)
-{
-    return result_type == RT_TYPE_VOID ||
-           result_type == RT_TYPE_INT ||
-           result_type == RT_TYPE_LONG ||
-           result_type == RT_TYPE_DOUBLE ||
-           result_type == RT_TYPE_BOOL ||
-           result_type == RT_TYPE_BYTE ||
-           result_type == RT_TYPE_CHAR;
-}
-
 /* Join a thread and retrieve its result (low-level pthread_join wrapper)
  * This function waits for the thread to complete and returns the result value.
  * It handles both void and non-void return types:
