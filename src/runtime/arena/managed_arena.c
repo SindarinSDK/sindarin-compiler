@@ -105,18 +105,35 @@ static RtHandleEntry *table_alloc_page(void)
     return page;
 }
 
-/* Add a new page to the table. Grows the page directory if needed. */
+/* Add a new page to the table. Grows the page directory if needed.
+ * Uses atomic store for thread-safe directory growth. Old directories
+ * are deferred for freeing to avoid use-after-free in concurrent readers. */
 static void table_add_page(RtManagedArena *ma)
 {
     if (ma->pages_count >= ma->pages_capacity) {
         uint32_t new_cap = ma->pages_capacity * 2;
-        RtHandleEntry **new_dir = realloc(ma->pages, new_cap * sizeof(RtHandleEntry *));
+        RtHandleEntry **old_dir = ma->pages;
+
+        /* Allocate new directory and copy existing pointers */
+        RtHandleEntry **new_dir = malloc(new_cap * sizeof(RtHandleEntry *));
         if (new_dir == NULL) {
-            fprintf(stderr, "table_add_page: directory realloc failed\n");
+            fprintf(stderr, "table_add_page: directory malloc failed\n");
             exit(1);
         }
-        ma->pages = new_dir;
+        memcpy(new_dir, old_dir, ma->pages_count * sizeof(RtHandleEntry *));
+
+        /* Atomically publish new directory */
+        __atomic_store_n(&ma->pages, new_dir, __ATOMIC_RELEASE);
         ma->pages_capacity = new_cap;
+
+        /* Defer freeing old directory (readers may still be using it) */
+        RtRetiredPagesNode *node = malloc(sizeof(RtRetiredPagesNode));
+        if (node != NULL) {
+            node->pages = old_dir;
+            node->next = ma->retired_pages;
+            ma->retired_pages = node;
+        }
+        /* If malloc fails, we leak the old directory - acceptable tradeoff */
     }
     ma->pages[ma->pages_count++] = table_alloc_page();
 }
@@ -168,6 +185,7 @@ static void arena_init_common(RtManagedArena *ma)
     ma->pages[0] = table_alloc_page();
     ma->pages_count = 1;
     ma->table_count = 1; /* Skip index 0 (null handle) */
+    ma->retired_pages = NULL;
 
     /* Free list */
     ma->free_capacity = RT_HANDLE_PAGE_SIZE;
@@ -336,6 +354,16 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     free(child->free_list);
     child->free_list = NULL;
 
+    /* Free retired page directories (from table growth) */
+    RtRetiredPagesNode *retired_dir = child->retired_pages;
+    while (retired_dir != NULL) {
+        RtRetiredPagesNode *next = retired_dir->next;
+        free(retired_dir->pages);
+        free(retired_dir);
+        retired_dir = next;
+    }
+    child->retired_pages = NULL;
+
     pthread_mutex_destroy(&child->alloc_mutex);
     pthread_mutex_destroy(&child->children_mutex);
 
@@ -386,6 +414,15 @@ void rt_managed_arena_destroy(RtManagedArena *ma)
     }
     free(ma->pages);
     free(ma->free_list);
+
+    /* Free retired page directories (from table growth) */
+    RtRetiredPagesNode *retired_dir = ma->retired_pages;
+    while (retired_dir != NULL) {
+        RtRetiredPagesNode *next = retired_dir->next;
+        free(retired_dir->pages);
+        free(retired_dir);
+        retired_dir = next;
+    }
 
     /* Free retired arena structs (deferred from destroy_child) */
     RtManagedArena *retired = ma->retired_arenas;
