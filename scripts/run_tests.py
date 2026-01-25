@@ -318,22 +318,29 @@ class TestRunner:
                 'elapsed': 0.0
             }
         else:
-            expected_file = test_file.replace('.sn', '.expected')
             panic_file = test_file.replace('.sn', '.panic')
 
             start_time = time.perf_counter()
 
             if test_type == 'cgen':
                 # Code generation tests: compare generated C code
-                c_file = exe_file.replace(get_exe_extension(), '.c')
+                # Use .expected.c extension for syntax highlighting in editors
+                expected_file = test_file.replace('.sn', '.expected.c')
+                exe_ext = get_exe_extension()
+                if exe_ext:
+                    c_file = exe_file.replace(exe_ext, '.c')
+                else:
+                    c_file = exe_file + '.c'
                 status, reason, details = self._run_cgen_test_internal(
                     test_file, expected_file, c_file
                 )
             elif config.expect_compile_fail:
+                expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_error_test_internal(
                     test_file, expected_file, exe_file
                 )
             else:
+                expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_positive_test_internal(
                     test_file, expected_file, panic_file, exe_file, test_type
                 )
