@@ -1,0 +1,35 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug v.prerelease in loop ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"Before loop: v.prerelease = '{v.prerelease}' (len={v.prerelease.length})\n")
+    
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        if part.startsWith("<") =>
+            print($"In loop: v.prerelease = '{v.prerelease}' (len={v.prerelease.length})\n")
+            
+            # Store v.prerelease before the loop
+            var vPre: str = v.prerelease
+            print($"  vPre = '{vPre}' (len={vPre.length})\n")
+            
+            # Compare both empty strings
+            var empty: str = ""
+            print($"  empty = '{empty}' (len={empty.length})\n")
+            
+            var cmp1: int = _comparePrerelease(v.prerelease, empty)
+            print($"  _comparePrerelease(v.prerelease, empty) = {cmp1}\n")
+            
+            var cmp2: int = _comparePrerelease(empty, v.prerelease)
+            print($"  _comparePrerelease(empty, v.prerelease) = {cmp2}\n")
+            
+            var cmp3: int = _comparePrerelease(empty, empty)
+            print($"  _comparePrerelease(empty, empty) = {cmp3}\n")
+        i = i + 1
+
+    return 0

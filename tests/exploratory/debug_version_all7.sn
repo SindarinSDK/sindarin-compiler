@@ -1,0 +1,29 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug struct field string passing ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    
+    # Direct parse
+    print("Direct parse:\n")
+    var c1: VersionConstraint = VersionConstraint.parse("<2.0.0")
+    print($"  c1.prerelease = '{c1.prerelease}' (len={c1.prerelease.length})\n")
+    var cmp1: int = _comparePrerelease(v.prerelease, c1.prerelease)
+    print($"  _comparePrerelease(v.prerelease, c1.prerelease) = {cmp1}\n\n")
+    
+    # From loop context
+    print("From loop context:\n")
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        if part.startsWith("<") =>
+            var c2: VersionConstraint = VersionConstraint.parse(part)
+            print($"  c2.prerelease = '{c2.prerelease}' (len={c2.prerelease.length})\n")
+            var cmp2: int = _comparePrerelease(v.prerelease, c2.prerelease)
+            print($"  _comparePrerelease(v.prerelease, c2.prerelease) = {cmp2}\n")
+        i = i + 1
+
+    return 0

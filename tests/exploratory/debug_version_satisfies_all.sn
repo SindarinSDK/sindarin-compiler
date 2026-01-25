@@ -1,0 +1,59 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug version_satisfies_all ===\n\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"Testing version: {v.toString()}\n")
+
+    var constraints: str = ">=1.0.0, <2.0.0"
+    print($"Constraints: '{constraints}'\n\n")
+
+    # First test the individual constraints
+    print("=== Testing individual constraints ===\n")
+    var c1: VersionConstraint = VersionConstraint.parse(">=1.0.0")
+    var s1: bool = c1.satisfiedBy(v)
+    print($"2.0.0 satisfies >=1.0.0: {s1}\n")
+
+    var c2: VersionConstraint = VersionConstraint.parse("<2.0.0")
+    var s2: bool = c2.satisfiedBy(v)
+    print($"2.0.0 satisfies <2.0.0: {s2}\n")
+
+    # Now test version_satisfies
+    print("\n=== Testing version_satisfies ===\n")
+    var vs1: bool = version_satisfies(v, ">=1.0.0")
+    print($"version_satisfies(2.0.0, '>=1.0.0'): {vs1}\n")
+    var vs2: bool = version_satisfies(v, "<2.0.0")
+    print($"version_satisfies(2.0.0, '<2.0.0'): {vs2}\n")
+
+    # Now test the split and iteration
+    print("\n=== Testing split and iteration ===\n")
+    var parts: str[] = constraints.split(",")
+    print($"parts.length = {parts.length}\n")
+
+    var i: int = 0
+    while i < parts.length =>
+        print($"i={i}, parts[{i}] = '{parts[i]}'\n")
+        var part: str = parts[i].trim()
+        print($"  after trim: '{part}'\n")
+
+        if part != "" =>
+            print($"  checking version_satisfies(v, '{part}')...\n")
+            var satisfied: bool = version_satisfies(v, part)
+            print($"  satisfied = {satisfied}\n")
+
+            if !satisfied =>
+                print("  -> Would return false here\n")
+
+        i = i + 1
+
+    print("\n=== Testing version_satisfies_all ===\n")
+    var result: bool = version_satisfies_all(v, constraints)
+    print($"version_satisfies_all(2.0.0, '>=1.0.0, <2.0.0') = {result}\n")
+
+    if result =>
+        print("FAIL: Should be false!\n")
+        return 1
+    else =>
+        print("PASS: Correctly returned false\n")
+        return 0

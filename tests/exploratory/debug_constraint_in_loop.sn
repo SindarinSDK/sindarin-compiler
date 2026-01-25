@@ -1,0 +1,45 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug constraint parsing in loop ===\n\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"v.major={v.major}, v.minor={v.minor}, v.patch={v.patch}, v.prerelease='{v.prerelease}'\n")
+
+    # Test 1: Parse constraint outside loop
+    print("\n=== Outside loop ===\n")
+    var cOut: VersionConstraint = VersionConstraint.parse("<2.0.0")
+    print($"Parsed '<2.0.0': op={cOut.op}, major={cOut.major}, minor={cOut.minor}, patch={cOut.patch}, pre='{cOut.prerelease}'\n")
+    var cmpOut: int = v.compare(Version { major: cOut.major, minor: cOut.minor, patch: cOut.patch, prerelease: cOut.prerelease })
+    print($"v.compare(constraint version) = {cmpOut}\n")
+    var satOut: bool = cOut.satisfiedBy(v)
+    print($"cOut.satisfiedBy(v) = {satOut}\n")
+
+    # Test 2: Parse constraint inside loop
+    print("\n=== Inside loop ===\n")
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        print($"\ni={i}, part='{part}'\n")
+
+        if part.startsWith("<") && !part.startsWith("<=") =>
+            print("  This is a '<' constraint\n")
+
+            var cIn: VersionConstraint = VersionConstraint.parse(part)
+            print($"  Parsed: op={cIn.op}, major={cIn.major}, minor={cIn.minor}, patch={cIn.patch}, pre='{cIn.prerelease}'\n")
+
+            var cmpIn: int = v.compare(Version { major: cIn.major, minor: cIn.minor, patch: cIn.patch, prerelease: cIn.prerelease })
+            print($"  v.compare(constraint version) = {cmpIn}\n")
+
+            var satIn: bool = cIn.satisfiedBy(v)
+            print($"  cIn.satisfiedBy(v) = {satIn}\n")
+
+            # Test if the issue is in satisfiedBy by calling it again
+            print($"  Calling satisfiedBy again = {cIn.satisfiedBy(v)}\n")
+
+        i = i + 1
+
+    return 0

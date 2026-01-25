@@ -150,19 +150,39 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
+         * IMPORTANT: Struct field handles may be in a parent arena (e.g., the function's
+         * __local_arena__) when accessed from a child arena (e.g., loop arena). We use
+         * rt_managed_pin_any to safely search the arena tree for the handle's owner. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
+            const char *pin_arena = ARENA_VAR(gen);
+            const char *pin_func = "rt_managed_pin_any";
+            const char *pin_array_func = "rt_managed_pin_array_any";
+
+            /* If the object is a variable with a known pin_arena, use that arena */
+            if (member->object->type == EXPR_VARIABLE)
+            {
+                Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table,
+                                                             member->object->as.variable.name);
+                if (obj_sym != NULL && obj_sym->pin_arena != NULL)
+                {
+                    pin_arena = obj_sym->pin_arena;
+                    pin_func = "rt_managed_pin";
+                    pin_array_func = "rt_managed_pin_array";
+                }
+            }
+
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                       ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((char *)%s(%s, %s))",
+                                       pin_func, pin_arena, result);
             }
             else if (field->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                       elem_c, ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((%s *)%s(%s, %s))",
+                                       elem_c, pin_array_func, pin_arena, result);
             }
         }
         return result;
@@ -184,19 +204,37 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
+         * IMPORTANT: Same arena tree search logic as above for struct fields. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
+            const char *pin_arena = ARENA_VAR(gen);
+            const char *pin_func = "rt_managed_pin_any";
+            const char *pin_array_func = "rt_managed_pin_array_any";
+
+            /* If the object is a variable with a known pin_arena, use that arena */
+            if (member->object->type == EXPR_VARIABLE)
+            {
+                Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table,
+                                                             member->object->as.variable.name);
+                if (obj_sym != NULL && obj_sym->pin_arena != NULL)
+                {
+                    pin_arena = obj_sym->pin_arena;
+                    pin_func = "rt_managed_pin";
+                    pin_array_func = "rt_managed_pin_array";
+                }
+            }
+
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                       ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((char *)%s(%s, %s))",
+                                       pin_func, pin_arena, result);
             }
             else if (field->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                       elem_c, ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((%s *)%s(%s, %s))",
+                                       elem_c, pin_array_func, pin_arena, result);
             }
         }
         return result;
@@ -871,19 +909,42 @@ static char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     }
 
     /* If the field is a string/array stored as RtHandle, and the caller expects
-       a raw pointer (not a handle), pin the handle to get the raw pointer. */
+       a raw pointer (not a handle), pin the handle to get the raw pointer.
+       IMPORTANT: Struct field handles may be in a parent arena (e.g., the function's
+       __local_arena__) when accessed from a child arena (e.g., loop arena). We use
+       rt_managed_pin_any to safely search the arena tree for the handle's owner. */
     if (gen->current_arena_var != NULL && !gen->expr_as_handle && field_type != NULL)
     {
+        const char *pin_arena = ARENA_VAR(gen);
+
+        /* If the object is a variable with a known pin_arena, use that arena.
+         * Otherwise, use rt_managed_pin_any to search the arena tree. */
+        const char *pin_func = "rt_managed_pin_any";
+        const char *pin_array_func = "rt_managed_pin_array_any";
+
+        if (access->object->type == EXPR_VARIABLE)
+        {
+            Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table,
+                                                         access->object->as.variable.name);
+            if (obj_sym != NULL && obj_sym->pin_arena != NULL)
+            {
+                /* Use the object's pin_arena for pinning its field handles */
+                pin_arena = obj_sym->pin_arena;
+                pin_func = "rt_managed_pin";
+                pin_array_func = "rt_managed_pin_array";
+            }
+        }
+
         if (field_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                   ARENA_VAR(gen), result);
+            result = arena_sprintf(gen->arena, "((char *)%s(%s, %s))",
+                                   pin_func, pin_arena, result);
         }
         else if (field_type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, field_type->as.array.element_type);
-            result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                   elem_c, ARENA_VAR(gen), result);
+            result = arena_sprintf(gen->arena, "((%s *)%s(%s, %s))",
+                                   elem_c, pin_array_func, pin_arena, result);
         }
     }
 

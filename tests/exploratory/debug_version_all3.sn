@@ -1,0 +1,22 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug version_satisfies_all ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    var constraints: str = ">=1.0.0, <2.0.0"
+
+    # Check from split - in loop
+    var parts: str[] = constraints.split(",")
+    print($"parts.length = {parts.length}\n\n")
+
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        print($"i={i}: part = '{part}' (len={part.length})\n")
+        var result: bool = version_satisfies(v, part)
+        print($"  version_satisfies = {result}\n\n")
+        i = i + 1
+
+    print("Expected: true, false\n")
+    return 0
