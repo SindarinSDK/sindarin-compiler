@@ -76,6 +76,8 @@ Token lexer_scan_token(Lexer *lexer)
         {
             if (lexer->indent_size >= lexer->indent_capacity)
             {
+                int *old_stack = lexer->indent_stack;
+                int old_size = lexer->indent_size;
                 lexer->indent_capacity *= 2;
                 lexer->indent_stack = arena_alloc(lexer->arena,
                                                   lexer->indent_capacity * sizeof(int));
@@ -83,6 +85,11 @@ Token lexer_scan_token(Lexer *lexer)
                 {
                     DEBUG_ERROR("Out of memory");
                     exit(1);
+                }
+                // Copy old indent levels to new stack
+                for (int i = 0; i < old_size; i++)
+                {
+                    lexer->indent_stack[i] = old_stack[i];
                 }
                 DEBUG_VERBOSE("Line %d: Resized indent_stack, new capacity = %d",
                               lexer->line, lexer->indent_capacity);

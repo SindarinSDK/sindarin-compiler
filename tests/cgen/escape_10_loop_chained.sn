@@ -1,0 +1,45 @@
+// Code Generation Test: 10 Nested Loop Arena Escape (Chained)
+//
+// Tests that string values escape correctly through 10 nested loops,
+// one level at a time: depth 11 -> 10 -> 9 -> ... -> 1
+
+fn build_chained(): str =>
+    var result: str = ""
+    for var a: int = 1; a <= 1; a++ =>
+        var s1: str = ""
+        for var b: int = 1; b <= 1; b++ =>
+            var s2: str = ""
+            for var c: int = 1; c <= 1; c++ =>
+                var s3: str = ""
+                for var d: int = 1; d <= 1; d++ =>
+                    var s4: str = ""
+                    for var e: int = 1; e <= 1; e++ =>
+                        var s5: str = ""
+                        for var f: int = 1; f <= 1; f++ =>
+                            var s6: str = ""
+                            for var g: int = 1; g <= 1; g++ =>
+                                var s7: str = ""
+                                for var h: int = 1; h <= 1; h++ =>
+                                    var s8: str = ""
+                                    for var i: int = 1; i <= 1; i++ =>
+                                        var s9: str = ""
+                                        for var j: int = 1; j <= 1; j++ =>
+                                            var inner: str = "d11"
+                                            s9 = s9 + inner + "->d10 "
+                                        s8 = s8 + s9 + "->d9 "
+                                    s7 = s7 + s8 + "->d8 "
+                                s6 = s6 + s7 + "->d7 "
+                            s5 = s5 + s6 + "->d6 "
+                        s4 = s4 + s5 + "->d5 "
+                    s3 = s3 + s4 + "->d4 "
+                s2 = s2 + s3 + "->d3 "
+            s1 = s1 + s2 + "->d2 "
+        result = result + s1 + "->d1"
+    return result
+
+fn main(): int =>
+    println("Chained escape test (10 loops):")
+    println("Each value escapes one level at a time")
+    println("Path: " + build_chained())
+    println("PASS: All values survived chained escape")
+    return 0
