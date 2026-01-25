@@ -526,9 +526,9 @@ class TestRunner:
 
     def _run_cgen_test_internal(self, test_file: str, expected_file: str,
                                  c_file: str) -> Tuple[str, str, Optional[List[str]]]:
-        """Run a code generation test that compares generated C code. Returns (status, reason, details)."""
+        """Run a code generation test that compares generated C code, then compiles and runs. Returns (status, reason, details)."""
         if not os.path.isfile(expected_file):
-            return ('skip', 'no .expected', None)
+            return ('skip', 'no .expected.c', None)
 
         # Compile with --emit-c to generate C code
         compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0']
@@ -555,9 +555,7 @@ class TestRunner:
         normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
         normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
 
-        if normalized_generated == normalized_expected:
-            return ('pass', '', None)
-        else:
+        if normalized_generated != normalized_expected:
             # Show diff details
             expected_lines = normalized_expected.split('\n')
             actual_lines = normalized_generated.split('\n')
@@ -580,6 +578,63 @@ class TestRunner:
                 details.append(f"  ... and {diff_count - 10} more differences")
 
             return ('fail', 'C code mismatch', details)
+
+        # C code matches - now compile the full binary
+        exe_ext = get_exe_extension()
+        if exe_ext:
+            exe_file = c_file.replace('.c', exe_ext)
+        else:
+            exe_file = c_file.replace('.c', '')
+
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0']
+        if not is_windows():
+            compile_cmd.append('-g')
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'binary compile error', details)
+
+        # Run the binary
+        exit_code, output, timeout_marker = run_with_timeout(
+            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+        )
+
+        if exit_code != 0:
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
+            else:
+                details = output.split('\n')[:20] if output else None
+                return ('fail', f'run exit code: {exit_code}', details)
+
+        # Check output against .expected file if it exists
+        output_file = test_file.replace('.sn', '.expected')
+        if os.path.isfile(output_file):
+            with open(output_file, 'r') as f:
+                expected_output = f.read()
+
+            normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
+            normalized_expected = expected_output.replace('\r\n', '\n').replace('\r', '\n')
+
+            if normalized_output != normalized_expected:
+                expected_lines = normalized_expected.split('\n')
+                actual_lines = normalized_output.split('\n')
+                details = []
+                max_lines = min(20, max(len(expected_lines), len(actual_lines)))
+                for i in range(max_lines):
+                    exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                    act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                    if exp != act:
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp}")
+                        details.append(f"    got:      {act}")
+                if not details:
+                    details = ["Output differs (trailing whitespace/newlines)"]
+                return ('fail', 'output mismatch', details[:20])
+
+        return ('pass', '', None)
 
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,

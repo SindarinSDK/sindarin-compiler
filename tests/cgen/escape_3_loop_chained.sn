@@ -1,0 +1,27 @@
+// Code Generation Test: 3 Nested Loop Arena Escape (Chained)
+//
+// Tests that string values escape correctly through 3 nested loops,
+// one level at a time: depth 4 -> 3 -> 2 -> 1
+
+fn build_chained(): str =>
+    var result: str = ""
+    for var i: int = 1; i <= 2; i++ =>
+        var outer: str = ""
+        for var j: int = 1; j <= 2; j++ =>
+            var middle: str = ""
+            for var k: int = 1; k <= 2; k++ =>
+                var inner: str = $"[d4:i={i},j={j},k={k}]"
+                // Escape from d4 to d3
+                middle = middle + inner + "->d3 "
+            // Escape from d3 to d2
+            outer = outer + "(" + middle + ")->d2 "
+        // Escape from d2 to d1
+        result = result + "<" + outer + ">->d1\n"
+    return result
+
+fn main(): int =>
+    println("Chained escape test (3 loops):")
+    println("Each value escapes one level at a time")
+    println(build_chained())
+    println("PASS: All values survived chained escape")
+    return 0
