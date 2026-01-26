@@ -719,7 +719,7 @@ RtHandle rt_managed_clone_any(RtManagedArena *dest, RtManagedArena *src, RtHandl
 /* Clone from parent arenas only, skipping the immediate source arena.
  * Used for cloning function parameters where the handle likely came from a
  * parent scope (not the immediate caller arena). This avoids index collisions
- * when the caller arena (e.g., loop arena) has a different entry at the same index. */
+ * when the caller arena has a different entry at the same index. */
 RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
 {
     if (dest == NULL || src == NULL || h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
@@ -748,7 +748,7 @@ RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src,
  * OUTSIDE the immediate caller. If both src and src->parent have valid entries
  * at the same index, prefers the parent's entry (which was allocated first).
  *
- * This handles the common case of loop arenas that create new entries at low
+ * This handles the common case of child arenas that create new entries at low
  * indices that collide with handles from the parent scope.
  *
  * Search order: parent chain first (if parent has valid entry), then src itself. */

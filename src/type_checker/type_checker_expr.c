@@ -435,15 +435,15 @@ static Type *type_check_assign(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
-    // Escape analysis for private blocks and loop arenas.
-    // Private blocks (strict): only primitives can escape.
-    // Loop arenas (lenient): strings/arrays can escape via cloning.
+    // Escape analysis for private functions.
+    // Private functions have strict escape rules: only primitives can escape.
+    // Regular functions allow strings/arrays to escape via promotion.
     int current_private_depth = symbol_table_get_private_depth(table);
     int current_arena_depth = symbol_table_get_arena_depth(table);
 
     if (current_private_depth > sym->private_depth && !can_escape_private(value_type))
     {
-        // Escaping from a private block - strict rules apply, no cloning allowed
+        // Escaping from a private function - strict rules apply, no cloning allowed
         const char *reason = get_private_escape_block_reason(value_type);
         char msg[512];
         snprintf(msg, sizeof(msg), "Cannot assign to variable declared outside private block: %s",
@@ -453,18 +453,17 @@ static Type *type_check_assign(Expr *expr, SymbolTable *table)
     }
     else if (current_arena_depth > sym->arena_depth && !can_escape_private(value_type))
     {
-        // Escaping from a loop arena (same private depth) - cloning allowed for strings/arrays
+        // Escaping from inner scope - cloning/promotion allowed for strings/arrays
         if (value_type->kind == TYPE_STRING || value_type->kind == TYPE_ARRAY)
         {
             ast_expr_mark_escapes(value_expr);
-            DEBUG_VERBOSE("Loop arena escape (will clone): '%.*s' (arena_depth %d) assigned from depth %d",
+            DEBUG_VERBOSE("Arena escape (will promote): '%.*s' (arena_depth %d) assigned from depth %d",
                           expr->as.assign.name.length, expr->as.assign.name.start,
                           sym->arena_depth, current_arena_depth);
         }
         else
         {
             // Other non-escapable types (structs with heap fields, etc.): error
-            // Use "private block" wording for consistency since loops have private arena semantics
             const char *reason = get_private_escape_block_reason(value_type);
             char msg[512];
             snprintf(msg, sizeof(msg), "Cannot assign to variable declared outside private block: %s",

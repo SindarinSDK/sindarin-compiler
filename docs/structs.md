@@ -139,7 +139,7 @@ Structs follow the same rules as fixed arrays:
 |-------------|----------|
 | Small (<8KB) | Stack |
 | Large (≥8KB) | Heap (arena-managed) |
-| Escaping scope | Copied to outer arena |
+| Escaping scope | Copied to outer scope |
 
 ```sindarin
 fn process(): void =>
@@ -149,13 +149,13 @@ fn process(): void =>
 
 ### Escape Behavior
 
-When a struct escapes its scope, it is copied to the outer arena:
+When a struct is assigned to an outer-scope variable, it is copied:
 
 ```sindarin
 var outer: Point
 
 if condition =>
-    var inner: Point = Point { x: 1.0, y: 2.0 }  // Stack or inner arena
+    var inner: Point = Point { x: 1.0, y: 2.0 }  // Stack allocated
     outer = inner                                  // COPIED to outer scope
 
 print($"x = {outer.x}\n")  // Safe - outer owns its copy
