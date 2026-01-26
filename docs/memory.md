@@ -73,15 +73,14 @@ print(value)                     // 2
 
 ### Escape Behavior for Primitive References
 
-Primitive references follow the same promotion rules as arrays:
+Primitive references follow the same allocation rules as arrays:
 
 ```sindarin
 var outer: int as ref
 
 if condition =>
-  var inner: int as ref = 100   // Heap, in if-block's arena
-  outer = inner                  // Promoted to parent arena
-  // if-block arena freed, but value persists
+  var inner: int as ref = 100   // Heap, in function's arena
+  outer = inner                  // Same arena, just reassignment
 
 print(outer)                     // 100 - safe
 ```
@@ -206,9 +205,8 @@ fn build_matrix(): int[][] =>
   var result: int[][] = {}
 
   for var i: int = 0; i < 3 =>
-    var row: int[] = {i, i+1, i+2}    // Allocated in loop arena
-    result.push(row)                   // row promoted to function arena
-    // Loop arena freed, but row data persists in function arena
+    var row: int[] = {i, i+1, i+2}    // Allocated in function arena
+    result.push(row)                   // row referenced by result
 
   return result                        // Promoted to caller's arena
 
@@ -267,9 +265,9 @@ print(doubled)                  // {2, 4, 6}
 
 ---
 
-## Block-Scoped Arenas
+## Function-Scoped Arenas
 
-Every block has an arena that manages heap allocations within that scope.
+Every function has an arena that manages heap allocations within that function.
 
 ### Basic Model
 
@@ -280,31 +278,27 @@ fn process(): void =>
   var data: str[] = {"a", "b", "c"}    // Allocated in function arena
 
   for item in data =>
-    // Loop arena created
-    var temp: str = item.toUpper()     // Allocated in loop arena
+    var temp: str = item.toUpper()     // Allocated in function arena
     print(temp)
-    // Loop arena destroyed - temp freed
 
-  // data still valid (in function arena)
+  // data and temp allocations still valid
   print(data.length)
 
-  // Function arena destroyed - data freed
+  // Function arena destroyed when function returns - all freed
 ```
 
 ### Escaping References (Automatic Promotion)
 
-When an inner-scope allocation is assigned to an outer-scope variable, it's promoted:
+When an allocation is returned or assigned to an outer-scope variable, it's promoted:
 
 ```sindarin
 fn find_longest(items: str[]): str =>
   var longest: str = ""               // Function arena
 
   for item in items =>
-    // Loop arena
-    var upper: str = item.toUpper()   // Loop arena
+    var upper: str = item.toUpper()   // Function arena
     if upper.length > longest.length =>
-      longest = upper                 // PROMOTED to function arena
-    // Loop arena freed, but longest survives
+      longest = upper                 // Same arena, just reassignment
 
   return longest                      // Promoted to caller's arena
 ```
@@ -314,9 +308,7 @@ fn find_longest(items: str[]): str =>
 ```
 Caller's Arena
   └── Function Arena
-        ├── allocations (data, longest)
-        └── Loop Arena (per iteration)
-              └── allocations (temp, upper) - freed each iteration
+        └── allocations (data, longest, temp, upper)
 ```
 
 ---
@@ -457,8 +449,8 @@ var outer: int[4]
 
 if condition =>
   var inner: int[4] = {1, 2, 3, 4}   // Starts on stack
-  outer = inner                       // PROMOTED: copied to outer arena (heap)
-  // inner's stack space reclaimed, but data lives on in outer's arena
+  outer = inner                       // PROMOTED: copied to function's arena (heap)
+  // inner's stack space reclaimed, but data lives on in function's arena
 
 print(outer[0])                       // Safe - data is in heap arena
 ```

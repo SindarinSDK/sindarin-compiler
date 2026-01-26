@@ -215,12 +215,12 @@ RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
 
 /* Clone from any arena in the tree (self, parents, or root).
  * Like rt_managed_pin_any, walks up the parent chain to find the source handle.
- * Used when handles may come from parent scopes (e.g., loop parent arena). */
+ * Used when handles may come from parent scopes (e.g., caller's arena). */
 RtHandle rt_managed_clone_any(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
 
 /* Clone from parent arenas only, skipping the immediate source arena.
  * Used for cloning function parameters where the handle likely came from a
- * parent scope, avoiding index collisions in child arenas (e.g., loop arena). */
+ * parent scope, avoiding index collisions in child arenas. */
 RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
 
 /* Clone preferring parent arenas over the immediate source arena.

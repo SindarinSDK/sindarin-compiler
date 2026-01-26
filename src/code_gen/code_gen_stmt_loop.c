@@ -12,8 +12,7 @@
  * Simplified Loop Code Generation
  * ============================================================================
  * All loops share the function's arena. No per-iteration arenas are created.
- * This simplifies handle management - handles are always in the function arena
- * or a parent arena, never in an ephemeral loop arena.
+ * This simplifies handle management - handles are always in the function arena.
  * ============================================================================ */
 
 void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
