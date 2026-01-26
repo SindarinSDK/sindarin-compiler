@@ -68,7 +68,11 @@ jobs:
       - name: Setup vcpkg (Linux)
         if: runner.os == 'Linux'
         run: |
-          # Bootstrap vcpkg (already cloned in repo)
+          # Clone vcpkg if not present
+          if [ ! -d vcpkg ]; then
+            git clone https://github.com/microsoft/vcpkg.git vcpkg
+          fi
+          # Bootstrap vcpkg
           if [ ! -f vcpkg/vcpkg ]; then
             ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
           fi
@@ -82,7 +86,11 @@ jobs:
       - name: Setup vcpkg (macOS)
         if: runner.os == 'macOS'
         run: |
-          # Bootstrap vcpkg (already cloned in repo)
+          # Clone vcpkg if not present
+          if [ ! -d vcpkg ]; then
+            git clone https://github.com/microsoft/vcpkg.git vcpkg
+          fi
+          # Bootstrap vcpkg
           if [ ! -f vcpkg/vcpkg ]; then
             ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
           fi
@@ -115,7 +123,11 @@ jobs:
           # Install Ninja
           choco install ninja -y
 
-          # Bootstrap vcpkg from repo
+          # Clone vcpkg if not present
+          if (-not (Test-Path "vcpkg")) {
+            git clone https://github.com/microsoft/vcpkg.git vcpkg
+          }
+          # Bootstrap vcpkg
           if (-not (Test-Path "vcpkg\vcpkg.exe")) {
             & "vcpkg\bootstrap-vcpkg.bat" -disableMetrics
           }
