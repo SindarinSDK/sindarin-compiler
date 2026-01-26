@@ -175,16 +175,14 @@ var total: int = &countLines("a.txt")! + &countLines("b.txt")!
 
 ### Memory Semantics
 
-File handles and data follow the frozen reference rules:
+File data is passed by reference to threads:
 
 ```sindarin
 var data: str = "content to write"
 var result: void = &TextFile.writeAll("out.txt", data)
 
-data = "modified"  // COMPILE ERROR: data frozen by thread
-
-result!            // sync releases freeze
-data = "modified"  // OK
+result!            // sync completes thread
+data = "modified"  // OK after sync
 ```
 
 ---

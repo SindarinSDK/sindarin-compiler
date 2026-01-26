@@ -77,10 +77,6 @@ void symbol_table_add_namespace(SymbolTable *table, Token name)
     symbol->is_function = false;
     symbol->is_native = false;
     symbol->thread_state = THREAD_STATE_NORMAL;
-    symbol->frozen_state.freeze_count = 0;
-    symbol->frozen_state.frozen = false;
-    symbol->frozen_args = NULL;
-    symbol->frozen_args_count = 0;
 
     /* Set namespace-specific fields */
     symbol->is_namespace = true;
@@ -175,10 +171,6 @@ void symbol_table_add_symbol_to_namespace(SymbolTable *table, Token namespace_na
     symbol->is_function = false;
     symbol->is_native = (type != NULL && type->kind == TYPE_FUNCTION && type->as.function.is_native);
     symbol->thread_state = THREAD_STATE_NORMAL;
-    symbol->frozen_state.freeze_count = 0;
-    symbol->frozen_state.frozen = false;
-    symbol->frozen_args = NULL;
-    symbol->frozen_args_count = 0;
     symbol->is_namespace = false;
     symbol->namespace_name = NULL;
     symbol->namespace_symbols = NULL;
@@ -275,10 +267,6 @@ void symbol_table_add_function_to_namespace(SymbolTable *table, Token namespace_
     symbol->is_function = true;
     symbol->is_native = (type != NULL && type->kind == TYPE_FUNCTION && type->as.function.is_native);
     symbol->thread_state = THREAD_STATE_NORMAL;
-    symbol->frozen_state.freeze_count = 0;
-    symbol->frozen_state.frozen = false;
-    symbol->frozen_args = NULL;
-    symbol->frozen_args_count = 0;
     symbol->is_namespace = false;
     symbol->namespace_name = NULL;
     symbol->namespace_symbols = NULL;

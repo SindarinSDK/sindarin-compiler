@@ -5,28 +5,22 @@
 // ================================
 // Sindarin's threading model prevents data races through compile-time enforcement:
 //
-// 1. FROZEN VARIABLES: When an array or 'as ref' primitive is passed to a
-//    thread spawn, it becomes "frozen" - the caller cannot write to it until
-//    sync. This prevents write-write and read-write races.
-//
-// 2. PENDING STATE: Thread result variables are in "pending" state until synced.
+// 1. PENDING STATE: Thread result variables are in "pending" state until synced.
 //    Accessing a pending variable is a compile error, preventing use-before-ready
 //    bugs.
 //
-// 3. NO SHARED MUTABLE STATE: By default, threads get copies of primitives and
-//    frozen references to arrays. This eliminates most race conditions by design.
-//
-// 4. EXPLICIT SYNC REQUIRED: All thread results must be synced before use,
+// 2. EXPLICIT SYNC REQUIRED: All thread results must be synced before use,
 //    ensuring proper synchronization points.
 //
+// 3. ATOMIC VARIABLES: Use 'sync' type modifier for thread-safe counters and
+//    accumulators. Operations like ++, --, +=, -= are atomic on sync variables.
+//
 // RACE CONDITIONS PREVENTED:
-// - Write-write races on arrays (frozen while pending)
-// - Read-write races on arrays (caller reads allowed, writes frozen)
 // - Use-before-ready on thread results (compile error)
-// - Lost updates (sync required before reassignment)
+// - Lost updates on sync variables (atomic operations)
 //
 // RACE CONDITIONS NOT PREVENTED (user responsibility):
-// - Multiple threads reading shared data while another writes via 'as ref'
+// - Multiple threads modifying non-sync shared mutable state
 // - External effects (file I/O, network) are not synchronized
 //
 // This test demonstrates safe concurrent access patterns.
@@ -52,20 +46,20 @@ fn main(): void =>
     print($"   Squared values: {r1}, {r2}\n")
     print("   -> No shared state, completely safe\n\n")
 
-    // Safe pattern: Read-only array access
-    print("2. Read-only array processing (safe):\n")
+    // Safe pattern: Array access with thread
+    print("2. Array processing with thread:\n")
     var data: int[] = {1, 2, 3, 4, 5}
     var total: int = &process_data(data)
-    // Reading frozen array is safe
+    // Reading array is safe
     var first: int = data[0]
     print($"   First element while processing: {first}\n")
     total!
     print($"   Total: {total}\n")
-    print("   -> Reads allowed while frozen, writes blocked\n\n")
+    print("   -> Array passed by reference to thread\n\n")
 
     // Safe pattern: Sequential modification after sync
     print("3. Sequential modification after sync (safe):\n")
-    data[0] = 100  // Safe - array unfrozen after sync
+    data[0] = 100  // Safe after sync
     print($"   Modified first element: {data[0]}\n")
     print("   -> Modifications safe after sync\n\n")
 

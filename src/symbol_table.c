@@ -77,10 +77,6 @@ void symbol_table_add_type(SymbolTable *table, Token name, Type *type)
     symbol->is_function = false;
     symbol->is_native = false;
     symbol->thread_state = THREAD_STATE_NORMAL;
-    symbol->frozen_state.freeze_count = 0;
-    symbol->frozen_state.frozen = false;
-    symbol->frozen_args = NULL;
-    symbol->frozen_args_count = 0;
     symbol->is_namespace = false;
     symbol->namespace_name = NULL;
     symbol->namespace_symbols = NULL;

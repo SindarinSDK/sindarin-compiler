@@ -22,15 +22,6 @@ typedef enum
     THREAD_STATE_SYNCHRONIZED  /* Thread has been synchronized (joined) */
 } ThreadState;
 
-/* Frozen state tracking for variables in thread contexts.
- * When a thread is spawned, captured variables are "frozen" to prevent
- * modification while the thread is running. */
-typedef struct
-{
-    int freeze_count;  /* Number of pending threads that have captured this variable */
-    bool frozen;       /* True if freeze_count > 0 */
-} FrozenState;
-
 typedef enum
 {
     SYMBOL_GLOBAL,
@@ -58,9 +49,6 @@ typedef struct Symbol
     bool is_native;             /* True if this is a native function (external C or Sindarin-implemented native) */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
     ThreadState thread_state;   /* Thread handle state for synchronization tracking */
-    FrozenState frozen_state;   /* Frozen state for thread capture tracking */
-    struct Symbol **frozen_args; /* Symbols frozen by this pending thread handle */
-    int frozen_args_count;      /* Number of frozen symbols */
     /* Namespace support */
     bool is_namespace;          /* True if this symbol represents a namespace */
     char *namespace_name;       /* Namespace identifier (for namespaced imports) */
