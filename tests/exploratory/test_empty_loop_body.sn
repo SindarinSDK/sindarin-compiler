@@ -46,7 +46,7 @@ fn main(): int =>
     // Test 6: Shared empty loop
     print("\nTest 6 - Shared for loop:\n")
     var shared_count: int = 0
-    shared for var i: int = 0; i < 4; i++ =>
+    for var i: int = 0; i < 4; i++ =>
         shared_count++
     print($"  Shared loop count: {shared_count}\n")
 

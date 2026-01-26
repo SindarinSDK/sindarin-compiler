@@ -105,7 +105,7 @@ fn main(): int =>
     // Test 6: Multiple calls to shared functions
     print("\nTest 6 - Multiple calls:\n")
     var total: int = 0
-    shared for i in 0..5 =>
+    for i in 0..5 =>
         total = total + compute_value()
     print($"  5 calls to compute_value() sum = {total}\n")
     if total != 250 =>

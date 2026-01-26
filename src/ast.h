@@ -63,12 +63,14 @@ typedef enum
     SYNC_ATOMIC     /* sync keyword - uses atomic operations */
 } SyncModifier;
 
-/* Block modifier for memory management */
+/* Block modifier for memory management.
+ * Note: Only BLOCK_DEFAULT is currently used.
+ * BLOCK_SHARED and BLOCK_PRIVATE are deprecated (parser rejects them). */
 typedef enum
 {
-    BLOCK_DEFAULT,  /* Normal block with own arena */
-    BLOCK_SHARED,   /* shared block - uses parent's arena */
-    BLOCK_PRIVATE   /* private block - isolated arena, only primitives escape */
+    BLOCK_DEFAULT,  /* Normal block - uses function's arena */
+    BLOCK_SHARED,   /* (deprecated) shared block - was parent's arena */
+    BLOCK_PRIVATE   /* (deprecated) private block - was isolated arena */
 } BlockModifier;
 
 /* Function modifier for memory management */
@@ -588,7 +590,6 @@ typedef struct
 {
     Expr *condition;
     Stmt *body;
-    bool is_shared;  /* shared loop - no per-iteration arena */
 } WhileStmt;
 
 typedef struct
@@ -597,7 +598,6 @@ typedef struct
     Expr *condition;
     Expr *increment;
     Stmt *body;
-    bool is_shared;  /* shared loop - no per-iteration arena */
 } ForStmt;
 
 typedef struct
@@ -605,7 +605,6 @@ typedef struct
     Token var_name;
     Expr *iterable;
     Stmt *body;
-    bool is_shared;  /* shared loop - no per-iteration arena */
 } ForEachStmt;
 
 typedef struct

@@ -29,17 +29,6 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->current_arena_var = NULL;
     gen->current_func_modifier = FUNC_DEFAULT;
 
-    /* Initialize loop arena fields */
-    gen->loop_arena_var = NULL;
-    gen->loop_cleanup_label = NULL;
-    gen->loop_outer_arena_var = NULL;
-
-    /* Initialize loop arena stack for nested loops */
-    gen->loop_arena_stack = NULL;
-    gen->loop_cleanup_stack = NULL;
-    gen->loop_arena_depth = 0;
-    gen->loop_arena_capacity = 0;
-
     /* Initialize loop counter tracking for optimization */
     gen->loop_counter_names = NULL;
     gen->loop_counter_count = 0;

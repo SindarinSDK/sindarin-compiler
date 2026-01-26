@@ -5,7 +5,7 @@ test_shared_match_struct_return: PASS
 test_shared_match_statement: PASS
 test_shared_match_multiline: PASS
 test_private_match: PASS
-test_private_block_with_match: PASS
+test_local_scope_with_match: PASS
 test_match_in_loop_shared: PASS
 
 All match memory context tests passed!

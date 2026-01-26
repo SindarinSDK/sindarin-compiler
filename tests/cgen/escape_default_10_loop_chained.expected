@@ -1,4 +1,0 @@
-Chained escape test (10 loops):
-Each value escapes one level at a time
-Path: d11->d10 ->d9 ->d8 ->d7 ->d6 ->d5 ->d4 ->d3 ->d2 ->d1
-PASS: All values survived chained escape

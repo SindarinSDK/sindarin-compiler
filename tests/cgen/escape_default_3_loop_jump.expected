@@ -1,6 +1,0 @@
-Jump escape test (3 loops):
-Values jump directly from d4 to d3, d2, and d1
-d4->d1[i=1,j=1,k=1] d4->d1[i=1,j=1,k=2] d4->d1[i=1,j=2,k=1] d4->d1[i=1,j=2,k=2] | collected_d2:(d4->d2[i=1,j=1,k=1] d4->d2[i=1,j=1,k=2] | collected_d3:(d4->d3[i=1,j=1,k=1] d4->d3[i=1,j=1,k=2] ) d4->d2[i=1,j=2,k=1] d4->d2[i=1,j=2,k=2] | collected_d3:(d4->d3[i=1,j=2,k=1] d4->d3[i=1,j=2,k=2] ) )
-d4->d1[i=2,j=1,k=1] d4->d1[i=2,j=1,k=2] d4->d1[i=2,j=2,k=1] d4->d1[i=2,j=2,k=2] | collected_d2:(d4->d2[i=2,j=1,k=1] d4->d2[i=2,j=1,k=2] | collected_d3:(d4->d3[i=2,j=1,k=1] d4->d3[i=2,j=1,k=2] ) d4->d2[i=2,j=2,k=1] d4->d2[i=2,j=2,k=2] | collected_d3:(d4->d3[i=2,j=2,k=1] d4->d3[i=2,j=2,k=2] ) )
-
-PASS: All jump escapes succeeded

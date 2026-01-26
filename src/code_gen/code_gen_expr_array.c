@@ -356,31 +356,18 @@ char *code_gen_array_access_expression(CodeGen *gen, ArrayAccessExpr *expr)
     if (!saved_as_handle && elem_type != NULL && is_handle_type(elem_type) &&
         gen->current_arena_var != NULL)
     {
-        /* Element handles belong to the same arena as the array.
-         * Look up the array variable's pin_arena for correct pinning.
-         * But not inside lambdas where outer arena vars don't exist. */
-        const char *elem_pin_arena = ARENA_VAR(gen);
-        bool in_lambda = gen->function_arena_var &&
-                         strcmp(gen->function_arena_var, "__lambda_arena__") == 0;
-        if (!in_lambda && expr->array->type == EXPR_VARIABLE)
-        {
-            Symbol *arr_sym = symbol_table_lookup_symbol(gen->symbol_table,
-                                                         expr->array->as.variable.name);
-            if (arr_sym && arr_sym->pin_arena)
-            {
-                elem_pin_arena = arr_sym->pin_arena;
-            }
-        }
+        /* Pin element handles using the current arena. rt_managed_pin automatically
+         * walks the parent chain to find handles from any arena in the tree. */
         if (elem_type->kind == TYPE_STRING)
         {
             return arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                 elem_pin_arena, result);
+                                 ARENA_VAR(gen), result);
         }
         else if (elem_type->kind == TYPE_ARRAY)
         {
             const char *inner_elem_c = get_c_array_elem_type(gen->arena, elem_type->as.array.element_type);
             return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                 inner_elem_c, elem_pin_arena, result);
+                                 inner_elem_c, ARENA_VAR(gen), result);
         }
     }
 

@@ -1,0 +1,18 @@
+// Code Generation Test: Global with default function
+//
+// Tests that a default function uses its own arena for allocations,
+// and can access global string variables from __main_arena__.
+
+var greeting: str = "Hello"
+
+fn append_world(): str =>
+    // default function uses its own arena (__local_arena__)
+    // global 'greeting' is in __main_arena__, accessed via parent-walking
+    return greeting + " World"
+
+fn main(): int =>
+    println("Global with default function test:")
+    var result: str = append_world()
+    println(result)
+    println("PASS")
+    return 0

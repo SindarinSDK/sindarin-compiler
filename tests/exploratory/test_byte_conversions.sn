@@ -148,7 +148,7 @@ fn main(): int =>
     print("\n13. byte array sum:\n")
     var sumArr: byte[] = {10, 20, 30, 40}
     var total: int = 0
-    shared for b in sumArr =>
+    for b in sumArr =>
         total = total + b
     print($"  Sum: {total}\n")
     if total == 100 =>

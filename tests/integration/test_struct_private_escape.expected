@@ -1,7 +1,7 @@
-Testing primitive-only struct escape from private blocks:
+Testing primitive-only struct escape from private functions:
 Private function return test: PASS
 Nested struct return test: PASS
-Private block escape test: PASS
+Struct assignment test: PASS
 Loop primitive struct escape test: PASS
 While loop struct escape test: PASS
 All primitive struct escape tests passed!

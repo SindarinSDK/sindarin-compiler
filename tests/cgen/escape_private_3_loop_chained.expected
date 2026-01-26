@@ -1,4 +1,0 @@
-Private chained test (3 loops):
-Only primitives escape from private function
-Computed checksum: 1332
-PASS: Checksum correct - primitives escaped properly

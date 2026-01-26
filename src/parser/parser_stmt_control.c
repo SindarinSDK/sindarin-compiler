@@ -106,7 +106,7 @@ Stmt *parser_if_statement(Parser *parser)
     return ast_create_if_stmt(parser->arena, condition, then_branch, else_branch, &if_token);
 }
 
-Stmt *parser_while_statement(Parser *parser, bool is_shared)
+Stmt *parser_while_statement(Parser *parser)
 {
     Token while_token = parser->previous;
     Expr *condition = parser_expression(parser);
@@ -136,15 +136,10 @@ Stmt *parser_while_statement(Parser *parser, bool is_shared)
         }
     }
 
-    Stmt *stmt = ast_create_while_stmt(parser->arena, condition, body, &while_token);
-    if (stmt != NULL)
-    {
-        stmt->as.while_stmt.is_shared = is_shared;
-    }
-    return stmt;
+    return ast_create_while_stmt(parser->arena, condition, body, &while_token);
 }
 
-Stmt *parser_for_statement(Parser *parser, bool is_shared)
+Stmt *parser_for_statement(Parser *parser)
 {
     Token for_token = parser->previous;
 
@@ -193,12 +188,7 @@ Stmt *parser_for_statement(Parser *parser, bool is_shared)
                 }
             }
 
-            Stmt *stmt = ast_create_for_each_stmt(parser->arena, var_name, iterable, body, &for_token);
-            if (stmt != NULL)
-            {
-                stmt->as.for_each_stmt.is_shared = is_shared;
-            }
-            return stmt;
+            return ast_create_for_each_stmt(parser->arena, var_name, iterable, body, &for_token);
         }
         else
         {
@@ -268,12 +258,7 @@ Stmt *parser_for_statement(Parser *parser, bool is_shared)
                 }
             }
 
-            Stmt *stmt = ast_create_for_stmt(parser->arena, initializer, condition, increment, body, &for_token);
-            if (stmt != NULL)
-            {
-                stmt->as.for_stmt.is_shared = is_shared;
-            }
-            return stmt;
+            return ast_create_for_stmt(parser->arena, initializer, condition, increment, body, &for_token);
         }
     }
 
@@ -360,10 +345,5 @@ Stmt *parser_for_statement(Parser *parser, bool is_shared)
         }
     }
 
-    Stmt *stmt = ast_create_for_stmt(parser->arena, initializer, condition, increment, body, &for_token);
-    if (stmt != NULL)
-    {
-        stmt->as.for_stmt.is_shared = is_shared;
-    }
-    return stmt;
+    return ast_create_for_stmt(parser->arena, initializer, condition, increment, body, &for_token);
 }

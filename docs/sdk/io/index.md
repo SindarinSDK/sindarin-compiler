@@ -100,25 +100,17 @@ fn processFile(path: str): str =>
   return content
 ```
 
-### Private Blocks
+### Private Functions
 
-Use private blocks for guaranteed cleanup:
-
-```sindarin
-var result: str = ""
-private =>
-  var f: TextFile = TextFile.open("data.txt")
-  result = f.readRemaining()
-  // f is GUARANTEED to close here, even on early return
-```
-
-**Important:** File handles opened within a private block cannot escape:
+Use private functions for guaranteed cleanup of temporary file processing:
 
 ```sindarin
-var f: TextFile    // Outer variable
+private fn countLines(path: str): int =>
+  var f: TextFile = TextFile.open(path)
+  var lines: str[] = f.readRemaining().split("\n")
+  return lines.length  // Only int escapes, file is closed
 
-private =>
-  f = TextFile.open("data.txt")    // COMPILE ERROR: File cannot escape private block
+var count: int = countLines("data.txt")
 ```
 
 ### Shared Functions
@@ -141,26 +133,6 @@ for path in filePaths =>
   var f: TextFile = TextFile.open(path)
   process(f)
   f.close()  // Don't wait for arena cleanup
-```
-
-### Loop Iteration Behavior
-
-**Non-shared loops** (default): Per-iteration arena cleanup
-
-```sindarin
-for path in paths =>
-  var f: TextFile = TextFile.open(path)
-  process(f)
-  // f.close() called automatically at iteration end
-```
-
-**Shared loops**: File persists across iterations
-
-```sindarin
-var f: TextFile = TextFile.open("log.txt")
-shared for item in items =>
-  f.writeLine(item)    // Same file handle, no re-open
-f.close()
 ```
 
 ---
@@ -260,10 +232,8 @@ File handles are bound to the arena in which they are opened:
 | Context | Arena Behavior | File Behavior |
 |---------|----------------|---------------|
 | Function entry | New arena created | Files opened here close on function exit |
-| `private =>` block | New isolated arena | Files **guaranteed** to close at block end |
+| `private` function | Isolated arena | Files **guaranteed** to close on function exit |
 | `shared` function | Uses caller's arena | Files persist in caller's scope |
-| Loop iteration (non-shared) | Per-iteration arena | File opens/closes each iteration |
-| Loop iteration (shared) | Parent arena reused | File persists across iterations |
 
 ### Escaping Rules
 
@@ -272,8 +242,7 @@ File handles follow these escaping rules:
 | Scenario | Allowed? | Behavior |
 |----------|----------|----------|
 | Return file from function | Yes | Handle promoted to caller's arena |
-| Assign to outer variable | Yes (non-private) | Handle ownership transfers |
-| Assign to outer variable from `private` | **No** | Compile-time error |
+| Return file from `private` function | **No** | Compile-time error (only primitives escape) |
 | Pass to function | Yes | Reference passed, caller retains ownership |
 | Pass to `shared` function | Yes | Same handle, no ownership change |
 | Capture in closure | Yes | Handle lifetime extends to closure lifetime |

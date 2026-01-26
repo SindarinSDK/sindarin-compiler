@@ -8,152 +8,29 @@
 #include <string.h>
 #include <stdio.h>
 
-/* Push a loop arena onto the stack when entering a loop with per-iteration arena */
-void push_loop_arena(CodeGen *gen, char *arena_var, char *cleanup_label)
-{
-    if (gen->loop_arena_depth >= gen->loop_arena_capacity)
-    {
-        int new_capacity = gen->loop_arena_capacity == 0 ? 8 : gen->loop_arena_capacity * 2;
-        char **new_arena_stack = arena_alloc(gen->arena, new_capacity * sizeof(char *));
-        char **new_cleanup_stack = arena_alloc(gen->arena, new_capacity * sizeof(char *));
-        for (int i = 0; i < gen->loop_arena_depth; i++)
-        {
-            new_arena_stack[i] = gen->loop_arena_stack[i];
-            new_cleanup_stack[i] = gen->loop_cleanup_stack[i];
-        }
-        gen->loop_arena_stack = new_arena_stack;
-        gen->loop_cleanup_stack = new_cleanup_stack;
-        gen->loop_arena_capacity = new_capacity;
-    }
-    gen->loop_arena_stack[gen->loop_arena_depth] = arena_var;
-    gen->loop_cleanup_stack[gen->loop_arena_depth] = cleanup_label;
-    gen->loop_arena_depth++;
-
-    /* Update current loop arena vars */
-    gen->loop_arena_var = arena_var;
-    gen->loop_cleanup_label = cleanup_label;
-}
-
-/* Pop a loop arena from the stack when exiting a loop */
-void pop_loop_arena(CodeGen *gen)
-{
-    if (gen->loop_arena_depth > 0)
-    {
-        gen->loop_arena_depth--;
-        if (gen->loop_arena_depth > 0)
-        {
-            /* Restore to the enclosing loop's arena */
-            gen->loop_arena_var = gen->loop_arena_stack[gen->loop_arena_depth - 1];
-            gen->loop_cleanup_label = gen->loop_cleanup_stack[gen->loop_arena_depth - 1];
-        }
-        else
-        {
-            /* No more enclosing loops */
-            gen->loop_arena_var = NULL;
-            gen->loop_cleanup_label = NULL;
-        }
-    }
-}
+/* ============================================================================
+ * Simplified Loop Code Generation
+ * ============================================================================
+ * All loops share the function's arena. No per-iteration arenas are created.
+ * This simplifies handle management - handles are always in the function arena
+ * or a parent arena, never in an ephemeral loop arena.
+ * ============================================================================ */
 
 void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_while_statement");
 
-    bool old_in_shared_context = gen->in_shared_context;
-    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
-
-    bool is_shared = stmt->is_shared;
-    // Don't create loop arena if: loop is shared, OR we're inside a shared context
-    bool needs_loop_arena = !is_shared && !gen->in_shared_context && gen->current_arena_var != NULL;
-
-    // Shared loops don't create per-iteration arenas
-    if (is_shared)
-    {
-        gen->in_shared_context = true;
-    }
-
-    // For non-shared loops with arena context (and not inside shared block), create per-iteration arena
-    char *loop_arena = NULL;
-    char *loop_cleanup = NULL;
-    if (needs_loop_arena)
-    {
-        int label_num = code_gen_new_label(gen);
-        loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", label_num);
-        loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", label_num);
-        gen->loop_outer_arena_var = gen->current_arena_var;
-        push_loop_arena(gen, loop_arena, loop_cleanup);
-    }
-
     char *cond_str = code_gen_expression(gen, stmt->condition);
     indented_fprintf(gen, indent, "while (%s) {\n", cond_str);
 
-    // Create per-iteration arena at start of loop body
-    char *old_current_arena_var = NULL;
-    if (needs_loop_arena)
-    {
-        indented_fprintf(gen, indent + 1, "RtManagedArena *%s = rt_managed_arena_create_child(%s);\n",
-                         loop_arena, ARENA_VAR(gen));
-        /* Switch to loop arena for temporaries inside the loop body.
-         * This ensures per-iteration garbage is collected when the loop arena
-         * is destroyed at the end of each iteration.
-         * Values that escape to outer scope are promoted via rt_managed_clone
-         * using loop_outer_arena_var (handled in assignment code generation). */
-        old_current_arena_var = gen->current_arena_var;
-        gen->current_arena_var = loop_arena;
-        /* Track arena depth in symbol table so symbols declared in the loop
-         * get the correct arena_depth for escape analysis during code gen. */
-        symbol_table_enter_arena(gen->symbol_table);
-    }
-
     code_gen_statement(gen, stmt->body, indent + 1);
 
-    // Cleanup label and arena destruction
-    if (needs_loop_arena)
-    {
-        symbol_table_exit_arena(gen->symbol_table);
-        gen->current_arena_var = old_current_arena_var;
-        indented_fprintf(gen, indent, "%s:\n", loop_cleanup);
-        indented_fprintf(gen, indent + 1, "rt_managed_arena_destroy_child(%s);\n", loop_arena);
-        pop_loop_arena(gen);
-    }
-
     indented_fprintf(gen, indent, "}\n");
-
-    if (needs_loop_arena)
-    {
-        gen->loop_outer_arena_var = old_loop_outer_arena_var;
-    }
-    gen->in_shared_context = old_in_shared_context;
 }
 
 void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_for_statement");
-
-    bool old_in_shared_context = gen->in_shared_context;
-    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
-
-    bool is_shared = stmt->is_shared;
-    // Don't create loop arena if: loop is shared, OR we're inside a shared context
-    bool needs_loop_arena = !is_shared && !gen->in_shared_context && gen->current_arena_var != NULL;
-
-    // Shared loops don't create per-iteration arenas
-    if (is_shared)
-    {
-        gen->in_shared_context = true;
-    }
-
-    // For non-shared loops with arena context (and not inside shared block), create per-iteration arena
-    char *loop_arena = NULL;
-    char *loop_cleanup = NULL;
-    if (needs_loop_arena)
-    {
-        int arena_label_num = code_gen_new_label(gen);
-        loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", arena_label_num);
-        loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", arena_label_num);
-        gen->loop_outer_arena_var = gen->current_arena_var;
-        push_loop_arena(gen, loop_arena, loop_cleanup);
-    }
 
     symbol_table_push_scope(gen->symbol_table);
     indented_fprintf(gen, indent, "{\n");
@@ -177,7 +54,7 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
         cond_str = code_gen_expression(gen, stmt->condition);
     }
 
-    // Save old continue label and create new one for this for loop
+    /* Save old continue label and create new one for this for loop */
     char *old_continue_label = gen->for_continue_label;
     int label_num = code_gen_new_label(gen);
     char *continue_label = arena_sprintf(gen->arena, "__for_continue_%d__", label_num);
@@ -185,31 +62,9 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
 
     indented_fprintf(gen, indent + 1, "while (%s) {\n", cond_str ? cond_str : "1");
 
-    // Create per-iteration arena at start of loop body
-    char *old_current_arena_var = NULL;
-    if (needs_loop_arena)
-    {
-        indented_fprintf(gen, indent + 2, "RtManagedArena *%s = rt_managed_arena_create_child(%s);\n",
-                         loop_arena, ARENA_VAR(gen));
-        /* Switch to loop arena for temporaries inside the loop body. */
-        old_current_arena_var = gen->current_arena_var;
-        gen->current_arena_var = loop_arena;
-        symbol_table_enter_arena(gen->symbol_table);
-    }
-
     code_gen_statement(gen, stmt->body, indent + 2);
 
-    // Cleanup label and arena destruction (before increment)
-    if (needs_loop_arena)
-    {
-        symbol_table_exit_arena(gen->symbol_table);
-        gen->current_arena_var = old_current_arena_var;
-        indented_fprintf(gen, indent + 1, "%s:\n", loop_cleanup);
-        indented_fprintf(gen, indent + 2, "rt_managed_arena_destroy_child(%s);\n", loop_arena);
-        pop_loop_arena(gen);
-    }
-
-    // Generate continue label before increment
+    /* Generate continue label before increment */
     indented_fprintf(gen, indent + 1, "%s:;\n", continue_label);
 
     if (stmt->increment)
@@ -219,7 +74,7 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
     }
     indented_fprintf(gen, indent + 1, "}\n");
 
-    // Restore old continue label
+    /* Restore old continue label */
     gen->for_continue_label = old_continue_label;
 
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
@@ -232,162 +87,72 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
     }
 
     symbol_table_pop_scope(gen->symbol_table);
-
-    if (needs_loop_arena)
-    {
-        gen->loop_outer_arena_var = old_loop_outer_arena_var;
-    }
-    gen->in_shared_context = old_in_shared_context;
 }
 
 void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_for_each_statement");
 
-    bool old_in_shared_context = gen->in_shared_context;
-    char *old_loop_outer_arena_var = gen->loop_outer_arena_var;
-
-    bool is_shared = stmt->is_shared;
-    // Don't create loop arena if: loop is shared, OR we're inside a shared context
-    bool needs_loop_arena = !is_shared && !gen->in_shared_context && gen->current_arena_var != NULL;
-
-    // Shared loops don't create per-iteration arenas
-    if (is_shared)
-    {
-        gen->in_shared_context = true;
-    }
-
-    // For non-shared loops with arena context (and not inside shared block), create per-iteration arena
-    char *loop_arena = NULL;
-    char *loop_cleanup = NULL;
-    if (needs_loop_arena)
-    {
-        int arena_label_num = code_gen_new_label(gen);
-        loop_arena = arena_sprintf(gen->arena, "__loop_arena_%d__", arena_label_num);
-        loop_cleanup = arena_sprintf(gen->arena, "__loop_cleanup_%d__", arena_label_num);
-        gen->loop_outer_arena_var = gen->current_arena_var;
-        push_loop_arena(gen, loop_arena, loop_cleanup);
-    }
-
-    // Generate a unique index variable name
+    /* Generate a unique index variable name */
     int temp_idx = gen->temp_count++;
     char *idx_var = arena_sprintf(gen->arena, "__idx_%d__", temp_idx);
     char *len_var = arena_sprintf(gen->arena, "__len_%d__", temp_idx);
     char *arr_var = arena_sprintf(gen->arena, "__arr_%d__", temp_idx);
 
-    // Get the iterable expression - evaluate as raw pointer (pinned form)
+    /* Get the iterable expression - evaluate as raw pointer (pinned form) */
     bool prev_as_handle = gen->expr_as_handle;
     gen->expr_as_handle = false;
     char *iterable_str = code_gen_expression(gen, stmt->iterable);
     gen->expr_as_handle = prev_as_handle;
 
-    // Get the element type from the iterable's type
+    /* Get the element type from the iterable's type */
     Type *iterable_type = stmt->iterable->expr_type;
     Type *elem_type = iterable_type->as.array.element_type;
     const char *elem_c_type = get_c_array_elem_type(gen->arena, elem_type);
-    // Build pinned pointer type for the loop array variable (element_type *)
+    /* Build pinned pointer type for the loop array variable (element_type *) */
     const char *arr_c_type = arena_sprintf(gen->arena, "%s *", elem_c_type);
 
-    // Get the loop variable name
+    /* Get the loop variable name */
     char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->var_name));
 
-    // Create a new scope
+    /* Create a new scope */
     symbol_table_push_scope(gen->symbol_table);
 
-    // Add the loop variable to the symbol table
-    // Use SYMBOL_LOCAL - arena handles cleanup, and for handle-type elements
-    // the pin arena needs to be the function's arena (not __caller_arena__)
+    /* Add the loop variable to the symbol table */
     symbol_table_add_symbol_with_kind(gen->symbol_table, stmt->var_name, elem_type, SYMBOL_LOCAL);
 
-    // For handle-type elements: set pin_arena based on where the array came from
-    // If the iterable is a parameter, element handles are in __caller_arena__
-    // If it's a local variable, use its pin_arena
-    if (gen->current_arena_var != NULL && is_handle_type(elem_type))
-    {
-        Symbol *loop_sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->var_name);
-        if (loop_sym != NULL)
-        {
-            const char *elem_pin_arena = ARENA_VAR(gen);  // default to local arena
-            if (stmt->iterable->type == EXPR_VARIABLE)
-            {
-                Symbol *arr_sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->iterable->as.variable.name);
-                if (arr_sym != NULL)
-                {
-                    if (arr_sym->kind == SYMBOL_PARAM)
-                    {
-                        // Parameter arrays: elements are in caller's arena
-                        elem_pin_arena = "__caller_arena__";
-                    }
-                    else if (arr_sym->pin_arena != NULL)
-                    {
-                        // Use the array's pin arena for elements
-                        elem_pin_arena = arr_sym->pin_arena;
-                    }
-                }
-            }
-            loop_sym->pin_arena = arena_strdup(gen->arena, elem_pin_arena);
-        }
-    }
-
-    // Generate the for-each loop desugared to:
-    // {
-    //     arr_type __arr__ = iterable;
-    //     long __len__ = rt_array_length(__arr__);
-    //     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
-    //         [RtArena *__loop_arena__ = rt_arena_create(parent);]  // if needs_loop_arena
-    //         elem_type var = __arr__[__idx__];
-    //         body
-    //         [__loop_cleanup__: rt_arena_destroy(__loop_arena__);] // if needs_loop_arena
-    //     }
-    // }
+    /* Generate the for-each loop desugared to:
+     * {
+     *     arr_type __arr__ = iterable;
+     *     long __len__ = rt_array_length(__arr__);
+     *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
+     *         elem_type var = __arr__[__idx__];
+     *         body
+     *     }
+     * } */
     indented_fprintf(gen, indent, "{\n");
     indented_fprintf(gen, indent + 1, "%s %s = %s;\n", arr_c_type, arr_var, iterable_str);
     indented_fprintf(gen, indent + 1, "long %s = rt_array_length(%s);\n", len_var, arr_var);
     indented_fprintf(gen, indent + 1, "for (long %s = 0; %s < %s; %s++) {\n", idx_var, idx_var, len_var, idx_var);
 
-    // Create per-iteration arena at start of loop body
-    char *old_current_arena_var = NULL;
-    if (needs_loop_arena)
-    {
-        indented_fprintf(gen, indent + 2, "RtManagedArena *%s = rt_managed_arena_create_child(%s);\n",
-                         loop_arena, ARENA_VAR(gen));
-        /* Switch to loop arena for temporaries inside the loop body. */
-        old_current_arena_var = gen->current_arena_var;
-        gen->current_arena_var = loop_arena;
-        symbol_table_enter_arena(gen->symbol_table);
-    }
-
     indented_fprintf(gen, indent + 2, "%s %s = %s[%s];\n", elem_c_type, var_name, arr_var, idx_var);
 
-    // Generate the body
+    /* Generate the body */
     code_gen_statement(gen, stmt->body, indent + 2);
-
-    // Cleanup label and arena destruction
-    if (needs_loop_arena)
-    {
-        symbol_table_exit_arena(gen->symbol_table);
-        gen->current_arena_var = old_current_arena_var;
-        indented_fprintf(gen, indent + 1, "%s:\n", loop_cleanup);
-        indented_fprintf(gen, indent + 2, "rt_managed_arena_destroy_child(%s);\n", loop_arena);
-        pop_loop_arena(gen);
-    }
 
     indented_fprintf(gen, indent + 1, "}\n");
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
     indented_fprintf(gen, indent, "}\n");
 
-    if (needs_loop_arena)
-    {
-        gen->loop_outer_arena_var = old_loop_outer_arena_var;
-    }
-    gen->in_shared_context = old_in_shared_context;
-
     symbol_table_pop_scope(gen->symbol_table);
 }
 
-/* Push a loop counter variable name onto the tracking stack.
- * Loop counters (like for-each __idx__ vars or C-style for loop vars starting at 0)
- * are provably non-negative and can skip negative index checks. */
+/* ============================================================================
+ * Loop Counter Tracking (for optimization)
+ * ============================================================================
+ * Tracks variables known to be non-negative for index bounds check optimization.
+ * ============================================================================ */
+
 void push_loop_counter(CodeGen *gen, const char *var_name)
 {
     /* Grow stack if needed */
@@ -406,7 +171,6 @@ void push_loop_counter(CodeGen *gen, const char *var_name)
     gen->loop_counter_count++;
 }
 
-/* Pop a loop counter variable name from the tracking stack. */
 void pop_loop_counter(CodeGen *gen)
 {
     if (gen->loop_counter_count > 0)
@@ -415,7 +179,6 @@ void pop_loop_counter(CodeGen *gen)
     }
 }
 
-/* Check if a variable name is a tracked loop counter (provably non-negative). */
 bool is_tracked_loop_counter(CodeGen *gen, const char *var_name)
 {
     if (var_name == NULL)
