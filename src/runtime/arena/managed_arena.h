@@ -18,9 +18,6 @@ typedef uint32_t RtHandle;
 
 #define RT_HANDLE_NULL 0
 
-/* Moving sentinel — used by compactor to indicate entry is being relocated */
-#define RT_LEASE_MOVING (-1)
-
 /* ============================================================================
  * Arena Block (backing store)
  * ============================================================================ */
@@ -28,8 +25,8 @@ typedef struct RtManagedBlock {
     struct RtManagedBlock *next;  /* Next block in chain */
     size_t size;                  /* Block capacity */
     atomic_size_t used;           /* Bytes used (atomic for lock-free bump) */
-    atomic_int lease_count;       /* Number of temporarily leased entries in this block */
-    atomic_int pinned_count;      /* Number of permanently pinned entries in this block */
+    int lease_count;              /* Number of temporarily leased entries (pin_mutex protected) */
+    int pinned_count;             /* Number of permanently pinned entries (pin_mutex protected) */
     bool retired;                 /* Marked for deallocation */
     char _padding[7];             /* Padding to ensure data[] is 8-byte aligned */
     char data[];                  /* Flexible array member (8-byte aligned) */
@@ -42,7 +39,7 @@ typedef struct {
     void *ptr;              /* Pointer to data in backing arena */
     RtManagedBlock *block;  /* Block containing this allocation */
     size_t size;            /* Size of the allocation */
-    atomic_int leased;      /* Pin/lease counter (atomic) */
+    int leased;             /* Pin/lease counter (pin_mutex protected) */
     bool dead;              /* Marked for reclamation */
     bool pinned;            /* Permanently pinned - compactor will never move this */
 } RtHandleEntry;
@@ -146,6 +143,7 @@ typedef struct RtManagedArena {
 
     /* Synchronization */
     pthread_mutex_t alloc_mutex;  /* Protects table/block mutations */
+    pthread_mutex_t pin_mutex;    /* Protects pin/unpin operations (leased, lease_count) */
     atomic_uint block_epoch;      /* Incremented when compactor swaps blocks */
 
     /* Stats */

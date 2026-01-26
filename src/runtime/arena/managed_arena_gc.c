@@ -23,8 +23,8 @@ static RtManagedBlock *managed_block_create_compact(size_t size)
     block->next = NULL;
     block->size = size;
     atomic_init(&block->used, 0);
-    atomic_init(&block->lease_count, 0);
-    atomic_init(&block->pinned_count, 0);
+    block->lease_count = 0;   /* Plain int, protected by pin_mutex */
+    block->pinned_count = 0;  /* Plain int, protected by pin_mutex */
     block->retired = false;
     return block;
 }
@@ -92,16 +92,18 @@ static int snapshot_arena_tree(RtManagedArena *root, RtManagedArena **out, int m
 static bool clean_arena(RtManagedArena *ma)
 {
     bool did_work = false;
+    RtManagedArena *root = rt_managed_arena_root(ma);
 
     /* Single lock acquisition to process all dead+unleased entries.
      * Previous implementation locked/unlocked per entry (2x per entry)
      * and performed an unnecessary memset on dead memory. */
     pthread_mutex_lock(&ma->alloc_mutex);
+    pthread_mutex_lock(&root->pin_mutex);
 
     uint32_t count = ma->table_count;
     for (uint32_t i = 1; i < count; i++) {
         RtHandleEntry *entry = rt_handle_get(ma, i);
-        if (!entry->dead || entry->ptr == NULL || atomic_load(&entry->leased) != 0) {
+        if (!entry->dead || entry->ptr == NULL || entry->leased != 0) {
             continue;
         }
         /* Entry is dead and unleased — recycle immediately.
@@ -113,6 +115,7 @@ static bool clean_arena(RtManagedArena *ma)
         did_work = true;
     }
 
+    pthread_mutex_unlock(&root->pin_mutex);
     pthread_mutex_unlock(&ma->alloc_mutex);
 
     return did_work;
@@ -171,7 +174,9 @@ void rt_managed_compact(RtManagedArena *ma)
 {
     if (ma == NULL) return;
 
+    RtManagedArena *root = rt_managed_arena_root(ma);
     pthread_mutex_lock(&ma->alloc_mutex);
+    pthread_mutex_lock(&root->pin_mutex);
 
     /* Single pass: copy live entries to new block chain.
      * Previous implementation did a counting pass first to pre-size the block,
@@ -189,11 +194,11 @@ void rt_managed_compact(RtManagedArena *ma)
 
         if (entry->dead || entry->ptr == NULL) {
             /* Recycle dead + unleased entries in the same pass.
-             * Since we hold alloc_mutex, no state changes can occur.
+             * Since we hold alloc_mutex and pin_mutex, no state changes can occur.
              * All dead entries point to old blocks (live ones are being moved).
              * This replaces the O(entries * blocks) third scan that previously
              * searched the old block chain per entry. */
-            if (entry->dead && entry->ptr != NULL && atomic_load(&entry->leased) == 0) {
+            if (entry->dead && entry->ptr != NULL && entry->leased == 0) {
                 atomic_fetch_sub(&ma->dead_bytes, entry->size);
                 entry->ptr = NULL;
                 entry->dead = false;
@@ -206,9 +211,9 @@ void rt_managed_compact(RtManagedArena *ma)
          * These contain pthread_mutex_t, pthread_cond_t, or other OS resources. */
         if (entry->pinned) continue;
 
-        /* Try to acquire entry for moving — CAS leased: 0 → MOVING */
-        int expected = 0;
-        if (!atomic_compare_exchange_strong(&entry->leased, &expected, RT_LEASE_MOVING)) {
+        /* Check if entry is leased — if so, skip it.
+         * With pin_mutex held, we have exclusive access to leased field. */
+        if (entry->leased > 0) {
             /* Entry is temporarily leased — skip, best effort.
              * Leased data stays in old block (which remains alive until drained). */
             continue;
@@ -232,10 +237,10 @@ void rt_managed_compact(RtManagedArena *ma)
         entry->ptr = new_ptr;
         entry->block = new_current;
 
-        /* Release moving lock */
-        atomic_store(&entry->leased, 0);
         live_count++;
     }
+
+    pthread_mutex_unlock(&root->pin_mutex);
 
     /* If no live entries were moved, free the unused new block */
     if (live_count == 0) {
@@ -312,26 +317,29 @@ static bool should_compact_low_utilization(RtManagedArena *ma)
     return utilization < RT_MANAGED_UTILIZATION_THRESHOLD;
 }
 
-/* Check if block has any leased or pinned entries — O(1) via atomic counters */
-static bool block_has_active_entries(RtManagedArena *ma, RtManagedBlock *block)
+/* Check if block has any leased or pinned entries — O(1) via counters.
+ * Caller must hold pin_mutex. */
+static bool block_has_active_entries(RtManagedBlock *block)
 {
-    (void)ma;
     /* Block cannot be freed if it has temporarily leased OR permanently pinned entries */
-    return atomic_load_explicit(&block->lease_count, memory_order_acquire) > 0 ||
-           atomic_load_explicit(&block->pinned_count, memory_order_acquire) > 0;
+    return block->lease_count > 0 || block->pinned_count > 0;
 }
 
-/* Try to free retired blocks whose entries are all unleased */
+/* Try to free retired blocks whose entries are all unleased.
+ * Uses pin_mutex to safely check lease_count and pinned_count. */
 static void retire_drained_blocks(RtManagedArena *ma)
 {
+    RtManagedArena *root = rt_managed_arena_root(ma);
+
     pthread_mutex_lock(&ma->alloc_mutex);
+    pthread_mutex_lock(&root->pin_mutex);
 
     RtManagedBlock **prev = &ma->retired_list;
     RtManagedBlock *block = ma->retired_list;
 
     while (block != NULL) {
         RtManagedBlock *next = block->next;
-        if (!block_has_active_entries(ma, block)) {
+        if (!block_has_active_entries(block)) {
             *prev = next;
             managed_block_free_gc(block);
         } else {
@@ -340,6 +348,7 @@ static void retire_drained_blocks(RtManagedArena *ma)
         block = next;
     }
 
+    pthread_mutex_unlock(&root->pin_mutex);
     pthread_mutex_unlock(&ma->alloc_mutex);
 }
 

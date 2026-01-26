@@ -21,8 +21,8 @@ static RtManagedBlock *managed_block_create(size_t size)
     block->next = NULL;
     block->size = size;
     atomic_init(&block->used, 0);
-    atomic_init(&block->lease_count, 0);
-    atomic_init(&block->pinned_count, 0);
+    block->lease_count = 0;   /* Plain int, protected by pin_mutex */
+    block->pinned_count = 0;  /* Plain int, protected by pin_mutex */
     block->retired = false;
     return block;
 }
@@ -202,6 +202,7 @@ static void arena_init_common(RtManagedArena *ma)
 
     /* Synchronization */
     pthread_mutex_init(&ma->alloc_mutex, NULL);
+    pthread_mutex_init(&ma->pin_mutex, NULL);
     atomic_init(&ma->block_epoch, 0);
 
     /* Tree linkage defaults */
@@ -322,11 +323,14 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
         pthread_mutex_unlock(&parent->children_mutex);
     }
 
-    /* Recursively destroy any children of this child */
+    /* Recursively destroy any children of this child.
+     * We need to get the root BEFORE clearing parent links so that
+     * grandchildren can be properly deferred for freeing. */
+    RtManagedArena *root_for_children = parent ? rt_managed_arena_root(parent) : NULL;
     while (child->first_child != NULL) {
         RtManagedArena *grandchild = child->first_child;
         child->first_child = grandchild->next_sibling;
-        grandchild->parent = NULL; /* Prevent re-unlinking */
+        /* Don't clear parent yet - destroy_child needs it to find the root */
         rt_managed_arena_destroy_child(grandchild);
     }
 
@@ -342,10 +346,12 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
      * Legacy API (rt_arena_alloc) creates permanent pins that would otherwise
      * never drain, making child arena destruction hang.
      * Only iterate entries this arena actually allocated (from index_offset onwards). */
+    pthread_mutex_lock(&child->pin_mutex);
     for (uint32_t i = start_idx; i < child->table_count; i++) {
         RtHandleEntry *entry = rt_handle_get(child, i);
-        atomic_store(&entry->leased, 0);
+        entry->leased = 0;
     }
+    pthread_mutex_unlock(&child->pin_mutex);
 
     /* Free blocks and table — but NOT the arena struct itself.
      * GC threads may still hold a stale snapshot reference to this arena.
@@ -380,6 +386,7 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     child->retired_pages = NULL;
 
     pthread_mutex_destroy(&child->alloc_mutex);
+    pthread_mutex_destroy(&child->pin_mutex);
     pthread_mutex_destroy(&child->children_mutex);
 
     /* Add to root's retired arenas list for deferred free */
@@ -448,6 +455,7 @@ void rt_managed_arena_destroy(RtManagedArena *ma)
     }
 
     pthread_mutex_destroy(&ma->alloc_mutex);
+    pthread_mutex_destroy(&ma->pin_mutex);
     pthread_mutex_destroy(&ma->children_mutex);
     free(ma);
 }
@@ -500,7 +508,7 @@ RtHandle rt_managed_alloc(RtManagedArena *ma, RtHandle old, size_t size)
     entry->ptr = ptr;
     entry->block = alloc_block;
     entry->size = size;
-    atomic_store_explicit(&entry->leased, 0, memory_order_relaxed);
+    entry->leased = 0;  /* Plain int, protected by pin_mutex when accessed */
     entry->dead = false;
     entry->pinned = false;
 
@@ -540,12 +548,14 @@ RtHandle rt_managed_alloc_pinned(RtManagedArena *ma, RtHandle old, size_t size)
     entry->ptr = ptr;
     entry->block = alloc_block;
     entry->size = size;
-    atomic_init(&entry->leased, 0);
+    entry->leased = 0;  /* Plain int, protected by pin_mutex when accessed */
     entry->dead = false;
     entry->pinned = true;  /* Permanently pinned - compactor will never move */
 
     /* Increment the block's pinned count to prevent it from being freed */
-    atomic_fetch_add(&alloc_block->pinned_count, 1);
+    pthread_mutex_lock(&ma->pin_mutex);
+    alloc_block->pinned_count++;
+    pthread_mutex_unlock(&ma->pin_mutex);
 
     pthread_mutex_unlock(&ma->alloc_mutex);
 
@@ -566,17 +576,23 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     if (h >= src->table_count) return RT_HANDLE_NULL;
 
     /* Pin source to get stable pointer */
+    RtManagedArena *src_root = rt_managed_arena_root(src);
     RtHandleEntry *src_entry = rt_handle_get(src, h);
-    atomic_fetch_add(&src_entry->leased, 1);
+
+    pthread_mutex_lock(&src_root->pin_mutex);
+    src_entry->leased++;
     if (src_entry->block != NULL) {
-        atomic_fetch_add(&src_entry->block->lease_count, 1);
+        src_entry->block->lease_count++;
     }
+    pthread_mutex_unlock(&src_root->pin_mutex);
 
     if (src_entry->ptr == NULL || src_entry->dead) {
+        pthread_mutex_lock(&src_root->pin_mutex);
         if (src_entry->block != NULL) {
-            atomic_fetch_sub(&src_entry->block->lease_count, 1);
+            src_entry->block->lease_count--;
         }
-        atomic_fetch_sub(&src_entry->leased, 1);
+        src_entry->leased--;
+        pthread_mutex_unlock(&src_root->pin_mutex);
         /* Entry is dead or empty - nothing to promote */
         return RT_HANDLE_NULL;
     }
@@ -601,7 +617,7 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     dest_entry->ptr = new_ptr;
     dest_entry->block = alloc_block;
     dest_entry->size = size;
-    atomic_init(&dest_entry->leased, 0);
+    dest_entry->leased = 0;
     dest_entry->dead = false;
     dest_entry->pinned = false;
     atomic_fetch_add(&dest->live_bytes, size);
@@ -611,10 +627,12 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
     memcpy(new_ptr, src_entry->ptr, size);
 
     /* Unpin source and mark dead */
+    pthread_mutex_lock(&src_root->pin_mutex);
     if (src_entry->block != NULL) {
-        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+        src_entry->block->lease_count--;
     }
-    atomic_fetch_sub(&src_entry->leased, 1);
+    src_entry->leased--;
+    pthread_mutex_unlock(&src_root->pin_mutex);
 
     pthread_mutex_lock(&src->alloc_mutex);
     if (!src_entry->dead) {
@@ -633,11 +651,23 @@ RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
     if (h >= src->table_count) return RT_HANDLE_NULL;
 
     /* Pin source to get stable pointer */
+    RtManagedArena *src_root = rt_managed_arena_root(src);
     RtHandleEntry *src_entry = rt_handle_get(src, h);
-    atomic_fetch_add(&src_entry->leased, 1);
+
+    pthread_mutex_lock(&src_root->pin_mutex);
+    src_entry->leased++;
+    if (src_entry->block != NULL) {
+        src_entry->block->lease_count++;
+    }
+    pthread_mutex_unlock(&src_root->pin_mutex);
 
     if (src_entry->ptr == NULL || src_entry->dead) {
-        atomic_fetch_sub(&src_entry->leased, 1);
+        pthread_mutex_lock(&src_root->pin_mutex);
+        if (src_entry->block != NULL) {
+            src_entry->block->lease_count--;
+        }
+        src_entry->leased--;
+        pthread_mutex_unlock(&src_root->pin_mutex);
         return RT_HANDLE_NULL;
     }
 
@@ -661,7 +691,7 @@ RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
     dest_entry->ptr = new_ptr;
     dest_entry->block = alloc_block;
     dest_entry->size = size;
-    atomic_store_explicit(&dest_entry->leased, 0, memory_order_relaxed);
+    dest_entry->leased = 0;
     dest_entry->dead = false;
     dest_entry->pinned = false;
     atomic_fetch_add(&dest->live_bytes, size);
@@ -671,10 +701,12 @@ RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h)
     memcpy(new_ptr, src_entry->ptr, size);
 
     /* Unpin source (do NOT mark dead — source remains valid) */
+    pthread_mutex_lock(&src_root->pin_mutex);
     if (src_entry->block != NULL) {
-        atomic_fetch_sub(&src_entry->block->lease_count, 1);
+        src_entry->block->lease_count--;
     }
-    atomic_fetch_sub(&src_entry->leased, 1);
+    src_entry->leased--;
+    pthread_mutex_unlock(&src_root->pin_mutex);
 
     return (RtHandle)new_index;
 }
@@ -780,7 +812,10 @@ RtHandle rt_managed_clone_prefer_parent(RtManagedArena *dest, RtManagedArena *sr
  * This simplifies code generation - no need to track which arena owns a handle.
  * ============================================================================ */
 
-/* Direct pin from a specific arena (no parent walk). Used internally. */
+/* Direct pin from a specific arena (no parent walk). Used internally.
+ * Uses pin_mutex to safely increment lease counts, preventing races
+ * with block freeing. The mutex is only held during the increment,
+ * not for the duration of the pin. */
 static void *rt_managed_pin_direct(RtManagedArena *ma, RtHandle h)
 {
     if (ma == NULL || h == RT_HANDLE_NULL || h >= ma->table_count) {
@@ -788,14 +823,18 @@ static void *rt_managed_pin_direct(RtManagedArena *ma, RtHandle h)
     }
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
+    RtManagedArena *root = rt_managed_arena_root(ma);
 
-    /* Increment entry lease and block lease count */
-    atomic_fetch_add(&entry->leased, 1);
+    /* Lock pin_mutex to safely increment lease counts */
+    pthread_mutex_lock(&root->pin_mutex);
+    entry->leased++;
     if (entry->block != NULL) {
-        atomic_fetch_add(&entry->block->lease_count, 1);
+        entry->block->lease_count++;
     }
+    void *ptr = entry->ptr;
+    pthread_mutex_unlock(&root->pin_mutex);
 
-    return entry->ptr;
+    return ptr;
 }
 
 /* Pin a handle, searching the arena tree (self, parents, root) to find it.
@@ -830,12 +869,15 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
     }
 
     RtHandleEntry *entry = rt_handle_get(ma, h);
+    RtManagedArena *root = rt_managed_arena_root(ma);
 
-    /* Decrement entry lease and block lease count */
-    atomic_fetch_sub(&entry->leased, 1);
+    /* Lock pin_mutex to safely decrement lease counts */
+    pthread_mutex_lock(&root->pin_mutex);
     if (entry->block != NULL) {
-        atomic_fetch_sub(&entry->block->lease_count, 1);
+        entry->block->lease_count--;
     }
+    entry->leased--;
+    pthread_mutex_unlock(&root->pin_mutex);
 }
 
 /* Legacy alias for rt_managed_pin (both now walk the parent chain) */
