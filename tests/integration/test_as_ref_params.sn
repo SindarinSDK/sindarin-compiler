@@ -70,20 +70,19 @@ fn test_threaded_as_ref(): void =>
 
     print("  PASS\n")
 
-// Test 5: as ref unfreezing after sync
+// Test 5: as ref modification after sync
 fn delayed_set(x: int as ref): int =>
     x = 42
     return 0
 
-fn test_unfreeze_after_sync(): void =>
-    print("Test 5: Unfreeze after sync\n")
+fn test_modify_after_sync(): void =>
+    print("Test 5: Modification after sync\n")
     var value: int = 0
 
     var r: int = &delayed_set(value)
-    // value is frozen here - cannot modify
-    r!  // Sync unfreezes value
+    r!  // Sync completes thread
 
-    // Now we can modify again
+    // After sync, value has been modified by thread
     value = 100
     assert(value == 100, "can modify after sync")
 
@@ -141,7 +140,7 @@ fn main(): void =>
     test_multiple_as_ref()
     test_different_types()
     test_threaded_as_ref()
-    test_unfreeze_after_sync()
+    test_modify_after_sync()
     test_mixed_params()
     test_byte_char_as_ref()
     test_nested_as_ref()

@@ -1,6 +1,5 @@
-// Test: Frozen array references in thread spawn
-// Verifies that arrays passed to threads are frozen (reads allowed, writes blocked)
-// and unfrozen after sync
+// Test: Array references in thread spawn
+// Verifies that arrays can be passed to threads by reference
 
 fn sum_array(arr: int[]): int =>
     var total: int = 0
@@ -11,19 +10,19 @@ fn sum_array(arr: int[]): int =>
 fn main(): void =>
     var data: int[] = {10, 20, 30, 40, 50}
 
-    // Spawn thread passing array - array becomes frozen
+    // Spawn thread passing array by reference
     var result: int = &sum_array(data)
 
-    // While thread is running, reads are allowed on frozen array
+    // While thread is running, reads are allowed
     var first: int = data[0]
     var len: int = data.length
     print($"First element: {first}\n")
     print($"Array length: {len}\n")
 
-    // Sync to get result and unfreeze array
+    // Sync to get result
     result!
 
-    // After sync, writes are allowed again
+    // After sync, writes work as expected
     data[0] = 100
     data.push(60)
     print($"After write, data[0]: {data[0]}\n")
@@ -35,14 +34,14 @@ fn main(): void =>
             if len == 5 =>
                 if data[0] == 100 =>
                     if data.length == 6 =>
-                        print("SUCCESS: Freeze/unfreeze cycle works correctly\n")
+                        print("SUCCESS: Thread array spawn works correctly\n")
                     else =>
-                        print("FAILURE: push didn't work after unfreeze\n")
+                        print("FAILURE: push didn't work after sync\n")
                 else =>
-                    print("FAILURE: write didn't work after unfreeze\n")
+                    print("FAILURE: write didn't work after sync\n")
             else =>
-                print("FAILURE: length read failed while frozen\n")
+                print("FAILURE: length read failed\n")
         else =>
-            print("FAILURE: index read failed while frozen\n")
+            print("FAILURE: index read failed\n")
     else =>
         print($"FAILURE: sum result expected 150, got {result}\n")

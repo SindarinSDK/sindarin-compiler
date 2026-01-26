@@ -1,4 +1,4 @@
-// Test: Frozen 'as ref' primitives in thread spawn
+// Test: 'as ref' primitives in thread spawn
 // Verifies that primitives passed with 'as ref' are shared between threads
 // and that modifications by the thread are visible after sync
 

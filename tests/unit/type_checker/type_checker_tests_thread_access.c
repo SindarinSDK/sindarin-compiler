@@ -1,5 +1,5 @@
 // tests/type_checker_tests_thread_access.c
-// Tests for variable access rules, frozen method tests, and function constraints
+// Tests for variable access rules and function constraints
 
 #include <stdio.h>
 #include <string.h>
@@ -292,145 +292,6 @@ static void test_normal_variable_reassign_allowed(void)
     arena_free(&arena);
 }
 
-/* Test that mutating methods on frozen arrays report error */
-static void test_frozen_array_mutating_method_error(void)
-{
-    Arena arena;
-    arena_init(&arena, 4096);
-    SymbolTable table;
-    symbol_table_init(&arena, &table);
-
-    /* Add an array variable and freeze it */
-    Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
-    Type *array_type = ast_create_array_type(&arena, int_type);
-    Token arr_tok;
-    setup_token(&arr_tok, TOKEN_IDENTIFIER, "frozenArr", 1, "test.sn", &arena);
-    symbol_table_add_symbol(&table, arr_tok, array_type);
-
-    Symbol *sym = symbol_table_lookup_symbol(&table, arr_tok);
-    symbol_table_freeze_symbol(sym);
-    assert(symbol_table_is_frozen(sym));
-
-    /* Create member expression: frozenArr.push */
-    Expr *arr_var = ast_create_variable_expr(&arena, arr_tok, &arr_tok);
-    Token push_tok;
-    setup_token(&push_tok, TOKEN_IDENTIFIER, "push", 1, "test.sn", &arena);
-    Expr *member_expr = ast_create_member_expr(&arena, arr_var, push_tok, &push_tok);
-
-    /* Type check should return NULL and set error */
-    type_checker_reset_error();
-    Type *result = type_check_expr(member_expr, &table);
-    assert(result == NULL);
-    assert(type_checker_had_error());
-
-    symbol_table_cleanup(&table);
-    arena_free(&arena);
-}
-
-/* Test that read-only methods on frozen arrays are allowed */
-static void test_frozen_array_readonly_method_allowed(void)
-{
-    Arena arena;
-    arena_init(&arena, 4096);
-    SymbolTable table;
-    symbol_table_init(&arena, &table);
-
-    /* Add an array variable and freeze it */
-    Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
-    Type *array_type = ast_create_array_type(&arena, int_type);
-    Token arr_tok;
-    setup_token(&arr_tok, TOKEN_IDENTIFIER, "frozenArr", 1, "test.sn", &arena);
-    symbol_table_add_symbol(&table, arr_tok, array_type);
-
-    Symbol *sym = symbol_table_lookup_symbol(&table, arr_tok);
-    symbol_table_freeze_symbol(sym);
-    assert(symbol_table_is_frozen(sym));
-
-    /* Create member expression: frozenArr.length */
-    Expr *arr_var = ast_create_variable_expr(&arena, arr_tok, &arr_tok);
-    Token length_tok;
-    setup_token(&length_tok, TOKEN_IDENTIFIER, "length", 1, "test.sn", &arena);
-    Expr *member_expr = ast_create_member_expr(&arena, arr_var, length_tok, &length_tok);
-
-    /* Type check should succeed - length is read-only */
-    type_checker_reset_error();
-    Type *result = type_check_expr(member_expr, &table);
-    assert(result != NULL);
-    assert(result->kind == TYPE_INT);
-    assert(!type_checker_had_error());
-
-    symbol_table_cleanup(&table);
-    arena_free(&arena);
-}
-
-/* Test that incrementing a frozen variable reports error */
-static void test_frozen_variable_increment_error(void)
-{
-    Arena arena;
-    arena_init(&arena, 4096);
-    SymbolTable table;
-    symbol_table_init(&arena, &table);
-
-    /* Add a variable and freeze it */
-    Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
-    Token var_tok;
-    setup_token(&var_tok, TOKEN_IDENTIFIER, "frozenCounter", 1, "test.sn", &arena);
-    symbol_table_add_symbol(&table, var_tok, int_type);
-
-    Symbol *sym = symbol_table_lookup_symbol(&table, var_tok);
-    symbol_table_freeze_symbol(sym);
-    assert(symbol_table_is_frozen(sym));
-
-    /* Create increment expression: frozenCounter++ */
-    Expr *var_expr = ast_create_variable_expr(&arena, var_tok, &var_tok);
-    Token inc_tok;
-    setup_token(&inc_tok, TOKEN_PLUS_PLUS, "++", 1, "test.sn", &arena);
-    Expr *inc_expr = ast_create_increment_expr(&arena, var_expr, &inc_tok);
-
-    /* Type check should return NULL and set error */
-    type_checker_reset_error();
-    Type *result = type_check_expr(inc_expr, &table);
-    assert(result == NULL);
-    assert(type_checker_had_error());
-
-    symbol_table_cleanup(&table);
-    arena_free(&arena);
-}
-
-/* Test that decrementing a frozen variable reports error */
-static void test_frozen_variable_decrement_error(void)
-{
-    Arena arena;
-    arena_init(&arena, 4096);
-    SymbolTable table;
-    symbol_table_init(&arena, &table);
-
-    /* Add a variable and freeze it */
-    Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
-    Token var_tok;
-    setup_token(&var_tok, TOKEN_IDENTIFIER, "frozenCounter", 1, "test.sn", &arena);
-    symbol_table_add_symbol(&table, var_tok, int_type);
-
-    Symbol *sym = symbol_table_lookup_symbol(&table, var_tok);
-    symbol_table_freeze_symbol(sym);
-    assert(symbol_table_is_frozen(sym));
-
-    /* Create decrement expression: frozenCounter-- */
-    Expr *var_expr = ast_create_variable_expr(&arena, var_tok, &var_tok);
-    Token dec_tok;
-    setup_token(&dec_tok, TOKEN_MINUS_MINUS, "--", 1, "test.sn", &arena);
-    Expr *dec_expr = ast_create_decrement_expr(&arena, var_expr, &dec_tok);
-
-    /* Type check should return NULL and set error */
-    type_checker_reset_error();
-    Type *result = type_check_expr(dec_expr, &table);
-    assert(result == NULL);
-    assert(type_checker_had_error());
-
-    symbol_table_cleanup(&table);
-    arena_free(&arena);
-}
-
 /* Test that incrementing a normal variable is allowed */
 static void test_normal_variable_increment_allowed(void)
 {
@@ -439,14 +300,14 @@ static void test_normal_variable_increment_allowed(void)
     SymbolTable table;
     symbol_table_init(&arena, &table);
 
-    /* Add a normal variable (not frozen) */
+    /* Add a normal variable */
     Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
     Token var_tok;
     setup_token(&var_tok, TOKEN_IDENTIFIER, "normalCounter", 1, "test.sn", &arena);
     symbol_table_add_symbol(&table, var_tok, int_type);
 
     Symbol *sym = symbol_table_lookup_symbol(&table, var_tok);
-    assert(!symbol_table_is_frozen(sym));
+    assert(sym != NULL);
 
     /* Create increment expression: normalCounter++ */
     Expr *var_expr = ast_create_variable_expr(&arena, var_tok, &var_tok);
@@ -473,14 +334,14 @@ static void test_normal_variable_decrement_allowed(void)
     SymbolTable table;
     symbol_table_init(&arena, &table);
 
-    /* Add a normal variable (not frozen) */
+    /* Add a normal variable */
     Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
     Token var_tok;
     setup_token(&var_tok, TOKEN_IDENTIFIER, "normalCounter", 1, "test.sn", &arena);
     symbol_table_add_symbol(&table, var_tok, int_type);
 
     Symbol *sym = symbol_table_lookup_symbol(&table, var_tok);
-    assert(!symbol_table_is_frozen(sym));
+    assert(sym != NULL);
 
     /* Create decrement expression: normalCounter-- */
     Expr *var_expr = ast_create_variable_expr(&arena, var_tok, &var_tok);
@@ -755,10 +616,6 @@ void test_type_checker_thread_access_main(void)
     TEST_RUN("pending_variable_reassign_error", test_pending_variable_reassign_error);
     TEST_RUN("synchronized_variable_reassign_allowed", test_synchronized_variable_reassign_allowed);
     TEST_RUN("normal_variable_reassign_allowed", test_normal_variable_reassign_allowed);
-    TEST_RUN("frozen_array_mutating_method_error", test_frozen_array_mutating_method_error);
-    TEST_RUN("frozen_array_readonly_method_allowed", test_frozen_array_readonly_method_allowed);
-    TEST_RUN("frozen_variable_increment_error", test_frozen_variable_increment_error);
-    TEST_RUN("frozen_variable_decrement_error", test_frozen_variable_decrement_error);
     TEST_RUN("normal_variable_increment_allowed", test_normal_variable_increment_allowed);
     TEST_RUN("normal_variable_decrement_allowed", test_normal_variable_decrement_allowed);
     TEST_RUN("private_function_array_return_error", test_private_function_array_return_error);

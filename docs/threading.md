@@ -4,7 +4,7 @@ description: "Concurrency with spawn, sync, and shared memory"
 permalink: /language/threading/
 ---
 
-Sindarin provides OS-level threading with minimal syntax for concurrent execution. The `&` operator spawns threads and the `!` operator synchronizes them. Thread safety is enforced at compile time through pending and frozen state tracking.
+Sindarin provides OS-level threading with minimal syntax for concurrent execution. The `&` operator spawns threads and the `!` operator synchronizes them. Thread safety is enforced at compile time through pending state tracking.
 
 ## Spawning Threads (`&`)
 
@@ -145,19 +145,19 @@ var r2: int = &add(3, 4)
 
 ## Memory Semantics
 
-Thread arguments follow the same `as val` and `as ref` semantics as regular function calls, with one addition: references become **frozen** to the parent thread until synchronization.
+Thread arguments follow the same `as val` and `as ref` semantics as regular function calls.
 
 ### Default Behavior
 
 | Type | Default | Thread Behavior |
 |------|---------|-----------------|
-| Primitives | Copy (value) | Thread gets copy, no restrictions |
-| Arrays | Reference | Parent frozen until sync |
+| Primitives | Copy (value) | Thread gets copy |
+| Arrays | Reference | Thread gets reference to same array |
 | Strings | Reference | Safe (immutable anyway) |
 
-### Arrays: Frozen Reference
+### Arrays: Reference by Default
 
-By default, arrays are passed by reference. The parent thread is frozen from writes until sync:
+By default, arrays are passed by reference:
 
 ```sindarin
 fn sum(data: int[]): int =>
@@ -166,22 +166,16 @@ fn sum(data: int[]): int =>
     return total
 
 var numbers: int[] = {1, 2, 3}
-var r: int = &sum(numbers)     // reference passed, numbers frozen
+var r: int = &sum(numbers)     // reference passed
 
-// Parent thread restrictions while pending:
-numbers[0] = 99                 // COMPILE ERROR: numbers frozen
-numbers.push(4)                 // COMPILE ERROR: numbers frozen
-print(numbers[0])               // OK - reads allowed
-print(numbers.length)           // OK - reads allowed
+r!                              // sync
 
-r!                              // sync releases the freeze
-
-numbers[0] = 99                 // OK - unfrozen
+print(numbers[0])               // OK
 ```
 
 ### Explicit Copy with `as val`
 
-Use `as val` to pass an independent copy. No freezing occurs:
+Use `as val` to pass an independent copy:
 
 ```sindarin
 fn destructive(data: int[] as val): int =>
@@ -193,7 +187,7 @@ fn destructive(data: int[] as val): int =>
 var numbers: int[] = {1, 2, 3}
 var r: int = &destructive(numbers)  // thread gets copy
 
-numbers[0] = 99                      // OK - not frozen, thread has own copy
+numbers[0] = 99                      // OK - thread has own copy
 numbers.push(4)                      // OK
 
 r!
@@ -202,7 +196,7 @@ print(numbers)                       // {99, 2, 3, 4}
 
 ### Shared Mutable with `as ref` (Primitives)
 
-Primitives with `as ref` are shared between threads. Parent is frozen until sync:
+Primitives with `as ref` are shared between threads:
 
 ```sindarin
 fn increment(counter: int as ref): void =>
@@ -212,38 +206,42 @@ var count: int as ref = 0
 var r1: void = &increment(count)
 var r2: void = &increment(count)
 
-count = 5                       // COMPILE ERROR: count frozen by r1 and r2
-
 [r1, r2]!                       // sync both
 
-count = 5                       // OK - unfrozen
-print(count)                    // 2 (or 5 after assignment)
+print(count)                    // Result depends on execution order (race condition)
+```
+
+**Note:** For thread-safe modifications, use `sync` variables instead:
+
+```sindarin
+var count: sync int = 0
+var r1: void = &increment(count)
+var r2: void = &increment(count)
+[r1, r2]!
+print(count)                    // Always 2
 ```
 
 ### Multiple References to Same Array
 
-Multiple threads can share read access to the same frozen array:
+Multiple threads can share access to the same array:
 
 ```sindarin
 var data: int[] = {1, 2, 3}
 var r1: int = &sum(data)
-var r2: int = &sum(data)       // OK - both read-only
+var r2: int = &sum(data)       // both read same array
 
-data[0] = 99                    // COMPILE ERROR: frozen by r1 and r2
-
-[r1, r2]!                       // sync releases both freezes
-data[0] = 99                    // OK
+[r1, r2]!
 ```
 
 ### Summary Table
 
-| Scenario | Parent Read | Parent Write | Thread Read | Thread Write |
-|----------|-------------|--------------|-------------|--------------|
-| Array (default) | Yes | Frozen | Yes | Yes |
-| Array `as val` | Yes | Yes | Yes | Yes (own copy) |
-| Primitive | Yes | Yes | Yes | Yes (both have copies) |
-| Primitive `as ref` | Yes | Frozen | Yes | Yes |
-| String | Yes | N/A | Yes | N/A |
+| Scenario | Parent Access | Thread Access |
+|----------|--------------|---------------|
+| Array (default) | Yes | Yes (shared reference) |
+| Array `as val` | Yes | Yes (own copy) |
+| Primitive | Yes | Yes (both have copies) |
+| Primitive `as ref` | Yes | Yes (shared) |
+| String | Yes | Yes (immutable) |
 
 ---
 
@@ -356,7 +354,7 @@ print(count)     // Always 2
 | Shared counter across threads | Use `sync int` |
 | Accumulator for parallel results | Use `sync long` |
 | Flag or status variable | Use `sync int` or `sync byte` |
-| Complex data structure | Use frozen references or external locks |
+| Complex data structure | Use `lock` blocks or external synchronization |
 | Read-only shared data | No `sync` needed (reads are safe) |
 
 ### Limitations
@@ -366,7 +364,7 @@ print(count)     // Always 2
 - `sync` does not help with read-modify-write sequences spanning multiple statements
 
 For complex synchronization needs beyond atomic counters, consider:
-- Freezing shared data structures during thread execution
+- Using `lock` blocks for compound operations
 - Using `as val` to give each thread its own copy
 - Designing algorithms to minimize shared mutable state
 - Using `lock` blocks for compound operations
@@ -519,7 +517,7 @@ print(r)                  // safe - lives in caller's arena
 
 ### `shared` (Caller's Arena)
 
-Thread allocates directly in caller's arena. Parent's writes frozen until sync:
+Thread allocates directly in caller's arena:
 
 ```sindarin
 shared fn build(): str[] =>
@@ -529,9 +527,8 @@ shared fn build(): str[] =>
 var data: str[] = {}
 var r: str[] = &build()
 
-data.push("x")            // COMPILE ERROR: caller's arena frozen
 r!
-data.push("x")            // OK - unfrozen
+data.push("x")            // OK after sync
 ```
 
 ### `private` (Isolated Arena)
@@ -557,11 +554,11 @@ private fn bad(path: str): str[] =>
 
 ### Arena Summary
 
-| Function Type | Thread Arena | Return Behavior | Parent Arena |
-|---------------|--------------|-----------------|--------------|
-| default | Own arena | Promoted on `!` | Not frozen |
-| `shared` | Caller's arena | No promotion | Frozen until `!` |
-| `private` | Isolated arena | Primitives only | Not frozen |
+| Function Type | Thread Arena | Return Behavior |
+|---------------|--------------|-----------------|
+| default | Own arena | Promoted on `!` |
+| `shared` | Caller's arena | No promotion |
+| `private` | Isolated arena | Primitives only |
 
 ---
 
@@ -691,7 +688,7 @@ var count1: int = &count_matches(data, 1)
 var count2: int = &count_matches(data, 2)
 var count3: int = &count_matches(data, 3)
 
-// Safe: all threads only read the frozen array
+// Safe: all threads only read the shared array
 [count1, count2, count3]!
 
 print($"1s: {count1}, 2s: {count2}, 3s: {count3}\n")
@@ -701,24 +698,24 @@ print($"1s: {count1}, 2s: {count2}, 3s: {count3}\n")
 
 ## Thread Safety Model
 
-Sindarin's threading model prevents data races through compile-time enforcement.
+Sindarin's threading model prevents certain data races through compile-time enforcement.
 
 ### Safety Guarantees
 
 | Protection | Mechanism |
 |------------|-----------|
-| Write-write races on arrays | Frozen while pending |
-| Read-write races on arrays | Caller reads allowed, writes frozen |
 | Use-before-ready on thread results | Compile error on pending access |
-| Lost updates | Sync required before reassignment |
+| Lost updates on sync variables | Atomic operations |
+| Reassignment of pending variables | Compile error |
 
 ### User Responsibilities
 
-The following scenarios are not automatically prevented:
+The following scenarios require user attention:
 
-- Multiple threads reading shared data while another writes via `as ref`
+- Race conditions when multiple threads modify shared arrays or `as ref` primitives
 - External effects (file I/O, network) are not synchronized
 - Race conditions in fire-and-forget threads without sync
+- Use `sync` variables and `lock` blocks for thread-safe shared mutable state
 
 ---
 
@@ -745,11 +742,9 @@ The following scenarios are not automatically prevented:
 
 | Rule | |
 |------|---|
-| Access unsynchronized variable | Compile error |
-| Reassign unsynchronized variable | Compile error |
-| Write to frozen array | Compile error |
-| Write to frozen `as ref` primitive | Compile error |
-| After `!` | Variable is normal, can access/reassign |
+| Access pending variable | Compile error |
+| Reassign pending variable | Compile error |
+| After `!` | Variable is synchronized, can access/reassign |
 | `sync` on non-integer type | Compile error |
 | `lock` on non-sync variable | Compile error |
 
@@ -862,5 +857,5 @@ The following features are fully supported:
 ## See Also
 
 - [Memory](memory.md) - Arena memory management, `as ref`, `as val`, `shared`, `private`
-- [Arrays](arrays.md) - Array operations and frozen semantics
+- [Arrays](arrays.md) - Array operations
 - [SDK I/O documentation](sdk/io/readme.md) - File I/O operations

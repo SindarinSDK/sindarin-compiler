@@ -8,7 +8,7 @@ Test 3: Different primitive types
   PASS
 Test 4: Threaded as ref modification
   PASS
-Test 5: Unfreeze after sync
+Test 5: Modification after sync
   PASS
 Test 6: Mixed as ref and regular params
   PASS

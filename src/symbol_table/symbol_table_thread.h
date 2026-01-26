@@ -13,9 +13,6 @@
  * State transitions:
  *   THREAD_STATE_NORMAL -> THREAD_STATE_PENDING (via mark_pending)
  *   THREAD_STATE_PENDING -> THREAD_STATE_SYNCHRONIZED (via mark_synchronized)
- *
- * The frozen state is separate from thread state and tracks whether a symbol's
- * value is "frozen" (captured) for use in a thread context.
  */
 
 /* Thread state transitions (operate on Symbol directly) */
@@ -24,18 +21,10 @@ bool symbol_table_mark_synchronized(Symbol *symbol);
 bool symbol_table_is_pending(Symbol *symbol);
 bool symbol_table_is_synchronized(Symbol *symbol);
 
-/* Frozen state management (operate on Symbol directly) */
-bool symbol_table_freeze_symbol(Symbol *symbol);
-bool symbol_table_unfreeze_symbol(Symbol *symbol);
-bool symbol_table_is_frozen(Symbol *symbol);
-int symbol_table_get_freeze_count(Symbol *symbol);
-void symbol_table_set_frozen_args(Symbol *symbol, Symbol **frozen_args, int count);
-
 /* Token-based thread state queries (lookup symbol first, then query state) */
 ThreadState symbol_table_get_thread_state(SymbolTable *table, Token name);
 bool symbol_table_is_variable_pending(SymbolTable *table, Token name);
-bool symbol_table_is_variable_frozen(SymbolTable *table, Token name);
-bool symbol_table_sync_variable(SymbolTable *table, Token name, Symbol **frozen_args, int frozen_count);
+bool symbol_table_sync_variable(SymbolTable *table, Token name);
 
 /* Arena depth tracking for escape analysis */
 void symbol_table_enter_arena(SymbolTable *table);

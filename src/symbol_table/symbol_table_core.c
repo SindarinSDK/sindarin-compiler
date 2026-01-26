@@ -210,14 +210,6 @@ void symbol_table_print(SymbolTable *table, const char *where)
                           symbol->offset);
             DEBUG_VERBOSE("           thread_state: %s", thread_state_str);
 
-            /* Show frozen state only when relevant (non-zero freeze_count or frozen) */
-            if (symbol->frozen_state.frozen || symbol->frozen_state.freeze_count > 0)
-            {
-                DEBUG_VERBOSE("           frozen: %s, freeze_count: %d",
-                              symbol->frozen_state.frozen ? "yes" : "no",
-                              symbol->frozen_state.freeze_count);
-            }
-
             /* Show namespace contents if this is a namespace symbol */
             if (symbol->is_namespace)
             {
@@ -478,10 +470,6 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     symbol->is_native = false;
     symbol->c_alias = NULL;
     symbol->thread_state = THREAD_STATE_NORMAL;
-    symbol->frozen_state.freeze_count = 0;
-    symbol->frozen_state.frozen = false;
-    symbol->frozen_args = NULL;
-    symbol->frozen_args_count = 0;
     symbol->is_namespace = false;
     symbol->namespace_name = NULL;
     symbol->namespace_symbols = NULL;

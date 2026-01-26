@@ -2,4 +2,4 @@ First element: 10
 Array length: 5
 After write, data[0]: 100
 After push, length: 6
-SUCCESS: Freeze/unfreeze cycle works correctly
+SUCCESS: Thread array spawn works correctly

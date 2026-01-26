@@ -360,16 +360,6 @@ static Type *type_check_assign(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
-    /* Check if variable is frozen (captured by pending thread) */
-    if (symbol_table_is_frozen(sym))
-    {
-        char msg[256];
-        snprintf(msg, sizeof(msg), "Cannot modify frozen variable '%.*s' (captured by pending thread)",
-                 expr->as.assign.name.length, expr->as.assign.name.start);
-        type_error(&expr->as.assign.name, msg);
-        return NULL;
-    }
-
     /* If value is a lambda with missing types, infer from target variable's type */
     Expr *value_expr = expr->as.assign.value;
     if (value_expr != NULL && value_expr->type == EXPR_LAMBDA &&
@@ -515,20 +505,7 @@ static Type *type_check_index_assign(Expr *expr, SymbolTable *table)
 {
     DEBUG_VERBOSE("Type checking index assignment");
 
-    /* Check if array is a frozen variable (captured by pending thread) */
     Expr *array_expr = expr->as.index_assign.array;
-    if (array_expr->type == EXPR_VARIABLE)
-    {
-        Symbol *sym = symbol_table_lookup_symbol(table, array_expr->as.variable.name);
-        if (sym != NULL && symbol_table_is_frozen(sym))
-        {
-            char msg[256];
-            snprintf(msg, sizeof(msg), "Cannot modify frozen variable '%.*s' (captured by pending thread)",
-                     array_expr->as.variable.name.length, array_expr->as.variable.name.start);
-            type_error(expr->token, msg);
-            return NULL;
-        }
-    }
 
     /* Type check the array expression */
     Type *array_type = type_check_expr(array_expr, table);
@@ -583,20 +560,6 @@ static Type *type_check_index_assign(Expr *expr, SymbolTable *table)
 static Type *type_check_increment_decrement(Expr *expr, SymbolTable *table)
 {
     DEBUG_VERBOSE("Type checking %s expression", expr->type == EXPR_INCREMENT ? "increment" : "decrement");
-
-    /* Check if operand is a frozen variable (captured by pending thread) */
-    if (expr->as.operand->type == EXPR_VARIABLE)
-    {
-        Symbol *sym = symbol_table_lookup_symbol(table, expr->as.operand->as.variable.name);
-        if (sym != NULL && symbol_table_is_frozen(sym))
-        {
-            char msg[256];
-            snprintf(msg, sizeof(msg), "Cannot modify frozen variable '%.*s' (captured by pending thread)",
-                     expr->as.operand->as.variable.name.length, expr->as.operand->as.variable.name.start);
-            type_error(expr->token, msg);
-            return NULL;
-        }
-    }
 
     Type *operand_type = type_check_expr(expr->as.operand, table);
     if (operand_type == NULL || !is_numeric_type(operand_type))
@@ -674,31 +637,6 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
     /* Array methods - DELEGATED to type_checker_expr_call.c */
     if (object_type->kind == TYPE_ARRAY)
     {
-        /* Check for mutating methods on frozen arrays */
-        const char *method_name = expr->as.member.member_name.start;
-        bool is_mutating = (strcmp(method_name, "push") == 0 ||
-                           strcmp(method_name, "pop") == 0 ||
-                           strcmp(method_name, "clear") == 0 ||
-                           strcmp(method_name, "reverse") == 0 ||
-                           strcmp(method_name, "insert") == 0 ||
-                           strcmp(method_name, "remove") == 0);
-
-        if (is_mutating && expr->as.member.object->type == EXPR_VARIABLE)
-        {
-            Symbol *sym = symbol_table_lookup_symbol(table, expr->as.member.object->as.variable.name);
-            if (sym != NULL && symbol_table_is_frozen(sym))
-            {
-                char msg[256];
-                snprintf(msg, sizeof(msg),
-                         "Cannot call mutating method '%s' on frozen array '%.*s' (captured by pending thread)",
-                         method_name,
-                         expr->as.member.object->as.variable.name.length,
-                         expr->as.member.object->as.variable.name.start);
-                type_error(&expr->as.member.member_name, msg);
-                return NULL;
-            }
-        }
-
         Type *result = type_check_array_method(expr, object_type, expr->as.member.member_name, table);
         if (result != NULL)
         {
@@ -959,34 +897,6 @@ static Type *type_check_thread_spawn(Expr *expr, SymbolTable *table)
         /* Only freeze variable references that are passed by reference */
         if (arg->type == EXPR_VARIABLE)
         {
-            Symbol *sym = symbol_table_lookup_symbol(table, arg->as.variable.name);
-            if (sym != NULL && sym->type != NULL)
-            {
-                bool should_freeze = false;
-
-                /* Arrays and strings are always passed by reference - freeze them */
-                if (sym->type->kind == TYPE_ARRAY || sym->type->kind == TYPE_STRING)
-                {
-                    should_freeze = true;
-                }
-                /* Check if parameter has 'as ref' qualifier (primitives by reference) */
-                else if (param_quals != NULL && i < param_count)
-                {
-                    if (param_quals[i] == MEM_AS_REF)
-                    {
-                        should_freeze = true;
-                        DEBUG_VERBOSE("Detected 'as ref' parameter at position %d", i);
-                    }
-                }
-
-                if (should_freeze)
-                {
-                    symbol_table_freeze_symbol(sym);
-                    DEBUG_VERBOSE("Froze variable '%.*s' for thread spawn",
-                                  arg->as.variable.name.length,
-                                  arg->as.variable.name.start);
-                }
-            }
         }
     }
 
@@ -1063,10 +973,8 @@ static Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
             /* Only sync if still pending - already synchronized is OK */
             if (symbol_table_is_pending(sym))
             {
-                /* Sync the variable - transitions from pending to synchronized
-                 * and unfreezes captured arguments */
-                symbol_table_sync_variable(table, elem->as.variable.name,
-                                           sym->frozen_args, sym->frozen_args_count);
+                /* Sync the variable - transitions from pending to synchronized */
+                symbol_table_sync_variable(table, elem->as.variable.name);
                 synced_count++;
             }
             /* Already synchronized variables are silently accepted */
@@ -1113,10 +1021,8 @@ static Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
             return NULL;
         }
 
-        /* Sync the variable - transitions from pending to synchronized.
-         * Pass frozen_args from the symbol to unfreeze captured arguments. */
-        symbol_table_sync_variable(table, handle->as.variable.name,
-                                   sym->frozen_args, sym->frozen_args_count);
+        /* Sync the variable - transitions from pending to synchronized. */
+        symbol_table_sync_variable(table, handle->as.variable.name);
 
         DEBUG_VERBOSE("Variable sync type checked, return type: %d", sym->type->kind);
         return sym->type;
@@ -2034,21 +1940,6 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
             Expr *target = expr->as.compound_assign.target;
             Expr *value_expr = expr->as.compound_assign.value;
             SnTokenType op = expr->as.compound_assign.operator;
-
-            /* Check if target is a frozen variable (captured by pending thread) */
-            if (target->type == EXPR_VARIABLE)
-            {
-                Symbol *sym = symbol_table_lookup_symbol(table, target->as.variable.name);
-                if (sym != NULL && symbol_table_is_frozen(sym))
-                {
-                    char msg[256];
-                    snprintf(msg, sizeof(msg), "Cannot modify frozen variable '%.*s' (captured by pending thread)",
-                             target->as.variable.name.length, target->as.variable.name.start);
-                    type_error(expr->token, msg);
-                    t = NULL;
-                    break;
-                }
-            }
 
             /* Type check the target */
             Type *target_type = type_check_expr(target, table);

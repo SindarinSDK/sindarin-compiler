@@ -316,15 +316,14 @@ static void test_integration_default_mode_thread(void)
 }
 
 /* Thread wrapper for shared mode test - just stores a primitive result
- * Note: In shared mode, the caller arena is frozen, so we don't allocate here.
- * The shared mode test verifies arena freezing/unfreezing behavior. */
+ * Note: In shared mode, we use the caller's arena. */
 static void *shared_mode_thread_wrapper(void *arg)
 {
     RtThreadArgs *args = (RtThreadArgs *)arg;
 
     /* Just store a primitive result to verify the thread ran */
     if (args->result != NULL) {
-        /* Use a static value to avoid allocating from frozen arena */
+        /* Use a static value for the result */
         static int result_val = 123;
         args->result->value = &result_val;
     }
@@ -418,13 +417,13 @@ static void test_integration_private_mode_thread(void)
 }
 
 /* Test shared mode arena supports concurrent allocation (thread-safe by design) */
-static void test_integration_shared_mode_freeze_blocks_alloc(void)
+static void test_integration_shared_mode_concurrent_alloc(void)
 {
 
     RtArena *caller_arena = rt_arena_create(NULL);
     assert(caller_arena != NULL);
 
-    /* Managed arena supports concurrent allocation — no freeze/unfreeze needed */
+    /* Managed arena supports concurrent allocation */
     void *p1 = rt_arena_alloc(caller_arena, 16);
     assert(p1 != NULL);
 
@@ -514,7 +513,7 @@ void test_rt_thread_main(void)
     TEST_RUN("integration_default_mode_thread", test_integration_default_mode_thread);
     TEST_RUN("integration_shared_mode_thread", test_integration_shared_mode_thread);
     TEST_RUN("integration_private_mode_thread", test_integration_private_mode_thread);
-    TEST_RUN("integration_shared_mode_freeze_blocks_alloc", test_integration_shared_mode_freeze_blocks_alloc);
+    TEST_RUN("integration_shared_mode_concurrent_alloc", test_integration_shared_mode_concurrent_alloc);
     TEST_RUN("integration_arena_cleanup_no_leaks", test_integration_arena_cleanup_no_leaks);
     TEST_RUN("integration_arena_auto_joins_pending_threads", test_integration_arena_auto_joins_pending_threads);
 }
