@@ -62,11 +62,38 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build zlib1g-dev python3 rpm
+          sudo apt-get install -y build-essential cmake ninja-build python3 rpm \
+            curl zip unzip tar pkg-config
+
+      - name: Setup vcpkg (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          # Bootstrap vcpkg (already cloned in repo)
+          if [ ! -f vcpkg/vcpkg ]; then
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          # Install dependencies from vcpkg.json
+          ./vcpkg/vcpkg install --triplet=x64-linux
 
       - name: Setup Dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install cmake ninja coreutils zlib python3
+        run: brew install cmake ninja coreutils python3 curl zip unzip pkg-config
+
+      - name: Setup vcpkg (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          # Bootstrap vcpkg (already cloned in repo)
+          if [ ! -f vcpkg/vcpkg ]; then
+            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
+          fi
+          # Determine triplet based on architecture
+          if [ "$(uname -m)" = "arm64" ]; then
+            TRIPLET="arm64-osx"
+          else
+            TRIPLET="x64-osx"
+          fi
+          # Install dependencies from vcpkg.json
+          ./vcpkg/vcpkg install --triplet=$TRIPLET
 
       - name: Setup Dependencies (Windows)
         if: runner.os == 'Windows'
@@ -88,31 +115,18 @@ jobs:
           # Install Ninja
           choco install ninja -y
 
-          # Setup vcpkg
-          $vcpkgRoot = "C:\vcpkg"
-          if (Test-Path $vcpkgRoot) {
-            Write-Host "vcpkg already exists, updating..."
-            Push-Location $vcpkgRoot
-            git pull --quiet 2>$null || Write-Host "Git pull skipped"
-            Pop-Location
-          } else {
-            git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
+          # Bootstrap vcpkg from repo
+          if (-not (Test-Path "vcpkg\vcpkg.exe")) {
+            & "vcpkg\bootstrap-vcpkg.bat" -disableMetrics
           }
-          if (-not (Test-Path "$vcpkgRoot\vcpkg.exe")) {
-            & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
-          }
-          & "$vcpkgRoot\vcpkg.exe" install zlib:x64-windows --classic
-          $zlibLib = "$vcpkgRoot\installed\x64-windows\lib\zlib.lib"
-          $libzA = "$vcpkgRoot\installed\x64-windows\lib\libz.a"
-          if ((Test-Path $zlibLib) -and -not (Test-Path $libzA)) {
-            Copy-Item $zlibLib $libzA
-          }
+          # Install dependencies from vcpkg.json using manifest mode
+          & "vcpkg\vcpkg.exe" install --triplet=x64-mingw-static
 
       #------------------------------------------------------------------------
       # Configure and Build
       #------------------------------------------------------------------------
-      - name: Configure CMake (Linux/macOS)
-        if: runner.os != 'Windows'
+      - name: Configure CMake (Linux)
+        if: runner.os == 'Linux'
         shell: bash
         run: |
           # Extract numeric version (strip 'v' prefix and any suffix like -alpha)
@@ -123,8 +137,20 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=install \
-            -DSN_BUNDLE_ZLIB=ON \
-            -DSN_BUNDLE_YYJSON=ON \
+            -DSN_VERSION="${VERSION}"
+
+      - name: Configure CMake (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          # Extract numeric version (strip 'v' prefix and any suffix like -alpha)
+          VERSION="${{ env.VERSION }}"
+          VERSION="${VERSION#v}"
+          VERSION="${VERSION%%-*}"
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX=install \
             -DSN_VERSION="${VERSION}"
 
       - name: Configure CMake (Windows)
@@ -139,10 +165,7 @@ jobs:
             -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX=install \
-            -DSN_BUNDLE_ZLIB=ON \
-            -DSN_BUNDLE_YYJSON=ON \
-            -DSN_VERSION="${VERSION}" \
-            -DCMAKE_PREFIX_PATH="C:/vcpkg/installed/x64-windows"
+            -DSN_VERSION="${VERSION}"
 
       - name: Build
         run: cmake --build build
