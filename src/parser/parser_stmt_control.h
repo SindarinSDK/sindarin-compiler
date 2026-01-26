@@ -8,7 +8,7 @@
 /* Control flow parsing functions */
 Stmt *parser_return_statement(Parser *parser);
 Stmt *parser_if_statement(Parser *parser);
-Stmt *parser_while_statement(Parser *parser, bool is_shared);
-Stmt *parser_for_statement(Parser *parser, bool is_shared);
+Stmt *parser_while_statement(Parser *parser);
+Stmt *parser_for_statement(Parser *parser);
 
 #endif /* PARSER_STMT_CONTROL_H */

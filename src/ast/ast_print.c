@@ -166,14 +166,7 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
         break;
 
     case STMT_WHILE:
-        if (stmt->as.while_stmt.is_shared)
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "While (shared):");
-        }
-        else
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "While:");
-        }
+        DEBUG_VERBOSE_INDENT(indent_level, "While:");
         DEBUG_VERBOSE_INDENT(indent_level + 1, "Condition:");
         ast_print_expr(arena, stmt->as.while_stmt.condition, indent_level + 2);
         DEBUG_VERBOSE_INDENT(indent_level + 1, "Body:");
@@ -181,14 +174,7 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
         break;
 
     case STMT_FOR:
-        if (stmt->as.for_stmt.is_shared)
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "For (shared):");
-        }
-        else
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "For:");
-        }
+        DEBUG_VERBOSE_INDENT(indent_level, "For:");
         if (stmt->as.for_stmt.initializer)
         {
             DEBUG_VERBOSE_INDENT(indent_level + 1, "Initializer:");
@@ -209,18 +195,9 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
         break;
 
     case STMT_FOR_EACH:
-        if (stmt->as.for_each_stmt.is_shared)
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "ForEach (shared): %.*s",
-                                 stmt->as.for_each_stmt.var_name.length,
-                                 stmt->as.for_each_stmt.var_name.start);
-        }
-        else
-        {
-            DEBUG_VERBOSE_INDENT(indent_level, "ForEach: %.*s",
-                                 stmt->as.for_each_stmt.var_name.length,
-                                 stmt->as.for_each_stmt.var_name.start);
-        }
+        DEBUG_VERBOSE_INDENT(indent_level, "ForEach: %.*s",
+                             stmt->as.for_each_stmt.var_name.length,
+                             stmt->as.for_each_stmt.var_name.start);
         DEBUG_VERBOSE_INDENT(indent_level + 1, "Iterable:");
         ast_print_expr(arena, stmt->as.for_each_stmt.iterable, indent_level + 2);
         DEBUG_VERBOSE_INDENT(indent_level + 1, "Body:");

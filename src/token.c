@@ -255,8 +255,34 @@ const char *token_type_to_string(SnTokenType type)
         return "DEDENT";
     case TOKEN_NEWLINE:
         return "NEWLINE";
+    case TOKEN_PRAGMA_ALIAS:
+        return "PRAGMA_ALIAS";
+    case TOKEN_COMMENT:
+        return "COMMENT";
     case TOKEN_ERROR:
         return "ERROR";
+    case TOKEN_ARENA:
+        return "ARENA";
+    case TOKEN_PIPE:
+        return "PIPE";
+    case TOKEN_CARET:
+        return "CARET";
+    case TOKEN_TILDE:
+        return "TILDE";
+    case TOKEN_LSHIFT:
+        return "LSHIFT";
+    case TOKEN_RSHIFT:
+        return "RSHIFT";
+    case TOKEN_AMPERSAND_EQUAL:
+        return "AMPERSAND_EQUAL";
+    case TOKEN_PIPE_EQUAL:
+        return "PIPE_EQUAL";
+    case TOKEN_CARET_EQUAL:
+        return "CARET_EQUAL";
+    case TOKEN_LSHIFT_EQUAL:
+        return "LSHIFT_EQUAL";
+    case TOKEN_RSHIFT_EQUAL:
+        return "RSHIFT_EQUAL";
     default:
         return "UNKNOWN";
     }

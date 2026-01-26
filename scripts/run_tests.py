@@ -10,6 +10,7 @@ Usage:
 
 Test types:
     unit              - Run unit tests (bin/tests executable)
+    cgen              - Run code generation tests (tests/cgen/*.sn - compares generated C)
     integration       - Run integration tests (tests/integration/*.sn)
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
@@ -188,6 +189,9 @@ TEST_CONFIGS = {
     'sdk': TestConfig(
         'tests/sdk', '**/test_*.sn', False, 'SDK Tests'
     ),
+    'cgen': TestConfig(
+        'tests/cgen', '*.sn', False, 'Code Generation Tests'
+    ),
 }
 
 
@@ -314,16 +318,29 @@ class TestRunner:
                 'elapsed': 0.0
             }
         else:
-            expected_file = test_file.replace('.sn', '.expected')
             panic_file = test_file.replace('.sn', '.panic')
 
             start_time = time.perf_counter()
 
-            if config.expect_compile_fail:
+            if test_type == 'cgen':
+                # Code generation tests: compare generated C code
+                # Use .expected.c extension for syntax highlighting in editors
+                expected_file = test_file.replace('.sn', '.expected.c')
+                exe_ext = get_exe_extension()
+                if exe_ext:
+                    c_file = exe_file.replace(exe_ext, '.c')
+                else:
+                    c_file = exe_file + '.c'
+                status, reason, details = self._run_cgen_test_internal(
+                    test_file, expected_file, c_file
+                )
+            elif config.expect_compile_fail:
+                expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_error_test_internal(
                     test_file, expected_file, exe_file
                 )
             else:
+                expected_file = test_file.replace('.sn', '.expected')
                 status, reason, details = self._run_positive_test_internal(
                     test_file, expected_file, panic_file, exe_file, test_type
                 )
@@ -507,6 +524,118 @@ class TestRunner:
                 details.append("  (empty)")
             return ('fail', 'wrong error', details)
 
+    def _run_cgen_test_internal(self, test_file: str, expected_file: str,
+                                 c_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Run a code generation test that compares generated C code, then compiles and runs. Returns (status, reason, details)."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected.c', None)
+
+        # Compile with --emit-c to generate C code
+        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'compile error', details)
+
+        # Read generated C code
+        if not os.path.isfile(c_file):
+            return ('fail', 'no C output', None)
+
+        with open(c_file, 'r') as f:
+            generated_c = f.read()
+
+        # Read expected C code
+        with open(expected_file, 'r') as f:
+            expected_c = f.read()
+
+        # Normalize line endings for cross-platform comparison
+        normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
+        normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
+
+        if normalized_generated != normalized_expected:
+            # Show diff details
+            expected_lines = normalized_expected.split('\n')
+            actual_lines = normalized_generated.split('\n')
+            details = []
+
+            # Find first difference
+            max_lines = max(len(expected_lines), len(actual_lines))
+            diff_count = 0
+            for i in range(max_lines):
+                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                if exp != act:
+                    if diff_count < 10:  # Show first 10 differences
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp[:80]}")
+                        details.append(f"    got:      {act[:80]}")
+                    diff_count += 1
+
+            if diff_count > 10:
+                details.append(f"  ... and {diff_count - 10} more differences")
+
+            return ('fail', 'C code mismatch', details)
+
+        # C code matches - now compile the full binary
+        exe_ext = get_exe_extension()
+        if exe_ext:
+            exe_file = c_file.replace('.c', exe_ext)
+        else:
+            exe_file = c_file.replace('.c', '')
+
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0']
+        if not is_windows():
+            compile_cmd.append('-g')
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'binary compile error', details)
+
+        # Run the binary
+        exit_code, output, timeout_marker = run_with_timeout(
+            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+        )
+
+        if exit_code != 0:
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
+            else:
+                details = output.split('\n')[:20] if output else None
+                return ('fail', f'run exit code: {exit_code}', details)
+
+        # Check output against .expected file if it exists
+        output_file = test_file.replace('.sn', '.expected')
+        if os.path.isfile(output_file):
+            with open(output_file, 'r') as f:
+                expected_output = f.read()
+
+            normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
+            normalized_expected = expected_output.replace('\r\n', '\n').replace('\r', '\n')
+
+            if normalized_output != normalized_expected:
+                expected_lines = normalized_expected.split('\n')
+                actual_lines = normalized_output.split('\n')
+                details = []
+                max_lines = min(20, max(len(expected_lines), len(actual_lines)))
+                for i in range(max_lines):
+                    exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                    act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                    if exp != act:
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp}")
+                        details.append(f"    got:      {act}")
+                if not details:
+                    details = ["Output differs (trailing whitespace/newlines)"]
+                return ('fail', 'output mismatch', details[:20])
+
+        return ('pass', '', None)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -583,7 +712,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'sdk', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -596,8 +725,8 @@ def main():
                        help='Show detailed output')
     parser.add_argument('--no-color', action='store_true',
                        help='Disable colored output')
-    parser.add_argument('--parallel', '-j', type=int, default=(os.cpu_count() or 2) * 2,
-                       help=f'Number of parallel test workers (default: {(os.cpu_count() or 2) * 2})')
+    parser.add_argument('--parallel', '-j', type=int, default=(os.cpu_count() or 2),
+                       help=f'Number of parallel test workers (default: {(os.cpu_count() or 2)})')
     parser.add_argument('--no-cleanup', action='store_true',
                        help='Skip cleanup of orphaned temp directories')
 
@@ -650,11 +779,11 @@ def main():
     with TestRunner(compiler, args.timeout, args.run_timeout,
                     excluded, args.verbose, args.parallel) as runner:
         if args.test_type == 'all':
-            # Run all test types
+            # Run all test types (cgen runs right after unit tests)
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['integration', 'integration-errors',
+            for test_type in ['cgen', 'integration', 'integration-errors',
                              'explore', 'explore-errors', 'sdk']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed

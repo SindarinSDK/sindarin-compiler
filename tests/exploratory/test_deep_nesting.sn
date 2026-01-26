@@ -22,31 +22,15 @@ fn main(): int =>
                     count++
     print($"Total iterations: {count}\n")
 
-    // Nested blocks
-    print("\nNested blocks (5 levels):\n")
-    var value: int = 0
-    shared =>
-        value = value + 1
-        shared =>
-            value = value + 2
-            shared =>
-                value = value + 3
-                shared =>
-                    value = value + 4
-                    shared =>
-                        value = value + 5
-    print($"value after nested blocks: {value}\n")
-
-    // Mix of nesting types
+    // Mix of nesting types (if + for + while)
     print("\nMixed nesting:\n")
     var result: int = 0
     if x > 0 =>
         for var i: int = 0; i < 3; i++ =>
-            shared =>
-                var j: int = 0
-                while j < 2 =>
-                    result = result + 1
-                    j++
+            var j: int = 0
+            while j < 2 =>
+                result = result + 1
+                j++
     print($"result: {result}\n")
 
     // Nested function calls

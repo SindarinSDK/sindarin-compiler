@@ -13,23 +13,25 @@ static void test_lexer_comments(void)
     Lexer lexer;
     lexer_init(&arena, &lexer, source, "test.sn");
 
-    // Skip comment and newline
+    // // comments are now tokenized as TOKEN_COMMENT (preserved in code generation)
     Token t1 = lexer_scan_token(&lexer);
-    assert(t1.type == TOKEN_NEWLINE);
+    assert(t1.type == TOKEN_COMMENT);
     Token t2 = lexer_scan_token(&lexer);
-    assert(t2.type == TOKEN_VAR);
+    assert(t2.type == TOKEN_NEWLINE);
     Token t3 = lexer_scan_token(&lexer);
-    assert(t3.type == TOKEN_IDENTIFIER); // x
+    assert(t3.type == TOKEN_VAR);
     Token t4 = lexer_scan_token(&lexer);
-    assert(t4.type == TOKEN_EQUAL);
+    assert(t4.type == TOKEN_IDENTIFIER); // x
     Token t5 = lexer_scan_token(&lexer);
-    assert(t5.type == TOKEN_INT_LITERAL);
-    assert(t5.literal.int_value == 1);
+    assert(t5.type == TOKEN_EQUAL);
     Token t6 = lexer_scan_token(&lexer);
-    assert(t6.type == TOKEN_SEMICOLON);
-
+    assert(t6.type == TOKEN_INT_LITERAL);
+    assert(t6.literal.int_value == 1);
     Token t7 = lexer_scan_token(&lexer);
-    assert(t7.type == TOKEN_EOF);
+    assert(t7.type == TOKEN_SEMICOLON);
+
+    Token t8 = lexer_scan_token(&lexer);
+    assert(t8.type == TOKEN_EOF);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);
@@ -255,22 +257,32 @@ static void test_lexer_line_with_only_comment(void)
     Token t4 = lexer_scan_token(&lexer);
     assert(t4.type == TOKEN_NEWLINE); // End of first line
 
-    // Skip indented comment line: ignores it, emits NEWLINE (no INDENT/DEDENT since ignored and no prior block)
+    // Comment at deeper indentation: INDENT, COMMENT, NEWLINE, DEDENT
+    // This is needed so comments inside blocks (after =>) work correctly
     Token t5 = lexer_scan_token(&lexer);
-    assert(t5.type == TOKEN_NEWLINE); // From skipping the comment line's \n
+    assert(t5.type == TOKEN_INDENT); // Indent for comment line
 
     Token t6 = lexer_scan_token(&lexer);
-    assert(t6.type == TOKEN_IDENTIFIER); // y
+    assert(t6.type == TOKEN_COMMENT); // The comment itself
 
     Token t7 = lexer_scan_token(&lexer);
-    assert(t7.type == TOKEN_EQUAL);
+    assert(t7.type == TOKEN_NEWLINE); // End of comment line
 
     Token t8 = lexer_scan_token(&lexer);
-    assert(t8.type == TOKEN_INT_LITERAL);
-    assert(t8.literal.int_value == 2);
+    assert(t8.type == TOKEN_DEDENT); // Back to original indent
 
     Token t9 = lexer_scan_token(&lexer);
-    assert(t9.type == TOKEN_EOF); // End of source (no final \n)
+    assert(t9.type == TOKEN_IDENTIFIER); // y
+
+    Token t10 = lexer_scan_token(&lexer);
+    assert(t10.type == TOKEN_EQUAL);
+
+    Token t11 = lexer_scan_token(&lexer);
+    assert(t11.type == TOKEN_INT_LITERAL);
+    assert(t11.literal.int_value == 2);
+
+    Token t12 = lexer_scan_token(&lexer);
+    assert(t12.type == TOKEN_EOF); // End of source (no final \n)
 
     lexer_cleanup(&lexer);
     arena_free(&arena);

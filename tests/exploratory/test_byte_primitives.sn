@@ -208,7 +208,7 @@ fn main(): int =>
     print("\n15. byte array iteration:\n")
     var iterArr: byte[] = {10, 20, 30}
     var sum: int = 0
-    shared for b in iterArr =>
+    for b in iterArr =>
         sum = sum + b
     print($"  Sum of 10+20+30: {sum}\n")
     if sum == 60 =>

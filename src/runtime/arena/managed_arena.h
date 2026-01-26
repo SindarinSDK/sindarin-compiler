@@ -62,6 +62,14 @@ typedef struct {
 /* Compaction threshold: trigger when fragmentation exceeds this ratio */
 #define RT_MANAGED_COMPACT_THRESHOLD 0.5
 
+/* Block utilization threshold: trigger compaction when live_bytes/block_capacity
+ * falls below this ratio. This catches cases where the cleaner recycles handles
+ * faster than dead_bytes accumulates, leaving blocks mostly empty. */
+#define RT_MANAGED_UTILIZATION_THRESHOLD 0.25
+
+/* Minimum block count before utilization-based compaction triggers */
+#define RT_MANAGED_UTILIZATION_MIN_BLOCKS 2
+
 /* Cleaner/compactor sleep interval in milliseconds */
 #define RT_MANAGED_GC_INTERVAL_MS 10
 
@@ -111,7 +119,8 @@ typedef struct RtManagedArena {
     RtHandleEntry **pages;        /* Array of page pointers (accessed atomically) */
     uint32_t pages_count;         /* Number of allocated pages */
     uint32_t pages_capacity;      /* Capacity of pages pointer array */
-    uint32_t table_count;         /* Total entries allocated (across all pages) */
+    uint32_t table_count;         /* Next index to allocate (may start > 0 for children) */
+    uint32_t index_offset;        /* Starting index for this arena (inherited from parent) */
     RtRetiredPagesNode *retired_pages; /* Old page directories pending free */
 
     /* Free list (recycled handle indices) */
@@ -204,6 +213,22 @@ RtHandle rt_managed_promote(RtManagedArena *dest, RtManagedArena *src, RtHandle 
  * Used for thread spawn arguments where multiple threads read the same source. */
 RtHandle rt_managed_clone(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
 
+/* Clone from any arena in the tree (self, parents, or root).
+ * Like rt_managed_pin_any, walks up the parent chain to find the source handle.
+ * Used when handles may come from parent scopes (e.g., loop parent arena). */
+RtHandle rt_managed_clone_any(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
+/* Clone from parent arenas only, skipping the immediate source arena.
+ * Used for cloning function parameters where the handle likely came from a
+ * parent scope, avoiding index collisions in child arenas (e.g., loop arena). */
+RtHandle rt_managed_clone_from_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
+/* Clone preferring parent arenas over the immediate source arena.
+ * Used for function parameter cloning where handles typically come from outer
+ * scopes. If both src and src->parent have valid entries at the same index,
+ * prefers the parent's entry (which was allocated first). */
+RtHandle rt_managed_clone_prefer_parent(RtManagedArena *dest, RtManagedArena *src, RtHandle h);
+
 /* Pin a handle — returns raw pointer, increments lease counter.
  * The pointer is valid until rt_managed_unpin is called. */
 void *rt_managed_pin(RtManagedArena *ma, RtHandle h);
@@ -249,11 +274,10 @@ static inline void *rt_managed_pin_array(RtManagedArena *ma, RtHandle h) {
     return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
 }
 
-/* Pin an array from any arena in tree (for parameters that may hold global handles) */
+/* Pin an array from any arena in tree - legacy alias, now same as rt_managed_pin_array
+ * since rt_managed_pin now walks the parent chain automatically. */
 static inline void *rt_managed_pin_array_any(RtManagedArena *ma, RtHandle h) {
-    void *raw = rt_managed_pin_any(ma, h);
-    if (!raw) return NULL;
-    return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
+    return rt_managed_pin_array(ma, h);
 }
 
 /* ============================================================================

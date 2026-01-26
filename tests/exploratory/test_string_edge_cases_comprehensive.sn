@@ -83,7 +83,7 @@ fn main(): int =>
     // Test 8: Long string operations
     print("\nTest 8 - Long strings:\n")
     var long_str: str = ""
-    shared for i in 0..100 =>
+    for i in 0..100 =>
         long_str = long_str + "x"
     print($"  100 x's length: {long_str.length}\n")
     if long_str.length != 100 => errors++
@@ -117,11 +117,11 @@ fn main(): int =>
     print("\nTest 12 - Manual repeat edge cases:\n")
     var rep0: str = ""
     // Repeat 0 times - loop doesn't execute
-    shared for i in 0..0 =>
+    for i in 0..0 =>
         rep0 = rep0 + "abc"
     var rep1: str = ""
     // Repeat 1 time
-    shared for j in 0..1 =>
+    for j in 0..1 =>
         rep1 = rep1 + "abc"
     print($"  \"abc\" x 0 = \"{rep0}\"\n")
     print($"  \"abc\" x 1 = \"{rep1}\"\n")

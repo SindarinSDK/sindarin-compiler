@@ -292,11 +292,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
         if (sym != NULL)
         {
-            /* Track which arena owns this handle for correct pinning */
-            if (gen->current_arena_var != NULL && is_handle_type(stmt->type))
-            {
-                sym->pin_arena = ARENA_VAR(gen);
-            }
             /* Set sync modifier if present */
             if (stmt->sync_modifier == SYNC_ATOMIC)
             {
@@ -749,40 +744,12 @@ void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_block");
 
-    bool old_in_shared_context = gen->in_shared_context;
-    bool old_in_private_context = gen->in_private_context;
-    char *old_arena_var = gen->current_arena_var;
-    int old_arena_depth = gen->arena_depth;
-
-    bool is_shared = stmt->modifier == BLOCK_SHARED;
-    bool is_private = stmt->modifier == BLOCK_PRIVATE;
+    /* Note: BLOCK_SHARED and BLOCK_PRIVATE are no longer supported.
+     * All blocks now use the function's arena (BLOCK_DEFAULT). */
 
     symbol_table_push_scope(gen->symbol_table);
 
-    // Handle private block - create new arena
-    if (is_private)
-    {
-        gen->in_private_context = true;
-        gen->in_shared_context = false;
-        gen->arena_depth++;
-        gen->current_arena_var = arena_sprintf(gen->arena, "__arena_%d__", gen->arena_depth);
-        /* Push arena name to stack for tracking nested private blocks */
-        push_arena_to_stack(gen, gen->current_arena_var);
-        symbol_table_enter_arena(gen->symbol_table);
-    }
-    // Handle shared block - uses parent's arena
-    else if (is_shared)
-    {
-        gen->in_shared_context = true;
-    }
-
     indented_fprintf(gen, indent, "{\n");
-
-    // For private blocks, create a child arena
-    if (is_private)
-    {
-        indented_fprintf(gen, indent + 1, "RtManagedArena *%s = rt_managed_arena_create_child(__local_arena__);\n", gen->current_arena_var);
-    }
 
     for (int i = 0; i < stmt->count; i++)
     {
@@ -790,23 +757,8 @@ void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent)
     }
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
 
-    // For private blocks, destroy the child arena
-    if (is_private)
-    {
-        indented_fprintf(gen, indent + 1, "rt_managed_arena_destroy_child(%s);\n", gen->current_arena_var);
-        symbol_table_exit_arena(gen->symbol_table);
-        /* Pop arena name from stack */
-        pop_arena_from_stack(gen);
-    }
-
     indented_fprintf(gen, indent, "}\n");
     symbol_table_pop_scope(gen->symbol_table);
-
-    // Restore context
-    gen->in_shared_context = old_in_shared_context;
-    gen->in_private_context = old_in_private_context;
-    gen->current_arena_var = old_arena_var;
-    gen->arena_depth = old_arena_depth;
 }
 
 void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
@@ -970,9 +922,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             if (param_type->kind == TYPE_STRING)
             {
                 /* Strings are immutable — cloning is safe and ensures the handle
-                 * is resolvable when passed to sub-functions via __local_arena__. */
+                 * is resolvable when passed to sub-functions via __local_arena__.
+                 * Use clone_any to search current arena first, then parent arenas.
+                 * Index collisions are avoided by child arenas starting their indices
+                 * at an offset from their parent's current count. */
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
-                indented_fprintf(gen, 1, "%s = rt_managed_clone(__local_arena__, __caller_arena__, %s);\n",
+                indented_fprintf(gen, 1, "%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s);\n",
                                  param_name, param_name);
                 /* Update symbol kind so pin calls use __local_arena__ instead of __caller_arena__ */
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
@@ -981,7 +936,8 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             else if (param_type->kind == TYPE_STRUCT && stmt->params[i].mem_qualifier != MEM_AS_REF)
             {
                 /* Clone string handle fields of value struct parameters (not 'as ref' pointers).
-                 * Array fields are NOT cloned to preserve pass-by-reference mutation semantics. */
+                 * Array fields are NOT cloned to preserve pass-by-reference mutation semantics.
+                 * Use clone_any to search current arena first, then parent arenas. */
                 int field_count = param_type->as.struct_type.field_count;
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 for (int f = 0; f < field_count; f++)
@@ -990,7 +946,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                     if (field->type && field->type->kind == TYPE_STRING)
                     {
                         const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone(__local_arena__, __caller_arena__, %s.%s);\n",
+                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s.%s);\n",
                                          param_name, c_field_name, param_name, c_field_name);
                     }
                 }
@@ -1030,10 +986,17 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 const char *suffix = code_gen_type_suffix(elem_type);
                 if (gen->current_arena_var != NULL)
                 {
-                    /* Handle mode: pin the source handle, clone into a new handle */
+                    /* Handle mode: pin the source handle from caller arena, clone into local arena.
+                     * rt_managed_pin_array walks the parent chain to find the handle. */
                     const char *elem_c = get_c_type(gen->arena, elem_type);
                     indented_fprintf(gen, 1, "%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, ((%s *)rt_managed_pin_array(%s, %s)));\n",
                                      param_name, suffix, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), param_name);
+                    /* Update symbol to local so it's treated as a local variable */
+                    Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
+                    if (sym)
+                    {
+                        sym->kind = SYMBOL_LOCAL;
+                    }
                 }
                 else
                 {
@@ -1046,6 +1009,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
                 indented_fprintf(gen, 1, "%s = rt_to_string_string(%s, %s);\n",
                                  param_name, ARENA_VAR(gen), param_name);
+                /* Update symbol to local so it's treated as a local variable */
+                Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
+                if (sym)
+                {
+                    sym->kind = SYMBOL_LOCAL;
+                }
             }
         }
     }
@@ -1256,19 +1225,8 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->expr_as_handle = true;
         }
 
-        /* If inside a loop, allocate the return value in __local_arena__ (the function's
-         * arena) rather than the innermost loop arena. Loop arenas are destroyed before
-         * the goto to the return label, so handles in them would be dangling when
-         * rt_managed_promote tries to find them in __local_arena__. */
-        char *prev_arena_var = gen->current_arena_var;
-        if (gen->loop_arena_depth > 0 && gen->current_arena_var != NULL)
-        {
-            gen->current_arena_var = "__local_arena__";
-        }
-
         char *value_str = code_gen_expression(gen, stmt->value);
 
-        gen->current_arena_var = prev_arena_var;
         gen->expr_as_handle = prev_as_handle;
 
         if (is_lambda_return)
@@ -1284,15 +1242,6 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         }
 
         indented_fprintf(gen, indent, "_return_value = %s;\n", value_str);
-    }
-
-    /* Clean up all active loop arenas before returning (innermost first) */
-    for (int i = gen->loop_arena_depth - 1; i >= 0; i--)
-    {
-        if (gen->loop_arena_stack[i] != NULL)
-        {
-            indented_fprintf(gen, indent, "rt_managed_arena_destroy_child(%s);\n", gen->loop_arena_stack[i]);
-        }
     }
 
     /* Clean up all active private block arenas before returning (innermost first).
@@ -1327,6 +1276,19 @@ void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent)
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_statement");
+
+    /* Emit any attached comments (// comments are preserved) */
+    if (stmt->comment_count > 0 && stmt->comments != NULL)
+    {
+        for (int i = 0; i < stmt->comment_count; i++)
+        {
+            if (stmt->comments[i] != NULL)
+            {
+                indented_fprintf(gen, indent, "//%s\n", stmt->comments[i]);
+            }
+        }
+    }
+
     gen->current_indent = indent;
     switch (stmt->type)
     {
@@ -1358,29 +1320,15 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
         code_gen_for_each_statement(gen, &stmt->as.for_each_stmt, indent);
         break;
     case STMT_BREAK:
-        // If in a loop with per-iteration arena, destroy it before breaking
-        if (gen->loop_arena_var)
-        {
-            indented_fprintf(gen, indent, "{ rt_managed_arena_destroy_child(%s); break; }\n", gen->loop_arena_var);
-        }
-        else
-        {
-            indented_fprintf(gen, indent, "break;\n");
-        }
+        indented_fprintf(gen, indent, "break;\n");
         break;
     case STMT_CONTINUE:
-        // If there's a loop cleanup label (for per-iteration arena), jump to it
-        // The cleanup label destroys the arena and falls through to continue/increment
-        if (gen->loop_cleanup_label)
-        {
-            indented_fprintf(gen, indent, "goto %s;\n", gen->loop_cleanup_label);
-        }
-        // In for loops without arena, continue needs to jump to the continue label (before increment)
-        else if (gen->for_continue_label)
+        /* In for loops, continue needs to jump to the continue label (before increment) */
+        if (gen->for_continue_label)
         {
             indented_fprintf(gen, indent, "goto %s;\n", gen->for_continue_label);
         }
-        // In while/for-each loops without arena, regular continue works fine
+        /* In while/for-each loops, regular continue works fine */
         else
         {
             indented_fprintf(gen, indent, "continue;\n");

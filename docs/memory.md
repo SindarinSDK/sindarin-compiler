@@ -370,218 +370,33 @@ shared fn outer(): str =>
   return "outer: " + h                // which is caller's arena
 ```
 
-### `shared` Loops
+### `shared` Functions for Loops
 
-Apply `shared` to a loop to avoid arena creation/destruction per iteration:
+When building results in a loop, use a `shared` function to avoid promotion overhead:
 
 ```sindarin
+// Without shared: each push promotes return value
 fn collect_names(ids: int[]): str[] =>
   var names: str[] = {}
-
-  // Default: each iteration creates/destroys an arena
   for id in ids =>
-    var name: str = lookup_name(id)   // Allocated in loop arena
-    names.push(name)                  // Promoted to function arena
-    // Loop arena destroyed
-
-  return names
-```
-
-```sindarin
-fn collect_names_fast(ids: int[]): str[] =>
-  var names: str[] = {}
-
-  // Shared: loop uses function's arena directly
-  shared for id in ids =>
     var name: str = lookup_name(id)   // Allocated in function arena
-    names.push(name)                  // No promotion needed
-    // No arena destruction
+    names.push(name)
+  return names
 
+// With shared: allocates directly in caller's arena
+shared fn collect_names_fast(ids: int[]): str[] =>
+  var names: str[] = {}
+  for id in ids =>
+    var name: str = lookup_name(id)   // Allocated in caller's arena
+    names.push(name)                  // No promotion needed
   return names
 ```
 
-### When to Use `shared` Loops
-
-```sindarin
-// Default loop: good when iterations are independent
-// - Temporary allocations cleaned up each iteration
-// - Prevents memory accumulation in long loops
-
-// Shared loop: good when building results
-// - Avoids promotion overhead
-// - All allocations persist until parent scope ends
-// - Use with caution in long loops (memory accumulates)
-```
-
-**Warning**: In a `shared` loop, temporary allocations accumulate:
-
-```sindarin
-// Dangerous: memory grows with each iteration
-shared for var i: int = 0; i < 1000000 =>
-  var temp: str = compute_something()  // Never freed until loop ends!
-  process(temp)
-
-// Safe: temporaries freed each iteration
-for var i: int = 0; i < 1000000 =>
-  var temp: str = compute_something()  // Freed each iteration
-  process(temp)
-```
-
 ---
 
-## `shared` Blocks
+## `private` Functions
 
-A `shared` block makes everything inside share the parent's arena - all nested loops, conditionals, and inner blocks.
-
-### Syntax
-
-```sindarin
-fn process(items: str[]): str[] =>
-  var results: str[] = {}
-
-  shared =>
-    // Everything here uses the function's arena
-    // No per-iteration arenas, no promotion overhead
-    for item in items =>
-      var upper: str = item.toUpper()
-      var trimmed: str = upper.trim()
-      results.push(trimmed)
-      // No arena destroyed here
-
-    for result in results =>
-      if result.length > 10 =>
-        print(result)
-        // Still no nested arenas
-
-  return results
-```
-
-### Comparison: Default vs Shared Block
-
-```sindarin
-// Default: each loop iteration has its own arena
-fn default_version(items: str[]): void =>
-  for item in items =>              // Arena created
-    var temp: str = item.toUpper()  // Allocated in loop arena
-    process(temp)
-    // Arena destroyed, temp freed
-
-// Shared block: everything uses parent arena
-fn shared_version(items: str[]): void =>
-  shared =>
-    for item in items =>            // No arena created
-      var temp: str = item.toUpper() // Allocated in function arena
-      process(temp)
-      // Nothing freed here
-  // All temps freed when shared block ends
-```
-
-### Use Cases
-
-**1. Performance-critical sections**
-```sindarin
-fn hot_path(data: int[]): int =>
-  var sum: int = 0
-  shared =>
-    // Entire computation shares one arena
-    for var i: int = 0; i < data.length; i++ =>
-      for var j: int = 0; j < data.length; j++ =>
-        sum = sum + data[i] * data[j]
-  return sum
-```
-
-**2. Building complex results**
-```sindarin
-fn build_report(records: str[][]): str =>
-  shared =>
-    var parts: str[] = {}
-    for record in records =>
-      var line: str = record.join(",")
-      var formatted: str = $"[{line}]"
-      parts.push(formatted)
-    return parts.join("\n")
-```
-
-### Nesting Behavior
-
-`shared` propagates inward - nested blocks don't create new arenas:
-
-```sindarin
-shared =>
-  // Level 1: uses parent arena
-  for i in items =>
-    // Level 2: still uses parent arena
-    if condition =>
-      // Level 3: still uses parent arena
-      while processing =>
-        // Level 4: still uses parent arena
-        var temp: str = compute()
-```
-
-### Combining with `private`
-
-`private` inside `shared` creates an isolated arena (private wins):
-
-```sindarin
-shared =>
-  var results: str[] = {}
-
-  for item in items =>
-    // Still shared
-
-    private =>
-      // Isolated! Nothing escapes from here
-      var huge: str = load_big_data(item)
-      var count: int = process(huge)
-      results.push($"{count}")  // ERROR: string can't escape private
-
-  return results
-```
-
----
-
-## `private` Blocks
-
-A `private` block creates an isolated arena. Nothing heap-allocated can escape.
-
-### Syntax
-
-```sindarin
-fn analyze(path: str): int =>
-  var result: int = 0
-
-  private =>
-    var contents: str = read_file(path)
-    var lines: str[] = contents.split("\n")
-    result = lines.length             // Primitives can escape
-    // contents and lines freed here - guaranteed
-
-  return result
-```
-
-### What Can Escape `private`
-
-| Type | Can Escape? |
-|------|-------------|
-| `int`, `double`, `bool`, `char` | Yes |
-| `int[N]` (fixed array) | No - compile error |
-| `int[]` (dynamic array) | No - compile error |
-| `str` | No - compile error |
-
-```sindarin
-private =>
-  var count: int = 42
-  var buffer: int[100] = {}
-  var dynamic: int[] = {1, 2, 3}
-  var text: str = "hello"
-
-  outer_count = count           // OK: primitive
-  outer_buffer = buffer         // COMPILE ERROR: array cannot escape
-  outer_array = dynamic         // COMPILE ERROR: array cannot escape
-  outer_text = text             // COMPILE ERROR: string cannot escape
-```
-
-### `private` Functions
+A `private` function creates an isolated arena. Nothing heap-allocated can escape - only primitives can be returned.
 
 ```sindarin
 // Returns primitive - OK
@@ -607,20 +422,16 @@ Only primitives (`int`, `double`, `bool`, `char`) can be returned from `private`
 ### Use Case: Processing Large Temporary Data
 
 ```sindarin
-fn process_huge_file(path: str): int =>
+private fn count_records(path: str): int =>
+  var contents: str = read_file(path)       // Maybe 100MB
+  var records: str[] = contents.split("\n") // Thousands of strings
   var total: int = 0
 
-  private =>
-    var contents: str = read_file(path)       // Maybe 100MB
-    var records: str[] = contents.split("\n") // Thousands of strings
+  for record in records =>
+    var fields: str[] = record.split(",")
+    total = total + parse_int(fields[0])
 
-    for record in records =>
-      var fields: str[] = record.split(",")
-      total = total + parse_int(fields[0])
-
-    // ALL memory freed here - no leaks possible
-
-  return total
+  return total  // Only the primitive escapes, all memory freed
 ```
 
 ---
@@ -685,12 +496,10 @@ Keeps the mental model simple:
 | Fixed arrays (`int[N]`) | Stack if small, heap if large or escapes |
 | Dynamic arrays (`int[]`) | Heap, arena-managed |
 | Strings | Heap, arena-managed, immutable |
-| Block scope | Creates arena, frees on exit |
+| Block scope | Uses function's arena |
 | Escaping values | Promoted to outer arena |
 | `shared` function | Uses caller's arena |
-| `shared` loop | Uses parent's arena (no per-iteration arena) |
-| `shared` block | All nested scopes use parent's arena |
-| `private` block | Isolated arena, only primitives escape |
+| `private` function | Isolated arena, only primitives can be returned |
 
 ---
 
@@ -698,35 +507,11 @@ Keeps the mental model simple:
 
 The compiler is strict about lifetime violations. These are compile-time errors, not runtime crashes.
 
-### Escaping `private` Blocks
-
-```sindarin
-fn bad(): void =>
-  var result: str
-  private =>
-    var temp: str = "hello"
-    result = temp             // ERROR: string cannot escape private block
-  print(result)
-```
-
-```
-error[E0101]: cannot escape `private` block
-  --> example.sn:4:5
-   |
- 3 |   private =>
-   |   -------- private block starts here
- 4 |     var temp: str = "hello"
- 5 |     result = temp
-   |     ^^^^^^^^^^^^^ `str` cannot escape private block
-   |
-   = note: only primitives (int, double, bool, char) can escape private blocks
-```
-
 ### Invalid Return from `private` Function
 
 ```sindarin
 private fn bad(): str[] =>
-  return {1, 2, 3}            // ERROR: array cannot escape private function
+  return {"a", "b"}           // ERROR: array cannot escape private function
 ```
 
 ```
@@ -752,9 +537,7 @@ All memory management features are **opt-in**. Existing code compiles unchanged.
 | Array assignment | Reference | `as val` for copy |
 | Function parameters | Reference | `as val` for copy |
 | Primitives | Stack (value) | `as ref` for heap |
-| Blocks | Own arena | - |
-| Functions | Own arena | `shared` to use caller's |
-| Loops | Arena per iteration | `shared` to use parent's |
+| Functions | Own arena | `shared` or `private` modifiers |
 
 ```sindarin
 // This existing code works exactly as before
@@ -770,25 +553,16 @@ fn example(): void =>
 
 ### Costs of Default Model
 
-**1. Arena overhead per block**
+**1. Auto-promotion copies**
 ```sindarin
-for var i: int = 0; i < 1000000; i++ =>
-  var temp: str = compute()    // Arena created/destroyed each iteration
-  process(temp)
+fn build(): str =>
+  var result: str = compute()
+  return result                // Promoted (copied) to caller's arena
 ```
-- Small overhead: arena metadata allocation/deallocation per iteration
-- **Mitigation**: Use `shared` for hot loops
+- Hidden copy when values escape function scope
+- **Mitigation**: Use `shared` function
 
-**2. Auto-promotion copies**
-```sindarin
-var result: str
-for item in items =>
-  result = item.toUpper()      // Promoted (copied) to outer arena each time
-```
-- Hidden copy when values escape inner scope
-- **Mitigation**: Use `shared` loop, or restructure code
-
-**3. Memory not freed until scope ends**
+**2. Memory not freed until function ends**
 ```sindarin
 fn long_running(): void =>
   // Everything allocated here lives until function returns
@@ -797,7 +571,7 @@ fn long_running(): void =>
   var data3: str = load_file("c.txt")
   // ... all three in memory until function ends
 ```
-- **Mitigation**: Use `private` blocks for temporary processing
+- **Mitigation**: Use `private` functions for temporary processing
 
 ### Benefits of Default Model
 
@@ -814,33 +588,32 @@ fn long_running(): void =>
 - Better memory locality
 
 **4. Deterministic cleanup**
-- Memory freed at predictable points (scope exit)
+- Memory freed at predictable points (function exit)
 - No GC pauses
 
 ### Performance Guidelines
 
 | Scenario | Recommendation |
 |----------|---------------|
-| Hot inner loop | `shared` loop |
 | Building/returning values | `shared` function |
-| Large temporary processing | `private` block |
+| Large temporary processing | `private` function |
 | Passing large arrays | Default (reference) is fast |
 | Need isolated copy | `as val` (explicit cost) |
 
 ```sindarin
-// Slow: arena per iteration, promotion overhead
-fn slow(items: str[]): str[] =>
+// Default: function has own arena, return value promoted
+fn format_items(items: str[]): str[] =>
   var results: str[] = {}
   for item in items =>
     results.push(item.toUpper())
-  return results
+  return results  // Promoted to caller's arena
 
-// Fast: shared loop, no per-iteration arena
-shared fn fast(items: str[]): str[] =>
+// Shared: allocates directly in caller's arena, no promotion
+shared fn format_items_fast(items: str[]): str[] =>
   var results: str[] = {}
-  shared for item in items =>
+  for item in items =>
     results.push(item.toUpper())
-  return results
+  return results  // Already in caller's arena
 ```
 
 ---

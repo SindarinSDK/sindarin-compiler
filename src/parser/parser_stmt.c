@@ -66,6 +66,38 @@ int is_at_function_boundary(Parser *parser)
 
 Stmt *parser_indented_block(Parser *parser)
 {
+    /* Skip any comments that appear before INDENT */
+    while (parser_check(parser, TOKEN_COMMENT))
+    {
+        /* Collect the comment for later attachment */
+        const char *comment_text = parser->current.literal.string_value;
+        if (comment_text != NULL)
+        {
+            if (parser->pending_comment_count >= parser->pending_comment_capacity)
+            {
+                int new_capacity = parser->pending_comment_capacity == 0 ? 4 : parser->pending_comment_capacity * 2;
+                const char **new_comments = arena_alloc(parser->arena, sizeof(const char *) * new_capacity);
+                if (new_comments != NULL)
+                {
+                    if (parser->pending_comments != NULL && parser->pending_comment_count > 0)
+                    {
+                        memcpy(new_comments, parser->pending_comments, sizeof(const char *) * parser->pending_comment_count);
+                    }
+                    parser->pending_comments = new_comments;
+                    parser->pending_comment_capacity = new_capacity;
+                }
+            }
+            if (parser->pending_comment_count < parser->pending_comment_capacity)
+            {
+                parser->pending_comments[parser->pending_comment_count++] = arena_strdup(parser->arena, comment_text);
+            }
+        }
+        parser_advance(parser);  /* Consume comment */
+        while (parser_match(parser, TOKEN_NEWLINE))
+        {
+        }
+    }
+
     if (!parser_check(parser, TOKEN_INDENT))
     {
         parser_error(parser, "Expected indented block");
@@ -159,11 +191,11 @@ Stmt *parser_statement(Parser *parser)
     }
     if (parser_match(parser, TOKEN_WHILE))
     {
-        return parser_while_statement(parser, false);
+        return parser_while_statement(parser);
     }
     if (parser_match(parser, TOKEN_FOR))
     {
-        return parser_for_statement(parser, false);
+        return parser_for_statement(parser);
     }
     if (parser_match(parser, TOKEN_BREAK))
     {
@@ -192,51 +224,35 @@ Stmt *parser_statement(Parser *parser)
         return parser_block_statement(parser);
     }
 
-    // Parse shared => block, shared while, shared for, or private => block
+    // Disallow shared/private blocks - these modifiers only apply to functions now
     if (parser_check(parser, TOKEN_SHARED))
     {
-        Token block_token = parser->current;
         parser_advance(parser);  // consume shared
 
-        // Check if followed by while or for (shared loop)
-        if (parser_match(parser, TOKEN_WHILE))
+        // Check if it's a loop (already disallowed) or block
+        if (parser_check(parser, TOKEN_WHILE) || parser_check(parser, TOKEN_FOR))
         {
-            return parser_while_statement(parser, true);
+            parser_error_at_current(parser,
+                "'shared' modifier on loops is no longer supported. "
+                "All loops now share the function's arena by default.");
         }
-        if (parser_match(parser, TOKEN_FOR))
+        else
         {
-            return parser_for_statement(parser, true);
+            parser_error_at_current(parser,
+                "'shared' blocks are no longer supported. "
+                "Use 'shared' modifier on functions instead.");
         }
-
-        // Otherwise it's a shared block
-        parser_consume(parser, TOKEN_ARROW, "Expected '=>' after shared");
-        skip_newlines(parser);
-
-        Stmt *block = parser_indented_block(parser);
-        if (block == NULL)
-        {
-            block = ast_create_block_stmt(parser->arena, NULL, 0, &block_token);
-        }
-        block->as.block.modifier = BLOCK_SHARED;
-        return block;
+        return NULL;
     }
 
-    // Parse private => block
     if (parser_check(parser, TOKEN_PRIVATE))
     {
-        Token block_token = parser->current;
         parser_advance(parser);  // consume private
 
-        parser_consume(parser, TOKEN_ARROW, "Expected '=>' after private");
-        skip_newlines(parser);
-
-        Stmt *block = parser_indented_block(parser);
-        if (block == NULL)
-        {
-            block = ast_create_block_stmt(parser->arena, NULL, 0, &block_token);
-        }
-        block->as.block.modifier = BLOCK_PRIVATE;
-        return block;
+        parser_error_at_current(parser,
+            "'private' blocks are no longer supported. "
+            "Use 'private' modifier on functions instead.");
+        return NULL;
     }
 
     // Parse lock(expr) => block
@@ -262,11 +278,78 @@ Stmt *parser_statement(Parser *parser)
     return parser_expression_statement(parser);
 }
 
+/* Helper to collect pending // comments before a statement */
+static void parser_collect_comments(Parser *parser)
+{
+    while (parser_check(parser, TOKEN_COMMENT))
+    {
+        /* Get the comment text from the token literal */
+        const char *comment_text = parser->current.literal.string_value;
+        if (comment_text == NULL)
+        {
+            comment_text = "";
+        }
+
+        /* Grow pending_comments array if needed */
+        if (parser->pending_comment_count >= parser->pending_comment_capacity)
+        {
+            int new_capacity = parser->pending_comment_capacity == 0 ? 4 : parser->pending_comment_capacity * 2;
+            const char **new_comments = arena_alloc(parser->arena, sizeof(const char *) * new_capacity);
+            if (new_comments == NULL)
+            {
+                parser_advance(parser);  /* Skip comment on allocation failure */
+                continue;
+            }
+            if (parser->pending_comments != NULL && parser->pending_comment_count > 0)
+            {
+                memcpy(new_comments, parser->pending_comments, sizeof(const char *) * parser->pending_comment_count);
+            }
+            parser->pending_comments = new_comments;
+            parser->pending_comment_capacity = new_capacity;
+        }
+
+        /* Store the comment */
+        parser->pending_comments[parser->pending_comment_count++] = arena_strdup(parser->arena, comment_text);
+
+        parser_advance(parser);  /* Consume the comment token */
+
+        /* Skip newlines after comment */
+        while (parser_match(parser, TOKEN_NEWLINE))
+        {
+        }
+    }
+}
+
+/* Helper to attach collected comments to a statement */
+static void parser_attach_comments(Parser *parser, Stmt *stmt)
+{
+    if (stmt == NULL || parser->pending_comment_count == 0)
+    {
+        /* Clear pending comments even if stmt is NULL */
+        parser->pending_comment_count = 0;
+        return;
+    }
+
+    /* Copy pending comments to the statement */
+    stmt->comments = arena_alloc(parser->arena, sizeof(const char *) * parser->pending_comment_count);
+    if (stmt->comments != NULL)
+    {
+        memcpy((void *)stmt->comments, parser->pending_comments, sizeof(const char *) * parser->pending_comment_count);
+        stmt->comment_count = parser->pending_comment_count;
+    }
+
+    /* Clear pending comments */
+    parser->pending_comment_count = 0;
+}
+
 Stmt *parser_declaration(Parser *parser)
 {
     while (parser_match(parser, TOKEN_NEWLINE))
     {
     }
+
+    /* Collect any pending // comments */
+    parser_collect_comments(parser);
 
     if (parser_is_at_end(parser))
     {
@@ -274,9 +357,12 @@ Stmt *parser_declaration(Parser *parser)
         return NULL;
     }
 
+    Stmt *result = NULL;
+
     if (parser_match(parser, TOKEN_VAR))
     {
-        return parser_var_declaration(parser);
+        result = parser_var_declaration(parser);
+        goto attach_comments;
     }
     /* Parse function modifiers (shared/private) before fn keyword.
      * These can appear in any order, but shared and private are mutually exclusive.
@@ -312,13 +398,15 @@ Stmt *parser_declaration(Parser *parser)
 
             if (parser_match(parser, TOKEN_FN))
             {
-                return parser_function_declaration(parser, func_modifier);
+                result = parser_function_declaration(parser, func_modifier);
+                goto attach_comments;
             }
             else if (parser_match(parser, TOKEN_NATIVE))
             {
                 if (parser_match(parser, TOKEN_FN))
                 {
-                    return parser_native_function_declaration(parser, func_modifier);
+                    result = parser_native_function_declaration(parser, func_modifier);
+                    goto attach_comments;
                 }
                 else
                 {
@@ -329,7 +417,7 @@ Stmt *parser_declaration(Parser *parser)
             }
         }
         /* If not a function context, fall through to parser_statement
-         * which handles shared/private blocks and shared loops */
+         * which will error on shared/private blocks (no longer supported) */
     }
 
     if (parser_check(parser, TOKEN_STATIC))
@@ -343,18 +431,21 @@ Stmt *parser_declaration(Parser *parser)
 
     if (parser_match(parser, TOKEN_FN))
     {
-        return parser_function_declaration(parser, FUNC_DEFAULT);
+        result = parser_function_declaration(parser, FUNC_DEFAULT);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_NATIVE))
     {
         /* Check for 'native fn' or 'native struct' */
         if (parser_match(parser, TOKEN_FN))
         {
-            return parser_native_function_declaration(parser, FUNC_DEFAULT);
+            result = parser_native_function_declaration(parser, FUNC_DEFAULT);
+            goto attach_comments;
         }
         else if (parser_match(parser, TOKEN_STRUCT))
         {
-            return parser_struct_declaration(parser, true);
+            result = parser_struct_declaration(parser, true);
+            goto attach_comments;
         }
         else
         {
@@ -364,38 +455,50 @@ Stmt *parser_declaration(Parser *parser)
     }
     if (parser_match(parser, TOKEN_STRUCT))
     {
-        return parser_struct_declaration(parser, false);
+        result = parser_struct_declaration(parser, false);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_IMPORT))
     {
-        return parser_import_statement(parser);
+        result = parser_import_statement(parser);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_PRAGMA_INCLUDE))
     {
-        return parser_pragma_statement(parser, PRAGMA_INCLUDE);
+        result = parser_pragma_statement(parser, PRAGMA_INCLUDE);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_PRAGMA_LINK))
     {
-        return parser_pragma_statement(parser, PRAGMA_LINK);
+        result = parser_pragma_statement(parser, PRAGMA_LINK);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_PRAGMA_SOURCE))
     {
-        return parser_pragma_statement(parser, PRAGMA_SOURCE);
+        result = parser_pragma_statement(parser, PRAGMA_SOURCE);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_PRAGMA_PACK))
     {
-        return parser_pragma_pack_statement(parser);
+        result = parser_pragma_pack_statement(parser);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_PRAGMA_ALIAS))
     {
-        return parser_pragma_alias_statement(parser);
+        result = parser_pragma_alias_statement(parser);
+        goto attach_comments;
     }
     if (parser_match(parser, TOKEN_KEYWORD_TYPE))
     {
-        return parser_type_declaration(parser);
+        result = parser_type_declaration(parser);
+        goto attach_comments;
     }
 
-    return parser_statement(parser);
+    result = parser_statement(parser);
+
+attach_comments:
+    parser_attach_comments(parser, result);
+    return result;
 }
 
 /* Declaration parsing functions are in parser_stmt_decl.c:
