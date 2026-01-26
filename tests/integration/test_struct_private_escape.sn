@@ -86,15 +86,12 @@ fn test_nested_struct_return(): void =>
 
     print("Nested struct return test: PASS\n")
 
-fn test_private_block_escape(): void =>
+fn test_struct_assignment(): void =>
     var result: Point = Point { x: 0, y: 0 }
 
-    private =>
-        # Create struct in private block
-        var inner: Point = Point { x: 123, y: 456 }
-        # Assign to outer variable - should work for primitive-only struct
-        result = inner
-        # Private block arena freed here, but result was copied
+    // Create struct and assign to outer variable
+    var inner: Point = Point { x: 123, y: 456 }
+    result = inner
 
     if result.x != 123 =>
         print($"FAIL: result.x = {result.x}, expected 123\n")
@@ -103,7 +100,7 @@ fn test_private_block_escape(): void =>
         print($"FAIL: result.y = {result.y}, expected 456\n")
         return
 
-    print("Private block escape test: PASS\n")
+    print("Struct assignment test: PASS\n")
 
 fn test_loop_primitive_struct_escape(): void =>
     # Test that primitive-only structs can escape from loop arenas
@@ -142,10 +139,10 @@ fn test_while_loop_struct_escape(): void =>
     print("While loop struct escape test: PASS\n")
 
 fn main(): void =>
-    print("Testing primitive-only struct escape from private blocks:\n")
+    print("Testing primitive-only struct escape from private functions:\n")
     test_private_function_return()
     test_nested_struct_return()
-    test_private_block_escape()
+    test_struct_assignment()
     test_loop_primitive_struct_escape()
     test_while_loop_struct_escape()
     print("All primitive struct escape tests passed!\n")

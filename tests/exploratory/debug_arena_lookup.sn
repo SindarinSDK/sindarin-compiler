@@ -1,0 +1,21 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug arena lookup ===\n\n")
+
+    var v: Version = Version.parse("2.0.0")
+
+    # Access v.prerelease multiple times outside loop
+    print($"Outside loop 1: v.prerelease = '{v.prerelease}'\n")
+    print($"Outside loop 2: v.prerelease = '{v.prerelease}'\n")
+
+    # Simple loop - just print v.prerelease
+    var i: int = 0
+    while i < 2 =>
+        print($"Inside loop i={i}: v.prerelease = '{v.prerelease}'\n")
+        i = i + 1
+
+    # Access outside loop again
+    print($"Outside loop 3: v.prerelease = '{v.prerelease}'\n")
+
+    return 0

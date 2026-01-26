@@ -377,7 +377,8 @@ static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In handle mode, string temp is RtHandle — pin to get char* for boxing */
+            /* In handle mode, string temp is RtHandle — pin to get char* for boxing.
+             * rt_managed_pin automatically walks the parent chain to find handles. */
             result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_managed_pin(%s, %s));\n",
                                    result, i, box_func, ARENA_VAR(gen), arg_temps[i]);
         }
@@ -730,7 +731,8 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In handle mode, string temps are RtHandle — pin before boxing */
+            /* In handle mode, string temps are RtHandle — pin before boxing.
+             * rt_managed_pin automatically walks the parent chain to find handles. */
             result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_managed_pin(%s, %s));\n",
                                    result, arg_idx, box_func, ARENA_VAR(gen), arg_temps[i]);
         }
@@ -2282,14 +2284,13 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
         if (gen->current_arena_var != NULL && !gen->expr_as_handle && ret_type != NULL &&
             (ret_type->kind == TYPE_STRING || ret_type->kind == TYPE_ARRAY))
         {
-            const char *pin_arena = gen->function_arena_var ? gen->function_arena_var : "__local_arena__";
             if (ret_type->kind == TYPE_STRING) {
                 call_expr = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                          pin_arena, call_expr);
+                                          ARENA_VAR(gen), call_expr);
             } else {
                 const char *elem_c = get_c_array_elem_type(gen->arena, ret_type->as.array.element_type);
                 call_expr = arena_sprintf(gen->arena, "(((%s *)rt_managed_pin_array(%s, %s)))",
-                                          elem_c, pin_arena, call_expr);
+                                          elem_c, ARENA_VAR(gen), call_expr);
             }
         }
         return call_expr;
@@ -2332,6 +2333,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
+            /* rt_managed_pin_string_array walks the parent chain to find handles. */
             arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
                                          ARENA_VAR(gen), handle_expr);
         }

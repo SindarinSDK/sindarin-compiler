@@ -11,7 +11,7 @@
 # Phony targets
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
-.PHONY: test-unit test-integration test-integration-errors
+.PHONY: test-unit test-cgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors test-sdk
 .PHONY: arena test-arena
 .PHONY: configure install package docs
@@ -163,6 +163,9 @@ test: build test-arena
 test-unit: build
 	@$(PYTHON) scripts/run_tests.py unit --verbose
 
+test-cgen: build
+	@$(PYTHON) scripts/run_tests.py cgen --verbose
+
 test-integration: build
 	@$(PYTHON) scripts/run_tests.py integration --verbose
 
@@ -281,6 +284,7 @@ help:
 	@echo "Test Targets:"
 	@echo "  make test                   Run all tests"
 	@echo "  make test-unit              Run unit tests only"
+	@echo "  make test-cgen              Run code generation tests (compare generated C)"
 	@echo "  make test-integration       Run integration tests"
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"

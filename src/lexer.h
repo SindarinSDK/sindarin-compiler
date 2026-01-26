@@ -16,6 +16,7 @@ typedef struct
     int at_line_start;
     int pending_indent;           // Stored indentation level during multi-dedent
     const char *pending_current;  // Stored position after whitespace during multi-dedent
+    int pending_standalone_comment; // Next // should be emitted as standalone comment
     Arena *arena;
 } Lexer;
 

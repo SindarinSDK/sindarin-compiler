@@ -126,7 +126,7 @@ fn main(): int =>
     // Test 12: Manual string repetition (no repeat method)
     print("\nTest 12 - Manual repeat:\n")
     var repeated: str = ""
-    shared for i in 0..3 =>
+    for i in 0..3 =>
         repeated = repeated + "ab"
     print($"  \"ab\" x 3 = \"{repeated}\"\n")
     if repeated != "ababab" => errors++

@@ -1,0 +1,33 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug constraint parsing ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    
+    # Parse constraint directly
+    var c1: str = "<2.0.0"
+    print($"Parsing constraint: '{c1}'\n")
+    var constraint1: VersionConstraint = VersionConstraint.parse(c1)
+    print($"  op = {constraint1.op} (OP_LT = {OP_LT()})\n")
+    print($"  major = {constraint1.major}\n")
+    print($"  minor = {constraint1.minor}\n")
+    print($"  patch = {constraint1.patch}\n")
+    print($"  satisfiedBy(2.0.0) = {constraint1.satisfiedBy(v)}\n\n")
+    
+    # Parse same constraint from split
+    var constraints: str = ">=1.0.0, <2.0.0"
+    var parts: str[] = constraints.split(",")
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        print($"Parsing constraint from split: '{part}'\n")
+        var constraint2: VersionConstraint = VersionConstraint.parse(part)
+        print($"  op = {constraint2.op} (OP_LT = {OP_LT()})\n")
+        print($"  major = {constraint2.major}\n")
+        print($"  minor = {constraint2.minor}\n")
+        print($"  patch = {constraint2.patch}\n")
+        print($"  satisfiedBy(2.0.0) = {constraint2.satisfiedBy(v)}\n\n")
+        i = i + 1
+
+    return 0

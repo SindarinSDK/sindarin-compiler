@@ -27,6 +27,9 @@ typedef struct
     int pack_alignment;        /* Current pack alignment: 0 = default, 1 = packed */
     ImportContext *import_ctx; /* Context for import-first processing (NULL if not tracking imports) */
     const char *pending_alias; /* C alias from #pragma alias, applied to next declaration */
+    const char **pending_comments; /* Pending // comments to attach to next statement */
+    int pending_comment_count;     /* Number of pending comments */
+    int pending_comment_capacity;  /* Capacity of pending_comments array */
 } Parser;
 
 /* Forward declare Parser for function pointer type */
@@ -92,8 +95,8 @@ Stmt *parser_var_declaration(Parser *parser);
 Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier);
 Stmt *parser_return_statement(Parser *parser);
 Stmt *parser_if_statement(Parser *parser);
-Stmt *parser_while_statement(Parser *parser, bool is_shared);
-Stmt *parser_for_statement(Parser *parser, bool is_shared);
+Stmt *parser_while_statement(Parser *parser);
+Stmt *parser_for_statement(Parser *parser);
 Stmt *parser_block_statement(Parser *parser);
 Stmt *parser_expression_statement(Parser *parser);
 Stmt *parser_import_statement(Parser *parser);

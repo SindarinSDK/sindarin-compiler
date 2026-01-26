@@ -134,34 +134,19 @@ error: Initializer type does not match variable type
 
 ---
 
-## 6. Array/String Reassignment Blocked in All Loop Bodies (Private Block Semantics)
+## 6. ~~Array/String Reassignment Blocked in All Loop Bodies~~ (RESOLVED)
 
-**Severity:** Significant limitation
+**Status:** RESOLVED - Loops now share the function's arena, allowing heap variable reassignment.
 
-**Description:** For-loop and while-loop bodies are "private blocks" that prevent reassignment of heap-allocated variables (arrays, strings) declared in outer scopes. This blocks common patterns like iterative algorithms that update an accumulator array.
+This issue has been fixed. All loops now use the function's arena, so heap-allocated variables (arrays, strings) can be freely reassigned within loop bodies:
 
-**Reproduction:**
 ```sindarin
 fn main(): void =>
     var prev: int[] = {1}
     while condition =>
         var curr: int[] = compute(prev)
-        prev = curr    // Fails - can't reassign heap var in private block
+        prev = curr    // Works correctly
 ```
-
-**Error:**
-```
-error: Cannot assign to variable declared outside private block: array type is heap-allocated
-```
-
-**Affected types:** `str`, `int[]`, `str[]`, and all other array/heap-allocated types.
-
-**Workarounds:**
-- Restructure algorithms to avoid reassignment (use index-based mutation instead)
-- Use `append` for strings instead of reassignment
-- For arrays, modify elements in-place rather than replacing the whole array
-
-**Note:** This also affects string concatenation in loops (`s = s + "x"` fails).
 
 ---
 

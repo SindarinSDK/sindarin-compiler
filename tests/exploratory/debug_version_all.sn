@@ -1,0 +1,36 @@
+import "../../sdk/core/version"
+
+fn main(): int =>
+    print("=== Debug version_satisfies_all ===\n")
+
+    var v: Version = Version.parse("2.0.0")
+    print($"Version: {v.toString()}\n")
+
+    var constraints: str = ">=1.0.0, <2.0.0"
+    print($"Constraints: {constraints}\n\n")
+
+    # Check individual constraints directly
+    print("Individual constraint tests:\n")
+    var c1: str = ">=1.0.0"
+    var c2: str = "<2.0.0"
+    print($"version_satisfies(2.0.0, c1) = {version_satisfies(v, c1)}\n")
+    print($"version_satisfies(2.0.0, c2) = {version_satisfies(v, c2)}\n\n")
+
+    # Check splitting
+    var parts: str[] = constraints.split(",")
+    print($"parts.length = {parts.length}\n")
+
+    var i: int = 0
+    while i < parts.length =>
+        var part: str = parts[i].trim()
+        print($"parts[{i}] = '{parts[i]}'\n")
+        print($"  trimmed = '{part}'\n")
+        var satisfies: bool = version_satisfies(v, part)
+        print($"  version_satisfies = {satisfies}\n\n")
+        i = i + 1
+
+    var result: bool = version_satisfies_all(v, constraints)
+    print($"version_satisfies_all result = {result}\n")
+    print("Expected: false\n")
+
+    return 0

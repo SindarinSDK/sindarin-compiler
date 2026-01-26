@@ -150,7 +150,8 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
+         * rt_managed_pin automatically walks the parent chain to find the handle. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
             if (field->type->kind == TYPE_STRING)
@@ -184,7 +185,8 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it */
+        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
+         * rt_managed_pin automatically walks the parent chain to find the handle. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
             if (field->type->kind == TYPE_STRING)
@@ -871,7 +873,8 @@ static char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     }
 
     /* If the field is a string/array stored as RtHandle, and the caller expects
-       a raw pointer (not a handle), pin the handle to get the raw pointer. */
+       a raw pointer (not a handle), pin the handle to get the raw pointer.
+       rt_managed_pin automatically walks the parent chain to find the handle. */
     if (gen->current_arena_var != NULL && !gen->expr_as_handle && field_type != NULL)
     {
         if (field_type->kind == TYPE_STRING)

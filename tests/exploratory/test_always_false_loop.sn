@@ -85,7 +85,7 @@ fn main(): int =>
     // Test 10: Shared loop with always-false
     print("\nTest 10 - Shared for with always-false:\n")
     var count10: int = 0
-    shared for var i: int = 100; i < 0; i++ =>
+    for var i: int = 100; i < 0; i++ =>
         count10 = count10 + 1
         print("  This should never print\n")
     print($"  Count after shared false loop: {count10} (expected 0)\n")

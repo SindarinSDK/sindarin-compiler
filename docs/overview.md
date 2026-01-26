@@ -213,14 +213,14 @@ fn main(): void =>
 Sindarin uses arena-based memory with optional control:
 
 ```sindarin
-// Shared function - uses caller's arena
+// Shared function - uses caller's arena (no promotion overhead)
 shared fn helper(a: int, b: int): int =>
   return a + b
 
-// Private block - isolated arena, freed on exit
-private =>
-  var temp: int[] = {1, 2, 3}
-  // temp freed here
+// Private function - isolated arena, only primitives can escape
+private fn count_items(path: str): int =>
+  var contents: str = read_file(path)
+  return contents.split("\n").length  // Only int escapes
 
 // Value copy semantics
 var original: int[] = {1, 2, 3}

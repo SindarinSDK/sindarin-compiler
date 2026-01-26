@@ -116,3 +116,20 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
 ## 📖 Documentation
 
 Is available at 'docs/'
+
+## CRITICAL: File Editing on Windows
+
+### ⚠️ MANDATORY: Always Use Backslashes on Windows for File Paths
+
+**When using Edit or MultiEdit tools on Windows, you MUST use backslashes (`\`) in file paths, NOT forward slashes (`/`).**
+
+#### ❌ WRONG - Will cause errors:
+```
+Edit(file_path: "tests/cgen/escape_default_3_loop_chained.sn", ...)
+MultiEdit(file_path: "tests/cgen/escape_default_3_loop_chained.sn", ...)
+```
+
+#### ✅ CORRECT - Always works:
+```
+Edit(file_path: ".\tests\cgen\escape_default_3_loop_chained.sn", ...)
+MultiEdit(file_path: ".\tests\cgen\escape_default_3_loop_chained.sn", ...)

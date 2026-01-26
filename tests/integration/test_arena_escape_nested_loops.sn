@@ -1,0 +1,34 @@
+// Integration test: String Accumulation in Nested Loops
+//
+// This test verifies that string values can be accumulated across
+// nested loop iterations. All loops share the function's arena.
+
+fn main(): int =>
+    print("Arena Escape Nested Loop Test\n")
+    print("=============================\n\n")
+
+    var result: str = ""
+
+    for var i: int = 1; i <= 2; i++ =>
+        var outer_str: str = ""
+
+        for var j: int = 1; j <= 2; j++ =>
+            outer_str = outer_str + $"({i},{j}) "
+
+        result = result + "[" + outer_str + "]\n"
+
+    print("Result:\n")
+    print(result)
+
+    print("\nExpected:\n")
+    print("[(1,1) (1,2) ]\n")
+    print("[(2,1) (2,2) ]\n")
+
+    var expected: str = "[(1,1) (1,2) ]\n[(2,1) (2,2) ]\n"
+
+    if result == expected =>
+        print("\nPASS: Arena escapes work correctly!\n")
+        return 0
+    else =>
+        print("\nFAIL: Result doesn't match expected!\n")
+        return 1

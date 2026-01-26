@@ -162,7 +162,7 @@ Future SDK versions may introduce a `Result` type for recoverable error handling
 SDK types integrate with Sindarin's arena-based memory management:
 
 - **Automatic cleanup**: Resources are released when their arena is destroyed
-- **Private blocks**: Use `private =>` for guaranteed cleanup scope
+- **Private functions**: Use `private fn` for guaranteed cleanup of temporary resources
 - **Explicit release**: Call `.close()` for immediate resource release
 
 ```sindarin

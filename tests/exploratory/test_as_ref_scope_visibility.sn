@@ -5,13 +5,13 @@
 fn main(): int =>
     print("Test 'as ref' mutation visibility across scopes:\n\n")
 
-    // Test 1: Basic as ref mutation in nested scope
+    // Test 1: Basic as ref mutation in conditional
     var counter: int as ref = 0
     print($"Initial counter: {counter}\n")
 
-    shared =>
+    if true =>
         counter = counter + 10
-    print($"After shared block: {counter}\n")
+    print($"After conditional: {counter}\n")
 
     // Test 2: as ref mutation in loops
     var total: int as ref = 0
@@ -19,26 +19,21 @@ fn main(): int =>
         total = total + i
     print($"Sum 1-5 (as ref): {total}\n")
 
-    // Test 3: as ref mutation across multiple nested scopes
+    // Test 3: as ref mutation across multiple nested loops
     var depth_test: int as ref = 1
-    shared =>
+    for var i: int = 0; i < 3; i++ =>
         depth_test = depth_test * 2
-        shared =>
-            depth_test = depth_test * 2
-            shared =>
-                depth_test = depth_test * 2
-    print($"After nested multiplications (1*2*2*2): {depth_test}\n")
+    print($"After loop multiplications (1*2*2*2): {depth_test}\n")
 
-    // Test 4: Multiple as ref variables in same scope
+    // Test 4: Multiple as ref variables with swap
     var a: int as ref = 10
     var b: int as ref = 20
     var c: int as ref = 30
 
-    shared =>
-        var temp: int = a
-        a = b
-        b = c
-        c = temp
+    var temp: int = a
+    a = b
+    b = c
+    c = temp
     print($"After swap: a={a}, b={b}, c={c}\n")
 
     // Test 5: as ref in conditional blocks
@@ -59,35 +54,25 @@ fn main(): int =>
 
     // Test 7: as ref with double type
     var pi_approx: double as ref = 3.0
-    shared =>
-        pi_approx = pi_approx + 0.14159
+    pi_approx = pi_approx + 0.14159
     print($"Pi approximation: {pi_approx}\n")
 
     // Test 8: as ref with bool type
     var toggle: bool as ref = false
     print($"Toggle before: {toggle}\n")
-    shared =>
-        toggle = !toggle
-    shared =>
-        toggle = !toggle
-    shared =>
-        toggle = !toggle
+    toggle = !toggle
+    toggle = !toggle
+    toggle = !toggle
     print($"Toggle after 3 flips: {toggle}\n")
 
-    // Test 9: as ref mutation in private block (primitives CAN escape)
-    var from_private: int as ref = 0
-    private =>
-        from_private = 999
-    print($"As ref from private block: {from_private}\n")
-
-    // Test 10: as ref in foreach loop
+    // Test 9: as ref in foreach loop
     var sum_array: int as ref = 0
     var nums: int[] = {10, 20, 30, 40}
     for n in nums =>
         sum_array = sum_array + n
     print($"Sum of array: {sum_array}\n")
 
-    // Verify all tests passed using error counter to avoid bool comparison issues
+    // Verify all tests passed using error counter
     var errors: int = 0
     if counter != 10 => errors++
     if total != 15 => errors++
@@ -101,7 +86,6 @@ fn main(): int =>
     var toggle_int: int = 0
     if toggle => toggle_int = 1
     if toggle_int != 1 => errors++
-    if from_private != 999 => errors++
     if sum_array != 100 => errors++
 
     if errors == 0 =>
