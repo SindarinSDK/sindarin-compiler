@@ -658,22 +658,6 @@ if(SN_BUNDLE_YYJSON)
     endif()
 endif()
 
-# Install bundled deps for packaging
-if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
-    # Check if there are any files to install
-    file(GLOB DEPS_HEADERS "${SN_DEPS_DIR}/include/*")
-    file(GLOB DEPS_LIBS "${SN_DEPS_DIR}/lib/*")
-    if(DEPS_HEADERS OR DEPS_LIBS)
-        install(DIRECTORY ${SN_DEPS_DIR}/
-            DESTINATION ${SN_SDK_INSTALL_DIR}/deps
-            COMPONENT deps
-        )
-        set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk deps)
-        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson, libxml2, libyaml)")
-        set(CPACK_COMPONENT_DEPS_DEPENDS runtime)
-    endif()
-endif()
-
 #------------------------------------------------------------------------------
 # CPack Configuration
 #------------------------------------------------------------------------------
@@ -693,8 +677,24 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 endif()
 
-# Components
+# Components (base set, deps added conditionally below)
 set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk)
+
+# Install bundled deps for packaging
+if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
+    # Check if there are any files to install
+    file(GLOB DEPS_HEADERS "${SN_DEPS_DIR}/include/*")
+    file(GLOB DEPS_LIBS "${SN_DEPS_DIR}/lib/*")
+    if(DEPS_HEADERS OR DEPS_LIBS)
+        install(DIRECTORY ${SN_DEPS_DIR}/
+            DESTINATION ${SN_SDK_INSTALL_DIR}/deps
+            COMPONENT deps
+        )
+        list(APPEND CPACK_COMPONENTS_ALL deps)
+        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson, libxml2, libyaml)")
+        set(CPACK_COMPONENT_DEPS_DEPENDS runtime)
+    endif()
+endif()
 set(CPACK_COMPONENT_COMPILER_DISPLAY_NAME "Sindarin Compiler")
 set(CPACK_COMPONENT_COMPILER_REQUIRED ON)
 set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "Runtime Libraries")
