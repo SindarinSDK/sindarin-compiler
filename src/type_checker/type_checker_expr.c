@@ -831,7 +831,7 @@ static Type *type_check_thread_spawn(Expr *expr, SymbolTable *table)
      * declared_func_mod (what the user wrote). For thread spawning, we need the
      * declared modifier because:
      * - Default mode: thread gets own arena, results are promoted to caller's arena
-     * - Shared mode: thread uses caller's frozen arena, no promotion needed
+     * - Shared mode: thread uses caller's arena directly, no promotion needed
      * Functions that are "implicitly shared" (return heap types) use declared=default
      * but effective=shared, so they spawn in default mode with result promotion. */
     FunctionModifier func_modifier = FUNC_DEFAULT;
@@ -877,26 +877,6 @@ static Type *type_check_thread_spawn(Expr *expr, SymbolTable *table)
         {
             type_error(expr->token, "Private function can only return primitive types");
             return NULL;
-        }
-    }
-
-    /* Freeze variables passed as arguments that are captured by reference.
-     * Arrays and strings are always passed by reference.
-     * Primitives with 'as ref' are also passed by reference.
-     * Frozen variables cannot be modified while thread is running. */
-    int arg_count = call->as.call.arg_count;
-    Expr **arguments = call->as.call.arguments;
-    MemoryQualifier *param_quals = func_type->as.function.param_mem_quals;
-    int param_count = func_type->as.function.param_count;
-
-    for (int i = 0; i < arg_count; i++)
-    {
-        Expr *arg = arguments[i];
-        if (arg == NULL) continue;
-
-        /* Only freeze variable references that are passed by reference */
-        if (arg->type == EXPR_VARIABLE)
-        {
         }
     }
 
