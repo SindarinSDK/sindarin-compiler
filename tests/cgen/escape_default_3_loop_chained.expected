@@ -1,6 +1,0 @@
-Chained escape test (3 loops):
-Each value escapes one level at a time
-<([d4:i=1,j=1,k=1]->d3 [d4:i=1,j=1,k=2]->d3 )->d2 ([d4:i=1,j=2,k=1]->d3 [d4:i=1,j=2,k=2]->d3 )->d2 >->d1
-<([d4:i=2,j=1,k=1]->d3 [d4:i=2,j=1,k=2]->d3 )->d2 ([d4:i=2,j=2,k=1]->d3 [d4:i=2,j=2,k=2]->d3 )->d2 >->d1
-
-PASS: All values survived chained escape

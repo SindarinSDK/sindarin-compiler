@@ -378,41 +378,9 @@ static char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
             /* In handle mode, string temp is RtHandle — pin to get char* for boxing.
-             * Use the variable's pin_arena if available, as the handle may belong
-             * to a parent arena (e.g., when accessing array elements in a loop).
-             * For struct member access, use rt_managed_pin_any to search the arena tree. */
-            const char *pin_arena = ARENA_VAR(gen);
-            const char *pin_func = "rt_managed_pin_any";  /* Default to searching arena tree */
-            if (call->arguments[i]->type == EXPR_VARIABLE)
-            {
-                Symbol *arg_sym = symbol_table_lookup_symbol(gen->symbol_table,
-                    call->arguments[i]->as.variable.name);
-                if (arg_sym != NULL && arg_sym->pin_arena != NULL)
-                {
-                    pin_arena = arg_sym->pin_arena;
-                    pin_func = "rt_managed_pin";
-                }
-            }
-            else if (call->arguments[i]->type == EXPR_MEMBER ||
-                     call->arguments[i]->type == EXPR_MEMBER_ACCESS)
-            {
-                /* Struct member access - look up the struct variable's pin_arena */
-                Expr *object = call->arguments[i]->type == EXPR_MEMBER
-                    ? call->arguments[i]->as.member.object
-                    : call->arguments[i]->as.member_access.object;
-                if (object != NULL && object->type == EXPR_VARIABLE)
-                {
-                    Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table,
-                        object->as.variable.name);
-                    if (obj_sym != NULL && obj_sym->pin_arena != NULL)
-                    {
-                        pin_arena = obj_sym->pin_arena;
-                        pin_func = "rt_managed_pin";
-                    }
-                }
-            }
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)%s(%s, %s));\n",
-                                   result, i, box_func, pin_func, pin_arena, arg_temps[i]);
+             * rt_managed_pin automatically walks the parent chain to find handles. */
+            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_managed_pin(%s, %s));\n",
+                                   result, i, box_func, ARENA_VAR(gen), arg_temps[i]);
         }
         else
         {
@@ -764,39 +732,9 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
             /* In handle mode, string temps are RtHandle — pin before boxing.
-             * Use the variable's pin_arena if available, otherwise search arena tree. */
-            const char *pin_arena = ARENA_VAR(gen);
-            const char *pin_func = "rt_managed_pin_any";
-            if (arguments[i]->type == EXPR_VARIABLE)
-            {
-                Symbol *arg_sym = symbol_table_lookup_symbol(gen->symbol_table,
-                    arguments[i]->as.variable.name);
-                if (arg_sym != NULL && arg_sym->pin_arena != NULL)
-                {
-                    pin_arena = arg_sym->pin_arena;
-                    pin_func = "rt_managed_pin";
-                }
-            }
-            else if (arguments[i]->type == EXPR_MEMBER ||
-                     arguments[i]->type == EXPR_MEMBER_ACCESS)
-            {
-                /* Struct member access - look up the struct variable's pin_arena */
-                Expr *object = arguments[i]->type == EXPR_MEMBER
-                    ? arguments[i]->as.member.object
-                    : arguments[i]->as.member_access.object;
-                if (object != NULL && object->type == EXPR_VARIABLE)
-                {
-                    Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table,
-                        object->as.variable.name);
-                    if (obj_sym != NULL && obj_sym->pin_arena != NULL)
-                    {
-                        pin_arena = obj_sym->pin_arena;
-                        pin_func = "rt_managed_pin";
-                    }
-                }
-            }
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)%s(%s, %s));\n",
-                                   result, arg_idx, box_func, pin_func, pin_arena, arg_temps[i]);
+             * rt_managed_pin automatically walks the parent chain to find handles. */
+            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_managed_pin(%s, %s));\n",
+                                   result, arg_idx, box_func, ARENA_VAR(gen), arg_temps[i]);
         }
         else
         {
@@ -2346,14 +2284,13 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
         if (gen->current_arena_var != NULL && !gen->expr_as_handle && ret_type != NULL &&
             (ret_type->kind == TYPE_STRING || ret_type->kind == TYPE_ARRAY))
         {
-            const char *pin_arena = gen->function_arena_var ? gen->function_arena_var : "__local_arena__";
             if (ret_type->kind == TYPE_STRING) {
                 call_expr = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                          pin_arena, call_expr);
+                                          ARENA_VAR(gen), call_expr);
             } else {
                 const char *elem_c = get_c_array_elem_type(gen->arena, ret_type->as.array.element_type);
                 call_expr = arena_sprintf(gen->arena, "(((%s *)rt_managed_pin_array(%s, %s)))",
-                                          elem_c, pin_arena, call_expr);
+                                          elem_c, ARENA_VAR(gen), call_expr);
             }
         }
         return call_expr;
@@ -2396,19 +2333,9 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            /* Use the variable's pin_arena if available (e.g., loop variable with elements
-             * in parent arena), otherwise use current arena */
-            const char *pin_arena = ARENA_VAR(gen);
-            if (call->arguments[i]->type == EXPR_VARIABLE)
-            {
-                Symbol *arg_sym = symbol_table_lookup_symbol(gen->symbol_table, call->arguments[i]->as.variable.name);
-                if (arg_sym != NULL && arg_sym->pin_arena != NULL)
-                {
-                    pin_arena = arg_sym->pin_arena;
-                }
-            }
+            /* rt_managed_pin_string_array walks the parent chain to find handles. */
             arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
-                                         pin_arena, handle_expr);
+                                         ARENA_VAR(gen), handle_expr);
         }
         else
         {

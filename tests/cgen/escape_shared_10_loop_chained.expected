@@ -1,4 +1,0 @@
-Shared chained test (10 loops):
-All values allocated directly in caller arena
-Path: d11->d10 ->d9 ->d8 ->d7 ->d6 ->d5 ->d4 ->d3 ->d2 ->d1
-PASS: All shared allocations succeeded

@@ -738,9 +738,13 @@ RtHandle rt_managed_clone_prefer_parent(RtManagedArena *dest, RtManagedArena *sr
 
 /* ============================================================================
  * Public API: Pin / Unpin
+ * ============================================================================
+ * Pin functions walk the arena parent chain to find handles.
+ * This simplifies code generation - no need to track which arena owns a handle.
  * ============================================================================ */
 
-void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
+/* Direct pin from a specific arena (no parent walk). Used internally. */
+static void *rt_managed_pin_direct(RtManagedArena *ma, RtHandle h)
 {
     if (ma == NULL || h == RT_HANDLE_NULL || h >= ma->table_count) {
         return NULL;
@@ -755,6 +759,31 @@ void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
     }
 
     return entry->ptr;
+}
+
+/* Pin a handle, searching the arena tree (self, parents, root) to find it.
+ * This is the primary pin function - handles can come from any parent scope. */
+void *rt_managed_pin(RtManagedArena *ma, RtHandle h)
+{
+    if (ma == NULL || h == RT_HANDLE_NULL) {
+        return NULL;
+    }
+
+    /* Try current arena first (most common case) - verify entry is valid */
+    if (is_handle_valid_in_arena(ma, h)) {
+        return rt_managed_pin_direct(ma, h);
+    }
+
+    /* Walk up parent chain to find the arena containing this handle */
+    RtManagedArena *search = ma->parent;
+    while (search != NULL) {
+        if (is_handle_valid_in_arena(search, h)) {
+            return rt_managed_pin_direct(search, h);
+        }
+        search = search->parent;
+    }
+
+    return NULL;
 }
 
 void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
@@ -772,32 +801,10 @@ void rt_managed_unpin(RtManagedArena *ma, RtHandle h)
     }
 }
 
-/* Pin from any arena in the tree (self, parents, or root).
- * Tries the given arena first, then walks up to parent arenas.
- * Used when handles may come from parent scopes (e.g., globals in main arena).
- * Important: Verifies the handle is actually valid in each arena before pinning,
- * to avoid incorrectly matching an index that exists in the wrong arena. */
+/* Legacy alias for rt_managed_pin (both now walk the parent chain) */
 void *rt_managed_pin_any(RtManagedArena *ma, RtHandle h)
 {
-    if (ma == NULL || h == RT_HANDLE_NULL) {
-        return NULL;
-    }
-
-    /* Try current arena first (most common case) - verify entry is valid */
-    if (is_handle_valid_in_arena(ma, h)) {
-        return rt_managed_pin(ma, h);
-    }
-
-    /* Walk up parent chain to find the arena containing this handle */
-    RtManagedArena *search = ma->parent;
-    while (search != NULL) {
-        if (is_handle_valid_in_arena(search, h)) {
-            return rt_managed_pin(search, h);
-        }
-        search = search->parent;
-    }
-
-    return NULL;
+    return rt_managed_pin(ma, h);
 }
 
 /* ============================================================================

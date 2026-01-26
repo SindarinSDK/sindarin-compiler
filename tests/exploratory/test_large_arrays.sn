@@ -23,7 +23,7 @@ fn main(): int =>
     // Test 3: Building array dynamically (using shared loop for memory safety)
     print("\nTest 3 - Build array with push (500 elements):\n")
     var dynamic: int[] = {}
-    shared for i in 0..500 =>
+    for i in 0..500 =>
         dynamic.push(i * 2)
     print($"  Length after 500 pushes: {dynamic.length}\n")
     print($"  First: {dynamic[0]}, Last: {dynamic[499]}\n")
@@ -68,16 +68,13 @@ fn main(): int =>
     print($"  Combined length: {combined.length}\n")
     print($"  Element 99: {combined[99]}, Element 100: {combined[100]}\n")
 
-    // Test 8: Memory cleanup after scope
-    print("\nTest 8 - Array in private block (memory cleanup):\n")
-    var survived: int = 0
-    private =>
-        var temp_large: int[] = 0..500
-        var temp_sum: int = 0
-        for n in temp_large =>
-            temp_sum = temp_sum + n
-        survived = temp_sum
-    print($"  Sum survived from private block: {survived}\n")
+    // Test 8: Large array sum
+    print("\nTest 8 - Array sum (large range):\n")
+    var temp_large: int[] = 0..500
+    var temp_sum: int = 0
+    for n in temp_large =>
+        temp_sum = temp_sum + n
+    print($"  Sum of 0..500: {temp_sum}\n")
 
     // Test 9: Reverse large array
     print("\nTest 9 - Reverse 100-element array:\n")
@@ -111,7 +108,7 @@ fn main(): int =>
     if large1[0] != 0 => errors++
     if cloned[0] != 9999 => errors++
     if combined.length != 200 => errors++
-    if survived != 124750 => errors++
+    if temp_sum != 124750 => errors++
     if to_reverse[0] != 99 => errors++
     if to_reverse[99] != 0 => errors++
     // Workaround for bool comparison bug - convert to int

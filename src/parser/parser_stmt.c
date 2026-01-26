@@ -191,11 +191,11 @@ Stmt *parser_statement(Parser *parser)
     }
     if (parser_match(parser, TOKEN_WHILE))
     {
-        return parser_while_statement(parser, false);
+        return parser_while_statement(parser);
     }
     if (parser_match(parser, TOKEN_FOR))
     {
-        return parser_for_statement(parser, false);
+        return parser_for_statement(parser);
     }
     if (parser_match(parser, TOKEN_BREAK))
     {
@@ -224,51 +224,35 @@ Stmt *parser_statement(Parser *parser)
         return parser_block_statement(parser);
     }
 
-    // Parse shared => block, shared while, shared for, or private => block
+    // Disallow shared/private blocks - these modifiers only apply to functions now
     if (parser_check(parser, TOKEN_SHARED))
     {
-        Token block_token = parser->current;
         parser_advance(parser);  // consume shared
 
-        // Check if followed by while or for (shared loop)
-        if (parser_match(parser, TOKEN_WHILE))
+        // Check if it's a loop (already disallowed) or block
+        if (parser_check(parser, TOKEN_WHILE) || parser_check(parser, TOKEN_FOR))
         {
-            return parser_while_statement(parser, true);
+            parser_error_at_current(parser,
+                "'shared' modifier on loops is no longer supported. "
+                "All loops now share the function's arena by default.");
         }
-        if (parser_match(parser, TOKEN_FOR))
+        else
         {
-            return parser_for_statement(parser, true);
+            parser_error_at_current(parser,
+                "'shared' blocks are no longer supported. "
+                "Use 'shared' modifier on functions instead.");
         }
-
-        // Otherwise it's a shared block
-        parser_consume(parser, TOKEN_ARROW, "Expected '=>' after shared");
-        skip_newlines(parser);
-
-        Stmt *block = parser_indented_block(parser);
-        if (block == NULL)
-        {
-            block = ast_create_block_stmt(parser->arena, NULL, 0, &block_token);
-        }
-        block->as.block.modifier = BLOCK_SHARED;
-        return block;
+        return NULL;
     }
 
-    // Parse private => block
     if (parser_check(parser, TOKEN_PRIVATE))
     {
-        Token block_token = parser->current;
         parser_advance(parser);  // consume private
 
-        parser_consume(parser, TOKEN_ARROW, "Expected '=>' after private");
-        skip_newlines(parser);
-
-        Stmt *block = parser_indented_block(parser);
-        if (block == NULL)
-        {
-            block = ast_create_block_stmt(parser->arena, NULL, 0, &block_token);
-        }
-        block->as.block.modifier = BLOCK_PRIVATE;
-        return block;
+        parser_error_at_current(parser,
+            "'private' blocks are no longer supported. "
+            "Use 'private' modifier on functions instead.");
+        return NULL;
     }
 
     // Parse lock(expr) => block
@@ -433,7 +417,7 @@ Stmt *parser_declaration(Parser *parser)
             }
         }
         /* If not a function context, fall through to parser_statement
-         * which handles shared/private blocks and shared loops */
+         * which will error on shared/private blocks (no longer supported) */
     }
 
     if (parser_check(parser, TOKEN_STATIC))

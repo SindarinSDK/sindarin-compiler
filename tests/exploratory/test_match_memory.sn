@@ -113,19 +113,15 @@ fn test_private_match(): void =>
     assert(private_classify(99) == 99, "private 99")
     print("PASS\n")
 
-fn test_private_block_with_match(): void =>
-    print("test_private_block_with_match: ")
-    var result: int = 0
+fn test_local_scope_with_match(): void =>
+    print("test_local_scope_with_match: ")
+    var code: int = 42
+    var result: int = match code =>
+        10 => 100
+        42 => 420
+        else => 0
 
-    private =>
-        var code: int = 42
-        var v: int = match code =>
-            10 => 100
-            42 => 420
-            else => 0
-        result = v
-
-    assert(result == 420, "private block match failed")
+    assert(result == 420, "local scope match failed")
     print("PASS\n")
 
 fn test_match_in_loop_shared(): void =>
@@ -148,7 +144,7 @@ fn main(): void =>
     test_shared_match_statement()
     test_shared_match_multiline()
     test_private_match()
-    test_private_block_with_match()
+    test_local_scope_with_match()
     test_match_in_loop_shared()
 
     print("\nAll match memory context tests passed!\n")

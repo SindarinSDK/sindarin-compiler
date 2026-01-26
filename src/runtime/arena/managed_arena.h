@@ -265,11 +265,10 @@ static inline void *rt_managed_pin_array(RtManagedArena *ma, RtHandle h) {
     return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
 }
 
-/* Pin an array from any arena in tree (for parameters that may hold global handles) */
+/* Pin an array from any arena in tree - legacy alias, now same as rt_managed_pin_array
+ * since rt_managed_pin now walks the parent chain automatically. */
 static inline void *rt_managed_pin_array_any(RtManagedArena *ma, RtHandle h) {
-    void *raw = rt_managed_pin_any(ma, h);
-    if (!raw) return NULL;
-    return (void *)((char *)raw + sizeof(void *) + sizeof(size_t) + sizeof(size_t));
+    return rt_managed_pin_array(ma, h);
 }
 
 /* ============================================================================

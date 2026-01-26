@@ -253,8 +253,9 @@ static void test_function_default_modifier_parsing()
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_shared_block_parsing()
+static void test_shared_block_error()
 {
+    /* shared blocks are no longer supported - parser should error */
     Arena arena;
     Lexer lexer;
     Parser parser;
@@ -267,20 +268,15 @@ static void test_shared_block_parsing()
 
     Module *module = parser_execute(&parser, "test.sn");
 
-    assert(module != NULL);
-    assert(module->count == 1);
-    Stmt *fn = module->statements[0];
-    assert(fn->type == STMT_FUNCTION);
-    assert(fn->as.function.body_count == 1);
-    Stmt *block = fn->as.function.body[0];
-    assert(block->type == STMT_BLOCK);
-    assert(block->as.block.modifier == BLOCK_SHARED);
+    /* Parser should produce an error for shared blocks */
+    assert(parser.had_error == true);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_private_block_parsing()
+static void test_private_block_error()
 {
+    /* private blocks are no longer supported - parser should error */
     Arena arena;
     Lexer lexer;
     Parser parser;
@@ -293,73 +289,13 @@ static void test_private_block_parsing()
 
     Module *module = parser_execute(&parser, "test.sn");
 
-    assert(module != NULL);
-    assert(module->count == 1);
-    Stmt *fn = module->statements[0];
-    assert(fn->type == STMT_FUNCTION);
-    assert(fn->as.function.body_count == 1);
-    Stmt *block = fn->as.function.body[0];
-    assert(block->type == STMT_BLOCK);
-    assert(block->as.block.modifier == BLOCK_PRIVATE);
+    /* Parser should produce an error for private blocks */
+    assert(parser.had_error == true);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_shared_while_loop_parsing()
-{
-    Arena arena;
-    Lexer lexer;
-    Parser parser;
-    SymbolTable symbol_table;
-    const char *source =
-        "fn main(): void =>\n"
-        "  var i: int = 0\n"
-        "  shared while i < 10 =>\n"
-        "    i = i + 1\n";
-    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
-
-    Module *module = parser_execute(&parser, "test.sn");
-
-    assert(module != NULL);
-    assert(module->count == 1);
-    Stmt *fn = module->statements[0];
-    assert(fn->type == STMT_FUNCTION);
-    assert(fn->as.function.body_count == 2);
-    Stmt *while_stmt = fn->as.function.body[1];
-    assert(while_stmt->type == STMT_WHILE);
-    assert(while_stmt->as.while_stmt.is_shared == true);
-
-    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
-}
-
-static void test_shared_for_each_loop_parsing()
-{
-    Arena arena;
-    Lexer lexer;
-    Parser parser;
-    SymbolTable symbol_table;
-    const char *source =
-        "fn main(): void =>\n"
-        "  var arr: int[] = {1, 2, 3}\n"
-        "  shared for x in arr =>\n"
-        "    print($\"{x}\\n\")\n";
-    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
-
-    Module *module = parser_execute(&parser, "test.sn");
-
-    assert(module != NULL);
-    assert(module->count == 1);
-    Stmt *fn = module->statements[0];
-    assert(fn->type == STMT_FUNCTION);
-    assert(fn->as.function.body_count == 2);
-    Stmt *for_stmt = fn->as.function.body[1];
-    assert(for_stmt->type == STMT_FOR_EACH);
-    assert(for_stmt->as.for_each_stmt.is_shared == true);
-
-    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
-}
-
-static void test_regular_while_loop_not_shared_parsing()
+static void test_while_loop_structure_parsing()
 {
     Arena arena;
     Lexer lexer;
@@ -381,12 +317,11 @@ static void test_regular_while_loop_not_shared_parsing()
     assert(fn->as.function.body_count == 2);
     Stmt *while_stmt = fn->as.function.body[1];
     assert(while_stmt->type == STMT_WHILE);
-    assert(while_stmt->as.while_stmt.is_shared == false);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_regular_for_each_loop_not_shared_parsing()
+static void test_for_each_loop_structure_parsing()
 {
     Arena arena;
     Lexer lexer;
@@ -408,45 +343,11 @@ static void test_regular_for_each_loop_not_shared_parsing()
     assert(fn->as.function.body_count == 2);
     Stmt *for_stmt = fn->as.function.body[1];
     assert(for_stmt->type == STMT_FOR_EACH);
-    assert(for_stmt->as.for_each_stmt.is_shared == false);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_shared_cstyle_for_loop_parsing()
-{
-    Arena arena;
-    Lexer lexer;
-    Parser parser;
-    SymbolTable symbol_table;
-    const char *source =
-        "fn main(): void =>\n"
-        "  var sum: int = 0\n"
-        "  shared for var i: int = 0; i < 5; i++ =>\n"
-        "    sum = sum + i\n";
-    setup_parser(&arena, &lexer, &parser, &symbol_table, source);
-
-    Module *module = parser_execute(&parser, "test.sn");
-
-    assert(module != NULL);
-    assert(module->count == 1);
-    Stmt *fn = module->statements[0];
-    assert(fn->type == STMT_FUNCTION);
-    assert(fn->as.function.body_count == 2);
-    Stmt *for_stmt = fn->as.function.body[1];
-    assert(for_stmt->type == STMT_FOR);
-    assert(for_stmt->as.for_stmt.is_shared == true);
-    /* Verify loop structure */
-    assert(for_stmt->as.for_stmt.initializer != NULL);
-    assert(for_stmt->as.for_stmt.initializer->type == STMT_VAR_DECL);
-    assert(for_stmt->as.for_stmt.condition != NULL);
-    assert(for_stmt->as.for_stmt.increment != NULL);
-    assert(for_stmt->as.for_stmt.body != NULL);
-
-    cleanup_parser(&arena, &lexer, &parser, &symbol_table);
-}
-
-static void test_regular_cstyle_for_loop_not_shared_parsing()
+static void test_cstyle_for_loop_structure_parsing()
 {
     Arena arena;
     Lexer lexer;
@@ -468,7 +369,6 @@ static void test_regular_cstyle_for_loop_not_shared_parsing()
     assert(fn->as.function.body_count == 2);
     Stmt *for_stmt = fn->as.function.body[1];
     assert(for_stmt->type == STMT_FOR);
-    assert(for_stmt->as.for_stmt.is_shared == false);
     /* Verify loop structure */
     assert(for_stmt->as.for_stmt.initializer != NULL);
     assert(for_stmt->as.for_stmt.condition != NULL);
@@ -633,14 +533,11 @@ static void test_parser_memory_main()
     TEST_RUN("function_static_toplevel_error", test_function_static_toplevel_error);
     TEST_RUN("shared_native_fn_modifier_parsing", test_shared_native_fn_modifier_parsing);
     TEST_RUN("private_native_fn_modifier_parsing", test_private_native_fn_modifier_parsing);
-    TEST_RUN("shared_block_parsing", test_shared_block_parsing);
-    TEST_RUN("private_block_parsing", test_private_block_parsing);
-    TEST_RUN("shared_while_loop_parsing", test_shared_while_loop_parsing);
-    TEST_RUN("shared_for_each_loop_parsing", test_shared_for_each_loop_parsing);
-    TEST_RUN("shared_cstyle_for_loop_parsing", test_shared_cstyle_for_loop_parsing);
-    TEST_RUN("regular_while_loop_not_shared_parsing", test_regular_while_loop_not_shared_parsing);
-    TEST_RUN("regular_for_each_loop_not_shared_parsing", test_regular_for_each_loop_not_shared_parsing);
-    TEST_RUN("regular_cstyle_for_loop_not_shared_parsing", test_regular_cstyle_for_loop_not_shared_parsing);
+    TEST_RUN("shared_block_error", test_shared_block_error);
+    TEST_RUN("private_block_error", test_private_block_error);
+    TEST_RUN("while_loop_parsing", test_while_loop_structure_parsing);
+    TEST_RUN("for_each_loop_parsing", test_for_each_loop_structure_parsing);
+    TEST_RUN("cstyle_for_loop_parsing", test_cstyle_for_loop_structure_parsing);
     TEST_RUN("import_without_namespace_parsing", test_import_without_namespace_parsing);
     TEST_RUN("import_with_namespace_parsing", test_import_with_namespace_parsing);
     TEST_RUN("import_with_underscore_namespace_parsing", test_import_with_underscore_namespace_parsing);

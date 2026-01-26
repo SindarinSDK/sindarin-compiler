@@ -45,7 +45,7 @@ fn main(): int =>
     var grid_row0: int[] = {}
     var grid_row1: int[] = {}
     var grid_row2: int[] = {}
-    shared for i in 0..3 =>
+    for i in 0..3 =>
         grid_row0.push(i)
         grid_row1.push(i + 3)
         grid_row2.push(i + 6)

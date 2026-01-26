@@ -32,22 +32,11 @@ typedef struct {
 
     /* Arena context for memory management */
     int arena_depth;            // Current arena nesting level
-    bool in_shared_context;     // Are we in a shared block/loop?
+    bool in_shared_context;     // Are we in a shared block?
     bool in_private_context;    // Are we in a private block/function?
     char *current_arena_var;    // Name of current arena variable (e.g., "__arena__")
-    char *function_arena_var;   // Arena variable for the function scope (doesn't change in loops)
+    char *function_arena_var;   // Arena variable for the function scope
     FunctionModifier current_func_modifier;  // Current function's modifier
-
-    /* Loop arena for per-iteration cleanup */
-    char *loop_arena_var;       // Name of current loop's per-iteration arena (NULL if shared loop)
-    char *loop_cleanup_label;   // Label for loop cleanup (used by break/continue)
-    char *loop_outer_arena_var; // Arena var that was current before entering the loop (for escape cloning)
-
-    /* Loop arena stack for nested loops - tracks active loop arenas for proper cleanup */
-    char **loop_arena_stack;    // Stack of loop arena variable names
-    char **loop_cleanup_stack;  // Stack of loop cleanup label names
-    int loop_arena_depth;       // Current loop nesting depth (0 = not in loop)
-    int loop_arena_capacity;    // Capacity of loop arena stacks
 
     /* Loop counter tracking for optimization - tracks variables known to be non-negative */
     char **loop_counter_names;  // Names of loop counter variables (provably non-negative)

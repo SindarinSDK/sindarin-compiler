@@ -14,23 +14,18 @@
 #include <stdlib.h>
 
 /* Helper to get the arena to use for array mutations.
- * Mutations (push/pop/insert/remove/reverse) must use the function-level arena
- * so that reallocated handles survive loop iterations (loop arenas are child arenas
- * that get destroyed each iteration). */
+ * Mutations (push/pop/insert/remove/reverse) must allocate in the arena that
+ * owns the array handle. For globals, that's __main_arena__; for locals/params,
+ * it's the function's arena. */
 static const char *get_arena_for_mutation(CodeGen *gen, Expr *object)
 {
     if (object->type == EXPR_VARIABLE) {
         Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, object->as.variable.name);
         if (sym && is_handle_type(sym->type)) {
-            if (sym->pin_arena == NULL && sym->kind != SYMBOL_PARAM) {
-                /* Global variables (declared without an arena context) must be mutated
-                 * using __main_arena__ so that reallocated handles persist across function calls. */
+            if (sym->kind == SYMBOL_GLOBAL) {
+                /* Global variables must be mutated using __main_arena__ so that
+                 * reallocated handles persist across function calls. */
                 return "__main_arena__";
-            }
-            if (sym->pin_arena != NULL) {
-                /* Use the arena where the variable was created — the handle
-                 * is only valid in that arena's handle table. */
-                return sym->pin_arena;
             }
         }
     }
