@@ -3,12 +3,12 @@ PackageIdentifier: SindarinSDK.Sindarin
 PackageVersion: "${VERSION}"
 PackageLocale: en-US
 Publisher: Sindarin Project
-PublisherUrl: https://github.com/RealOrko/sindarin
-PublisherSupportUrl: https://github.com/RealOrko/sindarin/issues
+PublisherUrl: https://github.com/SindarinSDK/sindarin-compiler
+PublisherSupportUrl: https://github.com/SindarinSDK/sindarin-compiler/issues
 PackageName: Sindarin
-PackageUrl: https://github.com/RealOrko/sindarin
+PackageUrl: https://github.com/SindarinSDK/sindarin-compiler
 License: MIT
-LicenseUrl: https://github.com/RealOrko/sindarin/blob/main/LICENSE
+LicenseUrl: https://github.com/SindarinSDK/sindarin-compiler/blob/main/LICENSE
 ShortDescription: A statically-typed procedural language that compiles to C
 Description: |
   Sindarin is a statically-typed procedural programming language that compiles
@@ -25,6 +25,6 @@ Tags:
   - compiler
   - c
   - developer-tools
-ReleaseNotesUrl: https://github.com/RealOrko/sindarin/releases/tag/${TAG}
+ReleaseNotesUrl: https://github.com/SindarinSDK/sindarin-compiler/releases/tag/${TAG}
 ManifestType: defaultLocale
 ManifestVersion: 1.6.0
