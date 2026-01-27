@@ -132,7 +132,8 @@ bool package_git_clone(const char *url, const char *dest_path)
     package_git_init();
 
     git_repository *repo = NULL;
-    git_clone_options opts = GIT_CLONE_OPTIONS_INIT;
+    git_clone_options opts;
+    git_clone_options_init(&opts, GIT_CLONE_OPTIONS_VERSION);
     opts.fetch_opts.callbacks.credentials = credential_callback;
     cred_attempt_count = 0;
 
@@ -170,7 +171,8 @@ bool package_git_fetch(const char *repo_path)
         return false;
     }
 
-    git_fetch_options opts = GIT_FETCH_OPTIONS_INIT;
+    git_fetch_options opts;
+    git_fetch_options_init(&opts, GIT_FETCH_OPTIONS_VERSION);
     opts.callbacks.credentials = credential_callback;
     cred_attempt_count = 0;
 
@@ -228,7 +230,8 @@ bool package_git_checkout(const char *repo_path, const char *ref_name)
     }
 
     /* Checkout the tree */
-    git_checkout_options checkout_opts = GIT_CHECKOUT_OPTIONS_INIT;
+    git_checkout_options checkout_opts;
+    git_checkout_options_init(&checkout_opts, GIT_CHECKOUT_OPTIONS_VERSION);
     checkout_opts.checkout_strategy = GIT_CHECKOUT_FORCE;
 
     rc = git_checkout_tree(repo, target, &checkout_opts);
