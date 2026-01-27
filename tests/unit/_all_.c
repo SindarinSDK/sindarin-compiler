@@ -1,5 +1,9 @@
 #include "standalone/arena_tests.c"
+#include "standalone/arena_tests_edge_cases.c"
+#include "standalone/compiler_driver_tests.c"
+#include "standalone/diagnostic_tests.c"
 #include "ast/ast_tests.c"
+#include "backend/gcc_backend_tests.c"
 #include "code_gen/code_gen_tests.c"
 #include "lexer/lexer_tests.c"
 #include "optimizer/optimizer_tests.c"
@@ -9,10 +13,16 @@
 #include "runtime/runtime_string_tests.c"
 #include "runtime/runtime_array_tests.c"
 #include "runtime/runtime_thread_tests.c"
+#include "runtime/runtime_edge_cases_tests.c"
+#include "runtime/runtime_any_tests.c"
+#include "runtime/runtime_byte_tests.c"
 #include "standalone/symbol_table_tests_core.c"
 #include "standalone/symbol_table_tests_thread.c"
 #include "standalone/symbol_table_tests_namespace.c"
+#include "standalone/symbol_table_tests_edge_cases.c"
+#include "standalone/symbol_table_tests_stress.c"
 #include "standalone/token_tests.c"
+#include "standalone/token_tests_extended.c"
 #include "type_checker/type_checker_tests.c"
 #include "package/package_tests.c"
 
@@ -28,6 +38,15 @@ int main()
     // *** Arena ***
 
     test_arena_main();
+    test_arena_edge_cases_main();
+
+    // *** Compiler Driver ***
+
+    test_compiler_driver_main();
+
+    // *** Diagnostic System ***
+
+    test_diagnostic_main();
 
     // *** Runtime Arena ***
 
@@ -49,9 +68,25 @@ int main()
 
     test_rt_thread_main();
 
+    // *** Runtime Edge Cases ***
+
+    test_rt_edge_cases_main();
+
+    // *** Runtime Any Type ***
+
+    test_rt_any_main();
+
+    // *** Runtime Byte Array ***
+
+    test_rt_byte_main();
+
     // *** AST ***
     
     test_ast_main();
+
+    // *** GCC Backend ***
+
+    test_gcc_backend_main();
 
     // *** Code Gen ***
 
@@ -70,10 +105,13 @@ int main()
     test_symbol_table_core_main();
     test_symbol_table_thread_main();
     test_symbol_table_namespace_main();
+    test_symbol_table_edge_cases_main();
+    test_symbol_table_stress_main();
     
     // *** Token ***
 
     test_token_main();
+    test_token_extended_main();
 
     // *** Type Checker ***
 

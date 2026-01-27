@@ -794,12 +794,17 @@ static void test_string_no_merge_different_types(void)
     arena_free(&arena);
 }
 
+#include "optimizer_tests_edge_cases.c"
+#include "optimizer_tests_stress.c"
+
 /* ============================================================================
  * Run all tests
  * ============================================================================ */
 
 void run_optimizer_tests(void)
 {
+    run_optimizer_edge_cases_tests();
+    test_optimizer_stress_main();
     TEST_SECTION("Optimizer Tests");
 
     /* Terminator detection tests */

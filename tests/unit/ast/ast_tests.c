@@ -50,6 +50,9 @@ static Token create_dummy_token(Arena *arena, const char *lexeme)
 #include "ast_tests_expr.c"
 #include "ast_tests_stmt.c"
 #include "ast_tests_util.c"
+#include "ast_tests_edge_cases.c"
+#include "ast_tests_stress.c"
+#include "ast_tests_types.c"
 
 void test_ast_main()
 {
@@ -57,4 +60,7 @@ void test_ast_main()
     test_ast_expr_main();
     test_ast_stmt_main();
     test_ast_util_main();
+    test_ast_edge_cases_main();
+    test_ast_stress_main();
+    test_ast_types_main();
 }

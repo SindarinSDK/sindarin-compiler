@@ -11,6 +11,7 @@
 #include "code_gen_tests_memory.c"
 #include "code_gen_tests_constfold.c"
 #include "code_gen_tests_optimization.c"
+#include "code_gen_tests_helpers.c"
 
 void test_code_gen_main()
 {
@@ -21,4 +22,5 @@ void test_code_gen_main()
     test_code_gen_memory_main();
     test_code_gen_constfold_main();
     test_code_gen_optimization_main();
+    test_code_gen_helpers_main();
 }
