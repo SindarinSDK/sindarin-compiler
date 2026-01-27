@@ -131,8 +131,6 @@ static void parse_github_response(const char *json_str)
     /* Find platform-specific asset */
     yyjson_val *assets = yyjson_obj_get(root, "assets");
     if (yyjson_is_arr(assets)) {
-        const char *platform_suffix = updater_get_platform_suffix();
-
         yyjson_arr_iter iter;
         yyjson_arr_iter_init(assets, &iter);
         yyjson_val *asset;
@@ -141,7 +139,28 @@ static void parse_github_response(const char *json_str)
             yyjson_val *name = yyjson_obj_get(asset, "name");
             if (yyjson_is_str(name)) {
                 const char *asset_name = yyjson_get_str(name);
-                if (strstr(asset_name, platform_suffix)) {
+
+                /* Check for platform-specific asset with flexible matching */
+                bool is_match = false;
+#if defined(_WIN32)
+                /* Windows: look for .zip files with 'windows' in the name */
+                if (strstr(asset_name, "windows") && strstr(asset_name, ".zip")) {
+                    is_match = true;
+                }
+#elif defined(__APPLE__)
+                /* macOS: look for .tar.gz files with 'macos' or 'darwin' in the name */
+                if ((strstr(asset_name, "macos") || strstr(asset_name, "darwin")) &&
+                    strstr(asset_name, ".tar.gz")) {
+                    is_match = true;
+                }
+#else
+                /* Linux: look for .tar.gz files with 'linux' in the name */
+                if (strstr(asset_name, "linux") && strstr(asset_name, ".tar.gz") &&
+                    !strstr(asset_name, "macos") && !strstr(asset_name, "darwin")) {
+                    is_match = true;
+                }
+#endif
+                if (is_match) {
                     yyjson_val *url = yyjson_obj_get(asset, "browser_download_url");
                     if (yyjson_is_str(url)) {
                         strncpy(g_update_info.download_url, yyjson_get_str(url),
