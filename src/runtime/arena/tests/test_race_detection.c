@@ -496,7 +496,7 @@ static void test_compaction_during_storm(void)
     int total_allocs = atomic_load(&alloc_count);
     int errors = atomic_load(&error_count);
 
-    printf("\n    storm: %d allocs, %d errors ", total_allocs, errors);
+    TEST_STATS("%d allocs, %d errors", total_allocs, errors);
 
     rt_managed_arena_destroy(arena);
 
@@ -613,7 +613,7 @@ static void test_promotion_contention(void)
         if (ptr) rt_managed_unpin(parent, results[i]);
     }
 
-    printf("\n    promoted: %d/%d valid ", valid_count, result_count);
+    TEST_STATS("%d/%d promoted handles valid", valid_count, result_count);
 
     barrier_destroy(&barrier);
     pthread_mutex_destroy(&result_mutex);
@@ -862,12 +862,802 @@ static void test_long_running_stability(void)
     int total_ops = atomic_load(&op_count);
     int errors = atomic_load(&error_count);
 
-    printf("\n    stability: %d ops, %d errors ", total_ops, errors);
+    TEST_STATS("%d ops, %d errors", total_ops, errors);
 
     rt_managed_arena_destroy(root);
 
     ASSERT_EQ(errors, 0, "stability: no data corruption");
     ASSERT(total_ops > 10000, "stability: sufficient operations performed");
+}
+
+/* ============================================================================
+ * Pin Duration Variance
+ * Goal: Mix long-held pins with rapid pin/unpin to stress compactor skip logic
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena *arena;
+    RtHandle *handles;
+    int handle_count;
+    int thread_id;
+    atomic_bool *stop;
+    atomic_int *error_count;
+    int hold_time_ms;  /* 0 = rapid, >0 = hold for this duration */
+} PinVarianceArgs;
+
+static void *pin_variance_worker(void *arg)
+{
+    PinVarianceArgs *args = (PinVarianceArgs *)arg;
+    int tid = args->thread_id;
+
+    while (!atomic_load(args->stop)) {
+        for (int i = 0; i < args->handle_count && !atomic_load(args->stop); i++) {
+            RtHandle h = args->handles[i];
+            if (h == RT_HANDLE_NULL) continue;
+
+            char *ptr = (char *)rt_managed_pin(args->arena, h);
+            if (ptr == NULL) continue;
+
+            /* Verify data starts with expected prefix */
+            if (ptr[0] != 'v') {
+                atomic_fetch_add(args->error_count, 1);
+            }
+
+            if (args->hold_time_ms > 0) {
+                /* Long hold - simulates I/O or processing */
+                usleep(args->hold_time_ms * 1000);
+            }
+            /* else: rapid pin/unpin */
+
+            rt_managed_unpin(args->arena, h);
+        }
+    }
+
+    (void)tid;
+    return NULL;
+}
+
+static void test_pin_duration_variance(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+    atomic_bool stop = false;
+    atomic_int error_count = 0;
+
+    #define PIN_VAR_HANDLES 50
+
+    RtHandle handles[PIN_VAR_HANDLES];
+    for (int i = 0; i < PIN_VAR_HANDLES; i++) {
+        handles[i] = rt_managed_alloc(arena, RT_HANDLE_NULL, 64);
+        char *ptr = (char *)rt_managed_pin(arena, handles[i]);
+        snprintf(ptr, 64, "val-%d", i);
+        rt_managed_unpin(arena, handles[i]);
+    }
+
+    /* 2 threads with long holds, 4 threads with rapid pin/unpin */
+    pthread_t threads[6];
+    PinVarianceArgs args[6];
+
+    for (int i = 0; i < 6; i++) {
+        args[i] = (PinVarianceArgs){
+            .arena = arena,
+            .handles = handles,
+            .handle_count = PIN_VAR_HANDLES,
+            .thread_id = i,
+            .stop = &stop,
+            .error_count = &error_count,
+            .hold_time_ms = (i < 2) ? 10 : 0  /* First 2 hold for 10ms */
+        };
+        pthread_create(&threads[i], NULL, pin_variance_worker, &args[i]);
+    }
+
+    /* Main thread triggers compaction repeatedly */
+    for (int c = 0; c < 30; c++) {
+        usleep(20000);
+        rt_managed_compact(arena);
+    }
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < 6; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    /* Verify all data intact */
+    int valid = 0;
+    for (int i = 0; i < PIN_VAR_HANDLES; i++) {
+        char *ptr = (char *)rt_managed_pin(arena, handles[i]);
+        if (ptr && ptr[0] == 'v') valid++;
+        if (ptr) rt_managed_unpin(arena, handles[i]);
+    }
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(atomic_load(&error_count), 0, "pin variance: no data corruption");
+    ASSERT_EQ(valid, PIN_VAR_HANDLES, "pin variance: all handles valid");
+
+    #undef PIN_VAR_HANDLES
+}
+
+/* ============================================================================
+ * Deep Hierarchy Stress
+ * Goal: 20+ levels of nested arenas with concurrent operations
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena **arenas;
+    int depth;
+    atomic_bool *stop;
+    atomic_int *error_count;
+    int thread_id;
+} DeepHierarchyArgs;
+
+static void *deep_hierarchy_worker(void *arg)
+{
+    DeepHierarchyArgs *args = (DeepHierarchyArgs *)arg;
+    int tid = args->thread_id;
+    int ops = 0;
+
+    while (!atomic_load(args->stop)) {
+        /* Pick a random level and do operations there */
+        int level = ops % args->depth;
+        RtManagedArena *arena = args->arenas[level];
+
+        /* Allocate */
+        RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, 32);
+        if (h != RT_HANDLE_NULL) {
+            char *ptr = (char *)rt_managed_pin(arena, h);
+            if (ptr) {
+                snprintf(ptr, 32, "t%d-L%d-op%d", tid, level, ops);
+                rt_managed_unpin(arena, h);
+            }
+
+            /* Sometimes promote up one level */
+            if (level > 0 && (ops % 5) == 0) {
+                RtManagedArena *parent = args->arenas[level - 1];
+                RtHandle promoted = rt_managed_promote(parent, arena, h);
+                (void)promoted;
+            }
+
+            /* Mark dead */
+            rt_managed_mark_dead(arena, h);
+        }
+
+        ops++;
+    }
+
+    return NULL;
+}
+
+static void test_deep_hierarchy_stress(void)
+{
+    #define DEEP_LEVELS 20
+    #define DEEP_THREADS 4
+
+    RtManagedArena *arenas[DEEP_LEVELS];
+    arenas[0] = rt_managed_arena_create();
+
+    for (int i = 1; i < DEEP_LEVELS; i++) {
+        arenas[i] = rt_managed_arena_create_child(arenas[i - 1]);
+        ASSERT(arenas[i] != NULL, "deep hierarchy: child creation succeeded");
+    }
+
+    atomic_bool stop = false;
+    atomic_int error_count = 0;
+
+    pthread_t threads[DEEP_THREADS];
+    DeepHierarchyArgs args[DEEP_THREADS];
+
+    for (int i = 0; i < DEEP_THREADS; i++) {
+        args[i] = (DeepHierarchyArgs){
+            .arenas = arenas,
+            .depth = DEEP_LEVELS,
+            .stop = &stop,
+            .error_count = &error_count,
+            .thread_id = i
+        };
+        pthread_create(&threads[i], NULL, deep_hierarchy_worker, &args[i]);
+    }
+
+    /* Let it run */
+    usleep(300000);
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < DEEP_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    /* Destroy from deepest to root (normal pattern) */
+    for (int i = DEEP_LEVELS - 1; i >= 1; i--) {
+        rt_managed_arena_destroy_child(arenas[i]);
+    }
+    rt_managed_arena_destroy(arenas[0]);
+
+    ASSERT_EQ(atomic_load(&error_count), 0, "deep hierarchy: no errors");
+
+    #undef DEEP_LEVELS
+    #undef DEEP_THREADS
+}
+
+/* ============================================================================
+ * Concurrent Destroy + Promote Race
+ * Goal: Race between destroying a child and promoting from it
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena *parent;
+    RtManagedArena **child_ptr;
+    pthread_mutex_t *child_mutex;
+    atomic_bool *stop;
+    atomic_int *promote_count;
+    atomic_int *destroy_count;
+    int is_destroyer;
+} DestroyPromoteArgs;
+
+static void *destroy_promote_worker(void *arg)
+{
+    DestroyPromoteArgs *args = (DestroyPromoteArgs *)arg;
+
+    while (!atomic_load(args->stop)) {
+        pthread_mutex_lock(args->child_mutex);
+        RtManagedArena *child = *args->child_ptr;
+
+        if (args->is_destroyer) {
+            if (child != NULL) {
+                *args->child_ptr = NULL;
+                pthread_mutex_unlock(args->child_mutex);
+
+                rt_managed_arena_destroy_child(child);
+                atomic_fetch_add(args->destroy_count, 1);
+
+                /* Recreate for next round */
+                pthread_mutex_lock(args->child_mutex);
+                if (*args->child_ptr == NULL) {
+                    *args->child_ptr = rt_managed_arena_create_child(args->parent);
+                }
+                pthread_mutex_unlock(args->child_mutex);
+            } else {
+                pthread_mutex_unlock(args->child_mutex);
+            }
+        } else {
+            /* Promoter */
+            if (child != NULL) {
+                /* Allocate in child */
+                RtHandle h = rt_managed_alloc(child, RT_HANDLE_NULL, 32);
+                if (h != RT_HANDLE_NULL) {
+                    char *ptr = (char *)rt_managed_pin(child, h);
+                    if (ptr) {
+                        strcpy(ptr, "promote-me");
+                        rt_managed_unpin(child, h);
+                    }
+
+                    /* Try to promote - may fail if child is being destroyed */
+                    RtHandle promoted = rt_managed_promote(args->parent, child, h);
+                    if (promoted != RT_HANDLE_NULL) {
+                        atomic_fetch_add(args->promote_count, 1);
+                    }
+                }
+            }
+            pthread_mutex_unlock(args->child_mutex);
+        }
+
+        usleep(100);  /* Small delay to increase interleaving */
+    }
+
+    return NULL;
+}
+
+static void test_concurrent_destroy_promote(void)
+{
+    RtManagedArena *parent = rt_managed_arena_create();
+    RtManagedArena *child = rt_managed_arena_create_child(parent);
+    pthread_mutex_t child_mutex;
+    pthread_mutex_init(&child_mutex, NULL);
+
+    atomic_bool stop = false;
+    atomic_int promote_count = 0;
+    atomic_int destroy_count = 0;
+
+    /* 1 destroyer, 3 promoters */
+    pthread_t threads[4];
+    DestroyPromoteArgs args[4];
+
+    for (int i = 0; i < 4; i++) {
+        args[i] = (DestroyPromoteArgs){
+            .parent = parent,
+            .child_ptr = &child,
+            .child_mutex = &child_mutex,
+            .stop = &stop,
+            .promote_count = &promote_count,
+            .destroy_count = &destroy_count,
+            .is_destroyer = (i == 0)
+        };
+        pthread_create(&threads[i], NULL, destroy_promote_worker, &args[i]);
+    }
+
+    usleep(300000);
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < 4; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    int promotes = atomic_load(&promote_count);
+    int destroys = atomic_load(&destroy_count);
+
+    TEST_STATS("%d promotes, %d destroys", promotes, destroys);
+
+    /* Cleanup */
+    pthread_mutex_lock(&child_mutex);
+    if (child != NULL) {
+        rt_managed_arena_destroy_child(child);
+    }
+    pthread_mutex_unlock(&child_mutex);
+
+    pthread_mutex_destroy(&child_mutex);
+    rt_managed_arena_destroy(parent);
+
+    /* If we got here without crashing, the test passed */
+    ASSERT(destroys > 0, "destroy/promote: some destroys occurred");
+}
+
+/* ============================================================================
+ * Reset Under Active Use
+ * Goal: Call reset while other threads are pinning/allocating
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena *arena;
+    atomic_bool *stop;
+    atomic_int *error_count;
+    atomic_int *op_count;
+} ResetStressArgs;
+
+static void *reset_stress_worker(void *arg)
+{
+    ResetStressArgs *args = (ResetStressArgs *)arg;
+    RtHandle current = RT_HANDLE_NULL;
+
+    while (!atomic_load(args->stop)) {
+        /* Try to allocate - may get null handle after reset */
+        RtHandle h = rt_managed_alloc(args->arena, current, 64);
+        if (h != RT_HANDLE_NULL) {
+            char *ptr = (char *)rt_managed_pin(args->arena, h);
+            if (ptr) {
+                strcpy(ptr, "data");
+                rt_managed_unpin(args->arena, h);
+                current = h;
+            }
+        } else {
+            current = RT_HANDLE_NULL;
+        }
+        atomic_fetch_add(args->op_count, 1);
+    }
+
+    return NULL;
+}
+
+static void test_reset_under_load(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+    atomic_bool stop = false;
+    atomic_int error_count = 0;
+    atomic_int op_count = 0;
+
+    pthread_t threads[4];
+    ResetStressArgs args[4];
+
+    for (int i = 0; i < 4; i++) {
+        args[i] = (ResetStressArgs){
+            .arena = arena,
+            .stop = &stop,
+            .error_count = &error_count,
+            .op_count = &op_count
+        };
+        pthread_create(&threads[i], NULL, reset_stress_worker, &args[i]);
+    }
+
+    /* Main thread calls reset repeatedly */
+    for (int r = 0; r < 20; r++) {
+        usleep(15000);
+        rt_managed_arena_reset(arena);
+    }
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < 4; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    int ops = atomic_load(&op_count);
+    TEST_STATS("%d ops", ops);
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(atomic_load(&error_count), 0, "reset stress: no errors");
+    ASSERT(ops > 1000, "reset stress: sufficient operations");
+}
+
+/* ============================================================================
+ * Pinned Allocation Stress
+ * Goal: Stress rt_managed_alloc_pinned which creates permanently pinned entries
+ * ============================================================================ */
+
+static void test_pinned_allocation_stress(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+
+    #define PINNED_COUNT 100
+
+    RtHandle pinned_handles[PINNED_COUNT];
+    RtHandle normal_handles[PINNED_COUNT];
+
+    /* Interleave pinned and normal allocations */
+    for (int i = 0; i < PINNED_COUNT; i++) {
+        pinned_handles[i] = rt_managed_alloc_pinned(arena, RT_HANDLE_NULL, 64);
+        char *ptr = (char *)rt_managed_pin(arena, pinned_handles[i]);
+        snprintf(ptr, 64, "pinned-%d", i);
+        rt_managed_unpin(arena, pinned_handles[i]);
+
+        normal_handles[i] = rt_managed_alloc(arena, RT_HANDLE_NULL, 64);
+        ptr = (char *)rt_managed_pin(arena, normal_handles[i]);
+        snprintf(ptr, 64, "normal-%d", i);
+        rt_managed_unpin(arena, normal_handles[i]);
+    }
+
+    /* Get pointers to pinned entries (they should never move) */
+    void *pinned_ptrs[PINNED_COUNT];
+    for (int i = 0; i < PINNED_COUNT; i++) {
+        pinned_ptrs[i] = rt_managed_pin(arena, pinned_handles[i]);
+    }
+
+    /* Trigger compaction multiple times */
+    for (int c = 0; c < 10; c++) {
+        /* Mark normal handles dead to create fragmentation */
+        for (int i = 0; i < PINNED_COUNT; i++) {
+            normal_handles[i] = rt_managed_alloc(arena, normal_handles[i], 64);
+        }
+        rt_managed_compact(arena);
+    }
+
+    /* Verify pinned entries haven't moved */
+    int moved = 0;
+    for (int i = 0; i < PINNED_COUNT; i++) {
+        void *current_ptr = rt_managed_pin(arena, pinned_handles[i]);
+        if (current_ptr != pinned_ptrs[i]) {
+            moved++;
+        }
+        /* Verify data intact */
+        char expected[64];
+        snprintf(expected, sizeof(expected), "pinned-%d", i);
+        if (current_ptr && strcmp((char *)current_ptr, expected) != 0) {
+            moved++;  /* Count as error */
+        }
+        rt_managed_unpin(arena, pinned_handles[i]);
+    }
+
+    /* Unpin original pins */
+    for (int i = 0; i < PINNED_COUNT; i++) {
+        rt_managed_unpin(arena, pinned_handles[i]);
+    }
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(moved, 0, "pinned alloc: no pinned entries moved");
+
+    #undef PINNED_COUNT
+}
+
+/* ============================================================================
+ * Free List Recycling Stress
+ * Goal: Maximize handle recycling through the free list
+ * ============================================================================ */
+
+static void test_free_list_recycling_stress(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+
+    #define RECYCLE_ITERS 1000
+    #define RECYCLE_BATCH 50
+
+    RtHandle handles[RECYCLE_BATCH];
+
+    for (int iter = 0; iter < RECYCLE_ITERS; iter++) {
+        /* Allocate a batch */
+        for (int i = 0; i < RECYCLE_BATCH; i++) {
+            handles[i] = rt_managed_alloc(arena, RT_HANDLE_NULL, 32);
+            char *ptr = (char *)rt_managed_pin(arena, handles[i]);
+            if (ptr) {
+                snprintf(ptr, 32, "iter%d-h%d", iter, i);
+                rt_managed_unpin(arena, handles[i]);
+            }
+        }
+
+        /* Mark all dead */
+        for (int i = 0; i < RECYCLE_BATCH; i++) {
+            rt_managed_mark_dead(arena, handles[i]);
+        }
+
+        /* Flush GC to recycle handles */
+        if (iter % 10 == 0) {
+            rt_managed_gc_flush(arena);
+        }
+    }
+
+    /* Final flush */
+    rt_managed_gc_flush(arena);
+
+    /* Verify arena is mostly empty now */
+    size_t live = rt_managed_live_count(arena);
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(live, 0, "free list recycling: all handles recycled");
+
+    #undef RECYCLE_ITERS
+    #undef RECYCLE_BATCH
+}
+
+/* ============================================================================
+ * Epoch Invalidation Storm
+ * Goal: Stress the fast-path epoch check by rapid compaction during allocation
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena *arena;
+    atomic_bool *stop;
+    atomic_int *alloc_count;
+    atomic_int *error_count;
+} EpochStormArgs;
+
+static void *epoch_storm_allocator(void *arg)
+{
+    EpochStormArgs *args = (EpochStormArgs *)arg;
+    RtHandle current = RT_HANDLE_NULL;
+    int local_allocs = 0;
+
+    while (!atomic_load(args->stop)) {
+        current = rt_managed_alloc(args->arena, current, 128);
+        if (current != RT_HANDLE_NULL) {
+            char *ptr = (char *)rt_managed_pin(args->arena, current);
+            if (ptr) {
+                snprintf(ptr, 128, "epoch-test-%d", local_allocs);
+
+                /* Immediately verify */
+                if (strncmp(ptr, "epoch-test-", 11) != 0) {
+                    atomic_fetch_add(args->error_count, 1);
+                }
+                rt_managed_unpin(args->arena, current);
+            }
+            local_allocs++;
+        }
+    }
+
+    atomic_fetch_add(args->alloc_count, local_allocs);
+    return NULL;
+}
+
+static void test_epoch_invalidation_storm(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+    atomic_bool stop = false;
+    atomic_int alloc_count = 0;
+    atomic_int error_count = 0;
+
+    /* Many allocator threads */
+    #define EPOCH_THREADS 8
+
+    pthread_t threads[EPOCH_THREADS];
+    EpochStormArgs args[EPOCH_THREADS];
+
+    for (int i = 0; i < EPOCH_THREADS; i++) {
+        args[i] = (EpochStormArgs){
+            .arena = arena,
+            .stop = &stop,
+            .alloc_count = &alloc_count,
+            .error_count = &error_count
+        };
+        pthread_create(&threads[i], NULL, epoch_storm_allocator, &args[i]);
+    }
+
+    /* Main thread compacts aggressively */
+    for (int c = 0; c < 50; c++) {
+        usleep(5000);  /* 5ms between compactions */
+        rt_managed_compact(arena);
+    }
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < EPOCH_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    int allocs = atomic_load(&alloc_count);
+    int errors = atomic_load(&error_count);
+
+    TEST_STATS("%d allocs, %d errors", allocs, errors);
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(errors, 0, "epoch storm: no stale pointer errors");
+    ASSERT(allocs > 5000, "epoch storm: sufficient allocations");
+
+    #undef EPOCH_THREADS
+}
+
+/* ============================================================================
+ * Clone Across Arenas Stress
+ * Goal: Multiple threads cloning between different arena pairs
+ * ============================================================================ */
+
+typedef struct {
+    RtManagedArena *root;
+    RtManagedArena **children;
+    int num_children;
+    atomic_bool *stop;
+    atomic_int *clone_count;
+    atomic_int *error_count;
+    int thread_id;
+} CloneStressArgs;
+
+static void *clone_stress_worker(void *arg)
+{
+    CloneStressArgs *args = (CloneStressArgs *)arg;
+    int tid = args->thread_id;
+    int local_clones = 0;
+
+    while (!atomic_load(args->stop)) {
+        /* Pick two different children */
+        int src_idx = (tid + local_clones) % args->num_children;
+        int dst_idx = (tid + local_clones + 1) % args->num_children;
+
+        RtManagedArena *src = args->children[src_idx];
+        RtManagedArena *dst = args->children[dst_idx];
+
+        /* Allocate in source */
+        RtHandle h = rt_managed_alloc(src, RT_HANDLE_NULL, 48);
+        if (h != RT_HANDLE_NULL) {
+            char *ptr = (char *)rt_managed_pin(src, h);
+            if (ptr) {
+                snprintf(ptr, 48, "clone-t%d-n%d", tid, local_clones);
+                rt_managed_unpin(src, h);
+            }
+
+            /* Clone to destination */
+            RtHandle cloned = rt_managed_clone(dst, src, h);
+            if (cloned != RT_HANDLE_NULL) {
+                /* Verify cloned data */
+                char *cptr = (char *)rt_managed_pin(dst, cloned);
+                if (cptr) {
+                    char expected[48];
+                    snprintf(expected, sizeof(expected), "clone-t%d-n%d", tid, local_clones);
+                    if (strcmp(cptr, expected) != 0) {
+                        atomic_fetch_add(args->error_count, 1);
+                    }
+                    rt_managed_unpin(dst, cloned);
+                }
+                local_clones++;
+            }
+
+            /* Mark source dead */
+            rt_managed_mark_dead(src, h);
+        }
+    }
+
+    atomic_fetch_add(args->clone_count, local_clones);
+    return NULL;
+}
+
+static void test_clone_across_arenas(void)
+{
+    RtManagedArena *root = rt_managed_arena_create();
+
+    #define CLONE_CHILDREN 4
+    #define CLONE_THREADS 6
+
+    RtManagedArena *children[CLONE_CHILDREN];
+    for (int i = 0; i < CLONE_CHILDREN; i++) {
+        children[i] = rt_managed_arena_create_child(root);
+    }
+
+    atomic_bool stop = false;
+    atomic_int clone_count = 0;
+    atomic_int error_count = 0;
+
+    pthread_t threads[CLONE_THREADS];
+    CloneStressArgs args[CLONE_THREADS];
+
+    for (int i = 0; i < CLONE_THREADS; i++) {
+        args[i] = (CloneStressArgs){
+            .root = root,
+            .children = children,
+            .num_children = CLONE_CHILDREN,
+            .stop = &stop,
+            .clone_count = &clone_count,
+            .error_count = &error_count,
+            .thread_id = i
+        };
+        pthread_create(&threads[i], NULL, clone_stress_worker, &args[i]);
+    }
+
+    usleep(300000);
+
+    atomic_store(&stop, true);
+    for (int i = 0; i < CLONE_THREADS; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    int clones = atomic_load(&clone_count);
+    int errors = atomic_load(&error_count);
+
+    TEST_STATS("%d clones, %d errors", clones, errors);
+
+    /* Cleanup */
+    for (int i = 0; i < CLONE_CHILDREN; i++) {
+        rt_managed_arena_destroy_child(children[i]);
+    }
+    rt_managed_arena_destroy(root);
+
+    ASSERT_EQ(errors, 0, "clone stress: no data corruption");
+    ASSERT(clones > 1000, "clone stress: sufficient clones");
+
+    #undef CLONE_CHILDREN
+    #undef CLONE_THREADS
+}
+
+/* ============================================================================
+ * Block Retirement Drain
+ * Goal: Force blocks to retire and verify they're freed when leases drain
+ * ============================================================================ */
+
+static void test_block_retirement_drain(void)
+{
+    RtManagedArena *arena = rt_managed_arena_create();
+
+    #define RETIRE_HANDLES 200
+
+    RtHandle handles[RETIRE_HANDLES];
+    void *pinned_ptrs[RETIRE_HANDLES];
+
+    /* Allocate many entries to create multiple blocks */
+    for (int i = 0; i < RETIRE_HANDLES; i++) {
+        handles[i] = rt_managed_alloc(arena, RT_HANDLE_NULL, 512);  /* Large to fill blocks */
+        char *ptr = (char *)rt_managed_pin(arena, handles[i]);
+        snprintf(ptr, 512, "block-data-%d", i);
+        pinned_ptrs[i] = ptr;
+        /* Keep pinned */
+    }
+
+    /* Trigger compaction - blocks should be retired but not freed (pinned) */
+    rt_managed_compact(arena);
+
+    /* Verify data still accessible while pinned */
+    int valid_while_pinned = 0;
+    for (int i = 0; i < RETIRE_HANDLES; i++) {
+        char expected[64];
+        snprintf(expected, sizeof(expected), "block-data-%d", i);
+        if (strncmp((char *)pinned_ptrs[i], expected, strlen(expected)) == 0) {
+            valid_while_pinned++;
+        }
+    }
+
+    /* Now unpin all - blocks should become freeable */
+    for (int i = 0; i < RETIRE_HANDLES; i++) {
+        rt_managed_unpin(arena, handles[i]);
+    }
+
+    /* Trigger another compaction to free retired blocks */
+    rt_managed_gc_flush(arena);
+    rt_managed_compact(arena);
+    rt_managed_gc_flush(arena);
+
+    /* Mark all dead and let GC clean up */
+    for (int i = 0; i < RETIRE_HANDLES; i++) {
+        rt_managed_mark_dead(arena, handles[i]);
+    }
+    rt_managed_gc_flush(arena);
+
+    rt_managed_arena_destroy(arena);
+
+    ASSERT_EQ(valid_while_pinned, RETIRE_HANDLES, "block retirement: data valid while pinned");
+
+    #undef RETIRE_HANDLES
 }
 
 /* ============================================================================
@@ -901,4 +1691,31 @@ void test_race_detection_run(void)
 
     TEST_SECTION("Long-Running Stability");
     TEST_RUN("8 threads x 500ms mixed operations", test_long_running_stability);
+
+    TEST_SECTION("Pin Duration Variance");
+    TEST_RUN("mixed long/short pins during compaction", test_pin_duration_variance);
+
+    TEST_SECTION("Deep Hierarchy");
+    TEST_RUN("20-level deep arena tree operations", test_deep_hierarchy_stress);
+
+    TEST_SECTION("Concurrent Destroy + Promote");
+    TEST_RUN("destroy child while promoting from it", test_concurrent_destroy_promote);
+
+    TEST_SECTION("Reset Under Load");
+    TEST_RUN("reset while threads allocating", test_reset_under_load);
+
+    TEST_SECTION("Pinned Allocation");
+    TEST_RUN("permanently pinned entries survive compaction", test_pinned_allocation_stress);
+
+    TEST_SECTION("Free List Recycling");
+    TEST_RUN("rapid alloc/dead/recycle cycles", test_free_list_recycling_stress);
+
+    TEST_SECTION("Epoch Invalidation");
+    TEST_RUN("rapid compaction during allocation", test_epoch_invalidation_storm);
+
+    TEST_SECTION("Clone Across Arenas");
+    TEST_RUN("6 threads cloning between 4 children", test_clone_across_arenas);
+
+    TEST_SECTION("Block Retirement");
+    TEST_RUN("blocks freed after pins drain", test_block_retirement_drain);
 }

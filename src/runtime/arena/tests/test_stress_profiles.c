@@ -547,8 +547,8 @@ static void test_profile_compaction_bench(void)
     double compact_ms = (test_timer_now() - t0) * 1000.0;
 
     /* Print compaction time as a sub-metric */
-    printf("\n    compact: %.3fms (%d entries, %d dead) ",
-           compact_ms, COMPACT_ENTRIES + COMPACT_REASSIGN, COMPACT_REASSIGN);
+    TEST_STATS("compaction: %.3fms (%d entries, %d dead)",
+               compact_ms, COMPACT_ENTRIES + COMPACT_REASSIGN, COMPACT_REASSIGN);
 
     /* Verify: all live entries still accessible and correct */
     for (int i = 0; i < COMPACT_ENTRIES; i++) {
@@ -625,9 +625,8 @@ static void test_profile_alloc_contention(void)
     double elapsed_ms = (test_timer_now() - t0) * 1000.0;
     int total_allocs = CONTENTION_THREADS * CONTENTION_ALLOCS;
 
-    printf("\n    alloc contention: %.3fms (%d allocs, %d threads, %.0f allocs/ms) ",
-           elapsed_ms, total_allocs, CONTENTION_THREADS,
-           (double)total_allocs / elapsed_ms);
+    TEST_STATS("%.3fms, %d allocs, %.0f allocs/ms",
+               elapsed_ms, total_allocs, (double)total_allocs / elapsed_ms);
 
     /* Verify: arena has live entries */
     size_t live = rt_managed_live_count(root);

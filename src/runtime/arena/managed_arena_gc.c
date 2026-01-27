@@ -192,6 +192,12 @@ void rt_managed_compact(RtManagedArena *ma)
     RtManagedBlock *old_first = ma->first;
     uint32_t table_count = ma->table_count;
 
+    /* Pre-mark all old blocks as "can retire" (retired=true).
+     * Blocks with skipped entries will be unmarked (retired=false) below. */
+    for (RtManagedBlock *b = old_first; b != NULL; b = b->next) {
+        b->retired = true;
+    }
+
     /* For child arenas, indices below index_offset don't have pages allocated.
      * Start from index_offset (or 1 for root arenas where index_offset is 0). */
     uint32_t start = (ma->index_offset > 1) ? ma->index_offset : 1;
@@ -214,14 +220,21 @@ void rt_managed_compact(RtManagedArena *ma)
         }
 
         /* Skip permanently pinned entries — they must never be moved.
-         * These contain pthread_mutex_t, pthread_cond_t, or other OS resources. */
-        if (entry->pinned) continue;
+         * These contain pthread_mutex_t, pthread_cond_t, or other OS resources.
+         * Mark their block as "has skipped entries" so it won't be retired. */
+        if (entry->pinned) {
+            entry->block->retired = false;  /* Don't retire this block */
+            continue;
+        }
 
         /* Check if entry is leased — if so, skip it.
-         * With pin_mutex held, we have exclusive access to leased field. */
+         * With pin_mutex held, we have exclusive access to leased field.
+         * Mark block as "has skipped entries" so it won't be retired.
+         * This prevents the block from being freed while entry->block still
+         * points to it (which would happen if the entry is unpinned and
+         * retire_drained_blocks runs before the next compaction). */
         if (entry->leased > 0) {
-            /* Entry is temporarily leased — skip, best effort.
-             * Leased data stays in old block (which remains alive until drained). */
+            entry->block->retired = false;  /* Don't retire this block */
             continue;
         }
 
@@ -255,16 +268,50 @@ void rt_managed_compact(RtManagedArena *ma)
         return;
     }
 
-    /* Retire old blocks */
-    for (RtManagedBlock *b = old_first; b != NULL; b = b->next) {
-        b->retired = true;
+    /* Separate old blocks into keep (have skipped entries) and retire lists.
+     * Blocks with retired==false were marked during the scan because they
+     * have entries that were skipped (leased or pinned). These must stay
+     * in the active chain to avoid dangling block pointers. */
+    RtManagedBlock *keep_first = NULL;
+    RtManagedBlock *keep_tail = NULL;
+    RtManagedBlock *retire_first = NULL;
+    RtManagedBlock *retire_tail = NULL;
+
+    for (RtManagedBlock *b = old_first; b != NULL; ) {
+        RtManagedBlock *next = b->next;
+        b->next = NULL;
+
+        if (b->retired) {
+            /* Block was NOT marked as having skipped entries - safe to retire */
+            if (retire_tail) {
+                retire_tail->next = b;
+                retire_tail = b;
+            } else {
+                retire_first = retire_tail = b;
+            }
+        } else {
+            /* Block has skipped entries - keep in active chain */
+            b->retired = false;  /* Reset flag */
+            if (keep_tail) {
+                keep_tail->next = b;
+                keep_tail = b;
+            } else {
+                keep_first = keep_tail = b;
+            }
+        }
+        b = next;
     }
 
-    /* Link old blocks to retired list */
-    RtManagedBlock *old_tail = old_first;
-    while (old_tail->next != NULL) old_tail = old_tail->next;
-    old_tail->next = ma->retired_list;
-    ma->retired_list = old_first;
+    /* Link kept blocks to end of new chain */
+    if (keep_first != NULL) {
+        new_current->next = keep_first;
+    }
+
+    /* Link retired blocks to retired list */
+    if (retire_first != NULL) {
+        retire_tail->next = ma->retired_list;
+        ma->retired_list = retire_first;
+    }
 
     /* Install new blocks and bump epoch to invalidate any in-flight
      * lock-free bumps that targeted the old blocks */
