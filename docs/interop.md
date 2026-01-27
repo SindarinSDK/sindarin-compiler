@@ -1142,6 +1142,335 @@ This restriction ensures native structs maintain C-compatible memory layout and 
 
 ---
 
+## Writing C Code for SDK Functions
+
+This section covers how to write C implementations for Sindarin SDK functions, including memory management patterns and the arena system.
+
+### Arena Memory Model Overview
+
+Sindarin uses **arena-based memory management** with a handle table and background garbage collection:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        RtManagedArena                           │
+├─────────────────────────────────────────────────────────────────┤
+│  Handle Table (paged)           Backing Blocks                  │
+│  ┌─────┬─────┬─────┐           ┌────────────────┐              │
+│  │  1  │  2  │  3  │ ... ───►  │  Block 1 (64KB)│              │
+│  │ ptr │ ptr │ ptr │           │  [data...]     │              │
+│  │size │size │size │           ├────────────────┤              │
+│  │lease│lease│lease│           │  Block 2 (64KB)│              │
+│  └─────┴─────┴─────┘           │  [data...]     │              │
+│                                 └────────────────┘              │
+│  Background Threads:                                            │
+│  - Cleaner: recycles dead handles                               │
+│  - Compactor: defragments memory                                │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Key concepts:**
+
+- **Handle (`RtHandle`)**: A 32-bit index into the handle table. Handles are stable; the underlying pointer may change during compaction.
+- **Pin/Unpin**: To access data, you must **pin** the handle (get a raw pointer) and **unpin** when done. While pinned, the compactor cannot move the data.
+- **Arena hierarchy**: Arenas form a tree. The root arena owns GC threads; child arenas are created for function scopes.
+
+### Allocating Memory for Return Values
+
+When a C function returns a value to Sindarin, it must allocate in the arena:
+
+```c
+#include "runtime/runtime_arena.h"
+#include "runtime/arena/managed_arena.h"
+
+// Struct definition (matches Sindarin native struct)
+typedef struct RtDate {
+    int32_t days;
+} RtDate;
+
+// Factory function - allocates and returns a handle
+RtDate *sn_date_create(RtArena *arena, int32_t days)
+{
+    // Allocate in arena - memory is managed by GC
+    RtDate *date = rt_arena_alloc(arena, sizeof(RtDate));
+    date->days = days;
+    return date;
+}
+```
+
+**For simple structs returned by pointer**, use `rt_arena_alloc`:
+
+```c
+void *rt_arena_alloc(RtArena *arena, size_t size);
+```
+
+### Returning Strings
+
+For strings, use `rt_arena_strdup` to copy into the arena:
+
+```c
+char *sn_date_format(RtArena *arena, RtDate *date, const char *pattern)
+{
+    // Create the formatted string (using temporary stack/heap memory)
+    char buffer[256];
+    snprintf(buffer, sizeof(buffer), "%04d-%02d-%02d", year, month, day);
+
+    // Copy to arena - this is what Sindarin receives
+    return rt_arena_strdup(arena, buffer);
+}
+```
+
+**Available string functions:**
+
+```c
+char *rt_arena_strdup(RtArena *arena, const char *str);
+char *rt_arena_strndup(RtArena *arena, const char *str, size_t n);
+```
+
+### Returning Arrays
+
+Arrays use the **handle-based API** with `RtHandle`:
+
+```c
+#include "runtime/runtime_array_h.h"
+
+RtHandle sn_random_bytes(RtManagedArena *arena, RtRandom *rng, long count)
+{
+    // Allocate temporary buffer on heap
+    unsigned char *buf = malloc((size_t)count);
+    if (!buf) {
+        return rt_array_create_byte_h(arena, 0, NULL);
+    }
+
+    // Fill with random data
+    for (long i = 0; i < count; i++) {
+        buf[i] = sn_random_byte(rng);
+    }
+
+    // Create array in arena (copies data, takes ownership)
+    RtHandle result = rt_array_create_byte_h(arena, count, buf);
+
+    // Free temporary buffer
+    free(buf);
+
+    return result;
+}
+```
+
+**Array creation functions:**
+
+```c
+RtHandle rt_array_create_byte_h(RtManagedArena *arena, size_t count, unsigned char *data);
+RtHandle rt_array_create_long_h(RtManagedArena *arena, size_t count, long long *data);
+RtHandle rt_array_create_double_h(RtManagedArena *arena, size_t count, double *data);
+RtHandle rt_array_create_bool_h(RtManagedArena *arena, size_t count, int *data);
+RtHandle rt_array_create_str_h(RtManagedArena *arena, size_t count, char **data);
+```
+
+### Pinning and Unpinning
+
+When you need to access data from a handle (e.g., reading function parameters):
+
+```c
+void process_array(RtManagedArena *arena, RtHandle arr_handle)
+{
+    // Pin to get raw pointer - compactor won't move this while pinned
+    long long *arr = rt_managed_pin_array(arena, arr_handle);
+
+    // Use the array...
+    size_t len = rt_array_length(arr);
+    for (size_t i = 0; i < len; i++) {
+        process(arr[i]);
+    }
+
+    // Unpin when done - compactor can now move this memory
+    rt_managed_unpin(arena, arr_handle);
+}
+```
+
+**Pin functions:**
+
+```c
+void *rt_managed_pin(RtManagedArena *arena, RtHandle h);
+void *rt_managed_pin_array(RtManagedArena *arena, RtHandle h);  // Skips array metadata
+char *rt_managed_pin_str(RtManagedArena *arena, RtHandle h);
+void rt_managed_unpin(RtManagedArena *arena, RtHandle h);
+```
+
+### Permanent Pinning for OS Resources
+
+Some structures contain OS resources (mutexes, file handles) that **cannot be moved**. Use permanent pinning:
+
+```c
+RtHandle sn_create_thread_safe_resource(RtManagedArena *arena)
+{
+    // Permanently pinned - compactor will NEVER move this
+    RtHandle h = rt_managed_alloc_pinned(arena, RT_HANDLE_NULL, sizeof(MyResource));
+
+    MyResource *res = rt_managed_pin(arena, h);
+    pthread_mutex_init(&res->mutex, NULL);  // OS resource - must not move
+    rt_managed_unpin(arena, h);
+
+    return h;
+}
+```
+
+### Cleanup Callbacks
+
+Register cleanup functions for resources that need explicit teardown:
+
+```c
+// Cleanup function - called when arena is destroyed
+static void file_cleanup(void *data)
+{
+    FILE *f = (FILE *)data;
+    if (f) fclose(f);
+}
+
+RtHandle sn_file_open(RtManagedArena *arena, const char *path)
+{
+    FILE *f = fopen(path, "r");
+    if (!f) return RT_HANDLE_NULL;
+
+    // Register cleanup to close file when arena is destroyed
+    rt_arena_on_cleanup(arena, f, file_cleanup, RT_CLEANUP_PRIORITY_MEDIUM);
+
+    // ... store file handle in arena-allocated struct
+}
+```
+
+**Cleanup priorities:**
+
+```c
+RT_CLEANUP_PRIORITY_HIGH    = 0    // Threads synced first
+RT_CLEANUP_PRIORITY_MEDIUM  = 10   // Files closed after threads
+RT_CLEANUP_PRIORITY_DEFAULT = 50   // Default for user resources
+```
+
+### Memory Promotion (Escaping Values)
+
+When a value needs to outlive its creating scope (escape analysis):
+
+```c
+RtHandle sn_promote_to_parent(RtManagedArena *child, RtManagedArena *parent, RtHandle h)
+{
+    // Copy data from child arena to parent arena
+    // Source handle is marked dead; returns new handle in parent
+    return rt_managed_promote(parent, child, h);
+}
+```
+
+---
+
+## Malloc Hooks and Redirection
+
+Sindarin provides **malloc hooks** for debugging and a **malloc redirect** system that captures C library allocations into the arena.
+
+### Malloc Hooks (Debugging)
+
+Build with `-DSN_MALLOC_HOOKS` to intercept all malloc/free calls:
+
+```c
+// All malloc/free calls are logged
+[SN_ALLOC] malloc(1024) = 0x7f8a2c000b20  [sn_date_format+0x42]
+[SN_ALLOC] free(0x7f8a2c000b20)  [sn_date_destroy+0x18]
+```
+
+**Platform implementations:**
+- **Linux**: Uses `plthook` to modify PLT/GOT entries
+- **macOS**: Uses Facebook's `fishhook` for Mach-O symbol rebinding
+- **Windows**: Uses `MinHook` for inline function hooking
+
+### Malloc Redirect (Arena Capture)
+
+Build with `-DSN_MALLOC_REDIRECT` to redirect malloc calls to the arena:
+
+```c
+#include "runtime/runtime_malloc_redirect.h"
+
+void call_c_library(RtArena *arena)
+{
+    // Push redirect context - all malloc() calls go to arena
+    RtRedirectConfig config = RT_REDIRECT_CONFIG_DEFAULT;
+    rt_malloc_redirect_push(arena, &config);
+
+    // C library allocations now use the arena
+    char *str = strdup("hello");  // Goes to arena, not heap!
+    cJSON *json = cJSON_Parse(data);  // All internal allocations in arena
+
+    // Pop context - subsequent malloc() uses real heap
+    rt_malloc_redirect_pop();
+
+    // Arena cleanup frees everything automatically
+}
+```
+
+**Configuration options:**
+
+```c
+typedef struct {
+    size_t max_arena_size;           // Max bytes (0 = unlimited)
+    RtRedirectOverflowPolicy overflow_policy;  // What to do when full
+    RtRedirectFreePolicy free_policy;          // How to handle free()
+    bool track_allocations;          // Track each allocation
+    bool zero_on_free;               // Zero memory on free
+    bool thread_safe;                // Enable mutex protection
+    // Callbacks...
+} RtRedirectConfig;
+```
+
+**Free policies:**
+
+| Policy | Behavior |
+|--------|----------|
+| `RT_REDIRECT_FREE_IGNORE` | Do nothing (arena frees all at once) |
+| `RT_REDIRECT_FREE_TRACK` | Track for leak detection |
+| `RT_REDIRECT_FREE_WARN` | Print warning to stderr |
+| `RT_REDIRECT_FREE_ERROR` | Abort program |
+
+**Overflow policies:**
+
+| Policy | Behavior |
+|--------|----------|
+| `RT_REDIRECT_OVERFLOW_GROW` | Continue allocating (default) |
+| `RT_REDIRECT_OVERFLOW_FALLBACK` | Fall back to real malloc |
+| `RT_REDIRECT_OVERFLOW_FAIL` | Return NULL |
+| `RT_REDIRECT_OVERFLOW_PANIC` | Abort with error message |
+
+### Complete Example: Wrapping a C Library
+
+```c
+// json_wrapper.sn.c
+#include "runtime/runtime_arena.h"
+#include "runtime/runtime_malloc_redirect.h"
+#include <cJSON.h>
+
+char *sn_json_get_string(RtArena *arena, const char *json_str, const char *key)
+{
+    // Redirect cJSON's malloc to arena
+    RtRedirectConfig config = RT_REDIRECT_CONFIG_DEFAULT;
+    rt_malloc_redirect_push(arena, &config);
+
+    cJSON *root = cJSON_Parse(json_str);
+    char *result = NULL;
+
+    if (root) {
+        cJSON *item = cJSON_GetObjectItem(root, key);
+        if (item && cJSON_IsString(item)) {
+            // Copy to arena (strdup also redirected)
+            result = rt_arena_strdup(arena, item->valuestring);
+        }
+        cJSON_Delete(root);  // free() redirected to arena
+    }
+
+    rt_malloc_redirect_pop();
+
+    return result;
+    // All cJSON memory freed when arena is destroyed
+}
+```
+
+---
+
 ## Summary: Annotation Reference
 
 | Annotation | Target | Purpose |
