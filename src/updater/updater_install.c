@@ -252,6 +252,7 @@ bool updater_install_binary(const char *new_exe_path, bool verbose)
 bool updater_perform_update(bool verbose)
 {
 #if !SN_HAS_CURL
+    (void)verbose;  /* Unused when curl not available */
     fprintf(stderr, "Error: Auto-update not available (compiled without libcurl)\n");
     return false;
 #else
@@ -371,10 +372,10 @@ bool updater_perform_update(bool verbose)
 
     /* Cleanup (on Unix - Windows script handles cleanup) */
 #ifndef _WIN32
-    /* Remove extracted files */
+    /* Remove extracted files - ignore failure, cleanup is best-effort */
     char cmd[PATH_MAX * 2];
     snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", extract_dir);
-    system(cmd);
+    if (system(cmd) != 0) { /* Intentionally ignored */ }
 
     /* Remove archive */
     remove(archive_path);
