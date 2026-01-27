@@ -10,6 +10,10 @@
 #include <string.h>
 #include <yaml.h>
 
+/* ANSI color codes for terminal output (matching diagnostic.c) */
+#define COLOR_RESET   "\033[0m"
+#define COLOR_RED     "\033[1;31m"
+
 /* ============================================================================
  * Helper Functions
  * ============================================================================ */
@@ -72,7 +76,8 @@ bool package_yaml_parse(const char *path, PackageConfig *config)
 
     while (!done) {
         if (!yaml_parser_parse(&parser, &event)) {
-            fprintf(stderr, "YAML parse error: %s\n", parser.problem);
+            fprintf(stderr, "%serror%s: YAML parse error: %s\n",
+                    COLOR_RED, COLOR_RESET, parser.problem);
             success = false;
             break;
         }
@@ -335,7 +340,8 @@ bool package_yaml_add_dependency(const char *path, const PackageDependency *dep)
 
     /* Add new dependency */
     if (config.dependency_count >= PKG_MAX_DEPS) {
-        fprintf(stderr, "Error: Maximum number of dependencies reached\n");
+        fprintf(stderr, "%serror%s: maximum number of dependencies reached\n",
+                COLOR_RED, COLOR_RESET);
         return false;
     }
 

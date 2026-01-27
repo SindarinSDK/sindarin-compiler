@@ -3,6 +3,7 @@
 #include "parser/parser_expr.h"
 #include "parser/parser_stmt.h"
 #include "debug.h"
+#include "diagnostic.h"
 #include "file.h"
 #include "gcc_backend.h"
 #include <stdio.h>
@@ -259,6 +260,13 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
         }
     }
 
+    /* Check if the import file exists before attempting to parse it */
+    if (!import_file_exists(import_path)) {
+        diagnostic_error_at(&parser->previous, "cannot find module '%s'", module_name);
+        parser->had_error = 1;
+        return NULL;
+    }
+
     /* Check if already imported */
     for (int j = 0; j < *ctx->imported_count; j++) {
         if (strcmp((*ctx->imported)[j], import_path) == 0) {
@@ -308,7 +316,8 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
     /* Process the import via the callback */
     Module *imported_module = ctx->process_import(parser->arena, parser->symbol_table, import_path, ctx);
     if (!imported_module) {
-        /* Import failed - error already reported */
+        /* Import failed - mark parser as having an error */
+        parser->had_error = 1;
         return NULL;
     }
 
@@ -324,7 +333,7 @@ static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, 
 {
     char *source = file_read(arena, import_path);
     if (!source) {
-        DEBUG_ERROR("Failed to read file: %s", import_path);
+        diagnostic_error_simple("cannot read module '%s'", import_path);
         return NULL;
     }
 
@@ -436,7 +445,7 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
     char *source = file_read(arena, filename);
     if (!source)
     {
-        DEBUG_ERROR("Failed to read file: %s", filename);
+        diagnostic_error_simple("cannot read file '%s'", filename);
         return NULL;
     }
 
@@ -539,6 +548,14 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                         return NULL;
                     }
                 }
+            }
+
+            /* Check if the import file exists before attempting to parse it */
+            if (!import_file_exists(import_path)) {
+                diagnostic_error_at(&mod_name, "cannot find module '%s'", mod_name.start);
+                parser_cleanup(&parser);
+                lexer_cleanup(&lexer);
+                return NULL;
             }
 
             int already_imported_idx = -1;

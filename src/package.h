@@ -24,6 +24,7 @@
 #define PACKAGE_H
 
 #include <stdbool.h>
+#include <stddef.h>
 
 /* Maximum lengths for package fields */
 #define PKG_MAX_NAME_LEN 128
@@ -132,6 +133,37 @@ void package_git_init(void);
 
 /* Cleanup libgit2 resources */
 void package_git_cleanup(void);
+
+/* Get the current HEAD SHA of a repository
+ * repo_path: Path to the repository
+ * out_sha: Output buffer for SHA string (at least 41 bytes)
+ * Returns true on success, false on failure */
+bool package_git_get_head_sha(const char *repo_path, char *out_sha);
+
+/* Get the SHA for a specific ref (tag or branch)
+ * repo_path: Path to the repository
+ * ref_name: Tag or branch name
+ * out_sha: Output buffer for SHA string (at least 41 bytes)
+ * Returns true on success, false on failure */
+bool package_git_get_ref_sha(const char *repo_path, const char *ref_name, char *out_sha);
+
+/* Get the current branch name (or empty string if detached)
+ * repo_path: Path to the repository
+ * out_branch: Output buffer for branch name
+ * out_len: Size of output buffer
+ * Returns true if on a branch, false if detached or error */
+bool package_git_get_current_branch(const char *repo_path, char *out_branch, size_t out_len);
+
+/* ============================================================================
+ * Package Synchronization
+ * ============================================================================ */
+
+/* Synchronize packages with sn.yaml
+ * - Removes packages not in sn.yaml
+ * - Updates packages with changed branches
+ * - Verifies tag packages are at correct SHA
+ * Returns true on success, false on failure */
+bool package_sync(void);
 
 /* ============================================================================
  * URL Parsing Utilities
