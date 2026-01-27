@@ -3,8 +3,8 @@
 
 class Sindarin < Formula
   desc "Statically-typed procedural language that compiles to C"
-  homepage "https://github.com/RealOrko/sindarin"
-  url "https://github.com/RealOrko/sindarin/releases/download/${TAG}/sindarin-${TAG}-macos-x64.tar.gz"
+  homepage "https://github.com/SindarinSDK/sindarin-compiler"
+  url "https://github.com/SindarinSDK/sindarin-compiler/releases/download/${TAG}/sindarin-${VERSION}-macos-x64.tar.gz"
   sha256 "${SHA256}"
   license "MIT"
   version "${VERSION}"

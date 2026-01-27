@@ -1,4 +1,4 @@
-# Maintainer: Sindarin Project <https://github.com/RealOrko/sindarin>
+# Maintainer: Sindarin Project <https://github.com/SindarinSDK/sindarin-compiler>
 # Arch Linux PKGBUILD for Sindarin
 # Install with: makepkg -si
 
@@ -7,14 +7,14 @@ pkgver=${VERSION}
 pkgrel=1
 pkgdesc="A statically-typed procedural language that compiles to C"
 arch=('x86_64')
-url="https://github.com/RealOrko/sindarin"
+url="https://github.com/SindarinSDK/sindarin-compiler"
 license=('MIT')
 depends=('gcc' 'zlib')
-source=("https://github.com/RealOrko/sindarin/releases/download/${TAG}/sindarin-${TAG}-linux-x64.tar.gz")
+source=("https://github.com/SindarinSDK/sindarin-compiler/releases/download/${TAG}/sindarin-${VERSION}-linux-x64.tar.gz")
 sha256sums=('${SHA256}')
 
 package() {
-    cd "$srcdir/sindarin-${TAG}-linux-x64"
+    cd "$srcdir/sindarin-${VERSION}-linux-x64"
 
     # Install SDK root (contains binary, config, libs, headers, sdk modules)
     install -dm755 "$pkgdir/usr/lib/sindarin"
