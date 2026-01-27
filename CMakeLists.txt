@@ -157,6 +157,13 @@ set(SN_BACKEND_SOURCES
     src/gcc_backend.c
 )
 
+set(SN_UPDATER_SOURCES
+    src/updater.c
+    src/updater/updater_check.c
+    src/updater/updater_download.c
+    src/updater/updater_install.c
+)
+
 set(SN_RUNTIME_SOURCES
     src/runtime.c
     src/runtime/runtime_arena.c
@@ -185,6 +192,7 @@ set(SN_COMPILER_SOURCES
     ${SN_CODEGEN_SOURCES}
     ${SN_BACKEND_SOURCES}
     ${SN_RUNTIME_SOURCES}
+    ${SN_UPDATER_SOURCES}
 )
 
 #------------------------------------------------------------------------------
@@ -208,6 +216,11 @@ if(WIN32)
 else()
     target_link_libraries(sn PRIVATE pthread m)
 endif()
+
+#------------------------------------------------------------------------------
+# libcurl for Auto-Update Feature (detected after vcpkg section below)
+#------------------------------------------------------------------------------
+# Curl detection is deferred until after vcpkg is detected
 
 #------------------------------------------------------------------------------
 # Unit Test Executable
@@ -559,6 +572,11 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(INSTALL "${VCPKG_INSTALLED_DIR}/include/git2" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+        message(STATUS "  Copying curl headers...")
+        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/curl" DESTINATION ${SN_DEPS_DIR}/include)
+    endif()
+
     # Copy libraries based on platform
     if(WIN32)
         # Windows (MinGW): Copy .a static libraries and .dll if present
@@ -571,10 +589,11 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh*.a")
         file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2*.a" "${VCPKG_INSTALLED_DIR}/lib/git2*.a")
         file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser*.a" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8*.a" "${VCPKG_INSTALLED_DIR}/lib/libssh2*.a")
+        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl*.a" "${VCPKG_INSTALLED_DIR}/lib/curl*.a")
         file(GLOB ZLIB_DLLS "${VCPKG_INSTALLED_DIR}/bin/libz*.dll" "${VCPKG_INSTALLED_DIR}/bin/zlib*.dll")
         file(GLOB YYJSON_DLLS "${VCPKG_INSTALLED_DIR}/bin/libyyjson*.dll" "${VCPKG_INSTALLED_DIR}/bin/yyjson*.dll")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
@@ -593,8 +612,9 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh.*")
         file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2.*")
         file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.*" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.*" "${VCPKG_INSTALLED_DIR}/lib/libssh2.*")
+        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl.*")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
@@ -609,17 +629,56 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh.a")
         file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2.a")
         file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a" "${VCPKG_INSTALLED_DIR}/lib/libssh2.a")
+        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl.a")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
     endif()
 
     message(STATUS "  Dependencies copied to: ${SN_DEPS_DIR}")
+
+    # Check for libcurl and enable auto-update feature
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+        message(STATUS "Found libcurl - enabling auto-update feature")
+        target_include_directories(sn PRIVATE "${VCPKG_INSTALLED_DIR}/include")
+        target_compile_definitions(sn PRIVATE SN_HAS_CURL=1)
+
+        # Link curl and its dependencies
+        if(WIN32)
+            # Windows: link curl with SSL and Windows socket libraries
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libzlib.a"
+                crypt32 wldap32 iphlpapi secur32
+            )
+        else()
+            # Unix: link curl with SSL
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+            )
+        endif()
+
+        # Link yyjson for JSON parsing
+        if(WIN32)
+            target_link_libraries(sn PRIVATE "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
+        else()
+            target_link_libraries(sn PRIVATE "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
+        endif()
+    else()
+        message(STATUS "libcurl not found - auto-update feature disabled")
+        target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
+    endif()
 else()
     message(STATUS "vcpkg not found at: ${VCPKG_INSTALLED_DIR}")
     message(STATUS "Run 'make setup' to install dependencies via vcpkg")
+    target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
 endif()
 
 # Legacy options for manual bundling (kept for backwards compatibility)
