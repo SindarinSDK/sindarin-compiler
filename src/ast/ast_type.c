@@ -160,6 +160,8 @@ Type *ast_clone_type(Arena *arena, Type *type)
         clone->as.function.is_native = type->as.function.is_native;
         clone->as.function.has_body = type->as.function.has_body;
         clone->as.function.has_arena_param = type->as.function.has_arena_param;
+        DEBUG_VERBOSE("Cloning function type: is_native=%d, has_body=%d, has_arena_param=%d",
+                      type->as.function.is_native, type->as.function.has_body, type->as.function.has_arena_param);
 
         if (type->as.function.param_count > 0)
         {

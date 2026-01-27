@@ -47,12 +47,17 @@ typedef struct Symbol
     FunctionModifier declared_func_mod;  /* For function symbols: original declared modifier */
     bool is_function;           /* True if this is a named function definition */
     bool is_native;             /* True if this is a native function (external C or Sindarin-implemented native) */
+    bool is_static;             /* True if this is a static variable (shared across import aliases) */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
     ThreadState thread_state;   /* Thread handle state for synchronization tracking */
     /* Namespace support */
     bool is_namespace;          /* True if this symbol represents a namespace */
+    bool also_imported_directly;/* True if the namespace's module was also imported directly (no alias) */
     char *namespace_name;       /* Namespace identifier (for namespaced imports) */
     struct Symbol *namespace_symbols;  /* Linked list of symbols within this namespace */
+    /* Struct type support (for namespace.StructType.staticMethod() access) */
+    bool is_struct_type;        /* True if this symbol represents a struct type in a namespace */
+    struct Stmt *struct_decl;   /* Pointer to struct declaration statement (for static method lookup) */
 } Symbol;
 
 typedef struct Scope

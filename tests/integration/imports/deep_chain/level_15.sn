@@ -1,0 +1,29 @@
+// Level 15 - Deepest level (no further imports)
+
+static var staticCounter: int = 1500
+var instanceCounter: int = 15
+
+struct State =>
+    value: int
+    name: str
+
+fn createState(n: int, s: str): State =>
+    return State { value: n, name: s }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn setInstanceCounter(v: int): void =>
+    instanceCounter = v
+
+fn getLevelId(): int =>
+    return 15
+
+fn computeChainValue(base: int): int =>
+    return base + 15

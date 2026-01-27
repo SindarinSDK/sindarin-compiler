@@ -1,0 +1,70 @@
+// Level 1 - imports multiple levels with aliases
+
+import "./level_02" as level_02
+import "./level_07" as AliasL7
+import "./level_11" as AliasL11
+import "./level_15" as AliasL15
+
+static var staticCounter: int = 100
+var instanceCounter: int = 1
+
+struct Summary =>
+    level1Static: int
+    level2Static: int
+    level7Static: int
+    level11Static: int
+    level15Static: int
+    chainValue: int
+
+fn createSummary(): Summary =>
+    return Summary {
+        level1Static: staticCounter,
+        level2Static: level_02.getStaticCounter(),
+        level7Static: AliasL7.getStaticCounter(),
+        level11Static: AliasL11.getStaticCounter(),
+        level15Static: AliasL15.getStaticCounter(),
+        chainValue: computeChainValue(0)
+    }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn setInstanceCounter(v: int): void =>
+    instanceCounter = v
+
+fn getDeepStatic(): int =>
+    return level_02.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 1
+
+fn computeChainValue(base: int): int =>
+    return level_02.computeChainValue(base + 1)
+
+fn getAliasL7Static(): int =>
+    return AliasL7.getStaticCounter()
+
+fn getAliasL11Static(): int =>
+    return AliasL11.getStaticCounter()
+
+fn getAliasL15Static(): int =>
+    return AliasL15.getStaticCounter()
+
+fn incrementL15Static(): void =>
+    AliasL15.incrementStatic()
+
+// Return int instead of namespace-qualified struct type
+fn getAggregateLocalVal(): int =>
+    return level_02.createAggregate().localVal
+
+fn getL9FlagViaL2(): bool =>
+    return level_02.getL9Flag()
+
+fn toggleL9FlagViaL2(): void =>
+    level_02.toggleL9Flag()

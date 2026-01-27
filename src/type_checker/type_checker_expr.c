@@ -612,6 +612,22 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
                 }
                 return NULL;
             }
+            /* Check if the symbol is a nested namespace - mark it for further access */
+            if (sym->is_namespace)
+            {
+                /* Store info for nested namespace access - return a special marker type */
+                expr->as.member.resolved_namespace = sym;
+                return NULL; /* Signal that this resolved to a namespace, not a value */
+            }
+            /* Check if the symbol is a struct type - mark for static method access */
+            if (sym->is_struct_type)
+            {
+                /* Store struct type for static method resolution */
+                expr->as.member.resolved_struct_type = sym->type;
+                /* Return NULL to signal this is a type reference, not a value.
+                 * The subsequent member access will use resolved_struct_type. */
+                return NULL;
+            }
             if (sym->type == NULL)
             {
                 type_error(&member_name, "Namespaced symbol has no type");
@@ -621,6 +637,120 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
             return sym->type;
         }
     }
+
+    /* Check if this is a nested namespace member access (parentNS.nestedNS.symbol) */
+    if (expr->as.member.object->type == EXPR_MEMBER)
+    {
+        /* First, type-check the object to see if it resolves to a nested namespace */
+        Type *obj_type = type_check_expr(expr->as.member.object, table);
+        if (obj_type == NULL && expr->as.member.object->as.member.resolved_namespace != NULL)
+        {
+            /* The object is a nested namespace - look up the member in it */
+            Symbol *nested_ns = expr->as.member.object->as.member.resolved_namespace;
+            Token member_name = expr->as.member.member_name;
+
+            /* Search for the symbol within the nested namespace */
+            Symbol *sym = nested_ns->namespace_symbols;
+            while (sym != NULL)
+            {
+                if (sym->name.length == member_name.length &&
+                    memcmp(sym->name.start, member_name.start, member_name.length) == 0)
+                {
+                    if (sym->is_namespace)
+                    {
+                        /* Even deeper nesting - store for further access */
+                        expr->as.member.resolved_namespace = sym;
+                        return NULL;
+                    }
+                    if (sym->type == NULL)
+                    {
+                        type_error(&member_name, "Nested namespaced symbol has no type");
+                        return NULL;
+                    }
+                    DEBUG_VERBOSE("Found symbol in nested namespace with type kind: %d", sym->type->kind);
+                    return sym->type;
+                }
+                sym = sym->next;
+            }
+
+            /* Symbol not found in nested namespace */
+            char nested_str[128], member_str[128];
+            int nested_len = nested_ns->name.length < 127 ? nested_ns->name.length : 127;
+            int member_len = member_name.length < 127 ? member_name.length : 127;
+            memcpy(nested_str, nested_ns->name.start, nested_len);
+            nested_str[nested_len] = '\0';
+            memcpy(member_str, member_name.start, member_len);
+            member_str[member_len] = '\0';
+
+            char msg[512];
+            snprintf(msg, sizeof(msg), "Symbol '%s' not found in nested namespace '%s'", member_str, nested_str);
+            type_error(&member_name, msg);
+            return NULL;
+        }
+        /* Check if the object resolved to a struct type (for static method access) */
+        if (obj_type == NULL && expr->as.member.object->as.member.resolved_struct_type != NULL)
+        {
+            /* The object is a struct type reference - look up static methods */
+            Type *struct_type = expr->as.member.object->as.member.resolved_struct_type;
+            Token member_name = expr->as.member.member_name;
+
+            /* Search for a static method in the struct type */
+            for (int i = 0; i < struct_type->as.struct_type.method_count; i++)
+            {
+                StructMethod *method = &struct_type->as.struct_type.methods[i];
+                if (method->is_static &&
+                    member_name.length == (int)strlen(method->name) &&
+                    strncmp(member_name.start, method->name, member_name.length) == 0)
+                {
+                    /* Found a static method - create function type for it */
+                    Type **param_types = NULL;
+                    if (method->param_count > 0)
+                    {
+                        param_types = arena_alloc(table->arena, sizeof(Type *) * method->param_count);
+                        for (int j = 0; j < method->param_count; j++)
+                        {
+                            param_types[j] = method->params[j].type;
+                        }
+                    }
+                    Type *func_type = ast_create_function_type(table->arena, method->return_type,
+                        param_types, method->param_count);
+                    func_type->as.function.is_native = method->is_native;
+
+                    /* Store method reference for code generation */
+                    expr->as.member.resolved_method = method;
+                    expr->as.member.resolved_struct_type = struct_type;
+
+                    DEBUG_VERBOSE("Found static method '%s' in namespace struct type '%s'",
+                        method->name, struct_type->as.struct_type.name);
+                    return func_type;
+                }
+            }
+
+            /* Static method not found */
+            char type_str[128], member_str[128];
+            int type_len = strlen(struct_type->as.struct_type.name);
+            type_len = type_len < 127 ? type_len : 127;
+            int member_len = member_name.length < 127 ? member_name.length : 127;
+            memcpy(type_str, struct_type->as.struct_type.name, type_len);
+            type_str[type_len] = '\0';
+            memcpy(member_str, member_name.start, member_len);
+            member_str[member_len] = '\0';
+
+            char msg[512];
+            snprintf(msg, sizeof(msg), "Static method '%s' not found in struct type '%s'", member_str, type_str);
+            type_error(&member_name, msg);
+            return NULL;
+        }
+
+        /* If obj_type is not NULL, fall through to normal member access handling */
+        if (obj_type != NULL)
+        {
+            goto normal_member_access;
+        }
+        return NULL;
+    }
+
+normal_member_access:
 
     Type *object_type = type_check_expr(expr->as.member.object, table);
     if (object_type == NULL)

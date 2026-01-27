@@ -1,1 +1,1 @@
-'static' can only be used in struct method declarations
+'static' at module level can only be used with 'var'. Did you mean 'static var'?

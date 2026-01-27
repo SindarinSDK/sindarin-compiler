@@ -1,0 +1,37 @@
+// Level 4 - imports level 5 with alias, imports level 14 directly
+
+import "./level_05" as L5
+import "./level_14" as DirectL14
+
+static var staticCounter: int = 400
+var instanceCounter: int = 4
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L5.getStaticCounter()
+
+fn getDirectL14Static(): int =>
+    return DirectL14.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 4
+
+fn computeChainValue(base: int): int =>
+    return L5.computeChainValue(base + 4)
+
+fn getRootViaChain(): int =>
+    return L5.getRootValue()
+
+fn setRootViaChain(v: int): void =>
+    L5.setRootValue(v)
+
+fn createDirectHolder(n: int): int =>
+    return DirectL14.createHolder(n).level

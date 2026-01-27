@@ -1,0 +1,39 @@
+// Level 8 - imports level 9 with alias
+
+import "./level_09" as L9
+
+static var staticCounter: int = 800
+var instanceCounter: int = 8
+
+struct Counter =>
+    current: int
+    max: int
+
+var sharedCounter: Counter = Counter { current: 0, max: 100 }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L9.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 8
+
+fn computeChainValue(base: int): int =>
+    return L9.computeChainValue(base + 8)
+
+fn incrementSharedCounter(): void =>
+    sharedCounter.current = sharedCounter.current + 1
+
+fn getSharedCounterValue(): int =>
+    return sharedCounter.current
+
+fn getDeepFlag(): bool =>
+    return L9.getStaticFlag()

@@ -1,0 +1,29 @@
+// Test SDK compression module
+
+import "sdk/encoding/zlib" as zlibC
+import "sdk/core/uuid" as randomC
+
+static var randomUuid: UUID = randomC.UUID.create()
+var randomValue: string = randomC.UUID.create().toString()
+
+fn test_basic_compress_decompress_C(): void =>
+    print("test_basic_compress_decompress: ")
+
+    // Original data - "Hello, World!"
+    var original: byte[] = {72, 101, 108, 108, 111, 44, 32, 87, 111, 114, 108, 100, 33}
+
+    // Compress
+    var compressed: byte[] = zlibC.compressData(original)
+    assert(compressed.length > 0, "Compression should produce output")
+
+    // Decompress
+    var decompressed: byte[] = zlibC.decompressData(compressed, original.length)
+    assert(decompressed.length == original.length, "Decompressed size should match original")
+
+    // Verify content matches
+    var i: int = 0
+    while i < original.length =>
+        assert(decompressed[i] == original[i], "Decompressed content should match original")
+        i = i + 1
+
+    print("PASS\n")

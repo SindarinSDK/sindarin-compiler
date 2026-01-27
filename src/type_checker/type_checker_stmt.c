@@ -297,6 +297,18 @@ static void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_typ
         }
     }
 
+    /* Handle static modifier - set on symbol */
+    if (stmt->as.var_decl.is_static)
+    {
+        Symbol *symbol = symbol_table_lookup_symbol_current(table, stmt->as.var_decl.name);
+        if (symbol != NULL)
+        {
+            symbol->is_static = true;
+            DEBUG_VERBOSE("Set static modifier on symbol: %.*s",
+                          stmt->as.var_decl.name.length, stmt->as.var_decl.name.start);
+        }
+    }
+
     // Check: nil can only be assigned to reference/pointer types
     if (init_type && init_type->kind == TYPE_NIL &&
         decl_type->kind != TYPE_POINTER &&
@@ -570,6 +582,11 @@ static void type_check_function(Stmt *stmt, SymbolTable *table)
     func_type->as.function.has_body = (stmt->as.function.body_count > 0);
     /* Carry over arena param flag for native functions */
     func_type->as.function.has_arena_param = stmt->as.function.has_arena_param;
+
+    DEBUG_VERBOSE("Type checking function '%.*s': is_native=%d, has_arena_param=%d (from stmt: %d)",
+                  stmt->as.function.name.length, stmt->as.function.name.start,
+                  stmt->as.function.is_native, func_type->as.function.has_arena_param,
+                  stmt->as.function.has_arena_param);
 
     /* Store parameter memory qualifiers in the function type for thread safety analysis.
      * This allows detecting 'as ref' primitives when checking thread spawn arguments. */
@@ -1151,6 +1168,214 @@ static void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
     }
 }
 
+/* Helper function to recursively process nested import statements.
+ * This ensures that namespaces defined by imports within merged modules
+ * (non-aliased imports) are properly created before type-checking functions. */
+static void process_nested_imports_recursive(Stmt **stmts, int count, SymbolTable *table)
+{
+    for (int i = 0; i < count; i++)
+    {
+        Stmt *stmt = stmts[i];
+        if (stmt == NULL || stmt->type != STMT_IMPORT)
+            continue;
+
+        ImportStmt *nested_import = &stmt->as.import;
+        if (nested_import->namespace == NULL)
+            continue;  /* Non-aliased imports don't create namespaces */
+
+        Token nested_ns_token = *nested_import->namespace;
+
+        /* Skip if namespace already exists */
+        if (symbol_table_is_namespace(table, nested_ns_token))
+            continue;
+
+        /* Create the namespace */
+        symbol_table_add_namespace(table, nested_ns_token);
+
+        if (nested_import->imported_stmts == NULL || nested_import->imported_count == 0)
+            continue;
+
+        /* Get module symbols */
+        Module nested_temp;
+        nested_temp.statements = nested_import->imported_stmts;
+        nested_temp.count = nested_import->imported_count;
+        nested_temp.capacity = nested_import->imported_count;
+        nested_temp.filename = NULL;
+
+        Token **nested_symbols = NULL;
+        Type **nested_types = NULL;
+        int nested_symbol_count = 0;
+
+        get_module_symbols(&nested_temp, table, &nested_symbols, &nested_types, &nested_symbol_count);
+
+        /* Add functions, structs, and variables to the namespace */
+        int nested_sym_idx = 0;
+        for (int j = 0; j < nested_import->imported_count && nested_sym_idx < nested_symbol_count; j++)
+        {
+            Stmt *nested_stmt = nested_import->imported_stmts[j];
+            if (nested_stmt == NULL)
+                continue;
+
+            if (nested_stmt->type == STMT_FUNCTION)
+            {
+                FunctionStmt *func = &nested_stmt->as.function;
+                Type *func_type = nested_types[nested_sym_idx];
+                Token *func_name = nested_symbols[nested_sym_idx];
+                nested_sym_idx++;
+
+                FunctionModifier modifier = func->modifier;
+                FunctionModifier effective_modifier = modifier;
+                if (func->return_type &&
+                    (func->return_type->kind == TYPE_FUNCTION ||
+                     func->return_type->kind == TYPE_STRING ||
+                     func->return_type->kind == TYPE_ARRAY) &&
+                    modifier != FUNC_PRIVATE)
+                {
+                    effective_modifier = FUNC_SHARED;
+                }
+                symbol_table_add_function_to_namespace(table, nested_ns_token, *func_name,
+                    func_type, effective_modifier, modifier);
+            }
+            else if (nested_stmt->type == STMT_STRUCT_DECL)
+            {
+                StructDeclStmt *struct_decl = &nested_stmt->as.struct_decl;
+                Token struct_name = struct_decl->name;
+
+                Type *struct_type = ast_create_struct_type(table->arena,
+                    arena_strndup(table->arena, struct_name.start, struct_name.length),
+                    struct_decl->fields, struct_decl->field_count,
+                    struct_decl->methods, struct_decl->method_count,
+                    struct_decl->is_native, struct_decl->is_packed,
+                    struct_decl->pass_self_by_ref, struct_decl->c_alias);
+
+                symbol_table_add_struct_to_namespace(table, nested_ns_token, struct_name,
+                    struct_type, nested_stmt);
+            }
+            else if (nested_stmt->type == STMT_VAR_DECL)
+            {
+                VarDeclStmt *var = &nested_stmt->as.var_decl;
+                symbol_table_add_symbol_to_namespace(table, nested_ns_token, var->name, var->type);
+                if (var->is_static)
+                {
+                    Symbol *ns_sym = symbol_table_lookup_in_namespace(table, nested_ns_token, var->name);
+                    if (ns_sym != NULL)
+                    {
+                        ns_sym->is_static = true;
+                    }
+                }
+            }
+        }
+
+        /* Recursively process any nested imports within this import's statements */
+        process_nested_imports_recursive(nested_import->imported_stmts, nested_import->imported_count, table);
+
+        /* Track which functions we add so we only remove those */
+        bool *added_functions = arena_alloc(table->arena, sizeof(bool) * nested_symbol_count);
+        for (int j = 0; j < nested_symbol_count; j++)
+            added_functions[j] = false;
+
+        /* Add functions and variables to global scope temporarily for intra-module access */
+        nested_sym_idx = 0;
+        int added_func_idx = 0;
+        for (int j = 0; j < nested_import->imported_count && nested_sym_idx < nested_symbol_count; j++)
+        {
+            Stmt *nested_stmt = nested_import->imported_stmts[j];
+            if (nested_stmt == NULL)
+                continue;
+
+            if (nested_stmt->type == STMT_FUNCTION)
+            {
+                FunctionStmt *func = &nested_stmt->as.function;
+                Type *func_type = nested_types[nested_sym_idx];
+                Token *func_name = nested_symbols[nested_sym_idx];
+                nested_sym_idx++;
+
+                Symbol *existing = symbol_table_lookup_symbol(table, *func_name);
+                if (existing == NULL)
+                {
+                    FunctionModifier modifier = func->modifier;
+                    FunctionModifier effective_modifier = modifier;
+                    if (func->return_type &&
+                        (func->return_type->kind == TYPE_FUNCTION ||
+                         func->return_type->kind == TYPE_STRING ||
+                         func->return_type->kind == TYPE_ARRAY) &&
+                        modifier != FUNC_PRIVATE)
+                    {
+                        effective_modifier = FUNC_SHARED;
+                    }
+                    if (func->is_native)
+                        symbol_table_add_native_function(table, *func_name, func_type, effective_modifier, modifier);
+                    else
+                        symbol_table_add_function(table, *func_name, func_type, effective_modifier, modifier);
+                    added_functions[added_func_idx] = true;
+                }
+                added_func_idx++;
+            }
+            else if (nested_stmt->type == STMT_VAR_DECL)
+            {
+                VarDeclStmt *var = &nested_stmt->as.var_decl;
+                Symbol *existing_var = symbol_table_lookup_symbol(table, var->name);
+                if (existing_var == NULL)
+                {
+                    symbol_table_add_symbol_with_kind(table, var->name, var->type, SYMBOL_GLOBAL);
+                    if (var->is_static)
+                    {
+                        Symbol *global_sym = symbol_table_lookup_symbol_current(table, var->name);
+                        if (global_sym != NULL)
+                        {
+                            global_sym->is_static = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        /* Type-check function bodies and variable initializers */
+        nested_sym_idx = 0;
+        for (int j = 0; j < nested_import->imported_count && nested_sym_idx < nested_symbol_count; j++)
+        {
+            Stmt *nested_stmt = nested_import->imported_stmts[j];
+            if (nested_stmt == NULL)
+                continue;
+
+            if (nested_stmt->type == STMT_FUNCTION)
+            {
+                nested_sym_idx++;
+                type_check_function_body_only(nested_stmt, table);
+            }
+            else if (nested_stmt->type == STMT_VAR_DECL)
+            {
+                VarDeclStmt *var_decl = &nested_stmt->as.var_decl;
+                if (var_decl->initializer != NULL)
+                {
+                    type_check_expr(var_decl->initializer, table);
+                }
+            }
+        }
+
+        /* Remove only the functions we added from global scope */
+        nested_sym_idx = 0;
+        added_func_idx = 0;
+        for (int j = 0; j < nested_import->imported_count && nested_sym_idx < nested_symbol_count; j++)
+        {
+            Stmt *nested_stmt = nested_import->imported_stmts[j];
+            if (nested_stmt == NULL)
+                continue;
+
+            if (nested_stmt->type == STMT_FUNCTION)
+            {
+                Token *func_name = nested_symbols[nested_sym_idx];
+                nested_sym_idx++;
+                if (added_functions[added_func_idx])
+                {
+                    symbol_table_remove_symbol_from_global(table, *func_name);
+                }
+                added_func_idx++;
+            }
+        }
+    }
+}
+
 static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
 {
     ImportStmt *import = &stmt->as.import;
@@ -1211,6 +1436,82 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
         /* Create the namespace entry in the symbol table */
         symbol_table_add_namespace(table, ns_token);
 
+        /* If this module was also imported directly (without namespace), mark the
+         * namespace so that code generation knows to use non-prefixed function names. */
+        if (import->also_imported_directly)
+        {
+            Symbol *ns_symbol = symbol_table_lookup_symbol(table, ns_token);
+            if (ns_symbol != NULL && ns_symbol->is_namespace)
+            {
+                ns_symbol->also_imported_directly = true;
+            }
+        }
+
+        /* PASS 0: Process nested namespace imports from the imported module.
+         * When a module has "import X as Y", we need to re-export that namespace
+         * as a nested namespace so it can be accessed as "parentNS.Y.symbol" */
+        for (int i = 0; i < import->imported_count; i++)
+        {
+            Stmt *imported_stmt = import->imported_stmts[i];
+            if (imported_stmt == NULL)
+                continue;
+
+            if (imported_stmt->type == STMT_IMPORT && imported_stmt->as.import.namespace != NULL)
+            {
+                ImportStmt *nested_import = &imported_stmt->as.import;
+                Token nested_ns_token = *nested_import->namespace;
+
+                /* Create nested namespace inside the parent namespace */
+                symbol_table_add_nested_namespace(table, ns_token, nested_ns_token);
+
+                /* Use get_module_symbols to extract symbols from the nested import */
+                if (nested_import->imported_stmts != NULL)
+                {
+                    Module nested_temp;
+                    nested_temp.statements = nested_import->imported_stmts;
+                    nested_temp.count = nested_import->imported_count;
+                    nested_temp.capacity = nested_import->imported_count;
+                    nested_temp.filename = NULL;
+
+                    Token **nested_symbols = NULL;
+                    Type **nested_types = NULL;
+                    int nested_symbol_count = 0;
+
+                    get_module_symbols(&nested_temp, table, &nested_symbols, &nested_types, &nested_symbol_count);
+
+                    /* Add all functions to the nested namespace */
+                    int nested_sym_idx = 0;
+                    for (int j = 0; j < nested_import->imported_count && nested_sym_idx < nested_symbol_count; j++)
+                    {
+                        Stmt *nested_stmt = nested_import->imported_stmts[j];
+                        if (nested_stmt == NULL)
+                            continue;
+
+                        if (nested_stmt->type == STMT_FUNCTION)
+                        {
+                            FunctionStmt *func = &nested_stmt->as.function;
+                            Type *func_type = nested_types[nested_sym_idx];
+                            Token *func_name = nested_symbols[nested_sym_idx];
+                            nested_sym_idx++;
+
+                            FunctionModifier modifier = func->modifier;
+                            FunctionModifier effective_modifier = modifier;
+                            if (func->return_type &&
+                                (func->return_type->kind == TYPE_FUNCTION ||
+                                 func->return_type->kind == TYPE_STRING ||
+                                 func->return_type->kind == TYPE_ARRAY) &&
+                                modifier != FUNC_PRIVATE)
+                            {
+                                effective_modifier = FUNC_SHARED;
+                            }
+                            symbol_table_add_function_to_nested_namespace(table, ns_token, nested_ns_token,
+                                *func_name, func_type, effective_modifier, modifier);
+                        }
+                    }
+                }
+            }
+        }
+
         /* Use get_module_symbols to extract symbols and types from imported module.
          * Create a temporary Module structure to use with the helper function. */
         Module temp_module;
@@ -1225,12 +1526,9 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
 
         get_module_symbols(&temp_module, table, &symbols, &types, &symbol_count);
 
-        /* Handle empty modules gracefully */
-        if (symbol_count == 0)
-        {
-            DEBUG_VERBOSE("No symbols to import from module '%s'", mod_str);
-            return;
-        }
+        /* Note: symbol_count may be 0 if module only has variables (no functions).
+         * We still need to proceed to PASS 1b to handle variable declarations.
+         * Don't return early just because there are no function symbols. */
 
         /* PASS 1: Register all symbols in namespace AND temporarily in global scope.
          * We need them in global scope temporarily so that functions within the
@@ -1334,7 +1632,90 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
             }
         }
 
-        /* PASS 2: Type-check all function bodies.
+        /* PASS 1b: Process variable declarations from the imported module.
+         * Add them to the namespace so they can be accessed via ns.varname syntax.
+         * Also add to global scope temporarily so functions in the module can access them.
+         * Variables are not extracted by get_module_symbols, so we iterate separately. */
+
+        for (int i = 0; i < import->imported_count; i++)
+        {
+            Stmt *imported_stmt = import->imported_stmts[i];
+            if (imported_stmt == NULL)
+                continue;
+
+            if (imported_stmt->type == STMT_VAR_DECL)
+            {
+                VarDeclStmt *var = &imported_stmt->as.var_decl;
+
+                /* Add variable to namespace */
+                symbol_table_add_symbol_to_namespace(table, ns_token, var->name, var->type);
+
+                /* Set is_static flag if the variable is declared static */
+                if (var->is_static)
+                {
+                    Symbol *ns_sym = symbol_table_lookup_in_namespace(table, ns_token, var->name);
+                    if (ns_sym != NULL)
+                    {
+                        ns_sym->is_static = true;
+                    }
+                }
+
+                /* Also add to global scope so module functions can access the variable.
+                 * These symbols persist through code gen (unlike functions which are removed). */
+                Symbol *existing_var = symbol_table_lookup_symbol(table, var->name);
+                if (existing_var == NULL)
+                {
+                    symbol_table_add_symbol_with_kind(table, var->name, var->type, SYMBOL_GLOBAL);
+                    /* Set is_static on the global symbol too */
+                    if (var->is_static)
+                    {
+                        Symbol *global_sym = symbol_table_lookup_symbol_current(table, var->name);
+                        if (global_sym != NULL)
+                        {
+                            global_sym->is_static = true;
+                        }
+                    }
+                }
+
+                char var_str[128];
+                int var_len = var->name.length < 127 ? var->name.length : 127;
+                memcpy(var_str, var->name.start, var_len);
+                var_str[var_len] = '\0';
+                DEBUG_VERBOSE("Added variable '%s' to namespace '%s' (static=%d)", var_str, ns_str, var->is_static);
+            }
+            /* Also handle struct declarations for namespace.StructType access */
+            else if (imported_stmt->type == STMT_STRUCT_DECL)
+            {
+                StructDeclStmt *struct_decl = &imported_stmt->as.struct_decl;
+                Token struct_name = struct_decl->name;
+
+                /* Create a struct type for this declaration using all fields/methods */
+                Type *struct_type = ast_create_struct_type(table->arena,
+                    arena_strndup(table->arena, struct_name.start, struct_name.length),
+                    struct_decl->fields, struct_decl->field_count,
+                    struct_decl->methods, struct_decl->method_count,
+                    struct_decl->is_native, struct_decl->is_packed,
+                    struct_decl->pass_self_by_ref, struct_decl->c_alias);
+
+                symbol_table_add_struct_to_namespace(table, ns_token, struct_name,
+                    struct_type, imported_stmt);
+
+                char struct_str[128];
+                int struct_len = struct_name.length < 127 ? struct_name.length : 127;
+                memcpy(struct_str, struct_name.start, struct_len);
+                struct_str[struct_len] = '\0';
+                DEBUG_VERBOSE("Added struct '%s' to namespace '%s'", struct_str, ns_str);
+            }
+        }
+
+        /* PASS 1.5: Set up namespace imports from the imported module as global namespaces.
+         * This allows the imported module's functions to reference their own namespace imports.
+         * E.g., if moduleB has "import zlib as zlibB", we need zlibB available when
+         * type-checking moduleB's functions.
+         * This is done recursively to handle deep chains of non-aliased imports. */
+        process_nested_imports_recursive(import->imported_stmts, import->imported_count, table);
+
+        /* PASS 2: Type-check all function bodies and variable initializers.
          * Now all symbols are visible in global scope, so intra-module calls work. */
         for (int i = 0; i < import->imported_count; i++)
         {
@@ -1347,6 +1728,16 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
                 /* Type-check the function body so expr_type is set for code generation.
                  * Use the body-only version to avoid re-adding to global scope. */
                 type_check_function_body_only(imported_stmt, table);
+            }
+            else if (imported_stmt->type == STMT_VAR_DECL)
+            {
+                /* Type-check global variable initializers to set expr_type for code generation.
+                 * This handles expressions like namespace.StructType.staticMethod().method() */
+                VarDeclStmt *var_decl = &imported_stmt->as.var_decl;
+                if (var_decl->initializer != NULL)
+                {
+                    type_check_expr(var_decl->initializer, table);
+                }
             }
         }
 
@@ -1371,6 +1762,12 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
                 added_idx++;
             }
         }
+
+        /* Note: We do NOT remove variables from global scope (unlike functions).
+         * Variables need to stay visible during code generation so the code
+         * generator can correctly determine whether to use namespace prefix.
+         * Functions are removed because they can cause name conflicts, but
+         * variables are namespaced separately in code gen. */
     }
 }
 

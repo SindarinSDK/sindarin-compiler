@@ -505,6 +505,9 @@ Stmt *parser_native_function_declaration(Parser *parser, FunctionModifier modifi
     function_type->as.function.is_native = true;  /* Native functions need is_native on the type too */
     function_type->as.function.has_arena_param = has_arena_param;
 
+    DEBUG_VERBOSE("Parsed native function '%.*s' with has_arena_param=%d",
+                  name.length, name.start, has_arena_param);
+
     symbol_table_add_symbol(parser->symbol_table, name, function_type);
 
     Stmt **stmts = NULL;

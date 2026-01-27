@@ -261,9 +261,9 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
 
     /* Check if already imported */
     for (int j = 0; j < *ctx->imported_count; j++) {
-        if (strcmp(ctx->imported[j], import_path) == 0) {
+        if (strcmp((*ctx->imported)[j], import_path) == 0) {
             /* Already imported - return the cached module */
-            return ctx->imported_modules[j];
+            return (*ctx->imported_modules)[j];
         }
     }
 
@@ -273,26 +273,36 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
         char **new_imported = arena_alloc(parser->arena, sizeof(char *) * new_capacity);
         Module **new_modules = arena_alloc(parser->arena, sizeof(Module *) * new_capacity);
         bool *new_directly = arena_alloc(parser->arena, sizeof(bool) * new_capacity);
-        if (!new_imported || !new_modules || !new_directly) {
+        bool *new_ns_emitted = arena_alloc(parser->arena, sizeof(bool) * new_capacity);
+        if (!new_imported || !new_modules || !new_directly || !new_ns_emitted) {
             parser_error(parser, "Failed to allocate memory for imported list");
             return NULL;
         }
         if (*ctx->imported_count > 0) {
-            memmove(new_imported, ctx->imported, sizeof(char *) * *ctx->imported_count);
-            memmove(new_modules, ctx->imported_modules, sizeof(Module *) * *ctx->imported_count);
-            memmove(new_directly, ctx->imported_directly, sizeof(bool) * *ctx->imported_count);
+            memmove(new_imported, *ctx->imported, sizeof(char *) * *ctx->imported_count);
+            memmove(new_modules, *ctx->imported_modules, sizeof(Module *) * *ctx->imported_count);
+            memmove(new_directly, *ctx->imported_directly, sizeof(bool) * *ctx->imported_count);
+            memmove(new_ns_emitted, *ctx->namespace_code_emitted, sizeof(bool) * *ctx->imported_count);
         }
-        ctx->imported = new_imported;
-        ctx->imported_modules = new_modules;
-        ctx->imported_directly = new_directly;
+        /* Initialize new slots to false */
+        memset(new_ns_emitted + *ctx->imported_count, 0, sizeof(bool) * (new_capacity - *ctx->imported_count));
+        *ctx->imported = new_imported;
+        *ctx->imported_modules = new_modules;
+        *ctx->imported_directly = new_directly;
+        *ctx->namespace_code_emitted = new_ns_emitted;
         *ctx->imported_capacity = new_capacity;
     }
 
     /* Reserve slot before recursive call to prevent infinite recursion on circular imports */
     int module_idx = *ctx->imported_count;
-    ctx->imported[module_idx] = import_path;
-    ctx->imported_modules[module_idx] = NULL;
-    ctx->imported_directly[module_idx] = !is_namespaced;
+    (*ctx->imported)[module_idx] = import_path;
+    (*ctx->imported_modules)[module_idx] = NULL;
+    (*ctx->imported_directly)[module_idx] = !is_namespaced;
+    /* Initialize code emission tracking to false. The actual STMT_IMPORT processing
+     * in process_all_modules will claim emission for the first namespace import.
+     * We don't claim here because this same STMT_IMPORT will be processed later
+     * and it should be the one to emit (not skip). */
+    (*ctx->namespace_code_emitted)[module_idx] = false;
     (*ctx->imported_count)++;
 
     /* Process the import via the callback */
@@ -303,7 +313,7 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
     }
 
     /* Store the parsed module in the cache */
-    ctx->imported_modules[module_idx] = imported_module;
+    (*ctx->imported_modules)[module_idx] = imported_module;
 
     return imported_module;
 }
@@ -331,6 +341,7 @@ static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, 
     import_ctx.imported_capacity = parent_ctx->imported_capacity;
     import_ctx.imported_modules = parent_ctx->imported_modules;
     import_ctx.imported_directly = parent_ctx->imported_directly;
+    import_ctx.namespace_code_emitted = parent_ctx->namespace_code_emitted;
     import_ctx.current_file = import_path;
     import_ctx.compiler_dir = parent_ctx->compiler_dir;
     import_ctx.process_import = process_import_callback;
@@ -420,7 +431,7 @@ static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, 
 Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const char *filename,
                                   char ***imported, int *imported_count, int *imported_capacity,
                                   Module ***imported_modules, bool **imported_directly,
-                                  const char *compiler_dir)
+                                  bool **namespace_code_emitted, const char *compiler_dir)
 {
     char *source = file_read(arena, filename);
     if (!source)
@@ -437,13 +448,17 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
 
     /* Set up import context for import-first processing.
      * This allows types from imported modules to be registered
-     * DURING parsing, before they are referenced. */
+     * DURING parsing, before they are referenced.
+     * Note: We pass the pointer-to-pointer for arrays so all recursive calls
+     * share the same underlying pointer, allowing reallocation to be visible
+     * to all callers in the recursive chain. */
     ImportContext import_ctx;
-    import_ctx.imported = *imported;
+    import_ctx.imported = imported;
     import_ctx.imported_count = imported_count;
     import_ctx.imported_capacity = imported_capacity;
-    import_ctx.imported_modules = *imported_modules;
-    import_ctx.imported_directly = *imported_directly;
+    import_ctx.imported_modules = imported_modules;
+    import_ctx.imported_directly = imported_directly;
+    import_ctx.namespace_code_emitted = namespace_code_emitted;
     import_ctx.current_file = filename;
     import_ctx.compiler_dir = compiler_dir;
     import_ctx.process_import = process_import_callback;
@@ -452,10 +467,8 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
 
     Module *module = parser_execute(&parser, filename);
 
-    /* Update the caller's pointers since arrays may have been reallocated */
-    *imported = import_ctx.imported;
-    *imported_modules = import_ctx.imported_modules;
-    *imported_directly = import_ctx.imported_directly;
+    /* No need to update caller's pointers - the ImportContext uses pointer-to-pointer
+     * for arrays, so all updates are automatically visible to the caller. */
 
     if (!module || parser.had_error)
     {
@@ -589,13 +602,89 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 if (stmt->as.import.namespace != NULL && *imported_modules != NULL)
                 {
                     /* Namespaced import: keep STMT_IMPORT for type checker to create namespace.
-                     * Mark if module was also imported directly so code gen skips emitting. */
+                     * Determine if code gen should skip emitting this module's functions:
+                     * 1. If module was imported directly (without namespace), functions are in main scope
+                     * 2. If another namespace import already claimed code emission for this module */
                     Module *cached_module = (*imported_modules)[already_imported_idx];
                     if (cached_module != NULL)
                     {
                         stmt->as.import.imported_stmts = cached_module->statements;
                         stmt->as.import.imported_count = cached_module->count;
-                        stmt->as.import.also_imported_directly = was_imported_directly;
+
+                        /* Check if we should emit code for this namespace import */
+                        bool should_skip_emit = was_imported_directly;
+                        if (!should_skip_emit && *namespace_code_emitted != NULL) {
+                            DEBUG_VERBOSE("Checking namespace_code_emitted[%d] for '%.*s': %s",
+                                         already_imported_idx,
+                                         (int)stmt->as.import.module_name.length,
+                                         stmt->as.import.module_name.start,
+                                         (*namespace_code_emitted)[already_imported_idx] ? "true" : "false");
+                            if ((*namespace_code_emitted)[already_imported_idx]) {
+                                /* Another namespace import already claimed emission */
+                                should_skip_emit = true;
+                            } else {
+                                /* This is the first namespace import - claim emission */
+                                (*namespace_code_emitted)[already_imported_idx] = true;
+                                DEBUG_VERBOSE("Set namespace_code_emitted[%d] = true for '%.*s'",
+                                             already_imported_idx,
+                                             (int)stmt->as.import.module_name.length,
+                                             stmt->as.import.module_name.start);
+                            }
+                        }
+                        DEBUG_VERBOSE("Namespace import '%.*s' should_skip_emit=%s",
+                                     (int)stmt->as.import.module_name.length,
+                                     stmt->as.import.module_name.start,
+                                     should_skip_emit ? "true" : "false");
+                        stmt->as.import.also_imported_directly = should_skip_emit;
+
+                        /* If this import will emit (not skip), mark all nested namespace imports
+                         * within the imported module to skip emission. This prevents the same
+                         * module from being emitted multiple times through different import paths. */
+                        if (!should_skip_emit && cached_module != NULL)
+                        {
+                            const char *cached_file = (*imported)[already_imported_idx];
+                            for (int j = 0; j < cached_module->count; j++)
+                            {
+                                Stmt *nested_stmt = cached_module->statements[j];
+                                if (nested_stmt != NULL && nested_stmt->type == STMT_IMPORT &&
+                                    nested_stmt->as.import.namespace != NULL)
+                                {
+                                    /* Find this nested import's module index */
+                                    Token nested_mod_name = nested_stmt->as.import.module_name;
+
+                                    /* Construct the full import path using the imported module's directory */
+                                    char *nested_path = construct_import_path(arena, cached_file, nested_mod_name.start);
+                                    if (!nested_path) continue;
+
+                                    /* Try SDK path if relative doesn't exist */
+                                    if (!import_file_exists(nested_path) && compiler_dir) {
+                                        const char *sdk_path = gcc_resolve_sdk_import(compiler_dir, nested_mod_name.start);
+                                        if (sdk_path) {
+                                            nested_path = arena_strdup(arena, sdk_path);
+                                        }
+                                    }
+
+                                    /* Find in imported array */
+                                    for (int k = 0; k < *imported_count; k++)
+                                    {
+                                        if (nested_path && strcmp((*imported)[k], nested_path) == 0)
+                                        {
+                                            /* Check if this nested module's emission is already claimed */
+                                            if ((*namespace_code_emitted)[k])
+                                            {
+                                                /* Already claimed - mark this nested import to skip */
+                                                nested_stmt->as.import.also_imported_directly = true;
+                                                DEBUG_VERBOSE("Nested import '%.*s' in '%.*s' set to skip (already claimed)",
+                                                             (int)nested_mod_name.length, nested_mod_name.start,
+                                                             (int)stmt->as.import.module_name.length, stmt->as.import.module_name.start);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
                         i++; /* Keep the STMT_IMPORT and move to next statement */
                         continue;
                     }
@@ -674,7 +763,8 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 char **new_imported = arena_alloc(arena, sizeof(char *) * new_capacity);
                 Module **new_modules = arena_alloc(arena, sizeof(Module *) * new_capacity);
                 bool *new_directly = arena_alloc(arena, sizeof(bool) * new_capacity);
-                if (!new_imported || !new_modules || !new_directly)
+                bool *new_ns_emitted = arena_alloc(arena, sizeof(bool) * new_capacity);
+                if (!new_imported || !new_modules || !new_directly || !new_ns_emitted)
                 {
                     DEBUG_ERROR("Failed to allocate memory for imported list");
                     parser_cleanup(&parser);
@@ -692,10 +782,15 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                     {
                         memmove(new_directly, *imported_directly, sizeof(bool) * *imported_count);
                     }
+                    if (*namespace_code_emitted != NULL)
+                    {
+                        memmove(new_ns_emitted, *namespace_code_emitted, sizeof(bool) * *imported_count);
+                    }
                 }
                 *imported = new_imported;
                 *imported_modules = new_modules;
                 *imported_directly = new_directly;
+                *namespace_code_emitted = new_ns_emitted;
                 *imported_capacity = new_capacity;
             }
             /* Store the path and reserve the module slot BEFORE recursive call */
@@ -710,9 +805,23 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 /* Mark whether this import is direct (non-namespaced) */
                 (*imported_directly)[module_idx] = (stmt->as.import.namespace == NULL);
             }
+            if (*namespace_code_emitted != NULL)
+            {
+                /* For namespace imports, claim code emission BEFORE recursive parsing.
+                 * This ensures nested imports of the same module see that it's already claimed.
+                 * For non-namespace (direct) imports, leave it false since code merges into main. */
+                (*namespace_code_emitted)[module_idx] = (stmt->as.import.namespace != NULL);
+                if (stmt->as.import.namespace != NULL)
+                {
+                    DEBUG_VERBOSE("First namespace import of '%.*s' claims emission (idx=%d)",
+                                 (int)stmt->as.import.module_name.length,
+                                 stmt->as.import.module_name.start,
+                                 module_idx);
+                }
+            }
             (*imported_count)++;
 
-            Module *imported_module = parse_module_with_imports(arena, symbol_table, import_path, imported, imported_count, imported_capacity, imported_modules, imported_directly, compiler_dir);
+            Module *imported_module = parse_module_with_imports(arena, symbol_table, import_path, imported, imported_count, imported_capacity, imported_modules, imported_directly, namespace_code_emitted, compiler_dir);
             if (!imported_module)
             {
                 parser_cleanup(&parser);
@@ -748,6 +857,9 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 }
                 stmt->as.import.imported_stmts = imported_module->statements;
                 stmt->as.import.imported_count = imported_module->count;
+
+                /* Note: namespace_code_emitted was already set before parsing */
+
                 i++; /* Keep the STMT_IMPORT and move to next statement */
             }
             else

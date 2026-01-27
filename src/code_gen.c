@@ -95,6 +95,15 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     /* Initialize handle-mode flag for expressions */
     gen->expr_as_handle = false;
 
+    /* Initialize namespace prefix for imported module code generation */
+    gen->current_namespace_prefix = NULL;
+
+    /* Initialize pin counter */
+    gen->pin_counter = 0;
+
+    /* Initialize return closure allocation flag */
+    gen->allocate_closure_in_caller_arena = false;
+
     /* Initialize recursive lambda support */
     gen->current_decl_var_name = NULL;
     gen->recursive_lambda_id = -1;
@@ -104,6 +113,16 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->deferred_global_values = NULL;
     gen->deferred_global_count = 0;
     gen->deferred_global_capacity = 0;
+
+    /* Initialize struct method emission tracking */
+    gen->emitted_struct_methods = NULL;
+    gen->emitted_struct_methods_count = 0;
+    gen->emitted_struct_methods_capacity = 0;
+
+    /* Initialize static global variable emission tracking */
+    gen->emitted_static_globals = NULL;
+    gen->emitted_static_globals_count = 0;
+    gen->emitted_static_globals_capacity = 0;
 
     if (gen->output == NULL)
     {
@@ -504,6 +523,284 @@ static void code_gen_add_pragma_source(CodeGen *gen, const char *source, const c
     gen->pragma_source_count++;
 }
 
+/* Helper to emit a single struct typedef */
+static void code_gen_emit_struct_typedef(CodeGen *gen, StructDeclStmt *struct_decl, int *count_ptr)
+{
+    /* Skip native structs that have a c_alias - they are aliases to external types */
+    if (struct_decl->is_native && struct_decl->c_alias != NULL)
+    {
+        return;
+    }
+
+    char *raw_struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+    char *struct_name = sn_mangle_name(gen->arena, raw_struct_name);
+
+    /* Check if this struct has already been emitted (avoid duplicates from aliased imports) */
+    for (int i = 0; i < gen->emitted_struct_methods_count; i++)
+    {
+        if (strcmp(gen->emitted_struct_methods[i], struct_name) == 0)
+        {
+            return; /* Already emitted */
+        }
+    }
+
+    /* Track this struct as emitted */
+    if (gen->emitted_struct_methods_count >= gen->emitted_struct_methods_capacity)
+    {
+        int new_capacity = gen->emitted_struct_methods_capacity == 0 ? 8 : gen->emitted_struct_methods_capacity * 2;
+        const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+        for (int i = 0; i < gen->emitted_struct_methods_count; i++)
+        {
+            new_array[i] = gen->emitted_struct_methods[i];
+        }
+        gen->emitted_struct_methods = new_array;
+        gen->emitted_struct_methods_capacity = new_capacity;
+    }
+    gen->emitted_struct_methods[gen->emitted_struct_methods_count++] = struct_name;
+
+    if (*count_ptr == 0)
+    {
+        indented_fprintf(gen, 0, "/* Struct type definitions */\n");
+    }
+
+    /* Emit #pragma pack for packed structs */
+    if (struct_decl->is_packed)
+    {
+        indented_fprintf(gen, 0, "#pragma pack(push, 1)\n");
+    }
+
+    /* Generate: typedef struct { fields... } StructName; */
+    indented_fprintf(gen, 0, "typedef struct {\n");
+    for (int j = 0; j < struct_decl->field_count; j++)
+    {
+        StructField *field = &struct_decl->fields[j];
+        const char *c_type = get_c_type(gen->arena, field->type);
+        const char *c_field_name = field->c_alias != NULL
+            ? field->c_alias
+            : sn_mangle_name(gen->arena, field->name);
+        indented_fprintf(gen, 1, "%s %s;\n", c_type, c_field_name);
+    }
+    indented_fprintf(gen, 0, "} %s;\n", struct_name);
+
+    /* Close #pragma pack for packed structs */
+    if (struct_decl->is_packed)
+    {
+        indented_fprintf(gen, 0, "#pragma pack(pop)\n");
+    }
+
+    (*count_ptr)++;
+}
+
+/* Recursively emit struct typedefs from imported modules */
+static void code_gen_emit_imported_struct_typedefs(CodeGen *gen, Stmt **statements, int count, int *struct_count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        Stmt *stmt = statements[i];
+        if (stmt->type == STMT_STRUCT_DECL)
+        {
+            code_gen_emit_struct_typedef(gen, &stmt->as.struct_decl, struct_count);
+        }
+        else if (stmt->type == STMT_IMPORT && stmt->as.import.imported_stmts != NULL)
+        {
+            /* Recursively process imported modules */
+            code_gen_emit_imported_struct_typedefs(gen, stmt->as.import.imported_stmts,
+                                                   stmt->as.import.imported_count, struct_count);
+        }
+    }
+}
+
+/* Tracking structure for emitted native alias forward declarations */
+typedef struct {
+    const char **names;
+    int count;
+    int capacity;
+} EmittedNativeAliases;
+
+/* Helper to emit native struct forward declaration (with deduplication) */
+static void code_gen_emit_native_alias_fwd(CodeGen *gen, StructDeclStmt *struct_decl,
+                                           int *count_ptr, EmittedNativeAliases *emitted)
+{
+    if (!struct_decl->is_native || struct_decl->c_alias == NULL)
+    {
+        return;
+    }
+
+    /* Check if already emitted */
+    for (int i = 0; i < emitted->count; i++)
+    {
+        if (strcmp(emitted->names[i], struct_decl->c_alias) == 0)
+        {
+            return;
+        }
+    }
+
+    /* Track this alias */
+    if (emitted->count >= emitted->capacity)
+    {
+        int new_cap = emitted->capacity == 0 ? 8 : emitted->capacity * 2;
+        const char **new_arr = arena_alloc(gen->arena, sizeof(const char *) * new_cap);
+        for (int i = 0; i < emitted->count; i++)
+        {
+            new_arr[i] = emitted->names[i];
+        }
+        emitted->names = new_arr;
+        emitted->capacity = new_cap;
+    }
+    emitted->names[emitted->count++] = struct_decl->c_alias;
+
+    if (*count_ptr == 0)
+    {
+        indented_fprintf(gen, 0, "/* Native struct forward declarations */\n");
+    }
+    indented_fprintf(gen, 0, "typedef struct %s %s;\n",
+        struct_decl->c_alias, struct_decl->c_alias);
+    (*count_ptr)++;
+}
+
+/* Recursively emit native struct forward declarations from imports */
+static void code_gen_emit_imported_native_aliases(CodeGen *gen, Stmt **statements, int count,
+                                                   int *alias_count, EmittedNativeAliases *emitted)
+{
+    for (int i = 0; i < count; i++)
+    {
+        Stmt *stmt = statements[i];
+        if (stmt->type == STMT_STRUCT_DECL)
+        {
+            code_gen_emit_native_alias_fwd(gen, &stmt->as.struct_decl, alias_count, emitted);
+        }
+        else if (stmt->type == STMT_IMPORT && stmt->as.import.imported_stmts != NULL)
+        {
+            code_gen_emit_imported_native_aliases(gen, stmt->as.import.imported_stmts,
+                                                   stmt->as.import.imported_count, alias_count, emitted);
+        }
+    }
+}
+
+/* Tracking structure for emitted native extern declarations */
+typedef struct {
+    const char **names;
+    int count;
+    int capacity;
+} EmittedNativeExterns;
+
+/* Helper to check if an extern has already been emitted */
+static bool is_extern_already_emitted(EmittedNativeExterns *emitted, const char *fn_name)
+{
+    for (int i = 0; i < emitted->count; i++)
+    {
+        if (strcmp(emitted->names[i], fn_name) == 0)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Helper to track an emitted extern */
+static void track_emitted_extern(Arena *arena, EmittedNativeExterns *emitted, const char *fn_name)
+{
+    if (emitted->count >= emitted->capacity)
+    {
+        int new_cap = emitted->capacity == 0 ? 16 : emitted->capacity * 2;
+        const char **new_arr = arena_alloc(arena, sizeof(const char *) * new_cap);
+        for (int i = 0; i < emitted->count; i++)
+        {
+            new_arr[i] = emitted->names[i];
+        }
+        emitted->names = new_arr;
+        emitted->capacity = new_cap;
+    }
+    emitted->names[emitted->count++] = fn_name;
+}
+
+/* Check if a list of statements contains an @include pragma */
+static bool has_include_pragma(Stmt **statements, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (statements[i]->type == STMT_PRAGMA &&
+            statements[i]->as.pragma.pragma_type == PRAGMA_INCLUDE)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Recursively emit native extern declarations from imported modules (with deduplication) */
+static void code_gen_emit_imported_native_externs_recursive(
+    CodeGen *gen, Stmt **statements, int count, int *extern_count,
+    EmittedNativeExterns *emitted, bool skip_due_to_include)
+{
+    /* If this module has @include pragma, its native functions are declared in the header */
+    if (!skip_due_to_include && has_include_pragma(statements, count))
+    {
+        skip_due_to_include = true;
+    }
+
+    for (int i = 0; i < count; i++)
+    {
+        Stmt *stmt = statements[i];
+        if (stmt->type == STMT_FUNCTION)
+        {
+            FunctionStmt *fn = &stmt->as.function;
+            if (fn->is_native && fn->body_count == 0)
+            {
+                /* Get function name for checking */
+                char *fn_name = arena_strndup(gen->arena, fn->name.start, fn->name.length);
+
+                /* Skip if module has @include - header provides declarations.
+                 * BUT: still emit declarations for sn_* functions, as these are
+                 * typically defined in @source files, not in the included header. */
+                if (skip_due_to_include && strncmp(fn_name, "sn_", 3) != 0)
+                {
+                    continue;
+                }
+                /* Skip extern declaration for runtime functions (starting with rt_)
+                 * since they are already declared in runtime headers. */
+                if (strncmp(fn_name, "rt_", 3) == 0)
+                {
+                    continue;
+                }
+                /* Skip extern declaration for C standard library functions that are
+                 * already declared in the always-included headers (stdlib.h, string.h,
+                 * stdio.h, etc). Emitting our own extern with different types would
+                 * cause GCC conflicting type errors. */
+                if (is_c_stdlib_function(fn_name))
+                {
+                    continue;
+                }
+                /* Skip if already emitted (deduplication) */
+                if (is_extern_already_emitted(emitted, fn_name))
+                {
+                    continue;
+                }
+                track_emitted_extern(gen->arena, emitted, fn_name);
+                if (*extern_count == 0)
+                {
+                    indented_fprintf(gen, 0, "/* Native function extern declarations */\n");
+                }
+                code_gen_native_extern_declaration(gen, fn);
+                (*extern_count)++;
+            }
+        }
+        else if (stmt->type == STMT_IMPORT && stmt->as.import.imported_stmts != NULL)
+        {
+            /* Recursively process imported modules - each import starts fresh for include check */
+            code_gen_emit_imported_native_externs_recursive(gen, stmt->as.import.imported_stmts,
+                                                            stmt->as.import.imported_count, extern_count, emitted, false);
+        }
+    }
+}
+
+/* Entry point for emitting native extern declarations */
+static void code_gen_emit_imported_native_externs(CodeGen *gen, Stmt **statements, int count, int *extern_count)
+{
+    EmittedNativeExterns emitted = { NULL, 0, 0 };
+    code_gen_emit_imported_native_externs_recursive(gen, statements, count, extern_count, &emitted, false);
+}
+
 /* Collect pragma directives from a list of statements (recursively handles imports) */
 static void code_gen_collect_pragmas(CodeGen *gen, Stmt **statements, int count)
 {
@@ -592,80 +889,20 @@ void code_gen_module(CodeGen *gen, Module *module)
         indented_fprintf(gen, 0, "\n");
     }
 
-    // Emit forward declarations for native structs with c_alias
+    // Emit forward declarations for native structs with c_alias (including imports)
     // These are opaque handle types that alias external C types (e.g., SnDate -> RtDate)
     int native_alias_count = 0;
-    for (int i = 0; i < module->count; i++)
-    {
-        Stmt *stmt = module->statements[i];
-        if (stmt->type == STMT_STRUCT_DECL)
-        {
-            StructDeclStmt *struct_decl = &stmt->as.struct_decl;
-            if (struct_decl->is_native && struct_decl->c_alias != NULL)
-            {
-                if (native_alias_count == 0)
-                {
-                    indented_fprintf(gen, 0, "/* Native struct forward declarations */\n");
-                }
-                indented_fprintf(gen, 0, "typedef struct %s %s;\n",
-                    struct_decl->c_alias, struct_decl->c_alias);
-                native_alias_count++;
-            }
-        }
-    }
+    EmittedNativeAliases emitted_aliases = { NULL, 0, 0 };
+    code_gen_emit_imported_native_aliases(gen, module->statements, module->count,
+                                          &native_alias_count, &emitted_aliases);
     if (native_alias_count > 0)
     {
         indented_fprintf(gen, 0, "\n");
     }
 
-    // Emit struct type definitions
+    // Emit struct type definitions (including imported structs)
     int struct_count = 0;
-    for (int i = 0; i < module->count; i++)
-    {
-        Stmt *stmt = module->statements[i];
-        if (stmt->type == STMT_STRUCT_DECL)
-        {
-            StructDeclStmt *struct_decl = &stmt->as.struct_decl;
-
-            /* Skip native structs that have a c_alias - they are aliases to external types
-             * and should not generate a typedef. The c_alias will be used directly in code. */
-            if (struct_decl->is_native && struct_decl->c_alias != NULL)
-            {
-                continue;
-            }
-
-            if (struct_count == 0)
-            {
-                indented_fprintf(gen, 0, "/* Struct type definitions */\n");
-            }
-            /* Emit #pragma pack for packed structs */
-            if (struct_decl->is_packed)
-            {
-                indented_fprintf(gen, 0, "#pragma pack(push, 1)\n");
-            }
-            /* Generate: typedef struct { fields... } StructName; */
-            indented_fprintf(gen, 0, "typedef struct {\n");
-            for (int j = 0; j < struct_decl->field_count; j++)
-            {
-                StructField *field = &struct_decl->fields[j];
-                const char *c_type = get_c_type(gen->arena, field->type);
-                /* Use c_alias for native struct fields, otherwise mangle the field name
-                 * to avoid conflicts with C reserved words */
-                const char *c_field_name = field->c_alias != NULL
-                    ? field->c_alias
-                    : sn_mangle_name(gen->arena, field->name);
-                indented_fprintf(gen, 1, "%s %s;\n", c_type, c_field_name);
-            }
-            char *struct_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length));
-            indented_fprintf(gen, 0, "} %s;\n", struct_name);
-            /* Close #pragma pack for packed structs */
-            if (struct_decl->is_packed)
-            {
-                indented_fprintf(gen, 0, "#pragma pack(pop)\n");
-            }
-            struct_count++;
-        }
-    }
+    code_gen_emit_imported_struct_typedefs(gen, module->statements, module->count, &struct_count);
     if (struct_count > 0)
     {
         indented_fprintf(gen, 0, "\n");
@@ -881,40 +1118,9 @@ void code_gen_module(CodeGen *gen, Module *module)
         indented_fprintf(gen, 0, "\n");
     }
 
-    // Emit extern declarations for native functions without body
+    // Emit extern declarations for native functions without body (including imported modules)
     int native_extern_count = 0;
-    for (int i = 0; i < module->count; i++)
-    {
-        Stmt *stmt = module->statements[i];
-        if (stmt->type == STMT_FUNCTION)
-        {
-            FunctionStmt *fn = &stmt->as.function;
-            if (fn->is_native && fn->body_count == 0)
-            {
-                /* Skip extern declaration for runtime functions (starting with rt_)
-                 * since they are already declared in runtime headers. */
-                char *fn_name = arena_strndup(gen->arena, fn->name.start, fn->name.length);
-                if (strncmp(fn_name, "rt_", 3) == 0)
-                {
-                    continue;
-                }
-                /* Skip extern declaration for C standard library functions that are
-                 * already declared in the always-included headers (stdlib.h, string.h,
-                 * stdio.h, etc). Emitting our own extern with different types would
-                 * cause GCC conflicting type errors. */
-                if (is_c_stdlib_function(fn_name))
-                {
-                    continue;
-                }
-                if (native_extern_count == 0)
-                {
-                    indented_fprintf(gen, 0, "/* Native function extern declarations */\n");
-                }
-                code_gen_native_extern_declaration(gen, fn);
-                native_extern_count++;
-            }
-        }
-    }
+    code_gen_emit_imported_native_externs(gen, module->statements, module->count, &native_extern_count);
     if (native_extern_count > 0)
     {
         indented_fprintf(gen, 0, "\n");

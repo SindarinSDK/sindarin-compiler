@@ -125,6 +125,12 @@ typedef struct {
      * Used for variable initialization and assignment RHS. */
     bool expr_as_handle;
 
+    /* Namespace prefix for imported module code generation.
+     * When generating code for statements from an imported namespace,
+     * this is set to the namespace name so variable and function names
+     * can be prefixed to avoid collisions between modules. */
+    const char *current_namespace_prefix;
+
     /* Pin counter for unique pin variable names in generated code */
     int pin_counter;
 
@@ -135,6 +141,18 @@ typedef struct {
     char **deferred_global_values;  /* Initializer expressions */
     int deferred_global_count;
     int deferred_global_capacity;
+
+    /* Track which struct methods have been emitted to avoid duplicates
+     * when the same module is imported via different namespace aliases. */
+    const char **emitted_struct_methods;  /* Struct names that have had methods emitted */
+    int emitted_struct_methods_count;
+    int emitted_struct_methods_capacity;
+
+    /* Track which static global variables have been emitted to avoid duplicates
+     * when the same module is imported via different namespace aliases. */
+    const char **emitted_static_globals;  /* Static variable names (mangled) that have been emitted */
+    int emitted_static_globals_count;
+    int emitted_static_globals_capacity;
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

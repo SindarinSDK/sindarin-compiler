@@ -1,0 +1,39 @@
+// Level 5 - imports level 6 with alias
+
+import "./level_06" as level_06
+
+static var staticCounter: int = 500
+var instanceCounter: int = 5
+
+struct TreeNode =>
+    value: int
+    depth: int
+
+var rootNode: TreeNode = TreeNode { value: 50, depth: 5 }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return level_06.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 5
+
+fn computeChainValue(base: int): int =>
+    return level_06.computeChainValue(base + 5)
+
+fn getRootValue(): int =>
+    return rootNode.value
+
+fn setRootValue(v: int): void =>
+    rootNode.value = v
+
+fn getDeepMessage(): str =>
+    return level_06.getStaticMessage()

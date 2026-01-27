@@ -163,7 +163,34 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         return var_name;  /* Native without alias: Sindarin name IS the C name */
     }
 
-    char *mangled = sn_mangle_name(gen->arena, var_name);
+    /* If we're generating code for an imported namespace, prefix global symbols
+     * with the namespace to avoid collisions between different modules.
+     * Both variables and functions need namespace prefixes to match their definitions.
+     * Parameters and local variables are NOT prefixed. */
+    char *mangled;
+    bool should_prefix = false;
+
+    if (gen->current_namespace_prefix != NULL && symbol != NULL)
+    {
+        /* Module-level symbols (variables and functions) should be prefixed.
+         * Parameters and local variables are NOT prefixed.
+         * Functions are added with SYMBOL_LOCAL kind but have is_function=true. */
+        if (symbol->kind == SYMBOL_GLOBAL || symbol->is_function)
+        {
+            should_prefix = true;
+        }
+    }
+
+    if (should_prefix)
+    {
+        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s",
+                                            gen->current_namespace_prefix, var_name);
+        mangled = sn_mangle_name(gen->arena, prefixed_name);
+    }
+    else
+    {
+        mangled = sn_mangle_name(gen->arena, var_name);
+    }
 
     /* Global handle-type variables passed as function arguments (expr_as_handle=true)
      * must be cloned to the local arena. Without cloning, the function would try to

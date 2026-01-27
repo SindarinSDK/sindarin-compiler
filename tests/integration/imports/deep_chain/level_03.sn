@@ -1,0 +1,34 @@
+// Level 3 - imports level 4 with alias
+
+import "./level_04" as level_04
+
+static var staticCounter: int = 300
+static var staticArray: int[] = {30, 31, 32}
+var instanceCounter: int = 3
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn getStaticArraySum(): int =>
+    return staticArray[0] + staticArray[1] + staticArray[2]
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return level_04.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 3
+
+fn computeChainValue(base: int): int =>
+    return level_04.computeChainValue(base + 3)
+
+fn getDirectL14ViaL4(): int =>
+    return level_04.getDirectL14Static()
+
+fn getHolderLevelViaL4(n: int): int =>
+    return level_04.createDirectHolder(n)

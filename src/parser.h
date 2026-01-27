@@ -38,13 +38,14 @@ struct Parser;
 /* Import context for tracking imported modules and enabling import-first processing */
 struct ImportContext
 {
-    char **imported;              /* Array of imported file paths */
-    int *imported_count;          /* Pointer to count (shared across recursive calls) */
-    int *imported_capacity;       /* Pointer to capacity (shared across recursive calls) */
-    Module **imported_modules;    /* Array of parsed imported modules */
-    bool *imported_directly;      /* Array tracking if each import is direct (non-namespaced) */
-    const char *current_file;     /* Path of the file currently being parsed */
-    const char *compiler_dir;     /* Directory containing compiler (for SDK resolution) */
+    char ***imported;              /* Pointer to array of imported file paths (shared for reallocation) */
+    int *imported_count;           /* Pointer to count (shared across recursive calls) */
+    int *imported_capacity;        /* Pointer to capacity (shared across recursive calls) */
+    Module ***imported_modules;    /* Pointer to array of parsed imported modules (shared for reallocation) */
+    bool **imported_directly;      /* Pointer to array tracking if each import is direct (shared for reallocation) */
+    bool **namespace_code_emitted; /* Pointer to array tracking if namespace import already emitted code (shared) */
+    const char *current_file;      /* Path of the file currently being parsed */
+    const char *compiler_dir;      /* Directory containing compiler (for SDK resolution) */
     /* Function pointer for recursive import processing (to avoid circular dependency) */
     Module *(*process_import)(Arena *arena, SymbolTable *symbol_table, const char *import_path,
                               struct ImportContext *ctx);
@@ -105,7 +106,7 @@ Module *parser_execute(Parser *parser, const char *filename);
 Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const char *filename,
                                   char ***imported, int *imported_count, int *imported_capacity,
                                   Module ***imported_modules, bool **imported_directly,
-                                  const char *compiler_dir);
+                                  bool **namespace_code_emitted, const char *compiler_dir);
 
 /* Process an import immediately during parsing - called by parser_import_statement.
  * Returns the parsed module, or NULL if import context is not available or on error.
