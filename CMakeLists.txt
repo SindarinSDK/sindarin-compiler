@@ -655,8 +655,19 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
                 "${VCPKG_INSTALLED_DIR}/lib/libzlib.a"
                 crypt32 wldap32 iphlpapi secur32
             )
+        elseif(APPLE)
+            # macOS: link curl with SSL and required system frameworks
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+                "-framework CoreFoundation"
+                "-framework SystemConfiguration"
+                "-framework Security"
+            )
         else()
-            # Unix: link curl with SSL
+            # Linux: link curl with SSL
             target_link_libraries(sn PRIVATE
                 "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
                 "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
