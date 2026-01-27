@@ -286,6 +286,9 @@ bool updater_perform_update(bool verbose)
     /* Check for valid download URL */
     if (info->download_url[0] == '\0') {
         fprintf(stderr, "Error: No download URL found for this platform\n");
+        fprintf(stderr, "  Expected asset suffix: %s\n", updater_get_platform_suffix());
+        fprintf(stderr, "  Release version: %s (tag: %s)\n", info->version, info->tag_name);
+        fprintf(stderr, "  The release may not have platform-specific assets uploaded yet.\n");
         return false;
     }
 
