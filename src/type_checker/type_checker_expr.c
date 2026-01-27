@@ -750,7 +750,7 @@ static Type *type_check_member(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
-normal_member_access:
+normal_member_access:;  /* Empty statement needed - labels cannot be followed directly by declarations in C11/C17 */
 
     Type *object_type = type_check_expr(expr->as.member.object, table);
     if (object_type == NULL)
