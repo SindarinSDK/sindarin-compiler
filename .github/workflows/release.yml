@@ -350,12 +350,12 @@ jobs:
 
       - name: Generate manifests
         run: |
-          # TAG is the full release tag (e.g., 0.0.15-alpha) - used in URLs
+          # TAG is the full release tag (e.g., v0.0.15-alpha) - used in URLs
           TAG="${{ env.VERSION }}"
-          TAG="${TAG#v}"
 
           # VERSION is numeric only (e.g., 0.0.15) - required by winget
-          VERSION="${TAG%%-*}"
+          VERSION="${TAG#v}"
+          VERSION="${VERSION%%-*}"
 
           # Find the Windows ZIP and calculate SHA256
           ZIP_FILE=$(find artifacts -name "sindarin-*.zip" | head -1)
@@ -426,12 +426,12 @@ jobs:
 
       - name: Generate formula
         run: |
-          # TAG is the full release tag (e.g., 0.0.15-alpha) - used in URLs
+          # TAG is the full release tag (e.g., v0.0.15-alpha) - used in URLs
           TAG="${{ env.VERSION }}"
-          TAG="${TAG#v}"
 
           # VERSION is numeric only (e.g., 0.0.15) - for formula version
-          VERSION="${TAG%%-*}"
+          VERSION="${TAG#v}"
+          VERSION="${VERSION%%-*}"
 
           # Find the macOS tarball and calculate SHA256
           TARBALL=$(find artifacts -name "sindarin-*.tar.gz" | head -1)
@@ -480,12 +480,12 @@ jobs:
 
       - name: Generate PKGBUILD
         run: |
-          # TAG is the full release tag (e.g., 0.0.15-alpha) - used in URLs
+          # TAG is the full release tag (e.g., v0.0.15-alpha) - used in URLs
           TAG="${{ env.VERSION }}"
-          TAG="${TAG#v}"
 
           # VERSION is numeric only (e.g., 0.0.15) - for package version
-          VERSION="${TAG%%-*}"
+          VERSION="${TAG#v}"
+          VERSION="${VERSION%%-*}"
 
           # Find the Linux tarball and calculate SHA256
           TARBALL=$(find artifacts -name "sindarin-*.tar.gz" | head -1)
