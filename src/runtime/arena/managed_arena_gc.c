@@ -100,8 +100,11 @@ static bool clean_arena(RtManagedArena *ma)
     pthread_mutex_lock(&ma->alloc_mutex);
     pthread_mutex_lock(&root->pin_mutex);
 
+    /* For child arenas, indices below index_offset don't have pages allocated.
+     * Start from index_offset (or 1 for root arenas where index_offset is 0). */
+    uint32_t start = (ma->index_offset > 1) ? ma->index_offset : 1;
     uint32_t count = ma->table_count;
-    for (uint32_t i = 1; i < count; i++) {
+    for (uint32_t i = start; i < count; i++) {
         RtHandleEntry *entry = rt_handle_get(ma, i);
         if (!entry->dead || entry->ptr == NULL || entry->leased != 0) {
             continue;
@@ -189,7 +192,10 @@ void rt_managed_compact(RtManagedArena *ma)
     RtManagedBlock *old_first = ma->first;
     uint32_t table_count = ma->table_count;
 
-    for (uint32_t i = 1; i < table_count; i++) {
+    /* For child arenas, indices below index_offset don't have pages allocated.
+     * Start from index_offset (or 1 for root arenas where index_offset is 0). */
+    uint32_t start = (ma->index_offset > 1) ? ma->index_offset : 1;
+    for (uint32_t i = start; i < table_count; i++) {
         RtHandleEntry *entry = rt_handle_get(ma, i);
 
         if (entry->dead || entry->ptr == NULL) {
@@ -325,8 +331,61 @@ static bool block_has_active_entries(RtManagedBlock *block)
     return block->lease_count > 0 || block->pinned_count > 0;
 }
 
+/* Rescue orphaned entries from a block about to be freed.
+ * These are entries that were skipped during compaction (because they were leased)
+ * and have since been unpinned. Their data must be copied to a live block before
+ * the retired block can be freed.
+ * Caller must hold both alloc_mutex and pin_mutex. */
+static void rescue_orphaned_entries(RtManagedArena *ma, RtManagedBlock *block)
+{
+    uint32_t start = (ma->index_offset > 1) ? ma->index_offset : 1;
+    uint32_t end = ma->table_count;
+
+    for (uint32_t i = start; i < end; i++) {
+        RtHandleEntry *entry = rt_handle_get(ma, i);
+        if (entry->block != block) continue;
+        if (entry->ptr == NULL || entry->dead) continue;
+
+        /* Found a live entry pointing to this block - rescue it */
+        size_t aligned = align_up_compact(entry->size, sizeof(void *));
+
+        /* Try current block first */
+        void *new_ptr = NULL;
+        size_t cur_used = atomic_load_explicit(&ma->current->used, memory_order_relaxed);
+        if (cur_used + aligned <= ma->current->size) {
+            if (atomic_compare_exchange_strong_explicit(&ma->current->used, &cur_used,
+                                                        cur_used + aligned,
+                                                        memory_order_acquire,
+                                                        memory_order_relaxed)) {
+                new_ptr = ma->current->data + cur_used;
+            }
+        }
+
+        /* Need a new block */
+        if (new_ptr == NULL) {
+            size_t new_size = ma->block_size;
+            if (aligned > new_size) new_size = aligned;
+
+            RtManagedBlock *new_block = managed_block_create_compact(new_size);
+            ma->total_allocated += sizeof(RtManagedBlock) + new_size;
+            ma->current->next = new_block;
+            ma->current = new_block;
+
+            atomic_store_explicit(&new_block->used, aligned, memory_order_relaxed);
+            new_ptr = new_block->data;
+        }
+
+        /* Copy data and update entry */
+        memcpy(new_ptr, entry->ptr, entry->size);
+        entry->ptr = new_ptr;
+        entry->block = ma->current;
+    }
+}
+
 /* Try to free retired blocks whose entries are all unleased.
- * Uses pin_mutex to safely check lease_count and pinned_count. */
+ * Uses pin_mutex to safely check lease_count and pinned_count.
+ * Before freeing, rescues any orphaned entries (live entries that were
+ * skipped during compaction because they were leased). */
 static void retire_drained_blocks(RtManagedArena *ma)
 {
     RtManagedArena *root = rt_managed_arena_root(ma);
@@ -340,6 +399,10 @@ static void retire_drained_blocks(RtManagedArena *ma)
     while (block != NULL) {
         RtManagedBlock *next = block->next;
         if (!block_has_active_entries(block)) {
+            /* Before freeing, rescue any live entries still pointing to this block.
+             * These are entries that were skipped during compaction (leased at the time)
+             * and have since been unpinned. */
+            rescue_orphaned_entries(ma, block);
             *prev = next;
             managed_block_free_gc(block);
         } else {
@@ -362,7 +425,27 @@ void *rt_managed_compactor_thread(void *arg)
         RtManagedArena *arenas[MAX_ARENA_SNAPSHOT];
         int arena_count = snapshot_arena_tree(root, arenas, MAX_ARENA_SNAPSHOT);
 
-        /* Check fragmentation and compact each arena */
+        /* FIRST PASS: Free retired blocks from PREVIOUS iteration.
+         * This ensures at least one sleep interval between retiring blocks
+         * (when compaction installs new blocks) and freeing them, giving
+         * in-flight lock-free allocators time to complete and check epochs. */
+        for (int a = 0; a < arena_count; a++) {
+            if (!atomic_load(&root->running)) break;
+
+            RtManagedArena *ma = arenas[a];
+            atomic_fetch_add(&ma->gc_processing, 1);
+            if (atomic_load(&ma->destroying)) {
+                atomic_fetch_sub(&ma->gc_processing, 1);
+                continue;
+            }
+
+            retire_drained_blocks(ma);
+
+            atomic_fetch_sub(&ma->gc_processing, 1);
+        }
+
+        /* SECOND PASS: Check fragmentation and compact each arena.
+         * This may retire more blocks, which will be freed in the next iteration. */
         for (int a = 0; a < arena_count; a++) {
             if (!atomic_load(&root->running)) break;
 
@@ -383,9 +466,6 @@ void *rt_managed_compactor_thread(void *arg)
             if (high_frag || low_util) {
                 rt_managed_compact(ma);
             }
-
-            /* Try to free fully-drained retired blocks */
-            retire_drained_blocks(ma);
 
             atomic_fetch_sub(&ma->gc_processing, 1);
         }
