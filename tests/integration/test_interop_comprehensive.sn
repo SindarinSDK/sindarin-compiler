@@ -22,6 +22,8 @@ type OpaqueHandle = opaque
 native fn sin(x: double): double
 native fn cos(x: double): double
 native fn sqrt(x: double): double
+
+@alias "printf"
 native fn test_printf(format: str, ...): int32
 
 # === Native Callback Types ===
