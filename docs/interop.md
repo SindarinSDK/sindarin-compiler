@@ -11,8 +11,8 @@ Since Sindarin compiles to C, interoperability is natural but requires explicit 
 ## Overview
 
 ```sindarin
-#pragma include <math.h>
-#pragma link m
+@include <math.h>
+@link m
 
 native fn sin(x: double): double
 native fn cos(x: double): double
@@ -23,6 +23,24 @@ fn main(): int =>
     print($"cos(45°) = {cos(angle)}\n")
     return 0
 ```
+
+---
+
+## Importing SDK Modules
+
+Use `import` to include SDK modules or other Sindarin files:
+
+```sindarin
+import "sdk/time/date"
+import "sdk/net/tcp"
+import "sdk/encoding/json"
+
+fn main(): void =>
+    var today: Date = Date.today()
+    print($"Today: {today.toIso()}\n")
+```
+
+Import paths are resolved relative to the compiler's SDK directory or the current file's directory.
 
 ---
 
@@ -39,15 +57,15 @@ native fn <name>(<params>): <return_type>
 ### Examples
 
 ```sindarin
-// Math library
+# Math library
 native fn sin(x: double): double
 native fn cos(x: double): double
 native fn sqrt(x: double): double
 
-// Standard I/O
+# Standard I/O
 native fn puts(s: str): int
 
-// Memory (if exposed)
+# Memory (if exposed)
 native fn malloc(size: int): *void
 native fn free(ptr: *void): void
 ```
@@ -62,17 +80,52 @@ Native declarations generate C function prototypes:
 extern double sin(double x);
 ```
 
+### The `@alias` Annotation
+
+Use `@alias` to specify a different C function name than the Sindarin name:
+
+```sindarin
+@alias "compress2"
+native fn compressLevel(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint, level: int): int
+
+@alias "uncompress"
+native fn decompress(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint): int
+```
+
+This generates calls to the C function name specified in `@alias` while using the Sindarin name in your code.
+
+### Implicit Arena Parameter
+
+Native functions that allocate memory can receive the arena implicitly by declaring `arena` as the first parameter (without a type):
+
+```sindarin
+# Arena is automatically passed by the compiler
+native fn sn_date_today(arena): Date
+native fn sn_string_concat(arena, a: str, b: str): str
+
+# Called without explicitly passing arena
+fn example(): void =>
+    var today: Date = sn_date_today()  # Arena passed automatically
+```
+
+This is primarily used in SDK implementations where C code needs to allocate into the Sindarin arena.
+
 ---
 
-## Pragma Directives
+## Compiler Directives
 
-Pragma statements control compilation behavior for C interop. They use **WYSIWYG (What You See Is What You Get) syntax** — what you write is exactly what gets emitted.
+Directives control compilation behavior for C interop. Sindarin supports two syntaxes: **annotation syntax** (`@directive`) and **pragma syntax** (`#pragma directive`). Both are equivalent; the annotation syntax is preferred for new code.
 
 ### Header Inclusion
 
 ```sindarin
+# Annotation syntax (preferred)
+@include <math.h>
+@include <stdlib.h>
+@include "mylib.h"
+
+# Pragma syntax (also supported)
 #pragma include <math.h>
-#pragma include <stdlib.h>
 #pragma include "mylib.h"
 ```
 
@@ -88,20 +141,29 @@ System headers use angle brackets (`<header.h>`), local headers use quotes (`"he
 ### Library Linking
 
 ```sindarin
+# Annotation syntax (preferred)
+@link m
+@link pthread
+@link z
+
+# Pragma syntax (also supported)
 #pragma link m
 #pragma link pthread
-#pragma link z
 ```
 
 **Compiler behavior:** These directives instruct the compiler to pass `-lm`, `-lpthread`, `-lz`, etc. to the C compiler/linker.
 
 ### C Source File Compilation
 
-The `#pragma source` directive compiles and links additional C source files with your Sindarin code:
+The `@source` directive compiles and links additional C source files with your Sindarin code:
 
 ```sindarin
+# Annotation syntax (preferred)
+@source "helper.sn.c"
+@source "wrapper.c"
+
+# Pragma syntax (also supported)
 #pragma source "helper.c"
-#pragma source "wrapper.c"
 ```
 
 **Use cases:**
@@ -111,37 +173,35 @@ The `#pragma source` directive compiles and links additional C source files with
 
 **Path resolution:** Paths are resolved relative to the Sindarin source file's directory.
 
-**Example — Variadic Printf Wrapper:**
+**Example — SDK Module Pattern:**
 
 ```sindarin
-# test_variadic.sn
-#pragma source "printf_helper.c"
+# sdk/time/date.sn
+@source "date.sn.c"
 
-# Custom printf wrapper defined in the helper C file
-native fn test_printf(format: str, ...): int32
+@alias "RtDate"
+native struct Date as ref =>
+    @alias "days"
+    _days: int32
 
-fn main(): int =>
-    test_printf("Hello, %s! Value: %ld\n", "World", 42)
-    return 0
+    static fn today(): Date =>
+        return sn_date_today()
+
+native fn sn_date_today(arena): Date
 ```
 
 ```c
-// printf_helper.c
-#include <stdio.h>
-#include <stdarg.h>
-#include <stdint.h>
+// date.sn.c
+#include "runtime/runtime_arena.h"
 
-// Wrapper with explicit int32_t return to match Sindarin's int32
-int32_t test_printf(char *format, ...) {
-    va_list args;
-    va_start(args, format);
-    int result = vprintf(format, args);
-    va_end(args);
-    return (int32_t)result;
+typedef struct RtDate {
+    int32_t days;
+} RtDate;
+
+RtDate *sn_date_today(RtArena *arena) {
+    // Implementation...
 }
 ```
-
-This is useful when C library function signatures don't match Sindarin's type system exactly (e.g., `printf` returns `int`, not `int32_t`).
 
 ---
 
@@ -178,6 +238,7 @@ Sindarin types naturally map to C types.
 | `fn(...): T` (native) | Custom typedef | C function pointer |
 | `struct S` | `S` or `S *` | Value or pointer depending on context |
 | `native struct S` | `S` | Matches C struct layout exactly |
+| `native struct S as ref` | `S *` | Pointer to C struct (handle type) |
 | `opaque` | `void` or named | Opaque handle type |
 
 ### Type Mismatch Considerations
@@ -190,8 +251,188 @@ When declaring native functions, ensure Sindarin type mappings match the actual 
 | `native fn bar(): bool` | `extern bool bar()` | C function may return `int` (0/1) |
 
 **Solutions:**
-1. Use `#pragma source` to provide a C wrapper function with matching types
+1. Use `@source` to provide a C wrapper function with matching types
 2. Use explicit sized types (`int32`, `uint32`) when interfacing with C APIs that use fixed-width types
+
+---
+
+## Native Structs with Methods
+
+Native structs can include methods, enabling an object-oriented interface to C code. This is the primary pattern used in the SDK.
+
+### Basic Syntax
+
+```sindarin
+@alias "CStructName"
+native struct MyType as ref =>
+    @alias "c_field_name"
+    _field: int32
+
+    # Static factory method
+    static fn create(): MyType =>
+        return c_create_function()
+
+    # Instance method (non-native, receives arena)
+    fn format(): str =>
+        return c_format_function(self)
+
+    # Native instance method (direct C binding)
+    @alias "c_get_value"
+    native fn getValue(): int
+```
+
+### The `as ref` Modifier
+
+When a native struct is declared with `as ref`, instances are passed by pointer:
+
+```sindarin
+# Without 'as ref' - passed by value (copied)
+native struct Point =>
+    x: double
+    y: double
+
+# With 'as ref' - passed by pointer (handle type)
+@alias "RtDate"
+native struct Date as ref =>
+    _days: int32
+```
+
+Use `as ref` for:
+- Handle types that should not be copied
+- Structs that need to be modified by C code
+- Large structs where copying is expensive
+
+### The `@alias` Annotation
+
+`@alias` maps Sindarin names to C names at three levels:
+
+**1. Struct type alias:**
+```sindarin
+@alias "RtProcess"
+native struct Process as ref =>
+    ...
+```
+Maps `Process` to `RtProcess*` in generated C code.
+
+**2. Field alias:**
+```sindarin
+@alias "exit_code"
+_exitCode: int32
+```
+Maps `_exitCode` to the C field `exit_code`.
+
+**3. Method alias:**
+```sindarin
+@alias "sn_process_get_exit_code"
+native fn exitCode(): int
+```
+Calls the C function `sn_process_get_exit_code` when `exitCode()` is invoked.
+
+### Method Types
+
+Native structs support three types of methods:
+
+**1. Static methods (`static fn`)** - Factory methods and utilities:
+```sindarin
+static fn today(): Date =>
+    return sn_date_today()
+
+static fn fromYmd(year: int, month: int, day: int): Date =>
+    return sn_date_from_ymd(year, month, day)
+```
+
+**2. Instance methods (`fn`)** - Methods that need arena access:
+```sindarin
+fn format(pattern: str): str =>
+    return sn_date_format(self, pattern)
+
+fn addDays(days: int): Date =>
+    return sn_date_add_days(self, days)
+```
+
+**3. Native instance methods (`native fn`)** - Direct C bindings:
+```sindarin
+@alias "sn_date_get_year"
+native fn year(): int
+
+@alias "sn_date_get_month"
+native fn month(): int
+```
+
+### The `self` Keyword
+
+Inside instance methods, `self` refers to the current instance:
+
+```sindarin
+native struct Process as ref =>
+    _exitCode: int32
+
+    fn success(): bool =>
+        return self.exitCode() == 0
+
+    fn failed(): bool =>
+        return self.exitCode() != 0
+```
+
+For non-native methods, `self` is automatically passed to C functions that need the instance.
+
+### Complete SDK Example
+
+```sindarin
+# sdk/os/process.sn
+@source "process.sn.c"
+
+@alias "RtProcess"
+native struct Process as ref =>
+    @alias "exit_code"
+    _exitCode: int32
+
+    @alias "stdout_h"
+    _stdout: str
+
+    @alias "stderr_h"
+    _stderr: str
+
+    # Static factory methods
+    static fn run(cmd: str): Process =>
+        return sn_process_run(cmd)
+
+    static fn runArgs(cmd: str, args: str[]): Process =>
+        return sn_process_run_args(cmd, args)
+
+    # Native getter methods
+    @alias "sn_process_get_exit_code"
+    native fn exitCode(): int
+
+    @alias "sn_process_get_stdout"
+    native fn stdout(): str
+
+    @alias "sn_process_get_stderr"
+    native fn stderr(): str
+
+    # Convenience methods using self
+    fn success(): bool =>
+        return self.exitCode() == 0
+
+    fn failed(): bool =>
+        return self.exitCode() != 0
+
+# Runtime function declarations
+native fn sn_process_run(arena, cmd: str): Process
+native fn sn_process_run_args(arena, cmd: str, args: str[]): Process
+```
+
+**Usage:**
+```sindarin
+import "sdk/os/process"
+
+fn main(): void =>
+    var p: Process = Process.run("pwd")
+    if p.success() =>
+        print(p.stdout())
+    else =>
+        print($"Error: {p.stderr()}\n")
+```
 
 ---
 
@@ -203,8 +444,8 @@ Sindarin uses C-style pointer syntax for native interop, with safety restriction
 
 ```sindarin
 var p: *int = ...
-var pp: **char = ...    // pointer to pointer
-var vp: *void = ...     // void pointer
+var pp: **char = ...    # pointer to pointer
+var vp: *void = ...     # void pointer
 ```
 
 ### Null Pointers
@@ -234,21 +475,21 @@ The `as val` operator copies the data a pointer points to into the arena:
 native fn get_number(): *int
 native fn get_name(): *char
 
-// Native function - can work with pointers directly
+# Native function - can work with pointers directly
 native fn process_ptr(): int =>
-    var p: *int = get_number()      // OK: store pointer
-    var val: int = p as val         // Read value from pointer
+    var p: *int = get_number()      # OK: store pointer
+    var val: int = p as val         # Read value from pointer
     return val
 
-// Regular function - must unwrap immediately with 'as val'
+# Regular function - must unwrap immediately with 'as val'
 fn process(): int =>
-    var val: int = get_number() as val    // OK: unwrapped to int
-    var name: str = get_name() as val     // OK: unwrapped to str
+    var val: int = get_number() as val    # OK: unwrapped to int
+    var name: str = get_name() as val     # OK: unwrapped to str
     return val
 
-// ERROR: cannot store pointer in non-native function
+# ERROR: cannot store pointer in non-native function
 fn bad(): void =>
-    var p: *int = get_number()            // Compile error: pointer type not allowed
+    var p: *int = get_number()            # Compile error: pointer type not allowed
 ```
 
 ### `as val` Semantics for Pointers
@@ -265,10 +506,10 @@ native fn get_data(): *byte
 native fn get_len(): int
 
 fn example(): void =>
-    // C string - null terminated, length implicit
+    # C string - null terminated, length implicit
     var home: str = getenv("HOME") as val
 
-    // Buffer - need explicit length via slice syntax
+    # Buffer - need explicit length via slice syntax
     var len: int = get_len()
     var data: byte[] = get_data()[0..len] as val
 ```
@@ -280,13 +521,13 @@ When C functions need to write results back, use `as ref` parameters. The compil
 #### Basic Usage
 
 ```sindarin
-// C function: void get_dimensions(int* width, int* height)
+# C function: void get_dimensions(int* width, int* height)
 native fn get_dimensions(width: int as ref, height: int as ref): void
 
 fn example(): void =>
     var w: int = 0
     var h: int = 0
-    get_dimensions(w, h)    // Compiler passes &w, &h automatically
+    get_dimensions(w, h)    # Compiler passes &w, &h automatically
     print($"Size: {w}x{h}\n")
 ```
 
@@ -304,16 +545,16 @@ This happens transparently - the caller just passes the variable normally.
 `as ref` also works in native function bodies, allowing you to write Sindarin wrappers that modify out-parameters:
 
 ```sindarin
-// Native function with body that writes to out-parameters
+# Native function with body that writes to out-parameters
 native fn compute_stats(a: int, b: int, sum: int as ref, product: int as ref): void =>
     sum = a + b
     product = a * b
 
-// Usage
+# Usage
 var s: int = 0
 var p: int = 0
 compute_stats(7, 6, s, p)
-print($"Sum: {s}, Product: {p}\n")  // Sum: 13, Product: 42
+print($"Sum: {s}, Product: {p}\n")  # Sum: 13, Product: 42
 ```
 
 #### Supported Types
@@ -348,7 +589,7 @@ native fn divide_with_remainder(
 var q: int = 0
 var r: int = 0
 divide_with_remainder(17, 5, q, r)
-print($"17 / 5 = {q} remainder {r}\n")  // 17 / 5 = 3 remainder 2
+print($"17 / 5 = {q} remainder {r}\n")  # 17 / 5 = 3 remainder 2
 ```
 
 See `tests/integration/test_as_ref_out_params.sn` and `tests/integration/test_interop_pointers.sn` for comprehensive examples.
@@ -366,16 +607,16 @@ native fn free(ptr: *void): void
 native fn get_handle(): *int
 native fn use_handle(h: *int): void
 
-// Regular function
+# Regular function
 fn example(): void =>
-    var val: int = get_handle() as val   // OK: unwrapped
+    var val: int = get_handle() as val   # OK: unwrapped
 
-    use_handle(get_handle())             // OK: pointer passed directly
+    use_handle(get_handle())             # OK: pointer passed directly
 
-    var p: *int = get_handle()           // ERROR: can't store pointer
-    use_handle(p)                        // ERROR: can't use stored pointer
+    var p: *int = get_handle()           # ERROR: can't store pointer
+    use_handle(p)                        # ERROR: can't use stored pointer
 
-    free(malloc(100))                    // OK: pointer passed directly
+    free(malloc(100))                    # OK: pointer passed directly
 ```
 
 ---
@@ -394,10 +635,10 @@ native fn get_buffer(): *byte
 native fn get_buffer_len(): int
 
 fn example(): void =>
-    // C string - unwrap to str
+    # C string - unwrap to str
     var home: str = getenv("HOME") as val
 
-    // Buffer with length
+    # Buffer with length
     var len: int = get_buffer_len()
     var data: byte[] = get_buffer()[0..len] as val
 ```
@@ -407,11 +648,11 @@ fn example(): void =>
 For native functions declared with `str` or array return types, the default is to copy into the arena:
 
 ```sindarin
-// C's malloc'd result is copied into Sindarin's arena, C memory is freed
+# C's malloc'd result is copied into Sindarin's arena, C memory is freed
 native fn strdup(s: str): str
 
 fn example(): void =>
-    var dup: str = strdup("hello")  // Automatically copied to arena
+    var dup: str = strdup("hello")  # Automatically copied to arena
 ```
 
 ### Parameter Semantics
@@ -423,14 +664,14 @@ fn example(): void =>
 | `as ref` | Pass pointer for out-param | C writes results back to caller's variable | `func(&variable)` |
 
 ```sindarin
-// Default: pass by reference (C sees pointer to arena memory)
+# Default: pass by reference (C sees pointer to arena memory)
 native fn strlen(s: str): int
 native fn process(data: byte[]): void
 
-// as val: copy first, then pass the copy
+# as val: copy first, then pass the copy
 native fn sort_inplace(data: int[] as val): void
 
-// as ref: compiler generates &variable, C writes back through pointer
+# as ref: compiler generates &variable, C writes back through pointer
 native fn get_size(width: int as ref, height: int as ref): void
 ```
 
@@ -439,10 +680,10 @@ native fn get_size(width: int as ref, height: int as ref): void
 For arrays and strings, the **default** already passes a pointer (to arena memory). Use `as ref` specifically for **primitives** when C needs to write back:
 
 ```sindarin
-// Default for arrays - already passes pointer, C can modify contents
+# Default for arrays - already passes pointer, C can modify contents
 native fn fill_buffer(buf: byte[]): void
 
-// as ref for primitives - enables write-back to caller's variable
+# as ref for primitives - enables write-back to caller's variable
 native fn get_count(count: int as ref): void
 ```
 
@@ -452,14 +693,14 @@ Inside native function bodies, `as ref` can be used as an expression operator (c
 
 ```sindarin
 native fn call_c_api(data: byte[]): void =>
-    // Get pointer from array - equivalent to C's array decay
+    # Get pointer from array - equivalent to C's array decay
     var ptr: *byte = data as ref
 
-    // Get pointer from scalar value - equivalent to &value in C
+    # Get pointer from scalar value - equivalent to &value in C
     var count: int = 42
     var count_ptr: *int = count as ref
 
-    // Common usage: pass array as pointer to C functions
+    # Common usage: pass array as pointer to C functions
     c_function(data as ref, data.length)
 ```
 
@@ -473,7 +714,7 @@ native fn call_c_api(data: byte[]): void =>
 This is particularly useful for calling C APIs that expect raw pointers:
 
 ```sindarin
-#pragma link z
+@link z
 
 native fn compress(dest: *byte, destLen: uint as ref, source: *byte, sourceLen: uint): int
 
@@ -481,7 +722,7 @@ native fn compress_data(source: byte[]): byte[] =>
     var dest: byte[1024]
     var destLen: uint = 1024
 
-    // Use 'as ref' to get pointers from arrays
+    # Use 'as ref' to get pointers from arrays
     compress(dest as ref, destLen, source as ref, source.length)
 
     return dest[0..destLen] as val
@@ -554,7 +795,7 @@ native fn fprintf(f: *FILE, format: str, ...): int
 ### Example
 
 ```sindarin
-#pragma include <stdio.h>
+@include <stdio.h>
 
 native fn printf(format: str, ...): int
 
@@ -591,7 +832,7 @@ Sindarin's lambda syntax extends to C-compatible function pointers using the `na
 ### Defining Native Callback Types
 
 ```sindarin
-// Native callback type - C-compatible function pointer
+# Native callback type - C-compatible function pointer
 type EventCallback = native fn(event: int, userdata: *void): void
 type Comparator = native fn(a: *void, b: *void): int
 type SignalHandler = native fn(signal: int): void
@@ -600,8 +841,8 @@ type SignalHandler = native fn(signal: int): void
 ### Declaring C Functions That Accept Callbacks
 
 ```sindarin
-#pragma include <stdlib.h>
-#pragma include <signal.h>
+@include <stdlib.h>
+@include <signal.h>
 
 type SignalHandler = native fn(sig: int): void
 type QsortComparator = native fn(a: *void, b: *void): int
@@ -619,7 +860,7 @@ native fn setup_signal_handler(): void =>
     var handler: SignalHandler = fn(sig: int): void =>
         print($"Received signal: {sig}\n")
 
-    signal(2, handler)  // SIGINT
+    signal(2, handler)  # SIGINT
 ```
 
 ### Restrictions: No Closures
@@ -630,9 +871,9 @@ Native callbacks **cannot capture variables** from their enclosing scope. C func
 native fn setup(): void =>
     var counter: int = 0
 
-    // ERROR: Native lambda cannot capture 'counter'
+    # ERROR: Native lambda cannot capture 'counter'
     var handler: Callback = fn(event: int, data: *void): void =>
-        counter = counter + 1  // Compile error!
+        counter = counter + 1  # Compile error!
         print($"Event: {event}\n")
 ```
 
@@ -651,7 +892,7 @@ Use the `void* userdata` pattern instead for state passing.
 ### Complete Example: qsort
 
 ```sindarin
-#pragma include <stdlib.h>
+@include <stdlib.h>
 
 type Comparator = native fn(a: *void, b: *void): int
 
@@ -667,12 +908,12 @@ native fn sort_integers(arr: int[]): void =>
             return 1
         return 0
 
-    qsort(arr as ref, arr.length, 8, cmp)  // 8 = sizeof(int64_t)
+    qsort(arr as ref, arr.length, 8, cmp)  # 8 = sizeof(int64_t)
 
 fn main(): void =>
     var numbers: int[] = {5, 2, 8, 1, 9}
     sort_integers(numbers)
-    print($"Sorted: {numbers}\n")  // {1, 2, 5, 8, 9}
+    print($"Sorted: {numbers}\n")  # {1, 2, 5, 8, 9}
 ```
 
 ---
@@ -688,7 +929,7 @@ native fn fopen(path: str, mode: str): *FILE
 native fn fclose(f: *FILE): int
 native fn fread(buf: byte[], size: int, count: int, f: *FILE): int
 
-// Wrapper handles the pointer lifecycle
+# Wrapper handles the pointer lifecycle
 native fn read_file(path: str): str =>
     var f: *FILE = fopen(path, "rb")
     if f == nil =>
@@ -698,7 +939,7 @@ native fn read_file(path: str): str =>
     fclose(f)
     return buf[0..n].toString()
 
-// Regular function uses the safe wrapper
+# Regular function uses the safe wrapper
 fn process(path: str): void =>
     var data: str = read_file(path)
     print(data)
@@ -709,14 +950,14 @@ fn process(path: str): void =>
 For simple native functions, use the expression-bodied syntax where the expression follows `=>` on the same line:
 
 ```sindarin
-// Simple arithmetic
+# Simple arithmetic
 native fn double_it(x: int): int => x * 2
 native fn negate(x: double): double => -x
 
-// Pointer operations with expression body
+# Pointer operations with expression body
 native fn is_null(ptr: *void): bool => ptr == nil
 
-// Wrapping a C function call
+# Wrapping a C function call
 native fn abs_val(x: int): int => (x < 0) ? -x : x
 ```
 
@@ -730,11 +971,11 @@ native fn double_it(x: int): int =>
 Expression-bodied syntax is particularly useful for thin wrappers around C library functions:
 
 ```sindarin
-#pragma include <math.h>
-#pragma link m
+@include <math.h>
+@link m
 
-native fn sin(x: double): double     // External C function
-native fn cos(x: double): double     // External C function
+native fn sin(x: double): double     # External C function
+native fn cos(x: double): double     # External C function
 
 native fn degrees_to_radians(deg: double): double => deg * 3.14159 / 180.0
 native fn sin_deg(deg: double): double => sin(degrees_to_radians(deg))
@@ -789,9 +1030,9 @@ In native functions, `sizeof` works on pointer types:
 
 ```sindarin
 native fn example(): void =>
-    var ptr_size: int = sizeof(*int)     // 8
-    var void_ptr: int = sizeof(*void)    // 8
-    var struct_ptr: int = sizeof(*Point) // 8
+    var ptr_size: int = sizeof(*int)     # 8
+    var void_ptr: int = sizeof(*void)    # 8
+    var struct_ptr: int = sizeof(*Point) # 8
 ```
 
 ### Arrays vs Element Size
@@ -800,8 +1041,8 @@ For arrays, use `sizeof` on the element type, not the array:
 
 ```sindarin
 native fn process_array(arr: int[]): void =>
-    // sizeof(arr) returns 8 (pointer size)
-    // sizeof(int) returns 8 (element size)
+    # sizeof(arr) returns 8 (pointer size)
+    # sizeof(int) returns 8 (element size)
     var total_bytes: int = arr.length * sizeof(int)
 ```
 
@@ -812,8 +1053,8 @@ The `sizeof` operator returns the size in bytes of any type or variable.
 ## Complete Example: Using the Math Library
 
 ```sindarin
-#pragma include <math.h>
-#pragma link m
+@include <math.h>
+@link m
 
 native fn sin(x: double): double
 native fn cos(x: double): double
@@ -898,6 +1139,20 @@ native fn convert(days: int): SdkDate =>
 ```
 
 This restriction ensures native structs maintain C-compatible memory layout and are only manipulated in contexts where the code generator produces direct C struct operations.
+
+---
+
+## Summary: Annotation Reference
+
+| Annotation | Target | Purpose |
+|------------|--------|---------|
+| `@include <header.h>` | File | Include C header |
+| `@include "header.h"` | File | Include local C header |
+| `@link library` | File | Link with C library |
+| `@source "file.c"` | File | Compile and link C source |
+| `@alias "name"` | Struct | Map Sindarin struct to C struct name |
+| `@alias "name"` | Field | Map Sindarin field to C field name |
+| `@alias "name"` | Method | Map Sindarin method to C function |
 
 ---
 
