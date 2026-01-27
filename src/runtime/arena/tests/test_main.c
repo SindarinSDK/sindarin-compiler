@@ -15,6 +15,7 @@ extern void test_concurrency_run(void);
 extern void test_hierarchy_run(void);
 extern void test_api_run(void);
 extern void test_stress_run(void);
+extern void test_race_detection_run(void);
 
 int main(void)
 {
@@ -29,6 +30,7 @@ int main(void)
     test_hierarchy_run();
     test_api_run();
     test_stress_run();
+    test_race_detection_run();
 
     printf("\n------------------------------------------------------------\n");
     if (tests_total_ms >= 1000.0)
