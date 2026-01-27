@@ -164,6 +164,12 @@ set(SN_UPDATER_SOURCES
     src/updater/updater_install.c
 )
 
+set(SN_PACKAGE_SOURCES
+    src/package.c
+    src/package/package_yaml.c
+    src/package/package_git.c
+)
+
 set(SN_RUNTIME_SOURCES
     src/runtime.c
     src/runtime/runtime_arena.c
@@ -193,6 +199,7 @@ set(SN_COMPILER_SOURCES
     ${SN_BACKEND_SOURCES}
     ${SN_RUNTIME_SOURCES}
     ${SN_UPDATER_SOURCES}
+    ${SN_PACKAGE_SOURCES}
 )
 
 #------------------------------------------------------------------------------
@@ -245,6 +252,8 @@ if(WIN32)
 else()
     target_link_libraries(tests PRIVATE pthread m)
 endif()
+
+# Note: Additional vcpkg library linking for tests will be done after vcpkg detection below
 
 #------------------------------------------------------------------------------
 # Runtime Static Library
@@ -686,10 +695,117 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         message(STATUS "libcurl not found - auto-update feature disabled")
         target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
     endif()
+
+    # Check for libgit2 and libyaml for package manager
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/git2.h" AND EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+        message(STATUS "Found libgit2 and libyaml - enabling package manager")
+        target_compile_definitions(sn PRIVATE SN_HAS_PACKAGE_MANAGER=1)
+
+        # Link libgit2 and its dependencies
+        if(WIN32)
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+            )
+        elseif(APPLE)
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "-framework Security"
+                "-framework CoreFoundation"
+            )
+        else()
+            target_link_libraries(sn PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+            )
+        endif()
+    else()
+        message(STATUS "libgit2 or libyaml not found - package manager disabled")
+        target_compile_definitions(sn PRIVATE SN_HAS_PACKAGE_MANAGER=0)
+    endif()
+
+    # Link tests executable with vcpkg libraries as well
+    target_include_directories(tests PRIVATE "${VCPKG_INSTALLED_DIR}/include")
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+        target_compile_definitions(tests PRIVATE SN_HAS_CURL=1)
+        if(WIN32)
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libzlib.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+                crypt32 wldap32 iphlpapi secur32
+            )
+        elseif(APPLE)
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+                "-framework CoreFoundation"
+                "-framework SystemConfiguration"
+                "-framework Security"
+            )
+        else()
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+            )
+        endif()
+    else()
+        target_compile_definitions(tests PRIVATE SN_HAS_CURL=0)
+    endif()
+
+    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/git2.h" AND EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+        target_compile_definitions(tests PRIVATE SN_HAS_PACKAGE_MANAGER=1)
+        if(WIN32)
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+            )
+        elseif(APPLE)
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+            )
+        else()
+            target_link_libraries(tests PRIVATE
+                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
+                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+            )
+        endif()
+    else()
+        target_compile_definitions(tests PRIVATE SN_HAS_PACKAGE_MANAGER=0)
+    endif()
 else()
     message(STATUS "vcpkg not found at: ${VCPKG_INSTALLED_DIR}")
     message(STATUS "Run 'make setup' to install dependencies via vcpkg")
     target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
+    target_compile_definitions(tests PRIVATE SN_HAS_CURL=0 SN_HAS_PACKAGE_MANAGER=0)
 endif()
 
 # Legacy options for manual bundling (kept for backwards compatibility)
