@@ -146,8 +146,10 @@ static uint32_t next_handle(RtManagedArena *ma)
         return ma->free_list[--ma->free_count];
     }
 
-    /* Add a new page if current pages are full */
-    if (ma->table_count >= ma->pages_count * RT_HANDLE_PAGE_SIZE) {
+    /* Add pages until we have enough to cover the next index.
+     * Child arenas may start with table_count > 0 (inherited from parent's
+     * table_count as index_offset), so we may need multiple pages. */
+    while (ma->table_count >= ma->pages_count * RT_HANDLE_PAGE_SIZE) {
         table_add_page(ma);
     }
 

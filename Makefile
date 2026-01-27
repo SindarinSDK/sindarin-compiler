@@ -195,7 +195,8 @@ ARENA_TEST_SRCS := $(ARENA_DIR)/tests/test_main.c \
 	$(ARENA_DIR)/tests/test_concurrency.c \
 	$(ARENA_DIR)/tests/test_hierarchy.c \
 	$(ARENA_DIR)/tests/test_api.c \
-	$(ARENA_DIR)/tests/test_stress_profiles.c
+	$(ARENA_DIR)/tests/test_stress_profiles.c \
+	$(ARENA_DIR)/tests/test_race_detection.c
 ARENA_TEST_BIN := $(BIN_DIR)/test_arena$(EXE_EXT)
 ARENA_CFLAGS := -Wall -Wextra -g -pthread
 # ASAN for arena tests (override with ARENA_SANITIZE= to disable, e.g. on LLVM-MinGW)
