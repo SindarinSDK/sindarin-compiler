@@ -111,6 +111,15 @@ int main(int argc, char **argv)
         }
     }
 
+    /* Synchronize packages with sn.yaml:
+     * - Remove orphaned packages not in sn.yaml
+     * - Update packages with changed branches
+     * - Verify tag packages are at correct SHA */
+    if (!package_sync())
+    {
+        fprintf(stderr, "Warning: Package synchronization had issues\n");
+    }
+
     /* Auto-install dependencies if sn.yaml exists but deps are missing */
     if (package_yaml_exists() && !package_deps_installed())
     {

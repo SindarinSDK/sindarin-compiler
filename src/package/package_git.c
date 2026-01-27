@@ -14,6 +14,10 @@
 #include <string.h>
 #include <git2.h>
 
+/* ANSI color codes for terminal output (matching diagnostic.c) */
+#define COLOR_RESET   "\033[0m"
+#define COLOR_RED     "\033[1;31m"
+
 /* ============================================================================
  * libgit2 Initialization
  * ============================================================================ */
@@ -94,9 +98,11 @@ static void print_git_error(const char *context)
 {
     const git_error *err = git_error_last();
     if (err) {
-        fprintf(stderr, "%s: %s\n", context, err->message);
+        fprintf(stderr, "%serror%s: git %s: %s\n",
+                COLOR_RED, COLOR_RESET, context, err->message);
     } else {
-        fprintf(stderr, "%s: unknown git error\n", context);
+        fprintf(stderr, "%serror%s: git %s: unknown error\n",
+                COLOR_RED, COLOR_RESET, context);
     }
 }
 
@@ -279,4 +285,145 @@ bool package_git_checkout(const char *repo_path, const char *ref_name)
     git_repository_free(repo);
 
     return true;
+}
+
+bool package_git_get_head_sha(const char *repo_path, char *out_sha)
+{
+    if (repo_path == NULL || out_sha == NULL) {
+        return false;
+    }
+
+    package_git_init();
+
+    git_repository *repo = NULL;
+    int rc = git_repository_open(&repo, repo_path);
+    if (rc != 0) {
+        return false;
+    }
+
+    git_reference *head_ref = NULL;
+    rc = git_repository_head(&head_ref, repo);
+    if (rc != 0) {
+        git_repository_free(repo);
+        return false;
+    }
+
+    const git_oid *oid = git_reference_target(head_ref);
+    if (oid == NULL) {
+        /* If head is symbolic, resolve it */
+        git_reference *resolved = NULL;
+        rc = git_reference_resolve(&resolved, head_ref);
+        if (rc == 0) {
+            oid = git_reference_target(resolved);
+            git_reference_free(resolved);
+        }
+    }
+
+    if (oid == NULL) {
+        git_reference_free(head_ref);
+        git_repository_free(repo);
+        return false;
+    }
+
+    git_oid_tostr(out_sha, 41, oid);
+
+    git_reference_free(head_ref);
+    git_repository_free(repo);
+    return true;
+}
+
+bool package_git_get_ref_sha(const char *repo_path, const char *ref_name, char *out_sha)
+{
+    if (repo_path == NULL || ref_name == NULL || out_sha == NULL) {
+        return false;
+    }
+
+    package_git_init();
+
+    git_repository *repo = NULL;
+    int rc = git_repository_open(&repo, repo_path);
+    if (rc != 0) {
+        return false;
+    }
+
+    git_object *target = NULL;
+
+    /* First, try as a remote tracking branch (origin/ref_name) */
+    char remote_ref[256];
+    snprintf(remote_ref, sizeof(remote_ref), "origin/%s", ref_name);
+    rc = git_revparse_single(&target, repo, remote_ref);
+
+    if (rc != 0) {
+        /* Try as a tag */
+        char tag_ref[256];
+        snprintf(tag_ref, sizeof(tag_ref), "refs/tags/%s", ref_name);
+        rc = git_revparse_single(&target, repo, tag_ref);
+    }
+
+    if (rc != 0) {
+        /* Try as a direct ref */
+        rc = git_revparse_single(&target, repo, ref_name);
+    }
+
+    if (rc != 0) {
+        git_repository_free(repo);
+        return false;
+    }
+
+    /* Get the commit SHA (peel if it's a tag pointing to a commit) */
+    git_object *peeled = NULL;
+    rc = git_object_peel(&peeled, target, GIT_OBJECT_COMMIT);
+    if (rc == 0) {
+        git_oid_tostr(out_sha, 41, git_object_id(peeled));
+        git_object_free(peeled);
+    } else {
+        git_oid_tostr(out_sha, 41, git_object_id(target));
+    }
+
+    git_object_free(target);
+    git_repository_free(repo);
+    return true;
+}
+
+bool package_git_get_current_branch(const char *repo_path, char *out_branch, size_t out_len)
+{
+    if (repo_path == NULL || out_branch == NULL || out_len == 0) {
+        return false;
+    }
+
+    out_branch[0] = '\0';
+
+    package_git_init();
+
+    git_repository *repo = NULL;
+    int rc = git_repository_open(&repo, repo_path);
+    if (rc != 0) {
+        return false;
+    }
+
+    /* Check if HEAD is detached */
+    if (git_repository_head_detached(repo)) {
+        git_repository_free(repo);
+        return false; /* Detached HEAD, not on a branch */
+    }
+
+    git_reference *head_ref = NULL;
+    rc = git_repository_head(&head_ref, repo);
+    if (rc != 0) {
+        git_repository_free(repo);
+        return false;
+    }
+
+    /* Get the branch name from the reference */
+    const char *branch_name = NULL;
+    rc = git_branch_name(&branch_name, head_ref);
+    if (rc == 0 && branch_name != NULL) {
+        strncpy(out_branch, branch_name, out_len - 1);
+        out_branch[out_len - 1] = '\0';
+    }
+
+    git_reference_free(head_ref);
+    git_repository_free(repo);
+
+    return out_branch[0] != '\0';
 }
