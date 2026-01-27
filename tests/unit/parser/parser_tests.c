@@ -36,6 +36,9 @@ static void cleanup_parser(Arena *arena, Lexer *lexer, Parser *parser, SymbolTab
 #include "parser_tests_static.c"
 #include "parser_tests_namespace.c"
 #include "parser_tests_struct.c"
+#include "parser_tests_edge_cases.c"
+#include "parser_tests_expressions.c"
+#include "parser_tests_operators.c"
 
 void test_parser_main()
 {
@@ -48,4 +51,7 @@ void test_parser_main()
     test_parser_static_main();
     test_parser_namespace_main();
     test_parser_struct_main();
+    test_parser_edge_cases_main();
+    test_parser_expressions_main();
+    test_parser_operators_main();
 }

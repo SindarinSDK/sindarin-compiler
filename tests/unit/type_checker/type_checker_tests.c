@@ -47,6 +47,9 @@ static void setup_literal_token(Token *token, SnTokenType type, const char *lexe
 #include "type_checker_tests_native_slice.c"
 #include "type_checker_tests_native_pointer.c"
 #include "type_checker_tests_struct.c"
+#include "type_checker_tests_edge_cases.c"
+#include "type_checker_tests_coverage.c"
+#include "type_checker_tests_utils.c"
 
 void test_type_checker_main()
 {
@@ -65,4 +68,7 @@ void test_type_checker_main()
     test_type_checker_native_slice_main();
     test_type_checker_native_pointer_main();
     test_type_checker_struct_main();
+    test_type_checker_edge_cases_main();
+    test_type_checker_utils_main();
+    test_type_checker_coverage_main();
 }
