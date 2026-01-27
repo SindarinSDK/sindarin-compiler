@@ -14,6 +14,7 @@
 #include "standalone/symbol_table_tests_namespace.c"
 #include "standalone/token_tests.c"
 #include "type_checker/type_checker_tests.c"
+#include "package/package_tests.c"
 
 int main()
 {
@@ -81,6 +82,10 @@ int main()
     // *** Optimizer ***
 
     run_optimizer_tests();
+
+    // *** Package Manager ***
+
+    test_package_main();
 
     // *** Complete ***
 

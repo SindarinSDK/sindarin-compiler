@@ -5,6 +5,7 @@
 #include "gcc_backend.h"
 #include "updater.h"
 #include "version.h"
+#include "package.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -78,9 +79,21 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    /* Start background update check for normal compilation */
-    updater_init();
-    updater_check_start();
+    /* Handle --init flag (package initialization) */
+    if (options.do_init)
+    {
+        bool success = package_init();
+        compiler_cleanup(&options);
+        return success ? 0 : 1;
+    }
+
+    /* Handle --install flag (package installation) */
+    if (options.do_install)
+    {
+        bool success = package_install(options.install_target);
+        compiler_cleanup(&options);
+        return success ? 0 : 1;
+    }
 
     /* Load backend config file if it exists (e.g., sn.gcc.cfg, sn.tcc.cfg) */
     cc_backend_load_config(options.compiler_dir);
@@ -95,6 +108,16 @@ int main(int argc, char **argv)
         {
             compiler_cleanup(&options);
             return 1;
+        }
+    }
+
+    /* Auto-install dependencies if sn.yaml exists but deps are missing */
+    if (package_yaml_exists() && !package_deps_installed())
+    {
+        printf("Installing missing dependencies...\n");
+        if (!package_install_all())
+        {
+            fprintf(stderr, "Warning: Some dependencies failed to install\n");
         }
     }
 
@@ -184,13 +207,6 @@ int main(int argc, char **argv)
             DEBUG_WARNING("Could not remove intermediate C file: %s", options.output_file);
         }
     }
-
-    /* Show update notification if available (non-blocking check) */
-    if (result == 0)
-    {
-        updater_notify_if_available();
-    }
-    updater_cleanup();
 
     compiler_cleanup(&options);
 

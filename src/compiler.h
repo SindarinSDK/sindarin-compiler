@@ -40,6 +40,9 @@ typedef struct
     int source_file_count;           /* Number of source files */
     int do_update;                   /* --update: Perform self-update */
     int check_update;                /* --check-update: Check for updates only */
+    int do_init;                     /* --init: Initialize new package */
+    int do_install;                  /* --install: Install packages */
+    char *install_target;            /* Package URL@ref for --install */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);
