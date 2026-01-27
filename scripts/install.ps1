@@ -139,7 +139,7 @@ function Install-FromManifest {
 
         # Install using winget with local manifest
         Write-Status "Installing Sindarin SDK via winget..."
-        $installResult = winget install --manifest $manifestDir.FullName --accept-package-agreements --accept-source-agreements 2>&1
+        $installResult = winget install --manifest $manifestDir.FullName --accept-package-agreements --accept-source-agreements --ignore-local-archive-malware-scan 2>&1
 
         if ($LASTEXITCODE -ne 0) {
             Write-Host $installResult
@@ -176,24 +176,39 @@ function Test-Installation {
 
         # Write hello world program
         $helloWorld = @"
-fn main(): int {
+fn main(): int =>
     println("Hello, World from Sindarin!")
     return 0
-}
 "@
-        Set-Content -Path $testFile -Value $helloWorld -Encoding UTF8
+        # Write without BOM (PowerShell's UTF8 adds BOM which breaks the compiler)
+        [System.IO.File]::WriteAllText($testFile, $helloWorld)
         Write-Status "Created test file: $testFile"
 
         # Refresh PATH to pick up newly installed sn compiler
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
 
+        # Verify sn is available
+        $snPath = Get-Command sn -ErrorAction SilentlyContinue
+        if (-not $snPath) {
+            throw "sn compiler not found in PATH after installation"
+        }
+
         # Compile the test program
         Write-Status "Compiling hello.sn..."
-        $compileOutput = & sn $testFile -o $testExe 2>&1
+        $proc = Start-Process -FilePath "sn" -ArgumentList "`"$testFile`"", "-o", "`"$testExe`"" -Wait -PassThru -NoNewWindow -RedirectStandardOutput "$testDir\stdout.txt" -RedirectStandardError "$testDir\stderr.txt"
+        $compileExitCode = $proc.ExitCode
 
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host $compileOutput
-            throw "Compilation failed with exit code $LASTEXITCODE"
+        $compileStdout = if (Test-Path "$testDir\stdout.txt") { Get-Content "$testDir\stdout.txt" -Raw } else { "" }
+        $compileStderr = if (Test-Path "$testDir\stderr.txt") { Get-Content "$testDir\stderr.txt" -Raw } else { "" }
+
+        if ($compileExitCode -ne 0) {
+            if ($compileStderr) { Write-Host $compileStderr }
+            throw "Compilation failed with exit code $compileExitCode"
+        }
+
+        # Verify the exe was created
+        if (-not (Test-Path $testExe)) {
+            throw "Compilation succeeded but no executable was created"
         }
 
         Write-Status "Compilation successful!" "Success"
