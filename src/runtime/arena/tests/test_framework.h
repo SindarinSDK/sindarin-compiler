@@ -48,6 +48,11 @@ static inline double test_timer_now(void) {
 extern int tests_passed;
 extern int tests_failed;
 extern double tests_total_ms;
+extern char test_stats_buffer[256];
+
+/* Macro for tests to report stats (printed after PASS on separate line) */
+#define TEST_STATS(fmt, ...) \
+    snprintf(test_stats_buffer, sizeof(test_stats_buffer), fmt, ##__VA_ARGS__)
 
 /* ============================================================================
  * Assertions
@@ -91,6 +96,10 @@ extern double tests_total_ms;
         printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fs)\n", _elapsed_ms / 1000.0); \
     else \
         printf(TEST_COLOR_GREEN "PASS" TEST_COLOR_RESET "  (%.2fms)\n", _elapsed_ms); \
+    if (test_stats_buffer[0] != '\0') { \
+        printf("    %s\n", test_stats_buffer); \
+        test_stats_buffer[0] = '\0'; \
+    } \
     tests_passed++; \
 } while(0)
 

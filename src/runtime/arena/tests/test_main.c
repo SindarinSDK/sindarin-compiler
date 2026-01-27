@@ -6,6 +6,9 @@ int tests_passed = 0;
 int tests_failed = 0;
 double tests_total_ms = 0.0;
 
+/* Buffer for test stats (printed after PASS) */
+char test_stats_buffer[256] = {0};
+
 /* Test module runners */
 extern void test_alloc_run(void);
 extern void test_pin_run(void);
