@@ -27,6 +27,8 @@ RUN apt-get update && apt-get install -y \
     locales \
     sudo \
     direnv \
+    ruby-full \
+    ruby-bundler \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python latest (via deadsnakes PPA for latest version)
@@ -80,8 +82,12 @@ ENV PYTHONUSERBASE=/home/claude/.local
 # Node.js environment
 ENV NPM_CONFIG_PREFIX=/home/claude/.npm-global
 
+# Ruby/Bundler environment
+ENV GEM_HOME=/home/claude/.gem
+ENV BUNDLE_PATH=/home/claude/.bundle
+
 # Combined PATH with all tools
-ENV PATH=/home/claude/.local/bin:/home/claude/.npm-global/bin:/home/claude/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV PATH=/home/claude/.local/bin:/home/claude/.npm-global/bin:/home/claude/.gem/bin:/home/claude/go/bin:/usr/local/go/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 # Switch to claude user
 USER claude
@@ -95,6 +101,8 @@ RUN mkdir -p \
     /home/claude/go/src \
     /home/claude/.local/bin \
     /home/claude/.npm-global \
+    /home/claude/.gem \
+    /home/claude/.bundle \
     /home/claude/.config
 
 # Create .bashrc with all environment variables
@@ -117,8 +125,12 @@ RUN echo '# Environment variables' >> /home/claude/.bashrc \
     && echo '# Node.js' >> /home/claude/.bashrc \
     && echo 'export NPM_CONFIG_PREFIX=$HOME/.npm-global' >> /home/claude/.bashrc \
     && echo '' >> /home/claude/.bashrc \
+    && echo '# Ruby/Bundler' >> /home/claude/.bashrc \
+    && echo 'export GEM_HOME=$HOME/.gem' >> /home/claude/.bashrc \
+    && echo 'export BUNDLE_PATH=$HOME/.bundle' >> /home/claude/.bashrc \
+    && echo '' >> /home/claude/.bashrc \
     && echo '# PATH' >> /home/claude/.bashrc \
-    && echo 'export PATH=$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/go/bin:/usr/local/go/bin:$PATH' >> /home/claude/.bashrc \
+    && echo 'export PATH=$HOME/.local/bin:$HOME/.npm-global/bin:$HOME/.gem/bin:$HOME/go/bin:/usr/local/go/bin:$PATH' >> /home/claude/.bashrc \
     && echo '' >> /home/claude/.bashrc \
     && echo '# Aliases' >> /home/claude/.bashrc \
     && echo 'alias ll="ls -la"' >> /home/claude/.bashrc \
