@@ -49,7 +49,7 @@ static bool ensure_dir(const char *path)
     }
 
 #ifdef _WIN32
-    return mkdir(path) == 0;
+    return _mkdir(path) == 0;
 #else
     return mkdir(path, 0755) == 0;
 #endif
