@@ -13,36 +13,73 @@
 set -e
 
 REPO="SindarinSDK/sindarin-compiler"
-VERSION="v0.0.7-alpha"
-VERSION_NUM="0.0.7"
-GITHUB_RELEASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+GITHUB_API_URL="https://api.github.com/repos/${REPO}/releases/latest"
 
-# Colors for output
+# These will be set by fetch_latest_release()
+VERSION=""
+VERSION_NUM=""
+GITHUB_RELEASE_URL=""
+
+# Colors for output (matching PowerShell style)
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
+WHITE='\033[1;37m'
 NC='\033[0m' # No Color
 
 print_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
+    echo -e "${CYAN}[*]${NC} $1"
 }
 
 print_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
+    echo -e "${GREEN}[+]${NC} $1"
 }
 
 print_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
+    echo -e "${YELLOW}[!]${NC} $1"
 }
 
 print_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
+    echo -e "${RED}[-]${NC} $1"
 }
 
 # Check if a command exists
 command_exists() {
     command -v "$1" >/dev/null 2>&1
+}
+
+# Fetch the latest release version from GitHub API
+fetch_latest_release() {
+    print_info "Fetching latest release from GitHub..."
+
+    local response=""
+
+    if command_exists curl; then
+        response=$(curl -fsSL -H "Accept: application/vnd.github.v3+json" "${GITHUB_API_URL}")
+    elif command_exists wget; then
+        response=$(wget -q -O - --header="Accept: application/vnd.github.v3+json" "${GITHUB_API_URL}")
+    else
+        print_error "Neither curl nor wget found. Please install one of them."
+        exit 1
+    fi
+
+    # Extract tag_name (e.g., "v0.0.12-alpha")
+    VERSION=$(echo "${response}" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+
+    if [ -z "${VERSION}" ]; then
+        print_error "Failed to fetch latest release version"
+        exit 1
+    fi
+
+    # Extract version number (e.g., "0.0.12" from "v0.0.12-alpha")
+    VERSION_NUM=$(echo "${VERSION}" | sed 's/^v//' | sed 's/-.*$//')
+
+    # Set the download URL
+    GITHUB_RELEASE_URL="https://github.com/${REPO}/releases/download/${VERSION}"
+
+    print_success "Found release: ${VERSION}"
 }
 
 # Detect the operating system
@@ -161,15 +198,17 @@ install_debian() {
 
     print_info "Installing .deb package..."
 
-    if command_exists apt; then
-        sudo apt install -y "${deb_path}"
-    elif command_exists dpkg; then
-        sudo dpkg -i "${deb_path}"
-        # Install any missing dependencies
-        sudo apt-get install -f -y 2>/dev/null || true
-    else
-        print_error "Neither apt nor dpkg found. Cannot install .deb package."
+    if ! command_exists dpkg; then
+        print_error "dpkg not found. Cannot install .deb package."
         exit 1
+    fi
+
+    # Use dpkg directly to avoid triggering configuration of unrelated broken packages
+    sudo dpkg -i "${deb_path}"
+
+    # Install any missing dependencies
+    if command_exists apt-get; then
+        sudo apt-get install -f -y 2>/dev/null || true
     fi
 
     print_success "Sindarin compiler installed successfully!"
@@ -258,6 +297,62 @@ install_tarball() {
     print_info "Make sure ${install_dir}/bin is in your PATH"
 }
 
+# Test the installation by compiling and running a hello world program
+test_installation() {
+    print_info "Testing Sindarin installation..."
+
+    local test_dir="${TEMP_DIR}/test"
+    local test_file="${test_dir}/hello.sn"
+    local test_exe="${test_dir}/hello"
+
+    mkdir -p "${test_dir}"
+
+    # Write hello world program
+    cat > "${test_file}" << 'EOF'
+fn main(): int =>
+    println("Hello, World from Sindarin!")
+    return 0
+EOF
+
+    print_info "Created test file: ${test_file}"
+
+    # Compile the test program
+    print_info "Compiling hello.sn..."
+    if ! timeout 30 sn "${test_file}" -o "${test_exe}" 2>&1; then
+        print_error "Compilation failed"
+        return 1
+    fi
+
+    # Verify the executable was created
+    if [ ! -f "${test_exe}" ]; then
+        print_error "Compilation succeeded but no executable was created"
+        return 1
+    fi
+
+    print_success "Compilation successful!"
+
+    # Run the compiled program
+    print_info "Running hello..."
+    local output
+    if ! output=$(timeout 10 "${test_exe}" 2>&1); then
+        print_error "Execution failed"
+        return 1
+    fi
+
+    echo ""
+    echo -e "${WHITE}  Output: ${output}${NC}"
+    echo ""
+
+    # Verify output contains expected text
+    if echo "${output}" | grep -q "Hello.*World.*Sindarin"; then
+        print_success "Test passed! Sindarin is working correctly."
+        return 0
+    else
+        print_warning "Test completed but output was unexpected"
+        return 1
+    fi
+}
+
 # Print usage information
 print_usage() {
     echo "Sindarin Compiler Installer"
@@ -268,6 +363,7 @@ print_usage() {
     echo "  -h, --help       Show this help message"
     echo "  -v, --version    Show version to be installed"
     echo "  --tarball        Force tarball installation instead of package manager"
+    echo "  --skip-test      Skip the hello world compilation test"
     echo ""
     echo "Supported platforms:"
     echo "  - macOS (via Homebrew)"
@@ -279,6 +375,7 @@ print_usage() {
 # Main function
 main() {
     local force_tarball=false
+    local skip_test=false
 
     # Parse command line arguments
     while [[ $# -gt 0 ]]; do
@@ -288,11 +385,16 @@ main() {
                 exit 0
                 ;;
             -v|--version)
-                echo "Sindarin Compiler Installer - Version ${VERSION}"
+                fetch_latest_release
+                echo "Sindarin Compiler Installer - will install ${VERSION}"
                 exit 0
                 ;;
             --tarball)
                 force_tarball=true
+                shift
+                ;;
+            --skip-test)
+                skip_test=true
                 shift
                 ;;
             *)
@@ -303,10 +405,14 @@ main() {
         esac
     done
 
-    echo "========================================"
-    echo "  Sindarin Compiler Installer ${VERSION}"
-    echo "========================================"
     echo ""
+    echo -e "${MAGENTA}========================================${NC}"
+    echo -e "${MAGENTA}       Sindarin SDK Installer${NC}"
+    echo -e "${MAGENTA}========================================${NC}"
+    echo ""
+
+    # Fetch latest release version from GitHub
+    fetch_latest_release
 
     # Detect OS
     local os_info
@@ -360,9 +466,26 @@ main() {
         print_success "Sindarin compiler is now available!"
         echo ""
         sn --version 2>/dev/null || echo "Run 'sn --help' to get started"
+
+        # Run hello world test unless skipped
+        if [ "$skip_test" = false ]; then
+            echo ""
+            if ! test_installation; then
+                print_error "Installation completed but tests failed"
+                exit 1
+            fi
+        fi
+
+        echo ""
+        print_success "Sindarin SDK installation complete!"
+        echo ""
+        echo -e "${WHITE}  You can now use 'sn' to compile Sindarin programs.${NC}"
+        echo -e "${WHITE}  Example: sn myprogram.sn -o myprogram${NC}"
+        echo ""
     else
         print_warning "Installation completed, but 'sn' command not found in PATH"
         print_info "You may need to restart your shell or add the install directory to PATH"
+        exit 1
     fi
 }
 
