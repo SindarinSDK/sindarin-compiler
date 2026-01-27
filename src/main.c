@@ -3,12 +3,18 @@
 #include "debug.h"
 #include "type_checker.h"
 #include "gcc_backend.h"
+#include "updater.h"
+#include "version.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 #ifdef _WIN32
 #include "platform/platform.h"
+    #ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+    #endif
+    #include <windows.h>
     #if defined(__MINGW32__) || defined(__MINGW64__)
     /* MinGW is POSIX-compatible */
     #include <unistd.h>
@@ -28,6 +34,53 @@ int main(int argc, char **argv)
 
     compiler_init(&options, argc, argv);
     init_debug(options.log_level);
+
+    /* Handle --update flag (self-update) */
+    if (options.do_update)
+    {
+        updater_init();
+        bool success = updater_perform_update(options.verbose);
+        updater_cleanup();
+        compiler_cleanup(&options);
+        return success ? 0 : 1;
+    }
+
+    /* Handle --check-update flag (check only) */
+    if (options.check_update)
+    {
+        printf("Checking for updates...\n");
+        updater_init();
+        updater_check_start();
+
+        /* Wait for check to complete */
+        while (!updater_check_done())
+        {
+#ifdef _WIN32
+            Sleep(100);
+#else
+            usleep(100000);
+#endif
+        }
+
+        const UpdateInfo *info = updater_get_result();
+        if (info && info->update_available)
+        {
+            printf("Update available: %s -> %s\n", SN_VERSION_STRING, info->version);
+            printf("Run 'sn --update' to install.\n");
+        }
+        else
+        {
+            printf("Already running the latest version (%s)\n", SN_VERSION_STRING);
+        }
+
+        updater_cleanup();
+        compiler_cleanup(&options);
+        return 0;
+    }
+
+    /* Start background update check for normal compilation */
+    updater_init();
+    updater_check_start();
 
     /* Load backend config file if it exists (e.g., sn.gcc.cfg, sn.tcc.cfg) */
     cc_backend_load_config(options.compiler_dir);
@@ -131,6 +184,13 @@ int main(int argc, char **argv)
             DEBUG_WARNING("Could not remove intermediate C file: %s", options.output_file);
         }
     }
+
+    /* Show update notification if available (non-blocking check) */
+    if (result == 0)
+    {
+        updater_notify_if_available();
+    }
+    updater_cleanup();
 
     compiler_cleanup(&options);
 

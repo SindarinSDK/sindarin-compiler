@@ -29,6 +29,11 @@
         "name": "libgit2",
         "default-features": false,
         "features": ["ssh", "openssl", "pcre2"]
+    },
+    {
+        "name": "curl",
+        "default-features": false,
+        "features": ["ssl"]
     }
   ],
   "features": {

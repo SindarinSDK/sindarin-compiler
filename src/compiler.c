@@ -31,6 +31,8 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->debug_build = 0;  /* Default: optimized build */
     options->link_libs = NULL;
     options->link_lib_count = 0;
+    options->do_update = 0;    /* Default: no self-update */
+    options->check_update = 0; /* Default: no update check */
 
     /* Get the compiler directory for locating runtime objects */
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
@@ -71,6 +73,16 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             printf("sn %s\n", SN_VERSION_STRING);
             exit(0);
         }
+        if (strcmp(argv[i], "--update") == 0)
+        {
+            options->do_update = 1;
+            return 1;  /* Skip other parsing, --update is standalone */
+        }
+        if (strcmp(argv[i], "--check-update") == 0)
+        {
+            options->check_update = 1;
+            return 1;  /* Skip other parsing, --check-update is standalone */
+        }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
         {
             printf(
@@ -99,6 +111,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  -h, --help         Show this help message\n"
                 "  --version          Show version information\n"
                 "\n"
+                "Update:\n"
+                "  --update           Download and install the latest version\n"
+                "  --check-update     Check if a newer version is available\n"
+                "\n"
                 "By default, compiles to an executable and removes the intermediate C file.\n",
                 argv[0]);
             exit(0);
@@ -126,6 +142,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             "  -O0                No Sn optimization (for debugging)\n"
             "  -O1                Basic Sn optimizations (dead code elimination, string merging)\n"
             "  -O2                Full Sn optimizations (default: + tail call, unchecked arithmetic)\n"
+            "\n"
+            "Update:\n"
+            "  --update           Download and install the latest version\n"
+            "  --check-update     Check if a newer version is available\n"
             "\n"
             "By default, compiles to an executable and removes the intermediate C file.\n"
             "Requires GCC to be installed for compilation.\n",
