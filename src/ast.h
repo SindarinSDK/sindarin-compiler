@@ -297,12 +297,15 @@ typedef struct
     int part_count;
 } InterpolExpr;
 
+typedef struct Symbol Symbol; /* Forward declaration for resolved_namespace */
+
 typedef struct
 {
     Expr *object;
     Token member_name;
     StructMethod *resolved_method;    /* Resolved method (set during type checking if this is a method call) */
     Type *resolved_struct_type;       /* Struct type containing the method (set during type checking) */
+    Symbol *resolved_namespace;       /* Resolved nested namespace (set during type checking if this is a nested namespace access) */
 } MemberExpr;
 
 typedef struct
@@ -541,6 +544,7 @@ typedef struct
     Expr *initializer;
     MemoryQualifier mem_qualifier;  /* as val or as ref modifier */
     SyncModifier sync_modifier;     /* sync for atomic operations */
+    bool is_static;                 /* True if declared with 'static var' at module level */
 } VarDeclStmt;
 
 struct Parameter

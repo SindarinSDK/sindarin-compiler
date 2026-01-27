@@ -1,4 +1,4 @@
-# Test: Compile error - 'static' used at top-level (only valid in struct methods)
+# Test: Compile error - 'static fn' at top-level (static at module level is only for var)
 
 static fn helper(): int =>
     return 42

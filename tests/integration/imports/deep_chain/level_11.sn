@@ -1,0 +1,31 @@
+// Level 11 - imports level 12 with alias
+
+import "./level_12" as level_12
+
+static var staticCounter: int = 1100
+var instanceCounter: int = 11
+
+struct DataBundle =>
+    id: int
+    sum: int
+
+fn createBundle(): DataBundle =>
+    return DataBundle { id: 11, sum: level_12.getAllStaticSum() }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return level_12.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 11
+
+fn computeChainValue(base: int): int =>
+    return level_12.computeChainValue(base + 11)

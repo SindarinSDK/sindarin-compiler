@@ -1,0 +1,39 @@
+// Level 14 - imports level 15 with alias
+
+import "./level_15" as L15
+
+static var staticCounter: int = 1400
+var instanceCounter: int = 14
+
+struct StateHolder =>
+    level: int
+    nestedValue: int
+
+fn createHolder(n: int): StateHolder =>
+    // Simplified: don't use namespace-qualified type for local variable
+    var stateValue: int = L15.createState(n * 10, "level14").value
+    return StateHolder { level: n, nestedValue: stateValue }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L15.getStaticCounter()
+
+fn incrementDeepStatic(): void =>
+    L15.incrementStatic()
+
+fn getLevelId(): int =>
+    return 14
+
+fn computeChainValue(base: int): int =>
+    return L15.computeChainValue(base + 14)
+
+fn getDeepLevelId(): int =>
+    return L15.getLevelId()

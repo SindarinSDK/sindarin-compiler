@@ -323,10 +323,7 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
         pthread_mutex_unlock(&parent->children_mutex);
     }
 
-    /* Recursively destroy any children of this child.
-     * We need to get the root BEFORE clearing parent links so that
-     * grandchildren can be properly deferred for freeing. */
-    RtManagedArena *root_for_children = parent ? rt_managed_arena_root(parent) : NULL;
+    /* Recursively destroy any children of this child. */
     while (child->first_child != NULL) {
         RtManagedArena *grandchild = child->first_child;
         child->first_child = grandchild->next_sibling;

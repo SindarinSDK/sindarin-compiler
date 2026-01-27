@@ -1,0 +1,38 @@
+// Level 13 - imports level 14 with alias
+
+import "./level_14" as level_14
+
+static var staticCounter: int = 1300
+static var staticName: str = "level13_static"
+var instanceCounter: int = 13
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn getStaticName(): str =>
+    return staticName
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn setInstanceCounter(v: int): void =>
+    instanceCounter = v
+
+fn getDeepStatic(): int =>
+    return level_14.getStaticCounter()
+
+fn getDeepDeepStatic(): int =>
+    return level_14.getDeepStatic()
+
+fn getLevelId(): int =>
+    return 13
+
+fn computeChainValue(base: int): int =>
+    return level_14.computeChainValue(base + 13)
+
+// Return int instead of namespace-qualified struct type
+fn createDeepHolder(n: int): int =>
+    return level_14.createHolder(n).level

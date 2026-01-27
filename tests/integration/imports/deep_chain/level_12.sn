@@ -1,0 +1,31 @@
+// Level 12 - imports level 13 with alias
+
+import "./level_13" as L13
+
+static var staticCounter: int = 1200
+var instanceCounter: int = 12
+var holderLevel: int = L13.createDeepHolder(120)
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L13.getStaticCounter()
+
+fn getAllStaticSum(): int =>
+    return staticCounter + L13.getStaticCounter() + L13.getDeepStatic() + L13.getDeepDeepStatic()
+
+fn getLevelId(): int =>
+    return 12
+
+fn computeChainValue(base: int): int =>
+    return L13.computeChainValue(base + 12)
+
+fn getHolderLevel(): int =>
+    return holderLevel

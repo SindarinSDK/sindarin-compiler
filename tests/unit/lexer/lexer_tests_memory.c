@@ -361,7 +361,7 @@ static void test_lexer_shared_str_distinction(void)
     assert(t3.type == TOKEN_IDENTIFIER);  // "share" is not a keyword
 
     Token t4 = lexer_scan_token(&lexer);
-    assert(t4.type == TOKEN_IDENTIFIER);  // "string" is not a keyword
+    assert(t4.type == TOKEN_STR);  // "string" is now an alias for 'str' keyword
 
     Token t5 = lexer_scan_token(&lexer);
     assert(t5.type == TOKEN_EOF);

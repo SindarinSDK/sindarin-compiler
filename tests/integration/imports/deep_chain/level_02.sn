@@ -1,0 +1,53 @@
+// Level 2 - imports level 3 with alias, imports level 9 and level 15 with aliases
+
+import "./level_03" as L3
+import "./level_09" as JumpL9
+import "./level_15" as DirectL15
+
+static var staticCounter: int = 200
+var instanceCounter: int = 2
+
+struct AggregateState =>
+    localVal: int
+    deepVal: int
+    directVal: int
+
+fn createAggregate(): AggregateState =>
+    return AggregateState {
+        localVal: staticCounter,
+        deepVal: L3.getStaticCounter(),
+        directVal: DirectL15.getStaticCounter()
+    }
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L3.getStaticCounter()
+
+fn getJumpL9Static(): int =>
+    return JumpL9.getStaticCounter()
+
+fn getDirectL15Static(): int =>
+    return DirectL15.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 2
+
+fn computeChainValue(base: int): int =>
+    return L3.computeChainValue(base + 2)
+
+fn getStaticArraySumViaL3(): int =>
+    return L3.getStaticArraySum()
+
+fn toggleL9Flag(): void =>
+    JumpL9.toggleStaticFlag()
+
+fn getL9Flag(): bool =>
+    return JumpL9.getStaticFlag()

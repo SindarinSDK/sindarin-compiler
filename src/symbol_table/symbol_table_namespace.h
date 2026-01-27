@@ -31,8 +31,20 @@ void symbol_table_add_symbol_to_namespace(SymbolTable *table, Token namespace_na
 /* Add a function to an existing namespace */
 void symbol_table_add_function_to_namespace(SymbolTable *table, Token namespace_name, Token symbol_name, Type *type, FunctionModifier func_mod, FunctionModifier declared_func_mod);
 
+/* Add a struct type to an existing namespace (for namespace.StructType.staticMethod() access) */
+void symbol_table_add_struct_to_namespace(SymbolTable *table, Token namespace_name, Token struct_name, Type *struct_type, Stmt *struct_decl);
+
+/* Add a nested namespace inside an existing namespace (for re-exported imports) */
+void symbol_table_add_nested_namespace(SymbolTable *table, Token parent_ns_name, Token nested_ns_name);
+
+/* Add a function to a nested namespace */
+void symbol_table_add_function_to_nested_namespace(SymbolTable *table, Token parent_ns_name, Token nested_ns_name, Token symbol_name, Type *type, FunctionModifier func_mod, FunctionModifier declared_func_mod);
+
 /* Look up a symbol within a namespace */
 Symbol *symbol_table_lookup_in_namespace(SymbolTable *table, Token namespace_name, Token symbol_name);
+
+/* Look up a nested namespace within a parent namespace */
+Symbol *symbol_table_lookup_nested_namespace(SymbolTable *table, Token parent_ns_name, Token nested_ns_name);
 
 /* Check if a name refers to a namespace */
 bool symbol_table_is_namespace(SymbolTable *table, Token name);

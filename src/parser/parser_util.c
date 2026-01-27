@@ -277,6 +277,32 @@ Type *parser_type(Parser *parser)
     else if (parser_check(parser, TOKEN_IDENTIFIER))
     {
         Token id = parser->current;
+        parser_advance(parser);
+
+        /* Check for namespace-qualified type: Namespace.TypeName */
+        if (parser_check(parser, TOKEN_DOT))
+        {
+            parser_advance(parser); /* consume '.' */
+            if (!parser_check(parser, TOKEN_IDENTIFIER))
+            {
+                parser_error_at_current(parser, "Expected type name after '.' in qualified type");
+                return ast_create_primitive_type(parser->arena, TYPE_NIL);
+            }
+            Token type_id = parser->current;
+            parser_advance(parser);
+
+            /* Create qualified name "Namespace.TypeName" for later resolution */
+            int qualified_len = id.length + 1 + type_id.length;
+            char *qualified_name = arena_alloc(parser->arena, qualified_len + 1);
+            memcpy(qualified_name, id.start, id.length);
+            qualified_name[id.length] = '.';
+            memcpy(qualified_name + id.length + 1, type_id.start, type_id.length);
+            qualified_name[qualified_len] = '\0';
+
+            /* Create forward reference with qualified name - type checker will resolve */
+            type = ast_create_struct_type(parser->arena, qualified_name, NULL, 0, NULL, 0, false, false, false, NULL);
+        }
+        else
         {
             /* Check if this is a type alias (opaque type) */
             Symbol *type_symbol = symbol_table_lookup_type(parser->symbol_table, id);
@@ -293,12 +319,10 @@ Type *parser_type(Parser *parser)
                 {
                     /* Create a forward reference that type checker will resolve */
                     char *type_name = arena_strndup(parser->arena, id.start, id.length);
-                    parser_advance(parser);
                     type = ast_create_struct_type(parser->arena, type_name, NULL, 0, NULL, 0, false, false, false, NULL);
                 }
                 else
                 {
-                    parser_advance(parser);
                     /* Return a clone of the type to avoid aliasing issues */
                     type = ast_clone_type(parser->arena, found_type);
                 }
@@ -309,7 +333,6 @@ Type *parser_type(Parser *parser)
                  * Create a forward reference TYPE_STRUCT with just the name.
                  * The type checker will resolve this to the actual struct definition. */
                 char *type_name = arena_strndup(parser->arena, id.start, id.length);
-                parser_advance(parser);
                 type = ast_create_struct_type(parser->arena, type_name, NULL, 0, NULL, 0, false, false, false, NULL);
             }
         }

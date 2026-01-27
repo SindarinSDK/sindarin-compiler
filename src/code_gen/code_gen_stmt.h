@@ -15,5 +15,6 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt);
 void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent);
 void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent);
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent);
+void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int indent);
 
 #endif /* CODE_GEN_STMT_H */

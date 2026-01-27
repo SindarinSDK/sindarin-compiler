@@ -1214,12 +1214,38 @@ Type *resolve_struct_forward_reference(Type *type, SymbolTable *table)
             return type;
         }
 
-        /* Look up the complete struct definition */
-        Token lookup_tok;
-        lookup_tok.start = struct_name;
-        lookup_tok.length = strlen(struct_name);
+        Symbol *sym = NULL;
 
-        Symbol *sym = symbol_table_lookup_type(table, lookup_tok);
+        /* Check for namespace-qualified type name (e.g., "L15.State") */
+        const char *dot_pos = strchr(struct_name, '.');
+        if (dot_pos != NULL)
+        {
+            /* Split into namespace and type name */
+            int ns_len = (int)(dot_pos - struct_name);
+            const char *type_name_part = dot_pos + 1;
+            int type_len = (int)strlen(type_name_part);
+
+            Token ns_tok;
+            ns_tok.start = struct_name;
+            ns_tok.length = ns_len;
+
+            Token type_tok;
+            type_tok.start = type_name_part;
+            type_tok.length = type_len;
+
+            /* Look up the type in the namespace */
+            sym = symbol_table_lookup_in_namespace(table, ns_tok, type_tok);
+        }
+        else
+        {
+            /* Regular unqualified type lookup */
+            Token lookup_tok;
+            lookup_tok.start = struct_name;
+            lookup_tok.length = (int)strlen(struct_name);
+
+            sym = symbol_table_lookup_type(table, lookup_tok);
+        }
+
         if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_STRUCT)
         {
             /* Found the complete type - use it instead */
@@ -1319,10 +1345,11 @@ void get_module_symbols(Module *imported_module, SymbolTable *table,
             }
 
             Type *func_type = ast_create_function_type(arena, func->return_type, param_types, func->param_count);
-            /* Carry over variadic, native, and has_body flags from function statement */
+            /* Carry over variadic, native, has_body, and has_arena_param flags from function statement */
             func_type->as.function.is_variadic = func->is_variadic;
             func_type->as.function.is_native = func->is_native;
             func_type->as.function.has_body = (func->body != NULL);
+            func_type->as.function.has_arena_param = func->has_arena_param;
 
             /* Store parameter memory qualifiers if any non-default exist */
             if (func->param_count > 0)

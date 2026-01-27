@@ -1,0 +1,35 @@
+// Level 10 - imports level 11 with alias, also imports level 15 directly
+
+import "./level_11" as L11
+import "./level_15" as DirectL15
+
+static var staticCounter: int = 1000
+var instanceCounter: int = 10
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L11.getStaticCounter()
+
+fn getDirectDeepStatic(): int =>
+    return DirectL15.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 10
+
+fn computeChainValue(base: int): int =>
+    return L11.computeChainValue(base + 10)
+
+// Return int instead of namespace-qualified struct type
+fn getBundleId(): int =>
+    return L11.createBundle().id
+
+fn verifyDirectAccess(): bool =>
+    return DirectL15.getLevelId() == 15

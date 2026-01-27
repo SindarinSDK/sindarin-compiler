@@ -317,6 +317,7 @@ Module* compiler_compile(CompilerOptions *options)
     char **imported = NULL;
     Module **imported_modules = NULL;
     bool *imported_directly = NULL;
+    bool *namespace_code_emitted = NULL;
     int imported_count = 0;
     int imported_capacity = 0;
 
@@ -338,7 +339,7 @@ Module* compiler_compile(CompilerOptions *options)
 
     /* Phase 1: Parsing */
     diagnostic_phase_start(PHASE_PARSING);
-    Module *module = parse_module_with_imports(&options->arena, &options->symbol_table, options->source_file, &imported, &imported_count, &imported_capacity, &imported_modules, &imported_directly, options->compiler_dir);
+    Module *module = parse_module_with_imports(&options->arena, &options->symbol_table, options->source_file, &imported, &imported_count, &imported_capacity, &imported_modules, &imported_directly, &namespace_code_emitted, options->compiler_dir);
     if (!module)
     {
         diagnostic_phase_failed(PHASE_PARSING);

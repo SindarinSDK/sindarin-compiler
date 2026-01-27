@@ -1,0 +1,34 @@
+// Level 6 - imports level 7 with alias
+
+import "./level_07" as L7
+
+static var staticCounter: int = 600
+static var staticMessage: str = "level6"
+var instanceCounter: int = 6
+
+fn getStaticCounter(): int =>
+    return staticCounter
+
+fn getStaticMessage(): str =>
+    return staticMessage
+
+fn setStaticMessage(msg: str): void =>
+    staticMessage = msg
+
+fn incrementStatic(): void =>
+    staticCounter = staticCounter + 1
+
+fn getInstanceCounter(): int =>
+    return instanceCounter
+
+fn getDeepStatic(): int =>
+    return L7.getStaticCounter()
+
+fn getLevelId(): int =>
+    return 6
+
+fn computeChainValue(base: int): int =>
+    return L7.computeChainValue(base + 6)
+
+fn getJumpStaticViaL7(): int =>
+    return L7.getJumpStatic()

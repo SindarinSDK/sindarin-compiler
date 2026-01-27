@@ -16,6 +16,55 @@
  * This matches the same threshold used for fixed arrays. */
 #define STRUCT_STACK_THRESHOLD 8192  /* 8KB */
 
+/* Helper function to recursively add namespace symbols to the current scope.
+ * This handles nested namespaces (e.g., moduleB imports uuid as randomB). */
+static void add_namespace_symbols_to_scope(CodeGen *gen, Symbol *ns_sym)
+{
+    for (Symbol *sym = ns_sym->namespace_symbols; sym != NULL; sym = sym->next)
+    {
+        /* Recursively process nested namespaces */
+        if (sym->is_namespace)
+        {
+            add_namespace_symbols_to_scope(gen, sym);
+            continue;
+        }
+
+        if (sym->type != NULL && sym->type->kind == TYPE_FUNCTION)
+        {
+            /* For native functions, we need to preserve c_alias and is_native */
+            if (sym->is_native)
+            {
+                symbol_table_add_native_function(gen->symbol_table, sym->name, sym->type,
+                                                 sym->func_mod, sym->declared_func_mod);
+                /* Copy the c_alias to the newly added symbol */
+                Symbol *added = symbol_table_lookup_symbol_current(gen->symbol_table, sym->name);
+                if (added != NULL)
+                {
+                    added->c_alias = sym->c_alias;
+                }
+            }
+            else
+            {
+                symbol_table_add_function(gen->symbol_table, sym->name, sym->type,
+                                          sym->func_mod, sym->declared_func_mod);
+            }
+        }
+        else
+        {
+            /* Add namespace-level variables as SYMBOL_GLOBAL so they can be
+             * distinguished from function-local variables during code generation. */
+            symbol_table_add_symbol_with_kind(gen->symbol_table, sym->name, sym->type, SYMBOL_GLOBAL);
+            /* Copy the is_static flag from the original symbol - this is critical for
+             * code generation to know whether to prefix the variable name with the namespace. */
+            Symbol *added = symbol_table_lookup_symbol_current(gen->symbol_table, sym->name);
+            if (added != NULL)
+            {
+                added->is_static = sym->is_static;
+            }
+        }
+    }
+}
+
 /* Generate thread sync as a statement - assigns results back to variables
  * For single sync (r!): r = sync_result
  * For sync list ([r1, r2, r3]!): r1 = sync_result1; r2 = sync_result2; ... */
@@ -166,7 +215,9 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     }
 
     char *expr_str = code_gen_expression(gen, stmt->expression);
-    if (stmt->expression->expr_type->kind == TYPE_STRING && expression_produces_temp(stmt->expression))
+    DEBUG_VERBOSE("Expression statement type: %p", (void*)stmt->expression->expr_type);
+    if (stmt->expression->expr_type != NULL &&
+        stmt->expression->expr_type->kind == TYPE_STRING && expression_produces_temp(stmt->expression))
     {
         // Skip freeing in arena context - arena handles cleanup
         if (gen->current_arena_var == NULL)
@@ -193,17 +244,232 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     }
 }
 
+void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int indent)
+{
+    DEBUG_VERBOSE("Entering code_gen_struct_methods");
+
+    /* Track already-emitted struct methods to avoid duplicates.
+     * This can happen when the same module is imported via different namespaces. */
+    char *raw_struct_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+    char *struct_name = sn_mangle_name(gen->arena, raw_struct_name);
+
+    /* Check if this struct's methods have already been emitted */
+    for (int i = 0; i < gen->emitted_struct_methods_count; i++)
+    {
+        if (strcmp(gen->emitted_struct_methods[i], struct_name) == 0)
+        {
+            /* Already emitted, skip */
+            return;
+        }
+    }
+
+    /* Mark this struct as emitted */
+    if (gen->emitted_struct_methods_count >= gen->emitted_struct_methods_capacity)
+    {
+        int new_capacity = gen->emitted_struct_methods_capacity == 0 ? 8 : gen->emitted_struct_methods_capacity * 2;
+        const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+        for (int i = 0; i < gen->emitted_struct_methods_count; i++)
+        {
+            new_array[i] = gen->emitted_struct_methods[i];
+        }
+        gen->emitted_struct_methods = new_array;
+        gen->emitted_struct_methods_capacity = new_capacity;
+    }
+    gen->emitted_struct_methods[gen->emitted_struct_methods_count++] = struct_name;
+
+    for (int j = 0; j < struct_decl->method_count; j++)
+    {
+        StructMethod *method = &struct_decl->methods[j];
+
+        /* Skip native methods with no body - they are extern declared elsewhere */
+        if (method->is_native && method->body == NULL)
+        {
+            continue;
+        }
+
+        /* Resolve return type (may be forward-declared struct without c_alias) */
+        Type *resolved_return_type = resolve_struct_type(gen, method->return_type);
+        const char *ret_type = get_c_type(gen->arena, resolved_return_type);
+
+        /* Generate function signature */
+        if (method->is_static)
+        {
+            if (method->param_count == 0)
+            {
+                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__) {\n",
+                                 ret_type, struct_name, method->name);
+            }
+            else
+            {
+                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__",
+                                 ret_type, struct_name, method->name);
+                for (int k = 0; k < method->param_count; k++)
+                {
+                    Parameter *param = &method->params[k];
+                    Type *resolved_param_type = resolve_struct_type(gen, param->type);
+                    const char *param_type = get_c_param_type(gen->arena, resolved_param_type);
+                    char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
+                    indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
+                }
+                indented_fprintf(gen, 0, ") {\n");
+            }
+        }
+        else
+        {
+            /* Instance method: first parameter is self (pointer to struct) */
+            if (struct_decl->is_native && struct_decl->c_alias != NULL)
+            {
+                /* Opaque handle: self type is the C alias pointer */
+                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
+                                 ret_type, struct_name, method->name, struct_decl->c_alias);
+            }
+            else
+            {
+                /* Regular struct: self is pointer to struct */
+                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
+                                 ret_type, struct_name, method->name, struct_name);
+            }
+            for (int k = 0; k < method->param_count; k++)
+            {
+                Parameter *param = &method->params[k];
+                Type *resolved_param_type = resolve_struct_type(gen, param->type);
+                const char *param_type = get_c_param_type(gen->arena, resolved_param_type);
+                char *param_name = sn_mangle_name(gen->arena, arena_strndup(gen->arena, param->name.start, param->name.length));
+                indented_fprintf(gen, 0, ", %s %s", param_type, param_name);
+            }
+            indented_fprintf(gen, 0, ") {\n");
+        }
+
+        /* Set up code generator state for method */
+        char *method_full_name = arena_sprintf(gen->arena, "%s_%s", struct_name, method->name);
+        char *saved_function = gen->current_function;
+        Type *saved_return_type = gen->current_return_type;
+        char *saved_arena_var = gen->current_arena_var;
+        char *saved_function_arena = gen->function_arena_var;
+
+        gen->current_function = method_full_name;
+        gen->current_return_type = method->return_type;
+        gen->current_arena_var = "__caller_arena__";
+        gen->function_arena_var = "__caller_arena__";
+
+        /* Push scope and add method params to symbol table for proper pinning */
+        symbol_table_push_scope(gen->symbol_table);
+        symbol_table_enter_arena(gen->symbol_table);
+        for (int k = 0; k < method->param_count; k++)
+        {
+            symbol_table_add_symbol_full(gen->symbol_table, method->params[k].name,
+                                         method->params[k].type, SYMBOL_PARAM,
+                                         method->params[k].mem_qualifier);
+        }
+
+        /* Determine if we need a _return_value variable */
+        bool has_return_value = (method->return_type && method->return_type->kind != TYPE_VOID);
+
+        /* Add _return_value if needed */
+        if (has_return_value)
+        {
+            const char *default_val = get_default_value(method->return_type);
+            indented_fprintf(gen, indent + 1, "%s _return_value = %s;\n", ret_type, default_val);
+        }
+
+        /* Generate method body */
+        for (int k = 0; k < method->body_count; k++)
+        {
+            if (method->body[k] != NULL)
+            {
+                code_gen_statement(gen, method->body[k], indent + 1);
+            }
+        }
+
+        /* Add return label and return statement */
+        indented_fprintf(gen, indent, "%s_return:\n", method_full_name);
+        if (has_return_value)
+        {
+            indented_fprintf(gen, indent + 1, "return _return_value;\n");
+        }
+        else
+        {
+            indented_fprintf(gen, indent + 1, "return;\n");
+        }
+
+        /* Pop method scope */
+        symbol_table_pop_scope(gen->symbol_table);
+
+        /* Restore code generator state */
+        gen->current_function = saved_function;
+        gen->current_return_type = saved_return_type;
+        gen->current_arena_var = saved_arena_var;
+        gen->function_arena_var = saved_function_arena;
+
+        /* Close function */
+        indented_fprintf(gen, indent, "}\n\n");
+    }
+}
+
 void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_var_declaration");
     char *raw_var_name = get_var_name(gen->arena, stmt->name);
-    char *var_name = sn_mangle_name(gen->arena, raw_var_name);
 
     // Detect global scope: no current arena means we're at file scope
     // Global arrays with empty initializers must be initialized to NULL since C
     // doesn't allow function calls or compound literals in global initializers.
     // Arrays with actual values need runtime initialization (handled separately).
     bool is_global_scope = (gen->current_arena_var == NULL);
+
+    // Static prefix for module-level static variables
+    const char *static_prefix = (stmt->is_static && is_global_scope) ? "static " : "";
+
+    /* If we're generating code for an imported namespace AND this is a global variable,
+     * prefix the variable name with the namespace to avoid collisions between modules.
+     * Local variables inside functions should NOT be prefixed.
+     * Both static and non-static module-level variables need namespace prefixes to
+     * prevent collisions when different modules have variables with the same name.
+     * The duplicate tracking (for static variables) uses the full prefixed name to
+     * ensure same-module re-imports share the variable. */
+    char *var_name;
+    if (gen->current_namespace_prefix != NULL && is_global_scope)
+    {
+        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s",
+                                            gen->current_namespace_prefix, raw_var_name);
+        var_name = sn_mangle_name(gen->arena, prefixed_name);
+    }
+    else
+    {
+        var_name = sn_mangle_name(gen->arena, raw_var_name);
+    }
+
+    /* For static global variables, check if we've already emitted this variable.
+     * Static variables are shared across all import aliases of the same module,
+     * so we must emit the declaration and initialization only once. */
+    if (stmt->is_static && is_global_scope)
+    {
+        /* Check if already emitted */
+        for (int i = 0; i < gen->emitted_static_globals_count; i++)
+        {
+            if (strcmp(gen->emitted_static_globals[i], var_name) == 0)
+            {
+                /* Already emitted - skip this declaration */
+                DEBUG_VERBOSE("Skipping duplicate static global: %s", var_name);
+                return;
+            }
+        }
+        /* Not emitted yet - track it */
+        if (gen->emitted_static_globals_count >= gen->emitted_static_globals_capacity)
+        {
+            int new_capacity = gen->emitted_static_globals_capacity == 0 ? 8 : gen->emitted_static_globals_capacity * 2;
+            const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+            for (int i = 0; i < gen->emitted_static_globals_count; i++)
+            {
+                new_array[i] = gen->emitted_static_globals[i];
+            }
+            gen->emitted_static_globals = new_array;
+            gen->emitted_static_globals_capacity = new_capacity;
+        }
+        gen->emitted_static_globals[gen->emitted_static_globals_count++] = arena_strdup(gen->arena, var_name);
+        DEBUG_VERBOSE("Tracking static global: %s", var_name);
+    }
+
     if (is_global_scope && stmt->type->kind == TYPE_ARRAY)
     {
         // Check if this is an empty initializer or no initializer
@@ -224,7 +490,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
                 if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
             }
-            indented_fprintf(gen, indent, "%s %s = RT_HANDLE_NULL;\n", type_c, var_name);
+            indented_fprintf(gen, indent, "%s%s %s = RT_HANDLE_NULL;\n", static_prefix, type_c, var_name);
             return;
         }
         // Non-empty global arrays will fall through and get the function call initializer,
@@ -333,7 +599,26 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             }
         }
 
+        /* For global scope handle types and struct types with function call initializers,
+         * we need deferred initialization (in main). Set a temporary arena context
+         * so the expression is generated with __main_arena__ instead of NULL. */
+        char *saved_arena_var = gen->current_arena_var;
+        if (is_global_scope && gen->current_arena_var == NULL)
+        {
+            bool will_need_deferred = is_handle_type(stmt->type) ||
+                (stmt->type->kind == TYPE_STRUCT && stmt->initializer != NULL &&
+                 (stmt->initializer->type == EXPR_CALL ||
+                  stmt->initializer->type == EXPR_METHOD_CALL));
+            if (will_need_deferred)
+            {
+                gen->current_arena_var = "__main_arena__";
+                gen->expr_as_handle = is_handle_type(stmt->type);
+            }
+        }
+
         init_str = code_gen_expression(gen, stmt->initializer);
+
+        gen->current_arena_var = saved_arena_var;
 
         gen->expr_as_handle = prev_as_handle;
 
@@ -356,23 +641,29 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         // Global-scope handle variables (string/array) can't use function calls or
         // non-constant initializers in C. Use RT_HANDLE_NULL and record deferred
         // initialization to be emitted at the start of main().
-        if (is_global_scope && is_handle_type(stmt->type))
+        // Also defer struct types (like UUID) that have function call initializers.
+        bool needs_deferred_init = false;
+        if (is_global_scope)
+        {
+            if (is_handle_type(stmt->type))
+            {
+                needs_deferred_init = true;
+            }
+            else if (stmt->type->kind == TYPE_STRUCT && stmt->initializer != NULL &&
+                     (stmt->initializer->type == EXPR_CALL ||
+                      stmt->initializer->type == EXPR_METHOD_CALL))
+            {
+                needs_deferred_init = true;
+            }
+        }
+
+        if (needs_deferred_init)
         {
             // Record deferred initialization: the original init_str contains the
             // expression that should be assigned in main().
-            // For strings, wrap in rt_managed_strdup; for arrays, use as-is.
-            char *deferred_value;
-            if (stmt->type->kind == TYPE_STRING)
-            {
-                deferred_value = arena_sprintf(gen->arena,
-                    "rt_managed_strdup(__main_arena__, RT_HANDLE_NULL, %s)", init_str);
-            }
-            else
-            {
-                // Array - the init_str should already include the arena call
-                // but needs to use __main_arena__ instead
-                deferred_value = arena_strdup(gen->arena, init_str);
-            }
+            // Since we already set expr_as_handle = true for handle types, init_str
+            // is already the correct expression (e.g., rt_managed_strdup for strings).
+            char *deferred_value = arena_strdup(gen->arena, init_str);
 
             // Grow the deferred list if needed
             if (gen->deferred_global_count >= gen->deferred_global_capacity)
@@ -393,8 +684,24 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             gen->deferred_global_values[gen->deferred_global_count] = deferred_value;
             gen->deferred_global_count++;
 
-            // Use RT_HANDLE_NULL for the declaration
-            init_str = arena_strdup(gen->arena, "RT_HANDLE_NULL");
+            // Use appropriate null/zero initializer for the declaration
+            if (is_handle_type(stmt->type))
+            {
+                init_str = arena_strdup(gen->arena, "RT_HANDLE_NULL");
+            }
+            else
+            {
+                // For struct types, use NULL (for pointer types like RtUuid *)
+                // or {0} for value types
+                if (stmt->type->as.struct_type.is_native && stmt->type->as.struct_type.c_alias != NULL)
+                {
+                    init_str = arena_strdup(gen->arena, "NULL");
+                }
+                else
+                {
+                    init_str = arena_strdup(gen->arena, "{0}");
+                }
+            }
         }
 
         // Handle boxing when assigning to 'any' type
@@ -650,12 +957,12 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         else
         {
             // Small struct: stack allocation with value semantics
-            indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
+            indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
         }
     }
     else
     {
-        indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
+        indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
     }
 
     /* For recursive lambdas, we need to fix up the self-reference after declaration.
@@ -783,8 +1090,27 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     int old_arena_depth = gen->arena_depth;
 
     char *raw_fn_name = get_var_name(gen->arena, stmt->name);
+    DEBUG_VERBOSE("Code generating function: %s", raw_fn_name);
     bool is_main = strcmp(raw_fn_name, "main") == 0;
-    gen->current_function = (is_main || stmt->is_native) ? raw_fn_name : sn_mangle_name(gen->arena, raw_fn_name);
+
+    /* Functions from imported modules need namespace prefixes to avoid name collisions.
+     * When current_namespace_prefix is set (during import processing), prepend it to the
+     * function name to generate unique C function names like __sn__ModuleA__functionName. */
+    if (is_main || stmt->is_native)
+    {
+        gen->current_function = raw_fn_name;
+    }
+    else if (gen->current_namespace_prefix != NULL)
+    {
+        /* Namespace-prefixed function: __sn__Namespace__functionName */
+        char prefixed_name[512];
+        snprintf(prefixed_name, sizeof(prefixed_name), "%s__%s", gen->current_namespace_prefix, raw_fn_name);
+        gen->current_function = sn_mangle_name(gen->arena, prefixed_name);
+    }
+    else
+    {
+        gen->current_function = sn_mangle_name(gen->arena, raw_fn_name);
+    }
     gen->current_return_type = stmt->return_type;
     gen->current_func_modifier = stmt->modifier;
     bool main_has_args = is_main && stmt->param_count == 1;  // Type checker validated it's str[]
@@ -1339,15 +1665,73 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
          * Non-namespaced imports have their statements merged by the parser,
          * so they don't need special handling here.
          *
-         * If the module was ALSO imported directly (without namespace), the functions
-         * are already in the main module and we should NOT emit them again to avoid
-         * duplicate definition errors. */
-        if (stmt->as.import.namespace != NULL && stmt->as.import.imported_stmts != NULL &&
-            !stmt->as.import.also_imported_directly)
+         * If the module was ALSO imported directly (without namespace) or already
+         * imported by another namespace, we skip function definitions to avoid
+         * duplicates. However, we still emit variable declarations with unique
+         * namespace prefixes so that each import alias has its own variable instance. */
+        if (stmt->as.import.namespace != NULL && stmt->as.import.imported_stmts != NULL)
         {
+            bool emit_functions = !stmt->as.import.also_imported_directly;
+            /* Before generating code for the imported module's functions, add the
+             * namespace's function symbols to a temporary scope. This allows intra-module
+             * function calls (e.g., errorMessage() calling zlibOk()) to find their
+             * callees and correctly determine that they need arena arguments. */
+            Token ns_name = *stmt->as.import.namespace;
+            Symbol *ns_symbol = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
+
+            if (ns_symbol != NULL && ns_symbol->is_namespace)
+            {
+                /* Push a new scope and add all namespace symbols (including from nested namespaces) */
+                symbol_table_push_scope(gen->symbol_table);
+                add_namespace_symbols_to_scope(gen, ns_symbol);
+            }
+
+            /* Set namespace prefix for variable and function name generation.
+             * This ensures symbols from different modules get unique C names. */
+            const char *old_namespace_prefix = gen->current_namespace_prefix;
+            char ns_prefix[256];
+            int ns_len = ns_name.length < 255 ? ns_name.length : 255;
+            memcpy(ns_prefix, ns_name.start, ns_len);
+            ns_prefix[ns_len] = '\0';
+            gen->current_namespace_prefix = arena_strdup(gen->arena, ns_prefix);
+
             for (int i = 0; i < stmt->as.import.imported_count; i++)
             {
-                code_gen_statement(gen, stmt->as.import.imported_stmts[i], indent);
+                Stmt *imported_stmt = stmt->as.import.imported_stmts[i];
+                if (imported_stmt == NULL)
+                    continue;
+
+                /* If we're skipping function emission, only emit variable declarations.
+                 * Variables need separate instances per namespace alias for unique state. */
+                if (!emit_functions && imported_stmt->type == STMT_FUNCTION)
+                {
+                    continue;  /* Skip function - already emitted by first import */
+                }
+
+                code_gen_statement(gen, imported_stmt, indent);
+            }
+
+            /* Emit struct method implementations for imported structs.
+             * Unlike functions, struct methods are not emitted by code_gen_statement. */
+            if (emit_functions)
+            {
+                for (int i = 0; i < stmt->as.import.imported_count; i++)
+                {
+                    Stmt *imported_stmt = stmt->as.import.imported_stmts[i];
+                    if (imported_stmt != NULL && imported_stmt->type == STMT_STRUCT_DECL)
+                    {
+                        code_gen_struct_methods(gen, &imported_stmt->as.struct_decl, indent);
+                    }
+                }
+            }
+
+            /* Restore previous namespace prefix */
+            gen->current_namespace_prefix = old_namespace_prefix;
+
+            /* Pop the temporary scope if we pushed one */
+            if (ns_symbol != NULL && ns_symbol->is_namespace)
+            {
+                symbol_table_pop_scope(gen->symbol_table);
             }
         }
         break;

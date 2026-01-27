@@ -101,19 +101,81 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
 
     /* Handle namespace member access (namespace.symbol).
      * If the object has no type (expr_type is NULL) and is a variable,
-     * this is a namespace member reference. Return just the function name
-     * since C functions are referenced by name without namespace prefix. */
+     * this is a namespace member reference. */
     if (object_type == NULL && member->object->type == EXPR_VARIABLE)
     {
-        /* Look up the namespace symbol to check for native/c_alias */
+        /* Look up the namespace symbol to check for native/c_alias and whether it's a function */
         Token ns_name = member->object->as.variable.name;
-        Symbol *func_sym = symbol_table_lookup_in_namespace(gen->symbol_table, ns_name, member->member_name);
-        if (func_sym != NULL && func_sym->is_native)
+        Symbol *sym = symbol_table_lookup_in_namespace(gen->symbol_table, ns_name, member->member_name);
+        if (sym != NULL && sym->is_native)
         {
-            return arena_strdup(gen->arena, func_sym->c_alias != NULL ? func_sym->c_alias : member_name_str);
+            return arena_strdup(gen->arena, sym->c_alias != NULL ? sym->c_alias : member_name_str);
         }
-        /* Namespace member access - emit just the function name */
+        /* Check if this is a variable (not a function) - needs namespace prefix for uniqueness.
+         * Both static and non-static variables get the namespace prefix to match their declarations. */
+        if (sym != NULL && !sym->is_function && sym->type != NULL && sym->type->kind != TYPE_FUNCTION)
+        {
+            /* All namespace variables get prefix: __sn__namespace__varname */
+            char ns_prefix[256];
+            int ns_len = ns_name.length < 255 ? ns_name.length : 255;
+            memcpy(ns_prefix, ns_name.start, ns_len);
+            ns_prefix[ns_len] = '\0';
+            char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", ns_prefix, member_name_str);
+            char *mangled = sn_mangle_name(gen->arena, prefixed_name);
+
+            /* Handle-type namespace variables need pinning when used in contexts
+             * expecting raw pointers (expr_as_handle = false). */
+            if (!gen->expr_as_handle && gen->current_arena_var != NULL && is_handle_type(sym->type))
+            {
+                if (sym->type->kind == TYPE_STRING)
+                {
+                    return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
+                                         ARENA_VAR(gen), mangled);
+                }
+                else if (sym->type->kind == TYPE_ARRAY)
+                {
+                    const char *elem_c = get_c_array_elem_type(gen->arena, sym->type->as.array.element_type);
+                    return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                         elem_c, ARENA_VAR(gen), mangled);
+                }
+            }
+            return mangled;
+        }
+        /* Namespace function access - emit just the function name (functions are globally unique) */
         return sn_mangle_name(gen->arena, member_name_str);
+    }
+
+    /* Handle nested namespace member access (parentNS.nestedNS.symbol).
+     * If the object is itself a member expression with resolved_namespace set,
+     * this is a nested namespace access. Look up the symbol in the resolved namespace. */
+    if (object_type == NULL && member->object->type == EXPR_MEMBER)
+    {
+        MemberExpr *inner_member = &member->object->as.member;
+        DEBUG_VERBOSE("Checking nested namespace access: resolved_namespace=%p", (void*)inner_member->resolved_namespace);
+        if (inner_member->resolved_namespace != NULL)
+        {
+            /* The inner member resolved to a namespace - look up the symbol in it */
+            Symbol *nested_ns = inner_member->resolved_namespace;
+
+            /* Search the nested namespace's symbols for our target */
+            Symbol *func_sym = NULL;
+            for (Symbol *sym = nested_ns->namespace_symbols; sym != NULL; sym = sym->next)
+            {
+                if (sym->name.length == member->member_name.length &&
+                    memcmp(sym->name.start, member->member_name.start, sym->name.length) == 0)
+                {
+                    func_sym = sym;
+                    break;
+                }
+            }
+
+            if (func_sym != NULL && func_sym->is_native)
+            {
+                return arena_strdup(gen->arena, func_sym->c_alias != NULL ? func_sym->c_alias : member_name_str);
+            }
+            /* Nested namespace member access - emit just the function name */
+            return sn_mangle_name(gen->arena, member_name_str);
+        }
     }
 
     /* For array/string member access (.length, etc.), the object must be

@@ -483,7 +483,13 @@ const char *get_default_value(Type *type)
     }
     else if (type->kind == TYPE_STRUCT)
     {
-        /* Struct default: use C99 compound literal with zeroed fields.
+        /* Native structs with c_alias are treated as opaque handle pointer types.
+         * Return NULL for pointer types instead of {0}. */
+        if (type->as.struct_type.is_native && type->as.struct_type.c_alias != NULL)
+        {
+            return "NULL";
+        }
+        /* Regular struct default: use C99 compound literal with zeroed fields.
          * This creates a value-initialized struct at runtime. */
         return "{0}";
     }

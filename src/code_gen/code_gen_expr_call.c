@@ -837,7 +837,14 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Entering code_gen_call_expression");
     CallExpr *call = &expr->as.call;
 
+    DEBUG_VERBOSE("Callee type: %d (EXPR_MEMBER=%d, EXPR_VARIABLE=%d)", call->callee->type, EXPR_MEMBER, EXPR_VARIABLE);
+    if (call->callee->type == EXPR_VARIABLE) {
+        DEBUG_VERBOSE("Variable callee name: %.*s",
+                      call->callee->as.variable.name.length,
+                      call->callee->as.variable.name.start);
+    }
     if (call->callee->type == EXPR_MEMBER) {
+        DEBUG_VERBOSE("Callee is member expression");
         MemberExpr *member = &call->callee->as.member;
         char *member_name_str = get_var_name(gen->arena, member->member_name);
         Type *object_type = member->object->expr_type;
@@ -857,14 +864,32 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                                     func_sym->type->kind == TYPE_FUNCTION &&
                                     func_sym->type->as.function.has_body);
 
-            /* Use c_alias for native functions, or raw name for native without alias */
+            /* Check if the namespace's module was also imported directly. If so, the
+             * function was emitted without a namespace prefix, so we use the plain name. */
+            Symbol *ns_symbol = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
+            bool use_prefixed_name = (ns_symbol == NULL || !ns_symbol->also_imported_directly);
+
+            /* Use c_alias for native functions, or appropriate name for Sindarin functions.
+             * Functions from imported modules need namespace prefixes to avoid name collisions
+             * between modules with same-named functions (e.g., A.getCounter vs B.getCounter),
+             * UNLESS the module was also imported directly (in which case functions are emitted
+             * without prefix). */
             const char *func_name_to_use;
             if (func_sym != NULL && func_sym->is_native)
             {
                 func_name_to_use = (func_sym->c_alias != NULL) ? func_sym->c_alias : member_name_str;
             }
+            else if (use_prefixed_name)
+            {
+                /* Build namespace-prefixed function name: __sn__Namespace__functionName */
+                char prefixed_name[512];
+                snprintf(prefixed_name, sizeof(prefixed_name), "%.*s__%s",
+                         ns_name.length, ns_name.start, member_name_str);
+                func_name_to_use = sn_mangle_name(gen->arena, prefixed_name);
+            }
             else
             {
+                /* Module was also imported directly - function has no namespace prefix */
                 func_name_to_use = sn_mangle_name(gen->arena, member_name_str);
             }
 
@@ -947,7 +972,229 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             return ns_call_expr;
         }
 
+        /* Handle nested namespace function call (parentNS.nestedNS.function()).
+         * If the object is a member expression with resolved_namespace set,
+         * this is a nested namespace function call. */
+        DEBUG_VERBOSE("Checking nested NS call: object_type=%p, obj_is_member=%d, resolved_ns=%p",
+                      (void*)object_type, (member->object->type == EXPR_MEMBER),
+                      member->object->type == EXPR_MEMBER ?
+                          (void*)member->object->as.member.resolved_namespace : NULL);
+        if (object_type == NULL && member->object->type == EXPR_MEMBER &&
+            member->object->as.member.resolved_namespace != NULL)
+        {
+            Symbol *nested_ns = member->object->as.member.resolved_namespace;
+
+            /* Search for the function in the nested namespace */
+            Symbol *func_sym = NULL;
+            for (Symbol *sym = nested_ns->namespace_symbols; sym != NULL; sym = sym->next)
+            {
+                if (sym->name.length == member->member_name.length &&
+                    memcmp(sym->name.start, member->member_name.start, member->member_name.length) == 0)
+                {
+                    func_sym = sym;
+                    break;
+                }
+            }
+
+            bool callee_has_body = (func_sym != NULL &&
+                                    func_sym->type != NULL &&
+                                    func_sym->type->kind == TYPE_FUNCTION &&
+                                    func_sym->type->as.function.has_body);
+
+            /* Check if the nested namespace was also imported directly */
+            bool use_prefixed_name = (nested_ns == NULL || !nested_ns->also_imported_directly);
+
+            /* Use c_alias for native functions, or namespace-prefixed name for Sindarin functions.
+             * For nested namespace calls (e.g., parent.nested.func()), use the nested namespace name,
+             * UNLESS the module was also imported directly. */
+            const char *func_name_to_use;
+            if (func_sym != NULL && func_sym->is_native)
+            {
+                func_name_to_use = (func_sym->c_alias != NULL) ? func_sym->c_alias : member_name_str;
+            }
+            else if (use_prefixed_name)
+            {
+                /* Build namespace-prefixed function name using the nested namespace's name */
+                char prefixed_name[512];
+                snprintf(prefixed_name, sizeof(prefixed_name), "%.*s__%s",
+                         nested_ns->name.length, nested_ns->name.start, member_name_str);
+                func_name_to_use = sn_mangle_name(gen->arena, prefixed_name);
+            }
+            else
+            {
+                /* Module was also imported directly - function has no namespace prefix */
+                func_name_to_use = sn_mangle_name(gen->arena, member_name_str);
+            }
+
+            /* Generate arguments - same logic as regular namespace calls */
+            bool ns_outer_as_handle = gen->expr_as_handle;
+            gen->expr_as_handle = (callee_has_body && gen->current_arena_var != NULL);
+            char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
+            for (int i = 0; i < call->arg_count; i++)
+            {
+                /* For native functions receiving str[] args: evaluate in handle mode
+                 * and convert RtHandle[] to char** using rt_managed_pin_string_array */
+                if (!callee_has_body && gen->current_arena_var != NULL &&
+                    call->arguments[i]->expr_type != NULL &&
+                    call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                    call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                    call->arguments[i]->expr_type->as.array.element_type->kind == TYPE_STRING)
+                {
+                    bool prev = gen->expr_as_handle;
+                    gen->expr_as_handle = true;
+                    char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+                    gen->expr_as_handle = prev;
+                    arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
+                                                 ARENA_VAR(gen), handle_expr);
+                }
+                else
+                {
+                    arg_strs[i] = code_gen_expression(gen, call->arguments[i]);
+                }
+            }
+            gen->expr_as_handle = ns_outer_as_handle;
+
+            /* Build args list - prepend arena if function has body (Sindarin function) */
+            char *args_list;
+            if (callee_has_body && gen->current_arena_var != NULL)
+            {
+                args_list = arena_strdup(gen->arena, gen->current_arena_var);
+            }
+            else if (callee_has_body)
+            {
+                args_list = arena_strdup(gen->arena, "NULL");
+            }
+            else
+            {
+                args_list = arena_strdup(gen->arena, "");
+            }
+
+            for (int i = 0; i < call->arg_count; i++)
+            {
+                if (args_list[0] == '\0')
+                {
+                    args_list = arg_strs[i];
+                }
+                else
+                {
+                    args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_strs[i]);
+                }
+            }
+
+            /* Emit function call */
+            char *nested_ns_call_expr = arena_sprintf(gen->arena, "%s(%s)", func_name_to_use, args_list);
+
+            /* If the function returns a handle type and we need raw pointer, pin it */
+            if (!gen->expr_as_handle && callee_has_body &&
+                gen->current_arena_var != NULL &&
+                expr->expr_type != NULL && is_handle_type(expr->expr_type))
+            {
+                if (expr->expr_type->kind == TYPE_STRING)
+                {
+                    nested_ns_call_expr = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
+                                                         ARENA_VAR(gen), nested_ns_call_expr);
+                }
+                else if (expr->expr_type->kind == TYPE_ARRAY)
+                {
+                    const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
+                    nested_ns_call_expr = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                                         elem_c, ARENA_VAR(gen), nested_ns_call_expr);
+                }
+            }
+            return nested_ns_call_expr;
+        }
+
+        /* Handle namespace struct type static method call (namespace.StructType.staticMethod()).
+         * If the object is a member expression with resolved_struct_type set (from namespace lookup),
+         * this is a static method call on a namespace-qualified struct type. */
+        if (object_type == NULL && member->object->type == EXPR_MEMBER &&
+            member->object->as.member.resolved_struct_type != NULL)
+        {
+            Type *struct_type = member->object->as.member.resolved_struct_type;
+            StructMethod *method = member->resolved_method;
+
+            if (method != NULL)
+            {
+                /* Generate static method call - static methods don't have a 'self' argument */
+                bool callee_has_body = !method->is_native && method->body != NULL;
+
+                /* Generate arguments */
+                bool outer_as_handle = gen->expr_as_handle;
+                gen->expr_as_handle = (callee_has_body && gen->current_arena_var != NULL);
+                char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
+                for (int i = 0; i < call->arg_count; i++)
+                {
+                    arg_strs[i] = code_gen_expression(gen, call->arguments[i]);
+                }
+                gen->expr_as_handle = outer_as_handle;
+
+                /* Build args list - prepend arena if Sindarin function with body */
+                char *args_list;
+                if (callee_has_body && gen->current_arena_var != NULL)
+                {
+                    args_list = arena_strdup(gen->arena, gen->current_arena_var);
+                }
+                else if (callee_has_body)
+                {
+                    args_list = arena_strdup(gen->arena, "NULL");
+                }
+                else
+                {
+                    args_list = arena_strdup(gen->arena, "");
+                }
+
+                for (int i = 0; i < call->arg_count; i++)
+                {
+                    if (args_list[0] == '\0')
+                    {
+                        args_list = arg_strs[i];
+                    }
+                    else
+                    {
+                        args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_strs[i]);
+                    }
+                }
+
+                /* Determine function name - mangle struct name and append method name */
+                char *mangled_struct = sn_mangle_name(gen->arena, struct_type->as.struct_type.name);
+                char *func_name = arena_sprintf(gen->arena, "%s_%s",
+                    mangled_struct, method->name);
+
+                /* Emit static method call */
+                char *static_call_expr = arena_sprintf(gen->arena, "%s(%s)", func_name, args_list);
+
+                /* If the method returns a handle type and we need raw pointer, pin it */
+                if (!gen->expr_as_handle && callee_has_body &&
+                    gen->current_arena_var != NULL &&
+                    expr->expr_type != NULL && is_handle_type(expr->expr_type))
+                {
+                    if (expr->expr_type->kind == TYPE_STRING)
+                    {
+                        static_call_expr = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
+                                                         ARENA_VAR(gen), static_call_expr);
+                    }
+                    else if (expr->expr_type->kind == TYPE_ARRAY)
+                    {
+                        const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
+                        static_call_expr = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
+                                                         elem_c, ARENA_VAR(gen), static_call_expr);
+                    }
+                }
+                return static_call_expr;
+            }
+        }
+
         char *result = NULL;
+
+        /* If object_type is NULL at this point, the call target expression
+         * didn't have its type resolved. This shouldn't happen if type-checking
+         * passed, but handle it gracefully. */
+        if (object_type == NULL)
+        {
+            fprintf(stderr, "Internal error: NULL object_type in member call expression for '%s'\n",
+                    member_name_str);
+            return arena_strdup(gen->arena, "0 /* ERROR: unresolved type */");
+        }
 
         /* Dispatch to type-specific handlers (modular code generation)
          * Each handler returns NULL if it doesn't handle the method,
@@ -2364,7 +2611,13 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                 exit(1);
             }
             Type *arg_type = call->arguments[0]->expr_type;
+            DEBUG_VERBOSE("print arg type: %p", (void*)arg_type);
             const char *print_func = NULL;
+            if (arg_type == NULL)
+            {
+                fprintf(stderr, "Error: print argument has no type\n");
+                exit(1);
+            }
             switch (arg_type->kind)
             {
             case TYPE_INT:
@@ -2531,6 +2784,18 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             callee_sym->type->kind == TYPE_FUNCTION)
         {
             callee_needs_arena = callee_sym->type->as.function.has_arena_param;
+            DEBUG_VERBOSE("Native function call to '%.*s': has_arena_param=%d",
+                          call->callee->as.variable.name.length,
+                          call->callee->as.variable.name.start,
+                          callee_needs_arena);
+        }
+        else
+        {
+            DEBUG_VERBOSE("Native function call to '%.*s': symbol or type not found (sym=%p, type=%p)",
+                          call->callee->as.variable.name.length,
+                          call->callee->as.variable.name.start,
+                          (void*)callee_sym,
+                          (void*)(callee_sym ? callee_sym->type : NULL));
         }
     }
 

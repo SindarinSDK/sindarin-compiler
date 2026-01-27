@@ -727,7 +727,7 @@ static void test_lexer_str_vs_struct_disambiguation(void)
     assert(t2.length == 6);
 
     Token t3 = lexer_scan_token(&lexer);
-    assert(t3.type == TOKEN_IDENTIFIER);  // 'string' is an identifier, not a keyword
+    assert(t3.type == TOKEN_STR);  // 'string' is now an alias for 'str' keyword
     assert(t3.length == 6);
 
     Token t4 = lexer_scan_token(&lexer);

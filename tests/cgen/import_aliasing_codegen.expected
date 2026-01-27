@@ -1,0 +1,7 @@
+=== SDK Compression Tests ===
+
+test_basic_compress_decompress: PASS
+test_basic_compress_decompress: PASS
+test_basic_compress_decompress: PASS
+
+All compression tests passed!

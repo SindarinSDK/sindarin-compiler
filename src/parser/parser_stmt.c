@@ -420,13 +420,25 @@ Stmt *parser_declaration(Parser *parser)
          * which will error on shared/private blocks (no longer supported) */
     }
 
-    if (parser_check(parser, TOKEN_STATIC))
+    if (parser_match(parser, TOKEN_STATIC))
     {
-        /* 'static' is only valid in struct method declarations */
-        parser_error_at_current(parser,
-            "'static' can only be used in struct method declarations. "
-            "Did you mean 'shared fn' or 'private fn'?");
-        return NULL;
+        /* 'static var' at module level for static module variables */
+        if (parser_match(parser, TOKEN_VAR))
+        {
+            result = parser_var_declaration(parser);
+            if (result != NULL && result->type == STMT_VAR_DECL)
+            {
+                result->as.var_decl.is_static = true;
+            }
+            goto attach_comments;
+        }
+        else
+        {
+            parser_error_at_current(parser,
+                "'static' at module level can only be used with 'var'. "
+                "Did you mean 'static var'?");
+            return NULL;
+        }
     }
 
     if (parser_match(parser, TOKEN_FN))
