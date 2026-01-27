@@ -112,6 +112,7 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
 
  - NEVER implement work arounds, ALWAYS FIX THE PROBLEMS PROPERLY.
  - NEVER ignore test failures as "pre-existing", TESTS SHOULD ALWAYS PASS. 
+ - NEVER generate extern forwards for native sindarin functions without bodies.
 
 ## 📖 Documentation
 
