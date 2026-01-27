@@ -16,6 +16,14 @@ endif()
 
 project(sn VERSION ${SN_VERSION} LANGUAGES C)
 
+# Generate version header from template
+configure_file(
+    ${CMAKE_SOURCE_DIR}/src/version.h.in
+    ${CMAKE_BINARY_DIR}/generated/version.h
+    @ONLY
+)
+include_directories(${CMAKE_BINARY_DIR}/generated)
+
 # Add custom cmake modules
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 

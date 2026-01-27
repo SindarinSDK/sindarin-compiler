@@ -4,6 +4,7 @@
 #include "type_checker.h"
 #include "optimizer.h"
 #include "gcc_backend.h"
+#include "version.h"
 #include <stdlib.h>
 #include <string.h>
 
@@ -67,7 +68,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     {
         if (strcmp(argv[i], "--version") == 0)
         {
-            printf("sn 0.1.0\n");
+            printf("sn %s\n", SN_VERSION_STRING);
             exit(0);
         }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
