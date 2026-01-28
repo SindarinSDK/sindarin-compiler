@@ -1,139 +1,128 @@
-# Urgent Compiler Fixes
+# Urgent Fixes
 
-## 1. Arena Memory Corruption with Returned String Arrays
+Issues discovered while converting Python scripts to Sindarin.
 
-**Priority:** High
-**Discovered:** 2026-01-28
-**Context:** Rewriting `sindarin-pkg-sdk/scripts/setup_deps.py` in Sindarin
+---
 
-### Problem Description
+## 1. UUID Module Causes Code Generation Hang
 
-When a function returns a `str[]` array, the strings within that array become corrupted after subsequent function calls. This appears to be an arena-based memory management issue where the returned array's string data is allocated in the callee's arena and gets overwritten when other functions execute.
+**Severity:** Critical
 
-### Reproduction
+**Description:** Importing and using `sdk/core/uuid` causes the compiler to hang indefinitely during code generation.
 
+**Reproduction:**
 ```sindarin
-fn getTools(): str[] =>
-    return {"cmake", "git", "curl", "zip"}
+import "sdk/core/uuid"
 
-fn checkTool(name: str): bool =>
-    var p: Process = Process.runArgs("which", {name})
-    return p.success()
-
-fn main(): void =>
-    var tools: str[] = getTools()
-
-    for tool in tools =>
-        var ok: bool = checkTool(tool)  // After this call, `tool` is corrupted
-        print($"  {tool}: {ok}\n")       // Prints garbage like "@e?&Y: true"
+fn main(): int =>
+    var id: UUID = UUID.create()
+    print($"ID: {id}\n")
+    return 0
 ```
 
-### Observed Behavior
+**Expected:** Compiles successfully.
 
-```
-Checking build tools...
-  @e?&Y: MISSING
-  OK: MISSING
-  MISSING: MISSING
-    @e?&Y: MISSING
-```
+**Actual:** Compiler hangs at "Code generation..." and never completes.
 
-The tool names are corrupted and display as garbage characters, while the status strings ("OK", "MISSING") which are defined inline remain intact.
+**Workaround:** Use `Time.now().millis()` for unique identifiers instead.
 
-### Root Cause Analysis
+---
 
-The issue appears to be that:
+## 2. Struct Arrays Do Not Support push()
 
-1. `getTools()` returns an array with string literals
-2. These strings are allocated in `getTools()`'s arena
-3. When the function returns, the array is "promoted" to the caller's arena, but the string data may not be properly copied
-4. When `checkTool()` is called, it uses arena memory that overlaps with where the strings were stored
-5. The string pointers now point to corrupted/reused memory
+**Severity:** High
 
-### Current Workaround
+**Description:** Calling `push()` on an array of structs causes a code generation error: "Unsupported array element type for push".
 
-Avoid iterating over arrays returned from functions. Instead, inline the data:
-
+**Reproduction:**
 ```sindarin
-fn checkAllTools(): bool =>
-    // DON'T DO THIS:
-    // var tools: str[] = getTools()
-    // for tool in tools => ...
+struct Point =>
+    x: int
+    y: int
 
-    // DO THIS INSTEAD:
-    checkAndPrint("cmake")
-    checkAndPrint("git")
-    checkAndPrint("curl")
-    checkAndPrint("zip")
+fn main(): int =>
+    var points: Point[] = {}
+    var p: Point = Point { x: 1, y: 2 }
+    points.push(p)  // ERROR
+    print($"Point: {points[0].x}\n")
+    return 0
 ```
 
-Or use index-based access with immediate use:
+**Expected:** Struct can be pushed to array like primitives.
 
+**Actual:** Code generation fails with "Unsupported array element type for push".
+
+**Workaround:** Use fixed-size arrays or avoid dynamic struct collections.
+
+---
+
+## 3. Missing String to Integer Conversion
+
+**Severity:** Medium
+
+**Description:** There is no built-in method to parse a string as an integer (e.g., `str.toInt()` or `parseInt(str)`).
+
+**Reproduction:**
 ```sindarin
-var tools: str[] = getTools()
-var i: int = 0
-while i < tools.length =>
-    // Use tools[i] directly in function calls, don't store in variable
-    checkTool(tools[i])
-    print($"  {tools[i]}\n")  // May still be corrupted
-    i = i + 1
+fn main(): int =>
+    var s: str = "42"
+    var n: int = s.toInt()  // ERROR: no such method
+    return n
 ```
 
-### Expected Behavior
+**Expected:** Built-in method to parse integers from strings.
 
-Strings in arrays returned from functions should remain valid and accessible throughout the caller's scope, regardless of subsequent function calls.
+**Actual:** No such method exists.
 
-### Suggested Fix Areas
-
-1. **String promotion on function return** - Ensure string data (not just pointers) is copied when arrays are promoted from callee to caller arena
-2. **For-each loop variable binding** - The loop variable `tool` should hold a stable reference/copy that survives function calls within the loop body
-3. **Arena isolation** - Function calls within a scope shouldn't corrupt data that was already in scope before the call
-
-### Impact
-
-This bug makes it impractical to:
-- Return configuration arrays from functions
-- Use factory/builder patterns that return collections
-- Write idiomatic code with helper functions returning data
-
-It forces developers to inline data definitions, leading to code duplication and reduced maintainability.
-
-### Test Case for Verification
-
+**Workaround:** Implement manual parsing:
 ```sindarin
-// test_arena_string_array.sn
-import "sdk/os/process"
-
-fn getNames(): str[] =>
-    return {"alice", "bob", "charlie"}
-
-fn doSomething(s: str): int =>
-    // This function uses the arena, potentially corrupting returned arrays
-    var p: Process = Process.run("echo test")
-    return s.length
-
-fn main(): void =>
-    var names: str[] = getNames()
-
-    for name in names =>
-        var len: int = doSomething(name)
-        // After fix, this should print: "alice: 5", "bob: 3", "charlie: 7"
-        // Currently prints garbage
-        print($"{name}: {len}\n")
-
-    // Verify expected output
-    if names[0] == "alice" && names[1] == "bob" && names[2] == "charlie" =>
-        print("PASS: Array strings preserved\n")
-    else =>
-        print("FAIL: Array strings corrupted\n")
+fn parseInt(s: str): int =>
+    var result: int = 0
+    var negative: bool = false
+    var i: int = 0
+    if s.length > 0 && s.charAt(0) == '-' =>
+        negative = true
+        i = 1
+    while i < s.length =>
+        var c: char = s.charAt(i)
+        if c >= '0' && c <= '9' =>
+            result = result * 10 + (c - '0') as int
+        i = i + 1
+    if negative =>
+        return -result
+    return result
 ```
 
 ---
 
-## Additional Notes
+## 4. No Hex Escape Sequences in Strings
 
-This issue was discovered while porting `setup_deps.py` (a 529-line Python script) to Sindarin. The workarounds required added approximately 80 lines to the Sindarin version and significantly reduced code clarity.
+**Severity:** Low
 
-The full reproduction case is available at:
-- `sindarin-pkg-sdk/scripts/setup_deps.sn` (working version with workarounds)
-- `sindarin-pkg-sdk/scripts/setup_deps.py` (original Python for comparison)
+**Description:** Hex escape sequences like `\x1b` are not supported in string literals. Only `\n`, `\t`, `\r`, `\\`, `\"`, `\'`, `\0` are valid.
+
+**Reproduction:**
+```sindarin
+var red: str = "\x1b[0;31m"  // ERROR: Invalid escape sequence
+```
+
+**Expected:** Hex escapes work like in C.
+
+**Actual:** Parse error on `\x`.
+
+**Workaround:** Compute escape character at runtime:
+```sindarin
+var esc: char = 27 as char
+var red: str = $"{esc}[0;31m"
+```
+
+---
+
+## Summary
+
+| Issue | Severity | Blocking? |
+|-------|----------|-----------|
+| UUID code gen hang | Critical | Yes - cannot use UUID module |
+| Struct array push | High | Yes - limits dynamic collections |
+| No parseInt | Medium | No - can implement manually |
+| No hex escapes | Low | No - runtime workaround exists |
