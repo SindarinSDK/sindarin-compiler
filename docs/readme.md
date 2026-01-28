@@ -370,4 +370,4 @@ Note: The default runtime objects are compiled with GCC's LTO. To use a differen
 - [Interceptors](interceptors.md) - Function interception for debugging and mocking
 
 ### SDK Modules
-See the [SDK documentation](sdk/readme.md) for built-in modules including Date, Time, File I/O, Networking, Random, UUID, Environment, and Process operations.
+See the [SDK documentation](sdk/readme.md) for built-in modules including Date, Time, File I/O, Networking, Random, UUID, OS detection, Environment, and Process operations.
