@@ -311,6 +311,10 @@ const char *get_rt_to_string_func(TypeKind kind)
     case TYPE_ARRAY:
     case TYPE_FUNCTION:
     case TYPE_POINTER:
+    case TYPE_STRUCT:
+        /* For structs, fallback to pointer representation.
+         * Proper struct-to-string conversion (via toString() method)
+         * is handled at a higher level in code_gen_expr_string.c */
         return "rt_to_string_pointer";
     default:
         exit(1);

@@ -200,6 +200,49 @@ RtHandle rt_array_push_ptr_h(RtManagedArena *arena, RtHandle arr_h, void *elemen
     return new_h;
 }
 
+/* Generic struct push -- copies element by value using memcpy */
+RtHandle rt_array_push_struct_h(RtManagedArena *arena, RtHandle arr_h, const void *element, size_t elem_size) {
+    if (arr_h == RT_HANDLE_NULL) {
+        size_t new_cap = 4;
+        size_t alloc_size = sizeof(RtArrayMetadata) + new_cap * elem_size;
+        RtHandle new_h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
+        void *new_raw = rt_managed_pin(arena, new_h);
+        RtArrayMetadata *meta = (RtArrayMetadata *)new_raw;
+        char *arr = (char *)new_raw + sizeof(RtArrayMetadata);
+        meta->arena = (RtArena *)arena;
+        meta->size = 1;
+        meta->capacity = new_cap;
+        memcpy(arr, element, elem_size);
+        rt_managed_unpin(arena, new_h);
+        return new_h;
+    }
+    void *raw = rt_managed_pin(arena, arr_h);
+    RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+    char *arr = (char *)raw + sizeof(RtArrayMetadata);
+    if (meta->size < meta->capacity) {
+        memcpy(arr + meta->size * elem_size, element, elem_size);
+        meta->size++;
+        rt_managed_unpin(arena, arr_h);
+        return arr_h;
+    }
+    size_t old_size = meta->size;
+    size_t new_cap = meta->capacity == 0 ? 4 : meta->capacity * 2;
+    size_t alloc_size = sizeof(RtArrayMetadata) + new_cap * elem_size;
+    RtHandle new_h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
+    void *new_raw = rt_managed_pin(arena, new_h);
+    RtArrayMetadata *new_meta = (RtArrayMetadata *)new_raw;
+    char *new_arr = (char *)new_raw + sizeof(RtArrayMetadata);
+    memcpy(new_arr, arr, old_size * elem_size);
+    new_meta->arena = (RtArena *)arena;
+    new_meta->size = old_size + 1;
+    new_meta->capacity = new_cap;
+    memcpy(new_arr + old_size * elem_size, element, elem_size);
+    rt_managed_unpin(arena, new_h);
+    rt_managed_unpin(arena, arr_h);
+    rt_managed_mark_dead(arena, arr_h);
+    return new_h;
+}
+
 /* Void pointer push -- stores element as full void* (8 bytes, for closures/function pointers) */
 RtHandle rt_array_push_voidptr_h(RtManagedArena *arena, RtHandle arr_h, void *element) {
     if (arr_h == RT_HANDLE_NULL) {

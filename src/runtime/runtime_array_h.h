@@ -42,6 +42,7 @@ RtHandle rt_array_push_float_h(RtManagedArena *arena, RtHandle arr_h, float elem
 RtHandle rt_array_push_ptr_h(RtManagedArena *arena, RtHandle arr_h, void *element);
 RtHandle rt_array_push_voidptr_h(RtManagedArena *arena, RtHandle arr_h, void *element);
 RtHandle rt_array_push_any_h(RtManagedArena *arena, RtHandle arr_h, RtAny element);
+RtHandle rt_array_push_struct_h(RtManagedArena *arena, RtHandle arr_h, const void *element, size_t elem_size);
 
 /* Array pop -- modifies in place, returns popped value */
 long long rt_array_pop_long_h(RtManagedArena *arena, RtHandle arr_h);

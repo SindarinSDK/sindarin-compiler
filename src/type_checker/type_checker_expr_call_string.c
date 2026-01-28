@@ -198,6 +198,33 @@ Type *type_check_string_method(Expr *expr, Type *object_type, Token member_name,
         return ast_create_function_type(table->arena, string_type, param_types, 1);
     }
 
+    /* string.toInt() -> int (parse string as integer) */
+    if (strcmp(name, "toInt") == 0)
+    {
+        Type *int_type = ast_create_primitive_type(table->arena, TYPE_INT);
+        Type *param_types[] = {NULL};
+        DEBUG_VERBOSE("Returning function type for string toInt method");
+        return ast_create_function_type(table->arena, int_type, param_types, 0);
+    }
+
+    /* string.toLong() -> long (parse string as long integer) */
+    if (strcmp(name, "toLong") == 0)
+    {
+        Type *long_type = ast_create_primitive_type(table->arena, TYPE_LONG);
+        Type *param_types[] = {NULL};
+        DEBUG_VERBOSE("Returning function type for string toLong method");
+        return ast_create_function_type(table->arena, long_type, param_types, 0);
+    }
+
+    /* string.toDouble() -> double (parse string as double) */
+    if (strcmp(name, "toDouble") == 0)
+    {
+        Type *double_type = ast_create_primitive_type(table->arena, TYPE_DOUBLE);
+        Type *param_types[] = {NULL};
+        DEBUG_VERBOSE("Returning function type for string toDouble method");
+        return ast_create_function_type(table->arena, double_type, param_types, 0);
+    }
+
     /* Not a string method */
     return NULL;
 }

@@ -116,6 +116,11 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
         case TYPE_ANY:
             push_func = "rt_array_push_any_h";
             break;
+        case TYPE_STRUCT:
+            /* Struct types use a generic push with element size parameter.
+             * The element is passed by pointer (address-of). */
+            push_func = "rt_array_push_struct_h";
+            break;
         default:
             fprintf(stderr, "Error: Unsupported array element type for push\n");
             exit(1);
@@ -126,6 +131,19 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     bool is_lvalue = (object->type == EXPR_VARIABLE ||
                       object->type == EXPR_MEMBER_ACCESS ||
                       object->type == EXPR_MEMBER);
+
+    /* For struct types, use the struct push with element size.
+     * The struct is passed by pointer (address-of). */
+    if (element_type->kind == TYPE_STRUCT) {
+        /* Get C type name for sizeof() */
+        const char *c_type = get_c_type(gen->arena, element_type);
+        if (is_lvalue) {
+            return arena_sprintf(gen->arena, "(%s = %s(%s, %s, &%s, sizeof(%s)))",
+                                 lvalue_str, push_func, arena_to_use, handle_str, arg_str, c_type);
+        }
+        return arena_sprintf(gen->arena, "%s(%s, %s, &%s, sizeof(%s))",
+                             push_func, arena_to_use, handle_str, arg_str, c_type);
+    }
 
     /* For pointer types (function/array), cast element to void*.
      * For nested arrays in handle mode, arg_str is RtHandle (uint32_t) so use uintptr_t. */

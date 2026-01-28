@@ -60,6 +60,7 @@ int32_t *rt_array_push_int32(RtArena *arena, int32_t *arr, int32_t element);
 uint32_t *rt_array_push_uint32(RtArena *arena, uint32_t *arr, uint32_t element);
 uint64_t *rt_array_push_uint(RtArena *arena, uint64_t *arr, uint64_t element);
 float *rt_array_push_float(RtArena *arena, float *arr, float element);
+void *rt_array_push_struct(RtArena *arena, void *arr, const void *element, size_t elem_size);
 
 /* ============================================================================
  * Array Pop Functions

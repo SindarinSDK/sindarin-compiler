@@ -139,6 +139,12 @@ char *rt_str_trim(RtArena *arena, const char *str);
 char *rt_str_replace(RtArena *arena, const char *str, const char *old, const char *new_str);
 char **rt_str_split(RtArena *arena, const char *str, const char *delimiter);
 
+/* String parsing functions */
+long long rt_str_to_int(const char *str);
+long long rt_str_to_long(const char *str);
+double rt_str_to_double(const char *str);
+/* Note: rt_str_is_blank is declared in runtime.h */
+
 /* ============================================================================
  * Inline String Functions
  * ============================================================================ */

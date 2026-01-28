@@ -254,6 +254,27 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
+    /* toInt() - returns int (parse string as integer) */
+    if (strcmp(method_name, "toInt") == 0 && arg_count == 0) {
+        char *method_call = arena_sprintf(gen->arena, "rt_str_to_int(%s)",
+            object_is_temp ? "_obj_tmp" : object_str);
+        STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "long long", method_call);
+    }
+
+    /* toLong() - returns long (parse string as long integer) */
+    if (strcmp(method_name, "toLong") == 0 && arg_count == 0) {
+        char *method_call = arena_sprintf(gen->arena, "rt_str_to_long(%s)",
+            object_is_temp ? "_obj_tmp" : object_str);
+        STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "long long", method_call);
+    }
+
+    /* toDouble() - returns double (parse string as double) */
+    if (strcmp(method_name, "toDouble") == 0 && arg_count == 0) {
+        char *method_call = arena_sprintf(gen->arena, "rt_str_to_double(%s)",
+            object_is_temp ? "_obj_tmp" : object_str);
+        STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "double", method_call);
+    }
+
     /* Method not handled here - restore handle mode */
     gen->expr_as_handle = handle_mode;
     return NULL;

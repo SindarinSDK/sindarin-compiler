@@ -91,4 +91,9 @@ bool updater_extract_archive(const char *archive_path, const char *dest_dir, boo
 /* Install the new binary (platform-specific) */
 bool updater_install_binary(const char *new_exe_path, bool verbose);
 
+/* Install the full SDK package (binary + sdk + deps + include + lib)
+ * Preserves user's sn.cfg configuration file.
+ */
+bool updater_install_full_package(const char *package_root, bool verbose);
+
 #endif /* SN_UPDATER_H */
