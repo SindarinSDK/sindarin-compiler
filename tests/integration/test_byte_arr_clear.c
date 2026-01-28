@@ -22,20 +22,11 @@ int main() {
     RtManagedArena *__local_arena__ = rt_managed_arena_create();
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    RtHandle __sn__a = rt_array_create_long_h(__local_arena__, 2, (long long[]){1LL, 2LL});
-    RtHandle __sn__b = rt_array_clone_long_h(__local_arena__, RT_HANDLE_NULL, ((long long *)rt_managed_pin_array(__local_arena__, __sn__a)));
-    (__sn__a = rt_array_push_long_h(__local_arena__, __sn__a, 3LL));
-    (__sn__b = rt_array_push_long_h(__local_arena__, __sn__b, 4LL));
+    RtHandle __sn__b = rt_array_create_byte_h(__local_arena__, 3, (unsigned char[]){1LL, 2LL, 3LL});
+    rt_array_clear(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__b)));
     ({
         char *_str_arg0 = ({
-        char *_p0 = rt_to_string_long(__local_arena__, ((long long *)rt_managed_pin_array(__local_arena__, __sn__a))[2LL]);
-        rt_str_concat(__local_arena__, _p0, "\n");
-    });
-        rt_print_string(_str_arg0);
-    });
-    ({
-        char *_str_arg0 = ({
-        char *_p0 = rt_to_string_long(__local_arena__, ((long long *)rt_managed_pin_array(__local_arena__, __sn__b))[2LL]);
+        char *_p0 = rt_to_string_long(__local_arena__, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__b))));
         rt_str_concat(__local_arena__, _p0, "\n");
     });
         rt_print_string(_str_arg0);
