@@ -32,6 +32,13 @@
 /* Forward declarations */
 bool updater_get_temp_path(char *buf, size_t bufsize, const char *suffix);
 
+/* Helper to run system() and intentionally ignore the result.
+ * Used for best-effort operations where failure is acceptable.
+ */
+static inline void system_ignore_result(const char *cmd) {
+    int result __attribute__((unused)) = system(cmd);
+}
+
 /* Components to update (relative to SDK root)
  * Used by Unix implementation; Windows batch script has these hardcoded.
  */
@@ -587,7 +594,7 @@ static bool install_full_package_unix(const char *package_root, bool verbose)
 
     /* Remove old backup if exists */
     snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", backup_dir);
-    system(cmd);  /* Ignore failure */
+    system_ignore_result(cmd);  /* Ignore failure */
 
     /* Create backup directory */
     if (mkdir(backup_dir, 0755) != 0 && errno != EEXIST) {
@@ -605,7 +612,7 @@ static bool install_full_package_unix(const char *package_root, bool verbose)
     snprintf(current_exe, sizeof(current_exe), "%s/sn", sdk_root);
     if (file_exists(current_exe)) {
         snprintf(cmd, sizeof(cmd), "mv '%s' '%s/sn' 2>/dev/null", current_exe, backup_dir);
-        system(cmd);  /* Ignore failure - might not exist */
+        system_ignore_result(cmd);  /* Ignore failure - might not exist */
     }
 
     /* Backup directories */
@@ -615,7 +622,7 @@ static bool install_full_package_unix(const char *package_root, bool verbose)
         if (dir_exists(comp_path)) {
             snprintf(cmd, sizeof(cmd), "mv '%s' '%s/%s' 2>/dev/null",
                      comp_path, backup_dir, SDK_COMPONENTS[i]);
-            system(cmd);  /* Ignore failure */
+            system_ignore_result(cmd);  /* Ignore failure */
         }
     }
 
@@ -644,7 +651,7 @@ static bool install_full_package_unix(const char *package_root, bool verbose)
     snprintf(new_cfg, sizeof(new_cfg), "%s/sn.cfg", package_root);
     if (file_exists(new_cfg)) {
         snprintf(cmd, sizeof(cmd), "cp '%s' '%s' 2>/dev/null", new_cfg, cfg_path);
-        system(cmd);  /* Ignore failure - optional */
+        system_ignore_result(cmd);  /* Ignore failure - optional */
     }
 
     /* Copy directories */
@@ -675,7 +682,7 @@ static bool install_full_package_unix(const char *package_root, bool verbose)
 
     /* Cleanup backup directory */
     snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", backup_dir);
-    system(cmd);  /* Ignore failure */
+    system_ignore_result(cmd);  /* Ignore failure */
 
     if (verbose) {
         printf("Updated %s successfully\n", sdk_root);
@@ -690,7 +697,7 @@ restore:
     snprintf(backup_exe, sizeof(backup_exe), "%s/sn", backup_dir);
     if (file_exists(backup_exe)) {
         snprintf(cmd, sizeof(cmd), "mv '%s' '%s' 2>/dev/null", backup_exe, current_exe);
-        system(cmd);
+        system_ignore_result(cmd);  /* Best-effort restore */
     }
 
     /* Restore directories */
@@ -703,15 +710,15 @@ restore:
         if (dir_exists(backup_comp)) {
             /* Remove partially copied directory first */
             snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", dst_comp);
-            system(cmd);
+            system_ignore_result(cmd);  /* Best-effort cleanup */
             snprintf(cmd, sizeof(cmd), "mv '%s' '%s' 2>/dev/null", backup_comp, dst_comp);
-            system(cmd);
+            system_ignore_result(cmd);  /* Best-effort restore */
         }
     }
 
     /* Cleanup backup directory */
     snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", backup_dir);
-    system(cmd);
+    system_ignore_result(cmd);  /* Best-effort cleanup */
 
     fprintf(stderr, "Restoration complete.\n");
     return false;
@@ -827,7 +834,7 @@ bool updater_perform_update(bool verbose)
 #ifndef _WIN32
         char cmd[PATH_MAX * 2];
         snprintf(cmd, sizeof(cmd), "rm -rf '%s' 2>/dev/null", extract_dir);
-        system(cmd);
+        system_ignore_result(cmd);  /* Best-effort cleanup */
 #endif
         remove(archive_path);
         return false;
