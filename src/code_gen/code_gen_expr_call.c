@@ -1649,6 +1649,9 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                     case TYPE_FLOAT:
                         push_func = "rt_array_push_float";
                         break;
+                    case TYPE_STRUCT:
+                        push_func = "rt_array_push_struct";
+                        break;
                     default:
                         fprintf(stderr, "Error: Unsupported array element type for push\n");
                         exit(1);
@@ -1671,6 +1674,16 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                 bool is_lvalue = (member->object->type == EXPR_VARIABLE ||
                                   member->object->type == EXPR_MEMBER_ACCESS ||
                                   member->object->type == EXPR_MEMBER);
+
+                // For struct types, use the struct push with element size.
+                // The struct is passed by pointer (address-of).
+                if (element_type->kind == TYPE_STRUCT) {
+                    const char *c_type = get_c_type(gen->arena, element_type);
+                    if (is_lvalue) {
+                        return arena_sprintf(gen->arena, "(%s = %s(%s, %s, &%s, sizeof(%s)))", object_str, push_func, arena_to_use, object_str, arg_str, c_type);
+                    }
+                    return arena_sprintf(gen->arena, "%s(%s, %s, &%s, sizeof(%s))", push_func, arena_to_use, object_str, arg_str, c_type);
+                }
 
                 // For pointer types (function/array), we need to cast to void**
                 if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {

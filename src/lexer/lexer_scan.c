@@ -9,6 +9,15 @@
 
 static char error_buffer[128];
 
+/* Convert a hex character to its value (0-15), returns -1 if invalid */
+static int hex_char_to_int(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return 10 + (c - 'a');
+    if (c >= 'A' && c <= 'F') return 10 + (c - 'A');
+    return -1;
+}
+
 SnTokenType lexer_check_keyword(Lexer *lexer, int start, int length, const char *rest, SnTokenType type)
 {
     int lexeme_length = (int)(lexer->current - lexer->start);
@@ -710,6 +719,39 @@ Token lexer_scan_string(Lexer *lexer)
                     case '"':
                         buffer[buffer_index++] = '"';
                         break;
+                    case '0':
+                        buffer[buffer_index++] = '\0';
+                        break;
+                    case 'x':
+                    {
+                        /* Hex escape: \xNN where NN is exactly 2 hex digits */
+                        lexer_advance(lexer); /* consume 'x' */
+                        if (lexer_is_at_end(lexer))
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer), "Incomplete hex escape");
+                            return lexer_error_token(lexer, error_buffer);
+                        }
+                        int hi = hex_char_to_int(lexer_peek(lexer));
+                        if (hi < 0)
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer), "Invalid hex digit in escape");
+                            return lexer_error_token(lexer, error_buffer);
+                        }
+                        lexer_advance(lexer);
+                        if (lexer_is_at_end(lexer))
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer), "Incomplete hex escape");
+                            return lexer_error_token(lexer, error_buffer);
+                        }
+                        int lo = hex_char_to_int(lexer_peek(lexer));
+                        if (lo < 0)
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer), "Invalid hex digit in escape");
+                            return lexer_error_token(lexer, error_buffer);
+                        }
+                        buffer[buffer_index++] = (char)((hi << 4) | lo);
+                        break;
+                    }
                     default:
                         snprintf(error_buffer, sizeof(error_buffer), "Invalid escape sequence");
                         return lexer_error_token(lexer, error_buffer);
@@ -838,6 +880,39 @@ Token lexer_scan_char(Lexer *lexer)
         case '\'':
             value = '\'';
             break;
+        case '0':
+            value = '\0';
+            break;
+        case 'x':
+        {
+            /* Hex escape: \xNN where NN is exactly 2 hex digits */
+            lexer_advance(lexer); /* consume 'x' */
+            if (lexer_is_at_end(lexer))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Incomplete hex escape");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            int hi = hex_char_to_int(lexer_peek(lexer));
+            if (hi < 0)
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Invalid hex digit in escape");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            lexer_advance(lexer);
+            if (lexer_is_at_end(lexer))
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Incomplete hex escape");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            int lo = hex_char_to_int(lexer_peek(lexer));
+            if (lo < 0)
+            {
+                snprintf(error_buffer, sizeof(error_buffer), "Invalid hex digit in escape");
+                return lexer_error_token(lexer, error_buffer);
+            }
+            value = (char)((hi << 4) | lo);
+            break;
+        }
         default:
             snprintf(error_buffer, sizeof(error_buffer), "Invalid escape sequence");
             return lexer_error_token(lexer, error_buffer);

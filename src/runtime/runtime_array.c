@@ -122,6 +122,56 @@ DEFINE_ARRAY_PUSH(uint32, uint32_t, element)
 DEFINE_ARRAY_PUSH(uint, uint64_t, element)
 DEFINE_ARRAY_PUSH(float, float, element)
 
+/* Generic struct push - copies element by value using memcpy */
+void *rt_array_push_struct(RtArena *arena, void *arr, const void *element, size_t elem_size) {
+    ArrayMetadata *meta;
+    void *new_arr;
+    size_t new_capacity;
+    RtArena *alloc_arena;
+
+    if (arr == NULL) {
+        meta = rt_array_alloc(arena, sizeof(ArrayMetadata) + 4 * elem_size);
+        if (meta == NULL) {
+            fprintf(stderr, "rt_array_push_struct: allocation failed\n");
+            exit(1);
+        }
+        meta->arena = arena;
+        meta->size = 1;
+        meta->capacity = 4;
+        new_arr = (void *)(meta + 1);
+        memcpy(new_arr, element, elem_size);
+        return new_arr;
+    }
+
+    meta = ((ArrayMetadata *)arr) - 1;
+    alloc_arena = meta->arena ? meta->arena : arena;
+
+    if (meta->size >= meta->capacity) {
+        new_capacity = meta->capacity == 0 ? 4 : meta->capacity * 2;
+        if (new_capacity < meta->capacity) {
+            fprintf(stderr, "rt_array_push_struct: capacity overflow\n");
+            exit(1);
+        }
+        ArrayMetadata *new_meta = rt_array_alloc(alloc_arena, sizeof(ArrayMetadata) + new_capacity * elem_size);
+        if (new_meta == NULL) {
+            fprintf(stderr, "rt_array_push_struct: reallocation failed\n");
+            exit(1);
+        }
+        new_meta->arena = alloc_arena;
+        new_meta->size = meta->size;
+        new_meta->capacity = new_capacity;
+        new_arr = (void *)(new_meta + 1);
+        memcpy(new_arr, arr, meta->size * elem_size);
+        meta = new_meta;
+    } else {
+        new_arr = arr;
+    }
+
+    memcpy((char *)new_arr + meta->size * elem_size, element, elem_size);
+    meta->size++;
+    return new_arr;
+}
+
 /* String arrays need special handling for strdup */
 char **rt_array_push_string(RtArena *arena, char **arr, const char *element) {
     ArrayMetadata *meta;

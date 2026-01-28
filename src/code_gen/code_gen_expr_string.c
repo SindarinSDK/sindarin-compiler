@@ -8,6 +8,7 @@
 #include "code_gen/code_gen_expr_string.h"
 #include "code_gen/code_gen_util.h"
 #include "code_gen/code_gen_expr.h"
+#include "ast.h"
 #include "debug.h"
 #include <stdbool.h>
 
@@ -171,6 +172,45 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
                                        result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
                 result = arena_sprintf(gen->arena, "%s        char *_p%d = rt_format_string(%s, _tmp%d, \"%s\");\n",
                                        result, temp_var_count, ARENA_VAR(gen), temp_var_count, format_spec);
+            }
+            use_strs[i] = arena_sprintf(gen->arena, "_p%d", temp_var_count);
+            temp_var_count++;
+        }
+        else if (part_types[i]->kind == TYPE_STRUCT)
+        {
+            /* Struct type: check if it has a toString() method */
+            StructMethod *to_string_method = ast_struct_get_method(part_types[i], "toString");
+            if (to_string_method != NULL && to_string_method->return_type != NULL &&
+                to_string_method->return_type->kind == TYPE_STRING)
+            {
+                /* Call the struct's toString() method.
+                 * Method naming convention: StructName_toString(arena, self)
+                 * The method returns a string handle (RtHandle), so we need to pin it to get char* */
+                const char *struct_name = part_types[i]->as.struct_type.name;
+                char *mangled_name = sn_mangle_name(gen->arena, struct_name);
+
+                /* For 'as ref' structs (native handle types), self is passed as-is (already a pointer).
+                 * For regular structs, self needs to be passed by address. */
+                if (part_types[i]->as.struct_type.pass_self_by_ref ||
+                    (part_types[i]->as.struct_type.is_native && part_types[i]->as.struct_type.c_alias != NULL))
+                {
+                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_managed_pin(%s, %s_toString(%s, %s));\n",
+                                           result, temp_var_count, ARENA_VAR(gen), mangled_name, ARENA_VAR(gen), part_strs[i]);
+                }
+                else
+                {
+                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_managed_pin(%s, %s_toString(%s, &%s));\n",
+                                           result, temp_var_count, ARENA_VAR(gen), mangled_name, ARENA_VAR(gen), part_strs[i]);
+                }
+            }
+            else
+            {
+                /* No toString() method or wrong signature - fall back to pointer representation */
+                const char *to_str = gen->current_arena_var
+                    ? get_rt_to_string_func_for_type_h(part_types[i])
+                    : get_rt_to_string_func_for_type(part_types[i]);
+                result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
+                                       result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
             }
             use_strs[i] = arena_sprintf(gen->arena, "_p%d", temp_var_count);
             temp_var_count++;
