@@ -1,0 +1,24 @@
+// Test string interpolation with structs (auto-generated toString)
+
+struct Point =>
+    x: int
+    y: int
+
+struct Person =>
+    name: str
+    age: int
+    active: bool
+
+fn main(): int =>
+    // Test simple struct with numeric fields
+    var p: Point = Point { x: 10, y: 20 }
+    print($"Point: {p}\n")
+
+    // Test struct with string and bool fields
+    var person: Person = Person { name: "Alice", age: 30, active: true }
+    print($"Person: {person}\n")
+
+    // Test inline struct in interpolation
+    print($"Inline: {Point { x: 5, y: 15 }}\n")
+
+    return 0
