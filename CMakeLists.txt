@@ -719,6 +719,7 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
                 "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
                 "-framework Security"
                 "-framework CoreFoundation"
+                iconv
             )
         else()
             target_link_libraries(sn PRIVATE
@@ -788,6 +789,7 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
                 "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
                 "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
                 "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                iconv
             )
         else()
             target_link_libraries(tests PRIVATE
