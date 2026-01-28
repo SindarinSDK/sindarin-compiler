@@ -1,7 +1,7 @@
 // Test sync byte with threads - atomic increment should be thread-safe
 
-var byte_counter: sync byte = 0
-var char_counter: sync char = 'A'
+sync var byte_counter: byte = 0
+sync var char_counter: char = 'A'
 
 fn increment_byte(): int =>
     byte_counter++

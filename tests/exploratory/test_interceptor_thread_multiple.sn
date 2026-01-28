@@ -1,7 +1,7 @@
 // Test: Multiple threads calling intercepted functions concurrently
 // Verifies thread-safety of the interceptor dispatch mechanism
 
-var call_count: sync int = 0
+sync var call_count: int = 0
 
 fn countingInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
     call_count++

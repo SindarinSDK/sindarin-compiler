@@ -183,7 +183,21 @@ Stmt *parser_statement(Parser *parser)
 
     if (parser_match(parser, TOKEN_VAR))
     {
-        return parser_var_declaration(parser);
+        return parser_var_declaration(parser, SYNC_NONE);
+    }
+    if (parser_match(parser, TOKEN_SYNC))
+    {
+        if (parser_match(parser, TOKEN_VAR))
+        {
+            return parser_var_declaration(parser, SYNC_ATOMIC);
+        }
+        else
+        {
+            parser_error_at_current(parser,
+                "'sync' in statement context can only be used with 'var'. "
+                "Did you mean 'sync var'?");
+            return NULL;
+        }
     }
     if (parser_match(parser, TOKEN_IF))
     {
@@ -361,7 +375,7 @@ Stmt *parser_declaration(Parser *parser)
 
     if (parser_match(parser, TOKEN_VAR))
     {
-        result = parser_var_declaration(parser);
+        result = parser_var_declaration(parser, SYNC_NONE);
         goto attach_comments;
     }
     /* Parse function modifiers (shared/private) before fn keyword.
@@ -422,10 +436,15 @@ Stmt *parser_declaration(Parser *parser)
 
     if (parser_match(parser, TOKEN_STATIC))
     {
-        /* 'static var' at module level for static module variables */
+        /* 'static var' or 'static sync var' at module level for static module variables */
+        SyncModifier sync_mod = SYNC_NONE;
+        if (parser_match(parser, TOKEN_SYNC))
+        {
+            sync_mod = SYNC_ATOMIC;
+        }
         if (parser_match(parser, TOKEN_VAR))
         {
-            result = parser_var_declaration(parser);
+            result = parser_var_declaration(parser, sync_mod);
             if (result != NULL && result->type == STMT_VAR_DECL)
             {
                 result->as.var_decl.is_static = true;
@@ -435,8 +454,34 @@ Stmt *parser_declaration(Parser *parser)
         else
         {
             parser_error_at_current(parser,
-                "'static' at module level can only be used with 'var'. "
-                "Did you mean 'static var'?");
+                "'static' at module level can only be used with 'var' or 'sync var'. "
+                "Did you mean 'static var' or 'static sync var'?");
+            return NULL;
+        }
+    }
+
+    if (parser_match(parser, TOKEN_SYNC))
+    {
+        /* 'sync var' or 'sync static var' at module level */
+        bool is_static = false;
+        if (parser_match(parser, TOKEN_STATIC))
+        {
+            is_static = true;
+        }
+        if (parser_match(parser, TOKEN_VAR))
+        {
+            result = parser_var_declaration(parser, SYNC_ATOMIC);
+            if (result != NULL && result->type == STMT_VAR_DECL)
+            {
+                result->as.var_decl.is_static = is_static;
+            }
+            goto attach_comments;
+        }
+        else
+        {
+            parser_error_at_current(parser,
+                "'sync' at module level can only be used with 'var' or 'static var'. "
+                "Did you mean 'sync var' or 'sync static var'?");
             return NULL;
         }
     }

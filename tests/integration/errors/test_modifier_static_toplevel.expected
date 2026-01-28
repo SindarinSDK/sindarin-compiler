@@ -1,1 +1,1 @@
-'static' at module level can only be used with 'var'. Did you mean 'static var'?
+'static' at module level can only be used with 'var' or 'sync var'. Did you mean 'static var' or 'static sync var'?

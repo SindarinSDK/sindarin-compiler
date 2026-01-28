@@ -1,7 +1,7 @@
 // Test sync variables with threads - atomic increment should be thread-safe
 // This is similar to test_interceptor_thread_counter but uses sync for atomic counter
 
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn increment_counter(): int =>
     counter++

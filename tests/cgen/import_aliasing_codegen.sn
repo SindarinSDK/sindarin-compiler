@@ -5,7 +5,7 @@ import "./imports/import_aliasing_codegen_B" as moduleB
 import "./imports/import_aliasing_codegen_C" as moduleC
 import "./imports/import_aliasing_codegen_C" as moduleC_1
 
-static var lockVal:sync int = 1
+static sync var lockVal: int = 1
 
 fn test_basic_compress_decompress_A(): void =>
     print("test_basic_compress_decompress: ")
