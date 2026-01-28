@@ -1,0 +1,19 @@
+// Test Path.joinAll function for joining multiple path components
+
+import "sdk/io/path"
+
+fn main(): void =>
+    // Test with empty array first (this was working)
+    var parts3: str[] = {}
+    var path3: str = Path.joinAll(parts3)
+    println($"empty: '{path3}'")
+
+    // Test with single part
+    var parts2: str[] = {"single"}
+    var path2: str = Path.joinAll(parts2)
+    println($"single: '{path2}'")
+
+    // Test joining multiple parts
+    var parts1: str[] = {"vcpkg", "installed", "x64-windows", "bin"}
+    var path1: str = Path.joinAll(parts1)
+    println($"multi: '{path1}'")

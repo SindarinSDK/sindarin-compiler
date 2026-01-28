@@ -380,6 +380,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "%srt_managed_strdup((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, %s(__rt_thunk_args[%d]))",
                     unboxed_args, unbox_func, i);
             }
+            else if (arg_type && arg_type->kind == TYPE_STRUCT)
+            {
+                /* Struct type: unbox with type_id and dereference */
+                int type_id = get_struct_type_id(arg_type);
+                const char *struct_name = get_c_type(gen->arena, arg_type);
+                unboxed_args = arena_sprintf(gen->arena,
+                    "%s*((%s *)rt_unbox_struct(__rt_thunk_args[%d], %d))",
+                    unboxed_args, struct_name, i, type_id);
+            }
             else
             {
                 unboxed_args = arena_sprintf(gen->arena, "%s%s(__rt_thunk_args[%d])", unboxed_args, unbox_func, i);

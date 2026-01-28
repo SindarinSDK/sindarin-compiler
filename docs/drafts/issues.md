@@ -4,11 +4,31 @@ This document tracks issues discovered during development.
 
 ---
 
+## Issue: `rt_unbox_struct` Signature Mismatch in Thread Thunks
+
+**Date:** 2026-01-28
+**Severity:** High
+**Status:** FIXED
+
+### Description
+
+When spawning threads with struct parameters, the generated C code was calling `rt_unbox_struct` with only one argument instead of two, causing compilation failures.
+
+### Fix
+
+Added special handling for struct types in thread thunk argument generation in `code_gen_expr_thread.c`. The fix properly passes the type_id as the second argument to `rt_unbox_struct`.
+
+### Test
+
+See `tests/integration/test_thread_struct_param.sn`
+
+---
+
 ## Issue: Thread Handles Cannot Be Conditionally Assigned
 
 **Date:** 2026-01-28
 **Severity:** Medium
-**Status:** Open
+**Status:** Open (By Design)
 
 ### Description
 
@@ -36,18 +56,32 @@ error: incompatible types when assigning to type '__sn__TestResult' from type 'R
 
 ### Impact
 
-This limitation prevents implementing dynamic parallel execution patterns where the number of threads depends on runtime values (e.g., batch processing N tests in parallel where N is variable).
+This limitation prevents implementing dynamic parallel execution patterns where the number of threads depends on runtime values.
 
-### Workaround
+### Design Notes
 
-Currently, only sequential execution is possible for dynamic workloads. Fixed parallelism (spawning a known number of threads at declaration time) still works.
+This is a fundamental limitation of the current type system. Thread spawns have a dual nature:
+- Before sync: they are `RtThreadHandle*`
+- After sync: they are the result type
 
-### Suggested Fix
+The current design uses a "pending variable" pattern at declaration time to handle this duality, but this pattern cannot be easily extended to reassignment scenarios.
 
-Either:
-1. Allow thread handle reassignment with proper type coercion
-2. Support storing thread handles in arrays: `var handles: TestResult[] = {}; handles.push(&fn())`
-3. Provide a runtime thread pool API
+### Workarounds
+
+1. Use fixed parallelism (spawn a known number of threads at declaration time)
+2. Structure code to declare thread handles within conditional blocks:
+   ```sindarin
+   if condition =>
+       var h: TestResult = &runSingleTest(...)
+       var result: TestResult = h!
+       // use result
+   ```
+
+### Potential Future Solutions
+
+1. Introduce explicit handle types: `Thread<T>`
+2. Runtime thread pool API
+3. Significant refactoring of variable declaration to always include pending variables
 
 ---
 
@@ -55,28 +89,20 @@ Either:
 
 **Date:** 2026-01-28
 **Severity:** Medium
-**Status:** Open
+**Status:** Open (By Design)
 **Related:** Thread handle conditional assignment issue
 
 ### Description
 
-Thread handles typed as their return type (e.g., `var h: TestResult = &fn()`) cannot be stored in arrays or collections, preventing dynamic parallel execution patterns.
+Thread handles typed as their return type cannot be stored in arrays or collections, preventing dynamic parallel execution patterns.
 
-### Reproduction
+### Design Notes
 
-```sindarin
-// Desired pattern (does not work):
-var handles: TestResult[] = {}
-for i in 0..10 =>
-    handles.push(&runTest(i))  // Would need to store thread handle in array
+This is related to the same dual-typing issue as conditional assignment. An array typed as `TestResult[]` cannot hold `RtThreadHandle*` values.
 
-for h in handles =>
-    h!  // Sync all
-```
+### Potential Future Solutions
 
-### Impact
-
-Cannot implement thread pool or batch-based parallelism where the number of concurrent operations is determined at runtime.
+Same as conditional assignment issue - requires introducing explicit handle types or significant type system changes.
 
 ---
 
@@ -84,65 +110,35 @@ Cannot implement thread pool or batch-based parallelism where the number of conc
 
 **Date:** 2026-01-28
 **Severity:** Low
-**Status:** By Design (documentation needed)
+**Status:** FIXED
 
 ### Description
 
-The `Path.join` function only accepts 2 arguments, unlike Python's `os.path.join` which accepts variadic arguments.
+The `Path.join` function only accepts 2 arguments.
 
-### Reproduction
+### Fix
+
+Added `Path.joinAll(parts: str[]): str` function that accepts an array of path components.
+
+Also documented `Path.join3(path1, path2, path3)` which was already available.
+
+### Usage
 
 ```sindarin
-// This fails:
-var path: str = Path.join("vcpkg", "installed", "x64-windows", "bin")
-// Error: Path.join expects 2 argument(s), got 4
+// For 2 parts
+var path: str = Path.join("home", "user")
 
-// Must chain calls instead:
-var path: str = Path.join(Path.join(Path.join("vcpkg", "installed"), "x64-windows"), "bin")
+// For 3 parts
+var path: str = Path.join3("home", "user", "file.txt")
+
+// For variable number of parts
+var parts: str[] = {"vcpkg", "installed", "x64-windows", "bin"}
+var path: str = Path.joinAll(parts)
 ```
 
-### Suggested Improvement
+### Test
 
-Consider adding variadic support or a `Path.joinAll(parts: str[]): str` function for convenience.
-
----
-
-## Issue: `rt_unbox_struct` Signature Mismatch in Thread Thunks
-
-**Date:** 2026-01-28
-**Severity:** High
-**Status:** Open
-
-### Description
-
-When spawning threads with struct parameters, the generated C code calls `rt_unbox_struct` with incorrect arguments, causing compilation failures.
-
-### Compiler Error
-
-```
-error: too few arguments to function 'rt_unbox_struct'
-note: expected 'RtAny value, int expected_type_id' but got only 'RtAny value'
-```
-
-### Generated Code (Incorrect)
-
-```c
-__sn__TestResult __tmp_result = __sn__runSingleTest(
-    (RtArena *)__rt_thunk_arena,
-    rt_unbox_struct(__rt_thunk_args[0]),  // Missing type_id argument
-    ...
-);
-```
-
-### Expected
-
-```c
-rt_unbox_struct(__rt_thunk_args[0], TYPE_ID_TestRunner)
-```
-
-### Impact
-
-Cannot spawn threads for functions that take struct parameters.
+See `tests/integration/test_path_join_all.sn`
 
 ---
 
