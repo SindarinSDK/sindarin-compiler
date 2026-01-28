@@ -1,0 +1,20 @@
+// Test spawning threads with struct parameters
+// This tests the fix for rt_unbox_struct signature mismatch in thread thunks
+
+struct TestConfig =>
+    name: str
+    value: int
+
+fn processConfig(config: TestConfig): str =>
+    return $"Processed {config.name} with value {config.value}"
+
+fn main(): void =>
+    var config: TestConfig = TestConfig { name: "test", value: 42 }
+
+    // Spawn a thread with a struct parameter
+    var result: str = &processConfig(config)
+
+    // Sync and get result
+    var output: str = result!
+
+    println(output)

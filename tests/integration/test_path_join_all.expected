@@ -1,0 +1,3 @@
+empty: ''
+single: 'single'
+multi: 'vcpkg/installed/x64-windows/bin'

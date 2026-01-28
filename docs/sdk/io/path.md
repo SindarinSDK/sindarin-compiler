@@ -42,13 +42,30 @@ var ext2: str = Path.extension("archive.tar.gz")      // "gz"
 var ext3: str = Path.extension("README")              // ""
 ```
 
-### Path.join(parts...)
+### Path.join(path1, path2)
 
-Joins path components with the appropriate separator.
+Joins two path components with the appropriate separator.
 
 ```sindarin
-var full: str = Path.join("/home", "user", "file.txt")  // "/home/user/file.txt"
-var rel: str = Path.join("src", "main", "app.sn")       // "src/main/app.sn"
+var full: str = Path.join("/home", "user")  // "/home/user"
+var rel: str = Path.join("src", "main")     // "src/main"
+```
+
+### Path.join3(path1, path2, path3)
+
+Joins three path components.
+
+```sindarin
+var full: str = Path.join3("/home", "user", "file.txt")  // "/home/user/file.txt"
+```
+
+### Path.joinAll(parts)
+
+Joins an array of path components. Use this when you need to join more than 3 components.
+
+```sindarin
+var parts: str[] = {"vcpkg", "installed", "x64-windows", "bin"}
+var path: str = Path.joinAll(parts)  // "vcpkg/installed/x64-windows/bin"
 ```
 
 ### Path.absolute(path)
