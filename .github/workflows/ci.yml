@@ -107,16 +107,16 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      # sindarin-libs submodule provides pre-built libraries (fetched during checkout)
+      # libs submodule provides pre-built libraries (fetched during checkout)
       # CMake will automatically detect and use them - no vcpkg build needed
-      - name: Verify sindarin-libs
+      - name: Verify libs submodule
         shell: bash
         run: |
-          if [ -d "sindarin-libs/libs" ]; then
-            echo "sindarin-libs submodule found - using pre-built libraries"
-            ls -la sindarin-libs/libs/
+          if [ -d "libs/libs" ]; then
+            echo "libs submodule found - using pre-built libraries"
+            ls -la libs/libs/
           else
-            echo "WARNING: sindarin-libs not found, falling back to vcpkg"
+            echo "WARNING: libs submodule not found, falling back to vcpkg"
             make setup
           fi
 
