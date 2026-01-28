@@ -1,0 +1,3 @@
+[submodule "sindarin-libs"]
+	path = sindarin-libs
+	url = ../sindarin-libs

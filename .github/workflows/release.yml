@@ -54,11 +54,30 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
 
       #------------------------------------------------------------------------
-      # Cache vcpkg and installed packages
+      # Verify sindarin-libs (pre-built libraries from submodule)
+      #------------------------------------------------------------------------
+      - name: Verify sindarin-libs
+        id: sindarin-libs
+        shell: bash
+        run: |
+          if [ -d "sindarin-libs/libs/${{ matrix.platform }}" ]; then
+            echo "sindarin-libs found for ${{ matrix.platform }}"
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "sindarin-libs not found, will use vcpkg"
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      #------------------------------------------------------------------------
+      # Cache vcpkg (only used if sindarin-libs not available)
       #------------------------------------------------------------------------
       - name: Cache vcpkg
+        if: steps.sindarin-libs.outputs.found != 'true'
         uses: actions/cache@v4
         with:
           path: |
@@ -79,7 +98,7 @@ jobs:
             curl zip unzip tar pkg-config
 
       - name: Setup vcpkg (Linux)
-        if: runner.os == 'Linux'
+        if: runner.os == 'Linux' && steps.sindarin-libs.outputs.found != 'true'
         run: |
           # Clone vcpkg if not present
           if [ ! -d vcpkg ]; then
@@ -97,7 +116,7 @@ jobs:
         run: brew install cmake ninja coreutils python3 curl zip unzip pkg-config
 
       - name: Setup vcpkg (macOS)
-        if: runner.os == 'macOS'
+        if: runner.os == 'macOS' && steps.sindarin-libs.outputs.found != 'true'
         run: |
           # Clone vcpkg if not present
           if [ ! -d vcpkg ]; then
@@ -149,6 +168,10 @@ jobs:
           # Install Ninja
           choco install ninja -y
 
+      - name: Setup vcpkg (Windows)
+        if: runner.os == 'Windows' && steps.sindarin-libs.outputs.found != 'true'
+        shell: pwsh
+        run: |
           # Clone vcpkg if not present
           if (-not (Test-Path "vcpkg")) {
             git clone https://github.com/microsoft/vcpkg.git vcpkg

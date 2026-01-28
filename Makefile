@@ -15,7 +15,7 @@
 .PHONY: test-explore test-explore-errors test-sdk
 .PHONY: arena test-arena
 .PHONY: configure install package docs
-.PHONY: setup
+.PHONY: setup libs
 
 #------------------------------------------------------------------------------
 # Platform Detection
@@ -239,10 +239,20 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# setup - Install build dependencies (vcpkg: zlib, yyjson)
+# libs - Fetch pre-built libraries from sindarin-libs submodule (fast)
+#------------------------------------------------------------------------------
+libs:
+	@echo "Fetching pre-built libraries from sindarin-libs submodule..."
+	@git submodule update --init sindarin-libs
+	@echo "Pre-built libraries ready!"
+	@echo "Run 'make build' to build the compiler."
+
+#------------------------------------------------------------------------------
+# setup - Build dependencies from source via vcpkg (slow, use 'make libs' instead)
 #------------------------------------------------------------------------------
 setup:
-	@echo "Setting up build dependencies..."
+	@echo "Setting up build dependencies via vcpkg (this may take a while)..."
+	@echo "TIP: For faster setup, use 'make libs' to fetch pre-built libraries."
 	@$(PYTHON) scripts/setup_deps.py
 
 #------------------------------------------------------------------------------
@@ -299,7 +309,8 @@ help:
 	@echo "  make package      Create distributable packages"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make setup        Install build dependencies (vcpkg: zlib, yyjson)"
+	@echo "  make libs         Fetch pre-built libraries (fast, recommended)"
+	@echo "  make setup        Build dependencies from source via vcpkg (slow)"
 	@echo ""
 	@echo "CMake Presets (Advanced):"
 	@echo "  cmake --preset linux-gcc-release    Linux with GCC"

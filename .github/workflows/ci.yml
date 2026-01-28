@@ -52,6 +52,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          lfs: true
 
       #------------------------------------------------------------------------
       # Platform Pre-steps (minimal: ensure make, C compiler, python exist)
@@ -104,17 +107,18 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      - name: Cache vcpkg packages
-        uses: actions/cache@v4
-        with:
-          path: vcpkg_installed
-          key: vcpkg-${{ matrix.os }}-${{ hashFiles('vcpkg.json') }}
-          restore-keys: |
-            vcpkg-${{ matrix.os }}-
-
-      - name: Setup dependencies
+      # sindarin-libs submodule provides pre-built libraries (fetched during checkout)
+      # CMake will automatically detect and use them - no vcpkg build needed
+      - name: Verify sindarin-libs
         shell: bash
-        run: make setup
+        run: |
+          if [ -d "sindarin-libs/libs" ]; then
+            echo "sindarin-libs submodule found - using pre-built libraries"
+            ls -la sindarin-libs/libs/
+          else
+            echo "WARNING: sindarin-libs not found, falling back to vcpkg"
+            make setup
+          fi
 
       - name: Build
         shell: bash
