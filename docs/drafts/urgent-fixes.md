@@ -4,117 +4,70 @@ Issues discovered while converting Python scripts to Sindarin.
 
 ---
 
-## 1. UUID Module Causes Code Generation Hang
-
-**Severity:** Critical
-
-**Description:** Importing and using `sdk/core/uuid` causes the compiler to hang indefinitely during code generation.
-
-**Reproduction:**
-```sindarin
-import "sdk/core/uuid"
-
-fn main(): int =>
-    var id: UUID = UUID.create()
-    print($"ID: {id}\n")
-    return 0
-```
-
-**Expected:** Compiles successfully.
-
-**Actual:** Compiler hangs at "Code generation..." and never completes.
-
-**Workaround:** Use `Time.now().millis()` for unique identifiers instead.
-
----
-
-## 2. Struct Arrays Do Not Support push()
+## 1. Array Literal Assignment in If Blocks Produces Empty Strings
 
 **Severity:** High
 
-**Description:** Calling `push()` on an array of structs causes a code generation error: "Unsupported array element type for push".
+**Description:** When a string array is assigned a literal value inside an if block, the array has the correct length but all string elements are empty.
 
 **Reproduction:**
 ```sindarin
-struct Point =>
-    x: int
-    y: int
-
 fn main(): int =>
-    var points: Point[] = {}
-    var p: Point = Point { x: 1, y: 2 }
-    points.push(p)  // ERROR
-    print($"Point: {points[0].x}\n")
+    var dep: str = "zlib"
+
+    var patterns: str[] = {}
+    if dep == "zlib" =>
+        patterns = {"libz.a", "libzlib.a", "z.lib"}
+
+    print($"patterns length: {patterns.length}\n")  // prints 3
+    for pattern in patterns =>
+        print($"  pattern: '{pattern}' len={pattern.length}\n")  // all empty!
+
     return 0
 ```
 
-**Expected:** Struct can be pushed to array like primitives.
+**Expected:** Array contains `"libz.a"`, `"libzlib.a"`, `"z.lib"`.
 
-**Actual:** Code generation fails with "Unsupported array element type for push".
+**Actual:** Array has length 3, but all elements are empty strings (length 0).
 
-**Workaround:** Use fixed-size arrays or avoid dynamic struct collections.
+**Workaround:** Use `push()` instead of array literal assignment:
+```sindarin
+var patterns: str[] = {}
+if dep == "zlib" =>
+    patterns.push("libz.a")
+    patterns.push("libzlib.a")
+    patterns.push("z.lib")
+```
 
 ---
 
-## 3. Missing String to Integer Conversion
+## 2. Thread Spawn Does Not Support Struct Return Types
 
 **Severity:** Medium
 
-**Description:** There is no built-in method to parse a string as an integer (e.g., `str.toInt()` or `parseInt(str)`).
+**Description:** Attempting to spawn a thread for a function that returns a user-defined struct causes code generation to produce invalid C code.
 
 **Reproduction:**
 ```sindarin
+struct Result =>
+    value: int
+    ok: bool
+
+fn compute(): Result =>
+    return Result { value: 42, ok: true }
+
 fn main(): int =>
-    var s: str = "42"
-    var n: int = s.toInt()  // ERROR: no such method
-    return n
+    var h: Result = &compute()  // Thread spawn
+    var r: Result = h!          // Sync
+    print($"value: {r.value}\n")
+    return 0
 ```
 
-**Expected:** Built-in method to parse integers from strings.
+**Expected:** Thread spawns and returns struct correctly.
 
-**Actual:** No such method exists.
+**Actual:** Generated C code has type errors - thread handle is typed as the struct instead of `RtThreadHandle*`.
 
-**Workaround:** Implement manual parsing:
-```sindarin
-fn parseInt(s: str): int =>
-    var result: int = 0
-    var negative: bool = false
-    var i: int = 0
-    if s.length > 0 && s.charAt(0) == '-' =>
-        negative = true
-        i = 1
-    while i < s.length =>
-        var c: char = s.charAt(i)
-        if c >= '0' && c <= '9' =>
-            result = result * 10 + (c - '0') as int
-        i = i + 1
-    if negative =>
-        return -result
-    return result
-```
-
----
-
-## 4. No Hex Escape Sequences in Strings
-
-**Severity:** Low
-
-**Description:** Hex escape sequences like `\x1b` are not supported in string literals. Only `\n`, `\t`, `\r`, `\\`, `\"`, `\'`, `\0` are valid.
-
-**Reproduction:**
-```sindarin
-var red: str = "\x1b[0;31m"  // ERROR: Invalid escape sequence
-```
-
-**Expected:** Hex escapes work like in C.
-
-**Actual:** Parse error on `\x`.
-
-**Workaround:** Compute escape character at runtime:
-```sindarin
-var esc: char = 27 as char
-var red: str = $"{esc}[0;31m"
-```
+**Workaround:** Use void threads with shared state, or use primitive return types (int, str, etc.).
 
 ---
 
@@ -122,7 +75,5 @@ var red: str = $"{esc}[0;31m"
 
 | Issue | Severity | Blocking? |
 |-------|----------|-----------|
-| UUID code gen hang | Critical | Yes - cannot use UUID module |
-| Struct array push | High | Yes - limits dynamic collections |
-| No parseInt | Medium | No - can implement manually |
-| No hex escapes | Low | No - runtime workaround exists |
+| Array literal in if blocks | High | Partial - workaround with push() |
+| Struct return in thread spawn | Medium | Yes - limits parallel execution patterns |
