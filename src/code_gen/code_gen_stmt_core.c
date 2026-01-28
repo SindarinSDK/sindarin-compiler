@@ -1550,10 +1550,25 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (needs_promotion)
     {
         TypeKind kind = stmt->return_type->kind;
-        if (kind == TYPE_STRING || kind == TYPE_ARRAY)
+        if (kind == TYPE_STRING)
         {
-            // Promote handle from local arena to caller's arena
+            // Promote string handle from local arena to caller's arena
             indented_fprintf(gen, 1, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
+        }
+        else if (kind == TYPE_ARRAY)
+        {
+            // Check if this is a string array - needs deep promotion to copy all string elements
+            Type *elem_type = stmt->return_type->as.array.element_type;
+            if (elem_type && elem_type->kind == TYPE_STRING)
+            {
+                // String arrays need deep promotion: promote array AND each string element
+                indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array_string(__caller_arena__, __local_arena__, _return_value);\n");
+            }
+            else
+            {
+                // Non-string arrays: shallow promote is sufficient
+                indented_fprintf(gen, 1, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
+            }
         }
         else if (kind == TYPE_STRUCT)
         {
@@ -1565,10 +1580,25 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 StructField *field = &stmt->return_type->as.struct_type.fields[i];
                 if (field->type == NULL) continue;
                 const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                if (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY)
+                if (field->type->kind == TYPE_STRING)
                 {
                     indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
                                      c_field_name, c_field_name);
+                }
+                else if (field->type->kind == TYPE_ARRAY)
+                {
+                    // Check if this is a string array field - needs deep promotion
+                    Type *elem_type = field->type->as.array.element_type;
+                    if (elem_type && elem_type->kind == TYPE_STRING)
+                    {
+                        indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote_array_string(__caller_arena__, __local_arena__, _return_value.%s);\n",
+                                         c_field_name, c_field_name);
+                    }
+                    else
+                    {
+                        indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
+                                         c_field_name, c_field_name);
+                    }
                 }
             }
         }

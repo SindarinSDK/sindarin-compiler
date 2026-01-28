@@ -21,7 +21,8 @@ The Sindarin SDK provides a collection of modules that extend the language's cap
 | | [Directory](io/readme.md) | `import "sdk/io/directory"` | Directory operations |
 | | [Bytes](io/readme.md) | `import "sdk/io/bytes"` | Byte encoding/decoding |
 | **Net** | [Net](net/readme.md) | `import "sdk/net/..."` | TCP, UDP, TLS, DTLS, SSH, QUIC, and Git networking |
-| **OS** | [Environment](os/env.md) | `import "sdk/os/env"` | Environment variable access |
+| **OS** | [OS](os/os.md) | `import "sdk/os/os"` | Operating system detection |
+| | [Environment](os/env.md) | `import "sdk/os/env"` | Environment variable access |
 | | [Process](os/process.md) | `import "sdk/os/process"` | Process execution and output capture |
 | **Time** | [Date](time/date.md) | `import "sdk/time/date"` | Calendar date operations |
 | | [Time](time/time.md) | `import "sdk/time/time"` | Time and duration operations |
@@ -91,6 +92,7 @@ SDK types use the `Sn` prefix to distinguish them from built-in types:
 |----------|-------------|
 | `Date` | Calendar date |
 | `Time` | Timestamp |
+| `OS` | Operating system detection |
 | `Environment` | Environment variables |
 | `Process` | Process execution |
 | `TextFile` | Text file handle |
@@ -268,11 +270,18 @@ var repo: GitRepo = GitRepo.open(".")
 
 ### OS
 
-Operating system and process interaction.
+Operating system detection and process interaction.
 
 ```sindarin
+import "sdk/os/os"
 import "sdk/os/env"
 import "sdk/os/process"
+
+// Platform detection
+if OS.isWindows() =>
+    print("Running on Windows\n")
+else if OS.isUnix() =>
+    print($"Running on {OS.name()}\n")
 
 var user: str = Environment.getOr("USER", "unknown")
 var p: Process = Process.runArgs("ls", {"-la"})
@@ -280,7 +289,7 @@ if p.success() =>
     print(p.stdout())
 ```
 
-[Environment →](os/env.md) | [Process →](os/process.md)
+[OS →](os/os.md) | [Environment →](os/env.md) | [Process →](os/process.md)
 
 ### Time
 

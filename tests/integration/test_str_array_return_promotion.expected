@@ -1,0 +1,5 @@
+alice -> processed:alice
+bob -> processed:bob
+charlie -> processed:charlie
+david -> processed:david
+PASS: Array strings preserved correctly

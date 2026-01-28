@@ -1,0 +1,30 @@
+// Test that string arrays returned from functions survive subsequent function calls.
+// This tests the deep promotion of str[] return values to prevent arena corruption.
+
+fn getNames(): str[] =>
+    return {"alice", "bob", "charlie", "david"}
+
+// A function that uses arena memory (allocates strings, arrays, etc.)
+fn processName(name: str): str =>
+    var result: str = $"processed:{name}"
+    // Create some allocations to potentially overwrite memory
+    var dummy1: str = "some temporary string"
+    var dummy2: str = "another temp string"
+    var dummy3: str[] = {"a", "b", "c", "d", "e"}
+    return result
+
+fn main(): void =>
+    var names: str[] = getNames()
+
+    // Iterate and call functions - the bug would corrupt 'name' after processName()
+    for name in names =>
+        var processed: str = processName(name)
+        // After fix: name should still be valid
+        // Before fix: name would be corrupted garbage
+        print($"{name} -> {processed}\n")
+
+    // Verify direct array access still works
+    if names[0] == "alice" && names[1] == "bob" && names[2] == "charlie" && names[3] == "david" =>
+        print("PASS: Array strings preserved correctly\n")
+    else =>
+        print("FAIL: Array strings were corrupted\n")
