@@ -239,11 +239,11 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# libs - Fetch pre-built libraries from sindarin-libs submodule (fast)
+# libs - Fetch pre-built libraries from libs submodule (fast)
 #------------------------------------------------------------------------------
 libs:
-	@echo "Fetching pre-built libraries from sindarin-libs submodule..."
-	@git submodule update --init sindarin-libs
+	@echo "Fetching pre-built libraries from libs submodule..."
+	@git submodule update --init libs
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 
