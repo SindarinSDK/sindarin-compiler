@@ -1,0 +1,4 @@
+import "imports/simple_static"
+
+fn main():void => 
+    println("${myValue}")
