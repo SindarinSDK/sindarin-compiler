@@ -53,6 +53,98 @@ static bool has_any_format_spec(InterpolExpr *expr)
     return false;
 }
 
+/* Generate auto-toString code for a struct without a toString() method.
+ * Produces: "StructName { field1: value1, field2: value2, ... }"
+ * Returns the generated code that evaluates to a char*.
+ */
+static char *generate_struct_auto_tostring(CodeGen *gen, Type *struct_type, const char *value_expr, int *temp_counter)
+{
+    const char *struct_name = struct_type->as.struct_type.name ? struct_type->as.struct_type.name : "struct";
+    int field_count = struct_type->as.struct_type.field_count;
+    StructField *fields = struct_type->as.struct_type.fields;
+
+    /* For native structs with c_alias that are passed by ref, access fields via -> */
+    bool use_arrow = struct_type->as.struct_type.pass_self_by_ref ||
+                     (struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL);
+    const char *accessor = use_arrow ? "->" : ".";
+
+    /* Start building: "StructName { " */
+    char *result = arena_sprintf(gen->arena,
+        "({ char *_auto_str%d = rt_str_concat(%s, \"%s { \", \"\"); ",
+        *temp_counter, ARENA_VAR(gen), struct_name);
+
+    for (int i = 0; i < field_count; i++)
+    {
+        const char *field_name = fields[i].name;
+        Type *field_type = fields[i].type;
+
+        /* Get the C field name (use c_alias if present, otherwise mangle) */
+        const char *c_field_name = fields[i].c_alias
+            ? fields[i].c_alias
+            : sn_mangle_name(gen->arena, field_name);
+
+        /* Add field name (use original name for display) */
+        result = arena_sprintf(gen->arena, "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"%s: \"); ",
+                               result, *temp_counter, ARENA_VAR(gen), *temp_counter, field_name);
+
+        /* Add field value based on type (use C name for access) */
+        const char *field_access = arena_sprintf(gen->arena, "(%s)%s%s", value_expr, accessor, c_field_name);
+
+        if (field_type == NULL)
+        {
+            /* Unknown type - skip */
+            result = arena_sprintf(gen->arena, "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"?\"); ",
+                                   result, *temp_counter, ARENA_VAR(gen), *temp_counter);
+        }
+        else if (field_type->kind == TYPE_STRING)
+        {
+            /* String field - need to pin handle and wrap in quotes */
+            result = arena_sprintf(gen->arena,
+                "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); "
+                "{ char *_fstr = (char *)rt_managed_pin(%s, %s); "
+                "_auto_str%d = rt_str_concat(%s, _auto_str%d, _fstr ? _fstr : \"null\"); } "
+                "_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); ",
+                result, *temp_counter, ARENA_VAR(gen), *temp_counter,
+                ARENA_VAR(gen), field_access,
+                *temp_counter, ARENA_VAR(gen), *temp_counter,
+                *temp_counter, ARENA_VAR(gen), *temp_counter);
+        }
+        else if (field_type->kind == TYPE_CHAR)
+        {
+            /* Char field - wrap in single quotes */
+            result = arena_sprintf(gen->arena,
+                "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"'\"); "
+                "_auto_str%d = rt_str_concat(%s, _auto_str%d, rt_to_string_char(%s, %s)); "
+                "_auto_str%d = rt_str_concat(%s, _auto_str%d, \"'\"); ",
+                result, *temp_counter, ARENA_VAR(gen), *temp_counter,
+                *temp_counter, ARENA_VAR(gen), *temp_counter, ARENA_VAR(gen), field_access,
+                *temp_counter, ARENA_VAR(gen), *temp_counter);
+        }
+        else
+        {
+            /* Other types - use appropriate to_string function */
+            const char *to_str_func = get_rt_to_string_func_for_type(field_type);
+            result = arena_sprintf(gen->arena,
+                "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, %s(%s, %s)); ",
+                result, *temp_counter, ARENA_VAR(gen), *temp_counter, to_str_func, ARENA_VAR(gen), field_access);
+        }
+
+        /* Add separator (", " or " }") */
+        if (i < field_count - 1)
+        {
+            result = arena_sprintf(gen->arena, "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \", \"); ",
+                                   result, *temp_counter, ARENA_VAR(gen), *temp_counter);
+        }
+    }
+
+    /* Close with " }" */
+    result = arena_sprintf(gen->arena, "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \" }\"); _auto_str%d; })",
+                           result, *temp_counter, ARENA_VAR(gen), *temp_counter, *temp_counter);
+
+    (*temp_counter)++;
+    return result;
+}
+
 /* ============================================================================
  * Interpolated Expression Code Generation
  * ============================================================================ */
@@ -205,12 +297,11 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
             }
             else
             {
-                /* No toString() method or wrong signature - fall back to pointer representation */
-                const char *to_str = gen->current_arena_var
-                    ? get_rt_to_string_func_for_type_h(part_types[i])
-                    : get_rt_to_string_func_for_type(part_types[i]);
-                result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
-                                       result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
+                /* No toString() method - auto-generate string showing all fields */
+                int auto_counter = temp_var_count * 100;  /* Avoid collision with other temp vars */
+                char *auto_str = generate_struct_auto_tostring(gen, part_types[i], part_strs[i], &auto_counter);
+                result = arena_sprintf(gen->arena, "%s        char *_p%d = %s;\n",
+                                       result, temp_var_count, auto_str);
             }
             use_strs[i] = arena_sprintf(gen->arena, "_p%d", temp_var_count);
             temp_var_count++;
