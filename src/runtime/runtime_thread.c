@@ -624,11 +624,13 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     /* Default/private mode - promote result to caller's arena */
     void *promoted_result = NULL;
     if (result_value != NULL) {
+        size_t result_size = handle->result ? handle->result->value_size : 0;
         promoted_result = rt_thread_promote_result(
             caller_arena,
             handle->thread_arena,
             result_value,
-            result_type
+            result_type,
+            result_size
         );
     }
 
@@ -666,7 +668,7 @@ void rt_thread_sync_all(RtThreadHandle **handles, size_t count)
  * - Files: promoted using rt_text_file_promote or rt_binary_file_promote
  */
 void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
-                                void *value, RtResultType type)
+                                void *value, RtResultType type, size_t value_size)
 {
     if (dest == NULL) {
         fprintf(stderr, "rt_thread_promote_result: NULL dest arena\n");
@@ -751,9 +753,17 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
         }
 
         case RT_TYPE_STRUCT: {
-            /* Native struct pointers reference native heap memory, not arena memory.
-             * Just dereference to get the pointer value and return it directly. */
-            return *(void **)value;
+            /* Structs are stored by value in the thread's arena.
+             * Copy the struct data to the destination arena and return the new pointer. */
+            if (value_size == 0) {
+                fprintf(stderr, "rt_thread_promote_result: RT_TYPE_STRUCT with zero size\n");
+                return NULL;
+            }
+            void *promoted = rt_arena_alloc(dest, value_size);
+            if (promoted != NULL) {
+                memcpy(promoted, value, value_size);
+            }
+            return promoted;
         }
 
         default:

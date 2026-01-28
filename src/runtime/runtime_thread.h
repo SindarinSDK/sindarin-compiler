@@ -214,9 +214,10 @@ typedef enum {
  * - Primitives (int, long, double, bool, byte, char): copied by value
  * - Strings: promoted using rt_arena_promote_string
  * - Arrays: cloned using appropriate rt_array_clone_* function
+ * - Structs: copied using the provided value_size
  */
 void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
-                                void *value, RtResultType type);
+                                void *value, RtResultType type, size_t value_size);
 
 /* Synchronize a thread handle and get promoted result
  * Promotes result to caller's arena before returning.

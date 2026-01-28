@@ -1,0 +1,6 @@
+Result value: 42, ok: true
+SUCCESS: Simple struct return works
+Point x: 10.00000, y: 30.00000
+SUCCESS: Double field struct return works
+Direct value: 42
+SUCCESS: Inline spawn/sync works

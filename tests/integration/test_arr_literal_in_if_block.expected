@@ -1,0 +1,9 @@
+patterns length: 3
+  pattern: 'libz.a' len=6
+  pattern: 'libzlib.a' len=9
+  pattern: 'z.lib' len=5
+SUCCESS: All patterns have correct content
+other_patterns length: 2
+  other: 'libcurl.a'
+  other: 'curl.lib'
+SUCCESS: Else branch array is correct

@@ -625,11 +625,14 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
      * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
     bool is_spawn_handle_result = gen->current_arena_var != NULL &&
                                   (stmt->type->kind == TYPE_STRING || stmt->type->kind == TYPE_ARRAY);
+    /* Struct types also need a pending variable - the result type is the struct,
+     * not RtThreadHandle*, so we need separate variables for the handle and result */
+    bool is_struct_result = (stmt->type->kind == TYPE_STRUCT);
 
     const char *type_c = get_c_type(gen->arena, stmt->type);
 
-    // For thread spawn with primitive/handle result, generate two declarations
-    if (is_thread_spawn && (is_primitive_type || is_spawn_handle_result))
+    // For thread spawn with primitive/handle/struct result, generate two declarations
+    if (is_thread_spawn && (is_primitive_type || is_spawn_handle_result || is_struct_result))
     {
         char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
         char *init_str = code_gen_expression(gen, stmt->initializer);
