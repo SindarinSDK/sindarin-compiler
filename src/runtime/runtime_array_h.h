@@ -168,6 +168,9 @@ int rt_array_eq_string_h(RtManagedArena *arena, RtHandle a_h, RtHandle b_h);
 /* Args creation */
 RtHandle rt_args_create_h(RtManagedArena *arena, int argc, char **argv);
 
+/* Deep array promotion (child -> parent arena) -- promotes array AND all string elements */
+RtHandle rt_managed_promote_array_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
+
 /* Handle-aware to-string for 1D string arrays (RtHandle elements) */
 char *rt_to_string_array_string_h(RtManagedArena *arena, RtHandle *arr);
 

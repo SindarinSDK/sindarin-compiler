@@ -1726,3 +1726,56 @@ RtHandle rt_array3_to_any_string_h(RtManagedArena *arena, RtHandle outer) {
     }
     return result;
 }
+
+/* ============================================================================
+ * Deep Array Promotion (child -> parent arena)
+ * ============================================================================
+ * Promotes an array and all its handle-type elements from one arena to another.
+ * Used for returning str[] from functions to prevent corruption when the
+ * callee's arena is destroyed.
+ * ============================================================================ */
+
+RtHandle rt_managed_promote_array_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h) {
+    if (dest == NULL || src == NULL || arr_h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* First, get the source array's size while src arena is still valid */
+    void *src_raw = rt_managed_pin(src, arr_h);
+    if (src_raw == NULL) return RT_HANDLE_NULL;
+    RtArrayMetadata *src_meta = (RtArrayMetadata *)src_raw;
+    size_t count = src_meta->size;
+    RtHandle *src_handles = (RtHandle *)((char *)src_raw + sizeof(RtArrayMetadata));
+
+    /* Promote each string element FIRST (while src arena is valid) */
+    RtHandle *promoted_handles = NULL;
+    if (count > 0) {
+        /* Allocate temporary array on stack or heap depending on size */
+        if (count <= 64) {
+            promoted_handles = (RtHandle *)alloca(count * sizeof(RtHandle));
+        } else {
+            promoted_handles = (RtHandle *)malloc(count * sizeof(RtHandle));
+        }
+        for (size_t i = 0; i < count; i++) {
+            /* Promote each string handle from src to dest arena */
+            promoted_handles[i] = rt_managed_promote(dest, src, src_handles[i]);
+        }
+    }
+    rt_managed_unpin(src, arr_h);
+
+    /* Now promote the array structure itself */
+    RtHandle new_arr_h = rt_managed_promote(dest, src, arr_h);
+    if (new_arr_h == RT_HANDLE_NULL) {
+        if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+        return RT_HANDLE_NULL;
+    }
+
+    /* Update the promoted array with the promoted string handles */
+    void *dest_raw = rt_managed_pin(dest, new_arr_h);
+    if (dest_raw != NULL && count > 0) {
+        RtHandle *dest_handles = (RtHandle *)((char *)dest_raw + sizeof(RtArrayMetadata));
+        memcpy(dest_handles, promoted_handles, count * sizeof(RtHandle));
+    }
+    rt_managed_unpin(dest, new_arr_h);
+
+    if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+    return new_arr_h;
+}
