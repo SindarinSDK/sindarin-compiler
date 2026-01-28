@@ -490,31 +490,42 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
 )
 
 #------------------------------------------------------------------------------
-# VCPKG Dependencies Detection (zlib, yyjson, libxml2, libyaml)
+# Dependencies Detection (sindarin-libs or vcpkg)
 #------------------------------------------------------------------------------
-# Automatically detect vcpkg installed packages and copy them to bin/deps/
-# This makes the dependencies available for the compiler at runtime.
+# First check for pre-built libraries in sindarin-libs submodule (fast path)
+# Falls back to vcpkg if sindarin-libs not available
 
-# Determine vcpkg triplet based on platform
+# Determine platform for sindarin-libs
 if(WIN32)
+    set(SINDARIN_LIBS_PLATFORM "windows")
     set(VCPKG_TRIPLET "x64-mingw-static")
 elseif(APPLE)
+    set(SINDARIN_LIBS_PLATFORM "macos")
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
         set(VCPKG_TRIPLET "arm64-osx")
     else()
         set(VCPKG_TRIPLET "x64-osx")
     endif()
 else()
+    set(SINDARIN_LIBS_PLATFORM "linux")
     set(VCPKG_TRIPLET "x64-linux")
 endif()
 
-# Find vcpkg installation directory
-# In manifest mode, packages are installed to vcpkg_installed/ in project root
-# In classic mode, packages are in vcpkg/installed/
+# Find dependency installation directory
+# Priority: sindarin-libs (pre-built) > vcpkg (build from source)
 set(VCPKG_INSTALLED_DIR "")
+set(USING_SINDARIN_LIBS OFF)
 
-# First check manifest mode (vcpkg_installed in project root)
-if(EXISTS "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
+# First check for sindarin-libs submodule (fastest - pre-built libraries)
+set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/sindarin-libs/libs/${SINDARIN_LIBS_PLATFORM}")
+if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
+    set(VCPKG_INSTALLED_DIR "${SINDARIN_LIBS_DIR}")
+    set(USING_SINDARIN_LIBS ON)
+    message(STATUS "Using pre-built libraries from sindarin-libs submodule")
+endif()
+
+# Then check vcpkg manifest mode (vcpkg_installed in project root)
+if("${VCPKG_INSTALLED_DIR}" STREQUAL "" AND EXISTS "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
     set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
 endif()
 
@@ -534,9 +545,13 @@ file(MAKE_DIRECTORY ${SN_DEPS_DIR})
 file(MAKE_DIRECTORY ${SN_DEPS_DIR}/include)
 file(MAKE_DIRECTORY ${SN_DEPS_DIR}/lib)
 
-# Copy vcpkg dependencies if found
+# Copy dependencies if found
 if(EXISTS "${VCPKG_INSTALLED_DIR}")
-    message(STATUS "Found vcpkg installation: ${VCPKG_INSTALLED_DIR}")
+    if(USING_SINDARIN_LIBS)
+        message(STATUS "Found sindarin-libs (pre-built): ${VCPKG_INSTALLED_DIR}")
+    else()
+        message(STATUS "Found vcpkg installation: ${VCPKG_INSTALLED_DIR}")
+    endif()
 
     # Copy headers
     if(EXISTS "${VCPKG_INSTALLED_DIR}/include/zlib.h")
@@ -804,8 +819,9 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         target_compile_definitions(tests PRIVATE SN_HAS_PACKAGE_MANAGER=0)
     endif()
 else()
-    message(STATUS "vcpkg not found at: ${VCPKG_INSTALLED_DIR}")
-    message(STATUS "Run 'make setup' to install dependencies via vcpkg")
+    message(STATUS "Dependencies not found")
+    message(STATUS "  Option 1 (fast): Run 'git submodule update --init' to fetch pre-built libs")
+    message(STATUS "  Option 2 (slow): Run 'make setup' to build from source via vcpkg")
     target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
     target_compile_definitions(tests PRIVATE SN_HAS_CURL=0 SN_HAS_PACKAGE_MANAGER=0)
 endif()
