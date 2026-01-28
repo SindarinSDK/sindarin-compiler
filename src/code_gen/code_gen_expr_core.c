@@ -307,9 +307,17 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         {
             Type *decl_elem = type->as.array.element_type;
             Type *src_elem = expr->value->expr_type->as.array.element_type;
-            /* Enable handle mode only when a 2D/3D any conversion will be applied,
+            /* Enable handle mode for array literals (EXPR_ARRAY) so they produce
+             * RtHandle values via rt_array_create_*_h functions.
+             * EXCEPTION: Don't enable handle mode when assigning to any[] because
+             * the conversion functions (rt_array_to_any_*) need raw pointers. */
+            if (expr->value->type == EXPR_ARRAY && decl_elem->kind != TYPE_ANY)
+            {
+                gen->expr_as_handle = true;
+            }
+            /* Enable handle mode when a 2D/3D any conversion will be applied,
              * or when assigning to any[] (1D conversion needs pin). */
-            if ((decl_elem->kind == TYPE_ANY && src_elem->kind != TYPE_ANY) ||
+            else if ((decl_elem->kind == TYPE_ANY && src_elem->kind != TYPE_ANY) ||
                 (decl_elem->kind == TYPE_ARRAY &&
                  decl_elem->as.array.element_type != NULL &&
                  decl_elem->as.array.element_type->kind == TYPE_ANY &&
@@ -342,8 +350,10 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     }
 
     // Handle conversion when assigning typed array to any[], any[][], or any[][][]
-    // Track if the conversion already produced a handle (2D/3D cases).
-    bool value_is_new_handle = false;
+    // Track if the conversion already produced a handle (2D/3D cases, or array literals).
+    // Array literals (EXPR_ARRAY) already produce a fresh handle via rt_array_create_*_h,
+    // so they don't need cloning - just direct assignment.
+    bool value_is_new_handle = (expr->value->type == EXPR_ARRAY);
     if (type->kind == TYPE_ARRAY &&
         type->as.array.element_type != NULL &&
         expr->value->expr_type != NULL &&
@@ -491,19 +501,22 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
                 {
                     if (src_elem->kind == TYPE_STRING)
                     {
-                        /* String arrays store RtHandle elements — use dedicated _h function. */
+                        /* String arrays store RtHandle elements — use dedicated _h function.
+                         * The result is RtAny* which must be wrapped to RtHandle for storage. */
                         value_str = arena_sprintf(gen->arena,
-                            "rt_array_to_any_string_h(%s, %s)",
-                            ARENA_VAR(gen), value_str);
+                            "rt_array_clone_void_h(%s, RT_HANDLE_NULL, rt_array_to_any_string_h(%s, %s))",
+                            ARENA_VAR(gen), ARENA_VAR(gen), value_str);
                     }
                     else
                     {
-                        /* Non-string: pin source handle, then convert to RtAny*. */
+                        /* Non-string: pin source handle, then convert to RtAny*.
+                         * Wrap result with rt_array_clone_void_h to convert to RtHandle. */
                         const char *elem_c = get_c_type(gen->arena, src_elem);
                         value_str = arena_sprintf(gen->arena,
-                            "%s(%s, (%s *)rt_managed_pin_array(%s, %s))",
-                            conv_func, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), value_str);
+                            "rt_array_clone_void_h(%s, RT_HANDLE_NULL, %s(%s, (%s *)rt_managed_pin_array(%s, %s)))",
+                            ARENA_VAR(gen), conv_func, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), value_str);
                     }
+                    value_is_new_handle = true;
                 }
                 else
                 {
@@ -585,7 +598,14 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     {
         if (value_is_new_handle)
         {
-            /* 2D/3D conversion already produced a new handle — just assign. */
+            /* Array literal or 2D/3D conversion already produced a new handle.
+             * For globals, promote to main arena so it survives function return.
+             * For locals, just assign directly. */
+            if (is_global)
+            {
+                return arena_sprintf(gen->arena, "(%s = rt_managed_promote(__main_arena__, %s, %s))",
+                                     var_name, ARENA_VAR(gen), value_str);
+            }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         /* For handle-based arrays: clone to target arena with old handle. */

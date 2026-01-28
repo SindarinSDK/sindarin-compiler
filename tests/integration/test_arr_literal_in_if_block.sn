@@ -1,0 +1,41 @@
+// Test: Array literal assignment inside if block
+// Verifies that string arrays assigned literal values inside if blocks
+// contain the correct string values (not empty strings)
+
+fn main(): void =>
+    var dep: str = "zlib"
+
+    var patterns: str[] = {}
+    if dep == "zlib" =>
+        patterns = {"libz.a", "libzlib.a", "z.lib"}
+
+    print($"patterns length: {patterns.length}\n")
+
+    // Verify all strings have correct content
+    var all_correct: bool = true
+    for pattern in patterns =>
+        print($"  pattern: '{pattern}' len={pattern.length}\n")
+        if pattern.length == 0 =>
+            all_correct = false
+
+    if all_correct && patterns.length == 3 =>
+        print("SUCCESS: All patterns have correct content\n")
+    else =>
+        print("FAILURE: Some patterns are empty or wrong length\n")
+
+    // Also test with else branch
+    var other_patterns: str[] = {}
+    var other_dep: str = "curl"
+    if other_dep == "zlib" =>
+        other_patterns = {"should", "not", "happen"}
+    else =>
+        other_patterns = {"libcurl.a", "curl.lib"}
+
+    print($"other_patterns length: {other_patterns.length}\n")
+    for p in other_patterns =>
+        print($"  other: '{p}'\n")
+
+    if other_patterns.length == 2 && other_patterns[0] == "libcurl.a" =>
+        print("SUCCESS: Else branch array is correct\n")
+    else =>
+        print("FAILURE: Else branch array is incorrect\n")

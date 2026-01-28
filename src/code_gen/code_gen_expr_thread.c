@@ -1054,12 +1054,14 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
          * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
         bool is_handle_type = gen->current_arena_var != NULL &&
                               (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
+        /* Struct types also need dereferencing and use the pending var pattern */
+        bool is_struct_type = (result_type->kind == TYPE_STRUCT);
 
         /* Check if the handle is a variable - if so, we need to update it after sync
          * This ensures that after x! is used, subsequent uses of x return the synced value */
         bool is_variable_handle = (sync->handle->type == EXPR_VARIABLE);
 
-        if (is_primitive || is_handle_type)
+        if (is_primitive || is_handle_type || is_struct_type)
         {
             /* Primitive type: cast pointer and dereference
              * Uses rt_thread_sync_with_result for panic propagation + result promotion

@@ -1,0 +1,47 @@
+// Test: Thread spawn with struct return type
+// Verifies that spawning a thread for a function that returns a struct
+// works correctly and the struct values can be accessed after sync
+
+struct Result =>
+    value: int
+    ok: bool
+
+struct Point =>
+    x: double
+    y: double
+
+fn compute(): Result =>
+    return Result { value: 42, ok: true }
+
+fn calculate_point(x: double, y: double): Point =>
+    return Point { x: x * 2.0, y: y * 3.0 }
+
+fn main(): void =>
+    // Test 1: Simple struct return
+    var h: Result = &compute()
+    var r: Result = h!
+    print($"Result value: {r.value}, ok: {r.ok}\n")
+
+    if r.value == 42 && r.ok =>
+        print("SUCCESS: Simple struct return works\n")
+    else =>
+        print("FAILURE: Simple struct return failed\n")
+
+    // Test 2: Struct with double fields
+    var h2: Point = &calculate_point(5.0, 10.0)
+    var p: Point = h2!
+    print($"Point x: {p.x}, y: {p.y}\n")
+
+    if p.x == 10.0 && p.y == 30.0 =>
+        print("SUCCESS: Double field struct return works\n")
+    else =>
+        print("FAILURE: Double field struct return failed\n")
+
+    // Test 3: Inline spawn and sync
+    var direct: Result = (&compute())!
+    print($"Direct value: {direct.value}\n")
+
+    if direct.value == 42 =>
+        print("SUCCESS: Inline spawn/sync works\n")
+    else =>
+        print("FAILURE: Inline spawn/sync failed\n")
