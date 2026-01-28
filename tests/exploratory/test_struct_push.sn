@@ -1,0 +1,10 @@
+struct Point =>
+    x: int
+    y: int
+
+fn main(): int =>
+    var points: Point[] = {}
+    var p: Point = Point { x: 1, y: 2 }
+    points.push(p)
+    print($"Point: {points[0].x}\n")
+    return 0
