@@ -10,6 +10,64 @@
 #include <string.h>
 #include <stdio.h>
 
+/* Forward declaration for recursive helper */
+static void emit_import_forward_declarations_recursive(CodeGen *gen, Stmt **stmts, int count, const char *ns_prefix);
+
+/* Recursive helper to emit forward declarations for all functions in imported modules.
+ * This includes nested namespace imports with their combined namespace prefixes. */
+static void emit_import_forward_declarations_recursive(CodeGen *gen, Stmt **stmts, int count, const char *ns_prefix)
+{
+    for (int i = 0; i < count; i++)
+    {
+        Stmt *stmt = stmts[i];
+        if (stmt == NULL)
+            continue;
+
+        if (stmt->type == STMT_FUNCTION)
+        {
+            FunctionStmt *fn = &stmt->as.function;
+            /* Skip if already emitted (handles diamond imports) */
+            if (fn->code_emitted)
+                continue;
+            /* Skip native functions without body */
+            if (fn->is_native && fn->body_count == 0)
+                continue;
+            /* Skip main */
+            char *fn_name = get_var_name(gen->arena, fn->name);
+            if (strcmp(fn_name, "main") == 0)
+                continue;
+
+            /* Generate forward declaration with namespace prefix */
+            char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", ns_prefix, fn_name);
+            char *mangled_name = sn_mangle_name(gen->arena, prefixed_name);
+            const char *ret_c = get_c_type(gen->arena, fn->return_type);
+
+            indented_fprintf(gen, 0, "%s %s(RtManagedArena *", ret_c, mangled_name);
+            for (int j = 0; j < fn->param_count; j++)
+            {
+                const char *param_type = get_c_param_type(gen->arena, fn->params[j].type);
+                fprintf(gen->output, ", %s", param_type);
+            }
+            fprintf(gen->output, ");\n");
+        }
+        else if (stmt->type == STMT_IMPORT && stmt->as.import.namespace != NULL &&
+                 stmt->as.import.imported_stmts != NULL)
+        {
+            /* Nested namespace import - recursively emit forward declarations */
+            ImportStmt *imp = &stmt->as.import;
+            char nested_ns[256];
+            int nested_len = imp->namespace->length < 255 ? imp->namespace->length : 255;
+            memcpy(nested_ns, imp->namespace->start, nested_len);
+            nested_ns[nested_len] = '\0';
+
+            /* Combine parent namespace with nested namespace */
+            char *combined_prefix = arena_sprintf(gen->arena, "%s__%s", ns_prefix, nested_ns);
+
+            emit_import_forward_declarations_recursive(gen, imp->imported_stmts, imp->imported_count, combined_prefix);
+        }
+    }
+}
+
 /* Threshold for stack vs heap allocation for structs.
  * Structs smaller than this are stack-allocated.
  * Structs >= this size are heap-allocated via rt_arena_alloc.
@@ -409,6 +467,7 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
 void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_var_declaration");
+
     char *raw_var_name = get_var_name(gen->arena, stmt->name);
 
     // Detect global scope: no current arena means we're at file scope
@@ -421,53 +480,103 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     const char *static_prefix = (stmt->is_static && is_global_scope) ? "static " : "";
 
     /* If we're generating code for an imported namespace AND this is a global variable,
-     * prefix the variable name with the namespace to avoid collisions between modules.
+     * prefix the variable name with the appropriate namespace to avoid collisions.
      * Local variables inside functions should NOT be prefixed.
-     * Both static and non-static module-level variables need namespace prefixes to
-     * prevent collisions when different modules have variables with the same name.
-     * The duplicate tracking (for static variables) uses the full prefixed name to
-     * ensure same-module re-imports share the variable. */
+     *
+     * For STATIC variables: use canonical_module_name so all aliases of the same module
+     * share the same static variable storage.
+     *
+     * For NON-STATIC variables: use namespace_prefix so each alias has its own instance. */
     char *var_name;
-    if (gen->current_namespace_prefix != NULL && is_global_scope)
+    if (is_global_scope)
     {
-        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s",
-                                            gen->current_namespace_prefix, raw_var_name);
-        var_name = sn_mangle_name(gen->arena, prefixed_name);
+        const char *prefix_to_use = NULL;
+        if (stmt->is_static && gen->current_canonical_module != NULL)
+        {
+            /* Static variable: use canonical module name for sharing across aliases */
+            prefix_to_use = gen->current_canonical_module;
+        }
+        else if (gen->current_namespace_prefix != NULL)
+        {
+            /* Non-static variable: use namespace prefix for per-alias instance */
+            prefix_to_use = gen->current_namespace_prefix;
+        }
+
+        if (prefix_to_use != NULL)
+        {
+            char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", prefix_to_use, raw_var_name);
+            var_name = sn_mangle_name(gen->arena, prefixed_name);
+        }
+        else
+        {
+            var_name = sn_mangle_name(gen->arena, raw_var_name);
+        }
     }
     else
     {
         var_name = sn_mangle_name(gen->arena, raw_var_name);
     }
 
-    /* For static global variables, check if we've already emitted this variable.
-     * Static variables are shared across all import aliases of the same module,
-     * so we must emit the declaration and initialization only once. */
+    /* For global variables, check if we've already emitted this exact variable name.
+     * This prevents double emission in diamond import scenarios where
+     * the same module is reachable via multiple import paths with the same prefix. */
+    if (is_global_scope)
+    {
+        /* Check if already emitted (both static and non-static globals) */
+        for (int i = 0; i < gen->emitted_globals_count; i++)
+        {
+            if (strcmp(gen->emitted_globals[i], var_name) == 0)
+            {
+                DEBUG_VERBOSE("Skipping duplicate global: %s", var_name);
+                return;
+            }
+        }
+        /* Track this global as emitted */
+        if (gen->emitted_globals_count >= gen->emitted_globals_capacity)
+        {
+            int new_capacity = gen->emitted_globals_capacity == 0 ? 16 : gen->emitted_globals_capacity * 2;
+            const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+            for (int i = 0; i < gen->emitted_globals_count; i++)
+            {
+                new_array[i] = gen->emitted_globals[i];
+            }
+            gen->emitted_globals = new_array;
+            gen->emitted_globals_capacity = new_capacity;
+        }
+        gen->emitted_globals[gen->emitted_globals_count++] = arena_strdup(gen->arena, var_name);
+    }
+
+    /* For static global variables, also track in the static globals list
+     * for backwards compatibility with existing code that checks that list. */
     if (stmt->is_static && is_global_scope)
     {
-        /* Check if already emitted */
+        /* Check if already emitted in static globals list */
+        bool found_in_static = false;
         for (int i = 0; i < gen->emitted_static_globals_count; i++)
         {
             if (strcmp(gen->emitted_static_globals[i], var_name) == 0)
             {
-                /* Already emitted - skip this declaration */
-                DEBUG_VERBOSE("Skipping duplicate static global: %s", var_name);
-                return;
+                found_in_static = true;
+                break;
             }
         }
-        /* Not emitted yet - track it */
-        if (gen->emitted_static_globals_count >= gen->emitted_static_globals_capacity)
+        if (!found_in_static)
         {
-            int new_capacity = gen->emitted_static_globals_capacity == 0 ? 8 : gen->emitted_static_globals_capacity * 2;
-            const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
-            for (int i = 0; i < gen->emitted_static_globals_count; i++)
+            /* Not emitted yet - track it */
+            if (gen->emitted_static_globals_count >= gen->emitted_static_globals_capacity)
             {
-                new_array[i] = gen->emitted_static_globals[i];
+                int new_capacity = gen->emitted_static_globals_capacity == 0 ? 8 : gen->emitted_static_globals_capacity * 2;
+                const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+                for (int i = 0; i < gen->emitted_static_globals_count; i++)
+                {
+                    new_array[i] = gen->emitted_static_globals[i];
+                }
+                gen->emitted_static_globals = new_array;
+                gen->emitted_static_globals_capacity = new_capacity;
             }
-            gen->emitted_static_globals = new_array;
-            gen->emitted_static_globals_capacity = new_capacity;
+            gen->emitted_static_globals[gen->emitted_static_globals_count++] = arena_strdup(gen->arena, var_name);
+            DEBUG_VERBOSE("Tracking static global: %s", var_name);
         }
-        gen->emitted_static_globals[gen->emitted_static_globals_count++] = arena_strdup(gen->arena, var_name);
-        DEBUG_VERBOSE("Tracking static global: %s", var_name);
     }
 
     if (is_global_scope && stmt->type->kind == TYPE_ARRAY)
@@ -642,6 +751,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         // non-constant initializers in C. Use RT_HANDLE_NULL and record deferred
         // initialization to be emitted at the start of main().
         // Also defer struct types (like UUID) that have function call initializers.
+        // Also defer any primitive type with function call initializers.
         bool needs_deferred_init = false;
         if (is_global_scope)
         {
@@ -649,10 +759,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 needs_deferred_init = true;
             }
-            else if (stmt->type->kind == TYPE_STRUCT && stmt->initializer != NULL &&
+            else if (stmt->initializer != NULL &&
                      (stmt->initializer->type == EXPR_CALL ||
                       stmt->initializer->type == EXPR_METHOD_CALL))
             {
+                // Any function call initializer at global scope needs deferred init
                 needs_deferred_init = true;
             }
         }
@@ -689,7 +800,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 init_str = arena_strdup(gen->arena, "RT_HANDLE_NULL");
             }
-            else
+            else if (stmt->type->kind == TYPE_STRUCT)
             {
                 // For struct types, use NULL (for pointer types like RtUuid *)
                 // or {0} for value types
@@ -701,6 +812,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 {
                     init_str = arena_strdup(gen->arena, "{0}");
                 }
+            }
+            else
+            {
+                // For primitive types (int, bool, double, etc.), use 0
+                init_str = arena_strdup(gen->arena, "0");
             }
         }
 
@@ -1111,6 +1227,33 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     {
         gen->current_function = sn_mangle_name(gen->arena, raw_fn_name);
     }
+
+    /* Check if this exact function (with namespace prefix) has already been emitted.
+     * This prevents double emission in diamond import scenarios where
+     * the same module is reachable via multiple import paths with the same prefix. */
+    for (int i = 0; i < gen->emitted_functions_count; i++)
+    {
+        if (strcmp(gen->emitted_functions[i], gen->current_function) == 0)
+        {
+            DEBUG_VERBOSE("Skipping already-emitted function: %s", gen->current_function);
+            gen->current_function = old_function;
+            return;
+        }
+    }
+
+    /* Track this function as emitted */
+    if (gen->emitted_functions_count >= gen->emitted_functions_capacity)
+    {
+        int new_capacity = gen->emitted_functions_capacity == 0 ? 16 : gen->emitted_functions_capacity * 2;
+        const char **new_array = arena_alloc(gen->arena, sizeof(const char *) * new_capacity);
+        for (int i = 0; i < gen->emitted_functions_count; i++)
+        {
+            new_array[i] = gen->emitted_functions[i];
+        }
+        gen->emitted_functions = new_array;
+        gen->emitted_functions_capacity = new_capacity;
+    }
+    gen->emitted_functions[gen->emitted_functions_count++] = arena_strdup(gen->arena, gen->current_function);
     gen->current_return_type = stmt->return_type;
     gen->current_func_modifier = stmt->modifier;
     bool main_has_args = is_main && stmt->param_count == 1;  // Type checker validated it's str[]
@@ -1671,13 +1814,39 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
          * namespace prefixes so that each import alias has its own variable instance. */
         if (stmt->as.import.namespace != NULL && stmt->as.import.imported_stmts != NULL)
         {
-            bool emit_functions = !stmt->as.import.also_imported_directly;
+            /* Always emit functions for each namespace alias.
+             * Even when the same module is imported with multiple aliases, each alias
+             * needs its own function copies because they access alias-specific instance
+             * variables (non-static module-level variables). */
+            bool emit_functions = true;
             /* Before generating code for the imported module's functions, add the
              * namespace's function symbols to a temporary scope. This allows intra-module
              * function calls (e.g., errorMessage() calling zlibOk()) to find their
              * callees and correctly determine that they need arena arguments. */
             Token ns_name = *stmt->as.import.namespace;
-            Symbol *ns_symbol = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
+            Symbol *ns_symbol = NULL;
+
+            /* If we're inside a parent namespace, look up the nested namespace.
+             * Otherwise, look in global scope. */
+            if (gen->current_namespace_prefix != NULL)
+            {
+                /* Build parent namespace token from the current prefix */
+                Token parent_ns_token;
+                parent_ns_token.start = gen->current_namespace_prefix;
+                parent_ns_token.length = strlen(gen->current_namespace_prefix);
+                parent_ns_token.type = TOKEN_IDENTIFIER;
+                parent_ns_token.line = 0;
+                parent_ns_token.filename = NULL;
+
+                /* Look up as nested namespace under the current parent */
+                ns_symbol = symbol_table_lookup_nested_namespace(gen->symbol_table, parent_ns_token, ns_name);
+            }
+
+            /* Fall back to global lookup if nested lookup failed or no parent */
+            if (ns_symbol == NULL)
+            {
+                ns_symbol = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
+            }
 
             if (ns_symbol != NULL && ns_symbol->is_namespace)
             {
@@ -1689,11 +1858,58 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
             /* Set namespace prefix for variable and function name generation.
              * This ensures symbols from different modules get unique C names. */
             const char *old_namespace_prefix = gen->current_namespace_prefix;
+            const char *old_canonical_module = gen->current_canonical_module;
             char ns_prefix[256];
             int ns_len = ns_name.length < 255 ? ns_name.length : 255;
             memcpy(ns_prefix, ns_name.start, ns_len);
             ns_prefix[ns_len] = '\0';
             gen->current_namespace_prefix = arena_strdup(gen->arena, ns_prefix);
+
+            /* Set canonical module name for static variable sharing.
+             * All aliases of the same module share static variables under this name.
+             * If the symbol doesn't have canonical_module_name set (e.g., for deeply
+             * nested imports), extract it from the import statement's module path. */
+            if (ns_symbol != NULL && ns_symbol->canonical_module_name != NULL)
+            {
+                gen->current_canonical_module = ns_symbol->canonical_module_name;
+            }
+            else
+            {
+                /* Extract canonical module name from the import path */
+                char mod_path[512];
+                int mod_len = stmt->as.import.module_name.length < 511 ? stmt->as.import.module_name.length : 511;
+                memcpy(mod_path, stmt->as.import.module_name.start, mod_len);
+                mod_path[mod_len] = '\0';
+
+                /* Find the last path separator and extract the base name */
+                const char *base_name = mod_path;
+                for (int k = mod_len - 1; k >= 0; k--)
+                {
+                    if (mod_path[k] == '/' || mod_path[k] == '\\')
+                    {
+                        base_name = &mod_path[k + 1];
+                        break;
+                    }
+                }
+                /* Remove .sn extension if present */
+                char *canonical = arena_strdup(gen->arena, base_name);
+                int can_len = strlen(canonical);
+                if (can_len > 3 && strcmp(canonical + can_len - 3, ".sn") == 0)
+                {
+                    canonical[can_len - 3] = '\0';
+                }
+                gen->current_canonical_module = canonical;
+            }
+
+            /* Emit forward declarations for all functions in the imported module.
+             * This ensures functions can call each other regardless of definition order.
+             * Uses recursive helper to handle nested namespace imports. */
+            if (emit_functions)
+            {
+                emit_import_forward_declarations_recursive(gen, stmt->as.import.imported_stmts,
+                                                           stmt->as.import.imported_count,
+                                                           gen->current_namespace_prefix);
+            }
 
             for (int i = 0; i < stmt->as.import.imported_count; i++)
             {
@@ -1725,8 +1941,9 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
                 }
             }
 
-            /* Restore previous namespace prefix */
+            /* Restore previous namespace prefix and canonical module */
             gen->current_namespace_prefix = old_namespace_prefix;
+            gen->current_canonical_module = old_canonical_module;
 
             /* Pop the temporary scope if we pushed one */
             if (ns_symbol != NULL && ns_symbol->is_namespace)

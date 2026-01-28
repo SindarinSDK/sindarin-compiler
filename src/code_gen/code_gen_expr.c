@@ -112,15 +112,33 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             return arena_strdup(gen->arena, sym->c_alias != NULL ? sym->c_alias : member_name_str);
         }
         /* Check if this is a variable (not a function) - needs namespace prefix for uniqueness.
-         * Both static and non-static variables get the namespace prefix to match their declarations. */
+         * Static variables use canonical module name so all aliases share the same storage.
+         * Non-static variables use namespace prefix so each alias has its own instance. */
         if (sym != NULL && !sym->is_function && sym->type != NULL && sym->type->kind != TYPE_FUNCTION)
         {
-            /* All namespace variables get prefix: __sn__namespace__varname */
-            char ns_prefix[256];
-            int ns_len = ns_name.length < 255 ? ns_name.length : 255;
-            memcpy(ns_prefix, ns_name.start, ns_len);
-            ns_prefix[ns_len] = '\0';
-            char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", ns_prefix, member_name_str);
+            const char *prefix_to_use = NULL;
+
+            /* For static variables, look up the namespace to get its canonical module name */
+            if (sym->is_static)
+            {
+                Symbol *ns_sym = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
+                if (ns_sym != NULL && ns_sym->canonical_module_name != NULL)
+                {
+                    prefix_to_use = ns_sym->canonical_module_name;
+                }
+            }
+
+            /* Fall back to namespace prefix for non-static variables or if no canonical name found */
+            if (prefix_to_use == NULL)
+            {
+                char ns_prefix[256];
+                int ns_len = ns_name.length < 255 ? ns_name.length : 255;
+                memcpy(ns_prefix, ns_name.start, ns_len);
+                ns_prefix[ns_len] = '\0';
+                prefix_to_use = arena_strdup(gen->arena, ns_prefix);
+            }
+
+            char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", prefix_to_use, member_name_str);
             char *mangled = sn_mangle_name(gen->arena, prefixed_name);
 
             /* Handle-type namespace variables need pinning when used in contexts
@@ -780,6 +798,10 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
     if (struct_type == NULL || struct_type->kind != TYPE_STRUCT)
     {
         fprintf(stderr, "Error: Struct literal has no resolved type\n");
+        fprintf(stderr, "  struct_name: %.*s\n",
+                (int)lit->struct_name.length, lit->struct_name.start);
+        fprintf(stderr, "  namespace_prefix: %s\n",
+                gen->current_namespace_prefix ? gen->current_namespace_prefix : "(none)");
         exit(1);
     }
 

@@ -131,6 +131,13 @@ typedef struct {
      * can be prefixed to avoid collisions between modules. */
     const char *current_namespace_prefix;
 
+    /* Canonical module name for static variable sharing.
+     * When generating code for an imported namespace, this is set to the
+     * canonical module name (derived from the source file path). Static
+     * variables use this prefix to ensure all aliases of the same module
+     * share the same static variables. NULL when not in a namespace. */
+    const char *current_canonical_module;
+
     /* Pin counter for unique pin variable names in generated code */
     int pin_counter;
 
@@ -153,6 +160,18 @@ typedef struct {
     const char **emitted_static_globals;  /* Static variable names (mangled) that have been emitted */
     int emitted_static_globals_count;
     int emitted_static_globals_capacity;
+
+    /* Track which functions have been emitted (by full mangled name including namespace prefix)
+     * to avoid duplicates in diamond import scenarios. */
+    const char **emitted_functions;  /* Function names (mangled) that have been emitted */
+    int emitted_functions_count;
+    int emitted_functions_capacity;
+
+    /* Track which global variables have been emitted (by full mangled name including namespace prefix)
+     * to avoid duplicates in diamond import scenarios. */
+    const char **emitted_globals;  /* Global variable names (mangled) that have been emitted */
+    int emitted_globals_count;
+    int emitted_globals_capacity;
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

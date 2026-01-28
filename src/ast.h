@@ -545,6 +545,7 @@ typedef struct
     MemoryQualifier mem_qualifier;  /* as val or as ref modifier */
     SyncModifier sync_modifier;     /* sync for atomic operations */
     bool is_static;                 /* True if declared with 'static var' at module level */
+    bool code_emitted;              /* True if code has already been generated (prevents double emission in diamond imports) */
 } VarDeclStmt;
 
 struct Parameter
@@ -568,6 +569,8 @@ typedef struct
     bool is_variadic;           /* true if function has variadic parameters (...) */
     bool has_arena_param;       /* true if first param is implicit arena (for native functions) */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
+    bool body_type_checked;     /* true if body has already been type-checked (prevents re-type-checking in diamond imports) */
+    bool code_emitted;          /* true if code has already been generated (prevents double emission in diamond imports) */
 } FunctionStmt;
 
 typedef struct

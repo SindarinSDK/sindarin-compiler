@@ -97,6 +97,7 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
 
     /* Initialize namespace prefix for imported module code generation */
     gen->current_namespace_prefix = NULL;
+    gen->current_canonical_module = NULL;
 
     /* Initialize pin counter */
     gen->pin_counter = 0;
@@ -123,6 +124,16 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->emitted_static_globals = NULL;
     gen->emitted_static_globals_count = 0;
     gen->emitted_static_globals_capacity = 0;
+
+    /* Initialize function emission tracking (for diamond imports) */
+    gen->emitted_functions = NULL;
+    gen->emitted_functions_count = 0;
+    gen->emitted_functions_capacity = 0;
+
+    /* Initialize global variable emission tracking (for diamond imports) */
+    gen->emitted_globals = NULL;
+    gen->emitted_globals_count = 0;
+    gen->emitted_globals_capacity = 0;
 
     if (gen->output == NULL)
     {
