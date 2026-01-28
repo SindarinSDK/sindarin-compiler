@@ -1,7 +1,7 @@
 # Test lock blocks with actual threading
 # Multiple threads incrementing a counter with lock protection
 
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn increment_counter(): int =>
     for i in 1..101 =>  # 1..101 gives us 100 iterations (1 to 100 inclusive)

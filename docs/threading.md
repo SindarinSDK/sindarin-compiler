@@ -214,7 +214,7 @@ print(count)                    // Result depends on execution order (race condi
 **Note:** For thread-safe modifications, use `sync` variables instead:
 
 ```sindarin
-var count: sync int = 0
+sync var count: int = 0
 var r1: void = &increment(count)
 var r2: void = &increment(count)
 [r1, r2]!
@@ -247,16 +247,23 @@ var r2: int = &sum(data)       // both read same array
 
 ## Atomic Variables with `sync`
 
-The `sync` type modifier declares atomic variables that are thread-safe for concurrent access. Operations on `sync` variables use hardware atomic instructions, eliminating race conditions.
+The `sync` modifier declares atomic variables that are thread-safe for concurrent access. Operations on `sync` variables use hardware atomic instructions, eliminating race conditions.
 
 ### Declaration
 
 ```sindarin
-var counter: sync int = 0
-var total: sync long = 0l
+sync var counter: int = 0
+sync var total: long = 0l
 ```
 
-The `sync` modifier is allowed on integer types: `int`, `long`, `int32`, `uint`, `uint32`.
+The `sync` modifier is placed before the `var` keyword. It is allowed on integer types: `int`, `long`, `int32`, `uint`, `uint32`, `byte`, `char`.
+
+You can also combine `sync` with `static` for module-level atomic variables:
+
+```sindarin
+static sync var globalCounter: int = 0
+sync static var anotherCounter: int = 0  // Order doesn't matter
+```
 
 ### Atomic Operations
 
@@ -291,7 +298,7 @@ With `sync`, all updates are atomic:
 
 ```sindarin
 // SAFE: Atomic operations
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn increment(): void =>
     counter++    // Atomic increment
@@ -308,7 +315,7 @@ print(counter)   // Always 2
 All compound assignments are atomic on `sync` variables:
 
 ```sindarin
-var total: sync int = 0
+sync var total: int = 0
 
 fn add_value(n: int): void =>
     total += n   // Atomic add
@@ -331,29 +338,32 @@ print(total)     // Always 60
 
 For `*=`, `/=`, and `%=`, a CAS (compare-and-swap) loop is used since there are no direct atomic builtins for these operations. The CAS loop ensures atomicity by retrying if another thread modified the value.
 
-### Function Parameters with `sync`
+### Module-Level Sync Variables
 
-Functions can accept `sync` parameters:
+For shared counters accessed by multiple functions, declare sync variables at module level:
 
 ```sindarin
-fn safe_increment(counter: sync int as ref): void =>
-    counter++
+sync var count: int = 0
 
-var count: sync int = 0
-var t1: void = &safe_increment(count)
-var t2: void = &safe_increment(count)
+fn safe_increment(): void =>
+    count++
+
+var t1: void = &safe_increment()
+var t2: void = &safe_increment()
 [t1, t2]!
 
 print(count)     // Always 2
 ```
 
+**Note:** The `sync` modifier is only valid on variable declarations, not on function parameters.
+
 ### When to Use `sync`
 
 | Use Case | Recommendation |
 |----------|----------------|
-| Shared counter across threads | Use `sync int` |
-| Accumulator for parallel results | Use `sync long` |
-| Flag or status variable | Use `sync int` or `sync byte` |
+| Shared counter across threads | Use `sync var x: int` |
+| Accumulator for parallel results | Use `sync var x: long` |
+| Flag or status variable | Use `sync var x: int` or `sync var x: byte` |
 | Complex data structure | Use `lock` blocks or external synchronization |
 | Read-only shared data | No `sync` needed (reads are safe) |
 
@@ -386,7 +396,7 @@ lock(sync_variable) =>
 ### Basic Example
 
 ```sindarin
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn increment_twice(): void =>
     lock(counter) =>
@@ -401,7 +411,7 @@ Use `lock` when you need to:
 - Read-modify-write with complex logic involving multiple statements
 
 ```sindarin
-var value: sync int = 100
+sync var value: int = 100
 
 fn halve_if_even(): void =>
     lock(value) =>
@@ -415,7 +425,7 @@ Without `lock`, compound operations can interleave:
 
 ```sindarin
 // UNSAFE: read-modify-write can interleave
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn unsafe_increment(): void =>
     var temp = counter      // Thread A reads 0
@@ -428,7 +438,7 @@ With `lock`, compound operations are atomic:
 
 ```sindarin
 // SAFE: entire block is atomic
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn safe_increment(): void =>
     lock(counter) =>
@@ -440,7 +450,7 @@ fn safe_increment(): void =>
 ### Multi-Threaded Example
 
 ```sindarin
-var counter: sync int = 0
+sync var counter: int = 0
 
 fn increment_100_times(): int =>
     for i in 1..101 =>
@@ -467,7 +477,7 @@ fn main(): void =>
 `lock` blocks can contain any statements:
 
 ```sindarin
-var total: sync int = 0
+sync var total: int = 0
 
 fn add_sum(values: int[]): void =>
     lock(total) =>
@@ -732,7 +742,7 @@ The following scenarios require user attention:
 | `var r: T = &fn()!` | Spawn and wait immediately |
 | `&fn()` | Fire and forget (void only) |
 | `&fn()!` | Spawn and wait (void) |
-| `var x: sync int = 0` | Atomic integer variable |
+| `sync var x: int = 0` | Atomic integer variable |
 | `x++`, `x--` | Atomic increment/decrement (on sync) |
 | `x += n`, `x -= n` | Atomic add/subtract (on sync) |
 | `x *= n`, `x /= n`, `x %= n` | Atomic mul/div/mod via CAS (on sync) |

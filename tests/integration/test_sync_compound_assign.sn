@@ -1,6 +1,6 @@
 // Test sync compound assignment operators
 
-var counter: sync int = 10
+sync var counter: int = 10
 
 fn main(): void =>
     print($"Initial: {counter}\n")

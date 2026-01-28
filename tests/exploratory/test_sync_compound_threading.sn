@@ -1,6 +1,6 @@
 // Test sync compound assignment with threads
 
-var counter: sync int = 100
+sync var counter: int = 100
 
 fn multiply_counter(): int =>
     counter *= 2

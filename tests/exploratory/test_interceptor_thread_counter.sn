@@ -1,7 +1,7 @@
 // Test: Thread-safe call counting with interceptors
 // Spawns many threads to stress-test interceptor call counting
 
-var total_calls: sync int = 0
+sync var total_calls: int = 0
 
 fn counterInterceptor(name: str, args: any[], continue_fn: fn(): any): any =>
     total_calls++
