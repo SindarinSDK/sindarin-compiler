@@ -188,6 +188,41 @@ Module *parser_execute(Parser *parser, const char *filename)
 static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, const char *import_path,
                                        ImportContext *ctx);
 
+/* Helper function to normalize a path by removing redundant ./ and resolving ..
+ * This ensures paths like "a/./b/./c.sn" and "a/b/c.sn" are treated as the same. */
+static char *normalize_path(Arena *arena, const char *path)
+{
+    size_t len = strlen(path);
+    char *result = arena_alloc(arena, len + 1);
+    if (!result) return NULL;
+
+    size_t j = 0;
+    for (size_t i = 0; i < len; ) {
+        /* Check for "./" at start or after a separator */
+        if ((i == 0 || path[i-1] == '/' || path[i-1] == '\\') &&
+            path[i] == '.' && (path[i+1] == '/' || path[i+1] == '\\')) {
+            /* Skip the "./" */
+            i += 2;
+            continue;
+        }
+        /* Check for "./" at end (just ".") - shouldn't happen but handle it */
+        if ((i == 0 || path[i-1] == '/' || path[i-1] == '\\') &&
+            path[i] == '.' && path[i+1] == '\0') {
+            i++;
+            continue;
+        }
+        result[j++] = path[i++];
+    }
+    result[j] = '\0';
+
+    /* Remove trailing slash if present (unless it's the root) */
+    if (j > 1 && (result[j-1] == '/' || result[j-1] == '\\')) {
+        result[j-1] = '\0';
+    }
+
+    return result;
+}
+
 /* Helper function to construct the import path from current file and module name */
 static char *construct_import_path(Arena *arena, const char *current_file, const char *module_name)
 {
@@ -216,7 +251,8 @@ static char *construct_import_path(Arena *arena, const char *current_file, const
     strcat(import_path, module_name);
     strcat(import_path, ".sn");
 
-    return import_path;
+    /* Normalize the path to remove redundant ./ components */
+    return normalize_path(arena, import_path);
 }
 
 /* Helper: check if file exists */
@@ -534,6 +570,15 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
             }
             strcat(import_path, mod_name.start);
             strcat(import_path, ".sn");
+
+            /* Normalize path to remove redundant ./ components for consistent cache lookup */
+            import_path = normalize_path(arena, import_path);
+            if (!import_path) {
+                DEBUG_ERROR("Failed to normalize import path");
+                parser_cleanup(&parser);
+                lexer_cleanup(&lexer);
+                return NULL;
+            }
 
             /* If relative path doesn't exist, try SDK path */
             if (!import_file_exists(import_path) && compiler_dir) {

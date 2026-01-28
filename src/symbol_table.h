@@ -54,6 +54,15 @@ typedef struct Symbol
     bool is_namespace;          /* True if this symbol represents a namespace */
     bool also_imported_directly;/* True if the namespace's module was also imported directly (no alias) */
     char *namespace_name;       /* Namespace identifier (for namespaced imports) */
+    char *canonical_namespace_prefix; /* For duplicate imports: the namespace under which functions were emitted.
+                                       * NULL if this is the canonical namespace. When non-NULL, function calls
+                                       * via this namespace should use canonical_namespace_prefix instead. */
+    char *canonical_module_name;    /* Canonical module identifier derived from the source file path.
+                                     * Used for static variable sharing: all aliases of the same module
+                                     * share static variables under this canonical name. E.g., "level_01"
+                                     * for imports of "./level_01.sn". NULL for non-namespace symbols. */
+    struct Stmt **imported_stmts;   /* Pointer to the imported module's statements (for duplicate import detection).
+                                     * Namespaces importing the same module will have the same pointer. */
     struct Symbol *namespace_symbols;  /* Linked list of symbols within this namespace */
     /* Struct type support (for namespace.StructType.staticMethod() access) */
     bool is_struct_type;        /* True if this symbol represents a struct type in a namespace */

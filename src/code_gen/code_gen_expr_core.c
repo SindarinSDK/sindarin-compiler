@@ -164,27 +164,36 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
     }
 
     /* If we're generating code for an imported namespace, prefix global symbols
-     * with the namespace to avoid collisions between different modules.
-     * Both variables and functions need namespace prefixes to match their definitions.
-     * Parameters and local variables are NOT prefixed. */
+     * with the appropriate namespace to avoid collisions between different modules.
+     * Parameters and local variables are NOT prefixed.
+     *
+     * For STATIC global variables: use canonical_module_name so all aliases of the same
+     * module access the same static variable storage.
+     *
+     * For NON-STATIC global variables and functions: use namespace_prefix so each alias
+     * has its own instance and functions can access the correct per-alias state. */
     char *mangled;
-    bool should_prefix = false;
+    const char *prefix_to_use = NULL;
 
-    if (gen->current_namespace_prefix != NULL && symbol != NULL)
+    if (symbol != NULL && (symbol->kind == SYMBOL_GLOBAL || symbol->is_function))
     {
-        /* Module-level symbols (variables and functions) should be prefixed.
-         * Parameters and local variables are NOT prefixed.
-         * Functions are added with SYMBOL_LOCAL kind but have is_function=true. */
-        if (symbol->kind == SYMBOL_GLOBAL || symbol->is_function)
+        /* Determine which prefix to use based on whether this is a static variable */
+        if (symbol->kind == SYMBOL_GLOBAL && symbol->is_static &&
+            gen->current_canonical_module != NULL)
         {
-            should_prefix = true;
+            /* Static variable: use canonical module name for sharing across aliases */
+            prefix_to_use = gen->current_canonical_module;
+        }
+        else if (gen->current_namespace_prefix != NULL)
+        {
+            /* Non-static variable or function: use namespace prefix */
+            prefix_to_use = gen->current_namespace_prefix;
         }
     }
 
-    if (should_prefix)
+    if (prefix_to_use != NULL)
     {
-        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s",
-                                            gen->current_namespace_prefix, var_name);
+        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", prefix_to_use, var_name);
         mangled = sn_mangle_name(gen->arena, prefixed_name);
     }
     else
@@ -238,12 +247,44 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
 char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
 {
     DEBUG_VERBOSE("Entering code_gen_assign_expression");
-    char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, expr->name));
+    char *base_var_name = get_var_name(gen->arena, expr->name);
     Symbol *symbol = symbol_table_lookup_symbol(gen->symbol_table, expr->name);
     if (symbol == NULL)
     {
         exit(1);
     }
+
+    /* Apply namespace prefix for global variables and functions in imported modules,
+     * similar to code_gen_variable_expression.
+     * Static variables use canonical module name for sharing across aliases.
+     * Non-static variables use namespace prefix for per-alias instance. */
+    char *var_name;
+    const char *prefix_to_use = NULL;
+    if (symbol->kind == SYMBOL_GLOBAL && symbol->is_static &&
+        gen->current_canonical_module != NULL)
+    {
+        /* Static variable: use canonical module name for sharing across aliases */
+        prefix_to_use = gen->current_canonical_module;
+    }
+    else if (gen->current_namespace_prefix != NULL)
+    {
+        if (symbol->kind == SYMBOL_GLOBAL || symbol->is_function)
+        {
+            /* Non-static variable or function: use namespace prefix */
+            prefix_to_use = gen->current_namespace_prefix;
+        }
+    }
+    if (prefix_to_use != NULL)
+    {
+        char *prefixed_name = arena_sprintf(gen->arena, "%s__%s",
+                                            prefix_to_use, base_var_name);
+        var_name = sn_mangle_name(gen->arena, prefixed_name);
+    }
+    else
+    {
+        var_name = sn_mangle_name(gen->arena, base_var_name);
+    }
+
     Type *type = symbol->type;
 
     /* When assigning to a handle type (array/string) or boxing an array

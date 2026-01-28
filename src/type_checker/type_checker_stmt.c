@@ -453,6 +453,14 @@ static void add_arena_builtin(SymbolTable *table, Token *ref_token)
 static void type_check_function_body_only(Stmt *stmt, SymbolTable *table)
 {
     DEBUG_VERBOSE("Type checking function body only: %.*s", stmt->as.function.name.length, stmt->as.function.name.start);
+
+    /* Skip if already type-checked (prevents re-type-checking in diamond imports) */
+    if (stmt->as.function.body_type_checked)
+    {
+        DEBUG_VERBOSE("Skipping already type-checked function body: %.*s", stmt->as.function.name.length, stmt->as.function.name.start);
+        return;
+    }
+
     Arena *arena = table->arena;
 
     symbol_table_push_scope(table);
@@ -502,6 +510,9 @@ static void type_check_function_body_only(Stmt *stmt, SymbolTable *table)
     }
 
     symbol_table_pop_scope(table);
+
+    /* Mark as type-checked to prevent re-type-checking in diamond imports */
+    stmt->as.function.body_type_checked = true;
 }
 
 static void type_check_function(Stmt *stmt, SymbolTable *table)
@@ -764,6 +775,9 @@ static void type_check_function(Stmt *stmt, SymbolTable *table)
     }
 
     symbol_table_pop_scope(table);
+
+    /* Mark as type-checked to prevent re-type-checking in diamond imports */
+    stmt->as.function.body_type_checked = true;
 }
 
 static void type_check_return(Stmt *stmt, SymbolTable *table, Type *return_type)
@@ -1436,14 +1450,76 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
         /* Create the namespace entry in the symbol table */
         symbol_table_add_namespace(table, ns_token);
 
+        /* Store the imported_stmts pointer on the namespace symbol for duplicate detection.
+         * Namespaces importing the same module (due to module caching) will have the same pointer. */
+        Symbol *ns_symbol = symbol_table_lookup_symbol(table, ns_token);
+        if (ns_symbol != NULL && ns_symbol->is_namespace)
+        {
+            ns_symbol->imported_stmts = import->imported_stmts;
+
+            /* Extract canonical module name from the module path.
+             * This is used for static variable sharing: all aliases of the same module
+             * share static variables under this canonical name.
+             * E.g., "./level_01" or "./imports/deep_chain/level_01" → "level_01" */
+            char mod_path[512];
+            int mod_len = import->module_name.length < 511 ? import->module_name.length : 511;
+            memcpy(mod_path, import->module_name.start, mod_len);
+            mod_path[mod_len] = '\0';
+
+            /* Find the last path separator and extract the base name */
+            const char *base_name = mod_path;
+            for (int i = mod_len - 1; i >= 0; i--)
+            {
+                if (mod_path[i] == '/' || mod_path[i] == '\\')
+                {
+                    base_name = &mod_path[i + 1];
+                    break;
+                }
+            }
+            /* Remove .sn extension if present */
+            char *canonical = arena_strdup(table->arena, base_name);
+            int can_len = strlen(canonical);
+            if (can_len > 3 && strcmp(canonical + can_len - 3, ".sn") == 0)
+            {
+                canonical[can_len - 3] = '\0';
+            }
+            ns_symbol->canonical_module_name = canonical;
+            DEBUG_VERBOSE("Namespace '%s' has canonical module name '%s'", ns_str, canonical);
+        }
+
         /* If this module was also imported directly (without namespace), mark the
          * namespace so that code generation knows to use non-prefixed function names. */
         if (import->also_imported_directly)
         {
-            Symbol *ns_symbol = symbol_table_lookup_symbol(table, ns_token);
             if (ns_symbol != NULL && ns_symbol->is_namespace)
             {
                 ns_symbol->also_imported_directly = true;
+            }
+        }
+
+        /* Check if this is a duplicate import of the same module with a different alias.
+         * The parser sets also_imported_directly=true on imports that should skip code emission
+         * because another namespace import already claimed emission for this module.
+         * If this import has also_imported_directly=true, we need to find the canonical
+         * namespace (which has also_imported_directly=false) and redirect our calls to it. */
+        if (ns_symbol != NULL && ns_symbol->is_namespace && import->also_imported_directly)
+        {
+            /* This namespace should skip code emission - find the canonical namespace.
+             * The canonical namespace is another namespace for the same module that has
+             * also_imported_directly=false and canonical_namespace_prefix=NULL.
+             * We verify it's the same module by comparing imported_stmts pointers. */
+            for (Symbol *sym = table->global_scope->symbols; sym != NULL; sym = sym->next)
+            {
+                if (sym != ns_symbol && sym->is_namespace &&
+                    !sym->also_imported_directly && sym->canonical_namespace_prefix == NULL &&
+                    sym->imported_stmts == import->imported_stmts)  /* Same module check */
+                {
+                    /* Found the canonical namespace for this module */
+                    ns_symbol->canonical_namespace_prefix = arena_strdup(table->arena, sym->namespace_name);
+                    DEBUG_VERBOSE("Namespace '%s' is duplicate import; canonical prefix is '%s'",
+                                  ns_str, sym->namespace_name);
+                    break;
+                }
             }
         }
 
@@ -1463,6 +1539,39 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
 
                 /* Create nested namespace inside the parent namespace */
                 symbol_table_add_nested_namespace(table, ns_token, nested_ns_token);
+
+                /* Set canonical_module_name for the nested namespace.
+                 * This is needed for static variable sharing across aliases. */
+                Symbol *nested_ns_symbol = symbol_table_lookup_in_namespace(table, ns_token, nested_ns_token);
+                if (nested_ns_symbol != NULL && nested_ns_symbol->is_namespace)
+                {
+                    /* Extract canonical module name from the module path */
+                    char nested_mod_path[512];
+                    int nested_mod_len = nested_import->module_name.length < 511 ? nested_import->module_name.length : 511;
+                    memcpy(nested_mod_path, nested_import->module_name.start, nested_mod_len);
+                    nested_mod_path[nested_mod_len] = '\0';
+
+                    /* Find the last path separator and extract the base name */
+                    const char *nested_base_name = nested_mod_path;
+                    for (int k = nested_mod_len - 1; k >= 0; k--)
+                    {
+                        if (nested_mod_path[k] == '/' || nested_mod_path[k] == '\\')
+                        {
+                            nested_base_name = &nested_mod_path[k + 1];
+                            break;
+                        }
+                    }
+                    /* Remove .sn extension if present */
+                    char *nested_canonical = arena_strdup(table->arena, nested_base_name);
+                    int nested_can_len = strlen(nested_canonical);
+                    if (nested_can_len > 3 && strcmp(nested_canonical + nested_can_len - 3, ".sn") == 0)
+                    {
+                        nested_canonical[nested_can_len - 3] = '\0';
+                    }
+                    nested_ns_symbol->canonical_module_name = nested_canonical;
+                    DEBUG_VERBOSE("Nested namespace '%.*s' has canonical module name '%s'",
+                                  nested_ns_token.length, nested_ns_token.start, nested_canonical);
+                }
 
                 /* Use get_module_symbols to extract symbols from the nested import */
                 if (nested_import->imported_stmts != NULL)
@@ -1506,6 +1615,13 @@ static void type_check_import_stmt(Stmt *stmt, SymbolTable *table)
                             }
                             symbol_table_add_function_to_nested_namespace(table, ns_token, nested_ns_token,
                                 *func_name, func_type, effective_modifier, modifier);
+                        }
+                        else if (nested_stmt->type == STMT_VAR_DECL)
+                        {
+                            /* Add variable to nested namespace with is_static flag */
+                            VarDeclStmt *var = &nested_stmt->as.var_decl;
+                            symbol_table_add_symbol_to_nested_namespace(table, ns_token, nested_ns_token,
+                                var->name, var->type, var->is_static);
                         }
                     }
                 }

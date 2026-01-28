@@ -864,10 +864,19 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                                     func_sym->type->kind == TYPE_FUNCTION &&
                                     func_sym->type->as.function.has_body);
 
-            /* Check if the namespace's module was also imported directly. If so, the
-             * function was emitted without a namespace prefix, so we use the plain name. */
-            Symbol *ns_symbol = symbol_table_lookup_symbol(gen->symbol_table, ns_name);
-            bool use_prefixed_name = (ns_symbol == NULL || !ns_symbol->also_imported_directly);
+            /* Determine which namespace prefix to use for the function call.
+             * Functions are now emitted for each namespace alias (even for duplicate imports),
+             * so we always use the namespace name from the call site. */
+            const char *effective_ns_prefix = NULL;
+            char ns_buf[256];
+            int ns_len = ns_name.length < 255 ? ns_name.length : 255;
+            memcpy(ns_buf, ns_name.start, ns_len);
+            ns_buf[ns_len] = '\0';
+            effective_ns_prefix = arena_strdup(gen->arena, ns_buf);
+
+            /* Always use prefixed names for namespace function calls.
+             * Each namespace alias now has its own functions emitted. */
+            bool use_prefixed_name = true;
 
             /* Use c_alias for native functions, or appropriate name for Sindarin functions.
              * Functions from imported modules need namespace prefixes to avoid name collisions
@@ -881,10 +890,10 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             }
             else if (use_prefixed_name)
             {
-                /* Build namespace-prefixed function name: __sn__Namespace__functionName */
+                /* Build namespace-prefixed function name using effective prefix */
                 char prefixed_name[512];
-                snprintf(prefixed_name, sizeof(prefixed_name), "%.*s__%s",
-                         ns_name.length, ns_name.start, member_name_str);
+                snprintf(prefixed_name, sizeof(prefixed_name), "%s__%s",
+                         effective_ns_prefix, member_name_str);
                 func_name_to_use = sn_mangle_name(gen->arena, prefixed_name);
             }
             else
@@ -1001,8 +1010,21 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                                     func_sym->type->kind == TYPE_FUNCTION &&
                                     func_sym->type->as.function.has_body);
 
-            /* Check if the nested namespace was also imported directly */
-            bool use_prefixed_name = (nested_ns == NULL || !nested_ns->also_imported_directly);
+            /* Determine which namespace prefix to use.
+             * Functions are now emitted for each namespace alias, so we use the nested namespace name. */
+            const char *effective_ns_prefix = NULL;
+            if (nested_ns != NULL)
+            {
+                char ns_buf[256];
+                int ns_len = nested_ns->name.length < 255 ? nested_ns->name.length : 255;
+                memcpy(ns_buf, nested_ns->name.start, ns_len);
+                ns_buf[ns_len] = '\0';
+                effective_ns_prefix = arena_strdup(gen->arena, ns_buf);
+            }
+
+            /* Always use prefixed names for nested namespace function calls.
+             * Each namespace alias now has its own functions emitted. */
+            bool use_prefixed_name = true;
 
             /* Use c_alias for native functions, or namespace-prefixed name for Sindarin functions.
              * For nested namespace calls (e.g., parent.nested.func()), use the nested namespace name,
@@ -1012,12 +1034,12 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             {
                 func_name_to_use = (func_sym->c_alias != NULL) ? func_sym->c_alias : member_name_str;
             }
-            else if (use_prefixed_name)
+            else if (use_prefixed_name && effective_ns_prefix != NULL)
             {
-                /* Build namespace-prefixed function name using the nested namespace's name */
+                /* Build namespace-prefixed function name using effective prefix */
                 char prefixed_name[512];
-                snprintf(prefixed_name, sizeof(prefixed_name), "%.*s__%s",
-                         nested_ns->name.length, nested_ns->name.start, member_name_str);
+                snprintf(prefixed_name, sizeof(prefixed_name), "%s__%s",
+                         effective_ns_prefix, member_name_str);
                 func_name_to_use = sn_mangle_name(gen->arena, prefixed_name);
             }
             else

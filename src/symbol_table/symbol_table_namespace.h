@@ -40,6 +40,9 @@ void symbol_table_add_nested_namespace(SymbolTable *table, Token parent_ns_name,
 /* Add a function to a nested namespace */
 void symbol_table_add_function_to_nested_namespace(SymbolTable *table, Token parent_ns_name, Token nested_ns_name, Token symbol_name, Type *type, FunctionModifier func_mod, FunctionModifier declared_func_mod);
 
+/* Add a variable symbol to a nested namespace */
+void symbol_table_add_symbol_to_nested_namespace(SymbolTable *table, Token parent_ns_name, Token nested_ns_name, Token symbol_name, Type *type, bool is_static);
+
 /* Look up a symbol within a namespace */
 Symbol *symbol_table_lookup_in_namespace(SymbolTable *table, Token namespace_name, Token symbol_name);
 

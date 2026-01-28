@@ -1,0 +1,6 @@
+// Minimal test - import level_12 then level_11
+import "./imports/deep_chain/level_12" as MyL12
+import "./imports/deep_chain/level_11" as MyL11
+
+fn main(): void =>
+    print("Test\n")

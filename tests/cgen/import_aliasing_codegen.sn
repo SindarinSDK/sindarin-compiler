@@ -38,8 +38,9 @@ fn main(): void =>
 
     assert(moduleB.randomValue != moduleC.randomValue, "Should be different because different modules")
     assert(moduleC.randomValue != moduleC_1.randomValue, "Should be different because different aliased modules should have different state")
-    // Each import alias creates a separate module instance, so static variables are also separate
-    assert(moduleC.randomUuid.toString() != moduleC_1.randomUuid.toString(), "Should be different because each alias is a separate module instance")
+    // Static variables are SHARED across all aliases of the same module (canonical module identity)
+    // Non-static variables are SEPARATE per alias (each alias has its own instance)
+    assert(moduleC.randomUuid.toString() == moduleC_1.randomUuid.toString(), "Should be same because static vars are shared across aliases")
 
     print("\nAll compression tests passed!\n")
 
