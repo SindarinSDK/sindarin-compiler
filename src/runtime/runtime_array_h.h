@@ -172,6 +172,18 @@ RtHandle rt_args_create_h(RtManagedArena *arena, int argc, char **argv);
 /* Deep array promotion (child -> parent arena) -- promotes array AND all string elements */
 RtHandle rt_managed_promote_array_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
 
+/* Deep array promotion for 2D arrays -- promotes outer array AND all inner array handles */
+RtHandle rt_managed_promote_array_handle(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
+
+/* Deep array promotion for 3D arrays -- promotes outer, middle, and inner array handles */
+RtHandle rt_managed_promote_array_handle_3d(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
+
+/* Deep promotion for 2D string arrays (str[][]) -- promotes outer, inner arrays, AND strings */
+RtHandle rt_managed_promote_array2_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
+
+/* Deep promotion for 3D string arrays (str[][][]) -- promotes all three levels AND strings */
+RtHandle rt_managed_promote_array3_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h);
+
 /* Handle-aware to-string for 1D string arrays (RtHandle elements) */
 char *rt_to_string_array_string_h(RtManagedArena *arena, RtHandle *arr);
 
@@ -193,6 +205,14 @@ char *rt_to_string_array2_bool_h(RtManagedArena *arena, RtHandle *outer);
 char *rt_to_string_array2_byte_h(RtManagedArena *arena, RtHandle *outer);
 char *rt_to_string_array2_string_h(RtManagedArena *arena, RtHandle *outer);
 char *rt_to_string_array2_any_h(RtManagedArena *arena, RtHandle *outer);
+
+/* Handle-aware to-string for 3D arrays (outer stores RtHandle elements to 2D arrays) */
+char *rt_to_string_array3_long_h(RtManagedArena *arena, RtHandle *outer);
+char *rt_to_string_array3_double_h(RtManagedArena *arena, RtHandle *outer);
+char *rt_to_string_array3_char_h(RtManagedArena *arena, RtHandle *outer);
+char *rt_to_string_array3_bool_h(RtManagedArena *arena, RtHandle *outer);
+char *rt_to_string_array3_byte_h(RtManagedArena *arena, RtHandle *outer);
+char *rt_to_string_array3_string_h(RtManagedArena *arena, RtHandle *outer);
 char *rt_to_string_array3_any_h(RtManagedArena *arena, RtHandle *outer);
 
 #endif

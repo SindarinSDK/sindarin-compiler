@@ -86,6 +86,18 @@ char *gen_native_arithmetic(CodeGen *gen, const char *left_str, const char *righ
    Returns the expression string, or NULL if runtime function is required. */
 char *gen_native_unary(CodeGen *gen, const char *operand_str, SnTokenType op, Type *type);
 
+/* Struct field promotion for thread sync and function returns */
+
+/* Generate code to promote all handle fields in a struct from src_arena to dest_arena.
+   This handles strings, arrays (1D, 2D, 3D), and nested types.
+   Returns code that promotes var_name's fields in place.
+   The generated code assumes var_name is already assigned with raw values. */
+char *gen_struct_field_promotion(CodeGen *gen, Type *struct_type, const char *var_name,
+                                  const char *dest_arena, const char *src_arena);
+
+/* Check if a struct type has any handle fields that need promotion */
+bool struct_has_handle_fields(Type *struct_type);
+
 /* Arena destination calculation for scope escape */
 
 /* Calculate the target arena for an escaping allocation based on scope depth.

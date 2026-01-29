@@ -1,0 +1,98 @@
+// Test conditional thread spawn for struct types
+// Covers: primitive fields, string fields, 1D/2D arrays, nested structs
+
+struct Point =>
+    x: int
+    y: int
+
+struct Person =>
+    name: str
+    age: int
+
+struct WithArray =>
+    values: long[]
+    label: str
+
+struct WithArray2D =>
+    matrix: long[][]
+    name: str
+
+struct Nested =>
+    inner: Point
+    name: str
+
+fn makePoint(x: int, y: int): Point =>
+    return Point { x: x, y: y }
+
+fn makePerson(name: str, age: int): Person =>
+    return Person { name: name, age: age }
+
+fn makeWithArray(label: str): WithArray =>
+    var values: long[] = {1, 2, 3}
+    return WithArray { values: values, label: label }
+
+fn makeEmptyArray(): WithArray =>
+    var values: long[] = {0L}
+    return WithArray { values: values, label: "" }
+
+fn makeWithArray2D(name: str): WithArray2D =>
+    var row1: long[] = {1, 2}
+    var row2: long[] = {3, 4}
+    var matrix: long[][] = {row1, row2}
+    return WithArray2D { matrix: matrix, name: name }
+
+fn makeEmptyArray2D(): WithArray2D =>
+    var row: long[] = {0L}
+    var matrix: long[][] = {row}
+    return WithArray2D { matrix: matrix, name: "" }
+
+fn makeNested(name: str): Nested =>
+    return Nested { inner: Point { x: 5, y: 6 }, name: name }
+
+fn makeEmptyNested(): Nested =>
+    return Nested { inner: Point { x: 0, y: 0 }, name: "" }
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test 1: Point struct (primitives only)
+    var pt: Point = Point { x: 0, y: 0 }
+    if doSpawn =>
+        pt = &makePoint(10, 20)
+    pt!
+    println($"Point: ({pt.x}, {pt.y})")
+
+    // Test 2: Person struct with string field
+    var p: Person = Person { name: "", age: 0 }
+    if doSpawn =>
+        p = &makePerson("Alice", 30)
+    p!
+    println($"Person: {p.name}, age {p.age}")
+
+    // Test 3: Struct with 1D array field
+    var wa: WithArray = makeEmptyArray()
+    if doSpawn =>
+        wa = &makeWithArray("numbers")
+    wa!
+    println($"WithArray: {wa.label}, values[0]={wa.values[0]}")
+
+    // Test 4: Struct with 2D array field
+    var wa2d: WithArray2D = makeEmptyArray2D()
+    if doSpawn =>
+        wa2d = &makeWithArray2D("grid")
+    wa2d!
+    println($"WithArray2D: {wa2d.name}, matrix[1][0]={wa2d.matrix[1][0]}")
+
+    // Test 5: Nested struct
+    var n: Nested = makeEmptyNested()
+    if doSpawn =>
+        n = &makeNested("nested")
+    n!
+    println($"Nested: {n.name}, inner=({n.inner.x}, {n.inner.y})")
+
+    // Test 6: non-spawn path
+    var noSpawn: Point = Point { x: 99, y: 98 }
+    if false =>
+        noSpawn = &makePoint(1, 2)
+    noSpawn!
+    println($"no-spawn: ({noSpawn.x}, {noSpawn.y})")

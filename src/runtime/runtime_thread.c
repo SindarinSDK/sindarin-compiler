@@ -16,6 +16,7 @@
 #include <setjmp.h>
 #include "runtime_thread.h"
 #include "runtime_array.h"
+#include "runtime_array_h.h"
 
 /* ============================================================================
  * Thread Implementation
@@ -641,6 +642,87 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     return promoted_result;
 }
 
+/* Synchronize a thread handle and get promoted result WITHOUT destroying thread arena.
+ * Used for structs with handle fields that need field-by-field promotion.
+ * The caller MUST call rt_thread_cleanup_arena(handle) after field promotion.
+ */
+void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
+                                             RtArena *caller_arena,
+                                             RtResultType result_type)
+{
+    if (handle == NULL) {
+        fprintf(stderr, "rt_thread_sync_with_result_keep_arena: NULL handle\n");
+        return NULL;
+    }
+
+    /* Already synced - return early */
+    if (handle->synced) {
+        return NULL;
+    }
+
+    /* Join the thread to wait for completion */
+    rt_thread_join(handle);
+
+    /* Check for panic and propagate with promoted message */
+    if (handle->result != NULL && handle->result->has_panic) {
+        /* Promote panic message to caller's arena before propagating */
+        const char *msg = handle->result->panic_message;
+        char *promoted_msg = NULL;
+        if (msg != NULL && caller_arena != NULL) {
+            promoted_msg = rt_arena_promote_string(caller_arena, msg);
+        }
+
+        /* Cleanup thread arena before panicking */
+        if (handle->thread_arena != NULL) {
+            rt_arena_destroy(handle->thread_arena);
+            handle->thread_arena = NULL;
+        }
+
+        /* Re-panic in the calling thread */
+        rt_thread_panic(promoted_msg != NULL ? promoted_msg : msg);
+        return NULL;
+    }
+
+    /* Get result value */
+    void *result_value = NULL;
+    if (handle->result != NULL) {
+        result_value = handle->result->value;
+    }
+
+    /* For shared mode (thread_arena == NULL), return as-is */
+    if (handle->thread_arena == NULL) {
+        return result_value;
+    }
+
+    /* Default/private mode - promote result to caller's arena
+     * but DO NOT destroy thread arena - caller will do field promotion first */
+    void *promoted_result = NULL;
+    if (result_value != NULL) {
+        size_t result_size = handle->result ? handle->result->value_size : 0;
+        promoted_result = rt_thread_promote_result(
+            caller_arena,
+            handle->thread_arena,
+            result_value,
+            result_type,
+            result_size
+        );
+    }
+
+    /* NOTE: Thread arena is NOT destroyed here - caller must call rt_thread_cleanup_arena */
+    return promoted_result;
+}
+
+/* Destroy the thread arena after struct field promotion is complete */
+void rt_thread_cleanup_arena(RtThreadHandle *handle)
+{
+    if (handle == NULL) return;
+
+    if (handle->thread_arena != NULL) {
+        rt_arena_destroy(handle->thread_arena);
+        handle->thread_arena = NULL;
+    }
+}
+
 /* Synchronize multiple thread handles (implements [r1, r2, ...]! syntax) */
 void rt_thread_sync_all(RtThreadHandle **handles, size_t count)
 {
@@ -738,13 +820,92 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
         case RT_TYPE_ARRAY_DOUBLE:
         case RT_TYPE_ARRAY_BOOL:
         case RT_TYPE_ARRAY_BYTE:
-        case RT_TYPE_ARRAY_CHAR:
-        case RT_TYPE_ARRAY_STRING: {
+        case RT_TYPE_ARRAY_CHAR: {
             RtHandle src_handle = *(RtHandle *)value;
             if (src_handle == RT_HANDLE_NULL) return NULL;
             RtHandle promoted_handle = rt_managed_promote(dest, src_arena, src_handle);
             /* Allocate space in dest arena to store the promoted handle
              * so the caller can dereference to get the value */
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* String arrays need deep promotion to handle nested string handles */
+        case RT_TYPE_ARRAY_STRING: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            /* Use specialized function that promotes all string elements too */
+            RtHandle promoted_handle = rt_managed_promote_array_string(dest, src_arena, src_handle);
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* 2D arrays: outer array contains RtHandle elements pointing to inner arrays */
+        case RT_TYPE_ARRAY_HANDLE: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            /* Use specialized function that promotes all inner array handles too */
+            RtHandle promoted_handle = rt_managed_promote_array_handle(dest, src_arena, src_handle);
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* 3D arrays: outer -> middle -> inner, all contain RtHandle elements */
+        case RT_TYPE_ARRAY_HANDLE_3D: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            /* Use 3D promotion function for extra level of depth */
+            RtHandle promoted_handle = rt_managed_promote_array_handle_3d(dest, src_arena, src_handle);
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* 2D string arrays need deepest promotion - each inner array contains string handles */
+        case RT_TYPE_ARRAY2_STRING: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            /* Use specialized function that promotes outer array, then each inner string array */
+            RtHandle promoted_handle = rt_managed_promote_array2_string(dest, src_arena, src_handle);
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* 3D string arrays need three levels of promotion */
+        case RT_TYPE_ARRAY3_STRING: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+            /* Use specialized function for 3D string array promotion */
+            RtHandle promoted_handle = rt_managed_promote_array3_string(dest, src_arena, src_handle);
+            RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
+            if (result != NULL) {
+                *result = promoted_handle;
+            }
+            return result;
+        }
+
+        /* any[] arrays contain RtAny elements which may reference heap data */
+        case RT_TYPE_ARRAY_ANY: {
+            RtHandle src_handle = *(RtHandle *)value;
+            if (src_handle == RT_HANDLE_NULL) return NULL;
+
+            /* For any arrays, we need to promote any string/array handles within the RtAny elements.
+             * For now, use simple shallow promotion - this works for primitive any values. */
+            RtHandle promoted_handle = rt_managed_promote(dest, src_arena, src_handle);
             RtHandle *result = rt_arena_alloc(dest, sizeof(RtHandle));
             if (result != NULL) {
                 *result = promoted_handle;

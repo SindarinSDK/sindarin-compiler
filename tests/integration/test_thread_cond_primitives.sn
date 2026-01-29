@@ -1,0 +1,81 @@
+// Test conditional thread spawn for all primitive types
+// Tests that thread spawns can be conditionally assigned to variables
+
+fn computeInt(x: int): int =>
+    return x * 2
+
+fn computeLong(x: long): long =>
+    return x * 3l
+
+fn computeDouble(x: double): double =>
+    return x * 1.5
+
+fn computeBool(x: bool): bool =>
+    return !x
+
+fn computeByte(x: byte): byte =>
+    return (x + 10b) as byte
+
+fn computeChar(x: char): char =>
+    return (x as int + 1) as char
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test int
+    var intResult: int = 0
+    if doSpawn =>
+        intResult = &computeInt(21)
+    intResult!
+    println($"int: {intResult}")
+
+    // Test long
+    var longResult: long = 0l
+    if doSpawn =>
+        longResult = &computeLong(1000000000000l)
+    longResult!
+    println($"long: {longResult}")
+
+    // Test double
+    var doubleResult: double = 0.0
+    if doSpawn =>
+        doubleResult = &computeDouble(10.0)
+    doubleResult!
+    println($"double: {doubleResult}")
+
+    // Test bool
+    var boolResult: bool = false
+    if doSpawn =>
+        boolResult = &computeBool(false)
+    boolResult!
+    println($"bool: {boolResult}")
+
+    // Test byte
+    var byteResult: byte = 0b
+    if doSpawn =>
+        byteResult = &computeByte(100b)
+    byteResult!
+    println($"byte: {byteResult}")
+
+    // Test char
+    var charResult: char = 'a'
+    if doSpawn =>
+        charResult = &computeChar('A')
+    charResult!
+    println($"char: {charResult}")
+
+    // Test with condition = false (no spawn)
+    var noSpawn: bool = false
+    var intNoSpawn: int = 99
+    if noSpawn =>
+        intNoSpawn = &computeInt(50)
+    intNoSpawn!
+    println($"no-spawn int: {intNoSpawn}")
+
+    // Test in loop
+    var loopSum: int = 0
+    for i in 0..3 =>
+        if i % 2 == 0 =>
+            loopSum = &computeInt(i * 10)
+        loopSum!
+    println($"loop sum: {loopSum}")

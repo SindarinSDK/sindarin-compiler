@@ -1,0 +1,46 @@
+// Test that the original thread spawn approach still works
+// This ensures we didn't break the existing functionality
+
+struct Result =>
+    x: int
+    y: int
+
+fn add(a: int, b: int): int =>
+    return a + b
+
+fn multiply(a: int, b: int): int =>
+    return a * b
+
+fn makeResult(x: int, y: int): Result =>
+    return Result { x: x, y: y }
+
+fn main(): void =>
+    // Test 1: Original approach - spawn at declaration
+    var sum: int = &add(10, 20)
+    var product: int = &multiply(5, 6)
+
+    // Sync both
+    sum!
+    product!
+
+    println($"sum: {sum}, product: {product}")
+
+    // Test 2: Struct return with spawn at declaration
+    var r: Result = &makeResult(100, 200)
+    r!
+    println($"result: x={r.x}, y={r.y}")
+
+    // Test 3: Inline spawn-sync should still work
+    var immediate: int = (&add(3, 4))!
+    println($"immediate: {immediate}")
+
+    // Test 4: Multiple spawns, sync later
+    var a: int = &add(1, 2)
+    var b: int = &add(3, 4)
+    var c: int = &add(5, 6)
+
+    a!
+    b!
+    c!
+
+    println($"a={a}, b={b}, c={c}")

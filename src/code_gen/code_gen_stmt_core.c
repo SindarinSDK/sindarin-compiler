@@ -186,14 +186,41 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             bool is_handle = gen->current_arena_var != NULL &&
                             (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
 
-            if (is_primitive || is_handle)
+            bool is_struct = (result_type->kind == TYPE_STRUCT);
+            bool struct_needs_field_promotion = is_struct && struct_has_handle_fields(result_type);
+
+            if (is_primitive || is_handle || is_struct)
             {
-                /* For primitives/handle types, we declared two variables: __var_pending__ (RtThreadHandle*)
-                 * and var (actual type). Sync the pending handle and assign to the typed var.
-                 * Pattern: var = *(type *)sync(__var_pending__, ...) */
+                /* For primitives/handle/struct types, we declared two variables:
+                 * __var_pending__ (RtThreadHandle*) and var (actual type).
+                 * Sync the pending handle if not NULL and assign to the typed var.
+                 * Pattern:
+                 * if (__var_pending__ != NULL) {
+                 *     var = *(type *)sync(__var_pending__, ...);
+                 *     __var_pending__ = NULL;
+                 * } */
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
-                indented_fprintf(gen, indent, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
-                    var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
+
+                if (struct_needs_field_promotion) {
+                    /* Struct with handle fields - keep arena alive for field promotion */
+                    indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_thread_sync_with_result_keep_arena(%s, %s, %s);\n",
+                        var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                    /* Generate field promotion code */
+                    char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
+                        ARENA_VAR(gen), arena_sprintf(gen->arena, "%s->thread_arena", pending_var));
+                    if (field_promotion && field_promotion[0] != '\0') {
+                        indented_fprintf(gen, indent + 1, "%s", field_promotion);
+                    }
+                    /* Clean up the thread arena after field promotion */
+                    indented_fprintf(gen, indent + 1, "rt_thread_cleanup_arena(%s);\n", pending_var);
+                } else {
+                    indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
+                        var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                }
+
+                indented_fprintf(gen, indent + 1, "%s = NULL;\n", pending_var);
+                indented_fprintf(gen, indent, "}\n");
             }
             else
             {
@@ -234,15 +261,41 @@ static void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_CHAR);
             bool is_handle = gen->current_arena_var != NULL &&
                             (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
+            bool is_struct = (result_type->kind == TYPE_STRUCT);
+            bool struct_needs_field_promotion = is_struct && struct_has_handle_fields(result_type);
 
-            if (is_primitive || is_handle)
+            if (is_primitive || is_handle || is_struct)
             {
-                /* For primitives/handle types, we declared two variables: __var_pending__ (RtThreadHandle*)
-                 * and var (actual type). Sync the pending handle and assign to the typed var.
-                 * Pattern: var = *(type *)sync(__var_pending__, ...) */
+                /* For primitives/handle/struct types, we declared two variables:
+                 * __var_pending__ (RtThreadHandle*) and var (actual type).
+                 * Sync the pending handle if not NULL and assign to the typed var.
+                 * Pattern:
+                 * if (__var_pending__ != NULL) {
+                 *     var = *(type *)sync(__var_pending__, ...);
+                 *     __var_pending__ = NULL;
+                 * } */
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
-                indented_fprintf(gen, indent, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
-                    var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
+
+                if (struct_needs_field_promotion) {
+                    /* Struct with handle fields - keep arena alive for field promotion */
+                    indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_thread_sync_with_result_keep_arena(%s, %s, %s);\n",
+                        var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                    /* Generate field promotion code */
+                    char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
+                        ARENA_VAR(gen), arena_sprintf(gen->arena, "%s->thread_arena", pending_var));
+                    if (field_promotion && field_promotion[0] != '\0') {
+                        indented_fprintf(gen, indent + 1, "%s", field_promotion);
+                    }
+                    /* Clean up the thread arena after field promotion */
+                    indented_fprintf(gen, indent + 1, "rt_thread_cleanup_arena(%s);\n", pending_var);
+                } else {
+                    indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n",
+                        var_name, c_type, pending_var, ARENA_VAR(gen), rt_type);
+                }
+
+                indented_fprintf(gen, indent + 1, "%s = NULL;\n", pending_var);
+                indented_fprintf(gen, indent, "}\n");
             }
             else
             {
@@ -622,26 +675,77 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                               stmt->type->kind == TYPE_BYTE ||
                               stmt->type->kind == TYPE_CHAR);
     /* Handle types (array/string in arena mode) also need a pending variable
-     * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer */
+     * because RtHandle (uint32_t) can't hold a RtThreadHandle pointer.
+     * EXCEPTION: Arrays with 'any' elements need special conversion logic
+     * (rt_array_to_any_*), so they must go through the original code path. */
+    bool is_any_element_array = false;
+    if (stmt->type->kind == TYPE_ARRAY && stmt->type->as.array.element_type != NULL)
+    {
+        Type *elem = stmt->type->as.array.element_type;
+        /* Check 1D: any[] */
+        if (elem->kind == TYPE_ANY) is_any_element_array = true;
+        /* Check 2D: any[][] */
+        else if (elem->kind == TYPE_ARRAY && elem->as.array.element_type != NULL &&
+                 elem->as.array.element_type->kind == TYPE_ANY) is_any_element_array = true;
+        /* Check 3D: any[][][] */
+        else if (elem->kind == TYPE_ARRAY && elem->as.array.element_type != NULL &&
+                 elem->as.array.element_type->kind == TYPE_ARRAY &&
+                 elem->as.array.element_type->as.array.element_type != NULL &&
+                 elem->as.array.element_type->as.array.element_type->kind == TYPE_ANY) is_any_element_array = true;
+    }
     bool is_spawn_handle_result = gen->current_arena_var != NULL &&
-                                  (stmt->type->kind == TYPE_STRING || stmt->type->kind == TYPE_ARRAY);
+                                  (stmt->type->kind == TYPE_STRING ||
+                                   (stmt->type->kind == TYPE_ARRAY && !is_any_element_array));
     /* Struct types also need a pending variable - the result type is the struct,
      * not RtThreadHandle*, so we need separate variables for the handle and result */
     bool is_struct_result = (stmt->type->kind == TYPE_STRUCT);
 
+    /* Check if this type could potentially be used with thread spawn later
+     * (via conditional assignment). If so, we always declare a pending variable. */
+    bool needs_pending_var = is_primitive_type || is_spawn_handle_result || is_struct_result;
+
     const char *type_c = get_c_type(gen->arena, stmt->type);
 
-    // For thread spawn with primitive/handle/struct result, generate two declarations
-    if (is_thread_spawn && (is_primitive_type || is_spawn_handle_result || is_struct_result))
+    // For types that could be thread spawn results, always declare a pending variable
+    // This enables conditional thread spawn assignment: h = &compute() inside if blocks
+    // EXCEPTIONS:
+    // - 'as ref' and 'as val' variables have special memory handling
+    // - Primitives captured by closures need special reference treatment
+    bool has_special_mem_qual = (stmt->mem_qualifier == MEM_AS_REF || stmt->mem_qualifier == MEM_AS_VAL);
+    bool is_captured_primitive = is_primitive_type && code_gen_is_captured_primitive(gen, raw_var_name);
+    if (needs_pending_var && !is_global_scope && !has_special_mem_qual && !is_captured_primitive)
     {
         char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
-        char *init_str = code_gen_expression(gen, stmt->initializer);
 
-        // Declare the pending handle variable
-        indented_fprintf(gen, indent, "RtThreadHandle *%s = %s;\n", pending_var, init_str);
-
-        // Declare the actual typed variable (uninitialized, will be set on sync)
-        indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
+        if (is_thread_spawn)
+        {
+            // Thread spawn initializer: assign spawn to pending, leave var uninitialized
+            char *init_str = code_gen_expression(gen, stmt->initializer);
+            indented_fprintf(gen, indent, "RtThreadHandle *%s = %s;\n", pending_var, init_str);
+            indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
+        }
+        else
+        {
+            // Non-thread-spawn initializer: pending is NULL, var gets the value
+            indented_fprintf(gen, indent, "RtThreadHandle *%s = NULL;\n", pending_var);
+            if (stmt->initializer)
+            {
+                /* For handle types (array/string in arena mode), evaluate in handle mode
+                 * so the expression returns RtHandle values. */
+                bool prev_as_handle = gen->expr_as_handle;
+                if (is_spawn_handle_result)
+                {
+                    gen->expr_as_handle = true;
+                }
+                char *init_str = code_gen_expression(gen, stmt->initializer);
+                gen->expr_as_handle = prev_as_handle;
+                indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
+            }
+            else
+            {
+                indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
+            }
+        }
 
         // Add to symbol table
         symbol_table_add_symbol_full(gen->symbol_table, stmt->name, stmt->type, SYMBOL_LOCAL, stmt->mem_qualifier);
@@ -1560,16 +1664,46 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
         }
         else if (kind == TYPE_ARRAY)
         {
-            // Check if this is a string array - needs deep promotion to copy all string elements
+            // Check if this is a string array or 2D+ array - needs deep promotion
             Type *elem_type = stmt->return_type->as.array.element_type;
             if (elem_type && elem_type->kind == TYPE_STRING)
             {
                 // String arrays need deep promotion: promote array AND each string element
                 indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array_string(__caller_arena__, __local_arena__, _return_value);\n");
             }
+            else if (elem_type && elem_type->kind == TYPE_ARRAY)
+            {
+                // 2D/3D arrays need deep promotion
+                Type *inner_elem = elem_type->as.array.element_type;
+                if (inner_elem && inner_elem->kind == TYPE_STRING)
+                {
+                    // str[][] needs extra deep promotion for string elements
+                    indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array2_string(__caller_arena__, __local_arena__, _return_value);\n");
+                }
+                else if (inner_elem && inner_elem->kind == TYPE_ARRAY)
+                {
+                    // 3D arrays: check innermost for string type
+                    Type *innermost = inner_elem->as.array.element_type;
+                    if (innermost && innermost->kind == TYPE_STRING)
+                    {
+                        // str[][][] needs three levels of string promotion
+                        indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array3_string(__caller_arena__, __local_arena__, _return_value);\n");
+                    }
+                    else
+                    {
+                        // Other 3D arrays: promote all three levels of handles
+                        indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array_handle_3d(__caller_arena__, __local_arena__, _return_value);\n");
+                    }
+                }
+                else
+                {
+                    // 2D arrays: promote outer array AND each inner array handle
+                    indented_fprintf(gen, 1, "_return_value = rt_managed_promote_array_handle(__caller_arena__, __local_arena__, _return_value);\n");
+                }
+            }
             else
             {
-                // Non-string arrays: shallow promote is sufficient
+                // Non-string, non-nested arrays: shallow promote is sufficient
                 indented_fprintf(gen, 1, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
             }
         }
@@ -1590,11 +1724,16 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                 }
                 else if (field->type->kind == TYPE_ARRAY)
                 {
-                    // Check if this is a string array field - needs deep promotion
+                    // Check if this is a string array or 2D+ array field - needs deep promotion
                     Type *elem_type = field->type->as.array.element_type;
                     if (elem_type && elem_type->kind == TYPE_STRING)
                     {
                         indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote_array_string(__caller_arena__, __local_arena__, _return_value.%s);\n",
+                                         c_field_name, c_field_name);
+                    }
+                    else if (elem_type && elem_type->kind == TYPE_ARRAY)
+                    {
+                        indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote_array_handle(__caller_arena__, __local_arena__, _return_value.%s);\n",
                                          c_field_name, c_field_name);
                     }
                     else

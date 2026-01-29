@@ -200,6 +200,11 @@ typedef enum {
     RT_TYPE_ARRAY_BYTE,         /* byte[] */
     RT_TYPE_ARRAY_CHAR,         /* char[] */
     RT_TYPE_ARRAY_STRING,       /* str[] */
+    RT_TYPE_ARRAY_HANDLE,       /* T[][] (2D arrays - outer contains RtHandle elements) */
+    RT_TYPE_ARRAY_HANDLE_3D,    /* T[][][] (3D arrays - two levels of RtHandle elements) */
+    RT_TYPE_ARRAY2_STRING,      /* str[][] (2D string arrays - needs deepest promotion) */
+    RT_TYPE_ARRAY3_STRING,      /* str[][][] (3D string arrays - three levels of promotion) */
+    RT_TYPE_ARRAY_ANY,          /* any[] */
     RT_TYPE_STRUCT              /* native struct (opaque pointer) */
 } RtResultType;
 
@@ -226,6 +231,17 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
 void *rt_thread_sync_with_result(RtThreadHandle *handle,
                                   RtArena *caller_arena,
                                   RtResultType result_type);
+
+/* Synchronize a thread handle and get promoted result WITHOUT destroying thread arena.
+ * Used for structs with handle fields that need field-by-field promotion.
+ * The caller MUST call rt_arena_destroy(handle->thread_arena) after field promotion.
+ */
+void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
+                                             RtArena *caller_arena,
+                                             RtResultType result_type);
+
+/* Destroy the thread arena after struct field promotion is complete */
+void rt_thread_cleanup_arena(RtThreadHandle *handle);
 
 /* ============================================================================
  * Thread Pool Management

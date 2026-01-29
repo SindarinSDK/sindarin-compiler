@@ -1,0 +1,41 @@
+// Test conditional thread spawn for any type
+
+fn makeAny(n: int): any =>
+    return n * 10
+
+fn makeAnyFromStr(s: str): any =>
+    return s + "!"
+
+fn makeAnyArray(n: int): any[] =>
+    return {n, n * 2, "hello"}
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test any from int
+    var anyInt: any = 0
+    if doSpawn =>
+        anyInt = &makeAny(5)
+    anyInt!
+    println($"any from int: {anyInt}")
+
+    // Test any from string
+    var anyStr: any = ""
+    if doSpawn =>
+        anyStr = &makeAnyFromStr("test")
+    anyStr!
+    println($"any from str: {anyStr}")
+
+    // Test any[]
+    var anyArr: any[] = {0}
+    if doSpawn =>
+        anyArr = &makeAnyArray(10)
+    anyArr!
+    println($"any[]: {anyArr}")
+
+    // Test non-spawn path
+    var noSpawn: any = 99
+    if false =>
+        noSpawn = &makeAny(1)
+    noSpawn!
+    println($"no-spawn: {noSpawn}")

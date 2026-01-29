@@ -47,6 +47,7 @@ int main() {
     __sn__greeting = rt_managed_strdup(__main_arena__, RT_HANDLE_NULL, "Hello");
     int _return_value = 0;
     rt_println("Global with default function test:");
+    RtThreadHandle *__result_pending__ = NULL;
     RtHandle __sn__result = ({
     RtHandle __intercept_result;
     if (__rt_interceptor_count > 0) {

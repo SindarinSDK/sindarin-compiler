@@ -66,6 +66,30 @@ const char *get_rt_result_type(Type *type)
                     return "RT_TYPE_ARRAY_CHAR";
                 case TYPE_STRING:
                     return "RT_TYPE_ARRAY_STRING";
+                case TYPE_ARRAY: {
+                    /* 2D/3D+ arrays: outer array contains RtHandle elements
+                     * Check if inner element type is string or another array */
+                    Type *inner_elem = elem->as.array.element_type;
+                    if (inner_elem != NULL && inner_elem->kind == TYPE_STRING) {
+                        /* str[][] needs deepest promotion for nested string handles */
+                        return "RT_TYPE_ARRAY2_STRING";
+                    }
+                    if (inner_elem != NULL && inner_elem->kind == TYPE_ARRAY) {
+                        /* 3D arrays - check if innermost is string */
+                        Type *innermost = inner_elem->as.array.element_type;
+                        if (innermost != NULL && innermost->kind == TYPE_STRING) {
+                            /* str[][][] needs three levels of string promotion */
+                            return "RT_TYPE_ARRAY3_STRING";
+                        }
+                        /* Other 3D arrays need extra depth of handle promotion */
+                        return "RT_TYPE_ARRAY_HANDLE_3D";
+                    }
+                    /* 2D arrays use RT_TYPE_ARRAY_HANDLE for deep promotion */
+                    return "RT_TYPE_ARRAY_HANDLE";
+                }
+                case TYPE_ANY:
+                    /* any[] arrays contain RtAny elements */
+                    return "RT_TYPE_ARRAY_ANY";
                 default:
                     return "RT_TYPE_VOID";
             }
@@ -1065,33 +1089,51 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                               (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
         /* Struct types also need dereferencing and use the pending var pattern */
         bool is_struct_type = (result_type->kind == TYPE_STRUCT);
+        fprintf(stderr, "[DEBUG] sync: is_struct_type=%d\n", is_struct_type);
+        /* Check if struct has handle fields that need promotion */
+        bool struct_needs_field_promotion = is_struct_type && struct_has_handle_fields(result_type);
+        fprintf(stderr, "[DEBUG] sync: struct_needs_field_promotion=%d\n", struct_needs_field_promotion);
 
         /* Check if the handle is a variable - if so, we need to update it after sync
          * This ensures that after x! is used, subsequent uses of x return the synced value */
         bool is_variable_handle = (sync->handle->type == EXPR_VARIABLE);
 
-        if (is_primitive || is_handle_type || is_struct_type)
+        if (is_primitive || is_handle_type || (is_struct_type && !struct_needs_field_promotion))
         {
-            /* Primitive type: cast pointer and dereference
+            /* Primitive/simple struct type: cast pointer and dereference
              * Uses rt_thread_sync_with_result for panic propagation + result promotion
              * For variable handles, we have TWO variables: __var_pending__ (RtThreadHandle*)
              * and var (actual type). Sync uses the pending handle, assigns to the typed var. */
             if (is_variable_handle)
             {
                 /* For primitive thread spawn variables, we declared:
-                 *   RtThreadHandle *__var_pending__ = &fn();
-                 *   type var;
-                 * Now sync using __var_pending__ and assign result to var.
-                 * Pattern: ({ var = *(type*)sync(__var_pending__, ...); var; }) */
+                 *   RtThreadHandle *__var_pending__ = NULL;  // or = &fn() if initialized with spawn
+                 *   type var = initial_value;  // or uninitialized if spawn
+                 * Now sync using __var_pending__ if it's not NULL, and assign result to var.
+                 * If __var_pending__ is NULL, the variable was never assigned a thread spawn,
+                 * so just return the current value.
+                 * Pattern:
+                 * ({
+                 *     if (__var_pending__ != NULL) {
+                 *         var = *(type*)sync(__var_pending__, ...);
+                 *         __var_pending__ = NULL;
+                 *     }
+                 *     var;
+                 * }) */
                 char *raw_var_name = get_var_name(gen->arena, sync->handle->as.variable.name);
                 char *var_name = sn_mangle_name(gen->arena, raw_var_name);
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
                 return arena_sprintf(gen->arena,
                     "({\n"
-                    "    %s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n"
+                    "    if (%s != NULL) {\n"
+                    "        %s = *(%s *)rt_thread_sync_with_result(%s, %s, %s);\n"
+                    "        %s = NULL;\n"
+                    "    }\n"
                     "    %s;\n"
                     "})",
+                    pending_var,
                     var_name, c_type, pending_var, ARENA_VAR(gen), rt_type,
+                    pending_var,
                     var_name);
             }
             else
@@ -1100,6 +1142,70 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                 return arena_sprintf(gen->arena,
                     "(*(%s *)rt_thread_sync_with_result(%s, %s, %s))",
                     c_type, handle_code, ARENA_VAR(gen), rt_type);
+            }
+        }
+        else if (struct_needs_field_promotion)
+        {
+            /* Struct with handle fields: need to sync without destroying arena,
+             * copy struct, promote each field, then destroy the arena.
+             * We use rt_thread_sync_with_result_keep_arena which:
+             * 1. Syncs the thread and gets the raw struct (promoted to caller arena)
+             * 2. Does NOT destroy the thread arena (so we can promote handle fields)
+             * Then we promote fields and call rt_thread_cleanup_arena.
+             */
+            char *promo_code = gen_struct_field_promotion(gen, result_type, "__sync_tmp__",
+                                                           ARENA_VAR(gen), "__thread_arena__");
+
+            if (is_variable_handle)
+            {
+                char *raw_var_name = get_var_name(gen->arena, sync->handle->as.variable.name);
+                char *var_name = sn_mangle_name(gen->arena, raw_var_name);
+                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
+
+                return arena_sprintf(gen->arena,
+                    "({\n"
+                    "    if (%s != NULL) {\n"
+                    "        /* Save thread arena reference before sync */\n"
+                    "        RtArena *__thread_arena__ = %s->thread_arena;\n"
+                    "        /* Get struct from thread result - arena NOT destroyed yet */\n"
+                    "        %s __sync_tmp__ = *(%s *)rt_thread_sync_with_result_keep_arena(%s, %s, %s);\n"
+                    "        /* Promote handle fields from thread arena to caller arena */\n"
+                    "%s"
+                    "        /* Now destroy the thread arena */\n"
+                    "        rt_thread_cleanup_arena(%s);\n"
+                    "        %s = __sync_tmp__;\n"
+                    "        %s = NULL;\n"
+                    "    }\n"
+                    "    %s;\n"
+                    "})",
+                    pending_var,
+                    pending_var,
+                    c_type, c_type, pending_var, ARENA_VAR(gen), rt_type,
+                    promo_code,
+                    pending_var,
+                    var_name,
+                    pending_var,
+                    var_name);
+            }
+            else
+            {
+                /* Non-variable inline spawn with struct */
+                return arena_sprintf(gen->arena,
+                    "({\n"
+                    "    RtThreadHandle *__sync_handle__ = %s;\n"
+                    "    /* Save thread arena reference before sync */\n"
+                    "    RtArena *__thread_arena__ = __sync_handle__->thread_arena;\n"
+                    "    /* Get struct from thread result - arena NOT destroyed yet */\n"
+                    "    %s __sync_tmp__ = *(%s *)rt_thread_sync_with_result_keep_arena(__sync_handle__, %s, %s);\n"
+                    "    /* Promote handle fields from thread arena to caller arena */\n"
+                    "%s"
+                    "    /* Now destroy the thread arena */\n"
+                    "    rt_thread_cleanup_arena(__sync_handle__);\n"
+                    "    __sync_tmp__;\n"
+                    "})",
+                    handle_code,
+                    c_type, c_type, ARENA_VAR(gen), rt_type,
+                    promo_code);
             }
         }
         else

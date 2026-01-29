@@ -1435,6 +1435,164 @@ char *rt_to_string_array3_any_h(RtManagedArena *arena, RtHandle *outer) {
     return result;
 }
 
+/* 3D array formatters - call 2D formatters for each inner 2D array */
+
+char *rt_to_string_array3_long_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_long_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
+char *rt_to_string_array3_double_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_double_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
+char *rt_to_string_array3_char_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_char_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
+char *rt_to_string_array3_bool_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_bool_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
+char *rt_to_string_array3_byte_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_byte_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
+char *rt_to_string_array3_string_h(RtManagedArena *arena, RtHandle *outer) {
+    if (outer == NULL || rt_array_length(outer) == 0) {
+        return rt_arena_strdup((RtArena *)arena, "{}");
+    }
+    size_t outer_len = rt_array_length(outer);
+    char **inner_strs = rt_arena_alloc((RtArena *)arena, outer_len * sizeof(char *));
+    size_t total_len = 2;
+    for (size_t i = 0; i < outer_len; i++) {
+        RtHandle *inner = (RtHandle *)rt_managed_pin_array(arena, outer[i]);
+        inner_strs[i] = rt_to_string_array2_string_h(arena, inner);
+        if (i > 0) total_len += 2;
+        total_len += strlen(inner_strs[i]);
+    }
+    char *result = rt_arena_alloc((RtArena *)arena, total_len + 1);
+    char *p = result;
+    *p++ = '{';
+    for (size_t i = 0; i < outer_len; i++) {
+        if (i > 0) { *p++ = ','; *p++ = ' '; }
+        const char *s = inner_strs[i];
+        while (*s) *p++ = *s++;
+    }
+    *p++ = '}';
+    *p = '\0';
+    return result;
+}
+
 /* ============================================================================
  * Handle-Aware Array Join for String Arrays
  * ============================================================================
@@ -1812,6 +1970,179 @@ RtHandle rt_managed_promote_array_string(RtManagedArena *dest, RtManagedArena *s
     }
 
     /* Update the promoted array with the promoted string handles */
+    void *dest_raw = rt_managed_pin(dest, new_arr_h);
+    if (dest_raw != NULL && count > 0) {
+        RtHandle *dest_handles = (RtHandle *)((char *)dest_raw + sizeof(RtArrayMetadata));
+        memcpy(dest_handles, promoted_handles, count * sizeof(RtHandle));
+    }
+    rt_managed_unpin(dest, new_arr_h);
+
+    if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+    return new_arr_h;
+}
+
+/* ============================================================================
+ * Deep promotion for 3D string arrays (str[][][])
+ * ============================================================================
+ * For str[][][], we need to:
+ * 1. Promote the outermost array
+ * 2. For each middle array (str[][]), use rt_managed_promote_array2_string
+ * ============================================================================ */
+
+RtHandle rt_managed_promote_array3_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h) {
+    if (dest == NULL || src == NULL || arr_h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* First, get the source array's size while src arena is still valid */
+    void *src_raw = rt_managed_pin(src, arr_h);
+    if (src_raw == NULL) return RT_HANDLE_NULL;
+    RtArrayMetadata *src_meta = (RtArrayMetadata *)src_raw;
+    size_t count = src_meta->size;
+    RtHandle *src_handles = (RtHandle *)((char *)src_raw + sizeof(RtArrayMetadata));
+
+    /* Promote each inner 2D string array using rt_managed_promote_array2_string */
+    RtHandle *promoted_handles = NULL;
+    if (count > 0) {
+        if (count <= 64) {
+            promoted_handles = (RtHandle *)alloca(count * sizeof(RtHandle));
+        } else {
+            promoted_handles = (RtHandle *)malloc(count * sizeof(RtHandle));
+        }
+        for (size_t i = 0; i < count; i++) {
+            /* Each element is a str[][] - use 2D string array promotion */
+            promoted_handles[i] = rt_managed_promote_array2_string(dest, src, src_handles[i]);
+        }
+    }
+    rt_managed_unpin(src, arr_h);
+
+    /* Now promote the outer array structure itself */
+    RtHandle new_arr_h = rt_managed_promote(dest, src, arr_h);
+    if (new_arr_h == RT_HANDLE_NULL) {
+        if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+        return RT_HANDLE_NULL;
+    }
+
+    /* Update the promoted outer array with the promoted inner array handles */
+    void *dest_raw = rt_managed_pin(dest, new_arr_h);
+    if (dest_raw != NULL && count > 0) {
+        RtHandle *dest_handles = (RtHandle *)((char *)dest_raw + sizeof(RtArrayMetadata));
+        memcpy(dest_handles, promoted_handles, count * sizeof(RtHandle));
+    }
+    rt_managed_unpin(dest, new_arr_h);
+
+    if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+    return new_arr_h;
+}
+
+/* ============================================================================
+ * Deep promotion for 2D/3D arrays (handle arrays)
+ * ============================================================================
+ * Similar to rt_managed_promote_array_string, but for arrays where elements
+ * are RtHandle values pointing to other arrays (2D, 3D arrays).
+ * ============================================================================ */
+
+/* Internal helper with depth parameter for recursive promotion */
+static RtHandle rt_managed_promote_array_handle_depth(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h, int depth) {
+    if (dest == NULL || src == NULL || arr_h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* First, get the source array's size while src arena is still valid */
+    void *src_raw = rt_managed_pin(src, arr_h);
+    if (src_raw == NULL) return RT_HANDLE_NULL;
+    RtArrayMetadata *src_meta = (RtArrayMetadata *)src_raw;
+    size_t count = src_meta->size;
+    RtHandle *src_handles = (RtHandle *)((char *)src_raw + sizeof(RtArrayMetadata));
+
+    /* Promote each inner array handle FIRST (while src arena is valid) */
+    RtHandle *promoted_handles = NULL;
+    if (count > 0) {
+        /* Allocate temporary array on stack or heap depending on size */
+        if (count <= 64) {
+            promoted_handles = (RtHandle *)alloca(count * sizeof(RtHandle));
+        } else {
+            promoted_handles = (RtHandle *)malloc(count * sizeof(RtHandle));
+        }
+        for (size_t i = 0; i < count; i++) {
+            if (depth > 1) {
+                /* Inner arrays also contain handles - recurse with reduced depth */
+                promoted_handles[i] = rt_managed_promote_array_handle_depth(dest, src, src_handles[i], depth - 1);
+            } else {
+                /* Innermost level - just shallow promote */
+                promoted_handles[i] = rt_managed_promote(dest, src, src_handles[i]);
+            }
+        }
+    }
+    rt_managed_unpin(src, arr_h);
+
+    /* Now promote the outer array structure itself */
+    RtHandle new_arr_h = rt_managed_promote(dest, src, arr_h);
+    if (new_arr_h == RT_HANDLE_NULL) {
+        if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+        return RT_HANDLE_NULL;
+    }
+
+    /* Update the promoted array with the promoted inner array handles */
+    void *dest_raw = rt_managed_pin(dest, new_arr_h);
+    if (dest_raw != NULL && count > 0) {
+        RtHandle *dest_handles = (RtHandle *)((char *)dest_raw + sizeof(RtArrayMetadata));
+        memcpy(dest_handles, promoted_handles, count * sizeof(RtHandle));
+    }
+    rt_managed_unpin(dest, new_arr_h);
+
+    if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+    return new_arr_h;
+}
+
+RtHandle rt_managed_promote_array_handle(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h) {
+    /* Default depth=1 for 2D arrays (outer array contains handles to 1D arrays) */
+    return rt_managed_promote_array_handle_depth(dest, src, arr_h, 1);
+}
+
+RtHandle rt_managed_promote_array_handle_3d(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h) {
+    /* Depth=2 for 3D arrays (outer array -> 2D arrays -> 1D arrays) */
+    return rt_managed_promote_array_handle_depth(dest, src, arr_h, 2);
+}
+
+/* ============================================================================
+ * Deep promotion for 2D string arrays (str[][])
+ * ============================================================================
+ * For str[][], we need to:
+ * 1. Promote the outer array
+ * 2. For each inner array, use rt_managed_promote_array_string to promote
+ *    both the inner array structure AND all string elements within it
+ * ============================================================================ */
+
+RtHandle rt_managed_promote_array2_string(RtManagedArena *dest, RtManagedArena *src, RtHandle arr_h) {
+    if (dest == NULL || src == NULL || arr_h == RT_HANDLE_NULL) return RT_HANDLE_NULL;
+
+    /* First, get the source array's size while src arena is still valid */
+    void *src_raw = rt_managed_pin(src, arr_h);
+    if (src_raw == NULL) return RT_HANDLE_NULL;
+    RtArrayMetadata *src_meta = (RtArrayMetadata *)src_raw;
+    size_t count = src_meta->size;
+    RtHandle *src_handles = (RtHandle *)((char *)src_raw + sizeof(RtArrayMetadata));
+
+    /* Promote each inner string array using rt_managed_promote_array_string */
+    RtHandle *promoted_handles = NULL;
+    if (count > 0) {
+        if (count <= 64) {
+            promoted_handles = (RtHandle *)alloca(count * sizeof(RtHandle));
+        } else {
+            promoted_handles = (RtHandle *)malloc(count * sizeof(RtHandle));
+        }
+        for (size_t i = 0; i < count; i++) {
+            /* Each element is a str[] - use deep string array promotion */
+            promoted_handles[i] = rt_managed_promote_array_string(dest, src, src_handles[i]);
+        }
+    }
+    rt_managed_unpin(src, arr_h);
+
+    /* Now promote the outer array structure itself */
+    RtHandle new_arr_h = rt_managed_promote(dest, src, arr_h);
+    if (new_arr_h == RT_HANDLE_NULL) {
+        if (count > 64 && promoted_handles != NULL) free(promoted_handles);
+        return RT_HANDLE_NULL;
+    }
+
+    /* Update the promoted outer array with the promoted inner string array handles */
     void *dest_raw = rt_managed_pin(dest, new_arr_h);
     if (dest_raw != NULL && count > 0) {
         RtHandle *dest_handles = (RtHandle *)((char *)dest_raw + sizeof(RtArrayMetadata));

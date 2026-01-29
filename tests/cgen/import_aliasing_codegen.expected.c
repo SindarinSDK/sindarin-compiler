@@ -411,6 +411,7 @@ long long compressTo(RtManagedArena *__caller_arena__, RtHandle __sn__source, Rt
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
     uint64_t __sn__destLen = ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)))));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = compress(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))));
     if (rt_ne_long(__sn__result, 0LL)) {
         {
@@ -429,6 +430,7 @@ long long compressToLevel(RtManagedArena *__caller_arena__, RtHandle __sn__sourc
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
     uint64_t __sn__destLen = ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)))));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = compress2(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))), __sn__level);
     if (rt_ne_long(__sn__result, 0LL)) {
         {
@@ -447,6 +449,7 @@ long long decompressTo(RtManagedArena *__caller_arena__, RtHandle __sn__source, 
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     long long _return_value = 0;
     uint64_t __sn__destLen = ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)))));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = uncompress(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))));
     if (rt_ne_long(__sn__result, 0LL)) {
         {
@@ -480,6 +483,7 @@ RtHandle compressData(RtManagedArena *__caller_arena__, RtHandle __sn__source) {
             goto compressData_return;
         }
     }
+    RtThreadHandle *__bound_pending__ = NULL;
     long long __sn__bound = ({
     long long __intercept_result;
     if (__rt_interceptor_count > 0) {
@@ -494,11 +498,14 @@ RtHandle compressData(RtManagedArena *__caller_arena__, RtHandle __sn__source) {
     }
     __intercept_result;
 });
+    RtThreadHandle *__dest_pending__ = NULL;
     RtHandle __sn__dest = rt_array_alloc_byte_h(__local_arena__, __sn__bound, 0);
     uint64_t __sn__destLen = ((uint64_t)(__sn__bound));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = compress(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))));
     if (rt_ne_long(__sn__result, 0LL)) {
         {
+            RtThreadHandle *__empty_pending__ = NULL;
             RtHandle __sn__empty = rt_array_alloc_byte_h(__local_arena__, 0LL, 0);
             _return_value = __sn__empty;
             goto compressData_return;
@@ -521,6 +528,7 @@ RtHandle compressDataLevel(RtManagedArena *__caller_arena__, RtHandle __sn__sour
             goto compressDataLevel_return;
         }
     }
+    RtThreadHandle *__bound_pending__ = NULL;
     long long __sn__bound = ({
     long long __intercept_result;
     if (__rt_interceptor_count > 0) {
@@ -535,11 +543,14 @@ RtHandle compressDataLevel(RtManagedArena *__caller_arena__, RtHandle __sn__sour
     }
     __intercept_result;
 });
+    RtThreadHandle *__dest_pending__ = NULL;
     RtHandle __sn__dest = rt_array_alloc_byte_h(__local_arena__, __sn__bound, 0);
     uint64_t __sn__destLen = ((uint64_t)(__sn__bound));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = compress2(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))), __sn__level);
     if (rt_ne_long(__sn__result, 0LL)) {
         {
+            RtThreadHandle *__empty_pending__ = NULL;
             RtHandle __sn__empty = rt_array_alloc_byte_h(__local_arena__, 0LL, 0);
             _return_value = __sn__empty;
             goto compressDataLevel_return;
@@ -562,11 +573,14 @@ RtHandle decompressData(RtManagedArena *__caller_arena__, RtHandle __sn__source,
             goto decompressData_return;
         }
     }
+    RtThreadHandle *__dest_pending__ = NULL;
     RtHandle __sn__dest = rt_array_alloc_byte_h(__local_arena__, __sn__expectedSize, 0);
     uint64_t __sn__destLen = ((uint64_t)(__sn__expectedSize));
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = uncompress(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__dest)), &__sn__destLen, ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source)), ((uint64_t)(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__source))))));
     if (rt_ne_long(__sn__result, 0LL)) {
         {
+            RtThreadHandle *__empty_pending__ = NULL;
             RtHandle __sn__empty = rt_array_alloc_byte_h(__local_arena__, 0LL, 0);
             _return_value = __sn__empty;
             goto decompressData_return;
@@ -589,7 +603,9 @@ bool __sn__zlibA__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibA__isCompressed_return;
         }
     }
+    RtThreadHandle *__cmf_pending__ = NULL;
     long long __sn__cmf = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[0LL];
+    RtThreadHandle *__flg_pending__ = NULL;
     long long __sn__flg = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[1LL];
     if (rt_ne_long(__sn__cmf, 120LL)) {
         {
@@ -597,6 +613,7 @@ bool __sn__zlibA__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibA__isCompressed_return;
         }
     }
+    RtThreadHandle *__check_pending__ = NULL;
     long long __sn__check = rt_add_long(rt_mul_long(__sn__cmf, 256LL), __sn__flg);
     _return_value = rt_eq_long(rt_mod_long(__sn__check, 31LL), 0LL);
     goto __sn__zlibA__isCompressed_return;
@@ -1017,7 +1034,9 @@ bool __sn__zlibB__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibB__isCompressed_return;
         }
     }
+    RtThreadHandle *__cmf_pending__ = NULL;
     long long __sn__cmf = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[0LL];
+    RtThreadHandle *__flg_pending__ = NULL;
     long long __sn__flg = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[1LL];
     if (rt_ne_long(__sn__cmf, 120LL)) {
         {
@@ -1025,6 +1044,7 @@ bool __sn__zlibB__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibB__isCompressed_return;
         }
     }
+    RtThreadHandle *__check_pending__ = NULL;
     long long __sn__check = rt_add_long(rt_mul_long(__sn__cmf, 256LL), __sn__flg);
     _return_value = rt_eq_long(rt_mod_long(__sn__check, 31LL), 0LL);
     goto __sn__zlibB__isCompressed_return;
@@ -1214,14 +1234,18 @@ void __sn__moduleB__test_basic_compress_decompress_B(RtManagedArena *__caller_ar
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     rt_print_string("test_basic_compress_decompress: ");
     // Original data - "Hello, World!"
+    RtThreadHandle *__original_pending__ = NULL;
     RtHandle __sn__original = rt_array_create_byte_h(__local_arena__, 13, (unsigned char[]){72LL, 101LL, 108LL, 108LL, 111LL, 44LL, 32LL, 87LL, 111LL, 114LL, 108LL, 100LL, 33LL});
     // Compress
+    RtThreadHandle *__compressed_pending__ = NULL;
     RtHandle __sn__compressed = compressData(__local_arena__, __sn__original);
     rt_assert(rt_gt_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__compressed))), 0LL), "Compression should produce output");
     // Decompress
+    RtThreadHandle *__decompressed_pending__ = NULL;
     RtHandle __sn__decompressed = decompressData(__local_arena__, __sn__compressed, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))));
     rt_assert(rt_eq_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__decompressed))), rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original)))), "Decompressed size should match original");
     // Verify content matches
+    RtThreadHandle *__i_pending__ = NULL;
     long long __sn__i = 0LL;
     while (rt_lt_long(__sn__i, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))))) {
         {
@@ -1608,7 +1632,9 @@ bool __sn__zlibC__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibC__isCompressed_return;
         }
     }
+    RtThreadHandle *__cmf_pending__ = NULL;
     long long __sn__cmf = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[0LL];
+    RtThreadHandle *__flg_pending__ = NULL;
     long long __sn__flg = ((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__data))[1LL];
     if (rt_ne_long(__sn__cmf, 120LL)) {
         {
@@ -1616,6 +1642,7 @@ bool __sn__zlibC__isCompressed(RtManagedArena *__caller_arena__, RtHandle __sn__
             goto __sn__zlibC__isCompressed_return;
         }
     }
+    RtThreadHandle *__check_pending__ = NULL;
     long long __sn__check = rt_add_long(rt_mul_long(__sn__cmf, 256LL), __sn__flg);
     _return_value = rt_eq_long(rt_mod_long(__sn__check, 31LL), 0LL);
     goto __sn__zlibC__isCompressed_return;
@@ -1670,14 +1697,18 @@ void __sn__moduleC__test_basic_compress_decompress_C(RtManagedArena *__caller_ar
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     rt_print_string("test_basic_compress_decompress: ");
     // Original data - "Hello, World!"
+    RtThreadHandle *__original_pending__ = NULL;
     RtHandle __sn__original = rt_array_create_byte_h(__local_arena__, 13, (unsigned char[]){72LL, 101LL, 108LL, 108LL, 111LL, 44LL, 32LL, 87LL, 111LL, 114LL, 108LL, 100LL, 33LL});
     // Compress
+    RtThreadHandle *__compressed_pending__ = NULL;
     RtHandle __sn__compressed = compressData(__local_arena__, __sn__original);
     rt_assert(rt_gt_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__compressed))), 0LL), "Compression should produce output");
     // Decompress
+    RtThreadHandle *__decompressed_pending__ = NULL;
     RtHandle __sn__decompressed = decompressData(__local_arena__, __sn__compressed, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))));
     rt_assert(rt_eq_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__decompressed))), rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original)))), "Decompressed size should match original");
     // Verify content matches
+    RtThreadHandle *__i_pending__ = NULL;
     long long __sn__i = 0LL;
     while (rt_lt_long(__sn__i, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))))) {
         {
@@ -1747,14 +1778,18 @@ void __sn__moduleC_1__test_basic_compress_decompress_C(RtManagedArena *__caller_
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     rt_print_string("test_basic_compress_decompress: ");
     // Original data - "Hello, World!"
+    RtThreadHandle *__original_pending__ = NULL;
     RtHandle __sn__original = rt_array_create_byte_h(__local_arena__, 13, (unsigned char[]){72LL, 101LL, 108LL, 108LL, 111LL, 44LL, 32LL, 87LL, 111LL, 114LL, 108LL, 100LL, 33LL});
     // Compress
+    RtThreadHandle *__compressed_pending__ = NULL;
     RtHandle __sn__compressed = compressData(__local_arena__, __sn__original);
     rt_assert(rt_gt_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__compressed))), 0LL), "Compression should produce output");
     // Decompress
+    RtThreadHandle *__decompressed_pending__ = NULL;
     RtHandle __sn__decompressed = decompressData(__local_arena__, __sn__compressed, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))));
     rt_assert(rt_eq_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__decompressed))), rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original)))), "Decompressed size should match original");
     // Verify content matches
+    RtThreadHandle *__i_pending__ = NULL;
     long long __sn__i = 0LL;
     while (rt_lt_long(__sn__i, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))))) {
         {
@@ -1774,14 +1809,18 @@ void __sn__test_basic_compress_decompress_A(RtManagedArena *__caller_arena__) {
     RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);
     rt_print_string("test_basic_compress_decompress: ");
     // Original data - "Hello, World!"
+    RtThreadHandle *__original_pending__ = NULL;
     RtHandle __sn__original = rt_array_create_byte_h(__local_arena__, 13, (unsigned char[]){72LL, 101LL, 108LL, 108LL, 111LL, 44LL, 32LL, 87LL, 111LL, 114LL, 108LL, 100LL, 33LL});
     // Compress
+    RtThreadHandle *__compressed_pending__ = NULL;
     RtHandle __sn__compressed = compressData(__local_arena__, __sn__original);
     rt_assert(rt_gt_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__compressed))), 0LL), "Compression should produce output");
     // Decompress
+    RtThreadHandle *__decompressed_pending__ = NULL;
     RtHandle __sn__decompressed = decompressData(__local_arena__, __sn__compressed, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))));
     rt_assert(rt_eq_long(rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__decompressed))), rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original)))), "Decompressed size should match original");
     // Verify content matches
+    RtThreadHandle *__i_pending__ = NULL;
     long long __sn__i = 0LL;
     while (rt_lt_long(__sn__i, rt_array_length(((unsigned char *)rt_managed_pin_array(__local_arena__, __sn__original))))) {
         {

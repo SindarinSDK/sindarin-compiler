@@ -287,6 +287,41 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
 
     Type *type = symbol->type;
 
+    /* Special handling for thread spawn assignments.
+     * When assigning a thread spawn to a variable, we assign to the __var_pending__
+     * variable instead of the actual variable. This enables conditional thread spawn:
+     *   var h: Result = default_value
+     *   if condition =>
+     *       h = &compute()  // Assigns to __h_pending__
+     *   h!  // Syncs if __h_pending__ is not NULL
+     */
+    if (expr->value != NULL && expr->value->type == EXPR_THREAD_SPAWN &&
+        expr->value->expr_type != NULL && expr->value->expr_type->kind != TYPE_VOID)
+    {
+        Type *result_type = expr->value->expr_type;
+        bool is_primitive_type = (result_type->kind == TYPE_INT ||
+                                  result_type->kind == TYPE_LONG ||
+                                  result_type->kind == TYPE_DOUBLE ||
+                                  result_type->kind == TYPE_BOOL ||
+                                  result_type->kind == TYPE_BYTE ||
+                                  result_type->kind == TYPE_CHAR);
+        bool is_spawn_handle_result = gen->current_arena_var != NULL &&
+                                      (result_type->kind == TYPE_STRING ||
+                                       result_type->kind == TYPE_ARRAY);
+        bool is_struct_result = (result_type->kind == TYPE_STRUCT);
+
+        if (is_primitive_type || is_spawn_handle_result || is_struct_result)
+        {
+            /* Generate the thread spawn expression */
+            char *spawn_str = code_gen_expression(gen, expr->value);
+
+            /* Assign to the pending variable instead of the actual variable */
+            char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", base_var_name);
+
+            return arena_sprintf(gen->arena, "(%s = %s)", pending_var, spawn_str);
+        }
+    }
+
     /* When assigning to a handle type (array/string) or boxing an array
      * into 'any', evaluate in handle mode so we produce RtHandle expressions. */
     bool saved_as_handle = gen->expr_as_handle;

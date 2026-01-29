@@ -448,13 +448,36 @@ const char *get_rt_to_string_func_for_type_h(Type *type)
                 return "rt_to_string_array2_string_h";
             case TYPE_ANY:
                 return "rt_to_string_array2_any_h";
-            case TYPE_ARRAY:
-                /* 3D array: check if innermost is any */
-                if (elem_type->as.array.element_type->as.array.element_type != NULL &&
-                    elem_type->as.array.element_type->as.array.element_type->kind == TYPE_ANY) {
-                    return "rt_to_string_array3_any_h";
+            case TYPE_ARRAY: {
+                /* 3D array: select formatter based on innermost element type */
+                Type *innermost = elem_type->as.array.element_type->as.array.element_type;
+                if (innermost != NULL) {
+                    switch (innermost->kind) {
+                    case TYPE_INT:
+                    case TYPE_INT32:
+                    case TYPE_UINT:
+                    case TYPE_UINT32:
+                    case TYPE_LONG:
+                        return "rt_to_string_array3_long_h";
+                    case TYPE_DOUBLE:
+                    case TYPE_FLOAT:
+                        return "rt_to_string_array3_double_h";
+                    case TYPE_CHAR:
+                        return "rt_to_string_array3_char_h";
+                    case TYPE_BOOL:
+                        return "rt_to_string_array3_bool_h";
+                    case TYPE_BYTE:
+                        return "rt_to_string_array3_byte_h";
+                    case TYPE_STRING:
+                        return "rt_to_string_array3_string_h";
+                    case TYPE_ANY:
+                        return "rt_to_string_array3_any_h";
+                    default:
+                        return "rt_to_string_pointer";
+                    }
                 }
                 return "rt_to_string_pointer";
+            }
             default:
                 return "rt_to_string_pointer";
             }
@@ -1912,4 +1935,147 @@ bool function_has_marked_tail_calls(FunctionStmt *fn)
         }
     }
     return false;
+}
+
+/* ============================================================================
+ * Struct Field Promotion Helpers
+ * ============================================================================
+ * These functions help generate code to promote handle fields in structs
+ * when returning from functions or synchronizing threads.
+ * ============================================================================ */
+
+/* Check if a struct type has any handle fields that need promotion */
+bool struct_has_handle_fields(Type *struct_type)
+{
+    if (struct_type == NULL || struct_type->kind != TYPE_STRUCT) {
+        return false;
+    }
+
+    int field_count = struct_type->as.struct_type.field_count;
+
+    for (int i = 0; i < field_count; i++)
+    {
+        StructField *field = &struct_type->as.struct_type.fields[i];
+        if (field->type == NULL) {
+            continue;
+        }
+
+        TypeKind kind = field->type->kind;
+        if (kind == TYPE_STRING || kind == TYPE_ARRAY || kind == TYPE_ANY ||
+            kind == TYPE_STRUCT || kind == TYPE_FUNCTION)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Helper to generate promotion code for a single field */
+static char *gen_field_promotion_code(Arena *arena, Type *field_type, const char *field_access,
+                                       const char *dest_arena, const char *src_arena)
+{
+    if (field_type == NULL) return "";
+
+    TypeKind kind = field_type->kind;
+
+    if (kind == TYPE_STRING)
+    {
+        return arena_sprintf(arena, "        %s = rt_managed_promote(%s, %s, %s);\n",
+                             field_access, dest_arena, src_arena, field_access);
+    }
+    else if (kind == TYPE_ARRAY)
+    {
+        Type *elem_type = field_type->as.array.element_type;
+        if (elem_type == NULL)
+        {
+            return arena_sprintf(arena, "        %s = rt_managed_promote(%s, %s, %s);\n",
+                                 field_access, dest_arena, src_arena, field_access);
+        }
+
+        if (elem_type->kind == TYPE_STRING)
+        {
+            /* str[] */
+            return arena_sprintf(arena, "        %s = rt_managed_promote_array_string(%s, %s, %s);\n",
+                                 field_access, dest_arena, src_arena, field_access);
+        }
+        else if (elem_type->kind == TYPE_ARRAY)
+        {
+            /* 2D or 3D array */
+            Type *inner_elem = elem_type->as.array.element_type;
+            if (inner_elem && inner_elem->kind == TYPE_STRING)
+            {
+                /* str[][] */
+                return arena_sprintf(arena, "        %s = rt_managed_promote_array2_string(%s, %s, %s);\n",
+                                     field_access, dest_arena, src_arena, field_access);
+            }
+            else if (inner_elem && inner_elem->kind == TYPE_ARRAY)
+            {
+                /* 3D array - check innermost */
+                Type *innermost = inner_elem->as.array.element_type;
+                if (innermost && innermost->kind == TYPE_STRING)
+                {
+                    /* str[][][] */
+                    return arena_sprintf(arena, "        %s = rt_managed_promote_array3_string(%s, %s, %s);\n",
+                                         field_access, dest_arena, src_arena, field_access);
+                }
+                else
+                {
+                    /* T[][][] */
+                    return arena_sprintf(arena, "        %s = rt_managed_promote_array_handle_3d(%s, %s, %s);\n",
+                                         field_access, dest_arena, src_arena, field_access);
+                }
+            }
+            else
+            {
+                /* T[][] */
+                return arena_sprintf(arena, "        %s = rt_managed_promote_array_handle(%s, %s, %s);\n",
+                                     field_access, dest_arena, src_arena, field_access);
+            }
+        }
+        else if (elem_type->kind == TYPE_ANY)
+        {
+            /* any[] - shallow promote for now */
+            return arena_sprintf(arena, "        %s = rt_managed_promote(%s, %s, %s);\n",
+                                 field_access, dest_arena, src_arena, field_access);
+        }
+        else
+        {
+            /* Primitive array (int[], long[], etc.) */
+            return arena_sprintf(arena, "        %s = rt_managed_promote(%s, %s, %s);\n",
+                                 field_access, dest_arena, src_arena, field_access);
+        }
+    }
+    else if (kind == TYPE_ANY)
+    {
+        /* any type - shallow promote for now */
+        /* TODO: For any containing strings/arrays, would need runtime type check */
+        return "";
+    }
+
+    return "";
+}
+
+/* Generate code to promote all handle fields in a struct */
+char *gen_struct_field_promotion(CodeGen *gen, Type *struct_type, const char *var_name,
+                                  const char *dest_arena, const char *src_arena)
+{
+    if (struct_type == NULL || struct_type->kind != TYPE_STRUCT) return "";
+    if (!struct_has_handle_fields(struct_type)) return "";
+
+    char *result = arena_strdup(gen->arena, "");
+    int field_count = struct_type->as.struct_type.field_count;
+
+    for (int i = 0; i < field_count; i++)
+    {
+        StructField *field = &struct_type->as.struct_type.fields[i];
+        if (field->type == NULL) continue;
+
+        const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
+        char *field_access = arena_sprintf(gen->arena, "%s.%s", var_name, c_field_name);
+
+        char *promo_code = gen_field_promotion_code(gen->arena, field->type, field_access, dest_arena, src_arena);
+        result = arena_sprintf(gen->arena, "%s%s", result, promo_code);
+    }
+
+    return result;
 }

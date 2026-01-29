@@ -28,60 +28,55 @@ See `tests/integration/test_thread_struct_param.sn`
 
 **Date:** 2026-01-28
 **Severity:** Medium
-**Status:** Open (By Design)
+**Status:** FIXED
 
 ### Description
 
 Thread handles in Sindarin must be initialized at declaration time with the `&fn()` spawn syntax. They cannot be reassigned or conditionally initialized after declaration.
 
-### Reproduction
+### Original Problem
 
 ```sindarin
 // This works - handle initialized at declaration
 var h: int = &compute()
 h!  // sync
 
-// This does NOT work - conditional assignment fails
+// This did NOT work - conditional assignment failed
 var h: TestResult = TestResult { ... }  // pre-initialize
 if condition =>
     h = &runSingleTest(...)  // ERROR: incompatible types
 h!
 ```
 
-### Compiler Error
+### Fix
 
-```
-error: incompatible types when assigning to type '__sn__TestResult' from type 'RtThreadHandle *'
-```
+Implemented the "always include pending variables" approach:
 
-### Impact
+1. **Variable declarations** now always declare a pending variable (`__varname_pending__`) for thread-compatible types (primitives, arrays, structs)
+2. **Assignment code gen** detects thread spawn assignments and assigns to the pending variable instead
+3. **Type checker** allows sync (`!`) on any thread-compatible variable, not just known pending ones
+4. **Sync code gen** checks if the pending variable is NULL before syncing (safe no-op if not pending)
 
-This limitation prevents implementing dynamic parallel execution patterns where the number of threads depends on runtime values.
+### Implementation Details
 
-### Design Notes
+- Modified `code_gen_stmt_core.c` to always emit dual variables (pending + result)
+- Modified `code_gen_expr_core.c` to handle thread spawn in assignments
+- Modified `type_checker_expr.c` to allow sync on thread-compatible types
+- Modified `code_gen_expr_thread.c` to generate NULL-safe sync code
 
-This is a fundamental limitation of the current type system. Thread spawns have a dual nature:
-- Before sync: they are `RtThreadHandle*`
-- After sync: they are the result type
+### Exclusions
 
-The current design uses a "pending variable" pattern at declaration time to handle this duality, but this pattern cannot be easily extended to reassignment scenarios.
+The pending variable pattern is NOT applied to:
+- Global scope variables
+- Variables with `as ref` or `as val` memory qualifiers
+- Primitive variables captured by closures (need special reference handling)
 
-### Workarounds
+### Test
 
-1. Use fixed parallelism (spawn a known number of threads at declaration time)
-2. Structure code to declare thread handles within conditional blocks:
-   ```sindarin
-   if condition =>
-       var h: TestResult = &runSingleTest(...)
-       var result: TestResult = h!
-       // use result
-   ```
-
-### Potential Future Solutions
-
-1. Introduce explicit handle types: `Thread<T>`
-2. Runtime thread pool API
-3. Significant refactoring of variable declaration to always include pending variables
+See:
+- `tests/integration/test_thread_conditional_spawn.sn` - Conditional int spawn
+- `tests/integration/test_thread_conditional_struct.sn` - Conditional struct spawn
+- `tests/integration/test_thread_original_approach.sn` - Verifies original approach still works
 
 ---
 
@@ -89,20 +84,37 @@ The current design uses a "pending variable" pattern at declaration time to hand
 
 **Date:** 2026-01-28
 **Severity:** Medium
-**Status:** Open (By Design)
-**Related:** Thread handle conditional assignment issue
+**Status:** Open (Design Limitation)
+**Related:** Thread handle conditional assignment issue (now fixed)
 
 ### Description
 
-Thread handles typed as their return type cannot be stored in arrays or collections, preventing dynamic parallel execution patterns.
+Thread handles typed as their return type cannot be stored in arrays or collections, preventing dynamic parallel execution patterns like spawning N threads based on runtime values.
 
 ### Design Notes
 
-This is related to the same dual-typing issue as conditional assignment. An array typed as `TestResult[]` cannot hold `RtThreadHandle*` values.
+While conditional assignment is now fixed using the "always include pending variables" approach, arrays present additional challenges:
+- Arrays are heap-allocated, so we can't use the dual-variable pattern directly
+- Would need a parallel array of pending handles, or a more complex tracking mechanism
+- Array indices add complexity to the pending variable naming scheme
+
+### Workarounds
+
+Use fixed parallelism with explicit variables:
+```sindarin
+var t1: Result = &compute(items[0])
+var t2: Result = &compute(items[1])
+var t3: Result = &compute(items[2])
+t1!
+t2!
+t3!
+```
 
 ### Potential Future Solutions
 
-Same as conditional assignment issue - requires introducing explicit handle types or significant type system changes.
+1. Introduce explicit handle types: `Thread<T>[]`
+2. Runtime thread pool API with work queues
+3. Parallel array tracking (e.g., `__arr_pending__: RtThreadHandle*[]`)
 
 ---
 
