@@ -1,6 +1,0 @@
-# Minimal test - just import UUID without using it
-import "sdk/core/uuid"
-
-fn main(): int =>
-    print("Hello\n")
-    return 0

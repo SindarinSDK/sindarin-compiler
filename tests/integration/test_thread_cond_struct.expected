@@ -1,0 +1,6 @@
+Point: (10, 20)
+Person: Alice, age 30
+WithArray: numbers, values[0]=1
+WithArray2D: grid, matrix[1][0]=3
+Nested: nested, inner=(5, 6)
+no-spawn: (99, 98)

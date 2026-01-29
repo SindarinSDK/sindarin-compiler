@@ -1,6 +1,0 @@
-import "sdk/core/uuid"
-
-fn main(): int =>
-    var id: UUID = UUID.create()
-    print($"ID: {id}\n")
-    return 0

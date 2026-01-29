@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors test-sdk
+.PHONY: test-explore test-explore-errors
 .PHONY: arena test-arena
 .PHONY: configure install package docs
 .PHONY: setup libs
@@ -178,9 +178,6 @@ test-explore: build
 test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
 
-test-sdk: build
-	@$(PYTHON) scripts/run_tests.py sdk --verbose
-
 #------------------------------------------------------------------------------
 # arena - Build the managed arena library (standalone)
 #------------------------------------------------------------------------------
@@ -239,21 +236,20 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# libs - Fetch pre-built libraries from libs submodule (fast)
+# setup - Initialize libs submodule with pre-built dependencies
 #------------------------------------------------------------------------------
-libs:
-	@echo "Fetching pre-built libraries from libs submodule..."
+setup:
+	@echo "Setting up build dependencies from libs submodule..."
 	@git submodule update --init libs
+	@git -C libs lfs install
+	@git -C libs lfs pull
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 
 #------------------------------------------------------------------------------
-# setup - Build dependencies from source via vcpkg (slow, use 'make libs' instead)
+# libs - Alias for setup (backwards compatibility)
 #------------------------------------------------------------------------------
-setup:
-	@echo "Setting up build dependencies via vcpkg (this may take a while)..."
-	@echo "TIP: For faster setup, use 'make libs' to fetch pre-built libraries."
-	@$(PYTHON) scripts/setup_deps.py
+libs: setup
 
 #------------------------------------------------------------------------------
 # docs - Publish docs to sindarinsdk.github.io
@@ -263,15 +259,9 @@ SITE_DIR := ../sindarinsdk.github.io
 docs:
 	@echo "Publishing docs to $(SITE_DIR)..."
 	cmake -E rm -rf $(SITE_DIR)/language
-	cmake -E rm -rf $(SITE_DIR)/sdk
 	cmake -E copy_directory docs $(SITE_DIR)/language
-	cmake -E rm -rf $(SITE_DIR)/language/sdk
 	cmake -E rm -rf $(SITE_DIR)/language/drafts
 	cmake -E rm -f $(SITE_DIR)/language/readme.md
-	cmake -E copy_directory docs/sdk $(SITE_DIR)/sdk
-	cmake -E rm -f $(SITE_DIR)/sdk/readme.md
-	cmake -E rm -f $(SITE_DIR)/sdk/io/readme.md
-	cmake -E rm -f $(SITE_DIR)/sdk/net/readme.md
 	cd $(SITE_DIR) && make install && make build && git add -A && (git diff --cached --quiet || (git commit -m "Sync docs from sindarin-compiler" && git push))
 	@echo "Docs published."
 
@@ -300,7 +290,6 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
-	@echo "  make test-sdk               Run SDK tests"
 	@echo "  make arena                  Build managed arena library"
 	@echo "  make test-arena             Build and run managed arena tests"
 	@echo ""
@@ -309,8 +298,8 @@ help:
 	@echo "  make package      Create distributable packages"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make libs         Fetch pre-built libraries (fast, recommended)"
-	@echo "  make setup        Build dependencies from source via vcpkg (slow)"
+	@echo "  make setup        Initialize libs submodule with pre-built dependencies"
+	@echo "  make libs         Alias for 'make setup'"
 	@echo ""
 	@echo "CMake Presets (Advanced):"
 	@echo "  cmake --preset linux-gcc-release    Linux with GCC"

@@ -62,30 +62,16 @@ jobs:
       # Verify libs submodule (pre-built libraries)
       #------------------------------------------------------------------------
       - name: Verify libs submodule
-        id: libs-submodule
         shell: bash
         run: |
           if [ -d "libs/libs/${{ matrix.platform }}" ]; then
             echo "libs submodule found for ${{ matrix.platform }}"
-            echo "found=true" >> $GITHUB_OUTPUT
+            ls -la libs/libs/${{ matrix.platform }}/
           else
-            echo "libs submodule not found, will use vcpkg"
-            echo "found=false" >> $GITHUB_OUTPUT
+            echo "ERROR: libs submodule not found for ${{ matrix.platform }}"
+            echo "Ensure submodules: recursive and lfs: true are set in checkout"
+            exit 1
           fi
-
-      #------------------------------------------------------------------------
-      # Cache vcpkg (only used if sindarin-libs not available)
-      #------------------------------------------------------------------------
-      - name: Cache vcpkg
-        if: steps.libs-submodule.outputs.found != 'true'
-        uses: actions/cache@v4
-        with:
-          path: |
-            vcpkg
-            vcpkg_installed
-          key: vcpkg-release-${{ matrix.os }}-${{ hashFiles('vcpkg.json') }}
-          restore-keys: |
-            vcpkg-release-${{ matrix.os }}-
 
       #------------------------------------------------------------------------
       # Setup Dependencies
@@ -94,46 +80,11 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build python3 rpm \
-            curl zip unzip tar pkg-config
-
-      - name: Setup vcpkg (Linux)
-        if: runner.os == 'Linux' && steps.libs-submodule.outputs.found != 'true'
-        run: |
-          # Clone vcpkg if not present
-          if [ ! -d vcpkg ]; then
-            git clone https://github.com/microsoft/vcpkg.git vcpkg
-          fi
-          # Bootstrap vcpkg
-          if [ ! -f vcpkg/vcpkg ]; then
-            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-          fi
-          # Install dependencies from vcpkg.json
-          ./vcpkg/vcpkg install --triplet=x64-linux
+          sudo apt-get install -y build-essential cmake ninja-build python3 rpm
 
       - name: Setup Dependencies (macOS)
         if: runner.os == 'macOS'
-        run: brew install cmake ninja coreutils python3 curl zip unzip pkg-config
-
-      - name: Setup vcpkg (macOS)
-        if: runner.os == 'macOS' && steps.libs-submodule.outputs.found != 'true'
-        run: |
-          # Clone vcpkg if not present
-          if [ ! -d vcpkg ]; then
-            git clone https://github.com/microsoft/vcpkg.git vcpkg
-          fi
-          # Bootstrap vcpkg
-          if [ ! -f vcpkg/vcpkg ]; then
-            ./vcpkg/bootstrap-vcpkg.sh -disableMetrics
-          fi
-          # Determine triplet based on architecture
-          if [ "$(uname -m)" = "arm64" ]; then
-            TRIPLET="arm64-osx"
-          else
-            TRIPLET="x64-osx"
-          fi
-          # Install dependencies from vcpkg.json
-          ./vcpkg/vcpkg install --triplet=$TRIPLET
+        run: brew install cmake ninja coreutils python3
 
       - name: Cache LLVM-MinGW (Windows)
         if: runner.os == 'Windows'
@@ -167,21 +118,6 @@ jobs:
 
           # Install Ninja
           choco install ninja -y
-
-      - name: Setup vcpkg (Windows)
-        if: runner.os == 'Windows' && steps.libs-submodule.outputs.found != 'true'
-        shell: pwsh
-        run: |
-          # Clone vcpkg if not present
-          if (-not (Test-Path "vcpkg")) {
-            git clone https://github.com/microsoft/vcpkg.git vcpkg
-          }
-          # Bootstrap vcpkg
-          if (-not (Test-Path "vcpkg\vcpkg.exe")) {
-            & "vcpkg\bootstrap-vcpkg.bat" -disableMetrics
-          }
-          # Install dependencies from vcpkg.json using manifest mode
-          & "vcpkg\vcpkg.exe" install --triplet=x64-mingw-static
 
       #------------------------------------------------------------------------
       # Configure and Build

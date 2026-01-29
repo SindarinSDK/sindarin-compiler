@@ -5,7 +5,6 @@ log/
 logs/
 tmp/
 install/
-vcpkg_installed/
 
 # Object files
 *.o
@@ -63,10 +62,6 @@ tests/exploratory/test_*
 !tests/exploratory/*.expected
 !tests/exploratory/*.panic
 
-tests/sdk/**/test_*
-!tests/sdk/**/*.sn
-!tests/sdk/**/*.expected
-
 # Build directories
 build/
 build_*/
@@ -81,9 +76,6 @@ compile_commands.json
 CPackConfig.cmake
 CPackSourceConfig.cmake
 _CPack_Packages/
-
-# vcpkg (installed locally)
-vcpkg/
 
 # Python
 __pycache__/

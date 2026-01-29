@@ -225,9 +225,9 @@ else()
 endif()
 
 #------------------------------------------------------------------------------
-# libcurl for Auto-Update Feature (detected after vcpkg section below)
+# libcurl for Auto-Update Feature (detected after libs submodule section below)
 #------------------------------------------------------------------------------
-# Curl detection is deferred until after vcpkg is detected
+# Curl detection is deferred until after libs submodule is detected
 
 #------------------------------------------------------------------------------
 # Unit Test Executable
@@ -253,7 +253,7 @@ else()
     target_link_libraries(tests PRIVATE pthread m)
 endif()
 
-# Note: Additional vcpkg library linking for tests will be done after vcpkg detection below
+# Note: Additional library linking for tests will be done after libs submodule detection below
 
 #------------------------------------------------------------------------------
 # Runtime Static Library
@@ -394,20 +394,6 @@ if(PLATFORM_HEADERS)
 endif()
 
 #------------------------------------------------------------------------------
-# Setup SDK Directory
-#------------------------------------------------------------------------------
-set(SDK_DIR ${CMAKE_SOURCE_DIR}/bin/sdk)
-file(MAKE_DIRECTORY ${SDK_DIR})
-
-# Copy SDK files (.sn and .sn.c files), preserving subdirectory structure
-file(GLOB_RECURSE SDK_SN_FILES RELATIVE "${CMAKE_SOURCE_DIR}/sdk" "${CMAKE_SOURCE_DIR}/sdk/*.sn")
-file(GLOB_RECURSE SDK_SN_C_FILES RELATIVE "${CMAKE_SOURCE_DIR}/sdk" "${CMAKE_SOURCE_DIR}/sdk/*.sn.c")
-foreach(SDK_FILE IN LISTS SDK_SN_FILES SDK_SN_C_FILES)
-    get_filename_component(SDK_FILE_DIR "${SDK_FILE}" DIRECTORY)
-    file(INSTALL "${CMAKE_SOURCE_DIR}/sdk/${SDK_FILE}" DESTINATION "${SDK_DIR}/${SDK_FILE_DIR}")
-endforeach()
-
-#------------------------------------------------------------------------------
 # Custom Targets
 #------------------------------------------------------------------------------
 # Run unit tests
@@ -480,64 +466,23 @@ install(FILES "${CMAKE_SOURCE_DIR}/etc/sn.cfg"
     COMPONENT configs
 )
 
-# Install SDK files
-install(DIRECTORY "${CMAKE_SOURCE_DIR}/sdk/"
-    DESTINATION ${SN_SDK_INSTALL_DIR}/sdk
-    COMPONENT sdk
-    FILES_MATCHING
-    PATTERN "*.sn"
-    PATTERN "*.sn.c"
-)
-
 #------------------------------------------------------------------------------
-# Dependencies Detection (sindarin-libs or vcpkg)
+# Dependencies Detection (sindarin-libs submodule)
 #------------------------------------------------------------------------------
-# First check for pre-built libraries in sindarin-libs submodule (fast path)
-# Falls back to vcpkg if sindarin-libs not available
+# Pre-built libraries are provided via the libs submodule
+# Run 'make setup' to initialize the submodule if not present
 
 # Determine platform for sindarin-libs
 if(WIN32)
     set(SINDARIN_LIBS_PLATFORM "windows")
-    set(VCPKG_TRIPLET "x64-mingw-static")
 elseif(APPLE)
     set(SINDARIN_LIBS_PLATFORM "macos")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
-        set(VCPKG_TRIPLET "arm64-osx")
-    else()
-        set(VCPKG_TRIPLET "x64-osx")
-    endif()
 else()
     set(SINDARIN_LIBS_PLATFORM "linux")
-    set(VCPKG_TRIPLET "x64-linux")
 endif()
 
-# Find dependency installation directory
-# Priority: sindarin-libs (pre-built) > vcpkg (build from source)
-set(VCPKG_INSTALLED_DIR "")
-set(USING_SINDARIN_LIBS OFF)
-
-# First check for libs submodule (fastest - pre-built libraries)
+# Find dependency installation directory from libs submodule
 set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
-if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
-    set(VCPKG_INSTALLED_DIR "${SINDARIN_LIBS_DIR}")
-    set(USING_SINDARIN_LIBS ON)
-    message(STATUS "Using pre-built libraries from libs submodule")
-endif()
-
-# Then check vcpkg manifest mode (vcpkg_installed in project root)
-if("${VCPKG_INSTALLED_DIR}" STREQUAL "" AND EXISTS "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
-    set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/vcpkg_installed/${VCPKG_TRIPLET}")
-endif()
-
-# Then check VCPKG_ROOT environment variable
-if("${VCPKG_INSTALLED_DIR}" STREQUAL "" AND DEFINED ENV{VCPKG_ROOT})
-    set(VCPKG_INSTALLED_DIR "$ENV{VCPKG_ROOT}/installed/${VCPKG_TRIPLET}")
-endif()
-
-# Finally check classic mode (vcpkg/installed in project root)
-if("${VCPKG_INSTALLED_DIR}" STREQUAL "" OR NOT EXISTS "${VCPKG_INSTALLED_DIR}")
-    set(VCPKG_INSTALLED_DIR "${CMAKE_SOURCE_DIR}/vcpkg/installed/${VCPKG_TRIPLET}")
-endif()
 
 # Create bin/deps directory structure
 set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
@@ -546,76 +491,72 @@ file(MAKE_DIRECTORY ${SN_DEPS_DIR}/include)
 file(MAKE_DIRECTORY ${SN_DEPS_DIR}/lib)
 
 # Copy dependencies if found
-if(EXISTS "${VCPKG_INSTALLED_DIR}")
-    if(USING_SINDARIN_LIBS)
-        message(STATUS "Found libs submodule (pre-built): ${VCPKG_INSTALLED_DIR}")
-    else()
-        message(STATUS "Found vcpkg installation: ${VCPKG_INSTALLED_DIR}")
-    endif()
+if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
+    message(STATUS "Found libs submodule: ${SINDARIN_LIBS_DIR}")
 
     # Copy headers
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/zlib.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/zlib.h")
         message(STATUS "  Copying zlib headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/zlib.h" DESTINATION ${SN_DEPS_DIR}/include)
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/zconf.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/zlib.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/zconf.h" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/yyjson.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/yyjson.h")
         message(STATUS "  Copying yyjson headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/libxml2/libxml")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/libxml2/libxml")
         message(STATUS "  Copying libxml2 headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/libxml2/libxml" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/libxml2/libxml" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/yaml.h")
         message(STATUS "  Copying libyaml headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/yaml.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/yaml.h" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/openssl/ssl.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/openssl/ssl.h")
         message(STATUS "  Copying openssl headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/openssl" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/openssl" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/ngtcp2/ngtcp2.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/ngtcp2/ngtcp2.h")
         message(STATUS "  Copying ngtcp2 headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/ngtcp2" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/ngtcp2" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/libssh/libssh.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/libssh/libssh.h")
         message(STATUS "  Copying libssh headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/libssh" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/libssh" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/git2.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/git2.h")
         message(STATUS "  Copying libgit2 headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/git2.h" DESTINATION ${SN_DEPS_DIR}/include)
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/git2" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/git2.h" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/git2" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/curl/curl.h")
         message(STATUS "  Copying curl headers...")
-        file(INSTALL "${VCPKG_INSTALLED_DIR}/include/curl" DESTINATION ${SN_DEPS_DIR}/include)
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/curl" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
     # Copy libraries based on platform
     if(WIN32)
         # Windows (MinGW): Copy .a static libraries and .dll if present
-        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz*.a" "${VCPKG_INSTALLED_DIR}/lib/zlib*.a")
-        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson*.a" "${VCPKG_INSTALLED_DIR}/lib/yyjson*.a")
-        file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2*.a" "${VCPKG_INSTALLED_DIR}/lib/xml2*.a")
-        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml*.a" "${VCPKG_INSTALLED_DIR}/lib/yaml*.a")
-        file(GLOB OPENSSL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssl*.a" "${VCPKG_INSTALLED_DIR}/lib/libcrypto*.a")
-        file(GLOB NGTCP2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libngtcp2*.a")
-        file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh*.a")
-        file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2*.a" "${VCPKG_INSTALLED_DIR}/lib/git2*.a")
-        file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser*.a" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8*.a" "${VCPKG_INSTALLED_DIR}/lib/libssh2*.a")
-        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl*.a" "${VCPKG_INSTALLED_DIR}/lib/curl*.a")
-        file(GLOB ZLIB_DLLS "${VCPKG_INSTALLED_DIR}/bin/libz*.dll" "${VCPKG_INSTALLED_DIR}/bin/zlib*.dll")
-        file(GLOB YYJSON_DLLS "${VCPKG_INSTALLED_DIR}/bin/libyyjson*.dll" "${VCPKG_INSTALLED_DIR}/bin/yyjson*.dll")
+        file(GLOB ZLIB_LIBS "${SINDARIN_LIBS_DIR}/lib/libz*.a" "${SINDARIN_LIBS_DIR}/lib/zlib*.a")
+        file(GLOB YYJSON_LIBS "${SINDARIN_LIBS_DIR}/lib/libyyjson*.a" "${SINDARIN_LIBS_DIR}/lib/yyjson*.a")
+        file(GLOB XML2_LIBS "${SINDARIN_LIBS_DIR}/lib/libxml2*.a" "${SINDARIN_LIBS_DIR}/lib/xml2*.a")
+        file(GLOB YAML_LIBS "${SINDARIN_LIBS_DIR}/lib/libyaml*.a" "${SINDARIN_LIBS_DIR}/lib/yaml*.a")
+        file(GLOB OPENSSL_LIBS "${SINDARIN_LIBS_DIR}/lib/libssl*.a" "${SINDARIN_LIBS_DIR}/lib/libcrypto*.a")
+        file(GLOB NGTCP2_LIBS "${SINDARIN_LIBS_DIR}/lib/libngtcp2*.a")
+        file(GLOB SSH_LIBS "${SINDARIN_LIBS_DIR}/lib/libssh*.a")
+        file(GLOB GIT2_LIBS "${SINDARIN_LIBS_DIR}/lib/libgit2*.a" "${SINDARIN_LIBS_DIR}/lib/git2*.a")
+        file(GLOB GIT2_DEPS_LIBS "${SINDARIN_LIBS_DIR}/lib/libhttp_parser*.a" "${SINDARIN_LIBS_DIR}/lib/libpcre2-8*.a" "${SINDARIN_LIBS_DIR}/lib/libssh2*.a")
+        file(GLOB CURL_LIBS "${SINDARIN_LIBS_DIR}/lib/libcurl*.a" "${SINDARIN_LIBS_DIR}/lib/curl*.a")
+        file(GLOB ZLIB_DLLS "${SINDARIN_LIBS_DIR}/bin/libz*.dll" "${SINDARIN_LIBS_DIR}/bin/zlib*.dll")
+        file(GLOB YYJSON_DLLS "${SINDARIN_LIBS_DIR}/bin/libyyjson*.dll" "${SINDARIN_LIBS_DIR}/bin/yyjson*.dll")
 
         foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
@@ -627,16 +568,16 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         endforeach()
     elseif(APPLE)
         # macOS: Copy static or dynamic libraries
-        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.*")
-        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.*")
-        file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2.*")
-        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml.*")
-        file(GLOB OPENSSL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssl.*" "${VCPKG_INSTALLED_DIR}/lib/libcrypto.*")
-        file(GLOB NGTCP2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libngtcp2*.*")
-        file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh.*")
-        file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2.*")
-        file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.*" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.*" "${VCPKG_INSTALLED_DIR}/lib/libssh2.*")
-        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl.*")
+        file(GLOB ZLIB_LIBS "${SINDARIN_LIBS_DIR}/lib/libz.*")
+        file(GLOB YYJSON_LIBS "${SINDARIN_LIBS_DIR}/lib/libyyjson.*")
+        file(GLOB XML2_LIBS "${SINDARIN_LIBS_DIR}/lib/libxml2.*")
+        file(GLOB YAML_LIBS "${SINDARIN_LIBS_DIR}/lib/libyaml.*")
+        file(GLOB OPENSSL_LIBS "${SINDARIN_LIBS_DIR}/lib/libssl.*" "${SINDARIN_LIBS_DIR}/lib/libcrypto.*")
+        file(GLOB NGTCP2_LIBS "${SINDARIN_LIBS_DIR}/lib/libngtcp2*.*")
+        file(GLOB SSH_LIBS "${SINDARIN_LIBS_DIR}/lib/libssh.*")
+        file(GLOB GIT2_LIBS "${SINDARIN_LIBS_DIR}/lib/libgit2.*")
+        file(GLOB GIT2_DEPS_LIBS "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.*" "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.*" "${SINDARIN_LIBS_DIR}/lib/libssh2.*")
+        file(GLOB CURL_LIBS "${SINDARIN_LIBS_DIR}/lib/libcurl.*")
 
         foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
@@ -644,16 +585,16 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         endforeach()
     else()
         # Linux: Copy static libraries (.a files) for self-contained executables
-        file(GLOB ZLIB_LIBS "${VCPKG_INSTALLED_DIR}/lib/libz.a")
-        file(GLOB YYJSON_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
-        file(GLOB XML2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libxml2.a")
-        file(GLOB YAML_LIBS "${VCPKG_INSTALLED_DIR}/lib/libyaml.a")
-        file(GLOB OPENSSL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssl.a" "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a")
-        file(GLOB NGTCP2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libngtcp2*.a")
-        file(GLOB SSH_LIBS "${VCPKG_INSTALLED_DIR}/lib/libssh.a")
-        file(GLOB GIT2_LIBS "${VCPKG_INSTALLED_DIR}/lib/libgit2.a")
-        file(GLOB GIT2_DEPS_LIBS "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a" "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a" "${VCPKG_INSTALLED_DIR}/lib/libssh2.a")
-        file(GLOB CURL_LIBS "${VCPKG_INSTALLED_DIR}/lib/libcurl.a")
+        file(GLOB ZLIB_LIBS "${SINDARIN_LIBS_DIR}/lib/libz.a")
+        file(GLOB YYJSON_LIBS "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
+        file(GLOB XML2_LIBS "${SINDARIN_LIBS_DIR}/lib/libxml2.a")
+        file(GLOB YAML_LIBS "${SINDARIN_LIBS_DIR}/lib/libyaml.a")
+        file(GLOB OPENSSL_LIBS "${SINDARIN_LIBS_DIR}/lib/libssl.a" "${SINDARIN_LIBS_DIR}/lib/libcrypto.a")
+        file(GLOB NGTCP2_LIBS "${SINDARIN_LIBS_DIR}/lib/libngtcp2*.a")
+        file(GLOB SSH_LIBS "${SINDARIN_LIBS_DIR}/lib/libssh.a")
+        file(GLOB GIT2_LIBS "${SINDARIN_LIBS_DIR}/lib/libgit2.a")
+        file(GLOB GIT2_DEPS_LIBS "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a" "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a" "${SINDARIN_LIBS_DIR}/lib/libssh2.a")
+        file(GLOB CURL_LIBS "${SINDARIN_LIBS_DIR}/lib/libcurl.a")
 
         foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
@@ -664,28 +605,28 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
     message(STATUS "  Dependencies copied to: ${SN_DEPS_DIR}")
 
     # Check for libcurl and enable auto-update feature
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/curl/curl.h")
         message(STATUS "Found libcurl - enabling auto-update feature")
-        target_include_directories(sn PRIVATE "${VCPKG_INSTALLED_DIR}/include")
+        target_include_directories(sn PRIVATE "${SINDARIN_LIBS_DIR}/include")
         target_compile_definitions(sn PRIVATE SN_HAS_CURL=1)
 
         # Link curl and its dependencies
         if(WIN32)
             # Windows: link curl with SSL and Windows socket libraries
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libzlib.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
                 crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
             # macOS: link curl with SSL and required system frameworks
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
                 "-framework CoreFoundation"
                 "-framework SystemConfiguration"
                 "-framework Security"
@@ -693,18 +634,18 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         else()
             # Linux: link curl with SSL
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
             )
         endif()
 
         # Link yyjson for JSON parsing
         if(WIN32)
-            target_link_libraries(sn PRIVATE "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
+            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
         else()
-            target_link_libraries(sn PRIVATE "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a")
+            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
         endif()
     else()
         message(STATUS "libcurl not found - auto-update feature disabled")
@@ -712,37 +653,37 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
     endif()
 
     # Check for libgit2 and libyaml for package manager
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/git2.h" AND EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/git2.h" AND EXISTS "${SINDARIN_LIBS_DIR}/include/yaml.h")
         message(STATUS "Found libgit2 and libyaml - enabling package manager")
         target_compile_definitions(sn PRIVATE SN_HAS_PACKAGE_MANAGER=1)
 
         # Link libgit2 and its dependencies
         if(WIN32)
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
             )
         elseif(APPLE)
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
                 "-framework Security"
                 "-framework CoreFoundation"
                 iconv
             )
         else()
             target_link_libraries(sn PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
             )
         endif()
     else()
@@ -750,124 +691,79 @@ if(EXISTS "${VCPKG_INSTALLED_DIR}")
         target_compile_definitions(sn PRIVATE SN_HAS_PACKAGE_MANAGER=0)
     endif()
 
-    # Link tests executable with vcpkg libraries as well
-    target_include_directories(tests PRIVATE "${VCPKG_INSTALLED_DIR}/include")
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/curl/curl.h")
+    # Link tests executable with libraries from libs submodule
+    target_include_directories(tests PRIVATE "${SINDARIN_LIBS_DIR}/include")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/curl/curl.h")
         target_compile_definitions(tests PRIVATE SN_HAS_CURL=1)
         if(WIN32)
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libzlib.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyyjson.a"
                 crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyyjson.a"
                 "-framework CoreFoundation"
                 "-framework SystemConfiguration"
                 "-framework Security"
             )
         else()
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libcurl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssl.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libcrypto.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libz.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyyjson.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyyjson.a"
             )
         endif()
     else()
         target_compile_definitions(tests PRIVATE SN_HAS_CURL=0)
     endif()
 
-    if(EXISTS "${VCPKG_INSTALLED_DIR}/include/git2.h" AND EXISTS "${VCPKG_INSTALLED_DIR}/include/yaml.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/git2.h" AND EXISTS "${SINDARIN_LIBS_DIR}/include/yaml.h")
         target_compile_definitions(tests PRIVATE SN_HAS_PACKAGE_MANAGER=1)
         if(WIN32)
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
             )
         elseif(APPLE)
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
                 iconv
             )
         else()
             target_link_libraries(tests PRIVATE
-                "${VCPKG_INSTALLED_DIR}/lib/libgit2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libyaml.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libssh2.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libpcre2-8.a"
-                "${VCPKG_INSTALLED_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
+                "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
             )
         endif()
     else()
         target_compile_definitions(tests PRIVATE SN_HAS_PACKAGE_MANAGER=0)
     endif()
 else()
-    message(STATUS "Dependencies not found")
-    message(STATUS "  Option 1 (fast): Run 'make libs' to fetch pre-built libraries")
-    message(STATUS "  Option 2 (slow): Run 'make setup' to build from source via vcpkg")
+    message(STATUS "Dependencies not found in libs submodule")
+    message(STATUS "  Run 'make setup' to initialize the libs submodule")
     target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
     target_compile_definitions(tests PRIVATE SN_HAS_CURL=0 SN_HAS_PACKAGE_MANAGER=0)
-endif()
-
-# Legacy options for manual bundling (kept for backwards compatibility)
-option(SN_BUNDLE_ZLIB "Bundle zlib with the package" OFF)
-option(SN_BUNDLE_YYJSON "Bundle yyjson with the package" OFF)
-
-if(SN_BUNDLE_ZLIB)
-    # Look for zlib via find_package if not from vcpkg
-    find_package(ZLIB QUIET)
-    if(ZLIB_FOUND AND NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/zlib.h")
-        message(STATUS "Found system zlib: ${ZLIB_LIBRARIES}")
-        if(ZLIB_INCLUDE_DIRS)
-            file(GLOB ZLIB_HEADERS "${ZLIB_INCLUDE_DIRS}/zlib.h" "${ZLIB_INCLUDE_DIRS}/zconf.h")
-            foreach(HEADER ${ZLIB_HEADERS})
-                file(INSTALL ${HEADER} DESTINATION ${SN_DEPS_DIR}/include)
-            endforeach()
-        endif()
-        if(NOT WIN32 AND NOT APPLE)
-            file(INSTALL ${ZLIB_LIBRARIES} DESTINATION ${SN_DEPS_DIR}/lib)
-            get_filename_component(ZLIB_LIB_DIR ${ZLIB_LIBRARIES} DIRECTORY)
-            file(GLOB ZLIB_SYMLINKS "${ZLIB_LIB_DIR}/libz.so*")
-            foreach(LINK ${ZLIB_SYMLINKS})
-                file(INSTALL ${LINK} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-        endif()
-    endif()
-endif()
-
-if(SN_BUNDLE_YYJSON)
-    # Look for yyjson via find_library if not from vcpkg
-    find_library(YYJSON_LIBRARY NAMES yyjson)
-    find_path(YYJSON_INCLUDE_DIR NAMES yyjson.h)
-    if(YYJSON_LIBRARY AND YYJSON_INCLUDE_DIR AND NOT EXISTS "${VCPKG_INSTALLED_DIR}/include/yyjson.h")
-        message(STATUS "Found system yyjson: ${YYJSON_LIBRARY}")
-        file(INSTALL "${YYJSON_INCLUDE_DIR}/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
-        if(NOT WIN32 AND NOT APPLE)
-            file(INSTALL ${YYJSON_LIBRARY} DESTINATION ${SN_DEPS_DIR}/lib)
-            get_filename_component(YYJSON_LIB_DIR ${YYJSON_LIBRARY} DIRECTORY)
-            file(GLOB YYJSON_SYMLINKS "${YYJSON_LIB_DIR}/libyyjson.so*")
-            foreach(LINK ${YYJSON_SYMLINKS})
-                file(INSTALL ${LINK} DESTINATION ${SN_DEPS_DIR}/lib)
-            endforeach()
-        endif()
-    endif()
 endif()
 
 #------------------------------------------------------------------------------
@@ -890,7 +786,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
 endif()
 
 # Components (base set, deps added conditionally below)
-set(CPACK_COMPONENTS_ALL compiler runtime headers configs sdk)
+set(CPACK_COMPONENTS_ALL compiler runtime headers configs)
 
 # Install bundled deps for packaging
 if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
@@ -914,8 +810,6 @@ set(CPACK_COMPONENT_RUNTIME_DEPENDS compiler)
 set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Development Headers")
 set(CPACK_COMPONENT_HEADERS_DEPENDS runtime)
 set(CPACK_COMPONENT_CONFIGS_DISPLAY_NAME "Configuration Files")
-set(CPACK_COMPONENT_SDK_DISPLAY_NAME "SDK Standard Library")
-set(CPACK_COMPONENT_SDK_DEPENDS compiler)
 
 # Platform-specific generators
 if(WIN32)
@@ -955,7 +849,6 @@ set(CPACK_SOURCE_IGNORE_FILES
     "/build/"
     "/bin/"
     "/log/"
-    "/vcpkg/"
 )
 
 include(CPack)

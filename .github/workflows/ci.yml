@@ -107,8 +107,7 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      # libs submodule provides pre-built libraries (fetched during checkout)
-      # CMake will automatically detect and use them - no vcpkg build needed
+      # libs submodule provides pre-built libraries (fetched during checkout with lfs: true)
       - name: Verify libs submodule
         shell: bash
         run: |
@@ -116,8 +115,9 @@ jobs:
             echo "libs submodule found - using pre-built libraries"
             ls -la libs/libs/
           else
-            echo "WARNING: libs submodule not found, falling back to vcpkg"
-            make setup
+            echo "ERROR: libs submodule not found"
+            echo "Ensure submodules: recursive and lfs: true are set in checkout"
+            exit 1
           fi
 
       - name: Build
@@ -186,13 +186,6 @@ jobs:
           SN_CC: ${{ matrix.sn_cc }}
           SN_CFLAGS: ${{ matrix.sn_cflags }}
         run: make test-explore-errors
-
-      - name: Run SDK tests
-        shell: bash
-        env:
-          SN_CC: ${{ matrix.sn_cc }}
-          SN_CFLAGS: ${{ matrix.sn_cflags }}
-        run: make test-sdk
 
       - name: Run managed arena tests
         shell: bash

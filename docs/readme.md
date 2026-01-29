@@ -368,6 +368,3 @@ Note: The default runtime objects are compiled with GCC's LTO. To use a differen
 - [Namespaces](namespaces.md) - Namespaced imports for collision resolution
 - [Interop](interop.md) - C interoperability and native functions
 - [Interceptors](interceptors.md) - Function interception for debugging and mocking
-
-### SDK Modules
-See the [SDK documentation](sdk/readme.md) for built-in modules including Date, Time, File I/O, Networking, Random, UUID, OS detection, Environment, and Process operations.
