@@ -1,0 +1,85 @@
+// Test conditional thread spawn for 2D arrays of all types
+
+fn makeInt2D(n: int): int[][] =>
+    return {{n, n+1}, {n+2, n+3}}
+
+fn makeLong2D(n: long): long[][] =>
+    return {{n, n+1l}, {n+2l, n+3l}}
+
+fn makeDouble2D(n: double): double[][] =>
+    return {{n, n+1.0}, {n+2.0, n+3.0}}
+
+fn makeBool2D(): bool[][] =>
+    return {{true, false}, {false, true}}
+
+fn makeByte2D(n: byte): byte[][] =>
+    return {{n, (n+1b) as byte}, {(n+2b) as byte, (n+3b) as byte}}
+
+fn makeChar2D(c: char): char[][] =>
+    var c1: char = (c as int + 1) as char
+    var c2: char = (c as int + 2) as char
+    var c3: char = (c as int + 3) as char
+    return {{c, c1}, {c2, c3}}
+
+fn makeStr2D(s: str): str[][] =>
+    return {{s, s + "a"}, {s + "b", s + "c"}}
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test int[][]
+    var intArr: int[][] = {{0}}
+    if doSpawn =>
+        intArr = &makeInt2D(10)
+    intArr!
+    println($"int[][]: {intArr}")
+
+    // Test long[][]
+    var longArr: long[][] = {{0l}}
+    if doSpawn =>
+        longArr = &makeLong2D(100l)
+    longArr!
+    println($"long[][]: {longArr}")
+
+    // Test double[][]
+    var doubleArr: double[][] = {{0.0}}
+    if doSpawn =>
+        doubleArr = &makeDouble2D(5.0)
+    doubleArr!
+    println($"double[][]: {doubleArr}")
+
+    // Test bool[][]
+    var boolArr: bool[][] = {{false}}
+    if doSpawn =>
+        boolArr = &makeBool2D()
+    boolArr!
+    println($"bool[][]: {boolArr}")
+
+    // Test byte[][]
+    var byteArr: byte[][] = {{0b}}
+    if doSpawn =>
+        byteArr = &makeByte2D(50b)
+    byteArr!
+    println($"byte[][]: {byteArr}")
+
+    // Test char[][]
+    var charArr: char[][] = {{'x'}}
+    if doSpawn =>
+        charArr = &makeChar2D('A')
+    charArr!
+    println($"char[][]: {charArr}")
+
+    // Test str[][]
+    var strArr: str[][] = {{""}}
+    if doSpawn =>
+        strArr = &makeStr2D("hi")
+    strArr!
+    println($"str[][]: {strArr}")
+
+    // Test no-spawn case
+    var noSpawn: bool = false
+    var noSpawnArr: int[][] = {{99, 98}, {97, 96}}
+    if noSpawn =>
+        noSpawnArr = &makeInt2D(1)
+    noSpawnArr!
+    println($"no-spawn: {noSpawnArr}")

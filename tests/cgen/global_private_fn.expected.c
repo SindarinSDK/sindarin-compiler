@@ -51,6 +51,7 @@ int main() {
     __sn__message = rt_managed_strdup(__main_arena__, RT_HANDLE_NULL, "");
     int _return_value = 0;
     rt_println("Global with private function test:");
+    RtThreadHandle *__result_pending__ = NULL;
     long long __sn__result = ({
     long long __intercept_result;
     if (__rt_interceptor_count > 0) {

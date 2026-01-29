@@ -1,0 +1,8 @@
+int: 42
+long: 3000000000000
+double: 15.00000
+bool: true
+byte: 110
+char: B
+no-spawn int: 99
+loop sum: 40

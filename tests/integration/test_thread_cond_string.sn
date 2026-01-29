@@ -1,0 +1,50 @@
+// Test conditional thread spawn for string type
+
+fn computeString(s: str): str =>
+    return s + " world"
+
+fn uppercaseFirst(s: str): str =>
+    return s.toUpper()
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test basic conditional string spawn
+    var strResult: str = "initial"
+    if doSpawn =>
+        strResult = &computeString("hello")
+    strResult!
+    println($"string: {strResult}")
+
+    // Test with uppercase
+    var upperResult: str = ""
+    if doSpawn =>
+        upperResult = &uppercaseFirst("testing")
+    upperResult!
+    println($"upper: {upperResult}")
+
+    // Test no spawn case
+    var noSpawn: bool = false
+    var noSpawnStr: str = "unchanged"
+    if noSpawn =>
+        noSpawnStr = &computeString("never")
+    noSpawnStr!
+    println($"no-spawn: {noSpawnStr}")
+
+    // Test in loop with alternating conditions
+    var loopStr: str = "start"
+    for i in 0..3 =>
+        if i == 1 =>
+            loopStr = &computeString($"iter{i}")
+        loopStr!
+    println($"loop: {loopStr}")
+
+    // Test multiple conditional spawns
+    var multi1: str = "a"
+    var multi2: str = "b"
+    if doSpawn =>
+        multi1 = &computeString("first")
+        multi2 = &computeString("second")
+    multi1!
+    multi2!
+    println($"multi: {multi1}, {multi2}")

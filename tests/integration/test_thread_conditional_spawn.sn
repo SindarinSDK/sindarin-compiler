@@ -1,0 +1,37 @@
+// Test conditional thread spawn assignment
+// This tests the ability to conditionally assign thread spawns
+
+fn compute(x: int): int =>
+    return x * 2
+
+fn main(): void =>
+    // Test 1: Conditional spawn that DOES execute
+    var result1: int = 10
+    var shouldSpawn1: bool = true
+
+    if shouldSpawn1 =>
+        result1 = &compute(21)
+
+    // Sync - should get the spawned value
+    result1!
+    println($"Test 1 (spawn executed): {result1}")
+
+    // Test 2: Conditional spawn that does NOT execute
+    var result2: int = 42
+    var shouldSpawn2: bool = false
+
+    if shouldSpawn2 =>
+        result2 = &compute(100)
+
+    // Sync - should keep the original value since spawn didn't execute
+    result2!
+    println($"Test 2 (spawn not executed): {result2}")
+
+    // Test 3: Multiple conditional spawns
+    var result3: int = 0
+    for i in 0..3 =>
+        if i == 1 =>
+            result3 = &compute(50)
+
+    result3!
+    println($"Test 3 (spawn in loop): {result3}")

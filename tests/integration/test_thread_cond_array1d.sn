@@ -1,0 +1,90 @@
+// Test conditional thread spawn for 1D arrays of all types
+
+fn makeIntArray(n: int): int[] =>
+    return {n, n*2, n*3}
+
+fn makeLongArray(n: long): long[] =>
+    return {n, n*2l, n*3l}
+
+fn makeDoubleArray(n: double): double[] =>
+    return {n, n*2.0, n*3.0}
+
+fn makeBoolArray(a: bool, b: bool): bool[] =>
+    return {a, b, !a}
+
+fn makeByteArray(n: byte): byte[] =>
+    return {n, (n + 1b) as byte, (n + 2b) as byte}
+
+fn makeCharArray(c: char): char[] =>
+    return {c, (c as int + 1) as char, (c as int + 2) as char}
+
+fn makeStrArray(s: str): str[] =>
+    return {s, s + "!", s + "?"}
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test int[]
+    var intArr: int[] = {0}
+    if doSpawn =>
+        intArr = &makeIntArray(10)
+    intArr!
+    println($"int[]: {intArr}")
+
+    // Test long[]
+    var longArr: long[] = {0l}
+    if doSpawn =>
+        longArr = &makeLongArray(100l)
+    longArr!
+    println($"long[]: {longArr}")
+
+    // Test double[]
+    var doubleArr: double[] = {0.0}
+    if doSpawn =>
+        doubleArr = &makeDoubleArray(5.0)
+    doubleArr!
+    println($"double[]: {doubleArr}")
+
+    // Test bool[]
+    var boolArr: bool[] = {false}
+    if doSpawn =>
+        boolArr = &makeBoolArray(true, false)
+    boolArr!
+    println($"bool[]: {boolArr}")
+
+    // Test byte[]
+    var byteArr: byte[] = {0b}
+    if doSpawn =>
+        byteArr = &makeByteArray(50b)
+    byteArr!
+    println($"byte[]: {byteArr}")
+
+    // Test char[]
+    var charArr: char[] = {'x'}
+    if doSpawn =>
+        charArr = &makeCharArray('A')
+    charArr!
+    println($"char[]: {charArr}")
+
+    // Test str[]
+    var strArr: str[] = {""}
+    if doSpawn =>
+        strArr = &makeStrArray("hi")
+    strArr!
+    println($"str[]: {strArr}")
+
+    // Test no-spawn case
+    var noSpawn: bool = false
+    var noSpawnArr: int[] = {99, 98, 97}
+    if noSpawn =>
+        noSpawnArr = &makeIntArray(1)
+    noSpawnArr!
+    println($"no-spawn: {noSpawnArr}")
+
+    // Test in loop
+    var loopArr: int[] = {0}
+    for i in 0..3 =>
+        if i == 2 =>
+            loopArr = &makeIntArray(i * 100)
+        loopArr!
+    println($"loop: {loopArr}")

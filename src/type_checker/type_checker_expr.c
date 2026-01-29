@@ -1123,15 +1123,40 @@ static Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
             return NULL;
         }
 
-        /* Validate the variable is pending (was assigned a thread spawn) */
-        if (!symbol_table_is_pending(sym))
+        /* Check if the variable's type supports thread spawn.
+         * We allow sync on any variable of a thread-compatible type
+         * (primitives, structs, strings, arrays) even if it's not currently
+         * marked as pending. This enables conditional thread spawns:
+         *   var h: Result = default_value
+         *   if condition =>
+         *       h = &compute()  // may or may not execute
+         *   h!  // sync if pending, otherwise return current value
+         * At runtime, the code checks if __var_pending__ is NULL. */
+        Type *var_type = sym->type;
+        bool is_thread_compatible = (var_type != NULL &&
+            (var_type->kind == TYPE_INT ||
+             var_type->kind == TYPE_LONG ||
+             var_type->kind == TYPE_DOUBLE ||
+             var_type->kind == TYPE_BOOL ||
+             var_type->kind == TYPE_BYTE ||
+             var_type->kind == TYPE_CHAR ||
+             var_type->kind == TYPE_STRING ||
+             var_type->kind == TYPE_ARRAY ||
+             var_type->kind == TYPE_STRUCT));
+
+        if (!is_thread_compatible)
         {
-            type_error(expr->token, "Cannot sync variable that is not a pending thread");
+            type_error(expr->token, "Cannot sync variable of this type");
             return NULL;
         }
 
-        /* Sync the variable - transitions from pending to synchronized. */
-        symbol_table_sync_variable(table, handle->as.variable.name);
+        /* If variable is definitely pending, mark it as synchronized.
+         * If it's not pending (conditional spawn path), that's OK -
+         * the runtime will check and handle it. */
+        if (symbol_table_is_pending(sym))
+        {
+            symbol_table_sync_variable(table, handle->as.variable.name);
+        }
 
         DEBUG_VERBOSE("Variable sync type checked, return type: %d", sym->type->kind);
         return sym->type;

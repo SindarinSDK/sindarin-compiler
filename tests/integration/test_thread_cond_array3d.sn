@@ -1,0 +1,81 @@
+// Test conditional thread spawn for 3D arrays
+
+fn makeInt3D(): int[][][] =>
+    return {{{1, 2}, {3, 4}}, {{5, 6}, {7, 8}}}
+
+fn makeLong3D(): long[][][] =>
+    return {{{1l, 2l}, {3l, 4l}}, {{5l, 6l}, {7l, 8l}}}
+
+fn makeDouble3D(): double[][][] =>
+    return {{{1.0, 2.0}, {3.0, 4.0}}, {{5.0, 6.0}, {7.0, 8.0}}}
+
+fn makeBool3D(): bool[][][] =>
+    return {{{true, false}, {false, true}}, {{true, true}, {false, false}}}
+
+fn makeByte3D(): byte[][][] =>
+    return {{{1b, 2b}, {3b, 4b}}, {{5b, 6b}, {7b, 8b}}}
+
+fn makeChar3D(): char[][][] =>
+    return {{{'a', 'b'}, {'c', 'd'}}, {{'e', 'f'}, {'g', 'h'}}}
+
+fn makeStr3D(): str[][][] =>
+    return {{{"a", "b"}, {"c", "d"}}, {{"e", "f"}, {"g", "h"}}}
+
+fn main(): void =>
+    var doSpawn: bool = true
+
+    // Test int[][][]
+    var int3d: int[][][] = {{{0}}}
+    if doSpawn =>
+        int3d = &makeInt3D()
+    int3d!
+    println($"int[][][]: {int3d}")
+
+    // Test long[][][]
+    var long3d: long[][][] = {{{0l}}}
+    if doSpawn =>
+        long3d = &makeLong3D()
+    long3d!
+    println($"long[][][]: {long3d}")
+
+    // Test double[][][]
+    var double3d: double[][][] = {{{0.0}}}
+    if doSpawn =>
+        double3d = &makeDouble3D()
+    double3d!
+    println($"double[][][]: {double3d}")
+
+    // Test bool[][][]
+    var bool3d: bool[][][] = {{{false}}}
+    if doSpawn =>
+        bool3d = &makeBool3D()
+    bool3d!
+    println($"bool[][][]: {bool3d}")
+
+    // Test byte[][][]
+    var byte3d: byte[][][] = {{{0b}}}
+    if doSpawn =>
+        byte3d = &makeByte3D()
+    byte3d!
+    println($"byte[][][]: {byte3d}")
+
+    // Test char[][][]
+    var char3d: char[][][] = {{{'x'}}}
+    if doSpawn =>
+        char3d = &makeChar3D()
+    char3d!
+    println($"char[][][]: {char3d}")
+
+    // Test str[][][]
+    var str3d: str[][][] = {{{"x"}}}
+    if doSpawn =>
+        str3d = &makeStr3D()
+    str3d!
+    println($"str[][][]: {str3d}")
+
+    // Test non-spawn path
+    var noSpawn: int[][][] = {{{99}}}
+    if false =>
+        noSpawn = &makeInt3D()
+    noSpawn!
+    println($"no-spawn: {noSpawn}")

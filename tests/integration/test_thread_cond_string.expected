@@ -1,0 +1,5 @@
+string: hello world
+upper: TESTING
+no-spawn: unchanged
+loop: iter1 world
+multi: first world, second world
