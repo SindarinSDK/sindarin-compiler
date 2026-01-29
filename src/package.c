@@ -192,6 +192,51 @@ static bool remove_directory_recursive(const char *path)
     return success;
 }
 
+/* ============================================================================
+ * Package Visit Tracking (for recursive installation cycle detection)
+ * ============================================================================ */
+
+/* Check if package has been visited during recursive install */
+static bool package_is_visited(const PackageVisited *visited, const char *name)
+{
+    for (int i = 0; i < visited->count; i++) {
+        if (strcmp(visited->names[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Get the ref (version) for a visited package, returns NULL if not found */
+static const char *package_get_visited_ref(const PackageVisited *visited, const char *name)
+{
+    for (int i = 0; i < visited->count; i++) {
+        if (strcmp(visited->names[i], name) == 0) {
+            return visited->refs[i][0] ? visited->refs[i] : NULL;
+        }
+    }
+    return NULL;
+}
+
+/* Mark package as visited, returns false if at capacity */
+static bool package_mark_visited(PackageVisited *visited, const char *name, const char *ref)
+{
+    if (visited->count >= PKG_MAX_VISITED) {
+        pkg_warning("too many packages, some may not be tracked for cycles");
+        return false;
+    }
+    strncpy(visited->names[visited->count], name, PKG_MAX_NAME_LEN - 1);
+    visited->names[visited->count][PKG_MAX_NAME_LEN - 1] = '\0';
+    if (ref && ref[0]) {
+        strncpy(visited->refs[visited->count], ref, PKG_MAX_REF_LEN - 1);
+        visited->refs[visited->count][PKG_MAX_REF_LEN - 1] = '\0';
+    } else {
+        visited->refs[visited->count][0] = '\0';
+    }
+    visited->count++;
+    return true;
+}
+
 
 /* ============================================================================
  * URL Parsing
@@ -555,6 +600,94 @@ bool package_init(void)
     return true;
 }
 
+/* ============================================================================
+ * Recursive Dependency Installation
+ * ============================================================================ */
+
+/* Install dependencies recursively from a package directory.
+ * base_path: Directory containing sn.yaml to process
+ * visited: Set of already-processed packages (for cycle detection)
+ * Returns true on success, false on failure */
+static bool package_install_deps_recursive(const char *base_path, PackageVisited *visited)
+{
+    char yaml_path[PKG_MAX_PATH_LEN];
+    snprintf(yaml_path, sizeof(yaml_path), "%s%c%s", base_path, PATH_SEP, PKG_YAML_FILE);
+
+    /* Check if sn.yaml exists in this directory */
+    if (!file_exists(yaml_path)) {
+        return true;  /* No deps, that's ok */
+    }
+
+    PackageConfig config;
+    if (!package_yaml_parse(yaml_path, &config)) {
+        pkg_warning("failed to parse %s", yaml_path);
+        return true;  /* Non-fatal, continue with other deps */
+    }
+
+    if (config.dependency_count == 0) {
+        return true;
+    }
+
+    bool success = true;
+    for (int i = 0; i < config.dependency_count; i++) {
+        PackageDependency *dep = &config.dependencies[i];
+
+        /* Determine ref to use */
+        const char *ref = dep->tag[0] ? dep->tag : dep->branch;
+
+        /* Check for cycle/already installed */
+        if (package_is_visited(visited, dep->name)) {
+            /* Check for version conflict */
+            const char *existing_ref = package_get_visited_ref(visited, dep->name);
+            if (ref[0] && existing_ref && strcmp(ref, existing_ref) != 0) {
+                pkg_warning("version conflict for %s: %s requested but %s already installed",
+                           dep->name, ref, existing_ref);
+            }
+            continue;  /* Already processed */
+        }
+
+        /* Mark as visited before installing (prevents cycles) */
+        package_mark_visited(visited, dep->name, ref);
+
+        /* Build path for this dependency (always in root .sn/) */
+        char dep_path[PKG_MAX_PATH_LEN];
+        snprintf(dep_path, sizeof(dep_path), "%s%c%s", PKG_DEPS_DIR, PATH_SEP, dep->name);
+
+        const char *result = "done";
+
+        if (dir_exists(dep_path) && package_git_is_repo(dep_path)) {
+            /* Repository exists, fetch and checkout */
+            if (!package_git_fetch(dep_path)) {
+                result = "fetch failed";
+                success = false;
+            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
+                result = "checkout failed";
+                success = false;
+            }
+        } else {
+            /* Clone repository */
+            if (!package_git_clone(dep->git_url, dep_path)) {
+                result = "clone failed";
+                success = false;
+                pkg_status(dep->name, ref[0] ? ref : NULL, result);
+                continue;  /* Can't recurse if clone failed */
+            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
+                result = "checkout failed";
+                success = false;
+            }
+        }
+
+        pkg_status(dep->name, ref[0] ? ref : NULL, result);
+
+        /* Recurse into the installed package to install its dependencies */
+        if (!package_install_deps_recursive(dep_path, visited)) {
+            success = false;  /* Non-fatal, continue with other deps */
+        }
+    }
+
+    return success;
+}
+
 bool package_install_all(void)
 {
     if (!package_yaml_exists()) {
@@ -584,39 +717,12 @@ bool package_install_all(void)
     /* Initialize git library */
     package_git_init();
 
-    bool success = true;
-    for (int i = 0; i < config.dependency_count; i++) {
-        PackageDependency *dep = &config.dependencies[i];
-        char dep_path[PKG_MAX_PATH_LEN];
-        snprintf(dep_path, sizeof(dep_path), "%s%c%s",
-                 PKG_DEPS_DIR, PATH_SEP, dep->name);
+    /* Initialize visited set for cycle detection */
+    PackageVisited visited;
+    memset(&visited, 0, sizeof(visited));
 
-        /* Determine ref to use */
-        const char *ref = dep->tag[0] ? dep->tag : dep->branch;
-        const char *result = "done";
-
-        if (dir_exists(dep_path) && package_git_is_repo(dep_path)) {
-            /* Repository exists, fetch and checkout */
-            if (!package_git_fetch(dep_path)) {
-                result = "fetch failed";
-                success = false;
-            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
-                result = "checkout failed";
-                success = false;
-            }
-        } else {
-            /* Clone repository */
-            if (!package_git_clone(dep->git_url, dep_path)) {
-                result = "clone failed";
-                success = false;
-            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
-                result = "checkout failed";
-                success = false;
-            }
-        }
-
-        pkg_status(dep->name, ref, result);
-    }
+    /* Recursively install all dependencies starting from current directory */
+    bool success = package_install_deps_recursive(".", &visited);
 
     package_git_cleanup();
     return success;
@@ -687,6 +793,24 @@ bool package_install(const char *url_ref)
 
     if (!success) {
         return false;
+    }
+
+    /* Install transitive dependencies of the new package */
+    char yaml_check[PKG_MAX_PATH_LEN];
+    snprintf(yaml_check, sizeof(yaml_check), "%s%c%s", dep_path, PATH_SEP, PKG_YAML_FILE);
+    if (file_exists(yaml_check)) {
+        printf("Installing transitive dependencies...\n");
+        package_git_init();
+
+        PackageVisited visited;
+        memset(&visited, 0, sizeof(visited));
+        package_mark_visited(&visited, name, has_ref ? ref : NULL);
+
+        if (!package_install_deps_recursive(dep_path, &visited)) {
+            pkg_warning("some transitive dependencies failed to install");
+        }
+
+        package_git_cleanup();
     }
 
     /* Update sn.yaml with new dependency */
