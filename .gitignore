@@ -1,4 +1,5 @@
 # Build outputs
+.sn/
 nul
 bin/
 log/
