@@ -1,6 +1,7 @@
 #include "gcc_backend.h"
 #include "code_gen.h"
 #include "debug.h"
+#include "package.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -82,6 +83,90 @@ static bool dir_exists(const char *path)
     struct stat st;
     return (stat(path, &st) == 0 && S_ISDIR(st.st_mode));
 #endif
+}
+
+/* Get platform name for package library paths */
+static const char *get_platform_name(void)
+{
+#ifdef _WIN32
+    return "windows";
+#elif defined(__APPLE__)
+    return "macos";
+#else
+    return "linux";
+#endif
+}
+
+/* Build package library include/lib paths from sn.yaml dependencies.
+ * Appends -I and -L/-rpath flags to the provided buffers.
+ * Returns true if any package paths were added. */
+static bool build_package_lib_paths(char *pkg_include_opts, size_t inc_size,
+                                    char *pkg_lib_opts, size_t lib_size)
+{
+    pkg_include_opts[0] = '\0';
+    pkg_lib_opts[0] = '\0';
+
+    /* Check if sn.yaml exists in current directory */
+    if (!package_yaml_exists()) {
+        return false;
+    }
+
+    /* Parse package config */
+    PackageConfig config;
+    if (!package_yaml_parse("sn.yaml", &config)) {
+        return false;
+    }
+
+    if (config.dependency_count == 0) {
+        return false;
+    }
+
+    const char *platform = get_platform_name();
+    bool added = false;
+
+    for (int i = 0; i < config.dependency_count; i++) {
+        char pkg_include_dir[PATH_MAX];
+        char pkg_lib_dir[PATH_MAX];
+
+        /* Build paths: .sn/<pkg-name>/libs/<platform>/include and lib */
+        snprintf(pkg_include_dir, sizeof(pkg_include_dir),
+                 ".sn" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include",
+                 config.dependencies[i].name, platform);
+        snprintf(pkg_lib_dir, sizeof(pkg_lib_dir),
+                 ".sn" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib",
+                 config.dependencies[i].name, platform);
+
+        /* Only add if directories exist */
+        if (dir_exists(pkg_include_dir)) {
+            size_t len = strlen(pkg_include_opts);
+            if (len > 0) {
+                snprintf(pkg_include_opts + len, inc_size - len, " -I\"%s\"", pkg_include_dir);
+            } else {
+                snprintf(pkg_include_opts, inc_size, "-I\"%s\"", pkg_include_dir);
+            }
+            added = true;
+        }
+
+        if (dir_exists(pkg_lib_dir)) {
+            size_t len = strlen(pkg_lib_opts);
+#ifdef __APPLE__
+            if (len > 0) {
+                snprintf(pkg_lib_opts + len, lib_size - len, " -L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+            } else {
+                snprintf(pkg_lib_opts, lib_size, "-L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+            }
+#else
+            if (len > 0) {
+                snprintf(pkg_lib_opts + len, lib_size - len, " -L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+            } else {
+                snprintf(pkg_lib_opts, lib_size, "-L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+            }
+#endif
+            added = true;
+        }
+    }
+
+    return added;
 }
 
 /*
@@ -1170,6 +1255,18 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     else
         deps_lib_opt[0] = '\0';
 
+    /* Build package library paths from sn.yaml dependencies */
+    char pkg_include_opt[PATH_MAX * 4];
+    char pkg_lib_opt[PATH_MAX * 4];
+    build_package_lib_paths(pkg_include_opt, sizeof(pkg_include_opt),
+                            pkg_lib_opt, sizeof(pkg_lib_opt));
+
+    if (verbose && pkg_include_opt[0])
+    {
+        DEBUG_INFO("Package includes: %s", pkg_include_opt);
+        DEBUG_INFO("Package libs: %s", pkg_lib_opt);
+    }
+
     /* Build the command - note: config->cflags, config->ldlibs, config->ldflags
      * may be empty strings, which is fine.
      * Use include_dir for headers (-I) and lib_dir for runtime objects.
@@ -1202,6 +1299,7 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
             snprintf(msvc_deps_opt, sizeof(msvc_deps_opt), "/I\"%s\"", deps_include_dir);
         else
             msvc_deps_opt[0] = '\0';
+        /* TODO: Add MSVC-style package include options (convert -I to /I) */
         snprintf(command, sizeof(command),
             "%s%s%s %s %s /I\"%s\" %s \"%s\"%s \"%s\" %s %s /Fe\"%s\" /link %s 2>\"%s\"",
             cc_quote, config->cc, cc_quote, mode_cflags, config->cflags, include_dir, msvc_deps_opt,
@@ -1217,30 +1315,30 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
 #ifdef _WIN32
         /* Windows: Use -Wl,--whole-archive to force all symbols from archive */
         snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -DSN_USE_WIN32_THREADS %s -I\"%s\" %s "
+            "%s%s%s %s -w -std=%s -DSN_USE_WIN32_THREADS %s -I\"%s\" %s %s "
             "\"%s\"%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
-            "%s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt,
+            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
+            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
             c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
+            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
 #else
         /* Unix: Use -Wl,--whole-archive (Linux) or just link normally (macOS handles it) */
 #ifdef __APPLE__
         snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s "
+            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s %s "
             "\"%s\"%s -Wl,-force_load,\"%s\" "
-            "%s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt,
+            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
+            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
             c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
+            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
 #else
         snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s "
+            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s %s "
             "\"%s\"%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
-            "%s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt,
+            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
+            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
             c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
+            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
 #endif
 #endif
     }
