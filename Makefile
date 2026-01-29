@@ -252,20 +252,6 @@ setup:
 libs: setup
 
 #------------------------------------------------------------------------------
-# docs - Publish docs to sindarinsdk.github.io
-#------------------------------------------------------------------------------
-SITE_DIR := ../sindarinsdk.github.io
-
-docs:
-	@echo "Publishing docs to $(SITE_DIR)..."
-	cmake -E rm -rf $(SITE_DIR)/language
-	cmake -E copy_directory docs $(SITE_DIR)/language
-	cmake -E rm -rf $(SITE_DIR)/language/drafts
-	cmake -E rm -f $(SITE_DIR)/language/readme.md
-	cd $(SITE_DIR) && make install && make build && git add -A && (git diff --cached --quiet || (git commit -m "Sync docs from sindarin-compiler" && git push))
-	@echo "Docs published."
-
-#------------------------------------------------------------------------------
 # help - Show available targets
 #------------------------------------------------------------------------------
 help:
