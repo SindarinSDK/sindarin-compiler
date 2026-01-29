@@ -33,6 +33,7 @@
 #define PKG_MAX_REF_LEN 128
 #define PKG_MAX_PATH_LEN 1024
 #define PKG_MAX_DEPS 64
+#define PKG_MAX_VISITED 256
 
 /* ============================================================================
  * Data Structures
@@ -56,6 +57,13 @@ typedef struct {
     PackageDependency dependencies[PKG_MAX_DEPS];
     int dependency_count;
 } PackageConfig;
+
+/* Tracks visited packages during recursive installation (for cycle detection) */
+typedef struct {
+    char names[PKG_MAX_VISITED][PKG_MAX_NAME_LEN];
+    char refs[PKG_MAX_VISITED][PKG_MAX_REF_LEN];   /* For version conflict detection */
+    int count;
+} PackageVisited;
 
 /* Result structure for package operations */
 typedef struct {
