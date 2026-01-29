@@ -384,6 +384,40 @@ void collect_used_variables(Expr *expr, Token **used_vars, int *used_count,
         }
         break;
 
+    case EXPR_SYNC_LIST:
+        /* Sync list contains expressions to synchronize */
+        for (int i = 0; i < expr->as.sync_list.element_count; i++)
+        {
+            collect_used_variables(expr->as.sync_list.elements[i], used_vars, used_count, used_capacity, arena);
+        }
+        break;
+
+    case EXPR_SIZEOF:
+        /* sizeof may have an expression operand */
+        if (expr->as.sizeof_expr.expr_operand)
+        {
+            collect_used_variables(expr->as.sizeof_expr.expr_operand, used_vars, used_count, used_capacity, arena);
+        }
+        break;
+
+    case EXPR_COMPOUND_ASSIGN:
+        /* Compound assignment uses both target and value */
+        collect_used_variables(expr->as.compound_assign.target, used_vars, used_count, used_capacity, arena);
+        collect_used_variables(expr->as.compound_assign.value, used_vars, used_count, used_capacity, arena);
+        break;
+
+    case EXPR_METHOD_CALL:
+        /* Method call uses object (if not static) and arguments */
+        if (expr->as.method_call.object)
+        {
+            collect_used_variables(expr->as.method_call.object, used_vars, used_count, used_capacity, arena);
+        }
+        for (int i = 0; i < expr->as.method_call.arg_count; i++)
+        {
+            collect_used_variables(expr->as.method_call.args[i], used_vars, used_count, used_capacity, arena);
+        }
+        break;
+
     case EXPR_LITERAL:
     default:
         break;
@@ -462,9 +496,18 @@ void collect_used_variables_stmt(Stmt *stmt, Token **used_vars, int *used_count,
         /* Don't descend into nested function definitions for variable tracking */
         break;
 
+    case STMT_LOCK:
+        /* Lock statement uses the lock expression and body */
+        collect_used_variables(stmt->as.lock_stmt.lock_expr, used_vars, used_count, used_capacity, arena);
+        collect_used_variables_stmt(stmt->as.lock_stmt.body, used_vars, used_count, used_capacity, arena);
+        break;
+
     case STMT_BREAK:
     case STMT_CONTINUE:
     case STMT_IMPORT:
+    case STMT_PRAGMA:
+    case STMT_TYPE_DECL:
+    case STMT_STRUCT_DECL:
     default:
         break;
     }
@@ -663,6 +706,104 @@ Expr *simplify_noop_expr(Optimizer *opt, Expr *expr)
         expr->as.member_assign.value = simplify_noop_expr(opt, expr->as.member_assign.value);
         break;
 
+    case EXPR_LAMBDA:
+        if (expr->as.lambda.body)
+        {
+            expr->as.lambda.body = simplify_noop_expr(opt, expr->as.lambda.body);
+        }
+        for (int i = 0; i < expr->as.lambda.body_stmt_count; i++)
+        {
+            simplify_noop_stmt(opt, expr->as.lambda.body_stmts[i]);
+        }
+        break;
+
+    case EXPR_STATIC_CALL:
+        for (int i = 0; i < expr->as.static_call.arg_count; i++)
+        {
+            expr->as.static_call.arguments[i] = simplify_noop_expr(opt, expr->as.static_call.arguments[i]);
+        }
+        break;
+
+    case EXPR_THREAD_SPAWN:
+        expr->as.thread_spawn.call = simplify_noop_expr(opt, expr->as.thread_spawn.call);
+        break;
+
+    case EXPR_THREAD_SYNC:
+        expr->as.thread_sync.handle = simplify_noop_expr(opt, expr->as.thread_sync.handle);
+        break;
+
+    case EXPR_SYNC_LIST:
+        for (int i = 0; i < expr->as.sync_list.element_count; i++)
+        {
+            expr->as.sync_list.elements[i] = simplify_noop_expr(opt, expr->as.sync_list.elements[i]);
+        }
+        break;
+
+    case EXPR_AS_VAL:
+        expr->as.as_val.operand = simplify_noop_expr(opt, expr->as.as_val.operand);
+        break;
+
+    case EXPR_AS_REF:
+        expr->as.as_ref.operand = simplify_noop_expr(opt, expr->as.as_ref.operand);
+        break;
+
+    case EXPR_TYPEOF:
+        if (expr->as.typeof_expr.operand)
+        {
+            expr->as.typeof_expr.operand = simplify_noop_expr(opt, expr->as.typeof_expr.operand);
+        }
+        break;
+
+    case EXPR_IS:
+        expr->as.is_expr.operand = simplify_noop_expr(opt, expr->as.is_expr.operand);
+        break;
+
+    case EXPR_AS_TYPE:
+        expr->as.as_type.operand = simplify_noop_expr(opt, expr->as.as_type.operand);
+        break;
+
+    case EXPR_SIZEOF:
+        if (expr->as.sizeof_expr.expr_operand)
+        {
+            expr->as.sizeof_expr.expr_operand = simplify_noop_expr(opt, expr->as.sizeof_expr.expr_operand);
+        }
+        break;
+
+    case EXPR_COMPOUND_ASSIGN:
+        expr->as.compound_assign.target = simplify_noop_expr(opt, expr->as.compound_assign.target);
+        expr->as.compound_assign.value = simplify_noop_expr(opt, expr->as.compound_assign.value);
+        break;
+
+    case EXPR_METHOD_CALL:
+        if (expr->as.method_call.object)
+        {
+            expr->as.method_call.object = simplify_noop_expr(opt, expr->as.method_call.object);
+        }
+        for (int i = 0; i < expr->as.method_call.arg_count; i++)
+        {
+            expr->as.method_call.args[i] = simplify_noop_expr(opt, expr->as.method_call.args[i]);
+        }
+        break;
+
+    case EXPR_MATCH:
+        expr->as.match_expr.subject = simplify_noop_expr(opt, expr->as.match_expr.subject);
+        for (int i = 0; i < expr->as.match_expr.arm_count; i++)
+        {
+            MatchArm *arm = &expr->as.match_expr.arms[i];
+            if (!arm->is_else)
+            {
+                for (int j = 0; j < arm->pattern_count; j++)
+                {
+                    arm->patterns[j] = simplify_noop_expr(opt, arm->patterns[j]);
+                }
+            }
+            if (arm->body != NULL)
+            {
+                simplify_noop_stmt(opt, arm->body);
+            }
+        }
+        break;
+
     default:
         break;
     }
@@ -742,6 +883,11 @@ void simplify_noop_stmt(Optimizer *opt, Stmt *stmt)
     case STMT_FOR_EACH:
         stmt->as.for_each_stmt.iterable = simplify_noop_expr(opt, stmt->as.for_each_stmt.iterable);
         simplify_noop_stmt(opt, stmt->as.for_each_stmt.body);
+        break;
+
+    case STMT_LOCK:
+        stmt->as.lock_stmt.lock_expr = simplify_noop_expr(opt, stmt->as.lock_stmt.lock_expr);
+        simplify_noop_stmt(opt, stmt->as.lock_stmt.body);
         break;
 
     default:

@@ -23,6 +23,13 @@
 bool expression_produces_temp(Expr *expr);
 
 /**
+ * Generate a self reference for struct method calls.
+ * If the object is an rvalue (function call / method chain), emits a
+ * temporary variable declaration and returns a pointer to it.
+ */
+char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str);
+
+/**
  * Generate code for call expressions (function calls and method calls).
  * This is the main dispatcher that handles:
  * - Namespace function calls (namespace.function())

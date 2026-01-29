@@ -48,7 +48,7 @@ bool expression_produces_temp(Expr *expr)
  * If the object is an rvalue (function call / method chain), emits a
  * temporary variable declaration and returns a pointer to it.
  */
-static char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str)
+char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str)
 {
     if (object->type == EXPR_CALL)
     {
