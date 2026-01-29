@@ -168,6 +168,7 @@ set(SN_PACKAGE_SOURCES
     src/package.c
     src/package/package_yaml.c
     src/package/package_git.c
+    src/package/package_lfs.c
 )
 
 set(SN_RUNTIME_SOURCES

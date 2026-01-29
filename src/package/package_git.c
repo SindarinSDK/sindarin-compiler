@@ -4,9 +4,9 @@
  * Handles git clone, checkout, and fetch using libgit2.
  *
  * Authentication:
- *   SSH:   SN_GIT_SSH_KEY, SN_GIT_SSH_PASSPHRASE env vars (explicit key)
+ *   SSH:   SN_GIT_SSH_KEY env var (explicit key path)
  *          Falls back to ~/.ssh/id_ed25519, id_rsa, id_ecdsa, id_dsa
- *          Then falls back to ssh-agent
+ *          SN_GIT_SSH_PASSPHRASE env var for encrypted keys
  *   HTTPS: SN_GIT_USERNAME, SN_GIT_PASSWORD / SN_GIT_TOKEN
  * ============================================================================== */
 
@@ -47,6 +47,7 @@ void package_git_cleanup(void)
  * ============================================================================ */
 
 static int cred_attempt_count = 0;
+static bool ssh_auth_help_shown = false;
 
 /* Try to find SSH key in default locations (~/.ssh/) */
 static const char *find_default_ssh_key(void)
@@ -115,13 +116,28 @@ static int credential_callback(git_credential **out, const char *url,
         }
 
         if (key_path) {
-            int rc = git_credential_ssh_key_new(out, user, NULL, key_path,
+            return git_credential_ssh_key_new(out, user, NULL, key_path,
                                               passphrase ? passphrase : "");
-            if (rc == 0) return 0;
         }
 
-        /* Fall back to SSH agent */
-        return git_credential_ssh_key_from_agent(out, user);
+        /* No SSH key found - show helpful error once */
+        if (!ssh_auth_help_shown) {
+            ssh_auth_help_shown = true;
+            fprintf(stderr, "\n%serror%s: SSH authentication failed - no SSH key found\n",
+                    COLOR_RED, COLOR_RESET);
+            fprintf(stderr, "\nThe package manager looked for SSH keys in:\n");
+            fprintf(stderr, "  ~/.ssh/id_ed25519\n");
+            fprintf(stderr, "  ~/.ssh/id_rsa\n");
+            fprintf(stderr, "  ~/.ssh/id_ecdsa\n");
+            fprintf(stderr, "  ~/.ssh/id_dsa\n");
+            fprintf(stderr, "\nYou can configure authentication using environment variables:\n");
+            fprintf(stderr, "  SN_GIT_SSH_KEY         Path to SSH private key\n");
+            fprintf(stderr, "  SN_GIT_SSH_PASSPHRASE  Passphrase for encrypted keys\n");
+            fprintf(stderr, "\nOr use HTTPS with token authentication:\n");
+            fprintf(stderr, "  SN_GIT_USERNAME        Git username\n");
+            fprintf(stderr, "  SN_GIT_TOKEN           Personal access token (or SN_GIT_PASSWORD)\n\n");
+        }
+        return GIT_EAUTH;
     }
 
     /* Userpass for HTTPS */
@@ -132,6 +148,16 @@ static int credential_callback(git_credential **out, const char *url,
 
         if (username && password) {
             return git_credential_userpass_plaintext_new(out, username, password);
+        }
+
+        /* No HTTPS credentials - show helpful error once */
+        if (!ssh_auth_help_shown) {
+            ssh_auth_help_shown = true;
+            fprintf(stderr, "\n%serror%s: HTTPS authentication failed - no credentials found\n",
+                    COLOR_RED, COLOR_RESET);
+            fprintf(stderr, "\nYou can configure HTTPS authentication using environment variables:\n");
+            fprintf(stderr, "  SN_GIT_USERNAME        Git username\n");
+            fprintf(stderr, "  SN_GIT_TOKEN           Personal access token (or SN_GIT_PASSWORD)\n\n");
         }
     }
 
@@ -190,6 +216,7 @@ bool package_git_clone(const char *url, const char *dest_path)
     git_clone_options_init(&opts, GIT_CLONE_OPTIONS_VERSION);
     opts.fetch_opts.callbacks.credentials = credential_callback;
     cred_attempt_count = 0;
+    ssh_auth_help_shown = false;
 
     int rc = git_clone(&repo, url, dest_path, &opts);
 
@@ -199,6 +226,10 @@ bool package_git_clone(const char *url, const char *dest_path)
     }
 
     git_repository_free(repo);
+
+    /* Pull LFS content if repository uses Git LFS */
+    package_lfs_pull(dest_path);
+
     return true;
 }
 
@@ -229,6 +260,7 @@ bool package_git_fetch(const char *repo_path)
     git_fetch_options_init(&opts, GIT_FETCH_OPTIONS_VERSION);
     opts.callbacks.credentials = credential_callback;
     cred_attempt_count = 0;
+    ssh_auth_help_shown = false;
 
     rc = git_remote_fetch(remote, NULL, &opts, NULL);
 
@@ -331,6 +363,9 @@ bool package_git_checkout(const char *repo_path, const char *ref_name)
 
     git_object_free(target);
     git_repository_free(repo);
+
+    /* Pull LFS content if repository uses Git LFS */
+    package_lfs_pull(repo_path);
 
     return true;
 }
