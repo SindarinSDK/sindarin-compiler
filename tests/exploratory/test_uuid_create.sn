@@ -1,6 +1,0 @@
-# Test just calling UUID.create()
-import "sdk/core/uuid"
-
-fn main(): int =>
-    var id: UUID = UUID.create()
-    return 0

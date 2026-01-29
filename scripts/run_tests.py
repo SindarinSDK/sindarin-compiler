@@ -15,7 +15,6 @@ Test types:
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
     explore-errors    - Run exploratory error tests (tests/exploratory/errors/*.sn)
-    sdk               - Run SDK tests (tests/sdk/test_*.sn)
     all               - Run all test suites
 
 Options:
@@ -185,9 +184,6 @@ TEST_CONFIGS = {
     ),
     'explore-errors': TestConfig(
         'tests/exploratory/errors', '*.sn', True, 'Exploratory Error Tests'
-    ),
-    'sdk': TestConfig(
-        'tests/sdk', '**/test_*.sn', False, 'SDK Tests'
     ),
     'cgen': TestConfig(
         'tests/cgen', '*.sn', False, 'Code Generation Tests'
@@ -644,7 +640,7 @@ class TestRunner:
         expects_panic = os.path.isfile(panic_file)
 
         # For non-explore tests, require .expected file
-        if not has_expected and test_type not in ('explore', 'sdk'):
+        if not has_expected and test_type not in ('explore',):
             return ('skip', 'no .expected', None)
 
         # Standard compilation (use #pragma source for C helper files)
@@ -713,7 +709,7 @@ def main():
     )
     parser.add_argument('test_type', nargs='?', default='all',
                        choices=['unit', 'cgen', 'integration', 'integration-errors',
-                               'explore', 'explore-errors', 'sdk', 'all'],
+                               'explore', 'explore-errors', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,
@@ -784,7 +780,7 @@ def main():
             all_passed &= passed
             total_elapsed += elapsed
             for test_type in ['cgen', 'integration', 'integration-errors',
-                             'explore', 'explore-errors', 'sdk']:
+                             'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
                 total_elapsed += elapsed

@@ -8,22 +8,21 @@ This document explains how to build the Sindarin compiler from source on Linux, 
 
 ## Prerequisites
 
-Minimum requirements (before running `make setup`):
+Minimum requirements:
 - **Make** (GNU Make)
-- **Python** 3.6 or later
-- A C99-compatible compiler (**GCC** on Linux, **Clang** on macOS/Windows)
-
-`make setup` will install these additional tools if missing:
+- **Git** with LFS support
 - **CMake** 3.16 or later
 - **Ninja** build system (recommended, falls back to Unix Makefiles)
-- **vcpkg** dependencies (zlib, yyjson)
+- A C99-compatible compiler (**GCC** on Linux, **Clang** on macOS/Windows)
+
+Dependencies (zlib, yyjson, libgit2, etc.) are provided via the `libs` submodule containing pre-built libraries.
 
 ## Quick Start
 
 The simplest way to build is using the Makefile wrapper:
 
 ```bash
-# Install dependencies (vcpkg: zlib, yyjson) + build tools (cmake, ninja)
+# Initialize libs submodule (pre-built dependencies)
 make setup
 
 # Build
@@ -88,11 +87,11 @@ sudo pacman -S base-devel python
 **Build:**
 
 ```bash
-make setup   # Installs cmake, ninja, vcpkg deps (zlib, yyjson)
+make setup   # Initialize libs submodule with pre-built dependencies
 make build
 ```
 
-Or using CMake directly (if dependencies are already installed):
+Or using CMake directly (if libs submodule is already initialized):
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release
@@ -114,16 +113,20 @@ bin/tests  # Run unit tests
 xcode-select --install
 ```
 
-Ensure Python 3 is available (usually pre-installed, or `brew install python3`).
+Also install cmake and ninja:
+
+```bash
+brew install cmake ninja
+```
 
 **Build:**
 
 ```bash
-make setup   # Installs cmake, ninja, vcpkg deps (zlib, yyjson)
+make setup   # Initialize libs submodule with pre-built dependencies
 make build
 ```
 
-Or using CMake directly (if dependencies are already installed):
+Or using CMake directly (if libs submodule is already initialized):
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release
@@ -159,7 +162,7 @@ winget install Ninja-build.Ninja
 **Build:**
 
 ```bash
-make setup   # Installs vcpkg deps (zlib, yyjson)
+make setup   # Initialize libs submodule with pre-built dependencies
 make build
 ```
 
@@ -199,7 +202,6 @@ After a successful build:
 | `CMAKE_C_COMPILER` | System default | C compiler: `gcc`, `clang`, etc. |
 | `SN_DEBUG` | `OFF` | Enable debug symbols and reduced optimization |
 | `SN_ASAN` | `OFF` | Enable AddressSanitizer (GCC/Clang only) |
-| `SN_BUNDLE_ZLIB` | `OFF` | Bundle zlib with packages for self-contained distribution |
 
 **Debug build with AddressSanitizer:**
 
@@ -230,9 +232,6 @@ python3 scripts/run_tests.py integration-errors
 # Exploratory tests
 python3 scripts/run_tests.py explore
 python3 scripts/run_tests.py explore-errors
-
-# SDK tests
-python3 scripts/run_tests.py sdk
 ```
 
 Or use Make targets:
@@ -244,7 +243,6 @@ make test-integration        # Integration tests
 make test-integration-errors # Integration error tests
 make test-explore            # Exploratory tests
 make test-explore-errors     # Exploratory error tests
-make test-sdk                # SDK tests
 ```
 
 **Test runner options:**
@@ -405,14 +403,13 @@ winget install Ninja-build.Ninja
 The project uses GitHub Actions for continuous integration. CI uses the same `make` targets as local development:
 
 ```bash
-make setup                   # Install vcpkg deps (zlib, yyjson) + build tools
+make setup                   # Initialize libs submodule with pre-built dependencies
 make build                   # Configure and build via cmake
 make test-unit               # Run unit tests
 make test-integration        # Run integration tests
 make test-integration-errors # Run integration error tests
 make test-explore            # Run exploratory tests
 make test-explore-errors     # Run exploratory error tests
-make test-sdk                # Run SDK tests
 ```
 
 Platform-specific differences are handled via environment variables:

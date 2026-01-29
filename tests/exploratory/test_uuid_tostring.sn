@@ -1,8 +1,0 @@
-# Test using explicit toString() instead of interpolation
-import "sdk/core/uuid"
-
-fn main(): int =>
-    var id: UUID = UUID.create()
-    var s: str = id.toString()
-    print($"ID: {s}\n")
-    return 0

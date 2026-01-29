@@ -26,21 +26,21 @@ fn main(): int =>
 
 ---
 
-## Importing SDK Modules
+## Importing Modules
 
-Use `import` to include SDK modules or other Sindarin files:
+Use `import` to include other Sindarin files:
 
 ```sindarin
-import "sdk/time/date"
-import "sdk/net/tcp"
-import "sdk/encoding/json"
+import "time/date"
+import "net/tcp"
+import "encoding/json"
 
 fn main(): void =>
     var today: Date = Date.today()
     print($"Today: {today.toIso()}\n")
 ```
 
-Import paths are resolved relative to the compiler's SDK directory or the current file's directory.
+Import paths are resolved relative to the current file's directory or configured library paths.
 
 ---
 
@@ -173,10 +173,10 @@ The `@source` directive compiles and links additional C source files with your S
 
 **Path resolution:** Paths are resolved relative to the Sindarin source file's directory.
 
-**Example — SDK Module Pattern:**
+**Example — Module Pattern:**
 
 ```sindarin
-# sdk/time/date.sn
+# time/date.sn
 @source "date.sn.c"
 
 @alias "RtDate"
@@ -376,10 +376,10 @@ native struct Process as ref =>
 
 For non-native methods, `self` is automatically passed to C functions that need the instance.
 
-### Complete SDK Example
+### Complete Module Example
 
 ```sindarin
-# sdk/os/process.sn
+# os/process.sn
 @source "process.sn.c"
 
 @alias "RtProcess"
@@ -424,7 +424,7 @@ native fn sn_process_run_args(arena, cmd: str, args: str[]): Process
 
 **Usage:**
 ```sindarin
-import "sdk/os/process"
+import "os/process"
 
 fn main(): void =>
     var p: Process = Process.run("pwd")
@@ -1142,9 +1142,9 @@ This restriction ensures native structs maintain C-compatible memory layout and 
 
 ---
 
-## Writing C Code for SDK Functions
+## Writing C Code for Native Functions
 
-This section covers how to write C implementations for Sindarin SDK functions, including memory management patterns and the arena system.
+This section covers how to write C implementations for Sindarin native functions, including memory management patterns and the arena system.
 
 ### Arena Memory Model Overview
 
@@ -1491,4 +1491,3 @@ char *sn_json_get_string(RtArena *arena, const char *json_str, const char *key)
 - [Memory](memory.md) - Arena memory management
 - [Arrays](arrays.md) - Array types and byte arrays
 - [Lambdas](lambdas.md) - Lambda expressions (regular vs native)
-- [SDK I/O documentation](sdk/io/readme.md) - File I/O operations
