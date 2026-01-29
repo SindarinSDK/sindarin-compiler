@@ -663,7 +663,11 @@ static bool package_install_deps_recursive(const char *base_path, PackageVisited
             } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
                 result = "checkout failed";
                 success = false;
+            } else if (!ref[0]) {
+                /* No checkout, pull LFS content now */
+                package_lfs_pull(dep_path);
             }
+            /* Note: if ref[0] && checkout succeeded, LFS pull happens in checkout */
         } else {
             /* Clone repository */
             if (!package_git_clone(dep->git_url, dep_path)) {
@@ -674,7 +678,11 @@ static bool package_install_deps_recursive(const char *base_path, PackageVisited
             } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
                 result = "checkout failed";
                 success = false;
+            } else if (!ref[0]) {
+                /* No checkout, pull LFS content now */
+                package_lfs_pull(dep_path);
             }
+            /* Note: if ref[0] && checkout succeeded, LFS pull happens in checkout */
         }
 
         pkg_status(dep->name, ref[0] ? ref : NULL, result);

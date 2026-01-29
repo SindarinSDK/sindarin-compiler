@@ -227,8 +227,8 @@ bool package_git_clone(const char *url, const char *dest_path)
 
     git_repository_free(repo);
 
-    /* Pull LFS content if repository uses Git LFS */
-    package_lfs_pull(dest_path);
+    /* Note: LFS pull is done after checkout in package.c to avoid double-pull
+     * when both clone and checkout are performed */
 
     return true;
 }
