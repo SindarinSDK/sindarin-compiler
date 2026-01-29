@@ -4,7 +4,9 @@
  * Handles git clone, checkout, and fetch using libgit2.
  *
  * Authentication:
- *   SSH:   SN_GIT_SSH_KEY, SN_GIT_SSH_PASSPHRASE (fallback to ssh-agent)
+ *   SSH:   SN_GIT_SSH_KEY, SN_GIT_SSH_PASSPHRASE env vars (explicit key)
+ *          Falls back to ~/.ssh/id_ed25519, id_rsa, id_ecdsa, id_dsa
+ *          Then falls back to ssh-agent
  *   HTTPS: SN_GIT_USERNAME, SN_GIT_PASSWORD / SN_GIT_TOKEN
  * ============================================================================== */
 
@@ -46,6 +48,45 @@ void package_git_cleanup(void)
 
 static int cred_attempt_count = 0;
 
+/* Try to find SSH key in default locations (~/.ssh/) */
+static const char *find_default_ssh_key(void)
+{
+    static char key_path[512];
+    const char *home = NULL;
+
+#ifdef _WIN32
+    home = getenv("USERPROFILE");
+#else
+    home = getenv("HOME");
+#endif
+
+    if (!home) return NULL;
+
+    /* Try common key names in order of preference */
+    const char *key_names[] = {
+        "id_ed25519",
+        "id_rsa",
+        "id_ecdsa",
+        "id_dsa",
+        NULL
+    };
+
+    for (int i = 0; key_names[i] != NULL; i++) {
+#ifdef _WIN32
+        snprintf(key_path, sizeof(key_path), "%s\\.ssh\\%s", home, key_names[i]);
+#else
+        snprintf(key_path, sizeof(key_path), "%s/.ssh/%s", home, key_names[i]);
+#endif
+        FILE *f = fopen(key_path, "r");
+        if (f) {
+            fclose(f);
+            return key_path;
+        }
+    }
+
+    return NULL;
+}
+
 static int credential_callback(git_credential **out, const char *url,
                                const char *username_from_url,
                                unsigned int allowed_types, void *payload)
@@ -68,11 +109,18 @@ static int credential_callback(git_credential **out, const char *url,
         const char *key_path = getenv("SN_GIT_SSH_KEY");
         const char *passphrase = getenv("SN_GIT_SSH_PASSPHRASE");
 
-        if (key_path) {
-            return git_credential_ssh_key_new(out, user, NULL, key_path,
-                                              passphrase ? passphrase : "");
+        /* If no explicit key path, try to find key in ~/.ssh/ */
+        if (!key_path) {
+            key_path = find_default_ssh_key();
         }
-        /* Try SSH agent */
+
+        if (key_path) {
+            int rc = git_credential_ssh_key_new(out, user, NULL, key_path,
+                                              passphrase ? passphrase : "");
+            if (rc == 0) return 0;
+        }
+
+        /* Fall back to SSH agent */
         return git_credential_ssh_key_from_agent(out, user);
     }
 
