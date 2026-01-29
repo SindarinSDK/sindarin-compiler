@@ -3,12 +3,13 @@
  * ==============================================================================
  * Implements Git LFS protocol for downloading large files stored in LFS.
  * Uses libssh2 for SSH authentication and libcurl for HTTPS downloads.
+ * Downloads are parallelized using one thread per CPU core.
  *
  * LFS Protocol Overview:
  *   1. Detect LFS pointer files (small files with special format)
  *   2. For SSH remotes: authenticate via git-lfs-authenticate command
  *   3. POST to LFS batch API to get download URLs
- *   4. Download actual content and replace pointer files
+ *   4. Download actual content and replace pointer files (multi-threaded)
  * ============================================================================== */
 
 #include "../package.h"
@@ -37,6 +38,15 @@
     #define PATH_SEP '/'
 #endif
 
+/* Threading support */
+#if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
+    /* MSVC - use compatibility layer */
+    #include "../platform/compat_pthread.h"
+#else
+    /* POSIX systems and MinGW (which has native pthreads) */
+    #include <pthread.h>
+#endif
+
 /* Conditional curl/ssh support - matches updater pattern */
 #if SN_HAS_CURL
     #include <curl/curl.h>
@@ -60,6 +70,23 @@
 #define MAX_URL_LEN 512
 #define MAX_OID_LEN 65
 #define MAX_RESPONSE_SIZE (1024 * 1024)  /* 1MB for API responses */
+
+/* ============================================================================
+ * CPU Count and Threading Helpers
+ * ============================================================================ */
+
+/* Get the number of CPU cores available */
+static int get_cpu_count(void)
+{
+#ifdef _WIN32
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    return (int)sysinfo.dwNumberOfProcessors;
+#else
+    long nprocs = sysconf(_SC_NPROCESSORS_ONLN);
+    return nprocs > 0 ? (int)nprocs : 1;
+#endif
+}
 
 /* ============================================================================
  * LFS Pointer Parsing
@@ -355,22 +382,45 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
     LfsAuthInfo auth = {0};
     auth.valid = false;
 
+#ifdef _WIN32
+    /* Initialize Winsock (required for socket operations on Windows) */
+    WSADATA wsa_data;
+    if (WSAStartup(MAKEWORD(2, 2), &wsa_data) != 0) {
+        return auth;
+    }
+#endif
+
     /* Initialize libssh2 */
     if (libssh2_init(0) != 0) {
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
     /* Create socket and connect */
+#ifdef _WIN32
+    SOCKET sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == INVALID_SOCKET) {
+        libssh2_exit();
+        WSACleanup();
+        return auth;
+    }
+#else
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         libssh2_exit();
         return auth;
     }
+#endif
 
     struct hostent *host_entry = gethostbyname(remote->host);
     if (!host_entry) {
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -382,6 +432,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
     if (connect(sock, (struct sockaddr *)&sin, sizeof(sin)) != 0) {
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -390,6 +443,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
     if (!session) {
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -397,6 +453,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
         libssh2_session_free(session);
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -426,6 +485,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
         libssh2_session_free(session);
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -436,6 +498,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
         libssh2_session_free(session);
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -448,6 +513,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
         libssh2_session_free(session);
         close(sock);
         libssh2_exit();
+#ifdef _WIN32
+        WSACleanup();
+#endif
         return auth;
     }
 
@@ -467,6 +535,9 @@ static LfsAuthInfo lfs_ssh_authenticate(const LfsRemoteInfo *remote)
     libssh2_session_free(session);
     close(sock);
     libssh2_exit();
+#ifdef _WIN32
+    WSACleanup();
+#endif
 
     /* Parse JSON response */
     if (response_len == 0) {
@@ -769,6 +840,88 @@ static void scan_directory_for_lfs_pointers(const char *dir_path, LfsPointerList
 #endif /* SN_HAS_CURL */
 
 /* ============================================================================
+ * Multi-threaded Download Support
+ * ============================================================================ */
+
+#if SN_HAS_CURL
+
+/* Shared state for download worker threads */
+typedef struct {
+    /* Input data (read-only after init) */
+    LfsPointerList *pointers;
+    const char *lfs_base_url;
+    const char *auth_header;
+
+    /* Shared mutable state (protected by mutex) */
+    pthread_mutex_t mutex;
+    int next_index;          /* Next file index to download */
+    int completed_count;     /* Number of completed downloads */
+    int failed_count;        /* Number of failed downloads */
+} LfsDownloadContext;
+
+/* Worker thread function for parallel downloads */
+static void *lfs_download_worker(void *arg)
+{
+    LfsDownloadContext *ctx = (LfsDownloadContext *)arg;
+
+    while (1) {
+        /* Get next task */
+        pthread_mutex_lock(&ctx->mutex);
+        int index = ctx->next_index++;
+        int total = ctx->pointers->count;
+        pthread_mutex_unlock(&ctx->mutex);
+
+        if (index >= total) {
+            break;  /* No more work */
+        }
+
+        LfsPointer *ptr = &ctx->pointers->pointers[index];
+        const char *file_path = ctx->pointers->paths[index];
+
+        /* Extract just the filename for display */
+        const char *filename = strrchr(file_path, PATH_SEP);
+        if (filename) {
+            filename++;
+        } else {
+            filename = file_path;
+        }
+
+        /* Update progress (with mutex for clean output) */
+        pthread_mutex_lock(&ctx->mutex);
+        printf("\r    fetching LFS [%d/%d] %s...                              ",
+               ctx->completed_count + 1, total, filename);
+        fflush(stdout);
+        pthread_mutex_unlock(&ctx->mutex);
+
+        /* Get download URL from batch API */
+        LfsDownloadInfo dl_info = lfs_batch_request(ctx->lfs_base_url, ctx->auth_header,
+                                                     ptr->oid, ptr->size);
+        bool ok = false;
+        if (dl_info.valid) {
+            /* Download the actual content */
+            const char *dl_auth = dl_info.auth_header[0] ? dl_info.auth_header : ctx->auth_header;
+            ok = download_lfs_object(dl_info.download_url, dl_auth, file_path, ptr->size);
+        }
+
+        /* Update counters */
+        pthread_mutex_lock(&ctx->mutex);
+        ctx->completed_count++;
+        if (!ok) {
+            ctx->failed_count++;
+            /* Print warning (clear progress line first) */
+            printf("\r                                                              \r");
+            fprintf(stderr, "%swarning%s: failed to download LFS object for %s\n",
+                    COLOR_YELLOW, COLOR_RESET, file_path);
+        }
+        pthread_mutex_unlock(&ctx->mutex);
+    }
+
+    return NULL;
+}
+
+#endif /* SN_HAS_CURL */
+
+/* ============================================================================
  * Public API
  * ============================================================================ */
 
@@ -876,31 +1029,50 @@ bool package_lfs_pull(const char *repo_path)
         /* If SSH auth fails, fall back to HTTPS with env credentials */
     }
 
-    /* Download each LFS object */
-    bool success = true;
-    for (int i = 0; i < pointers->count; i++) {
-        LfsPointer *ptr = &pointers->pointers[i];
-        const char *file_path = pointers->paths[i];
-
-        /* Get download URL from batch API */
-        LfsDownloadInfo dl_info = lfs_batch_request(lfs_base_url, auth_header,
-                                                     ptr->oid, ptr->size);
-        if (!dl_info.valid) {
-            fprintf(stderr, "%swarning%s: failed to get LFS download URL for %s\n",
-                    COLOR_YELLOW, COLOR_RESET, file_path);
-            success = false;
-            continue;
-        }
-
-        /* Download the actual content */
-        const char *dl_auth = dl_info.auth_header[0] ? dl_info.auth_header : auth_header;
-        if (!download_lfs_object(dl_info.download_url, dl_auth, file_path, ptr->size)) {
-            fprintf(stderr, "%swarning%s: failed to download LFS object for %s\n",
-                    COLOR_YELLOW, COLOR_RESET, file_path);
-            success = false;
-        }
+    /* Download LFS objects using multiple threads */
+    int num_threads = get_cpu_count();
+    if (num_threads > pointers->count) {
+        num_threads = pointers->count;  /* Don't create more threads than files */
+    }
+    if (num_threads < 1) {
+        num_threads = 1;
     }
 
+    /* Initialize download context */
+    LfsDownloadContext ctx = {0};
+    ctx.pointers = pointers;
+    ctx.lfs_base_url = lfs_base_url;
+    ctx.auth_header = auth_header;
+    ctx.next_index = 0;
+    ctx.completed_count = 0;
+    ctx.failed_count = 0;
+    pthread_mutex_init(&ctx.mutex, NULL);
+
+    /* Create worker threads */
+    pthread_t *threads = malloc(sizeof(pthread_t) * num_threads);
+    if (!threads) {
+        pthread_mutex_destroy(&ctx.mutex);
+        free(pointers);
+        return false;
+    }
+
+    for (int i = 0; i < num_threads; i++) {
+        pthread_create(&threads[i], NULL, lfs_download_worker, &ctx);
+    }
+
+    /* Wait for all threads to complete */
+    for (int i = 0; i < num_threads; i++) {
+        pthread_join(threads[i], NULL);
+    }
+
+    free(threads);
+
+    /* Clear the progress line */
+    printf("\r                                                              \r");
+    fflush(stdout);
+
+    bool success = (ctx.failed_count == 0);
+    pthread_mutex_destroy(&ctx.mutex);
     free(pointers);
     return success;
 
