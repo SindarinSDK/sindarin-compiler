@@ -577,6 +577,9 @@ static const char *get_type_tag_constant(TypeKind kind)
         case TYPE_FUNCTION: return "RT_ANY_FUNCTION";
         case TYPE_STRUCT: return "RT_ANY_STRUCT";
         case TYPE_ANY: return "RT_ANY_NIL";  /* any has no fixed tag */
+        case TYPE_VOID: return "RT_ANY_NIL";  /* void is not a value type */
+        case TYPE_POINTER: return "RT_ANY_NIL";  /* raw pointers cannot be boxed */
+        case TYPE_OPAQUE: return "RT_ANY_NIL";  /* opaque C types cannot be boxed */
         default: return "RT_ANY_NIL";
     }
 }
@@ -1408,6 +1411,8 @@ char *code_gen_expression(CodeGen *gen, Expr *expr)
         return code_gen_sizeof_expression(gen, expr);
     case EXPR_COMPOUND_ASSIGN:
         return code_gen_compound_assign_expression(gen, expr);
+    case EXPR_METHOD_CALL:
+        return code_gen_method_call_expression(gen, expr);
     case EXPR_MATCH:
         return code_gen_match_expression(gen, expr);
     default:
