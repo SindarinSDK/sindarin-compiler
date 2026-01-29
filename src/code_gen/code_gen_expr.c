@@ -1143,24 +1143,54 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         gen->expr_as_handle = false;
     }
 
-    /* If assigning to a ref parameter's field, allocate the value in
-     * __caller_arena__ since the struct lives in the caller's scope.
+    /* If assigning to a ref parameter's field or a global struct's field,
+     * allocate the value in the appropriate arena:
+     * - ref parameters: use __caller_arena__ (struct lives in caller's scope)
+     * - global variables: use __main_arena__ (struct outlives all local arenas)
      * The callee's __local_arena__ is destroyed on return, which would leave
-     * dangling handles in the caller's struct. */
+     * dangling handles in the struct. */
     char *prev_arena_var = gen->current_arena_var;
     if (assign->object->type == EXPR_VARIABLE && gen->current_arena_var != NULL &&
         field != NULL && (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
     {
         Symbol *obj_sym = symbol_table_lookup_symbol(gen->symbol_table, assign->object->as.variable.name);
-        if (obj_sym != NULL && obj_sym->mem_qual == MEM_AS_REF)
+        if (obj_sym != NULL)
         {
-            gen->current_arena_var = "__caller_arena__";
+            if (obj_sym->mem_qual == MEM_AS_REF)
+            {
+                gen->current_arena_var = "__caller_arena__";
+            }
+            else if (obj_sym->kind == SYMBOL_GLOBAL || obj_sym->declaration_scope_depth <= 1)
+            {
+                /* Global variable - use main arena so handles survive function return */
+                gen->current_arena_var = "__main_arena__";
+            }
         }
     }
 
     char *value_code = code_gen_expression(gen, assign->value);
     gen->current_arena_var = prev_arena_var;
     gen->expr_as_handle = saved_handle;
+
+    /* For string fields: ensure the value is copied to the current arena.
+     * This is critical when the value comes from a parameter (which lives in
+     * the caller's arena) but the struct will be returned. Without this copy,
+     * rt_managed_promote at return time fails because it can't find the handle
+     * in the local arena. */
+    if (field != NULL && field->type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+    {
+        /* Skip the copy for literal strings and function calls that already
+         * allocate in the local arena. Only wrap array accesses and variable
+         * references which might be from a different arena. */
+        if (assign->value->type == EXPR_ARRAY_ACCESS ||
+            assign->value->type == EXPR_VARIABLE ||
+            assign->value->type == EXPR_MEMBER_ACCESS)
+        {
+            value_code = arena_sprintf(gen->arena,
+                "rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(%s, %s))",
+                gen->current_arena_var, gen->current_arena_var, value_code);
+        }
+    }
 
     /* Check if this is pointer-to-struct (needs -> instead of .) */
     if (object_type != NULL && object_type->kind == TYPE_POINTER)
