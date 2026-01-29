@@ -163,6 +163,22 @@ bool package_git_get_ref_sha(const char *repo_path, const char *ref_name, char *
 bool package_git_get_current_branch(const char *repo_path, char *out_branch, size_t out_len);
 
 /* ============================================================================
+ * Git LFS Operations (package_lfs.c)
+ * ============================================================================
+ * Provides native Git LFS support using libssh2 and libcurl.
+ * Required because libgit2 does not support Git LFS.
+ * ============================================================================ */
+
+/* Pull LFS content for a repository
+ * Downloads actual file content for any LFS pointer files found.
+ * repo_path: Path to the repository
+ * Returns true on success, false on failure */
+bool package_lfs_pull(const char *repo_path);
+
+/* Check if LFS support is available (compiled with curl) */
+bool package_lfs_available(void);
+
+/* ============================================================================
  * Package Synchronization
  * ============================================================================ */
 
