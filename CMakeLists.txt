@@ -439,13 +439,24 @@ install(TARGETS sn
     COMPONENT compiler
 )
 
-# Create symlink from bin/sn -> ../lib/sindarin/sn
-install(CODE "
-    set(LINK_SOURCE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/sn\")
-    set(LINK_TARGET \"../${SN_SDK_INSTALL_DIR}/sn\")
-    file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\")
-    execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink \${LINK_TARGET} \${LINK_SOURCE})
-" COMPONENT compiler)
+# Create bin/sn entry point
+# On Windows: copy the executable (symlinks don't work reliably)
+# On Unix: create symlink to preserve the SDK-relative path resolution
+if(WIN32)
+    install(CODE "
+        set(EXE_SOURCE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${SN_SDK_INSTALL_DIR}/sn.exe\")
+        set(EXE_DEST \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/sn.exe\")
+        file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\")
+        execute_process(COMMAND \${CMAKE_COMMAND} -E copy \${EXE_SOURCE} \${EXE_DEST})
+    " COMPONENT compiler)
+else()
+    install(CODE "
+        set(LINK_SOURCE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/sn\")
+        set(LINK_TARGET \"../${SN_SDK_INSTALL_DIR}/sn\")
+        file(MAKE_DIRECTORY \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}\")
+        execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink \${LINK_TARGET} \${LINK_SOURCE})
+    " COMPONENT compiler)
+endif()
 
 # Install runtime libraries
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/lib/"
