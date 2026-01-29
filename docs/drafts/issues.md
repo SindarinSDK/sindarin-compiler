@@ -158,69 +158,23 @@ See `tests/integration/test_path_join_all.sn`
 
 **Date:** 2026-01-29
 **Severity:** High
-**Status:** Open
+**Status:** FIXED
 
 ### Description
 
 When a static global struct has string fields, modifying those fields (e.g., assigning empty strings) causes memory corruption and garbled output.
 
-### Reproduction
-
-```sindarin
-struct Colors =>
-    red: str
-    bold: str
-    nc: str
-
-static var colors: Colors = Colors {
-    red: "",
-    bold: "",
-    nc: ""
-}
-
-fn initColors(): void =>
-    var esc: char = 27 as char
-    colors.red = $"{esc}[0;31m"
-    colors.bold = $"{esc}[1m"
-    colors.nc = $"{esc}[0m"
-
-fn disableColors(): void =>
-    colors.red = ""   // Bug: causes corruption
-    colors.bold = ""
-    colors.nc = ""
-
-fn main(args: str[]): int =>
-    initColors()
-    disableColors()  // After this, printing colors causes garbled output
-    print($"Test: {colors.bold}hello{colors.nc}\n")  // Corrupted output
-    return 0
-```
-
 ### Root Cause
 
-Assigning new string values to a static global struct's string fields appears to corrupt memory, possibly due to incorrect arena management for global variables.
+String handles were being allocated in `__local_arena__` which gets destroyed when the function returns. However, global structs outlive function scope, leaving dangling pointers.
 
-### Workaround
+### Fix
 
-Option 1: Don't modify global struct fields after initialization - use conditional logic instead:
-```sindarin
-fn getColor(useColors: bool, code: str): str =>
-    if useColors =>
-        return code
-    return ""
-```
+Modified `code_gen_member_assign_expression()` in `code_gen_expr.c` to detect when the target is a global variable (using `obj_sym->kind == SYMBOL_GLOBAL || obj_sym->declaration_scope_depth <= 1`) and use `__main_arena__` instead of the local arena for string field assignments.
 
-Option 2: Use local structs instead of global:
-```sindarin
-fn getColors(enabled: bool): Colors =>
-    if enabled =>
-        return Colors { red: "\x1b[31m", ... }
-    return Colors { red: "", ... }
-```
+### Test
 
-### Impact
-
-Affects any code that uses global structs with string fields and modifies those fields at runtime.
+See `tests/integration/test_global_struct_string_fields.sn`
 
 ---
 
@@ -228,60 +182,23 @@ Affects any code that uses global structs with string fields and modifies those 
 
 **Date:** 2026-01-29
 **Severity:** High
-**Status:** Open
+**Status:** FIXED
 
 ### Description
 
 When a string from the `args[]` array (or other function parameters) is assigned to a struct field, and that struct is returned from the function, the string value is lost (becomes empty string).
 
-### Reproduction
-
-```sindarin
-struct Result =>
-    name: str = "default"
-    value: int = 0
-
-fn makeResult(args: str[]): Result =>
-    var r: Result = Result {}
-    if args.length > 1 =>
-        r.name = args[1]  // Bug: this string is lost on return
-    r.value = args.length  // This int is preserved correctly
-    return r
-
-fn main(args: str[]): int =>
-    var r: Result = makeResult(args)
-    print($"name='{r.name}'\n")  // Prints: name=''
-    print($"value={r.value}\n")  // Prints: value=2 (correct)
-    return 0
-```
-
 ### Root Cause
 
-The string from `args[1]` is a pointer to memory in the caller's arena. When assigned to the struct field and the struct is returned, the string pointer is not being properly promoted/copied to ensure it survives the return.
+Handles from the caller's arena were being assigned directly to struct fields. The `rt_managed_promote()` function only promotes handles that exist in the local arena's handle table, so these external handles were not being copied on return.
 
-### Workaround
+### Fix
 
-Force a string copy using string interpolation:
+Modified `code_gen_member_assign_expression()` in `code_gen_expr.c` to wrap string field assignments in `rt_managed_strdup()` when the value comes from array access, variable, or member access expressions. This ensures the string is copied into the local arena where `rt_managed_promote()` can find and promote it on return.
 
-```sindarin
-fn copyStr(s: str): str =>
-    return $"{s}"
+### Test
 
-fn makeResult(args: str[]): Result =>
-    var r: Result = Result {}
-    if args.length > 1 =>
-        r.name = copyStr(args[1])  // Workaround: forces copy
-    return r
-```
-
-### Impact
-
-Affects any code that:
-1. Takes array parameters (especially `args: str[]`)
-2. Assigns array elements to struct string fields
-3. Returns the struct
-
-This includes common patterns like argument parsing where parsed arguments are stored in a result struct.
+See `tests/integration/test_args_string.sn`
 
 ---
 
