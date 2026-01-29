@@ -1,0 +1,39 @@
+// Test chained string array methods with immediate indexing
+// This tests the pattern: arrayMethod()[index].stringMethod()
+// which requires proper handle-based array representation
+
+fn main(): void =>
+    // Test splitLines()[index].method()
+    var multiline: str = "  hello  \n  world  \n  test  "
+    var line1: str = multiline.splitLines()[0].trim()
+    var line2: str = multiline.splitLines()[1].trim()
+    print($"{line1}\n")
+    print($"{line2}\n")
+
+    // Test split()[index].method()
+    var csv: str = "  apple  ,  banana  ,  cherry  "
+    var first: str = csv.split(",")[0].trim()
+    var second: str = csv.split(",")[1].trim().toUpper()
+    print($"{first}\n")
+    print($"{second}\n")
+
+    // Test splitWhitespace()[index].method()
+    var words: str = "HELLO world TEST"
+    var w1: str = words.splitWhitespace()[0].toLower()
+    var w2: str = words.splitWhitespace()[1].toUpper()
+    print($"{w1}\n")
+    print($"{w2}\n")
+
+    // Test chained with length property
+    var lengths: str = "short,medium,longerword"
+    var len1: int = lengths.split(",")[0].length
+    var len2: int = lengths.split(",")[2].length
+    print($"{len1}\n")
+    print($"{len2}\n")
+
+    // Test with negative indexing
+    var items: str = "a,b,c,d,e"
+    var last: str = items.split(",")[-1].toUpper()
+    var secondLast: str = items.split(",")[-2].toUpper()
+    print($"{last}\n")
+    print($"{secondLast}\n")
