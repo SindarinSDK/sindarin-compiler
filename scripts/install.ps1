@@ -1,28 +1,23 @@
 <#
 .SYNOPSIS
-    Installs the Sindarin SDK from the latest GitHub release.
+    Installs the Sindarin compiler from the latest GitHub release.
 
 .DESCRIPTION
     This script:
-    1. Uninstalls any existing Sindarin packages via winget
-    2. Downloads the latest winget-manifest.zip from GitHub releases
-    3. Extracts and installs using winget with the local manifest
-    4. Tests the installation by compiling and running a hello world program
+    1. Downloads the latest Windows release from GitHub
+    2. Extracts it to ~/.sn
+    3. Adds ~/.sn/bin to the user PATH (if not already present)
 
 .EXAMPLE
-    .\scripts\install.ps1
+    irm https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.ps1 | iex
 #>
-
-param(
-    [switch]$SkipTest,
-    [switch]$SkipUninstall
-)
 
 $ErrorActionPreference = "Stop"
 
 $RepoOwner = "SindarinSDK"
 $RepoName = "sindarin-compiler"
-$ManifestAsset = "winget-manifests.zip"
+$InstallDir = Join-Path $env:USERPROFILE ".sn"
+$BinDir = Join-Path $InstallDir "bin"
 
 function Write-Status {
     param([string]$Message, [string]$Type = "Info")
@@ -35,37 +30,7 @@ function Write-Status {
     }
 }
 
-function Uninstall-ExistingSindarin {
-    Write-Status "Checking for existing Sindarin installations..."
-
-    $packages = winget list --name Sindarin 2>$null | Select-String -Pattern "Sindarin"
-
-    if ($packages) {
-        Write-Status "Found existing Sindarin installation(s), uninstalling..." "Warning"
-
-        # Get the package IDs
-        $listOutput = winget list --name Sindarin 2>$null
-        $lines = $listOutput -split "`n" | Where-Object { $_ -match "Sindarin" }
-
-        foreach ($line in $lines) {
-            # Extract the ID (second column)
-            if ($line -match "Sindarin\s+(\S+)") {
-                $packageId = $Matches[1]
-                Write-Status "Uninstalling: $packageId"
-                winget uninstall --id $packageId --silent 2>$null
-                if ($LASTEXITCODE -eq 0) {
-                    Write-Status "Successfully uninstalled $packageId" "Success"
-                } else {
-                    Write-Status "Failed to uninstall $packageId (may require manual removal)" "Warning"
-                }
-            }
-        }
-    } else {
-        Write-Status "No existing Sindarin installations found" "Success"
-    }
-}
-
-function Get-LatestRelease {
+function Get-LatestWindowsRelease {
     Write-Status "Fetching latest release from GitHub..."
 
     $apiUrl = "https://api.github.com/repos/$RepoOwner/$RepoName/releases/latest"
@@ -80,11 +45,11 @@ function Get-LatestRelease {
 
         Write-Status "Found release: $($release.tag_name)" "Success"
 
-        # Find the winget-manifest.zip asset
-        $asset = $release.assets | Where-Object { $_.name -eq $ManifestAsset }
+        # Find the Windows zip asset
+        $asset = $release.assets | Where-Object { $_.name -like "*-windows-x64.zip" }
 
         if (-not $asset) {
-            throw "Asset '$ManifestAsset' not found in release $($release.tag_name)"
+            throw "Windows release asset not found in release $($release.tag_name)"
         }
 
         return @{
@@ -98,201 +63,141 @@ function Get-LatestRelease {
     }
 }
 
-function Install-FromManifest {
+function Install-Sindarin {
     param([hashtable]$Release)
 
     $tempDir = Join-Path $env:TEMP "sindarin-install-$(Get-Date -Format 'yyyyMMddHHmmss')"
     $zipPath = Join-Path $tempDir $Release.AssetName
-    $extractPath = Join-Path $tempDir "manifest"
 
     try {
         # Create temp directory
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
-        Write-Status "Created temp directory: $tempDir"
 
-        # Download the manifest zip
-        Write-Status "Downloading $($Release.AssetName) from $($Release.TagName)..."
+        # Download the release zip
+        Write-Status "Downloading $($Release.AssetName)..."
         Invoke-WebRequest -Uri $Release.AssetUrl -OutFile $zipPath -UseBasicParsing
-        Write-Status "Downloaded to: $zipPath" "Success"
+        Write-Status "Download complete" "Success"
+
+        # Remove existing installation if present
+        if (Test-Path $InstallDir) {
+            Write-Status "Removing existing installation at $InstallDir..."
+            Remove-Item -Path $InstallDir -Recurse -Force
+        }
+
+        # Create installation directory
+        New-Item -ItemType Directory -Path $InstallDir -Force | Out-Null
 
         # Extract the zip
-        Write-Status "Extracting manifest..."
-        Expand-Archive -Path $zipPath -DestinationPath $extractPath -Force
-        Write-Status "Extracted to: $extractPath" "Success"
+        Write-Status "Extracting to $InstallDir..."
+        Expand-Archive -Path $zipPath -DestinationPath $InstallDir -Force
 
-        # Find the manifest directory (should contain .yaml files)
-        $manifestDir = Get-ChildItem -Path $extractPath -Directory -Recurse |
-            Where-Object { Get-ChildItem -Path $_.FullName -Filter "*.yaml" -File } |
-            Select-Object -First 1
+        # The zip might contain a nested folder - flatten if needed
+        $nestedDirs = Get-ChildItem -Path $InstallDir -Directory
+        if ($nestedDirs.Count -eq 1 -and (Test-Path (Join-Path $nestedDirs[0].FullName "bin"))) {
+            $nestedPath = $nestedDirs[0].FullName
+            Write-Status "Flattening nested directory structure..."
 
-        if (-not $manifestDir) {
-            # Maybe the yaml files are directly in extractPath
-            $yamlFiles = Get-ChildItem -Path $extractPath -Filter "*.yaml" -File -Recurse
-            if ($yamlFiles) {
-                $manifestDir = $yamlFiles[0].Directory
-            } else {
-                throw "No manifest files (.yaml) found in the extracted archive"
-            }
+            # Move contents up one level
+            Get-ChildItem -Path $nestedPath | Move-Item -Destination $InstallDir -Force
+            Remove-Item -Path $nestedPath -Force
         }
 
-        Write-Status "Found manifest at: $($manifestDir.FullName)"
-
-        # Install using winget with local manifest
-        Write-Status "Installing Sindarin SDK via winget..."
-        $installResult = winget install --manifest $manifestDir.FullName --accept-package-agreements --accept-source-agreements --ignore-local-archive-malware-scan 2>&1
-
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host $installResult
-            throw "winget install failed with exit code $LASTEXITCODE"
+        # Verify bin directory exists
+        if (-not (Test-Path $BinDir)) {
+            throw "Installation failed: bin directory not found at $BinDir"
         }
 
-        Write-Status "Sindarin SDK installed successfully!" "Success"
-
-        return $tempDir
-    }
-    catch {
-        # Cleanup on failure
-        if (Test-Path $tempDir) {
-            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-        }
-        throw
-    }
-}
-
-function Test-Installation {
-    param([string]$TempDir)
-
-    Write-Status "Testing Sindarin installation..."
-
-    $testDir = if ($TempDir) { $TempDir } else { Join-Path $env:TEMP "sindarin-test-$(Get-Date -Format 'yyyyMMddHHmmss')" }
-    $testFile = Join-Path $testDir "hello.sn"
-    $testExe = Join-Path $testDir "hello.exe"
-
-    try {
-        # Create test directory if needed
-        if (-not (Test-Path $testDir)) {
-            New-Item -ItemType Directory -Path $testDir -Force | Out-Null
+        # Verify sn.exe exists
+        $snExe = Join-Path $BinDir "sn.exe"
+        if (-not (Test-Path $snExe)) {
+            throw "Installation failed: sn.exe not found at $snExe"
         }
 
-        # Write hello world program
-        $helloWorld = @"
-fn main(): int =>
-    println("Hello, World from Sindarin!")
-    return 0
-"@
-        # Write without BOM (PowerShell's UTF8 adds BOM which breaks the compiler)
-        [System.IO.File]::WriteAllText($testFile, $helloWorld)
-        Write-Status "Created test file: $testFile"
-
-        # Refresh PATH to pick up newly installed sn compiler
-        $env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path", "User")
-
-        # Verify sn is available
-        $snPath = Get-Command sn -ErrorAction SilentlyContinue
-        if (-not $snPath) {
-            throw "sn compiler not found in PATH after installation"
-        }
-
-        # Compile the test program
-        Write-Status "Compiling hello.sn..."
-        $proc = Start-Process -FilePath "sn" -ArgumentList "`"$testFile`"", "-o", "`"$testExe`"" -Wait -PassThru -NoNewWindow -RedirectStandardOutput "$testDir\stdout.txt" -RedirectStandardError "$testDir\stderr.txt"
-        $compileExitCode = $proc.ExitCode
-
-        $compileStdout = if (Test-Path "$testDir\stdout.txt") { Get-Content "$testDir\stdout.txt" -Raw } else { "" }
-        $compileStderr = if (Test-Path "$testDir\stderr.txt") { Get-Content "$testDir\stderr.txt" -Raw } else { "" }
-
-        if ($compileExitCode -ne 0) {
-            if ($compileStderr) { Write-Host $compileStderr }
-            throw "Compilation failed with exit code $compileExitCode"
-        }
-
-        # Verify the exe was created
-        if (-not (Test-Path $testExe)) {
-            throw "Compilation succeeded but no executable was created"
-        }
-
-        Write-Status "Compilation successful!" "Success"
-
-        # Run the compiled program
-        Write-Status "Running hello.exe..."
-        $runOutput = & $testExe 2>&1
-
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host $runOutput
-            throw "Execution failed with exit code $LASTEXITCODE"
-        }
-
-        Write-Host ""
-        Write-Host "  Output: $runOutput" -ForegroundColor White
-        Write-Host ""
-
-        if ($runOutput -match "Hello.*World.*Sindarin") {
-            Write-Status "Test passed! Sindarin is working correctly." "Success"
-        } else {
-            Write-Status "Test completed but output was unexpected" "Warning"
-        }
+        Write-Status "Extraction complete" "Success"
 
         return $true
     }
     catch {
-        Write-Status "Test failed: $_" "Error"
-        return $false
+        throw "Installation failed: $_"
     }
     finally {
-        # Cleanup test files
-        if (Test-Path $testDir) {
-            Remove-Item -Path $testDir -Recurse -Force -ErrorAction SilentlyContinue
+        # Cleanup temp directory
+        if (Test-Path $tempDir) {
+            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
+}
+
+function Add-ToPath {
+    Write-Status "Configuring PATH..."
+
+    # Get current user PATH
+    $currentPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+
+    # Split into individual paths and normalize them
+    $pathList = if ($currentPath) {
+        $currentPath -split ";" | Where-Object { $_ -ne "" } | ForEach-Object { $_.TrimEnd("\") }
+    } else {
+        @()
+    }
+
+    # Normalize our bin directory path for comparison
+    $normalizedBinDir = $BinDir.TrimEnd("\")
+
+    # Check if already in PATH (case-insensitive)
+    $alreadyInPath = $pathList | Where-Object { $_.ToLower() -eq $normalizedBinDir.ToLower() }
+
+    if ($alreadyInPath) {
+        Write-Status "PATH already contains $BinDir" "Success"
+        return
+    }
+
+    # Add to PATH
+    $newPath = if ($currentPath) {
+        "$currentPath;$BinDir"
+    } else {
+        $BinDir
+    }
+
+    [System.Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+    Write-Status "Added $BinDir to user PATH" "Success"
 }
 
 function Main {
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Magenta
-    Write-Host "    Sindarin SDK Installer" -ForegroundColor Magenta
+    Write-Host "    Sindarin Compiler Installer" -ForegroundColor Magenta
     Write-Host "========================================" -ForegroundColor Magenta
     Write-Host ""
 
-    $tempDir = $null
-
     try {
-        # Step 1: Uninstall existing installations
-        if (-not $SkipUninstall) {
-            Uninstall-ExistingSindarin
-        }
+        # Step 1: Get latest release info
+        $release = Get-LatestWindowsRelease
 
-        # Step 2: Get latest release info
-        $release = Get-LatestRelease
+        # Step 2: Download and install
+        Install-Sindarin -Release $release | Out-Null
 
-        # Step 3: Download and install from manifest
-        $tempDir = Install-FromManifest -Release $release
-
-        # Step 4: Test the installation
-        if (-not $SkipTest) {
-            $testResult = Test-Installation -TempDir $tempDir
-            if (-not $testResult) {
-                Write-Status "Installation completed but tests failed" "Warning"
-                exit 1
-            }
-        }
+        # Step 3: Add to PATH (idempotent - won't duplicate)
+        Add-ToPath
 
         Write-Host ""
-        Write-Status "Sindarin SDK installation complete!" "Success"
+        Write-Status "Sindarin compiler installed successfully!" "Success"
         Write-Host ""
-        Write-Host "  You can now use 'sn' to compile Sindarin programs." -ForegroundColor White
-        Write-Host "  Example: sn myprogram.sn -o myprogram.exe" -ForegroundColor White
+        Write-Host "  Installed to: $InstallDir" -ForegroundColor White
+        Write-Host "  Version:      $($release.TagName)" -ForegroundColor White
         Write-Host ""
-
+        Write-Host "  ============================================" -ForegroundColor Yellow
+        Write-Host "  IMPORTANT: Please restart your terminal" -ForegroundColor Yellow
+        Write-Host "  for PATH changes to take effect." -ForegroundColor Yellow
+        Write-Host "  ============================================" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  After restarting, you can compile Sindarin programs:" -ForegroundColor White
+        Write-Host "    sn myprogram.sn -o myprogram.exe" -ForegroundColor White
+        Write-Host ""
     }
     catch {
         Write-Status "Installation failed: $_" "Error"
         exit 1
-    }
-    finally {
-        # Cleanup temp directory
-        if ($tempDir -and (Test-Path $tempDir)) {
-            Remove-Item -Path $tempDir -Recurse -Force -ErrorAction SilentlyContinue
-        }
     }
 }
 
