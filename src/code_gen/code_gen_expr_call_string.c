@@ -47,7 +47,9 @@
         return arena_sprintf((gen)->arena, "%s", method_call); \
     } while(0)
 
-/* Helper for methods returning arrays with temp object handling */
+/* Helper for methods returning arrays with temp object handling.
+ * Always uses handle-based representation when arena is available to ensure
+ * consistent element types (RtHandle) that can be properly pinned during array indexing. */
 #define STRING_METHOD_RETURNING_ARRAY(gen, object_is_temp, object_str, elem_type, method_call) \
     do { \
         char *_raw_result; \
@@ -64,9 +66,20 @@
         } else { \
             _raw_result = arena_sprintf((gen)->arena, "%s", method_call); \
         } \
-        if ((gen)->expr_as_handle && (gen)->current_arena_var != NULL) { \
-            return arena_sprintf((gen)->arena, "rt_array_from_raw_strings_h(%s, RT_HANDLE_NULL, %s)", \
-                                 ARENA_VAR(gen), _raw_result); \
+        if ((gen)->current_arena_var != NULL) { \
+            /* Always create handle-based array so elements are RtHandle */ \
+            char *_handle_result = arena_sprintf((gen)->arena, \
+                "rt_array_from_raw_strings_h(%s, RT_HANDLE_NULL, %s)", \
+                ARENA_VAR(gen), _raw_result); \
+            if ((gen)->expr_as_handle) { \
+                return _handle_result; \
+            } else { \
+                /* Pin the handle-based array - elements are still RtHandle, */ \
+                /* which is correct for array indexing to pin to char* */ \
+                return arena_sprintf((gen)->arena, \
+                    "((RtHandle *)rt_managed_pin_array(%s, %s))", \
+                    ARENA_VAR(gen), _handle_result); \
+            } \
         } \
         return _raw_result; \
     } while(0)
