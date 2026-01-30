@@ -486,7 +486,7 @@ else()
 endif()
 
 # Find dependency installation directory from libs
-set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/${SINDARIN_LIBS_PLATFORM}")
+set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
 
 # Create bin/deps directory structure
 set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
