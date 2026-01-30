@@ -90,24 +90,26 @@ fn main(): void =>
 
 ### SDK Modules
 
+SDK documentation is available at [sindarin-pkg-sdk](https://github.com/SindarinSDK/sindarin-pkg-sdk).
+
 | Document | Description |
 |----------|-------------|
-| [SDK Overview](docs/sdk/readme.md) | All SDK modules |
-| [Crypto](docs/sdk/crypto.md) | Hashing, encryption, HMAC, PBKDF2, secure random |
-| [Date](docs/sdk/date.md) | Calendar date operations |
-| [Time](docs/sdk/time.md) | Time and duration operations |
-| [Random](docs/sdk/random.md) | Random number generation |
-| [UUID](docs/sdk/uuid.md) | UUID generation and manipulation |
-| [Environment](docs/sdk/env.md) | Environment variable access |
-| [Process](docs/sdk/process.md) | Process execution and output capture |
-| [Math](docs/sdk/math.md) | Mathematical functions and constants |
-| [JSON](docs/sdk/json.md) | JSON parsing and serialization |
-| [XML](docs/sdk/xml.md) | XML parsing, XPath, and DOM manipulation |
-| [YAML](docs/sdk/yaml.md) | YAML parsing and serialization |
-| [ZLib](docs/sdk/zlib.md) | Compression and decompression |
-| [Stdio](docs/sdk/stdio.md) | Standard input/output/error streams |
-| [File I/O](docs/sdk/io/readme.md) | TextFile, BinaryFile, Path, Directory, Bytes |
-| [Networking](docs/sdk/net/readme.md) | TCP, UDP, TLS, DTLS, SSH, QUIC |
+| [SDK Overview](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/readme.md) | All SDK modules |
+| [Crypto](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/crypto.md) | Hashing, encryption, HMAC, PBKDF2, secure random |
+| [Date](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/date.md) | Calendar date operations |
+| [Time](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/time.md) | Time and duration operations |
+| [Random](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/random.md) | Random number generation |
+| [UUID](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/uuid.md) | UUID generation and manipulation |
+| [Environment](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/env.md) | Environment variable access |
+| [Process](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/process.md) | Process execution and output capture |
+| [Math](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/math.md) | Mathematical functions and constants |
+| [JSON](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/json.md) | JSON parsing and serialization |
+| [XML](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/xml.md) | XML parsing, XPath, and DOM manipulation |
+| [YAML](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/yaml.md) | YAML parsing and serialization |
+| [ZLib](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/zlib.md) | Compression and decompression |
+| [Stdio](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/stdio.md) | Standard input/output/error streams |
+| [File I/O](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/io/readme.md) | TextFile, BinaryFile, Path, Directory, Bytes |
+| [Networking](https://github.com/SindarinSDK/sindarin-pkg-sdk/blob/main/docs/net/readme.md) | TCP, UDP, TLS, DTLS, SSH, QUIC |
 
 ## Architecture
 
