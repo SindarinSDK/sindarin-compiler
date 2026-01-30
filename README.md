@@ -23,92 +23,19 @@
 
 ## Installation
 
-### Linux (Debian/Ubuntu)
+### Linux / macOS
 
 ```bash
-# Download the .deb package from the latest release
-sudo dpkg -i sindarin_*.deb
-
-# Dependencies (gcc, zlib) are installed automatically
-sn --version
-```
-
-### Linux (Fedora/RHEL)
-
-```bash
-# Download the .rpm package from the latest release
-sudo rpm -i sindarin-*.rpm
-
-sn --version
-```
-
-### Linux (Arch)
-
-```bash
-# Download PKGBUILD from the release
-curl -LO https://github.com/SindarinSDK/sindarin-compiler/releases/latest/download/PKGBUILD
-
-# Build and install
-makepkg -si
-```
-
-### macOS (Homebrew)
-
-```bash
-# Download the formula from the release
-curl -LO https://github.com/SindarinSDK/sindarin-compiler/releases/latest/download/sindarin.rb
-
-# Install (will prompt for Xcode CLT if needed)
-brew install --formula ./sindarin.rb
-```
-
-### Linux/macOS (Tarball)
-
-```bash
-# Download and extract
-tar xzf sindarin-*-linux-x64.tar.gz   # or macos-x64
-cd sindarin-*/
-
-# Add to PATH or copy to /usr/local
-export PATH="$PWD/bin:$PATH"
-sn --version
+curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.sh | bash
 ```
 
 ### Windows
 
-**Option 1: Winget (local manifest)**
-
 ```powershell
-# Download winget-manifests.zip from the release
-Expand-Archive winget-manifests.zip -DestinationPath winget-manifests
-winget install --manifest ./winget-manifests
+irm https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.ps1 | iex
 ```
 
-**Option 2: Manual installation**
-
-```powershell
-# Download and extract the ZIP
-Expand-Archive sindarin-*-windows-x64.zip -DestinationPath C:\sindarin
-
-# Add to PATH
-$env:PATH += ";C:\sindarin\bin"
-sn --version
-```
-
-**Prerequisite for Windows:** [LLVM-MinGW](https://github.com/mstorsjo/llvm-mingw) is required (provides clang).
-
-### Build from Source
-
-```bash
-# Prerequisites: CMake, Ninja, GCC or Clang, zlib
-
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release
-cmake --build build
-
-bin/sn --version
-```
-
-See [docs/building.md](docs/building.md) for detailed build instructions.
+See [docs/building.md](docs/building.md) for building from source and other installation options.
 
 ## Quick Start
 
