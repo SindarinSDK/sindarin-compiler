@@ -8,6 +8,10 @@
  *          Falls back to ~/.ssh/id_ed25519, id_rsa, id_ecdsa, id_dsa
  *          SN_GIT_SSH_PASSPHRASE env var for encrypted keys
  *   HTTPS: SN_GIT_USERNAME, SN_GIT_PASSWORD / SN_GIT_TOKEN
+ *
+ * SSL Certificate Verification:
+ *   On Windows, libgit2 may fail to find system CA certificates.
+ *   Set SN_GIT_SSL_NO_VERIFY=1 to bypass SSL certificate verification.
  * ============================================================================== */
 
 #include "../package.h"
@@ -16,9 +20,115 @@
 #include <string.h>
 #include <git2.h>
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <wincrypt.h>
+#endif
+
 /* ANSI color codes for terminal output (matching diagnostic.c) */
 #define COLOR_RESET   "\033[0m"
 #define COLOR_RED     "\033[1;31m"
+
+/* ============================================================================
+ * SSL Certificate Verification
+ * ============================================================================ */
+
+static bool ssl_no_verify_checked = false;
+static bool ssl_no_verify = false;
+
+static bool should_skip_ssl_verify(void)
+{
+    if (!ssl_no_verify_checked) {
+        const char *env = getenv("SN_GIT_SSL_NO_VERIFY");
+        ssl_no_verify = (env != NULL && (strcmp(env, "1") == 0 ||
+                                          strcmp(env, "true") == 0 ||
+                                          strcmp(env, "yes") == 0));
+        ssl_no_verify_checked = true;
+    }
+    return ssl_no_verify;
+}
+
+#ifdef _WIN32
+/* Validate certificate using Windows certificate store */
+static bool validate_cert_with_windows(const unsigned char *cert_data, size_t cert_len)
+{
+    PCCERT_CONTEXT cert_context = CertCreateCertificateContext(
+        X509_ASN_ENCODING | PKCS_7_ASN_ENCODING,
+        cert_data,
+        (DWORD)cert_len
+    );
+
+    if (!cert_context) {
+        return false;
+    }
+
+    /* Build certificate chain */
+    CERT_CHAIN_PARA chain_params;
+    memset(&chain_params, 0, sizeof(chain_params));
+    chain_params.cbSize = sizeof(chain_params);
+
+    PCCERT_CHAIN_CONTEXT chain_context = NULL;
+    BOOL chain_result = CertGetCertificateChain(
+        NULL,                       /* Use default chain engine */
+        cert_context,
+        NULL,                       /* Use current time */
+        NULL,                       /* Search only root store */
+        &chain_params,
+        CERT_CHAIN_REVOCATION_CHECK_CHAIN_EXCLUDE_ROOT,
+        NULL,
+        &chain_context
+    );
+
+    bool valid = false;
+    if (chain_result && chain_context) {
+        /* Check chain status */
+        if (chain_context->TrustStatus.dwErrorStatus == CERT_TRUST_NO_ERROR) {
+            valid = true;
+        } else if ((chain_context->TrustStatus.dwErrorStatus &
+                    ~(CERT_TRUST_IS_NOT_TIME_VALID |
+                      CERT_TRUST_REVOCATION_STATUS_UNKNOWN |
+                      CERT_TRUST_IS_OFFLINE_REVOCATION)) == 0) {
+            /* Allow some non-critical errors for better compatibility */
+            valid = true;
+        }
+        CertFreeCertificateChain(chain_context);
+    }
+
+    CertFreeCertificateContext(cert_context);
+    return valid;
+}
+#endif
+
+/* Certificate check callback for libgit2 */
+static int certificate_check_callback(git_cert *cert, int valid, const char *host, void *payload)
+{
+    (void)payload;
+    (void)host;
+
+    /* If already valid, accept */
+    if (valid) {
+        return 0;
+    }
+
+    /* Check for SSL bypass environment variable */
+    if (should_skip_ssl_verify()) {
+        return 0;
+    }
+
+#ifdef _WIN32
+    /* On Windows, try to validate using Windows certificate store */
+    if (cert && cert->cert_type == GIT_CERT_X509) {
+        git_cert_x509 *x509 = (git_cert_x509 *)cert;
+        if (validate_cert_with_windows((const unsigned char *)x509->data, x509->len)) {
+            return 0;
+        }
+    }
+#endif
+
+    /* Certificate validation failed */
+    return GIT_ECERTIFICATE;
+}
 
 /* ============================================================================
  * libgit2 Initialization
@@ -215,6 +325,7 @@ bool package_git_clone(const char *url, const char *dest_path)
     git_clone_options opts;
     git_clone_options_init(&opts, GIT_CLONE_OPTIONS_VERSION);
     opts.fetch_opts.callbacks.credentials = credential_callback;
+    opts.fetch_opts.callbacks.certificate_check = certificate_check_callback;
     cred_attempt_count = 0;
     ssh_auth_help_shown = false;
 
@@ -259,6 +370,7 @@ bool package_git_fetch(const char *repo_path)
     git_fetch_options opts;
     git_fetch_options_init(&opts, GIT_FETCH_OPTIONS_VERSION);
     opts.callbacks.credentials = credential_callback;
+    opts.callbacks.certificate_check = certificate_check_callback;
     cred_attempt_count = 0;
     ssh_auth_help_shown = false;
 
