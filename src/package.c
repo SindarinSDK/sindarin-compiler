@@ -829,7 +829,7 @@ bool package_init(void)
     /* Add default SDK dependency (provides sindarin-libs transitively) */
     PackageDependency *sdk_dep = &config.dependencies[0];
     strncpy(sdk_dep->name, "sindarin-pkg-sdk", sizeof(sdk_dep->name) - 1);
-    strncpy(sdk_dep->git_url, "https://github.com/SindarinSDK/sindarin-pkg-sdk.git", sizeof(sdk_dep->git_url) - 1);
+    strncpy(sdk_dep->git_url, "git@github.com:SindarinSDK/sindarin-pkg-sdk.git", sizeof(sdk_dep->git_url) - 1);
     strncpy(sdk_dep->branch, "main", sizeof(sdk_dep->branch) - 1);
     config.dependency_count = 1;
 
