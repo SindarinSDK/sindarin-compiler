@@ -20,6 +20,7 @@
     #define rmdir _rmdir
 #else
     #include <unistd.h>
+    #include <limits.h>
     #define PATH_SEP '/'
 #endif
 
@@ -326,8 +327,14 @@ static bool package_run_install_script(const char *pkg_path)
     /* Find the directory containing sn.yaml (could be pkg_path or a subdirectory) */
     char yaml_path[PKG_MAX_PATH_LEN];
     char script_path[PKG_MAX_PATH_LEN];
+#ifdef _WIN32
     char abs_pkg_path[PKG_MAX_PATH_LEN];
     char abs_script_path[PKG_MAX_PATH_LEN];
+#else
+    /* realpath() requires PATH_MAX sized buffer (4096 bytes typically) */
+    char abs_pkg_path[PATH_MAX];
+    char abs_script_path[PATH_MAX];
+#endif
 
     /* Check for sn.yaml in the package root */
     snprintf(yaml_path, sizeof(yaml_path), "%s%c%s", pkg_path, PATH_SEP, PKG_YAML_FILE);
