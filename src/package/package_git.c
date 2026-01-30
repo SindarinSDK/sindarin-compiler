@@ -105,6 +105,7 @@ static int certificate_check_callback(git_cert *cert, int valid, const char *hos
 {
     (void)payload;
     (void)host;
+    (void)cert;
 
     /* If already valid, accept */
     if (valid) {
