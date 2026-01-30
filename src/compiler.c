@@ -31,11 +31,10 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->debug_build = 0;  /* Default: optimized build */
     options->link_libs = NULL;
     options->link_lib_count = 0;
-    options->do_update = 0;    /* Default: no self-update */
-    options->check_update = 0; /* Default: no update check */
     options->do_init = 0;      /* Default: no package init */
     options->do_install = 0;   /* Default: no package install */
     options->install_target = NULL;
+    options->clear_cache = 0;  /* Default: no cache clear */
 
     /* Get the compiler directory for locating runtime objects */
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
@@ -76,16 +75,6 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             printf("sn %s\n", SN_VERSION_STRING);
             exit(0);
         }
-        if (strcmp(argv[i], "--update") == 0)
-        {
-            options->do_update = 1;
-            return 1;  /* Skip other parsing, --update is standalone */
-        }
-        if (strcmp(argv[i], "--check-update") == 0)
-        {
-            options->check_update = 1;
-            return 1;  /* Skip other parsing, --check-update is standalone */
-        }
         if (strcmp(argv[i], "--init") == 0)
         {
             options->do_init = 1;
@@ -100,6 +89,11 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 options->install_target = arena_strdup(&options->arena, argv[i + 1]);
             }
             return 1;  /* Skip other parsing, --install is standalone */
+        }
+        if (strcmp(argv[i], "--clear-cache") == 0)
+        {
+            options->clear_cache = 1;
+            return 1;  /* Skip other parsing, --clear-cache is standalone */
         }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
         {
@@ -129,14 +123,11 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  -h, --help         Show this help message\n"
                 "  --version          Show version information\n"
                 "\n"
-                "Update:\n"
-                "  --update           Download and install the latest version\n"
-                "  --check-update     Check if a newer version is available\n"
-                "\n"
                 "Package management:\n"
                 "  --init             Initialize a new project (creates sn.yaml)\n"
                 "  --install          Install dependencies from sn.yaml\n"
                 "  --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)\n"
+                "  --clear-cache      Clear the package cache (~/.sn-cache)\n"
                 "\n"
                 "By default, compiles to an executable and removes the intermediate C file.\n",
                 argv[0]);
@@ -166,14 +157,11 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             "  -O1                Basic Sn optimizations (dead code elimination, string merging)\n"
             "  -O2                Full Sn optimizations (default: + tail call, unchecked arithmetic)\n"
             "\n"
-            "Update:\n"
-            "  --update           Download and install the latest version\n"
-            "  --check-update     Check if a newer version is available\n"
-            "\n"
             "Package management:\n"
             "  --init             Initialize a new project (creates sn.yaml)\n"
             "  --install          Install dependencies from sn.yaml\n"
             "  --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)\n"
+            "  --clear-cache      Clear the package cache (~/.sn-cache)\n"
             "\n"
             "By default, compiles to an executable and removes the intermediate C file.\n"
             "Requires GCC to be installed for compilation.\n",

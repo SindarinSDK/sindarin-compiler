@@ -206,4 +206,18 @@ bool package_parse_url_ref(const char *url_ref, char *out_url, char *out_ref);
  * Returns true on success, false on failure */
 bool package_extract_name(const char *url, char *out_name);
 
+/* ============================================================================
+ * Package Cache Operations
+ * ============================================================================ */
+
+/* Get the package cache directory path (~/.sn-cache)
+ * out_path: Output buffer for cache directory path
+ * out_len: Size of output buffer
+ * Returns true on success, false on failure */
+bool package_get_cache_dir(char *out_path, size_t out_len);
+
+/* Clear the package cache directory
+ * Returns true on success, false on failure */
+bool package_clear_cache(void);
+
 #endif /* PACKAGE_H */

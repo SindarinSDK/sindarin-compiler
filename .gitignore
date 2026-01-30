@@ -6,6 +6,7 @@ log/
 logs/
 tmp/
 install/
+libs/
 
 # Object files
 *.o

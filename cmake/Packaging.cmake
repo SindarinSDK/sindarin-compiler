@@ -77,7 +77,7 @@ elseif(APPLE)
     set(CPACK_BUNDLE_NAME "Sindarin")
 
     # File extension
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-macos-x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-darwin-x64")
 
 else()
     # Linux: TGZ, DEB, and RPM

@@ -3,7 +3,6 @@
 #include "debug.h"
 #include "type_checker.h"
 #include "gcc_backend.h"
-#include "updater.h"
 #include "version.h"
 #include "package.h"
 #include <stdio.h>
@@ -36,49 +35,6 @@ int main(int argc, char **argv)
     compiler_init(&options, argc, argv);
     init_debug(options.log_level);
 
-    /* Handle --update flag (self-update) */
-    if (options.do_update)
-    {
-        updater_init();
-        bool success = updater_perform_update(options.verbose);
-        updater_cleanup();
-        compiler_cleanup(&options);
-        return success ? 0 : 1;
-    }
-
-    /* Handle --check-update flag (check only) */
-    if (options.check_update)
-    {
-        printf("Checking for updates...\n");
-        updater_init();
-        updater_check_start();
-
-        /* Wait for check to complete */
-        while (!updater_check_done())
-        {
-#ifdef _WIN32
-            Sleep(100);
-#else
-            usleep(100000);
-#endif
-        }
-
-        const UpdateInfo *info = updater_get_result();
-        if (info && info->update_available)
-        {
-            printf("Update available: %s -> %s\n", SN_VERSION_STRING, info->version);
-            printf("Run 'sn --update' to install.\n");
-        }
-        else
-        {
-            printf("Already running the latest version (%s)\n", SN_VERSION_STRING);
-        }
-
-        updater_cleanup();
-        compiler_cleanup(&options);
-        return 0;
-    }
-
     /* Handle --init flag (package initialization) */
     if (options.do_init)
     {
@@ -91,6 +47,14 @@ int main(int argc, char **argv)
     if (options.do_install)
     {
         bool success = package_install(options.install_target);
+        compiler_cleanup(&options);
+        return success ? 0 : 1;
+    }
+
+    /* Handle --clear-cache flag (clear package cache) */
+    if (options.clear_cache)
+    {
+        bool success = package_clear_cache();
         compiler_cleanup(&options);
         return success ? 0 : 1;
     }

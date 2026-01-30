@@ -157,13 +157,6 @@ set(SN_BACKEND_SOURCES
     src/gcc_backend.c
 )
 
-set(SN_UPDATER_SOURCES
-    src/updater.c
-    src/updater/updater_check.c
-    src/updater/updater_download.c
-    src/updater/updater_install.c
-)
-
 set(SN_PACKAGE_SOURCES
     src/package.c
     src/package/package_yaml.c
@@ -199,7 +192,6 @@ set(SN_COMPILER_SOURCES
     ${SN_CODEGEN_SOURCES}
     ${SN_BACKEND_SOURCES}
     ${SN_RUNTIME_SOURCES}
-    ${SN_UPDATER_SOURCES}
     ${SN_PACKAGE_SOURCES}
 )
 
@@ -488,13 +480,13 @@ install(FILES "${CMAKE_SOURCE_DIR}/etc/sn.cfg"
 if(WIN32)
     set(SINDARIN_LIBS_PLATFORM "windows")
 elseif(APPLE)
-    set(SINDARIN_LIBS_PLATFORM "macos")
+    set(SINDARIN_LIBS_PLATFORM "darwin")
 else()
     set(SINDARIN_LIBS_PLATFORM "linux")
 endif()
 
-# Find dependency installation directory from libs submodule
-set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
+# Find dependency installation directory from libs
+set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/${SINDARIN_LIBS_PLATFORM}")
 
 # Create bin/deps directory structure
 set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
@@ -797,24 +789,9 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/README.md")
     set(CPACK_RESOURCE_FILE_README "${CMAKE_SOURCE_DIR}/README.md")
 endif()
 
-# Components (base set, deps added conditionally below)
+# Components for packaging (deps no longer bundled - users install via sn --install sindarin-libs)
 set(CPACK_COMPONENTS_ALL compiler runtime headers configs)
 
-# Install bundled deps for packaging
-if(EXISTS ${SN_DEPS_DIR}/include AND EXISTS ${SN_DEPS_DIR}/lib)
-    # Check if there are any files to install
-    file(GLOB DEPS_HEADERS "${SN_DEPS_DIR}/include/*")
-    file(GLOB DEPS_LIBS "${SN_DEPS_DIR}/lib/*")
-    if(DEPS_HEADERS OR DEPS_LIBS)
-        install(DIRECTORY ${SN_DEPS_DIR}/
-            DESTINATION ${SN_SDK_INSTALL_DIR}/deps
-            COMPONENT deps
-        )
-        list(APPEND CPACK_COMPONENTS_ALL deps)
-        set(CPACK_COMPONENT_DEPS_DISPLAY_NAME "Bundled Dependencies (zlib, yyjson, libxml2, libyaml)")
-        set(CPACK_COMPONENT_DEPS_DEPENDS runtime)
-    endif()
-endif()
 set(CPACK_COMPONENT_COMPILER_DISPLAY_NAME "Sindarin Compiler")
 set(CPACK_COMPONENT_COMPILER_REQUIRED ON)
 set(CPACK_COMPONENT_RUNTIME_DISPLAY_NAME "Runtime Libraries")
@@ -829,7 +806,7 @@ if(WIN32)
     set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-windows-x64")
 elseif(APPLE)
     set(CPACK_GENERATOR "TGZ")
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-macos-x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-darwin-x64")
 else()
     # Check if rpmbuild is available for RPM generation
     find_program(RPMBUILD_EXECUTABLE rpmbuild)

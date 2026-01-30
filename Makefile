@@ -236,15 +236,21 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# setup - Initialize libs submodule with pre-built dependencies
+# setup - Download pre-built dependencies using platform-specific installer
 #------------------------------------------------------------------------------
+ifeq ($(PLATFORM),windows)
 setup:
-	@echo "Setting up build dependencies from libs submodule..."
-	@git submodule update --init libs
-	@git -C libs lfs install
-	@git -C libs lfs pull
+	@echo "Setting up build dependencies for Windows..."
+	@powershell -NoProfile -ExecutionPolicy Bypass -Command "cd libs; irm https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.ps1 | iex"
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
+else
+setup:
+	@echo "Setting up build dependencies for $(PLATFORM)..."
+	@cd libs && curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.sh | bash
+	@echo "Pre-built libraries ready!"
+	@echo "Run 'make build' to build the compiler."
+endif
 
 #------------------------------------------------------------------------------
 # libs - Alias for setup (backwards compatibility)
@@ -284,7 +290,7 @@ help:
 	@echo "  make package      Create distributable packages"
 	@echo ""
 	@echo "Setup:"
-	@echo "  make setup        Initialize libs submodule with pre-built dependencies"
+	@echo "  make setup        Download pre-built dependencies"
 	@echo "  make libs         Alias for 'make setup'"
 	@echo ""
 	@echo "CMake Presets (Advanced):"
