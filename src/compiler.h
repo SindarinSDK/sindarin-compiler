@@ -38,11 +38,10 @@ typedef struct
     int link_lib_count;              /* Number of link libraries */
     PragmaSourceInfo *source_files;  /* C source files with location info from #pragma source */
     int source_file_count;           /* Number of source files */
-    int do_update;                   /* --update: Perform self-update */
-    int check_update;                /* --check-update: Check for updates only */
     int do_init;                     /* --init: Initialize new package */
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */
+    int clear_cache;                 /* --clear-cache: Clear package cache */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

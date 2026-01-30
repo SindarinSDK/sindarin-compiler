@@ -348,42 +348,6 @@ static void test_log_level_verbose(void)
  * Update Options Tests
  * ============================================================================ */
 
-static void test_update_flag(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "--update"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 2);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.do_update == 1);
-
-    arena_free(&options.arena);
-}
-
-static void test_check_update_flag(void)
-{
-    CompilerOptions options;
-    memset(&options, 0, sizeof(options));
-    const char *args[] = {"sn", "--check-update"};
-    int argc;
-    char **argv;
-    make_args(&argc, &argv, args, 2);
-
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    assert(options.check_update == 1);
-
-    arena_free(&options.arena);
-}
-
 /* ============================================================================
  * Source File Tests
  * ============================================================================ */
@@ -744,10 +708,6 @@ void test_compiler_driver_main(void)
     TEST_RUN("debug_flag", test_debug_flag);
     TEST_RUN("log_level_flag", test_log_level_flag);
     TEST_RUN("log_level_verbose", test_log_level_verbose);
-
-    TEST_SECTION("Compiler Driver - Update Options");
-    TEST_RUN("update_flag", test_update_flag);
-    TEST_RUN("check_update_flag", test_check_update_flag);
 
     TEST_SECTION("Compiler Driver - Source File");
     TEST_RUN("source_file_parsed", test_source_file_parsed);

@@ -48,7 +48,7 @@ command_exists() {
 detect_os() {
     case "$(uname -s)" in
         Darwin)
-            echo "macos"
+            echo "darwin"
             ;;
         Linux)
             echo "linux"

@@ -46,32 +46,14 @@ jobs:
             exe_ext: '.exe'
 
           - os: macos-latest
-            platform: macos
+            platform: darwin
             compiler: clang
-            artifact_name: sindarin-macos-x64
+            artifact_name: sindarin-darwin-x64
             exe_ext: ''
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          lfs: true
-
-      #------------------------------------------------------------------------
-      # Verify libs submodule (pre-built libraries)
-      #------------------------------------------------------------------------
-      - name: Verify libs submodule
-        shell: bash
-        run: |
-          if [ -d "libs/libs/${{ matrix.platform }}" ]; then
-            echo "libs submodule found for ${{ matrix.platform }}"
-            ls -la libs/libs/${{ matrix.platform }}/
-          else
-            echo "ERROR: libs submodule not found for ${{ matrix.platform }}"
-            echo "Ensure submodules: recursive and lfs: true are set in checkout"
-            exit 1
-          fi
 
       #------------------------------------------------------------------------
       # Setup Dependencies
@@ -116,8 +98,15 @@ jobs:
           $llvmDir = Get-ChildItem -Path "C:\llvm-mingw" -Directory | Select-Object -First 1
           echo "$($llvmDir.FullName)\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-          # Install Ninja
-          choco install ninja -y
+          # Install Make and Ninja
+          choco install make ninja -y
+
+      #------------------------------------------------------------------------
+      # Setup libs (pre-built dependencies)
+      #------------------------------------------------------------------------
+      - name: Setup libs
+        shell: bash
+        run: make setup
 
       #------------------------------------------------------------------------
       # Configure and Build

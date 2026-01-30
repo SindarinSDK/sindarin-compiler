@@ -67,6 +67,7 @@ static void pkg_status(const char *name, const char *ref, const char *result)
 /* Dependencies directory */
 #define PKG_DEPS_DIR ".sn"
 #define PKG_YAML_FILE "sn.yaml"
+#define PKG_CACHE_DIR ".sn-cache"
 
 /* ============================================================================
  * Helper Functions
@@ -146,6 +147,18 @@ static void pkg_get_dirname(char *buffer, size_t size)
     buffer[size - 1] = '\0';
 }
 
+/* Make a file writable (needed for deleting read-only files on Windows) */
+static void make_writable(const char *path)
+{
+#ifdef _WIN32
+    /* Remove read-only attribute on Windows */
+    _chmod(path, _S_IREAD | _S_IWRITE);
+#else
+    /* Make file writable on Unix */
+    chmod(path, S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+#endif
+}
+
 /* Recursively remove a directory and its contents */
 static bool remove_directory_recursive(const char *path)
 {
@@ -174,6 +187,8 @@ static bool remove_directory_recursive(const char *path)
                     success = false;
                 }
             } else {
+                /* Make file writable before removing (handles read-only files in .git) */
+                make_writable(full_path);
                 /* Remove file */
                 if (unlink(full_path) != 0) {
                     success = false;
@@ -190,6 +205,220 @@ static bool remove_directory_recursive(const char *path)
     }
 
     return success;
+}
+
+/* Get user home directory */
+static bool get_home_dir(char *out_path, size_t out_len)
+{
+#ifdef _WIN32
+    const char *userprofile = getenv("USERPROFILE");
+    if (userprofile != NULL) {
+        strncpy(out_path, userprofile, out_len - 1);
+        out_path[out_len - 1] = '\0';
+        return true;
+    }
+    return false;
+#else
+    const char *home = getenv("HOME");
+    if (home != NULL) {
+        strncpy(out_path, home, out_len - 1);
+        out_path[out_len - 1] = '\0';
+        return true;
+    }
+    return false;
+#endif
+}
+
+/* Get the package cache directory path */
+bool package_get_cache_dir(char *out_path, size_t out_len)
+{
+    char home[PKG_MAX_PATH_LEN];
+    if (!get_home_dir(home, sizeof(home))) {
+        return false;
+    }
+    snprintf(out_path, out_len, "%s%c%s", home, PATH_SEP, PKG_CACHE_DIR);
+    return true;
+}
+
+/* Recursively copy a directory and its contents */
+static bool copy_directory_recursive(const char *src_path, const char *dest_path)
+{
+    /* Create destination directory */
+    if (!ensure_dir(dest_path)) {
+        return false;
+    }
+
+    DIR *dir = opendir(src_path);
+    if (dir == NULL) {
+        return false;
+    }
+
+    struct dirent *entry;
+    bool success = true;
+
+    while ((entry = readdir(dir)) != NULL) {
+        /* Skip . and .. */
+        if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) {
+            continue;
+        }
+
+        char src_full[PKG_MAX_PATH_LEN];
+        char dest_full[PKG_MAX_PATH_LEN];
+        snprintf(src_full, sizeof(src_full), "%s%c%s", src_path, PATH_SEP, entry->d_name);
+        snprintf(dest_full, sizeof(dest_full), "%s%c%s", dest_path, PATH_SEP, entry->d_name);
+
+        struct stat st;
+        if (stat(src_full, &st) != 0) {
+            success = false;
+            continue;
+        }
+
+        if (S_ISDIR(st.st_mode)) {
+            /* Recursively copy subdirectory */
+            if (!copy_directory_recursive(src_full, dest_full)) {
+                success = false;
+            }
+        } else {
+            /* Copy file */
+            FILE *src_file = fopen(src_full, "rb");
+            if (src_file == NULL) {
+                success = false;
+                continue;
+            }
+
+            FILE *dest_file = fopen(dest_full, "wb");
+            if (dest_file == NULL) {
+                fclose(src_file);
+                success = false;
+                continue;
+            }
+
+            char buffer[8192];
+            size_t bytes_read;
+            while ((bytes_read = fread(buffer, 1, sizeof(buffer), src_file)) > 0) {
+                if (fwrite(buffer, 1, bytes_read, dest_file) != bytes_read) {
+                    success = false;
+                    break;
+                }
+            }
+
+            fclose(src_file);
+            fclose(dest_file);
+
+            /* Preserve executable permission on non-Windows */
+#ifndef _WIN32
+            if (st.st_mode & S_IXUSR) {
+                chmod(dest_full, st.st_mode);
+            }
+#endif
+        }
+    }
+
+    closedir(dir);
+    return success;
+}
+
+/* Run post-install script if it exists
+ * pkg_path: Path to the installed package
+ * Returns true on success or if no script exists, false on script failure */
+static bool package_run_install_script(const char *pkg_path)
+{
+    /* Find the directory containing sn.yaml (could be pkg_path or a subdirectory) */
+    char yaml_path[PKG_MAX_PATH_LEN];
+    char script_path[PKG_MAX_PATH_LEN];
+    char abs_pkg_path[PKG_MAX_PATH_LEN];
+    char abs_script_path[PKG_MAX_PATH_LEN];
+
+    /* Check for sn.yaml in the package root */
+    snprintf(yaml_path, sizeof(yaml_path), "%s%c%s", pkg_path, PATH_SEP, PKG_YAML_FILE);
+
+    if (!file_exists(yaml_path)) {
+        /* No sn.yaml, no install script to run */
+        return true;
+    }
+
+#ifdef _WIN32
+    snprintf(script_path, sizeof(script_path), "%s%cscripts%cinstall.ps1",
+             pkg_path, PATH_SEP, PATH_SEP);
+#else
+    snprintf(script_path, sizeof(script_path), "%s%cscripts%cinstall.sh",
+             pkg_path, PATH_SEP, PATH_SEP);
+#endif
+
+    if (!file_exists(script_path)) {
+        /* No install script, that's OK */
+        return true;
+    }
+
+    /* Convert to absolute paths to avoid issues with relative path interpretation */
+#ifdef _WIN32
+    if (_fullpath(abs_pkg_path, pkg_path, sizeof(abs_pkg_path)) == NULL) {
+        strncpy(abs_pkg_path, pkg_path, sizeof(abs_pkg_path) - 1);
+        abs_pkg_path[sizeof(abs_pkg_path) - 1] = '\0';
+    }
+    if (_fullpath(abs_script_path, script_path, sizeof(abs_script_path)) == NULL) {
+        strncpy(abs_script_path, script_path, sizeof(abs_script_path) - 1);
+        abs_script_path[sizeof(abs_script_path) - 1] = '\0';
+    }
+#else
+    if (realpath(pkg_path, abs_pkg_path) == NULL) {
+        strncpy(abs_pkg_path, pkg_path, sizeof(abs_pkg_path) - 1);
+        abs_pkg_path[sizeof(abs_pkg_path) - 1] = '\0';
+    }
+    if (realpath(script_path, abs_script_path) == NULL) {
+        strncpy(abs_script_path, script_path, sizeof(abs_script_path) - 1);
+        abs_script_path[sizeof(abs_script_path) - 1] = '\0';
+    }
+#endif
+
+    printf("    running install script...\n");
+    fflush(stdout);
+
+    /* Build and execute the command */
+    char cmd[PKG_MAX_PATH_LEN * 3];
+
+#ifdef _WIN32
+    /* On Windows, use PowerShell to run the script */
+    snprintf(cmd, sizeof(cmd),
+             "powershell -NoProfile -ExecutionPolicy Bypass -Command \"Set-Location '%s'; & '%s'\"",
+             abs_pkg_path, abs_script_path);
+#else
+    /* On Unix, cd to directory and run bash script */
+    snprintf(cmd, sizeof(cmd), "cd '%s' && bash '%s'", abs_pkg_path, abs_script_path);
+#endif
+
+    int result = system(cmd);
+    if (result != 0) {
+        pkg_warning("install script failed with exit code %d", result);
+        return false;
+    }
+
+    return true;
+}
+
+/* Clear the package cache directory */
+bool package_clear_cache(void)
+{
+    char cache_dir[PKG_MAX_PATH_LEN];
+    if (!package_get_cache_dir(cache_dir, sizeof(cache_dir))) {
+        pkg_error("failed to determine cache directory");
+        return false;
+    }
+
+    if (!dir_exists(cache_dir)) {
+        printf("Cache directory is empty.\n");
+        return true;
+    }
+
+    printf("Clearing package cache: %s\n", cache_dir);
+
+    if (!remove_directory_recursive(cache_dir)) {
+        pkg_error("failed to remove cache directory");
+        return false;
+    }
+
+    printf("Package cache cleared.\n");
+    return true;
 }
 
 /* ============================================================================
@@ -590,19 +819,165 @@ bool package_init(void)
     fflush(stdout);
     read_line(config.license, sizeof(config.license), "MIT");
 
+    /* Add default SDK dependency (provides sindarin-libs transitively) */
+    PackageDependency *sdk_dep = &config.dependencies[0];
+    strncpy(sdk_dep->name, "sindarin-pkg-sdk", sizeof(sdk_dep->name) - 1);
+    strncpy(sdk_dep->git_url, "https://github.com/SindarinSDK/sindarin-pkg-sdk.git", sizeof(sdk_dep->git_url) - 1);
+    strncpy(sdk_dep->branch, "main", sizeof(sdk_dep->branch) - 1);
+    config.dependency_count = 1;
+
     /* Write sn.yaml */
     if (!package_yaml_write(PKG_YAML_FILE, &config)) {
         pkg_error("failed to create sn.yaml");
         return false;
     }
 
-    printf("\nCreated sn.yaml\n");
+    printf("\nCreated sn.yaml with sindarin-pkg-sdk dependency\n");
     return true;
 }
 
 /* ============================================================================
- * Recursive Dependency Installation
+ * Recursive Dependency Installation with Caching
  * ============================================================================ */
+
+/* Install a single package using the cache.
+ * This function:
+ * 1. Checks if package exists in destination - if so, fetches/updates
+ * 2. Checks if package exists in cache - if so, copies from cache
+ * 3. Otherwise clones to cache, then copies to destination
+ * 4. Runs install script if present
+ *
+ * Returns true on success, false on failure */
+static bool package_install_single_cached(const char *name, const char *git_url,
+                                          const char *ref, const char *dep_path)
+{
+    char cache_dir[PKG_MAX_PATH_LEN];
+    char cache_pkg_path[PKG_MAX_PATH_LEN];
+    bool need_copy_from_cache = false;
+
+    /* Get cache directory */
+    if (!package_get_cache_dir(cache_dir, sizeof(cache_dir))) {
+        pkg_warning("failed to determine cache directory, falling back to direct clone");
+        cache_dir[0] = '\0';
+    } else {
+        snprintf(cache_pkg_path, sizeof(cache_pkg_path), "%s%c%s",
+                 cache_dir, PATH_SEP, name);
+    }
+
+    const char *result = "done";
+
+    /* Case 1: Package already exists in destination */
+    if (dir_exists(dep_path) && package_git_is_repo(dep_path)) {
+        /* Repository exists, fetch and checkout */
+        if (!package_git_fetch(dep_path)) {
+            result = "fetch failed";
+            pkg_status(name, ref[0] ? ref : NULL, result);
+            return false;
+        }
+        if (ref[0] && !package_git_checkout(dep_path, ref)) {
+            result = "checkout failed";
+            pkg_status(name, ref[0] ? ref : NULL, result);
+            return false;
+        }
+        if (!ref[0]) {
+            package_lfs_pull(dep_path);
+        }
+        pkg_status(name, ref[0] ? ref : NULL, result);
+        return true;
+    }
+
+    /* Case 2: Check cache */
+    if (cache_dir[0] != '\0') {
+        /* Ensure cache directory exists */
+        if (!ensure_dir(cache_dir)) {
+            pkg_warning("failed to create cache directory");
+            cache_dir[0] = '\0';  /* Fall back to direct clone */
+        }
+    }
+
+    if (cache_dir[0] != '\0' && dir_exists(cache_pkg_path) && package_git_is_repo(cache_pkg_path)) {
+        /* Package exists in cache - fetch latest and copy */
+        printf("  %s (cached)", name);
+        if (ref[0]) {
+            printf(" (%s)", ref);
+        }
+        printf(" ... ");
+        fflush(stdout);
+
+        /* Fetch to update cache */
+        if (!package_git_fetch(cache_pkg_path)) {
+            printf("%sfetch failed%s\n", COLOR_RED, COLOR_RESET);
+            /* Try to use stale cache anyway */
+        }
+
+        /* Checkout the required ref in cache */
+        if (ref[0] && !package_git_checkout(cache_pkg_path, ref)) {
+            printf("%scheckout failed%s\n", COLOR_RED, COLOR_RESET);
+            return false;
+        }
+
+        need_copy_from_cache = true;
+    } else if (cache_dir[0] != '\0') {
+        /* Clone to cache first */
+        printf("  %s", name);
+        if (ref[0]) {
+            printf(" (%s)", ref);
+        }
+        printf(" ... ");
+        fflush(stdout);
+
+        if (!package_git_clone(git_url, cache_pkg_path)) {
+            printf("%sclone failed%s\n", COLOR_RED, COLOR_RESET);
+            return false;
+        }
+
+        if (ref[0] && !package_git_checkout(cache_pkg_path, ref)) {
+            printf("%scheckout failed%s\n", COLOR_RED, COLOR_RESET);
+            return false;
+        }
+
+        if (!ref[0]) {
+            package_lfs_pull(cache_pkg_path);
+        }
+
+        need_copy_from_cache = true;
+    }
+
+    /* Copy from cache to destination */
+    if (need_copy_from_cache) {
+        if (!copy_directory_recursive(cache_pkg_path, dep_path)) {
+            printf("%scopy failed%s\n", COLOR_RED, COLOR_RESET);
+            return false;
+        }
+        printf("%sdone%s\n", COLOR_CYAN, COLOR_RESET);
+        fflush(stdout);
+
+        /* Run install script after copy */
+        package_run_install_script(dep_path);
+    } else {
+        /* No cache available, clone directly to destination */
+        if (!package_git_clone(git_url, dep_path)) {
+            result = "clone failed";
+            pkg_status(name, ref[0] ? ref : NULL, result);
+            return false;
+        }
+        if (ref[0] && !package_git_checkout(dep_path, ref)) {
+            result = "checkout failed";
+            pkg_status(name, ref[0] ? ref : NULL, result);
+            return false;
+        }
+        if (!ref[0]) {
+            package_lfs_pull(dep_path);
+        }
+        pkg_status(name, ref[0] ? ref : NULL, result);
+        fflush(stdout);
+
+        /* Run install script after clone */
+        package_run_install_script(dep_path);
+    }
+
+    return true;
+}
 
 /* Install dependencies recursively from a package directory.
  * base_path: Directory containing sn.yaml to process
@@ -653,39 +1028,11 @@ static bool package_install_deps_recursive(const char *base_path, PackageVisited
         char dep_path[PKG_MAX_PATH_LEN];
         snprintf(dep_path, sizeof(dep_path), "%s%c%s", PKG_DEPS_DIR, PATH_SEP, dep->name);
 
-        const char *result = "done";
-
-        if (dir_exists(dep_path) && package_git_is_repo(dep_path)) {
-            /* Repository exists, fetch and checkout */
-            if (!package_git_fetch(dep_path)) {
-                result = "fetch failed";
-                success = false;
-            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
-                result = "checkout failed";
-                success = false;
-            } else if (!ref[0]) {
-                /* No checkout, pull LFS content now */
-                package_lfs_pull(dep_path);
-            }
-            /* Note: if ref[0] && checkout succeeded, LFS pull happens in checkout */
-        } else {
-            /* Clone repository */
-            if (!package_git_clone(dep->git_url, dep_path)) {
-                result = "clone failed";
-                success = false;
-                pkg_status(dep->name, ref[0] ? ref : NULL, result);
-                continue;  /* Can't recurse if clone failed */
-            } else if (ref[0] && !package_git_checkout(dep_path, ref)) {
-                result = "checkout failed";
-                success = false;
-            } else if (!ref[0]) {
-                /* No checkout, pull LFS content now */
-                package_lfs_pull(dep_path);
-            }
-            /* Note: if ref[0] && checkout succeeded, LFS pull happens in checkout */
+        /* Install using cache */
+        if (!package_install_single_cached(dep->name, dep->git_url, ref, dep_path)) {
+            success = false;
+            continue;  /* Can't recurse if install failed */
         }
-
-        pkg_status(dep->name, ref[0] ? ref : NULL, result);
 
         /* Recurse into the installed package to install its dependencies */
         if (!package_install_deps_recursive(dep_path, visited)) {
@@ -772,30 +1119,8 @@ bool package_install(const char *url_ref)
     /* Initialize git library */
     package_git_init();
 
-    const char *result = "done";
-    bool success = true;
-
-    if (dir_exists(dep_path) && package_git_is_repo(dep_path)) {
-        /* Repository exists, fetch and checkout */
-        if (!package_git_fetch(dep_path)) {
-            result = "fetch failed";
-            success = false;
-        } else if (has_ref && !package_git_checkout(dep_path, ref)) {
-            result = "checkout failed";
-            success = false;
-        }
-    } else {
-        /* Clone repository */
-        if (!package_git_clone(url, dep_path)) {
-            result = "clone failed";
-            success = false;
-        } else if (has_ref && !package_git_checkout(dep_path, ref)) {
-            result = "checkout failed";
-            success = false;
-        }
-    }
-
-    pkg_status(name, has_ref ? ref : NULL, result);
+    /* Install using cache */
+    bool success = package_install_single_cached(name, url, has_ref ? ref : "", dep_path);
 
     package_git_cleanup();
 

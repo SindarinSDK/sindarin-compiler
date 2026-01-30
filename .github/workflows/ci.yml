@@ -42,7 +42,7 @@ jobs:
             sn_exclude_tests: ''
 
           - os: macos-latest
-            artifact_name: sn-macos-x64
+            artifact_name: sn-darwin-x64
             exe_ext: ''
             runtime_dir: gcc
             sn_cc: clang
@@ -52,9 +52,6 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          lfs: true
 
       #------------------------------------------------------------------------
       # Platform Pre-steps (minimal: ensure make, C compiler, python exist)
@@ -107,18 +104,9 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      # libs submodule provides pre-built libraries (fetched during checkout with lfs: true)
-      - name: Verify libs submodule
+      - name: Setup libs
         shell: bash
-        run: |
-          if [ -d "libs/libs" ]; then
-            echo "libs submodule found - using pre-built libraries"
-            ls -la libs/libs/
-          else
-            echo "ERROR: libs submodule not found"
-            echo "Ensure submodules: recursive and lfs: true are set in checkout"
-            exit 1
-          fi
+        run: make setup
 
       - name: Build
         shell: bash
