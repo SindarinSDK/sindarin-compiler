@@ -1,0 +1,134 @@
+# Test static factory methods that create and modify struct instances
+# This verifies that struct field access works correctly in static method contexts
+
+struct Point =>
+    x: int
+    y: int
+
+    # Static factory method - creates and configures a struct instance
+    static fn create(a: int, b: int): Point =>
+        var p: Point = Point { x: 0, y: 0 }
+        p.x = a
+        p.y = b
+        return p
+
+    # Static method with conditional field modification
+    static fn createClamped(a: int, b: int, maxVal: int): Point =>
+        var p: Point = Point { x: 0, y: 0 }
+        if a > maxVal =>
+            p.x = maxVal
+        else =>
+            p.x = a
+        if b > maxVal =>
+            p.y = maxVal
+        else =>
+            p.y = b
+        return p
+
+    # Static method accessing fields via member access
+    static fn distance(p1: Point, p2: Point): int =>
+        var dx: int = p1.x - p2.x
+        var dy: int = p1.y - p2.y
+        # Simple absolute difference instead of sqrt
+        if dx < 0 =>
+            dx = -dx
+        if dy < 0 =>
+            dy = -dy
+        return dx + dy
+
+    fn add(other: Point): Point =>
+        var result: Point = Point { x: 0, y: 0 }
+        result.x = self.x + other.x
+        result.y = self.y + other.y
+        return result
+
+struct Rectangle =>
+    topLeft: Point
+    bottomRight: Point
+
+    static fn create(x1: int, y1: int, x2: int, y2: int): Rectangle =>
+        var r: Rectangle = Rectangle {
+            topLeft: Point { x: 0, y: 0 },
+            bottomRight: Point { x: 0, y: 0 }
+        }
+        r.topLeft.x = x1
+        r.topLeft.y = y1
+        r.bottomRight.x = x2
+        r.bottomRight.y = y2
+        return r
+
+    static fn width(r: Rectangle): int =>
+        return r.bottomRight.x - r.topLeft.x
+
+    static fn height(r: Rectangle): int =>
+        return r.bottomRight.y - r.topLeft.y
+
+fn main(): int =>
+    # Test 1: Basic static factory method
+    var p1: Point = Point.create(10, 20)
+    print($"Point.create(10, 20): x={p1.x}, y={p1.y}\n")
+    if p1.x != 10 =>
+        print("FAIL: x should be 10\n")
+        return 1
+    if p1.y != 20 =>
+        print("FAIL: y should be 20\n")
+        return 1
+
+    # Test 2: Static factory with conditional logic
+    var p2: Point = Point.createClamped(100, 50, 75)
+    print($"Point.createClamped(100, 50, 75): x={p2.x}, y={p2.y}\n")
+    if p2.x != 75 =>
+        print("FAIL: x should be clamped to 75\n")
+        return 1
+    if p2.y != 50 =>
+        print("FAIL: y should be 50 (not clamped)\n")
+        return 1
+
+    # Test 3: Static method accessing struct parameter fields
+    var p3: Point = Point.create(0, 0)
+    var p4: Point = Point.create(3, 4)
+    var dist: int = Point.distance(p3, p4)
+    print($"Point.distance from (0,0) to (3,4): {dist}\n")
+    if dist != 7 =>
+        print("FAIL: Manhattan distance should be 7\n")
+        return 1
+
+    # Test 4: Instance method creating and returning struct
+    var p5: Point = p3.add(p4)
+    print($"(0,0).add((3,4)): x={p5.x}, y={p5.y}\n")
+    if p5.x != 3 =>
+        print("FAIL: x should be 3\n")
+        return 1
+    if p5.y != 4 =>
+        print("FAIL: y should be 4\n")
+        return 1
+
+    # Test 5: Nested struct static factory
+    var rect: Rectangle = Rectangle.create(5, 10, 25, 30)
+    print($"Rectangle: topLeft=({rect.topLeft.x},{rect.topLeft.y}), bottomRight=({rect.bottomRight.x},{rect.bottomRight.y})\n")
+    if rect.topLeft.x != 5 =>
+        print("FAIL: topLeft.x should be 5\n")
+        return 1
+    if rect.topLeft.y != 10 =>
+        print("FAIL: topLeft.y should be 10\n")
+        return 1
+    if rect.bottomRight.x != 25 =>
+        print("FAIL: bottomRight.x should be 25\n")
+        return 1
+    if rect.bottomRight.y != 30 =>
+        print("FAIL: bottomRight.y should be 30\n")
+        return 1
+
+    # Test 6: Static method on struct with nested fields
+    var w: int = Rectangle.width(rect)
+    var h: int = Rectangle.height(rect)
+    print($"Rectangle width: {w}, height: {h}\n")
+    if w != 20 =>
+        print("FAIL: width should be 20\n")
+        return 1
+    if h != 20 =>
+        print("FAIL: height should be 20\n")
+        return 1
+
+    print("All static factory method tests passed!\n")
+    return 0

@@ -318,8 +318,15 @@ static Type *type_check_variable(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
-    DEBUG_VERBOSE("Variable type found: %d", sym->type->kind);
-    return sym->type;
+    /* Resolve forward references for struct types */
+    Type *result_type = sym->type;
+    if (result_type->kind == TYPE_STRUCT)
+    {
+        result_type = resolve_struct_forward_reference(result_type, table);
+    }
+
+    DEBUG_VERBOSE("Variable type found: %d", result_type->kind);
+    return result_type;
 }
 
 static Type *type_check_assign(Expr *expr, SymbolTable *table)
@@ -1732,7 +1739,12 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                 type_error(expr->token, "Invalid object in member access");
                 t = NULL;
             }
-            else if (object_type->kind == TYPE_STRUCT)
+            /* Resolve forward references for struct types */
+            if (object_type != NULL && object_type->kind == TYPE_STRUCT)
+            {
+                object_type = resolve_struct_forward_reference(object_type, table);
+            }
+            if (object_type != NULL && object_type->kind == TYPE_STRUCT)
             {
                 /* Direct struct access */
                 Token field_name = expr->as.member_access.field_name;
@@ -1878,7 +1890,12 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
                 type_error(expr->token, "Invalid object in member assignment");
                 t = NULL;
             }
-            else if (object_type->kind == TYPE_STRUCT)
+            /* Resolve forward references for struct types */
+            if (object_type != NULL && object_type->kind == TYPE_STRUCT)
+            {
+                object_type = resolve_struct_forward_reference(object_type, table);
+            }
+            if (object_type != NULL && object_type->kind == TYPE_STRUCT)
             {
                 /* Direct struct field assignment */
                 Token field_name = expr->as.member_assign.field_name;
