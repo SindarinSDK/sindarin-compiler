@@ -30,6 +30,14 @@ bool expression_produces_temp(Expr *expr);
 char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str);
 
 /**
+ * Wrap a named function argument in a closure for passing to a function-type parameter.
+ * Named functions are just function pointers in C, but function parameters expect
+ * __Closure__ * which has fn and arena fields. Returns wrapped closure expression,
+ * or NULL if no wrapping needed.
+ */
+char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_expr, const char *arg_str);
+
+/**
  * Generate code for call expressions (function calls and method calls).
  * This is the main dispatcher that handles:
  * - Namespace function calls (namespace.function())
@@ -73,8 +81,18 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 char *code_gen_string_length(CodeGen *gen, Expr *object);
 
 /* ============================================================================
- * Struct Method Interception (code_gen_expr_call.c)
+ * Struct Method Interception (code_gen_expr_call_intercept.c)
  * ============================================================================ */
+
+/**
+ * Generate an intercepted function call.
+ * Wraps a user-defined function call with interception logic.
+ */
+char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
+                                const char *callee_str,
+                                CallExpr *call, char **arg_strs, char **arg_names,
+                                Type **param_types, MemoryQualifier *param_quals,
+                                int param_count, Type *return_type, bool callee_has_body);
 
 /**
  * Check if a struct method should be intercepted.
@@ -96,5 +114,29 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
                                         const char *self_ptr_str,
                                         bool is_self_pointer,
                                         Type *return_type);
+
+/* ============================================================================
+ * Char Method Code Generation (code_gen_expr_call_char.c)
+ * ============================================================================ */
+
+/**
+ * Generate code for char method calls.
+ * Handles: toString, toUpper, toLower, toInt, isDigit, isAlpha, isWhitespace, isAlnum
+ * Returns generated C code string, or NULL if not a char method.
+ */
+char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
+                                 Expr *object, int arg_count);
+
+/* ============================================================================
+ * Byte Array Method Code Generation (code_gen_expr_call_byte_array.c)
+ * ============================================================================ */
+
+/**
+ * Generate code for byte array method calls.
+ * Handles: toString, toStringLatin1, toHex, toBase64
+ * Returns generated C code string, or NULL if not a byte array method.
+ */
+char *code_gen_byte_array_method_call(CodeGen *gen, const char *method_name,
+                                       char *object_str, int arg_count);
 
 #endif /* CODE_GEN_EXPR_CALL_H */

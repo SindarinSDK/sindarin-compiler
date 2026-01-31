@@ -145,6 +145,9 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/code_gen_expr_call.c
     src/code_gen/code_gen_expr_call_array.c
     src/code_gen/code_gen_expr_call_string.c
+    src/code_gen/code_gen_expr_call_intercept.c
+    src/code_gen/code_gen_expr_call_char.c
+    src/code_gen/code_gen_expr_call_byte_array.c
     src/code_gen/code_gen_expr_array.c
     src/code_gen/code_gen_expr_static.c
     src/code_gen/code_gen_expr_string.c
