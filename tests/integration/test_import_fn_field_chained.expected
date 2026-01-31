@@ -1,0 +1,10 @@
+Creating router
+Adding route
+Creating request
+Handling request
+Status: 200
+Body: Home
+Testing not found
+Status: 404
+Body: Not Found
+All tests passed!

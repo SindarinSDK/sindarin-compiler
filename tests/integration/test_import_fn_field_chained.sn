@@ -1,0 +1,34 @@
+# Test importing a module with function-typed struct fields that use types from other imports
+# This tests the pattern where:
+# 1. Module A defines Request struct
+# 2. Module B defines Response struct
+# 3. Module C imports A and B, defines Router with fn(Request): Response fields
+
+import "lib/router_type"
+
+fn homeHandler(req: Request): Response =>
+    return Response.ok().text("Home")
+
+fn main(): void =>
+    print("Creating router\n")
+    var router: Router = Router.new()
+
+    print("Adding route\n")
+    router.addRoute("/", homeHandler)
+
+    print("Creating request\n")
+    var req: Request = Request.new("GET", "/")
+
+    print("Handling request\n")
+    var res: Response = router.handle(req)
+
+    print($"Status: {res.status}\n")
+    print($"Body: {res.body}\n")
+
+    print("Testing not found\n")
+    var req2: Request = Request.new("GET", "/nonexistent")
+    var res2: Response = router.handle(req2)
+    print($"Status: {res2.status}\n")
+    print($"Body: {res2.body}\n")
+
+    print("All tests passed!\n")
