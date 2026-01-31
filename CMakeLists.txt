@@ -143,6 +143,10 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/code_gen_expr_binary.c
     src/code_gen/code_gen_expr_lambda.c
     src/code_gen/code_gen_expr_call.c
+    src/code_gen/code_gen_expr_call_namespace.c
+    src/code_gen/code_gen_expr_call_struct.c
+    src/code_gen/code_gen_expr_call_closure.c
+    src/code_gen/code_gen_expr_call_builtin.c
     src/code_gen/code_gen_expr_call_array.c
     src/code_gen/code_gen_expr_call_string.c
     src/code_gen/code_gen_expr_call_intercept.c
