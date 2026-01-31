@@ -1,0 +1,11 @@
+# Middle module B for diamond dependency test
+# Also imports diamond_base.sn - creating a diamond pattern
+
+import "diamond_base"
+
+fn midBFunc(x: int): int =>
+    return diamondBaseFunc(x) * 3
+
+fn getMidBValue(): int =>
+    var base: DiamondBase = DiamondBase.new()
+    return base.value + 200

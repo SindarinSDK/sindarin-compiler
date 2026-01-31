@@ -307,8 +307,14 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
     /* Check if already imported */
     for (int j = 0; j < *ctx->imported_count; j++) {
         if (strcmp((*ctx->imported)[j], import_path) == 0) {
-            /* Already imported - return the cached module */
-            return (*ctx->imported_modules)[j];
+            /* Already imported - for non-namespaced imports, return NULL to prevent
+             * the caller from storing statements that would be merged again.
+             * For namespaced imports, return the cached module so the namespace
+             * can be set up (namespaced imports don't get merged, they stay as STMT_IMPORT). */
+            if (is_namespaced) {
+                return (*ctx->imported_modules)[j];
+            }
+            return NULL;
         }
     }
 

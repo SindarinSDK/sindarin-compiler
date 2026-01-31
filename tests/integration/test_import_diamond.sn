@@ -1,0 +1,35 @@
+# Test diamond dependency pattern
+# This tests that the compiler correctly deduplicates imports
+#
+# Import structure:
+#     test_import_diamond.sn
+#         /              \
+#   diamond_mid_a.sn   diamond_mid_b.sn
+#         \              /
+#         diamond_base.sn
+#
+# diamond_base.sn should only be included once
+
+import "lib/diamond_mid_a"
+import "lib/diamond_mid_b"
+
+fn main(): void =>
+    # Test functions from mid_a (which uses diamond_base)
+    var resultA: int = midAFunc(10)
+    print($"midAFunc(10) = {resultA}\n")
+
+    # Test functions from mid_b (which also uses diamond_base)
+    var resultB: int = midBFunc(10)
+    print($"midBFunc(10) = {resultB}\n")
+
+    # Test values from both mid modules
+    var valueA: int = getMidAValue()
+    var valueB: int = getMidBValue()
+    print($"getMidAValue() = {valueA}\n")
+    print($"getMidBValue() = {valueB}\n")
+
+    # Directly use diamond_base symbols (should be available through imports)
+    var direct: int = diamondBaseFunc(5)
+    print($"diamondBaseFunc(5) = {direct}\n")
+
+    print("Diamond dependency test passed!\n")
