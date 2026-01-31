@@ -42,6 +42,7 @@ typedef struct
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */
     int clear_cache;                 /* --clear-cache: Clear package cache */
+    int no_install;                  /* --no-install: Skip auto-install of dependencies */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

@@ -496,7 +496,7 @@ class TestRunner:
 
         # Try to compile (should fail)
         exit_code, stdout, stderr = run_with_timeout(
-            [self.compiler, test_file, '-o', exe_file, '-l', '1'],
+            [self.compiler, test_file, '-o', exe_file, '-l', '1', '--no-install'],
             self.compile_timeout, env=self.env
         )
 
@@ -527,7 +527,7 @@ class TestRunner:
             return ('skip', 'no .expected.c', None)
 
         # Compile with --emit-c to generate C code
-        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0']
+        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
         exit_code, stdout, stderr = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
@@ -582,7 +582,7 @@ class TestRunner:
         else:
             exe_file = c_file.replace('.c', '')
 
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
@@ -644,7 +644,7 @@ class TestRunner:
             return ('skip', 'no .expected', None)
 
         # Standard compilation (use #pragma source for C helper files)
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
