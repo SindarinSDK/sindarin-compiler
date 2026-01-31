@@ -112,22 +112,116 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     /* The call expression being spawned */
     Expr *call_expr = spawn->call;
 
-    /* Regular function call handling */
-    if (call_expr->type != EXPR_CALL)
+    /* Track if this is a method call on an instance (self.method())
+     * Method calls can be either:
+     * 1. EXPR_METHOD_CALL (explicit method call syntax)
+     * 2. EXPR_CALL with EXPR_MEMBER_ACCESS callee (self.method() pattern)
+     */
+    bool is_method_call = false;
+    bool is_member_method_call = false;  /* EXPR_CALL with member access callee */
+    MethodCallExpr *method_call = NULL;
+    CallExpr *call = NULL;
+    Type *self_struct_type = NULL;
+    const char *self_struct_name = NULL;
+    char *mangled_self_type = NULL;
+    Expr *self_object = NULL;  /* The 'self' or object expression for method calls */
+    const char *method_name = NULL;
+
+    if (call_expr->type == EXPR_METHOD_CALL)
     {
-        fprintf(stderr, "Error: Thread spawn expression must be a function call\n");
+        is_method_call = true;
+        method_call = &call_expr->as.method_call;
+        if (method_call->is_static || method_call->object == NULL)
+        {
+            fprintf(stderr, "Error: Thread spawn with static method calls not yet supported\n");
+            exit(1);
+        }
+        self_struct_type = method_call->struct_type;
+        self_struct_name = self_struct_type->as.struct_type.name;
+        mangled_self_type = sn_mangle_name(gen->arena, self_struct_name);
+        self_object = method_call->object;
+        method_name = method_call->method->name;
+    }
+    else if (call_expr->type == EXPR_CALL)
+    {
+        call = &call_expr->as.call;
+
+        /* Check if this is a method call via EXPR_MEMBER pattern (self.method())
+         * EXPR_MEMBER is used for method calls resolved during type checking */
+        if (call->callee->type == EXPR_MEMBER)
+        {
+            MemberExpr *member = &call->callee->as.member;
+            /* Check if this has a resolved method (indicating it's a method call) */
+            if (member->resolved_method != NULL && member->resolved_struct_type != NULL)
+            {
+                is_member_method_call = true;
+                is_method_call = true;
+                self_struct_type = member->resolved_struct_type;
+                self_struct_name = self_struct_type->as.struct_type.name;
+                mangled_self_type = sn_mangle_name(gen->arena, self_struct_name);
+                self_object = member->object;
+                method_name = member->resolved_method->name;
+            }
+        }
+        /* Also check EXPR_MEMBER_ACCESS for field access patterns */
+        else if (call->callee->type == EXPR_MEMBER_ACCESS)
+        {
+            MemberAccessExpr *member = &call->callee->as.member_access;
+            /* Get the type of the object being accessed */
+            if (member->object->expr_type != NULL)
+            {
+                Type *obj_type = member->object->expr_type;
+                /* Handle pointer to struct (self inside method is a pointer) */
+                if (obj_type->kind == TYPE_POINTER && obj_type->as.pointer.base_type != NULL)
+                {
+                    obj_type = obj_type->as.pointer.base_type;
+                }
+                if (obj_type->kind == TYPE_STRUCT)
+                {
+                    is_member_method_call = true;
+                    is_method_call = true;
+                    self_struct_type = obj_type;
+                    self_struct_name = self_struct_type->as.struct_type.name;
+                    mangled_self_type = sn_mangle_name(gen->arena, self_struct_name);
+                    self_object = member->object;
+                    /* Get method name from the field_name token */
+                    method_name = arena_strndup(gen->arena, member->field_name.start, member->field_name.length);
+                }
+            }
+        }
+    }
+    else
+    {
+        fprintf(stderr, "Error: Thread spawn expression must be a function call or method call\n");
         exit(1);
     }
-
-    CallExpr *call = &call_expr->as.call;
 
     /* Get parameter memory qualifiers from callee's function type */
     MemoryQualifier *param_quals = NULL;
     int param_count = 0;
-    if (call->callee->expr_type && call->callee->expr_type->kind == TYPE_FUNCTION)
+    int arg_count = 0;
+    Expr **arguments = NULL;
+
+    if (is_method_call && !is_member_method_call)
     {
-        param_quals = call->callee->expr_type->as.function.param_mem_quals;
-        param_count = call->callee->expr_type->as.function.param_count;
+        /* Direct EXPR_METHOD_CALL */
+        arg_count = method_call->arg_count;
+        arguments = method_call->args;
+        /* Methods don't have param_quals in StructMethod, so leave them as NULL.
+         * This means 'as ref' parameters won't be handled specially for method spawns,
+         * but that's an uncommon case. */
+        param_count = method_call->method != NULL ? method_call->method->param_count : 0;
+    }
+    else
+    {
+        /* Regular EXPR_CALL (including member method calls via EXPR_MEMBER_ACCESS) */
+        arg_count = call->arg_count;
+        arguments = call->arguments;
+        if (call->callee->expr_type && call->callee->expr_type->kind == TYPE_FUNCTION)
+        {
+            param_quals = call->callee->expr_type->as.function.param_mem_quals;
+            param_count = call->callee->expr_type->as.function.param_count;
+        }
     }
 
     /* Generate unique wrapper function ID */
@@ -185,19 +279,26 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    bool is_private;\n"
         "    /* Function-specific arguments follow */\n");
 
+    /* For method calls, add a field to capture 'self' */
+    if (is_method_call)
+    {
+        struct_def = arena_sprintf(gen->arena, "%s    %s *__sn__self;\n",
+                                   struct_def, mangled_self_type);
+    }
+
     /* Add fields for each argument.
      * For 'as ref' primitive parameters, store pointer type so thread
      * can modify the caller's variable. */
-    for (int i = 0; i < call->arg_count; i++)
+    for (int i = 0; i < arg_count; i++)
     {
-        const char *arg_c_type = get_c_type(gen->arena, call->arguments[i]->expr_type);
+        const char *arg_c_type = get_c_type(gen->arena, arguments[i]->expr_type);
 
         /* Check if this is an 'as ref' primitive parameter */
         bool is_ref_primitive = false;
         if (param_quals != NULL && i < param_count && param_quals[i] == MEM_AS_REF &&
-            call->arguments[i]->expr_type != NULL)
+            arguments[i]->expr_type != NULL)
         {
-            TypeKind kind = call->arguments[i]->expr_type->kind;
+            TypeKind kind = arguments[i]->expr_type->kind;
             is_ref_primitive = (kind == TYPE_INT || kind == TYPE_INT32 || kind == TYPE_UINT ||
                                kind == TYPE_UINT32 || kind == TYPE_LONG || kind == TYPE_DOUBLE ||
                                kind == TYPE_FLOAT || kind == TYPE_CHAR || kind == TYPE_BOOL ||
@@ -245,29 +346,84 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "\n",
         wrapper_name, args_struct_name, args_struct_name);
 
-    /* Generate the function call with arguments extracted from struct */
-    char *callee_str = code_gen_expression(gen, call->callee);
+    /* For method calls, extract self from the args struct */
+    if (is_method_call)
+    {
+        wrapper_def = arena_sprintf(gen->arena,
+            "%s    /* Extract self from thread arguments */\n"
+            "    %s *__sn__self = args->__sn__self;\n"
+            "\n",
+            wrapper_def, mangled_self_type);
+    }
 
-    /* Check if this is a user-defined function (has body) that should receive arena.
-     * With the new arena model, ALL Sindarin functions (with bodies) receive the
-     * arena as first parameter, regardless of their modifier. */
+    /* Generate the function call with arguments extracted from struct */
+    char *callee_str = NULL;
     bool is_user_function = false;
     bool target_needs_arena_arg = false;
     const char *func_name_for_intercept = NULL;
-    if (call->callee->type == EXPR_VARIABLE)
+
+    if (is_method_call)
     {
-        Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, call->callee->as.variable.name);
-        if (sym != NULL && sym->is_function && !sym->is_native)
+        /* For method calls, generate: StructName_methodName */
+        callee_str = arena_sprintf(gen->arena, "%s_%s",
+                                   mangled_self_type, method_name);
+        /* Method is a Sindarin function, so it needs arena arg.
+         * Check if method is native - use resolved method if available */
+        bool method_is_native = false;
+        if (!is_member_method_call && method_call != NULL && method_call->method != NULL)
         {
-            is_user_function = true;
-            target_needs_arena_arg = true;  /* All Sindarin functions get arena */
-            func_name_for_intercept = get_var_name(gen->arena, call->callee->as.variable.name);
+            method_is_native = method_call->method->is_native;
         }
-        /* Also check has_body flag on function type */
-        if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_FUNCTION &&
-            sym->type->as.function.has_body)
+        else if (is_member_method_call && call != NULL && call->callee->type == EXPR_MEMBER)
         {
-            target_needs_arena_arg = true;
+            /* Use the resolved method from EXPR_MEMBER */
+            MemberExpr *member = &call->callee->as.member;
+            if (member->resolved_method != NULL)
+            {
+                method_is_native = member->resolved_method->is_native;
+            }
+        }
+        else if (is_member_method_call && self_struct_type != NULL)
+        {
+            /* Fallback: Look up the method in the struct to check if it's native */
+            StructMethod *methods = self_struct_type->as.struct_type.methods;
+            int method_count = self_struct_type->as.struct_type.method_count;
+            for (int m = 0; m < method_count; m++)
+            {
+                if (strcmp(methods[m].name, method_name) == 0)
+                {
+                    method_is_native = methods[m].is_native;
+                    break;
+                }
+            }
+        }
+        is_user_function = !method_is_native;
+        target_needs_arena_arg = !method_is_native;
+        func_name_for_intercept = arena_sprintf(gen->arena, "%s.%s",
+                                                 self_struct_name, method_name);
+    }
+    else
+    {
+        callee_str = code_gen_expression(gen, call->callee);
+
+        /* Check if this is a user-defined function (has body) that should receive arena.
+         * With the new arena model, ALL Sindarin functions (with bodies) receive the
+         * arena as first parameter, regardless of their modifier. */
+        if (call->callee->type == EXPR_VARIABLE)
+        {
+            Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, call->callee->as.variable.name);
+            if (sym != NULL && sym->is_function && !sym->is_native)
+            {
+                is_user_function = true;
+                target_needs_arena_arg = true;  /* All Sindarin functions get arena */
+                func_name_for_intercept = get_var_name(gen->arena, call->callee->as.variable.name);
+            }
+            /* Also check has_body flag on function type */
+            if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_FUNCTION &&
+                sym->type->as.function.has_body)
+            {
+                target_needs_arena_arg = true;
+            }
         }
     }
 
@@ -282,7 +438,20 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         call_args = arena_strdup(gen->arena, "");
     }
 
-    for (int i = 0; i < call->arg_count; i++)
+    /* For method calls, add self as the second argument (after arena) */
+    if (is_method_call)
+    {
+        if (call_args[0] != '\0')
+        {
+            call_args = arena_sprintf(gen->arena, "%s, __sn__self", call_args);
+        }
+        else
+        {
+            call_args = arena_strdup(gen->arena, "__sn__self");
+        }
+    }
+
+    for (int i = 0; i < arg_count; i++)
     {
         bool need_comma = (i > 0) || target_needs_arena_arg;
         if (need_comma)
@@ -292,7 +461,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
 
         /* For handle-type args in non-shared mode, promote from caller's arena
          * to thread's arena since handles are per-arena */
-        Type *arg_type = call->arguments[i]->expr_type;
+        Type *arg_type = arguments[i]->expr_type;
         bool is_handle_arg = gen->current_arena_var != NULL && arg_type != NULL &&
                              (arg_type->kind == TYPE_ARRAY || arg_type->kind == TYPE_STRING);
         if (is_handle_arg && modifier != FUNC_SHARED)
@@ -321,10 +490,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         /* Generate thunk definition - reads from __rt_thunk_args */
         char *thunk_def = arena_sprintf(gen->arena, "static RtAny %s(void) {\n", thunk_name);
 
+        /* For method calls, self is at __rt_thunk_args[0], so regular args start at index 1 */
+        int arg_offset = is_method_call ? 1 : 0;
+
         /* For 'as ref' primitives, declare local variables to hold unboxed values */
-        for (int i = 0; i < call->arg_count; i++)
+        for (int i = 0; i < arg_count; i++)
         {
-            Type *arg_type = call->arguments[i]->expr_type;
+            Type *arg_type = arguments[i]->expr_type;
             bool is_ref_primitive = false;
             if (param_quals != NULL && i < param_count && param_quals[i] == MEM_AS_REF &&
                 arg_type != NULL)
@@ -341,7 +513,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *unbox_func = get_unboxing_function(arg_type);
                 thunk_def = arena_sprintf(gen->arena,
                     "%s    %s __ref_%d = %s(__rt_thunk_args[%d]);\n",
-                    thunk_def, c_type, i, unbox_func, i);
+                    thunk_def, c_type, i, unbox_func, i + arg_offset);
             }
         }
 
@@ -356,15 +528,37 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             unboxed_args = arena_strdup(gen->arena, "");
         }
 
-        for (int i = 0; i < call->arg_count; i++)
+        /* For method calls, add self after arena (unboxed from __rt_thunk_args[0]) */
+        if (is_method_call)
         {
-            Type *arg_type = call->arguments[i]->expr_type;
+            int type_id = get_struct_type_id(self_struct_type);
+            if (unboxed_args[0] != '\0')
+            {
+                unboxed_args = arena_sprintf(gen->arena,
+                    "%s, ((%s *)rt_unbox_struct(__rt_thunk_args[0], %d))",
+                    unboxed_args, mangled_self_type, type_id);
+            }
+            else
+            {
+                unboxed_args = arena_sprintf(gen->arena,
+                    "((%s *)rt_unbox_struct(__rt_thunk_args[0], %d))",
+                    mangled_self_type, type_id);
+            }
+        }
+
+        for (int i = 0; i < arg_count; i++)
+        {
+            Type *arg_type = arguments[i]->expr_type;
             const char *unbox_func = get_unboxing_function(arg_type);
-            bool need_comma = (i > 0) || target_needs_arena_arg;
+            /* Need comma if not first arg, or if we have arena/self before us */
+            bool need_comma = (i > 0) || target_needs_arena_arg || is_method_call;
             if (need_comma)
             {
                 unboxed_args = arena_sprintf(gen->arena, "%s, ", unboxed_args);
             }
+
+            /* Index into __rt_thunk_args, offset by arg_offset for method calls */
+            int thunk_arg_idx = i + arg_offset;
 
             /* Check if this is an 'as ref' primitive parameter */
             bool is_ref_primitive = false;
@@ -386,7 +580,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             else if (unbox_func == NULL)
             {
                 /* For 'any' type or unknown, pass directly */
-                unboxed_args = arena_sprintf(gen->arena, "%s__rt_thunk_args[%d]", unboxed_args, i);
+                unboxed_args = arena_sprintf(gen->arena, "%s__rt_thunk_args[%d]", unboxed_args, thunk_arg_idx);
             }
             else if (arg_type && arg_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
             {
@@ -395,14 +589,14 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *elem_c = get_c_array_elem_type(gen->arena, arg_type->as.array.element_type);
                 unboxed_args = arena_sprintf(gen->arena,
                     "%srt_array_clone_%s_h((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, (%s *)%s(__rt_thunk_args[%d]))",
-                    unboxed_args, suffix, elem_c, unbox_func, i);
+                    unboxed_args, suffix, elem_c, unbox_func, thunk_arg_idx);
             }
             else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
                 /* In handle mode, convert unboxed char* back to RtHandle */
                 unboxed_args = arena_sprintf(gen->arena,
                     "%srt_managed_strdup((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, %s(__rt_thunk_args[%d]))",
-                    unboxed_args, unbox_func, i);
+                    unboxed_args, unbox_func, thunk_arg_idx);
             }
             else if (arg_type && arg_type->kind == TYPE_STRUCT)
             {
@@ -411,11 +605,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *struct_name = get_c_type(gen->arena, arg_type);
                 unboxed_args = arena_sprintf(gen->arena,
                     "%s*((%s *)rt_unbox_struct(__rt_thunk_args[%d], %d))",
-                    unboxed_args, struct_name, i, type_id);
+                    unboxed_args, struct_name, thunk_arg_idx, type_id);
             }
             else
             {
-                unboxed_args = arena_sprintf(gen->arena, "%s%s(__rt_thunk_args[%d])", unboxed_args, unbox_func, i);
+                unboxed_args = arena_sprintf(gen->arena, "%s%s(__rt_thunk_args[%d])", unboxed_args, unbox_func, thunk_arg_idx);
             }
         }
 
@@ -471,9 +665,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         }
 
         /* Write back modified values for 'as ref' primitives */
-        for (int i = 0; i < call->arg_count; i++)
+        for (int i = 0; i < arg_count; i++)
         {
-            Type *arg_type = call->arguments[i]->expr_type;
+            Type *arg_type = arguments[i]->expr_type;
             bool is_ref_primitive = false;
             if (param_quals != NULL && i < param_count && param_quals[i] == MEM_AS_REF &&
                 arg_type != NULL)
@@ -510,6 +704,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     if (is_user_function)
     {
         /* Generate interceptor-aware call */
+        /* For method calls, we need one extra slot for self */
+        int total_intercept_args = arg_count + (is_method_call ? 1 : 0);
+
         if (is_void_return)
         {
             wrapper_def = arena_sprintf(gen->arena,
@@ -517,13 +714,25 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    /* Call the function with interceptor support */\n"
                 "    if (__rt_interceptor_count > 0) {\n"
                 "        RtAny __args[%d];\n",
-                wrapper_def, call->arg_count > 0 ? call->arg_count : 1);
+                wrapper_def, total_intercept_args > 0 ? total_intercept_args : 1);
+
+            /* For method calls, box self as __args[0] */
+            if (is_method_call)
+            {
+                int type_id = get_struct_type_id(self_struct_type);
+                wrapper_def = arena_sprintf(gen->arena,
+                    "%s        __args[0] = rt_box_struct(__arena__, (void *)args->__sn__self, sizeof(%s), %d);\n",
+                    wrapper_def, mangled_self_type, type_id);
+            }
 
             /* Box arguments - for 'as ref' primitives, dereference the pointer */
-            for (int i = 0; i < call->arg_count; i++)
+            /* For method calls, args start at index 1 in __args */
+            int args_start_idx = is_method_call ? 1 : 0;
+            for (int i = 0; i < arg_count; i++)
             {
-                Type *arg_type = call->arguments[i]->expr_type;
+                Type *arg_type = arguments[i]->expr_type;
                 const char *box_func = get_boxing_function(arg_type);
+                int arg_idx = args_start_idx + i;
 
                 /* Check if this is an 'as ref' primitive parameter */
                 bool is_ref_primitive = false;
@@ -545,13 +754,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         /* In handle mode, pin the handle to get void* for boxing */
                         wrapper_def = arena_sprintf(gen->arena,
                             "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
-                            wrapper_def, i, box_func, i, elem_tag);
+                            wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                     else
                     {
                         wrapper_def = arena_sprintf(gen->arena,
                             "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                            wrapper_def, i, box_func, i, elem_tag);
+                            wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
@@ -560,35 +769,35 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     const char *struct_name = get_c_type(gen->arena, arg_type);
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
-                        wrapper_def, i, i, struct_name, type_id);
+                        wrapper_def, arg_idx, i, struct_name, type_id);
                 }
                 else if (is_ref_primitive)
                 {
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
                 else
                 {
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(args->arg%d);\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
             }
 
             /* Generate write-back code for as ref primitives after interception */
             char *writeback_code = arena_strdup(gen->arena, "");
-            for (int i = 0; i < call->arg_count; i++)
+            for (int i = 0; i < arg_count; i++)
             {
-                Type *arg_type = call->arguments[i]->expr_type;
+                Type *arg_type = arguments[i]->expr_type;
                 bool is_ref_primitive = false;
                 if (param_quals != NULL && i < param_count && param_quals[i] == MEM_AS_REF &&
                     arg_type != NULL)
@@ -621,7 +830,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
                 "}\n\n",
-                wrapper_def, func_name_for_intercept, call->arg_count, thunk_name,
+                wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, callee_str, call_args);
         }
         else
@@ -633,13 +842,25 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    %s __result__;\n"
                 "    if (__rt_interceptor_count > 0) {\n"
                 "        RtAny __args[%d];\n",
-                wrapper_def, ret_c_type, call->arg_count > 0 ? call->arg_count : 1);
+                wrapper_def, ret_c_type, total_intercept_args > 0 ? total_intercept_args : 1);
+
+            /* For method calls, box self as __args[0] */
+            if (is_method_call)
+            {
+                int type_id = get_struct_type_id(self_struct_type);
+                wrapper_def = arena_sprintf(gen->arena,
+                    "%s        __args[0] = rt_box_struct(__arena__, (void *)args->__sn__self, sizeof(%s), %d);\n",
+                    wrapper_def, mangled_self_type, type_id);
+            }
 
             /* Box arguments - for 'as ref' primitives, dereference the pointer */
-            for (int i = 0; i < call->arg_count; i++)
+            /* For method calls, args start at index 1 in __args */
+            int args_start_idx = is_method_call ? 1 : 0;
+            for (int i = 0; i < arg_count; i++)
             {
-                Type *arg_type = call->arguments[i]->expr_type;
+                Type *arg_type = arguments[i]->expr_type;
                 const char *box_func = get_boxing_function(arg_type);
+                int arg_idx = args_start_idx + i;
 
                 /* Check if this is an 'as ref' primitive parameter */
                 bool is_ref_primitive = false;
@@ -661,13 +882,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         /* In handle mode, pin the handle to get void* for boxing */
                         wrapper_def = arena_sprintf(gen->arena,
                             "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
-                            wrapper_def, i, box_func, i, elem_tag);
+                            wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                     else
                     {
                         wrapper_def = arena_sprintf(gen->arena,
                             "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                            wrapper_def, i, box_func, i, elem_tag);
+                            wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
@@ -676,35 +897,35 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     const char *struct_name = get_c_type(gen->arena, arg_type);
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
-                        wrapper_def, i, i, struct_name, type_id);
+                        wrapper_def, arg_idx, i, struct_name, type_id);
                 }
                 else if (is_ref_primitive)
                 {
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
                 else
                 {
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(args->arg%d);\n",
-                        wrapper_def, i, box_func, i);
+                        wrapper_def, arg_idx, box_func, i);
                 }
             }
 
             /* Generate write-back code for as ref primitives after interception */
             char *writeback_code = arena_strdup(gen->arena, "");
-            for (int i = 0; i < call->arg_count; i++)
+            for (int i = 0; i < arg_count; i++)
             {
-                Type *arg_type = call->arguments[i]->expr_type;
+                Type *arg_type = arguments[i]->expr_type;
                 bool is_ref_primitive = false;
                 if (param_quals != NULL && i < param_count && param_quals[i] == MEM_AS_REF &&
                     arg_type != NULL)
@@ -768,7 +989,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
                 "}\n\n",
-                wrapper_def, func_name_for_intercept, call->arg_count, thunk_name,
+                wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, unbox_expr, callee_str, call_args, ret_c_type);
         }
     }
@@ -820,9 +1041,31 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
      * For 'as ref' primitive parameters, pass address instead of value.
      * For function type arguments that are named function references, wrap in closure. */
     char *arg_assignments = arena_strdup(gen->arena, "");
-    for (int i = 0; i < call->arg_count; i++)
+
+    /* For method calls, capture self in the thread arguments */
+    if (is_method_call && self_object != NULL)
     {
-        Expr *arg_expr = call->arguments[i];
+        /* Generate code to get self pointer from the object expression */
+        char *self_code = code_gen_expression(gen, self_object);
+        /* self_object is 'self' inside a method, which is already a pointer */
+        if (self_object->expr_type != NULL &&
+            self_object->expr_type->kind == TYPE_POINTER)
+        {
+            /* Already a pointer, use directly */
+            arg_assignments = arena_sprintf(gen->arena, "%s->__sn__self = %s; ",
+                                            args_var, self_code);
+        }
+        else
+        {
+            /* Take address of struct */
+            arg_assignments = arena_sprintf(gen->arena, "%s->__sn__self = &%s; ",
+                                            args_var, self_code);
+        }
+    }
+
+    for (int i = 0; i < arg_count; i++)
+    {
+        Expr *arg_expr = arguments[i];
 
         /* For handle-type args (array/string in arena mode), generate as handle
          * so we store the RtHandle value directly instead of pinning */

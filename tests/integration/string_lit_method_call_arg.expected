@@ -1,0 +1,5 @@
+PASS: Should contain Hello
+PASS: Should contain World
+PASS: Should not contain Goodbye
+PASS: Start and end check
+All tests completed

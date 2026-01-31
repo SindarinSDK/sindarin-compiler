@@ -1,0 +1,25 @@
+// Test: Thread spawn with instance method call on self
+// This tests spawning a thread using &self.methodName(args)
+// The self reference must be captured and passed to the spawned thread.
+
+struct Server =>
+    value: int
+
+    fn handleClient(client: int): int =>
+        print($"Handling client: {client} with value: {self.value}\n")
+        return client * self.value
+
+    fn run(): int =>
+        // Spawn a thread calling an instance method on self
+        var result: int = &self.handleClient(42)
+        return result!
+
+fn main(): void =>
+    var server: Server = Server { value: 10 }
+    var result: int = server.run()
+    print($"Result: {result}\n")
+
+    if result == 420 =>
+        print("SUCCESS: Thread spawn with self method works correctly\n")
+    else =>
+        print("FAILURE: Expected 420, got different result\n")
