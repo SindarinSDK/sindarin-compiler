@@ -530,6 +530,10 @@ Expr *parser_postfix(Parser *parser)
             break;
         }
     }
+
+    /* Consume any DEDENT tokens from indented method chain continuation */
+    consume_continuation_dedents(parser);
+
     return expr;
 }
 

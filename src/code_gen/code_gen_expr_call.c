@@ -50,7 +50,8 @@ bool expression_produces_temp(Expr *expr)
  */
 char *code_gen_self_ref(CodeGen *gen, Expr *object, const char *struct_c_type, char *self_str)
 {
-    if (object->type == EXPR_CALL)
+    /* Check if object is an rvalue that requires a temporary */
+    if (object->type == EXPR_CALL || object->type == EXPR_STATIC_CALL)
     {
         /* Object is an rvalue (method chaining) - emit temp variable */
         int tmp_id = gen->temp_count++;

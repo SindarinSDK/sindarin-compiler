@@ -24,6 +24,7 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     parser->pending_comments = NULL;  /* No pending comments initially */
     parser->pending_comment_count = 0;
     parser->pending_comment_capacity = 0;
+    parser->continuation_indent_depth = 0;  /* No pending continuation dedents */
 
     Token print_token;
     print_token.start = arena_strdup(arena, "print");

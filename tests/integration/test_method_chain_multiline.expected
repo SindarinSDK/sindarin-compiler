@@ -1,3 +1,8 @@
-single line: HELLO WORLD
-multi-line: HELLO WORLD
-longer chain: TEST STRING
+str single line: HELLO WORLD
+str same indent: HELLO WORLD
+str indented: HELLO WORLD
+str multiple: TEST STRING
+struct static+instance: 30
+struct same indent: 16
+struct indented: 45
+struct multiple: 16
