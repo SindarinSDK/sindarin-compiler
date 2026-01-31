@@ -757,9 +757,24 @@ Token lexer_scan_string(Lexer *lexer)
                         return lexer_error_token(lexer, error_buffer);
                     }
                 }
+                else if (brace_depth > 0 && escaped == '"')
+                {
+                    // Inside braces: \" is used to delimit string arguments
+                    // Treat it as starting/ending a nested string (equivalent to ")
+                    buffer[buffer_index++] = '"';
+                    if (string_depth > 0)
+                    {
+                        string_depth--;
+                        if (interpol_depth > 0) interpol_depth--;
+                    }
+                    else
+                    {
+                        string_depth++;
+                    }
+                }
                 else
                 {
-                    // Inside braces or nested strings, keep escape sequence as-is for sub-parser
+                    // Inside nested strings, keep other escape sequences as-is for sub-parser
                     buffer[buffer_index++] = '\\';
                     buffer[buffer_index++] = escaped;
                 }

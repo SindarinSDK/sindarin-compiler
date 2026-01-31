@@ -1,0 +1,8 @@
+fn getHeader(name: str): str =>
+    return "VALUE:" + name
+
+fn main(): void =>
+    print($"Result: {getHeader(\"Content-Type\")}\n")
+    var x: str = $"Header: {getHeader(\"Accept\")}"
+    print(x)
+    print("\n")
