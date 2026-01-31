@@ -1,0 +1,4 @@
+setValue return self: PASS
+chained setValue: PASS
+chained setName: PASS
+All return self tests passed!

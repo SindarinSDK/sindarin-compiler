@@ -815,7 +815,34 @@ static void type_check_return(Stmt *stmt, SymbolTable *table, Type *return_type)
     }
     if (!ast_type_equals(value_type, return_type))
     {
-        type_error(stmt->token, "Return type does not match function return type");
+        /* Special case: In method context, allow returning 'self' (pointer to struct)
+         * when the declared return type is the struct itself. This enables the
+         * builder/fluent pattern: fn setValue(v: int): Builder => ... return self
+         * The implicit dereference will be handled by code generation. */
+        bool is_self_return_as_struct = false;
+        if (method_context_is_active() &&
+            value_type != NULL && value_type->kind == TYPE_POINTER &&
+            value_type->as.pointer.base_type != NULL &&
+            value_type->as.pointer.base_type->kind == TYPE_STRUCT &&
+            return_type != NULL && return_type->kind == TYPE_STRUCT)
+        {
+            /* Check if the pointer's base type matches the expected struct type */
+            if (ast_type_equals(value_type->as.pointer.base_type, return_type))
+            {
+                is_self_return_as_struct = true;
+                /* Update the expression's type to reflect the implicit dereference */
+                if (stmt->as.return_stmt.value != NULL)
+                {
+                    stmt->as.return_stmt.value->expr_type = return_type;
+                }
+                DEBUG_VERBOSE("Allowing implicit dereference of self pointer for struct return");
+            }
+        }
+
+        if (!is_self_return_as_struct)
+        {
+            type_error(stmt->token, "Return type does not match function return type");
+        }
     }
 }
 

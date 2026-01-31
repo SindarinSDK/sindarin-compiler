@@ -1875,6 +1875,23 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->allocate_closure_in_caller_arena = false;
         }
 
+        /* Handle returning 'self' pointer as struct value (builder/fluent pattern).
+         * In struct instance methods, 'self' is a pointer to the struct, but the
+         * declared return type may be the struct itself (for fluent APIs).
+         * When returning 'self' with a struct return type, dereference the pointer. */
+        if (stmt->value->type == EXPR_VARIABLE &&
+            gen->current_return_type != NULL &&
+            gen->current_return_type->kind == TYPE_STRUCT)
+        {
+            /* Check if the variable is 'self' */
+            Token var_name = stmt->value->as.variable.name;
+            if (var_name.length == 4 && strncmp(var_name.start, "self", 4) == 0)
+            {
+                /* Dereference the pointer to get the struct value */
+                value_str = arena_sprintf(gen->arena, "(*%s)", value_str);
+            }
+        }
+
         /* Handle boxing when function returns 'any' but expression is a concrete type */
         if (gen->current_return_type != NULL && gen->current_return_type->kind == TYPE_ANY &&
             stmt->value->expr_type != NULL && stmt->value->expr_type->kind != TYPE_ANY)
