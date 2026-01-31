@@ -1,0 +1,6 @@
+midAFunc(10) = 104
+midBFunc(10) = 156
+getMidAValue() = 142
+getMidBValue() = 242
+diamondBaseFunc(5) = 47
+Diamond dependency test passed!

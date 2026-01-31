@@ -1,0 +1,13 @@
+# Base module for diamond dependency test
+# This module should only be included once even when imported through multiple paths
+
+var DIAMOND_BASE_VALUE: int = 42
+
+fn diamondBaseFunc(x: int): int =>
+    return x + DIAMOND_BASE_VALUE
+
+struct DiamondBase =>
+    value: int
+
+    static fn new(): DiamondBase =>
+        return DiamondBase { value: DIAMOND_BASE_VALUE }
