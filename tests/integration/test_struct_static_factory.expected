@@ -1,0 +1,7 @@
+Point.create(10, 20): x=10, y=20
+Point.createClamped(100, 50, 75): x=75, y=50
+Point.distance from (0,0) to (3,4): 7
+(0,0).add((3,4)): x=3, y=4
+Rectangle: topLeft=(5,10), bottomRight=(25,30)
+Rectangle width: 20, height: 20
+All static factory method tests passed!
