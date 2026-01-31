@@ -9,6 +9,7 @@ int parser_is_at_end(Parser *parser);
 void skip_newlines(Parser *parser);
 int skip_newlines_and_check_end(Parser *parser);
 int skip_whitespace_for_continuation(Parser *parser);
+void consume_continuation_dedents(Parser *parser);
 
 /* Error handling */
 void parser_error(Parser *parser, const char *message);

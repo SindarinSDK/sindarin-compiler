@@ -30,6 +30,7 @@ typedef struct
     const char **pending_comments; /* Pending // comments to attach to next statement */
     int pending_comment_count;     /* Number of pending comments */
     int pending_comment_capacity;  /* Capacity of pending_comments array */
+    int continuation_indent_depth; /* Number of INDENT tokens consumed for method chain continuation */
 } Parser;
 
 /* Forward declare Parser for function pointer type */

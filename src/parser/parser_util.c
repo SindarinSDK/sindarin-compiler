@@ -31,9 +31,11 @@ int skip_newlines_and_check_end(Parser *parser)
 
 int skip_whitespace_for_continuation(Parser *parser)
 {
-    /* Only handle NEWLINE tokens - INDENT/DEDENT affect block structure and
-     * should not be skipped for continuation. This means continuation lines
-     * must be at the same indentation level as the previous expression. */
+    /* Handle method chain continuation across lines.
+     * Supports two patterns:
+     * 1. NEWLINE + DOT (same indentation)
+     * 2. NEWLINE + INDENT + DOT (indented continuation)
+     */
     if (parser->current.type != TOKEN_NEWLINE)
     {
         return 0;
@@ -43,12 +45,63 @@ int skip_whitespace_for_continuation(Parser *parser)
     Token peeked = parser_peek_token(parser);
     if (peeked.type == TOKEN_DOT)
     {
-        /* Found continuation - consume the newline and continue */
+        /* Found continuation at same indentation - consume the newline and continue */
         parser_advance(parser);
         return 1;
     }
 
+    /* Check for indented continuation: NEWLINE + INDENT + DOT */
+    if (peeked.type == TOKEN_INDENT)
+    {
+        /* Save parser state to peek further */
+        Token saved_current = parser->current;
+        Token saved_previous = parser->previous;
+
+        /* Consume NEWLINE to get to INDENT */
+        parser_advance(parser);
+
+        /* Now current is INDENT - peek what's after it */
+        Token after_indent = parser_peek_token(parser);
+        if (after_indent.type == TOKEN_DOT)
+        {
+            /* Found indented continuation - consume the INDENT and track it */
+            parser_advance(parser);
+            parser->continuation_indent_depth++;
+            return 1;
+        }
+
+        /* Not a continuation - restore state */
+        parser->current = saved_current;
+        parser->previous = saved_previous;
+    }
+
     return 0;
+}
+
+void consume_continuation_dedents(Parser *parser)
+{
+    /* Consume any DEDENT tokens that were created by consuming INDENT tokens
+     * for method chain continuation. Also skip any intervening NEWLINEs. */
+    while (parser->continuation_indent_depth > 0)
+    {
+        /* Skip any newlines before the DEDENT */
+        while (parser_check(parser, TOKEN_NEWLINE))
+        {
+            parser_advance(parser);
+        }
+
+        if (parser_check(parser, TOKEN_DEDENT))
+        {
+            parser_advance(parser);
+            parser->continuation_indent_depth--;
+        }
+        else
+        {
+            /* No DEDENT found - this shouldn't happen if indentation is balanced,
+             * but break to avoid infinite loop */
+            break;
+        }
+    }
 }
 
 void parser_error(Parser *parser, const char *message)
