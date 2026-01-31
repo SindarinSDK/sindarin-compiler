@@ -184,6 +184,17 @@ static void scan_expr_for_captures(CodeGen *gen, Expr *expr, SymbolTable *table,
                 scan_stmt_for_captures(gen, arm->body, table, lambda_depth);
         }
         break;
+    case EXPR_METHOD_CALL:
+        /* Method call on object: data.push(99) - scan object and arguments */
+        if (expr->as.method_call.object)
+            scan_expr_for_captures(gen, expr->as.method_call.object, table, lambda_depth);
+        for (int i = 0; i < expr->as.method_call.arg_count; i++)
+            scan_expr_for_captures(gen, expr->as.method_call.args[i], table, lambda_depth);
+        break;
+    case EXPR_MEMBER_ACCESS:
+        /* Member access: point.x - scan the object */
+        scan_expr_for_captures(gen, expr->as.member_access.object, table, lambda_depth);
+        break;
     default:
         break;
     }

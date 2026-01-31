@@ -710,10 +710,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     // This enables conditional thread spawn assignment: h = &compute() inside if blocks
     // EXCEPTIONS:
     // - 'as ref' and 'as val' variables have special memory handling
-    // - Primitives captured by closures need special reference treatment
+    // - Variables (primitives OR arrays) captured by closures need special reference treatment
     bool has_special_mem_qual = (stmt->mem_qualifier == MEM_AS_REF || stmt->mem_qualifier == MEM_AS_VAL);
-    bool is_captured_primitive = is_primitive_type && code_gen_is_captured_primitive(gen, raw_var_name);
-    if (needs_pending_var && !is_global_scope && !has_special_mem_qual && !is_captured_primitive)
+    bool is_captured_by_ref = code_gen_is_captured_primitive(gen, raw_var_name) &&
+                              (is_primitive_type || stmt->type->kind == TYPE_ARRAY);
+    if (needs_pending_var && !is_global_scope && !has_special_mem_qual && !is_captured_by_ref)
     {
         char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
 
