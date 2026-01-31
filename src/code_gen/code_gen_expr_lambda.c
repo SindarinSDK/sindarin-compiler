@@ -664,9 +664,19 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         arena_cleanup = arena_sprintf(gen->arena,
             "    rt_managed_arena_destroy_child(__lambda_arena__);\n");
     }
+    else if (modifier == FUNC_SHARED)
+    {
+        /* Shared lambda: ALWAYS use the closure's stored arena.
+         * This ensures the lambda operates on the arena where it was created,
+         * which is critical for closures capturing arrays or other state
+         * that needs to remain in the original arena. When a shared closure
+         * is called from a thread, it should access the main thread's data. */
+        arena_setup = arena_sprintf(gen->arena,
+            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)((__Closure__ *)__closure__)->arena;\n");
+    }
     else
     {
-        /* Default/Shared lambda: use thread arena if in thread context,
+        /* Default lambda: use thread arena if in thread context,
          * otherwise use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
             "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)rt_get_thread_arena_or("
