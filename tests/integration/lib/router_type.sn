@@ -1,0 +1,32 @@
+# Router module that imports request and response types
+# This mirrors the HTTP router pattern
+
+import "request_type"
+import "response_type"
+
+fn defaultNotFoundHandler(req: Request): Response =>
+    return Response.notFound().text("Not Found")
+
+struct Route =>
+    pattern: str
+    handler: fn(Request): Response
+
+struct Router =>
+    routes: Route[]
+    notFoundHandler: fn(Request): Response
+
+    static fn new(): Router =>
+        return Router {
+            routes: {},
+            notFoundHandler: defaultNotFoundHandler
+        }
+
+    fn addRoute(pattern: str, handler: fn(Request): Response): Router =>
+        self.routes.push(Route { pattern: pattern, handler: handler })
+        return self
+
+    fn handle(req: Request): Response =>
+        for route in self.routes =>
+            if route.pattern == req.path =>
+                return route.handler(req)
+        return self.notFoundHandler(req)

@@ -1,0 +1,18 @@
+# Simple response type for testing
+
+struct Response =>
+    status: int
+    body: str
+
+    static fn new(status: int): Response =>
+        return Response { status: status, body: "" }
+
+    static fn ok(): Response =>
+        return Response.new(200)
+
+    static fn notFound(): Response =>
+        return Response.new(404)
+
+    fn text(content: str): Response =>
+        self.body = content
+        return self

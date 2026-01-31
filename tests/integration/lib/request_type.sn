@@ -1,0 +1,8 @@
+# Simple request type for testing
+
+struct Request =>
+    path: str
+    method: str
+
+    static fn new(method: str, path: str): Request =>
+        return Request { method: method, path: path }

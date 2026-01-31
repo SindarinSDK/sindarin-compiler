@@ -1,0 +1,8 @@
+Creating processor with default handler
+Processing with default handler
+Default: 10
+Creating processor with alternate handler
+Alternate: 15
+Creating processor with custom handler
+Custom: 15
+All tests passed!

@@ -1,0 +1,27 @@
+# Test importing a module with function-typed struct fields
+# This tests that function references are properly initialized across module imports
+
+import "lib/handler"
+
+fn customHandler(x: int): int =>
+    return x * 3
+
+fn main(): void =>
+    print("Creating processor with default handler\n")
+    var proc: Processor = Processor.new()
+
+    print("Processing with default handler\n")
+    var result1: int = proc.process(5)
+    print($"Default: {result1}\n")
+
+    print("Creating processor with alternate handler\n")
+    var proc2: Processor = createWithHandler(alternateHandler)
+    var result2: int = proc2.process(5)
+    print($"Alternate: {result2}\n")
+
+    print("Creating processor with custom handler\n")
+    var proc3: Processor = createWithHandler(customHandler)
+    var result3: int = proc3.process(5)
+    print($"Custom: {result3}\n")
+
+    print("All tests passed!\n")
