@@ -35,6 +35,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->do_install = 0;   /* Default: no package install */
     options->install_target = NULL;
     options->clear_cache = 0;  /* Default: no cache clear */
+    options->no_install = 0;   /* Default: auto-install enabled */
 
     /* Get the compiler directory for locating runtime objects */
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
@@ -128,6 +129,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --install          Install dependencies from sn.yaml\n"
                 "  --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)\n"
                 "  --clear-cache      Clear the package cache (~/.sn-cache)\n"
+                "  --no-install       Skip automatic dependency installation\n"
                 "\n"
                 "By default, compiles to an executable and removes the intermediate C file.\n",
                 argv[0]);
@@ -162,6 +164,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             "  --install          Install dependencies from sn.yaml\n"
             "  --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)\n"
             "  --clear-cache      Clear the package cache (~/.sn-cache)\n"
+            "  --no-install       Skip automatic dependency installation\n"
             "\n"
             "By default, compiles to an executable and removes the intermediate C file.\n"
             "Requires GCC to be installed for compilation.\n",
@@ -251,6 +254,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         else if (strcmp(argv[i], "-g") == 0)
         {
             options->debug_build = 1;
+        }
+        else if (strcmp(argv[i], "--no-install") == 0)
+        {
+            options->no_install = 1;
         }
         else if (argv[i][0] == '-')
         {
