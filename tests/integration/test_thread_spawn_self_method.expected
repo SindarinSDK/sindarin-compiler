@@ -1,0 +1,3 @@
+Handling client: 42 with value: 10
+Result: 420
+SUCCESS: Thread spawn with self method works correctly
