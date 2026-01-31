@@ -3,6 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #include "runtime_arena.h"
 #include "runtime_any.h"
 
@@ -38,6 +40,25 @@ typedef struct {
 static inline size_t rt_array_length(void *arr) {
     if (arr == NULL) return 0;
     return ((RtArrayMetadata *)arr)[-1].size;
+}
+
+/* Helper to allocate array memory from arena or malloc */
+static inline void *rt_array_alloc_mem(RtArena *arena, size_t size) {
+    if (arena == NULL) {
+        return malloc(size);
+    }
+    return rt_arena_alloc(arena, size);
+}
+
+/* Helper to duplicate string from arena or malloc */
+static inline char *rt_array_strdup_mem(RtArena *arena, const char *str) {
+    if (str == NULL) {
+        return NULL;
+    }
+    if (arena == NULL) {
+        return strdup(str);
+    }
+    return rt_arena_strdup(arena, str);
 }
 
 /* Clear all elements from an array (sets size to 0, keeps capacity) */

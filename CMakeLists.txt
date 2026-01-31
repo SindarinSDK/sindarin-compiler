@@ -175,7 +175,18 @@ set(SN_RUNTIME_SOURCES
     src/runtime/arena/managed_arena_gc.c
     src/runtime/runtime_string.c
     src/runtime/runtime_string_h.c
-    src/runtime/runtime_array.c
+    src/runtime/runtime_array_core.c
+    src/runtime/runtime_array_slice.c
+    src/runtime/runtime_array_modify.c
+    src/runtime/runtime_array_search.c
+    src/runtime/runtime_array_join.c
+    src/runtime/runtime_array_print.c
+    src/runtime/runtime_array_any.c
+    src/runtime/runtime_array_any_nested.c
+    src/runtime/runtime_array_tostring.c
+    src/runtime/runtime_array_tostring_nested.c
+    src/runtime/runtime_array_create.c
+    src/runtime/runtime_array_alloc.c
     src/runtime/runtime_array_h.c
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
@@ -276,7 +287,18 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/arena/managed_arena_gc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_string_h.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_core.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_slice.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_modify.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_search.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_join.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_print.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_any.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_any_nested.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_tostring.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_tostring_nested.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_create.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_alloc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_array_h.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c

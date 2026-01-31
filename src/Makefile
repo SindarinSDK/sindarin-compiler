@@ -168,7 +168,18 @@ OPTIMIZER_SRCS := \
 RUNTIME_MODULE_SRCS := \
     runtime/runtime_arena.c \
     runtime/runtime_string.c \
-    runtime/runtime_array.c \
+    runtime/runtime_array_core.c \
+    runtime/runtime_array_slice.c \
+    runtime/runtime_array_modify.c \
+    runtime/runtime_array_search.c \
+    runtime/runtime_array_join.c \
+    runtime/runtime_array_print.c \
+    runtime/runtime_array_any.c \
+    runtime/runtime_array_any_nested.c \
+    runtime/runtime_array_tostring.c \
+    runtime/runtime_array_tostring_nested.c \
+    runtime/runtime_array_create.c \
+    runtime/runtime_array_alloc.c \
     runtime/runtime_text_file.c \
     runtime/runtime_binary_file.c \
     runtime/runtime_io.c \
@@ -306,7 +317,11 @@ TEST_COMPILER_OBJS := $(filter-out $(BIN_DIR)/main.o, \
     $(addprefix $(BIN_DIR)/, $(notdir $(OPTIMIZER_SRCS:.c=.o))))
 
 # Runtime objects for tests - generate from RUNTIME_MODULE_SRCS
-RUNTIME_OBJ_NAMES := runtime.o runtime_arena.o runtime_string.o runtime_array.o \
+RUNTIME_OBJ_NAMES := runtime.o runtime_arena.o runtime_string.o \
+    runtime_array_core.o runtime_array_slice.o runtime_array_modify.o \
+    runtime_array_search.o runtime_array_join.o runtime_array_print.o \
+    runtime_array_any.o runtime_array_any_nested.o runtime_array_tostring.o \
+    runtime_array_tostring_nested.o runtime_array_create.o runtime_array_alloc.o \
     runtime_text_file.o runtime_binary_file.o runtime_io.o runtime_byte.o \
     runtime_path.o runtime_date.o runtime_time.o runtime_thread.o \
     runtime_any.o runtime_intercept.o
