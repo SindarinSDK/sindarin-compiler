@@ -121,6 +121,7 @@ set(SN_TYPE_CHECKER_SOURCES
     src/type_checker/type_checker_expr_call.c
     src/type_checker/type_checker_expr_call_core.c
     src/type_checker/type_checker_expr_call_array.c
+    src/type_checker/type_checker_expr_call_char.c
     src/type_checker/type_checker_expr_call_string.c
     src/type_checker/type_checker_expr_array.c
     src/type_checker/type_checker_expr_lambda.c

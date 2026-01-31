@@ -676,7 +676,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
 {
     Token method_name;
 
-    if (parser_check(parser, TOKEN_IDENTIFIER))
+    if (parser_check_method_name(parser))
     {
         method_name = parser->current;
         parser_advance(parser);
@@ -1315,9 +1315,22 @@ Stmt *parser_type_declaration(Parser *parser)
         /* Create the opaque type with the name */
         declared_type = ast_create_opaque_type(parser->arena, name.start);
     }
+    else if (parser_check(parser, TOKEN_FN))
+    {
+        /* Parse regular function type alias: fn(params): return_type */
+        declared_type = parser_type(parser);
+        /* Store the typedef name for code generation */
+        if (declared_type != NULL && declared_type->kind == TYPE_FUNCTION)
+        {
+            char *typedef_name = arena_alloc(parser->arena, name.length + 1);
+            strncpy(typedef_name, name.start, name.length);
+            typedef_name[name.length] = '\0';
+            declared_type->as.function.typedef_name = typedef_name;
+        }
+    }
     else
     {
-        parser_error_at_current(parser, "Expected 'opaque' or 'native fn' after '=' in type declaration");
+        parser_error_at_current(parser, "Expected 'opaque', 'native fn', or 'fn' after '=' in type declaration");
         return NULL;
     }
 

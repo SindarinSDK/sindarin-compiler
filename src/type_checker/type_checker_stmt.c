@@ -1981,10 +1981,14 @@ void type_check_stmt(Stmt *stmt, SymbolTable *table, Type *return_type)
                            "Native callback return type must be C-compatible (primitives, pointers, or opaque types)");
             }
         }
+        else if (stmt->as.type_decl.type->kind == TYPE_FUNCTION)
+        {
+            /* Valid regular function type alias */
+        }
         else
         {
             type_error(&stmt->as.type_decl.name,
-                       "Type declaration must be 'opaque' or 'native fn(...)'");
+                       "Type declaration must be 'opaque', 'native fn(...)', or 'fn(...)'");
         }
         break;
 

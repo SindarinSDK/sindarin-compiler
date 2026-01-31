@@ -8,6 +8,7 @@
 int parser_is_at_end(Parser *parser);
 void skip_newlines(Parser *parser);
 int skip_newlines_and_check_end(Parser *parser);
+int skip_whitespace_for_continuation(Parser *parser);
 
 /* Error handling */
 void parser_error(Parser *parser, const char *message);
@@ -32,7 +33,7 @@ ParsedType parser_type_with_size(Parser *parser);
 int parser_is_static_type_name(const char *name, int length);
 
 /* Method name checking - returns 1 if current token can be a method name
- * (identifier or type keyword like int, long, double, bool, byte) */
+ * (identifier or type keyword like int, long, double, bool, byte, any) */
 int parser_check_method_name(Parser *parser);
 
 #endif /* PARSER_UTIL_H */

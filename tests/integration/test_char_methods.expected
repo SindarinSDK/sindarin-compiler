@@ -1,0 +1,14 @@
+toString 'a': a
+toUpper 'x': X
+toLower 'Z': z
+toInt 'A': 65
+isDigit '5': true
+isDigit 'a': false
+isAlpha 'x': true
+isAlpha '9': false
+isWhitespace ' ': true
+isWhitespace 'z': false
+isAlnum 'A': true
+isAlnum '3': true
+isAlnum '@': false
+'a'.toUpper().toString(): A

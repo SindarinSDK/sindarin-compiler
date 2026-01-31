@@ -1,2 +1,11 @@
-5
-a b c d e 
+no limit: 5 parts
+limit 2: 2 parts
+  [0]: a
+  [1]: b:c:d:e
+limit 3: 3 parts
+  [0]: a
+  [1]: b
+  [2]: c:d:e
+limit 1: 1 parts
+  [0]: a:b:c:d:e
+limit 100: 5 parts

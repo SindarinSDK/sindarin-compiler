@@ -29,6 +29,7 @@
 
 /* Utility modules - depend on arena */
 #include "runtime/runtime_byte.h"
+#include "runtime/runtime_char.h"
 
 /* Threading module - depends on arena */
 #include "runtime/runtime_thread.h"

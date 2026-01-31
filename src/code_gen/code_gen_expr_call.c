@@ -2254,7 +2254,7 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             // Handle split(delimiter) - returns array, object cleanup needed
             if (strcmp(member_name_str, "split") == 0 && call->arg_count == 1) {
                 char *arg_str = code_gen_expression(gen, call->arguments[0]);
-                if (gen->expr_as_handle && gen->current_arena_var != NULL) {
+                if (saved_handle_mode && gen->current_arena_var != NULL) {
                     /* Use handle-returning variant directly */
                     if (object_is_temp) {
                         return arena_sprintf(gen->arena,
@@ -2274,6 +2274,32 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
                         object_str, ARENA_VAR(gen), arg_str);
                 }
                 return arena_sprintf(gen->arena, "rt_str_split(%s, %s, %s)", ARENA_VAR(gen), object_str, arg_str);
+            }
+
+            // Handle split(delimiter, limit) - returns array with at most 'limit' parts
+            if (strcmp(member_name_str, "split") == 0 && call->arg_count == 2) {
+                char *delimiter_str = code_gen_expression(gen, call->arguments[0]);
+                char *limit_str = code_gen_expression(gen, call->arguments[1]);
+                if (saved_handle_mode && gen->current_arena_var != NULL) {
+                    /* Use handle-returning variant directly */
+                    if (object_is_temp) {
+                        return arena_sprintf(gen->arena,
+                            "({ char *_obj_tmp = %s; RtHandle _res = rt_str_split_n_h(%s, _obj_tmp, %s, %s); _res; })",
+                            object_str, ARENA_VAR(gen), delimiter_str, limit_str);
+                    }
+                    return arena_sprintf(gen->arena, "rt_str_split_n_h(%s, %s, %s, %s)", ARENA_VAR(gen), object_str, delimiter_str, limit_str);
+                }
+                if (object_is_temp) {
+                    if (gen->current_arena_var != NULL) {
+                        return arena_sprintf(gen->arena,
+                            "({ char *_obj_tmp = %s; char **_res = rt_str_split_n(%s, _obj_tmp, %s, %s); _res; })",
+                            object_str, ARENA_VAR(gen), delimiter_str, limit_str);
+                    }
+                    return arena_sprintf(gen->arena,
+                        "({ char *_obj_tmp = %s; char **_res = rt_str_split_n(%s, _obj_tmp, %s, %s); rt_free_string(_obj_tmp); _res; })",
+                        object_str, ARENA_VAR(gen), delimiter_str, limit_str);
+                }
+                return arena_sprintf(gen->arena, "rt_str_split_n(%s, %s, %s, %s)", ARENA_VAR(gen), object_str, delimiter_str, limit_str);
             }
 
             // Handle trim() - returns string
@@ -2489,6 +2515,57 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
 
             #undef STRING_METHOD_RETURNING_STRING
             gen->expr_as_handle = saved_handle_mode;
+        }
+
+        /* Handle char methods */
+        if (object_type->kind == TYPE_CHAR) {
+            char *object_str = code_gen_expression(gen, member->object);
+
+            /* char.toString() -> str (single character string)
+             * Returns RtHandle in handle mode, char* otherwise */
+            if (strcmp(member_name_str, "toString") == 0 && call->arg_count == 0) {
+                if (gen->expr_as_handle && gen->current_arena_var != NULL) {
+                    return arena_sprintf(gen->arena, "rt_char_toString_h(%s, %s)",
+                        ARENA_VAR(gen), object_str);
+                }
+                return arena_sprintf(gen->arena, "rt_char_toString(%s, %s)",
+                    ARENA_VAR(gen), object_str);
+            }
+
+            /* char.toUpper() -> char */
+            if (strcmp(member_name_str, "toUpper") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_toUpper(%s)", object_str);
+            }
+
+            /* char.toLower() -> char */
+            if (strcmp(member_name_str, "toLower") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_toLower(%s)", object_str);
+            }
+
+            /* char.toInt() -> int (ASCII value) */
+            if (strcmp(member_name_str, "toInt") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "((int)%s)", object_str);
+            }
+
+            /* char.isDigit() -> bool */
+            if (strcmp(member_name_str, "isDigit") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_isDigit(%s)", object_str);
+            }
+
+            /* char.isAlpha() -> bool */
+            if (strcmp(member_name_str, "isAlpha") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_isAlpha(%s)", object_str);
+            }
+
+            /* char.isWhitespace() -> bool */
+            if (strcmp(member_name_str, "isWhitespace") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_isWhitespace(%s)", object_str);
+            }
+
+            /* char.isAlnum() -> bool */
+            if (strcmp(member_name_str, "isAlnum") == 0 && call->arg_count == 0) {
+                return arena_sprintf(gen->arena, "rt_char_isAlnum(%s)", object_str);
+            }
         }
     }
 

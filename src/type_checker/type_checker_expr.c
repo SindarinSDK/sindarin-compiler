@@ -1,6 +1,7 @@
 #include "type_checker/type_checker_expr.h"
 #include "type_checker/type_checker_expr_call.h"
 #include "type_checker/type_checker_expr_call_array.h"
+#include "type_checker/type_checker_expr_call_char.h"
 #include "type_checker/type_checker_expr_call_string.h"
 #include "type_checker/type_checker_expr_array.h"
 #include "type_checker/type_checker_expr_lambda.h"
@@ -783,6 +784,17 @@ normal_member_access:;  /* Empty statement needed - labels cannot be followed di
             return result;
         }
         /* Fall through to error handling if not a valid string method */
+    }
+
+    /* Char methods - DELEGATED to type_checker_expr_call_char.c */
+    if (object_type->kind == TYPE_CHAR)
+    {
+        Type *result = type_check_char_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+        /* Fall through to error handling if not a valid char method */
     }
 
     /* Handle struct field access and methods via EXPR_MEMBER */

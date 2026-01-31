@@ -1,0 +1,43 @@
+# Test: char type methods
+# Verifies all char methods work correctly
+
+fn main(): int =>
+    # toString - convert char to single-char string
+    var c: char = 'a'
+    var s: str = c.toString()
+    print($"toString 'a': {s}\n")
+
+    # toUpper - convert to uppercase
+    var upper: char = 'x'.toUpper()
+    print($"toUpper 'x': {upper.toString()}\n")
+
+    # toLower - convert to lowercase
+    var lower: char = 'Z'.toLower()
+    print($"toLower 'Z': {lower.toString()}\n")
+
+    # toInt - get ASCII value
+    var ascii: int = 'A'.toInt()
+    print($"toInt 'A': {ascii}\n")
+
+    # isDigit - check if digit
+    print($"isDigit '5': {'5'.isDigit()}\n")
+    print($"isDigit 'a': {'a'.isDigit()}\n")
+
+    # isAlpha - check if alphabetic
+    print($"isAlpha 'x': {'x'.isAlpha()}\n")
+    print($"isAlpha '9': {'9'.isAlpha()}\n")
+
+    # isWhitespace - check if whitespace
+    print($"isWhitespace ' ': {' '.isWhitespace()}\n")
+    print($"isWhitespace 'z': {'z'.isWhitespace()}\n")
+
+    # isAlnum - check if alphanumeric
+    print($"isAlnum 'A': {'A'.isAlnum()}\n")
+    print($"isAlnum '3': {'3'.isAlnum()}\n")
+    print($"isAlnum '@': {'@'.isAlnum()}\n")
+
+    # Method chaining on char
+    var result: str = 'a'.toUpper().toString()
+    print($"'a'.toUpper().toString(): {result}\n")
+
+    return 0

@@ -138,6 +138,7 @@ int rt_str_endsWith(const char *str, const char *suffix);
 char *rt_str_trim(RtArena *arena, const char *str);
 char *rt_str_replace(RtArena *arena, const char *str, const char *old, const char *new_str);
 char **rt_str_split(RtArena *arena, const char *str, const char *delimiter);
+char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, int limit);
 
 /* String parsing functions */
 long long rt_str_to_int(const char *str);

@@ -1,7 +1,33 @@
-fn main(): void =>
-    var s: str = "a.b.c.d.e"
-    var parts: str[] = s.split(".")
-    print($"{parts.length}\n")
-    for p in parts =>
-        print($"{p} ")
-    print("\n")
+# Test: str.split() with limit parameter
+# Verifies split can take an optional second argument to limit splits
+
+fn main(): int =>
+    var s: str = "a:b:c:d:e"
+
+    # Split without limit - all parts
+    var all: str[] = s.split(":")
+    print($"no limit: {all.length} parts\n")
+
+    # Split with limit 2 - first part + remainder
+    var two: str[] = s.split(":", 2)
+    print($"limit 2: {two.length} parts\n")
+    print($"  [0]: {two[0]}\n")
+    print($"  [1]: {two[1]}\n")
+
+    # Split with limit 3
+    var three: str[] = s.split(":", 3)
+    print($"limit 3: {three.length} parts\n")
+    print($"  [0]: {three[0]}\n")
+    print($"  [1]: {three[1]}\n")
+    print($"  [2]: {three[2]}\n")
+
+    # Split with limit 1 - just the whole string
+    var one: str[] = s.split(":", 1)
+    print($"limit 1: {one.length} parts\n")
+    print($"  [0]: {one[0]}\n")
+
+    # Split with limit larger than parts
+    var large: str[] = s.split(":", 100)
+    print($"limit 100: {large.length} parts\n")
+
+    return 0
