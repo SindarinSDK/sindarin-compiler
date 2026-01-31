@@ -1,0 +1,5 @@
+Code: 200
+Headers count: 2
+Header[0]: Content-Type = text/plain
+Header[1]: X-Custom = test-value
+PASS: All header values correctly promoted

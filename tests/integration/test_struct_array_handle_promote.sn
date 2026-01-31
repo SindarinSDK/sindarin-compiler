@@ -1,0 +1,41 @@
+// Test: Struct arrays with handle fields must be recursively promoted
+// When a function returns a struct containing an array of structs with handle fields,
+// the handles inside the array elements must be promoted to the caller's arena.
+
+struct Header =>
+    name: str
+    value: str
+
+struct Response =>
+    code: int
+    headers: Header[]
+
+fn createResponse(): Response =>
+    var res: Response = Response { code: 200, headers: {} }
+    // Add headers - these are allocated in this function's local arena
+    res.headers.push(Header { name: "Content-Type", value: "text/plain" })
+    res.headers.push(Header { name: "X-Custom", value: "test-value" })
+    return res
+
+fn main(): void =>
+    var res: Response = createResponse()
+
+    print($"Code: {res.code}\n")
+    print($"Headers count: {res.headers.length}\n")
+
+    // These should work - handles inside headers must have been promoted
+    for var i: int = 0; i < res.headers.length; i++ =>
+        var h: Header = res.headers[i]
+        print($"Header[{i}]: {h.name} = {h.value}\n")
+
+    // Verify the actual values
+    if res.headers.length == 2 =>
+        if res.headers[0].name == "Content-Type" && res.headers[0].value == "text/plain" =>
+            if res.headers[1].name == "X-Custom" && res.headers[1].value == "test-value" =>
+                print("PASS: All header values correctly promoted\n")
+            else =>
+                print("FAIL: Second header values incorrect\n")
+        else =>
+            print("FAIL: First header values incorrect\n")
+    else =>
+        print("FAIL: Wrong number of headers\n")
