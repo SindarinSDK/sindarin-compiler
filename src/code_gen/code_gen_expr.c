@@ -864,6 +864,115 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
             {
                 value_code = arena_strdup(gen->arena, "RT_HANDLE_NULL");
             }
+            /* Handle function-typed fields: when the value is a named function,
+               wrap it in a closure. Named functions are just function pointers in C,
+               but function-typed fields expect __Closure__ * which has fn and arena fields. */
+            else if (field->type->kind == TYPE_FUNCTION &&
+                     !field->type->as.function.is_native &&
+                     init_value->type == EXPR_VARIABLE)
+            {
+                Symbol *func_sym = symbol_table_lookup_symbol(gen->symbol_table, init_value->as.variable.name);
+                if (func_sym != NULL && func_sym->is_function)
+                {
+                    /* Generate a wrapper function that adapts the closure calling convention
+                     * to the named function's signature. The wrapper takes (void*, params...)
+                     * and forwards to the actual function ignoring the closure pointer. */
+                    Type *func_type = field->type;
+                    int wrapper_id = gen->wrapper_count++;
+                    char *wrapper_name = arena_sprintf(gen->arena, "__wrap_%d__", wrapper_id);
+                    const char *ret_c_type = get_c_type(gen->arena, func_type->as.function.return_type);
+
+                    /* Build parameter list: void* first, then actual params */
+                    char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+                    char *args_forward = arena_strdup(gen->arena, "");
+
+                    /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena */
+                    bool wrapped_has_body = (func_sym->type != NULL &&
+                                             func_sym->type->kind == TYPE_FUNCTION &&
+                                             func_sym->type->as.function.has_body);
+                    if (wrapped_has_body)
+                    {
+                        args_forward = arena_strdup(gen->arena, "((__Closure__ *)__closure__)->arena");
+                    }
+
+                    for (int p = 0; p < func_type->as.function.param_count; p++)
+                    {
+                        const char *param_c_type = get_c_type(gen->arena, func_type->as.function.param_types[p]);
+                        params_decl = arena_sprintf(gen->arena, "%s, %s __p%d__", params_decl, param_c_type, p);
+                        if (p > 0 || wrapped_has_body)
+                            args_forward = arena_sprintf(gen->arena, "%s, ", args_forward);
+                        args_forward = arena_sprintf(gen->arena, "%s__p%d__", args_forward, p);
+                    }
+
+                    /* Generate wrapper function */
+                    char *func_name = sn_mangle_name(gen->arena,
+                        arena_strndup(gen->arena, init_value->as.variable.name.start, init_value->as.variable.name.length));
+                    bool is_void_return = (func_type->as.function.return_type &&
+                                           func_type->as.function.return_type->kind == TYPE_VOID);
+                    char *wrapper_func;
+                    if (is_void_return)
+                    {
+                        wrapper_func = arena_sprintf(gen->arena,
+                            "static void %s(%s) {\n"
+                            "    (void)__closure__;\n"
+                            "    %s(%s);\n"
+                            "}\n\n",
+                            wrapper_name, params_decl, func_name, args_forward);
+                    }
+                    else
+                    {
+                        wrapper_func = arena_sprintf(gen->arena,
+                            "static %s %s(%s) {\n"
+                            "    (void)__closure__;\n"
+                            "    return %s(%s);\n"
+                            "}\n\n",
+                            ret_c_type, wrapper_name, params_decl, func_name, args_forward);
+                    }
+
+                    /* Add wrapper to lambda definitions */
+                    gen->lambda_definitions = arena_sprintf(gen->arena, "%s%s",
+                                                            gen->lambda_definitions, wrapper_func);
+
+                    /* Add forward declaration */
+                    gen->lambda_forward_decls = arena_sprintf(gen->arena, "%sstatic %s %s(%s);\n",
+                                                              gen->lambda_forward_decls, ret_c_type, wrapper_name, params_decl);
+
+                    /* Wrap the wrapper function in a closure struct */
+                    const char *arena_var = ARENA_VAR(gen);
+                    if (strcmp(arena_var, "NULL") == 0)
+                    {
+                        /* No arena - use malloc */
+                        value_code = arena_sprintf(gen->arena,
+                            "({\n"
+                            "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
+                            "    __cl__->fn = (void *)%s;\n"
+                            "    __cl__->arena = NULL;\n"
+                            "    __cl__;\n"
+                            "})",
+                            wrapper_name);
+                    }
+                    else
+                    {
+                        /* Use arena allocation */
+                        value_code = arena_sprintf(gen->arena,
+                            "({\n"
+                            "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+                            "    __cl__->fn = (void *)%s;\n"
+                            "    __cl__->arena = %s;\n"
+                            "    __cl__;\n"
+                            "})",
+                            arena_var, wrapper_name, arena_var);
+                    }
+                }
+                else
+                {
+                    /* Not a named function - generate normally (probably a closure variable) */
+                    bool saved_handle = gen->expr_as_handle;
+                    gen->expr_as_handle = false;
+                    value_code = code_gen_expression(gen, init_value);
+                    gen->expr_as_handle = saved_handle;
+                }
+            }
             else
             {
                 bool saved_handle = gen->expr_as_handle;
@@ -1168,7 +1277,116 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    char *value_code = code_gen_expression(gen, assign->value);
+    char *value_code;
+    /* Handle function-typed fields: when assigning a named function,
+       wrap it in a closure. Named functions are just function pointers in C,
+       but function-typed fields expect __Closure__ *. */
+    if (field != NULL && field->type->kind == TYPE_FUNCTION &&
+        !field->type->as.function.is_native &&
+        assign->value->type == EXPR_VARIABLE)
+    {
+        Symbol *func_sym = symbol_table_lookup_symbol(gen->symbol_table, assign->value->as.variable.name);
+        if (func_sym != NULL && func_sym->is_function)
+        {
+            /* Generate a wrapper function that adapts the closure calling convention
+             * to the named function's signature. */
+            Type *func_type = field->type;
+            int wrapper_id = gen->wrapper_count++;
+            char *wrapper_name = arena_sprintf(gen->arena, "__wrap_%d__", wrapper_id);
+            const char *ret_c_type = get_c_type(gen->arena, func_type->as.function.return_type);
+
+            /* Build parameter list: void* first, then actual params */
+            char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+            char *args_forward = arena_strdup(gen->arena, "");
+
+            /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena */
+            bool wrapped_has_body = (func_sym->type != NULL &&
+                                     func_sym->type->kind == TYPE_FUNCTION &&
+                                     func_sym->type->as.function.has_body);
+            if (wrapped_has_body)
+            {
+                args_forward = arena_strdup(gen->arena, "((__Closure__ *)__closure__)->arena");
+            }
+
+            for (int p = 0; p < func_type->as.function.param_count; p++)
+            {
+                const char *param_c_type = get_c_type(gen->arena, func_type->as.function.param_types[p]);
+                params_decl = arena_sprintf(gen->arena, "%s, %s __p%d__", params_decl, param_c_type, p);
+                if (p > 0 || wrapped_has_body)
+                    args_forward = arena_sprintf(gen->arena, "%s, ", args_forward);
+                args_forward = arena_sprintf(gen->arena, "%s__p%d__", args_forward, p);
+            }
+
+            /* Generate wrapper function */
+            char *func_name = sn_mangle_name(gen->arena,
+                arena_strndup(gen->arena, assign->value->as.variable.name.start, assign->value->as.variable.name.length));
+            bool is_void_return = (func_type->as.function.return_type &&
+                                   func_type->as.function.return_type->kind == TYPE_VOID);
+            char *wrapper_func;
+            if (is_void_return)
+            {
+                wrapper_func = arena_sprintf(gen->arena,
+                    "static void %s(%s) {\n"
+                    "    (void)__closure__;\n"
+                    "    %s(%s);\n"
+                    "}\n\n",
+                    wrapper_name, params_decl, func_name, args_forward);
+            }
+            else
+            {
+                wrapper_func = arena_sprintf(gen->arena,
+                    "static %s %s(%s) {\n"
+                    "    (void)__closure__;\n"
+                    "    return %s(%s);\n"
+                    "}\n\n",
+                    ret_c_type, wrapper_name, params_decl, func_name, args_forward);
+            }
+
+            /* Add wrapper to lambda definitions */
+            gen->lambda_definitions = arena_sprintf(gen->arena, "%s%s",
+                                                    gen->lambda_definitions, wrapper_func);
+
+            /* Add forward declaration */
+            gen->lambda_forward_decls = arena_sprintf(gen->arena, "%sstatic %s %s(%s);\n",
+                                                      gen->lambda_forward_decls, ret_c_type, wrapper_name, params_decl);
+
+            /* Wrap the wrapper function in a closure struct */
+            const char *arena_var = ARENA_VAR(gen);
+            if (strcmp(arena_var, "NULL") == 0)
+            {
+                /* No arena - use malloc */
+                value_code = arena_sprintf(gen->arena,
+                    "({\n"
+                    "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
+                    "    __cl__->fn = (void *)%s;\n"
+                    "    __cl__->arena = NULL;\n"
+                    "    __cl__;\n"
+                    "})",
+                    wrapper_name);
+            }
+            else
+            {
+                /* Use arena allocation */
+                value_code = arena_sprintf(gen->arena,
+                    "({\n"
+                    "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+                    "    __cl__->fn = (void *)%s;\n"
+                    "    __cl__->arena = %s;\n"
+                    "    __cl__;\n"
+                    "})",
+                    arena_var, wrapper_name, arena_var);
+            }
+        }
+        else
+        {
+            /* Not a named function - generate normally (probably a closure variable) */
+            value_code = code_gen_expression(gen, assign->value);
+        }
+    }
+    else
+    {
+        value_code = code_gen_expression(gen, assign->value);
+    }
     gen->current_arena_var = prev_arena_var;
     gen->expr_as_handle = saved_handle;
 

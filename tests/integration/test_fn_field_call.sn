@@ -1,0 +1,31 @@
+// Test calling a function-typed struct field
+// This tests the pattern of storing callbacks in structs and calling them
+
+struct Handler =>
+    callback: fn(int): int
+
+fn multiply(x: int): int =>
+    return x * 2
+
+fn add10(x: int): int =>
+    return x + 10
+
+fn main(): void =>
+    // Test basic function field call
+    var h1: Handler = Handler { callback: multiply }
+    var result1: int = h1.callback(5)
+    print($"multiply(5) = {result1}\n")
+
+    // Test with different function
+    var h2: Handler = Handler { callback: add10 }
+    var result2: int = h2.callback(5)
+    print($"add10(5) = {result2}\n")
+
+    // Test reassigning the callback
+    h1.callback = add10
+    var result3: int = h1.callback(7)
+    print($"add10(7) = {result3}\n")
+
+    // Test chained calls
+    var chained: int = h1.callback(h2.callback(3))
+    print($"add10(add10(3)) = {chained}\n")
