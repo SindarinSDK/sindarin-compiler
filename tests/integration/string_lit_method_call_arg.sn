@@ -1,0 +1,27 @@
+// Test: String literal as argument alongside method call result
+// Issue: String literals not properly converted to RtHandle when another arg is a method call
+// Expected output:
+// PASS: Should contain Hello
+// PASS: Should contain World
+// PASS: Should not contain Goodbye
+// PASS: Start and end check
+// All tests completed
+
+fn myCheck(condition: bool, message: str): void =>
+    if condition =>
+        print($"PASS: {message}\n")
+    else =>
+        print($"FAIL: {message}\n")
+
+fn main(): void =>
+    var text: str = "Hello World"
+
+    // This pattern was failing - string literal alongside method call result
+    myCheck(text.contains("Hello"), "Should contain Hello")
+    myCheck(text.contains("World"), "Should contain World")
+    myCheck(!text.contains("Goodbye"), "Should not contain Goodbye")
+
+    // Multiple method calls with string literal
+    myCheck(text.startsWith("Hello") && text.endsWith("World"), "Start and end check")
+
+    print("All tests completed\n")
