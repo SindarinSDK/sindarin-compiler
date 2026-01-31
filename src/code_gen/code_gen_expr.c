@@ -973,6 +973,46 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                     gen->expr_as_handle = saved_handle;
                 }
             }
+            /* Special handling for empty array literals: use field's element type
+             * instead of the expression's TYPE_NIL element type which generates RT_HANDLE_NULL */
+            else if (field->type->kind == TYPE_ARRAY &&
+                     init_value->type == EXPR_ARRAY &&
+                     init_value->as.array.element_count == 0 &&
+                     gen->current_arena_var != NULL)
+            {
+                Type *elem_type = field->type->as.array.element_type;
+                const char *elem_c = get_c_type(gen->arena, elem_type);
+
+                if (elem_type->kind == TYPE_STRUCT) {
+                    value_code = arena_sprintf(gen->arena, "rt_array_create_generic_h(%s, 0, sizeof(%s), NULL)",
+                                               ARENA_VAR(gen), elem_c);
+                } else {
+                    /* Determine suffix for the element type */
+                    const char *suffix = NULL;
+                    switch (elem_type->kind) {
+                        case TYPE_INT:
+                        case TYPE_LONG: suffix = "long"; break;
+                        case TYPE_INT32: suffix = "int32"; break;
+                        case TYPE_UINT: suffix = "uint"; break;
+                        case TYPE_UINT32: suffix = "uint32"; break;
+                        case TYPE_FLOAT: suffix = "float"; break;
+                        case TYPE_DOUBLE: suffix = "double"; break;
+                        case TYPE_CHAR: suffix = "char"; break;
+                        case TYPE_BOOL: suffix = "bool"; break;
+                        case TYPE_BYTE: suffix = "byte"; break;
+                        case TYPE_STRING: suffix = "string"; break;
+                        default: suffix = NULL; break;
+                    }
+                    if (suffix != NULL) {
+                        value_code = arena_sprintf(gen->arena, "rt_array_create_%s_h(%s, 0, NULL)",
+                                                   suffix, ARENA_VAR(gen));
+                    } else {
+                        /* Fallback to generic for unknown element types */
+                        value_code = arena_sprintf(gen->arena, "rt_array_create_generic_h(%s, 0, sizeof(%s), NULL)",
+                                                   ARENA_VAR(gen), elem_c);
+                    }
+                }
+            }
             else
             {
                 bool saved_handle = gen->expr_as_handle;
