@@ -116,6 +116,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *pattern_str = code_gen_expression(gen, arguments[2]);
         char *method_call = arena_sprintf(gen->arena, "rt_str_region_equals(%s, %s, %s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, start_str, end_str, pattern_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
@@ -124,6 +125,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *arg_str = code_gen_expression(gen, arguments[0]);
         char *method_call = arena_sprintf(gen->arena, "rt_str_indexOf(%s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, arg_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "long", method_call);
     }
 
@@ -178,6 +180,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *arg_str = code_gen_expression(gen, arguments[0]);
         char *method_call = arena_sprintf(gen->arena, "rt_str_startsWith(%s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, arg_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
@@ -186,6 +189,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *arg_str = code_gen_expression(gen, arguments[0]);
         char *method_call = arena_sprintf(gen->arena, "rt_str_endsWith(%s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, arg_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
@@ -194,6 +198,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *arg_str = code_gen_expression(gen, arguments[0]);
         char *method_call = arena_sprintf(gen->arena, "rt_str_contains(%s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, arg_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
@@ -215,6 +220,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         char *index_str = code_gen_expression(gen, arguments[0]);
         char *method_call = arena_sprintf(gen->arena, "(char)rt_str_charAt(%s, %s)",
             object_is_temp ? "_obj_tmp" : object_str, index_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "char", method_call);
     }
 
@@ -264,6 +270,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "isBlank") == 0 && arg_count == 0) {
         char *method_call = arena_sprintf(gen->arena, "rt_str_is_blank(%s)",
             object_is_temp ? "_obj_tmp" : object_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "int", method_call);
     }
 
@@ -271,6 +278,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "toInt") == 0 && arg_count == 0) {
         char *method_call = arena_sprintf(gen->arena, "rt_str_to_int(%s)",
             object_is_temp ? "_obj_tmp" : object_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "long long", method_call);
     }
 
@@ -278,6 +286,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "toLong") == 0 && arg_count == 0) {
         char *method_call = arena_sprintf(gen->arena, "rt_str_to_long(%s)",
             object_is_temp ? "_obj_tmp" : object_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "long long", method_call);
     }
 
@@ -285,6 +294,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "toDouble") == 0 && arg_count == 0) {
         char *method_call = arena_sprintf(gen->arena, "rt_str_to_double(%s)",
             object_is_temp ? "_obj_tmp" : object_str);
+        gen->expr_as_handle = handle_mode;
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "double", method_call);
     }
 
