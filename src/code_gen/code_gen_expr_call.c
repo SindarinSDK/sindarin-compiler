@@ -2609,6 +2609,15 @@ char *code_gen_call_expression(CodeGen *gen, Expr *expr)
             is_closure_call = true;
         }
     }
+    /* Also handle member access where struct field is a function type (e.g., handler.callback()) */
+    else if (callee_type && callee_type->kind == TYPE_FUNCTION && call->callee->type == EXPR_MEMBER)
+    {
+        /* Native callback fields are not closures */
+        if (!callee_type->as.function.is_native)
+        {
+            is_closure_call = true;
+        }
+    }
 
     if (is_closure_call)
     {
