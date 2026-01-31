@@ -1,0 +1,22 @@
+# Test: Method chaining across multiple lines
+# Verifies that method chaining works when continuation is at same indentation
+
+fn main(): int =>
+    var s: str = "  hello world  "
+
+    # Single line chaining (baseline)
+    var r1: str = s.trim().toUpper()
+    print($"single line: {r1}\n")
+
+    # Multi-line chaining at same indent level
+    var r2: str = s.trim()
+    .toUpper()
+    print($"multi-line: {r2}\n")
+
+    # Longer chain across lines
+    var r3: str = "  TEST STRING  ".trim()
+    .toLower()
+    .toUpper()
+    print($"longer chain: {r3}\n")
+
+    return 0

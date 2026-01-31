@@ -520,6 +520,11 @@ Expr *parser_postfix(Parser *parser)
                 expr = ast_create_is_expr(parser->arena, expr, check_type, &is_token);
             }
         }
+        else if (skip_whitespace_for_continuation(parser))
+        {
+            /* Found a continuation operator (like '.') after newlines/indents - continue parsing */
+            continue;
+        }
         else
         {
             break;

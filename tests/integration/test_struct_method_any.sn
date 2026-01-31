@@ -1,0 +1,39 @@
+# Test: 'any' as struct method name
+# Verifies that reserved keyword 'any' can be used as a method name in structs
+
+struct IntList =>
+    items: int[]
+
+    fn any(): bool =>
+        for item in self.items =>
+            if item > 0 =>
+                return true
+        return false
+
+    fn all(): bool =>
+        for item in self.items =>
+            if item <= 0 =>
+                return false
+        return true
+
+fn main(): int =>
+    var empty: int[] = {}
+    var positive: int[] = {1, 2, 3}
+    var mixed: int[] = {-1, 0, 1}
+    var negative: int[] = {-1, -2, -3}
+
+    var list1: IntList = IntList { items: empty }
+    var list2: IntList = IntList { items: positive }
+    var list3: IntList = IntList { items: mixed }
+    var list4: IntList = IntList { items: negative }
+
+    print($"empty.any(): {list1.any()}\n")
+    print($"positive.any(): {list2.any()}\n")
+    print($"mixed.any(): {list3.any()}\n")
+    print($"negative.any(): {list4.any()}\n")
+
+    print($"empty.all(): {list1.all()}\n")
+    print($"positive.all(): {list2.all()}\n")
+    print($"mixed.all(): {list3.all()}\n")
+
+    return 0

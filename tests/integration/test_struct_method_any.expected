@@ -1,0 +1,7 @@
+empty.any(): false
+positive.any(): true
+mixed.any(): true
+negative.any(): false
+empty.all(): true
+positive.all(): true
+mixed.all(): false

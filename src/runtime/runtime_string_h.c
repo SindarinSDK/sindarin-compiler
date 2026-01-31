@@ -341,3 +341,67 @@ RtHandle rt_str_split_h(RtManagedArena *arena, const char *str, const char *deli
     rt_managed_unpin(arena, h);
     return h;
 }
+
+/* Split with limit - handle version */
+RtHandle rt_str_split_n_h(RtManagedArena *arena, const char *str, const char *delimiter, int limit) {
+    if (!str) str = "";
+    if (!delimiter) delimiter = "";
+
+    /* If limit is 0 or negative, use unlimited split */
+    if (limit <= 0) {
+        return rt_str_split_h(arena, str, delimiter);
+    }
+
+    /* If limit is 1, return the whole string as one part */
+    if (limit == 1) {
+        size_t alloc_size = sizeof(RtArrayMetadata) + sizeof(RtHandle);
+        RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
+        void *raw = rt_managed_pin(arena, h);
+        RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+        meta->arena = (RtArena *)arena;
+        meta->size = 1;
+        meta->capacity = 1;
+        RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+        arr[0] = rt_managed_strdup(arena, RT_HANDLE_NULL, str);
+        rt_managed_unpin(arena, h);
+        return h;
+    }
+
+    size_t del_len = strlen(delimiter);
+
+    /* Count the number of parts (up to limit) */
+    size_t count = 1;
+    const char *p = str;
+    while ((p = strstr(p, delimiter)) != NULL && count < (size_t)limit) {
+        count++;
+        p += del_len;
+    }
+
+    /* Allocate array: [RtArrayMetadata][RtHandle elements...] */
+    size_t alloc_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+    RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
+    void *raw = rt_managed_pin(arena, h);
+    RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+    meta->arena = (RtArena *)arena;
+    meta->size = count;
+    meta->capacity = count;
+    RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+
+    /* Split and store each substring as a managed handle (up to limit - 1 splits) */
+    size_t idx = 0;
+    p = str;
+    const char *found;
+    while ((found = strstr(p, delimiter)) != NULL && idx < count - 1) {
+        size_t seg_len = (size_t)(found - p);
+        char *seg = rt_arena_alloc((RtArena *)arena, seg_len + 1);
+        memcpy(seg, p, seg_len);
+        seg[seg_len] = '\0';
+        arr[idx++] = rt_managed_strdup(arena, RT_HANDLE_NULL, seg);
+        p = found + del_len;
+    }
+    /* Copy the remaining tail (unsplit) */
+    arr[idx] = rt_managed_strdup(arena, RT_HANDLE_NULL, p);
+
+    rt_managed_unpin(arena, h);
+    return h;
+}

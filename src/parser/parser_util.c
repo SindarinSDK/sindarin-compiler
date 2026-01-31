@@ -29,6 +29,28 @@ int skip_newlines_and_check_end(Parser *parser)
     return parser_is_at_end(parser);
 }
 
+int skip_whitespace_for_continuation(Parser *parser)
+{
+    /* Only handle NEWLINE tokens - INDENT/DEDENT affect block structure and
+     * should not be skipped for continuation. This means continuation lines
+     * must be at the same indentation level as the previous expression. */
+    if (parser->current.type != TOKEN_NEWLINE)
+    {
+        return 0;
+    }
+
+    /* Check if the next token after the newline is a continuation operator */
+    Token peeked = parser_peek_token(parser);
+    if (peeked.type == TOKEN_DOT)
+    {
+        /* Found continuation - consume the newline and continue */
+        parser_advance(parser);
+        return 1;
+    }
+
+    return 0;
+}
+
 void parser_error(Parser *parser, const char *message)
 {
     parser_error_at(parser, &parser->previous, message);
@@ -110,20 +132,40 @@ int parser_match(Parser *parser, SnTokenType type)
 
 Token parser_peek_token(Parser *parser)
 {
-    /* Save lexer state */
+    /* Save lexer state - must include all fields that lexer_scan_token might modify */
     const char *saved_start = parser->lexer->start;
     const char *saved_current = parser->lexer->current;
     int saved_line = parser->lexer->line;
     int saved_at_line_start = parser->lexer->at_line_start;
+    int saved_indent_size = parser->lexer->indent_size;
+    int saved_pending_indent = parser->lexer->pending_indent;
+    const char *saved_pending_current = parser->lexer->pending_current;
+
+    /* Save a copy of the indent stack */
+    int saved_indent_stack[64]; /* Should be large enough for any reasonable nesting */
+    int copy_size = saved_indent_size < 64 ? saved_indent_size : 64;
+    if (copy_size > 0)
+    {
+        memcpy(saved_indent_stack, parser->lexer->indent_stack, sizeof(int) * copy_size);
+    }
 
     /* Scan the next token */
     Token peeked = lexer_scan_token(parser->lexer);
 
-    /* Restore lexer state */
+    /* Restore all lexer state */
     parser->lexer->start = saved_start;
     parser->lexer->current = saved_current;
     parser->lexer->line = saved_line;
     parser->lexer->at_line_start = saved_at_line_start;
+    parser->lexer->indent_size = saved_indent_size;
+    parser->lexer->pending_indent = saved_pending_indent;
+    parser->lexer->pending_current = saved_pending_current;
+
+    /* Restore indent stack */
+    if (copy_size > 0)
+    {
+        memcpy(parser->lexer->indent_stack, saved_indent_stack, sizeof(int) * copy_size);
+    }
 
     return peeked;
 }
@@ -430,10 +472,10 @@ int parser_check_method_name(Parser *parser)
     {
         return 1;
     }
-    /* Allow type keywords as method names (e.g., obj.int, obj.bool, etc.) */
+    /* Allow type keywords as method names (e.g., obj.int, obj.bool, obj.any, etc.) */
     SnTokenType type = parser->current.type;
     if (type == TOKEN_INT || type == TOKEN_LONG || type == TOKEN_DOUBLE ||
-        type == TOKEN_BOOL || type == TOKEN_BYTE)
+        type == TOKEN_BOOL || type == TOKEN_BYTE || type == TOKEN_ANY)
     {
         return 1;
     }

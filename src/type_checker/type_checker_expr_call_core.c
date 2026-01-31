@@ -133,6 +133,22 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
     int expected_params = callee_type->as.function.param_count;
     bool is_variadic = callee_type->as.function.is_variadic;
 
+    /* Special case: string.split() accepts 1 or 2 arguments */
+    bool is_string_split = false;
+    if (expr->as.call.callee->type == EXPR_MEMBER)
+    {
+        Expr *member = expr->as.call.callee;
+        Type *object_type = member->as.member.object->expr_type;
+        if (object_type && object_type->kind == TYPE_STRING)
+        {
+            Token member_name = member->as.member.member_name;
+            if (member_name.length == 5 && strncmp(member_name.start, "split", 5) == 0)
+            {
+                is_string_split = true;
+            }
+        }
+    }
+
     /* For variadic functions, we need at least the fixed parameters.
      * For non-variadic functions, exact count is required. */
     if (is_variadic)
@@ -145,6 +161,37 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
             type_error(expr->token, msg);
             return NULL;
         }
+    }
+    else if (is_string_split)
+    {
+        /* string.split accepts 1 or 2 arguments */
+        if (expr->as.call.arg_count < 1 || expr->as.call.arg_count > 2)
+        {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "string.split() expects 1 or 2 arguments, got %d",
+                     expr->as.call.arg_count);
+            type_error(expr->token, msg);
+            return NULL;
+        }
+        /* Type check first argument (delimiter: str) */
+        Type *arg1_type = type_check_expr(expr->as.call.arguments[0], table);
+        if (arg1_type == NULL || arg1_type->kind != TYPE_STRING)
+        {
+            type_error(expr->token, "split() first argument must be a string");
+            return NULL;
+        }
+        /* Type check optional second argument (limit: int) */
+        if (expr->as.call.arg_count == 2)
+        {
+            Type *arg2_type = type_check_expr(expr->as.call.arguments[1], table);
+            if (arg2_type == NULL || arg2_type->kind != TYPE_INT)
+            {
+                type_error(expr->token, "split() second argument (limit) must be an int");
+                return NULL;
+            }
+        }
+        /* Return the string array type */
+        return callee_type->as.function.return_type;
     }
     else
     {

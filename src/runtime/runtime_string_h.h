@@ -40,5 +40,6 @@ RtHandle rt_str_replace_h(RtManagedArena *arena, const char *str, const char *ol
 
 /* String split -- returns array handle (array of string pointers) */
 RtHandle rt_str_split_h(RtManagedArena *arena, const char *str, const char *delimiter);
+RtHandle rt_str_split_n_h(RtManagedArena *arena, const char *str, const char *delimiter, int limit);
 
 #endif
