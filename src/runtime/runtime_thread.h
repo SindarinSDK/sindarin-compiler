@@ -141,6 +141,25 @@ void rt_thread_panic(const char *message);
 bool rt_thread_has_panic_context(void);
 
 /* ============================================================================
+ * Thread Arena Context
+ * ============================================================================
+ * Thread-local arena tracking for closures. When a closure is called from a
+ * thread, it should use the thread's arena rather than the arena stored at
+ * closure creation time. This TLS variable allows closures to detect when
+ * they're running in a thread context.
+ * ============================================================================ */
+
+/* Thread-local arena for the current thread (NULL for main thread) */
+extern RT_THREAD_LOCAL void *rt_current_thread_arena;
+
+/* Set the current thread's arena (call at thread start) */
+void rt_set_thread_arena(void *arena);
+
+/* Get thread arena if set, otherwise return fallback.
+ * Used by closures to prefer thread arena over stored arena. */
+void *rt_get_thread_arena_or(void *fallback);
+
+/* ============================================================================
  * Thread Function Declarations
  * ============================================================================ */
 

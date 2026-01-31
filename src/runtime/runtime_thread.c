@@ -241,6 +241,27 @@ void rt_thread_panic(const char *message)
 }
 
 /* ============================================================================
+ * Thread Arena Context
+ * ============================================================================
+ * Thread-local arena tracking for closures. Allows closures to use the
+ * thread's arena when called from a thread context.
+ * ============================================================================ */
+
+RT_THREAD_LOCAL void *rt_current_thread_arena = NULL;
+
+/* Set the current thread's arena */
+void rt_set_thread_arena(void *arena)
+{
+    rt_current_thread_arena = arena;
+}
+
+/* Get thread arena if set, otherwise return fallback */
+void *rt_get_thread_arena_or(void *fallback)
+{
+    return rt_current_thread_arena != NULL ? rt_current_thread_arena : fallback;
+}
+
+/* ============================================================================
  * Thread Result Functions
  * ============================================================================ */
 

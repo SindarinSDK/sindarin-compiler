@@ -646,24 +646,31 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         params_decl = arena_sprintf(gen->arena, "%s, %s %s", params_decl, param_c_type, param_name);
     }
 
-    /* Generate arena handling code based on modifier */
+    /* Generate arena handling code based on modifier.
+     * Use rt_get_thread_arena_or() to prefer thread arena when closure is called
+     * from a thread context. This ensures closures created in main() use the
+     * calling thread's arena rather than main's arena. */
     char *arena_setup = arena_strdup(gen->arena, "");
     char *arena_cleanup = arena_strdup(gen->arena, "");
 
     if (modifier == FUNC_PRIVATE)
     {
-        /* Private lambda: create child arena, destroy before return */
+        /* Private lambda: create child arena, destroy before return.
+         * Parent is thread arena if in thread context, otherwise closure's stored arena. */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtManagedArena *__lambda_arena__ = rt_managed_arena_create_child(((__Closure__ *)__closure__)->arena);\n"
+            "    RtManagedArena *__lambda_arena__ = rt_managed_arena_create_child("
+            "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena));\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
             "    rt_managed_arena_destroy_child(__lambda_arena__);\n");
     }
     else
     {
-        /* Default/Shared lambda: use arena from closure */
+        /* Default/Shared lambda: use thread arena if in thread context,
+         * otherwise use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)((__Closure__ *)__closure__)->arena;\n");
+            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)rt_get_thread_arena_or("
+            "((__Closure__ *)__closure__)->arena);\n");
     }
 
     if (cv.count > 0)
