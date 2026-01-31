@@ -298,6 +298,63 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         STRING_METHOD_RETURNING_VALUE(gen, object_is_temp, object_str, "double", method_call);
     }
 
+    /* split(delimiter, limit) - returns string array with at most 'limit' parts */
+    if (strcmp(method_name, "split") == 0 && arg_count == 2) {
+        char *delimiter_str = code_gen_expression(gen, arguments[0]);
+        char *limit_str = code_gen_expression(gen, arguments[1]);
+        if (handle_mode && gen->current_arena_var != NULL) {
+            /* Use handle-returning variant directly */
+            if (object_is_temp) {
+                gen->expr_as_handle = handle_mode;
+                return arena_sprintf(gen->arena,
+                    "({ char *_obj_tmp = %s; RtHandle _res = rt_str_split_n_h(%s, _obj_tmp, %s, %s); _res; })",
+                    object_str, ARENA_VAR(gen), delimiter_str, limit_str);
+            }
+            gen->expr_as_handle = handle_mode;
+            return arena_sprintf(gen->arena, "rt_str_split_n_h(%s, %s, %s, %s)",
+                ARENA_VAR(gen), object_str, delimiter_str, limit_str);
+        }
+        char *method_call = arena_sprintf(gen->arena, "rt_str_split_n(%s, %s, %s, %s)",
+            ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str, delimiter_str, limit_str);
+        gen->expr_as_handle = handle_mode;
+        STRING_METHOD_RETURNING_ARRAY(gen, object_is_temp, object_str, "char", method_call);
+    }
+
+    /* append(str) - appends to mutable string, returns new string pointer */
+    if (strcmp(method_name, "append") == 0 && arg_count == 1) {
+        char *arg_str = code_gen_expression(gen, arguments[0]);
+        Type *arg_type = arguments[0]->expr_type;
+
+        if (arg_type == NULL || arg_type->kind != TYPE_STRING) {
+            fprintf(stderr, "Error: append() argument must be a string\n");
+            exit(1);
+        }
+
+        gen->expr_as_handle = handle_mode;
+
+        /* In handle mode: use rt_str_append_h which returns a new handle */
+        if (gen->current_arena_var != NULL && object->type == EXPR_VARIABLE) {
+            /* Get the handle variable name */
+            bool prev = gen->expr_as_handle;
+            gen->expr_as_handle = true;
+            char *handle_name = code_gen_expression(gen, object);
+            gen->expr_as_handle = prev;
+            return arena_sprintf(gen->arena,
+                "(%s = rt_str_append_h(%s, %s, %s, %s))",
+                handle_name, ARENA_VAR(gen), handle_name, object_str, arg_str);
+        }
+
+        /* Legacy path: First ensure the string is mutable, then append. */
+        if (object->type == EXPR_VARIABLE) {
+            return arena_sprintf(gen->arena,
+                "(%s = rt_string_append(rt_string_ensure_mutable_inline(__local_arena__, %s), %s))",
+                object_str, object_str, arg_str);
+        }
+        return arena_sprintf(gen->arena,
+            "rt_string_append(rt_string_ensure_mutable_inline(__local_arena__, %s), %s)",
+            object_str, arg_str);
+    }
+
     /* Method not handled here - restore handle mode */
     gen->expr_as_handle = handle_mode;
     return NULL;

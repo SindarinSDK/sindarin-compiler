@@ -48,6 +48,77 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
 char *code_gen_call_expression(CodeGen *gen, Expr *expr);
 
 /* ============================================================================
+ * Namespace Call Code Generation (code_gen_expr_call_namespace.c)
+ * ============================================================================ */
+
+/**
+ * Generate code for a direct namespace function call (namespace.function()).
+ */
+char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                        const char *member_name_str, CallExpr *call);
+
+/**
+ * Generate code for a nested namespace function call (parent.nested.function()).
+ */
+char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                      const char *member_name_str, CallExpr *call);
+
+/**
+ * Generate code for a namespace struct static method call (namespace.StructType.staticMethod()).
+ */
+char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                             CallExpr *call);
+
+/* ============================================================================
+ * Struct Method Code Generation (code_gen_expr_call_struct.c)
+ * ============================================================================ */
+
+/**
+ * Generate code for a native struct method call.
+ */
+char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                          StructMethod *method, Type *struct_type,
+                                          CallExpr *call);
+
+/**
+ * Generate code for a non-native (Sindarin) struct method call.
+ */
+char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                            StructMethod *method, Type *struct_type,
+                                            CallExpr *call);
+
+/**
+ * Generate code for a pointer-to-struct method call.
+ */
+char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
+                                           Type *object_type, CallExpr *call);
+
+/* ============================================================================
+ * Closure Call Code Generation (code_gen_expr_call_closure.c)
+ * ============================================================================ */
+
+/**
+ * Check if a call expression is a closure call.
+ */
+bool is_closure_call_expr(CodeGen *gen, CallExpr *call);
+
+/**
+ * Generate code for a closure call.
+ */
+char *code_gen_closure_call(CodeGen *gen, Expr *expr, CallExpr *call);
+
+/* ============================================================================
+ * Builtin Call Code Generation (code_gen_expr_call_builtin.c)
+ * ============================================================================ */
+
+/**
+ * Try to generate code for a builtin function call.
+ * Returns the generated code if the callee is a builtin, NULL otherwise.
+ */
+char *code_gen_try_builtin_call(CodeGen *gen, Expr *expr, CallExpr *call,
+                                 char **arg_strs, char **callee_str_out);
+
+/* ============================================================================
  * Array Method Code Generation (code_gen_expr_call_array.c)
  * ============================================================================ */
 
