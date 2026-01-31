@@ -1736,6 +1736,50 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                         indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote_array_handle(__caller_arena__, __local_arena__, _return_value.%s);\n",
                                          c_field_name, c_field_name);
                     }
+                    else if (elem_type && elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type))
+                    {
+                        // Struct[] where struct has handle fields - need to promote handles in each element
+                        const char *struct_c_name = elem_type->as.struct_type.c_alias != NULL
+                            ? elem_type->as.struct_type.c_alias
+                            : sn_mangle_name(gen->arena, elem_type->as.struct_type.name);
+                        indented_fprintf(gen, 1, "{ /* Promote handles in struct array elements */\n");
+                        indented_fprintf(gen, 1, "    %s *__parr__ = ((%s *)rt_managed_pin_array(__local_arena__, _return_value.%s));\n",
+                                         struct_c_name, struct_c_name, c_field_name);
+                        indented_fprintf(gen, 1, "    long __plen__ = rt_array_length(__parr__);\n");
+                        indented_fprintf(gen, 1, "    for (long __pi__ = 0; __pi__ < __plen__; __pi__++) {\n");
+                        // Generate promotion for each handle field in the struct element
+                        int struct_field_count = elem_type->as.struct_type.field_count;
+                        for (int fi = 0; fi < struct_field_count; fi++)
+                        {
+                            StructField *sf = &elem_type->as.struct_type.fields[fi];
+                            if (sf->type == NULL) continue;
+                            const char *sf_c_name = sf->c_alias != NULL ? sf->c_alias
+                                : sn_mangle_name(gen->arena, sf->name);
+                            if (sf->type->kind == TYPE_STRING)
+                            {
+                                indented_fprintf(gen, 1, "        __parr__[__pi__].%s = rt_managed_promote(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                                                 sf_c_name, sf_c_name);
+                            }
+                            else if (sf->type->kind == TYPE_ARRAY)
+                            {
+                                Type *sf_elem = sf->type->as.array.element_type;
+                                if (sf_elem && sf_elem->kind == TYPE_STRING)
+                                {
+                                    indented_fprintf(gen, 1, "        __parr__[__pi__].%s = rt_managed_promote_array_string(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                                                     sf_c_name, sf_c_name);
+                                }
+                                else
+                                {
+                                    indented_fprintf(gen, 1, "        __parr__[__pi__].%s = rt_managed_promote(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                                                     sf_c_name, sf_c_name);
+                                }
+                            }
+                        }
+                        indented_fprintf(gen, 1, "    }\n");
+                        indented_fprintf(gen, 1, "    _return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
+                                         c_field_name, c_field_name);
+                        indented_fprintf(gen, 1, "}\n");
+                    }
                     else
                     {
                         indented_fprintf(gen, 1, "_return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
