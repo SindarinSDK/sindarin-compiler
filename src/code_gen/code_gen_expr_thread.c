@@ -335,11 +335,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "     * the caller's arena. For default/private modes, it's a new arena. */\n"
         "    RtArena *__arena__ = args->thread_arena;\n"
         "\n"
+        "    /* Set thread arena for closures called from this thread */\n"
+        "    rt_set_thread_arena(__arena__);\n"
+        "\n"
         "    /* Set up panic context to catch panics in this thread */\n"
         "    RtThreadPanicContext __panic_ctx__;\n"
         "    rt_thread_panic_context_init(&__panic_ctx__, args->result, __arena__);\n"
         "    if (setjmp(__panic_ctx__.jump_buffer) != 0) {\n"
         "        /* Panic occurred - cleanup and return */\n"
+        "        rt_set_thread_arena(NULL);\n"
         "        rt_thread_panic_context_clear();\n"
         "        return NULL;\n"
         "    }\n"
@@ -826,7 +830,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "        %s(%s);\n"
                 "    }\n"
                 "\n"
-                "    /* Clear panic context on successful completion */\n"
+                "    /* Clear thread arena and panic context on successful completion */\n"
+                "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
                 "}\n\n",
@@ -985,7 +990,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
                 "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
                 "\n"
-                "    /* Clear panic context on successful completion */\n"
+                "    /* Clear thread arena and panic context on successful completion */\n"
+                "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
                 "}\n\n",
@@ -1001,7 +1007,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    /* Call the function */\n"
             "    %s(%s);\n"
             "\n"
-            "    /* Clear panic context on successful completion */\n"
+            "    /* Clear thread arena and panic context on successful completion */\n"
+            "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
             "}\n\n",
@@ -1019,7 +1026,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
             "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
             "\n"
-            "    /* Clear panic context on successful completion */\n"
+            "    /* Clear thread arena and panic context on successful completion */\n"
+            "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
             "}\n\n",
@@ -1118,8 +1126,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 char *thunk_call_args;
                 if (target_needs_arena)
                 {
-                    /* Prepend arena from closure as first argument */
-                    thunk_call_args = arena_strdup(gen->arena, "((__Closure__ *)__cl__)->arena");
+                    /* Prepend arena from closure as first argument.
+                     * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
+                    thunk_call_args = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__cl__)->arena)");
                 }
                 else
                 {

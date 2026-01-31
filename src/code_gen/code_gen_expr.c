@@ -886,13 +886,14 @@ static char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                     char *params_decl = arena_strdup(gen->arena, "void *__closure__");
                     char *args_forward = arena_strdup(gen->arena, "");
 
-                    /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena */
+                    /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena.
+                     * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
                     bool wrapped_has_body = (func_sym->type != NULL &&
                                              func_sym->type->kind == TYPE_FUNCTION &&
                                              func_sym->type->as.function.has_body);
                     if (wrapped_has_body)
                     {
-                        args_forward = arena_strdup(gen->arena, "((__Closure__ *)__closure__)->arena");
+                        args_forward = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena)");
                     }
 
                     for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -1339,13 +1340,14 @@ static char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             char *params_decl = arena_strdup(gen->arena, "void *__closure__");
             char *args_forward = arena_strdup(gen->arena, "");
 
-            /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena */
+            /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena.
+             * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
             bool wrapped_has_body = (func_sym->type != NULL &&
                                      func_sym->type->kind == TYPE_FUNCTION &&
                                      func_sym->type->as.function.has_body);
             if (wrapped_has_body)
             {
-                args_forward = arena_strdup(gen->arena, "((__Closure__ *)__closure__)->arena");
+                args_forward = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena)");
             }
 
             for (int p = 0; p < func_type->as.function.param_count; p++)
