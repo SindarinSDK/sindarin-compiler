@@ -1,0 +1,40 @@
+# Test returning self from struct instance methods (builder pattern)
+
+struct Builder =>
+    value: int
+    name: str
+
+    fn setValue(v: int): Builder =>
+        self.value = v
+        return self
+
+    fn setName(n: str): Builder =>
+        self.name = n
+        return self
+
+fn main(): int =>
+    # Test basic return self
+    var b: Builder = Builder { value: 0, name: "" }
+    b = b.setValue(42)
+
+    if b.value != 42 =>
+        print("setValue return self: FAIL\n")
+        return 1
+    print("setValue return self: PASS\n")
+
+    # Test method chaining
+    var b2: Builder = Builder { value: 0, name: "" }
+    b2 = b2.setValue(100).setName("test")
+
+    if b2.value != 100 =>
+        print("chained setValue: FAIL\n")
+        return 1
+    print("chained setValue: PASS\n")
+
+    if b2.name != "test" =>
+        print("chained setName: FAIL\n")
+        return 1
+    print("chained setName: PASS\n")
+
+    print("All return self tests passed!\n")
+    return 0
