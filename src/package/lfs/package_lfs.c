@@ -12,7 +12,7 @@
  *   4. Download actual content and replace pointer files (multi-threaded)
  * ============================================================================== */
 
-#include "../package.h"
+#include "../../package.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -41,7 +41,7 @@
 /* Threading support */
 #if defined(_WIN32) && !defined(__MINGW32__) && !defined(__MINGW64__)
     /* MSVC - use compatibility layer */
-    #include "../platform/compat_pthread.h"
+    #include "../../platform/compat_pthread.h"
 #else
     /* POSIX systems and MinGW (which has native pthreads) */
     #include <pthread.h>
