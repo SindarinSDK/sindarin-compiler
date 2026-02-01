@@ -6,7 +6,7 @@
  * Caller should handle errors for invalid members.
  * ============================================================================ */
 
-#include "type_checker/type_checker_expr_call_char.h"
+#include "type_checker/expr/call/type_checker_expr_call_char.h"
 #include "debug.h"
 #include <string.h>
 

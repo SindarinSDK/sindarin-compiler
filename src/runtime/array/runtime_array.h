@@ -5,8 +5,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "runtime_arena.h"
-#include "runtime_any.h"
+#include "runtime/runtime_arena.h"
+#include "runtime/runtime_any.h"
 
 /* ============================================================================
  * Array Metadata

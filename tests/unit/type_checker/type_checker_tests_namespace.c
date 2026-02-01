@@ -1,7 +1,7 @@
 // tests/type_checker_tests_namespace.c
 // Tests for namespace and import statement type checking
 
-#include "../type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 
 /* Redefine TOKEN_LITERAL with filename field for namespace tests */
 #undef TOKEN_LITERAL

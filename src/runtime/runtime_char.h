@@ -8,7 +8,7 @@
  * ============================================================================ */
 
 #include "runtime_arena.h"
-#include "arena/managed_arena.h"
+#include "runtime/arena/managed_arena.h"
 #include <ctype.h>
 
 /* Convert char to string (single character string) - raw pointer version */

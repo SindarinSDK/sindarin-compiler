@@ -3,8 +3,8 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "arena/managed_arena.h"
-#include "runtime_any.h"
+#include "runtime/arena/managed_arena.h"
+#include "runtime/runtime_any.h"
 
 /* ============================================================================
  * Handle-Based Array Functions

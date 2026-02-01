@@ -1,7 +1,7 @@
-#include "type_checker/type_checker_stmt_func.h"
-#include "type_checker/type_checker_stmt.h"
-#include "type_checker/type_checker_util.h"
-#include "type_checker/type_checker_expr.h"
+#include "type_checker/stmt/type_checker_stmt_func.h"
+#include "type_checker/stmt/type_checker_stmt.h"
+#include "type_checker/util/type_checker_util.h"
+#include "type_checker/expr/type_checker_expr.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>

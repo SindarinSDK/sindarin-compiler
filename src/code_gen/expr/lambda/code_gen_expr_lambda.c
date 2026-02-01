@@ -2,7 +2,7 @@
 #include "code_gen.h"
 #include "code_gen/expr/code_gen_expr.h"
 #include "code_gen/util/code_gen_util.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 #include <string.h>
 #include <stdio.h>

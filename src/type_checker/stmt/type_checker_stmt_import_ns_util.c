@@ -1,5 +1,5 @@
-#include "type_checker/type_checker_stmt_import_ns_util.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt_import_ns_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>

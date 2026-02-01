@@ -7,14 +7,14 @@
     #include <pthread.h>
     #else
     /* Use Windows API compatibility layer for MSVC/clang-cl and packaged builds */
-    #include "../platform/compat_pthread.h"
+    #include "platform/compat_pthread.h"
     #endif
 #else
 #include <pthread.h>
 #endif
 #include <stdbool.h>
 #include <setjmp.h>
-#include "runtime_arena.h"
+#include "runtime/runtime_arena.h"
 
 /* Thread-local storage compatibility:
  * - MSVC: use __declspec(thread)

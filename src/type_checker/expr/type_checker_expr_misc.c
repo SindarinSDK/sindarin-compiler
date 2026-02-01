@@ -1,7 +1,7 @@
-#include "type_checker/type_checker_expr_misc.h"
-#include "type_checker/type_checker_expr.h"
-#include "type_checker/type_checker_stmt.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/expr/type_checker_expr_misc.h"
+#include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/stmt/type_checker_stmt.h"
+#include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 
 /* Compound assignment: x += value, x -= value, x *= value, x /= value, x %= value */

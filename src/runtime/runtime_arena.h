@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include "arena/managed_arena.h"
+#include "runtime/arena/managed_arena.h"
 
 /* ============================================================================
  * Arena Memory Management — Handle-Based Managed Arena

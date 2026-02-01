@@ -1,5 +1,5 @@
-#include "type_checker/type_checker_expr_basic.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/expr/type_checker_expr_basic.h"
+#include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 #include <string.h>
 

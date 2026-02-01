@@ -2,7 +2,7 @@
 // Tests for native function context tracking
 
 #include "../test_harness.h"
-#include "../type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "../type_checker.h"
 #include <stdio.h>
 

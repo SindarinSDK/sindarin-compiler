@@ -1,6 +1,6 @@
-#include "type_checker/type_checker_expr_thread.h"
-#include "type_checker/type_checker_expr.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/expr/type_checker_expr_thread.h"
+#include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/util/type_checker_util.h"
 #include "symbol_table/symbol_table_thread.h"
 #include "debug.h"
 

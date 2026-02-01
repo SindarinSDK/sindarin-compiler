@@ -123,37 +123,41 @@ set(SN_SYMBOL_TABLE_SOURCES
 
 set(SN_TYPE_CHECKER_SOURCES
     src/type_checker.c
-    src/type_checker/type_checker_util.c
-    src/type_checker/type_checker_util_escape.c
-    src/type_checker/type_checker_util_suggest.c
-    src/type_checker/type_checker_util_struct.c
-    src/type_checker/type_checker_util_layout.c
-    src/type_checker/type_checker_expr.c
-    src/type_checker/type_checker_expr_ops.c
-    src/type_checker/type_checker_expr_assign.c
-    src/type_checker/type_checker_expr_member.c
-    src/type_checker/type_checker_expr_thread.c
-    src/type_checker/type_checker_expr_basic.c
-    src/type_checker/type_checker_expr_cast.c
-    src/type_checker/type_checker_expr_struct.c
-    src/type_checker/type_checker_expr_access.c
-    src/type_checker/type_checker_expr_misc.c
-    src/type_checker/type_checker_expr_call.c
-    src/type_checker/type_checker_expr_call_core.c
-    src/type_checker/type_checker_expr_call_array.c
-    src/type_checker/type_checker_expr_call_char.c
-    src/type_checker/type_checker_expr_call_string.c
-    src/type_checker/type_checker_expr_array.c
-    src/type_checker/type_checker_expr_lambda.c
-    src/type_checker/type_checker_stmt.c
-    src/type_checker/type_checker_stmt_var.c
-    src/type_checker/type_checker_stmt_var_util.c
-    src/type_checker/type_checker_stmt_func.c
-    src/type_checker/type_checker_stmt_control.c
-    src/type_checker/type_checker_stmt_struct.c
-    src/type_checker/type_checker_stmt_import.c
-    src/type_checker/type_checker_stmt_import_ns.c
-    src/type_checker/type_checker_stmt_import_ns_util.c
+    # util/
+    src/type_checker/util/type_checker_util.c
+    src/type_checker/util/type_checker_util_escape.c
+    src/type_checker/util/type_checker_util_suggest.c
+    src/type_checker/util/type_checker_util_struct.c
+    src/type_checker/util/type_checker_util_layout.c
+    # expr/
+    src/type_checker/expr/type_checker_expr.c
+    src/type_checker/expr/type_checker_expr_ops.c
+    src/type_checker/expr/type_checker_expr_assign.c
+    src/type_checker/expr/type_checker_expr_member.c
+    src/type_checker/expr/type_checker_expr_thread.c
+    src/type_checker/expr/type_checker_expr_basic.c
+    src/type_checker/expr/type_checker_expr_cast.c
+    src/type_checker/expr/type_checker_expr_struct.c
+    src/type_checker/expr/type_checker_expr_access.c
+    src/type_checker/expr/type_checker_expr_misc.c
+    src/type_checker/expr/type_checker_expr_array.c
+    src/type_checker/expr/type_checker_expr_lambda.c
+    # expr/call/
+    src/type_checker/expr/call/type_checker_expr_call.c
+    src/type_checker/expr/call/type_checker_expr_call_core.c
+    src/type_checker/expr/call/type_checker_expr_call_array.c
+    src/type_checker/expr/call/type_checker_expr_call_char.c
+    src/type_checker/expr/call/type_checker_expr_call_string.c
+    # stmt/
+    src/type_checker/stmt/type_checker_stmt.c
+    src/type_checker/stmt/type_checker_stmt_var.c
+    src/type_checker/stmt/type_checker_stmt_var_util.c
+    src/type_checker/stmt/type_checker_stmt_func.c
+    src/type_checker/stmt/type_checker_stmt_control.c
+    src/type_checker/stmt/type_checker_stmt_struct.c
+    src/type_checker/stmt/type_checker_stmt_import.c
+    src/type_checker/stmt/type_checker_stmt_import_ns.c
+    src/type_checker/stmt/type_checker_stmt_import_ns_util.c
 )
 
 set(SN_OPTIMIZER_SOURCES
@@ -485,6 +489,38 @@ file(MAKE_DIRECTORY ${ARENA_INCLUDE_DIR})
 file(GLOB ARENA_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/arena/*.h")
 if(ARENA_HEADERS)
     file(INSTALL ${ARENA_HEADERS} DESTINATION "${ARENA_INCLUDE_DIR}")
+endif()
+
+# Copy string headers
+set(STRING_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/string)
+file(MAKE_DIRECTORY ${STRING_INCLUDE_DIR})
+file(GLOB STRING_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/string/*.h")
+if(STRING_HEADERS)
+    file(INSTALL ${STRING_HEADERS} DESTINATION "${STRING_INCLUDE_DIR}")
+endif()
+
+# Copy array headers
+set(ARRAY_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/array)
+file(MAKE_DIRECTORY ${ARRAY_INCLUDE_DIR})
+file(GLOB ARRAY_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/array/*.h")
+if(ARRAY_HEADERS)
+    file(INSTALL ${ARRAY_HEADERS} DESTINATION "${ARRAY_INCLUDE_DIR}")
+endif()
+
+# Copy thread headers
+set(THREAD_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/thread)
+file(MAKE_DIRECTORY ${THREAD_INCLUDE_DIR})
+file(GLOB THREAD_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/thread/*.h")
+if(THREAD_HEADERS)
+    file(INSTALL ${THREAD_HEADERS} DESTINATION "${THREAD_INCLUDE_DIR}")
+endif()
+
+# Copy malloc headers
+set(MALLOC_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/malloc)
+file(MAKE_DIRECTORY ${MALLOC_INCLUDE_DIR})
+file(GLOB MALLOC_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/malloc/*.h")
+if(MALLOC_HEADERS)
+    file(INSTALL ${MALLOC_HEADERS} DESTINATION "${MALLOC_INCLUDE_DIR}")
 endif()
 
 # Copy platform headers

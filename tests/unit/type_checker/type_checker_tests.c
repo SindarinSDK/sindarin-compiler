@@ -11,7 +11,7 @@
 #include "../ast/ast_expr.h"
 #include "../token.h"
 #include "../type_checker.h"
-#include "../type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "../symbol_table.h"
 #include "../symbol_table/symbol_table_thread.h"
 #include "../test_harness.h"
