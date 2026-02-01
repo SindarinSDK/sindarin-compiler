@@ -395,11 +395,10 @@ static bool discover_package_paths_recursive(const char *base_path,
             }
             mark_visited(visited, dep_name);
 
-            /* Build path to transitive dependency: <base_path>/.sn/<dep_name> */
+            /* Build path to transitive dependency: .sn/<dep_name> (flat at root) */
             char transitive_path[PATH_MAX];
             snprintf(transitive_path, sizeof(transitive_path),
-                     "%s" SN_PATH_SEP_STR ".sn" SN_PATH_SEP_STR "%s",
-                     base_path, dep_name);
+                     ".sn" SN_PATH_SEP_STR "%s", dep_name);
 
             /* Recurse into transitive dependency */
             if (dir_exists(transitive_path)) {
