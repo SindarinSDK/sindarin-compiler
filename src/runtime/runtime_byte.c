@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdio.h>
 #include "runtime_byte.h"
-#include "runtime_array.h"
+#include "array/runtime_array.h"
 
 /* ============================================================================
  * Byte Array Conversion Functions

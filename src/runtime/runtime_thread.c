@@ -15,8 +15,8 @@
 #endif
 #include <setjmp.h>
 #include "runtime_thread.h"
-#include "runtime_array.h"
-#include "runtime_array_h.h"
+#include "array/runtime_array.h"
+#include "array/runtime_array_h.h"
 
 /* ============================================================================
  * Thread Implementation

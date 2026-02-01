@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "runtime_string_h.h"
 #include "runtime_arena.h"
-#include "runtime_array.h"
+#include "../array/runtime_array.h"
 
 /* ============================================================================
  * Handle-Based String Functions — Implementation

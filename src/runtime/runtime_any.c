@@ -1,6 +1,6 @@
 #include "runtime_any.h"
-#include "runtime_string.h"
-#include "runtime_array.h"
+#include "string/runtime_string.h"
+#include "array/runtime_array.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
