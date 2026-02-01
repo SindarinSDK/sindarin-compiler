@@ -100,15 +100,18 @@ set(SN_AST_SOURCES
 
 set(SN_PARSER_SOURCES
     src/parser.c
-    src/parser/parser_util.c
-    src/parser/parser_expr.c
-    src/parser/parser_expr_interpol.c
-    src/parser/parser_expr_match.c
-    src/parser/parser_expr_struct.c
-    src/parser/parser_expr_lambda.c
-    src/parser/parser_stmt.c
-    src/parser/parser_stmt_decl.c
-    src/parser/parser_stmt_control.c
+    # util/
+    src/parser/util/parser_util.c
+    # expr/
+    src/parser/expr/parser_expr.c
+    src/parser/expr/parser_expr_interpol.c
+    src/parser/expr/parser_expr_match.c
+    src/parser/expr/parser_expr_struct.c
+    src/parser/expr/parser_expr_lambda.c
+    # stmt/
+    src/parser/stmt/parser_stmt.c
+    src/parser/stmt/parser_stmt_decl.c
+    src/parser/stmt/parser_stmt_control.c
 )
 
 set(SN_SYMBOL_TABLE_SOURCES

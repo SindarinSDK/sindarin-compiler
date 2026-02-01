@@ -1,4 +1,4 @@
-#include "parser/parser_util.h"
+#include "parser/util/parser_util.h"
 #include "ast/ast_type.h"
 #include "diagnostic.h"
 #include "debug.h"

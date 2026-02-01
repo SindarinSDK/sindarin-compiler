@@ -2,9 +2,9 @@
 // Main parser module that orchestrates import processing
 
 #include "parser.h"
-#include "parser/parser_util.h"
-#include "parser/parser_expr.h"
-#include "parser/parser_stmt.h"
+#include "parser/util/parser_util.h"
+#include "parser/expr/parser_expr.h"
+#include "parser/stmt/parser_stmt.h"
 #include "debug.h"
 #include "diagnostic.h"
 #include "file.h"
