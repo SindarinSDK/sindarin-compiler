@@ -73,6 +73,7 @@ bool is_closure_call_expr(CodeGen *gen, CallExpr *call)
  */
 char *code_gen_closure_call(CodeGen *gen, Expr *expr, CallExpr *call)
 {
+    (void)expr; /* used for interface consistency */
     Type *callee_type = call->callee->expr_type;
     char *closure_str = code_gen_expression(gen, call->callee);
 
