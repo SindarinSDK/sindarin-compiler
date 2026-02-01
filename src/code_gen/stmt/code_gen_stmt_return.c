@@ -58,7 +58,15 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         return;
     }
 
-    /* Normal return */
+    /* For void functions with an expression (expression-bodied void functions),
+     * we still need to emit the expression for its side effects. */
+    if (stmt->value && is_void_return)
+    {
+        char *value_str = code_gen_expression(gen, stmt->value);
+        indented_fprintf(gen, indent, "%s;\n", value_str);
+    }
+
+    /* Normal return with value */
     if (stmt->value && !is_void_return)
     {
         /* If returning a lambda expression directly, allocate it in the caller's
