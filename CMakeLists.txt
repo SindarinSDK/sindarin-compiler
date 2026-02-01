@@ -168,6 +168,14 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/code_gen_stmt_core.c
     src/code_gen/code_gen_stmt_loop.c
     src/code_gen/code_gen_stmt_capture.c
+    src/code_gen/code_gen_stmt_import.c
+    src/code_gen/code_gen_stmt_thread.c
+    src/code_gen/code_gen_stmt_struct.c
+    src/code_gen/code_gen_stmt_var_init.c
+    src/code_gen/code_gen_stmt_var.c
+    src/code_gen/code_gen_stmt_func_promote.c
+    src/code_gen/code_gen_stmt_func.c
+    src/code_gen/code_gen_stmt_return.c
 )
 
 set(SN_BACKEND_SOURCES
