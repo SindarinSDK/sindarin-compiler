@@ -4,7 +4,7 @@
 
 #include "runtime_intercept.h"
 #include "runtime.h"
-#include "runtime_array.h"
+#include "array/runtime_array.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

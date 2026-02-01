@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "runtime_arena.h"
-#include "runtime_array.h"
+#include "../array/runtime_array.h"
 
 /* ============================================================================
  * String Types and Operations
