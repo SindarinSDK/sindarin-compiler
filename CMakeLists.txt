@@ -118,6 +118,15 @@ set(SN_TYPE_CHECKER_SOURCES
     src/type_checker.c
     src/type_checker/type_checker_util.c
     src/type_checker/type_checker_expr.c
+    src/type_checker/type_checker_expr_ops.c
+    src/type_checker/type_checker_expr_assign.c
+    src/type_checker/type_checker_expr_member.c
+    src/type_checker/type_checker_expr_thread.c
+    src/type_checker/type_checker_expr_basic.c
+    src/type_checker/type_checker_expr_cast.c
+    src/type_checker/type_checker_expr_struct.c
+    src/type_checker/type_checker_expr_access.c
+    src/type_checker/type_checker_expr_misc.c
     src/type_checker/type_checker_expr_call.c
     src/type_checker/type_checker_expr_call_core.c
     src/type_checker/type_checker_expr_call_array.c
