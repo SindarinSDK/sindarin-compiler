@@ -262,10 +262,11 @@ set(SN_RUNTIME_SOURCES
     src/runtime/array/runtime_array_create.c
     src/runtime/array/runtime_array_alloc.c
     src/runtime/array/runtime_array_h.c
+    # thread/
+    src/runtime/thread/runtime_thread.c
     # core
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
-    src/runtime/runtime_thread.c
     src/runtime/runtime_any.c
     src/runtime/runtime_intercept.c
 )
@@ -377,10 +378,11 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_create.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_alloc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_h.c
+        # thread/
+        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread.c
         # core
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_thread.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_intercept.c
         # malloc/
