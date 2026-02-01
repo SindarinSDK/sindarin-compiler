@@ -14,9 +14,9 @@
 #include "../arena.h"
 #include "../ast.h"
 #include "../code_gen.h"
-#include "../code_gen/code_gen_util.h"
-#include "../code_gen/code_gen_stmt.h"
-#include "../code_gen/code_gen_expr.h"
+#include "code_gen/util/code_gen_util.h"
+#include "code_gen/stmt/code_gen_stmt.h"
+#include "code_gen/expr/code_gen_expr.h"
 #include "../symbol_table.h"
 
 /* Cross-platform null device */

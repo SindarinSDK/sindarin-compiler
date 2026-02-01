@@ -162,56 +162,66 @@ set(SN_OPTIMIZER_SOURCES
 
 set(SN_CODEGEN_SOURCES
     src/code_gen.c
-    src/code_gen/code_gen_pragma.c
-    src/code_gen/code_gen_struct_emit.c
-    src/code_gen/code_gen_native_extern.c
-    src/code_gen/code_gen_method_emit.c
-    src/code_gen/code_gen_util_string.c
-    src/code_gen/code_gen_util_type.c
-    src/code_gen/code_gen_util_tostring.c
-    src/code_gen/code_gen_util_boxing.c
-    src/code_gen/code_gen_util_fold.c
-    src/code_gen/code_gen_util_native.c
-    src/code_gen/code_gen_util_arena.c
-    src/code_gen/code_gen_util_promote.c
-    src/code_gen/code_gen_expr.c
-    src/code_gen/code_gen_expr_core.c
-    src/code_gen/code_gen_expr_binary.c
-    src/code_gen/code_gen_expr_lambda.c
-    src/code_gen/code_gen_expr_call.c
-    src/code_gen/code_gen_expr_call_namespace.c
-    src/code_gen/code_gen_expr_call_struct.c
-    src/code_gen/code_gen_expr_call_closure.c
-    src/code_gen/code_gen_expr_call_builtin.c
-    src/code_gen/code_gen_expr_call_array.c
-    src/code_gen/code_gen_expr_call_string.c
-    src/code_gen/code_gen_expr_call_intercept.c
-    src/code_gen/code_gen_expr_call_char.c
-    src/code_gen/code_gen_expr_call_byte_array.c
-    src/code_gen/code_gen_expr_array.c
-    src/code_gen/code_gen_expr_static.c
-    src/code_gen/code_gen_expr_string.c
-    src/code_gen/code_gen_expr_thread.c
-    src/code_gen/code_gen_expr_thread_util.c
-    src/code_gen/code_gen_expr_thread_sync.c
-    src/code_gen/code_gen_expr_incr.c
-    src/code_gen/code_gen_expr_member.c
-    src/code_gen/code_gen_expr_misc.c
-    src/code_gen/code_gen_expr_type.c
-    src/code_gen/code_gen_expr_struct.c
-    src/code_gen/code_gen_expr_access.c
-    src/code_gen/code_gen_expr_match.c
-    src/code_gen/code_gen_stmt_core.c
-    src/code_gen/code_gen_stmt_loop.c
-    src/code_gen/code_gen_stmt_capture.c
-    src/code_gen/code_gen_stmt_import.c
-    src/code_gen/code_gen_stmt_thread.c
-    src/code_gen/code_gen_stmt_struct.c
-    src/code_gen/code_gen_stmt_var_init.c
-    src/code_gen/code_gen_stmt_var.c
-    src/code_gen/code_gen_stmt_func_promote.c
-    src/code_gen/code_gen_stmt_func.c
-    src/code_gen/code_gen_stmt_return.c
+    # emit/
+    src/code_gen/emit/code_gen_pragma.c
+    src/code_gen/emit/code_gen_struct_emit.c
+    src/code_gen/emit/code_gen_native_extern.c
+    src/code_gen/emit/code_gen_method_emit.c
+    # util/
+    src/code_gen/util/code_gen_util_string.c
+    src/code_gen/util/code_gen_util_type.c
+    src/code_gen/util/code_gen_util_tostring.c
+    src/code_gen/util/code_gen_util_boxing.c
+    src/code_gen/util/code_gen_util_fold.c
+    src/code_gen/util/code_gen_util_native.c
+    src/code_gen/util/code_gen_util_arena.c
+    src/code_gen/util/code_gen_util_promote.c
+    # expr/
+    src/code_gen/expr/code_gen_expr.c
+    src/code_gen/expr/code_gen_expr_core.c
+    src/code_gen/expr/code_gen_expr_binary.c
+    src/code_gen/expr/code_gen_expr_array.c
+    src/code_gen/expr/code_gen_expr_static.c
+    src/code_gen/expr/code_gen_expr_string.c
+    src/code_gen/expr/code_gen_expr_incr.c
+    src/code_gen/expr/code_gen_expr_member.c
+    src/code_gen/expr/code_gen_expr_misc.c
+    src/code_gen/expr/code_gen_expr_type.c
+    src/code_gen/expr/code_gen_expr_struct.c
+    src/code_gen/expr/code_gen_expr_access.c
+    src/code_gen/expr/code_gen_expr_match.c
+    # expr/call/
+    src/code_gen/expr/call/code_gen_expr_call.c
+    src/code_gen/expr/call/code_gen_expr_call_namespace.c
+    src/code_gen/expr/call/code_gen_expr_call_struct.c
+    src/code_gen/expr/call/code_gen_expr_call_closure.c
+    src/code_gen/expr/call/code_gen_expr_call_builtin.c
+    src/code_gen/expr/call/code_gen_expr_call_array.c
+    # Note: code_gen_expr_call_array_{byte,mutate,push,query}.c are #included by code_gen_expr_call_array.c
+    src/code_gen/expr/call/code_gen_expr_call_string.c
+    src/code_gen/expr/call/code_gen_expr_call_intercept.c
+    # Note: code_gen_expr_call_intercept_{func,method}.c are #included by code_gen_expr_call_intercept.c
+    src/code_gen/expr/call/code_gen_expr_call_char.c
+    src/code_gen/expr/call/code_gen_expr_call_byte_array.c
+    # expr/lambda/
+    src/code_gen/expr/lambda/code_gen_expr_lambda.c
+    # Note: code_gen_expr_lambda_{capture,local,native}.c are #included by code_gen_expr_lambda.c
+    # expr/thread/
+    src/code_gen/expr/thread/code_gen_expr_thread.c
+    src/code_gen/expr/thread/code_gen_expr_thread_util.c
+    src/code_gen/expr/thread/code_gen_expr_thread_sync.c
+    # stmt/
+    src/code_gen/stmt/code_gen_stmt_core.c
+    src/code_gen/stmt/code_gen_stmt_loop.c
+    src/code_gen/stmt/code_gen_stmt_capture.c
+    src/code_gen/stmt/code_gen_stmt_import.c
+    src/code_gen/stmt/code_gen_stmt_thread.c
+    src/code_gen/stmt/code_gen_stmt_struct.c
+    src/code_gen/stmt/code_gen_stmt_var_init.c
+    src/code_gen/stmt/code_gen_stmt_var.c
+    src/code_gen/stmt/code_gen_stmt_func_promote.c
+    src/code_gen/stmt/code_gen_stmt_func.c
+    src/code_gen/stmt/code_gen_stmt_return.c
 )
 
 set(SN_BACKEND_SOURCES
