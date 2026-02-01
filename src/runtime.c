@@ -23,7 +23,7 @@
 
 #include "runtime.h"
 #include "runtime/string/runtime_string.h"
-#include "runtime/runtime_thread.h"
+#include "runtime/thread/runtime_thread.h"
 
 long long rt_add_long(long long a, long long b)
 {
