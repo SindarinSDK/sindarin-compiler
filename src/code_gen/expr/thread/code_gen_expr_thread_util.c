@@ -16,10 +16,14 @@ const char *get_rt_result_type(Type *type)
     switch (type->kind)
     {
         case TYPE_INT:
+        case TYPE_INT32:
+        case TYPE_UINT32:
             return "RT_TYPE_INT";
         case TYPE_LONG:
+        case TYPE_UINT:
             return "RT_TYPE_LONG";
         case TYPE_DOUBLE:
+        case TYPE_FLOAT:
             return "RT_TYPE_DOUBLE";
         case TYPE_BOOL:
             return "RT_TYPE_BOOL";
@@ -37,9 +41,14 @@ const char *get_rt_result_type(Type *type)
             switch (elem->kind)
             {
                 case TYPE_INT:
+                case TYPE_INT32:
+                case TYPE_UINT32:
+                    return "RT_TYPE_ARRAY_INT";
                 case TYPE_LONG:
+                case TYPE_UINT:
                     return "RT_TYPE_ARRAY_LONG";
                 case TYPE_DOUBLE:
+                case TYPE_FLOAT:
                     return "RT_TYPE_ARRAY_DOUBLE";
                 case TYPE_BOOL:
                     return "RT_TYPE_ARRAY_BOOL";
@@ -49,6 +58,8 @@ const char *get_rt_result_type(Type *type)
                     return "RT_TYPE_ARRAY_CHAR";
                 case TYPE_STRING:
                     return "RT_TYPE_ARRAY_STRING";
+                case TYPE_STRUCT:
+                    return "RT_TYPE_ARRAY_HANDLE";
                 case TYPE_ARRAY: {
                     /* 2D/3D+ arrays: outer array contains RtHandle elements
                      * Check if inner element type is string or another array */
