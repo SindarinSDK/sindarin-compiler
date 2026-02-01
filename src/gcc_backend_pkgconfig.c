@@ -309,6 +309,113 @@ void parse_pkgconfig_dir(const char *pkgconfig_dir,
 #endif
 }
 
+/* Helper: check if package name has been visited (cycle detection) */
+static bool is_visited(PackageVisited *visited, const char *name)
+{
+    for (int i = 0; i < visited->count; i++) {
+        if (strcmp(visited->names[i], name) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* Helper: mark package as visited */
+static void mark_visited(PackageVisited *visited, const char *name)
+{
+    if (visited->count < PKG_MAX_VISITED) {
+        strncpy(visited->names[visited->count], name, PKG_MAX_NAME_LEN - 1);
+        visited->names[visited->count][PKG_MAX_NAME_LEN - 1] = '\0';
+        visited->count++;
+    }
+}
+
+/* Recursive helper to discover package paths from a base directory
+ * base_path: The package directory (e.g., ".sn/sindarin-pkg-sdk")
+ * This will add include/lib paths for the package and recursively process its dependencies
+ */
+static bool discover_package_paths_recursive(const char *base_path,
+                                             char *pkg_include_opts, size_t inc_size,
+                                             char *pkg_lib_opts, size_t lib_size,
+                                             PackageVisited *visited)
+{
+    const char *platform = get_platform_name();
+    bool added = false;
+
+    /* Build paths for this package's libs */
+    char pkg_include_dir[PATH_MAX];
+    char pkg_lib_dir[PATH_MAX];
+    char pkg_pkgconfig_dir[PATH_MAX];
+    char pkg_yaml_path[PATH_MAX];
+
+    snprintf(pkg_include_dir, sizeof(pkg_include_dir),
+             "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include",
+             base_path, platform);
+    snprintf(pkg_lib_dir, sizeof(pkg_lib_dir),
+             "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib",
+             base_path, platform);
+    snprintf(pkg_pkgconfig_dir, sizeof(pkg_pkgconfig_dir),
+             "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib" SN_PATH_SEP_STR "pkgconfig",
+             base_path, platform);
+    snprintf(pkg_yaml_path, sizeof(pkg_yaml_path),
+             "%s" SN_PATH_SEP_STR "sn.yaml", base_path);
+
+    /* Add base include directory if it exists */
+    if (dir_exists(pkg_include_dir)) {
+        append_include_path(pkg_include_opts, inc_size, pkg_include_dir);
+        added = true;
+    }
+
+    /* Parse pkg-config files to get additional include paths and defines */
+    if (dir_exists(pkg_pkgconfig_dir)) {
+        parse_pkgconfig_dir(pkg_pkgconfig_dir, pkg_include_opts, inc_size);
+    }
+
+    /* Add library directory */
+    if (dir_exists(pkg_lib_dir)) {
+        size_t len = strlen(pkg_lib_opts);
+        if (len > 0) {
+            snprintf(pkg_lib_opts + len, lib_size - len, " -L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+        } else {
+            snprintf(pkg_lib_opts, lib_size, "-L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+        }
+        added = true;
+    }
+
+    /* Parse this package's sn.yaml to find its dependencies (transitive deps) */
+    PackageConfig config;
+    if (package_yaml_parse(pkg_yaml_path, &config) && config.dependency_count > 0) {
+        /* Recursively process transitive dependencies */
+        for (int i = 0; i < config.dependency_count; i++) {
+            const char *dep_name = config.dependencies[i].name;
+
+            /* Skip if already visited (cycle detection) */
+            if (is_visited(visited, dep_name)) {
+                continue;
+            }
+            mark_visited(visited, dep_name);
+
+            /* Build path to transitive dependency: <base_path>/.sn/<dep_name> */
+            char transitive_path[PATH_MAX];
+            snprintf(transitive_path, sizeof(transitive_path),
+                     "%s" SN_PATH_SEP_STR ".sn" SN_PATH_SEP_STR "%s",
+                     base_path, dep_name);
+
+            /* Recurse into transitive dependency */
+            if (dir_exists(transitive_path)) {
+                if (discover_package_paths_recursive(transitive_path,
+                                                     pkg_include_opts, inc_size,
+                                                     pkg_lib_opts, lib_size,
+                                                     visited)) {
+                    added = true;
+                }
+            }
+        }
+    }
+
+    return added;
+}
+
 bool build_package_lib_paths(char *pkg_include_opts, size_t inc_size,
                              char *pkg_lib_opts, size_t lib_size)
 {
@@ -330,44 +437,32 @@ bool build_package_lib_paths(char *pkg_include_opts, size_t inc_size,
         return false;
     }
 
-    const char *platform = get_platform_name();
+    /* Track visited packages for cycle detection */
+    PackageVisited visited = {0};
     bool added = false;
 
+    /* Process each direct dependency and recurse into transitive deps */
     for (int i = 0; i < config.dependency_count; i++) {
-        char pkg_include_dir[PATH_MAX];
-        char pkg_lib_dir[PATH_MAX];
-        char pkg_pkgconfig_dir[PATH_MAX];
+        const char *dep_name = config.dependencies[i].name;
 
-        /* Build paths: .sn/<pkg-name>/libs/<platform>/include and lib */
-        snprintf(pkg_include_dir, sizeof(pkg_include_dir),
-                 ".sn" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "include",
-                 config.dependencies[i].name, platform);
-        snprintf(pkg_lib_dir, sizeof(pkg_lib_dir),
-                 ".sn" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib",
-                 config.dependencies[i].name, platform);
-        snprintf(pkg_pkgconfig_dir, sizeof(pkg_pkgconfig_dir),
-                 ".sn" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "libs" SN_PATH_SEP_STR "%s" SN_PATH_SEP_STR "lib" SN_PATH_SEP_STR "pkgconfig",
-                 config.dependencies[i].name, platform);
-
-        /* Add base include directory if it exists */
-        if (dir_exists(pkg_include_dir)) {
-            append_include_path(pkg_include_opts, inc_size, pkg_include_dir);
-            added = true;
+        /* Skip if already visited */
+        if (is_visited(&visited, dep_name)) {
+            continue;
         }
+        mark_visited(&visited, dep_name);
 
-        /* Parse pkg-config files to get additional include paths and defines */
-        if (dir_exists(pkg_pkgconfig_dir)) {
-            parse_pkgconfig_dir(pkg_pkgconfig_dir, pkg_include_opts, inc_size);
-        }
+        /* Build path to dependency: .sn/<dep_name> */
+        char dep_path[PATH_MAX];
+        snprintf(dep_path, sizeof(dep_path), ".sn" SN_PATH_SEP_STR "%s", dep_name);
 
-        if (dir_exists(pkg_lib_dir)) {
-            size_t len = strlen(pkg_lib_opts);
-            if (len > 0) {
-                snprintf(pkg_lib_opts + len, lib_size - len, " -L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
-            } else {
-                snprintf(pkg_lib_opts, lib_size, "-L\"%s\" -Wl,-rpath,\"%s\"", pkg_lib_dir, pkg_lib_dir);
+        /* Recursively discover all paths from this dependency */
+        if (dir_exists(dep_path)) {
+            if (discover_package_paths_recursive(dep_path,
+                                                 pkg_include_opts, inc_size,
+                                                 pkg_lib_opts, lib_size,
+                                                 &visited)) {
+                added = true;
             }
-            added = true;
         }
     }
 

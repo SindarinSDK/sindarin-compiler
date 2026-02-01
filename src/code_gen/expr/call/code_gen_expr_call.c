@@ -262,8 +262,9 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
 {
     char *callee_str = code_gen_expression(gen, call->callee);
 
-    /* Determine if callee is a Sindarin function (has body) */
+    /* Determine if callee is a Sindarin function (has body) and if it's a native function */
     bool callee_is_sindarin = false;
+    bool callee_is_native = false;
     if (call->callee->type == EXPR_VARIABLE)
     {
         Symbol *callee_sym = symbol_table_lookup_symbol(gen->symbol_table, call->callee->as.variable.name);
@@ -271,6 +272,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             callee_sym->type->kind == TYPE_FUNCTION)
         {
             callee_is_sindarin = callee_sym->type->as.function.has_body;
+            callee_is_native = callee_sym->type->as.function.is_native;
         }
     }
 
@@ -284,7 +286,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     for (int i = 0; i < call->arg_count; i++)
     {
         /* For native functions receiving str[] args */
-        if (!callee_is_sindarin && gen->current_arena_var != NULL &&
+        if (!callee_is_sindarin && callee_is_native && gen->current_arena_var != NULL &&
             call->arguments[i]->expr_type != NULL &&
             call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
             call->arguments[i]->expr_type->as.array.element_type != NULL &&
@@ -295,6 +297,18 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
             arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
+                                         ARENA_VAR(gen), handle_expr);
+        }
+        /* For native functions receiving individual str args - convert RtHandle to const char* */
+        else if (!callee_is_sindarin && callee_is_native && gen->current_arena_var != NULL &&
+                 call->arguments[i]->expr_type != NULL &&
+                 call->arguments[i]->expr_type->kind == TYPE_STRING)
+        {
+            bool prev = gen->expr_as_handle;
+            gen->expr_as_handle = true;
+            char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+            gen->expr_as_handle = prev;
+            arg_strs[i] = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
                                          ARENA_VAR(gen), handle_expr);
         }
         else

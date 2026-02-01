@@ -123,6 +123,18 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
             arg_str = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
                                      ARENA_VAR(gen), handle_expr);
         }
+        /* For native methods receiving individual str args: convert RtHandle to const char* */
+        else if (gen->current_arena_var != NULL &&
+                 call->arguments[i]->expr_type != NULL &&
+                 call->arguments[i]->expr_type->kind == TYPE_STRING)
+        {
+            bool prev = gen->expr_as_handle;
+            gen->expr_as_handle = true;
+            char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+            gen->expr_as_handle = prev;
+            arg_str = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
+                                     ARENA_VAR(gen), handle_expr);
+        }
         else
         {
             arg_str = code_gen_expression(gen, call->arguments[i]);
