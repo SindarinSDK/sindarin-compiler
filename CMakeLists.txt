@@ -383,8 +383,9 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_thread.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_intercept.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_malloc_hooks.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_malloc_redirect.c
+        # malloc/
+        ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_hooks.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_redirect.c
     )
 
     # Platform-specific hooking libraries for malloc interception
