@@ -146,7 +146,14 @@ set(SN_OPTIMIZER_SOURCES
 
 set(SN_CODEGEN_SOURCES
     src/code_gen.c
-    src/code_gen/code_gen_util.c
+    src/code_gen/code_gen_util_string.c
+    src/code_gen/code_gen_util_type.c
+    src/code_gen/code_gen_util_tostring.c
+    src/code_gen/code_gen_util_boxing.c
+    src/code_gen/code_gen_util_fold.c
+    src/code_gen/code_gen_util_native.c
+    src/code_gen/code_gen_util_arena.c
+    src/code_gen/code_gen_util_promote.c
     src/code_gen/code_gen_expr.c
     src/code_gen/code_gen_expr_core.c
     src/code_gen/code_gen_expr_binary.c
