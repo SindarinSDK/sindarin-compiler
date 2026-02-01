@@ -47,6 +47,7 @@ static void type_check_lock(Stmt *stmt, SymbolTable *table, Type *return_type)
 /* Type check a type declaration statement */
 static void type_check_type_decl(Stmt *stmt, SymbolTable *table)
 {
+    (void)table; /* may be used for future validation */
     DEBUG_VERBOSE("Type checking type declaration: %.*s",
                   stmt->as.type_decl.name.length, stmt->as.type_decl.name.start);
 

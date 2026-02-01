@@ -20,6 +20,7 @@
  */
 static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, char **arg_strs)
 {
+    (void)expr; /* used for interface consistency */
     if (call->arg_count != 1)
     {
         fprintf(stderr, "Error: print expects exactly one argument\n");
@@ -208,6 +209,7 @@ static char *code_gen_builtin_printerrln(CodeGen *gen, CallExpr *call, char **ar
 char *code_gen_try_builtin_call(CodeGen *gen, Expr *expr, CallExpr *call,
                                  char **arg_strs, char **callee_str_out)
 {
+    (void)callee_str_out; /* reserved for future use */
     if (call->callee->type != EXPR_VARIABLE)
         return NULL;
 

@@ -25,6 +25,7 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
                                           StructMethod *method, Type *struct_type,
                                           CallExpr *call)
 {
+    (void)expr; /* used for interface consistency */
     const char *struct_name = struct_type->as.struct_type.name;
 
     /* Native method call - use c_alias if present, else use naming convention */
@@ -173,6 +174,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
                                             StructMethod *method, Type *struct_type,
                                             CallExpr *call)
 {
+    (void)expr; /* used for interface consistency */
     const char *struct_name = struct_type->as.struct_type.name;
     char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
 
@@ -301,6 +303,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
 char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
                                            Type *object_type, CallExpr *call)
 {
+    (void)expr; /* used for interface consistency */
     if (object_type->as.pointer.base_type == NULL ||
         object_type->as.pointer.base_type->kind != TYPE_STRUCT ||
         member->resolved_method == NULL)
