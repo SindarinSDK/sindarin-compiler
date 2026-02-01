@@ -230,11 +230,42 @@ test-arena:
 	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA_TEST_BIN)
 
 #------------------------------------------------------------------------------
-# install - Install to system
+# install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
+SN_HOME := $(HOME)/.sn
+SN_LIB_DIR := $(SN_HOME)/lib/sindarin
+SN_BIN_DIR := $(SN_HOME)/bin
+
 install: build
-	@echo "Installing Sindarin compiler..."
-	@cmake --install $(BUILD_DIR)
+	@echo "Installing Sindarin compiler to $(SN_HOME)..."
+	@$(MKDIR) $(SN_LIB_DIR)
+	@$(MKDIR) $(SN_BIN_DIR)
+	@echo "  Copying compiler binary..."
+	@cp $(BIN_DIR)/sn$(EXE_EXT) $(SN_LIB_DIR)/sn$(EXE_EXT)
+	@echo "  Copying configuration..."
+	@cp $(BIN_DIR)/sn.cfg $(SN_LIB_DIR)/sn.cfg
+	@echo "  Copying runtime headers..."
+	@rm -rf $(SN_LIB_DIR)/include
+	@cp -r $(BIN_DIR)/include $(SN_LIB_DIR)/include
+	@echo "  Copying runtime library..."
+	@rm -rf $(SN_LIB_DIR)/lib
+	@cp -r $(BIN_DIR)/lib $(SN_LIB_DIR)/lib
+ifeq ($(PLATFORM),windows)
+	@echo "  Copying binary to bin directory..."
+	@cp $(BIN_DIR)/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)
+	@echo ""
+	@echo "Installation complete!"
+	@echo "  Binary: $(SN_LIB_DIR)/sn$(EXE_EXT)"
+	@echo "  Executable: $(SN_BIN_DIR)/sn$(EXE_EXT)"
+else
+	@echo "  Creating symlink..."
+	@rm -f $(SN_BIN_DIR)/sn$(EXE_EXT)
+	@ln -s ../lib/sindarin/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)
+	@echo ""
+	@echo "Installation complete!"
+	@echo "  Binary: $(SN_LIB_DIR)/sn$(EXE_EXT)"
+	@echo "  Symlink: $(SN_BIN_DIR)/sn$(EXE_EXT) -> ../lib/sindarin/sn$(EXE_EXT)"
+endif
 
 #------------------------------------------------------------------------------
 # package - Create distributable packages
@@ -294,7 +325,7 @@ help:
 	@echo "  make test-arena             Build and run managed arena tests"
 	@echo ""
 	@echo "Distribution Targets:"
-	@echo "  make install      Install to system"
+	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"
 	@echo "  make package      Create distributable packages"
 	@echo ""
 	@echo "Setup:"
