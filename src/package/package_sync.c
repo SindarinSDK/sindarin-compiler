@@ -38,7 +38,11 @@ bool package_sync(void)
     bool any_changes = false;
     bool success = true;
 
-    /* Step 1: Remove packages that are not in sn.yaml */
+    /* Collect ALL transitive dependencies (not just direct deps) */
+    PackageVisited all_deps;
+    package_collect_all_deps(&all_deps);
+
+    /* Step 1: Remove packages that are not in the transitive dependency tree */
     DIR *dir = opendir(PKG_DEPS_DIR);
     if (dir != NULL) {
         struct dirent *entry;
@@ -57,14 +61,8 @@ bool package_sync(void)
                 continue;
             }
 
-            /* Check if this package is in sn.yaml */
-            bool found = false;
-            for (int i = 0; i < config.dependency_count; i++) {
-                if (strcmp(config.dependencies[i].name, entry->d_name) == 0) {
-                    found = true;
-                    break;
-                }
-            }
+            /* Check if this package is in the transitive dependency tree */
+            bool found = package_is_visited(&all_deps, entry->d_name);
 
             if (!found) {
                 printf("Removing orphaned package: %s\n", entry->d_name);
