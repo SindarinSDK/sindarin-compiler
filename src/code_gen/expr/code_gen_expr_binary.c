@@ -8,7 +8,10 @@
 /* Helper to determine if a type is numeric */
 static bool is_numeric(Type *type)
 {
-    return type && (type->kind == TYPE_INT || type->kind == TYPE_LONG || type->kind == TYPE_DOUBLE);
+    return type && (type->kind == TYPE_INT || type->kind == TYPE_INT32 ||
+                    type->kind == TYPE_UINT || type->kind == TYPE_UINT32 ||
+                    type->kind == TYPE_LONG || type->kind == TYPE_DOUBLE ||
+                    type->kind == TYPE_FLOAT || type->kind == TYPE_BYTE);
 }
 
 /* Helper to get the promoted type for binary operations with mixed numeric types */

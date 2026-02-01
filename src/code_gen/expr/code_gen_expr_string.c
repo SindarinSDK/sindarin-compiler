@@ -31,14 +31,19 @@ static const char *get_rt_format_func(TypeKind kind)
     switch (kind)
     {
     case TYPE_INT:
+    case TYPE_INT32:
+    case TYPE_UINT:
+    case TYPE_UINT32:
     case TYPE_LONG:
+    case TYPE_BYTE:
         return "rt_format_long";
     case TYPE_DOUBLE:
+    case TYPE_FLOAT:
         return "rt_format_double";
     case TYPE_STRING:
         return "rt_format_string";
     default:
-        return NULL;  /* No format function for this type */
+        return NULL;  /* No format function for this type (CHAR, BOOL, etc.) */
     }
 }
 
