@@ -22,6 +22,7 @@ Options:
     --timeout SEC     - Compile timeout in seconds (default: 60)
     --run-timeout SEC - Run timeout in seconds (default: 30)
     --exclude TESTS   - Comma-separated list of test names to exclude
+    --filter, -f PAT  - Only run tests with PAT in their filename
     --verbose         - Show detailed output
     --no-color        - Disable colored output
     --parallel, -j N  - Run tests with N parallel workers (default: 1)
@@ -194,13 +195,14 @@ TEST_CONFIGS = {
 class TestRunner:
     def __init__(self, compiler: str, compile_timeout: int = 10,
                  run_timeout: int = 30, excluded_tests: List[str] = None,
-                 verbose: bool = False, parallel: int = 1):
+                 verbose: bool = False, parallel: int = 1, filter_pattern: str = None):
         self.compiler = compiler
         self.compile_timeout = compile_timeout
         self.run_timeout = run_timeout
         self.excluded_tests = excluded_tests or []
         self.verbose = verbose
         self.parallel = parallel
+        self.filter_pattern = filter_pattern
         self.temp_dir = None
         self._progress_lock = threading.Lock()
         self._completed_count = 0
@@ -376,6 +378,10 @@ class TestRunner:
         # Find test files
         pattern = os.path.join(config.test_dir, config.pattern)
         test_files = sorted(glob.glob(pattern, recursive=True))
+
+        # Apply filter if specified
+        if self.filter_pattern:
+            test_files = [f for f in test_files if self.filter_pattern in os.path.basename(f)]
 
         if not test_files:
             print(f"No test files found matching: {pattern}")
@@ -725,6 +731,7 @@ def main():
                        help=f'Number of parallel test workers (default: {(os.cpu_count() or 2)})')
     parser.add_argument('--no-cleanup', action='store_true',
                        help='Skip cleanup of orphaned temp directories')
+    parser.add_argument('--filter', '-f', help='Only run tests matching this substring')
 
     args = parser.parse_args()
 
@@ -773,7 +780,7 @@ def main():
     total_elapsed = 0.0
 
     with TestRunner(compiler, args.timeout, args.run_timeout,
-                    excluded, args.verbose, args.parallel) as runner:
+                    excluded, args.verbose, args.parallel, args.filter) as runner:
         if args.test_type == 'all':
             # Run all test types (cgen runs right after unit tests)
             passed, elapsed = runner.run_unit_tests()

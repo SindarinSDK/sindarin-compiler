@@ -1,0 +1,8 @@
+// Test expression-bodied functions with void expressions
+// This tests that void expressions in expression bodies are executed for side effects
+
+// Simple expression-bodied void function
+fn say_hello(): void => println("hello")
+
+// Expression-bodied main with a single void call
+fn main() => say_hello()
