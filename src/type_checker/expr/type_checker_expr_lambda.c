@@ -6,10 +6,10 @@
  * Extracted from type_checker_expr.c for modularity.
  * ============================================================================ */
 
-#include "type_checker/type_checker_expr_lambda.h"
-#include "type_checker/type_checker_expr.h"
-#include "type_checker/type_checker_util.h"
-#include "type_checker/type_checker_stmt.h"
+#include "type_checker/expr/type_checker_expr_lambda.h"
+#include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/util/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt.h"
 #include "debug.h"
 #include <string.h>
 #include <stdio.h>

@@ -1,5 +1,5 @@
-#include "type_checker/type_checker_stmt_var_util.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt_var_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 
 bool apply_array_coercion(Stmt *stmt, Type *decl_type, Type **init_type_ptr)

@@ -3,8 +3,8 @@
 
 #include <stdio.h>
 #include <string.h>
-#include "../type_checker/type_checker_expr.h"
-#include "../type_checker/type_checker_stmt.h"
+#include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/stmt/type_checker_stmt.h"
 #include "../ast/ast_expr.h"
 #include "../test_harness.h"
 

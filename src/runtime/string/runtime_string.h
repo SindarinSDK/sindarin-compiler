@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "runtime_arena.h"
-#include "../array/runtime_array.h"
+#include "runtime/runtime_arena.h"
+#include "runtime/array/runtime_array.h"
 
 /* ============================================================================
  * String Types and Operations

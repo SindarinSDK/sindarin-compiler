@@ -3,7 +3,7 @@
 
 #include "ast.h"
 #include "symbol_table.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 
 /* ============================================================================
  * Array Expression Type Checking

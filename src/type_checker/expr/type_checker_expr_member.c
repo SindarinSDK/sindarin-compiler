@@ -1,8 +1,8 @@
-#include "type_checker/type_checker_expr_member.h"
-#include "type_checker/type_checker_expr.h"
-#include "type_checker/type_checker_expr_call.h"
-#include "type_checker/type_checker_expr_call_char.h"
-#include "type_checker/type_checker_util.h"
+#include "type_checker/expr/type_checker_expr_member.h"
+#include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/expr/call/type_checker_expr_call.h"
+#include "type_checker/expr/call/type_checker_expr_call_char.h"
+#include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 #include <string.h>
 

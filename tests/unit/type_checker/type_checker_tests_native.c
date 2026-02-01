@@ -3,7 +3,7 @@
 // This file contains the shared helper function used by all native test files.
 
 #include "../test_harness.h"
-#include "../type_checker/type_checker_util.h"
+#include "type_checker/util/type_checker_util.h"
 #include "../type_checker.h"
 #include "../ast.h"
 #include "../ast/ast_expr.h"

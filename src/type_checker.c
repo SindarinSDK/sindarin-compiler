@@ -1,6 +1,6 @@
 #include "type_checker.h"
-#include "type_checker/type_checker_util.h"
-#include "type_checker/type_checker_stmt.h"
+#include "type_checker/util/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt.h"
 #include "debug.h"
 
 int type_check_module(Module *module, SymbolTable *table)
