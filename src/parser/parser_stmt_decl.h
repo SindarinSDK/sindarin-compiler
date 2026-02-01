@@ -15,4 +15,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native);
 /* Helper for native function types in type declarations */
 Type *parser_native_function_type(Parser *parser);
 
+/* Helper to check if a token type can start an expression */
+int parser_can_start_expression(SnTokenType type);
+
 #endif /* PARSER_STMT_DECL_H */

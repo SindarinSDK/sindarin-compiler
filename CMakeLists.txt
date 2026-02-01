@@ -102,6 +102,10 @@ set(SN_PARSER_SOURCES
     src/parser.c
     src/parser/parser_util.c
     src/parser/parser_expr.c
+    src/parser/parser_expr_interpol.c
+    src/parser/parser_expr_match.c
+    src/parser/parser_expr_struct.c
+    src/parser/parser_expr_lambda.c
     src/parser/parser_stmt.c
     src/parser/parser_stmt_decl.c
     src/parser/parser_stmt_control.c
@@ -117,6 +121,10 @@ set(SN_SYMBOL_TABLE_SOURCES
 set(SN_TYPE_CHECKER_SOURCES
     src/type_checker.c
     src/type_checker/type_checker_util.c
+    src/type_checker/type_checker_util_escape.c
+    src/type_checker/type_checker_util_suggest.c
+    src/type_checker/type_checker_util_struct.c
+    src/type_checker/type_checker_util_layout.c
     src/type_checker/type_checker_expr.c
     src/type_checker/type_checker_expr_ops.c
     src/type_checker/type_checker_expr_assign.c
@@ -154,6 +162,10 @@ set(SN_OPTIMIZER_SOURCES
 
 set(SN_CODEGEN_SOURCES
     src/code_gen.c
+    src/code_gen/code_gen_pragma.c
+    src/code_gen/code_gen_struct_emit.c
+    src/code_gen/code_gen_native_extern.c
+    src/code_gen/code_gen_method_emit.c
     src/code_gen/code_gen_util_string.c
     src/code_gen/code_gen_util_type.c
     src/code_gen/code_gen_util_tostring.c
@@ -180,6 +192,15 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/code_gen_expr_static.c
     src/code_gen/code_gen_expr_string.c
     src/code_gen/code_gen_expr_thread.c
+    src/code_gen/code_gen_expr_thread_util.c
+    src/code_gen/code_gen_expr_thread_sync.c
+    src/code_gen/code_gen_expr_incr.c
+    src/code_gen/code_gen_expr_member.c
+    src/code_gen/code_gen_expr_misc.c
+    src/code_gen/code_gen_expr_type.c
+    src/code_gen/code_gen_expr_struct.c
+    src/code_gen/code_gen_expr_access.c
+    src/code_gen/code_gen_expr_match.c
     src/code_gen/code_gen_stmt_core.c
     src/code_gen/code_gen_stmt_loop.c
     src/code_gen/code_gen_stmt_capture.c
@@ -195,6 +216,8 @@ set(SN_CODEGEN_SOURCES
 
 set(SN_BACKEND_SOURCES
     src/gcc_backend.c
+    src/gcc_backend_config.c
+    src/gcc_backend_pkgconfig.c
 )
 
 set(SN_PACKAGE_SOURCES
