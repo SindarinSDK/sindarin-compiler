@@ -135,6 +135,14 @@ set(SN_TYPE_CHECKER_SOURCES
     src/type_checker/type_checker_expr_array.c
     src/type_checker/type_checker_expr_lambda.c
     src/type_checker/type_checker_stmt.c
+    src/type_checker/type_checker_stmt_var.c
+    src/type_checker/type_checker_stmt_var_util.c
+    src/type_checker/type_checker_stmt_func.c
+    src/type_checker/type_checker_stmt_control.c
+    src/type_checker/type_checker_stmt_struct.c
+    src/type_checker/type_checker_stmt_import.c
+    src/type_checker/type_checker_stmt_import_ns.c
+    src/type_checker/type_checker_stmt_import_ns_util.c
 )
 
 set(SN_OPTIMIZER_SOURCES
