@@ -29,7 +29,12 @@ ifeq ($(OS),Windows_NT)
     # Always use Ninja on Windows (it's required for this project)
     CMAKE_GENERATOR := Ninja
     TEMP_DIR := $(if $(TEMP),$(TEMP),/tmp)
+    # Use cmake -E for cross-platform file operations on native Windows
     MKDIR := cmake -E make_directory
+    CP := cmake -E copy
+    CP_DIR := cmake -E copy_directory
+    RM := cmake -E rm -f
+    RM_DIR := cmake -E rm -rf
     # Native Windows has no Unix-style timeout command
     TIMEOUT_CMD :=
 else
@@ -45,6 +50,9 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        CP := cp
+        CP_DIR := cp -r
+        RM_DIR := rm -rf
         TIMEOUT_CMD := timeout
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
@@ -61,6 +69,9 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        CP := cp
+        CP_DIR := cp -r
+        RM_DIR := rm -rf
         # macOS doesn't ship GNU timeout; use it only if available
         TIMEOUT_CMD := $(shell command -v timeout >/dev/null 2>&1 && echo timeout || echo)
         NULL_DEV := /dev/null
@@ -78,6 +89,9 @@ else
         RMDIR := rm -rf $(BUILD_DIR)
         RMDIR_BIN := rm -rf $(BIN_DIR)/lib
         MKDIR := mkdir -p
+        CP := cp
+        CP_DIR := cp -r
+        RM_DIR := rm -rf
         TIMEOUT_CMD := timeout
         NULL_DEV := /dev/null
         NINJA_EXISTS := $(shell command -v ninja >/dev/null 2>&1 && echo yes || echo no)
@@ -245,25 +259,25 @@ install: build
 	@$(MKDIR) $(SN_LIB_DIR)
 	@$(MKDIR) $(SN_BIN_DIR)
 	@echo "  Copying compiler binary..."
-	@cp $(BIN_DIR)/sn$(EXE_EXT) $(SN_LIB_DIR)/sn$(EXE_EXT)
+	@$(CP) $(BIN_DIR)/sn$(EXE_EXT) $(SN_LIB_DIR)/sn$(EXE_EXT)
 	@echo "  Copying configuration..."
-	@cp $(BIN_DIR)/sn.cfg $(SN_LIB_DIR)/sn.cfg
+	@$(CP) $(BIN_DIR)/sn.cfg $(SN_LIB_DIR)/sn.cfg
 	@echo "  Copying runtime headers..."
-	@rm -rf $(SN_LIB_DIR)/include
-	@cp -r $(BIN_DIR)/include $(SN_LIB_DIR)/include
+	@$(RM_DIR) $(SN_LIB_DIR)/include
+	@$(CP_DIR) $(BIN_DIR)/include $(SN_LIB_DIR)/include
 	@echo "  Copying runtime library..."
-	@rm -rf $(SN_LIB_DIR)/lib
-	@cp -r $(BIN_DIR)/lib $(SN_LIB_DIR)/lib
+	@$(RM_DIR) $(SN_LIB_DIR)/lib
+	@$(CP_DIR) $(BIN_DIR)/lib $(SN_LIB_DIR)/lib
 ifeq ($(PLATFORM),windows)
 	@echo "  Copying binary to bin directory..."
-	@cp $(BIN_DIR)/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)
+	@$(CP) $(BIN_DIR)/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)
 	@echo ""
 	@echo "Installation complete!"
 	@echo "  Binary: $(SN_LIB_DIR)/sn$(EXE_EXT)"
 	@echo "  Executable: $(SN_BIN_DIR)/sn$(EXE_EXT)"
 else
 	@echo "  Creating symlink..."
-	@rm -f $(SN_BIN_DIR)/sn$(EXE_EXT)
+	@$(RM) $(SN_BIN_DIR)/sn$(EXE_EXT)
 	@ln -s ../lib/sindarin/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)
 	@echo ""
 	@echo "Installation complete!"
