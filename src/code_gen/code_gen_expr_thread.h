@@ -3,6 +3,11 @@
  *
  * Contains declarations for generating C code from thread spawn (&fn())
  * and thread sync (var!) expressions.
+ *
+ * This module is split into:
+ * - code_gen_expr_thread_util.h/c - Utility functions (get_rt_result_type)
+ * - code_gen_expr_thread_sync.h/c - Thread sync expression generation
+ * - code_gen_expr_thread.h/c - Thread spawn expression generation (this file)
  */
 
 #ifndef CODE_GEN_EXPR_THREAD_H
@@ -11,11 +16,9 @@
 #include "code_gen.h"
 #include "ast.h"
 
-/**
- * Generate RtResultType constant from Type.
- * Used by thread sync to determine result type for proper casting.
- */
-const char *get_rt_result_type(Type *type);
+/* Include sub-modules for convenience */
+#include "code_gen/code_gen_expr_thread_util.h"
+#include "code_gen/code_gen_expr_thread_sync.h"
 
 /**
  * Generate code for thread spawn expressions (&fn()).
@@ -23,12 +26,5 @@ const char *get_rt_result_type(Type *type);
  * Handles shared, private, and default arena modes.
  */
 char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr);
-
-/**
- * Generate code for thread sync expressions (var! or [r1,r2]!).
- * Handles single variable sync and sync list expressions.
- * Propagates panics from threads to caller.
- */
-char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr);
 
 #endif /* CODE_GEN_EXPR_THREAD_H */
