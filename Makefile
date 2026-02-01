@@ -232,7 +232,11 @@ test-arena:
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
-SN_HOME := $(HOME)/.sn
+ifeq ($(PLATFORM),windows)
+    SN_HOME := $(USERPROFILE)/.sn
+else
+    SN_HOME := $(HOME)/.sn
+endif
 SN_LIB_DIR := $(SN_HOME)/lib/sindarin
 SN_BIN_DIR := $(SN_HOME)/bin
 
