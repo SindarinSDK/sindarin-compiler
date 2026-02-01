@@ -4,8 +4,8 @@
 #include "parser.h"
 #include "ast.h"
 #include "ast/ast_stmt.h"
-#include "parser/parser_stmt_decl.h"
-#include "parser/parser_stmt_control.h"
+#include "parser/stmt/parser_stmt_decl.h"
+#include "parser/stmt/parser_stmt_control.h"
 
 /* Block/indentation helpers */
 int is_at_function_boundary(Parser *parser);

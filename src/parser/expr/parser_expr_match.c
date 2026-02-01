@@ -1,6 +1,6 @@
-#include "parser_expr_match.h"
-#include "parser_util.h"
-#include "parser_stmt.h"
+#include "parser/expr/parser_expr_match.h"
+#include "parser/util/parser_util.h"
+#include "parser/stmt/parser_stmt.h"
 #include "ast/ast_expr.h"
 #include <stdlib.h>
 #include <string.h>
