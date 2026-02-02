@@ -63,6 +63,10 @@ char *rt_arena_strdup(RtArena *arena, const char *str);
 /* Duplicate n bytes of a string into arena */
 char *rt_arena_strndup(RtArena *arena, const char *str, size_t n);
 
+/* Release a pinned allocation by pointer.
+ * Marks the entry as dead so GC can eventually free the block. */
+void rt_arena_release(RtArena *arena, void *ptr);
+
 /* Destroy arena and free all memory */
 void rt_arena_destroy(RtArena *arena);
 

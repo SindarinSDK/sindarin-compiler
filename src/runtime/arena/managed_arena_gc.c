@@ -109,9 +109,10 @@ static bool clean_arena(RtManagedArena *ma)
         if (!entry->dead || entry->ptr == NULL || entry->leased != 0) {
             continue;
         }
-        /* Entry is dead and unleased — recycle immediately.
-         * Only ptr and dead need clearing (block/size overwritten on reuse). */
-        atomic_fetch_sub(&ma->dead_bytes, entry->size);
+        /* Entry is dead and unleased — recycle the handle slot.
+         * NOTE: Do NOT decrement dead_bytes here! The memory is still in the block.
+         * dead_bytes tracks memory that can be reclaimed by compaction.
+         * Compaction will reset dead_bytes when it moves live data and retires blocks. */
         entry->ptr = NULL;
         entry->dead = false;
         recycle_handle_gc(ma, i);
@@ -326,7 +327,7 @@ void rt_managed_compact(RtManagedArena *ma)
     }
     ma->total_allocated = new_total;
 
-    /* Reset dead bytes counter (recycled entries already decremented) */
+    /* Reset dead bytes counter - all dead data is now in retired blocks */
     atomic_store(&ma->dead_bytes, 0);
 
     pthread_mutex_unlock(&ma->alloc_mutex);
@@ -338,37 +339,6 @@ void rt_managed_compact(RtManagedArena *ma)
  * Walks the arena tree. For each arena, checks fragmentation and compacts
  * if threshold is exceeded. Also retires drained blocks.
  * ============================================================================ */
-
-/* Check block utilization: live_bytes / total_block_capacity.
- * Returns true if utilization is below threshold and we have enough blocks
- * to make compaction worthwhile. This catches cases where the cleaner
- * recycles handles faster than dead_bytes can accumulate. */
-static bool should_compact_low_utilization(RtManagedArena *ma)
-{
-    size_t live = atomic_load(&ma->live_bytes);
-    size_t total_capacity = 0;
-    int block_count = 0;
-
-    /* Sum capacity across all active blocks */
-    for (RtManagedBlock *b = ma->first; b != NULL; b = b->next) {
-        total_capacity += b->size;
-        block_count++;
-    }
-
-    /* Need at least minimum blocks to consider utilization-based compaction */
-    if (block_count < RT_MANAGED_UTILIZATION_MIN_BLOCKS) {
-        return false;
-    }
-
-    /* Avoid division by zero */
-    if (total_capacity == 0) {
-        return false;
-    }
-
-    double utilization = (double)live / (double)total_capacity;
-
-    return utilization < RT_MANAGED_UTILIZATION_THRESHOLD;
-}
 
 /* Check if block has any leased or pinned entries — O(1) via counters.
  * Caller must hold pin_mutex. */
@@ -503,14 +473,10 @@ void *rt_managed_compactor_thread(void *arg)
                 continue;
             }
 
-            /* Compact if EITHER condition is met:
-             * 1. High fragmentation: many dead handles waiting (existing check)
-             * 2. Low block utilization: blocks mostly empty after cleaner recycled handles */
+            /* Only compact when there's significant fragmentation (dead data).
+             * Skip utilization-based compaction - it causes thrashing with pinned blocks. */
             double frag = rt_managed_fragmentation(ma);
-            bool high_frag = (frag >= RT_MANAGED_COMPACT_THRESHOLD);
-            bool low_util = should_compact_low_utilization(ma);
-
-            if (high_frag || low_util) {
+            if (frag >= RT_MANAGED_COMPACT_THRESHOLD) {
                 rt_managed_compact(ma);
             }
 

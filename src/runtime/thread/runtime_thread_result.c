@@ -96,6 +96,25 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena)
     return handle;
 }
 
+/* Release a thread handle and its result back to the arena.
+ * Marks them as dead so GC can reclaim the memory.
+ * Safe to call even if handle is NULL. */
+void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
+{
+    if (handle == NULL || arena == NULL) return;
+
+    /* Release result->value if allocated */
+    if (handle->result != NULL && handle->result->value != NULL) {
+        rt_managed_release_pinned(arena, handle->result->value);
+    }
+    /* Release result struct */
+    if (handle->result != NULL) {
+        rt_managed_release_pinned(arena, handle->result);
+    }
+    /* Release handle struct */
+    rt_managed_release_pinned(arena, handle);
+}
+
 /* ============================================================================
  * Thread Arguments Functions
  * ============================================================================ */

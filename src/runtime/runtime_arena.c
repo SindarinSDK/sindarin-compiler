@@ -17,8 +17,9 @@ RtArena *rt_arena_create(RtArena *parent)
 {
     if (parent != NULL) {
         return rt_managed_arena_create_child(parent);
+    } else {
+        return rt_managed_arena_create();
     }
-    return rt_managed_arena_create();
 }
 
 /* Allocate memory from arena (permanently pinned — not compactable) */
@@ -84,6 +85,14 @@ char *rt_arena_strndup(RtArena *arena, const char *str, size_t n)
         ptr[len] = '\0';
     }
     return ptr;
+}
+
+/* Release a pinned allocation by pointer.
+ * Marks the entry as dead and decrements pinned_count so GC can free the block.
+ * Used for thread handles/results that need to be released when thread completes. */
+void rt_arena_release(RtArena *arena, void *ptr)
+{
+    rt_managed_release_pinned(arena, ptr);
 }
 
 /* Destroy arena and free all memory */
