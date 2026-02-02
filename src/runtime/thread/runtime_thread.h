@@ -90,6 +90,7 @@ typedef struct RtThreadArgs {
     RtArena *thread_arena;    /* Thread's own arena */
     bool is_shared;           /* True if function uses shared arena semantics */
     bool is_private;          /* True if function uses private arena semantics */
+    RtThreadHandle *handle;   /* Handle for this thread (for cleanup coordination) */
 } RtThreadArgs;
 
 /* ============================================================================
@@ -165,6 +166,10 @@ void *rt_get_thread_arena_or(void *fallback);
 
 /* Create a new thread handle in the given arena */
 RtThreadHandle *rt_thread_handle_create(RtArena *arena);
+
+/* Release a thread handle and its result back to the arena.
+ * Marks them as dead so GC can reclaim the memory. */
+void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena);
 
 /* Create thread arguments structure in the given arena */
 RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,

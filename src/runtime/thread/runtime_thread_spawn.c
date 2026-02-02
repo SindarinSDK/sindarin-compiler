@@ -82,6 +82,9 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         return NULL;
     }
 
+    /* Link handle to args so thread wrapper can coordinate cleanup */
+    args->handle = handle;
+
     /* Track in global pool */
     rt_thread_pool_add(handle);
 
@@ -185,6 +188,9 @@ void rt_thread_sync(RtThreadHandle *handle)
         rt_arena_destroy(handle->thread_arena);
         handle->thread_arena = NULL;
     }
+
+    /* Release handle and result back to caller arena for GC reclamation */
+    rt_thread_handle_release(handle, handle->caller_arena);
 }
 
 /* Synchronize multiple thread handles (implements [r1, r2, ...]! syntax) */
