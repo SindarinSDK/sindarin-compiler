@@ -210,6 +210,14 @@ void rt_thread_sync(RtThreadHandle *handle)
         handle->thread_arena = NULL;
     }
 
+    /* Remove cleanup callback before releasing handle to prevent use-after-free.
+     * The cleanup callback was registered in rt_thread_spawn to auto-join
+     * fire-and-forget threads when arena is destroyed. Since we're manually
+     * syncing here, we must remove it to avoid accessing freed memory. */
+    if (handle->caller_arena != NULL) {
+        rt_arena_remove_cleanup(handle->caller_arena, handle);
+    }
+
     /* Release handle and result back to caller arena for GC reclamation */
     rt_thread_handle_release(handle, handle->caller_arena);
 }

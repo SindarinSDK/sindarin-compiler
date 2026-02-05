@@ -266,16 +266,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    RtThreadPanicContext __panic_ctx__;\n"
         "    rt_thread_panic_context_init(&__panic_ctx__, args->result, __arena__);\n"
         "    if (setjmp(__panic_ctx__.jump_buffer) != 0) {\n"
-        "        /* Panic occurred - do NOT release handle (sync needs to read panic info) */\n"
-        "        /* Remove cleanup callback from caller arena to prevent leak */\n"
-        "        if (args->caller_arena != NULL && args->handle != NULL) {\n"
-        "            rt_arena_remove_cleanup(args->caller_arena, args->handle);\n"
-        "        }\n"
-        "        /* Remove from global thread pool */\n"
-        "        if (args->handle != NULL) {\n"
-        "            rt_thread_pool_remove(args->handle);\n"
-        "        }\n"
-        "        /* Signal completion so any waiting sync can proceed and see the panic */\n"
+        "        /* Panic occurred - signal completion so sync can proceed and see panic info.\n"
+        "         * Cleanup is handled by rt_thread_sync or arena cleanup callback. */\n"
         "        rt_thread_signal_completion(args->handle);\n"
         "        rt_set_thread_arena(NULL);\n"
         "        rt_thread_panic_context_clear();\n"
@@ -764,30 +756,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "        %s(%s);\n"
                 "    }\n"
                 "\n"
-    /* Destroy thread arena - no result to preserve for void functions */
-
-                "    if (!args->is_shared && args->thread_arena != NULL) {\n"
-                "        rt_arena_destroy(args->thread_arena);\n"
-                "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
-                "    }\n"
-    /* Remove cleanup callback from caller arena to prevent leak */
-
-                "    if (args->caller_arena != NULL && args->handle != NULL) {\n"
-                "        rt_arena_remove_cleanup(args->caller_arena, args->handle);\n"
-                "    }\n"
-                "    /* Remove from global thread pool */\n"
-                "    if (args->handle != NULL) {\n"
-                "        rt_thread_pool_remove(args->handle);\n"
-                "    }\n"
-    /* Signal completion before cleanup so any waiting sync can proceed */
-
+                "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
                 "    rt_thread_signal_completion(args->handle);\n"
-    /* Release handle/result and args for GC reclamation (void = fire-and-forget) */
-
-                "    rt_thread_handle_release(args->handle, args->caller_arena);\n"
                 "    rt_managed_release_pinned(args->caller_arena, args);\n"
-    /* Clear thread arena and panic context on successful completion */
-
                 "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
@@ -947,24 +918,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
                 "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
                 "\n"
-    /* Do NOT destroy thread arena - sync needs it for result promotion */
-    /* Remove cleanup callback from caller arena to prevent leak */
-
-                "    if (args->caller_arena != NULL && args->handle != NULL) {\n"
-                "        rt_arena_remove_cleanup(args->caller_arena, args->handle);\n"
-                "    }\n"
-                "    /* Remove from global thread pool */\n"
-                "    if (args->handle != NULL) {\n"
-                "        rt_thread_pool_remove(args->handle);\n"
-                "    }\n"
-    /* Signal completion before cleanup so any waiting sync can proceed */
-
+                "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
                 "    rt_thread_signal_completion(args->handle);\n"
-    /* Release args for GC reclamation (handle/arena released by sync) */
-
                 "    rt_managed_release_pinned(args->caller_arena, args);\n"
-    /* Clear thread arena and panic context on successful completion */
-
                 "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
@@ -981,30 +937,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    /* Call the function */\n"
             "    %s(%s);\n"
             "\n"
-    /* Destroy thread arena - no result to preserve for void functions */
-
-            "    if (!args->is_shared && args->thread_arena != NULL) {\n"
-            "        rt_arena_destroy(args->thread_arena);\n"
-            "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
-            "    }\n"
-    /* Remove cleanup callback from caller arena to prevent leak */
-
-            "    if (args->caller_arena != NULL && args->handle != NULL) {\n"
-            "        rt_arena_remove_cleanup(args->caller_arena, args->handle);\n"
-            "    }\n"
-            "    /* Remove from global thread pool */\n"
-            "    if (args->handle != NULL) {\n"
-            "        rt_thread_pool_remove(args->handle);\n"
-            "    }\n"
-    /* Signal completion before cleanup so any waiting sync can proceed */
-
+            "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
             "    rt_thread_signal_completion(args->handle);\n"
-    /* Release handle/result and args for GC reclamation (void = fire-and-forget) */
-
-            "    rt_thread_handle_release(args->handle, args->caller_arena);\n"
             "    rt_managed_release_pinned(args->caller_arena, args);\n"
-    /* Clear thread arena and panic context on successful completion */
-
             "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
@@ -1023,24 +958,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
             "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
             "\n"
-    /* Do NOT destroy thread arena - sync needs it for result promotion */
-    /* Remove cleanup callback from caller arena to prevent leak */
-
-            "    if (args->caller_arena != NULL && args->handle != NULL) {\n"
-            "        rt_arena_remove_cleanup(args->caller_arena, args->handle);\n"
-            "    }\n"
-            "    /* Remove from global thread pool */\n"
-            "    if (args->handle != NULL) {\n"
-            "        rt_thread_pool_remove(args->handle);\n"
-            "    }\n"
-    /* Signal completion before cleanup so any waiting sync can proceed */
-
+            "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
             "    rt_thread_signal_completion(args->handle);\n"
-    /* Release args for GC reclamation (handle/arena released by sync) */
-
             "    rt_managed_release_pinned(args->caller_arena, args);\n"
-    /* Clear thread arena and panic context on successful completion */
-
             "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
