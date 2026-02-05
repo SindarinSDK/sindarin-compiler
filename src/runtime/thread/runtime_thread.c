@@ -69,12 +69,30 @@ static void rt_thread_cleanup(void *data);
  * Thread Cleanup Callback for Arena
  * ============================================================================
  * Called when an arena is destroyed to auto-join any tracked threads.
+ * IMPORTANT: This callback must NOT call rt_arena_remove_cleanup because
+ * we're being invoked FROM the cleanup iteration which will free the node
+ * after we return. Calling remove_cleanup would cause a double-free.
  */
 
 static void rt_thread_cleanup(void *data)
 {
     RtThreadHandle *handle = (RtThreadHandle *)data;
-    if (handle != NULL && !handle->synced) {
-        rt_thread_sync(handle);
+    if (handle == NULL || handle->synced) {
+        return;
     }
+
+    /* Wait for thread completion */
+    rt_thread_join(handle);
+
+    /* Clean up thread arena for private and default modes */
+    if (handle->thread_arena != NULL) {
+        rt_arena_destroy(handle->thread_arena);
+        handle->thread_arena = NULL;
+    }
+
+    /* DO NOT call rt_arena_remove_cleanup here - we're inside the cleanup
+     * iteration and the node will be freed by invoke_cleanup_list */
+
+    /* Release handle and result back to caller arena for GC reclamation */
+    rt_thread_handle_release(handle, handle->caller_arena);
 }
