@@ -124,6 +124,33 @@ void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
     rt_managed_release_pinned(arena, handle);
 }
 
+/* Clean up a fire-and-forget thread after it completes.
+ * Called by thread wrapper when spawn is used as a statement (result discarded).
+ * This is safe to call because fire-and-forget threads are never synced,
+ * so no one else will be using the handle's mutex.
+ *
+ * Steps:
+ * 1. Remove cleanup callback from caller arena (prevents double cleanup)
+ * 2. Release handle (destroys mutex, marks for GC)
+ */
+void rt_thread_fire_forget_cleanup(RtThreadHandle *handle)
+{
+    if (handle == NULL) return;
+
+    /* Remove cleanup callback from caller arena.
+     * This prevents the callback from firing when the arena is destroyed,
+     * which would try to clean up an already-cleaned handle. */
+    if (handle->caller_arena != NULL) {
+        rt_arena_remove_cleanup(handle->caller_arena, handle);
+    }
+
+    /* Release handle and result back to caller arena for GC reclamation.
+     * This destroys the mutex/cond which is safe because:
+     * - Fire-and-forget threads are never synced
+     * - No one is waiting on the mutex */
+    rt_thread_handle_release(handle, handle->caller_arena);
+}
+
 /* ============================================================================
  * Thread Arguments Functions
  * ============================================================================ */

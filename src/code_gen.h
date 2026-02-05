@@ -55,6 +55,7 @@ typedef struct {
 
     /* Thread wrapper support */
     int thread_wrapper_count;   // Counter for unique thread wrapper IDs
+    bool spawn_is_fire_and_forget;  // True when generating spawn as statement (result discarded)
 
     /* Named function to closure wrapper support */
     int wrapper_count;          // Counter for unique wrapper function IDs
