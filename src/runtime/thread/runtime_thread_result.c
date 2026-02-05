@@ -93,6 +93,10 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena)
     handle->is_shared = false;
     handle->is_private = false;
 
+    /* Initialize completion synchronization primitives */
+    pthread_mutex_init(&handle->completion_mutex, NULL);
+    pthread_cond_init(&handle->completion_cond, NULL);
+
     return handle;
 }
 
@@ -102,6 +106,11 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena)
 void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
 {
     if (handle == NULL || arena == NULL) return;
+
+    /* Destroy completion synchronization primitives before releasing memory.
+     * On Windows, CRITICAL_SECTION requires explicit cleanup. */
+    pthread_mutex_destroy(&handle->completion_mutex);
+    pthread_cond_destroy(&handle->completion_cond);
 
     /* Release result->value if allocated */
     if (handle->result != NULL && handle->result->value != NULL) {

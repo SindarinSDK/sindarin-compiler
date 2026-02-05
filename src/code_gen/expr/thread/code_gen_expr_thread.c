@@ -275,6 +275,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "        if (args->handle != NULL) {\n"
         "            rt_thread_pool_remove(args->handle);\n"
         "        }\n"
+        "        /* Signal completion so any waiting sync can proceed and see the panic */\n"
+        "        rt_thread_signal_completion(args->handle);\n"
         "        rt_set_thread_arena(NULL);\n"
         "        rt_thread_panic_context_clear();\n"
         "        return NULL;\n"
@@ -777,6 +779,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    if (args->handle != NULL) {\n"
                 "        rt_thread_pool_remove(args->handle);\n"
                 "    }\n"
+    /* Signal completion before cleanup so any waiting sync can proceed */
+
+                "    rt_thread_signal_completion(args->handle);\n"
     /* Release handle/result and args for GC reclamation (void = fire-and-forget) */
 
                 "    rt_thread_handle_release(args->handle, args->caller_arena);\n"
@@ -952,6 +957,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    if (args->handle != NULL) {\n"
                 "        rt_thread_pool_remove(args->handle);\n"
                 "    }\n"
+    /* Signal completion before cleanup so any waiting sync can proceed */
+
+                "    rt_thread_signal_completion(args->handle);\n"
     /* Release args for GC reclamation (handle/arena released by sync) */
 
                 "    rt_managed_release_pinned(args->caller_arena, args);\n"
@@ -988,6 +996,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    if (args->handle != NULL) {\n"
             "        rt_thread_pool_remove(args->handle);\n"
             "    }\n"
+    /* Signal completion before cleanup so any waiting sync can proceed */
+
+            "    rt_thread_signal_completion(args->handle);\n"
     /* Release handle/result and args for GC reclamation (void = fire-and-forget) */
 
             "    rt_thread_handle_release(args->handle, args->caller_arena);\n"
@@ -1022,6 +1033,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    if (args->handle != NULL) {\n"
             "        rt_thread_pool_remove(args->handle);\n"
             "    }\n"
+    /* Signal completion before cleanup so any waiting sync can proceed */
+
+            "    rt_thread_signal_completion(args->handle);\n"
     /* Release args for GC reclamation (handle/arena released by sync) */
 
             "    rt_managed_release_pinned(args->caller_arena, args);\n"
@@ -1198,7 +1212,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    %s *%s = (%s *)rt_arena_alloc(%s, sizeof(%s));\n"
         "    %s->caller_arena = %s;\n"
         "    %s->thread_arena = NULL;\n"
-        "    %s->result = rt_thread_result_create(%s);\n"
+        "    %s->result = NULL;  /* rt_thread_spawn creates and assigns result */\n"
         "    %s->is_shared = %s;\n"
         "    %s->is_private = %s;\n"
         "    %s"
@@ -1211,7 +1225,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         args_struct_name, args_var, args_struct_name, caller_arena, args_struct_name,
         args_var, caller_arena,
         args_var,
-        args_var, caller_arena,
+        args_var,
         args_var, is_shared_str,
         args_var, is_private_str,
         arg_assignments,
