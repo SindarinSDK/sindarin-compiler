@@ -1,0 +1,10 @@
+
+fn thread_assign():int[] => 
+  var values:int[] = 0..1024
+  return values
+
+fn main():void =>
+  var arr:int[] = &thread_assign()!
+  arr = &thread_assign()!
+  println($"{arr}")
+  println("Hello world!") 

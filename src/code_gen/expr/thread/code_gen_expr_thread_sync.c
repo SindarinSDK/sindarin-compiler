@@ -124,10 +124,8 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                               (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
         /* Struct types also need dereferencing and use the pending var pattern */
         bool is_struct_type = (result_type->kind == TYPE_STRUCT);
-        fprintf(stderr, "[DEBUG] sync: is_struct_type=%d\n", is_struct_type);
         /* Check if struct has handle fields that need promotion */
         bool struct_needs_field_promotion = is_struct_type && struct_has_handle_fields(result_type);
-        fprintf(stderr, "[DEBUG] sync: struct_needs_field_promotion=%d\n", struct_needs_field_promotion);
 
         /* Check if the handle is a variable - if so, we need to update it after sync
          * This ensures that after x! is used, subsequent uses of x return the synced value */
