@@ -432,6 +432,43 @@ static void retire_drained_blocks(RtManagedArena *ma)
     pthread_mutex_unlock(&ma->alloc_mutex);
 }
 
+/* ============================================================================
+ * Epoch-Based Safe Freeing of Retired Arena Structs
+ * ============================================================================
+ * After a child arena is destroyed, its struct is added to root->retired_arenas.
+ * The struct can only be freed after 2 GC epochs have passed, ensuring no GC
+ * thread can have a stale reference from a previous snapshot.
+ * ============================================================================ */
+
+static void free_safe_retired_arenas(RtManagedArena *root)
+{
+    if (root == NULL || !root->is_root) return;
+
+    unsigned current_epoch = atomic_load(&root->gc_compactor_epoch);
+
+    pthread_mutex_lock(&root->children_mutex);
+
+    RtManagedArena **prev = &root->retired_arenas;
+    RtManagedArena *arena = root->retired_arenas;
+
+    while (arena != NULL) {
+        RtManagedArena *next = arena->next_sibling;
+
+        /* Safe to free if 2+ GC epochs have passed since destruction.
+         * This guarantees any GC thread that had a snapshot reference
+         * has completed at least one full iteration. */
+        if (current_epoch >= arena->destroyed_at_epoch + 2) {
+            *prev = next;  /* Unlink from list */
+            free(arena);   /* Free the struct */
+        } else {
+            prev = &arena->next_sibling;
+        }
+        arena = next;
+    }
+
+    pthread_mutex_unlock(&root->children_mutex);
+}
+
 void *rt_managed_compactor_thread(void *arg)
 {
     RtManagedArena *root = (RtManagedArena *)arg;
@@ -486,8 +523,14 @@ void *rt_managed_compactor_thread(void *arg)
         /* Mark iteration complete */
         atomic_fetch_add(&root->gc_compactor_epoch, 1);
 
+        /* Free arena structs that are now safe (2+ epochs since destruction) */
+        free_safe_retired_arenas(root);
+
         rt_arena_sleep_ms(RT_MANAGED_GC_INTERVAL_MS * 10);
     }
+
+    /* Final cleanup: free any remaining safe retired arena structs */
+    free_safe_retired_arenas(root);
 
     /* Final cleanup of retired blocks across all arenas */
     {
