@@ -93,6 +93,12 @@ typedef struct RtThreadArgs {
     bool is_shared;           /* True if function uses shared arena semantics */
     bool is_private;          /* True if function uses private arena semantics */
     RtThreadHandle *handle;   /* Handle for this thread (for cleanup coordination) */
+    /* Startup barrier - ensures child thread has started before parent proceeds.
+     * This prevents the parent from destroying its arena (which contains args)
+     * before the child thread has had a chance to access the args. */
+    bool started;                      /* True when thread has started and copied args */
+    pthread_mutex_t started_mutex;     /* Mutex for startup synchronization */
+    pthread_cond_t started_cond;       /* Condition var for waiting on startup */
 } RtThreadArgs;
 
 /* ============================================================================
@@ -198,6 +204,10 @@ bool rt_thread_is_done(RtThreadHandle *handle);
 
 /* Signal that thread has completed (called by thread wrapper before returning) */
 void rt_thread_signal_completion(RtThreadHandle *handle);
+
+/* Signal that thread has started and copied its args (called early in wrapper).
+ * This allows the parent to proceed after pthread_create, knowing args are safe. */
+void rt_thread_signal_started(RtThreadArgs *args);
 
 /* Set panic state on a thread result */
 void rt_thread_result_set_panic(RtThreadResult *result, const char *message,
