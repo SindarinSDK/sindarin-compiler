@@ -72,6 +72,8 @@ typedef struct RtThreadHandle {
     int result_type;          /* RtResultType for result promotion (-1 if void) */
     bool is_shared;           /* True if function uses shared arena semantics */
     bool is_private;          /* True if function uses private arena semantics */
+    pthread_mutex_t completion_mutex;  /* Mutex for completion signaling */
+    pthread_cond_t completion_cond;    /* Condition var for waiting on completion */
 } RtThreadHandle;
 
 /* ============================================================================
@@ -193,6 +195,9 @@ void rt_thread_sync_all(RtThreadHandle **handles, size_t count);
 
 /* Check if a thread has completed without blocking */
 bool rt_thread_is_done(RtThreadHandle *handle);
+
+/* Signal that thread has completed (called by thread wrapper before returning) */
+void rt_thread_signal_completion(RtThreadHandle *handle);
 
 /* Set panic state on a thread result */
 void rt_thread_result_set_panic(RtThreadResult *result, const char *message,

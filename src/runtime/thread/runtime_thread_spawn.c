@@ -71,6 +71,12 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         handle->thread_arena = args->thread_arena;
     }
 
+    /* Link handle to args BEFORE creating thread to avoid race condition.
+     * The thread wrapper needs args->handle to release the handle on completion.
+     * If we set this after pthread_create, a fast thread could complete before
+     * args->handle is set, leaving it NULL and causing a memory leak. */
+    args->handle = handle;
+
     /* Create the pthread */
     int err = pthread_create(&handle->thread, NULL, wrapper, args);
     if (err != 0) {
@@ -79,11 +85,13 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         if (handle->thread_arena != NULL && !args->is_shared) {
             rt_arena_destroy(handle->thread_arena);
         }
+        args->handle = NULL;  /* Clear on failure */
         return NULL;
     }
 
-    /* Link handle to args so thread wrapper can coordinate cleanup */
-    args->handle = handle;
+    /* Detach the thread so OS auto-cleans resources when thread exits.
+     * We use condition variables for synchronization instead of pthread_join. */
+    pthread_detach(handle->thread);
 
     /* Track in global pool */
     rt_thread_pool_add(handle);
@@ -106,13 +114,26 @@ bool rt_thread_is_done(RtThreadHandle *handle)
     return handle->done;
 }
 
-/* Join a thread and retrieve its result (low-level pthread_join wrapper)
- * This function waits for the thread to complete and returns the result value.
+/* Signal that thread has completed (called by thread wrapper before returning).
+ * This wakes up any thread waiting in rt_thread_join.
+ * Thread must be detached so pthread resources are auto-cleaned on return. */
+void rt_thread_signal_completion(RtThreadHandle *handle)
+{
+    if (handle == NULL) return;
+
+    pthread_mutex_lock(&handle->completion_mutex);
+    handle->done = true;
+    pthread_cond_broadcast(&handle->completion_cond);
+    pthread_mutex_unlock(&handle->completion_mutex);
+}
+
+/* Join a thread and retrieve its result.
+ * Waits for the thread to complete using condition variable (not pthread_join
+ * because threads are detached for automatic resource cleanup).
  * It handles both void and non-void return types:
  * - For void functions, returns NULL
  * - For non-void functions, returns pointer to the result value
- * The done flag is set to mark the thread as synchronized.
- * No double-join protection - caller is responsible for checking done flag.
+ * The synced flag is set to mark the thread as synchronized.
  *
  * For default mode threads (not shared, not private):
  * - If result is non-primitive, promotes to caller arena before returning
@@ -125,15 +146,15 @@ void *rt_thread_join(RtThreadHandle *handle)
         return NULL;
     }
 
-    /* Wait for thread to complete using pthread_join */
-    int err = pthread_join(handle->thread, NULL);
-    if (err != 0) {
-        fprintf(stderr, "rt_thread_join: pthread_join failed with error %d\n", err);
-        return NULL;
+    /* Wait for thread to complete using condition variable.
+     * Threads are detached so we can't use pthread_join. */
+    pthread_mutex_lock(&handle->completion_mutex);
+    while (!handle->done) {
+        pthread_cond_wait(&handle->completion_cond, &handle->completion_mutex);
     }
+    pthread_mutex_unlock(&handle->completion_mutex);
 
-    /* Mark thread as done/synchronized */
-    handle->done = true;
+    /* Mark thread as synchronized */
     handle->synced = true;
 
     /* Remove from global pool since thread has completed */

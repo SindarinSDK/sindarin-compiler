@@ -42,6 +42,7 @@
 
         typedef HANDLE pthread_t;
         typedef CRITICAL_SECTION pthread_mutex_t;
+        typedef CONDITION_VARIABLE pthread_cond_t;
 
         /* Thread start wrapper */
         typedef void *(*_arena_thread_fn)(void *);
@@ -94,6 +95,33 @@
 
         static inline int pthread_mutex_unlock(pthread_mutex_t *m) {
             LeaveCriticalSection(m);
+            return 0;
+        }
+
+        static inline int pthread_cond_init(pthread_cond_t *cond, const void *attr) {
+            (void)attr;
+            InitializeConditionVariable(cond);
+            return 0;
+        }
+
+        static inline int pthread_cond_destroy(pthread_cond_t *cond) {
+            (void)cond;  /* Windows condition variables don't need explicit cleanup */
+            return 0;
+        }
+
+        static inline int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex) {
+            SleepConditionVariableCS(cond, mutex, INFINITE);
+            return 0;
+        }
+
+        static inline int pthread_cond_broadcast(pthread_cond_t *cond) {
+            WakeAllConditionVariable(cond);
+            return 0;
+        }
+
+        static inline int pthread_detach(pthread_t thread) {
+            /* On Windows, just close the handle - the thread continues running */
+            CloseHandle(thread);
             return 0;
         }
     #endif /* MinGW vs MSVC */

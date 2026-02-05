@@ -273,6 +273,9 @@ static void *default_mode_thread_wrapper(void *arg)
         args->result->value = result_str;
     }
 
+    /* Signal completion so rt_thread_join can proceed */
+    rt_thread_signal_completion(args->handle);
+
     return NULL;
 }
 
@@ -328,6 +331,9 @@ static void *shared_mode_thread_wrapper(void *arg)
         args->result->value = &result_val;
     }
 
+    /* Signal completion so rt_thread_join can proceed */
+    rt_thread_signal_completion(args->handle);
+
     return NULL;
 }
 
@@ -375,6 +381,9 @@ static void *private_mode_thread_wrapper(void *arg)
         *int_result = 42;
         args->result->value = int_result;
     }
+
+    /* Signal completion so rt_thread_join can proceed */
+    rt_thread_signal_completion(args->handle);
 
     return NULL;
 }
