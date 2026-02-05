@@ -148,6 +148,11 @@ typedef struct RtManagedArena {
 
     /* Retired arena list (root only): destroyed child structs awaiting final free */
     struct RtManagedArena *retired_arenas; /* Linked via next_sibling */
+
+    /* Epoch-based safe freeing: records when this arena was destroyed.
+     * Used by compactor to determine when it's safe to free the struct.
+     * After 2 GC epochs, no GC thread can have a stale reference. */
+    unsigned destroyed_at_epoch;
 } RtManagedArena;
 
 /* ============================================================================

@@ -222,9 +222,14 @@ void rt_managed_arena_destroy_child(RtManagedArena *child)
     pthread_mutex_destroy(&child->pin_mutex);
     pthread_mutex_destroy(&child->children_mutex);
 
-    /* Add to root's retired arenas list for deferred free */
+    /* Add to root's retired arenas list for epoch-based safe freeing.
+     * Record the current compactor epoch so we know when it's safe to free.
+     * After 2 GC epochs have passed, no GC thread can have a stale reference. */
     RtManagedArena *root = parent ? rt_managed_arena_root(parent) : NULL;
     if (root && root->is_root) {
+        /* Record the epoch when this arena was destroyed */
+        child->destroyed_at_epoch = atomic_load(&root->gc_compactor_epoch);
+
         pthread_mutex_lock(&root->children_mutex);
         child->next_sibling = root->retired_arenas;
         root->retired_arenas = child;

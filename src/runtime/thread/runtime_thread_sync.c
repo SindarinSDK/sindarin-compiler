@@ -61,6 +61,8 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
      * With handle-based arenas, all types (primitives and handles) are
      * stored by value and the caller dereferences to get the result. */
     if (handle->thread_arena == NULL) {
+        /* Release handle and result back to caller arena for GC reclamation */
+        rt_thread_handle_release(handle, handle->caller_arena);
         return result_value;
     }
 
@@ -80,6 +82,10 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     /* Cleanup thread arena now that result is promoted */
     rt_arena_destroy(handle->thread_arena);
     handle->thread_arena = NULL;
+
+    /* Release handle and result back to caller arena for GC reclamation.
+     * This matches what rt_thread_sync() does for void syncs. */
+    rt_thread_handle_release(handle, handle->caller_arena);
 
     return promoted_result;
 }
