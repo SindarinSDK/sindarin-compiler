@@ -265,6 +265,9 @@ static void *default_mode_thread_wrapper(void *arg)
 {
     RtThreadArgs *args = (RtThreadArgs *)arg;
 
+    /* Signal that we've started and accessed args - required by startup barrier */
+    rt_thread_signal_started(args);
+
     /* Allocate a string in the thread's arena */
     char *result_str = rt_arena_strdup(args->thread_arena, "thread_result");
 
@@ -324,6 +327,9 @@ static void *shared_mode_thread_wrapper(void *arg)
 {
     RtThreadArgs *args = (RtThreadArgs *)arg;
 
+    /* Signal that we've started and accessed args - required by startup barrier */
+    rt_thread_signal_started(args);
+
     /* Just store a primitive result to verify the thread ran */
     if (args->result != NULL) {
         /* Use a static value for the result */
@@ -370,6 +376,9 @@ static void test_integration_shared_mode_thread(void)
 static void *private_mode_thread_wrapper(void *arg)
 {
     RtThreadArgs *args = (RtThreadArgs *)arg;
+
+    /* Signal that we've started and accessed args - required by startup barrier */
+    rt_thread_signal_started(args);
 
     /* Private mode: allocate locally but only return primitives */
     char *local_str = rt_arena_strdup(args->thread_arena, "local_only");

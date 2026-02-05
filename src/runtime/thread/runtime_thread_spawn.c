@@ -77,10 +77,20 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
      * args->handle is set, leaving it NULL and causing a memory leak. */
     args->handle = handle;
 
+    /* Initialize startup barrier - child will signal when it has started.
+     * This prevents a race where parent destroys its arena before child
+     * has had a chance to access args (which are in parent's arena). */
+    args->started = false;
+    pthread_mutex_init(&args->started_mutex, NULL);
+    pthread_cond_init(&args->started_cond, NULL);
+
     /* Create the pthread */
     int err = pthread_create(&handle->thread, NULL, wrapper, args);
     if (err != 0) {
         fprintf(stderr, "rt_thread_spawn: pthread_create failed with error %d\n", err);
+        /* Clean up startup barrier on failure */
+        pthread_mutex_destroy(&args->started_mutex);
+        pthread_cond_destroy(&args->started_cond);
         /* Clean up thread arena on failure */
         if (handle->thread_arena != NULL && !args->is_shared) {
             rt_arena_destroy(handle->thread_arena);
@@ -88,6 +98,19 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         args->handle = NULL;  /* Clear on failure */
         return NULL;
     }
+
+    /* Wait for child thread to signal it has started and accessed args.
+     * This ensures the child has copied what it needs before we return
+     * and potentially allow the parent to destroy its arena. */
+    pthread_mutex_lock(&args->started_mutex);
+    while (!args->started) {
+        pthread_cond_wait(&args->started_cond, &args->started_mutex);
+    }
+    pthread_mutex_unlock(&args->started_mutex);
+
+    /* Clean up startup barrier - no longer needed after thread has started */
+    pthread_mutex_destroy(&args->started_mutex);
+    pthread_cond_destroy(&args->started_cond);
 
     /* Detach the thread so OS auto-cleans resources when thread exits.
      * We use condition variables for synchronization instead of pthread_join. */
@@ -125,6 +148,20 @@ void rt_thread_signal_completion(RtThreadHandle *handle)
     handle->done = true;
     pthread_cond_broadcast(&handle->completion_cond);
     pthread_mutex_unlock(&handle->completion_mutex);
+}
+
+/* Signal that thread has started and accessed its args.
+ * Called early in the thread wrapper, before accessing arena-dependent data.
+ * This allows the parent thread to proceed after pthread_create, knowing
+ * that the child has safely accessed the args struct. */
+void rt_thread_signal_started(RtThreadArgs *args)
+{
+    if (args == NULL) return;
+
+    pthread_mutex_lock(&args->started_mutex);
+    args->started = true;
+    pthread_cond_signal(&args->started_cond);
+    pthread_mutex_unlock(&args->started_mutex);
 }
 
 /* Join a thread and retrieve its result.

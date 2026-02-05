@@ -201,6 +201,10 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    bool is_shared;\n"
         "    bool is_private;\n"
         "    RtThreadHandle *handle;\n"
+        "    /* Startup barrier fields */\n"
+        "    bool started;\n"
+        "    pthread_mutex_t started_mutex;\n"
+        "    pthread_cond_t started_cond;\n"
         "    /* Function-specific arguments follow */\n");
 
     /* For method calls, add a field to capture 'self' */
@@ -254,6 +258,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     char *wrapper_def = arena_sprintf(gen->arena,
         "static void *%s(void *args_ptr) {\n"
         "    %s *args = (%s *)args_ptr;\n"
+        "\n"
+        "    /* Signal that we've started and accessed args BEFORE using thread_arena.\n"
+        "     * This allows the parent to proceed, knowing args are safe to access.\n"
+        "     * Critical for recursive thread spawning where parent's arena contains\n"
+        "     * our args and could be destroyed before we start. */\n"
+        "    rt_thread_signal_started((RtThreadArgs *)args);\n"
         "\n"
         "    /* Use arena created by rt_thread_spawn(). For shared mode, this is\n"
         "     * the caller's arena. For default/private modes, it's a new arena. */\n"
