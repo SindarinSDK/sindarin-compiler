@@ -179,6 +179,11 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena);
  * Marks them as dead so GC can reclaim the memory. */
 void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena);
 
+/* Clean up a fire-and-forget thread after it completes.
+ * Called by thread wrapper when spawn is used as a statement (result discarded).
+ * Removes cleanup callback, releases handle for GC reclamation. */
+void rt_thread_fire_forget_cleanup(RtThreadHandle *handle);
+
 /* Create thread arguments structure in the given arena */
 RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,
                                      void *args_data, size_t args_size);

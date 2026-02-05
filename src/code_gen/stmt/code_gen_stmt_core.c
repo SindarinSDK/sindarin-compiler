@@ -36,7 +36,20 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
         return;
     }
 
+    /* Fire-and-forget thread spawn: result is discarded, wrapper should do cleanup */
+    bool is_fire_and_forget_spawn = (stmt->expression->type == EXPR_THREAD_SPAWN);
+    if (is_fire_and_forget_spawn)
+    {
+        gen->spawn_is_fire_and_forget = true;
+    }
+
     char *expr_str = code_gen_expression(gen, stmt->expression);
+
+    /* Reset the flag after generating the expression */
+    if (is_fire_and_forget_spawn)
+    {
+        gen->spawn_is_fire_and_forget = false;
+    }
     DEBUG_VERBOSE("Expression statement type: %p", (void*)stmt->expression->expr_type);
 
     if (stmt->expression->expr_type != NULL &&

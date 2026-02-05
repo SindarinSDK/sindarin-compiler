@@ -773,16 +773,19 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
                 "    }\n"
                 "\n"
-                "    /* Signal completion - sync or cleanup callback will release handle.\n"
-                "     * We can't release handle here because sync might still use it (mutex race). */\n"
+                "    /* Signal completion */\n"
                 "    rt_thread_signal_completion(args->handle);\n"
+                "%s"
                 "    rt_managed_release_pinned(args->caller_arena, args);\n"
                 "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
-                writeback_code, callee_str, call_args);
+                writeback_code, callee_str, call_args,
+                gen->spawn_is_fire_and_forget ?
+                    "    /* Fire-and-forget: clean up handle since no sync will be called */\n"
+                    "    rt_thread_fire_forget_cleanup(args->handle);\n" : "");
         }
         else
         {
@@ -962,15 +965,18 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
             "    }\n"
             "\n"
-            "    /* Signal completion - sync or cleanup callback will release handle.\n"
-            "     * We can't release handle here because sync might still use it (mutex race). */\n"
+            "    /* Signal completion */\n"
             "    rt_thread_signal_completion(args->handle);\n"
+            "%s"
             "    rt_managed_release_pinned(args->caller_arena, args);\n"
             "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
             "}\n\n",
-            wrapper_def, callee_str, call_args);
+            wrapper_def, callee_str, call_args,
+            gen->spawn_is_fire_and_forget ?
+                "    /* Fire-and-forget: clean up handle since no sync will be called */\n"
+                "    rt_thread_fire_forget_cleanup(args->handle);\n" : "");
     }
     else
     {
