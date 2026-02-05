@@ -61,6 +61,10 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
      * With handle-based arenas, all types (primitives and handles) are
      * stored by value and the caller dereferences to get the result. */
     if (handle->thread_arena == NULL) {
+        /* Remove cleanup callback before releasing handle to prevent use-after-free */
+        if (handle->caller_arena != NULL) {
+            rt_arena_remove_cleanup(handle->caller_arena, handle);
+        }
         /* Release handle and result back to caller arena for GC reclamation */
         rt_thread_handle_release(handle, handle->caller_arena);
         return result_value;
@@ -82,6 +86,11 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     /* Cleanup thread arena now that result is promoted */
     rt_arena_destroy(handle->thread_arena);
     handle->thread_arena = NULL;
+
+    /* Remove cleanup callback before releasing handle to prevent use-after-free */
+    if (handle->caller_arena != NULL) {
+        rt_arena_remove_cleanup(handle->caller_arena, handle);
+    }
 
     /* Release handle and result back to caller arena for GC reclamation.
      * This matches what rt_thread_sync() does for void syncs. */
@@ -160,7 +169,8 @@ void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
     return promoted_result;
 }
 
-/* Destroy the thread arena after struct field promotion is complete */
+/* Destroy the thread arena after struct field promotion is complete.
+ * Also releases the handle and removes cleanup callback to prevent leaks. */
 void rt_thread_cleanup_arena(RtThreadHandle *handle)
 {
     if (handle == NULL) return;
@@ -169,4 +179,12 @@ void rt_thread_cleanup_arena(RtThreadHandle *handle)
         rt_arena_destroy(handle->thread_arena);
         handle->thread_arena = NULL;
     }
+
+    /* Remove cleanup callback before releasing handle to prevent use-after-free */
+    if (handle->caller_arena != NULL) {
+        rt_arena_remove_cleanup(handle->caller_arena, handle);
+    }
+
+    /* Release handle and result back to caller arena for GC reclamation */
+    rt_thread_handle_release(handle, handle->caller_arena);
 }
