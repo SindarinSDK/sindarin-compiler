@@ -388,7 +388,12 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     // Track if the conversion already produced a handle (2D/3D cases, or array literals).
     // Array literals (EXPR_ARRAY) already produce a fresh handle via rt_array_create_*_h,
     // so they don't need cloning - just direct assignment.
-    bool value_is_new_handle = (expr->value->type == EXPR_ARRAY);
+    // Thread sync expressions (EXPR_THREAD_SYNC) also produce fresh handles - the sync
+    // returns an RtHandle directly from rt_thread_sync_with_result, no cloning needed.
+    bool value_is_new_handle = (expr->value->type == EXPR_ARRAY) ||
+                               (expr->value->type == EXPR_THREAD_SYNC &&
+                                expr->value->expr_type != NULL &&
+                                expr->value->expr_type->kind == TYPE_ARRAY);
     if (type->kind == TYPE_ARRAY &&
         type->as.array.element_type != NULL &&
         expr->value->expr_type != NULL &&
