@@ -130,12 +130,18 @@ void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
  * so no one else will be using the handle's mutex.
  *
  * Steps:
- * 1. Remove cleanup callback from caller arena (prevents double cleanup)
- * 2. Release handle (destroys mutex, marks for GC)
+ * 1. Remove from global thread pool (prevents pool array growth)
+ * 2. Remove cleanup callback from caller arena (prevents double cleanup)
+ * 3. Release handle (destroys mutex, marks for GC)
  */
 void rt_thread_fire_forget_cleanup(RtThreadHandle *handle)
 {
     if (handle == NULL) return;
+
+    /* Remove from global thread pool.
+     * Without this, the pool array grows forever for fire-and-forget threads,
+     * causing a memory leak of ~8 bytes per thread (pointer in pool array). */
+    rt_thread_pool_remove(handle);
 
     /* Remove cleanup callback from caller arena.
      * This prevents the callback from firing when the arena is destroyed,

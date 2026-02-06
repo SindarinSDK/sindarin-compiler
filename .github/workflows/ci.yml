@@ -179,6 +179,10 @@ jobs:
         shell: bash
         run: make test-arena ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
 
+      - name: Run arena v2 tests
+        shell: bash
+        run: make test-arena2 ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
+
       #------------------------------------------------------------------------
       # Upload Artifacts
       #------------------------------------------------------------------------
