@@ -392,6 +392,8 @@ if(NOT MSVC)
         # malloc/
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_hooks.c
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_redirect.c
+        # arenav2/
+        ${CMAKE_SOURCE_DIR}/src/runtime/arenav2/arena_v2.c
     )
 
     # Platform-specific hooking libraries for malloc interception
@@ -441,6 +443,9 @@ if(NOT MSVC)
         # Force Windows API threading instead of pthreads for packaged builds
         target_compile_definitions(sn_runtime PRIVATE SN_USE_WIN32_THREADS)
     endif()
+
+    # Enable malloc redirect to arena (experimental)
+    target_compile_definitions(sn_runtime PRIVATE SN_MALLOC_REDIRECT)
 
     # Optimization flags
     target_compile_options(sn_runtime PRIVATE -O2)
@@ -521,6 +526,14 @@ file(MAKE_DIRECTORY ${MALLOC_INCLUDE_DIR})
 file(GLOB MALLOC_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/malloc/*.h")
 if(MALLOC_HEADERS)
     file(INSTALL ${MALLOC_HEADERS} DESTINATION "${MALLOC_INCLUDE_DIR}")
+endif()
+
+# Copy arenav2 headers
+set(ARENAV2_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/arenav2)
+file(MAKE_DIRECTORY ${ARENAV2_INCLUDE_DIR})
+file(GLOB ARENAV2_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/arenav2/*.h")
+if(ARENAV2_HEADERS)
+    file(INSTALL ${ARENAV2_HEADERS} DESTINATION "${ARENAV2_INCLUDE_DIR}")
 endif()
 
 # Copy platform headers

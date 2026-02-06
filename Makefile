@@ -13,7 +13,7 @@
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
-.PHONY: arena test-arena
+.PHONY: arena test-arena arena2 test-arena2
 .PHONY: configure install package docs
 .PHONY: setup libs
 
@@ -244,6 +244,67 @@ test-arena:
 	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA_TEST_BIN)
 
 #------------------------------------------------------------------------------
+# arena2 - Build the Arena V2 library (standalone)
+#------------------------------------------------------------------------------
+ARENA2_DIR := src/runtime/arenav2
+ARENA2_BUILD := $(BUILD_DIR)/arena2
+ARENA2_SRCS := $(ARENA2_DIR)/arena_v2.c
+ARENA2_TEST_DIR := $(ARENA2_DIR)/tests
+ARENA2_BASIC_TEST_BIN := $(BIN_DIR)/test_arena2_basic$(EXE_EXT)
+ARENA2_GC_THREAD_TEST_BIN := $(BIN_DIR)/test_arena2_gc_thread$(EXE_EXT)
+ARENA2_REDIRECT_TEST_BIN := $(BIN_DIR)/test_arena2_redirect$(EXE_EXT)
+ARENA2_CFLAGS := -Wall -Wextra -g -pthread -I. -Isrc
+
+# MinHook sources for Windows malloc redirect tests
+MINHOOK_DIR := src/runtime/hooks/minhook
+MINHOOK_SRCS := $(MINHOOK_DIR)/hook.c $(MINHOOK_DIR)/buffer.c $(MINHOOK_DIR)/trampoline.c \
+	$(MINHOOK_DIR)/hde/hde32.c $(MINHOOK_DIR)/hde/hde64.c
+MINHOOK_INCLUDES := -I$(MINHOOK_DIR) -I$(MINHOOK_DIR)/hde
+
+arena2:
+	@echo "Building Arena V2..."
+	@$(MKDIR) $(ARENA2_BUILD)
+	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
+		-c $(ARENA2_SRCS) -o $(ARENA2_BUILD)/arena_v2.o
+	@echo "Arena V2 built."
+
+#------------------------------------------------------------------------------
+# test-arena2 - Build and run Arena V2 tests (GC thread + redirect)
+#------------------------------------------------------------------------------
+test-arena2:
+	@echo "Building and running Arena V2 tests..."
+	@$(MKDIR) $(ARENA2_BUILD)
+	@$(MKDIR) $(BIN_DIR)
+	@echo ""
+	@echo "=== Basic Tests ==="
+	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
+		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/test_basic.c \
+		-o $(ARENA2_BASIC_TEST_BIN)
+	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_BASIC_TEST_BIN)
+	@echo ""
+	@echo "=== GC Thread Tests ==="
+	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
+		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/test_gc_thread.c \
+		-o $(ARENA2_GC_THREAD_TEST_BIN)
+	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_GC_THREAD_TEST_BIN)
+	@echo ""
+	@echo "=== Malloc Redirect Tests ==="
+ifeq ($(PLATFORM),windows)
+	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) -Wno-unused-variable \
+		-Isrc/runtime/hooks $(MINHOOK_INCLUDES) \
+		-DSN_MALLOC_HOOKS -DTEST_RUNNER \
+		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/test_redirect.c \
+		src/runtime/malloc/runtime_malloc_hooks.c \
+		$(MINHOOK_SRCS) \
+		-o $(ARENA2_REDIRECT_TEST_BIN)
+	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_REDIRECT_TEST_BIN)
+else
+	@echo "Malloc redirect tests only available on Windows (MinHook required)"
+endif
+	@echo ""
+	@echo "Arena V2 tests complete."
+
+#------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
 ifeq ($(PLATFORM),windows)
@@ -339,8 +400,10 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
-	@echo "  make arena                  Build managed arena library"
-	@echo "  make test-arena             Build and run managed arena tests"
+	@echo "  make arena                  Build managed arena library (V1)"
+	@echo "  make test-arena             Build and run managed arena tests (V1)"
+	@echo "  make arena2                 Build Arena V2 library"
+	@echo "  make test-arena2            Build and run Arena V2 tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"

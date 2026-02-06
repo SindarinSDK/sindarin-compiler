@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
+#include <string.h>
 #include "runtime_malloc_hooks.h"
 
 #ifdef SN_MALLOC_HOOKS
@@ -38,6 +39,65 @@ static void *(*orig_malloc)(size_t) = NULL;
 static void (*orig_free)(void *) = NULL;
 static void *(*orig_calloc)(size_t, size_t) = NULL;
 static void *(*orig_realloc)(void *, size_t) = NULL;
+
+/* Thread-local handler for arena redirection */
+static __thread RtMallocHandler *tls_handler = NULL;
+
+/* Thread-local guard to prevent recursive hook calls */
+static __thread int tls_hook_guard = 0;
+
+/* ============================================================================
+ * Handler Registration API
+ * ============================================================================ */
+
+void rt_malloc_hooks_set_handler(RtMallocHandler *handler)
+{
+    tls_handler = handler;
+}
+
+void rt_malloc_hooks_clear_handler(void)
+{
+    tls_handler = NULL;
+}
+
+RtMallocHandler *rt_malloc_hooks_get_handler(void)
+{
+    return tls_handler;
+}
+
+/* ============================================================================
+ * Original Function Access (for handlers to pass through)
+ * ============================================================================ */
+
+void *rt_malloc_hooks_orig_malloc(size_t size)
+{
+    if (orig_malloc) return orig_malloc(size);
+#ifdef _WIN32
+    return malloc(size);
+#else
+    return ((void *(*)(size_t))dlsym(RTLD_NEXT, "malloc"))(size);
+#endif
+}
+
+void rt_malloc_hooks_orig_free(void *ptr)
+{
+    if (orig_free) { orig_free(ptr); return; }
+#ifdef _WIN32
+    free(ptr);
+#else
+    ((void (*)(void *))dlsym(RTLD_NEXT, "free"))(ptr);
+#endif
+}
+
+void *rt_malloc_hooks_orig_realloc(void *ptr, size_t size)
+{
+    if (orig_realloc) return orig_realloc(ptr, size);
+#ifdef _WIN32
+    return realloc(ptr, size);
+#else
+    return ((void *(*)(void *, size_t))dlsym(RTLD_NEXT, "realloc"))(ptr, size);
+#endif
+}
 
 /* ============================================================================
  * Platform-specific symbol resolution for caller identification
@@ -119,6 +179,24 @@ static void *hooked_malloc(size_t size)
 {
     void *ptr;
 
+    /* Check for registered handler (arena redirection) */
+    if (tls_handler && tls_handler->malloc_fn && !tls_hook_guard) {
+        tls_hook_guard = 1;
+        bool handled = false;
+        ptr = tls_handler->malloc_fn(size, &handled, tls_handler->user_data);
+        tls_hook_guard = 0;
+        if (handled) {
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+            if (sn_malloc_hook_guard == 0) {
+                sn_malloc_hook_guard = 1;
+                fprintf(stderr, "[SN_ALLOC] malloc(%zu) = %p  [arena]\n", size, ptr);
+                sn_malloc_hook_guard = 0;
+            }
+#endif
+            return ptr;
+        }
+    }
+
     /* Bootstrap: if hooks not yet installed, use libc directly */
     if (orig_malloc == NULL) {
 #ifdef _WIN32
@@ -145,6 +223,26 @@ static void *hooked_malloc(size_t size)
 
 static void hooked_free(void *ptr)
 {
+    if (ptr == NULL) return;
+
+    /* Check for registered handler (arena redirection) */
+    if (tls_handler && tls_handler->free_fn && !tls_hook_guard) {
+        tls_hook_guard = 1;
+        bool handled = false;
+        tls_handler->free_fn(ptr, &handled, tls_handler->user_data);
+        tls_hook_guard = 0;
+        if (handled) {
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+            if (sn_malloc_hook_guard == 0) {
+                sn_malloc_hook_guard = 1;
+                fprintf(stderr, "[SN_ALLOC] free(%p)  [arena]\n", ptr);
+                sn_malloc_hook_guard = 0;
+            }
+#endif
+            return;
+        }
+    }
+
 #ifdef SN_MALLOC_HOOKS_VERBOSE
     if (sn_malloc_hook_guard == 0) {
         sn_malloc_hook_guard = 1;
@@ -170,6 +268,31 @@ static void hooked_free(void *ptr)
 static void *hooked_calloc(size_t count, size_t size)
 {
     void *ptr;
+    size_t total = count * size;
+
+    /* Check for overflow */
+    if (size != 0 && total / size != count) {
+        return NULL;
+    }
+
+    /* Check for registered handler - use malloc handler and zero */
+    if (tls_handler && tls_handler->malloc_fn && !tls_hook_guard) {
+        tls_hook_guard = 1;
+        bool handled = false;
+        ptr = tls_handler->malloc_fn(total, &handled, tls_handler->user_data);
+        tls_hook_guard = 0;
+        if (handled) {
+            if (ptr) memset(ptr, 0, total);
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+            if (sn_malloc_hook_guard == 0) {
+                sn_malloc_hook_guard = 1;
+                fprintf(stderr, "[SN_ALLOC] calloc(%zu, %zu) = %p  [arena]\n", count, size, ptr);
+                sn_malloc_hook_guard = 0;
+            }
+#endif
+            return ptr;
+        }
+    }
 
     /* Bootstrap: if hooks not yet installed, use libc directly */
     if (orig_calloc == NULL) {
@@ -201,6 +324,24 @@ static void *hooked_realloc(void *ptr, size_t size)
 #ifdef SN_MALLOC_HOOKS_VERBOSE
     void *old_ptr = ptr;
 #endif
+
+    /* Check for registered handler */
+    if (tls_handler && tls_handler->realloc_fn && !tls_hook_guard) {
+        tls_hook_guard = 1;
+        bool handled = false;
+        new_ptr = tls_handler->realloc_fn(ptr, size, &handled, tls_handler->user_data);
+        tls_hook_guard = 0;
+        if (handled) {
+#ifdef SN_MALLOC_HOOKS_VERBOSE
+            if (sn_malloc_hook_guard == 0) {
+                sn_malloc_hook_guard = 1;
+                fprintf(stderr, "[SN_ALLOC] realloc(%p, %zu) = %p  [arena]\n", ptr, size, new_ptr);
+                sn_malloc_hook_guard = 0;
+            }
+#endif
+            return new_ptr;
+        }
+    }
 
     /* Bootstrap: if hooks not yet installed, use libc directly */
     if (orig_realloc == NULL) {
