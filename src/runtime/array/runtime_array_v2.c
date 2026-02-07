@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include "runtime_array_v2.h"
 #include "runtime/runtime_any.h"
 
