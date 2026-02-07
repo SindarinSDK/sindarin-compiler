@@ -373,14 +373,6 @@ int rt_array_eq_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size) {
  * Array Create Functions
  * ============================================================================ */
 
-#define DEFINE_ARRAY_CREATE_V2(suffix, elem_type)                                \
-RtHandleV2 *rt_array_create_##suffix##_v2(RtArenaV2 *arena, size_t count,        \
-                                           const elem_type *data) {              \
-    return array_create_v2(arena, count, sizeof(elem_type), data);               \
-}
-
-/* Type-specific create functions removed - use rt_array_create_generic_v2 instead */
-
 /* String array: converts char* pointers to RtHandleV2* elements */
 RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char **data) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(RtHandleV2 *);
@@ -414,61 +406,6 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data) 
 /* ============================================================================
  * Array Push Functions
  * ============================================================================ */
-
-#define DEFINE_ARRAY_PUSH_V2(suffix, elem_type)                                  \
-RtHandleV2 *rt_array_push_##suffix##_v2(RtArenaV2 *arena, RtHandleV2 *arr_h,     \
-                                         elem_type element) {                    \
-    if (arr_h == NULL) {                                                         \
-        size_t new_cap = 4;                                                      \
-        size_t alloc_size = sizeof(RtArrayMetadataV2) + new_cap * sizeof(elem_type);\
-        RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);                \
-        if (!new_h) return NULL;                                                 \
-        void *new_raw = rt_handle_v2_pin(new_h);                                 \
-        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)new_raw;                  \
-        elem_type *arr = (elem_type *)((char *)new_raw + sizeof(RtArrayMetadataV2));\
-        meta->arena = arena;                                                     \
-        meta->size = 1;                                                          \
-        meta->capacity = new_cap;                                                \
-        arr[0] = element;                                                        \
-        rt_handle_v2_unpin(new_h);                                               \
-        return new_h;                                                            \
-    }                                                                            \
-                                                                                 \
-    void *raw = rt_handle_v2_pin(arr_h);                                         \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    elem_type *arr = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));     \
-                                                                                 \
-    if (meta->size < meta->capacity) {                                           \
-        arr[meta->size++] = element;                                             \
-        rt_handle_v2_unpin(arr_h);                                               \
-        return arr_h;                                                            \
-    }                                                                            \
-                                                                                 \
-    /* Need to grow */                                                           \
-    size_t old_size = meta->size;                                                \
-    size_t new_cap = meta->capacity == 0 ? 4 : meta->capacity * 2;               \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + new_cap * sizeof(elem_type); \
-                                                                                 \
-    RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);                    \
-    if (!new_h) { rt_handle_v2_unpin(arr_h); return NULL; }                      \
-    void *new_raw = rt_handle_v2_pin(new_h);                                     \
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;                  \
-    elem_type *new_arr = (elem_type *)((char *)new_raw + sizeof(RtArrayMetadataV2));\
-                                                                                 \
-    memcpy(new_arr, arr, old_size * sizeof(elem_type));                          \
-    new_meta->arena = arena;                                                     \
-    new_meta->size = old_size + 1;                                               \
-    new_meta->capacity = new_cap;                                                \
-    new_arr[old_size] = element;                                                 \
-                                                                                 \
-    rt_handle_v2_unpin(new_h);                                                   \
-    rt_handle_v2_unpin(arr_h);                                                   \
-    rt_arena_v2_free(arr_h);                                                     \
-                                                                                 \
-    return new_h;                                                                \
-}
-
-/* Type-specific push functions removed - use rt_array_push_v2 instead */
 
 /* String push -- stores element as RtHandleV2* */
 RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const char *element) {
@@ -628,58 +565,6 @@ RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, void *
     return new_h;
 }
 
-/* Generic struct push */
-RtHandleV2 *rt_array_push_struct_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *element, size_t elem_size) {
-    if (arr_h == NULL) {
-        size_t new_cap = 4;
-        size_t alloc_size = sizeof(RtArrayMetadataV2) + new_cap * elem_size;
-        RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);
-        if (!new_h) return NULL;
-        void *new_raw = rt_handle_v2_pin(new_h);
-        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)new_raw;
-        char *arr = (char *)new_raw + sizeof(RtArrayMetadataV2);
-        meta->arena = arena;
-        meta->size = 1;
-        meta->capacity = new_cap;
-        memcpy(arr, element, elem_size);
-        rt_handle_v2_unpin(new_h);
-        return new_h;
-    }
-
-    void *raw = rt_handle_v2_pin(arr_h);
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
-    char *arr = (char *)raw + sizeof(RtArrayMetadataV2);
-
-    if (meta->size < meta->capacity) {
-        memcpy(arr + meta->size * elem_size, element, elem_size);
-        meta->size++;
-        rt_handle_v2_unpin(arr_h);
-        return arr_h;
-    }
-
-    size_t old_size = meta->size;
-    size_t new_cap = meta->capacity == 0 ? 4 : meta->capacity * 2;
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + new_cap * elem_size;
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!new_h) { rt_handle_v2_unpin(arr_h); return NULL; }
-    void *new_raw = rt_handle_v2_pin(new_h);
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    char *new_arr = (char *)new_raw + sizeof(RtArrayMetadataV2);
-
-    memcpy(new_arr, arr, old_size * elem_size);
-    new_meta->arena = arena;
-    new_meta->size = old_size + 1;
-    new_meta->capacity = new_cap;
-    memcpy(new_arr + old_size * elem_size, element, elem_size);
-
-    rt_handle_v2_unpin(new_h);
-    rt_handle_v2_unpin(arr_h);
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}
-
 /* Push RtAny element */
 RtHandleV2 *rt_array_push_any_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtAny element) {
     if (arr_h == NULL) {
@@ -782,17 +667,6 @@ RtHandleV2 *rt_array_pop_string_v2(RtHandleV2 *arr_h) {
  * Create a deep copy of the array. Arena derived from input handle.
  * ============================================================================ */
 
-#define DEFINE_ARRAY_CLONE_V2(suffix, elem_type)                                 \
-RtHandleV2 *rt_array_clone_##suffix##_v2(RtHandleV2 *arr_h) {                   \
-    if (arr_h == NULL) return NULL;                                              \
-    RtArenaV2 *arena = arr_h->arena;                                             \
-    size_t count = rt_array_length_v2(arr_h);                                    \
-    const elem_type *src = (const elem_type *)rt_array_data_v2(arr_h);           \
-    return rt_array_create_##suffix##_v2(arena, count, src);                     \
-}
-
-/* Type-specific clone functions removed - use rt_array_clone_v2 instead */
-
 /* Clone RtAny array */
 RtHandleV2 *rt_array_clone_any_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
@@ -852,32 +726,6 @@ RtHandleV2 *rt_array_clone_ptr_v2(RtHandleV2 *arr_h) {
  * Create new array containing elements from both arrays.
  * Arena derived from first handle.
  * ============================================================================ */
-
-#define DEFINE_ARRAY_CONCAT_V2(suffix, elem_type)                                \
-RtHandleV2 *rt_array_concat_##suffix##_v2(RtHandleV2 *a_h, RtHandleV2 *b_h) {    \
-    if (a_h == NULL && b_h == NULL) return NULL;                                 \
-    RtArenaV2 *arena = a_h ? a_h->arena : b_h->arena;                            \
-    size_t len_a = rt_array_length_v2(a_h);                                      \
-    size_t len_b = rt_array_length_v2(b_h);                                      \
-    const elem_type *a = len_a ? (const elem_type *)rt_array_data_v2(a_h) : NULL;\
-    const elem_type *b = len_b ? (const elem_type *)rt_array_data_v2(b_h) : NULL;\
-    size_t total = len_a + len_b;                                                \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + total * sizeof(elem_type);   \
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
-    if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    meta->arena = arena;                                                         \
-    meta->size = total;                                                          \
-    meta->capacity = total;                                                      \
-    elem_type *arr = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));     \
-    if (len_a > 0) memcpy(arr, a, len_a * sizeof(elem_type));                    \
-    if (len_b > 0) memcpy(arr + len_a, b, len_b * sizeof(elem_type));            \
-    rt_handle_v2_unpin(h);                                                       \
-    return h;                                                                    \
-}
-
-/* Type-specific concat functions removed - use rt_array_concat_v2 instead */
 
 /* String concat */
 RtHandleV2 *rt_array_concat_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h) {
@@ -958,50 +806,6 @@ static inline long normalize_index(long idx, size_t len) {
     return idx;
 }
 
-#define DEFINE_ARRAY_SLICE_V2(suffix, elem_type)                                 \
-RtHandleV2 *rt_array_slice_##suffix##_v2(RtHandleV2 *arr_h,                     \
-                                          long start, long end, long step) {     \
-    if (arr_h == NULL) return NULL;                                              \
-    RtArenaV2 *arena = arr_h->arena;                                             \
-    const elem_type *arr = (const elem_type *)rt_array_data_v2(arr_h);           \
-    size_t len = rt_array_length_v2(arr_h);                                      \
-    /* LONG_MIN means "use default" */                                           \
-    if (step == LONG_MIN || step == 0) step = 1;                                 \
-    if (start == LONG_MIN) start = step > 0 ? 0 : (long)len - 1;                 \
-    if (end == LONG_MIN) end = step > 0 ? (long)len : -1;                        \
-    start = normalize_index(start, len);                                         \
-    end = normalize_index(end, len);                                             \
-    size_t count = 0;                                                            \
-    if (step > 0 && start < end) {                                               \
-        count = (end - start + step - 1) / step;                                 \
-    } else if (step < 0 && start > end) {                                        \
-        count = (start - end - step - 1) / (-step);                              \
-    }                                                                            \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(elem_type);   \
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
-    if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    meta->arena = arena;                                                         \
-    meta->size = count;                                                          \
-    meta->capacity = count;                                                      \
-    elem_type *result = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));  \
-    size_t j = 0;                                                                \
-    if (step > 0) {                                                              \
-        for (long i = start; i < end && j < count; i += step) {                  \
-            result[j++] = arr[i];                                                \
-        }                                                                        \
-    } else {                                                                     \
-        for (long i = start; i > end && j < count; i += step) {                  \
-            result[j++] = arr[i];                                                \
-        }                                                                        \
-    }                                                                            \
-    rt_handle_v2_unpin(h);                                                       \
-    return h;                                                                    \
-}
-
-/* Type-specific slice functions removed - use rt_array_slice_v2 instead */
-
 /* String slice */
 RtHandleV2 *rt_array_slice_string_v2(RtHandleV2 *arr_h,
                                       long start, long end, long step) {
@@ -1069,30 +873,6 @@ RtHandleV2 *rt_array_slice_string_v2(RtHandleV2 *arr_h,
  * Return new reversed array. Arena derived from input handle.
  * ============================================================================ */
 
-#define DEFINE_ARRAY_REV_V2(suffix, elem_type)                                   \
-RtHandleV2 *rt_array_rev_##suffix##_v2(RtHandleV2 *arr_h) {                     \
-    if (arr_h == NULL) return NULL;                                              \
-    RtArenaV2 *arena = arr_h->arena;                                             \
-    const elem_type *arr = (const elem_type *)rt_array_data_v2(arr_h);           \
-    size_t len = rt_array_length_v2(arr_h);                                      \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(elem_type);     \
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
-    if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    meta->arena = arena;                                                         \
-    meta->size = len;                                                            \
-    meta->capacity = len;                                                        \
-    elem_type *result = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));  \
-    for (size_t i = 0; i < len; i++) {                                           \
-        result[i] = arr[len - 1 - i];                                            \
-    }                                                                            \
-    rt_handle_v2_unpin(h);                                                       \
-    return h;                                                                    \
-}
-
-/* Type-specific reverse functions removed - use rt_array_rev_v2 instead */
-
 /* String reverse */
 RtHandleV2 *rt_array_rev_string_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
@@ -1131,34 +911,6 @@ RtHandleV2 *rt_array_rev_string_v2(RtHandleV2 *arr_h) {
  * ============================================================================
  * Return new array without element at index. Arena derived from input handle.
  * ============================================================================ */
-
-#define DEFINE_ARRAY_REM_V2(suffix, elem_type)                                   \
-RtHandleV2 *rt_array_rem_##suffix##_v2(RtHandleV2 *arr_h, long index) {         \
-    if (arr_h == NULL) return NULL;                                              \
-    RtArenaV2 *arena = arr_h->arena;                                             \
-    const elem_type *arr = (const elem_type *)rt_array_data_v2(arr_h);           \
-    size_t len = rt_array_length_v2(arr_h);                                      \
-    if (index < 0) index += (long)len;                                           \
-    if (index < 0 || index >= (long)len) {                                       \
-        return rt_array_clone_##suffix##_v2(arr_h);                              \
-    }                                                                            \
-    size_t new_len = len - 1;                                                    \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * sizeof(elem_type); \
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
-    if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    meta->arena = arena;                                                         \
-    meta->size = new_len;                                                        \
-    meta->capacity = new_len;                                                    \
-    elem_type *result = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));  \
-    memcpy(result, arr, index * sizeof(elem_type));                              \
-    memcpy(result + index, arr + index + 1, (len - index - 1) * sizeof(elem_type));\
-    rt_handle_v2_unpin(h);                                                       \
-    return h;                                                                    \
-}
-
-/* Type-specific remove functions removed - use rt_array_rem_v2 instead */
 
 /* String remove */
 RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index) {
@@ -1206,37 +958,6 @@ RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index) {
  * Array Insert At Index Functions
  * ============================================================================ */
 
-#define DEFINE_ARRAY_INS_V2(suffix, elem_type)                                   \
-RtHandleV2 *rt_array_ins_##suffix##_v2(RtHandleV2 *arr_h, elem_type elem,        \
-                                        long index) {                            \
-    if (arr_h == NULL) return NULL;                                              \
-    RtArenaV2 *arena = arr_h->arena;                                             \
-    const elem_type *arr = (const elem_type *)rt_array_data_v2(arr_h);           \
-    size_t len = rt_array_length_v2(arr_h);                                      \
-    if (index < 0) index += (long)len + 1;                                       \
-    if (index < 0) index = 0;                                                    \
-    if (index > (long)len) index = (long)len;                                    \
-    size_t new_len = len + 1;                                                    \
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * sizeof(elem_type); \
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
-    if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
-    meta->arena = arena;                                                         \
-    meta->size = new_len;                                                        \
-    meta->capacity = new_len;                                                    \
-    elem_type *result = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));  \
-    if (arr) {                                                                   \
-        memcpy(result, arr, index * sizeof(elem_type));                          \
-        memcpy(result + index + 1, arr + index, (len - index) * sizeof(elem_type));\
-    }                                                                            \
-    result[index] = elem;                                                        \
-    rt_handle_v2_unpin(h);                                                       \
-    return h;                                                                    \
-}
-
-/* Type-specific insert functions removed - use rt_array_ins_v2 instead */
-
 /* String insert - takes handle, returns new array handle */
 RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long index) {
     if (arr_h == NULL) return NULL;
@@ -1279,14 +1000,6 @@ RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long ind
 /* ============================================================================
  * Array Push Copy Functions (non-mutating)
  * ============================================================================ */
-
-#define DEFINE_ARRAY_PUSH_COPY_V2(suffix, elem_type)                             \
-RtHandleV2 *rt_array_push_copy_##suffix##_v2(RtHandleV2 *arr_h, elem_type elem) {\
-    if (arr_h == NULL) return NULL;                                              \
-    return rt_array_ins_##suffix##_v2(arr_h, elem, (long)rt_array_length_v2(arr_h));\
-}
-
-/* Type-specific push_copy functions removed - use rt_array_push_copy_v2 instead */
 
 RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, const char *elem) {
     if (arr_h == NULL) return NULL;
