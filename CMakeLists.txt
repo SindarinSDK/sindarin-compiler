@@ -252,7 +252,13 @@ set(SN_RUNTIME_SOURCES
     src/runtime/string/runtime_string.c
     src/runtime/string/runtime_string_v2.c
     # array/
-    src/runtime/array/runtime_array_v2.c
+    src/runtime/array/runtime_array_v2_core.c
+    src/runtime/array/runtime_array_v2_string.c
+    src/runtime/array/runtime_array_v2_alloc.c
+    src/runtime/array/runtime_array_v2_join.c
+    src/runtime/array/runtime_array_v2_tostring.c
+    src/runtime/array/runtime_array_v2_any.c
+    src/runtime/array/runtime_array_v2_print.c
     # thread/
     src/runtime/thread/runtime_thread.c
     # core
@@ -355,7 +361,13 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_v2.c
         # array/
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_core.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_string.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_alloc.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_join.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_tostring.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_any.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_print.c
         # thread/
         ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread.c
         # core
