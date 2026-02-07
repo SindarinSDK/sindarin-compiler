@@ -198,12 +198,17 @@ char *code_gen_as_type_expression(CodeGen *gen, Expr *expr)
                         ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
                 }
                 /* Convert any[] to typed array: from_any returns raw pointer, wrap in handle */
-                const char *suffix = code_gen_type_suffix(target_elem);
                 const char *elem_c = get_c_array_elem_type(gen->arena, target_elem);
+                if (target_elem->kind == TYPE_STRING) {
+                    return arena_sprintf(gen->arena,
+                        "({ %s *__conv_data = %s(%s, (RtAny *)rt_array_data_v2(%s)); "
+                        "rt_array_create_string_v2(%s, rt_v2_data_array_length((void *)__conv_data), __conv_data); })",
+                        elem_c, conv_func, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
+                }
                 return arena_sprintf(gen->arena,
                     "({ %s *__conv_data = %s(%s, (RtAny *)rt_array_data_v2(%s)); "
-                    "rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)__conv_data), __conv_data); })",
-                    elem_c, conv_func, ARENA_VAR(gen), operand_code, suffix, ARENA_VAR(gen));
+                    "rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)__conv_data), sizeof(%s), __conv_data); })",
+                    elem_c, conv_func, ARENA_VAR(gen), operand_code, ARENA_VAR(gen), elem_c);
             }
             return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), operand_code);
         }

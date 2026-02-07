@@ -21,6 +21,7 @@ const char *get_c_type(Arena *arena, Type *type);
 const char *get_c_param_type(Arena *arena, Type *type);  /* C types for function params (RtHandle for str/arr) */
 const char *get_c_native_param_type(Arena *arena, Type *type);  /* C types for native function params (const char * for str) */
 const char *get_c_array_elem_type(Arena *arena, Type *elem_type);  /* Storage type for array elements */
+const char *get_c_sizeof_elem(Arena *arena, Type *elem_type);  /* sizeof(elem_type) expression for codegen */
 bool is_handle_type(Type *type);  /* True if type uses RtHandle storage */
 const char *get_rt_to_string_func(TypeKind kind);
 const char *get_rt_to_string_func_v2(TypeKind kind);  /* V2 raw pointer version */

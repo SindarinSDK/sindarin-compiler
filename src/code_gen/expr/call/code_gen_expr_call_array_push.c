@@ -63,95 +63,65 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
 
     const char *arena_to_use = get_arena_for_mutation(gen, object);
 
-    const char *push_func = NULL;
-    switch (element_type->kind) {
-        case TYPE_LONG:
-        case TYPE_INT:
-            push_func = "rt_array_push_long_v2";
-            break;
-        case TYPE_INT32:
-            push_func = "rt_array_push_int32_v2";
-            break;
-        case TYPE_UINT:
-            push_func = "rt_array_push_uint_v2";
-            break;
-        case TYPE_UINT32:
-            push_func = "rt_array_push_uint32_v2";
-            break;
-        case TYPE_FLOAT:
-            push_func = "rt_array_push_float_v2";
-            break;
-        case TYPE_DOUBLE:
-            push_func = "rt_array_push_double_v2";
-            break;
-        case TYPE_CHAR:
-            push_func = "rt_array_push_char_v2";
-            break;
-        case TYPE_STRING:
-            push_func = "rt_array_push_string_v2";
-            break;
-        case TYPE_BOOL:
-            push_func = "rt_array_push_bool_v2";
-            break;
-        case TYPE_BYTE:
-            push_func = "rt_array_push_byte_v2";
-            break;
-        case TYPE_FUNCTION:
-            push_func = "rt_array_push_voidptr_v2";
-            break;
-        case TYPE_ARRAY:
-            push_func = "rt_array_push_ptr_v2";
-            break;
-        case TYPE_ANY:
-            push_func = "rt_array_push_any_v2";
-            break;
-        case TYPE_STRUCT:
-            /* Struct types use a generic push with element size parameter.
-             * The element is passed by pointer (address-of). */
-            push_func = "rt_array_push_struct_v2";
-            break;
-        default:
-            fprintf(stderr, "Error: Unsupported array element type for push\n");
-            exit(1);
-    }
-
     /* push_h takes the RtHandle and returns the new handle.
      * Assign back to the lvalue so the handle stays valid after reallocation. */
     bool is_lvalue = (object->type == EXPR_VARIABLE ||
                       object->type == EXPR_MEMBER_ACCESS ||
                       object->type == EXPR_MEMBER);
 
-    /* For struct types, use the struct push with element size.
-     * The struct is passed by pointer (address-of). */
-    if (element_type->kind == TYPE_STRUCT) {
-        /* Get C type name for sizeof() */
-        const char *c_type = get_c_type(gen->arena, element_type);
+    /* String arrays use specialized push (strdup) */
+    if (element_type->kind == TYPE_STRING) {
         if (is_lvalue) {
-            return arena_sprintf(gen->arena, "(%s = %s(%s, %s, &%s, sizeof(%s)))",
-                                 lvalue_str, push_func, arena_to_use, handle_str, arg_str, c_type);
+            return arena_sprintf(gen->arena, "(%s = rt_array_push_string_v2(%s, %s, %s))",
+                                 lvalue_str, arena_to_use, handle_str, arg_str);
         }
-        return arena_sprintf(gen->arena, "%s(%s, %s, &%s, sizeof(%s))",
-                             push_func, arena_to_use, handle_str, arg_str, c_type);
+        return arena_sprintf(gen->arena, "rt_array_push_string_v2(%s, %s, %s)",
+                             arena_to_use, handle_str, arg_str);
     }
 
-    /* For pointer types (function/array), cast element to void*.
-     * For nested arrays in handle mode, arg_str is RtHandle (uint32_t) so use uintptr_t. */
+    /* Any type uses specialized push (boxing) */
+    if (element_type->kind == TYPE_ANY) {
+        if (is_lvalue) {
+            return arena_sprintf(gen->arena, "(%s = rt_array_push_any_v2(%s, %s, %s))",
+                                 lvalue_str, arena_to_use, handle_str, arg_str);
+        }
+        return arena_sprintf(gen->arena, "rt_array_push_any_v2(%s, %s, %s)",
+                             arena_to_use, handle_str, arg_str);
+    }
+
+    /* Pointer types (function/array) need casting */
     if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
         const char *cast = (element_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
             ? "(void *)(uintptr_t)" : "(void *)";
+        const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
         if (is_lvalue) {
-            return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s%s))",
-                                 lvalue_str, push_func, arena_to_use, handle_str, cast, arg_str);
+            return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(void *){%s%s}, %s))",
+                                 lvalue_str, arena_to_use, handle_str, cast, arg_str, sizeof_expr);
         }
-        return arena_sprintf(gen->arena, "%s(%s, %s, %s%s)",
-                             push_func, arena_to_use, handle_str, cast, arg_str);
+        return arena_sprintf(gen->arena, "rt_array_push_v2(%s, %s, &(void *){%s%s}, %s)",
+                             arena_to_use, handle_str, cast, arg_str, sizeof_expr);
     }
 
-    if (is_lvalue) {
-        return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))",
-                             lvalue_str, push_func, arena_to_use, handle_str, arg_str);
+    /* Struct types: arg_str is already a compound literal, just take its address */
+    if (element_type->kind == TYPE_STRUCT) {
+        const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
+        if (is_lvalue) {
+            return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(%s), %s))",
+                                 lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr);
+        }
+        return arena_sprintf(gen->arena, "rt_array_push_v2(%s, %s, &(%s), %s)",
+                             arena_to_use, handle_str, arg_str, sizeof_expr);
     }
-    return arena_sprintf(gen->arena, "%s(%s, %s, %s)",
-                         push_func, arena_to_use, handle_str, arg_str);
+
+    /* Primitive types: wrap in compound literal to get address */
+    const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
+    const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
+
+    if (is_lvalue) {
+        return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(%s){%s}, %s))",
+                             lvalue_str, arena_to_use, handle_str, elem_c, arg_str, sizeof_expr);
+    }
+    return arena_sprintf(gen->arena, "rt_array_push_v2(%s, %s, &(%s){%s}, %s)",
+                         arena_to_use, handle_str, elem_c, arg_str, sizeof_expr);
 }
 

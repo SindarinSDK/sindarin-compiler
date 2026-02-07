@@ -527,14 +527,22 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             {
                 /* In handle mode, create a new handle with a copy of the unboxed array data.
                  * We use rt_v2_data_array_length to get the length from the raw data pointer
-                 * and rt_array_create_*_v2 to create a new handle in the thunk's arena. */
-                const char *suffix = code_gen_type_suffix(arg_type->as.array.element_type);
-                const char *elem_c = get_c_array_elem_type(gen->arena, arg_type->as.array.element_type);
-                unboxed_args = arena_sprintf(gen->arena,
-                    "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
-                    "rt_array_create_%s_v2((RtArenaV2 *)__rt_thunk_arena, "
-                    "rt_v2_data_array_length((void *)__arr_data), __arr_data); })",
-                    unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, suffix);
+                 * and rt_array_create_generic_v2 to create a new handle in the thunk's arena. */
+                Type *elem_type = arg_type->as.array.element_type;
+                const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
+                if (elem_type->kind == TYPE_STRING) {
+                    unboxed_args = arena_sprintf(gen->arena,
+                        "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
+                        "rt_array_create_string_v2((RtArenaV2 *)__rt_thunk_arena, "
+                        "rt_v2_data_array_length((void *)__arr_data), __arr_data); })",
+                        unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx);
+                } else {
+                    unboxed_args = arena_sprintf(gen->arena,
+                        "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
+                        "rt_array_create_generic_v2((RtArenaV2 *)__rt_thunk_arena, "
+                        "rt_v2_data_array_length((void *)__arr_data), sizeof(%s), __arr_data); })",
+                        unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, elem_c);
+                }
             }
             else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {

@@ -148,11 +148,12 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     gen->expr_as_handle = saved_handle;
                     elem_str = arena_sprintf(gen->arena, "rt_array_clone_string_v2(%s)", arr_h);
                 } else if (gen->current_arena_var != NULL) {
-                    /* V2 mode for non-string types: get handle and clone */
+                    /* V2 mode for non-string types: get handle and clone using generic */
                     gen->expr_as_handle = true;
                     char *arr_h = code_gen_expression(gen, elem->as.spread.array);
                     gen->expr_as_handle = saved_handle;
-                    elem_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s)", suffix, arr_h);
+                    const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+                    elem_str = arena_sprintf(gen->arena, "rt_array_clone_v2(%s, %s)", arr_h, sizeof_expr);
                 } else {
                     // V1 mode: clone the array to avoid aliasing issues
                     char *arr_str = code_gen_expression(gen, elem->as.spread.array);
@@ -178,7 +179,7 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                         "rt_array_create_string_v2(%s, 1, (char *[]){%s})",
                         ARENA_VAR(gen), val);
                 } else if (gen->current_arena_var != NULL) {
-                    // V2 mode for non-string: create single-element array as handle
+                    // V2 mode for non-string: create single-element array using generic
                     char *val = code_gen_expression(gen, elem);
                     const char *literal_type;
                     if (elem_type->kind == TYPE_BOOL) {
@@ -188,8 +189,8 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     } else {
                         literal_type = elem_c;
                     }
-                    elem_str = arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, 1, (%s[]){%s})",
-                                            suffix, ARENA_VAR(gen), literal_type, val);
+                    elem_str = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s})",
+                                            ARENA_VAR(gen), literal_type, literal_type, val);
                 } else {
                     // V1 mode: create single-element array as raw pointer
                     char *val = code_gen_expression(gen, elem);
@@ -214,9 +215,10 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     result = arena_sprintf(gen->arena, "rt_array_concat_string_v2(%s, %s)",
                                           result, elem_str);
                 } else if (gen->current_arena_var != NULL) {
-                    /* V2 mode for non-string types: concat takes two handles */
-                    result = arena_sprintf(gen->arena, "rt_array_concat_%s_v2(%s, %s)",
-                                          suffix, result, elem_str);
+                    /* V2 mode for non-string types: concat using generic */
+                    const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+                    result = arena_sprintf(gen->arena, "rt_array_concat_v2(%s, %s, %s)",
+                                          result, elem_str, sizeof_expr);
                 } else {
                     // V1 mode: concat with raw pointers
                     result = arena_sprintf(gen->arena, "rt_array_concat_%s(%s, %s, %s)",
@@ -229,8 +231,13 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 
         if (string_handle_mode || (saved_handle && gen->current_arena_var != NULL)) {
             // V2 mode: result is already an RtHandle
-            return result ? result :
-                arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, 0, NULL)", suffix, ARENA_VAR(gen));
+            if (result) return result;
+            // Empty array fallback - strings need special create, others use generic
+            if (string_handle_mode) {
+                return arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, 0, NULL)", ARENA_VAR(gen));
+            }
+            const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+            return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, %s, NULL)", ARENA_VAR(gen), sizeof_expr);
         }
 
         if (result == NULL) {
@@ -320,9 +327,13 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 
     if (gen->expr_as_handle && gen->current_arena_var != NULL)
     {
-        /* Handle mode: use _h variant returning RtHandle */
-        return arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, %d, (%s[]){%s})",
-                             suffix, ARENA_VAR(gen), arr->element_count, literal_type, inits);
+        /* Handle mode: strings need special create, others use generic */
+        if (elem_type->kind == TYPE_STRING) {
+            return arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, %d, (%s[]){%s})",
+                                 ARENA_VAR(gen), arr->element_count, literal_type, inits);
+        }
+        return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s})",
+                             ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits);
     }
     return arena_sprintf(gen->arena, "rt_array_create_%s(%s, %d, (%s[]){%s})",
                          suffix, ARENA_VAR(gen), arr->element_count, literal_type, inits);
@@ -406,13 +417,11 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Entering code_gen_array_slice_expression");
     ArraySliceExpr *slice = &expr->as.array_slice;
 
-    /* In V2 mode, get handle directly for slice_v2 functions.
-     * In V1 mode, evaluate as raw pointer (pinned form). */
+    /* V2 mode: Get handle for array slicing. For pointer types, evaluate as raw pointer. */
     bool saved_as_handle = gen->expr_as_handle;
     char *array_str;
     char *handle_str = NULL;
-    if (gen->current_arena_var != NULL && slice->array->expr_type != NULL &&
-        slice->array->expr_type->kind == TYPE_ARRAY)
+    if (slice->array->expr_type != NULL && slice->array->expr_type->kind == TYPE_ARRAY)
     {
         gen->expr_as_handle = true;
         handle_str = code_gen_expression(gen, slice->array);
@@ -423,6 +432,7 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
     }
     else
     {
+        /* Pointer type: evaluate as raw pointer */
         gen->expr_as_handle = false;
         array_str = code_gen_expression(gen, slice->array);
         gen->expr_as_handle = saved_as_handle;
@@ -452,92 +462,29 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
     }
 
     /* For pointer slicing, we need to create an array from the pointer.
-     * Use rt_array_create_<type>(arena, length, ptr + start) instead of
+     * Use rt_array_create_generic[_v2](arena, length, sizeof, ptr + start) instead of
      * the array slice functions which require runtime array metadata. */
     if (operand_type->kind == TYPE_POINTER)
     {
-        const char *create_func = NULL;
-        const char *suffix = gen->expr_as_handle ? "_v2" : "";
-        switch (elem_type->kind) {
-            case TYPE_LONG:
-            case TYPE_INT:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_long%s", suffix);
-                break;
-            case TYPE_INT32:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_int32%s", suffix);
-                break;
-            case TYPE_UINT:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_uint%s", suffix);
-                break;
-            case TYPE_UINT32:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_uint32%s", suffix);
-                break;
-            case TYPE_FLOAT:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_float%s", suffix);
-                break;
-            case TYPE_DOUBLE:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_double%s", suffix);
-                break;
-            case TYPE_CHAR:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_char%s", suffix);
-                break;
-            case TYPE_BYTE:
-                create_func = arena_sprintf(gen->arena, "rt_array_create_byte%s", suffix);
-                break;
-            default:
-                fprintf(stderr, "Error: Unsupported pointer element type for slice\n");
-                exit(1);
+        const char *elem_c = get_c_type(gen->arena, elem_type);
+        if (gen->expr_as_handle) {
+            return arena_sprintf(gen->arena,
+                "rt_array_create_generic_v2(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s))",
+                ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str);
         }
-        /* Generate: rt_array_create_<type>[_h](arena, (size_t)(end - start), ptr + start) */
-        return arena_sprintf(gen->arena, "%s(%s, (size_t)((%s) - (%s)), (%s) + (%s))",
-                             create_func, ARENA_VAR(gen), end_str, start_str, array_str, start_str);
+        return arena_sprintf(gen->arena,
+            "(%s *)rt_array_create_generic(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s))",
+            elem_c, ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str);
     }
 
-    /* For array slicing, use the regular slice functions (or _h variants for handle mode) */
-    const char *slice_func = NULL;
-    const char *suffix = gen->expr_as_handle ? "_v2" : "";
-    switch (elem_type->kind) {
-        case TYPE_LONG:
-        case TYPE_INT:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_long%s", suffix);
-            break;
-        case TYPE_INT32:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_int32%s", suffix);
-            break;
-        case TYPE_UINT:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_uint%s", suffix);
-            break;
-        case TYPE_UINT32:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_uint32%s", suffix);
-            break;
-        case TYPE_FLOAT:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_float%s", suffix);
-            break;
-        case TYPE_DOUBLE:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_double%s", suffix);
-            break;
-        case TYPE_CHAR:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_char%s", suffix);
-            break;
-        case TYPE_STRING:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_string%s", suffix);
-            break;
-        case TYPE_BOOL:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_bool%s", suffix);
-            break;
-        case TYPE_BYTE:
-            slice_func = arena_sprintf(gen->arena, "rt_array_slice_byte%s", suffix);
-            break;
-        default:
-            fprintf(stderr, "Error: Unsupported array element type for slice\n");
-            exit(1);
+    /* V2 slice uses generic function with sizeof */
+    /* String arrays use specialized function */
+    if (elem_type->kind == TYPE_STRING) {
+        return arena_sprintf(gen->arena, "rt_array_slice_string_v2(%s, %s, %s, %s)",
+                             handle_str, start_str, end_str, step_str);
     }
-
-    /* V2 slice functions take handle directly; V1 takes arena + data pointer */
-    if (handle_str != NULL) {
-        return arena_sprintf(gen->arena, "%s(%s, %s, %s, %s)",
-                             slice_func, handle_str, start_str, end_str, step_str);
-    }
-    return arena_sprintf(gen->arena, "%s(%s, %s, %s, %s, %s)",
-                         slice_func, ARENA_VAR(gen), array_str, start_str, end_str, step_str);
+    /* All other types use generic slice with sizeof */
+    const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+    return arena_sprintf(gen->arena, "rt_array_slice_v2(%s, %s, %s, %s, %s)",
+                         handle_str, start_str, end_str, step_str, sizeof_expr);
 }
