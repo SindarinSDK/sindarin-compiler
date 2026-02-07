@@ -1,6 +1,6 @@
 #include "runtime_any.h"
 #include "string/runtime_string.h"
-#include "array/runtime_array.h"
+#include "array/runtime_array_v2.h"
 #include "arena/arena_v2.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -350,8 +350,8 @@ bool rt_any_equals(RtAny a, RtAny b) {
             /* Compare arrays element by element */
             if (a.value.arr == NULL && b.value.arr == NULL) return true;
             if (a.value.arr == NULL || b.value.arr == NULL) return false;
-            size_t len_a = rt_array_length(a.value.arr);
-            size_t len_b = rt_array_length(b.value.arr);
+            size_t len_a = rt_v2_data_array_length(a.value.arr);
+            size_t len_b = rt_v2_data_array_length(b.value.arr);
             if (len_a != len_b) return false;
             /* For any[] arrays, compare element by element */
             if (a.element_tag == RT_ANY_NIL) {
@@ -431,7 +431,7 @@ char *rt_any_to_string(RtArena *arena, RtAny value) {
             return rt_arena_strdup(arena, buffer);
         case RT_ANY_ARRAY:
             snprintf(buffer, sizeof(buffer), "[array of %zu elements]",
-                    value.value.arr ? rt_array_length(value.value.arr) : 0);
+                    value.value.arr ? rt_v2_data_array_length(value.value.arr) : 0);
             return rt_arena_strdup(arena, buffer);
         case RT_ANY_FUNCTION:
             return rt_arena_strdup(arena, "[function]");

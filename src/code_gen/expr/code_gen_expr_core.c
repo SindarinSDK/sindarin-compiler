@@ -448,13 +448,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             }
             if (conv_func != NULL)
             {
-                if (gen->current_arena_var != NULL) {
-                    /* V2 to_any functions take just the handle */
-                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
-                    value_is_new_handle = true;
-                } else {
-                    value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
-                }
+                /* V2 to_any functions take just the handle */
+                value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
+                value_is_new_handle = true;
             }
         }
         // Check for 2D array: any[][] = T[][]
@@ -497,13 +493,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             }
             if (conv_func != NULL)
             {
-                if (gen->current_arena_var != NULL) {
-                    /* V2 to_any functions take just the handle */
-                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
-                    value_is_new_handle = true;
-                } else {
-                    value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
-                }
+                /* V2 to_any functions take just the handle */
+                value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
+                value_is_new_handle = true;
             }
         }
         // Check for 1D array: any[] = T[]
@@ -540,17 +532,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             }
             if (conv_func != NULL)
             {
-                if (gen->current_arena_var != NULL)
-                {
-                    /* V2 to_any functions take just the handle.
-                     * value_str should be a handle expression (expr_as_handle mode). */
-                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
-                    value_is_new_handle = true;
-                }
-                else
-                {
-                    value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
-                }
+                /* V2 to_any functions take just the handle */
+                value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
+                value_is_new_handle = true;
             }
         }
     }
@@ -709,11 +693,11 @@ char *code_gen_index_assign_expression(CodeGen *gen, IndexAssignExpr *expr)
          expr->index->as.literal.type->kind == TYPE_LONG))
     {
         // Negative literal - adjust by array length
-        return arena_sprintf(gen->arena, "(%s[rt_array_length(%s) + %s] = %s)",
+        return arena_sprintf(gen->arena, "(%s[rt_v2_data_array_length(%s) + %s] = %s)",
                              array_str, array_str, index_str, value_str);
     }
 
     // For potentially negative variable indices, generate runtime check
-    return arena_sprintf(gen->arena, "(%s[(%s) < 0 ? rt_array_length(%s) + (%s) : (%s)] = %s)",
+    return arena_sprintf(gen->arena, "(%s[(%s) < 0 ? rt_v2_data_array_length(%s) + (%s) : (%s)] = %s)",
                          array_str, index_str, array_str, index_str, index_str, value_str);
 }

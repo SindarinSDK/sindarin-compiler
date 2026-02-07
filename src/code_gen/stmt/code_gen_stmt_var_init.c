@@ -94,15 +94,8 @@ char *code_gen_array_to_any_2d(CodeGen *gen, Type *inner_src, const char *init_s
         return NULL;
     }
 
-    if (gen->current_arena_var != NULL)
-    {
-        /* V2 to_any functions take just the handle */
-        return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
-    }
-    else
-    {
-        return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
-    }
+    /* V2 to_any functions take just the handle */
+    return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
 }
 
 /* Convert a typed 3D array to any[][][] using the appropriate conversion function.
@@ -139,15 +132,8 @@ char *code_gen_array_to_any_3d(CodeGen *gen, Type *innermost_src, const char *in
         return NULL;
     }
 
-    if (gen->current_arena_var != NULL)
-    {
-        /* V2 to_any functions take just the handle */
-        return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
-    }
-    else
-    {
-        return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
-    }
+    /* V2 to_any functions take just the handle */
+    return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
 }
 
 /* Check if an array type has 'any' as its element type at any nesting level.

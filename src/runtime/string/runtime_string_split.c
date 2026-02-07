@@ -19,7 +19,7 @@ char **rt_str_split(RtArena *arena, const char *str, const char *delimiter) {
 
         /* Allocate the result array directly */
         size_t capacity = len > 4 ? len : 4;
-        RtArrayMetadata *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + capacity * sizeof(char *));
+        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
         if (meta == NULL) {
             fprintf(stderr, "rt_str_split: allocation failed\n");
             exit(1);
@@ -48,7 +48,7 @@ char **rt_str_split(RtArena *arena, const char *str, const char *delimiter) {
 
     /* Allocate the result array */
     size_t capacity = count > 4 ? count : 4;
-    RtArrayMetadata *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + capacity * sizeof(char *));
+    RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
     if (meta == NULL) {
         fprintf(stderr, "rt_str_split: allocation failed\n");
         exit(1);
@@ -93,7 +93,7 @@ char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, in
     /* If limit is 1, return the whole string as one part */
     if (limit == 1) {
         size_t capacity = 4;
-        RtArrayMetadata *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + capacity * sizeof(char *));
+        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
         if (meta == NULL) {
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
@@ -116,7 +116,7 @@ char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, in
         if (actual_count > len) actual_count = len;
 
         size_t capacity = actual_count > 4 ? actual_count : 4;
-        RtArrayMetadata *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + capacity * sizeof(char *));
+        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
         if (meta == NULL) {
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
@@ -149,7 +149,7 @@ char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, in
 
     /* Allocate the result array */
     size_t capacity = count > 4 ? count : 4;
-    RtArrayMetadata *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadata) + capacity * sizeof(char *));
+    RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
     if (meta == NULL) {
         fprintf(stderr, "rt_str_split_n: allocation failed\n");
         exit(1);

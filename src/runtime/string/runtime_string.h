@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include "runtime/arena/arena_v2.h"
-#include "runtime/array/runtime_array.h"
+#include "runtime/array/runtime_array_v2.h"
 
 /* ============================================================================
  * String Types and Operations
@@ -41,7 +41,7 @@ typedef struct {
 
 /* STRUCTURE SIZE AND MEMORY LAYOUT:
  *
- * RtStringMeta has the same memory layout philosophy as RtArrayMetadata:
+ * RtStringMeta has the same memory layout philosophy as RtArrayMetadataV2:
  * - Both contain: arena pointer + size/length + capacity
  * - On 64-bit systems: sizeof(RtStringMeta) = 24 bytes (3 * 8 bytes)
  * - On 32-bit systems: sizeof(RtStringMeta) = 12 bytes (3 * 4 bytes)
@@ -114,7 +114,7 @@ void rt_print_string(const char *s);
 void rt_print_bool(long b);
 void rt_print_byte(unsigned char b);
 
-/* Array print functions (declared in runtime_array.h, included here for convenience) */
+/* Array print functions (declared in runtime_array_v2.h, included here for convenience) */
 void rt_print_array_long(long long *arr);
 void rt_print_array_double(double *arr);
 void rt_print_array_char(char *arr);

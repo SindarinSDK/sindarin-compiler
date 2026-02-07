@@ -14,11 +14,7 @@ char *code_gen_range_expression(CodeGen *gen, Expr *expr)
     char *start_str = code_gen_expression(gen, range->start);
     char *end_str = code_gen_expression(gen, range->end);
 
-    if (gen->expr_as_handle && gen->current_arena_var != NULL)
-    {
-        return arena_sprintf(gen->arena, "rt_array_range_v2(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
-    }
-    return arena_sprintf(gen->arena, "rt_array_range(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
+    return arena_sprintf(gen->arena, "rt_array_range_v2(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
 }
 
 char *code_gen_spread_expression(CodeGen *gen, Expr *expr)
@@ -90,10 +86,9 @@ char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Construct the runtime function call: rt_array_alloc_{suffix}[_v2](arena, size, default) */
-    const char *h_suffix = (gen->expr_as_handle && gen->current_arena_var != NULL) ? "_v2" : "";
-    return arena_sprintf(gen->arena, "rt_array_alloc_%s%s(%s, %s, %s)",
-                         suffix, h_suffix, ARENA_VAR(gen), size_str, default_str);
+    /* Construct the runtime function call: rt_array_alloc_{suffix}_v2(arena, size, default) */
+    return arena_sprintf(gen->arena, "rt_array_alloc_%s_v2(%s, %s, %s)",
+                         suffix, ARENA_VAR(gen), size_str, default_str);
 }
 
 const char *get_array_clone_suffix(Type *element_type)

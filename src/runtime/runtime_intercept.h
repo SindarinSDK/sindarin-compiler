@@ -74,8 +74,8 @@ extern __declspec(thread) int __rt_intercept_depth;
 /* Maximum args must match runtime_intercept.c */
 #define __RT_MAX_INTERCEPT_ARGS 32
 
-/* Buffer size for wrapped args - must be >= sizeof(RtArrayMetadata) + MAX_ARGS * sizeof(RtAny)
- * RtArrayMetadata is 24 bytes on 64-bit, RtAny is ~24 bytes, so 32 + 32*32 = 1056 is plenty */
+/* Buffer size for wrapped args - must be >= sizeof(RtArrayMetadataV2) + MAX_ARGS * sizeof(RtAny)
+ * RtArrayMetadataV2 is 24 bytes on 64-bit, RtAny is ~24 bytes, so 32 + 32*32 = 1056 is plenty */
 #define __RT_WRAPPED_ARGS_BUFFER_SIZE 1056
 
 /* Thread-local storage struct for interceptor state */

@@ -151,14 +151,14 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
         /* Generate V1 for-each loop desugared to:
          * {
          *     arr_type __arr__ = iterable;
-         *     long __len__ = rt_array_length(__arr__);
+         *     long __len__ = rt_v2_data_array_length(__arr__);
          *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
          *         elem_type var = __arr__[__idx__];
          *         body
          *     }
          * } */
         indented_fprintf(gen, indent + 1, "%s %s = %s;\n", arr_c_type, arr_var, iterable_str);
-        indented_fprintf(gen, indent + 1, "long %s = rt_array_length(%s);\n", len_var, arr_var);
+        indented_fprintf(gen, indent + 1, "long %s = rt_v2_data_array_length(%s);\n", len_var, arr_var);
     }
     indented_fprintf(gen, indent + 1, "for (long %s = 0; %s < %s; %s++) {\n", idx_var, idx_var, len_var, idx_var);
 

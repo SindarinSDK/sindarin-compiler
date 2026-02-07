@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include "runtime_string_h.h"
 #include "arena/arena_v2.h"
-#include "../array/runtime_array.h"
+#include "../array/runtime_array_v2.h"
 
 /* ============================================================================
  * Handle-Based String Functions — Implementation
@@ -283,14 +283,14 @@ RtHandle rt_str_split_h(RtManagedArena *arena, const char *str, const char *deli
         size_t count = strlen(str);
         if (count == 0) count = 1;
 
-        size_t alloc_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+        size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(RtHandle);
         RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
         void *raw = rt_managed_pin(arena, h);
-        RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
         meta->arena = (RtArena *)arena;
         meta->size = count;
         meta->capacity = count;
-        RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+        RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadataV2));
 
         if (strlen(str) == 0) {
             arr[0] = rt_managed_strdup(arena, RT_HANDLE_NULL, "");
@@ -313,15 +313,15 @@ RtHandle rt_str_split_h(RtManagedArena *arena, const char *str, const char *deli
         p += del_len;
     }
 
-    /* Allocate array: [RtArrayMetadata][RtHandle elements...] */
-    size_t alloc_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+    /* Allocate array: [RtArrayMetadataV2][RtHandle elements...] */
+    size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(RtHandle);
     RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
     void *raw = rt_managed_pin(arena, h);
-    RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = (RtArena *)arena;
     meta->size = count;
     meta->capacity = count;
-    RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+    RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadataV2));
 
     /* Split and store each substring as a managed handle */
     size_t idx = 0;
@@ -354,14 +354,14 @@ RtHandle rt_str_split_n_h(RtManagedArena *arena, const char *str, const char *de
 
     /* If limit is 1, return the whole string as one part */
     if (limit == 1) {
-        size_t alloc_size = sizeof(RtArrayMetadata) + sizeof(RtHandle);
+        size_t alloc_size = sizeof(RtArrayMetadataV2) + sizeof(RtHandle);
         RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
         void *raw = rt_managed_pin(arena, h);
-        RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
         meta->arena = (RtArena *)arena;
         meta->size = 1;
         meta->capacity = 1;
-        RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+        RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadataV2));
         arr[0] = rt_managed_strdup(arena, RT_HANDLE_NULL, str);
         rt_managed_unpin(arena, h);
         return h;
@@ -377,15 +377,15 @@ RtHandle rt_str_split_n_h(RtManagedArena *arena, const char *str, const char *de
         p += del_len;
     }
 
-    /* Allocate array: [RtArrayMetadata][RtHandle elements...] */
-    size_t alloc_size = sizeof(RtArrayMetadata) + count * sizeof(RtHandle);
+    /* Allocate array: [RtArrayMetadataV2][RtHandle elements...] */
+    size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(RtHandle);
     RtHandle h = rt_managed_alloc(arena, RT_HANDLE_NULL, alloc_size);
     void *raw = rt_managed_pin(arena, h);
-    RtArrayMetadata *meta = (RtArrayMetadata *)raw;
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = (RtArena *)arena;
     meta->size = count;
     meta->capacity = count;
-    RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadata));
+    RtHandle *arr = (RtHandle *)((char *)raw + sizeof(RtArrayMetadataV2));
 
     /* Split and store each substring as a managed handle (up to limit - 1 splits) */
     size_t idx = 0;
