@@ -241,6 +241,10 @@ RtHandleV2 *rt_array_alloc_char_v2(RtArenaV2 *arena, size_t count, char default_
 RtHandleV2 *rt_array_alloc_bool_v2(RtArenaV2 *arena, size_t count, int default_value);
 RtHandleV2 *rt_array_alloc_byte_v2(RtArenaV2 *arena, size_t count, unsigned char default_value);
 RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, const char *default_value);
+RtHandleV2 *rt_array_alloc_int32_v2(RtArenaV2 *arena, size_t count, int32_t default_value);
+RtHandleV2 *rt_array_alloc_uint32_v2(RtArenaV2 *arena, size_t count, uint32_t default_value);
+RtHandleV2 *rt_array_alloc_uint_v2(RtArenaV2 *arena, size_t count, uint64_t default_value);
+RtHandleV2 *rt_array_alloc_float_v2(RtArenaV2 *arena, size_t count, float default_value);
 
 /* ============================================================================
  * Array Range Function
@@ -335,6 +339,10 @@ void rt_print_array_char_v2(RtHandleV2 *arr_h);
 void rt_print_array_bool_v2(RtHandleV2 *arr_h);
 void rt_print_array_byte_v2(RtHandleV2 *arr_h);
 void rt_print_array_string_v2(RtHandleV2 *arr_h);
+void rt_print_array_int32_v2(RtHandleV2 *arr_h);
+void rt_print_array_uint32_v2(RtHandleV2 *arr_h);
+void rt_print_array_uint_v2(RtHandleV2 *arr_h);
+void rt_print_array_float_v2(RtHandleV2 *arr_h);
 
 /* String array utilities */
 long rt_array_indexOf_string_v2(RtHandleV2 *arr_h, const char *elem);
@@ -409,6 +417,24 @@ RtHandleV2 *rt_array3_to_any_char_v2(RtHandleV2 *outer_h);
 RtHandleV2 *rt_array3_to_any_bool_v2(RtHandleV2 *outer_h);
 RtHandleV2 *rt_array3_to_any_byte_v2(RtHandleV2 *outer_h);
 RtHandleV2 *rt_array3_to_any_string_v2(RtHandleV2 *outer_h);
+
+/* ============================================================================
+ * Convert any[] to Typed Array V2 Functions
+ * ============================================================================
+ * Convert any[] handles to typed array handles.
+ * Arena derived from input handle.
+ * ============================================================================ */
+
+RtHandleV2 *rt_array_from_any_long_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_int32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_uint_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_uint32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_double_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_float_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_char_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_bool_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_byte_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_from_any_string_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Any Array toString V2 Functions

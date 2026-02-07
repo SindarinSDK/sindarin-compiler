@@ -1035,6 +1035,10 @@ DEFINE_ARRAY_ALLOC_V2(double, double)
 DEFINE_ARRAY_ALLOC_V2(char, char)
 DEFINE_ARRAY_ALLOC_V2(bool, int)
 DEFINE_ARRAY_ALLOC_V2(byte, unsigned char)
+DEFINE_ARRAY_ALLOC_V2(int32, int32_t)
+DEFINE_ARRAY_ALLOC_V2(uint32, uint32_t)
+DEFINE_ARRAY_ALLOC_V2(uint, uint64_t)
+DEFINE_ARRAY_ALLOC_V2(float, float)
 
 /* String alloc */
 RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, const char *default_value) {
@@ -2733,6 +2737,152 @@ RtHandleV2 *rt_array3_to_any_string_v2(RtHandleV2 *outer) {
 }
 
 /* ============================================================================
+ * Convert any[] to Typed Array V2 Functions
+ * ============================================================================ */
+
+RtHandleV2 *rt_array_from_any_long_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(long long), NULL);
+
+    long long *data = (long long *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(long long)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_long(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(long long), data);
+}
+
+RtHandleV2 *rt_array_from_any_int32_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(int32_t), NULL);
+
+    int32_t *data = (int32_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(int32_t)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_int32(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(int32_t), data);
+}
+
+RtHandleV2 *rt_array_from_any_uint_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(uint64_t), NULL);
+
+    uint64_t *data = (uint64_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(uint64_t)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_uint(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(uint64_t), data);
+}
+
+RtHandleV2 *rt_array_from_any_uint32_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(uint32_t), NULL);
+
+    uint32_t *data = (uint32_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(uint32_t)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_uint32(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(uint32_t), data);
+}
+
+RtHandleV2 *rt_array_from_any_double_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(double), NULL);
+
+    double *data = (double *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(double)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_double(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(double), data);
+}
+
+RtHandleV2 *rt_array_from_any_float_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(float), NULL);
+
+    float *data = (float *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(float)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_float(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(float), data);
+}
+
+RtHandleV2 *rt_array_from_any_char_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(char), NULL);
+
+    char *data = (char *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(char)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = (char)rt_unbox_char(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(char), data);
+}
+
+RtHandleV2 *rt_array_from_any_bool_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(int), NULL);
+
+    int *data = (int *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(int)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_bool(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(int), data);
+}
+
+RtHandleV2 *rt_array_from_any_byte_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(unsigned char), NULL);
+
+    unsigned char *data = (unsigned char *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(unsigned char)));
+    for (size_t i = 0; i < len; i++) {
+        data[i] = rt_unbox_byte(arr[i]);
+    }
+    return rt_array_create_generic_v2(arena, len, sizeof(unsigned char), data);
+}
+
+RtHandleV2 *rt_array_from_any_string_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
+    RtArenaV2 *arena = arr_h->arena;
+    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    size_t len = rt_array_length_v2(arr_h);
+    if (len == 0) return rt_array_create_string_v2(arena, 0, NULL);
+
+    /* Allocate array of string handles */
+    RtHandleV2 **handles = (RtHandleV2 **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(RtHandleV2 *)));
+    for (size_t i = 0; i < len; i++) {
+        const char *str = rt_unbox_string(arr[i]);
+        handles[i] = rt_arena_v2_strdup(arena, str);
+    }
+    return rt_array_create_ptr_v2(arena, len, (void **)handles);
+}
+
+/* ============================================================================
  * Any Array toString V2 Functions
  * ============================================================================ */
 
@@ -2920,6 +3070,58 @@ void rt_print_array_string_v2(RtHandleV2 *arr_h) {
             } else {
                 printf("null");
             }
+        }
+    }
+    printf("]");
+}
+
+void rt_print_array_int32_v2(RtHandleV2 *arr_h) {
+    printf("[");
+    if (arr_h != NULL) {
+        int32_t *arr = (int32_t *)rt_array_data_v2(arr_h);
+        size_t len = rt_array_length_v2(arr_h);
+        for (size_t i = 0; i < len; i++) {
+            if (i > 0) printf(", ");
+            printf("%d", arr[i]);
+        }
+    }
+    printf("]");
+}
+
+void rt_print_array_uint32_v2(RtHandleV2 *arr_h) {
+    printf("[");
+    if (arr_h != NULL) {
+        uint32_t *arr = (uint32_t *)rt_array_data_v2(arr_h);
+        size_t len = rt_array_length_v2(arr_h);
+        for (size_t i = 0; i < len; i++) {
+            if (i > 0) printf(", ");
+            printf("%u", arr[i]);
+        }
+    }
+    printf("]");
+}
+
+void rt_print_array_uint_v2(RtHandleV2 *arr_h) {
+    printf("[");
+    if (arr_h != NULL) {
+        uint64_t *arr = (uint64_t *)rt_array_data_v2(arr_h);
+        size_t len = rt_array_length_v2(arr_h);
+        for (size_t i = 0; i < len; i++) {
+            if (i > 0) printf(", ");
+            printf("%lu", (unsigned long)arr[i]);
+        }
+    }
+    printf("]");
+}
+
+void rt_print_array_float_v2(RtHandleV2 *arr_h) {
+    printf("[");
+    if (arr_h != NULL) {
+        float *arr = (float *)rt_array_data_v2(arr_h);
+        size_t len = rt_array_length_v2(arr_h);
+        for (size_t i = 0; i < len; i++) {
+            if (i > 0) printf(", ");
+            printf("%.5f", (double)arr[i]);
         }
     }
     printf("]");

@@ -149,68 +149,42 @@ char *code_gen_as_type_expression(CodeGen *gen, Expr *expr)
         {
         case TYPE_INT:
         case TYPE_LONG:
-            conv_func = "rt_array_from_any_long";
+            conv_func = "rt_array_from_any_long_v2";
             break;
         case TYPE_INT32:
-            conv_func = "rt_array_from_any_int32";
+            conv_func = "rt_array_from_any_int32_v2";
             break;
         case TYPE_UINT:
-            conv_func = "rt_array_from_any_uint";
+            conv_func = "rt_array_from_any_uint_v2";
             break;
         case TYPE_UINT32:
-            conv_func = "rt_array_from_any_uint32";
+            conv_func = "rt_array_from_any_uint32_v2";
             break;
         case TYPE_DOUBLE:
-            conv_func = "rt_array_from_any_double";
+            conv_func = "rt_array_from_any_double_v2";
             break;
         case TYPE_FLOAT:
-            conv_func = "rt_array_from_any_float";
+            conv_func = "rt_array_from_any_float_v2";
             break;
         case TYPE_CHAR:
-            conv_func = "rt_array_from_any_char";
+            conv_func = "rt_array_from_any_char_v2";
             break;
         case TYPE_BOOL:
-            conv_func = "rt_array_from_any_bool";
+            conv_func = "rt_array_from_any_bool_v2";
             break;
         case TYPE_BYTE:
-            conv_func = "rt_array_from_any_byte";
+            conv_func = "rt_array_from_any_byte_v2";
             break;
         case TYPE_STRING:
-            conv_func = "rt_array_from_any_string";
+            conv_func = "rt_array_from_any_string_v2";
             break;
         default:
             break;
         }
         if (conv_func != NULL)
         {
-            if (gen->current_arena_var != NULL)
-            {
-                /* In handle mode: pin the source any[] handle, call legacy from_any,
-                 * convert the raw result into a new handle. */
-                if (target_elem->kind == TYPE_STRING)
-                {
-                    /* Strings need special handling: legacy from_any returns char**
-                     * (8-byte pointers) but handle arrays store RtHandleV2* (8-byte).
-                     * Use dedicated conversion that rt_arena_v2_strdup's each element.
-                     * Must use rt_array_data_v2 to get past the V2 metadata header. */
-                    return arena_sprintf(gen->arena,
-                        "rt_array_from_legacy_string_v2(%s, %s(%s, (RtAny *)rt_array_data_v2(%s)))",
-                        ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
-                }
-                /* Convert any[] to typed array: from_any returns raw pointer, wrap in handle */
-                const char *elem_c = get_c_array_elem_type(gen->arena, target_elem);
-                if (target_elem->kind == TYPE_STRING) {
-                    return arena_sprintf(gen->arena,
-                        "({ %s *__conv_data = %s(%s, (RtAny *)rt_array_data_v2(%s)); "
-                        "rt_array_create_string_v2(%s, rt_v2_data_array_length((void *)__conv_data), __conv_data); })",
-                        elem_c, conv_func, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
-                }
-                return arena_sprintf(gen->arena,
-                    "({ %s *__conv_data = %s(%s, (RtAny *)rt_array_data_v2(%s)); "
-                    "rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)__conv_data), sizeof(%s), __conv_data); })",
-                    elem_c, conv_func, ARENA_VAR(gen), operand_code, ARENA_VAR(gen), elem_c);
-            }
-            return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), operand_code);
+            /* V2 functions take a handle and return a handle directly */
+            return arena_sprintf(gen->arena, "%s(%s)", conv_func, operand_code);
         }
     }
 

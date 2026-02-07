@@ -207,7 +207,6 @@ RUNTIME_HEADERS := \
     runtime/runtime_atomic_compat.h \
     runtime/runtime_arena.h \
     runtime/runtime_string.h \
-    runtime/runtime_array.h \
     runtime/runtime_file.h \
     runtime/runtime_io.h \
     runtime/runtime_byte.h \

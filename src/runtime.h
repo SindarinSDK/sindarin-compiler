@@ -21,7 +21,6 @@
 /* Data type modules - depend on arena */
 #include "runtime/string/runtime_string.h"
 #include "runtime/string/runtime_string_v2.h"
-#include "runtime/array/runtime_array.h"
 #include "runtime/array/runtime_array_v2.h"
 
 /* V1 handle-based modules - deprecated, using V2 instead

@@ -2,13 +2,30 @@
 #include <string.h>
 #include <stdio.h>
 #include "runtime_byte.h"
-#include "array/runtime_array.h"
+#include "array/runtime_array_v2.h"
 
 /* ============================================================================
  * Byte Array Conversion Functions
  * ============================================================================
  * Implementation of byte array to string and string to byte array conversions.
  * ============================================================================ */
+
+/* ============================================================================
+ * Internal Helper: Create uninitialized byte array
+ * ============================================================================ */
+
+static unsigned char *create_byte_array(RtArena *arena, size_t count) {
+    size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(unsigned char);
+    void *raw = rt_arena_alloc(arena, alloc_size);
+    if (raw == NULL) return NULL;
+
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
+    meta->arena = NULL;  /* Not using V2 arena here */
+    meta->size = count;
+    meta->capacity = count;
+
+    return (unsigned char *)((char *)raw + sizeof(RtArrayMetadataV2));
+}
 
 /* ============================================================================
  * Byte Array to String Conversions
@@ -28,7 +45,7 @@ char *rt_byte_array_to_string(RtArena *arena, unsigned char *bytes) {
         return result;
     }
 
-    size_t len = rt_array_length(bytes);
+    size_t len = rt_v2_data_array_length(bytes);
     char *result = rt_arena_alloc(arena, len + 1);
 
     for (size_t i = 0; i < len; i++) {
@@ -49,7 +66,7 @@ char *rt_byte_array_to_string_latin1(RtArena *arena, unsigned char *bytes) {
         return result;
     }
 
-    size_t len = rt_array_length(bytes);
+    size_t len = rt_v2_data_array_length(bytes);
 
     /* Calculate output size: bytes 0x00-0x7F = 1 byte, 0x80-0xFF = 2 bytes in UTF-8 */
     size_t out_len = 0;
@@ -88,7 +105,7 @@ char *rt_byte_array_to_hex(RtArena *arena, unsigned char *bytes) {
         return result;
     }
 
-    size_t len = rt_array_length(bytes);
+    size_t len = rt_v2_data_array_length(bytes);
     char *result = rt_arena_alloc(arena, len * 2 + 1);
 
     for (size_t i = 0; i < len; i++) {
@@ -108,7 +125,7 @@ char *rt_byte_array_to_base64(RtArena *arena, unsigned char *bytes) {
         return result;
     }
 
-    size_t len = rt_array_length(bytes);
+    size_t len = rt_v2_data_array_length(bytes);
 
     /* Calculate output size: 4 output chars for every 3 input bytes, rounded up */
     size_t out_len = ((len + 2) / 3) * 4;
@@ -163,11 +180,11 @@ char *rt_byte_array_to_base64(RtArena *arena, unsigned char *bytes) {
 unsigned char *rt_string_to_bytes(RtArena *arena, const char *str) {
     if (str == NULL) {
         /* Return empty byte array */
-        return rt_array_create_byte_uninit(arena, 0);
+        return create_byte_array(arena, 0);
     }
 
     size_t len = strlen(str);
-    unsigned char *bytes = rt_array_create_byte_uninit(arena, len);
+    unsigned char *bytes = create_byte_array(arena, len);
 
     for (size_t i = 0; i < len; i++) {
         bytes[i] = (unsigned char)str[i];

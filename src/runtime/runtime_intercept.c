@@ -4,7 +4,7 @@
 
 #include "runtime_intercept.h"
 #include "runtime.h"
-#include "array/runtime_array.h"
+#include "array/runtime_array_v2.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
@@ -267,15 +267,15 @@ static RtAny call_next_interceptor(void)
     RtArenaV2 *arena = (RtArenaV2 *)__rt_thunk_arena;
     RtHandleV2 *name_h = rt_arena_v2_strdup(arena, ctx->name);
 
-    // Create args array handle: [RtArrayMetadata][RtAny elements...]
-    size_t args_alloc = sizeof(RtArrayMetadata) + ctx->arg_count * sizeof(RtAny);
+    // Create args array handle: [RtArrayMetadataV2][RtAny elements...]
+    size_t args_alloc = sizeof(RtArrayMetadataV2) + ctx->arg_count * sizeof(RtAny);
     RtHandleV2 *args_h = rt_arena_v2_alloc(arena, args_alloc);
     void *args_raw = rt_handle_v2_pin(args_h);
-    RtArrayMetadata *meta = (RtArrayMetadata *)args_raw;
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)args_raw;
     meta->arena = NULL;
     meta->size = ctx->arg_count;
     meta->capacity = ctx->arg_count;
-    RtAny *args_data = (RtAny *)((char *)args_raw + sizeof(RtArrayMetadata));
+    RtAny *args_data = (RtAny *)((char *)args_raw + sizeof(RtArrayMetadataV2));
     if (ctx->arg_count > 0 && ctx->args != NULL)
     {
         memcpy(args_data, ctx->args, ctx->arg_count * sizeof(RtAny));
@@ -288,7 +288,7 @@ static RtAny call_next_interceptor(void)
     if (ctx->arg_count > 0)
     {
         void *args_ptr = rt_handle_v2_pin(args_h);
-        RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadata));
+        RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadataV2));
         memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));
     }
 
