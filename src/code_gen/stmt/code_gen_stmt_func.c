@@ -231,9 +231,9 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             {
                 Type *elem_type = param_type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                const char *elem_c = get_c_type(gen->arena, elem_type);
-                indented_fprintf(gen, 1, "%s = rt_array_clone_%s_v2(%s, ((%s *)rt_array_data_v2(%s)));\n",
-                                 param_name, suffix, ARENA_VAR(gen), elem_c, param_name);
+                /* Clone the handle-based array to get a local copy */
+                indented_fprintf(gen, 1, "%s = rt_array_clone_%s_v2(%s);\n",
+                                 param_name, suffix, param_name);
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
                 if (sym) sym->kind = SYMBOL_LOCAL;
             }

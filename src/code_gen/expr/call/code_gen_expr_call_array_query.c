@@ -115,8 +115,7 @@ static char *code_gen_array_concat(CodeGen *gen, Expr *object, Type *element_typ
             exit(1);
     }
 
-    /* In V2, evaluate arrays in handle mode and use rt_array_data_v2 to get data pointers.
-     * concat_v2 takes two raw data pointers and returns a new RtHandleV2*. */
+    /* In V2, evaluate arrays in handle mode - concat_v2 takes two handles directly. */
     char *call_expr;
     if (gen->current_arena_var != NULL)
     {
@@ -126,12 +125,12 @@ static char *code_gen_array_concat(CodeGen *gen, Expr *object, Type *element_typ
         char *arg_h = code_gen_expression(gen, arg);
         gen->expr_as_handle = saved;
 
-        const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-        call_expr = arena_sprintf(gen->arena, "%s(%s, (%s *)rt_array_data_v2(%s), (%s *)rt_array_data_v2(%s))",
-                                  concat_func, ARENA_VAR(gen), elem_c, object_h, elem_c, arg_h);
+        call_expr = arena_sprintf(gen->arena, "%s(%s, %s)",
+                                  concat_func, object_h, arg_h);
 
         if (!caller_wants_handle)
         {
+            const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
             return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
                                  elem_c, call_expr);
         }
@@ -183,7 +182,7 @@ static char *code_gen_array_indexof(CodeGen *gen, Expr *object, Type *element_ty
                 gen->expr_as_handle = true;
                 char *handle_str = code_gen_expression(gen, object);
                 gen->expr_as_handle = saved;
-                return arena_sprintf(gen->arena, "rt_array_indexOf_string_v2((RtHandleV2 **)rt_array_data_v2(%s), %s)",
+                return arena_sprintf(gen->arena, "rt_array_indexOf_string_v2(%s, %s)",
                                      handle_str, arg_str);
             }
             break;
@@ -251,7 +250,7 @@ static char *code_gen_array_contains(CodeGen *gen, Expr *object, Type *element_t
                 gen->expr_as_handle = true;
                 char *handle_str = code_gen_expression(gen, object);
                 gen->expr_as_handle = saved;
-                return arena_sprintf(gen->arena, "rt_array_contains_string_v2((RtHandleV2 **)rt_array_data_v2(%s), %s)",
+                return arena_sprintf(gen->arena, "rt_array_contains_string_v2(%s, %s)",
                                      handle_str, arg_str);
             }
             break;
@@ -290,23 +289,15 @@ static char *code_gen_array_clone(CodeGen *gen, Expr *object, Type *element_type
         exit(1);
     }
 
-    /* In V2 mode, clone takes raw data pointer. Get handle and wrap with rt_array_data_v2. */
+    /* In V2 mode, clone takes handle directly. */
     if (handle_mode && gen->current_arena_var != NULL) {
         bool saved = gen->expr_as_handle;
         gen->expr_as_handle = true;
         char *handle_str = code_gen_expression(gen, object);
         gen->expr_as_handle = saved;
 
-        /* For string arrays, use special handle-based clone since V2 string arrays
-         * contain RtHandleV2* elements, not char* elements */
-        if (element_type->kind == TYPE_STRING) {
-            return arena_sprintf(gen->arena, "rt_array_clone_string_handle_v2(%s, %s)",
-                                 ARENA_VAR(gen), handle_str);
-        }
-
-        const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-        return arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, (%s *)rt_array_data_v2(%s))",
-                             suffix, ARENA_VAR(gen), elem_c, handle_str);
+        return arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s)",
+                             suffix, handle_str);
     }
 
     char *object_str = code_gen_expression(gen, object);

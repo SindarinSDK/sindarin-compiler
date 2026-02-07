@@ -142,33 +142,56 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 
             if (elem->type == EXPR_SPREAD) {
                 if (string_handle_mode) {
-                    /* V2 string arrays store RtHandleV2* elements, not char*.
-                     * Use clone_string_data_v2 which takes RtHandleV2** (the data pointer). */
-                    gen->expr_as_handle = false;
-                    char *arr_str = code_gen_expression(gen, elem->as.spread.array);
+                    /* V2 string arrays: get handle and clone directly */
+                    gen->expr_as_handle = true;
+                    char *arr_h = code_gen_expression(gen, elem->as.spread.array);
                     gen->expr_as_handle = saved_handle;
-                    elem_str = arena_sprintf(gen->arena,
-                        "rt_array_clone_string_data_v2(%s, %s)",
-                        ARENA_VAR(gen), arr_str);
+                    elem_str = arena_sprintf(gen->arena, "rt_array_clone_string_v2(%s)", arr_h);
+                } else if (gen->current_arena_var != NULL) {
+                    /* V2 mode for non-string types: get handle and clone */
+                    gen->expr_as_handle = true;
+                    char *arr_h = code_gen_expression(gen, elem->as.spread.array);
+                    gen->expr_as_handle = saved_handle;
+                    elem_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s)", suffix, arr_h);
                 } else {
-                    // Spread: clone the array to avoid aliasing issues
+                    // V1 mode: clone the array to avoid aliasing issues
                     char *arr_str = code_gen_expression(gen, elem->as.spread.array);
                     elem_str = arena_sprintf(gen->arena, "rt_array_clone_%s(%s, %s)", suffix, ARENA_VAR(gen), arr_str);
                 }
             } else if (elem->type == EXPR_RANGE) {
                 // Range: concat the range result
-                elem_str = code_gen_range_expression(gen, elem);
+                if (gen->current_arena_var != NULL) {
+                    /* V2 mode: enable handle mode for range expression */
+                    gen->expr_as_handle = true;
+                    elem_str = code_gen_range_expression(gen, elem);
+                    gen->expr_as_handle = saved_handle;
+                } else {
+                    elem_str = code_gen_range_expression(gen, elem);
+                }
             } else {
                 if (string_handle_mode) {
-                    // Get raw char* value; create_string_h converts to handle internally
+                    // Get raw char* value; create_string_v2 converts to handle internally
                     gen->expr_as_handle = false;
                     char *val = code_gen_expression(gen, elem);
                     gen->expr_as_handle = saved_handle;
                     elem_str = arena_sprintf(gen->arena,
                         "rt_array_create_string_v2(%s, 1, (char *[]){%s})",
                         ARENA_VAR(gen), val);
+                } else if (gen->current_arena_var != NULL) {
+                    // V2 mode for non-string: create single-element array as handle
+                    char *val = code_gen_expression(gen, elem);
+                    const char *literal_type;
+                    if (elem_type->kind == TYPE_BOOL) {
+                        literal_type = "int";
+                    } else if (elem_type->kind == TYPE_ARRAY) {
+                        literal_type = "RtHandleV2 *";
+                    } else {
+                        literal_type = elem_c;
+                    }
+                    elem_str = arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, 1, (%s[]){%s})",
+                                            suffix, ARENA_VAR(gen), literal_type, val);
                 } else {
-                    // Regular element: create single-element array
+                    // V1 mode: create single-element array as raw pointer
                     char *val = code_gen_expression(gen, elem);
                     const char *literal_type;
                     if (elem_type->kind == TYPE_BOOL) {
@@ -187,16 +210,15 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                 result = elem_str;
             } else {
                 if (string_handle_mode) {
-                    /* Both result and elem_str are RtHandleV2* values (string array handles).
-                     * Use rt_array_data_v2 to get the array of RtHandleV2* elements. */
-                    result = arena_sprintf(gen->arena,
-                        "({ RtHandleV2 *__sa = %s; RtHandleV2 *__sb = %s; "
-                        "rt_array_concat_string_v2(%s, "
-                        "(RtHandleV2 **)rt_array_data_v2(__sa), "
-                        "(RtHandleV2 **)rt_array_data_v2(__sb)); })",
-                        result, elem_str, ARENA_VAR(gen));
+                    /* V2 concat takes two handles directly */
+                    result = arena_sprintf(gen->arena, "rt_array_concat_string_v2(%s, %s)",
+                                          result, elem_str);
+                } else if (gen->current_arena_var != NULL) {
+                    /* V2 mode for non-string types: concat takes two handles */
+                    result = arena_sprintf(gen->arena, "rt_array_concat_%s_v2(%s, %s)",
+                                          suffix, result, elem_str);
                 } else {
-                    // Concat with previous result (legacy raw pointer path)
+                    // V1 mode: concat with raw pointers
                     result = arena_sprintf(gen->arena, "rt_array_concat_%s(%s, %s, %s)",
                                           suffix, ARENA_VAR(gen), result, elem_str);
                 }
@@ -205,21 +227,16 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 
         gen->expr_as_handle = saved_handle;
 
-        if (string_handle_mode) {
-            // Result is already an RtHandle
+        if (string_handle_mode || (saved_handle && gen->current_arena_var != NULL)) {
+            // V2 mode: result is already an RtHandle
             return result ? result :
-                arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, 0, NULL)", ARENA_VAR(gen));
+                arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, 0, NULL)", suffix, ARENA_VAR(gen));
         }
 
         if (result == NULL) {
             result = arena_sprintf(gen->arena, "rt_array_create_%s(%s, 0, NULL)", suffix, ARENA_VAR(gen));
         }
 
-        // If handle mode, wrap the legacy result in a clone-to-handle
-        if (saved_handle && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, %s)",
-                                 suffix, ARENA_VAR(gen), result);
-        }
         return result;
     }
 
@@ -389,15 +406,16 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Entering code_gen_array_slice_expression");
     ArraySliceExpr *slice = &expr->as.array_slice;
 
-    /* In V2 mode, get handle first then use rt_array_data_v2 for data pointer.
+    /* In V2 mode, get handle directly for slice_v2 functions.
      * In V1 mode, evaluate as raw pointer (pinned form). */
     bool saved_as_handle = gen->expr_as_handle;
     char *array_str;
+    char *handle_str = NULL;
     if (gen->current_arena_var != NULL && slice->array->expr_type != NULL &&
         slice->array->expr_type->kind == TYPE_ARRAY)
     {
         gen->expr_as_handle = true;
-        char *handle_str = code_gen_expression(gen, slice->array);
+        handle_str = code_gen_expression(gen, slice->array);
         gen->expr_as_handle = saved_as_handle;
         Type *elem_type = slice->array->expr_type->as.array.element_type;
         const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
@@ -515,5 +533,11 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
             exit(1);
     }
 
-    return arena_sprintf(gen->arena, "%s(%s, %s, %s, %s, %s)", slice_func, ARENA_VAR(gen), array_str, start_str, end_str, step_str);
+    /* V2 slice functions take handle directly; V1 takes arena + data pointer */
+    if (handle_str != NULL) {
+        return arena_sprintf(gen->arena, "%s(%s, %s, %s, %s)",
+                             slice_func, handle_str, start_str, end_str, step_str);
+    }
+    return arena_sprintf(gen->arena, "%s(%s, %s, %s, %s, %s)",
+                         slice_func, ARENA_VAR(gen), array_str, start_str, end_str, step_str);
 }

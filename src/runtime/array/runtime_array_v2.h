@@ -45,6 +45,14 @@ static inline size_t rt_array_length_v2(RtHandleV2 *arr_h) {
     return meta ? meta->size : 0;
 }
 
+/* Get array length from a raw data pointer (data area, after metadata).
+ * Used when working with unboxed array data that has V2 metadata before it. */
+static inline size_t rt_v2_data_array_length(const void *arr) {
+    if (arr == NULL) return 0;
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)((char *)arr - sizeof(RtArrayMetadataV2));
+    return meta->size;
+}
+
 /* Get pointer to array DATA area (after metadata) for element access.
  * This is what you use for arr[i] indexing. */
 static inline void *rt_array_data_v2(RtHandleV2 *arr_h) {
@@ -125,113 +133,127 @@ void *rt_array_pop_ptr_v2(RtHandleV2 *arr_h);
 /* ============================================================================
  * Array Clone Functions
  * ============================================================================
- * Create a new array from raw pointer data.
+ * Create a deep copy of the array. Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_clone_long_v2(RtArenaV2 *arena, const long long *src);
-RtHandleV2 *rt_array_clone_double_v2(RtArenaV2 *arena, const double *src);
-RtHandleV2 *rt_array_clone_char_v2(RtArenaV2 *arena, const char *src);
-RtHandleV2 *rt_array_clone_bool_v2(RtArenaV2 *arena, const int *src);
-RtHandleV2 *rt_array_clone_byte_v2(RtArenaV2 *arena, const unsigned char *src);
-RtHandleV2 *rt_array_clone_string_v2(RtArenaV2 *arena, const char **src);
-RtHandleV2 *rt_array_clone_string_handle_v2(RtArenaV2 *arena, RtHandleV2 *src_arr);
-RtHandleV2 *rt_array_clone_int32_v2(RtArenaV2 *arena, const int32_t *src);
-RtHandleV2 *rt_array_clone_uint32_v2(RtArenaV2 *arena, const uint32_t *src);
-RtHandleV2 *rt_array_clone_uint_v2(RtArenaV2 *arena, const uint64_t *src);
-RtHandleV2 *rt_array_clone_float_v2(RtArenaV2 *arena, const float *src);
-RtHandleV2 *rt_array_clone_ptr_v2(RtArenaV2 *arena, void **src);
-RtHandleV2 *rt_array_clone_void_v2(RtArenaV2 *arena, const RtAny *src);
+RtHandleV2 *rt_array_clone_long_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_double_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_char_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_bool_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_byte_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_string_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_int32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_uint32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_uint_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_float_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_ptr_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_clone_any_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Array Concat Functions
  * ============================================================================
  * Create new array containing elements from both arrays.
+ * Arena derived from first handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_concat_long_v2(RtArenaV2 *arena, const long long *a, const long long *b);
-RtHandleV2 *rt_array_concat_double_v2(RtArenaV2 *arena, const double *a, const double *b);
-RtHandleV2 *rt_array_concat_char_v2(RtArenaV2 *arena, const char *a, const char *b);
-RtHandleV2 *rt_array_concat_bool_v2(RtArenaV2 *arena, const int *a, const int *b);
-RtHandleV2 *rt_array_concat_byte_v2(RtArenaV2 *arena, const unsigned char *a, const unsigned char *b);
-RtHandleV2 *rt_array_concat_string_v2(RtArenaV2 *arena, RtHandleV2 **a, RtHandleV2 **b);
-RtHandleV2 *rt_array_concat_int32_v2(RtArenaV2 *arena, const int32_t *a, const int32_t *b);
-RtHandleV2 *rt_array_concat_uint32_v2(RtArenaV2 *arena, const uint32_t *a, const uint32_t *b);
-RtHandleV2 *rt_array_concat_uint_v2(RtArenaV2 *arena, const uint64_t *a, const uint64_t *b);
-RtHandleV2 *rt_array_concat_float_v2(RtArenaV2 *arena, const float *a, const float *b);
-RtHandleV2 *rt_array_concat_ptr_v2(RtArenaV2 *arena, void **a, void **b);
+RtHandleV2 *rt_array_concat_long_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_double_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_char_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_bool_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_byte_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_int32_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_uint32_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_uint_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_float_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
+RtHandleV2 *rt_array_concat_ptr_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
 
 /* ============================================================================
  * Array Slice Functions
  * ============================================================================
  * Create new array from portion of source array.
+ * Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_slice_long_v2(RtArenaV2 *arena, const long long *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_double_v2(RtArenaV2 *arena, const double *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_char_v2(RtArenaV2 *arena, const char *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_bool_v2(RtArenaV2 *arena, const int *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_byte_v2(RtArenaV2 *arena, const unsigned char *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_string_v2(RtArenaV2 *arena, RtHandleV2 **arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_int32_v2(RtArenaV2 *arena, const int32_t *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_uint32_v2(RtArenaV2 *arena, const uint32_t *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_uint_v2(RtArenaV2 *arena, const uint64_t *arr, long start, long end, long step);
-RtHandleV2 *rt_array_slice_float_v2(RtArenaV2 *arena, const float *arr, long start, long end, long step);
+RtHandleV2 *rt_array_slice_long_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_double_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_char_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_bool_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_byte_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_string_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_int32_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_uint32_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_uint_v2(RtHandleV2 *arr_h, long start, long end, long step);
+RtHandleV2 *rt_array_slice_float_v2(RtHandleV2 *arr_h, long start, long end, long step);
 
 /* ============================================================================
  * Array Reverse Functions
  * ============================================================================
- * Return new reversed array.
+ * Return new reversed array. Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_rev_long_v2(RtArenaV2 *arena, const long long *arr);
-RtHandleV2 *rt_array_rev_double_v2(RtArenaV2 *arena, const double *arr);
-RtHandleV2 *rt_array_rev_char_v2(RtArenaV2 *arena, const char *arr);
-RtHandleV2 *rt_array_rev_bool_v2(RtArenaV2 *arena, const int *arr);
-RtHandleV2 *rt_array_rev_byte_v2(RtArenaV2 *arena, const unsigned char *arr);
-RtHandleV2 *rt_array_rev_string_v2(RtArenaV2 *arena, const char **arr);
-RtHandleV2 *rt_array_rev_string_handle_v2(RtArenaV2 *arena, RtHandleV2 **arr);
-RtHandleV2 *rt_array_clone_string_data_v2(RtArenaV2 *arena, RtHandleV2 **arr);
+RtHandleV2 *rt_array_rev_long_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_double_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_char_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_bool_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_byte_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_string_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_int32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_uint32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_uint_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_rev_float_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Array Remove At Index Functions
  * ============================================================================
- * Return new array without element at index.
+ * Return new array without element at index. Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_rem_long_v2(RtArenaV2 *arena, const long long *arr, long index);
-RtHandleV2 *rt_array_rem_double_v2(RtArenaV2 *arena, const double *arr, long index);
-RtHandleV2 *rt_array_rem_char_v2(RtArenaV2 *arena, const char *arr, long index);
-RtHandleV2 *rt_array_rem_bool_v2(RtArenaV2 *arena, const int *arr, long index);
-RtHandleV2 *rt_array_rem_byte_v2(RtArenaV2 *arena, const unsigned char *arr, long index);
-RtHandleV2 *rt_array_rem_string_v2(RtArenaV2 *arena, const char **arr, long index);
-RtHandleV2 *rt_array_rem_string_handle_v2(RtArenaV2 *arena, RtHandleV2 **arr, long index);
+RtHandleV2 *rt_array_rem_long_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_double_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_char_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_bool_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_byte_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_int32_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_uint32_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_uint_v2(RtHandleV2 *arr_h, long index);
+RtHandleV2 *rt_array_rem_float_v2(RtHandleV2 *arr_h, long index);
 
 /* ============================================================================
  * Array Insert At Index Functions
  * ============================================================================
- * Return new array with element inserted at index.
+ * Return new array with element inserted at index. Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_ins_long_v2(RtArenaV2 *arena, const long long *arr, long long elem, long index);
-RtHandleV2 *rt_array_ins_double_v2(RtArenaV2 *arena, const double *arr, double elem, long index);
-RtHandleV2 *rt_array_ins_char_v2(RtArenaV2 *arena, const char *arr, char elem, long index);
-RtHandleV2 *rt_array_ins_bool_v2(RtArenaV2 *arena, const int *arr, int elem, long index);
-RtHandleV2 *rt_array_ins_byte_v2(RtArenaV2 *arena, const unsigned char *arr, unsigned char elem, long index);
-RtHandleV2 *rt_array_ins_string_v2(RtArenaV2 *arena, const char **arr, const char *elem, long index);
-RtHandleV2 *rt_array_ins_string_handle_v2(RtArenaV2 *arena, RtHandleV2 **arr, const char *elem, long index);
+RtHandleV2 *rt_array_ins_long_v2(RtHandleV2 *arr_h, long long elem, long index);
+RtHandleV2 *rt_array_ins_double_v2(RtHandleV2 *arr_h, double elem, long index);
+RtHandleV2 *rt_array_ins_char_v2(RtHandleV2 *arr_h, char elem, long index);
+RtHandleV2 *rt_array_ins_bool_v2(RtHandleV2 *arr_h, int elem, long index);
+RtHandleV2 *rt_array_ins_byte_v2(RtHandleV2 *arr_h, unsigned char elem, long index);
+RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long index);
+RtHandleV2 *rt_array_ins_int32_v2(RtHandleV2 *arr_h, int32_t elem, long index);
+RtHandleV2 *rt_array_ins_uint32_v2(RtHandleV2 *arr_h, uint32_t elem, long index);
+RtHandleV2 *rt_array_ins_uint_v2(RtHandleV2 *arr_h, uint64_t elem, long index);
+RtHandleV2 *rt_array_ins_float_v2(RtHandleV2 *arr_h, float elem, long index);
 
 /* ============================================================================
  * Array Push Copy Functions
  * ============================================================================
  * Create NEW array with element appended (non-mutating push).
+ * Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_push_copy_long_v2(RtArenaV2 *arena, const long long *arr, long long elem);
-RtHandleV2 *rt_array_push_copy_double_v2(RtArenaV2 *arena, const double *arr, double elem);
-RtHandleV2 *rt_array_push_copy_char_v2(RtArenaV2 *arena, const char *arr, char elem);
-RtHandleV2 *rt_array_push_copy_bool_v2(RtArenaV2 *arena, const int *arr, int elem);
-RtHandleV2 *rt_array_push_copy_byte_v2(RtArenaV2 *arena, const unsigned char *arr, unsigned char elem);
-RtHandleV2 *rt_array_push_copy_string_v2(RtArenaV2 *arena, const char **arr, const char *elem);
+RtHandleV2 *rt_array_push_copy_long_v2(RtHandleV2 *arr_h, long long elem);
+RtHandleV2 *rt_array_push_copy_double_v2(RtHandleV2 *arr_h, double elem);
+RtHandleV2 *rt_array_push_copy_char_v2(RtHandleV2 *arr_h, char elem);
+RtHandleV2 *rt_array_push_copy_bool_v2(RtHandleV2 *arr_h, int elem);
+RtHandleV2 *rt_array_push_copy_byte_v2(RtHandleV2 *arr_h, unsigned char elem);
+RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, const char *elem);
+RtHandleV2 *rt_array_push_copy_int32_v2(RtHandleV2 *arr_h, int32_t elem);
+RtHandleV2 *rt_array_push_copy_uint32_v2(RtHandleV2 *arr_h, uint32_t elem);
+RtHandleV2 *rt_array_push_copy_uint_v2(RtHandleV2 *arr_h, uint64_t elem);
+RtHandleV2 *rt_array_push_copy_float_v2(RtHandleV2 *arr_h, float elem);
 
 /* ============================================================================
  * Array Alloc Functions
@@ -300,43 +322,65 @@ RtHandleV2 *rt_promote_array3_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Array Join Functions (V2)
+ * ============================================================================
+ * Join array elements into a string. Arena derived from input handle.
  * ============================================================================ */
 
-char *rt_array_join_long_v2(RtArenaV2 *arena, const long long *arr, const char *separator);
-char *rt_array_join_double_v2(RtArenaV2 *arena, const double *arr, const char *separator);
-char *rt_array_join_char_v2(RtArenaV2 *arena, const char *arr, const char *separator);
-char *rt_array_join_bool_v2(RtArenaV2 *arena, const int *arr, const char *separator);
-char *rt_array_join_byte_v2(RtArenaV2 *arena, const unsigned char *arr, const char *separator);
-char *rt_array_join_int32_v2(RtArenaV2 *arena, const int32_t *arr, const char *separator);
-char *rt_array_join_uint32_v2(RtArenaV2 *arena, const uint32_t *arr, const char *separator);
-char *rt_array_join_uint_v2(RtArenaV2 *arena, const uint64_t *arr, const char *separator);
-char *rt_array_join_float_v2(RtArenaV2 *arena, const float *arr, const char *separator);
+char *rt_array_join_long_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_double_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_char_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_bool_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_byte_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_string_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_int32_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_uint32_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_uint_v2(RtHandleV2 *arr_h, const char *separator);
+char *rt_array_join_float_v2(RtHandleV2 *arr_h, const char *separator);
 
 /* ============================================================================
- * Handle-aware ToString for String Arrays
+ * Array ToString Functions (1D)
+ * ============================================================================
+ * Convert array to string representation. Arena derived from input handle.
  * ============================================================================ */
 
-char *rt_to_string_array_string_v2(RtArenaV2 *arena, RtHandleV2 **arr);
-char *rt_array_join_string_v2(RtArenaV2 *arena, RtHandleV2 **arr, const char *separator);
-void rt_print_array_string_v2(RtHandleV2 **arr);
-long rt_array_indexOf_string_v2(RtHandleV2 **arr, const char *elem);
-int rt_array_contains_string_v2(RtHandleV2 **arr, const char *elem);
+char *rt_to_string_array_long_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_double_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_char_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_bool_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_byte_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_string_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_int32_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_uint32_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_uint_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array_float_v2(RtHandleV2 *arr_h);
 
-/* 2D array toString */
-char *rt_to_string_array2_long_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array2_double_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array2_char_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array2_bool_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array2_byte_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array2_string_v2(RtArenaV2 *arena, RtHandleV2 **outer);
+/* Print functions - take handle, use V2 metadata */
+void rt_print_array_long_v2(RtHandleV2 *arr_h);
+void rt_print_array_double_v2(RtHandleV2 *arr_h);
+void rt_print_array_char_v2(RtHandleV2 *arr_h);
+void rt_print_array_bool_v2(RtHandleV2 *arr_h);
+void rt_print_array_byte_v2(RtHandleV2 *arr_h);
+void rt_print_array_string_v2(RtHandleV2 *arr_h);
 
-/* 3D array toString */
-char *rt_to_string_array3_long_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_double_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_char_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_bool_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_byte_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_string_v2(RtArenaV2 *arena, RtHandleV2 **outer);
+/* String array utilities */
+long rt_array_indexOf_string_v2(RtHandleV2 *arr_h, const char *elem);
+int rt_array_contains_string_v2(RtHandleV2 *arr_h, const char *elem);
+
+/* 2D array toString - arena derived from outer handle */
+char *rt_to_string_array2_long_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array2_double_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array2_char_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array2_bool_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array2_byte_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array2_string_v2(RtHandleV2 *outer_h);
+
+/* 3D array toString - arena derived from outer handle */
+char *rt_to_string_array3_long_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_double_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_char_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_bool_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_byte_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_string_v2(RtHandleV2 *outer_h);
 
 /* ============================================================================
  * Convert Legacy Array to V2 Handle
@@ -350,47 +394,56 @@ RtHandleV2 *rt_array_from_raw_strings_v2(RtArenaV2 *arena, const char **src);
  * 1D Array to Any Conversion (V2)
  * ============================================================================
  * Convert typed V2 arrays to any[] handles by boxing each element.
+ * Arena derived from input handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_to_any_long_v2(RtArenaV2 *arena, const long long *arr);
-RtHandleV2 *rt_array_to_any_double_v2(RtArenaV2 *arena, const double *arr);
-RtHandleV2 *rt_array_to_any_char_v2(RtArenaV2 *arena, const char *arr);
-RtHandleV2 *rt_array_to_any_bool_v2(RtArenaV2 *arena, const int *arr);
-RtHandleV2 *rt_array_to_any_byte_v2(RtArenaV2 *arena, const unsigned char *arr);
-RtHandleV2 *rt_array_to_any_string_v2(RtArenaV2 *arena, RtHandleV2 **arr);
+RtHandleV2 *rt_array_to_any_long_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_double_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_char_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_bool_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_byte_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_string_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_int32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_uint32_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_uint_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_to_any_float_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * 2D Array to Any Conversion (V2)
  * ============================================================================
  * Convert typed 2D V2 arrays to any[][] handles.
+ * Arena derived from outer handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array2_to_any_long_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array2_to_any_double_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array2_to_any_char_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array2_to_any_bool_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array2_to_any_byte_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array2_to_any_string_v2(RtArenaV2 *arena, RtHandleV2 *outer);
+RtHandleV2 *rt_array2_to_any_long_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array2_to_any_double_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array2_to_any_char_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array2_to_any_bool_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array2_to_any_byte_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array2_to_any_string_v2(RtHandleV2 *outer_h);
 
 /* ============================================================================
  * 3D Array to Any Conversion (V2)
  * ============================================================================
  * Convert typed 3D V2 arrays to any[][][] handles.
+ * Arena derived from outer handle.
  * ============================================================================ */
 
-RtHandleV2 *rt_array3_to_any_long_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array3_to_any_double_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array3_to_any_char_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array3_to_any_bool_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array3_to_any_byte_v2(RtArenaV2 *arena, RtHandleV2 *outer);
-RtHandleV2 *rt_array3_to_any_string_v2(RtArenaV2 *arena, RtHandleV2 *outer);
+RtHandleV2 *rt_array3_to_any_long_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array3_to_any_double_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array3_to_any_char_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array3_to_any_bool_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array3_to_any_byte_v2(RtHandleV2 *outer_h);
+RtHandleV2 *rt_array3_to_any_string_v2(RtHandleV2 *outer_h);
 
 /* ============================================================================
  * Any Array toString V2 Functions
+ * ============================================================================
+ * Arena derived from input handle.
  * ============================================================================ */
 
-char *rt_to_string_array_any_v2(RtArenaV2 *arena, const RtAny *arr);
-char *rt_to_string_array2_any_v2(RtArenaV2 *arena, RtHandleV2 **outer);
-char *rt_to_string_array3_any_v2(RtArenaV2 *arena, RtHandleV2 **outer);
+char *rt_to_string_array_any_v2(RtHandleV2 *arr_h);
+char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h);
+char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h);
 
 #endif /* RUNTIME_ARRAY_V2_H */

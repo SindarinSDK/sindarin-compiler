@@ -197,10 +197,13 @@ char *code_gen_as_type_expression(CodeGen *gen, Expr *expr)
                         "rt_array_from_legacy_string_v2(%s, %s(%s, (RtAny *)rt_array_data_v2(%s)))",
                         ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
                 }
+                /* Convert any[] to typed array: from_any returns raw pointer, wrap in handle */
                 const char *suffix = code_gen_type_suffix(target_elem);
+                const char *elem_c = get_c_array_elem_type(gen->arena, target_elem);
                 return arena_sprintf(gen->arena,
-                    "rt_array_clone_%s_v2(%s, %s(%s, (RtAny *)rt_array_data_v2(%s)))",
-                    suffix, ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
+                    "({ %s *__conv_data = %s(%s, (RtAny *)rt_array_data_v2(%s)); "
+                    "rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)__conv_data), __conv_data); })",
+                    elem_c, conv_func, ARENA_VAR(gen), operand_code, suffix, ARENA_VAR(gen));
             }
             return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), operand_code);
         }

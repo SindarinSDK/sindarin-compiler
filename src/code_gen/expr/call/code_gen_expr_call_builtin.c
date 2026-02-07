@@ -58,6 +58,42 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
     case TYPE_ARRAY:
     {
         Type *elem_type = arg_type->as.array.element_type;
+        if (gen->current_arena_var != NULL)
+        {
+            /* V2 mode: use V2 print functions that take handles */
+            const char *v2_func = NULL;
+            switch (elem_type->kind)
+            {
+            case TYPE_INT:
+            case TYPE_LONG:
+                v2_func = "rt_print_array_long_v2";
+                break;
+            case TYPE_DOUBLE:
+                v2_func = "rt_print_array_double_v2";
+                break;
+            case TYPE_CHAR:
+                v2_func = "rt_print_array_char_v2";
+                break;
+            case TYPE_BOOL:
+                v2_func = "rt_print_array_bool_v2";
+                break;
+            case TYPE_BYTE:
+                v2_func = "rt_print_array_byte_v2";
+                break;
+            case TYPE_STRING:
+                v2_func = "rt_print_array_string_v2";
+                break;
+            default:
+                fprintf(stderr, "Error: unsupported array element type for print\n");
+                exit(1);
+            }
+            bool prev = gen->expr_as_handle;
+            gen->expr_as_handle = true;
+            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+            gen->expr_as_handle = prev;
+            return arena_sprintf(gen->arena, "%s(%s)", v2_func, handle_expr);
+        }
+        /* V1 mode: use V1 print functions with raw pointers */
         switch (elem_type->kind)
         {
         case TYPE_INT:
@@ -77,15 +113,6 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
             print_func = "rt_print_array_byte";
             break;
         case TYPE_STRING:
-            if (gen->current_arena_var) {
-                /* V2: Get the raw handle array data pointer (RtHandleV2**) */
-                bool prev = gen->expr_as_handle;
-                gen->expr_as_handle = true;
-                char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-                gen->expr_as_handle = prev;
-                return arena_sprintf(gen->arena, "rt_print_array_string_v2((RtHandleV2 **)rt_array_data_v2(%s))",
-                                     handle_expr);
-            }
             print_func = "rt_print_array_string";
             break;
         default:
