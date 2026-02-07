@@ -231,8 +231,9 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
 
         bool prev_as_handle = gen->expr_as_handle;
-        if (!is_global_scope && gen->current_arena_var != NULL && stmt->mem_qualifier != MEM_AS_VAL)
+        if (!is_global_scope && gen->current_arena_var != NULL)
         {
+            /* V2 clone functions take handles, so enable handle mode for as val too */
             if (is_handle_type(stmt->type))
             {
                 gen->expr_as_handle = true;
@@ -356,7 +357,8 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 Type *elem_type = stmt->type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, %s)", suffix, ARENA_VAR(gen), init_str);
+                /* V2 clone takes just the handle (init_str is already a handle expression) */
+                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s)", suffix, init_str);
             }
             else if (stmt->type->kind == TYPE_STRING)
             {

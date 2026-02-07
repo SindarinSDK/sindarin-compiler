@@ -552,9 +552,13 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 }
                 else if (!callee_needs_arena)
                 {
+                    /* Native function returned raw pointer - wrap in handle */
                     const char *suffix = code_gen_type_suffix(elem);
-                    return arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, %s)",
-                                         suffix, ARENA_VAR(gen), call_expr);
+                    const char *elem_c = get_c_array_elem_type(gen->arena, elem);
+                    return arena_sprintf(gen->arena,
+                        "({ %s *__native_arr = %s; "
+                        "rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)__native_arr), __native_arr); })",
+                        elem_c, call_expr, suffix, ARENA_VAR(gen));
                 }
             }
         }
@@ -639,9 +643,11 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             }
             else
             {
+                /* Native function returned raw pointer - wrap in handle */
                 const char *suffix = code_gen_type_suffix(elem);
-                result = arena_sprintf(gen->arena, "%s        rt_array_clone_%s_v2(%s, _call_result);\n    })",
-                                       result, suffix, ARENA_VAR(gen));
+                result = arena_sprintf(gen->arena,
+                    "%s        rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)_call_result), _call_result);\n    })",
+                    result, suffix, ARENA_VAR(gen));
             }
         }
     }

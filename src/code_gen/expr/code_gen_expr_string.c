@@ -318,11 +318,26 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         else if (part_types[i]->kind != TYPE_STRING)
         {
             /* Non-string needs conversion (no format specifier) */
-            const char *to_str = gen->current_arena_var
-                ? get_rt_to_string_func_for_type_v2(part_types[i])
-                : get_rt_to_string_func_for_type(part_types[i]);
-            result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
-                                   result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
+            if (gen->current_arena_var && part_types[i]->kind == TYPE_ARRAY)
+            {
+                /* V2 mode array: to_string_v2 takes handle directly, not arena + data.
+                 * Need to re-evaluate the expression in handle mode to get the handle. */
+                const char *to_str = get_rt_to_string_func_for_type_v2(part_types[i]);
+                bool saved_handle_mode = gen->expr_as_handle;
+                gen->expr_as_handle = true;
+                char *handle_str = code_gen_expression(gen, expr->parts[i]);
+                gen->expr_as_handle = saved_handle_mode;
+                result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s);\n",
+                                       result, temp_var_count, to_str, handle_str);
+            }
+            else
+            {
+                const char *to_str = gen->current_arena_var
+                    ? get_rt_to_string_func_for_type_v2(part_types[i])
+                    : get_rt_to_string_func_for_type(part_types[i]);
+                result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
+                                       result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
+            }
             use_strs[i] = arena_sprintf(gen->arena, "_p%d", temp_var_count);
             temp_var_count++;
         }

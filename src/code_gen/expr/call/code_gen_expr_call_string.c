@@ -274,8 +274,11 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             _raw_result = arena_sprintf(gen->arena, "%s", method_call);
         }
         if (gen->expr_as_handle && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_array_clone_byte_v2(%s, %s)",
-                                 ARENA_VAR(gen), _raw_result);
+            /* Raw byte array to handle - wrap using create */
+            return arena_sprintf(gen->arena,
+                "({ unsigned char *__bytes = %s; "
+                "rt_array_create_byte_v2(%s, rt_v2_data_array_length((void *)__bytes), __bytes); })",
+                _raw_result, ARENA_VAR(gen));
         }
         return _raw_result;
     }

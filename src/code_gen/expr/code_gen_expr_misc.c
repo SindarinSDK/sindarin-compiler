@@ -168,9 +168,9 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
             const char *suffix = get_array_clone_suffix(element_type);
             if (suffix != NULL)
             {
-                /* Copy array field: pin source handle → clone to new handle */
-                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_v2(%s, rt_array_data_v2(__deep_copy.%s));\n",
-                                       result, c_field_name, suffix, ARENA_VAR(gen), c_field_name);
+                /* Copy array field: clone handle to new handle in same arena */
+                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_v2(__deep_copy.%s);\n",
+                                       result, c_field_name, suffix, c_field_name);
             }
             /* If no clone function available (e.g., nested arrays), leave as shallow copy */
         }

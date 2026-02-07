@@ -343,11 +343,11 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         {
             Type *decl_elem = type->as.array.element_type;
             Type *src_elem = expr->value->expr_type->as.array.element_type;
-            /* Enable handle mode for array literals (EXPR_ARRAY) so they produce
-             * RtHandle values via rt_array_create_*_h functions.
+            /* Enable handle mode for array expressions so they produce
+             * RtHandle values via rt_array_create_*_v2 or method _v2 functions.
              * EXCEPTION: Don't enable handle mode when assigning to any[] because
              * the conversion functions (rt_array_to_any_*) need raw pointers. */
-            if (expr->value->type == EXPR_ARRAY && decl_elem->kind != TYPE_ANY)
+            if (decl_elem->kind != TYPE_ANY)
             {
                 gen->expr_as_handle = true;
             }
@@ -449,7 +449,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             if (conv_func != NULL)
             {
                 if (gen->current_arena_var != NULL) {
-                    value_str = arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
+                    /* V2 to_any functions take just the handle */
+                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
                     value_is_new_handle = true;
                 } else {
                     value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
@@ -497,7 +498,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             if (conv_func != NULL)
             {
                 if (gen->current_arena_var != NULL) {
-                    value_str = arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
+                    /* V2 to_any functions take just the handle */
+                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
                     value_is_new_handle = true;
                 } else {
                     value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
@@ -540,23 +542,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             {
                 if (gen->current_arena_var != NULL)
                 {
-                    if (src_elem->kind == TYPE_STRING)
-                    {
-                        /* String arrays store RtHandleV2* elements — use V2 function.
-                         * The _v2 function returns RtHandleV2* directly. */
-                        value_str = arena_sprintf(gen->arena,
-                            "rt_array_to_any_string_v2(%s, (RtHandleV2 **)rt_array_data_v2(%s))",
-                            ARENA_VAR(gen), value_str);
-                    }
-                    else
-                    {
-                        /* Non-string: get array data pointer, then convert using V2 function.
-                         * The _v2 function returns RtHandleV2* directly. */
-                        const char *elem_c = get_c_type(gen->arena, src_elem);
-                        value_str = arena_sprintf(gen->arena,
-                            "%s_v2(%s, (%s *)rt_array_data_v2(%s))",
-                            conv_func, ARENA_VAR(gen), elem_c, value_str);
-                    }
+                    /* V2 to_any functions take just the handle.
+                     * value_str should be a handle expression (expr_as_handle mode). */
+                    value_str = arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, value_str);
                     value_is_new_handle = true;
                 }
                 else
@@ -651,12 +639,11 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
-        /* For handle-based arrays: clone to target arena with old handle. */
-        Type *elem_type = type->as.array.element_type;
-        const char *suffix = code_gen_type_suffix(elem_type);
+        /* For handle-based arrays: clone to target arena with old handle.
+         * Use rt_arena_v2_clone for cross-arena cloning (e.g., to __main_arena__ for globals). */
         const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
-        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s_v2(%s, %s))",
-                             var_name, suffix, target_arena, value_str);
+        return arena_sprintf(gen->arena, "(%s = rt_arena_v2_clone(%s, %s))",
+                             var_name, target_arena, value_str);
     }
     else if (type->kind == TYPE_STRUCT && in_arena_context && is_global)
     {

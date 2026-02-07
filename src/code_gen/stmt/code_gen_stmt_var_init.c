@@ -50,23 +50,9 @@ char *code_gen_array_to_any_1d(CodeGen *gen, Type *src_elem, const char *init_st
 
     if (gen->current_arena_var != NULL)
     {
-        if (src_elem->kind == TYPE_STRING)
-        {
-            /* String arrays store RtHandleV2* elements — use dedicated _v2 function.
-             * The _v2 function returns RtHandleV2* directly. */
-            return arena_sprintf(gen->arena,
-                "rt_array_to_any_string_v2(%s, (RtHandleV2 **)rt_array_data_v2(%s))",
-                ARENA_VAR(gen), init_str);
-        }
-        else
-        {
-            /* Non-string types: use _v2 conversion that reads V2 metadata.
-             * The _v2 function returns RtHandleV2* directly. */
-            const char *elem_c = get_c_type(gen->arena, src_elem);
-            return arena_sprintf(gen->arena,
-                "%s_v2(%s, (%s *)rt_array_data_v2(%s))",
-                conv_func, ARENA_VAR(gen), elem_c, init_str);
-        }
+        /* V2 to_any functions take just the handle.
+         * init_str should already be a handle expression. */
+        return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
     }
     else
     {
@@ -110,7 +96,8 @@ char *code_gen_array_to_any_2d(CodeGen *gen, Type *inner_src, const char *init_s
 
     if (gen->current_arena_var != NULL)
     {
-        return arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+        /* V2 to_any functions take just the handle */
+        return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
     }
     else
     {
@@ -154,7 +141,8 @@ char *code_gen_array_to_any_3d(CodeGen *gen, Type *innermost_src, const char *in
 
     if (gen->current_arena_var != NULL)
     {
-        return arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), init_str);
+        /* V2 to_any functions take just the handle */
+        return arena_sprintf(gen->arena, "%s_v2(%s)", conv_func, init_str);
     }
     else
     {

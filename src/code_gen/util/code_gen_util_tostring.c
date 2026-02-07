@@ -250,14 +250,36 @@ const char *get_rt_to_string_func_for_type_h(Type *type)
             }
         }
 
-        /* 1D string arrays: elements are RtHandleV2* -> use _v2 version */
-        if (elem_kind == TYPE_STRING)
+        /* 1D arrays: all V2 functions now take handles directly */
+        switch (elem_kind)
         {
+        case TYPE_INT:
+        case TYPE_LONG:
+            return "rt_to_string_array_long_v2";
+        case TYPE_INT32:
+            return "rt_to_string_array_int32_v2";
+        case TYPE_UINT:
+            return "rt_to_string_array_uint_v2";
+        case TYPE_UINT32:
+            return "rt_to_string_array_uint32_v2";
+        case TYPE_DOUBLE:
+            return "rt_to_string_array_double_v2";
+        case TYPE_FLOAT:
+            return "rt_to_string_array_float_v2";
+        case TYPE_CHAR:
+            return "rt_to_string_array_char_v2";
+        case TYPE_BOOL:
+            return "rt_to_string_array_bool_v2";
+        case TYPE_BYTE:
+            return "rt_to_string_array_byte_v2";
+        case TYPE_STRING:
             return "rt_to_string_array_string_v2";
+        case TYPE_ANY:
+            return "rt_to_string_array_any_v2";
+        default:
+            /* Other complex element types - fallback to pointer */
+            return "rt_to_string_pointer";
         }
-
-        /* 1D arrays of other types: elements are NOT handles, use regular versions */
-        return get_rt_to_string_func_for_type(type);
     }
 
     /* Non-arrays: same as regular */

@@ -57,21 +57,15 @@ static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
             exit(1);
     }
 
-    /* In V2 mode, use V2 join functions with data pointer from rt_array_data_v2() */
+    /* In V2 mode, use V2 join functions with handle directly */
     if (gen->current_arena_var != NULL) {
         bool saved = gen->expr_as_handle;
         gen->expr_as_handle = true;
         char *handle_str = code_gen_expression(gen, object);
         gen->expr_as_handle = saved;
 
-        const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-        /* String arrays pass handle array directly, others pass data pointer */
-        if (element_type->kind == TYPE_STRING) {
-            return arena_sprintf(gen->arena, "%s(%s, (RtHandleV2 **)rt_array_data_v2(%s), %s)",
-                                 join_func_v2, ARENA_VAR(gen), handle_str, sep_str);
-        }
-        return arena_sprintf(gen->arena, "%s(%s, (%s *)rt_array_data_v2(%s), %s)",
-                             join_func_v2, ARENA_VAR(gen), elem_c, handle_str, sep_str);
+        return arena_sprintf(gen->arena, "%s(%s, %s)",
+                             join_func_v2, handle_str, sep_str);
     }
 
     char *object_str = code_gen_expression(gen, object);
@@ -122,11 +116,11 @@ static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_ty
     /* reverse in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
         /* In V2 handle mode, use _v2 variant and assign to the handle variable.
-         * V2 functions take raw data pointer, so use rt_array_data_v2() to convert. */
+         * V2 functions now take handle directly. */
         if (gen->current_arena_var != NULL && object->expr_type != NULL &&
             object->expr_type->kind == TYPE_ARRAY)
         {
-            /* Get handle for assignment and data pointer for function arg */
+            /* Get handle for assignment */
             bool saved = gen->expr_as_handle;
             gen->expr_as_handle = true;
             char *handle_str = code_gen_expression(gen, object);
@@ -134,15 +128,8 @@ static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_ty
 
             char *var_name = sn_mangle_name(gen->arena,
                 get_var_name(gen->arena, object->as.variable.name));
-            const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-            /* For string arrays, use handle-aware version since V2 arrays store RtHandleV2* elements */
-            if (element_type->kind == TYPE_STRING)
-            {
-                return arena_sprintf(gen->arena, "(%s = rt_array_rev_string_handle_v2(%s, (%s *)rt_array_data_v2(%s)))",
-                                     var_name, ARENA_VAR(gen), elem_c, handle_str);
-            }
-            return arena_sprintf(gen->arena, "(%s = %s_v2(%s, (%s *)rt_array_data_v2(%s)))",
-                                 var_name, rev_func, ARENA_VAR(gen), elem_c, handle_str);
+            return arena_sprintf(gen->arena, "(%s = %s_v2(%s))",
+                                 var_name, rev_func, handle_str);
         }
         char *object_str = code_gen_expression(gen, object);
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s))", object_str, rev_func, ARENA_VAR(gen), object_str);
@@ -199,11 +186,11 @@ static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_typ
     /* insert in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
         /* In V2 handle mode, use _v2 variant and assign to the handle variable.
-         * V2 functions take raw data pointer, so use rt_array_data_v2() to convert. */
+         * V2 functions now take handle directly. */
         if (gen->current_arena_var != NULL && object->expr_type != NULL &&
             object->expr_type->kind == TYPE_ARRAY)
         {
-            /* Get handle for assignment and data pointer for function arg */
+            /* Get handle for assignment */
             bool saved = gen->expr_as_handle;
             gen->expr_as_handle = true;
             char *handle_str = code_gen_expression(gen, object);
@@ -211,15 +198,8 @@ static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_typ
 
             char *var_name = sn_mangle_name(gen->arena,
                 get_var_name(gen->arena, object->as.variable.name));
-            const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-            /* For string arrays, use handle-aware version since V2 arrays store RtHandleV2* elements */
-            if (element_type->kind == TYPE_STRING)
-            {
-                return arena_sprintf(gen->arena, "(%s = rt_array_ins_string_handle_v2(%s, (%s *)rt_array_data_v2(%s), %s, %s))",
-                                     var_name, ARENA_VAR(gen), elem_c, handle_str, elem_str, idx_str);
-            }
-            return arena_sprintf(gen->arena, "(%s = %s_v2(%s, (%s *)rt_array_data_v2(%s), %s, %s))",
-                                 var_name, ins_func, ARENA_VAR(gen), elem_c, handle_str, elem_str, idx_str);
+            return arena_sprintf(gen->arena, "(%s = %s_v2(%s, %s, %s))",
+                                 var_name, ins_func, handle_str, elem_str, idx_str);
         }
         char *object_str = code_gen_expression(gen, object);
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s, %s))",
@@ -277,11 +257,11 @@ static char *code_gen_array_remove(CodeGen *gen, Expr *object, Type *element_typ
     /* remove in-place: assign result back to variable */
     if (object->type == EXPR_VARIABLE) {
         /* In V2 handle mode, use _v2 variant and assign to the handle variable.
-         * V2 functions take raw data pointer, so use rt_array_data_v2() to convert. */
+         * V2 functions now take handle directly. */
         if (gen->current_arena_var != NULL && object->expr_type != NULL &&
             object->expr_type->kind == TYPE_ARRAY)
         {
-            /* Get handle for assignment and data pointer for function arg */
+            /* Get handle for assignment */
             bool saved = gen->expr_as_handle;
             gen->expr_as_handle = true;
             char *handle_str = code_gen_expression(gen, object);
@@ -289,15 +269,8 @@ static char *code_gen_array_remove(CodeGen *gen, Expr *object, Type *element_typ
 
             char *var_name = sn_mangle_name(gen->arena,
                 get_var_name(gen->arena, object->as.variable.name));
-            const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
-            /* For string arrays, use handle-aware version since V2 arrays store RtHandleV2* elements */
-            if (element_type->kind == TYPE_STRING)
-            {
-                return arena_sprintf(gen->arena, "(%s = rt_array_rem_string_handle_v2(%s, (%s *)rt_array_data_v2(%s), %s))",
-                                     var_name, ARENA_VAR(gen), elem_c, handle_str, idx_str);
-            }
-            return arena_sprintf(gen->arena, "(%s = %s_v2(%s, (%s *)rt_array_data_v2(%s), %s))",
-                                 var_name, rem_func, ARENA_VAR(gen), elem_c, handle_str, idx_str);
+            return arena_sprintf(gen->arena, "(%s = %s_v2(%s, %s))",
+                                 var_name, rem_func, handle_str, idx_str);
         }
         char *object_str = code_gen_expression(gen, object);
         return arena_sprintf(gen->arena, "(%s = %s(%s, %s, %s))",
