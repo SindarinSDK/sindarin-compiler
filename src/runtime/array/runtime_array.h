@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
-#include "runtime/runtime_arena.h"
+#include "runtime/arena/arena_v2.h"
 #include "runtime/runtime_any.h"
 
 /* ============================================================================

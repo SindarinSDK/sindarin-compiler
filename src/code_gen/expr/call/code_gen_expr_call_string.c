@@ -67,18 +67,18 @@
             _raw_result = arena_sprintf((gen)->arena, "%s", method_call); \
         } \
         if ((gen)->current_arena_var != NULL) { \
-            /* Always create handle-based array so elements are RtHandle */ \
+            /* Always create handle-based array so elements are RtHandleV2* */ \
             char *_handle_result = arena_sprintf((gen)->arena, \
-                "rt_array_from_raw_strings_h(%s, RT_HANDLE_NULL, %s)", \
+                "rt_array_from_raw_strings_v2(%s, %s)", \
                 ARENA_VAR(gen), _raw_result); \
             if ((gen)->expr_as_handle) { \
                 return _handle_result; \
             } else { \
-                /* Pin the handle-based array - elements are still RtHandle, */ \
+                /* Pin the handle-based array - elements are still RtHandleV2*, */ \
                 /* which is correct for array indexing to pin to char* */ \
                 return arena_sprintf((gen)->arena, \
-                    "((RtHandle *)rt_managed_pin_array(%s, %s))", \
-                    ARENA_VAR(gen), _handle_result); \
+                    "((RtHandleV2 *)rt_handle_v2_pin(%s))", \
+                    _handle_result); \
             } \
         } \
         return _raw_result; \
@@ -100,9 +100,15 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "substring") == 0 && arg_count == 2) {
         char *start_str = code_gen_expression(gen, arguments[0]);
         char *end_str = code_gen_expression(gen, arguments[1]);
-        if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_substring_h(%s, %s, %s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_substring_v2(%s, %s, %s, %s)",
                 ARENA_VAR(gen), object_str, start_str, end_str);
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_substring(%s, %s, %s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str, start_str, end_str);
@@ -133,7 +139,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "split") == 0 && arg_count == 1) {
         char *arg_str = code_gen_expression(gen, arguments[0]);
         if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_split_h(%s, %s, %s)",
+            return arena_sprintf(gen->arena, "rt_str_split_v2(%s, %s, %s)",
                 ARENA_VAR(gen), object_str, arg_str);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_split(%s, %s, %s)",
@@ -144,9 +150,15 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
     /* trim() - returns string */
     if (strcmp(method_name, "trim") == 0 && arg_count == 0) {
-        if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_trim_h(%s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_trim_v2(%s, %s)",
                 ARENA_VAR(gen), object_str);
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_trim(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -155,9 +167,15 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
     /* toUpper() - returns string */
     if (strcmp(method_name, "toUpper") == 0 && arg_count == 0) {
-        if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_toUpper_h(%s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_toUpper_v2(%s, %s)",
                 ARENA_VAR(gen), object_str);
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_toUpper(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -166,9 +184,15 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
     /* toLower() - returns string */
     if (strcmp(method_name, "toLower") == 0 && arg_count == 0) {
-        if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_toLower_h(%s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_toLower_v2(%s, %s)",
                 ARENA_VAR(gen), object_str);
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_toLower(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -206,9 +230,15 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (strcmp(method_name, "replace") == 0 && arg_count == 2) {
         char *old_str = code_gen_expression(gen, arguments[0]);
         char *new_str = code_gen_expression(gen, arguments[1]);
-        if (handle_mode && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_str_replace_h(%s, %s, %s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_replace_v2(%s, %s, %s, %s)",
                 ARENA_VAR(gen), object_str, old_str, new_str);
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_replace(%s, %s, %s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str, old_str, new_str);
@@ -244,7 +274,7 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             _raw_result = arena_sprintf(gen->arena, "%s", method_call);
         }
         if (gen->expr_as_handle && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_array_clone_byte_h(%s, RT_HANDLE_NULL, %s)",
+            return arena_sprintf(gen->arena, "rt_array_clone_byte_v2(%s, %s)",
                                  ARENA_VAR(gen), _raw_result);
         }
         return _raw_result;
@@ -252,6 +282,17 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
     /* splitWhitespace() - returns string array */
     if (strcmp(method_name, "splitWhitespace") == 0 && arg_count == 0) {
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - use V2 function that returns RtHandleV2* directly */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_split_whitespace_v2(%s, %s)",
+                ARENA_VAR(gen), object_str);
+            gen->expr_as_handle = handle_mode;
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - get data pointer to element array */
+            return arena_sprintf(gen->arena, "((RtHandleV2 **)rt_array_data_v2(%s))", v2_call);
+        }
         char *method_call = arena_sprintf(gen->arena, "rt_str_split_whitespace(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
         gen->expr_as_handle = handle_mode;
@@ -260,6 +301,17 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
     /* splitLines() - returns string array */
     if (strcmp(method_name, "splitLines") == 0 && arg_count == 0) {
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - use V2 function that returns RtHandleV2* directly */
+            char *v2_call = arena_sprintf(gen->arena, "rt_str_split_lines_v2(%s, %s)",
+                ARENA_VAR(gen), object_str);
+            gen->expr_as_handle = handle_mode;
+            if (handle_mode) {
+                return v2_call;
+            }
+            /* Want raw pointer - get data pointer to element array */
+            return arena_sprintf(gen->arena, "((RtHandleV2 **)rt_array_data_v2(%s))", v2_call);
+        }
         char *method_call = arena_sprintf(gen->arena, "rt_str_split_lines(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
         gen->expr_as_handle = handle_mode;
@@ -307,11 +359,11 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             if (object_is_temp) {
                 gen->expr_as_handle = handle_mode;
                 return arena_sprintf(gen->arena,
-                    "({ char *_obj_tmp = %s; RtHandle _res = rt_str_split_n_h(%s, _obj_tmp, %s, %s); _res; })",
+                    "({ char *_obj_tmp = %s; RtHandleV2 *_res = rt_str_split_n_v2(%s, _obj_tmp, %s, %s); _res; })",
                     object_str, ARENA_VAR(gen), delimiter_str, limit_str);
             }
             gen->expr_as_handle = handle_mode;
-            return arena_sprintf(gen->arena, "rt_str_split_n_h(%s, %s, %s, %s)",
+            return arena_sprintf(gen->arena, "rt_str_split_n_v2(%s, %s, %s, %s)",
                 ARENA_VAR(gen), object_str, delimiter_str, limit_str);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_split_n(%s, %s, %s, %s)",
@@ -332,7 +384,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 
         gen->expr_as_handle = handle_mode;
 
-        /* In handle mode: use rt_str_append_h which returns a new handle */
+        /* In handle mode: use rt_str_append_v2 which returns a new handle.
+         * rt_str_append_v2(arena, old_str, suffix) - takes pinned old string and suffix. */
         if (gen->current_arena_var != NULL && object->type == EXPR_VARIABLE) {
             /* Get the handle variable name */
             bool prev = gen->expr_as_handle;
@@ -340,8 +393,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             char *handle_name = code_gen_expression(gen, object);
             gen->expr_as_handle = prev;
             return arena_sprintf(gen->arena,
-                "(%s = rt_str_append_h(%s, %s, %s, %s))",
-                handle_name, ARENA_VAR(gen), handle_name, object_str, arg_str);
+                "(%s = rt_str_append_v2(%s, %s, %s))",
+                handle_name, ARENA_VAR(gen), object_str, arg_str);
         }
 
         /* Legacy path: First ensure the string is mutable, then append. */

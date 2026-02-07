@@ -37,7 +37,7 @@ char *code_gen_literal_expression(CodeGen *gen, LiteralExpr *expr)
         /* In handle mode, wrap string literals to produce an RtHandle */
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)",
+            return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
                                  ARENA_VAR(gen), raw);
         }
         return raw;
@@ -64,10 +64,10 @@ char *code_gen_literal_expression(CodeGen *gen, LiteralExpr *expr)
     case TYPE_INT32:
         return arena_sprintf(gen->arena, "%d", (int)expr->value.int_value);
     case TYPE_NIL:
-        /* In handle mode (arena context), nil for strings/arrays is RT_HANDLE_NULL */
+        /* In handle mode (arena context), nil for strings/arrays is NULL */
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_strdup(gen->arena, "RT_HANDLE_NULL");
+            return arena_strdup(gen->arena, "NULL");
         }
         return arena_strdup(gen->arena, "NULL");
     default:
@@ -116,14 +116,14 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
                         Type *ptype = innermost->params[pi].type;
                         if (ptype->kind == TYPE_STRING)
                         {
-                            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                                 ARENA_VAR(gen), mangled_param);
+                            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                                 mangled_param);
                         }
                         else if (ptype->kind == TYPE_ARRAY)
                         {
                             const char *elem_c = get_c_array_elem_type(gen->arena, ptype->as.array.element_type);
-                            return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                                 elem_c, ARENA_VAR(gen), mangled_param);
+                            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                                 elem_c, mangled_param);
                         }
                         break;
                     }
@@ -143,11 +143,11 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
             symbol->type != NULL && is_handle_type(symbol->type))
         {
             if (symbol->type->kind == TYPE_STRING)
-                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)", ARENA_VAR(gen), deref);
+                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)", deref);
             else if (symbol->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))", elem_c, ARENA_VAR(gen), deref);
+                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, deref);
             }
         }
         return deref;
@@ -211,8 +211,9 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         symbol->type != NULL &&
         is_handle_type(symbol->type))
     {
-        /* Clone the global handle to the current local arena */
-        return arena_sprintf(gen->arena, "rt_managed_clone(%s, __main_arena__, %s)",
+        /* Clone the global handle to the current local arena.
+         * V2 handles carry their own arena reference, so no source arena needed. */
+        return arena_sprintf(gen->arena, "rt_arena_v2_clone(%s, %s)",
                              ARENA_VAR(gen), mangled);
     }
 
@@ -225,19 +226,19 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         symbol->type != NULL &&
         is_handle_type(symbol->type))
     {
-        /* Pin handles using the current arena. rt_managed_pin automatically
-         * walks the parent chain to find handles from any arena in the tree. */
-        const char *pin_arena = ARENA_VAR(gen);
+        /* Pin handles. V2 handles don't need the arena parameter.
+         * For strings, rt_handle_v2_pin returns the string data directly.
+         * For arrays, rt_array_data_v2 returns the element data (not metadata). */
         if (symbol->type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                 pin_arena, mangled);
+            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                 mangled);
         }
         else if (symbol->type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                 elem_c, pin_arena, mangled);
+            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                 elem_c, mangled);
         }
     }
 
@@ -448,7 +449,7 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             if (conv_func != NULL)
             {
                 if (gen->current_arena_var != NULL) {
-                    value_str = arena_sprintf(gen->arena, "%s_h(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
+                    value_str = arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
                     value_is_new_handle = true;
                 } else {
                     value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
@@ -496,7 +497,7 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             if (conv_func != NULL)
             {
                 if (gen->current_arena_var != NULL) {
-                    value_str = arena_sprintf(gen->arena, "%s_h(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
+                    value_str = arena_sprintf(gen->arena, "%s_v2(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
                     value_is_new_handle = true;
                 } else {
                     value_str = arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), value_str);
@@ -541,20 +542,20 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
                 {
                     if (src_elem->kind == TYPE_STRING)
                     {
-                        /* String arrays store RtHandle elements — use dedicated _h function.
-                         * The result is RtAny* which must be wrapped to RtHandle for storage. */
+                        /* String arrays store RtHandleV2* elements — use V2 function.
+                         * The _v2 function returns RtHandleV2* directly. */
                         value_str = arena_sprintf(gen->arena,
-                            "rt_array_clone_void_h(%s, RT_HANDLE_NULL, rt_array_to_any_string_h(%s, %s))",
-                            ARENA_VAR(gen), ARENA_VAR(gen), value_str);
+                            "rt_array_to_any_string_v2(%s, (RtHandleV2 **)rt_array_data_v2(%s))",
+                            ARENA_VAR(gen), value_str);
                     }
                     else
                     {
-                        /* Non-string: pin source handle, then convert to RtAny*.
-                         * Wrap result with rt_array_clone_void_h to convert to RtHandle. */
+                        /* Non-string: get array data pointer, then convert using V2 function.
+                         * The _v2 function returns RtHandleV2* directly. */
                         const char *elem_c = get_c_type(gen->arena, src_elem);
                         value_str = arena_sprintf(gen->arena,
-                            "rt_array_clone_void_h(%s, RT_HANDLE_NULL, %s(%s, (%s *)rt_managed_pin_array(%s, %s)))",
-                            ARENA_VAR(gen), conv_func, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), value_str);
+                            "%s_v2(%s, (%s *)rt_array_data_v2(%s))",
+                            conv_func, ARENA_VAR(gen), elem_c, value_str);
                     }
                     value_is_new_handle = true;
                 }
@@ -584,13 +585,13 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         const char *struct_name = sn_mangle_name(gen->arena, type->as.struct_type.name);
         if (struct_name != NULL)
         {
-            // Generate: ({ StructType *_tmp = (StructType *)rt_arena_alloc(arena, sizeof(StructType));
+            // Generate: ({ StructType *_tmp = (StructType *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, sizeof(StructType)));
             //             StructType __src_tmp__ = value;
             //             memcpy(_tmp, &__src_tmp__, sizeof(StructType));
             //             var = *_tmp; var; })
             // This allocates in the outer arena first, then copies using memcpy
             return arena_sprintf(gen->arena,
-                "({ %s *__esc_tmp__ = (%s *)rt_arena_alloc(%s, sizeof(%s)); "
+                "({ %s *__esc_tmp__ = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s))); "
                 "%s __esc_src__ = %s; "
                 "memcpy(__esc_tmp__, &__esc_src__, sizeof(%s)); "
                 "%s = *__esc_tmp__; %s; })",
@@ -614,22 +615,23 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         {
             if (string_as_handle)
             {
-                /* Value expression was evaluated in handle mode - already returns RtHandle.
-                 * For globals, promote the handle to main arena so it survives function return. */
+                /* Value expression was evaluated in handle mode - already returns RtHandleV2*.
+                 * For globals, promote the handle to main arena so it survives function return.
+                 * V2 handles carry their own arena reference, so no source arena needed. */
                 if (is_global)
                 {
-                    return arena_sprintf(gen->arena, "(%s = rt_managed_promote(__main_arena__, %s, %s))",
-                                         var_name, ARENA_VAR(gen), value_str);
+                    return arena_sprintf(gen->arena, "(%s = rt_arena_v2_promote(__main_arena__, %s))",
+                                         var_name, value_str);
                 }
                 /* For locals, just do a direct assignment. */
                 return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
             }
-            /* For handle-based strings: use rt_managed_strdup with old handle.
+            /* For handle-based strings: create new handle and assign (old will be GC'd).
              * The value_str is a raw pointer (pinned by expression generator).
              * For globals, use main arena. Otherwise use function arena. */
             const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
-            return arena_sprintf(gen->arena, "(%s = rt_managed_strdup(%s, %s, %s))",
-                                 var_name, target_arena, var_name, value_str);
+            return arena_sprintf(gen->arena, "(%s = rt_arena_v2_strdup(%s, %s))",
+                                 var_name, target_arena, value_str);
         }
         return arena_sprintf(gen->arena, "({ char *_val = %s; if (%s) rt_free_string(%s); %s = _val; _val; })",
                              value_str, var_name, var_name, var_name);
@@ -640,11 +642,12 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         {
             /* Array literal or 2D/3D conversion already produced a new handle.
              * For globals, promote to main arena so it survives function return.
-             * For locals, just assign directly. */
+             * For locals, just assign directly.
+             * V2 handles carry their own arena reference, so no source arena needed. */
             if (is_global)
             {
-                return arena_sprintf(gen->arena, "(%s = rt_managed_promote(__main_arena__, %s, %s))",
-                                     var_name, ARENA_VAR(gen), value_str);
+                return arena_sprintf(gen->arena, "(%s = rt_arena_v2_promote(__main_arena__, %s))",
+                                     var_name, value_str);
             }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
@@ -652,13 +655,14 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         Type *elem_type = type->as.array.element_type;
         const char *suffix = code_gen_type_suffix(elem_type);
         const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
-        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s_h(%s, %s, %s))",
-                             var_name, suffix, target_arena, var_name, value_str);
+        return arena_sprintf(gen->arena, "(%s = rt_array_clone_%s_v2(%s, %s))",
+                             var_name, suffix, target_arena, value_str);
     }
     else if (type->kind == TYPE_STRUCT && in_arena_context && is_global)
     {
         // Struct is value-copied, but string/array fields are handles.
-        // Deep-promote those fields to main's arena using rt_managed_promote.
+        // Deep-promote those fields to main's arena using rt_arena_v2_promote.
+        // V2 handles carry their own arena reference, so no source arena needed.
         int field_count = type->as.struct_type.field_count;
         bool needs_deep_promote = false;
         for (int i = 0; i < field_count; i++)
@@ -681,8 +685,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
                 const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
                 if (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY)
                 {
-                    result = arena_sprintf(gen->arena, "%sif (%s.%s) %s.%s = rt_managed_promote(__main_arena__, %s, %s.%s); ",
-                                           result, var_name, c_field_name, var_name, c_field_name, ARENA_VAR(gen), var_name, c_field_name);
+                    result = arena_sprintf(gen->arena, "%sif (%s.%s) %s.%s = rt_arena_v2_promote(__main_arena__, %s.%s); ",
+                                           result, var_name, c_field_name, var_name, c_field_name, var_name, c_field_name);
                 }
             }
             result = arena_sprintf(gen->arena, "%s%s; })", result, var_name);

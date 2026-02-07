@@ -21,7 +21,7 @@
 static void test_thread_default_mode_arena(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create thread args for default mode (is_shared=false, is_private=false) */
@@ -37,7 +37,7 @@ static void test_thread_default_mode_arena(void)
 
     /* Simulate the arena creation logic from rt_thread_spawn for default mode */
     /* Default mode: create own arena with caller as parent for promotion */
-    RtArena *thread_arena = rt_arena_create(caller_arena);
+    RtArenaV2 *thread_arena = rt_arena_v2_create(caller_arena, RT_ARENA_MODE_PRIVATE, "thread");
     assert(thread_arena != NULL);
     assert(thread_arena->parent == caller_arena);  /* Parent link should be set */
 
@@ -51,15 +51,15 @@ static void test_thread_default_mode_arena(void)
     assert(handle->thread_arena != caller_arena);
 
     /* Clean up */
-    rt_arena_destroy(thread_arena);
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(thread_arena);
+    rt_arena_v2_destroy(caller_arena);
 }
 
 /* Test shared mode reuses caller arena */
 static void test_thread_shared_mode_arena(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create thread args for shared mode */
@@ -87,14 +87,14 @@ static void test_thread_shared_mode_arena(void)
     assert(args->thread_arena == caller_arena);
 
     /* Clean up - only destroy caller arena since shared mode doesn't own thread arena */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 }
 
 /* Test private mode creates isolated arena (parent = NULL) */
 static void test_thread_private_mode_arena(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create thread args for private mode */
@@ -110,7 +110,7 @@ static void test_thread_private_mode_arena(void)
 
     /* Simulate the arena creation logic from rt_thread_spawn for private mode */
     /* Private mode: create isolated arena with no parent */
-    RtArena *thread_arena = rt_arena_create(NULL);
+    RtArenaV2 *thread_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(thread_arena != NULL);
     assert(thread_arena->parent == NULL);  /* No parent link - isolated */
 
@@ -123,8 +123,8 @@ static void test_thread_private_mode_arena(void)
     assert(handle->thread_arena->parent == NULL);
 
     /* Clean up */
-    rt_arena_destroy(thread_arena);
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(thread_arena);
+    rt_arena_v2_destroy(caller_arena);
 }
 
 /* Test that thread arena cleanup happens correctly for each mode */
@@ -132,23 +132,23 @@ static void test_thread_arena_cleanup_logic(void)
 {
 
     /* Test 1: Default mode - thread_arena should be non-NULL and destroyable */
-    RtArena *caller1 = rt_arena_create(NULL);
+    RtArenaV2 *caller1 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     RtThreadHandle *handle1 = rt_thread_handle_create(caller1);
-    handle1->thread_arena = rt_arena_create(caller1);
+    handle1->thread_arena = rt_arena_v2_create(caller1, RT_ARENA_MODE_PRIVATE, "thread");
     handle1->is_shared = false;
     handle1->is_private = false;
     assert(handle1->thread_arena != NULL);
 
     /* Simulate cleanup - thread arena should be destroyed */
     if (handle1->thread_arena != NULL) {
-        rt_arena_destroy(handle1->thread_arena);
+        rt_arena_v2_destroy(handle1->thread_arena);
         handle1->thread_arena = NULL;
     }
     assert(handle1->thread_arena == NULL);
-    rt_arena_destroy(caller1);
+    rt_arena_v2_destroy(caller1);
 
     /* Test 2: Shared mode - thread_arena is NULL, nothing to destroy */
-    RtArena *caller2 = rt_arena_create(NULL);
+    RtArenaV2 *caller2 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     RtThreadHandle *handle2 = rt_thread_handle_create(caller2);
     handle2->thread_arena = NULL;  /* Shared mode: don't own arena */
     handle2->is_shared = true;
@@ -156,16 +156,16 @@ static void test_thread_arena_cleanup_logic(void)
 
     /* Simulate cleanup - nothing should happen for shared mode */
     if (handle2->thread_arena != NULL) {
-        rt_arena_destroy(handle2->thread_arena);
+        rt_arena_v2_destroy(handle2->thread_arena);
         handle2->thread_arena = NULL;
     }
     /* No crash means success */
-    rt_arena_destroy(caller2);
+    rt_arena_v2_destroy(caller2);
 
     /* Test 3: Private mode - thread_arena should be destroyable */
-    RtArena *caller3 = rt_arena_create(NULL);
+    RtArenaV2 *caller3 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     RtThreadHandle *handle3 = rt_thread_handle_create(caller3);
-    handle3->thread_arena = rt_arena_create(NULL);  /* Private: no parent */
+    handle3->thread_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");  /* Private: no parent */
     handle3->is_shared = false;
     handle3->is_private = true;
     assert(handle3->thread_arena != NULL);
@@ -173,35 +173,35 @@ static void test_thread_arena_cleanup_logic(void)
 
     /* Simulate cleanup - thread arena should be destroyed */
     if (handle3->thread_arena != NULL) {
-        rt_arena_destroy(handle3->thread_arena);
+        rt_arena_v2_destroy(handle3->thread_arena);
         handle3->thread_arena = NULL;
     }
     assert(handle3->thread_arena == NULL);
-    rt_arena_destroy(caller3);
+    rt_arena_v2_destroy(caller3);
 }
 
 /* Test arena is thread-safe for shared mode (managed arena is lock-free) */
 static void test_thread_shared_mode_arena_freezing(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Managed arena is thread-safe by design — no freezing needed.
      * Verify concurrent allocations work. */
-    void *p1 = rt_arena_alloc(caller_arena, 32);
-    void *p2 = rt_arena_alloc(caller_arena, 64);
+    void *p1 = rt_handle_v2_pin(rt_arena_v2_alloc(caller_arena, 32));
+    void *p2 = rt_handle_v2_pin(rt_arena_v2_alloc(caller_arena, 64));
     assert(p1 != NULL);
     assert(p2 != NULL);
 
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 }
 
 /* Test that RtThreadArgs properly stores mode flags */
 static void test_thread_args_mode_flags(void)
 {
 
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(arena != NULL);
 
     /* Create args and verify default values */
@@ -224,14 +224,14 @@ static void test_thread_args_mode_flags(void)
     assert(args->is_shared == false);
     assert(args->is_private == true);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 /* Test that RtThreadHandle properly stores mode flags */
 static void test_thread_handle_mode_flags(void)
 {
 
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(arena != NULL);
 
     /* Create handle and verify default values */
@@ -251,7 +251,7 @@ static void test_thread_handle_mode_flags(void)
     handle->is_private = true;
     assert(handle->is_private == true);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 /* ============================================================================
@@ -269,7 +269,7 @@ static void *default_mode_thread_wrapper(void *arg)
     rt_thread_signal_started(args);
 
     /* Allocate a string in the thread's arena */
-    char *result_str = rt_arena_strdup(args->thread_arena, "thread_result");
+    char *result_str = (char *)rt_handle_v2_pin(rt_arena_v2_strdup(args->thread_arena, "thread_result"));
 
     /* Store result */
     if (args->result != NULL) {
@@ -286,7 +286,7 @@ static void *default_mode_thread_wrapper(void *arg)
 static void test_integration_default_mode_thread(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create args for default mode */
@@ -309,7 +309,7 @@ static void test_integration_default_mode_thread(void)
     assert(handle->thread_arena != NULL);
 
     /* Clean up thread arena explicitly (normally done by sync functions) */
-    rt_arena_destroy(handle->thread_arena);
+    rt_arena_v2_destroy(handle->thread_arena);
     handle->thread_arena = NULL;
 
     /* Result should have been promoted (but we don't verify content here since
@@ -317,7 +317,7 @@ static void test_integration_default_mode_thread(void)
     (void)result;
 
     /* Cleanup */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 
 }
 
@@ -347,7 +347,7 @@ static void *shared_mode_thread_wrapper(void *arg)
 static void test_integration_shared_mode_thread(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create args for shared mode */
@@ -368,7 +368,7 @@ static void test_integration_shared_mode_thread(void)
     (void)result;
 
     /* Cleanup */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 
 }
 
@@ -381,12 +381,12 @@ static void *private_mode_thread_wrapper(void *arg)
     rt_thread_signal_started(args);
 
     /* Private mode: allocate locally but only return primitives */
-    char *local_str = rt_arena_strdup(args->thread_arena, "local_only");
+    char *local_str = (char *)rt_handle_v2_pin(rt_arena_v2_strdup(args->thread_arena, "local_only"));
     (void)local_str;  /* Use but don't return non-primitive */
 
     /* Store primitive result */
     if (args->result != NULL) {
-        int *int_result = rt_arena_alloc(args->thread_arena, sizeof(int));
+        int *int_result = rt_handle_v2_pin(rt_arena_v2_alloc(args->thread_arena, sizeof(int)));
         *int_result = 42;
         args->result->value = int_result;
     }
@@ -401,7 +401,7 @@ static void *private_mode_thread_wrapper(void *arg)
 static void test_integration_private_mode_thread(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Create args for private mode */
@@ -423,14 +423,14 @@ static void test_integration_private_mode_thread(void)
     assert(handle->thread_arena != NULL);
 
     /* Clean up thread arena explicitly (normally done by sync functions) */
-    rt_arena_destroy(handle->thread_arena);
+    rt_arena_v2_destroy(handle->thread_arena);
     handle->thread_arena = NULL;
 
     /* Result (primitive) should be accessible */
     (void)result;
 
     /* Cleanup */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 
 }
 
@@ -438,21 +438,21 @@ static void test_integration_private_mode_thread(void)
 static void test_integration_shared_mode_concurrent_alloc(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Managed arena supports concurrent allocation */
-    void *p1 = rt_arena_alloc(caller_arena, 16);
+    void *p1 = rt_handle_v2_pin(rt_arena_v2_alloc(caller_arena, 16));
     assert(p1 != NULL);
 
-    void *p2 = rt_arena_alloc(caller_arena, 32);
+    void *p2 = rt_handle_v2_pin(rt_arena_v2_alloc(caller_arena, 32));
     assert(p2 != NULL);
 
-    void *p3 = rt_arena_alloc(caller_arena, 64);
+    void *p3 = rt_handle_v2_pin(rt_arena_v2_alloc(caller_arena, 64));
     assert(p3 != NULL);
 
     /* Cleanup */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 
 }
 
@@ -462,7 +462,7 @@ static void test_integration_arena_cleanup_no_leaks(void)
 
     /* Spawn and sync multiple threads, verify arenas are cleaned up */
     for (int i = 0; i < 5; i++) {
-        RtArena *caller_arena = rt_arena_create(NULL);
+        RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
         assert(caller_arena != NULL);
 
         /* Default mode thread */
@@ -478,11 +478,11 @@ static void test_integration_arena_cleanup_no_leaks(void)
         /* Join and cleanup (join no longer auto-cleans) */
         rt_thread_join(handle);
         assert(handle->thread_arena != NULL);
-        rt_arena_destroy(handle->thread_arena);
+        rt_arena_v2_destroy(handle->thread_arena);
         handle->thread_arena = NULL;
 
         /* Destroy caller arena */
-        rt_arena_destroy(caller_arena);
+        rt_arena_v2_destroy(caller_arena);
     }
 
 }
@@ -491,7 +491,7 @@ static void test_integration_arena_cleanup_no_leaks(void)
 static void test_integration_arena_auto_joins_pending_threads(void)
 {
 
-    RtArena *caller_arena = rt_arena_create(NULL);
+    RtArenaV2 *caller_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(caller_arena != NULL);
 
     /* Spawn a thread but don't explicitly sync it */
@@ -508,7 +508,7 @@ static void test_integration_arena_auto_joins_pending_threads(void)
      * tracking call needed. */
 
     /* Destroying the arena should auto-join the thread */
-    rt_arena_destroy(caller_arena);
+    rt_arena_v2_destroy(caller_arena);
 
     /* If we get here without hanging, auto-join worked */
 }

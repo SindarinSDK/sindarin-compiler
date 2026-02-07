@@ -67,48 +67,48 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     switch (element_type->kind) {
         case TYPE_LONG:
         case TYPE_INT:
-            push_func = "rt_array_push_long_h";
+            push_func = "rt_array_push_long_v2";
             break;
         case TYPE_INT32:
-            push_func = "rt_array_push_int32_h";
+            push_func = "rt_array_push_int32_v2";
             break;
         case TYPE_UINT:
-            push_func = "rt_array_push_uint_h";
+            push_func = "rt_array_push_uint_v2";
             break;
         case TYPE_UINT32:
-            push_func = "rt_array_push_uint32_h";
+            push_func = "rt_array_push_uint32_v2";
             break;
         case TYPE_FLOAT:
-            push_func = "rt_array_push_float_h";
+            push_func = "rt_array_push_float_v2";
             break;
         case TYPE_DOUBLE:
-            push_func = "rt_array_push_double_h";
+            push_func = "rt_array_push_double_v2";
             break;
         case TYPE_CHAR:
-            push_func = "rt_array_push_char_h";
+            push_func = "rt_array_push_char_v2";
             break;
         case TYPE_STRING:
-            push_func = "rt_array_push_string_h";
+            push_func = "rt_array_push_string_v2";
             break;
         case TYPE_BOOL:
-            push_func = "rt_array_push_bool_h";
+            push_func = "rt_array_push_bool_v2";
             break;
         case TYPE_BYTE:
-            push_func = "rt_array_push_byte_h";
+            push_func = "rt_array_push_byte_v2";
             break;
         case TYPE_FUNCTION:
-            push_func = "rt_array_push_voidptr_h";
+            push_func = "rt_array_push_voidptr_v2";
             break;
         case TYPE_ARRAY:
-            push_func = "rt_array_push_ptr_h";
+            push_func = "rt_array_push_ptr_v2";
             break;
         case TYPE_ANY:
-            push_func = "rt_array_push_any_h";
+            push_func = "rt_array_push_any_v2";
             break;
         case TYPE_STRUCT:
             /* Struct types use a generic push with element size parameter.
              * The element is passed by pointer (address-of). */
-            push_func = "rt_array_push_struct_h";
+            push_func = "rt_array_push_struct_v2";
             break;
         default:
             fprintf(stderr, "Error: Unsupported array element type for push\n");

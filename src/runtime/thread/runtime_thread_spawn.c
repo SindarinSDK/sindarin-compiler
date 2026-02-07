@@ -6,7 +6,7 @@
  * ============================================================================ */
 
 /* Spawn a new thread (implements & operator) */
-RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
+RtThreadHandle *rt_thread_spawn(RtArenaV2 *arena, void *(*wrapper)(void *),
                                  RtThreadArgs *args)
 {
     if (arena == NULL) {
@@ -44,8 +44,8 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
 
     /* Create thread arena based on mode flags:
      * - shared mode (is_shared=true): thread_arena = caller_arena (reuse parent)
-     * - private mode (is_private=true): thread_arena = rt_arena_create(NULL) (isolated)
-     * - default mode (both false): thread_arena = rt_arena_create(caller_arena) (own with parent)
+     * - private mode (is_private=true): thread_arena = rt_arena_v2_create_child(NULL) (isolated)
+     * - default mode (both false): thread_arena = rt_arena_v2_create_child(caller_arena) (own with parent)
      */
     if (args->is_shared) {
         /* Shared mode: reuse caller's arena directly.
@@ -55,7 +55,7 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         handle->thread_arena = NULL;  /* Don't destroy - it's the caller's */
     } else if (args->is_private) {
         /* Private mode: create isolated arena with no parent */
-        args->thread_arena = rt_arena_create(NULL);
+        args->thread_arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_PRIVATE, "private_thread");
         if (args->thread_arena == NULL) {
             fprintf(stderr, "rt_thread_spawn: failed to create private thread arena\n");
             return NULL;
@@ -63,7 +63,7 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         handle->thread_arena = args->thread_arena;
     } else {
         /* Default mode: create own arena with caller as parent for promotion */
-        args->thread_arena = rt_arena_create(args->caller_arena);
+        args->thread_arena = rt_arena_v2_create(args->caller_arena, RT_ARENA_MODE_PRIVATE, "thread");
         if (args->thread_arena == NULL) {
             fprintf(stderr, "rt_thread_spawn: failed to create thread arena\n");
             return NULL;
@@ -93,7 +93,7 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
         pthread_cond_destroy(&args->started_cond);
         /* Clean up thread arena on failure */
         if (handle->thread_arena != NULL && !args->is_shared) {
-            rt_arena_destroy(handle->thread_arena);
+            rt_arena_v2_destroy(handle->thread_arena);
         }
         args->handle = NULL;  /* Clear on failure */
         return NULL;
@@ -121,7 +121,7 @@ RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
 
     /* Track in caller's arena so arena destruction auto-joins the thread */
     if (args->caller_arena != NULL) {
-        rt_arena_on_cleanup(args->caller_arena, handle,
+        rt_arena_v2_on_cleanup(args->caller_arena, handle,
                             rt_thread_cleanup, RT_CLEANUP_PRIORITY_HIGH);
     }
 
@@ -229,7 +229,7 @@ void rt_thread_sync(RtThreadHandle *handle)
     if (handle->result != NULL && handle->result->has_panic) {
         /* Clean up thread arena before panicking */
         if (handle->thread_arena != NULL) {
-            rt_arena_destroy(handle->thread_arena);
+            rt_arena_v2_destroy(handle->thread_arena);
             handle->thread_arena = NULL;
         }
         /* Re-panic in the calling thread using rt_thread_panic
@@ -243,7 +243,7 @@ void rt_thread_sync(RtThreadHandle *handle)
     /* Clean up thread arena for private and default modes
      * Shared mode has thread_arena == NULL, so no cleanup needed */
     if (handle->thread_arena != NULL) {
-        rt_arena_destroy(handle->thread_arena);
+        rt_arena_v2_destroy(handle->thread_arena);
         handle->thread_arena = NULL;
     }
 
@@ -252,7 +252,7 @@ void rt_thread_sync(RtThreadHandle *handle)
      * fire-and-forget threads when arena is destroyed. Since we're manually
      * syncing here, we must remove it to avoid accessing freed memory. */
     if (handle->caller_arena != NULL) {
-        rt_arena_remove_cleanup(handle->caller_arena, handle);
+        rt_arena_v2_remove_cleanup(handle->caller_arena, handle);
     }
 
     /* Release handle and result back to caller arena for GC reclamation */

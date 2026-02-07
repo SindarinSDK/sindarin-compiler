@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include "runtime_string_h.h"
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 #include "../array/runtime_array.h"
 
 /* ============================================================================

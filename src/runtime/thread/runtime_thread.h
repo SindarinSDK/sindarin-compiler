@@ -14,7 +14,7 @@
 #endif
 #include <stdbool.h>
 #include <setjmp.h>
-#include "runtime/runtime_arena.h"
+#include "runtime/arena/arena_v2.h"
 
 /* Thread-local storage compatibility:
  * - MSVC: use __declspec(thread)
@@ -67,8 +67,8 @@ typedef struct RtThreadHandle {
     RtThreadResult *result;   /* Result from thread execution */
     bool done;                /* True when thread has completed */
     bool synced;              /* True when ! operator has been applied */
-    RtArena *thread_arena;    /* Arena used by the thread (for cleanup) */
-    RtArena *caller_arena;    /* Caller's arena (for default mode promotion) */
+    RtArenaV2 *thread_arena;  /* Arena used by the thread (for cleanup) */
+    RtArenaV2 *caller_arena;  /* Caller's arena (for default mode promotion) */
     int result_type;          /* RtResultType for result promotion (-1 if void) */
     bool is_shared;           /* True if function uses shared arena semantics */
     bool is_private;          /* True if function uses private arena semantics */
@@ -88,8 +88,8 @@ typedef struct RtThreadArgs {
     void *args_data;          /* Packed argument data */
     size_t args_size;         /* Size of args_data in bytes */
     RtThreadResult *result;   /* Where to store the result */
-    RtArena *caller_arena;    /* Caller's arena (for shared functions) */
-    RtArena *thread_arena;    /* Thread's own arena */
+    RtArenaV2 *caller_arena;  /* Caller's arena (for shared functions) */
+    RtArenaV2 *thread_arena;  /* Thread's own arena */
     bool is_shared;           /* True if function uses shared arena semantics */
     bool is_private;          /* True if function uses private arena semantics */
     RtThreadHandle *handle;   /* Handle for this thread (for cleanup coordination) */
@@ -126,7 +126,7 @@ typedef struct RtThreadPanicContext {
     jmp_buf jump_buffer;          /* setjmp buffer for panic recovery */
     bool is_active;               /* True if panic handler is installed */
     RtThreadResult *result;       /* Where to store panic state */
-    RtArena *arena;               /* Arena for panic message allocation */
+    RtArenaV2 *arena;             /* Arena for panic message allocation */
 } RtThreadPanicContext;
 
 /* Thread-local panic context for the current thread */
@@ -135,7 +135,7 @@ extern RT_THREAD_LOCAL RtThreadPanicContext *rt_thread_panic_ctx;
 /* Initialize a panic context for the current thread */
 void rt_thread_panic_context_init(RtThreadPanicContext *ctx,
                                    RtThreadResult *result,
-                                   RtArena *arena);
+                                   RtArenaV2 *arena);
 
 /* Clear the panic context for the current thread */
 void rt_thread_panic_context_clear(void);
@@ -173,11 +173,11 @@ void *rt_get_thread_arena_or(void *fallback);
  * ============================================================================ */
 
 /* Create a new thread handle in the given arena */
-RtThreadHandle *rt_thread_handle_create(RtArena *arena);
+RtThreadHandle *rt_thread_handle_create(RtArenaV2 *arena);
 
 /* Release a thread handle and its result back to the arena.
  * Marks them as dead so GC can reclaim the memory. */
-void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena);
+void rt_thread_handle_release(RtThreadHandle *handle, RtArenaV2 *arena);
 
 /* Clean up a fire-and-forget thread after it completes.
  * Called by thread wrapper when spawn is used as a statement (result discarded).
@@ -185,14 +185,14 @@ void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena);
 void rt_thread_fire_forget_cleanup(RtThreadHandle *handle);
 
 /* Create thread arguments structure in the given arena */
-RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,
+RtThreadArgs *rt_thread_args_create(RtArenaV2 *arena, void *func_ptr,
                                      void *args_data, size_t args_size);
 
 /* Create a thread result structure in the given arena */
-RtThreadResult *rt_thread_result_create(RtArena *arena);
+RtThreadResult *rt_thread_result_create(RtArenaV2 *arena);
 
 /* Spawn a new thread (implements & operator) */
-RtThreadHandle *rt_thread_spawn(RtArena *arena, void *(*wrapper)(void *),
+RtThreadHandle *rt_thread_spawn(RtArenaV2 *arena, void *(*wrapper)(void *),
                                  RtThreadArgs *args);
 
 /* Join a thread and retrieve its result (low-level pthread_join wrapper) */
@@ -216,11 +216,11 @@ void rt_thread_signal_started(RtThreadArgs *args);
 
 /* Set panic state on a thread result */
 void rt_thread_result_set_panic(RtThreadResult *result, const char *message,
-                                 RtArena *arena);
+                                 RtArenaV2 *arena);
 
 /* Set value on a thread result */
 void rt_thread_result_set_value(RtThreadResult *result, void *value,
-                                 size_t size, RtArena *arena);
+                                 size_t size, RtArenaV2 *arena);
 
 /* ============================================================================
  * Result Type Identifiers
@@ -265,7 +265,7 @@ typedef enum {
  * - Arrays: cloned using appropriate rt_array_clone_* function
  * - Structs: copied using the provided value_size
  */
-void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
+void *rt_thread_promote_result(RtArenaV2 *dest, RtArenaV2 *src_arena,
                                 void *value, RtResultType type, size_t value_size);
 
 /* Synchronize a thread handle and get promoted result
@@ -273,7 +273,7 @@ void *rt_thread_promote_result(RtArena *dest, RtArena *src_arena,
  * Handles panic propagation with message promotion.
  */
 void *rt_thread_sync_with_result(RtThreadHandle *handle,
-                                  RtArena *caller_arena,
+                                  RtArenaV2 *caller_arena,
                                   RtResultType result_type);
 
 /* Synchronize a thread handle and get promoted result WITHOUT destroying thread arena.
@@ -281,7 +281,7 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
  * The caller MUST call rt_arena_destroy(handle->thread_arena) after field promotion.
  */
 void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
-                                             RtArena *caller_arena,
+                                             RtArenaV2 *caller_arena,
                                              RtResultType result_type);
 
 /* Destroy the thread arena after struct field promotion is complete */

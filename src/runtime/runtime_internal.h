@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Common Macros

@@ -97,7 +97,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
                              arg_sym->type->as.function.has_body);
     if (wrapped_has_body)
     {
-        args_forward = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena)");
+        args_forward = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena)");
     }
 
     for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -152,7 +152,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
     {
         return arena_sprintf(gen->arena,
             "({\n"
-            "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+            "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
             "    __cl__->fn = (void *)%s;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__;\n"
@@ -296,8 +296,8 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
-                                         ARENA_VAR(gen), handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
+                                         handle_expr);
         }
         /* For native functions receiving individual str args - convert RtHandle to const char* */
         else if (!callee_is_sindarin && callee_is_native && gen->current_arena_var != NULL &&
@@ -308,8 +308,8 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                         ARENA_VAR(gen), handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                         handle_expr);
         }
         else
         {
@@ -494,14 +494,14 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             {
                 if (expr->expr_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                         ARENA_VAR(gen), intercept_expr);
+                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                         intercept_expr);
                 }
                 else if (expr->expr_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-                    return arena_sprintf(gen->arena, "(((%s *)rt_managed_pin_array(%s, %s)))",
-                                         elem_c, ARENA_VAR(gen), intercept_expr);
+                    return arena_sprintf(gen->arena, "(((%s *)rt_array_data_v2(%s)))",
+                                         elem_c, intercept_expr);
                 }
             }
             return intercept_expr;
@@ -516,14 +516,14 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         {
             if (expr->expr_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                     ARENA_VAR(gen), call_expr);
+                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                     call_expr);
             }
             else if (expr->expr_type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                     elem_c, ARENA_VAR(gen), call_expr);
+                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                     elem_c, call_expr);
             }
         }
 
@@ -535,7 +535,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             {
                 if (!callee_needs_arena)
                 {
-                    return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)",
+                    return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
                                          ARENA_VAR(gen), call_expr);
                 }
             }
@@ -546,14 +546,14 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 {
                     if (!callee_needs_arena)
                     {
-                        return arena_sprintf(gen->arena, "rt_array_from_legacy_string_h(%s, %s)",
+                        return arena_sprintf(gen->arena, "rt_array_from_legacy_string_v2(%s, %s)",
                                              ARENA_VAR(gen), call_expr);
                     }
                 }
                 else if (!callee_needs_arena)
                 {
                     const char *suffix = code_gen_type_suffix(elem);
-                    return arena_sprintf(gen->arena, "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s)",
+                    return arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, %s)",
                                          suffix, ARENA_VAR(gen), call_expr);
                 }
             }
@@ -603,14 +603,14 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "%s        (char *)rt_managed_pin(%s, _call_result);\n    })",
-                                   result, ARENA_VAR(gen));
+            result = arena_sprintf(gen->arena, "%s        (char *)rt_handle_v2_pin(_call_result);\n    })",
+                                   result);
         }
         else
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            result = arena_sprintf(gen->arena, "%s        (%s *)rt_managed_pin_array(%s, _call_result);\n    })",
-                                   elem_c, ARENA_VAR(gen));
+            result = arena_sprintf(gen->arena, "%s        (%s *)rt_array_data_v2(_call_result);\n    })",
+                                   result, elem_c);
         }
     }
     else if (gen->expr_as_handle && !callee_has_body &&
@@ -621,7 +621,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         {
             if (!callee_needs_arena)
             {
-                result = arena_sprintf(gen->arena, "%s        rt_managed_strdup(%s, RT_HANDLE_NULL, _call_result);\n    })",
+                result = arena_sprintf(gen->arena, "%s        rt_arena_v2_strdup(%s, _call_result);\n    })",
                                        result, ARENA_VAR(gen));
             }
             else
@@ -634,13 +634,13 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             Type *elem = expr->expr_type->as.array.element_type;
             if (elem != NULL && elem->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "%s        rt_array_from_legacy_string_h(%s, _call_result);\n    })",
+                result = arena_sprintf(gen->arena, "%s        rt_array_from_legacy_string_v2(%s, _call_result);\n    })",
                                        result, ARENA_VAR(gen));
             }
             else
             {
                 const char *suffix = code_gen_type_suffix(elem);
-                result = arena_sprintf(gen->arena, "%s        rt_array_clone_%s_h(%s, RT_HANDLE_NULL, _call_result);\n    })",
+                result = arena_sprintf(gen->arena, "%s        rt_array_clone_%s_v2(%s, _call_result);\n    })",
                                        result, suffix, ARENA_VAR(gen));
             }
         }

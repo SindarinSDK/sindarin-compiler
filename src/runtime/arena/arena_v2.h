@@ -27,7 +27,9 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <pthread.h>
+
+/* Use arena_compat.h for pthread types/functions to avoid conflicts on Windows */
+#include "runtime/arena/arena_compat.h"
 
 /* ============================================================================
  * Forward Declarations
@@ -167,6 +169,11 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
 /* Destroy an arena and all its handles/blocks. */
 void rt_arena_v2_destroy(RtArenaV2 *arena);
 
+/* Cleanup priority constants - lower values are called first */
+#define RT_CLEANUP_PRIORITY_HIGH   0
+#define RT_CLEANUP_PRIORITY_NORMAL 100
+#define RT_CLEANUP_PRIORITY_LOW    200
+
 /* Register a cleanup callback. */
 void rt_arena_v2_on_cleanup(RtArenaV2 *arena, void *data, RtCleanupFnV2 fn, int priority);
 
@@ -283,6 +290,12 @@ RtArenaV2 *rt_arena_v2_redirect_current(void);
 RtArenaV2 *rt_arena_v2_thread_current(void);
 void rt_arena_v2_thread_set(RtArenaV2 *arena);
 
+/* Get thread arena or fallback if not set. */
+static inline RtArenaV2 *rt_arena_v2_thread_or(RtArenaV2 *fallback) {
+    RtArenaV2 *current = rt_arena_v2_thread_current();
+    return current ? current : fallback;
+}
+
 /* ============================================================================
  * Debug / Statistics
  * ============================================================================ */
@@ -297,5 +310,49 @@ typedef struct {
 
 void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats);
 void rt_arena_v2_print_stats(RtArenaV2 *arena);
+
+/* ============================================================================
+ * Backward Compatibility Aliases
+ * ============================================================================
+ * These provide compatibility with the old V1 arena API that used RtArena.
+ * The V1 API used raw pointers and bump allocation; V2 handles this via
+ * rt_handle_v2_pin() which returns the raw pointer from a handle.
+ * ============================================================================ */
+
+/* Type aliases - map old types to V2 */
+typedef RtArenaV2 RtArena;
+typedef RtArenaV2 RtManagedArena;
+typedef RtHandleV2 *RtHandle;
+
+/* Null handle constant */
+#define RT_HANDLE_NULL NULL
+
+/* Backward compatible allocation function - allocates and returns raw pointer */
+static inline void *rt_arena_alloc(RtArenaV2 *arena, size_t size) {
+    RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
+    return rt_handle_v2_pin(h);
+}
+
+/* Backward compatible string duplication - allocates and returns raw pointer */
+static inline char *rt_arena_strdup(RtArenaV2 *arena, const char *str) {
+    if (str == NULL) return NULL;
+    RtHandleV2 *h = rt_arena_v2_strdup(arena, str);
+    return (char *)rt_handle_v2_pin(h);
+}
+
+/* Backward compatible arena creation */
+static inline RtArenaV2 *rt_arena_create(RtArenaV2 *parent) {
+    return rt_arena_v2_create(parent, RT_ARENA_MODE_DEFAULT, NULL);
+}
+
+/* Backward compatible arena destruction */
+static inline void rt_arena_destroy(RtArenaV2 *arena) {
+    rt_arena_v2_destroy(arena);
+}
+
+/* Get total allocated bytes in arena */
+static inline size_t rt_arena_total_allocated(RtArenaV2 *arena) {
+    return arena ? arena->total_allocated : 0;
+}
 
 #endif /* ARENA_V2_H */

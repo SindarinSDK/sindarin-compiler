@@ -8,7 +8,7 @@
 #include <stdbool.h>
 #include "../test_harness.h"
 #include "runtime_any.h"
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Boxing Tests

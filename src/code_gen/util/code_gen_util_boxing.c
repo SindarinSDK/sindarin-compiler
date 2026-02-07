@@ -223,11 +223,11 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
     }
 
     /* Arrays need a cast after unboxing.
-     * In handle mode, the stored value is an RtHandle (via void*) - cast back. */
+     * In handle mode, the stored value is an RtHandleV2* (via void*) - cast back. */
     if (target_type->kind == TYPE_ARRAY)
     {
         if (gen->current_arena_var != NULL)
-            return arena_sprintf(gen->arena, "(RtHandle)(uintptr_t)%s(%s)", unbox_func, any_str);
+            return arena_sprintf(gen->arena, "(RtHandleV2 *)%s(%s)", unbox_func, any_str);
         const char *c_type = get_c_type(gen->arena, target_type);
         return arena_sprintf(gen->arena, "(%s)%s(%s)", c_type, unbox_func, any_str);
     }
@@ -241,13 +241,13 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
                              struct_name, any_str, type_id);
     }
 
-    /* Strings in arena mode with handle context: unbox returns char*, wrap in handle.
+    /* Strings in arena mode with handle context: unbox returns char*, wrap in V2 handle.
      * When expr_as_handle is false (e.g. inside string interpolation), just return
      * the raw char* from rt_unbox_string directly. */
     if (target_type->kind == TYPE_STRING && gen->current_arena_var != NULL
         && gen->expr_as_handle)
     {
-        return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s(%s))",
+        return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s(%s))",
                              ARENA_VAR(gen), unbox_func, any_str);
     }
 

@@ -48,8 +48,8 @@
 #include <pthread.h>
 #endif
 
-/* Include arena header for RtArena type */
-#include "runtime_arena.h"
+/* Include arena header for RtArenaV2 type */
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Policy Enums

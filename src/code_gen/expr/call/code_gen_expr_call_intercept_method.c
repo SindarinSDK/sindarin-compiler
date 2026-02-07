@@ -95,7 +95,7 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     char *thunk_def = arena_sprintf(arena, "static RtAny %s(void) {\n", thunk_name);
 
     /* Build unboxed argument list for the thunk - always starts with arena */
-    char *unboxed_args = arena_strdup(arena, "(RtArena *)__rt_thunk_arena");
+    char *unboxed_args = arena_strdup(arena, "(RtArenaV2 *)__rt_thunk_arena");
 
     if (is_instance)
     {
@@ -121,14 +121,14 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In handle mode, wrap unboxed char* as RtHandle */
-            unboxed_args = arena_sprintf(arena, "%srt_managed_strdup((RtArena *)__rt_thunk_arena, RT_HANDLE_NULL, %s(__rt_thunk_args[%d]))",
+            /* In handle mode, wrap unboxed char* as RtHandleV2* */
+            unboxed_args = arena_sprintf(arena, "%srt_arena_v2_strdup((RtArenaV2 *)__rt_thunk_arena, %s(__rt_thunk_args[%d]))",
                                           unboxed_args, unbox_func, i + arg_offset);
         }
         else if (arg_type && arg_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
         {
-            /* In handle mode, unboxed array is stored as (void*)(uintptr_t)handle — cast back */
-            unboxed_args = arena_sprintf(arena, "%s(RtHandle)(uintptr_t)%s(__rt_thunk_args[%d])",
+            /* In handle mode, unboxed array is stored as (void*)(uintptr_t)handle — cast back to V2 */
+            unboxed_args = arena_sprintf(arena, "%s(RtHandleV2 *)(uintptr_t)%s(__rt_thunk_args[%d])",
                                           unboxed_args, unbox_func, i + arg_offset);
         }
         else
@@ -167,8 +167,8 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In handle mode, string result is RtHandle — pin to get char* for boxing */
-            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)rt_managed_pin((RtArena *)__rt_thunk_arena, %s(%s)));\n",
+            /* In V2 handle mode, string result is RtHandleV2* — pin to get char* for boxing */
+            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)rt_handle_v2_pin(%s(%s)));\n",
                                       thunk_def, box_func, callee_str, unboxed_args);
         }
         else
@@ -272,10 +272,10 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In handle mode, string temps are RtHandle — pin before boxing.
-             * rt_managed_pin automatically walks the parent chain to find handles. */
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_managed_pin(%s, %s));\n",
-                                   result, arg_idx, box_func, ARENA_VAR(gen), arg_temps[i]);
+            /* In V2 handle mode, string temps are RtHandleV2* — pin before boxing.
+             * rt_handle_v2_pin doesn't need the arena parameter. */
+            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_handle_v2_pin(%s));\n",
+                                   result, arg_idx, box_func, arg_temps[i]);
         }
         else
         {
@@ -305,14 +305,14 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* String result: unbox to raw char*, then convert to handle */
-            result = arena_sprintf(arena, "%s        __intercept_result = rt_managed_strdup(%s, RT_HANDLE_NULL, %s(__intercepted));\n",
+            /* String result: unbox to raw char*, then convert to V2 handle */
+            result = arena_sprintf(arena, "%s        __intercept_result = rt_arena_v2_strdup(%s, %s(__intercepted));\n",
                                    result, ARENA_VAR(gen), unbox_func);
         }
         else if (return_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
         {
-            /* Array result: unbox to raw pointer (which is actually the stored RtHandle cast to void*) - cast back */
-            result = arena_sprintf(arena, "%s        __intercept_result = (RtHandle)(uintptr_t)%s(__intercepted);\n",
+            /* Array result: unbox to raw pointer (which is actually the stored RtHandleV2* cast to void*) - cast back */
+            result = arena_sprintf(arena, "%s        __intercept_result = (RtHandleV2 *)(uintptr_t)%s(__intercepted);\n",
                                    result, unbox_func);
         }
         else

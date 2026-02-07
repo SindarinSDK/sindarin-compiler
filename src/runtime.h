@@ -16,13 +16,18 @@
 #include "runtime/runtime_atomic_compat.h"
 
 /* Core modules - arena must be first as other modules depend on it */
-#include "runtime/runtime_arena.h"
+#include "runtime/arena/arena_v2.h"
 
 /* Data type modules - depend on arena */
 #include "runtime/string/runtime_string.h"
-#include "runtime/string/runtime_string_h.h"
+#include "runtime/string/runtime_string_v2.h"
 #include "runtime/array/runtime_array.h"
-#include "runtime/array/runtime_array_h.h"
+#include "runtime/array/runtime_array_v2.h"
+
+/* V1 handle-based modules - deprecated, using V2 instead
+ * #include "runtime/string/runtime_string_h.h"
+ * #include "runtime/array/runtime_array_h.h"
+ */
 
 /* I/O modules - depend on arena and string */
 #include "runtime/runtime_io.h"
@@ -116,9 +121,9 @@ static inline int rt_ge_string(const char *a, const char *b) {
 int rt_str_is_blank(const char *str);
 
 /* Split string on whitespace */
-char **rt_str_split_whitespace(RtArena *arena, const char *str);
+char **rt_str_split_whitespace(RtArenaV2 *arena, const char *str);
 
 /* Split string on line endings */
-char **rt_str_split_lines(RtArena *arena, const char *str);
+char **rt_str_split_lines(RtArenaV2 *arena, const char *str);
 
 #endif /* RUNTIME_H */

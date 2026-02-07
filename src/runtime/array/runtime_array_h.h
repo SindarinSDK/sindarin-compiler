@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "runtime/arena/managed_arena.h"
+#include "runtime/arena/arena_v2.h"
 #include "runtime/runtime_any.h"
 
 /* ============================================================================

@@ -16,7 +16,7 @@ char *code_gen_range_expression(CodeGen *gen, Expr *expr)
 
     if (gen->expr_as_handle && gen->current_arena_var != NULL)
     {
-        return arena_sprintf(gen->arena, "rt_array_range_h(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
+        return arena_sprintf(gen->arena, "rt_array_range_v2(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
     }
     return arena_sprintf(gen->arena, "rt_array_range(%s, %s, %s)", ARENA_VAR(gen), start_str, end_str);
 }
@@ -90,8 +90,8 @@ char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Construct the runtime function call: rt_array_alloc_{suffix}[_h](arena, size, default) */
-    const char *h_suffix = (gen->expr_as_handle && gen->current_arena_var != NULL) ? "_h" : "";
+    /* Construct the runtime function call: rt_array_alloc_{suffix}[_v2](arena, size, default) */
+    const char *h_suffix = (gen->expr_as_handle && gen->current_arena_var != NULL) ? "_v2" : "";
     return arena_sprintf(gen->arena, "rt_array_alloc_%s%s(%s, %s, %s)",
                          suffix, h_suffix, ARENA_VAR(gen), size_str, default_str);
 }
@@ -169,8 +169,8 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
             if (suffix != NULL)
             {
                 /* Copy array field: pin source handle → clone to new handle */
-                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, rt_managed_pin_array(%s, __deep_copy.%s));\n",
-                                       result, c_field_name, suffix, ARENA_VAR(gen), ARENA_VAR(gen), c_field_name);
+                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_v2(%s, rt_array_data_v2(__deep_copy.%s));\n",
+                                       result, c_field_name, suffix, ARENA_VAR(gen), c_field_name);
             }
             /* If no clone function available (e.g., nested arrays), leave as shallow copy */
         }
@@ -178,8 +178,8 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
         {
             /* Copy string field: pin source handle → strdup to new handle */
             result = arena_sprintf(gen->arena,
-                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(%s, __deep_copy.%s)) : RT_HANDLE_NULL;\n",
-                                   result, c_field_name, c_field_name, ARENA_VAR(gen), ARENA_VAR(gen), c_field_name);
+                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(__deep_copy.%s)) : NULL;\n",
+                                   result, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
         }
     }
 
@@ -229,8 +229,8 @@ char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
          * Handle NULL pointer by returning empty string. */
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            /* Handle mode: produce RtHandle via managed strdup */
-            return arena_sprintf(gen->arena, "((%s) ? rt_managed_strdup(%s, RT_HANDLE_NULL, %s) : rt_managed_strdup(%s, RT_HANDLE_NULL, \"\"))",
+            /* Handle mode: produce RtHandleV2* via arena strdup */
+            return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
                                 operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
         }
         /* Raw pointer mode: use bridge layer for permanent pin */

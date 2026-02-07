@@ -2,7 +2,7 @@
 #define RUNTIME_IO_H
 
 #include <stdbool.h>
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Standard Stream Operations (Stdin, Stdout, Stderr)

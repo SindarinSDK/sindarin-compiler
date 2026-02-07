@@ -16,7 +16,7 @@
 #include <limits.h>
 #include "runtime_array_h.h"
 #include "runtime_array.h"
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* Include all implementation files */
 #include "runtime_array_h_create.c"

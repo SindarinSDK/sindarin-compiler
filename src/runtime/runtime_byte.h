@@ -1,7 +1,7 @@
 #ifndef RUNTIME_BYTE_H
 #define RUNTIME_BYTE_H
 
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Byte Array Conversion Functions

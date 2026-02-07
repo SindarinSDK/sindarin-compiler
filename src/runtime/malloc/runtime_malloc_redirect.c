@@ -9,7 +9,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "runtime_malloc_redirect.h"
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 #ifdef SN_MALLOC_REDIRECT
 

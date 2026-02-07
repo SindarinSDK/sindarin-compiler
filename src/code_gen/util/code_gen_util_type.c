@@ -63,7 +63,7 @@ const char *get_c_type(Arena *arena, Type *type)
     case TYPE_CHAR:
         return arena_strdup(arena, "char");
     case TYPE_STRING:
-        return arena_strdup(arena, "RtHandle");
+        return arena_strdup(arena, "RtHandleV2 *");
     case TYPE_BOOL:
         return arena_strdup(arena, "bool");
     case TYPE_BYTE:
@@ -75,7 +75,7 @@ const char *get_c_type(Arena *arena, Type *type)
     case TYPE_ANY:
         return arena_strdup(arena, "RtAny");
     case TYPE_ARRAY:
-        return arena_strdup(arena, "RtHandle");
+        return arena_strdup(arena, "RtHandleV2 *");
     case TYPE_POINTER:
     {
         /* For pointer types: *T becomes T* in C */

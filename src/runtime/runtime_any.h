@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "runtime_arena.h"
+#include "arena/arena_v2.h"
 
 /* ============================================================================
  * Any Type - Runtime Type System
@@ -141,5 +141,10 @@ char *rt_any_to_string(RtArena *arena, RtAny value);
  * Used when returning any values from functions to ensure data survives
  * the destruction of the function's local arena. */
 RtAny rt_any_promote(RtArena *target_arena, RtAny value);
+
+/* V2 version: Promote an any value's heap-allocated data to a target arena.
+ * For V2 arena mode - strings are RtHandleV2* not raw char*. */
+struct RtArenaV2;
+RtAny rt_any_promote_v2(struct RtArenaV2 *target_arena, RtAny value);
 
 #endif /* RUNTIME_ANY_H */

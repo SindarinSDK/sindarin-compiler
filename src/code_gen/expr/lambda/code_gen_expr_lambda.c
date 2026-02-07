@@ -174,11 +174,11 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* Private lambda: create child arena, destroy before return.
          * Parent is thread arena if in thread context, otherwise closure's stored arena. */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtManagedArena *__lambda_arena__ = rt_managed_arena_create_child("
-            "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena));\n"
+            "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_create("
+            "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena), RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
-            "    rt_managed_arena_destroy_child(__lambda_arena__);\n");
+            "    rt_arena_v2_destroy(__lambda_arena__);\n");
     }
     else if (modifier == FUNC_SHARED)
     {
@@ -188,14 +188,14 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
          * that needs to remain in the original arena. When a shared closure
          * is called from a thread, it should access the main thread's data. */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)((__Closure__ *)__closure__)->arena;\n");
+            "    RtArenaV2 *__lambda_arena__ = ((__Closure__ *)__closure__)->arena;\n");
     }
     else
     {
         /* Default lambda: use thread arena if in thread context,
          * otherwise use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtManagedArena *__lambda_arena__ = (RtManagedArena *)rt_get_thread_arena_or("
+            "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_thread_or("
             "((__Closure__ *)__closure__)->arena);\n");
     }
 
@@ -205,7 +205,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         char *struct_def = arena_sprintf(gen->arena,
             "typedef struct __closure_%d__ {\n"
             "    void *fn;\n"
-            "    RtArena *arena;\n"
+            "    RtArenaV2 *arena;\n"
             "    size_t size;\n",
             lambda_id);
         for (int i = 0; i < cv.count; i++)
@@ -452,14 +452,14 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             closure_arena = ARENA_VAR(gen);
         }
 
-        /* Return code that creates and populates the closure */
+        /* Return code that creates and populates the closure (V2 arena allocation) */
         char *closure_init = arena_sprintf(gen->arena,
             "({\n"
-            "    __closure_%d__ *__cl__ = rt_arena_alloc(%s, sizeof(__closure_%d__));\n"
+            "    __closure_%d__ *__cl__ = (__closure_%d__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__closure_%d__)));\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__closure_%d__);\n",
-            lambda_id, closure_arena, lambda_id, lambda_id, closure_arena, lambda_id);
+            lambda_id, lambda_id, closure_arena, lambda_id, lambda_id, closure_arena, lambda_id);
 
         for (int i = 0; i < cv.count; i++)
         {
@@ -505,11 +505,11 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                 }
                 else
                 {
-                    /* It's a value (lambda param, loop var, etc.) - need to heap-allocate */
+                    /* It's a value (lambda param, loop var, etc.) - need to heap-allocate (V2) */
                     const char *c_type = get_c_type(gen->arena, cv.types[i]);
                     closure_init = arena_sprintf(gen->arena,
-                        "%s    __cl__->%s = ({ %s *__tmp__ = rt_arena_alloc(%s, sizeof(%s)); *__tmp__ = %s; __tmp__; });\n",
-                        closure_init, cv.names[i], c_type, closure_arena, c_type, mangled_cv_name);
+                        "%s    __cl__->%s = ({ %s *__tmp__ = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s))); *__tmp__ = %s; __tmp__; });\n",
+                        closure_init, cv.names[i], c_type, c_type, closure_arena, c_type, mangled_cv_name);
                 }
             }
             else
@@ -699,7 +699,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* Return code that creates the closure using generic __Closure__ type */
         return arena_sprintf(gen->arena,
             "({\n"
-            "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+            "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__Closure__);\n"

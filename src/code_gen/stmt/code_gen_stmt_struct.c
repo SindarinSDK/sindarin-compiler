@@ -65,12 +65,12 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
         {
             if (method->param_count == 0)
             {
-                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__) {\n",
+                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__) {\n",
                                  ret_type, struct_name, method->name);
             }
             else
             {
-                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__",
+                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__",
                                  ret_type, struct_name, method->name);
                 for (int k = 0; k < method->param_count; k++)
                 {
@@ -89,13 +89,13 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             if (struct_decl->is_native && struct_decl->c_alias != NULL)
             {
                 /* Opaque handle: self type is the C alias pointer */
-                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
+                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__, %s *__sn__self",
                                  ret_type, struct_name, method->name, struct_decl->c_alias);
             }
             else
             {
                 /* Regular struct: self is pointer to struct */
-                indented_fprintf(gen, indent, "%s %s_%s(RtManagedArena *__caller_arena__, %s *__sn__self",
+                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__, %s *__sn__self",
                                  ret_type, struct_name, method->name, struct_name);
             }
             for (int k = 0; k < method->param_count; k++)

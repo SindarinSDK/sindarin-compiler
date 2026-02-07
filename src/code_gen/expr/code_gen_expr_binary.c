@@ -89,13 +89,13 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
             gen->expr_as_handle = saved_as_handle;
             if (op == TOKEN_EQUAL_EQUAL)
             {
-                return arena_sprintf(gen->arena, "rt_array_eq_string_h(%s, %s, %s)",
-                                     ARENA_VAR(gen), left_h, right_h);
+                return arena_sprintf(gen->arena, "rt_array_eq_string_v2(%s, %s)",
+                                     left_h, right_h);
             }
             else
             {
-                return arena_sprintf(gen->arena, "(!rt_array_eq_string_h(%s, %s, %s))",
-                                     ARENA_VAR(gen), left_h, right_h);
+                return arena_sprintf(gen->arena, "(!rt_array_eq_string_v2(%s, %s))",
+                                     left_h, right_h);
             }
         }
 
@@ -211,13 +211,13 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         {
             if (gen->expr_as_handle)
             {
-                return arena_sprintf(gen->arena, "rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s)",
+                return arena_sprintf(gen->arena, "rt_str_concat_v2(%s, %s, %s)",
                                      ARENA_VAR(gen), left_str, right_str);
             }
             else
             {
-                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s))",
-                                     ARENA_VAR(gen), ARENA_VAR(gen), left_str, right_str);
+                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(rt_str_concat_v2(%s, %s, %s))",
+                                     ARENA_VAR(gen), left_str, right_str);
             }
         }
         /* Non-arena context (legacy): use old approach */

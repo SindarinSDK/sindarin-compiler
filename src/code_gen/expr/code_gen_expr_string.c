@@ -106,11 +106,11 @@ static char *generate_struct_auto_tostring(CodeGen *gen, Type *struct_type, cons
             /* String field - need to pin handle and wrap in quotes */
             result = arena_sprintf(gen->arena,
                 "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); "
-                "{ char *_fstr = (char *)rt_managed_pin(%s, %s); "
+                "{ char *_fstr = (char *)rt_handle_v2_pin(%s); "
                 "_auto_str%d = rt_str_concat(%s, _auto_str%d, _fstr ? _fstr : \"null\"); } "
                 "_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); ",
                 result, *temp_counter, ARENA_VAR(gen), *temp_counter,
-                ARENA_VAR(gen), field_access,
+                field_access,
                 *temp_counter, ARENA_VAR(gen), *temp_counter,
                 *temp_counter, ARENA_VAR(gen), *temp_counter);
         }
@@ -163,7 +163,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         /* Empty interpolation - return empty string literal, wrapped in handle if needed */
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, \"\")", ARENA_VAR(gen));
+            return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, \"\")", ARENA_VAR(gen));
         }
         return "\"\"";
     }
@@ -200,7 +200,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     {
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), part_strs[0]);
+            return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)", ARENA_VAR(gen), part_strs[0]);
         }
         return part_strs[0];
     }
@@ -211,7 +211,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
             /* In handle mode: create a new handle from the string value */
-            return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), part_strs[0]);
+            return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)", ARENA_VAR(gen), part_strs[0]);
         }
         if (is_temp[0])
         {
@@ -233,9 +233,13 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     {
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_sprintf(gen->arena, "rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
+            return arena_sprintf(gen->arena, "rt_str_concat_v2(%s, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
         }
-        return arena_sprintf(gen->arena, "rt_str_concat(%s, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
+        if (gen->current_arena_var != NULL)
+        {
+            return arena_sprintf(gen->arena, "rt_str_concat_raw_v2(%s, %s, %s)", ARENA_VAR(gen), part_strs[0], part_strs[1]);
+        }
+        return arena_sprintf(gen->arena, "rt_str_concat(NULL, %s, %s)", part_strs[0], part_strs[1]);
     }
 
     /* General case: Need to build a block expression */
@@ -291,13 +295,13 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
                 if (part_types[i]->as.struct_type.pass_self_by_ref ||
                     (part_types[i]->as.struct_type.is_native && part_types[i]->as.struct_type.c_alias != NULL))
                 {
-                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_managed_pin(%s, %s_toString(%s, %s));\n",
-                                           result, temp_var_count, ARENA_VAR(gen), mangled_name, ARENA_VAR(gen), part_strs[i]);
+                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_handle_v2_pin(%s_toString(%s, %s));\n",
+                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i]);
                 }
                 else
                 {
-                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_managed_pin(%s, %s_toString(%s, &%s));\n",
-                                           result, temp_var_count, ARENA_VAR(gen), mangled_name, ARENA_VAR(gen), part_strs[i]);
+                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_handle_v2_pin(%s_toString(%s, &%s));\n",
+                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i]);
                 }
             }
             else
@@ -315,7 +319,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
         {
             /* Non-string needs conversion (no format specifier) */
             const char *to_str = gen->current_arena_var
-                ? get_rt_to_string_func_for_type_h(part_types[i])
+                ? get_rt_to_string_func_for_type_v2(part_types[i])
                 : get_rt_to_string_func_for_type(part_types[i]);
             result = arena_sprintf(gen->arena, "%s        char *_p%d = %s(%s, %s);\n",
                                    result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);
@@ -349,7 +353,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     {
         if (handle_mode)
         {
-            result = arena_sprintf(gen->arena, "%s        rt_managed_strdup(%s, RT_HANDLE_NULL, %s);\n    })",
+            result = arena_sprintf(gen->arena, "%s        rt_arena_v2_strdup(%s, %s);\n    })",
                                    result, ARENA_VAR(gen), use_strs[0]);
         }
         else
@@ -362,12 +366,12 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     {
         if (handle_mode)
         {
-            result = arena_sprintf(gen->arena, "%s        rt_str_concat_h(%s, RT_HANDLE_NULL, %s, %s);\n    })",
+            result = arena_sprintf(gen->arena, "%s        rt_str_concat_v2(%s, %s, %s);\n    })",
                                    result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
         }
         else
         {
-            result = arena_sprintf(gen->arena, "%s        rt_str_concat(%s, %s, %s);\n    })",
+            result = arena_sprintf(gen->arena, "%s        rt_str_concat_raw_v2(%s, %s, %s);\n    })",
                                    result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
         }
         return result;
@@ -375,18 +379,18 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
     else
     {
         /* Chain of concats - use intermediate char* temps, convert final to handle if needed */
-        result = arena_sprintf(gen->arena, "%s        char *_r = rt_str_concat(%s, %s, %s);\n",
+        result = arena_sprintf(gen->arena, "%s        char *_r = rt_str_concat_raw_v2(%s, %s, %s);\n",
                                result, ARENA_VAR(gen), use_strs[0], use_strs[1]);
 
         for (int i = 2; i < count; i++)
         {
-            result = arena_sprintf(gen->arena, "%s        _r = rt_str_concat(%s, _r, %s);\n",
+            result = arena_sprintf(gen->arena, "%s        _r = rt_str_concat_raw_v2(%s, _r, %s);\n",
                                    result, ARENA_VAR(gen), use_strs[i]);
         }
 
         if (handle_mode)
         {
-            result = arena_sprintf(gen->arena, "%s        rt_managed_strdup(%s, RT_HANDLE_NULL, _r);\n    })", result, ARENA_VAR(gen));
+            result = arena_sprintf(gen->arena, "%s        rt_arena_v2_strdup(%s, _r);\n    })", result, ARENA_VAR(gen));
         }
         else
         {

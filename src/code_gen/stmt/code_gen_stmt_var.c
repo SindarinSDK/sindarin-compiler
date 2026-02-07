@@ -273,7 +273,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             if (init_sym != NULL && init_sym->kind == SYMBOL_PARAM)
             {
                 init_str = arena_sprintf(gen->arena,
-                    "rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(__caller_arena__, %s))",
+                    "rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(%s))",
                     ARENA_VAR(gen), init_str);
             }
         }
@@ -356,11 +356,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 Type *elem_type = stmt->type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s)", suffix, ARENA_VAR(gen), init_str);
+                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s, %s)", suffix, ARENA_VAR(gen), init_str);
             }
             else if (stmt->type->kind == TYPE_STRING)
             {
-                init_str = arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)", ARENA_VAR(gen), init_str);
+                init_str = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)", ARENA_VAR(gen), init_str);
             }
         }
     }
@@ -377,7 +377,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                                    strcmp(gen->current_arena_var, "__local_arena__") == 0 && !in_main)
             ? "__caller_arena__"
             : ARENA_VAR(gen);
-        indented_fprintf(gen, indent, "%s *%s = (%s *)rt_arena_alloc(%s, sizeof(%s));\n",
+        indented_fprintf(gen, indent, "%s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n",
                          type_c, var_name, type_c, alloc_arena, type_c);
         indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
     }
@@ -399,7 +399,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
         if (struct_size >= STRUCT_STACK_THRESHOLD)
         {
-            indented_fprintf(gen, indent, "%s *%s = (%s *)rt_arena_alloc(%s, sizeof(%s));\n",
+            indented_fprintf(gen, indent, "%s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n",
                              type_c, var_name, type_c, ARENA_VAR(gen), type_c);
             indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
 

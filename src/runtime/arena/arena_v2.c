@@ -373,21 +373,12 @@ static void arena_v2_destroy_internal(RtArenaV2 *arena, bool unlink_from_parent)
 {
     if (arena == NULL) return;
 
-    pthread_mutex_lock(&arena->mutex);
-
-    /* Destroy children first (recursive) - children don't need to unlink,
-     * we're clearing the whole child list anyway */
-    RtArenaV2 *child = arena->first_child;
-    arena->first_child = NULL;  /* Clear list before destroying */
-    while (child != NULL) {
-        RtArenaV2 *next = child->next_sibling;
-        child->parent = NULL;  /* Prevent child from trying to unlink */
-        arena_v2_destroy_internal(child, false);
-        child = next;
-    }
-
-    /* Run cleanup callbacks (lowest priority first) */
+    /* Run cleanup callbacks FIRST (before destroying children).
+     * This is critical because thread cleanup callbacks need to join threads
+     * that may still be using their child arenas. If we destroy children first,
+     * threads would crash trying to use destroyed arenas. */
     RtCleanupNodeV2 *cleanup = arena->cleanups;
+    arena->cleanups = NULL;  /* Clear list before invoking to prevent re-entry issues */
     while (cleanup != NULL) {
         RtCleanupNodeV2 *next = cleanup->next;
         if (cleanup->fn) {
@@ -395,6 +386,20 @@ static void arena_v2_destroy_internal(RtArenaV2 *arena, bool unlink_from_parent)
         }
         free(cleanup);
         cleanup = next;
+    }
+
+    pthread_mutex_lock(&arena->mutex);
+
+    /* Destroy children (recursive) - children don't need to unlink,
+     * we're clearing the whole child list anyway.
+     * This is safe now because cleanup callbacks (e.g., thread joins) have completed. */
+    RtArenaV2 *child = arena->first_child;
+    arena->first_child = NULL;  /* Clear list before destroying */
+    while (child != NULL) {
+        RtArenaV2 *next = child->next_sibling;
+        child->parent = NULL;  /* Prevent child from trying to unlink */
+        arena_v2_destroy_internal(child, false);
+        child = next;
     }
 
     /* Destroy all handles */
