@@ -72,21 +72,60 @@ static inline void *rt_array_data_v2(RtHandleV2 *arr_h) {
 char **rt_pin_string_array_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
+ * Generic Array Operations
+ * ============================================================================
+ * These functions work with any element type by taking elem_size parameter.
+ * Use these instead of type-specific variants for cleaner code.
+ * String arrays need special handling (strdup/strcmp) - use _string variants.
+ * ============================================================================ */
+
+/* Clone: Create deep copy of array */
+RtHandleV2 *rt_array_clone_v2(RtHandleV2 *arr_h, size_t elem_size);
+
+/* Concat: Create new array from two arrays */
+RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size);
+
+/* Slice: Create new array from portion of source */
+RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step, size_t elem_size);
+
+/* Reverse: Create new reversed array */
+RtHandleV2 *rt_array_rev_v2(RtHandleV2 *arr_h, size_t elem_size);
+
+/* Remove: Create new array without element at index */
+RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size);
+
+/* Insert: Create new array with element inserted at index */
+RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, size_t elem_size);
+
+/* Push (generic): Append element to array, may reallocate */
+RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *elem, size_t elem_size);
+
+/* Push Copy: Create NEW array with element appended (non-mutating) */
+RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t elem_size);
+
+/* Pop (generic): Remove last element, copy to out pointer */
+void rt_array_pop_v2(RtHandleV2 *arr_h, void *out, size_t elem_size);
+
+/* Clear: Set size to 0, keep capacity */
+void rt_array_clear_v2(RtHandleV2 *arr_h);
+
+/* IndexOf: Find first index of element using memcmp, returns -1 if not found */
+long rt_array_indexOf_v2(RtHandleV2 *arr_h, const void *elem, size_t elem_size);
+
+/* Contains: Check if element exists using memcmp */
+int rt_array_contains_v2(RtHandleV2 *arr_h, const void *elem, size_t elem_size);
+
+/* Equality: Check if two arrays have same length and elements (memcmp) */
+int rt_array_eq_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size);
+
+/* ============================================================================
  * Array Create Functions
  * ============================================================================
  * Create array from existing data. Returns handle to [metadata][data].
+ * Use rt_array_create_generic_v2 for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_create_long_v2(RtArenaV2 *arena, size_t count, const long long *data);
-RtHandleV2 *rt_array_create_double_v2(RtArenaV2 *arena, size_t count, const double *data);
-RtHandleV2 *rt_array_create_char_v2(RtArenaV2 *arena, size_t count, const char *data);
-RtHandleV2 *rt_array_create_bool_v2(RtArenaV2 *arena, size_t count, const int *data);
-RtHandleV2 *rt_array_create_byte_v2(RtArenaV2 *arena, size_t count, const unsigned char *data);
 RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char **data);
-RtHandleV2 *rt_array_create_int32_v2(RtArenaV2 *arena, size_t count, const int32_t *data);
-RtHandleV2 *rt_array_create_uint32_v2(RtArenaV2 *arena, size_t count, const uint32_t *data);
-RtHandleV2 *rt_array_create_uint_v2(RtArenaV2 *arena, size_t count, const uint64_t *data);
-RtHandleV2 *rt_array_create_float_v2(RtArenaV2 *arena, size_t count, const float *data);
 RtHandleV2 *rt_array_create_generic_v2(RtArenaV2 *arena, size_t count, size_t elem_size, const void *data);
 RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data);
 
@@ -95,18 +134,10 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data);
  * ============================================================================
  * Push element to end. May reallocate if capacity exceeded.
  * Returns possibly-new handle (old handle marked dead if reallocated).
+ * Use rt_array_push_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_push_long_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, long long element);
-RtHandleV2 *rt_array_push_double_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, double element);
-RtHandleV2 *rt_array_push_char_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, char element);
-RtHandleV2 *rt_array_push_bool_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, int element);
-RtHandleV2 *rt_array_push_byte_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, unsigned char element);
 RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const char *element);
-RtHandleV2 *rt_array_push_int32_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, int32_t element);
-RtHandleV2 *rt_array_push_uint32_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, uint32_t element);
-RtHandleV2 *rt_array_push_uint_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, uint64_t element);
-RtHandleV2 *rt_array_push_float_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, float element);
 RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, void *element);
 RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, void *element);
 RtHandleV2 *rt_array_push_struct_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *element, size_t elem_size);
@@ -134,18 +165,10 @@ void *rt_array_pop_ptr_v2(RtHandleV2 *arr_h);
  * Array Clone Functions
  * ============================================================================
  * Create a deep copy of the array. Arena derived from input handle.
+ * Use rt_array_clone_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_clone_long_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_double_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_char_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_bool_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_byte_v2(RtHandleV2 *arr_h);
 RtHandleV2 *rt_array_clone_string_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_int32_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_uint32_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_uint_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_float_v2(RtHandleV2 *arr_h);
 RtHandleV2 *rt_array_clone_ptr_v2(RtHandleV2 *arr_h);
 RtHandleV2 *rt_array_clone_any_v2(RtHandleV2 *arr_h);
 
@@ -154,18 +177,10 @@ RtHandleV2 *rt_array_clone_any_v2(RtHandleV2 *arr_h);
  * ============================================================================
  * Create new array containing elements from both arrays.
  * Arena derived from first handle.
+ * Use rt_array_concat_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_concat_long_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_double_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_char_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_bool_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_byte_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
 RtHandleV2 *rt_array_concat_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_int32_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_uint32_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_uint_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
-RtHandleV2 *rt_array_concat_float_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
 RtHandleV2 *rt_array_concat_ptr_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
 
 /* ============================================================================
@@ -173,87 +188,47 @@ RtHandleV2 *rt_array_concat_ptr_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
  * ============================================================================
  * Create new array from portion of source array.
  * Arena derived from input handle.
+ * Use rt_array_slice_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_slice_long_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_double_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_char_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_bool_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_byte_v2(RtHandleV2 *arr_h, long start, long end, long step);
 RtHandleV2 *rt_array_slice_string_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_int32_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_uint32_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_uint_v2(RtHandleV2 *arr_h, long start, long end, long step);
-RtHandleV2 *rt_array_slice_float_v2(RtHandleV2 *arr_h, long start, long end, long step);
 
 /* ============================================================================
  * Array Reverse Functions
  * ============================================================================
  * Return new reversed array. Arena derived from input handle.
+ * Use rt_array_rev_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_rev_long_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_double_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_char_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_bool_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_byte_v2(RtHandleV2 *arr_h);
 RtHandleV2 *rt_array_rev_string_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_int32_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_uint32_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_uint_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_rev_float_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Array Remove At Index Functions
  * ============================================================================
  * Return new array without element at index. Arena derived from input handle.
+ * Use rt_array_rem_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_rem_long_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_double_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_char_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_bool_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_byte_v2(RtHandleV2 *arr_h, long index);
 RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_int32_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_uint32_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_uint_v2(RtHandleV2 *arr_h, long index);
-RtHandleV2 *rt_array_rem_float_v2(RtHandleV2 *arr_h, long index);
 
 /* ============================================================================
  * Array Insert At Index Functions
  * ============================================================================
  * Return new array with element inserted at index. Arena derived from input handle.
+ * Use rt_array_ins_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_ins_long_v2(RtHandleV2 *arr_h, long long elem, long index);
-RtHandleV2 *rt_array_ins_double_v2(RtHandleV2 *arr_h, double elem, long index);
-RtHandleV2 *rt_array_ins_char_v2(RtHandleV2 *arr_h, char elem, long index);
-RtHandleV2 *rt_array_ins_bool_v2(RtHandleV2 *arr_h, int elem, long index);
-RtHandleV2 *rt_array_ins_byte_v2(RtHandleV2 *arr_h, unsigned char elem, long index);
 RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long index);
-RtHandleV2 *rt_array_ins_int32_v2(RtHandleV2 *arr_h, int32_t elem, long index);
-RtHandleV2 *rt_array_ins_uint32_v2(RtHandleV2 *arr_h, uint32_t elem, long index);
-RtHandleV2 *rt_array_ins_uint_v2(RtHandleV2 *arr_h, uint64_t elem, long index);
-RtHandleV2 *rt_array_ins_float_v2(RtHandleV2 *arr_h, float elem, long index);
 
 /* ============================================================================
  * Array Push Copy Functions
  * ============================================================================
  * Create NEW array with element appended (non-mutating push).
  * Arena derived from input handle.
+ * Use rt_array_push_copy_v2 (generic) for primitive types.
  * ============================================================================ */
 
-RtHandleV2 *rt_array_push_copy_long_v2(RtHandleV2 *arr_h, long long elem);
-RtHandleV2 *rt_array_push_copy_double_v2(RtHandleV2 *arr_h, double elem);
-RtHandleV2 *rt_array_push_copy_char_v2(RtHandleV2 *arr_h, char elem);
-RtHandleV2 *rt_array_push_copy_bool_v2(RtHandleV2 *arr_h, int elem);
-RtHandleV2 *rt_array_push_copy_byte_v2(RtHandleV2 *arr_h, unsigned char elem);
 RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, const char *elem);
-RtHandleV2 *rt_array_push_copy_int32_v2(RtHandleV2 *arr_h, int32_t elem);
-RtHandleV2 *rt_array_push_copy_uint32_v2(RtHandleV2 *arr_h, uint32_t elem);
-RtHandleV2 *rt_array_push_copy_uint_v2(RtHandleV2 *arr_h, uint64_t elem);
-RtHandleV2 *rt_array_push_copy_float_v2(RtHandleV2 *arr_h, float elem);
 
 /* ============================================================================
  * Array Alloc Functions

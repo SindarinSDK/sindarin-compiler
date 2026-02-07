@@ -356,9 +356,13 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             if (stmt->type->kind == TYPE_ARRAY)
             {
                 Type *elem_type = stmt->type->as.array.element_type;
-                const char *suffix = code_gen_type_suffix(elem_type);
-                /* V2 clone takes just the handle (init_str is already a handle expression) */
-                init_str = arena_sprintf(gen->arena, "rt_array_clone_%s_v2(%s)", suffix, init_str);
+                /* V2 clone: strings need special handling, others use generic */
+                if (elem_type->kind == TYPE_STRING) {
+                    init_str = arena_sprintf(gen->arena, "rt_array_clone_string_v2(%s)", init_str);
+                } else {
+                    const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+                    init_str = arena_sprintf(gen->arena, "rt_array_clone_v2(%s, %s)", init_str, sizeof_expr);
+                }
             }
             else if (stmt->type->kind == TYPE_STRING)
             {

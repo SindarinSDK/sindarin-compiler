@@ -178,6 +178,14 @@ const char *get_c_array_elem_type(Arena *arena, Type *elem_type)
     return get_c_type(arena, elem_type);
 }
 
+const char *get_c_sizeof_elem(Arena *arena, Type *elem_type)
+{
+    /* Returns sizeof(elem_type) expression for generic array operations.
+     * This wraps the C type in sizeof() for use in codegen. */
+    const char *c_type = get_c_array_elem_type(arena, elem_type);
+    return arena_sprintf(arena, "sizeof(%s)", c_type);
+}
+
 char *get_var_name(Arena *arena, Token name)
 {
     DEBUG_VERBOSE("Entering get_var_name");

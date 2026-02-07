@@ -553,12 +553,17 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 else if (!callee_needs_arena)
                 {
                     /* Native function returned raw pointer - wrap in handle */
-                    const char *suffix = code_gen_type_suffix(elem);
                     const char *elem_c = get_c_array_elem_type(gen->arena, elem);
+                    if (elem->kind == TYPE_STRING) {
+                        return arena_sprintf(gen->arena,
+                            "({ %s *__native_arr = %s; "
+                            "rt_array_create_string_v2(%s, rt_v2_data_array_length((void *)__native_arr), __native_arr); })",
+                            elem_c, call_expr, ARENA_VAR(gen));
+                    }
                     return arena_sprintf(gen->arena,
                         "({ %s *__native_arr = %s; "
-                        "rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)__native_arr), __native_arr); })",
-                        elem_c, call_expr, suffix, ARENA_VAR(gen));
+                        "rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)__native_arr), sizeof(%s), __native_arr); })",
+                        elem_c, call_expr, ARENA_VAR(gen), elem_c);
                 }
             }
         }
@@ -644,10 +649,10 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             else
             {
                 /* Native function returned raw pointer - wrap in handle */
-                const char *suffix = code_gen_type_suffix(elem);
+                const char *elem_c = get_c_array_elem_type(gen->arena, elem);
                 result = arena_sprintf(gen->arena,
-                    "%s        rt_array_create_%s_v2(%s, rt_v2_data_array_length((void *)_call_result), _call_result);\n    })",
-                    result, suffix, ARENA_VAR(gen));
+                    "%s        rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)_call_result), sizeof(%s), _call_result);\n    })",
+                    result, ARENA_VAR(gen), elem_c);
             }
         }
     }

@@ -163,16 +163,18 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
 
         if (field->type != NULL && field->type->kind == TYPE_ARRAY)
         {
-            /* Get the element type and corresponding clone function */
+            /* Get the element type for cloning */
             Type *element_type = field->type->as.array.element_type;
-            const char *suffix = get_array_clone_suffix(element_type);
-            if (suffix != NULL)
-            {
-                /* Copy array field: clone handle to new handle in same arena */
-                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_%s_v2(__deep_copy.%s);\n",
-                                       result, c_field_name, suffix, c_field_name);
+            /* Clone: strings need special handling, others use generic */
+            if (element_type->kind == TYPE_STRING) {
+                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_string_v2(__deep_copy.%s);\n",
+                                       result, c_field_name, c_field_name);
+            } else if (element_type != NULL && element_type->kind != TYPE_ARRAY) {
+                const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
+                result = arena_sprintf(gen->arena, "%s        __deep_copy.%s = rt_array_clone_v2(__deep_copy.%s, %s);\n",
+                                       result, c_field_name, c_field_name, sizeof_expr);
             }
-            /* If no clone function available (e.g., nested arrays), leave as shallow copy */
+            /* If nested arrays, leave as shallow copy for now */
         }
         else if (field->type != NULL && field->type->kind == TYPE_STRING)
         {

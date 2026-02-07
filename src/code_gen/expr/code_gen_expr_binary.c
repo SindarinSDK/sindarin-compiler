@@ -74,76 +74,33 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         return arena_sprintf(gen->arena, "((%s != 0 || %s != 0) ? 1L : 0L)", left_str, right_str);
     }
 
-    // Handle array comparison (== and !=)
+    // Handle array comparison (== and !=) - V2 only
     if (type->kind == TYPE_ARRAY && (op == TOKEN_EQUAL_EQUAL || op == TOKEN_BANG_EQUAL))
     {
         Type *elem_type = type->as.array.element_type;
 
-        /* String arrays in arena mode: use handle-based comparison.
-         * Re-evaluate operands in handle mode since they were pinned above. */
-        if (elem_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-        {
-            gen->expr_as_handle = true;
-            char *left_h = code_gen_expression(gen, expr->left);
-            char *right_h = code_gen_expression(gen, expr->right);
-            gen->expr_as_handle = saved_as_handle;
-            if (op == TOKEN_EQUAL_EQUAL)
-            {
-                return arena_sprintf(gen->arena, "rt_array_eq_string_v2(%s, %s)",
-                                     left_h, right_h);
-            }
-            else
-            {
-                return arena_sprintf(gen->arena, "(!rt_array_eq_string_v2(%s, %s))",
-                                     left_h, right_h);
-            }
+        /* Use handle-based comparison. Re-evaluate operands in handle mode. */
+        gen->expr_as_handle = true;
+        char *left_h = code_gen_expression(gen, expr->left);
+        char *right_h = code_gen_expression(gen, expr->right);
+        gen->expr_as_handle = saved_as_handle;
+
+        const char *eq_expr;
+        if (elem_type->kind == TYPE_STRING) {
+            /* String arrays use strcmp comparison */
+            eq_expr = arena_sprintf(gen->arena, "rt_array_eq_string_v2(%s, %s)",
+                                    left_h, right_h);
+        } else {
+            /* All other types use generic memcmp comparison */
+            const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
+            eq_expr = arena_sprintf(gen->arena, "rt_array_eq_v2(%s, %s, %s)",
+                                    left_h, right_h, sizeof_expr);
         }
 
-        const char *arr_suffix;
-        switch (elem_type->kind)
-        {
-            case TYPE_INT:
-            case TYPE_LONG:
-                arr_suffix = "long";
-                break;
-            case TYPE_INT32:
-                arr_suffix = "int32";
-                break;
-            case TYPE_UINT:
-                arr_suffix = "uint";
-                break;
-            case TYPE_UINT32:
-                arr_suffix = "uint32";
-                break;
-            case TYPE_FLOAT:
-                arr_suffix = "float";
-                break;
-            case TYPE_DOUBLE:
-                arr_suffix = "double";
-                break;
-            case TYPE_CHAR:
-                arr_suffix = "char";
-                break;
-            case TYPE_BOOL:
-                arr_suffix = "bool";
-                break;
-            case TYPE_BYTE:
-                arr_suffix = "byte";
-                break;
-            case TYPE_STRING:
-                arr_suffix = "string";
-                break;
-            default:
-                fprintf(stderr, "Error: Unsupported array element type for comparison\n");
-                exit(1);
-        }
-        if (op == TOKEN_EQUAL_EQUAL)
-        {
-            return arena_sprintf(gen->arena, "rt_array_eq_%s(%s, %s)", arr_suffix, left_str, right_str);
-        }
-        else
-        {
-            return arena_sprintf(gen->arena, "(!rt_array_eq_%s(%s, %s))", arr_suffix, left_str, right_str);
+        if (op == TOKEN_EQUAL_EQUAL) {
+            return eq_expr;
+        } else {
+            return arena_sprintf(gen->arena, "(!%s)", eq_expr);
         }
     }
 
