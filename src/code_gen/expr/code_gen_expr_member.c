@@ -62,14 +62,14 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             {
                 if (sym->type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                         ARENA_VAR(gen), mangled);
+                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                         mangled);
                 }
                 else if (sym->type->kind == TYPE_ARRAY)
                 {
                     const char *elem_c = get_c_array_elem_type(gen->arena, sym->type->as.array.element_type);
-                    return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                         elem_c, ARENA_VAR(gen), mangled);
+                    return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                         elem_c, mangled);
                 }
             }
             return mangled;
@@ -111,20 +111,26 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* For array/string member access (.length, etc.), the object must be
-     * evaluated in raw-pointer mode so handle variables get pinned. */
+    /* For array.length, we need the HANDLE to call rt_array_length_v2().
+     * For string.length, we need the raw pointer for strlen/rt_str_length().
+     * For array element access, we still need to pin for the data pointer. */
     bool saved_as_handle = gen->expr_as_handle;
+
+    // Handle array.length - needs handle for V2
+    if (object_type != NULL && object_type->kind == TYPE_ARRAY && strcmp(member_name_str, "length") == 0) {
+        gen->expr_as_handle = true;  /* Keep handle form for V2 */
+        char *object_str = code_gen_expression(gen, member->object);
+        gen->expr_as_handle = saved_as_handle;
+        return arena_sprintf(gen->arena, "rt_array_length_v2(%s)", object_str);
+    }
+
+    /* For other array/string member access, evaluate in raw-pointer mode. */
     if (object_type != NULL && (object_type->kind == TYPE_ARRAY || object_type->kind == TYPE_STRING))
     {
         gen->expr_as_handle = false;
     }
     char *object_str = code_gen_expression(gen, member->object);
     gen->expr_as_handle = saved_as_handle;
-
-    // Handle array.length
-    if (object_type->kind == TYPE_ARRAY && strcmp(member_name_str, "length") == 0) {
-        return arena_sprintf(gen->arena, "rt_array_length(%s)", object_str);
-    }
 
     // Handle string.length
     if (object_type->kind == TYPE_STRING && strcmp(member_name_str, "length") == 0) {
@@ -151,14 +157,14 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         {
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                       ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                                       result);
             }
             else if (field->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                       elem_c, ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                       elem_c, result);
             }
         }
         return result;
@@ -186,14 +192,14 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         {
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                       ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                                       result);
             }
             else if (field->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                       elem_c, ARENA_VAR(gen), result);
+                result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                       elem_c, result);
             }
         }
         return result;

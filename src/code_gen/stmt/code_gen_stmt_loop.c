@@ -98,12 +98,6 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     char *len_var = arena_sprintf(gen->arena, "__len_%d__", temp_idx);
     char *arr_var = arena_sprintf(gen->arena, "__arr_%d__", temp_idx);
 
-    /* Get the iterable expression - evaluate as raw pointer (pinned form) */
-    bool prev_as_handle = gen->expr_as_handle;
-    gen->expr_as_handle = false;
-    char *iterable_str = code_gen_expression(gen, stmt->iterable);
-    gen->expr_as_handle = prev_as_handle;
-
     /* Get the element type from the iterable's type */
     Type *iterable_type = stmt->iterable->expr_type;
     Type *elem_type = iterable_type->as.array.element_type;
@@ -120,18 +114,52 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     /* Add the loop variable to the symbol table */
     symbol_table_add_symbol_with_kind(gen->symbol_table, stmt->var_name, elem_type, SYMBOL_LOCAL);
 
-    /* Generate the for-each loop desugared to:
-     * {
-     *     arr_type __arr__ = iterable;
-     *     long __len__ = rt_array_length(__arr__);
-     *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
-     *         elem_type var = __arr__[__idx__];
-     *         body
-     *     }
-     * } */
     indented_fprintf(gen, indent, "{\n");
-    indented_fprintf(gen, indent + 1, "%s %s = %s;\n", arr_c_type, arr_var, iterable_str);
-    indented_fprintf(gen, indent + 1, "long %s = rt_array_length(%s);\n", len_var, arr_var);
+
+    /* In V2 mode, get handle first for length, then use rt_array_data_v2 for data pointer */
+    if (gen->current_arena_var != NULL)
+    {
+        /* Get the iterable as handle */
+        bool prev_as_handle = gen->expr_as_handle;
+        gen->expr_as_handle = true;
+        char *handle_str = code_gen_expression(gen, stmt->iterable);
+        gen->expr_as_handle = prev_as_handle;
+
+        /* Generate V2 for-each loop:
+         * {
+         *     RtHandleV2 *__handle__ = iterable;
+         *     long __len__ = rt_array_length_v2(__handle__);
+         *     arr_type __arr__ = (arr_type)rt_array_data_v2(__handle__);
+         *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
+         *         elem_type var = __arr__[__idx__];
+         *         body
+         *     }
+         * } */
+        char *handle_var = arena_sprintf(gen->arena, "__handle_%d__", temp_idx);
+        indented_fprintf(gen, indent + 1, "RtHandleV2 *%s = %s;\n", handle_var, handle_str);
+        indented_fprintf(gen, indent + 1, "long %s = rt_array_length_v2(%s);\n", len_var, handle_var);
+        indented_fprintf(gen, indent + 1, "%s %s = (%s)rt_array_data_v2(%s);\n", arr_c_type, arr_var, arr_c_type, handle_var);
+    }
+    else
+    {
+        /* Get the iterable expression - evaluate as raw pointer (pinned form) */
+        bool prev_as_handle = gen->expr_as_handle;
+        gen->expr_as_handle = false;
+        char *iterable_str = code_gen_expression(gen, stmt->iterable);
+        gen->expr_as_handle = prev_as_handle;
+
+        /* Generate V1 for-each loop desugared to:
+         * {
+         *     arr_type __arr__ = iterable;
+         *     long __len__ = rt_array_length(__arr__);
+         *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
+         *         elem_type var = __arr__[__idx__];
+         *         body
+         *     }
+         * } */
+        indented_fprintf(gen, indent + 1, "%s %s = %s;\n", arr_c_type, arr_var, iterable_str);
+        indented_fprintf(gen, indent + 1, "long %s = rt_array_length(%s);\n", len_var, arr_var);
+    }
     indented_fprintf(gen, indent + 1, "for (long %s = 0; %s < %s; %s++) {\n", idx_var, idx_var, len_var, idx_var);
 
     indented_fprintf(gen, indent + 2, "%s %s = %s[%s];\n", elem_c_type, var_name, arr_var, idx_var);

@@ -7,25 +7,15 @@
  * Functions for character manipulation and inspection.
  * ============================================================================ */
 
-#include "runtime_arena.h"
-#include "runtime/arena/managed_arena.h"
+#include "arena/arena_v2.h"
 #include <ctype.h>
 
-/* Convert char to string (single character string) - raw pointer version */
-static inline char *rt_char_toString(RtArena *arena, char c) {
-    char *result = rt_arena_alloc(arena, 2);
+/* Convert char to string (single character string) - V2 handle version */
+static inline RtHandleV2 *rt_char_toString_v2(RtArenaV2 *arena, char c) {
+    RtHandleV2 *handle = rt_arena_v2_alloc(arena, 2);
+    char *result = (char *)rt_handle_v2_pin(handle);
     result[0] = c;
     result[1] = '\0';
-    return result;
-}
-
-/* Convert char to string (single character string) - handle version */
-static inline RtHandle rt_char_toString_h(RtManagedArena *arena, char c) {
-    RtHandle handle = rt_managed_alloc(arena, RT_HANDLE_NULL, 2);
-    char *result = (char *)rt_managed_pin(arena, handle);
-    result[0] = c;
-    result[1] = '\0';
-    rt_managed_unpin(arena, handle);
     return handle;
 }
 

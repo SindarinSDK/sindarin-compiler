@@ -6,14 +6,14 @@
  * ============================================================================ */
 
 /* Create a thread result structure in the given arena */
-RtThreadResult *rt_thread_result_create(RtArena *arena)
+RtThreadResult *rt_thread_result_create(RtArenaV2 *arena)
 {
     if (arena == NULL) {
         fprintf(stderr, "rt_thread_result_create: NULL arena\n");
         return NULL;
     }
 
-    RtThreadResult *result = rt_arena_alloc(arena, sizeof(RtThreadResult));
+    RtThreadResult *result = rt_handle_v2_pin(rt_arena_v2_alloc(arena, sizeof(RtThreadResult)));
     if (result == NULL) {
         fprintf(stderr, "rt_thread_result_create: allocation failed\n");
         exit(1);
@@ -29,7 +29,7 @@ RtThreadResult *rt_thread_result_create(RtArena *arena)
 
 /* Set panic state on a thread result */
 void rt_thread_result_set_panic(RtThreadResult *result, const char *message,
-                                 RtArena *arena)
+                                 RtArenaV2 *arena)
 {
     if (result == NULL) {
         fprintf(stderr, "rt_thread_result_set_panic: NULL result\n");
@@ -38,7 +38,7 @@ void rt_thread_result_set_panic(RtThreadResult *result, const char *message,
 
     result->has_panic = true;
     if (message != NULL && arena != NULL) {
-        result->panic_message = rt_arena_strdup(arena, message);
+        result->panic_message = (char *)rt_handle_v2_pin(rt_arena_v2_strdup(arena, message));
     } else {
         result->panic_message = NULL;
     }
@@ -46,7 +46,7 @@ void rt_thread_result_set_panic(RtThreadResult *result, const char *message,
 
 /* Set value on a thread result */
 void rt_thread_result_set_value(RtThreadResult *result, void *value,
-                                 size_t size, RtArena *arena)
+                                 size_t size, RtArenaV2 *arena)
 {
     if (result == NULL) {
         fprintf(stderr, "rt_thread_result_set_value: NULL result\n");
@@ -55,7 +55,7 @@ void rt_thread_result_set_value(RtThreadResult *result, void *value,
 
     if (value != NULL && size > 0 && arena != NULL) {
         /* Copy value to arena for safety */
-        result->value = rt_arena_alloc(arena, size);
+        result->value = rt_handle_v2_pin(rt_arena_v2_alloc(arena, size));
         if (result->value != NULL) {
             memcpy(result->value, value, size);
         }
@@ -70,14 +70,14 @@ void rt_thread_result_set_value(RtThreadResult *result, void *value,
  * ============================================================================ */
 
 /* Create a new thread handle in the given arena */
-RtThreadHandle *rt_thread_handle_create(RtArena *arena)
+RtThreadHandle *rt_thread_handle_create(RtArenaV2 *arena)
 {
     if (arena == NULL) {
         fprintf(stderr, "rt_thread_handle_create: NULL arena\n");
         return NULL;
     }
 
-    RtThreadHandle *handle = rt_arena_alloc(arena, sizeof(RtThreadHandle));
+    RtThreadHandle *handle = rt_handle_v2_pin(rt_arena_v2_alloc(arena, sizeof(RtThreadHandle)));
     if (handle == NULL) {
         fprintf(stderr, "rt_thread_handle_create: allocation failed\n");
         exit(1);
@@ -103,7 +103,7 @@ RtThreadHandle *rt_thread_handle_create(RtArena *arena)
 /* Release a thread handle and its result back to the arena.
  * Marks them as dead so GC can reclaim the memory.
  * Safe to call even if handle is NULL. */
-void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
+void rt_thread_handle_release(RtThreadHandle *handle, RtArenaV2 *arena)
 {
     if (handle == NULL || arena == NULL) return;
 
@@ -112,16 +112,9 @@ void rt_thread_handle_release(RtThreadHandle *handle, RtArena *arena)
     pthread_mutex_destroy(&handle->completion_mutex);
     pthread_cond_destroy(&handle->completion_cond);
 
-    /* Release result->value if allocated */
-    if (handle->result != NULL && handle->result->value != NULL) {
-        rt_managed_release_pinned(arena, handle->result->value);
-    }
-    /* Release result struct */
-    if (handle->result != NULL) {
-        rt_managed_release_pinned(arena, handle->result);
-    }
-    /* Release handle struct */
-    rt_managed_release_pinned(arena, handle);
+    /* In V2, memory is automatically freed when arena is destroyed.
+     * No explicit release needed - the GC handles cleanup. */
+    (void)arena;  /* Suppress unused parameter warning */
 }
 
 /* Clean up a fire-and-forget thread after it completes.
@@ -147,7 +140,7 @@ void rt_thread_fire_forget_cleanup(RtThreadHandle *handle)
      * This prevents the callback from firing when the arena is destroyed,
      * which would try to clean up an already-cleaned handle. */
     if (handle->caller_arena != NULL) {
-        rt_arena_remove_cleanup(handle->caller_arena, handle);
+        rt_arena_v2_remove_cleanup(handle->caller_arena, handle);
     }
 
     /* Release handle and result back to caller arena for GC reclamation.
@@ -162,7 +155,7 @@ void rt_thread_fire_forget_cleanup(RtThreadHandle *handle)
  * ============================================================================ */
 
 /* Create thread arguments structure in the given arena */
-RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,
+RtThreadArgs *rt_thread_args_create(RtArenaV2 *arena, void *func_ptr,
                                      void *args_data, size_t args_size)
 {
     if (arena == NULL) {
@@ -170,7 +163,7 @@ RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,
         return NULL;
     }
 
-    RtThreadArgs *args = rt_arena_alloc(arena, sizeof(RtThreadArgs));
+    RtThreadArgs *args = rt_handle_v2_pin(rt_arena_v2_alloc(arena, sizeof(RtThreadArgs)));
     if (args == NULL) {
         fprintf(stderr, "rt_thread_args_create: allocation failed\n");
         exit(1);
@@ -186,7 +179,7 @@ RtThreadArgs *rt_thread_args_create(RtArena *arena, void *func_ptr,
 
     /* Copy args_data if provided */
     if (args_data != NULL && args_size > 0) {
-        args->args_data = rt_arena_alloc(arena, args_size);
+        args->args_data = rt_handle_v2_pin(rt_arena_v2_alloc(arena, args_size));
         if (args->args_data == NULL) {
             fprintf(stderr, "rt_thread_args_create: args_data allocation failed\n");
             exit(1);

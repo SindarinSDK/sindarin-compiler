@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "runtime/runtime_arena.h"
+#include "runtime/arena/arena_v2.h"
 #include "runtime/array/runtime_array.h"
 
 /* ============================================================================

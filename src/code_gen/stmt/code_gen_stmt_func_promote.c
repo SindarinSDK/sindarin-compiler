@@ -2,6 +2,7 @@
  * code_gen_stmt_func_promote.c - Return value promotion helpers
  *
  * Handles promotion of return values from local arena to caller arena.
+ * Uses V2 arena functions - handles carry their own arena reference.
  */
 
 #include "code_gen/stmt/code_gen_stmt.h"
@@ -21,7 +22,7 @@ void code_gen_promote_array_return(CodeGen *gen, Type *return_type, int indent)
     if (elem_type && elem_type->kind == TYPE_STRING)
     {
         /* String arrays need deep promotion */
-        indented_fprintf(gen, indent, "_return_value = rt_managed_promote_array_string(__caller_arena__, __local_arena__, _return_value);\n");
+        indented_fprintf(gen, indent, "_return_value = rt_promote_array_string_v2(__caller_arena__, _return_value);\n");
     }
     else if (elem_type && elem_type->kind == TYPE_ARRAY)
     {
@@ -29,29 +30,29 @@ void code_gen_promote_array_return(CodeGen *gen, Type *return_type, int indent)
         Type *inner_elem = elem_type->as.array.element_type;
         if (inner_elem && inner_elem->kind == TYPE_STRING)
         {
-            indented_fprintf(gen, indent, "_return_value = rt_managed_promote_array2_string(__caller_arena__, __local_arena__, _return_value);\n");
+            indented_fprintf(gen, indent, "_return_value = rt_promote_array2_string_v2(__caller_arena__, _return_value);\n");
         }
         else if (inner_elem && inner_elem->kind == TYPE_ARRAY)
         {
             Type *innermost = inner_elem->as.array.element_type;
             if (innermost && innermost->kind == TYPE_STRING)
             {
-                indented_fprintf(gen, indent, "_return_value = rt_managed_promote_array3_string(__caller_arena__, __local_arena__, _return_value);\n");
+                indented_fprintf(gen, indent, "_return_value = rt_promote_array3_string_v2(__caller_arena__, _return_value);\n");
             }
             else
             {
-                indented_fprintf(gen, indent, "_return_value = rt_managed_promote_array_handle_3d(__caller_arena__, __local_arena__, _return_value);\n");
+                indented_fprintf(gen, indent, "_return_value = rt_promote_array_handle_3d_v2(__caller_arena__, _return_value);\n");
             }
         }
         else
         {
-            indented_fprintf(gen, indent, "_return_value = rt_managed_promote_array_handle(__caller_arena__, __local_arena__, _return_value);\n");
+            indented_fprintf(gen, indent, "_return_value = rt_promote_array_handle_v2(__caller_arena__, _return_value);\n");
         }
     }
     else
     {
         /* Non-string, non-nested arrays */
-        indented_fprintf(gen, indent, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
+        indented_fprintf(gen, indent, "_return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
     }
 }
 
@@ -64,12 +65,12 @@ static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field
 
     if (elem_type && elem_type->kind == TYPE_STRING)
     {
-        indented_fprintf(gen, indent, "%s.%s = rt_managed_promote_array_string(__caller_arena__, __local_arena__, %s.%s);\n",
+        indented_fprintf(gen, indent, "%s.%s = rt_promote_array_string_v2(__caller_arena__, %s.%s);\n",
                          prefix, c_field_name, prefix, c_field_name);
     }
     else if (elem_type && elem_type->kind == TYPE_ARRAY)
     {
-        indented_fprintf(gen, indent, "%s.%s = rt_managed_promote_array_handle(__caller_arena__, __local_arena__, %s.%s);\n",
+        indented_fprintf(gen, indent, "%s.%s = rt_promote_array_handle_v2(__caller_arena__, %s.%s);\n",
                          prefix, c_field_name, prefix, c_field_name);
     }
     else if (elem_type && elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type))
@@ -80,9 +81,9 @@ static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field
             : sn_mangle_name(gen->arena, elem_type->as.struct_type.name);
 
         indented_fprintf(gen, indent, "{ /* Promote handles in struct array elements */\n");
-        indented_fprintf(gen, indent, "    %s *__parr__ = ((%s *)rt_managed_pin_array(__local_arena__, %s.%s));\n",
+        indented_fprintf(gen, indent, "    %s *__parr__ = ((%s *)rt_array_data_v2(%s.%s));\n",
                          struct_c_name, struct_c_name, prefix, c_field_name);
-        indented_fprintf(gen, indent, "    long __plen__ = rt_array_length(__parr__);\n");
+        indented_fprintf(gen, indent, "    long __plen__ = rt_array_length_v2(%s.%s);\n", prefix, c_field_name);
         indented_fprintf(gen, indent, "    for (long __pi__ = 0; __pi__ < __plen__; __pi__++) {\n");
 
         /* Promote each handle field in struct elements */
@@ -95,7 +96,7 @@ static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field
 
             if (sf->type->kind == TYPE_STRING)
             {
-                indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_managed_promote(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_arena_v2_promote(__caller_arena__, __parr__[__pi__].%s);\n",
                                  sf_c_name, sf_c_name);
             }
             else if (sf->type->kind == TYPE_ARRAY)
@@ -103,25 +104,25 @@ static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field
                 Type *sf_elem = sf->type->as.array.element_type;
                 if (sf_elem && sf_elem->kind == TYPE_STRING)
                 {
-                    indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_managed_promote_array_string(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                    indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_promote_array_string_v2(__caller_arena__, __parr__[__pi__].%s);\n",
                                      sf_c_name, sf_c_name);
                 }
                 else
                 {
-                    indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_managed_promote(__caller_arena__, __local_arena__, __parr__[__pi__].%s);\n",
+                    indented_fprintf(gen, indent, "        __parr__[__pi__].%s = rt_arena_v2_promote(__caller_arena__, __parr__[__pi__].%s);\n",
                                      sf_c_name, sf_c_name);
                 }
             }
         }
 
         indented_fprintf(gen, indent, "    }\n");
-        indented_fprintf(gen, indent, "    %s.%s = rt_managed_promote(__caller_arena__, __local_arena__, %s.%s);\n",
+        indented_fprintf(gen, indent, "    %s.%s = rt_arena_v2_promote(__caller_arena__, %s.%s);\n",
                          prefix, c_field_name, prefix, c_field_name);
         indented_fprintf(gen, indent, "}\n");
     }
     else
     {
-        indented_fprintf(gen, indent, "%s.%s = rt_managed_promote(__caller_arena__, __local_arena__, %s.%s);\n",
+        indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(__caller_arena__, %s.%s);\n",
                          prefix, c_field_name, prefix, c_field_name);
     }
 }
@@ -140,7 +141,7 @@ void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, int indent)
 
         if (field->type->kind == TYPE_STRING)
         {
-            indented_fprintf(gen, indent, "_return_value.%s = rt_managed_promote(__caller_arena__, __local_arena__, _return_value.%s);\n",
+            indented_fprintf(gen, indent, "_return_value.%s = rt_arena_v2_promote(__caller_arena__, _return_value.%s);\n",
                              c_field_name, c_field_name);
         }
         else if (field->type->kind == TYPE_ARRAY)
@@ -160,7 +161,7 @@ void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bo
 
     if (kind == TYPE_STRING)
     {
-        indented_fprintf(gen, indent, "_return_value = rt_managed_promote(__caller_arena__, __local_arena__, _return_value);\n");
+        indented_fprintf(gen, indent, "_return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
     }
     else if (kind == TYPE_ARRAY)
     {
@@ -174,12 +175,12 @@ void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bo
     {
         /* Closures - copy to caller's arena */
         indented_fprintf(gen, indent, "{ __Closure__ *__src_cl__ = _return_value;\n");
-        indented_fprintf(gen, indent, "  _return_value = (__Closure__ *)rt_arena_alloc(__caller_arena__, __src_cl__->size);\n");
+        indented_fprintf(gen, indent, "  _return_value = (__Closure__ *)rt_arena_v2_alloc(__caller_arena__, __src_cl__->size);\n");
         indented_fprintf(gen, indent, "  memcpy(_return_value, __src_cl__, __src_cl__->size);\n");
         indented_fprintf(gen, indent, "  _return_value->arena = __caller_arena__; }\n");
     }
     else if (kind == TYPE_ANY)
     {
-        indented_fprintf(gen, indent, "_return_value = rt_any_promote(__caller_arena__, _return_value);\n");
+        indented_fprintf(gen, indent, "_return_value = rt_any_promote_v2(__caller_arena__, _return_value);\n");
     }
 }

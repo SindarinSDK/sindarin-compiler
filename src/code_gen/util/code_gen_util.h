@@ -23,8 +23,10 @@ const char *get_c_native_param_type(Arena *arena, Type *type);  /* C types for n
 const char *get_c_array_elem_type(Arena *arena, Type *elem_type);  /* Storage type for array elements */
 bool is_handle_type(Type *type);  /* True if type uses RtHandle storage */
 const char *get_rt_to_string_func(TypeKind kind);
+const char *get_rt_to_string_func_v2(TypeKind kind);  /* V2 raw pointer version */
 const char *get_rt_to_string_func_for_type(Type *type);
 const char *get_rt_to_string_func_for_type_h(Type *type);  /* Handle-aware version for arena mode */
+const char *get_rt_to_string_func_for_type_v2(Type *type);  /* V2 raw pointer version */
 const char *get_default_value(Type *type);
 const char *get_rt_result_type(Type *type);
 

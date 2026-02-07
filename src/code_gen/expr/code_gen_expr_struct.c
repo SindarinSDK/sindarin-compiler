@@ -113,7 +113,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                                              func_sym->type->as.function.has_body);
                     if (wrapped_has_body)
                     {
-                        args_forward = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena)");
+                        args_forward = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena)");
                     }
 
                     for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -174,10 +174,10 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                     }
                     else
                     {
-                        /* Use arena allocation */
+                        /* Use V2 arena allocation */
                         value_code = arena_sprintf(gen->arena,
                             "({\n"
-                            "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+                            "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
                             "    __cl__->fn = (void *)%s;\n"
                             "    __cl__->arena = %s;\n"
                             "    __cl__;\n"
@@ -205,7 +205,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                 const char *elem_c = get_c_type(gen->arena, elem_type);
 
                 if (elem_type->kind == TYPE_STRUCT) {
-                    value_code = arena_sprintf(gen->arena, "rt_array_create_generic_h(%s, 0, sizeof(%s), NULL)",
+                    value_code = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL)",
                                                ARENA_VAR(gen), elem_c);
                 } else {
                     /* Determine suffix for the element type */
@@ -225,11 +225,11 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                         default: suffix = NULL; break;
                     }
                     if (suffix != NULL) {
-                        value_code = arena_sprintf(gen->arena, "rt_array_create_%s_h(%s, 0, NULL)",
+                        value_code = arena_sprintf(gen->arena, "rt_array_create_%s_v2(%s, 0, NULL)",
                                                    suffix, ARENA_VAR(gen));
                     } else {
                         /* Fallback to generic for unknown element types */
-                        value_code = arena_sprintf(gen->arena, "rt_array_create_generic_h(%s, 0, sizeof(%s), NULL)",
+                        value_code = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL)",
                                                    ARENA_VAR(gen), elem_c);
                     }
                 }

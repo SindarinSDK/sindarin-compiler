@@ -121,8 +121,8 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_str = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
-                                     ARENA_VAR(gen), handle_expr);
+            arg_str = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
+                                     handle_expr);
         }
         /* For native methods receiving individual str args: convert RtHandle to const char* */
         else if (gen->current_arena_var != NULL &&
@@ -133,8 +133,8 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_str = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                     ARENA_VAR(gen), handle_expr);
+            arg_str = arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                     handle_expr);
         }
         else
         {
@@ -159,8 +159,8 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
         if (!gen->expr_as_handle)
         {
             /* Need char* - pin the handle returned by native method */
-            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                 ARENA_VAR(gen), call_result);
+            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                 call_result);
         }
     }
     return call_result;
@@ -216,15 +216,15 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
         {
             if (method->return_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                     ARENA_VAR(gen), intercept_result);
+                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                     intercept_result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)
             {
                 Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
                 const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                     elem_c, ARENA_VAR(gen), intercept_result);
+                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                     elem_c, intercept_result);
             }
         }
         return intercept_result;
@@ -282,15 +282,15 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
     {
         if (method->return_type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                 ARENA_VAR(gen), method_call);
+            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                 method_call);
         }
         else if (method->return_type->kind == TYPE_ARRAY)
         {
             Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
             const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                 elem_c, ARENA_VAR(gen), method_call);
+            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                 elem_c, method_call);
         }
     }
     return method_call;
@@ -333,15 +333,15 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
         {
             if (method->return_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                     ARENA_VAR(gen), intercept_result);
+                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                     intercept_result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)
             {
                 Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
                 const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                     elem_c, ARENA_VAR(gen), intercept_result);
+                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                     elem_c, intercept_result);
             }
         }
         return intercept_result;
@@ -386,15 +386,15 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
     {
         if (method->return_type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                 ARENA_VAR(gen), method_call);
+            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                 method_call);
         }
         else if (method->return_type->kind == TYPE_ARRAY)
         {
             Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
             const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                 elem_c, ARENA_VAR(gen), method_call);
+            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                 elem_c, method_call);
         }
     }
     return method_call;

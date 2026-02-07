@@ -10,7 +10,7 @@
  * Handles panic propagation with message promotion.
  */
 void *rt_thread_sync_with_result(RtThreadHandle *handle,
-                                  RtArena *caller_arena,
+                                  RtArenaV2 *caller_arena,
                                   RtResultType result_type)
 {
     if (handle == NULL) {
@@ -33,12 +33,12 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
         const char *msg = handle->result->panic_message;
         char *promoted_msg = NULL;
         if (msg != NULL && caller_arena != NULL) {
-            promoted_msg = rt_arena_promote_string(caller_arena, msg);
+            promoted_msg = (char *)rt_handle_v2_pin(rt_arena_v2_strdup(caller_arena, msg));
         }
 
         /* Cleanup thread arena before panicking */
         if (handle->thread_arena != NULL) {
-            rt_arena_destroy(handle->thread_arena);
+            rt_arena_v2_destroy(handle->thread_arena);
             handle->thread_arena = NULL;
         }
 
@@ -63,7 +63,7 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     if (handle->thread_arena == NULL) {
         /* Remove cleanup callback before releasing handle to prevent use-after-free */
         if (handle->caller_arena != NULL) {
-            rt_arena_remove_cleanup(handle->caller_arena, handle);
+            rt_arena_v2_remove_cleanup(handle->caller_arena, handle);
         }
         /* Release handle and result back to caller arena for GC reclamation */
         rt_thread_handle_release(handle, handle->caller_arena);
@@ -84,12 +84,12 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
     }
 
     /* Cleanup thread arena now that result is promoted */
-    rt_arena_destroy(handle->thread_arena);
+    rt_arena_v2_destroy(handle->thread_arena);
     handle->thread_arena = NULL;
 
     /* Remove cleanup callback before releasing handle to prevent use-after-free */
     if (handle->caller_arena != NULL) {
-        rt_arena_remove_cleanup(handle->caller_arena, handle);
+        rt_arena_v2_remove_cleanup(handle->caller_arena, handle);
     }
 
     /* Release handle and result back to caller arena for GC reclamation.
@@ -104,7 +104,7 @@ void *rt_thread_sync_with_result(RtThreadHandle *handle,
  * The caller MUST call rt_thread_cleanup_arena(handle) after field promotion.
  */
 void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
-                                             RtArena *caller_arena,
+                                             RtArenaV2 *caller_arena,
                                              RtResultType result_type)
 {
     if (handle == NULL) {
@@ -126,12 +126,12 @@ void *rt_thread_sync_with_result_keep_arena(RtThreadHandle *handle,
         const char *msg = handle->result->panic_message;
         char *promoted_msg = NULL;
         if (msg != NULL && caller_arena != NULL) {
-            promoted_msg = rt_arena_promote_string(caller_arena, msg);
+            promoted_msg = (char *)rt_handle_v2_pin(rt_arena_v2_strdup(caller_arena, msg));
         }
 
         /* Cleanup thread arena before panicking */
         if (handle->thread_arena != NULL) {
-            rt_arena_destroy(handle->thread_arena);
+            rt_arena_v2_destroy(handle->thread_arena);
             handle->thread_arena = NULL;
         }
 
@@ -176,13 +176,13 @@ void rt_thread_cleanup_arena(RtThreadHandle *handle)
     if (handle == NULL) return;
 
     if (handle->thread_arena != NULL) {
-        rt_arena_destroy(handle->thread_arena);
+        rt_arena_v2_destroy(handle->thread_arena);
         handle->thread_arena = NULL;
     }
 
     /* Remove cleanup callback before releasing handle to prevent use-after-free */
     if (handle->caller_arena != NULL) {
-        rt_arena_remove_cleanup(handle->caller_arena, handle);
+        rt_arena_v2_remove_cleanup(handle->caller_arena, handle);
     }
 
     /* Release handle and result back to caller arena for GC reclamation */

@@ -1,5 +1,5 @@
 // tests/runtime_arena_tests.c
-// Tests for the runtime arena memory management system (RtArena -> RtManagedArena)
+// Tests for the runtime arena memory management system (V2 Arena)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -10,186 +10,106 @@
 
 static void test_rt_arena_create(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     assert(arena != NULL);
-    assert(arena->parent == NULL);
-    assert(arena->first != NULL);
-    assert(arena->current == arena->first);
-    assert(arena->block_size == RT_MANAGED_BLOCK_SIZE);
-    assert(arena->total_allocated > 0);
-    assert(arena->is_root == true);
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_arena_create_with_parent(void)
 {
-    RtArena *parent = rt_arena_create(NULL);
-    RtArena *child = rt_arena_create(parent);
-    assert(child->parent == parent);
-    assert(parent->parent == NULL);
-    assert(child->is_root == false);
-    rt_arena_destroy(child);
-    rt_arena_destroy(parent);
+    RtArenaV2 *parent = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "parent");
+    RtArenaV2 *child = rt_arena_v2_create(parent, RT_ARENA_MODE_PRIVATE, "child");
+    assert(parent != NULL);
+    assert(child != NULL);
+    rt_arena_v2_destroy(child);
+    rt_arena_v2_destroy(parent);
 }
 
 static void test_rt_arena_alloc_small(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
-    void *p1 = rt_arena_alloc(arena, 16);
-    void *p2 = rt_arena_alloc(arena, 32);
-    void *p3 = rt_arena_alloc(arena, 8);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
+    RtHandleV2 *h1 = rt_arena_v2_alloc(arena, 16);
+    RtHandleV2 *h2 = rt_arena_v2_alloc(arena, 32);
+    RtHandleV2 *h3 = rt_arena_v2_alloc(arena, 8);
+    void *p1 = rt_handle_v2_pin(h1);
+    void *p2 = rt_handle_v2_pin(h2);
+    void *p3 = rt_handle_v2_pin(h3);
     assert(p1 != NULL);
     assert(p2 != NULL);
     assert(p3 != NULL);
-    /* Each allocation is independent in the managed arena */
+    /* Each allocation is independent */
     assert(p1 != p2);
     assert(p2 != p3);
     memset(p1, 0xAA, 16);
     memset(p2, 0xBB, 32);
     memset(p3, 0xCC, 8);
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_arena_alloc_large(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
-    /* Allocate more than the default block size to trigger new block */
-    void *p1 = rt_arena_alloc(arena, RT_MANAGED_BLOCK_SIZE + 100);
-    assert(p1 != NULL);
-    rt_arena_destroy(arena);
-}
-
-static void test_rt_arena_alloc_zero(void)
-{
-    RtArena *arena = rt_arena_create(NULL);
-    void *p = rt_arena_alloc(arena, 0);
-    assert(p == NULL);
-    rt_arena_destroy(arena);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
+    /* Allocate a large block */
+    RtHandleV2 *h = rt_arena_v2_alloc(arena, 100000);
+    void *p = rt_handle_v2_pin(h);
+    assert(p != NULL);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_arena_alloc_null_arena(void)
 {
-    void *p = rt_arena_alloc(NULL, 16);
-    assert(p == NULL);
+    RtHandleV2 *h = rt_arena_v2_alloc(NULL, 16);
+    assert(h == NULL);
 }
 
 static void test_rt_arena_calloc(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
-    int *arr = rt_arena_calloc(arena, 10, sizeof(int));
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
+    RtHandleV2 *h = rt_arena_v2_calloc(arena, 10, sizeof(int));
+    int *arr = (int *)rt_handle_v2_pin(h);
     assert(arr != NULL);
     for (int i = 0; i < 10; i++) {
         assert(arr[i] == 0);
     }
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_arena_strdup(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
-    char *s1 = rt_arena_strdup(arena, NULL);
-    assert(s1 == NULL);
-    char *s2 = rt_arena_strdup(arena, "");
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
+    RtHandleV2 *h1 = rt_arena_v2_strdup(arena, NULL);
+    assert(h1 == NULL);
+    RtHandleV2 *h2 = rt_arena_v2_strdup(arena, "");
+    char *s2 = (char *)rt_handle_v2_pin(h2);
     assert(s2 != NULL);
     assert(strcmp(s2, "") == 0);
-    char *s3 = rt_arena_strdup(arena, "hello world");
+    RtHandleV2 *h3 = rt_arena_v2_strdup(arena, "hello world");
+    char *s3 = (char *)rt_handle_v2_pin(h3);
     assert(s3 != NULL);
     assert(strcmp(s3, "hello world") == 0);
     const char *long_str = "This is a longer string that should still work correctly with the arena allocator.";
-    char *s4 = rt_arena_strdup(arena, long_str);
+    RtHandleV2 *h4 = rt_arena_v2_strdup(arena, long_str);
+    char *s4 = (char *)rt_handle_v2_pin(h4);
     assert(s4 != NULL);
     assert(strcmp(s4, long_str) == 0);
-    rt_arena_destroy(arena);
-}
-
-static void test_rt_arena_strndup(void)
-{
-    RtArena *arena = rt_arena_create(NULL);
-    char *s1 = rt_arena_strndup(arena, NULL, 5);
-    assert(s1 == NULL);
-    char *s2 = rt_arena_strndup(arena, "hello", 10);
-    assert(s2 != NULL);
-    assert(strcmp(s2, "hello") == 0);
-    char *s3 = rt_arena_strndup(arena, "hello world", 5);
-    assert(s3 != NULL);
-    assert(strcmp(s3, "hello") == 0);
-    char *s4 = rt_arena_strndup(arena, "hello", 0);
-    assert(s4 != NULL);
-    assert(strcmp(s4, "") == 0);
-    rt_arena_destroy(arena);
-}
-
-static void test_rt_arena_promote(void)
-{
-    RtArena *src_arena = rt_arena_create(NULL);
-    RtArena *dest_arena = rt_arena_create(NULL);
-    int *src_data = rt_arena_alloc(src_arena, sizeof(int) * 5);
-    for (int i = 0; i < 5; i++) {
-        src_data[i] = i * 10;
-    }
-    int *dest_data = rt_arena_promote(dest_arena, src_data, sizeof(int) * 5);
-    assert(dest_data != NULL);
-    assert(dest_data != src_data);
-    for (int i = 0; i < 5; i++) {
-        assert(dest_data[i] == i * 10);
-    }
-    src_data[0] = 999;
-    assert(dest_data[0] == 0);
-    rt_arena_destroy(src_arena);
-    rt_arena_destroy(dest_arena);
-}
-
-static void test_rt_arena_promote_null(void)
-{
-    RtArena *arena = rt_arena_create(NULL);
-    void *p1 = rt_arena_promote(NULL, "test", 4);
-    assert(p1 == NULL);
-    void *p2 = rt_arena_promote(arena, NULL, 4);
-    assert(p2 == NULL);
-    void *p3 = rt_arena_promote(arena, "test", 0);
-    assert(p3 == NULL);
-    rt_arena_destroy(arena);
-}
-
-static void test_rt_arena_promote_string(void)
-{
-    RtArena *src_arena = rt_arena_create(NULL);
-    RtArena *dest_arena = rt_arena_create(NULL);
-    char *src_str = rt_arena_strdup(src_arena, "hello from source");
-    char *dest_str = rt_arena_promote_string(dest_arena, src_str);
-    assert(dest_str != NULL);
-    assert(dest_str != src_str);
-    assert(strcmp(dest_str, "hello from source") == 0);
-    rt_arena_destroy(src_arena);
-    rt_arena_destroy(dest_arena);
-}
-
-static void test_rt_arena_total_allocated(void)
-{
-    RtArena *arena = rt_arena_create(NULL);
-    size_t initial = rt_arena_total_allocated(arena);
-    rt_arena_alloc(arena, 2000);
-    size_t after = rt_arena_total_allocated(arena);
-    assert(after > initial);
-    assert(after >= 2000);
-    assert(rt_arena_total_allocated(NULL) == 0);
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_arena_destroy_null(void)
 {
-    rt_arena_destroy(NULL);
+    rt_arena_v2_destroy(NULL);
 }
 
 static void test_rt_arena_many_allocations(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     for (int i = 0; i < 1000; i++) {
-        void *p = rt_arena_alloc(arena, 64);
+        RtHandleV2 *h = rt_arena_v2_alloc(arena, 64);
+        void *p = rt_handle_v2_pin(h);
         assert(p != NULL);
         memset(p, i & 0xFF, 64);
     }
-    rt_arena_destroy(arena);
+    rt_arena_v2_destroy(arena);
 }
 
 static void test_rt_array_alloc_long(void)
@@ -441,21 +361,15 @@ static void test_rt_string_length_tracking(void)
 
 void test_rt_arena_main(void)
 {
-    TEST_SECTION("Runtime Arena");
+    TEST_SECTION("Runtime Arena V2");
 
     TEST_RUN("rt_arena_create", test_rt_arena_create);
     TEST_RUN("rt_arena_create_with_parent", test_rt_arena_create_with_parent);
     TEST_RUN("rt_arena_alloc_small", test_rt_arena_alloc_small);
     TEST_RUN("rt_arena_alloc_large", test_rt_arena_alloc_large);
-    TEST_RUN("rt_arena_alloc_zero", test_rt_arena_alloc_zero);
     TEST_RUN("rt_arena_alloc_null_arena", test_rt_arena_alloc_null_arena);
     TEST_RUN("rt_arena_calloc", test_rt_arena_calloc);
     TEST_RUN("rt_arena_strdup", test_rt_arena_strdup);
-    TEST_RUN("rt_arena_strndup", test_rt_arena_strndup);
-    TEST_RUN("rt_arena_promote", test_rt_arena_promote);
-    TEST_RUN("rt_arena_promote_null", test_rt_arena_promote_null);
-    TEST_RUN("rt_arena_promote_string", test_rt_arena_promote_string);
-    TEST_RUN("rt_arena_total_allocated", test_rt_arena_total_allocated);
     TEST_RUN("rt_arena_destroy_null", test_rt_arena_destroy_null);
     TEST_RUN("rt_arena_many_allocations", test_rt_arena_many_allocations);
     TEST_RUN("rt_array_alloc_long", test_rt_array_alloc_long);

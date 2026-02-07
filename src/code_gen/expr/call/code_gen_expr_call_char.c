@@ -23,11 +23,17 @@ char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
     char *object_str = code_gen_expression(gen, object);
 
     /* char.toString() -> str (single character string)
-     * Returns RtHandle in handle mode, char* otherwise */
+     * Returns RtHandleV2* in handle mode, char* otherwise */
     if (strcmp(method_name, "toString") == 0 && arg_count == 0) {
-        if (gen->expr_as_handle && gen->current_arena_var != NULL) {
-            return arena_sprintf(gen->arena, "rt_char_toString_h(%s, %s)",
+        if (gen->current_arena_var != NULL) {
+            /* V2 arena mode - always use V2 function */
+            char *v2_call = arena_sprintf(gen->arena, "rt_to_string_char_v2(%s, %s)",
                 ARENA_VAR(gen), object_str);
+            if (gen->expr_as_handle) {
+                return v2_call;
+            }
+            /* Want raw pointer - pin the result */
+            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
         }
         return arena_sprintf(gen->arena, "rt_char_toString(%s, %s)",
             ARENA_VAR(gen), object_str);

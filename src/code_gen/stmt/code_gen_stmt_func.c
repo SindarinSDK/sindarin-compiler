@@ -115,7 +115,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     {
         if (!is_main)
         {
-            fprintf(gen->output, "RtManagedArena *__caller_arena__");
+            fprintf(gen->output, "RtArenaV2 *__caller_arena__");
             if (stmt->param_count > 0)
                 fprintf(gen->output, ", ");
         }
@@ -151,7 +151,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Setup local arena */
     if (is_main)
     {
-        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create();\n");
+        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
         for (int i = 0; i < gen->deferred_global_count; i++)
         {
@@ -161,11 +161,11 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     }
     else if (is_shared)
     {
-        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = __caller_arena__;\n");
+        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __caller_arena__;\n");
     }
     else
     {
-        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n");
+        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, \"func\");\n");
     }
 
     /* Clone handle-type parameters */
@@ -179,7 +179,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             if (param_type->kind == TYPE_STRING)
             {
                 char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
-                indented_fprintf(gen, 1, "%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s);\n",
+                indented_fprintf(gen, 1, "%s = rt_arena_v2_clone(__local_arena__, %s);\n",
                                  param_name, param_name);
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
                 if (sym) sym->kind = SYMBOL_LOCAL;
@@ -194,7 +194,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                     if (field->type && field->type->kind == TYPE_STRING)
                     {
                         const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                        indented_fprintf(gen, 1, "%s.%s = rt_managed_clone_any(__local_arena__, __caller_arena__, %s.%s);\n",
+                        indented_fprintf(gen, 1, "%s.%s = rt_arena_v2_clone(__local_arena__, %s.%s);\n",
                                          param_name, c_field_name, param_name, c_field_name);
                     }
                 }
@@ -213,7 +213,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     if (main_has_args)
     {
         char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[0].name));
-        indented_fprintf(gen, 1, "RtHandle %s = rt_args_create_h(%s, argc, argv);\n",
+        indented_fprintf(gen, 1, "RtHandleV2 *%s = rt_args_create_v2(%s, argc, argv);\n",
                          param_name, gen->current_arena_var);
         Symbol *args_sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[0].name);
         if (args_sym) args_sym->kind = SYMBOL_LOCAL;
@@ -231,17 +231,8 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             {
                 Type *elem_type = param_type->as.array.element_type;
                 const char *suffix = code_gen_type_suffix(elem_type);
-                if (gen->current_arena_var != NULL)
-                {
-                    const char *elem_c = get_c_type(gen->arena, elem_type);
-                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s_h(%s, RT_HANDLE_NULL, ((%s *)rt_managed_pin_array(%s, %s)));\n",
-                                     param_name, suffix, ARENA_VAR(gen), elem_c, ARENA_VAR(gen), param_name);
-                }
-                else
-                {
-                    indented_fprintf(gen, 1, "%s = rt_array_clone_%s(%s, %s);\n",
-                                     param_name, suffix, ARENA_VAR(gen), param_name);
-                }
+                indented_fprintf(gen, 1, "%s = rt_array_clone_%s_v2(%s, %s);\n",
+                                 param_name, suffix, ARENA_VAR(gen), param_name);
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
                 if (sym) sym->kind = SYMBOL_LOCAL;
             }
@@ -311,11 +302,11 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Destroy arena */
     if (is_main)
     {
-        indented_fprintf(gen, 1, "rt_managed_arena_destroy(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_arena_v2_destroy(__local_arena__);\n");
     }
     else if (!is_shared)
     {
-        indented_fprintf(gen, 1, "rt_managed_arena_destroy_child(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_arena_v2_destroy(__local_arena__);\n");
     }
 
     /* Return statement */

@@ -8,7 +8,7 @@
 /* Initialize a panic context for the current thread */
 void rt_thread_panic_context_init(RtThreadPanicContext *ctx,
                                    RtThreadResult *result,
-                                   RtArena *arena)
+                                   RtArenaV2 *arena)
 {
     if (ctx == NULL) {
         fprintf(stderr, "rt_thread_panic_context_init: NULL context\n");

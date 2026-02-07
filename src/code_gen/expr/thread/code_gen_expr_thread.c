@@ -196,8 +196,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    void *args_data;\n"
         "    size_t args_size;\n"
         "    RtThreadResult *result;\n"
-        "    RtArena *caller_arena;\n"
-        "    RtArena *thread_arena;\n"
+        "    RtArenaV2 *caller_arena;\n"
+        "    RtArenaV2 *thread_arena;\n"
         "    bool is_shared;\n"
         "    bool is_private;\n"
         "    RtThreadHandle *handle;\n"
@@ -267,7 +267,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "\n"
         "    /* Use arena created by rt_thread_spawn(). For shared mode, this is\n"
         "     * the caller's arena. For default/private modes, it's a new arena. */\n"
-        "    RtArena *__arena__ = args->thread_arena;\n"
+        "    RtArenaV2 *__arena__ = args->thread_arena;\n"
         "\n"
         "    /* Set thread arena for closures called from this thread */\n"
         "    rt_set_thread_arena(__arena__);\n"
@@ -399,14 +399,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             call_args = arena_sprintf(gen->arena, "%s, ", call_args);
         }
 
-        /* For handle-type args in non-shared mode, promote from caller's arena
-         * to thread's arena since handles are per-arena */
+        /* For handle-type args in non-shared mode, clone from caller's arena
+         * to thread's arena since handles are per-arena.
+         * V2 handles carry their own arena reference, so no source arena needed. */
         Type *arg_type = arguments[i]->expr_type;
         bool is_handle_arg = gen->current_arena_var != NULL && arg_type != NULL &&
                              (arg_type->kind == TYPE_ARRAY || arg_type->kind == TYPE_STRING);
         if (is_handle_arg && modifier != FUNC_SHARED)
         {
-            call_args = arena_sprintf(gen->arena, "%srt_managed_clone(__arena__, args->caller_arena, args->arg%d)",
+            call_args = arena_sprintf(gen->arena, "%srt_arena_v2_clone(__arena__, args->arg%d)",
                                       call_args, i);
         }
         else
@@ -461,7 +462,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         char *unboxed_args;
         if (target_needs_arena_arg)
         {
-            unboxed_args = arena_strdup(gen->arena, "(RtArena *)__rt_thunk_arena");
+            unboxed_args = arena_strdup(gen->arena, "(RtArenaV2 *)__rt_thunk_arena");
         }
         else
         {
@@ -528,14 +529,14 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *suffix = code_gen_type_suffix(arg_type->as.array.element_type);
                 const char *elem_c = get_c_array_elem_type(gen->arena, arg_type->as.array.element_type);
                 unboxed_args = arena_sprintf(gen->arena,
-                    "%srt_array_clone_%s_h((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, (%s *)%s(__rt_thunk_args[%d]))",
+                    "%srt_array_clone_%s_v2((RtArenaV2 *)__rt_thunk_arena, (%s *)%s(__rt_thunk_args[%d]))",
                     unboxed_args, suffix, elem_c, unbox_func, thunk_arg_idx);
             }
             else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
-                /* In handle mode, convert unboxed char* back to RtHandle */
+                /* In handle mode, convert unboxed char* back to RtHandleV2* */
                 unboxed_args = arena_sprintf(gen->arena,
-                    "%srt_managed_strdup((RtManagedArena *)__rt_thunk_arena, RT_HANDLE_NULL, %s(__rt_thunk_args[%d]))",
+                    "%srt_arena_v2_strdup((RtArenaV2 *)__rt_thunk_arena, %s(__rt_thunk_args[%d]))",
                     unboxed_args, unbox_func, thunk_arg_idx);
             }
             else if (arg_type && arg_type->kind == TYPE_STRUCT)
@@ -585,15 +586,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *struct_name = get_c_type(gen->arena, return_type);
                 thunk_def = arena_sprintf(gen->arena,
                     "%s    %s __tmp_result = %s(%s);\n"
-                    "    RtAny __result = rt_box_struct((RtArena *)__rt_thunk_arena, &__tmp_result, sizeof(%s), %d);\n",
+                    "    RtAny __result = rt_box_struct((RtArenaV2 *)__rt_thunk_arena, &__tmp_result, sizeof(%s), %d);\n",
                     thunk_def, struct_name, callee_str, unboxed_args,
                     struct_name, type_id);
             }
             else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
-                /* In handle mode, string result is RtHandle — pin to get char* for boxing */
+                /* In handle mode, string result is RtHandleV2* — pin to get char* for boxing */
                 thunk_def = arena_sprintf(gen->arena,
-                    "%s    RtAny __result = %s((char *)rt_managed_pin((RtArena *)__rt_thunk_arena, %s(%s)));\n",
+                    "%s    RtAny __result = %s((char *)rt_handle_v2_pin(%s(%s)));\n",
                     thunk_def, box_func, callee_str, unboxed_args);
             }
             else
@@ -691,9 +692,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
                     if (gen->current_arena_var != NULL)
                     {
-                        /* In handle mode, pin the handle to get void* for boxing */
+                        /* In handle mode, get array data from V2 handle for boxing */
                         wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
+                            "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
                             wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                     else
@@ -722,7 +723,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
+                        "%s        __args[%d] = %s((char *)rt_handle_v2_pin(args->arg%d));\n",
                         wrapper_def, arg_idx, box_func, i);
                 }
                 else
@@ -776,7 +777,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    /* Signal completion */\n"
                 "    rt_thread_signal_completion(args->handle);\n"
                 "%s"
-                "    rt_managed_release_pinned(args->caller_arena, args);\n"
+                "    /* V2: Memory released when arena is destroyed */\n"
                 "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
@@ -833,9 +834,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
                     if (gen->current_arena_var != NULL)
                     {
-                        /* In handle mode, pin the handle to get void* for boxing */
+                        /* In handle mode, get array data from V2 handle for boxing */
                         wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(rt_managed_pin_array_any(args->caller_arena, args->arg%d), %s);\n",
+                            "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
                             wrapper_def, arg_idx, box_func, i, elem_tag);
                     }
                     else
@@ -864,7 +865,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)rt_managed_pin(args->caller_arena, args->arg%d));\n",
+                        "%s        __args[%d] = %s((char *)rt_handle_v2_pin(args->arg%d));\n",
                         wrapper_def, arg_idx, box_func, i);
                 }
                 else
@@ -912,13 +913,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
                 /* String result: unbox to raw char*, then convert to handle */
-                unbox_expr = arena_sprintf(gen->arena, "rt_managed_strdup(__arena__, RT_HANDLE_NULL, %s(__intercepted))",
+                unbox_expr = arena_sprintf(gen->arena, "rt_arena_v2_strdup(__arena__, %s(__intercepted))",
                                            unbox_func);
             }
             else if (return_type && return_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
             {
-                /* Array result: unbox to raw pointer, cast back to RtHandle */
-                unbox_expr = arena_sprintf(gen->arena, "(RtHandle)(uintptr_t)%s(__intercepted)", unbox_func);
+                /* Array result: unbox to raw pointer, cast to RtHandleV2* */
+                unbox_expr = arena_sprintf(gen->arena, "(RtHandleV2 *)%s(__intercepted)", unbox_func);
             }
             else
             {
@@ -936,12 +937,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    }\n"
                 "\n"
                 "    /* Store result in thread arena - sync will promote to caller arena */\n"
-                "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
+                "    RtArenaV2 *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
                 "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
                 "\n"
                 "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
                 "    rt_thread_signal_completion(args->handle);\n"
-                "    rt_managed_release_pinned(args->caller_arena, args);\n"
+                "    /* V2: Memory released when arena is destroyed */\n"
                 "    rt_set_thread_arena(NULL);\n"
                 "    rt_thread_panic_context_clear();\n"
                 "    return NULL;\n"
@@ -968,7 +969,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    /* Signal completion */\n"
             "    rt_thread_signal_completion(args->handle);\n"
             "%s"
-            "    rt_managed_release_pinned(args->caller_arena, args);\n"
+            "    /* V2: Memory released when arena is destroyed */\n"
             "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
@@ -987,12 +988,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    %s __result__ = %s(%s);\n"
             "\n"
             "    /* Store result in thread arena - sync will promote to caller arena */\n"
-            "    RtArena *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
+            "    RtArenaV2 *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
             "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
             "\n"
             "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
             "    rt_thread_signal_completion(args->handle);\n"
-            "    rt_managed_release_pinned(args->caller_arena, args);\n"
+            "    /* V2: Memory released when arena is destroyed */\n"
             "    rt_set_thread_arena(NULL);\n"
             "    rt_thread_panic_context_clear();\n"
             "    return NULL;\n"
@@ -1094,7 +1095,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* Prepend arena from closure as first argument.
                      * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
-                    thunk_call_args = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__cl__)->arena)");
+                    thunk_call_args = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__cl__)->arena)");
                 }
                 else
                 {
@@ -1146,7 +1147,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             /* Wrap named function in a closure using the thunk.
              * The thunk adapts the function to the closure calling convention. */
             arg_assignments = arena_sprintf(gen->arena,
-                "%s%s->arg%d = ({ __Closure__ *__fn_cl__ = rt_arena_alloc(%s, sizeof(__Closure__)); "
+                "%s%s->arg%d = ({ __Closure__ *__fn_cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__))); "
                 "__fn_cl__->fn = (void *)%s; __fn_cl__->arena = %s; __fn_cl__; }); ",
                 arg_assignments, args_var, i, caller_arena, fn_thunk_name, caller_arena);
         }
@@ -1161,7 +1162,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     char *result = arena_sprintf(gen->arena,
         "({\n"
         "    /* Allocate thread arguments structure */\n"
-        "    %s *%s = (%s *)rt_arena_alloc(%s, sizeof(%s));\n"
+        "    %s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n"
         "    %s->caller_arena = %s;\n"
         "    %s->thread_arena = NULL;\n"
         "    %s->result = NULL;  /* rt_thread_spawn creates and assigns result */\n"

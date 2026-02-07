@@ -124,7 +124,7 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
               strcmp(method_name, "toStringLatin1") == 0)) ||
             strcmp(method_name, "join") == 0)
         {
-            result = arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, %s)",
+            result = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
                                    ARENA_VAR(gen), result);
         }
     }

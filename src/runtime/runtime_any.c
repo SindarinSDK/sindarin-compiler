@@ -1,6 +1,7 @@
 #include "runtime_any.h"
 #include "string/runtime_string.h"
 #include "array/runtime_array.h"
+#include "arena/arena_v2.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -491,6 +492,56 @@ RtAny rt_any_promote(RtArena *target_arena, RtAny value) {
         default:
             break;
     }
-    
+
+    return result;
+}
+
+/* V2 version: Promote an any value's heap-allocated data to a target arena.
+ * For V2 arena mode - strings stored as RtHandleV2*, need rt_arena_v2_promote. */
+RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
+    RtAny result = value;
+
+    switch (value.tag) {
+        case RT_ANY_STRING:
+            /* Strings in V2 mode are stored as char* from rt_handle_v2_pin().
+             * Need to create a new string in target arena. */
+            if (value.value.s != NULL) {
+                RtHandleV2 *new_str = rt_arena_v2_strdup(target_arena, value.value.s);
+                result.value.s = (char *)rt_handle_v2_pin(new_str);
+            }
+            break;
+
+        case RT_ANY_ARRAY:
+            /* Arrays need deep cloning - for now just copy pointer
+             * TODO: implement proper array cloning for any[] */
+            break;
+
+        /* Primitive types don't need promotion */
+        case RT_ANY_NIL:
+        case RT_ANY_INT:
+        case RT_ANY_LONG:
+        case RT_ANY_INT32:
+        case RT_ANY_UINT:
+        case RT_ANY_UINT32:
+        case RT_ANY_DOUBLE:
+        case RT_ANY_FLOAT:
+        case RT_ANY_CHAR:
+        case RT_ANY_BOOL:
+        case RT_ANY_BYTE:
+            break;
+
+        /* Object types - shallow copy for now */
+        case RT_ANY_FUNCTION:
+            break;
+
+        case RT_ANY_STRUCT:
+            /* Structs are arena-allocated; for now shallow copy pointer.
+             * Full deep copy would require storing struct size metadata. */
+            break;
+
+        default:
+            break;
+    }
+
     return result;
 }

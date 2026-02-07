@@ -170,7 +170,7 @@ run: build
 #------------------------------------------------------------------------------
 # Test targets - Delegate to Python test runner
 #------------------------------------------------------------------------------
-test: build test-arena
+test: build test-arena2
 	@echo "Running all tests..."
 	$(PYTHON) scripts/run_tests.py all --verbose
 
@@ -231,22 +231,15 @@ arena:
 	@echo "Managed arena built."
 
 #------------------------------------------------------------------------------
-# test-arena - Build and run managed arena tests
+# test-arena - REMOVED (V1 managed arena deleted, use test-arena2 instead)
 #------------------------------------------------------------------------------
 test-arena:
-	@echo "Building and running managed arena tests..."
-	@$(MKDIR) $(ARENA_BUILD)
-	@$(MKDIR) $(BIN_DIR)
-	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
-		$(ARENA_SRCS) $(ARENA_TEST_SRCS) \
-		-o $(ARENA_TEST_BIN)
-	@echo ""
-	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA_TEST_BIN)
+	@echo "V1 managed arena tests removed. Use 'make test-arena2' instead."
 
 #------------------------------------------------------------------------------
 # arena2 - Build the Arena V2 library (standalone)
 #------------------------------------------------------------------------------
-ARENA2_DIR := src/runtime/arenav2
+ARENA2_DIR := src/runtime/arena
 ARENA2_BUILD := $(BUILD_DIR)/arena2
 ARENA2_SRCS := $(ARENA2_DIR)/arena_v2.c
 ARENA2_TEST_DIR := $(ARENA2_DIR)/tests

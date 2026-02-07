@@ -78,14 +78,13 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
             break;
         case TYPE_STRING:
             if (gen->current_arena_var) {
-                /* For print(str_array), we need the raw handle array (RtHandle*),
-                 * not the char** that rt_managed_pin_string_array returns. */
+                /* V2: Get the raw handle array data pointer (RtHandleV2**) */
                 bool prev = gen->expr_as_handle;
                 gen->expr_as_handle = true;
                 char *handle_expr = code_gen_expression(gen, call->arguments[0]);
                 gen->expr_as_handle = prev;
-                return arena_sprintf(gen->arena, "rt_print_array_string_h(%s, (RtHandle *)rt_managed_pin_array(%s, %s))",
-                                     ARENA_VAR(gen), ARENA_VAR(gen), handle_expr);
+                return arena_sprintf(gen->arena, "rt_print_array_string_v2((RtHandleV2 **)rt_array_data_v2(%s))",
+                                     handle_expr);
             }
             print_func = "rt_print_array_string";
             break;
@@ -104,10 +103,11 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
 
 /**
  * Generate code for the len() builtin.
- * Returns strlen for strings, rt_array_length for arrays.
+ * Returns strlen for strings, rt_array_length_v2 for arrays.
  */
 static char *code_gen_builtin_len(CodeGen *gen, CallExpr *call, char **arg_strs)
 {
+    (void)arg_strs;  /* We generate the array expression in handle mode ourselves */
     if (call->arg_count != 1)
         return NULL;
 
@@ -116,7 +116,12 @@ static char *code_gen_builtin_len(CodeGen *gen, CallExpr *call, char **arg_strs)
     {
         return arena_sprintf(gen->arena, "(long)strlen(%s)", arg_strs[0]);
     }
-    return arena_sprintf(gen->arena, "rt_array_length(%s)", arg_strs[0]);
+    /* For arrays, generate the expression in handle mode for V2 */
+    bool saved = gen->expr_as_handle;
+    gen->expr_as_handle = true;
+    char *handle_str = code_gen_expression(gen, call->arguments[0]);
+    gen->expr_as_handle = saved;
+    return arena_sprintf(gen->arena, "(long long)rt_array_length_v2(%s)", handle_str);
 }
 
 /**
@@ -126,7 +131,7 @@ static char *code_gen_builtin_readline(CodeGen *gen)
 {
     if (gen->expr_as_handle && gen->current_arena_var != NULL)
     {
-        return arena_sprintf(gen->arena, "rt_managed_strdup(%s, RT_HANDLE_NULL, rt_read_line(%s))",
+        return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, rt_read_line(%s))",
                              ARENA_VAR(gen), ARENA_VAR(gen));
     }
     return arena_sprintf(gen->arena, "rt_read_line(%s)", ARENA_VAR(gen));

@@ -264,13 +264,13 @@ static RtAny call_next_interceptor(void)
     };
 
     // Convert name and args to handles for the Sindarin handler
-    RtManagedArena *arena = (RtManagedArena *)__rt_thunk_arena;
-    RtHandle name_h = rt_managed_strdup(arena, RT_HANDLE_NULL, ctx->name);
+    RtArenaV2 *arena = (RtArenaV2 *)__rt_thunk_arena;
+    RtHandleV2 *name_h = rt_arena_v2_strdup(arena, ctx->name);
 
     // Create args array handle: [RtArrayMetadata][RtAny elements...]
     size_t args_alloc = sizeof(RtArrayMetadata) + ctx->arg_count * sizeof(RtAny);
-    RtHandle args_h = rt_managed_alloc(arena, RT_HANDLE_NULL, args_alloc);
-    void *args_raw = rt_managed_pin(arena, args_h);
+    RtHandleV2 *args_h = rt_arena_v2_alloc(arena, args_alloc);
+    void *args_raw = rt_handle_v2_pin(args_h);
     RtArrayMetadata *meta = (RtArrayMetadata *)args_raw;
     meta->arena = NULL;
     meta->size = ctx->arg_count;
@@ -287,7 +287,8 @@ static RtAny call_next_interceptor(void)
     // Copy any modifications back to the original args array
     if (ctx->arg_count > 0)
     {
-        RtAny *args_after = (RtAny *)rt_managed_pin_array(arena, args_h);
+        void *args_ptr = rt_handle_v2_pin(args_h);
+        RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadata));
         memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));
     }
 

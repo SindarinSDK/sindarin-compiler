@@ -1,7 +1,7 @@
 #ifndef RUNTIME_STRING_H_HANDLE
 #define RUNTIME_STRING_H_HANDLE
 
-#include "runtime/arena/managed_arena.h"
+#include "runtime/arena/arena_v2.h"
 
 /* ============================================================================
  * Handle-Based String Functions

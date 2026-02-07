@@ -72,14 +72,14 @@ char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     {
         if (field_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                   ARENA_VAR(gen), result);
+            result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                                   result);
         }
         else if (field_type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, field_type->as.array.element_type);
-            result = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                   elem_c, ARENA_VAR(gen), result);
+            result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                   elem_c, result);
         }
     }
 
@@ -180,12 +180,12 @@ char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
     {
         if (gen->current_arena_var != NULL && target->type == EXPR_VARIABLE)
         {
-            /* Handle-based: target is an RtHandle variable.
-             * Generate: var = rt_str_concat_h(arena, var, pinned_var, value)
+            /* Handle-based: target is an RtHandleV2* variable.
+             * Generate: var = rt_str_concat_v2(arena, pinned_var, value)
              * target_code is already the pinned form from variable expression. */
             char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, target->as.variable.name));
-            return arena_sprintf(gen->arena, "%s = rt_str_concat_h(%s, %s, %s, %s)",
-                                 var_name, ARENA_VAR(gen), var_name, target_code, value_code);
+            return arena_sprintf(gen->arena, "%s = rt_str_concat_v2(%s, %s, %s)",
+                                 var_name, ARENA_VAR(gen), target_code, value_code);
         }
         /* Legacy non-arena context */
         return arena_sprintf(gen->arena, "%s = rt_str_concat(NULL, %s, %s)",
@@ -303,7 +303,7 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
                                      func_sym->type->as.function.has_body);
             if (wrapped_has_body)
             {
-                args_forward = arena_strdup(gen->arena, "(RtManagedArena *)rt_get_thread_arena_or(((__Closure__ *)__closure__)->arena)");
+                args_forward = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena)");
             }
 
             for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -364,10 +364,10 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             }
             else
             {
-                /* Use arena allocation */
+                /* Use V2 arena allocation */
                 value_code = arena_sprintf(gen->arena,
                     "({\n"
-                    "    __Closure__ *__cl__ = rt_arena_alloc(%s, sizeof(__Closure__));\n"
+                    "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
                     "    __cl__->fn = (void *)%s;\n"
                     "    __cl__->arena = %s;\n"
                     "    __cl__;\n"
@@ -403,8 +403,8 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             assign->value->type == EXPR_MEMBER_ACCESS)
         {
             value_code = arena_sprintf(gen->arena,
-                "rt_managed_strdup(%s, RT_HANDLE_NULL, (char *)rt_managed_pin(%s, %s))",
-                gen->current_arena_var, gen->current_arena_var, value_code);
+                "rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(%s))",
+                gen->current_arena_var, value_code);
         }
     }
 

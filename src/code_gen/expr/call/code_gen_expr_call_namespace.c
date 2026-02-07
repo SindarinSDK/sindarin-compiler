@@ -66,7 +66,7 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
     for (int i = 0; i < call->arg_count; i++)
     {
         /* For native functions receiving str[] args: evaluate in handle mode
-         * and convert RtHandle[] to char** using rt_managed_pin_string_array */
+         * and convert RtHandleV2* to char** using rt_pin_string_array_v2 */
         if (!callee_has_body && gen->current_arena_var != NULL &&
             call->arguments[i]->expr_type != NULL &&
             call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
@@ -77,8 +77,8 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
-                                         ARENA_VAR(gen), handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
+                                         handle_expr);
         }
         else
         {
@@ -124,14 +124,14 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                 ARENA_VAR(gen), ns_call_expr);
+            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                 ns_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                 elem_c, ARENA_VAR(gen), ns_call_expr);
+            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                 elem_c, ns_call_expr);
         }
     }
     return ns_call_expr;
@@ -210,8 +210,8 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_managed_pin_string_array(%s, %s)",
-                                         ARENA_VAR(gen), handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
+                                         handle_expr);
         }
         else
         {
@@ -257,14 +257,14 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            nested_ns_call_expr = arena_sprintf(gen->arena, "((char *)rt_managed_pin(%s, %s))",
-                                                 ARENA_VAR(gen), nested_ns_call_expr);
+            nested_ns_call_expr = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                                                 nested_ns_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            nested_ns_call_expr = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                                 elem_c, ARENA_VAR(gen), nested_ns_call_expr);
+            nested_ns_call_expr = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                                 elem_c, nested_ns_call_expr);
         }
     }
     return nested_ns_call_expr;
@@ -338,14 +338,14 @@ char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            static_call_expr = arena_sprintf(gen->arena, "(char *)rt_managed_pin(%s, %s)",
-                                             ARENA_VAR(gen), static_call_expr);
+            static_call_expr = arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                                             static_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
         {
             const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            static_call_expr = arena_sprintf(gen->arena, "((%s *)rt_managed_pin_array(%s, %s))",
-                                             elem_c, ARENA_VAR(gen), static_call_expr);
+            static_call_expr = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
+                                             elem_c, static_call_expr);
         }
     }
     return static_call_expr;

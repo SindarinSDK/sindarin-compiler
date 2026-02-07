@@ -43,7 +43,7 @@ void emit_import_forward_declarations_recursive(CodeGen *gen, Stmt **stmts, int 
             char *mangled_name = sn_mangle_name(gen->arena, prefixed_name);
             const char *ret_c = get_c_type(gen->arena, fn->return_type);
 
-            indented_fprintf(gen, 0, "%s %s(RtManagedArena *", ret_c, mangled_name);
+            indented_fprintf(gen, 0, "%s %s(RtArenaV2 *", ret_c, mangled_name);
             for (int j = 0; j < fn->param_count; j++)
             {
                 const char *param_type = get_c_param_type(gen->arena, fn->params[j].type);

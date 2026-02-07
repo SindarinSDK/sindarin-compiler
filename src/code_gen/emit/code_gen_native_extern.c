@@ -76,7 +76,7 @@ void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
     bool has_other_params = fn->param_count > 0 || fn->is_variadic;
     if (fn->has_arena_param)
     {
-        fprintf(gen->output, "RtManagedArena *");
+        fprintf(gen->output, "RtArenaV2 *");
         if (has_other_params)
         {
             fprintf(gen->output, ", ");

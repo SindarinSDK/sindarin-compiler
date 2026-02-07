@@ -190,16 +190,17 @@ char *code_gen_as_type_expression(CodeGen *gen, Expr *expr)
                 if (target_elem->kind == TYPE_STRING)
                 {
                     /* Strings need special handling: legacy from_any returns char**
-                     * (8-byte pointers) but handle arrays store RtHandle (4-byte).
-                     * Use dedicated conversion that rt_managed_strdup's each element. */
+                     * (8-byte pointers) but handle arrays store RtHandleV2* (8-byte).
+                     * Use dedicated conversion that rt_arena_v2_strdup's each element.
+                     * Must use rt_array_data_v2 to get past the V2 metadata header. */
                     return arena_sprintf(gen->arena,
-                        "rt_array_from_legacy_string_h(%s, %s(%s, (RtAny *)rt_managed_pin_array(%s, %s)))",
-                        ARENA_VAR(gen), conv_func, ARENA_VAR(gen), ARENA_VAR(gen), operand_code);
+                        "rt_array_from_legacy_string_v2(%s, %s(%s, (RtAny *)rt_array_data_v2(%s)))",
+                        ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
                 }
                 const char *suffix = code_gen_type_suffix(target_elem);
                 return arena_sprintf(gen->arena,
-                    "rt_array_clone_%s_h(%s, RT_HANDLE_NULL, %s(%s, (RtAny *)rt_managed_pin_array(%s, %s)))",
-                    suffix, ARENA_VAR(gen), conv_func, ARENA_VAR(gen), ARENA_VAR(gen), operand_code);
+                    "rt_array_clone_%s_v2(%s, %s(%s, (RtAny *)rt_array_data_v2(%s)))",
+                    suffix, ARENA_VAR(gen), conv_func, ARENA_VAR(gen), operand_code);
             }
             return arena_sprintf(gen->arena, "%s(%s, %s)", conv_func, ARENA_VAR(gen), operand_code);
         }

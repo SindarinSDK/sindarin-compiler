@@ -246,12 +246,11 @@ set(SN_PACKAGE_SOURCES
 
 set(SN_RUNTIME_SOURCES
     src/runtime.c
-    src/runtime/runtime_arena.c
-    src/runtime/arena/managed_arena.c
-    src/runtime/arena/managed_arena_gc.c
+    # arena/
+    src/runtime/arena/arena_v2.c
     # string/
     src/runtime/string/runtime_string.c
-    src/runtime/string/runtime_string_h.c
+    src/runtime/string/runtime_string_v2.c
     # array/
     src/runtime/array/runtime_array_core.c
     src/runtime/array/runtime_array_slice.c
@@ -265,7 +264,7 @@ set(SN_RUNTIME_SOURCES
     src/runtime/array/runtime_array_tostring_nested.c
     src/runtime/array/runtime_array_create.c
     src/runtime/array/runtime_array_alloc.c
-    src/runtime/array/runtime_array_h.c
+    src/runtime/array/runtime_array_v2.c
     # thread/
     src/runtime/thread/runtime_thread.c
     # core
@@ -362,12 +361,11 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/arena.c
         ${CMAKE_SOURCE_DIR}/src/debug.c
         ${CMAKE_SOURCE_DIR}/src/runtime.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_arena.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/managed_arena.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/managed_arena_gc.c
+        # arena/
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_v2.c
         # string/
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_h.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_v2.c
         # array/
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_core.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_slice.c
@@ -381,7 +379,7 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_tostring_nested.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_create.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_alloc.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_h.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2.c
         # thread/
         ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread.c
         # core
@@ -392,8 +390,6 @@ if(NOT MSVC)
         # malloc/
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_hooks.c
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_redirect.c
-        # arenav2/
-        ${CMAKE_SOURCE_DIR}/src/runtime/arenav2/arena_v2.c
     )
 
     # Platform-specific hooking libraries for malloc interception
@@ -528,13 +524,7 @@ if(MALLOC_HEADERS)
     file(INSTALL ${MALLOC_HEADERS} DESTINATION "${MALLOC_INCLUDE_DIR}")
 endif()
 
-# Copy arenav2 headers
-set(ARENAV2_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/arenav2)
-file(MAKE_DIRECTORY ${ARENAV2_INCLUDE_DIR})
-file(GLOB ARENAV2_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/arenav2/*.h")
-if(ARENAV2_HEADERS)
-    file(INSTALL ${ARENAV2_HEADERS} DESTINATION "${ARENAV2_INCLUDE_DIR}")
-endif()
+# Arena V2 headers are now in src/runtime/arena/ and copied above
 
 # Copy platform headers
 file(GLOB PLATFORM_HEADERS "${CMAKE_SOURCE_DIR}/src/platform/*.h")

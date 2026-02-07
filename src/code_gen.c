@@ -193,7 +193,7 @@ static void code_gen_externs(CodeGen *gen)
 
     /* Generic closure type for lambdas */
     indented_fprintf(gen, 0, "/* Closure type for lambdas */\n");
-    indented_fprintf(gen, 0, "typedef struct __Closure__ { void *fn; RtArena *arena; size_t size; } __Closure__;\n\n");
+    indented_fprintf(gen, 0, "typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;\n\n");
 }
 
 /* Generate C typedef for a native callback type declaration.
@@ -267,7 +267,7 @@ static void code_gen_forward_declaration(CodeGen *gen, FunctionStmt *fn)
     indented_fprintf(gen, 0, "%s %s(", ret_c, fn_name);
 
     /* All non-main functions receive caller's arena as first parameter */
-    fprintf(gen->output, "RtManagedArena *");
+    fprintf(gen->output, "RtArenaV2 *");
     if (fn->param_count > 0)
     {
         fprintf(gen->output, ", ");
@@ -424,7 +424,7 @@ void code_gen_module(CodeGen *gen, Module *module)
     // Second pass: emit forward declarations for all user-defined functions
     indented_fprintf(gen, 0, "/* Forward declarations */\n");
     // Emit global arena reference (set by main at startup)
-    indented_fprintf(gen, 0, "static RtManagedArena *__main_arena__ = NULL;\n\n");
+    indented_fprintf(gen, 0, "static RtArenaV2 *__main_arena__ = NULL;\n\n");
     int forward_decl_count = 0;
     for (int i = 0; i < module->count; i++)
     {
@@ -492,9 +492,9 @@ void code_gen_module(CodeGen *gen, Module *module)
 
     if (!has_main)
     {
-        // Generate main with managed arena lifecycle
+        // Generate main with arena V2 lifecycle
         indented_fprintf(gen, 0, "int main() {\n");
-        indented_fprintf(gen, 1, "RtManagedArena *__local_arena__ = rt_managed_arena_create();\n");
+        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
         // Emit deferred global initializations (handle-type globals that couldn't
         // be initialized at file scope because C doesn't allow non-constant initializers)
@@ -529,7 +529,7 @@ void code_gen_module(CodeGen *gen, Module *module)
 
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
-        indented_fprintf(gen, 1, "rt_managed_arena_destroy(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_arena_v2_destroy(__local_arena__);\n");
         indented_fprintf(gen, 1, "return _return_value;\n");
         indented_fprintf(gen, 0, "}\n");
     }
