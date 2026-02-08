@@ -171,7 +171,7 @@ static void code_gen_headers(CodeGen *gen)
     indented_fprintf(gen, 0, "#include <stdint.h>\n");  /* For int32_t, uint32_t, uint64_t */
     indented_fprintf(gen, 0, "#include <limits.h>\n");
     indented_fprintf(gen, 0, "#include <setjmp.h>\n");  /* For thread panic handling */
-    /* pthread.h is included via runtime.h -> runtime_thread.h (handles Windows compatibility) */
+    /* pthread.h is included via runtime.h -> runtime_thread_v2.h (handles Windows compatibility) */
     /* Include runtime.h for inline function definitions (comparisons, array_length, etc.) */
     indented_fprintf(gen, 0, "#include \"runtime.h\"\n");
     /* Undefine Windows min/max macros to avoid name collisions with user functions */

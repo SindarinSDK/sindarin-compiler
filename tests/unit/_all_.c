@@ -11,7 +11,6 @@
 #include "runtime/runtime_arena_tests.c"
 #include "runtime/runtime_arithmetic_tests.c"
 #include "runtime/runtime_string_tests.c"
-#include "runtime/runtime_thread_tests.c"
 #include "runtime/runtime_edge_cases_tests.c"
 #include "runtime/runtime_any_tests.c"
 #include "standalone/symbol_table_tests_core.c"
@@ -57,10 +56,6 @@ int main()
     // *** Runtime String ***
 
     test_rt_string_main();
-
-    // *** Runtime Thread ***
-
-    test_rt_thread_main();
 
     // *** Runtime Edge Cases ***
 
