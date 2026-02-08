@@ -23,13 +23,13 @@
 
 #include "runtime.h"
 #include "runtime/string/runtime_string.h"
-#include "runtime/thread/runtime_thread.h"
+#include "runtime/thread/runtime_thread_v2.h"
 
 long long rt_add_long(long long a, long long b)
 {
     if ((b > 0 && a > LLONG_MAX - b) || (b < 0 && a < LLONG_MIN - b))
     {
-        rt_thread_panic("rt_add_long: overflow detected");
+        rt_panic("rt_add_long: overflow detected");
     }
     return a + b;
 }
@@ -38,7 +38,7 @@ long long rt_sub_long(long long a, long long b)
 {
     if ((b > 0 && a < LLONG_MIN + b) || (b < 0 && a > LLONG_MAX + b))
     {
-        rt_thread_panic("rt_sub_long: overflow detected");
+        rt_panic("rt_sub_long: overflow detected");
     }
     return a - b;
 }
@@ -57,7 +57,7 @@ long long rt_mul_long(long long a, long long b)
         {
             if (a > LLONG_MAX / b)
             {
-                rt_thread_panic("rt_mul_long: overflow detected");
+                rt_panic("rt_mul_long: overflow detected");
             }
         }
         else
@@ -66,11 +66,11 @@ long long rt_mul_long(long long a, long long b)
             /* Special case: LLONG_MIN cannot be negated */
             if (a == LLONG_MIN || b == LLONG_MIN)
             {
-                rt_thread_panic("rt_mul_long: overflow detected");
+                rt_panic("rt_mul_long: overflow detected");
             }
             if ((-a) > LLONG_MAX / (-b))
             {
-                rt_thread_panic("rt_mul_long: overflow detected");
+                rt_panic("rt_mul_long: overflow detected");
             }
         }
     }
@@ -82,7 +82,7 @@ long long rt_mul_long(long long a, long long b)
             /* a > 0, b < 0 */
             if (b < LLONG_MIN / a)
             {
-                rt_thread_panic("rt_mul_long: overflow detected");
+                rt_panic("rt_mul_long: overflow detected");
             }
         }
         else
@@ -90,7 +90,7 @@ long long rt_mul_long(long long a, long long b)
             /* a < 0, b > 0 */
             if (a < LLONG_MIN / b)
             {
-                rt_thread_panic("rt_mul_long: overflow detected");
+                rt_panic("rt_mul_long: overflow detected");
             }
         }
     }
@@ -102,11 +102,11 @@ long long rt_div_long(long long a, long long b)
 {
     if (b == 0)
     {
-        rt_thread_panic("Division by zero");
+        rt_panic("Division by zero");
     }
     if (a == LLONG_MIN && b == -1)
     {
-        rt_thread_panic("rt_div_long: overflow detected (LLONG_MIN / -1)");
+        rt_panic("rt_div_long: overflow detected (LLONG_MIN / -1)");
     }
     return a / b;
 }
@@ -115,11 +115,11 @@ long long rt_mod_long(long long a, long long b)
 {
     if (b == 0)
     {
-        rt_thread_panic("Modulo by zero");
+        rt_panic("Modulo by zero");
     }
     if (a == LLONG_MIN && b == -1)
     {
-        rt_thread_panic("rt_mod_long: overflow detected (LLONG_MIN % -1)");
+        rt_panic("rt_mod_long: overflow detected (LLONG_MIN % -1)");
     }
     return a % b;
 }
@@ -132,7 +132,7 @@ double rt_add_double(double a, double b)
     double result = a + b;
     if (isinf(result) && !isinf(a) && !isinf(b))
     {
-        rt_thread_panic("rt_add_double: overflow to infinity");
+        rt_panic("rt_add_double: overflow to infinity");
     }
     return result;
 }
@@ -142,7 +142,7 @@ double rt_sub_double(double a, double b)
     double result = a - b;
     if (isinf(result) && !isinf(a) && !isinf(b))
     {
-        rt_thread_panic("rt_sub_double: overflow to infinity");
+        rt_panic("rt_sub_double: overflow to infinity");
     }
     return result;
 }
@@ -152,7 +152,7 @@ double rt_mul_double(double a, double b)
     double result = a * b;
     if (isinf(result) && !isinf(a) && !isinf(b))
     {
-        rt_thread_panic("rt_mul_double: overflow to infinity");
+        rt_panic("rt_mul_double: overflow to infinity");
     }
     return result;
 }
@@ -161,12 +161,12 @@ double rt_div_double(double a, double b)
 {
     if (b == 0.0)
     {
-        rt_thread_panic("Division by zero");
+        rt_panic("Division by zero");
     }
     double result = a / b;
     if (isinf(result) && !isinf(a) && b != 0.0)
     {
-        rt_thread_panic("rt_div_double: overflow to infinity");
+        rt_panic("rt_div_double: overflow to infinity");
     }
     return result;
 }
@@ -178,7 +178,7 @@ long long rt_neg_long(long long a)
 {
     if (a == LLONG_MIN)
     {
-        rt_thread_panic("rt_neg_long: overflow detected (-LLONG_MIN)");
+        rt_panic("rt_neg_long: overflow detected (-LLONG_MIN)");
     }
     return -a;
 }

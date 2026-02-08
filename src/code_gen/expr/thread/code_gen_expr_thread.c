@@ -178,34 +178,16 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Thread spawn: is_shared=%s, is_private=%s, implicit_shared=%d",
                   is_shared_str, is_private_str, is_implicitly_shared);
     const char *ret_c_type = get_c_type(gen->arena, return_type);
-    const char *result_type_enum = get_rt_result_type(return_type);
     bool is_void_return = (return_type == NULL || return_type->kind == TYPE_VOID);
 
     /* Generate the argument structure type name */
     char *args_struct_name = arena_sprintf(gen->arena, "__ThreadArgs_%d__", wrapper_id);
 
-    /* Build argument struct definition
-     * IMPORTANT: The first fields must match RtThreadArgs layout exactly
-     * so that rt_thread_spawn can cast to RtThreadArgs* and access fields.
-     * Additional function arguments are appended after the common fields.
-     */
+    /* Build argument struct definition - V2: only function-specific arguments
+     * The struct is allocated in the thread arena after rt_thread_v2_create. */
     char *struct_def = arena_sprintf(gen->arena,
         "typedef struct {\n"
-        "    /* These fields match RtThreadArgs layout */\n"
-        "    void *func_ptr;\n"
-        "    void *args_data;\n"
-        "    size_t args_size;\n"
-        "    RtThreadResult *result;\n"
-        "    RtArenaV2 *caller_arena;\n"
-        "    RtArenaV2 *thread_arena;\n"
-        "    bool is_shared;\n"
-        "    bool is_private;\n"
-        "    RtThreadHandle *handle;\n"
-        "    /* Startup barrier fields */\n"
-        "    bool started;\n"
-        "    pthread_mutex_t started_mutex;\n"
-        "    pthread_cond_t started_cond;\n"
-        "    /* Function-specific arguments follow */\n");
+        "    /* Function-specific arguments */\n");
 
     /* For method calls, add a field to capture 'self' */
     if (is_method_call)
@@ -248,41 +230,17 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     struct_def = arena_sprintf(gen->arena, "%s} %s;\n\n",
                                struct_def, args_struct_name);
 
-    /* Generate wrapper function definition with panic handling.
-     * We set up a panic context with setjmp so that panics in the thread
-     * are captured and can be propagated to the caller on sync.
-     *
-     * Note: The arena is already created by rt_thread_spawn() and stored in
-     * args->thread_arena. For shared mode, thread_arena == caller_arena.
-     * We just use args->thread_arena directly. */
+    /* Generate wrapper function definition using V2 API.
+     * V2 simplifies threading: RtThread contains all state, no startup barrier,
+     * and panic handling is via TLS capture rather than setjmp/longjmp. */
     char *wrapper_def = arena_sprintf(gen->arena,
-        "static void *%s(void *args_ptr) {\n"
-        "    %s *args = (%s *)args_ptr;\n"
+        "static void *%s(void *arg) {\n"
+        "    RtThread *__t__ = (RtThread *)arg;\n"
+        "    rt_thread_v2_set_current(__t__);\n"
+        "    RtArenaV2 *__arena__ = rt_thread_v2_get_arena(__t__);\n"
         "\n"
-        "    /* Signal that we've started and accessed args BEFORE using thread_arena.\n"
-        "     * This allows the parent to proceed, knowing args are safe to access.\n"
-        "     * Critical for recursive thread spawning where parent's arena contains\n"
-        "     * our args and could be destroyed before we start. */\n"
-        "    rt_thread_signal_started((RtThreadArgs *)args);\n"
-        "\n"
-        "    /* Use arena created by rt_thread_spawn(). For shared mode, this is\n"
-        "     * the caller's arena. For default/private modes, it's a new arena. */\n"
-        "    RtArenaV2 *__arena__ = args->thread_arena;\n"
-        "\n"
-        "    /* Set thread arena for closures called from this thread */\n"
-        "    rt_set_thread_arena(__arena__);\n"
-        "\n"
-        "    /* Set up panic context to catch panics in this thread */\n"
-        "    RtThreadPanicContext __panic_ctx__;\n"
-        "    rt_thread_panic_context_init(&__panic_ctx__, args->result, __arena__);\n"
-        "    if (setjmp(__panic_ctx__.jump_buffer) != 0) {\n"
-        "        /* Panic occurred - signal completion so sync can proceed and see panic info.\n"
-        "         * Cleanup is handled by rt_thread_sync or arena cleanup callback. */\n"
-        "        rt_thread_signal_completion(args->handle);\n"
-        "        rt_set_thread_arena(NULL);\n"
-        "        rt_thread_panic_context_clear();\n"
-        "        return NULL;\n"
-        "    }\n"
+        "    /* Unpack args from thread handle */\n"
+        "    %s *args = (%s *)rt_handle_v2_pin(__t__->args);\n"
         "\n",
         wrapper_name, args_struct_name, args_struct_name);
 
@@ -779,26 +737,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "        %s(%s);\n"
                 "    }\n"
                 "\n"
-                "    /* Destroy thread arena - no result to preserve for void functions.\n"
-                "     * Sets thread_arena=NULL so sync/cleanup won't double-destroy. */\n"
-                "    if (!args->is_shared && args->thread_arena != NULL) {\n"
-                "        rt_arena_destroy(args->thread_arena);\n"
-                "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
-                "    }\n"
-                "\n"
-                "    /* Signal completion */\n"
-                "    rt_thread_signal_completion(args->handle);\n"
-                "%s"
-                "    /* V2: Memory released when arena is destroyed */\n"
-                "    rt_set_thread_arena(NULL);\n"
-                "    rt_thread_panic_context_clear();\n"
+                "    /* V2: No result for void functions. Sync handles arena cleanup. */\n"
+                "    rt_thread_v2_signal_done(__t__);\n"
+                "    rt_thread_v2_set_current(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
-                writeback_code, callee_str, call_args,
-                gen->spawn_is_fire_and_forget ?
-                    "    /* Fire-and-forget: clean up handle since no sync will be called */\n"
-                    "    rt_thread_fire_forget_cleanup(args->handle);\n" : "");
+                writeback_code, callee_str, call_args);
         }
         else
         {
@@ -938,79 +883,165 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 unbox_expr = arena_sprintf(gen->arena, "%s(__intercepted)", unbox_func);
             }
 
-            wrapper_def = arena_sprintf(gen->arena,
-                "%s        __rt_thunk_args = __args;\n"
-                "        __rt_thunk_arena = __arena__;\n"
-                "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
-                "%s"
-                "        __result__ = %s;\n"
-                "    } else {\n"
-                "        __result__ = %s(%s);\n"
-                "    }\n"
-                "\n"
-                "    /* Store result in thread arena - sync will promote to caller arena */\n"
-                "    RtArenaV2 *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
-                "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
-                "\n"
-                "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
-                "    rt_thread_signal_completion(args->handle);\n"
-                "    /* V2: Memory released when arena is destroyed */\n"
-                "    rt_set_thread_arena(NULL);\n"
-                "    rt_thread_panic_context_clear();\n"
-                "    return NULL;\n"
-                "}\n\n",
-                wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
-                writeback_code, unbox_expr, callee_str, call_args, ret_c_type);
+            /* Check if result is already a handle type (string/array in arena mode) */
+            bool is_intercepted_handle_result = gen->current_arena_var != NULL && return_type != NULL &&
+                (return_type->kind == TYPE_STRING || return_type->kind == TYPE_ARRAY);
+            bool is_intercept_struct = return_type != NULL && return_type->kind == TYPE_STRUCT;
+
+            if (is_intercepted_handle_result)
+            {
+                /* Handle type result - __result__ is already RtHandleV2*, store directly */
+                wrapper_def = arena_sprintf(gen->arena,
+                    "%s        __rt_thunk_args = __args;\n"
+                    "        __rt_thunk_arena = __arena__;\n"
+                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "%s"
+                    "        __result__ = %s;\n"
+                    "    } else {\n"
+                    "        __result__ = %s(%s);\n"
+                    "    }\n"
+                    "\n"
+                    "    /* V2: Handle type - store directly, sync site handles promotion */\n"
+                    "    rt_thread_v2_set_result(__t__, __result__);\n"
+                    "\n"
+                    "    rt_thread_v2_signal_done(__t__);\n"
+                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    return NULL;\n"
+                    "}\n\n",
+                    wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
+                    writeback_code, unbox_expr, callee_str, call_args);
+            }
+            else if (is_intercept_struct)
+            {
+                /* Struct result - wrap in a handle */
+                wrapper_def = arena_sprintf(gen->arena,
+                    "%s        __rt_thunk_args = __args;\n"
+                    "        __rt_thunk_arena = __arena__;\n"
+                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "%s"
+                    "        __result__ = %s;\n"
+                    "    } else {\n"
+                    "        __result__ = %s(%s);\n"
+                    "    }\n"
+                    "\n"
+                    "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                    "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
+                    "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                    "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                    "\n"
+                    "    rt_thread_v2_signal_done(__t__);\n"
+                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    return NULL;\n"
+                    "}\n\n",
+                    wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
+                    writeback_code, unbox_expr, callee_str, call_args, ret_c_type, ret_c_type);
+            }
+            else
+            {
+                /* Primitive result - wrap in a handle */
+                wrapper_def = arena_sprintf(gen->arena,
+                    "%s        __rt_thunk_args = __args;\n"
+                    "        __rt_thunk_arena = __arena__;\n"
+                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "%s"
+                    "        __result__ = %s;\n"
+                    "    } else {\n"
+                    "        __result__ = %s(%s);\n"
+                    "    }\n"
+                    "\n"
+                    "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                    "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
+                    "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                    "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                    "\n"
+                    "    rt_thread_v2_signal_done(__t__);\n"
+                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    return NULL;\n"
+                    "}\n\n",
+                    wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
+                    writeback_code, unbox_expr, callee_str, call_args, ret_c_type, ret_c_type);
+            }
         }
     }
     else if (is_void_return)
     {
-        /* Non-interceptable void function - just call it */
+        /* Non-interceptable void function - just call it. V2: sync handles arena cleanup. */
         wrapper_def = arena_sprintf(gen->arena,
             "%s"
             "    /* Call the function */\n"
             "    %s(%s);\n"
             "\n"
-            "    /* Destroy thread arena - no result to preserve for void functions.\n"
-            "     * Sets thread_arena=NULL so sync/cleanup won't double-destroy. */\n"
-            "    if (!args->is_shared && args->thread_arena != NULL) {\n"
-            "        rt_arena_destroy(args->thread_arena);\n"
-            "        if (args->handle != NULL) args->handle->thread_arena = NULL;\n"
-            "    }\n"
-            "\n"
-            "    /* Signal completion */\n"
-            "    rt_thread_signal_completion(args->handle);\n"
-            "%s"
-            "    /* V2: Memory released when arena is destroyed */\n"
-            "    rt_set_thread_arena(NULL);\n"
-            "    rt_thread_panic_context_clear();\n"
+            "    /* V2: No result to store for void functions. Sync handles arena cleanup. */\n"
+            "    rt_thread_v2_signal_done(__t__);\n"
+            "    rt_thread_v2_set_current(NULL);\n"
             "    return NULL;\n"
             "}\n\n",
-            wrapper_def, callee_str, call_args,
-            gen->spawn_is_fire_and_forget ?
-                "    /* Fire-and-forget: clean up handle since no sync will be called */\n"
-                "    rt_thread_fire_forget_cleanup(args->handle);\n" : "");
+            wrapper_def, callee_str, call_args);
     }
     else
     {
-        /* Non-interceptable non-void function - store result */
-        wrapper_def = arena_sprintf(gen->arena,
-            "%s"
-            "    /* Call the function and store result */\n"
-            "    %s __result__ = %s(%s);\n"
-            "\n"
-            "    /* Store result in thread arena - sync will promote to caller arena */\n"
-            "    RtArenaV2 *__result_arena__ = args->thread_arena ? args->thread_arena : args->caller_arena;\n"
-            "    rt_thread_result_set_value(args->result, &__result__, sizeof(%s), __result_arena__);\n"
-            "\n"
-            "    /* Signal completion - cleanup is handled by rt_thread_sync or arena cleanup callback */\n"
-            "    rt_thread_signal_completion(args->handle);\n"
-            "    /* V2: Memory released when arena is destroyed */\n"
-            "    rt_set_thread_arena(NULL);\n"
-            "    rt_thread_panic_context_clear();\n"
-            "    return NULL;\n"
-            "}\n\n",
-            wrapper_def, ret_c_type, callee_str, call_args, ret_c_type);
+        /* Non-interceptable non-void function - store result. V2 API.
+         * For handle types (string/array), the result is already RtHandleV2* - store directly.
+         * For primitives/structs, wrap in a handle. */
+        bool is_handle_result = return_type != NULL &&
+            (return_type->kind == TYPE_STRING || return_type->kind == TYPE_ARRAY);
+        bool is_struct = return_type != NULL && return_type->kind == TYPE_STRUCT;
+
+        if (is_handle_result)
+        {
+            /* Handle type result - store directly without wrapping */
+            wrapper_def = arena_sprintf(gen->arena,
+                "%s"
+                "    /* Call the function and store result */\n"
+                "    %s __result__ = %s(%s);\n"
+                "\n"
+                "    /* V2: Handle type - store directly, sync site handles promotion */\n"
+                "    rt_thread_v2_set_result(__t__, __result__);\n"
+                "\n"
+                "    rt_thread_v2_signal_done(__t__);\n"
+                "    rt_thread_v2_set_current(NULL);\n"
+                "    return NULL;\n"
+                "}\n\n",
+                wrapper_def, ret_c_type, callee_str, call_args);
+        }
+        else if (is_struct)
+        {
+            /* Struct result - wrap in a handle */
+            wrapper_def = arena_sprintf(gen->arena,
+                "%s"
+                "    /* Call the function and store result */\n"
+                "    %s __result__ = %s(%s);\n"
+                "\n"
+                "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
+                "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                "\n"
+                "    rt_thread_v2_signal_done(__t__);\n"
+                "    rt_thread_v2_set_current(NULL);\n"
+                "    return NULL;\n"
+                "}\n\n",
+                wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
+        }
+        else
+        {
+            /* Primitive result - wrap in a handle */
+            wrapper_def = arena_sprintf(gen->arena,
+                "%s"
+                "    /* Call the function and store result */\n"
+                "    %s __result__ = %s(%s);\n"
+                "\n"
+                "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
+                "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                "\n"
+                "    rt_thread_v2_signal_done(__t__);\n"
+                "    rt_thread_v2_set_current(NULL);\n"
+                "    return NULL;\n"
+                "}\n\n",
+                wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
+        }
     }
 
     /* Add struct and wrapper to forward declarations */
@@ -1170,32 +1201,38 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Generate the thread spawn expression */
+    /* Generate the thread mode based on modifier */
+    const char *thread_mode;
+    if (modifier == FUNC_SHARED) {
+        thread_mode = "RT_THREAD_MODE_SHARED";
+    } else if (modifier == FUNC_PRIVATE) {
+        thread_mode = "RT_THREAD_MODE_PRIVATE";
+    } else {
+        thread_mode = "RT_THREAD_MODE_DEFAULT";
+    }
+
+    /* Generate the thread spawn expression using V2 API */
     char *result = arena_sprintf(gen->arena,
         "({\n"
-        "    /* Allocate thread arguments structure */\n"
-        "    %s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n"
-        "    %s->caller_arena = %s;\n"
-        "    %s->thread_arena = NULL;\n"
-        "    %s->result = NULL;  /* rt_thread_spawn creates and assigns result */\n"
-        "    %s->is_shared = %s;\n"
-        "    %s->is_private = %s;\n"
+        "    /* V2: Create thread with its own arena */\n"
+        "    RtThread *%s = rt_thread_v2_create(%s, %s);\n"
+        "    RtArenaV2 *__thread_arena__ = rt_thread_v2_get_arena(%s);\n"
+        "\n"
+        "    /* Allocate args in thread arena */\n"
+        "    %s->args = rt_arena_v2_alloc(__thread_arena__, sizeof(%s));\n"
+        "    %s *%s = (%s *)rt_handle_v2_pin(%s->args);\n"
         "    %s"
         "\n"
-        "    /* Spawn the thread */\n"
-        "    RtThreadHandle *%s = rt_thread_spawn(%s, %s, %s);\n"
-        "    %s->result_type = %s;\n"
+        "    /* Start the thread */\n"
+        "    rt_thread_v2_start(%s, %s);\n"
         "    %s;\n"
         "})",
-        args_struct_name, args_var, args_struct_name, caller_arena, args_struct_name,
-        args_var, caller_arena,
-        args_var,
-        args_var,
-        args_var, is_shared_str,
-        args_var, is_private_str,
+        handle_var, caller_arena, thread_mode,
+        handle_var,
+        handle_var, args_struct_name,
+        args_struct_name, args_var, args_struct_name, handle_var,
         arg_assignments,
-        handle_var, caller_arena, wrapper_name, args_var,
-        handle_var, result_type_enum,
+        handle_var, wrapper_name,
         handle_var
     );
 

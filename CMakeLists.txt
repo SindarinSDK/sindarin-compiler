@@ -260,7 +260,7 @@ set(SN_RUNTIME_SOURCES
     src/runtime/array/runtime_array_v2_any.c
     src/runtime/array/runtime_array_v2_print.c
     # thread/
-    src/runtime/thread/runtime_thread.c
+    src/runtime/thread/runtime_thread_v2.c
     # core
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
@@ -369,7 +369,7 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_print.c
         # thread/
-        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread_v2.c
         # core
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c

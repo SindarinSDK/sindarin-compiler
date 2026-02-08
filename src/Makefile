@@ -213,7 +213,7 @@ RUNTIME_HEADERS := \
     runtime/runtime_path.h \
     runtime/runtime_date.h \
     runtime/runtime_time.h \
-    runtime/runtime_thread.h \
+    runtime/thread/runtime_thread_v2.h \
     runtime/runtime_any.h \
     runtime/runtime_intercept.h
 
