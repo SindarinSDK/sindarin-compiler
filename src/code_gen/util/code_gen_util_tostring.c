@@ -72,7 +72,7 @@ const char *get_rt_to_string_func_v2(TypeKind kind)
 
 const char *get_rt_to_string_func_for_type_v2(Type *type)
 {
-    /* V2 raw pointer versions for simple types */
+    /* V2 versions for all types */
     if (type == NULL) return "rt_to_string_pointer";
 
     /* For simple types, use V2 raw functions */
@@ -85,8 +85,105 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
         return get_rt_to_string_func_v2(type->kind);
     }
 
-    /* For complex types, use handle-aware V1 for now */
-    return get_rt_to_string_func_for_type_h(type);
+    /* Handle arrays - V2 functions take handles directly */
+    if (type->kind == TYPE_ARRAY && type->as.array.element_type != NULL)
+    {
+        Type *elem_type = type->as.array.element_type;
+        TypeKind elem_kind = elem_type->kind;
+
+        /* 2D arrays */
+        if (elem_kind == TYPE_ARRAY && elem_type->as.array.element_type != NULL)
+        {
+            TypeKind inner_kind = elem_type->as.array.element_type->kind;
+            switch (inner_kind)
+            {
+            case TYPE_INT:
+            case TYPE_INT32:
+            case TYPE_UINT:
+            case TYPE_UINT32:
+            case TYPE_LONG:
+                return "rt_to_string_array2_long_v2";
+            case TYPE_DOUBLE:
+            case TYPE_FLOAT:
+                return "rt_to_string_array2_double_v2";
+            case TYPE_CHAR:
+                return "rt_to_string_array2_char_v2";
+            case TYPE_BOOL:
+                return "rt_to_string_array2_bool_v2";
+            case TYPE_BYTE:
+                return "rt_to_string_array2_byte_v2";
+            case TYPE_STRING:
+                return "rt_to_string_array2_string_v2";
+            case TYPE_ANY:
+                return "rt_to_string_array2_any_v2";
+            case TYPE_ARRAY: {
+                /* 3D array: select formatter based on innermost element type */
+                Type *innermost = elem_type->as.array.element_type->as.array.element_type;
+                if (innermost != NULL) {
+                    switch (innermost->kind) {
+                    case TYPE_INT:
+                    case TYPE_INT32:
+                    case TYPE_UINT:
+                    case TYPE_UINT32:
+                    case TYPE_LONG:
+                        return "rt_to_string_array3_long_v2";
+                    case TYPE_DOUBLE:
+                    case TYPE_FLOAT:
+                        return "rt_to_string_array3_double_v2";
+                    case TYPE_CHAR:
+                        return "rt_to_string_array3_char_v2";
+                    case TYPE_BOOL:
+                        return "rt_to_string_array3_bool_v2";
+                    case TYPE_BYTE:
+                        return "rt_to_string_array3_byte_v2";
+                    case TYPE_STRING:
+                        return "rt_to_string_array3_string_v2";
+                    case TYPE_ANY:
+                        return "rt_to_string_array3_any_v2";
+                    default:
+                        return "rt_to_string_pointer";
+                    }
+                }
+                return "rt_to_string_pointer";
+            }
+            default:
+                return "rt_to_string_pointer";
+            }
+        }
+
+        /* 1D arrays */
+        switch (elem_kind)
+        {
+        case TYPE_INT:
+        case TYPE_LONG:
+            return "rt_to_string_array_long_v2";
+        case TYPE_INT32:
+            return "rt_to_string_array_int32_v2";
+        case TYPE_UINT:
+            return "rt_to_string_array_uint_v2";
+        case TYPE_UINT32:
+            return "rt_to_string_array_uint32_v2";
+        case TYPE_DOUBLE:
+            return "rt_to_string_array_double_v2";
+        case TYPE_FLOAT:
+            return "rt_to_string_array_float_v2";
+        case TYPE_CHAR:
+            return "rt_to_string_array_char_v2";
+        case TYPE_BOOL:
+            return "rt_to_string_array_bool_v2";
+        case TYPE_BYTE:
+            return "rt_to_string_array_byte_v2";
+        case TYPE_STRING:
+            return "rt_to_string_array_string_v2";
+        case TYPE_ANY:
+            return "rt_to_string_array_any_v2";
+        default:
+            return "rt_to_string_pointer";
+        }
+    }
+
+    /* Non-arrays: use base functions */
+    return get_rt_to_string_func(type->kind);
 }
 
 const char *get_rt_to_string_func_for_type(Type *type)
@@ -178,120 +275,12 @@ const char *get_rt_to_string_func_for_type(Type *type)
     return get_rt_to_string_func(type->kind);
 }
 
-const char *get_rt_to_string_func_for_type_h(Type *type)
-{
-    /* Handle-aware version: uses _h variants for arrays with RtHandle elements.
-     * 2D arrays have RtHandle outer elements (handles to inner arrays).
-     * 1D string arrays have RtHandle elements (handles to strings). */
-    if (type == NULL) return "rt_to_string_pointer";
-
-    if (type->kind == TYPE_ARRAY && type->as.array.element_type != NULL)
-    {
-        Type *elem_type = type->as.array.element_type;
-        TypeKind elem_kind = elem_type->kind;
-
-        /* 2D arrays: outer stores RtHandle -> use _h versions */
-        if (elem_kind == TYPE_ARRAY && elem_type->as.array.element_type != NULL)
-        {
-            TypeKind inner_kind = elem_type->as.array.element_type->kind;
-            switch (inner_kind)
-            {
-            case TYPE_INT:
-            case TYPE_INT32:
-            case TYPE_UINT:
-            case TYPE_UINT32:
-            case TYPE_LONG:
-                return "rt_to_string_array2_long_v2";
-            case TYPE_DOUBLE:
-            case TYPE_FLOAT:
-                return "rt_to_string_array2_double_v2";
-            case TYPE_CHAR:
-                return "rt_to_string_array2_char_v2";
-            case TYPE_BOOL:
-                return "rt_to_string_array2_bool_v2";
-            case TYPE_BYTE:
-                return "rt_to_string_array2_byte_v2";
-            case TYPE_STRING:
-                return "rt_to_string_array2_string_v2";
-            case TYPE_ANY:
-                return "rt_to_string_array2_any_v2";
-            case TYPE_ARRAY: {
-                /* 3D array: select formatter based on innermost element type */
-                Type *innermost = elem_type->as.array.element_type->as.array.element_type;
-                if (innermost != NULL) {
-                    switch (innermost->kind) {
-                    case TYPE_INT:
-                    case TYPE_INT32:
-                    case TYPE_UINT:
-                    case TYPE_UINT32:
-                    case TYPE_LONG:
-                        return "rt_to_string_array3_long_v2";
-                    case TYPE_DOUBLE:
-                    case TYPE_FLOAT:
-                        return "rt_to_string_array3_double_v2";
-                    case TYPE_CHAR:
-                        return "rt_to_string_array3_char_v2";
-                    case TYPE_BOOL:
-                        return "rt_to_string_array3_bool_v2";
-                    case TYPE_BYTE:
-                        return "rt_to_string_array3_byte_v2";
-                    case TYPE_STRING:
-                        return "rt_to_string_array3_string_v2";
-                    case TYPE_ANY:
-                        return "rt_to_string_array3_any_v2";
-                    default:
-                        return "rt_to_string_pointer";
-                    }
-                }
-                return "rt_to_string_pointer";
-            }
-            default:
-                return "rt_to_string_pointer";
-            }
-        }
-
-        /* 1D arrays: all V2 functions now take handles directly */
-        switch (elem_kind)
-        {
-        case TYPE_INT:
-        case TYPE_LONG:
-            return "rt_to_string_array_long_v2";
-        case TYPE_INT32:
-            return "rt_to_string_array_int32_v2";
-        case TYPE_UINT:
-            return "rt_to_string_array_uint_v2";
-        case TYPE_UINT32:
-            return "rt_to_string_array_uint32_v2";
-        case TYPE_DOUBLE:
-            return "rt_to_string_array_double_v2";
-        case TYPE_FLOAT:
-            return "rt_to_string_array_float_v2";
-        case TYPE_CHAR:
-            return "rt_to_string_array_char_v2";
-        case TYPE_BOOL:
-            return "rt_to_string_array_bool_v2";
-        case TYPE_BYTE:
-            return "rt_to_string_array_byte_v2";
-        case TYPE_STRING:
-            return "rt_to_string_array_string_v2";
-        case TYPE_ANY:
-            return "rt_to_string_array_any_v2";
-        default:
-            /* Other complex element types - fallback to pointer */
-            return "rt_to_string_pointer";
-        }
-    }
-
-    /* Non-arrays: same as regular */
-    return get_rt_to_string_func(type->kind);
-}
-
 const char *get_default_value(Type *type)
 {
     DEBUG_VERBOSE("Entering get_default_value");
     if (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY)
     {
-        return "RT_HANDLE_NULL";
+        return "NULL";
     }
     else if (type->kind == TYPE_ANY)
     {

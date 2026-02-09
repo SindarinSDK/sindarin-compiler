@@ -13,7 +13,7 @@
 
 static void test_rt_str_long_string_operations(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Create a long string
     char long_str[1001];
@@ -29,7 +29,7 @@ static void test_rt_str_long_string_operations(void)
 
 static void test_rt_str_unicode_like_sequences(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Test with escape-like sequences (not actual unicode, just chars)
     char *result = rt_str_concat(arena, "hello\\n", "world\\t");
@@ -40,7 +40,7 @@ static void test_rt_str_unicode_like_sequences(void)
 
 static void test_rt_str_special_chars(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_concat(arena, "line1\nline2", "\ttab");
     assert(rt_str_contains(result, "\n") == 1);
@@ -51,7 +51,7 @@ static void test_rt_str_special_chars(void)
 
 static void test_rt_str_repeated_replace(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Replace in string with overlapping patterns
     char *result = rt_str_replace(arena, "ababab", "ab", "X");
@@ -82,7 +82,7 @@ static void test_rt_str_charAt_large_indices(void)
 
 static void test_rt_str_substring_boundary(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Test exact boundaries
     char *result = rt_str_substring(arena, "hello", 0, 5);
@@ -104,7 +104,7 @@ static void test_rt_str_substring_boundary(void)
 
 static void test_rt_str_split_empty_results(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Split with delimiter at every position
     char **parts = rt_str_split(arena, "|||", "|");
@@ -122,7 +122,7 @@ static void test_rt_str_split_empty_results(void)
 
 static void test_rt_str_trim_various_whitespace(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_trim(arena, " \t\r\n hello \t\r\n ");
     assert(strcmp(result, "hello") == 0);
@@ -153,7 +153,7 @@ static void test_rt_str_startsWith_endsWith_full_match(void)
 
 static void test_rt_format_long_edge_values(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Zero
     char *result = rt_format_long(arena, 0, "d");
@@ -176,7 +176,7 @@ static void test_rt_format_long_edge_values(void)
 
 static void test_rt_format_double_edge_values(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Zero with precision
     char *result = rt_format_double(arena, 0.0, ".2f");
@@ -195,7 +195,7 @@ static void test_rt_format_double_edge_values(void)
 
 static void test_rt_format_string_edge_cases(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Empty string with width
     char *result = rt_format_string(arena, "", "5");
@@ -218,7 +218,7 @@ static void test_rt_format_string_edge_cases(void)
 
 static void test_rt_to_string_edge_values(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Large numbers
     char *result = rt_to_string_long(arena, 9999999999LL);
@@ -242,7 +242,7 @@ static void test_rt_to_string_edge_values(void)
 
 static void test_rt_to_string_special_doubles(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Very small
     char *result = rt_to_string_double(arena, 0.00001);
@@ -262,7 +262,7 @@ static void test_rt_to_string_special_doubles(void)
 
 static void test_rt_string_capacity(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *str = rt_string_with_capacity(arena, 100);
     assert(RT_STR_META(str)->capacity >= 100);
@@ -280,7 +280,7 @@ static void test_rt_string_capacity(void)
 
 static void test_rt_string_append_chain(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *str = rt_string_with_capacity(arena, 10);
 
@@ -297,7 +297,7 @@ static void test_rt_string_append_chain(void)
 
 static void test_rt_string_from_empty(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *str = rt_string_from(arena, "");
     assert(strcmp(str, "") == 0);

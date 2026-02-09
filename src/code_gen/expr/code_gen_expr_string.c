@@ -267,7 +267,7 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
             {
                 /* Fallback: convert to string first, then format */
                 const char *to_str = gen->current_arena_var
-                    ? get_rt_to_string_func_for_type_h(part_types[i])
+                    ? get_rt_to_string_func_for_type_v2(part_types[i])
                     : get_rt_to_string_func_for_type(part_types[i]);
                 result = arena_sprintf(gen->arena, "%s        char *_tmp%d = %s(%s, %s);\n",
                                        result, temp_var_count, to_str, ARENA_VAR(gen), part_strs[i]);

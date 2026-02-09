@@ -457,7 +457,7 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
     char **elem_strs = (char **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(char *)));
     size_t total_len = 2; /* {} */
     for (size_t i = 0; i < len; i++) {
-        elem_strs[i] = rt_any_to_string((RtArena *)arena, arr[i]);
+        elem_strs[i] = rt_any_to_string((RtArenaV2 *)arena, arr[i]);
         if (i > 0) total_len += 2; /* ", " */
         total_len += strlen(elem_strs[i]);
     }

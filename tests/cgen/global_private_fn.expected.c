@@ -28,8 +28,8 @@ static RtAny __thunk_0(void);
 // Tests that a private function creates its own private arena for allocations,
 // can read global string variables from __main_arena__, and can modify
 // global handles using __main_arena__ for the mutation.
-RtHandleV2 * __sn__greeting = RT_HANDLE_NULL;
-RtHandleV2 * __sn__message = RT_HANDLE_NULL;
+RtHandleV2 * __sn__greeting = NULL;
+RtHandleV2 * __sn__message = NULL;
 long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, "func");
     long long _return_value = 0;

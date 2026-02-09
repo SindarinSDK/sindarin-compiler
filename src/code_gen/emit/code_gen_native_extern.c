@@ -51,18 +51,18 @@ void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 {
     char *fn_name = get_var_name(gen->arena, fn->name);
     /* Native functions with arena param use handle-based types:
-     * TYPE_STRING → RtHandle, TYPE_ARRAY → element_type *
+     * TYPE_STRING → RtHandleV2 *, TYPE_ARRAY → element_type *
      * Native functions without arena use raw C types:
      * TYPE_STRING → char *, TYPE_ARRAY → element_type * */
     const char *ret_c;
     if (fn->return_type && fn->return_type->kind == TYPE_STRING && fn->has_arena_param) {
-        /* String returns with arena use RtHandle (handle-based strings) */
-        ret_c = "RtHandle";
+        /* String returns with arena use RtHandleV2 * (handle-based strings) */
+        ret_c = "RtHandleV2 *";
     } else if (fn->return_type && fn->return_type->kind == TYPE_STRING) {
         ret_c = "char *";
     } else if (fn->return_type && fn->return_type->kind == TYPE_ARRAY && fn->has_arena_param) {
-        /* Array returns with arena use RtHandle (handle-based arrays) */
-        ret_c = "RtHandle";
+        /* Array returns with arena use RtHandleV2 * (handle-based arrays) */
+        ret_c = "RtHandleV2 *";
     } else if (fn->return_type && fn->return_type->kind == TYPE_ARRAY) {
         const char *elem_c = get_c_array_elem_type(gen->arena, fn->return_type->as.array.element_type);
         ret_c = arena_sprintf(gen->arena, "%s *", elem_c);
@@ -72,7 +72,7 @@ void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
 
     indented_fprintf(gen, 0, "extern %s %s(", ret_c, fn_name);
 
-    /* If function has implicit arena param, prepend RtManagedArena* for managed arena system */
+    /* If function has implicit arena param, prepend RtArenaV2* */
     bool has_other_params = fn->param_count > 0 || fn->is_variadic;
     if (fn->has_arena_param)
     {

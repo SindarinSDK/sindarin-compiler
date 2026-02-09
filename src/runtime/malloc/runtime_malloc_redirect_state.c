@@ -5,7 +5,7 @@
  * Redirect State Management
  * ============================================================================ */
 
-bool rt_malloc_redirect_push(RtArena *arena, const RtRedirectConfig *config)
+bool rt_malloc_redirect_push(RtArenaV2 *arena, const RtRedirectConfig *config)
 {
     if (!arena) return false;
 
@@ -97,7 +97,7 @@ bool rt_malloc_redirect_is_active(void)
     return tls_redirect_state != NULL && tls_redirect_state->active;
 }
 
-RtArena *rt_malloc_redirect_arena(void)
+RtArenaV2 *rt_malloc_redirect_arena(void)
 {
     if (!tls_redirect_state) return NULL;
     return tls_redirect_state->arena;

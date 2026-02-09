@@ -43,12 +43,12 @@ int code_gen_emit_struct_method_forwards(CodeGen *gen, Stmt **statements, int co
                 const char *ret_type;
                 if (method->is_native && method->body == NULL &&
                     method->return_type != NULL && method->return_type->kind == TYPE_STRING) {
-                    /* Native methods returning str use RtHandle (handle-based strings) */
-                    ret_type = "RtHandle";
+                    /* Native methods returning str use RtHandleV2* (handle-based strings) */
+                    ret_type = "RtHandleV2 *";
                 } else if (method->is_native && method->body == NULL &&
                            method->return_type != NULL && method->return_type->kind == TYPE_ARRAY) {
-                    /* Native methods returning arrays now return RtHandle directly */
-                    ret_type = "RtHandle";
+                    /* Native methods returning arrays return RtHandleV2* directly */
+                    ret_type = "RtHandleV2 *";
                 } else {
                     ret_type = get_c_type(gen->arena, method->return_type);
                 }

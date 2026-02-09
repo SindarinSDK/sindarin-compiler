@@ -260,7 +260,7 @@ static RtAny call_next_interceptor(void)
     // This matches the __Closure__ type expected by generated Sindarin code
     RtClosure continue_closure = {
         .fn = (void *)call_next_interceptor_closure,
-        .arena = (RtArena *)__rt_thunk_arena
+        .arena = (RtArenaV2 *)__rt_thunk_arena
     };
 
     // Convert name and args to handles for the Sindarin handler
@@ -282,7 +282,7 @@ static RtAny call_next_interceptor(void)
     }
 
     // Call the interceptor handler with handle-based parameters
-    RtAny result = entry->handler((RtArena *)arena, name_h, args_h, &continue_closure);
+    RtAny result = entry->handler((RtArenaV2 *)arena, name_h, args_h, &continue_closure);
 
     // Copy any modifications back to the original args array
     if (ctx->arg_count > 0)

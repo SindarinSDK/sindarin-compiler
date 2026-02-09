@@ -6,7 +6,7 @@
    ============================================================ */
 
 /* Split a string by a delimiter */
-char **rt_str_split(RtArena *arena, const char *str, const char *delimiter) {
+char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
     if (str == NULL || delimiter == NULL) {
         return NULL;
     }
@@ -80,7 +80,7 @@ char **rt_str_split(RtArena *arena, const char *str, const char *delimiter) {
 /* Split string with limit - returns at most 'limit' parts.
  * The last part contains the rest of the string (unsplit).
  * If limit <= 0, behaves like rt_str_split (no limit). */
-char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, int limit) {
+char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, int limit) {
     if (str == NULL || delimiter == NULL) {
         return NULL;
     }

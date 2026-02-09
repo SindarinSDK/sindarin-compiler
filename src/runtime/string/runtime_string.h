@@ -34,7 +34,7 @@
 
 /* String metadata - stored immediately before string data for mutable strings */
 typedef struct {
-    RtArena *arena;  /* Arena that owns this string (for reallocation) */
+    RtArenaV2 *arena;  /* Arena that owns this string (for reallocation) */
     size_t length;   /* Number of characters in the string (excluding null) */
     size_t capacity; /* Total allocated space for characters */
 } RtStringMeta;
@@ -68,16 +68,16 @@ typedef struct {
  * ============================================================================ */
 
 /* String concatenation - allocates from arena (IMMUTABLE string, no metadata) */
-char *rt_str_concat(RtArena *arena, const char *left, const char *right);
+char *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right);
 
 /* Create mutable string with pre-allocated capacity */
-char *rt_string_with_capacity(RtArena *arena, size_t capacity);
+char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity);
 
 /* Create mutable string from source (copies source into new mutable string) */
-char *rt_string_from(RtArena *arena, const char *src);
+char *rt_string_from(RtArenaV2 *arena, const char *src);
 
 /* Ensure string is mutable - converts immutable to mutable if needed */
-char *rt_string_ensure_mutable(RtArena *arena, char *str);
+char *rt_string_ensure_mutable(RtArenaV2 *arena, char *str);
 
 /* Append source to mutable destination string (in-place modification) */
 char *rt_string_append(char *dest, const char *src);
@@ -86,22 +86,22 @@ char *rt_string_append(char *dest, const char *src);
  * Type-to-String Conversion Functions
  * ============================================================================ */
 
-char *rt_to_string_long(RtArena *arena, long long val);
-char *rt_to_string_double(RtArena *arena, double val);
-char *rt_to_string_char(RtArena *arena, char val);
-char *rt_to_string_bool(RtArena *arena, int val);
-char *rt_to_string_byte(RtArena *arena, unsigned char val);
-char *rt_to_string_string(RtArena *arena, const char *val);
-char *rt_to_string_void(RtArena *arena);
-char *rt_to_string_pointer(RtArena *arena, void *p);
+char *rt_to_string_long(RtArenaV2 *arena, long long val);
+char *rt_to_string_double(RtArenaV2 *arena, double val);
+char *rt_to_string_char(RtArenaV2 *arena, char val);
+char *rt_to_string_bool(RtArenaV2 *arena, int val);
+char *rt_to_string_byte(RtArenaV2 *arena, unsigned char val);
+char *rt_to_string_string(RtArenaV2 *arena, const char *val);
+char *rt_to_string_void(RtArenaV2 *arena);
+char *rt_to_string_pointer(RtArenaV2 *arena, void *p);
 
 /* ============================================================================
  * Format Functions (with format specifiers)
  * ============================================================================ */
 
-char *rt_format_long(RtArena *arena, long long val, const char *fmt);
-char *rt_format_double(RtArena *arena, double val, const char *fmt);
-char *rt_format_string(RtArena *arena, const char *val, const char *fmt);
+char *rt_format_long(RtArenaV2 *arena, long long val, const char *fmt);
+char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt);
+char *rt_format_string(RtArenaV2 *arena, const char *val, const char *fmt);
 
 /* ============================================================================
  * Print Functions
@@ -130,15 +130,15 @@ long rt_str_length(const char *str);
 long rt_str_indexOf(const char *str, const char *search);
 int rt_str_contains(const char *str, const char *search);
 long rt_str_charAt(const char *str, long index);
-char *rt_str_substring(RtArena *arena, const char *str, long start, long end);
-char *rt_str_toUpper(RtArena *arena, const char *str);
-char *rt_str_toLower(RtArena *arena, const char *str);
+char *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end);
+char *rt_str_toUpper(RtArenaV2 *arena, const char *str);
+char *rt_str_toLower(RtArenaV2 *arena, const char *str);
 int rt_str_startsWith(const char *str, const char *prefix);
 int rt_str_endsWith(const char *str, const char *suffix);
-char *rt_str_trim(RtArena *arena, const char *str);
-char *rt_str_replace(RtArena *arena, const char *str, const char *old, const char *new_str);
-char **rt_str_split(RtArena *arena, const char *str, const char *delimiter);
-char **rt_str_split_n(RtArena *arena, const char *str, const char *delimiter, int limit);
+char *rt_str_trim(RtArenaV2 *arena, const char *str);
+char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str);
+char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter);
+char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, int limit);
 
 /* String parsing functions */
 long long rt_str_to_int(const char *str);
@@ -151,7 +151,7 @@ double rt_str_to_double(const char *str);
  * ============================================================================ */
 
 /* Check if string is mutable - inlined for fast path in append loops */
-static inline int rt_string_is_mutable(RtArena *arena, char *str) {
+static inline int rt_string_is_mutable(RtArenaV2 *arena, char *str) {
     if (str == NULL) return 0;
     RtStringMeta *meta = RT_STR_META(str);
     return (meta->arena == arena &&
@@ -161,7 +161,7 @@ static inline int rt_string_is_mutable(RtArena *arena, char *str) {
 }
 
 /* Fast inline ensure_mutable - avoids function call when already mutable */
-static inline char *rt_string_ensure_mutable_inline(RtArena *arena, char *str) {
+static inline char *rt_string_ensure_mutable_inline(RtArenaV2 *arena, char *str) {
     if (str != NULL && rt_string_is_mutable(arena, str)) {
         return str;  /* Already mutable, fast path */
     }
@@ -186,9 +186,9 @@ static inline int rt_str_region_equals(const char *str, long start, long end, co
  * ============================================================================ */
 
 /* Create a new string array with initial capacity */
-char **rt_create_string_array(RtArena *arena, size_t initial_capacity);
+char **rt_create_string_array(RtArenaV2 *arena, size_t initial_capacity);
 
 /* Push a string to the array, growing if necessary */
-char **rt_push_string_to_array(RtArena *arena, char **arr, char *str);
+char **rt_push_string_to_array(RtArenaV2 *arena, char **arr, char *str);
 
 #endif /* RUNTIME_STRING_H */

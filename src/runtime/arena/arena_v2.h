@@ -312,40 +312,31 @@ void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats);
 void rt_arena_v2_print_stats(RtArenaV2 *arena);
 
 /* ============================================================================
- * Backward Compatibility Aliases
+ * Convenience Functions
  * ============================================================================
- * These provide compatibility with the old V1 arena API that used RtArena.
- * The V1 API used raw pointers and bump allocation; V2 handles this via
- * rt_handle_v2_pin() which returns the raw pointer from a handle.
+ * These provide raw-pointer versions of the handle-based allocation functions.
+ * They allocate, pin, and return the raw pointer in one step.
  * ============================================================================ */
 
-/* Type aliases - map old types to V2 */
-typedef RtArenaV2 RtArena;
-typedef RtArenaV2 RtManagedArena;
-typedef RtHandleV2 *RtHandle;
-
-/* Null handle constant */
-#define RT_HANDLE_NULL NULL
-
-/* Backward compatible allocation function - allocates and returns raw pointer */
+/* Allocate memory and return raw pointer */
 static inline void *rt_arena_alloc(RtArenaV2 *arena, size_t size) {
     RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
     return rt_handle_v2_pin(h);
 }
 
-/* Backward compatible string duplication - allocates and returns raw pointer */
+/* Duplicate string and return raw pointer */
 static inline char *rt_arena_strdup(RtArenaV2 *arena, const char *str) {
     if (str == NULL) return NULL;
     RtHandleV2 *h = rt_arena_v2_strdup(arena, str);
     return (char *)rt_handle_v2_pin(h);
 }
 
-/* Backward compatible arena creation */
+/* Simple arena creation with default mode */
 static inline RtArenaV2 *rt_arena_create(RtArenaV2 *parent) {
     return rt_arena_v2_create(parent, RT_ARENA_MODE_DEFAULT, NULL);
 }
 
-/* Backward compatible arena destruction */
+/* Arena destruction */
 static inline void rt_arena_destroy(RtArenaV2 *arena) {
     rt_arena_v2_destroy(arena);
 }

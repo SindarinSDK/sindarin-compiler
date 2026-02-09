@@ -227,7 +227,7 @@ static int is_whitespace(char c) {
 }
 
 /* Split string on any whitespace character */
-char **rt_str_split_whitespace(RtArena *arena, const char *str) {
+char **rt_str_split_whitespace(RtArenaV2 *arena, const char *str) {
     if (str == NULL) {
         return rt_create_string_array(arena, 4);
     }
@@ -261,7 +261,7 @@ char **rt_str_split_whitespace(RtArena *arena, const char *str) {
 }
 
 /* Split string on line endings (\n, \r\n, \r) */
-char **rt_str_split_lines(RtArena *arena, const char *str) {
+char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
     if (str == NULL) {
         return rt_create_string_array(arena, 4);
     }

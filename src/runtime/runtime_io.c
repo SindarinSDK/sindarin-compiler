@@ -14,7 +14,7 @@
  * ============================================================================ */
 
 /* Stdin - read line from standard input */
-char *rt_stdin_read_line(RtArena *arena) {
+char *rt_stdin_read_line(RtArenaV2 *arena) {
     /* Read a line from stdin, stripping trailing newline */
     char buffer[4096];
     if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
@@ -43,7 +43,7 @@ long rt_stdin_read_char(void) {
 }
 
 /* Stdin - read whitespace-delimited word from standard input */
-char *rt_stdin_read_word(RtArena *arena) {
+char *rt_stdin_read_word(RtArenaV2 *arena) {
     char buffer[4096];
     if (scanf("%4095s", buffer) != 1) {
         /* EOF or error - return empty string */
@@ -132,7 +132,7 @@ void rt_stderr_flush(void) {
  * ============================================================================ */
 
 /* Global convenience: read line */
-char *rt_read_line(RtArena *arena) {
+char *rt_read_line(RtArenaV2 *arena) {
     return rt_stdin_read_line(arena);
 }
 

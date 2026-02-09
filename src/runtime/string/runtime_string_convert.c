@@ -16,39 +16,39 @@
 
 static const char *null_str = "(null)";
 
-char *rt_to_string_long(RtArena *arena, long long val)
+char *rt_to_string_long(RtArenaV2 *arena, long long val)
 {
     char buf[32];
     snprintf(buf, sizeof(buf), "%lld", val);
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_to_string_double(RtArena *arena, double val)
+char *rt_to_string_double(RtArenaV2 *arena, double val)
 {
     char buf[64];
     snprintf(buf, sizeof(buf), "%.5f", val);
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_to_string_char(RtArena *arena, char val)
+char *rt_to_string_char(RtArenaV2 *arena, char val)
 {
     char buf[2] = {val, '\0'};
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_to_string_bool(RtArena *arena, int val)
+char *rt_to_string_bool(RtArenaV2 *arena, int val)
 {
     return rt_arena_strdup(arena, val ? "true" : "false");
 }
 
-char *rt_to_string_byte(RtArena *arena, unsigned char val)
+char *rt_to_string_byte(RtArenaV2 *arena, unsigned char val)
 {
     char buf[8];
     snprintf(buf, sizeof(buf), "%u", (unsigned int)val);
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_to_string_string(RtArena *arena, const char *val)
+char *rt_to_string_string(RtArenaV2 *arena, const char *val)
 {
     if (val == NULL) {
         return (char *)null_str;
@@ -56,12 +56,12 @@ char *rt_to_string_string(RtArena *arena, const char *val)
     return rt_arena_strdup(arena, val);
 }
 
-char *rt_to_string_void(RtArena *arena)
+char *rt_to_string_void(RtArenaV2 *arena)
 {
     return rt_arena_strdup(arena, "void");
 }
 
-char *rt_to_string_pointer(RtArena *arena, void *p)
+char *rt_to_string_pointer(RtArenaV2 *arena, void *p)
 {
     if (p == NULL) {
         return rt_arena_strdup(arena, "nil");
