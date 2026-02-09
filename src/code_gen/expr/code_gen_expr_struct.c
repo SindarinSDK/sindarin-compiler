@@ -76,13 +76,13 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
             /* For string/array fields stored as RtHandle, force handle mode so the
                value is properly wrapped with rt_managed_strdup / handle creation.
                For other field types, use raw mode.
-               At file scope (no arena), string/array fields must be RT_HANDLE_NULL
+               At file scope (no arena), string/array fields must be NULL
                since we can't call runtime functions in global initializers. */
             char *value_code;
             if (gen->current_arena_var == NULL &&
                 (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
             {
-                value_code = arena_strdup(gen->arena, "RT_HANDLE_NULL");
+                value_code = arena_strdup(gen->arena, "NULL");
             }
             /* Handle function-typed fields: when the value is a named function,
                wrap it in a closure. Named functions are just function pointers in C,
@@ -195,7 +195,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                 }
             }
             /* Special handling for empty array literals: use field's element type
-             * instead of the expression's TYPE_NIL element type which generates RT_HANDLE_NULL */
+             * instead of the expression's TYPE_NIL element type which generates NULL */
             else if (field->type->kind == TYPE_ARRAY &&
                      init_value->type == EXPR_ARRAY &&
                      init_value->as.array.element_count == 0 &&

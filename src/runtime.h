@@ -23,10 +23,6 @@
 #include "runtime/string/runtime_string_v2.h"
 #include "runtime/array/runtime_array_v2.h"
 
-/* V1 handle-based modules - deprecated, using V2 instead
- * #include "runtime/string/runtime_string_h.h"
- * #include "runtime/array/runtime_array_h.h"
- */
 
 /* I/O modules - depend on arena and string */
 #include "runtime/runtime_io.h"

@@ -71,7 +71,7 @@ RtAny rt_box_bool(bool value);
 RtAny rt_box_byte(uint8_t value);
 RtAny rt_box_array(void *arr, RtAnyTag element_tag);
 RtAny rt_box_function(void *fn);
-RtAny rt_box_struct(RtArena *arena, void *struct_data, size_t struct_size, int struct_type_id);
+RtAny rt_box_struct(RtArenaV2 *arena, void *struct_data, size_t struct_size, int struct_type_id);
 
 /* ============================================================================
  * Unboxing Functions - Convert any to concrete types (panic on type mismatch)
@@ -135,12 +135,12 @@ bool rt_any_same_type(RtAny a, RtAny b);
  * ============================================================================ */
 
 /* Convert any value to string representation (for debugging) */
-char *rt_any_to_string(RtArena *arena, RtAny value);
+char *rt_any_to_string(RtArenaV2 *arena, RtAny value);
 
 /* Promote an any value's heap-allocated data to a target arena.
  * Used when returning any values from functions to ensure data survives
  * the destruction of the function's local arena. */
-RtAny rt_any_promote(RtArena *target_arena, RtAny value);
+RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value);
 
 /* V2 version: Promote an any value's heap-allocated data to a target arena.
  * For V2 arena mode - strings are RtHandleV2* not raw char*. */

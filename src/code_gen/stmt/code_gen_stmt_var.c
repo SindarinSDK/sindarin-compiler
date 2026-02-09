@@ -137,7 +137,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
                 if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
             }
-            indented_fprintf(gen, indent, "%s%s %s = RT_HANDLE_NULL;\n", static_prefix, type_c, var_name);
+            indented_fprintf(gen, indent, "%s%s %s = NULL;\n", static_prefix, type_c, var_name);
             return;
         }
     }
@@ -318,7 +318,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 
             if (is_handle_type(stmt->type))
             {
-                init_str = arena_strdup(gen->arena, "RT_HANDLE_NULL");
+                init_str = arena_strdup(gen->arena, "NULL");
             }
             else if (stmt->type->kind == TYPE_STRUCT)
             {

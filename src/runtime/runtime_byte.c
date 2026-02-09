@@ -14,7 +14,7 @@
  * Internal Helper: Create uninitialized byte array
  * ============================================================================ */
 
-static unsigned char *create_byte_array(RtArena *arena, size_t count) {
+static unsigned char *create_byte_array(RtArenaV2 *arena, size_t count) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(unsigned char);
     void *raw = rt_arena_alloc(arena, alloc_size);
     if (raw == NULL) return NULL;
@@ -38,7 +38,7 @@ static const char base64_chars[] =
 /* Convert byte array to string using UTF-8 decoding
  * Note: This is a simple passthrough since our strings are already UTF-8.
  * Invalid UTF-8 sequences are passed through as-is. */
-char *rt_byte_array_to_string(RtArena *arena, unsigned char *bytes) {
+char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         char *result = rt_arena_alloc(arena, 1);
         result[0] = '\0';
@@ -59,7 +59,7 @@ char *rt_byte_array_to_string(RtArena *arena, unsigned char *bytes) {
 /* Convert byte array to string using Latin-1/ISO-8859-1 decoding
  * Each byte directly maps to its Unicode code point (0x00-0xFF).
  * This requires UTF-8 encoding for values 0x80-0xFF. */
-char *rt_byte_array_to_string_latin1(RtArena *arena, unsigned char *bytes) {
+char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         char *result = rt_arena_alloc(arena, 1);
         result[0] = '\0';
@@ -96,7 +96,7 @@ char *rt_byte_array_to_string_latin1(RtArena *arena, unsigned char *bytes) {
 }
 
 /* Convert byte array to hexadecimal string */
-char *rt_byte_array_to_hex(RtArena *arena, unsigned char *bytes) {
+char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
     static const char hex_chars[] = "0123456789abcdef";
 
     if (bytes == NULL) {
@@ -118,7 +118,7 @@ char *rt_byte_array_to_hex(RtArena *arena, unsigned char *bytes) {
 }
 
 /* Convert byte array to Base64 string */
-char *rt_byte_array_to_base64(RtArena *arena, unsigned char *bytes) {
+char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         char *result = rt_arena_alloc(arena, 1);
         result[0] = '\0';
@@ -177,7 +177,7 @@ char *rt_byte_array_to_base64(RtArena *arena, unsigned char *bytes) {
 
 /* Convert string to UTF-8 byte array
  * Since our strings are already UTF-8, this is a simple copy. */
-unsigned char *rt_string_to_bytes(RtArena *arena, const char *str) {
+unsigned char *rt_string_to_bytes(RtArenaV2 *arena, const char *str) {
     if (str == NULL) {
         /* Return empty byte array */
         return create_byte_array(arena, 0);

@@ -8,7 +8,7 @@
  * Format syntax: [0][width][type] where type varies by function.
  * ============================================================================ */
 
-char *rt_format_long(RtArena *arena, long long val, const char *fmt)
+char *rt_format_long(RtArenaV2 *arena, long long val, const char *fmt)
 {
     char buf[128];
     char format_str[64];
@@ -118,7 +118,7 @@ char *rt_format_long(RtArena *arena, long long val, const char *fmt)
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_format_double(RtArena *arena, double val, const char *fmt)
+char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt)
 {
     char buf[128];
     char format_str[64];
@@ -208,7 +208,7 @@ char *rt_format_double(RtArena *arena, double val, const char *fmt)
     return rt_arena_strdup(arena, buf);
 }
 
-char *rt_format_string(RtArena *arena, const char *val, const char *fmt)
+char *rt_format_string(RtArenaV2 *arena, const char *val, const char *fmt)
 {
     if (val == NULL) {
         val = "nil";

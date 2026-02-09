@@ -27,10 +27,10 @@ static RtAny __thunk_0(void);
 //
 // Tests that a shared function uses the caller's arena for allocations,
 // and can access global string variables from __main_arena__.
-RtHandleV2 * __sn__greeting = RT_HANDLE_NULL;
+RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     RtArenaV2 *__local_arena__ = __caller_arena__;
-    RtHandleV2 * _return_value = RT_HANDLE_NULL;
+    RtHandleV2 * _return_value = NULL;
     // shared function uses caller's arena for allocations
     // global 'greeting' is in __main_arena__, accessed via parent-walking
     _return_value = rt_str_concat_v2(__local_arena__, (char *)rt_handle_v2_pin(__sn__greeting), " World");

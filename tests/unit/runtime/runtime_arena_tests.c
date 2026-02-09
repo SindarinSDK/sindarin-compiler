@@ -114,7 +114,7 @@ static void test_rt_arena_many_allocations(void)
 
 static void test_rt_string_with_capacity(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 10);
     assert(str != NULL);
     RtStringMeta *meta = RT_STR_META(str);
@@ -139,7 +139,7 @@ static void test_rt_string_with_capacity(void)
 
 static void test_rt_string_append_empty(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 20);
     assert(str != NULL);
     str = rt_string_append(str, "hello");
@@ -153,7 +153,7 @@ static void test_rt_string_append_empty(void)
 
 static void test_rt_string_append_multiple(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 10);
     assert(str != NULL);
     str = rt_string_append(str, "hello");
@@ -171,7 +171,7 @@ static void test_rt_string_append_multiple(void)
 
 static void test_rt_string_append_no_realloc(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 100);
     char *original_ptr = str;
     str = rt_string_append(str, "one");
@@ -190,7 +190,7 @@ static void test_rt_string_append_no_realloc(void)
 
 static void test_rt_string_append_null_src(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 20);
     str = rt_string_append(str, "test");
     assert(strcmp(str, "test") == 0);
@@ -203,7 +203,7 @@ static void test_rt_string_append_null_src(void)
 
 static void test_rt_string_append_empty_src(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 20);
     str = rt_string_append(str, "initial");
     assert(strcmp(str, "initial") == 0);
@@ -215,7 +215,7 @@ static void test_rt_string_append_empty_src(void)
 
 static void test_rt_string_length_tracking(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
     char *str = rt_string_with_capacity(arena, 50);
     assert(RT_STR_META(str)->length == 0);
     str = rt_string_append(str, "a");

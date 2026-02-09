@@ -25,7 +25,7 @@
  *
  * TODO: Future optimization - if left string is mutable and has enough
  * capacity, could append in-place using rt_string_append() instead. */
-char *rt_str_concat(RtArena *arena, const char *left, const char *right) {
+char *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right) {
     const char *l = left ? left : "";
     const char *r = right ? right : "";
     size_t left_len = strlen(l);

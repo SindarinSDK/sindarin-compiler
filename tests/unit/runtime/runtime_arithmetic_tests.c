@@ -330,7 +330,7 @@ static void test_rt_str_is_blank(void)
 
 static void test_rt_str_split_whitespace(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Basic split */
     char **parts = rt_str_split_whitespace(arena, "hello world");
@@ -379,7 +379,7 @@ static void test_rt_str_split_whitespace(void)
 
 static void test_rt_str_split_lines(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Unix line endings */
     char **lines = rt_str_split_lines(arena, "line1\nline2\nline3");

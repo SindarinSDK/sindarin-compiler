@@ -7,7 +7,7 @@
  * These functions support creating and growing string arrays for split operations.
  * ============================================================================ */
 
-char **rt_create_string_array(RtArena *arena, size_t initial_capacity)
+char **rt_create_string_array(RtArenaV2 *arena, size_t initial_capacity)
 {
     /* Allocate array with header storing length and capacity */
     size_t header_size = 2 * sizeof(size_t);
@@ -24,7 +24,7 @@ char **rt_create_string_array(RtArena *arena, size_t initial_capacity)
     return arr;
 }
 
-char **rt_push_string_to_array(RtArena *arena, char **arr, char *str)
+char **rt_push_string_to_array(RtArenaV2 *arena, char **arr, char *str)
 {
     size_t *header = (size_t *)((char *)arr - 2 * sizeof(size_t));
     size_t len = header[0];

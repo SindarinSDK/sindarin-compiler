@@ -13,7 +13,7 @@
 
 static void test_rt_str_concat_basic(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_concat(arena, "hello", " world");
     assert(strcmp(result, "hello world") == 0);
@@ -32,7 +32,7 @@ static void test_rt_str_concat_basic(void)
 
 static void test_rt_str_concat_null(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_concat(arena, NULL, "world");
     assert(strcmp(result, "world") == 0);
@@ -121,7 +121,7 @@ static void test_rt_str_charAt(void)
 
 static void test_rt_str_substring(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_substring(arena, "hello world", 0, 5);
     assert(strcmp(result, "hello") == 0);
@@ -164,7 +164,7 @@ static void test_rt_str_substring(void)
 
 static void test_rt_str_toUpper(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_toUpper(arena, "hello");
     assert(strcmp(result, "HELLO") == 0);
@@ -189,7 +189,7 @@ static void test_rt_str_toUpper(void)
 
 static void test_rt_str_toLower(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_toLower(arena, "HELLO");
     assert(strcmp(result, "hello") == 0);
@@ -246,7 +246,7 @@ static void test_rt_str_endsWith(void)
 
 static void test_rt_str_trim(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_str_trim(arena, "  hello  ");
     assert(strcmp(result, "hello") == 0);
@@ -278,7 +278,7 @@ static void test_rt_str_trim(void)
 
 static void test_rt_str_replace(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Basic replacement */
     char *result = rt_str_replace(arena, "hello world", "world", "universe");
@@ -327,7 +327,7 @@ static void test_rt_str_replace(void)
 
 static void test_rt_str_split(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Basic split */
     char **parts = rt_str_split(arena, "a,b,c", ",");
@@ -379,7 +379,7 @@ static void test_rt_str_split(void)
 
 static void test_rt_to_string_long(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_long(arena, 42);
     assert(strcmp(result, "42") == 0);
@@ -395,7 +395,7 @@ static void test_rt_to_string_long(void)
 
 static void test_rt_to_string_double(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_double(arena, 3.14159);
     assert(strncmp(result, "3.14159", 7) == 0);
@@ -411,7 +411,7 @@ static void test_rt_to_string_double(void)
 
 static void test_rt_to_string_char(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_char(arena, 'a');
     assert(strcmp(result, "a") == 0);
@@ -427,7 +427,7 @@ static void test_rt_to_string_char(void)
 
 static void test_rt_to_string_bool(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_bool(arena, 1);
     assert(strcmp(result, "true") == 0);
@@ -443,7 +443,7 @@ static void test_rt_to_string_bool(void)
 
 static void test_rt_to_string_byte(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_byte(arena, 0);
     assert(strcmp(result, "0") == 0);
@@ -459,7 +459,7 @@ static void test_rt_to_string_byte(void)
 
 static void test_rt_to_string_string(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_string(arena, "hello");
     assert(strcmp(result, "hello") == 0);
@@ -475,7 +475,7 @@ static void test_rt_to_string_string(void)
 
 static void test_rt_to_string_pointer(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *result = rt_to_string_pointer(arena, NULL);
     assert(strcmp(result, "nil") == 0);
@@ -497,7 +497,7 @@ static void test_rt_to_string_pointer(void)
 
 static void test_rt_format_long(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Default format */
     char *result = rt_format_long(arena, 42, NULL);
@@ -543,7 +543,7 @@ static void test_rt_format_long(void)
 
 static void test_rt_format_double(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Default format */
     char *result = rt_format_double(arena, 3.14159, NULL);
@@ -576,7 +576,7 @@ static void test_rt_format_double(void)
 
 static void test_rt_format_string(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Default format */
     char *result = rt_format_string(arena, "hello", NULL);
@@ -611,7 +611,7 @@ static void test_rt_format_string(void)
 
 static void test_rt_string_from(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     char *str = rt_string_from(arena, "hello");
     assert(strcmp(str, "hello") == 0);
@@ -634,7 +634,7 @@ static void test_rt_string_from(void)
 
 static void test_rt_string_ensure_mutable(void)
 {
-    RtArena *arena = rt_arena_create(NULL);
+    RtArenaV2 *arena = rt_arena_create(NULL);
 
     /* Already mutable string should return same pointer */
     char *mutable_str = rt_string_with_capacity(arena, 20);

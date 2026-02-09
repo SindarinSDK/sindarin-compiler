@@ -162,7 +162,7 @@ static char *code_gen_builtin_println(CodeGen *gen, CallExpr *call, char **arg_s
     else
     {
         const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_h(arg_type)
+            ? get_rt_to_string_func_for_type_v2(arg_type)
             : get_rt_to_string_func_for_type(arg_type);
         return arena_sprintf(gen->arena, "rt_println(%s(%s, %s))",
                              to_str_func, ARENA_VAR(gen), arg_strs[0]);
@@ -185,7 +185,7 @@ static char *code_gen_builtin_printerr(CodeGen *gen, CallExpr *call, char **arg_
     else
     {
         const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_h(arg_type)
+            ? get_rt_to_string_func_for_type_v2(arg_type)
             : get_rt_to_string_func_for_type(arg_type);
         return arena_sprintf(gen->arena, "rt_print_err(%s(%s, %s))",
                              to_str_func, ARENA_VAR(gen), arg_strs[0]);
@@ -208,7 +208,7 @@ static char *code_gen_builtin_printerrln(CodeGen *gen, CallExpr *call, char **ar
     else
     {
         const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_h(arg_type)
+            ? get_rt_to_string_func_for_type_v2(arg_type)
             : get_rt_to_string_func_for_type(arg_type);
         return arena_sprintf(gen->arena, "rt_print_err_ln(%s(%s, %s))",
                              to_str_func, ARENA_VAR(gen), arg_strs[0]);

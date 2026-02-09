@@ -35,7 +35,7 @@ long rt_str_charAt(const char *str, long index) {
     return (long)(unsigned char)str[index];
 }
 
-char *rt_str_substring(RtArena *arena, const char *str, long start, long end) {
+char *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end) {
     if (str == NULL) return rt_arena_strdup(arena, "");
     long len = (long)strlen(str);
 
@@ -57,7 +57,7 @@ char *rt_str_substring(RtArena *arena, const char *str, long start, long end) {
     return result;
 }
 
-char *rt_str_toUpper(RtArena *arena, const char *str) {
+char *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
     if (str == NULL) return rt_arena_strdup(arena, "");
 
     char *result = rt_arena_strdup(arena, str);
@@ -71,7 +71,7 @@ char *rt_str_toUpper(RtArena *arena, const char *str) {
     return result;
 }
 
-char *rt_str_toLower(RtArena *arena, const char *str) {
+char *rt_str_toLower(RtArenaV2 *arena, const char *str) {
     if (str == NULL) return rt_arena_strdup(arena, "");
 
     char *result = rt_arena_strdup(arena, str);
@@ -100,7 +100,7 @@ int rt_str_endsWith(const char *str, const char *suffix) {
     return strcmp(str + str_len - suffix_len, suffix) == 0;
 }
 
-char *rt_str_trim(RtArena *arena, const char *str) {
+char *rt_str_trim(RtArenaV2 *arena, const char *str) {
     if (str == NULL) return rt_arena_strdup(arena, "");
 
     /* Skip leading whitespace */
@@ -125,7 +125,7 @@ char *rt_str_trim(RtArena *arena, const char *str) {
     return result;
 }
 
-char *rt_str_replace(RtArena *arena, const char *str, const char *old, const char *new_str) {
+char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str) {
     if (str == NULL || old == NULL || new_str == NULL) return rt_arena_strdup(arena, str ? str : "");
 
     size_t old_len = strlen(old);

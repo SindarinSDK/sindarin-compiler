@@ -17,7 +17,7 @@
  *   - Optional mutex for thread-safe arena access
  *
  * Usage:
- *   RtArena *arena = rt_arena_create(NULL);
+ *   RtArenaV2 *arena = rt_arena_create(NULL);
  *   rt_malloc_redirect_push(arena, NULL);  // Use default config
  *
  *   char *str = malloc(100);  // Actually uses arena
@@ -127,7 +127,7 @@ typedef struct {
     bool thread_safe;               /* Use mutex for arena operations */
 
     /* Optional callbacks for custom behavior */
-    void (*on_overflow)(RtArena *arena, size_t requested, void *user_data);
+    void (*on_overflow)(RtArenaV2 *arena, size_t requested, void *user_data);
     void (*on_alloc)(void *ptr, size_t size, void *user_data);
     void (*on_free)(void *ptr, size_t size, void *user_data);
     void *callback_user_data;       /* Passed to callbacks */
@@ -156,7 +156,7 @@ typedef struct {
 
 typedef struct RtRedirectState {
     bool active;                    /* Is redirection currently active? */
-    RtArena *arena;                 /* Target arena for allocations */
+    RtArenaV2 *arena;                 /* Target arena for allocations */
     RtRedirectConfig config;        /* Current configuration */
     RtAllocHashSet *alloc_set;      /* Hash set of arena allocations */
     pthread_mutex_t *mutex;         /* Optional mutex for thread safety */
@@ -212,7 +212,7 @@ typedef struct {
  * Supports nesting - each push saves previous state.
  * Config can be NULL for defaults.
  * Returns true on success, false on failure. */
-bool rt_malloc_redirect_push(RtArena *arena, const RtRedirectConfig *config);
+bool rt_malloc_redirect_push(RtArenaV2 *arena, const RtRedirectConfig *config);
 
 /* Pop current redirect scope. Restores previous state (or disables if top-level).
  * Returns true if there was a scope to pop, false if not redirecting. */
@@ -222,7 +222,7 @@ bool rt_malloc_redirect_pop(void);
 bool rt_malloc_redirect_is_active(void);
 
 /* Get the current redirect arena (NULL if not redirecting) */
-RtArena *rt_malloc_redirect_arena(void);
+RtArenaV2 *rt_malloc_redirect_arena(void);
 
 /* Get current nesting depth (0 = not redirecting) */
 int rt_malloc_redirect_depth(void);

@@ -122,7 +122,7 @@ RtAny rt_box_function(void *fn) {
     return result;
 }
 
-RtAny rt_box_struct(RtArena *arena, void *struct_data, size_t struct_size, int struct_type_id) {
+RtAny rt_box_struct(RtArenaV2 *arena, void *struct_data, size_t struct_size, int struct_type_id) {
     RtAny result;
     result.tag = RT_ANY_STRUCT;
     /* Allocate space in the arena and copy struct data */
@@ -385,7 +385,7 @@ bool rt_any_equals(RtAny a, RtAny b) {
  * Utility Functions
  * ============================================================================ */
 
-char *rt_any_to_string(RtArena *arena, RtAny value) {
+char *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
     char buffer[256];
 
     switch (value.tag) {
@@ -450,7 +450,7 @@ char *rt_any_to_string(RtArena *arena, RtAny value) {
  * local arena will be destroyed after return.
  */
 
-RtAny rt_any_promote(RtArena *target_arena, RtAny value) {
+RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
     RtAny result = value;
     
     switch (value.tag) {

@@ -25,7 +25,7 @@ typedef RtAny (*RtContinueFn)(void);
  */
 typedef struct RtClosure {
     void *fn;       // Function pointer using closure calling convention
-    RtArena *arena; // Arena for allocations (may be NULL for continue callbacks)
+    RtArenaV2 *arena; // Arena for allocations (may be NULL for continue callbacks)
 } RtClosure;
 
 /**
@@ -40,9 +40,9 @@ typedef struct RtClosure {
  * @return The result to return to the caller (can substitute the real result)
  */
 typedef RtAny (*RtInterceptHandler)(
-    RtArena *arena,
-    RtHandle name,
-    RtHandle args,
+    RtArenaV2 *arena,
+    RtHandleV2 *name,
+    RtHandleV2 *args,
     RtClosure *continue_fn
 );
 

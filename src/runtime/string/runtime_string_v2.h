@@ -5,15 +5,11 @@
 #include "runtime/arena/arena_v2.h"
 
 /* ============================================================================
- * Handle-Based String Functions V2
+ * Handle-Based String Functions
  * ============================================================================
  * RtHandleV2*-returning variants of all allocating string functions.
- *
- * Key differences from V1:
- *   - Returns RtHandleV2* instead of RtHandle
- *   - Takes RtArenaV2* instead of RtManagedArena*
- *   - No 'old' handle parameter (caller manages old handle lifetime)
- *   - pin/unpin don't require arena parameter
+ * These functions allocate strings in the arena and return handles that can
+ * be pinned to get raw char* pointers when needed.
  * ============================================================================ */
 
 /* String concatenation */

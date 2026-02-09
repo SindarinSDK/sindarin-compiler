@@ -186,8 +186,8 @@ static void code_gen_externs(CodeGen *gen)
     DEBUG_VERBOSE("Entering code_gen_externs");
 
     /* Types already provided by runtime.h includes:
-     * RtHandle, RT_HANDLE_NULL, RtManagedArena, RtArena, RtArrayMetadataV2,
-     * and all managed arena / runtime function declarations.
+     * RtHandleV2, RtArenaV2, RtArrayMetadataV2,
+     * and all arena / runtime function declarations.
      * Only need __Closure__ typedef and non-header function declarations below. */
     indented_fprintf(gen, 0, "\n");
 

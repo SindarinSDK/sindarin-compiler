@@ -27,10 +27,10 @@ static RtAny __thunk_0(void);
 //
 // Tests that a default function uses its own arena for allocations,
 // and can access global string variables from __main_arena__.
-RtHandleV2 * __sn__greeting = RT_HANDLE_NULL;
+RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, "func");
-    RtHandleV2 * _return_value = RT_HANDLE_NULL;
+    RtHandleV2 * _return_value = NULL;
     // default function uses its own arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
     _return_value = rt_str_concat_v2(__local_arena__, (char *)rt_handle_v2_pin(__sn__greeting), " World");

@@ -13,7 +13,7 @@
  * Allocates RtStringMeta + capacity + 1 bytes, initializes metadata,
  * and returns pointer to the string data (after metadata).
  * The string is initialized as empty (length=0, str[0]='\0'). */
-char *rt_string_with_capacity(RtArena *arena, size_t capacity) {
+char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
     /* Validate arena */
     if (arena == NULL) {
         fprintf(stderr, "rt_string_with_capacity: arena is NULL\n");
@@ -42,7 +42,7 @@ char *rt_string_with_capacity(RtArena *arena, size_t capacity) {
 
 /* Create a mutable string from an immutable source string.
  * Copies the content into a new mutable string with metadata. */
-char *rt_string_from(RtArena *arena, const char *src) {
+char *rt_string_from(RtArenaV2 *arena, const char *src) {
     if (arena == NULL) {
         fprintf(stderr, "rt_string_from: arena is NULL\n");
         exit(1);
@@ -69,7 +69,7 @@ char *rt_string_from(RtArena *arena, const char *src) {
  * Mutable strings have a specific pattern in their metadata that immutable
  * strings (from arena_strdup or string literals) cannot have.
  */
-char *rt_string_ensure_mutable(RtArena *arena, char *str) {
+char *rt_string_ensure_mutable(RtArenaV2 *arena, char *str) {
     if (str == NULL) {
         /* NULL becomes an empty mutable string */
         return rt_string_with_capacity(arena, 32);
