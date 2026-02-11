@@ -153,6 +153,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     {
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
+        indented_fprintf(gen, 1, "rt_arena_v2_gc_thread_start(__local_arena__, 100);\n");
         for (int i = 0; i < gen->deferred_global_count; i++)
         {
             indented_fprintf(gen, 1, "%s = %s;\n",
@@ -305,9 +306,10 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
         code_gen_return_promotion(gen, stmt->return_type, is_main, is_shared, 1);
     }
 
-    /* Destroy arena */
+    /* Stop GC thread and destroy arena */
     if (is_main)
     {
+        indented_fprintf(gen, 1, "rt_arena_v2_gc_thread_stop();\n");
         indented_fprintf(gen, 1, "rt_arena_v2_destroy(__local_arena__);\n");
     }
     else if (!is_shared)
