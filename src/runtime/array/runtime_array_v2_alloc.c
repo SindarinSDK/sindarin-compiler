@@ -127,14 +127,24 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
     /* Get pointer to the array of string handles */
     RtHandleV2 **handles = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetadataV2));
 
-    /* Allocate a char** array from the arena (for compatibility with native functions) */
+    /* Allocate a char** array from the arena WITH metadata prefix.
+     * This ensures rt_v2_data_array_length() works on the returned pointer,
+     * since native functions use it to get the array length. */
     RtArenaV2 *arena = rt_handle_v2_arena(arr_h);
     if (arena == NULL) return NULL;
 
-    /* Allocate space for the char** result with null terminator */
-    size_t alloc_size = (count + 1) * sizeof(char *);
-    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, alloc_size);
-    char **result = (char **)rt_handle_v2_ptr(result_h);
+    /* Allocate space for metadata + char** result with null terminator */
+    size_t alloc_size = sizeof(RtArrayMetadataV2) + (count + 1) * sizeof(char *);
+    void *result_raw = rt_arena_alloc(arena, alloc_size);
+    if (result_raw == NULL) return NULL;
+
+    /* Write metadata so rt_v2_data_array_length works */
+    RtArrayMetadataV2 *result_meta = (RtArrayMetadataV2 *)result_raw;
+    result_meta->arena = arena;
+    result_meta->size = count;
+    result_meta->capacity = count;
+
+    char **result = (char **)((char *)result_raw + sizeof(RtArrayMetadataV2));
 
     /* Pin each string element to extract char* */
     for (size_t i = 0; i < count; i++) {
