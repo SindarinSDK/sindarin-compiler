@@ -45,9 +45,9 @@ typedef struct {
         char c;             /* char */
         bool b;             /* bool */
         uint8_t byte;       /* byte */
-        void *arr;          /* arrays (RtArray*) */
-        void *fn;           /* function pointers */
-        void *obj;          /* object types (files, etc.) */
+        RtHandleV2 *arr;    /* arrays (RtArray*) */
+        RtHandleV2 *fn;     /* function pointers */
+        RtHandleV2 *obj;    /* object types (files, etc.) */
     } value;
     /* For arrays: track element type tag for nested any[] support */
     RtAnyTag element_tag;
@@ -69,9 +69,9 @@ RtAny rt_box_string(const char *value);
 RtAny rt_box_char(char value);
 RtAny rt_box_bool(bool value);
 RtAny rt_box_byte(uint8_t value);
-RtAny rt_box_array(void *arr, RtAnyTag element_tag);
-RtAny rt_box_function(void *fn);
-RtAny rt_box_struct(RtArenaV2 *arena, void *struct_data, size_t struct_size, int struct_type_id);
+RtAny rt_box_array(RtHandleV2 *arr, RtAnyTag element_tag);
+RtAny rt_box_function(RtHandleV2 *fn);
+RtAny rt_box_struct(RtArenaV2 *arena, RtHandleV2 *struct_data, size_t struct_size, int struct_type_id);
 
 /* ============================================================================
  * Unboxing Functions - Convert any to concrete types (panic on type mismatch)
@@ -88,9 +88,9 @@ const char *rt_unbox_string(RtAny value);
 char rt_unbox_char(RtAny value);
 bool rt_unbox_bool(RtAny value);
 uint8_t rt_unbox_byte(RtAny value);
-void *rt_unbox_array(RtAny value);
-void *rt_unbox_function(RtAny value);
-void *rt_unbox_struct(RtAny value, int expected_type_id);
+RtHandleV2 *rt_unbox_array(RtAny value);
+RtHandleV2 *rt_unbox_function(RtAny value);
+RtHandleV2 *rt_unbox_struct(RtAny value, int expected_type_id);
 
 /* ============================================================================
  * Type Checking Functions

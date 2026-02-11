@@ -19,7 +19,9 @@ char *rt_stdin_read_line(RtArenaV2 *arena) {
     char buffer[4096];
     if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
         /* EOF or error - return empty string */
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
@@ -31,7 +33,9 @@ char *rt_stdin_read_line(RtArenaV2 *arena) {
         len--;
     }
 
-    char *result = rt_arena_alloc(arena, len + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     memcpy(result, buffer, len + 1);
     return result;
 }
@@ -47,13 +51,17 @@ char *rt_stdin_read_word(RtArenaV2 *arena) {
     char buffer[4096];
     if (scanf("%4095s", buffer) != 1) {
         /* EOF or error - return empty string */
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
 
     size_t len = strlen(buffer);
-    char *result = rt_arena_alloc(arena, len + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     memcpy(result, buffer, len + 1);
     return result;
 }

@@ -110,11 +110,17 @@ typedef enum {
     RT_ARENA_MODE_PRIVATE,      /* Isolated, destroyed on exit */
 } RtArenaMode;
 
+/* Arena flags - mirrors handle flag pattern */
+typedef enum {
+    RT_ARENA_FLAG_NONE = 0,
+    RT_ARENA_FLAG_DEAD = (1 << 0),  /* Marked for GC destruction */
+} RtArenaFlags;
+
 /* Cleanup callback for external resources */
-typedef void (*RtCleanupFnV2)(void *data);
+typedef void (*RtCleanupFnV2)(RtHandleV2 *data);
 
 typedef struct RtCleanupNodeV2 {
-    void *data;
+    RtHandleV2 *data;
     RtCleanupFnV2 fn;
     int priority;               /* Lower = called first */
     struct RtCleanupNodeV2 *next;
@@ -143,6 +149,7 @@ struct RtArenaV2 {
     uint32_t current_epoch;     /* Current GC epoch */
     uint32_t gc_threshold;      /* Handles before triggering GC */
     bool gc_running;            /* Is GC currently running? */
+    volatile uint16_t flags;    /* RtArenaFlags */
 
     /* Synchronization - simple mutex, no lock-free */
     pthread_mutex_t mutex;
@@ -169,16 +176,20 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
 /* Destroy an arena and all its handles/blocks. */
 void rt_arena_v2_destroy(RtArenaV2 *arena);
 
+/* Mark an arena as dead for GC collection. The GC thread will
+ * destroy the arena on its next pass. */
+void rt_arena_v2_condemn(RtArenaV2 *arena);
+
 /* Cleanup priority constants - lower values are called first */
 #define RT_CLEANUP_PRIORITY_HIGH   0
 #define RT_CLEANUP_PRIORITY_NORMAL 100
 #define RT_CLEANUP_PRIORITY_LOW    200
 
 /* Register a cleanup callback. */
-void rt_arena_v2_on_cleanup(RtArenaV2 *arena, void *data, RtCleanupFnV2 fn, int priority);
+void rt_arena_v2_on_cleanup(RtArenaV2 *arena, RtHandleV2 *data, RtCleanupFnV2 fn, int priority);
 
 /* Remove a cleanup callback. */
-void rt_arena_v2_remove_cleanup(RtArenaV2 *arena, void *data);
+void rt_arena_v2_remove_cleanup(RtArenaV2 *arena, RtHandleV2 *data);
 
 /* ============================================================================
  * Allocation
@@ -201,24 +212,35 @@ void rt_arena_v2_free(RtHandleV2 *handle);
 
 /* ============================================================================
  * Handle Operations
+ * ============================================================================
+ *
+ * IMPORTANT: Never discard the RtHandleV2* reference after allocation.
+ * All allocations return RtHandleV2* which MUST be retained. Losing the
+ * handle reference means the GC cannot track, collect, or manage the
+ * allocation — leading to silent memory leaks that are extremely difficult
+ * to diagnose. Access data via handle->ptr after pinning.
+ *
+ * Correct pattern:
+ *   RtHandleV2 *h = rt_arena_v2_alloc(arena, sizeof(MyStruct));
+ *   rt_handle_v2_pin(h);
+ *   MyStruct *s = (MyStruct *)h->ptr;
+ *   // ... use s ...
+ *   rt_handle_v2_unpin(h);
+ *   rt_arena_v2_free(h);
+ *
  * ============================================================================ */
 
-/* Pin a handle (increment pin count, prevents GC). */
-static inline void *rt_handle_v2_pin(RtHandleV2 *handle) {
-    if (handle == NULL) return NULL;
+/* Pin a handle (increment pin count, prevents GC).
+ * Access data via handle->ptr after pinning. */
+static inline void rt_handle_v2_pin(RtHandleV2 *handle) {
+    if (handle == NULL) return;
     handle->pin_count++;
-    return handle->ptr;
 }
 
 /* Unpin a handle (decrement pin count). */
 static inline void rt_handle_v2_unpin(RtHandleV2 *handle) {
     if (handle == NULL) return;
     if (handle->pin_count > 0) handle->pin_count--;
-}
-
-/* Get pointer without pinning (use with care). */
-static inline void *rt_handle_v2_ptr(RtHandleV2 *handle) {
-    return handle ? handle->ptr : NULL;
 }
 
 /* Get owning arena. */
@@ -310,26 +332,6 @@ typedef struct {
 
 void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats);
 void rt_arena_v2_print_stats(RtArenaV2 *arena);
-
-/* ============================================================================
- * Convenience Functions
- * ============================================================================
- * These provide raw-pointer versions of the handle-based allocation functions.
- * They allocate, pin, and return the raw pointer in one step.
- * ============================================================================ */
-
-/* Allocate memory and return raw pointer */
-static inline void *rt_arena_alloc(RtArenaV2 *arena, size_t size) {
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
-    return rt_handle_v2_pin(h);
-}
-
-/* Duplicate string and return raw pointer */
-static inline char *rt_arena_strdup(RtArenaV2 *arena, const char *str) {
-    if (str == NULL) return NULL;
-    RtHandleV2 *h = rt_arena_v2_strdup(arena, str);
-    return (char *)rt_handle_v2_pin(h);
-}
 
 /* Simple arena creation with default mode */
 static inline RtArenaV2 *rt_arena_create(RtArenaV2 *parent) {

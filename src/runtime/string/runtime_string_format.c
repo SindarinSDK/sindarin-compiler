@@ -15,7 +15,7 @@ char *rt_format_long(RtArenaV2 *arena, long long val, const char *fmt)
 
     if (fmt == NULL || fmt[0] == '\0') {
         snprintf(buf, sizeof(buf), "%lld", val);
-        return rt_arena_strdup(arena, buf);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
     }
 
     /* Parse format specifier: [width][type] where type is d, x, X, o, b */
@@ -108,14 +108,14 @@ char *rt_format_long(RtArenaV2 *arena, long long val, const char *fmt)
                 len = width;
             }
             binbuf[len] = '\0';
-            return rt_arena_strdup(arena, binbuf);
+            RtHandleV2 *_h = rt_arena_v2_strdup(arena, binbuf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
         }
         default:
             snprintf(buf, sizeof(buf), "%lld", val);
             break;
     }
 
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt)
@@ -125,7 +125,7 @@ char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt)
 
     if (fmt == NULL || fmt[0] == '\0') {
         snprintf(buf, sizeof(buf), "%g", val);
-        return rt_arena_strdup(arena, buf);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
     }
 
     /* Parse format specifier: [width][.precision][type] where type is f, e, E, g, G, % */
@@ -168,7 +168,7 @@ char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt)
             snprintf(format_str, sizeof(format_str), "%%f%%%%");
         }
         snprintf(buf, sizeof(buf), format_str, val);
-        return rt_arena_strdup(arena, buf);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
     }
 
     /* Build format string dynamically */
@@ -205,7 +205,7 @@ char *rt_format_double(RtArenaV2 *arena, double val, const char *fmt)
     format_str[pos] = '\0';
 
     snprintf(buf, sizeof(buf), format_str, val);
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_format_string(RtArenaV2 *arena, const char *val, const char *fmt)
@@ -215,7 +215,7 @@ char *rt_format_string(RtArenaV2 *arena, const char *val, const char *fmt)
     }
 
     if (fmt == NULL || fmt[0] == '\0') {
-        return rt_arena_strdup(arena, val);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, val); rt_handle_v2_pin(_h); return (char *)_h->ptr;
     }
 
     /* Parse format specifier: [width][.maxlen]s */
@@ -259,8 +259,10 @@ char *rt_format_string(RtArenaV2 *arena, const char *val, const char *fmt)
         out_len = width;
     }
 
-    char *result = rt_arena_alloc(arena, out_len + 1);
-    if (result == NULL) return NULL;
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, out_len + 1);
+    if (result_h == NULL) return NULL;
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
 
     if (width > len) {
         if (left_align) {

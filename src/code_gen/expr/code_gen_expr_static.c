@@ -147,7 +147,7 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             {
                 if (method->return_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                    return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                          result);
                 }
                 else if (method->return_type->kind == TYPE_ARRAY)
@@ -310,7 +310,7 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
             {
                 if (method->return_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                    return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                          intercept_result);
                 }
                 else if (method->return_type->kind == TYPE_ARRAY)
@@ -366,7 +366,7 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
         {
             if (method->return_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
+                return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                      result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)

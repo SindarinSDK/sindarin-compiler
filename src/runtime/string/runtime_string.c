@@ -34,10 +34,12 @@ char *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right) {
     if (new_len > (1UL << 30) - 1) {
         return NULL;
     }
-    char *new_str = rt_arena_alloc(arena, new_len + 1);
-    if (new_str == NULL) {
+    RtHandleV2 *new_str_h = rt_arena_v2_alloc(arena, new_len + 1);
+    if (new_str_h == NULL) {
         return NULL;
     }
+    rt_handle_v2_pin(new_str_h);
+    char *new_str = (char *)new_str_h->ptr;
     memcpy(new_str, l, left_len);
     memcpy(new_str + left_len, r, right_len + 1);
     return new_str;

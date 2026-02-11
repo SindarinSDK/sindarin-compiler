@@ -33,7 +33,7 @@ RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     RtHandleV2 * _return_value = NULL;
     // shared function uses caller's arena for allocations
     // global 'greeting' is in __main_arena__, accessed via parent-walking
-    _return_value = rt_str_concat_v2(__local_arena__, (char *)rt_handle_v2_pin(__sn__greeting), " World");
+    _return_value = rt_str_concat_v2(__local_arena__, ({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }), " World");
     goto __sn__append_world_return;
 __sn__append_world_return:
     return _return_value;
@@ -60,7 +60,7 @@ int main() {
     }
     __intercept_result;
 });
-    rt_println((char *)rt_handle_v2_pin(__sn__result));
+    rt_println(({ rt_handle_v2_pin(__sn__result); (char *)__sn__result->ptr; }));
     rt_println("PASS");
     _return_value = 0LL;
     goto main_return;
@@ -73,7 +73,8 @@ main_return:
 
 /* Interceptor thunk definitions */
 static RtAny __thunk_0(void) {
-    RtAny __result = rt_box_string((char *)rt_handle_v2_pin(__sn__append_world((RtArenaV2 *)__rt_thunk_arena)));
+    RtHandleV2 *__pin = __sn__append_world((RtArenaV2 *)__rt_thunk_arena); rt_handle_v2_pin(__pin);
+    RtAny __result = rt_box_string((char *)__pin->ptr);
     return __result;
 }
 

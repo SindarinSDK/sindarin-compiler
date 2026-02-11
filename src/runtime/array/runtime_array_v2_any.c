@@ -92,7 +92,13 @@ RtHandleV2 *rt_array_to_any_string_v2(RtHandleV2 *arr_h) {
 
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
-        const char *s = arr[i] ? (const char *)rt_handle_v2_pin(arr[i]) : "";
+        const char *s;
+        if (arr[i]) {
+            rt_handle_v2_pin(arr[i]);
+            s = (const char *)arr[i]->ptr;
+        } else {
+            s = "";
+        }
         result = rt_array_push_any_v2(arena, result, rt_box_string(s));
         if (arr[i]) rt_handle_v2_unpin(arr[i]);
     }
@@ -116,7 +122,7 @@ RtHandleV2 *rt_array2_to_any_long_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_long_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -131,7 +137,7 @@ RtHandleV2 *rt_array2_to_any_double_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_double_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -146,7 +152,7 @@ RtHandleV2 *rt_array2_to_any_char_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_char_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -161,7 +167,7 @@ RtHandleV2 *rt_array2_to_any_bool_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_bool_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -176,7 +182,7 @@ RtHandleV2 *rt_array2_to_any_byte_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_byte_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -191,7 +197,7 @@ RtHandleV2 *rt_array2_to_any_string_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_h = rt_array_to_any_string_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_h);
+        result = rt_array_push_ptr_v2(arena, result, any_h);
     }
     return result;
 }
@@ -212,7 +218,7 @@ RtHandleV2 *rt_array3_to_any_long_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_long_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -227,7 +233,7 @@ RtHandleV2 *rt_array3_to_any_double_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_double_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -242,7 +248,7 @@ RtHandleV2 *rt_array3_to_any_char_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_char_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -257,7 +263,7 @@ RtHandleV2 *rt_array3_to_any_bool_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_bool_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -272,7 +278,7 @@ RtHandleV2 *rt_array3_to_any_byte_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_byte_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -287,7 +293,7 @@ RtHandleV2 *rt_array3_to_any_string_v2(RtHandleV2 *outer) {
     RtHandleV2 *result = NULL;
     for (size_t i = 0; i < len; i++) {
         RtHandleV2 *any_2d_h = rt_array2_to_any_string_v2(inner_handles[i]);
-        result = rt_array_push_ptr_v2(arena, result, (void *)any_2d_h);
+        result = rt_array_push_ptr_v2(arena, result, any_2d_h);
     }
     return result;
 }
@@ -303,7 +309,9 @@ RtHandleV2 *rt_array_from_any_long_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(long long), NULL);
 
-    long long *data = (long long *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(long long)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(long long));
+    rt_handle_v2_pin(data_h);
+    long long *data = (long long *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_long(arr[i]);
     }
@@ -317,7 +325,9 @@ RtHandleV2 *rt_array_from_any_int32_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(int32_t), NULL);
 
-    int32_t *data = (int32_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(int32_t)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(int32_t));
+    rt_handle_v2_pin(data_h);
+    int32_t *data = (int32_t *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_int32(arr[i]);
     }
@@ -331,7 +341,9 @@ RtHandleV2 *rt_array_from_any_uint_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(uint64_t), NULL);
 
-    uint64_t *data = (uint64_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(uint64_t)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(uint64_t));
+    rt_handle_v2_pin(data_h);
+    uint64_t *data = (uint64_t *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_uint(arr[i]);
     }
@@ -345,7 +357,9 @@ RtHandleV2 *rt_array_from_any_uint32_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(uint32_t), NULL);
 
-    uint32_t *data = (uint32_t *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(uint32_t)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(uint32_t));
+    rt_handle_v2_pin(data_h);
+    uint32_t *data = (uint32_t *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_uint32(arr[i]);
     }
@@ -359,7 +373,9 @@ RtHandleV2 *rt_array_from_any_double_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(double), NULL);
 
-    double *data = (double *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(double)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(double));
+    rt_handle_v2_pin(data_h);
+    double *data = (double *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_double(arr[i]);
     }
@@ -373,7 +389,9 @@ RtHandleV2 *rt_array_from_any_float_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(float), NULL);
 
-    float *data = (float *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(float)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(float));
+    rt_handle_v2_pin(data_h);
+    float *data = (float *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_float(arr[i]);
     }
@@ -387,7 +405,9 @@ RtHandleV2 *rt_array_from_any_char_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(char), NULL);
 
-    char *data = (char *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(char)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(char));
+    rt_handle_v2_pin(data_h);
+    char *data = (char *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = (char)rt_unbox_char(arr[i]);
     }
@@ -401,7 +421,9 @@ RtHandleV2 *rt_array_from_any_bool_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(int), NULL);
 
-    int *data = (int *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(int)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(int));
+    rt_handle_v2_pin(data_h);
+    int *data = (int *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_bool(arr[i]);
     }
@@ -415,7 +437,9 @@ RtHandleV2 *rt_array_from_any_byte_v2(RtHandleV2 *arr_h) {
     size_t len = rt_array_length_v2(arr_h);
     if (len == 0) return rt_array_create_generic_v2(arena, 0, sizeof(unsigned char), NULL);
 
-    unsigned char *data = (unsigned char *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(unsigned char)));
+    RtHandleV2 *data_h = rt_arena_v2_alloc(arena, len * sizeof(unsigned char));
+    rt_handle_v2_pin(data_h);
+    unsigned char *data = (unsigned char *)data_h->ptr;
     for (size_t i = 0; i < len; i++) {
         data[i] = rt_unbox_byte(arr[i]);
     }
@@ -430,12 +454,14 @@ RtHandleV2 *rt_array_from_any_string_v2(RtHandleV2 *arr_h) {
     if (len == 0) return rt_array_create_string_v2(arena, 0, NULL);
 
     /* Allocate array of string handles */
-    RtHandleV2 **handles = (RtHandleV2 **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(RtHandleV2 *)));
+    RtHandleV2 *handles_alloc_h = rt_arena_v2_alloc(arena, len * sizeof(RtHandleV2 *));
+    rt_handle_v2_pin(handles_alloc_h);
+    RtHandleV2 **handles = (RtHandleV2 **)handles_alloc_h->ptr;
     for (size_t i = 0; i < len; i++) {
         const char *str = rt_unbox_string(arr[i]);
         handles[i] = rt_arena_v2_strdup(arena, str);
     }
-    return rt_array_create_ptr_v2(arena, len, (void **)handles);
+    return rt_array_create_ptr_v2(arena, len, handles);
 }
 
 /* ============================================================================
@@ -450,11 +476,14 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
 
     if (len == 0) {
         RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        return (char *)rt_handle_v2_pin(h);
+        rt_handle_v2_pin(h);
+        return (char *)h->ptr;
     }
 
     /* First pass: convert each element to string and calculate total length */
-    char **elem_strs = (char **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, len * sizeof(char *)));
+    RtHandleV2 *elem_strs_h = rt_arena_v2_alloc(arena, len * sizeof(char *));
+    rt_handle_v2_pin(elem_strs_h);
+    char **elem_strs = (char **)elem_strs_h->ptr;
     size_t total_len = 2; /* {} */
     for (size_t i = 0; i < len; i++) {
         elem_strs[i] = rt_any_to_string((RtArenaV2 *)arena, arr[i]);
@@ -464,7 +493,8 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
 
     /* Build result string */
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
-    char *result = (char *)rt_handle_v2_pin(handle);
+    rt_handle_v2_pin(handle);
+    char *result = (char *)handle->ptr;
 
     char *p = result;
     *p++ = '{';
@@ -486,10 +516,13 @@ char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
 
     if (outer_len == 0) {
         RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        return (char *)rt_handle_v2_pin(h);
+        rt_handle_v2_pin(h);
+        return (char *)h->ptr;
     }
 
-    char **inner_strs = (char **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, outer_len * sizeof(char *)));
+    RtHandleV2 *inner_strs_h = rt_arena_v2_alloc(arena, outer_len * sizeof(char *));
+    rt_handle_v2_pin(inner_strs_h);
+    char **inner_strs = (char **)inner_strs_h->ptr;
     size_t total_len = 2;
     for (size_t i = 0; i < outer_len; i++) {
         inner_strs[i] = rt_to_string_array_any_v2(outer[i]);
@@ -498,7 +531,8 @@ char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
     }
 
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
-    char *result = (char *)rt_handle_v2_pin(handle);
+    rt_handle_v2_pin(handle);
+    char *result = (char *)handle->ptr;
     char *p = result;
     *p++ = '{';
     for (size_t i = 0; i < outer_len; i++) {
@@ -519,10 +553,13 @@ char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
 
     if (outer_len == 0) {
         RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        return (char *)rt_handle_v2_pin(h);
+        rt_handle_v2_pin(h);
+        return (char *)h->ptr;
     }
 
-    char **inner_strs = (char **)rt_handle_v2_pin(rt_arena_v2_alloc(arena, outer_len * sizeof(char *)));
+    RtHandleV2 *inner_strs_h = rt_arena_v2_alloc(arena, outer_len * sizeof(char *));
+    rt_handle_v2_pin(inner_strs_h);
+    char **inner_strs = (char **)inner_strs_h->ptr;
     size_t total_len = 2;
     for (size_t i = 0; i < outer_len; i++) {
         inner_strs[i] = rt_to_string_array2_any_v2(outer[i]);
@@ -531,7 +568,8 @@ char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
     }
 
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
-    char *result = (char *)rt_handle_v2_pin(handle);
+    rt_handle_v2_pin(handle);
+    char *result = (char *)handle->ptr;
     char *p = result;
     *p++ = '{';
     for (size_t i = 0; i < outer_len; i++) {

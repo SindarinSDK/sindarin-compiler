@@ -77,7 +77,7 @@
                 /* Pin the handle-based array - elements are still RtHandleV2*, */ \
                 /* which is correct for array indexing to pin to char* */ \
                 return arena_sprintf((gen)->arena, \
-                    "((RtHandleV2 *)rt_handle_v2_pin(%s))", \
+                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (RtHandleV2 *)__pin->ptr; })", \
                     _handle_result); \
             } \
         } \
@@ -108,7 +108,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_substring(%s, %s, %s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str, start_str, end_str);
@@ -158,7 +159,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_trim(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -175,7 +177,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_toUpper(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -192,7 +195,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_toLower(%s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str);
@@ -238,7 +242,8 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         char *method_call = arena_sprintf(gen->arena, "rt_str_replace(%s, %s, %s, %s)",
             ARENA_VAR(gen), object_is_temp ? "_obj_tmp" : object_str, old_str, new_str);

@@ -61,7 +61,7 @@ static int test_strdup(void)
     RtHandleV2 *h = rt_arena_v2_strdup(arena, "Hello, World!");
     if (h == NULL) { rt_arena_v2_destroy(arena); return 0; }
 
-    char *str = (char *)rt_handle_v2_ptr(h);
+    char *str = (char *)(h ? h->ptr : NULL);
     if (strcmp(str, "Hello, World!") != 0) { rt_arena_v2_destroy(arena); return 0; }
 
     rt_arena_v2_destroy(arena);
@@ -80,7 +80,8 @@ static int test_pin_unpin(void)
     if (h->pin_count != 0) { rt_arena_v2_destroy(arena); return 0; }
 
     /* Pin increments count */
-    void *ptr = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *ptr = h->ptr;
     if (ptr != h->ptr) { rt_arena_v2_destroy(arena); return 0; }
     if (h->pin_count != 1) { rt_arena_v2_destroy(arena); return 0; }
 
@@ -235,23 +236,25 @@ static int test_redirect_stack(void)
     return 1;
 }
 
-static void cleanup_increment(void *data)
+static int g_cleanup_called = 0;
+
+static void cleanup_increment(RtHandleV2 *data)
 {
-    (*(int *)data)++;
+    (void)data;
+    g_cleanup_called++;
 }
 
 static int test_cleanup_callbacks_real(void)
 {
-    static int cleanup_called = 0;
-    cleanup_called = 0;
+    g_cleanup_called = 0;
 
     RtArenaV2 *arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "test");
     if (arena == NULL) return 0;
 
-    rt_arena_v2_on_cleanup(arena, &cleanup_called, cleanup_increment, 0);
+    rt_arena_v2_on_cleanup(arena, NULL, cleanup_increment, 0);
     rt_arena_v2_destroy(arena);
 
-    if (cleanup_called != 1) return 0;
+    if (g_cleanup_called != 1) return 0;
     return 1;
 }
 

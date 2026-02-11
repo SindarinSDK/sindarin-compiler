@@ -189,13 +189,20 @@ char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type)
         return arena_sprintf(gen->arena, "%s(%s, %s)", box_func, value_str, elem_tag);
     }
 
-    /* Structs need arena, address, size, and type ID */
+    /* Structs need arena, address, size, and type ID.
+     * rt_box_struct takes RtHandleV2* - allocate handle, copy stack data into it. */
     if (value_type->kind == TYPE_STRUCT)
     {
         int type_id = get_struct_type_id(value_type);
         const char *struct_name = get_c_type(gen->arena, value_type);
-        return arena_sprintf(gen->arena, "rt_box_struct(%s, &(%s), sizeof(%s), %d)",
-                             ARENA_VAR(gen), value_str, struct_name, type_id);
+        return arena_sprintf(gen->arena,
+            "({ RtHandleV2 *__bh = rt_arena_v2_alloc(%s, sizeof(%s)); "
+            "rt_handle_v2_pin(__bh); "
+            "memcpy(__bh->ptr, &(%s), sizeof(%s)); "
+            "rt_box_struct(%s, __bh, sizeof(%s), %d); })",
+            ARENA_VAR(gen), struct_name,
+            value_str, struct_name,
+            ARENA_VAR(gen), struct_name, type_id);
     }
 
     return arena_sprintf(gen->arena, "%s(%s)", box_func, value_str);
@@ -232,13 +239,16 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
         return arena_sprintf(gen->arena, "(%s)%s(%s)", c_type, unbox_func, any_str);
     }
 
-    /* Structs need a cast and dereference (unbox returns void*) */
+    /* Structs: unbox returns RtHandleV2* - pin and dereference */
     if (target_type->kind == TYPE_STRUCT)
     {
         int type_id = get_struct_type_id(target_type);
         const char *struct_name = get_c_type(gen->arena, target_type);
-        return arena_sprintf(gen->arena, "(*((%s *)rt_unbox_struct(%s, %d)))",
-                             struct_name, any_str, type_id);
+        return arena_sprintf(gen->arena,
+            "({ RtHandleV2 *__uh = rt_unbox_struct(%s, %d); "
+            "rt_handle_v2_pin(__uh); "
+            "*((%s *)__uh->ptr); })",
+            any_str, type_id, struct_name);
     }
 
     /* Strings in arena mode with handle context: unbox returns char*, wrap in V2 handle.

@@ -152,7 +152,9 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
     {
         return arena_sprintf(gen->arena,
             "({\n"
-            "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
+            "    RtHandleV2 *__cl_h = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
+            "    rt_handle_v2_pin(__cl_h);\n"
+            "    __Closure__ *__cl__ = (__Closure__ *)__cl_h->ptr;\n"
             "    __cl__->fn = (void *)%s;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__;\n"
@@ -308,8 +310,9 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                         handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                handle_expr);
         }
         else
         {
@@ -494,8 +497,9 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             {
                 if (expr->expr_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                         intercept_expr);
+                    return arena_sprintf(gen->arena,
+                        "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                        intercept_expr);
                 }
                 else if (expr->expr_type->kind == TYPE_ARRAY)
                 {
@@ -516,8 +520,9 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         {
             if (expr->expr_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                     call_expr);
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    call_expr);
             }
             else if (expr->expr_type->kind == TYPE_ARRAY)
             {
@@ -612,7 +617,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "%s        (char *)rt_handle_v2_pin(_call_result);\n    })",
+            result = arena_sprintf(gen->arena, "%s        rt_handle_v2_pin(_call_result);\n        (char *)_call_result->ptr;\n    })",
                                    result);
         }
         else

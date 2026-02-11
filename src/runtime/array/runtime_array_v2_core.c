@@ -16,7 +16,8 @@ static RtHandleV2 *array_create_v2(RtArenaV2 *arena, size_t count, size_t elem_s
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
 
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = count;
@@ -57,7 +58,8 @@ RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_siz
     size_t alloc_size = sizeof(RtArrayMetadataV2) + total * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = total;
@@ -94,7 +96,8 @@ RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step
     size_t alloc_size = sizeof(RtArrayMetadataV2) + result_size * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = result_size;
@@ -127,7 +130,8 @@ RtHandleV2 *rt_array_rev_v2(RtHandleV2 *arr_h, size_t elem_size) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = len;
@@ -157,7 +161,8 @@ RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = new_len;
@@ -190,7 +195,8 @@ RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, siz
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = new_len;
@@ -213,7 +219,8 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
         size_t alloc_size = sizeof(RtArrayMetadataV2) + new_cap * elem_size;
         RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);
         if (!new_h) return NULL;
-        void *new_raw = rt_handle_v2_pin(new_h);
+        rt_handle_v2_pin(new_h);
+        void *new_raw = new_h->ptr;
         RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)new_raw;
         char *arr = (char *)new_raw + sizeof(RtArrayMetadataV2);
         meta->arena = arena;
@@ -224,7 +231,8 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
         return new_h;
     }
 
-    void *raw = rt_handle_v2_pin(arr_h);
+    rt_handle_v2_pin(arr_h);
+    void *raw = arr_h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     char *arr = (char *)raw + sizeof(RtArrayMetadataV2);
 
@@ -242,7 +250,8 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
 
     RtHandleV2 *new_h = rt_arena_v2_alloc(arena, alloc_size);
     if (!new_h) { rt_handle_v2_unpin(arr_h); return NULL; }
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     char *new_arr = (char *)new_raw + sizeof(RtArrayMetadataV2);
 
@@ -271,7 +280,8 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = new_len;
@@ -287,7 +297,8 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
 /* Pop (generic): Remove last element, copy to out pointer */
 void rt_array_pop_v2(RtHandleV2 *arr_h, void *out, size_t elem_size) {
     if (arr_h == NULL || out == NULL) return;
-    void *raw = rt_handle_v2_pin(arr_h);
+    rt_handle_v2_pin(arr_h);
+    void *raw = arr_h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     if (meta->size == 0) {
         rt_handle_v2_unpin(arr_h);
@@ -303,7 +314,8 @@ void rt_array_pop_v2(RtHandleV2 *arr_h, void *out, size_t elem_size) {
 /* Clear: Set size to 0, keep capacity */
 void rt_array_clear_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return;
-    void *raw = rt_handle_v2_pin(arr_h);
+    rt_handle_v2_pin(arr_h);
+    void *raw = arr_h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->size = 0;
     rt_handle_v2_unpin(arr_h);
@@ -348,7 +360,8 @@ RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
 
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = count;
@@ -368,6 +381,6 @@ RtHandleV2 *rt_array_create_generic_v2(RtArenaV2 *arena, size_t count, size_t el
 }
 
 /* Pointer (nested array) create -- elements are RtHandleV2* */
-RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data) {
+RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **data) {
     return array_create_v2(arena, count, sizeof(RtHandleV2 *), data);
 }

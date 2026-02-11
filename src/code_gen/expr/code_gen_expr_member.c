@@ -62,8 +62,8 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             {
                 if (sym->type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                         mangled);
+                    return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })",
+                                         mangled, mangled);
                 }
                 else if (sym->type->kind == TYPE_ARRAY)
                 {
@@ -152,12 +152,12 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         }
         char *result = arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
         /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
-         * rt_managed_pin automatically walks the parent chain to find the handle. */
+         * Pin returns void; access data via ->ptr. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                result = arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                        result);
             }
             else if (field->type->kind == TYPE_ARRAY)
@@ -187,12 +187,12 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         }
         char *result = arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
         /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
-         * rt_managed_pin automatically walks the parent chain to find the handle. */
+         * Pin returns void; access data via ->ptr. */
         if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
         {
             if (field->type->kind == TYPE_STRING)
             {
-                result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+                result = arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                        result);
             }
             else if (field->type->kind == TYPE_ARRAY)

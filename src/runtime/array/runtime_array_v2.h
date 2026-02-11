@@ -41,7 +41,7 @@ typedef struct {
 
 static inline size_t rt_array_length_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return 0;
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)rt_handle_v2_ptr(arr_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)(arr_h->ptr);
     return meta ? meta->size : 0;
 }
 
@@ -57,7 +57,8 @@ static inline size_t rt_v2_data_array_length(const void *arr) {
  * This is what you use for arr[i] indexing. */
 static inline void *rt_array_data_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
-    void *raw = rt_handle_v2_pin(arr_h);
+    rt_handle_v2_pin(arr_h);
+    void *raw = arr_h->ptr;
     if (raw == NULL) return NULL;
     return (char *)raw + sizeof(RtArrayMetadataV2);
 }
@@ -127,7 +128,7 @@ int rt_array_eq_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size);
 
 RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char **data);
 RtHandleV2 *rt_array_create_generic_v2(RtArenaV2 *arena, size_t count, size_t elem_size, const void *data);
-RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data);
+RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **data);
 
 /* ============================================================================
  * Array Push Functions
@@ -138,8 +139,8 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, void **data);
  * ============================================================================ */
 
 RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const char *element);
-RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, void *element);
-RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, void *element);
+RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element);
+RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element);
 RtHandleV2 *rt_array_push_any_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtAny element);
 
 /* ============================================================================
@@ -158,7 +159,7 @@ int32_t rt_array_pop_int32_v2(RtHandleV2 *arr_h);
 uint32_t rt_array_pop_uint32_v2(RtHandleV2 *arr_h);
 uint64_t rt_array_pop_uint_v2(RtHandleV2 *arr_h);
 float rt_array_pop_float_v2(RtHandleV2 *arr_h);
-void *rt_array_pop_ptr_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_array_pop_ptr_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Array Clone Functions

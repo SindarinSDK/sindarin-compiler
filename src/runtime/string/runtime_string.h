@@ -93,7 +93,7 @@ char *rt_to_string_bool(RtArenaV2 *arena, int val);
 char *rt_to_string_byte(RtArenaV2 *arena, unsigned char val);
 char *rt_to_string_string(RtArenaV2 *arena, const char *val);
 char *rt_to_string_void(RtArenaV2 *arena);
-char *rt_to_string_pointer(RtArenaV2 *arena, void *p);
+char *rt_to_string_pointer(RtArenaV2 *arena, RtHandleV2 *p);
 
 /* ============================================================================
  * Format Functions (with format specifiers)

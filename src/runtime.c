@@ -251,7 +251,9 @@ char **rt_str_split_whitespace(RtArenaV2 *arena, const char *str) {
 
         /* Add word to result */
         size_t len = p - start;
-        char *word = rt_arena_alloc(arena, len + 1);
+        RtHandleV2 *word_h = rt_arena_v2_alloc(arena, len + 1);
+        rt_handle_v2_pin(word_h);
+        char *word = (char *)word_h->ptr;
         memcpy(word, start, len);
         word[len] = '\0';
         result = rt_push_string_to_array(arena, result, word);
@@ -274,7 +276,9 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
         if (*p == '\n') {
             /* Unix line ending or end of Windows \r\n */
             size_t len = p - start;
-            char *line = rt_arena_alloc(arena, len + 1);
+            RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
+            rt_handle_v2_pin(line_h);
+            char *line = (char *)line_h->ptr;
             memcpy(line, start, len);
             line[len] = '\0';
             result = rt_push_string_to_array(arena, result, line);
@@ -283,7 +287,9 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
         } else if (*p == '\r') {
             /* Carriage return - check for \r\n or standalone \r */
             size_t len = p - start;
-            char *line = rt_arena_alloc(arena, len + 1);
+            RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
+            rt_handle_v2_pin(line_h);
+            char *line = (char *)line_h->ptr;
             memcpy(line, start, len);
             line[len] = '\0';
             result = rt_push_string_to_array(arena, result, line);
@@ -301,7 +307,9 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
     /* Add final line if there's remaining content */
     if (p > start) {
         size_t len = p - start;
-        char *line = rt_arena_alloc(arena, len + 1);
+        RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
+        rt_handle_v2_pin(line_h);
+        char *line = (char *)line_h->ptr;
         memcpy(line, start, len);
         line[len] = '\0';
         result = rt_push_string_to_array(arena, result, line);

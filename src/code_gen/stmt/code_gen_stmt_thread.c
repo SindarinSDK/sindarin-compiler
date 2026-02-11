@@ -151,8 +151,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             {
                 /* Struct with handle fields - keep arena alive for field promotion */
                 indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync_keep_arena(%s));\n",
-                    var_name, c_type, pending_var);
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_handle_v2_pin(__sync_h__);\n");
+                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
+                    var_name, c_type);
                 /* Generate field promotion code */
                 char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
                     ARENA_VAR(gen), "__thread_arena__");
@@ -165,8 +167,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             else if (is_primitive || is_struct)
             {
                 /* Primitives and simple structs: result is wrapped, dereference it */
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync(%s));\n",
-                    var_name, c_type, pending_var);
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_handle_v2_pin(__sync_h__);\n");
+                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
+                    var_name, c_type);
             }
             else
             {
@@ -287,8 +291,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             {
                 /* Struct with handle fields - keep arena alive for field promotion */
                 indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync_keep_arena(%s));\n",
-                    var_name, c_type, pending_var);
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_handle_v2_pin(__sync_h__);\n");
+                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
+                    var_name, c_type);
                 /* Generate field promotion code */
                 char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
                     ARENA_VAR(gen), "__thread_arena__");
@@ -301,8 +307,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             else if (is_primitive || is_struct)
             {
                 /* Primitives and simple structs: result is wrapped, dereference it */
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync(%s));\n",
-                    var_name, c_type, pending_var);
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_handle_v2_pin(__sync_h__);\n");
+                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
+                    var_name, c_type);
             }
             else
             {
