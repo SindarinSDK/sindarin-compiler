@@ -359,6 +359,8 @@ char *code_gen_array_access_expression(CodeGen *gen, ArrayAccessExpr *expr)
     {
         elem_type = expr->array->expr_type->as.array.element_type;
     }
+    /* Resolve forward-declared struct types so we get the correct c_alias */
+    if (elem_type) elem_type = resolve_struct_type(gen, elem_type);
     const char *elem_c = elem_type ? get_c_array_elem_type(gen->arena, elem_type) : "long long";
 
     /* Generate the data pointer access: (T *)rt_array_data_v2(handle) */
@@ -426,7 +428,7 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
         gen->expr_as_handle = true;
         handle_str = code_gen_expression(gen, slice->array);
         gen->expr_as_handle = saved_as_handle;
-        Type *elem_type = slice->array->expr_type->as.array.element_type;
+        Type *elem_type = resolve_struct_type(gen, slice->array->expr_type->as.array.element_type);
         const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
         array_str = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, handle_str);
     }
