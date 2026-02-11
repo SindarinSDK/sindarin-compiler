@@ -42,6 +42,7 @@ __sn__append_world_return:
 int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
+    rt_arena_v2_gc_thread_start(__local_arena__, 100);
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
     rt_println("Global with shared function test:");
@@ -64,6 +65,7 @@ int main() {
     _return_value = 0LL;
     goto main_return;
 main_return:
+    rt_arena_v2_gc_thread_stop();
     rt_arena_v2_destroy(__local_arena__);
     return _return_value;
 }
