@@ -106,11 +106,11 @@ static char *generate_struct_auto_tostring(CodeGen *gen, Type *struct_type, cons
             /* String field - need to pin handle and wrap in quotes */
             result = arena_sprintf(gen->arena,
                 "%s_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); "
-                "{ char *_fstr = (char *)rt_handle_v2_pin(%s); "
+                "{ rt_handle_v2_pin(%s); char *_fstr = (char *)%s->ptr; "
                 "_auto_str%d = rt_str_concat(%s, _auto_str%d, _fstr ? _fstr : \"null\"); } "
                 "_auto_str%d = rt_str_concat(%s, _auto_str%d, \"\\\"\"); ",
                 result, *temp_counter, ARENA_VAR(gen), *temp_counter,
-                field_access,
+                field_access, field_access,
                 *temp_counter, ARENA_VAR(gen), *temp_counter,
                 *temp_counter, ARENA_VAR(gen), *temp_counter);
         }
@@ -295,13 +295,13 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
                 if (part_types[i]->as.struct_type.pass_self_by_ref ||
                     (part_types[i]->as.struct_type.is_native && part_types[i]->as.struct_type.c_alias != NULL))
                 {
-                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_handle_v2_pin(%s_toString(%s, %s));\n",
-                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i]);
+                    result = arena_sprintf(gen->arena, "%s        RtHandleV2 *__pin_h_%d__ = %s_toString(%s, %s); rt_handle_v2_pin(__pin_h_%d__); char *_p%d = (char *)__pin_h_%d__->ptr;\n",
+                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i], temp_var_count, temp_var_count, temp_var_count);
                 }
                 else
                 {
-                    result = arena_sprintf(gen->arena, "%s        char *_p%d = (char *)rt_handle_v2_pin(%s_toString(%s, &%s));\n",
-                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i]);
+                    result = arena_sprintf(gen->arena, "%s        RtHandleV2 *__pin_h_%d__ = %s_toString(%s, &%s); rt_handle_v2_pin(__pin_h_%d__); char *_p%d = (char *)__pin_h_%d__->ptr;\n",
+                                           result, temp_var_count, mangled_name, ARENA_VAR(gen), part_strs[i], temp_var_count, temp_var_count, temp_var_count);
                 }
             }
             else

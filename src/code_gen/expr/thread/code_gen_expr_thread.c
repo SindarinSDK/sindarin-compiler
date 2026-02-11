@@ -240,7 +240,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    RtArenaV2 *__arena__ = rt_thread_v2_get_arena(__t__);\n"
         "\n"
         "    /* Unpack args from thread handle */\n"
-        "    %s *args = (%s *)rt_handle_v2_pin(__t__->args);\n"
+        "    rt_handle_v2_pin(__t__->args);\n"
+        "    %s *args = (%s *)__t__->args->ptr;\n"
         "\n",
         wrapper_name, args_struct_name, args_struct_name);
 
@@ -434,14 +435,14 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             if (unboxed_args[0] != '\0')
             {
                 unboxed_args = arena_sprintf(gen->arena,
-                    "%s, ((%s *)rt_unbox_struct(__rt_thunk_args[0], %d))",
-                    unboxed_args, mangled_self_type, type_id);
+                    "%s, ({ RtHandleV2 *__uh = rt_unbox_struct(__rt_thunk_args[0], %d); rt_handle_v2_pin(__uh); (%s *)__uh->ptr; })",
+                    unboxed_args, type_id, mangled_self_type);
             }
             else
             {
                 unboxed_args = arena_sprintf(gen->arena,
-                    "((%s *)rt_unbox_struct(__rt_thunk_args[0], %d))",
-                    mangled_self_type, type_id);
+                    "({ RtHandleV2 *__uh = rt_unbox_struct(__rt_thunk_args[0], %d); rt_handle_v2_pin(__uh); (%s *)__uh->ptr; })",
+                    type_id, mangled_self_type);
             }
         }
 
@@ -515,8 +516,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 int type_id = get_struct_type_id(arg_type);
                 const char *struct_name = get_c_type(gen->arena, arg_type);
                 unboxed_args = arena_sprintf(gen->arena,
-                    "%s*((%s *)rt_unbox_struct(__rt_thunk_args[%d], %d))",
-                    unboxed_args, struct_name, thunk_arg_idx, type_id);
+                    "%s({ RtHandleV2 *__uh = rt_unbox_struct(__rt_thunk_args[%d], %d); rt_handle_v2_pin(__uh); *((%s *)__uh->ptr); })",
+                    unboxed_args, thunk_arg_idx, type_id, struct_name);
             }
             else
             {
@@ -556,15 +557,17 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 const char *struct_name = get_c_type(gen->arena, return_type);
                 thunk_def = arena_sprintf(gen->arena,
                     "%s    %s __tmp_result = %s(%s);\n"
-                    "    RtAny __result = rt_box_struct((RtArenaV2 *)__rt_thunk_arena, &__tmp_result, sizeof(%s), %d);\n",
+                    "    RtHandleV2 *__box_h = rt_arena_v2_alloc((RtArenaV2 *)__rt_thunk_arena, sizeof(%s));\n"
+                    "    rt_handle_v2_pin(__box_h); memcpy(__box_h->ptr, &__tmp_result, sizeof(%s));\n"
+                    "    RtAny __result = rt_box_struct((RtArenaV2 *)__rt_thunk_arena, __box_h, sizeof(%s), %d);\n",
                     thunk_def, struct_name, callee_str, unboxed_args,
-                    struct_name, type_id);
+                    struct_name, struct_name, struct_name, type_id);
             }
             else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
                 /* In handle mode, string result is RtHandleV2* — pin to get char* for boxing */
                 thunk_def = arena_sprintf(gen->arena,
-                    "%s    RtAny __result = %s((char *)rt_handle_v2_pin(%s(%s)));\n",
+                    "%s    RtAny __result = %s(({ RtHandleV2 *__pin = %s(%s); rt_handle_v2_pin(__pin); (char *)__pin->ptr; }));\n",
                     thunk_def, box_func, callee_str, unboxed_args);
             }
             else
@@ -632,8 +635,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             {
                 int type_id = get_struct_type_id(self_struct_type);
                 wrapper_def = arena_sprintf(gen->arena,
-                    "%s        __args[0] = rt_box_struct(__arena__, (void *)args->__sn__self, sizeof(%s), %d);\n",
-                    wrapper_def, mangled_self_type, type_id);
+                    "%s        { RtHandleV2 *__bh = rt_arena_v2_alloc(__arena__, sizeof(%s)); rt_handle_v2_pin(__bh); memcpy(__bh->ptr, args->__sn__self, sizeof(%s)); __args[0] = rt_box_struct(__arena__, __bh, sizeof(%s), %d); }\n",
+                    wrapper_def, mangled_self_type, mangled_self_type, mangled_self_type, type_id);
             }
 
             /* Box arguments - for 'as ref' primitives, dereference the pointer */
@@ -679,8 +682,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     int type_id = get_struct_type_id(arg_type);
                     const char *struct_name = get_c_type(gen->arena, arg_type);
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
-                        wrapper_def, arg_idx, i, struct_name, type_id);
+                        "%s        { RtHandleV2 *__bh = rt_arena_v2_alloc(__arena__, sizeof(%s)); rt_handle_v2_pin(__bh); memcpy(__bh->ptr, &(args->arg%d), sizeof(%s)); __args[%d] = rt_box_struct(__arena__, __bh, sizeof(%s), %d); }\n",
+                        wrapper_def, struct_name, i, struct_name, arg_idx, struct_name, type_id);
                 }
                 else if (is_ref_primitive)
                 {
@@ -693,8 +696,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)rt_handle_v2_pin(args->arg%d));\n",
-                        wrapper_def, arg_idx, box_func, i);
+                        "%s        rt_handle_v2_pin(args->arg%d);\n"
+                        "        __args[%d] = %s((char *)args->arg%d->ptr);\n",
+                        wrapper_def, i, arg_idx, box_func, i);
                 }
                 else
                 {
@@ -737,13 +741,16 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "        %s(%s);\n"
                 "    }\n"
                 "\n"
-                "    /* V2: No result for void functions. Sync handles arena cleanup. */\n"
-                "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_thread_v2_set_current(NULL);\n"
+                "%s"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
-                writeback_code, callee_str, call_args);
+                writeback_code, callee_str, call_args,
+                gen->spawn_is_fire_and_forget
+                    ? "    rt_thread_v2_set_current(NULL);\n"
+                      "    rt_thread_v2_fire_and_forget_done(__t__);\n"
+                    : "    rt_thread_v2_signal_done(__t__);\n"
+                      "    rt_thread_v2_set_current(NULL);\n");
         }
         else
         {
@@ -761,8 +768,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             {
                 int type_id = get_struct_type_id(self_struct_type);
                 wrapper_def = arena_sprintf(gen->arena,
-                    "%s        __args[0] = rt_box_struct(__arena__, (void *)args->__sn__self, sizeof(%s), %d);\n",
-                    wrapper_def, mangled_self_type, type_id);
+                    "%s        { RtHandleV2 *__bh = rt_arena_v2_alloc(__arena__, sizeof(%s)); rt_handle_v2_pin(__bh); memcpy(__bh->ptr, args->__sn__self, sizeof(%s)); __args[0] = rt_box_struct(__arena__, __bh, sizeof(%s), %d); }\n",
+                    wrapper_def, mangled_self_type, mangled_self_type, mangled_self_type, type_id);
             }
 
             /* Box arguments - for 'as ref' primitives, dereference the pointer */
@@ -808,8 +815,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     int type_id = get_struct_type_id(arg_type);
                     const char *struct_name = get_c_type(gen->arena, arg_type);
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = rt_box_struct(__arena__, &(args->arg%d), sizeof(%s), %d);\n",
-                        wrapper_def, arg_idx, i, struct_name, type_id);
+                        "%s        { RtHandleV2 *__bh = rt_arena_v2_alloc(__arena__, sizeof(%s)); rt_handle_v2_pin(__bh); memcpy(__bh->ptr, &(args->arg%d), sizeof(%s)); __args[%d] = rt_box_struct(__arena__, __bh, sizeof(%s), %d); }\n",
+                        wrapper_def, struct_name, i, struct_name, arg_idx, struct_name, type_id);
                 }
                 else if (is_ref_primitive)
                 {
@@ -822,8 +829,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* In handle mode, pin the string handle to get char* for boxing */
                     wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)rt_handle_v2_pin(args->arg%d));\n",
-                        wrapper_def, arg_idx, box_func, i);
+                        "%s        rt_handle_v2_pin(args->arg%d);\n"
+                        "        __args[%d] = %s((char *)args->arg%d->ptr);\n",
+                        wrapper_def, i, arg_idx, box_func, i);
                 }
                 else
                 {
@@ -864,8 +872,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 int type_id = get_struct_type_id(return_type);
                 const char *struct_name = get_c_type(gen->arena, return_type);
                 unbox_expr = arena_sprintf(gen->arena,
-                    "*((%s *)rt_unbox_struct(__intercepted, %d))",
-                    struct_name, type_id);
+                    "({ RtHandleV2 *__uh = rt_unbox_struct(__intercepted, %d); rt_handle_v2_pin(__uh); *((%s *)__uh->ptr); })",
+                    type_id, struct_name);
             }
             else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
             {
@@ -926,7 +934,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "\n"
                     "    /* V2: Store result in handle - sync will promote to caller arena */\n"
                     "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
-                    "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                    "    rt_handle_v2_pin(__result_handle__);\n"
+                    "    *(%s *)__result_handle__->ptr = __result__;\n"
                     "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v2_signal_done(__t__);\n"
@@ -951,7 +960,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "\n"
                     "    /* V2: Store result in handle - sync will promote to caller arena */\n"
                     "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
-                    "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                    "    rt_handle_v2_pin(__result_handle__);\n"
+                    "    *(%s *)__result_handle__->ptr = __result__;\n"
                     "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v2_signal_done(__t__);\n"
@@ -971,12 +981,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "    /* Call the function */\n"
             "    %s(%s);\n"
             "\n"
-            "    /* V2: No result to store for void functions. Sync handles arena cleanup. */\n"
-            "    rt_thread_v2_signal_done(__t__);\n"
-            "    rt_thread_v2_set_current(NULL);\n"
+            "%s"
             "    return NULL;\n"
             "}\n\n",
-            wrapper_def, callee_str, call_args);
+            wrapper_def, callee_str, call_args,
+            gen->spawn_is_fire_and_forget
+                ? "    rt_thread_v2_set_current(NULL);\n"
+                  "    rt_thread_v2_fire_and_forget_done(__t__);\n"
+                : "    rt_thread_v2_signal_done(__t__);\n"
+                  "    rt_thread_v2_set_current(NULL);\n");
     }
     else
     {
@@ -1014,7 +1027,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "\n"
                 "    /* V2: Store result in handle - sync will promote to caller arena */\n"
                 "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
-                "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                "    rt_handle_v2_pin(__result_handle__);\n"
+                "    *(%s *)__result_handle__->ptr = __result__;\n"
                 "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v2_signal_done(__t__);\n"
@@ -1033,7 +1047,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "\n"
                 "    /* V2: Store result in handle - sync will promote to caller arena */\n"
                 "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
-                "    *(%s *)rt_handle_v2_pin(__result_handle__) = __result__;\n"
+                "    rt_handle_v2_pin(__result_handle__);\n"
+                "    *(%s *)__result_handle__->ptr = __result__;\n"
                 "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v2_signal_done(__t__);\n"
@@ -1190,7 +1205,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             /* Wrap named function in a closure using the thunk.
              * The thunk adapts the function to the closure calling convention. */
             arg_assignments = arena_sprintf(gen->arena,
-                "%s%s->arg%d = ({ __Closure__ *__fn_cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__))); "
+                "%s%s->arg%d = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(__Closure__)); rt_handle_v2_pin(__ah); "
+                "__Closure__ *__fn_cl__ = (__Closure__ *)__ah->ptr; "
                 "__fn_cl__->fn = (void *)%s; __fn_cl__->arena = %s; __fn_cl__; }); ",
                 arg_assignments, args_var, i, caller_arena, fn_thunk_name, caller_arena);
         }
@@ -1220,7 +1236,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "\n"
         "    /* Allocate args in thread arena */\n"
         "    %s->args = rt_arena_v2_alloc(__thread_arena__, sizeof(%s));\n"
-        "    %s *%s = (%s *)rt_handle_v2_pin(%s->args);\n"
+        "    rt_handle_v2_pin(%s->args);\n"
+        "    %s *%s = (%s *)%s->args->ptr;\n"
         "    %s"
         "\n"
         "    /* Start the thread */\n"
@@ -1230,6 +1247,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         handle_var, caller_arena, thread_mode,
         handle_var,
         handle_var, args_struct_name,
+        handle_var,
         args_struct_name, args_var, args_struct_name, handle_var,
         arg_assignments,
         handle_var, wrapper_name,

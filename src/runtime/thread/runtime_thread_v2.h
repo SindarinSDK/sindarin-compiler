@@ -16,8 +16,8 @@
  *
  * Mutex lifecycle:
  * - Created in rt_thread_v2_create
- * - Destroyed by parent: in rt_thread_v2_sync or cleanup callback
- * - Child only signals, never destroys
+ * - Synced threads: destroyed in rt_thread_v2_sync
+ * - Fire-and-forget: destroyed in rt_thread_v2_fire_and_forget_done
  *
  * ============================================================================ */
 
@@ -79,6 +79,7 @@ typedef struct RtThread {
     pthread_cond_t cond;
     bool done;
 
+    RtHandleV2 *self_handle;    /* Handle to this RtThread in caller arena */
     RtHandleV2 *args;           /* Handle to packed args (in thread arena) */
     RtHandleV2 *result;         /* Result handle (NULL for void) */
     char *panic_msg;            /* NULL = success */
@@ -112,16 +113,6 @@ RtHandleV2 *rt_thread_v2_sync_keep_arena(RtThread *t);
 
 /* Sync multiple threads. Void-returning only (no result). */
 void rt_thread_v2_sync_all(RtThread **threads, int count);
-
-/* ============================================================================
- * Detach (Fire-and-Forget)
- * ============================================================================ */
-
-/* Register cleanup on caller arena. On arena destroy:
- * - Waits for thread completion
- * - Destroys t->arena
- * - Destroys mutex */
-void rt_thread_v2_detach(RtThread *t);
 
 /* ============================================================================
  * Wrapper Helpers (called by generated wrapper code)
@@ -174,6 +165,11 @@ void rt_thread_v2_set_panic(RtThread *t, const char *msg);
 /* Signal completion */
 void rt_thread_v2_signal_done(RtThread *t);
 
+/* Fire-and-forget cleanup: signal done, destroy mutex/cond, condemn arena,
+ * mark self_handle dead for GC. Called from wrapper epilogue when result
+ * is discarded and no sync will ever happen. */
+void rt_thread_v2_fire_and_forget_done(RtThread *t);
+
 /* ============================================================================
  * Panic Integration
  * ============================================================================ */
@@ -195,13 +191,13 @@ void rt_panic(const char *msg);
  * when using lock(var) => { ... } blocks.
  * ============================================================================ */
 
-/* Acquire a mutex lock for a sync variable (by address)
+/* Acquire a mutex lock for a sync variable (by handle)
  * Creates mutex on first use. Thread-safe. */
-void rt_sync_lock(void *addr);
+void rt_sync_lock(RtHandleV2 *handle);
 
-/* Release a mutex lock for a sync variable (by address)
- * Must be called after rt_sync_lock with the same address. */
-void rt_sync_unlock(void *addr);
+/* Release a mutex lock for a sync variable (by handle)
+ * Must be called after rt_sync_lock with the same handle. */
+void rt_sync_unlock(RtHandleV2 *handle);
 
 /* Initialize the sync lock table (called automatically if needed) */
 void rt_sync_lock_table_init(void);

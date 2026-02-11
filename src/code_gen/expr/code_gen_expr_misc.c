@@ -175,8 +175,8 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
         {
             /* Copy string field: pin source handle → strdup to new handle */
             result = arena_sprintf(gen->arena,
-                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(__deep_copy.%s)) : NULL;\n",
-                                   result, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
+                                   "%s        __deep_copy.%s = __deep_copy.%s ? ({ rt_handle_v2_pin(__deep_copy.%s); rt_arena_v2_strdup(%s, (char *)__deep_copy.%s->ptr); }) : NULL;\n",
+                                   result, c_field_name, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
         }
     }
 
@@ -230,9 +230,11 @@ char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
             return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
                                 operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
         }
-        /* Raw pointer mode: use bridge layer for permanent pin */
-        return arena_sprintf(gen->arena, "((%s) ? rt_arena_strdup(%s, %s) : rt_arena_strdup(%s, \"\"))",
-                            operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
+        /* Raw pointer mode: strdup into arena handle, then pin and access ->ptr */
+        return arena_sprintf(gen->arena,
+            "((%s) ? ({ RtHandleV2 *__pin_h__ = rt_arena_v2_strdup(%s, %s); rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; }) "
+            ": ({ RtHandleV2 *__pin_h__ = rt_arena_v2_strdup(%s, \"\"); rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; }))",
+            operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
     }
     else if (as_val->is_struct_deep_copy)
     {

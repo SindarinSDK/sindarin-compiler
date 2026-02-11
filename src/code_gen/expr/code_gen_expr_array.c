@@ -400,7 +400,7 @@ char *code_gen_array_access_expression(CodeGen *gen, ArrayAccessExpr *expr)
         /* Pin element handles. V2 handles don't need the arena parameter. */
         if (elem_type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+            return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                  result);
         }
         else if (elem_type->kind == TYPE_ARRAY)

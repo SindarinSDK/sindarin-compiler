@@ -73,6 +73,11 @@ void rt_arena_v2_gc_thread_stop(void)
 {
     if (!gc_thread_running) return;
 
+    /* Final GC pass to destroy any condemned arenas before stopping */
+    if (gc_thread_root != NULL) {
+        rt_arena_v2_gc_recursive(gc_thread_root);
+    }
+
     gc_thread_running = false;
     pthread_join(gc_thread, NULL);
     gc_thread_root = NULL;
@@ -344,6 +349,7 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->current_epoch = 1;
     arena->gc_threshold = 1000;  /* Trigger GC after 1000 handles */
     arena->gc_running = false;
+    arena->flags = RT_ARENA_FLAG_NONE;
 
     pthread_mutex_init(&arena->mutex, NULL);
 
@@ -438,12 +444,27 @@ static void arena_v2_destroy_internal(RtArenaV2 *arena, bool unlink_from_parent)
     free(arena);
 }
 
+void rt_arena_v2_condemn(RtArenaV2 *arena)
+{
+    if (arena == NULL) return;
+    arena->flags |= RT_ARENA_FLAG_DEAD;
+}
+
 void rt_arena_v2_destroy(RtArenaV2 *arena)
 {
+    if (arena == NULL) return;
+
+    /* When GC thread is running, defer destruction to GC */
+    if (gc_thread_running) {
+        rt_arena_v2_condemn(arena);
+        return;
+    }
+
+    /* GC not running - safe to destroy directly */
     arena_v2_destroy_internal(arena, true);
 }
 
-void rt_arena_v2_on_cleanup(RtArenaV2 *arena, void *data, RtCleanupFnV2 fn, int priority)
+void rt_arena_v2_on_cleanup(RtArenaV2 *arena, RtHandleV2 *data, RtCleanupFnV2 fn, int priority)
 {
     if (arena == NULL || fn == NULL) return;
 
@@ -467,7 +488,7 @@ void rt_arena_v2_on_cleanup(RtArenaV2 *arena, void *data, RtCleanupFnV2 fn, int 
     pthread_mutex_unlock(&arena->mutex);
 }
 
-void rt_arena_v2_remove_cleanup(RtArenaV2 *arena, void *data)
+void rt_arena_v2_remove_cleanup(RtArenaV2 *arena, RtHandleV2 *data)
 {
     if (arena == NULL) return;
 
@@ -646,14 +667,33 @@ size_t rt_arena_v2_gc_recursive(RtArenaV2 *arena)
 
     size_t total = rt_arena_v2_gc(arena);
 
+    /* Traverse children under parent mutex.
+     * Dead children are unlinked and destroyed here - safe because
+     * only the GC thread performs destruction when GC is running. */
     pthread_mutex_lock(&arena->mutex);
-    RtArenaV2 *child = arena->first_child;
-    pthread_mutex_unlock(&arena->mutex);
 
-    while (child != NULL) {
-        total += rt_arena_v2_gc_recursive(child);
-        child = child->next_sibling;
+    RtArenaV2 **pp = &arena->first_child;
+    while (*pp != NULL) {
+        RtArenaV2 *child = *pp;
+
+        if (child->flags & RT_ARENA_FLAG_DEAD) {
+            /* Unlink from sibling list */
+            *pp = child->next_sibling;
+            child->parent = NULL;
+
+            pthread_mutex_unlock(&arena->mutex);
+            arena_v2_destroy_internal(child, false);
+            pthread_mutex_lock(&arena->mutex);
+            /* pp already points to the next child after unlinking */
+        } else {
+            pthread_mutex_unlock(&arena->mutex);
+            total += rt_arena_v2_gc_recursive(child);
+            pthread_mutex_lock(&arena->mutex);
+            pp = &child->next_sibling;
+        }
     }
+
+    pthread_mutex_unlock(&arena->mutex);
 
     return total;
 }

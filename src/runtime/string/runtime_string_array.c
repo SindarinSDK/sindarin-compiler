@@ -12,8 +12,10 @@ char **rt_create_string_array(RtArenaV2 *arena, size_t initial_capacity)
     /* Allocate array with header storing length and capacity */
     size_t header_size = 2 * sizeof(size_t);
     size_t alloc_size = header_size + (initial_capacity + 1) * sizeof(char *);
-    void *block = rt_arena_alloc(arena, alloc_size);
-    if (block == NULL) return NULL;
+    RtHandleV2 *block_h = rt_arena_v2_alloc(arena, alloc_size);
+    if (block_h == NULL) return NULL;
+    rt_handle_v2_pin(block_h);
+    void *block = block_h->ptr;
 
     size_t *header = (size_t *)block;
     header[0] = 0;                  /* length */

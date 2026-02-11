@@ -100,8 +100,10 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     if (is_instance)
     {
         /* Unbox self from args[0] */
-        thunk_def = arena_sprintf(arena, "%s    %s *__self = (%s *)rt_unbox_struct(__rt_thunk_args[0], %d);\n",
-                                  thunk_def, mangled_struct, mangled_struct, type_id);
+        thunk_def = arena_sprintf(arena, "%s    RtHandleV2 *__self_h = rt_unbox_struct(__rt_thunk_args[0], %d);\n"
+                                  "    rt_handle_v2_pin(__self_h);\n"
+                                  "    %s *__self = (%s *)__self_h->ptr;\n",
+                                  thunk_def, type_id, mangled_struct, mangled_struct);
         unboxed_args = arena_sprintf(arena, "%s, __self", unboxed_args);
     }
 
@@ -168,8 +170,9 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
             /* In V2 handle mode, string result is RtHandleV2* — pin to get char* for boxing */
-            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)rt_handle_v2_pin(%s(%s)));\n",
-                                      thunk_def, box_func, callee_str, unboxed_args);
+            thunk_def = arena_sprintf(arena, "%s    RtHandleV2 *__pin = %s(%s); rt_handle_v2_pin(__pin);\n"
+                                      "    RtAny __result = %s((char *)__pin->ptr);\n",
+                                      thunk_def, callee_str, unboxed_args, box_func);
         }
         else
         {
@@ -239,8 +242,9 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     if (is_instance)
     {
         /* Box self as args[0] */
-        result = arena_sprintf(arena, "%s        __args[0] = rt_box_struct(%s, (void *)%s, sizeof(%s), %d);\n",
-                               result, ARENA_VAR(gen), self_ptr_str, mangled_struct, type_id);
+        result = arena_sprintf(arena,
+            "%s        { RtHandleV2 *__bh = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_v2_pin(__bh); memcpy(__bh->ptr, %s, sizeof(%s)); __args[0] = rt_box_struct(%s, __bh, sizeof(%s), %d); }\n",
+            result, ARENA_VAR(gen), mangled_struct, self_ptr_str, mangled_struct, ARENA_VAR(gen), mangled_struct, type_id);
     }
 
     /* Box remaining arguments using temporaries */
@@ -272,10 +276,10 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In V2 handle mode, string temps are RtHandleV2* — pin before boxing.
-             * rt_handle_v2_pin doesn't need the arena parameter. */
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_handle_v2_pin(%s));\n",
-                                   result, arg_idx, box_func, arg_temps[i]);
+            /* In V2 handle mode, string temps are RtHandleV2* — pin before boxing. */
+            result = arena_sprintf(arena, "%s        rt_handle_v2_pin(%s);\n"
+                                   "        __args[%d] = %s((char *)%s->ptr);\n",
+                                   result, arg_temps[i], arg_idx, box_func, arg_temps[i]);
         }
         else
         {
@@ -325,15 +329,15 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     if (is_instance && !is_self_pointer)
     {
         /* self_ptr_str is like "&counter" - write back from boxed copy */
-        result = arena_sprintf(arena, "%s        memcpy((void *)%s, rt_unbox_struct(__args[0], %d), sizeof(%s));\n",
-                               result, self_ptr_str, type_id, mangled_struct);
+        result = arena_sprintf(arena, "%s        { RtHandleV2 *__wb = rt_unbox_struct(__args[0], %d); rt_handle_v2_pin(__wb); memcpy((void *)%s, __wb->ptr, sizeof(%s)); }\n",
+                               result, type_id, self_ptr_str, mangled_struct);
     }
     else if (is_instance && is_self_pointer)
     {
         /* self is already a pointer (inside method body) - write back directly */
         /* self_ptr_str is the pointer itself, e.g., "self" */
-        result = arena_sprintf(arena, "%s        memcpy((void *)%s, rt_unbox_struct(__args[0], %d), sizeof(%s));\n",
-                               result, self_ptr_str, type_id, mangled_struct);
+        result = arena_sprintf(arena, "%s        { RtHandleV2 *__wb = rt_unbox_struct(__args[0], %d); rt_handle_v2_pin(__wb); memcpy((void *)%s, __wb->ptr, sizeof(%s)); }\n",
+                               result, type_id, self_ptr_str, mangled_struct);
     }
 
     /* Close interceptor branch, add fast path using temporaries */

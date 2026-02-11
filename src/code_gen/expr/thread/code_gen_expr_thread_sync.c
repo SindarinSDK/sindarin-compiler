@@ -275,7 +275,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                  * Pattern:
                  * ({
                  *     if (__var_pending__ != NULL) {
-                 *         var = *(type*)rt_handle_v2_pin(rt_thread_v2_sync(__var_pending__));
+                 *         RtHandleV2 *__sync_h__ = rt_thread_v2_sync(__var_pending__);
+                 *         rt_handle_v2_pin(__sync_h__);
+                 *         var = *(type*)__sync_h__->ptr;
                  *         __var_pending__ = NULL;
                  *     }
                  *     var;
@@ -286,13 +288,16 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                 return arena_sprintf(gen->arena,
                     "({\n"
                     "    if (%s != NULL) {\n"
-                    "        %s = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync(%s));\n"
+                    "        RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n"
+                    "        rt_handle_v2_pin(__sync_h__);\n"
+                    "        %s = *(%s *)__sync_h__->ptr;\n"
                     "        %s = NULL;\n"
                     "    }\n"
                     "    %s;\n"
                     "})",
                     pending_var,
-                    var_name, c_type, pending_var,
+                    pending_var,
+                    var_name, c_type,
                     pending_var,
                     var_name);
             }
@@ -300,8 +305,8 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
             {
                 /* Non-variable (e.g., inline spawn): just return the value */
                 return arena_sprintf(gen->arena,
-                    "(*(%s *)rt_handle_v2_pin(rt_thread_v2_sync(%s)))",
-                    c_type, handle_code);
+                    "({ RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s); rt_handle_v2_pin(__sync_h__); *(%s *)__sync_h__->ptr; })",
+                    handle_code, c_type);
             }
         }
         else if (struct_needs_field_promotion)
@@ -328,7 +333,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "        /* Save thread arena reference before sync */\n"
                     "        RtArenaV2 *__thread_arena__ = %s->arena;\n"
                     "        /* V2: Get struct from thread result - arena NOT destroyed yet */\n"
-                    "        %s __sync_tmp__ = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync_keep_arena(%s));\n"
+                    "        RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n"
+                    "        rt_handle_v2_pin(__sync_h__);\n"
+                    "        %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
                     "        /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "        /* Now destroy the thread arena */\n"
@@ -340,7 +347,8 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "})",
                     pending_var,
                     pending_var,
-                    c_type, c_type, pending_var,
+                    pending_var,
+                    c_type, c_type,
                     promo_code,
                     var_name,
                     pending_var,
@@ -355,7 +363,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "    /* Save thread arena reference before sync */\n"
                     "    RtArenaV2 *__thread_arena__ = __sync_handle__->arena;\n"
                     "    /* V2: Get struct from thread result - arena NOT destroyed yet */\n"
-                    "    %s __sync_tmp__ = *(%s *)rt_handle_v2_pin(rt_thread_v2_sync_keep_arena(__sync_handle__));\n"
+                    "    RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(__sync_handle__);\n"
+                    "    rt_handle_v2_pin(__sync_h__);\n"
+                    "    %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
                     "    /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "    /* Now destroy the thread arena */\n"

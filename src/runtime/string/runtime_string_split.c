@@ -19,18 +19,22 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
 
         /* Allocate the result array directly */
         size_t capacity = len > 4 ? len : 4;
-        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
-        if (meta == NULL) {
+        RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
+        if (meta_h == NULL) {
             fprintf(stderr, "rt_str_split: allocation failed\n");
             exit(1);
         }
+        rt_handle_v2_pin(meta_h);
+        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = len;
         meta->capacity = capacity;
         char **result = (char **)(meta + 1);
 
         for (size_t i = 0; i < len; i++) {
-            char *ch = rt_arena_alloc(arena, 2);
+            RtHandleV2 *ch_h = rt_arena_v2_alloc(arena, 2);
+            rt_handle_v2_pin(ch_h);
+            char *ch = (char *)ch_h->ptr;
             ch[0] = str[i];
             ch[1] = '\0';
             result[i] = ch;
@@ -48,11 +52,13 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
 
     /* Allocate the result array */
     size_t capacity = count > 4 ? count : 4;
-    RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
-    if (meta == NULL) {
+    RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
+    if (meta_h == NULL) {
         fprintf(stderr, "rt_str_split: allocation failed\n");
         exit(1);
     }
+    rt_handle_v2_pin(meta_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
     meta->arena = arena;
     meta->size = count;
     meta->capacity = capacity;
@@ -64,7 +70,9 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
     p = str;
     while ((p = strstr(p, delimiter)) != NULL) {
         size_t part_len = p - start;
-        char *part = rt_arena_alloc(arena, part_len + 1);
+        RtHandleV2 *part_h = rt_arena_v2_alloc(arena, part_len + 1);
+        rt_handle_v2_pin(part_h);
+        char *part = (char *)part_h->ptr;
         memcpy(part, start, part_len);
         part[part_len] = '\0';
         result[idx++] = part;
@@ -72,7 +80,9 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
         start = p;
     }
     /* Add final part */
-    result[idx] = rt_arena_strdup(arena, start);
+    RtHandleV2 *final_h = rt_arena_v2_strdup(arena, start);
+    rt_handle_v2_pin(final_h);
+    result[idx] = (char *)final_h->ptr;
 
     return result;
 }
@@ -93,16 +103,20 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
     /* If limit is 1, return the whole string as one part */
     if (limit == 1) {
         size_t capacity = 4;
-        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
-        if (meta == NULL) {
+        RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
+        if (meta_h == NULL) {
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
         }
+        rt_handle_v2_pin(meta_h);
+        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = 1;
         meta->capacity = capacity;
         char **result = (char **)(meta + 1);
-        result[0] = rt_arena_strdup(arena, str);
+        RtHandleV2 *str_h = rt_arena_v2_strdup(arena, str);
+        rt_handle_v2_pin(str_h);
+        result[0] = (char *)str_h->ptr;
         return result;
     }
 
@@ -116,25 +130,31 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
         if (actual_count > len) actual_count = len;
 
         size_t capacity = actual_count > 4 ? actual_count : 4;
-        RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
-        if (meta == NULL) {
+        RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
+        if (meta_h == NULL) {
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
         }
+        rt_handle_v2_pin(meta_h);
+        RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = actual_count;
         meta->capacity = capacity;
         char **result = (char **)(meta + 1);
 
         for (size_t i = 0; i < actual_count - 1 && i < len; i++) {
-            char *ch = rt_arena_alloc(arena, 2);
+            RtHandleV2 *ch_h = rt_arena_v2_alloc(arena, 2);
+            rt_handle_v2_pin(ch_h);
+            char *ch = (char *)ch_h->ptr;
             ch[0] = str[i];
             ch[1] = '\0';
             result[i] = ch;
         }
         /* Last part is the remainder */
         if (actual_count > 0 && actual_count - 1 < len) {
-            result[actual_count - 1] = rt_arena_strdup(arena, str + actual_count - 1);
+            RtHandleV2 *rem_h = rt_arena_v2_strdup(arena, str + actual_count - 1);
+            rt_handle_v2_pin(rem_h);
+            result[actual_count - 1] = (char *)rem_h->ptr;
         }
         return result;
     }
@@ -149,11 +169,13 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
 
     /* Allocate the result array */
     size_t capacity = count > 4 ? count : 4;
-    RtArrayMetadataV2 *meta = rt_arena_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
-    if (meta == NULL) {
+    RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, sizeof(RtArrayMetadataV2) + capacity * sizeof(char *));
+    if (meta_h == NULL) {
         fprintf(stderr, "rt_str_split_n: allocation failed\n");
         exit(1);
     }
+    rt_handle_v2_pin(meta_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
     meta->arena = arena;
     meta->size = count;
     meta->capacity = capacity;
@@ -165,7 +187,9 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
     p = str;
     while ((p = strstr(p, delimiter)) != NULL && idx < count - 1) {
         size_t part_len = p - start;
-        char *part = rt_arena_alloc(arena, part_len + 1);
+        RtHandleV2 *part_h = rt_arena_v2_alloc(arena, part_len + 1);
+        rt_handle_v2_pin(part_h);
+        char *part = (char *)part_h->ptr;
         memcpy(part, start, part_len);
         part[part_len] = '\0';
         result[idx++] = part;
@@ -173,7 +197,9 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
         start = p;
     }
     /* Add final part (remainder of string) */
-    result[idx] = rt_arena_strdup(arena, start);
+    RtHandleV2 *final_h = rt_arena_v2_strdup(arena, start);
+    rt_handle_v2_pin(final_h);
+    result[idx] = (char *)final_h->ptr;
 
     return result;
 }

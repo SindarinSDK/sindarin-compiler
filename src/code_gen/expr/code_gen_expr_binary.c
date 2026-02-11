@@ -55,6 +55,31 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
     Type *left_type = expr->left->expr_type;
     Type *right_type = expr->right->expr_type;
     bool saved_as_handle = gen->expr_as_handle;
+
+    /* Handle nil comparison for handle types (string/array) - compare handle to NULL
+     * directly. We must NOT try to pin+deref a potentially NULL handle. */
+    if ((expr->operator == TOKEN_EQUAL_EQUAL || expr->operator == TOKEN_BANG_EQUAL) &&
+        gen->current_arena_var != NULL)
+    {
+        bool left_nil = (left_type && left_type->kind == TYPE_NIL);
+        bool right_nil = (right_type && right_type->kind == TYPE_NIL);
+        bool left_handle = (left_type && is_handle_type(left_type));
+        bool right_handle = (right_type && is_handle_type(right_type));
+
+        if ((left_nil && right_handle) || (right_nil && left_handle))
+        {
+            /* Evaluate the handle-type side in handle mode (get the RtHandleV2*, not raw ptr) */
+            gen->expr_as_handle = true;
+            char *handle_str;
+            if (left_nil)
+                handle_str = code_gen_expression(gen, expr->right);
+            else
+                handle_str = code_gen_expression(gen, expr->left);
+            gen->expr_as_handle = saved_as_handle;
+            const char *c_op = (expr->operator == TOKEN_EQUAL_EQUAL) ? "==" : "!=";
+            return arena_sprintf(gen->arena, "((%s) %s NULL)", handle_str, c_op);
+        }
+    }
     if ((left_type && is_handle_type(left_type)) || (right_type && is_handle_type(right_type)))
     {
         gen->expr_as_handle = false;
@@ -173,7 +198,7 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
             }
             else
             {
-                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(rt_str_concat_v2(%s, %s, %s))",
+                return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = rt_str_concat_v2(%s, %s, %s); rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                      ARENA_VAR(gen), left_str, right_str);
             }
         }

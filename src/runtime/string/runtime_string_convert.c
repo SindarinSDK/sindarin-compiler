@@ -5,7 +5,7 @@
  * Type Conversion Functions (rt_to_string_*)
  *
  * IMMUTABLE STRINGS: All rt_to_string_* functions create immutable strings
- * via rt_arena_strdup(). These functions can remain unchanged because:
+ * via rt_arena_v2_strdup(). These functions can remain unchanged because:
  * 1. They create short, fixed-size strings that don't need appending
  * 2. The results are typically used in interpolation/concatenation
  * 3. No benefit to adding metadata for these small strings
@@ -20,32 +20,32 @@ char *rt_to_string_long(RtArenaV2 *arena, long long val)
 {
     char buf[32];
     snprintf(buf, sizeof(buf), "%lld", val);
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_double(RtArenaV2 *arena, double val)
 {
     char buf[64];
     snprintf(buf, sizeof(buf), "%.5f", val);
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_char(RtArenaV2 *arena, char val)
 {
     char buf[2] = {val, '\0'};
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_bool(RtArenaV2 *arena, int val)
 {
-    return rt_arena_strdup(arena, val ? "true" : "false");
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, val ? "true" : "false"); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_byte(RtArenaV2 *arena, unsigned char val)
 {
     char buf[8];
     snprintf(buf, sizeof(buf), "%u", (unsigned int)val);
-    return rt_arena_strdup(arena, buf);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_string(RtArenaV2 *arena, const char *val)
@@ -53,20 +53,20 @@ char *rt_to_string_string(RtArenaV2 *arena, const char *val)
     if (val == NULL) {
         return (char *)null_str;
     }
-    return rt_arena_strdup(arena, val);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, val); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
 char *rt_to_string_void(RtArenaV2 *arena)
 {
-    return rt_arena_strdup(arena, "void");
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, "void"); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }
 
-char *rt_to_string_pointer(RtArenaV2 *arena, void *p)
+char *rt_to_string_pointer(RtArenaV2 *arena, RtHandleV2 *p)
 {
     if (p == NULL) {
-        return rt_arena_strdup(arena, "nil");
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, "nil"); rt_handle_v2_pin(_h); return (char *)_h->ptr;
     }
     char buf[32];
-    snprintf(buf, sizeof(buf), "%p", p);
-    return rt_arena_strdup(arena, buf);
+    snprintf(buf, sizeof(buf), "%p", p->ptr);
+    RtHandleV2 *_h = rt_arena_v2_strdup(arena, buf); rt_handle_v2_pin(_h); return (char *)_h->ptr;
 }

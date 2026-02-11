@@ -160,8 +160,9 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
             /* In V2 handle mode, string result is RtHandleV2* — pin to get char* for boxing */
-            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)rt_handle_v2_pin(%s(%s)));\n",
-                                      thunk_def, box_func, callee_str, unboxed_args);
+            thunk_def = arena_sprintf(arena, "%s    RtHandleV2 *__pin = %s(%s); rt_handle_v2_pin(__pin);\n"
+                                      "    RtAny __result = %s((char *)__pin->ptr);\n",
+                                      thunk_def, callee_str, unboxed_args, box_func);
         }
         else
         {
@@ -315,10 +316,10 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In V2 handle mode, string temp is RtHandleV2* — pin to get char* for boxing.
-             * rt_handle_v2_pin doesn't need the arena parameter. */
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)rt_handle_v2_pin(%s));\n",
-                                   result, i, box_func, arg_temps[i]);
+            /* In V2 handle mode, string temp is RtHandleV2* — pin to get char* for boxing. */
+            result = arena_sprintf(arena, "%s        rt_handle_v2_pin(%s);\n"
+                                   "        __args[%d] = %s((char *)%s->ptr);\n",
+                                   result, arg_temps[i], i, box_func, arg_temps[i]);
         }
         else
         {

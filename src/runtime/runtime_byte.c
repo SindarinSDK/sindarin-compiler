@@ -16,8 +16,10 @@
 
 static unsigned char *create_byte_array(RtArenaV2 *arena, size_t count) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(unsigned char);
-    void *raw = rt_arena_alloc(arena, alloc_size);
-    if (raw == NULL) return NULL;
+    RtHandleV2 *raw_h = rt_arena_v2_alloc(arena, alloc_size);
+    if (raw_h == NULL) return NULL;
+    rt_handle_v2_pin(raw_h);
+    void *raw = raw_h->ptr;
 
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = NULL;  /* Not using V2 arena here */
@@ -40,13 +42,17 @@ static const char base64_chars[] =
  * Invalid UTF-8 sequences are passed through as-is. */
 char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
-    char *result = rt_arena_alloc(arena, len + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
 
     for (size_t i = 0; i < len; i++) {
         result[i] = (char)bytes[i];
@@ -61,7 +67,9 @@ char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
  * This requires UTF-8 encoding for values 0x80-0xFF. */
 char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
@@ -78,7 +86,9 @@ char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
         }
     }
 
-    char *result = rt_arena_alloc(arena, out_len + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, out_len + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     size_t out_idx = 0;
 
     for (size_t i = 0; i < len; i++) {
@@ -100,13 +110,17 @@ char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
     static const char hex_chars[] = "0123456789abcdef";
 
     if (bytes == NULL) {
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
-    char *result = rt_arena_alloc(arena, len * 2 + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len * 2 + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
 
     for (size_t i = 0; i < len; i++) {
         result[i * 2] = hex_chars[(bytes[i] >> 4) & 0xF];
@@ -120,7 +134,9 @@ char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
 /* Convert byte array to Base64 string */
 char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
-        char *result = rt_arena_alloc(arena, 1);
+        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
+        rt_handle_v2_pin(result_h);
+        char *result = (char *)result_h->ptr;
         result[0] = '\0';
         return result;
     }
@@ -129,7 +145,9 @@ char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
 
     /* Calculate output size: 4 output chars for every 3 input bytes, rounded up */
     size_t out_len = ((len + 2) / 3) * 4;
-    char *result = rt_arena_alloc(arena, out_len + 1);
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, out_len + 1);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
 
     size_t i = 0;
     size_t out_idx = 0;

@@ -72,7 +72,7 @@ char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     {
         if (field_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))",
+            result = arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
                                    result);
         }
         else if (field_type->kind == TYPE_ARRAY)
@@ -367,7 +367,9 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
                 /* Use V2 arena allocation */
                 value_code = arena_sprintf(gen->arena,
                     "({\n"
-                    "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
+                    "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
+                    "    rt_handle_v2_pin(__cl_h__);\n"
+                    "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
                     "    __cl__->fn = (void *)%s;\n"
                     "    __cl__->arena = %s;\n"
                     "    __cl__;\n"
@@ -403,8 +405,8 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             assign->value->type == EXPR_MEMBER_ACCESS)
         {
             value_code = arena_sprintf(gen->arena,
-                "rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(%s))",
-                gen->current_arena_var, value_code);
+                "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); rt_arena_v2_strdup(%s, (char *)__pin_h__->ptr); })",
+                value_code, gen->current_arena_var);
         }
     }
 

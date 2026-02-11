@@ -107,8 +107,9 @@ char *code_gen_closure_call(CodeGen *gen, Expr *expr, CallExpr *call)
         (ret_type->kind == TYPE_STRING || ret_type->kind == TYPE_ARRAY))
     {
         if (ret_type->kind == TYPE_STRING) {
-            call_expr = arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                      call_expr);
+            call_expr = arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                call_expr);
         } else {
             const char *elem_c = get_c_array_elem_type(gen->arena, ret_type->as.array.element_type);
             call_expr = arena_sprintf(gen->arena, "(((%s *)rt_array_data_v2(%s)))",

@@ -36,8 +36,8 @@ long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
     // private function uses its own private arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
     // Mutating 'message' should use __main_arena__ since it's a global
-    (__sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, (char *)rt_handle_v2_pin(__sn__greeting), " World")));
-    _return_value = (long)strlen((char *)rt_handle_v2_pin(__sn__greeting));
+    (__sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, ({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }), " World")));
+    _return_value = (long)strlen(({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }));
     goto __sn__process_greeting_return;
 __sn__process_greeting_return:
     rt_arena_v2_destroy(__local_arena__);
@@ -66,7 +66,7 @@ int main() {
     }
     __intercept_result;
 });
-    rt_println((char *)rt_handle_v2_pin(__sn__message));
+    rt_println(({ rt_handle_v2_pin(__sn__message); (char *)__sn__message->ptr; }));
     rt_println(({
         char *_p0 = rt_to_string_long_raw_v2(__local_arena__, __sn__result);
         rt_str_concat_raw_v2(__local_arena__, "Greeting length: ", _p0);

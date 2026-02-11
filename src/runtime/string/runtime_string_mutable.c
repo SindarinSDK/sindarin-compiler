@@ -27,11 +27,13 @@ char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
     }
 
     size_t total = sizeof(RtStringMeta) + capacity + 1;
-    RtStringMeta *meta = rt_arena_alloc(arena, total);
-    if (meta == NULL) {
+    RtHandleV2 *meta_h = rt_arena_v2_alloc(arena, total);
+    if (meta_h == NULL) {
         fprintf(stderr, "rt_string_with_capacity: allocation failed\n");
         exit(1);
     }
+    rt_handle_v2_pin(meta_h);
+    RtStringMeta *meta = (RtStringMeta *)meta_h->ptr;
     meta->arena = arena;
     meta->length = 0;
     meta->capacity = capacity;

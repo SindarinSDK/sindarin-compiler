@@ -16,7 +16,8 @@ RtHandleV2 *rt_array_alloc_##suffix##_v2(RtArenaV2 *arena, size_t count,        
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(elem_type);   \
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);                        \
     if (!h) return NULL;                                                         \
-    void *raw = rt_handle_v2_pin(h);                                             \
+    rt_handle_v2_pin(h);                                                         \
+    void *raw = h->ptr;                                             \
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;                          \
     meta->arena = arena;                                                         \
     meta->size = count;                                                          \
@@ -46,7 +47,8 @@ RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, const char 
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
 
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = count;
@@ -75,7 +77,8 @@ RtHandleV2 *rt_array_range_v2(RtArenaV2 *arena, long long start, long long end) 
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
 
-    void *raw = rt_handle_v2_pin(h);
+    rt_handle_v2_pin(h);
+    void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = count;
@@ -118,7 +121,8 @@ RtHandleV2 *rt_array_from_legacy_string_v2(RtArenaV2 *arena, char **src) {
 char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
 
-    void *raw = rt_handle_v2_pin(arr_h);
+    rt_handle_v2_pin(arr_h);
+    void *raw = arr_h->ptr;
     if (raw == NULL) return NULL;
 
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
@@ -135,8 +139,10 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
 
     /* Allocate space for metadata + char** result with null terminator */
     size_t alloc_size = sizeof(RtArrayMetadataV2) + (count + 1) * sizeof(char *);
-    void *result_raw = rt_arena_alloc(arena, alloc_size);
-    if (result_raw == NULL) return NULL;
+    RtHandleV2 *result_h = rt_arena_v2_alloc(arena, alloc_size);
+    if (result_h == NULL) return NULL;
+    rt_handle_v2_pin(result_h);
+    void *result_raw = result_h->ptr;
 
     /* Write metadata so rt_v2_data_array_length works */
     RtArrayMetadataV2 *result_meta = (RtArrayMetadataV2 *)result_raw;
@@ -149,7 +155,8 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
     /* Pin each string element to extract char* */
     for (size_t i = 0; i < count; i++) {
         if (handles[i] != NULL) {
-            result[i] = (char *)rt_handle_v2_pin(handles[i]);
+            rt_handle_v2_pin(handles[i]);
+            result[i] = (char *)handles[i]->ptr;
         } else {
             result[i] = NULL;
         }
@@ -191,8 +198,10 @@ RtHandleV2 *rt_promote_array_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
     RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
     if (!new_h) return NULL;
 
-    void *old_raw = rt_handle_v2_pin(arr_h);
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(arr_h);
+    void *old_raw = arr_h->ptr;
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
 
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     new_meta->arena = dest;
@@ -229,8 +238,10 @@ RtHandleV2 *rt_promote_array_handle_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
     RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
     if (!new_h) return NULL;
 
-    void *old_raw = rt_handle_v2_pin(arr_h);
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(arr_h);
+    void *old_raw = arr_h->ptr;
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
 
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     new_meta->arena = dest;
@@ -265,8 +276,10 @@ RtHandleV2 *rt_promote_array_handle_3d_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
     RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
     if (!new_h) return NULL;
 
-    void *old_raw = rt_handle_v2_pin(arr_h);
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(arr_h);
+    void *old_raw = arr_h->ptr;
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
 
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     new_meta->arena = dest;
@@ -301,8 +314,10 @@ RtHandleV2 *rt_promote_array2_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
     RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
     if (!new_h) return NULL;
 
-    void *old_raw = rt_handle_v2_pin(arr_h);
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(arr_h);
+    void *old_raw = arr_h->ptr;
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
 
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     new_meta->arena = dest;
@@ -337,8 +352,10 @@ RtHandleV2 *rt_promote_array3_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
     RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
     if (!new_h) return NULL;
 
-    void *old_raw = rt_handle_v2_pin(arr_h);
-    void *new_raw = rt_handle_v2_pin(new_h);
+    rt_handle_v2_pin(arr_h);
+    void *old_raw = arr_h->ptr;
+    rt_handle_v2_pin(new_h);
+    void *new_raw = new_h->ptr;
 
     RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
     new_meta->arena = dest;

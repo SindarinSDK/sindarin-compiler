@@ -455,11 +455,13 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* Return code that creates and populates the closure (V2 arena allocation) */
         char *closure_init = arena_sprintf(gen->arena,
             "({\n"
-            "    __closure_%d__ *__cl__ = (__closure_%d__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__closure_%d__)));\n"
+            "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__closure_%d__));\n"
+            "    rt_handle_v2_pin(__cl_h__);\n"
+            "    __closure_%d__ *__cl__ = (__closure_%d__ *)__cl_h__->ptr;\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__closure_%d__);\n",
-            lambda_id, lambda_id, closure_arena, lambda_id, lambda_id, closure_arena, lambda_id);
+            closure_arena, lambda_id, lambda_id, lambda_id, lambda_id, closure_arena, lambda_id);
 
         for (int i = 0; i < cv.count; i++)
         {
@@ -508,8 +510,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     /* It's a value (lambda param, loop var, etc.) - need to heap-allocate (V2) */
                     const char *c_type = get_c_type(gen->arena, cv.types[i]);
                     closure_init = arena_sprintf(gen->arena,
-                        "%s    __cl__->%s = ({ %s *__tmp__ = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s))); *__tmp__ = %s; __tmp__; });\n",
-                        closure_init, cv.names[i], c_type, c_type, closure_arena, c_type, mangled_cv_name);
+                        "%s    __cl__->%s = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_v2_pin(__ah); %s *__tmp__ = (%s *)__ah->ptr; *__tmp__ = %s; __tmp__; });\n",
+                        closure_init, cv.names[i], closure_arena, c_type, c_type, c_type, mangled_cv_name);
                 }
             }
             else
@@ -699,7 +701,9 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* Return code that creates the closure using generic __Closure__ type */
         return arena_sprintf(gen->arena,
             "({\n"
-            "    __Closure__ *__cl__ = (__Closure__ *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(__Closure__)));\n"
+            "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
+            "    rt_handle_v2_pin(__cl_h__);\n"
+            "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__Closure__);\n"

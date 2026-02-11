@@ -18,7 +18,7 @@
 
 /* Threshold for stack vs heap allocation for structs.
  * Structs smaller than this are stack-allocated.
- * Structs >= this size are heap-allocated via rt_arena_alloc.
+ * Structs >= this size are heap-allocated via rt_arena_v2_alloc.
  * This matches the same threshold used for fixed arrays. */
 #define STRUCT_STACK_THRESHOLD 8192  /* 8KB */
 
@@ -274,8 +274,10 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             if (init_sym != NULL && init_sym->kind == SYMBOL_PARAM)
             {
                 init_str = arena_sprintf(gen->arena,
-                    "rt_arena_v2_strdup(%s, (char *)rt_handle_v2_pin(%s))",
-                    ARENA_VAR(gen), init_str);
+                    "({ RtHandleV2 *__src_h__ = %s; "
+                    "rt_handle_v2_pin(__src_h__); "
+                    "rt_arena_v2_strdup(%s, (char *)__src_h__->ptr); })",
+                    init_str, ARENA_VAR(gen));
             }
         }
 
@@ -383,8 +385,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                                    strcmp(gen->current_arena_var, "__local_arena__") == 0 && !in_main)
             ? "__caller_arena__"
             : ARENA_VAR(gen);
-        indented_fprintf(gen, indent, "%s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n",
-                         type_c, var_name, type_c, alloc_arena, type_c);
+        indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
+                         var_name, alloc_arena, type_c);
+        indented_fprintf(gen, indent, "rt_handle_v2_pin(__%s_h__);\n", var_name);
+        indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
+                         type_c, var_name, type_c, var_name);
         indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
     }
     /* Handle large struct heap allocation */
@@ -405,8 +410,11 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
         if (struct_size >= STRUCT_STACK_THRESHOLD)
         {
-            indented_fprintf(gen, indent, "%s *%s = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s)));\n",
-                             type_c, var_name, type_c, ARENA_VAR(gen), type_c);
+            indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
+                             var_name, ARENA_VAR(gen), type_c);
+            indented_fprintf(gen, indent, "rt_handle_v2_pin(__%s_h__);\n", var_name);
+            indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
+                             type_c, var_name, type_c, var_name);
             indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
 
             Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);

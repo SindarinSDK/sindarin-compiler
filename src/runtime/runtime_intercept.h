@@ -24,7 +24,7 @@ typedef RtAny (*RtContinueFn)(void);
  * The fn pointer uses closure calling convention: fn(closure_ptr) -> RtAny
  */
 typedef struct RtClosure {
-    void *fn;       // Function pointer using closure calling convention
+    void *fn;       // Function pointer (code address, not arena-allocated)
     RtArenaV2 *arena; // Arena for allocations (may be NULL for continue callbacks)
 } RtClosure;
 
@@ -82,7 +82,7 @@ extern __declspec(thread) int __rt_intercept_depth;
 typedef struct RtInterceptTLS {
     int intercept_depth;
     RtAny *thunk_args;
-    void *thunk_arena;
+    RtArenaV2 *thunk_arena;
     char wrapped_args_buffer[__RT_WRAPPED_ARGS_BUFFER_SIZE];
     void *current_context;  /* InterceptContext* - void* to avoid forward decl issues */
 } RtInterceptTLS;
@@ -108,10 +108,10 @@ extern __thread int __rt_intercept_depth;
  */
 #ifdef _MSC_VER
 extern __declspec(thread) RtAny *__rt_thunk_args;
-extern __declspec(thread) void *__rt_thunk_arena;
+extern __declspec(thread) RtArenaV2 *__rt_thunk_arena;
 #elif !defined(__TINYC__)
 extern __thread RtAny *__rt_thunk_args;
-extern __thread void *__rt_thunk_arena;
+extern __thread RtArenaV2 *__rt_thunk_arena;
 #endif
 
 /**

@@ -47,10 +47,10 @@ __thread int __rt_intercept_depth = 0;
 // Per-thread arguments array and arena for thunk functions
 #ifdef _MSC_VER
 __declspec(thread) RtAny *__rt_thunk_args = NULL;
-__declspec(thread) void *__rt_thunk_arena = NULL;
+__declspec(thread) RtArenaV2 *__rt_thunk_arena = NULL;
 #else
 __thread RtAny *__rt_thunk_args = NULL;
-__thread void *__rt_thunk_arena = NULL;
+__thread RtArenaV2 *__rt_thunk_arena = NULL;
 #endif
 #endif /* __TINYC__ */
 
@@ -260,17 +260,18 @@ static RtAny call_next_interceptor(void)
     // This matches the __Closure__ type expected by generated Sindarin code
     RtClosure continue_closure = {
         .fn = (void *)call_next_interceptor_closure,
-        .arena = (RtArenaV2 *)__rt_thunk_arena
+        .arena = __rt_thunk_arena
     };
 
     // Convert name and args to handles for the Sindarin handler
-    RtArenaV2 *arena = (RtArenaV2 *)__rt_thunk_arena;
+    RtArenaV2 *arena = __rt_thunk_arena;
     RtHandleV2 *name_h = rt_arena_v2_strdup(arena, ctx->name);
 
     // Create args array handle: [RtArrayMetadataV2][RtAny elements...]
     size_t args_alloc = sizeof(RtArrayMetadataV2) + ctx->arg_count * sizeof(RtAny);
     RtHandleV2 *args_h = rt_arena_v2_alloc(arena, args_alloc);
-    void *args_raw = rt_handle_v2_pin(args_h);
+    rt_handle_v2_pin(args_h);
+    void *args_raw = args_h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)args_raw;
     meta->arena = NULL;
     meta->size = ctx->arg_count;
@@ -282,12 +283,13 @@ static RtAny call_next_interceptor(void)
     }
 
     // Call the interceptor handler with handle-based parameters
-    RtAny result = entry->handler((RtArenaV2 *)arena, name_h, args_h, &continue_closure);
+    RtAny result = entry->handler(arena, name_h, args_h, &continue_closure);
 
     // Copy any modifications back to the original args array
     if (ctx->arg_count > 0)
     {
-        void *args_ptr = rt_handle_v2_pin(args_h);
+        rt_handle_v2_pin(args_h);
+        void *args_ptr = args_h->ptr;
         RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadataV2));
         memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));
     }

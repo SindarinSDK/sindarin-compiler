@@ -116,8 +116,8 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
                         Type *ptype = innermost->params[pi].type;
                         if (ptype->kind == TYPE_STRING)
                         {
-                            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                                 mangled_param);
+                            return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })",
+                                                 mangled_param, mangled_param);
                         }
                         else if (ptype->kind == TYPE_ARRAY)
                         {
@@ -143,7 +143,7 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
             symbol->type != NULL && is_handle_type(symbol->type))
         {
             if (symbol->type->kind == TYPE_STRING)
-                return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)", deref);
+                return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })", deref, deref);
             else if (symbol->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
@@ -227,12 +227,12 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         is_handle_type(symbol->type))
     {
         /* Pin handles. V2 handles don't need the arena parameter.
-         * For strings, rt_handle_v2_pin returns the string data directly.
+         * For strings, pin the handle then access ->ptr for the string data.
          * For arrays, rt_array_data_v2 returns the element data (not metadata). */
         if (symbol->type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "(char *)rt_handle_v2_pin(%s)",
-                                 mangled);
+            return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })",
+                                 mangled, mangled);
         }
         else if (symbol->type->kind == TYPE_ARRAY)
         {
@@ -557,17 +557,22 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         const char *struct_name = sn_mangle_name(gen->arena, type->as.struct_type.name);
         if (struct_name != NULL)
         {
-            // Generate: ({ StructType *_tmp = (StructType *)rt_handle_v2_pin(rt_arena_v2_alloc(arena, sizeof(StructType)));
+            // Generate: ({ RtHandleV2 *__esc_h__ = rt_arena_v2_alloc(arena, sizeof(StructType));
+            //             rt_handle_v2_pin(__esc_h__);
+            //             StructType *__esc_tmp__ = (StructType *)__esc_h__->ptr;
             //             StructType __src_tmp__ = value;
-            //             memcpy(_tmp, &__src_tmp__, sizeof(StructType));
-            //             var = *_tmp; var; })
+            //             memcpy(__esc_tmp__, &__src_tmp__, sizeof(StructType));
+            //             var = *__esc_tmp__; var; })
             // This allocates in the outer arena first, then copies using memcpy
             return arena_sprintf(gen->arena,
-                "({ %s *__esc_tmp__ = (%s *)rt_handle_v2_pin(rt_arena_v2_alloc(%s, sizeof(%s))); "
+                "({ RtHandleV2 *__esc_h__ = rt_arena_v2_alloc(%s, sizeof(%s)); "
+                "rt_handle_v2_pin(__esc_h__); "
+                "%s *__esc_tmp__ = (%s *)__esc_h__->ptr; "
                 "%s __esc_src__ = %s; "
                 "memcpy(__esc_tmp__, &__esc_src__, sizeof(%s)); "
                 "%s = *__esc_tmp__; %s; })",
-                struct_name, struct_name, ARENA_VAR(gen), struct_name,
+                ARENA_VAR(gen), struct_name,
+                struct_name, struct_name,
                 struct_name, value_str,
                 struct_name,
                 var_name, var_name);

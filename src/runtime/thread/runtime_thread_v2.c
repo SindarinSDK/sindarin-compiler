@@ -16,12 +16,6 @@
 RT_THREAD_LOCAL_V2 RtThread *rt_current_thread = NULL;
 
 /* ============================================================================
- * Forward Declarations
- * ============================================================================ */
-
-static void rt_thread_v2_cleanup_callback(void *data);
-
-/* ============================================================================
  * Spawn Implementation
  * ============================================================================ */
 
@@ -33,7 +27,9 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
     }
 
     /* Allocate RtThread in caller arena (survives until sync/cleanup) */
-    RtThread *t = rt_handle_v2_pin(rt_arena_v2_alloc(caller, sizeof(RtThread)));
+    RtHandleV2 *t_h = rt_arena_v2_alloc(caller, sizeof(RtThread));
+    rt_handle_v2_pin(t_h);
+    RtThread *t = (RtThread *)t_h->ptr;
     if (t == NULL) {
         fprintf(stderr, "rt_thread_create: allocation failed\n");
         return NULL;
@@ -41,6 +37,7 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
 
     /* Initialize fields */
     t->pthread = 0;
+    t->self_handle = t_h;
     t->caller = caller;
     t->mode = mode;
     t->done = false;
@@ -134,7 +131,9 @@ RtHandleV2 *rt_thread_v2_sync(RtThread *t)
     /* Promote panic message to caller arena if needed */
     char *promoted_panic = NULL;
     if (panic_msg != NULL && t->arena != NULL) {
-        promoted_panic = rt_arena_strdup(t->caller, panic_msg);
+        RtHandleV2 *_h = rt_arena_v2_strdup(t->caller, panic_msg);
+        rt_handle_v2_pin(_h);
+        promoted_panic = (char *)_h->ptr;
     } else {
         promoted_panic = panic_msg;  /* Already in caller arena or NULL */
     }
@@ -170,9 +169,6 @@ RtHandleV2 *rt_thread_v2_sync(RtThread *t)
     pthread_mutex_destroy(&t->mutex);
     pthread_cond_destroy(&t->cond);
 
-    /* Remove cleanup callback if registered (for detach case that later syncs) */
-    rt_arena_v2_remove_cleanup(t->caller, t);
-
     /* Re-raise panic in caller context */
     if (promoted_panic != NULL) {
         fprintf(stderr, "panic: %s\n", promoted_panic);
@@ -203,7 +199,9 @@ RtHandleV2 *rt_thread_v2_sync_keep_arena(RtThread *t)
     /* Promote panic message to caller arena if needed */
     char *promoted_panic = NULL;
     if (panic_msg != NULL && t->arena != NULL) {
-        promoted_panic = rt_arena_strdup(t->caller, panic_msg);
+        RtHandleV2 *_h = rt_arena_v2_strdup(t->caller, panic_msg);
+        rt_handle_v2_pin(_h);
+        promoted_panic = (char *)_h->ptr;
     } else {
         promoted_panic = panic_msg;
     }
@@ -217,9 +215,6 @@ RtHandleV2 *rt_thread_v2_sync_keep_arena(RtThread *t)
     /* Destroy synchronization primitives */
     pthread_mutex_destroy(&t->mutex);
     pthread_cond_destroy(&t->cond);
-
-    /* Remove cleanup callback if registered */
-    rt_arena_v2_remove_cleanup(t->caller, t);
 
     /* Re-raise panic in caller context */
     if (promoted_panic != NULL) {
@@ -243,54 +238,32 @@ void rt_thread_v2_sync_all(RtThread **threads, int count)
 }
 
 /* ============================================================================
- * Detach Implementation
+ * Fire-and-Forget Cleanup
  * ============================================================================ */
 
-static void rt_thread_v2_cleanup_callback(void *data)
+void rt_thread_v2_fire_and_forget_done(RtThread *t)
 {
-    RtThread *t = (RtThread *)data;
     if (t == NULL) return;
 
-    /* Wait for thread completion */
+    /* Signal completion (no-op for fire-and-forget since nobody waits,
+     * but keeps the done flag consistent for safety) */
     pthread_mutex_lock(&t->mutex);
-    while (!t->done) {
-        pthread_cond_wait(&t->cond, &t->mutex);
-    }
+    t->done = true;
     pthread_mutex_unlock(&t->mutex);
 
-    /* Destroy thread arena based on mode */
-    switch (t->mode) {
-        case RT_THREAD_MODE_SHARED:
-            /* No arena to destroy */
-            break;
-
-        case RT_THREAD_MODE_DEFAULT:
-        case RT_THREAD_MODE_PRIVATE:
-            /* Destroy thread's own arena */
-            if (t->arena != NULL) {
-                rt_arena_v2_destroy(t->arena);
-                t->arena = NULL;
-            }
-            break;
-    }
-
-    /* Destroy synchronization primitives */
+    /* Destroy synchronization primitives - safe because nobody will
+     * ever call sync on a fire-and-forget thread */
     pthread_mutex_destroy(&t->mutex);
     pthread_cond_destroy(&t->cond);
 
-    /* Note: RtThread struct itself is in caller arena, freed with arena */
-}
-
-void rt_thread_v2_detach(RtThread *t)
-{
-    if (t == NULL) {
-        fprintf(stderr, "rt_thread_detach: NULL thread\n");
-        return;
+    /* Condemn thread arena for GC destruction */
+    if (t->arena != NULL) {
+        rt_arena_v2_condemn(t->arena);
     }
 
-    /* Register cleanup callback on caller arena */
-    rt_arena_v2_on_cleanup(t->caller, t, rt_thread_v2_cleanup_callback,
-                           RT_CLEANUP_PRIORITY_HIGH);
+    /* Unpin and mark self_handle dead so GC reclaims the RtThread from caller arena */
+    rt_handle_v2_unpin(t->self_handle);
+    rt_arena_v2_free(t->self_handle);
 }
 
 /* ============================================================================
@@ -317,7 +290,9 @@ void rt_thread_v2_set_panic(RtThread *t, const char *msg)
     /* Store panic message in thread arena (or caller if shared) */
     RtArenaV2 *arena = rt_thread_v2_get_arena(t);
     if (msg != NULL && arena != NULL) {
-        t->panic_msg = rt_arena_strdup(arena, msg);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, msg);
+        rt_handle_v2_pin(_h);
+        t->panic_msg = (char *)_h->ptr;
     } else {
         t->panic_msg = (char *)msg;
     }
@@ -360,7 +335,9 @@ bool rt_thread_v2_capture_panic(const char *msg)
     /* Store panic in thread */
     RtArenaV2 *arena = rt_thread_v2_get_arena(t);
     if (msg != NULL && arena != NULL) {
-        t->panic_msg = rt_arena_strdup(arena, msg);
+        RtHandleV2 *_h = rt_arena_v2_strdup(arena, msg);
+        rt_handle_v2_pin(_h);
+        t->panic_msg = (char *)_h->ptr;
     } else {
         t->panic_msg = (char *)msg;
     }
@@ -493,26 +470,28 @@ static pthread_mutex_t *rt_sync_lock_get_mutex(void *addr)
 }
 
 /* Acquire a mutex lock for a sync variable */
-void rt_sync_lock(void *addr)
+void rt_sync_lock(RtHandleV2 *handle)
 {
-    if (addr == NULL) {
-        fprintf(stderr, "rt_sync_lock: NULL address\n");
+    if (handle == NULL) {
+        fprintf(stderr, "rt_sync_lock: NULL handle\n");
         return;
     }
 
-    pthread_mutex_t *mutex = rt_sync_lock_get_mutex(addr);
+    pthread_mutex_t *mutex = rt_sync_lock_get_mutex((void *)handle);
     if (mutex != NULL) {
         pthread_mutex_lock(mutex);
     }
 }
 
 /* Release a mutex lock for a sync variable */
-void rt_sync_unlock(void *addr)
+void rt_sync_unlock(RtHandleV2 *handle)
 {
-    if (addr == NULL) {
-        fprintf(stderr, "rt_sync_unlock: NULL address\n");
+    if (handle == NULL) {
+        fprintf(stderr, "rt_sync_unlock: NULL handle\n");
         return;
     }
+
+    void *addr = (void *)handle;
 
     /* Find the existing mutex */
     if (!g_sync_lock_table_initialized) {

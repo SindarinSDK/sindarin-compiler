@@ -33,7 +33,8 @@ char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
                 return v2_call;
             }
             /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena, "((char *)rt_handle_v2_pin(%s))", v2_call);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })", v2_call);
         }
         return arena_sprintf(gen->arena, "rt_char_toString(%s, %s)",
             ARENA_VAR(gen), object_str);
