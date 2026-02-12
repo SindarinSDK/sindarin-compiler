@@ -231,6 +231,7 @@ static RtBlockV2 *block_create(RtArenaV2 *arena, size_t min_size)
     block->arena = arena;
     block->capacity = capacity;
     block->used = 0;
+    block->handles_head = NULL;
 
     return block;
 }
@@ -271,8 +272,6 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     handle->size = size;
     handle->arena = arena;
     handle->block = block;
-    handle->alloc_epoch = arena->current_epoch;
-    handle->last_seen_epoch = arena->current_epoch;
     handle->flags = RT_HANDLE_FLAG_NONE;
     handle->pin_count = 0;
     handle->next = NULL;
@@ -281,39 +280,30 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     return handle;
 }
 
-static void handle_link(RtArenaV2 *arena, RtHandleV2 *handle)
+static void handle_link(RtBlockV2 *block, RtHandleV2 *handle)
 {
-    /* Add to tail of arena's handle list */
-    handle->prev = arena->handles_tail;
-    handle->next = NULL;
-
-    if (arena->handles_tail) {
-        arena->handles_tail->next = handle;
-    } else {
-        arena->handles_head = handle;
+    /* Add to head of block's handle list */
+    handle->next = block->handles_head;
+    handle->prev = NULL;
+    if (block->handles_head) {
+        block->handles_head->prev = handle;
     }
-    arena->handles_tail = handle;
-    arena->handle_count++;
+    block->handles_head = handle;
 }
 
-static void handle_unlink(RtArenaV2 *arena, RtHandleV2 *handle)
+static void handle_unlink(RtBlockV2 *block, RtHandleV2 *handle)
 {
-    /* Remove from arena's handle list */
+    /* Remove from block's handle list */
     if (handle->prev) {
         handle->prev->next = handle->next;
     } else {
-        arena->handles_head = handle->next;
+        block->handles_head = handle->next;
     }
-
     if (handle->next) {
         handle->next->prev = handle->prev;
-    } else {
-        arena->handles_tail = handle->prev;
     }
-
     handle->prev = NULL;
     handle->next = NULL;
-    arena->handle_count--;
 }
 
 static void handle_destroy(RtHandleV2 *handle)
@@ -339,15 +329,9 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->first_child = NULL;
     arena->next_sibling = NULL;
 
-    arena->handles_head = NULL;
-    arena->handles_tail = NULL;
-    arena->handle_count = 0;
-
     arena->blocks_head = NULL;
     arena->current_block = NULL;
 
-    arena->current_epoch = 1;
-    arena->gc_threshold = 1000;  /* Trigger GC after 1000 handles */
     arena->gc_running = false;
     arena->flags = RT_ARENA_FLAG_NONE;
 
@@ -408,20 +392,19 @@ static void arena_v2_destroy_internal(RtArenaV2 *arena, bool unlink_from_parent)
         child = next;
     }
 
-    /* Destroy all handles */
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
-        handle_destroy(handle);
-        handle = next;
-    }
-
-    /* Destroy all blocks */
+    /* Destroy all blocks and their handles */
     RtBlockV2 *block = arena->blocks_head;
     while (block != NULL) {
-        RtBlockV2 *next = block->next;
+        RtBlockV2 *next_block = block->next;
+        /* Free all handles in this block */
+        RtHandleV2 *handle = block->handles_head;
+        while (handle != NULL) {
+            RtHandleV2 *next_handle = handle->next;
+            handle_destroy(handle);
+            handle = next_handle;
+        }
         block_destroy(block);
-        block = next;
+        block = next_block;
     }
 
     /* Unlink from parent (only if requested and parent exists) */
@@ -547,18 +530,10 @@ RtHandleV2 *rt_arena_v2_alloc(RtArenaV2 *arena, size_t size)
         return NULL;
     }
 
-    handle_link(arena, handle);
+    handle_link(arena->current_block, handle);
     arena->total_allocated += size;
 
-    /* Check if GC should run */
-    bool should_gc = arena->handle_count >= arena->gc_threshold;
-
     pthread_mutex_unlock(&arena->mutex);
-
-    /* Run GC outside of lock if needed */
-    if (should_gc) {
-        rt_arena_v2_gc(arena);
-    }
 
     return handle;
 }
@@ -630,27 +605,35 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     }
     arena->gc_running = true;
 
-    /* Increment epoch */
-    arena->current_epoch++;
-
     size_t collected = 0;
-    RtHandleV2 *handle = arena->handles_head;
+    RtBlockV2 **bp = &arena->blocks_head;
 
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
+    while (*bp != NULL) {
+        RtBlockV2 *block = *bp;
 
-        /* Collect if dead and not pinned */
-        if ((handle->flags & RT_HANDLE_FLAG_DEAD) && handle->pin_count == 0) {
-            handle_unlink(arena, handle);
-            arena->total_freed += handle->size;
-            handle_destroy(handle);
-            collected++;
-        } else {
-            /* Mark as seen this epoch */
-            handle->last_seen_epoch = arena->current_epoch;
+        /* Sweep handles in this block */
+        RtHandleV2 *handle = block->handles_head;
+        while (handle != NULL) {
+            RtHandleV2 *next = handle->next;
+            if ((handle->flags & RT_HANDLE_FLAG_DEAD) && handle->pin_count == 0) {
+                handle_unlink(block, handle);
+                arena->total_freed += handle->size;
+                handle_destroy(handle);
+                collected++;
+            }
+            handle = next;
         }
 
-        handle = next;
+        /* If block is empty, free it */
+        if (block->handles_head == NULL) {
+            *bp = block->next;  /* Unlink from chain */
+            if (arena->current_block == block) {
+                arena->current_block = NULL;
+            }
+            block_destroy(block);
+        } else {
+            bp = &block->next;
+        }
     }
 
     arena->gc_runs++;
@@ -898,11 +881,24 @@ void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
     if (arena == NULL || stats == NULL) return;
 
     pthread_mutex_lock(&arena->mutex);
-    stats->handle_count = arena->handle_count;
+
+    /* Count handles across all blocks */
+    size_t count = 0;
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        RtHandleV2 *h = block->handles_head;
+        while (h != NULL) {
+            count++;
+            h = h->next;
+        }
+        block = block->next;
+    }
+
+    stats->handle_count = count;
     stats->total_allocated = arena->total_allocated;
     stats->total_freed = arena->total_freed;
     stats->gc_runs = arena->gc_runs;
-    stats->current_epoch = arena->current_epoch;
+
     pthread_mutex_unlock(&arena->mutex);
 }
 
@@ -918,5 +914,4 @@ void rt_arena_v2_print_stats(RtArenaV2 *arena)
     fprintf(stderr, "  Allocated: %zu bytes\n", stats.total_allocated);
     fprintf(stderr, "  Freed: %zu bytes\n", stats.total_freed);
     fprintf(stderr, "  GC runs: %zu\n", stats.gc_runs);
-    fprintf(stderr, "  Epoch: %u\n", stats.current_epoch);
 }

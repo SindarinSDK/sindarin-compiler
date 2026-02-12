@@ -13,7 +13,7 @@
  * Allocates RtStringMeta + capacity + 1 bytes, initializes metadata,
  * and returns pointer to the string data (after metadata).
  * The string is initialized as empty (length=0, str[0]='\0'). */
-char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
+RtHandleV2 *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
     /* Validate arena */
     if (arena == NULL) {
         fprintf(stderr, "rt_string_with_capacity: arena is NULL\n");
@@ -39,12 +39,13 @@ char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
     meta->capacity = capacity;
     char *str = (char*)(meta + 1);
     str[0] = '\0';
-    return str;
+    rt_handle_v2_unpin(meta_h);
+    return meta_h;
 }
 
 /* Create a mutable string from an immutable source string.
  * Copies the content into a new mutable string with metadata. */
-char *rt_string_from(RtArenaV2 *arena, const char *src) {
+RtHandleV2 *rt_string_from(RtArenaV2 *arena, const char *src) {
     if (arena == NULL) {
         fprintf(stderr, "rt_string_from: arena is NULL\n");
         exit(1);
@@ -54,13 +55,16 @@ char *rt_string_from(RtArenaV2 *arena, const char *src) {
     /* Allocate with some extra capacity to allow appending */
     size_t capacity = len < 16 ? 32 : len * 2;
 
-    char *str = rt_string_with_capacity(arena, capacity);
+    RtHandleV2 *h = rt_string_with_capacity(arena, capacity);
+    rt_handle_v2_pin(h);
+    char *str = (char *)((RtStringMeta *)h->ptr + 1);
     if (src && len > 0) {
         memcpy(str, src, len);
         str[len] = '\0';
-        RT_STR_META(str)->length = len;
+        ((RtStringMeta *)h->ptr)->length = len;
     }
-    return str;
+    rt_handle_v2_unpin(h);
+    return h;
 }
 
 /* Ensure a string is mutable. If it's already mutable (has valid metadata),
@@ -71,61 +75,35 @@ char *rt_string_from(RtArenaV2 *arena, const char *src) {
  * Mutable strings have a specific pattern in their metadata that immutable
  * strings (from arena_strdup or string literals) cannot have.
  */
-char *rt_string_ensure_mutable(RtArenaV2 *arena, char *str) {
+RtHandleV2 *rt_string_ensure_mutable(RtArenaV2 *arena, char *str) {
     if (str == NULL) {
         /* NULL becomes an empty mutable string */
         return rt_string_with_capacity(arena, 32);
     }
 
-    /* Check if this pointer points into our arena's memory.
-     * Mutable strings created by rt_string_with_capacity have their
-     * metadata stored immediately before the string data.
-     *
-     * We check if the arena pointer in metadata matches AND is non-NULL.
-     * For safety, we also verify the capacity is reasonable.
-     *
-     * For strings NOT created by rt_string_with_capacity (e.g., rt_arena_strdup
-     * or string literals), the bytes before them are NOT our metadata.
-     *
-     * To avoid accessing invalid memory, we take a conservative approach:
-     * We only check for strings that were previously returned from
-     * rt_string_ensure_mutable or rt_string_with_capacity - which we identify
-     * by checking if the alleged metadata has a valid-looking arena pointer
-     * and reasonable capacity value.
-     */
-    RtStringMeta *meta = RT_STR_META(str);
-
-    /* Validate that this looks like a valid mutable string:
-     * 1. Arena pointer matches our arena
-     * 2. Capacity is reasonable (not garbage)
-     * 3. Length is <= capacity
-     */
-    if (meta->arena == arena &&
-        meta->capacity > 0 &&
-        meta->capacity < (1UL << 30) &&
-        meta->length <= meta->capacity) {
-        return str;
-    }
-
-    /* Otherwise, convert to mutable */
+    /* Always create a new mutable copy. We cannot recover the original handle
+     * from a raw char* pointer, so we must create a fresh handle. */
     return rt_string_from(arena, str);
 }
 
 /* Append a string to a mutable string (in-place if capacity allows).
  * Returns dest pointer - may be different from input if reallocation occurred.
  * Uses 2x growth strategy when capacity is exceeded. */
-char *rt_string_append(char *dest, const char *src) {
+RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src) {
     /* Validate inputs */
-    if (dest == NULL) {
-        fprintf(stderr, "rt_string_append: dest is NULL\n");
+    if (dest_h == NULL) {
+        fprintf(stderr, "rt_string_append: dest_h is NULL\n");
         exit(1);
     }
     if (src == NULL) {
-        return dest;  /* Appending NULL is a no-op */
+        return dest_h;  /* Appending NULL is a no-op */
     }
 
+    rt_handle_v2_pin(dest_h);
+    char *dest = (char *)((RtStringMeta *)dest_h->ptr + 1);
+
     /* Get metadata and validate it's a mutable string */
-    RtStringMeta *meta = RT_STR_META(dest);
+    RtStringMeta *meta = (RtStringMeta *)dest_h->ptr;
     if (meta->arena == NULL) {
         fprintf(stderr, "rt_string_append: dest is not a mutable string (arena is NULL)\n");
         exit(1);
@@ -155,19 +133,24 @@ char *rt_string_append(char *dest, const char *src) {
             exit(1);
         }
 
-        char *new_str = rt_string_with_capacity(meta->arena, new_cap);
+        rt_handle_v2_unpin(dest_h);
+        RtHandleV2 *new_h = rt_string_with_capacity(meta->arena, new_cap);
+        rt_handle_v2_pin(new_h);
+        char *new_str = (char *)((RtStringMeta *)new_h->ptr + 1);
 
         /* Copy existing content to new buffer */
         memcpy(new_str, dest, old_len);
 
-        /* Update dest and meta to point to new buffer */
+        /* Update dest_h, dest, and meta to point to new buffer */
+        dest_h = new_h;
         dest = new_str;
-        meta = RT_STR_META(dest);
+        meta = (RtStringMeta *)dest_h->ptr;
     }
 
     /* Append the source string (including null terminator) */
     memcpy(dest + old_len, src, src_len + 1);
     meta->length = new_len;
 
-    return dest;
+    rt_handle_v2_unpin(dest_h);
+    return dest_h;
 }

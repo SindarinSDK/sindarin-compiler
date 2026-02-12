@@ -45,18 +45,4 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
 RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str);
 RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str);
 
-/* ============================================================================
- * Raw Pointer String Functions V2
- * ============================================================================
- * These return raw char* but allocate from RtArenaV2.
- * Used for simple string interpolation where handle overhead isn't needed.
- * ============================================================================ */
-
-char *rt_str_concat_raw_v2(RtArenaV2 *arena, const char *a, const char *b);
-char *rt_to_string_long_raw_v2(RtArenaV2 *arena, long long val);
-char *rt_to_string_double_raw_v2(RtArenaV2 *arena, double val);
-char *rt_to_string_char_raw_v2(RtArenaV2 *arena, char val);
-char *rt_to_string_bool_raw_v2(RtArenaV2 *arena, int val);
-char *rt_to_string_byte_raw_v2(RtArenaV2 *arena, unsigned char val);
-
 #endif /* RUNTIME_STRING_V2_H */

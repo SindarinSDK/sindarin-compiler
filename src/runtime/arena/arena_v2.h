@@ -3,8 +3,8 @@
  * =====================================================
  *
  * Design principles:
- * 1. Fat handles - RtHandleV2 contains everything (ptr, arena, epoch, flags)
- * 2. Simple GC - Lock-based with epoch waves, no lock-free complexity
+ * 1. Fat handles - RtHandleV2 contains everything (ptr, arena, flags)
+ * 2. Simple GC - Lock-based mark-sweep, no lock-free complexity
  * 3. Clear ownership - Every handle knows its arena
  * 4. Interop-friendly - Native code can get arena from any handle
  * 5. No compaction - Trade memory for simplicity
@@ -55,7 +55,7 @@ typedef enum {
  * Handle V2 - The First-Class Citizen
  * ============================================================================
  * Fat handle containing everything needed. No separate entry table.
- * Handles form a doubly-linked list within their owning arena.
+ * Handles form a doubly-linked list within their owning block.
  * ============================================================================ */
 
 struct RtHandleV2 {
@@ -68,14 +68,12 @@ struct RtHandleV2 {
     RtBlockV2 *block;           /* Block containing the data */
 
     /* GC metadata */
-    uint32_t alloc_epoch;       /* Epoch when allocated */
-    uint32_t last_seen_epoch;   /* Last GC epoch where handle was live */
     uint16_t flags;             /* RtHandleFlags */
     uint16_t pin_count;         /* Reference count for pinning */
 
-    /* Intrusive linked list for arena's handle tracking */
-    RtHandleV2 *next;           /* Next handle in arena */
-    RtHandleV2 *prev;           /* Previous handle in arena */
+    /* Intrusive linked list for block's handle tracking */
+    RtHandleV2 *next;           /* Next handle in block */
+    RtHandleV2 *prev;           /* Previous handle in block */
 };
 
 /* Null handle constant */
@@ -92,6 +90,7 @@ struct RtBlockV2 {
     RtArenaV2 *arena;           /* Owning arena */
     size_t capacity;            /* Total block capacity */
     size_t used;                /* Bytes used */
+    RtHandleV2 *handles_head;   /* Head of per-block handle linked list */
     char data[];                /* Flexible array for actual data */
 };
 
@@ -136,18 +135,11 @@ struct RtArenaV2 {
     RtArenaV2 *first_child;     /* First child arena */
     RtArenaV2 *next_sibling;    /* Next sibling arena */
 
-    /* Handle tracking - simple linked list */
-    RtHandleV2 *handles_head;   /* Head of handle list */
-    RtHandleV2 *handles_tail;   /* Tail for O(1) append */
-    size_t handle_count;        /* Number of live handles */
-
     /* Block storage */
     RtBlockV2 *blocks_head;     /* Head of block chain */
     RtBlockV2 *current_block;   /* Current allocation block */
 
     /* GC state */
-    uint32_t current_epoch;     /* Current GC epoch */
-    uint32_t gc_threshold;      /* Handles before triggering GC */
     bool gc_running;            /* Is GC currently running? */
     volatile uint16_t flags;    /* RtArenaFlags */
 
@@ -327,7 +319,6 @@ typedef struct {
     size_t total_allocated;
     size_t total_freed;
     size_t gc_runs;
-    uint32_t current_epoch;
 } RtArenaV2Stats;
 
 void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats);

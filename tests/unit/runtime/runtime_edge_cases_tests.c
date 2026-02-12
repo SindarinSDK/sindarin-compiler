@@ -20,7 +20,9 @@ static void test_rt_str_long_string_operations(void)
     memset(long_str, 'a', 1000);
     long_str[1000] = '\0';
 
-    char *result = rt_str_concat(arena, long_str, "suffix");
+    RtHandleV2 *result_h = rt_str_concat(arena, long_str, "suffix");
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(strlen(result) == 1006);
     assert(rt_str_endsWith(result, "suffix") == 1);
 
@@ -32,7 +34,9 @@ static void test_rt_str_unicode_like_sequences(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Test with escape-like sequences (not actual unicode, just chars)
-    char *result = rt_str_concat(arena, "hello\\n", "world\\t");
+    RtHandleV2 *result_h = rt_str_concat(arena, "hello\\n", "world\\t");
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello\\nworld\\t") == 0);
 
     rt_arena_destroy(arena);
@@ -42,7 +46,9 @@ static void test_rt_str_special_chars(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
 
-    char *result = rt_str_concat(arena, "line1\nline2", "\ttab");
+    RtHandleV2 *result_h = rt_str_concat(arena, "line1\nline2", "\ttab");
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(rt_str_contains(result, "\n") == 1);
     assert(rt_str_contains(result, "\t") == 1);
 
@@ -54,10 +60,14 @@ static void test_rt_str_repeated_replace(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Replace in string with overlapping patterns
-    char *result = rt_str_replace(arena, "ababab", "ab", "X");
+    RtHandleV2 *result_h = rt_str_replace(arena, "ababab", "ab", "X");
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(strcmp(result, "XXX") == 0);
 
-    result = rt_str_replace(arena, "aaa", "aa", "b");
+    result_h = rt_str_replace(arena, "aaa", "aa", "b");
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     // First 'aa' replaced with 'b', leaving 'ba'
     assert(strcmp(result, "ba") == 0);
 
@@ -85,18 +95,26 @@ static void test_rt_str_substring_boundary(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     // Test exact boundaries
-    char *result = rt_str_substring(arena, "hello", 0, 5);
+    RtHandleV2 *result_h = rt_str_substring(arena, "hello", 0, 5);
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     // Indices at string boundary
-    result = rt_str_substring(arena, "x", 0, 1);
+    result_h = rt_str_substring(arena, "x", 0, 1);
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     assert(strcmp(result, "x") == 0);
 
     // Out of bounds indices clamped
-    result = rt_str_substring(arena, "hello", 0, 100);
+    result_h = rt_str_substring(arena, "hello", 0, 100);
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
-    result = rt_str_substring(arena, "hello", -100, 5);
+    result_h = rt_str_substring(arena, "hello", -100, 5);
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     rt_arena_destroy(arena);
@@ -124,13 +142,19 @@ static void test_rt_str_trim_various_whitespace(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
 
-    char *result = rt_str_trim(arena, " \t\r\n hello \t\r\n ");
+    RtHandleV2 *result_h = rt_str_trim(arena, " \t\r\n hello \t\r\n ");
+    rt_handle_v2_pin(result_h);
+    char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
-    result = rt_str_trim(arena, "nowhitespace");
+    result_h = rt_str_trim(arena, "nowhitespace");
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     assert(strcmp(result, "nowhitespace") == 0);
 
-    result = rt_str_trim(arena, "\n\n\n");
+    result_h = rt_str_trim(arena, "\n\n\n");
+    rt_handle_v2_pin(result_h);
+    result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     rt_arena_destroy(arena);
@@ -264,15 +288,19 @@ static void test_rt_string_capacity(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
 
-    char *str = rt_string_with_capacity(arena, 100);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 100);
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->capacity >= 100);
     assert(RT_STR_META(str)->length == 0);
     assert(strcmp(str, "") == 0);
 
     // Use the capacity
-    str = rt_string_append(str, "hello");
-    str = rt_string_append(str, " ");
-    str = rt_string_append(str, "world");
+    str_h = rt_string_append(str_h, "hello");
+    str_h = rt_string_append(str_h, " ");
+    str_h = rt_string_append(str_h, "world");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello world") == 0);
 
     rt_arena_destroy(arena);
@@ -282,13 +310,15 @@ static void test_rt_string_append_chain(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
 
-    char *str = rt_string_with_capacity(arena, 10);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 10);
 
     // Chain of appends
     for (int i = 0; i < 10; i++) {
-        str = rt_string_append(str, "a");
+        str_h = rt_string_append(str_h, "a");
     }
 
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "aaaaaaaaaa") == 0);
     assert(RT_STR_META(str)->length == 10);
 
@@ -299,12 +329,16 @@ static void test_rt_string_from_empty(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
 
-    char *str = rt_string_from(arena, "");
+    RtHandleV2 *str_h = rt_string_from(arena, "");
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "") == 0);
     assert(RT_STR_META(str)->length == 0);
 
     // Can append to empty string
-    str = rt_string_append(str, "test");
+    str_h = rt_string_append(str_h, "test");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "test") == 0);
 
     rt_arena_destroy(arena);

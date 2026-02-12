@@ -17,13 +17,13 @@
  * ============================================================================ */
 
 /* Read a line from standard input (strips trailing newline) */
-char *rt_stdin_read_line(RtArenaV2 *arena);
+RtHandleV2 *rt_stdin_read_line(RtArenaV2 *arena);
 
 /* Read a single character from standard input (returns -1 on EOF) */
 long rt_stdin_read_char(void);
 
 /* Read a whitespace-delimited word from standard input */
-char *rt_stdin_read_word(RtArenaV2 *arena);
+RtHandleV2 *rt_stdin_read_word(RtArenaV2 *arena);
 
 /* Check if characters are available on stdin */
 int rt_stdin_has_chars(void);
@@ -65,7 +65,7 @@ void rt_stderr_flush(void);
  * ============================================================================ */
 
 /* Read a line from stdin (alias for rt_stdin_read_line) */
-char *rt_read_line(RtArenaV2 *arena);
+RtHandleV2 *rt_read_line(RtArenaV2 *arena);
 
 /* Print text with newline to stdout (alias for rt_stdout_write_line) */
 void rt_println(const char *text);

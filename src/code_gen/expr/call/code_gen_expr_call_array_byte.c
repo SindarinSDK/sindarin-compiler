@@ -2,7 +2,7 @@
  * code_gen_expr_call_array_byte.c - Code generation for byte array methods and dispatcher
  */
 
-/* Generate code for byte[].toString() - UTF-8 decoding */
+/* Generate code for byte[].toString() - UTF-8 decoding (returns RtHandleV2*) */
 static char *code_gen_byte_array_to_string(CodeGen *gen, Expr *object)
 {
     char *object_str = code_gen_expression(gen, object);
@@ -10,7 +10,7 @@ static char *code_gen_byte_array_to_string(CodeGen *gen, Expr *object)
                          ARENA_VAR(gen), object_str);
 }
 
-/* Generate code for byte[].toStringLatin1() - Latin-1/ISO-8859-1 decoding */
+/* Generate code for byte[].toStringLatin1() - Latin-1/ISO-8859-1 decoding (returns RtHandleV2*) */
 static char *code_gen_byte_array_to_string_latin1(CodeGen *gen, Expr *object)
 {
     char *object_str = code_gen_expression(gen, object);
@@ -18,7 +18,7 @@ static char *code_gen_byte_array_to_string_latin1(CodeGen *gen, Expr *object)
                          ARENA_VAR(gen), object_str);
 }
 
-/* Generate code for byte[].toHex() - hexadecimal encoding */
+/* Generate code for byte[].toHex() - hexadecimal encoding (returns RtHandleV2*) */
 static char *code_gen_byte_array_to_hex(CodeGen *gen, Expr *object)
 {
     char *object_str = code_gen_expression(gen, object);
@@ -26,7 +26,7 @@ static char *code_gen_byte_array_to_hex(CodeGen *gen, Expr *object)
                          ARENA_VAR(gen), object_str);
 }
 
-/* Generate code for byte[].toBase64() - Base64 encoding */
+/* Generate code for byte[].toBase64() - Base64 encoding (returns RtHandleV2*) */
 static char *code_gen_byte_array_to_base64(CodeGen *gen, Expr *object)
 {
     char *object_str = code_gen_expression(gen, object);
@@ -111,19 +111,31 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
 
     gen->expr_as_handle = saved_handle_mode;
 
-    /* If handle mode was active and the method returns a string (raw char *),
-     * wrap the result to produce an RtHandle. Methods like toHex, toBase64,
-     * toString return raw char* from C runtime functions. */
-    if (saved_handle_mode && result != NULL && gen->current_arena_var != NULL)
+    /* Byte array string-returning methods (toHex, toBase64, toString, toStringLatin1)
+     * now return RtHandleV2* directly. In handle mode, return the handle as-is.
+     * In non-handle mode, pin to get char*. */
+    if (result != NULL && gen->current_arena_var != NULL)
     {
-        /* Check if this is a string-returning method (byte encoding, join, etc.) */
-        if ((element_type && element_type->kind == TYPE_BYTE &&
+        bool is_byte_string_method = (element_type && element_type->kind == TYPE_BYTE &&
              (strcmp(method_name, "toHex") == 0 ||
               strcmp(method_name, "toBase64") == 0 ||
               strcmp(method_name, "toString") == 0 ||
-              strcmp(method_name, "toStringLatin1") == 0)) ||
-            strcmp(method_name, "join") == 0)
+              strcmp(method_name, "toStringLatin1") == 0));
+
+        if (is_byte_string_method)
         {
+            if (!saved_handle_mode)
+            {
+                /* Pin the RtHandleV2* to get char* */
+                result = arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    result);
+            }
+            /* In handle mode, result is already RtHandleV2* - return as-is */
+        }
+        else if (saved_handle_mode && strcmp(method_name, "join") == 0)
+        {
+            /* join still returns char*, wrap in handle */
             result = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
                                    ARENA_VAR(gen), result);
         }

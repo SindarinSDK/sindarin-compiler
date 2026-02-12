@@ -15,16 +15,16 @@
  * ============================================================================ */
 
 /* Convert byte array to string using UTF-8 decoding */
-char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes);
+RtHandleV2 *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes);
 
 /* Convert byte array to string using Latin-1 (ISO-8859-1) decoding */
-char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes);
+RtHandleV2 *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes);
 
 /* Convert byte array to hexadecimal string representation */
-char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes);
+RtHandleV2 *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes);
 
 /* Convert byte array to Base64 string representation */
-char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes);
+RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes);
 
 /* ============================================================================
  * String to Byte Array Conversions

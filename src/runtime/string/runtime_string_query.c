@@ -35,8 +35,8 @@ long rt_str_charAt(const char *str, long index) {
     return (long)(unsigned char)str[index];
 }
 
-char *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end) {
-    if (str == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+RtHandleV2 *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end) {
+    if (str == NULL) return rt_arena_v2_strdup(arena, "");
     long len = (long)strlen(str);
 
     /* Handle negative indices */
@@ -46,24 +46,25 @@ char *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end) 
     /* Clamp to valid range */
     if (start < 0) start = 0;
     if (end > len) end = len;
-    if (start >= end || start >= len) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (start >= end || start >= len) return rt_arena_v2_strdup(arena, "");
 
     long sub_len = end - start;
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, sub_len + 1);
-    if (result_h == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
 
     memcpy(result, str + start, sub_len);
     result[sub_len] = '\0';
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
-char *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
-    if (str == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+RtHandleV2 *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
+    if (str == NULL) return rt_arena_v2_strdup(arena, "");
 
     RtHandleV2 *result_h = rt_arena_v2_strdup(arena, str);
-    if (result_h == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
 
@@ -72,14 +73,15 @@ char *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
             *p = *p - 'a' + 'A';
         }
     }
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
-char *rt_str_toLower(RtArenaV2 *arena, const char *str) {
-    if (str == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+RtHandleV2 *rt_str_toLower(RtArenaV2 *arena, const char *str) {
+    if (str == NULL) return rt_arena_v2_strdup(arena, "");
 
     RtHandleV2 *result_h = rt_arena_v2_strdup(arena, str);
-    if (result_h == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
 
@@ -88,7 +90,8 @@ char *rt_str_toLower(RtArenaV2 *arena, const char *str) {
             *p = *p - 'A' + 'a';
         }
     }
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 int rt_str_startsWith(const char *str, const char *prefix) {
@@ -106,15 +109,15 @@ int rt_str_endsWith(const char *str, const char *suffix) {
     return strcmp(str + str_len - suffix_len, suffix) == 0;
 }
 
-char *rt_str_trim(RtArenaV2 *arena, const char *str) {
-    if (str == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+RtHandleV2 *rt_str_trim(RtArenaV2 *arena, const char *str) {
+    if (str == NULL) return rt_arena_v2_strdup(arena, "");
 
     /* Skip leading whitespace */
     while (*str && (*str == ' ' || *str == '\t' || *str == '\n' || *str == '\r')) {
         str++;
     }
 
-    if (*str == '\0') { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (*str == '\0') return rt_arena_v2_strdup(arena, "");
 
     /* Find end, skipping trailing whitespace */
     const char *end = str + strlen(str) - 1;
@@ -124,20 +127,21 @@ char *rt_str_trim(RtArenaV2 *arena, const char *str) {
 
     size_t len = end - str + 1;
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
-    if (result_h == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
 
     memcpy(result, str, len);
     result[len] = '\0';
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
-char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str) {
-    if (str == NULL || old == NULL || new_str == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, str ? str : ""); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+RtHandleV2 *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str) {
+    if (str == NULL || old == NULL || new_str == NULL) return rt_arena_v2_strdup(arena, str ? str : "");
 
     size_t old_len = strlen(old);
-    if (old_len == 0) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, str); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (old_len == 0) return rt_arena_v2_strdup(arena, str);
 
     size_t new_len = strlen(new_str);
 
@@ -149,14 +153,14 @@ char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const c
         p += old_len;
     }
 
-    if (count == 0) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, str); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (count == 0) return rt_arena_v2_strdup(arena, str);
 
     /* Calculate new length */
     size_t str_len = strlen(str);
     size_t result_len = str_len + count * (new_len - old_len);
 
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, result_len + 1);
-    if (result_h == NULL) { RtHandleV2 *_h = rt_arena_v2_strdup(arena, str); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+    if (result_h == NULL) return rt_arena_v2_strdup(arena, str);
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
 
@@ -175,5 +179,6 @@ char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const c
     /* Copy remainder */
     strcpy(dst, p);
 
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }

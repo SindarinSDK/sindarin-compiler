@@ -17,29 +17,33 @@
  * Generate code for byte array method calls.
  * Only applies to arrays with element type TYPE_BYTE.
  * Returns generated C code string, or NULL if not a byte array method.
+ *
+ * These runtime functions now return RtHandleV2*. The caller
+ * (code_gen_array_method_call) handles converting to the appropriate
+ * form based on handle_mode.
  */
 char *code_gen_byte_array_method_call(CodeGen *gen, const char *method_name,
                                        char *object_str, int arg_count)
 {
-    /* byte[].toString() - UTF-8 decoding */
+    /* byte[].toString() - UTF-8 decoding (returns RtHandleV2*) */
     if (strcmp(method_name, "toString") == 0 && arg_count == 0) {
         return arena_sprintf(gen->arena, "rt_byte_array_to_string(%s, %s)",
             ARENA_VAR(gen), object_str);
     }
 
-    /* byte[].toStringLatin1() - Latin-1/ISO-8859-1 decoding */
+    /* byte[].toStringLatin1() - Latin-1/ISO-8859-1 decoding (returns RtHandleV2*) */
     if (strcmp(method_name, "toStringLatin1") == 0 && arg_count == 0) {
         return arena_sprintf(gen->arena, "rt_byte_array_to_string_latin1(%s, %s)",
             ARENA_VAR(gen), object_str);
     }
 
-    /* byte[].toHex() - hexadecimal encoding */
+    /* byte[].toHex() - hexadecimal encoding (returns RtHandleV2*) */
     if (strcmp(method_name, "toHex") == 0 && arg_count == 0) {
         return arena_sprintf(gen->arena, "rt_byte_array_to_hex(%s, %s)",
             ARENA_VAR(gen), object_str);
     }
 
-    /* byte[].toBase64() - Base64 encoding */
+    /* byte[].toBase64() - Base64 encoding (returns RtHandleV2*) */
     if (strcmp(method_name, "toBase64") == 0 && arg_count == 0) {
         return arena_sprintf(gen->arena, "rt_byte_array_to_base64(%s, %s)",
             ARENA_VAR(gen), object_str);

@@ -81,7 +81,7 @@ RtHandleV2 *rt_to_string_long_v2(RtArenaV2 *arena, long long val) {
 
 RtHandleV2 *rt_to_string_double_v2(RtArenaV2 *arena, double val) {
     char buf[64];
-    int len = snprintf(buf, sizeof(buf), "%g", val);
+    int len = snprintf(buf, sizeof(buf), "%.5f", val);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
     rt_handle_v2_pin(h);
     char *ptr = (char *)h->ptr;
@@ -621,66 +621,3 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
     return h;
 }
 
-/* ============================================================================
- * Raw Pointer String Functions V2
- * ============================================================================
- * These return raw char* for simpler use in string interpolation.
- * Allocate from V2 arena, return pinned pointer (caller owns lifetime).
- * ============================================================================ */
-
-char *rt_str_concat_raw_v2(RtArenaV2 *arena, const char *a, const char *b) {
-    if (!a) a = "";
-    if (!b) b = "";
-    size_t la = strlen(a), lb = strlen(b);
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, la + lb + 1);
-    rt_handle_v2_pin(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, a, la);
-    memcpy(ptr + la, b, lb + 1);
-    /* Note: We don't unpin - caller will use the pointer directly */
-    return ptr;
-}
-
-char *rt_to_string_long_raw_v2(RtArenaV2 *arena, long long val) {
-    char buf[32];
-    int len = snprintf(buf, sizeof(buf), "%lld", val);
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
-    return ptr;
-}
-
-char *rt_to_string_double_raw_v2(RtArenaV2 *arena, double val) {
-    char buf[64];
-    int len = snprintf(buf, sizeof(buf), "%.5f", val);
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
-    return ptr;
-}
-
-char *rt_to_string_char_raw_v2(RtArenaV2 *arena, char val) {
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, 2);
-    rt_handle_v2_pin(h);
-    char *ptr = (char *)h->ptr;
-    ptr[0] = val;
-    ptr[1] = '\0';
-    return ptr;
-}
-
-char *rt_to_string_bool_raw_v2(RtArenaV2 *arena, int val) {
-    (void)arena; /* Static strings don't need allocation */
-    return (char *)(val ? "true" : "false");
-}
-
-char *rt_to_string_byte_raw_v2(RtArenaV2 *arena, unsigned char val) {
-    char buf[8];
-    int len = snprintf(buf, sizeof(buf), "%u", (unsigned)val);
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
-    return ptr;
-}

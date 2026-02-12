@@ -124,7 +124,9 @@ static void test_rt_arena_many_allocations(void)
 static void test_rt_string_with_capacity(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 10);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 10);
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(str != NULL);
     RtStringMeta *meta = RT_STR_META(str);
     assert(meta->capacity == 10);
@@ -132,13 +134,17 @@ static void test_rt_string_with_capacity(void)
     assert(meta->arena == arena);
     assert(strcmp(str, "") == 0);
     assert(str[0] == '\0');
-    char *str2 = rt_string_with_capacity(arena, 0);
+    RtHandleV2 *str2_h = rt_string_with_capacity(arena, 0);
+    rt_handle_v2_pin(str2_h);
+    char *str2 = (char *)((RtStringMeta *)str2_h->ptr + 1);
     assert(str2 != NULL);
     RtStringMeta *meta2 = RT_STR_META(str2);
     assert(meta2->capacity == 0);
     assert(meta2->length == 0);
     assert(str2[0] == '\0');
-    char *str3 = rt_string_with_capacity(arena, 1000);
+    RtHandleV2 *str3_h = rt_string_with_capacity(arena, 1000);
+    rt_handle_v2_pin(str3_h);
+    char *str3 = (char *)((RtStringMeta *)str3_h->ptr + 1);
     assert(str3 != NULL);
     RtStringMeta *meta3 = RT_STR_META(str3);
     assert(meta3->capacity == 1000);
@@ -149,10 +155,12 @@ static void test_rt_string_with_capacity(void)
 static void test_rt_string_append_empty(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 20);
-    assert(str != NULL);
-    str = rt_string_append(str, "hello");
-    assert(str != NULL);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 20);
+    assert(str_h != NULL);
+    str_h = rt_string_append(str_h, "hello");
+    assert(str_h != NULL);
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello") == 0);
     RtStringMeta *meta = RT_STR_META(str);
     assert(meta->length == 5);
@@ -163,15 +171,21 @@ static void test_rt_string_append_empty(void)
 static void test_rt_string_append_multiple(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 10);
-    assert(str != NULL);
-    str = rt_string_append(str, "hello");
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 10);
+    assert(str_h != NULL);
+    str_h = rt_string_append(str_h, "hello");
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello") == 0);
     assert(RT_STR_META(str)->length == 5);
-    str = rt_string_append(str, " ");
+    str_h = rt_string_append(str_h, " ");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello ") == 0);
     assert(RT_STR_META(str)->length == 6);
-    str = rt_string_append(str, "world!");
+    str_h = rt_string_append(str_h, "world!");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello world!") == 0);
     assert(RT_STR_META(str)->length == 12);
     assert(RT_STR_META(str)->capacity > 10);
@@ -181,16 +195,23 @@ static void test_rt_string_append_multiple(void)
 static void test_rt_string_append_no_realloc(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 100);
-    char *original_ptr = str;
-    str = rt_string_append(str, "one");
-    assert(str == original_ptr);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 100);
+    rt_handle_v2_pin(str_h);
+    void *original_ptr = str_h->ptr;
+    str_h = rt_string_append(str_h, "one");
+    rt_handle_v2_pin(str_h);
+    assert(str_h->ptr == original_ptr);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->capacity == 100);
-    str = rt_string_append(str, " two");
-    assert(str == original_ptr);
+    str_h = rt_string_append(str_h, " two");
+    rt_handle_v2_pin(str_h);
+    assert(str_h->ptr == original_ptr);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->capacity == 100);
-    str = rt_string_append(str, " three");
-    assert(str == original_ptr);
+    str_h = rt_string_append(str_h, " three");
+    rt_handle_v2_pin(str_h);
+    assert(str_h->ptr == original_ptr);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->capacity == 100);
     assert(strcmp(str, "one two three") == 0);
     assert(RT_STR_META(str)->length == 13);
@@ -200,23 +221,31 @@ static void test_rt_string_append_no_realloc(void)
 static void test_rt_string_append_null_src(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 20);
-    str = rt_string_append(str, "test");
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 20);
+    str_h = rt_string_append(str_h, "test");
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "test") == 0);
-    char *result = rt_string_append(str, NULL);
-    assert(result == str);
-    assert(strcmp(str, "test") == 0);
-    assert(RT_STR_META(str)->length == 4);
+    RtHandleV2 *result_h = rt_string_append(str_h, NULL);
+    rt_handle_v2_pin(result_h);
+    assert(result_h->ptr == str_h->ptr);
+    char *result = (char *)((RtStringMeta *)result_h->ptr + 1);
+    assert(strcmp(result, "test") == 0);
+    assert(RT_STR_META(result)->length == 4);
     rt_arena_destroy(arena);
 }
 
 static void test_rt_string_append_empty_src(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 20);
-    str = rt_string_append(str, "initial");
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 20);
+    str_h = rt_string_append(str_h, "initial");
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "initial") == 0);
-    str = rt_string_append(str, "");
+    str_h = rt_string_append(str_h, "");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "initial") == 0);
     assert(RT_STR_META(str)->length == 7);
     rt_arena_destroy(arena);
@@ -225,15 +254,25 @@ static void test_rt_string_append_empty_src(void)
 static void test_rt_string_length_tracking(void)
 {
     RtArenaV2 *arena = rt_arena_create(NULL);
-    char *str = rt_string_with_capacity(arena, 50);
+    RtHandleV2 *str_h = rt_string_with_capacity(arena, 50);
+    rt_handle_v2_pin(str_h);
+    char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->length == 0);
-    str = rt_string_append(str, "a");
+    str_h = rt_string_append(str_h, "a");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->length == 1);
-    str = rt_string_append(str, "bb");
+    str_h = rt_string_append(str_h, "bb");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->length == 3);
-    str = rt_string_append(str, "ccc");
+    str_h = rt_string_append(str_h, "ccc");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->length == 6);
-    str = rt_string_append(str, "dddd");
+    str_h = rt_string_append(str_h, "dddd");
+    rt_handle_v2_pin(str_h);
+    str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->length == 10);
     assert(strcmp(str, "abbcccdddd") == 0);
     assert(strlen(str) == RT_STR_META(str)->length);

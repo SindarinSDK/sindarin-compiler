@@ -40,13 +40,14 @@ static const char base64_chars[] =
 /* Convert byte array to string using UTF-8 decoding
  * Note: This is a simple passthrough since our strings are already UTF-8.
  * Invalid UTF-8 sequences are passed through as-is. */
-char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
+RtHandleV2 *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
@@ -59,19 +60,21 @@ char *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
     }
     result[len] = '\0';
 
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* Convert byte array to string using Latin-1/ISO-8859-1 decoding
  * Each byte directly maps to its Unicode code point (0x00-0xFF).
  * This requires UTF-8 encoding for values 0x80-0xFF. */
-char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
+RtHandleV2 *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
@@ -102,11 +105,12 @@ char *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
     }
     result[out_idx] = '\0';
 
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* Convert byte array to hexadecimal string */
-char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
+RtHandleV2 *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
     static const char hex_chars[] = "0123456789abcdef";
 
     if (bytes == NULL) {
@@ -114,7 +118,8 @@ char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
@@ -128,17 +133,19 @@ char *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
     }
     result[len * 2] = '\0';
 
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* Convert byte array to Base64 string */
-char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
+RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
     if (bytes == NULL) {
         RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     size_t len = rt_v2_data_array_length(bytes);
@@ -186,7 +193,8 @@ char *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
 
     result[out_idx] = '\0';
 
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* ============================================================================

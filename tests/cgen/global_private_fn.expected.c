@@ -68,8 +68,8 @@ int main() {
 });
     rt_println(({ rt_handle_v2_pin(__sn__message); (char *)__sn__message->ptr; }));
     rt_println(({
-        char *_p0 = rt_to_string_long_raw_v2(__local_arena__, __sn__result);
-        rt_str_concat_raw_v2(__local_arena__, "Greeting length: ", _p0);
+        RtHandleV2 *_ph0 = rt_to_string_long_v2(__local_arena__, __sn__result); rt_handle_v2_pin(_ph0); char *_p0 = (char *)_ph0->ptr;
+        RtHandleV2 *__h = rt_str_concat_v2(__local_arena__, "Greeting length: ", _p0); rt_handle_v2_pin(__h); (char *)__h->ptr;
     }));
     rt_println("PASS");
     _return_value = 0LL;

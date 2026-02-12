@@ -135,7 +135,7 @@ bool rt_any_same_type(RtAny a, RtAny b);
  * ============================================================================ */
 
 /* Convert any value to string representation (for debugging) */
-char *rt_any_to_string(RtArenaV2 *arena, RtAny value);
+RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value);
 
 /* Promote an any value's heap-allocated data to a target arena.
  * Used when returning any values from functions to ensure data survives
