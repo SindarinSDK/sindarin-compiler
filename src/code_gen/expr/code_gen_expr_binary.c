@@ -110,7 +110,7 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         char *right_h = code_gen_expression(gen, expr->right);
         gen->expr_as_handle = saved_as_handle;
 
-        const char *eq_expr;
+        char *eq_expr;
         if (elem_type->kind == TYPE_STRING) {
             /* String arrays use strcmp comparison */
             eq_expr = arena_sprintf(gen->arena, "rt_array_eq_string_v2(%s, %s)",

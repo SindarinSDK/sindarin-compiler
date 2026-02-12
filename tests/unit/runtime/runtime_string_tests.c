@@ -572,8 +572,11 @@ static void test_rt_to_string_pointer(void)
     char *result = rt_to_string_pointer(arena, NULL);
     assert(strcmp(result, "nil") == 0);
 
-    int x = 42;
-    result = rt_to_string_pointer(arena, &x);
+    /* Create a handle to test non-NULL pointer conversion */
+    RtHandleV2 *handle = rt_arena_v2_alloc(arena, sizeof(int));
+    rt_handle_v2_pin(handle);
+    *(int *)handle->ptr = 42;
+    result = rt_to_string_pointer(arena, handle);
     /* Non-NULL pointer should return non-empty string that isn't "nil" */
     /* Format varies by platform (may or may not have "0x" prefix) */
     assert(result != NULL);
