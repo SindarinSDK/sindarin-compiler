@@ -164,9 +164,13 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     {
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __caller_arena__;\n");
     }
-    else
+    else if (is_private)
     {
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, \"func\");\n");
+    }
+    else
+    {
+        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n");
     }
 
     /* Clone handle-type parameters */

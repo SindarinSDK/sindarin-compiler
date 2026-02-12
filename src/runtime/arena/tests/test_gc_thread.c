@@ -82,7 +82,7 @@ TEST(gc_thread_collects_dead)
 
     RtArenaV2Stats stats;
     rt_arena_v2_get_stats(root, &stats);
-    ASSERT(stats.handle_count == 100);
+    ASSERT(stats.dead_handle_count == 100);
     ASSERT(stats.gc_runs == 0);
 
     /* Start GC thread with short interval */
@@ -123,16 +123,16 @@ TEST(gc_thread_respects_pinned)
 
     RtArenaV2Stats stats;
     rt_arena_v2_get_stats(root, &stats);
-    ASSERT(stats.handle_count == 11);
+    ASSERT(stats.dead_handle_count == 11);
 
     /* Start GC thread */
     rt_arena_v2_gc_thread_start(root, 20);
     sleep_ms(100);
     rt_arena_v2_gc_thread_stop();
 
-    /* Only the pinned handle should remain */
+    /* Only the pinned handle should remain (dead but pinned) */
     rt_arena_v2_get_stats(root, &stats);
-    ASSERT(stats.handle_count == 1);
+    ASSERT(stats.dead_handle_count == 1);
 
     /* Unpin and verify it gets collected next time */
     rt_handle_v2_unpin(pinned);
@@ -174,16 +174,16 @@ TEST(gc_thread_recursive)
         rt_arena_v2_free(h4);
     }
 
-    /* Verify handles exist in all arenas */
+    /* Verify dead handles exist in all arenas */
     RtArenaV2Stats stats;
     rt_arena_v2_get_stats(root, &stats);
-    ASSERT(stats.handle_count == 10);
+    ASSERT(stats.dead_handle_count == 10);
     rt_arena_v2_get_stats(child1, &stats);
-    ASSERT(stats.handle_count == 10);
+    ASSERT(stats.dead_handle_count == 10);
     rt_arena_v2_get_stats(child2, &stats);
-    ASSERT(stats.handle_count == 10);
+    ASSERT(stats.dead_handle_count == 10);
     rt_arena_v2_get_stats(grandchild, &stats);
-    ASSERT(stats.handle_count == 10);
+    ASSERT(stats.dead_handle_count == 10);
 
     /* Start GC thread on root */
     rt_arena_v2_gc_thread_start(root, 20);
@@ -270,7 +270,7 @@ TEST(multiple_roots)
     ASSERT(stats.gc_runs > 0);
 
     rt_arena_v2_get_stats(root2, &stats);
-    ASSERT(stats.handle_count == 10);
+    ASSERT(stats.dead_handle_count == 10);
     ASSERT(stats.gc_runs == 0);
 
     rt_arena_v2_destroy(root1);

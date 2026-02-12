@@ -211,16 +211,7 @@ void type_check_function(Stmt *stmt, SymbolTable *table)
         }
     }
 
-    /* Functions returning heap-allocated types must be implicitly shared */
     FunctionModifier effective_modifier = modifier;
-    if (stmt->as.function.return_type &&
-        (stmt->as.function.return_type->kind == TYPE_FUNCTION ||
-         stmt->as.function.return_type->kind == TYPE_STRING ||
-         stmt->as.function.return_type->kind == TYPE_ARRAY) &&
-        modifier != FUNC_PRIVATE)
-    {
-        effective_modifier = FUNC_SHARED;
-    }
 
     /* Check for duplicate function definition */
     Symbol *existing = symbol_table_lookup_symbol(table, stmt->as.function.name);

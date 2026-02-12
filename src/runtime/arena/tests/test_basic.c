@@ -136,7 +136,8 @@ static int test_gc_skips_pinned(void)
     if (collected != 0) { rt_arena_v2_destroy(arena); return 0; }
     RtArenaV2Stats stats;
     rt_arena_v2_get_stats(arena, &stats);
-    if (stats.handle_count != 1) { rt_arena_v2_destroy(arena); return 0; }
+    /* Handle is dead but pinned, so it appears in dead_handle_count, not handle_count */
+    if (stats.dead_handle_count != 1) { rt_arena_v2_destroy(arena); return 0; }
 
     /* Unpin, GC should now collect */
     rt_handle_v2_unpin(h);
