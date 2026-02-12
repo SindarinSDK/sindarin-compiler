@@ -65,14 +65,6 @@ void process_nested_imports_recursive(Stmt **stmts, int count, SymbolTable *tabl
 
                 FunctionModifier modifier = func->modifier;
                 FunctionModifier effective_modifier = modifier;
-                if (func->return_type &&
-                    (func->return_type->kind == TYPE_FUNCTION ||
-                     func->return_type->kind == TYPE_STRING ||
-                     func->return_type->kind == TYPE_ARRAY) &&
-                    modifier != FUNC_PRIVATE)
-                {
-                    effective_modifier = FUNC_SHARED;
-                }
                 symbol_table_add_function_to_namespace(table, nested_ns_token, *func_name,
                     func_type, effective_modifier, modifier);
             }
@@ -135,14 +127,6 @@ void process_nested_imports_recursive(Stmt **stmts, int count, SymbolTable *tabl
                 {
                     FunctionModifier modifier = func->modifier;
                     FunctionModifier effective_modifier = modifier;
-                    if (func->return_type &&
-                        (func->return_type->kind == TYPE_FUNCTION ||
-                         func->return_type->kind == TYPE_STRING ||
-                         func->return_type->kind == TYPE_ARRAY) &&
-                        modifier != FUNC_PRIVATE)
-                    {
-                        effective_modifier = FUNC_SHARED;
-                    }
                     if (func->is_native)
                         symbol_table_add_native_function(table, *func_name, func_type, effective_modifier, modifier);
                     else

@@ -233,6 +233,8 @@ static RtBlockV2 *block_create(RtArenaV2 *arena, size_t min_size)
     block->used = 0;
     block->handles_head = NULL;
 
+    arena->blocks_created++;
+
     return block;
 }
 
@@ -276,6 +278,8 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     handle->pin_count = 0;
     handle->next = NULL;
     handle->prev = NULL;
+
+    arena->handles_created++;
 
     return handle;
 }
@@ -605,21 +609,29 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     }
     arena->gc_running = true;
 
-    size_t collected = 0;
+    size_t handles_swept = 0;
+    size_t handles_collected = 0;
+    size_t blocks_swept = 0;
+    size_t blocks_freed = 0;
+    size_t bytes_collected = 0;
+
     RtBlockV2 **bp = &arena->blocks_head;
 
     while (*bp != NULL) {
         RtBlockV2 *block = *bp;
+        blocks_swept++;
 
         /* Sweep handles in this block */
         RtHandleV2 *handle = block->handles_head;
         while (handle != NULL) {
             RtHandleV2 *next = handle->next;
+            handles_swept++;
             if ((handle->flags & RT_HANDLE_FLAG_DEAD) && handle->pin_count == 0) {
                 handle_unlink(block, handle);
+                bytes_collected += handle->size;
                 arena->total_freed += handle->size;
                 handle_destroy(handle);
-                collected++;
+                handles_collected++;
             }
             handle = next;
         }
@@ -631,17 +643,36 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
                 arena->current_block = NULL;
             }
             block_destroy(block);
+            blocks_freed++;
+            arena->blocks_freed++;
         } else {
             bp = &block->next;
         }
     }
 
     arena->gc_runs++;
+    arena->handles_collected += handles_collected;
+
+    /* Store last GC report */
+    arena->last_gc_handles_swept = handles_swept;
+    arena->last_gc_handles_collected = handles_collected;
+    arena->last_gc_blocks_swept = blocks_swept;
+    arena->last_gc_blocks_freed = blocks_freed;
+    arena->last_gc_bytes_collected = bytes_collected;
+
+    /* Log if enabled */
+    if (arena->gc_log_enabled && handles_swept > 0) {
+        fprintf(stderr, "[GC] arena=%s blocks=%zu swept=%zu collected=%zu freed_blocks=%zu bytes=%zu\n",
+                arena->name ? arena->name : "(unnamed)",
+                blocks_swept - blocks_freed, handles_swept,
+                handles_collected, blocks_freed, bytes_collected);
+    }
+
     arena->gc_running = false;
 
     pthread_mutex_unlock(&arena->mutex);
 
-    return collected;
+    return handles_collected;
 }
 
 size_t rt_arena_v2_gc_recursive(RtArenaV2 *arena)
@@ -873,45 +904,165 @@ void rt_arena_v2_thread_set(RtArenaV2 *arena)
 }
 
 /* ============================================================================
- * Debug / Statistics
+ * Statistics API (rt_arena_stats_*)
  * ============================================================================ */
 
-void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
+void rt_arena_stats_get(RtArenaV2 *arena, RtArenaV2Stats *stats)
 {
     if (arena == NULL || stats == NULL) return;
 
+    memset(stats, 0, sizeof(RtArenaV2Stats));
+
     pthread_mutex_lock(&arena->mutex);
 
-    /* Count handles across all blocks */
-    size_t count = 0;
+    /* Walk all blocks, counting handles and bytes */
+    size_t handle_count = 0;
+    size_t dead_handle_count = 0;
+    size_t live_bytes = 0;
+    size_t dead_bytes = 0;
+    size_t block_count = 0;
+    size_t block_capacity_total = 0;
+    size_t block_used_total = 0;
+
     RtBlockV2 *block = arena->blocks_head;
     while (block != NULL) {
+        block_count++;
+        block_capacity_total += block->capacity;
+        block_used_total += block->used;
+
         RtHandleV2 *h = block->handles_head;
         while (h != NULL) {
-            count++;
+            if (h->flags & RT_HANDLE_FLAG_DEAD) {
+                dead_handle_count++;
+                dead_bytes += h->size;
+            } else {
+                handle_count++;
+                live_bytes += h->size;
+            }
             h = h->next;
         }
         block = block->next;
     }
 
-    stats->handle_count = count;
+    stats->handle_count = handle_count;
+    stats->dead_handle_count = dead_handle_count;
+    stats->handles_created = arena->handles_created;
+    stats->handles_collected = arena->handles_collected;
+    stats->live_bytes = live_bytes;
+    stats->dead_bytes = dead_bytes;
     stats->total_allocated = arena->total_allocated;
     stats->total_freed = arena->total_freed;
+    stats->block_count = block_count;
+    stats->block_capacity_total = block_capacity_total;
+    stats->block_used_total = block_used_total;
+    stats->blocks_created = arena->blocks_created;
+    stats->blocks_freed = arena->blocks_freed;
     stats->gc_runs = arena->gc_runs;
+
+    /* Fragmentation: how much block space is not live data
+     * 0.0 = perfect (all used space is live), 1.0 = total waste */
+    if (block_used_total > 0) {
+        stats->fragmentation = 1.0 - ((double)live_bytes / (double)block_used_total);
+    } else {
+        stats->fragmentation = 0.0;
+    }
 
     pthread_mutex_unlock(&arena->mutex);
 }
 
-void rt_arena_v2_print_stats(RtArenaV2 *arena)
+void rt_arena_stats_print(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
 
-    RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(arena, &stats);
+    RtArenaV2Stats s;
+    rt_arena_stats_get(arena, &s);
 
     fprintf(stderr, "Arena '%s' stats:\n", arena->name ? arena->name : "(unnamed)");
-    fprintf(stderr, "  Handles: %zu\n", stats.handle_count);
-    fprintf(stderr, "  Allocated: %zu bytes\n", stats.total_allocated);
-    fprintf(stderr, "  Freed: %zu bytes\n", stats.total_freed);
-    fprintf(stderr, "  GC runs: %zu\n", stats.gc_runs);
+    fprintf(stderr, "  Handles:       %zu live, %zu dead, %zu created, %zu collected\n",
+            s.handle_count, s.dead_handle_count, s.handles_created, s.handles_collected);
+    fprintf(stderr, "  Bytes:         %zu live, %zu dead, %zu allocated, %zu freed\n",
+            s.live_bytes, s.dead_bytes, s.total_allocated, s.total_freed);
+    fprintf(stderr, "  Blocks:        %zu current, %zu created, %zu freed\n",
+            s.block_count, s.blocks_created, s.blocks_freed);
+    fprintf(stderr, "  Block space:   %zu used / %zu capacity\n",
+            s.block_used_total, s.block_capacity_total);
+    fprintf(stderr, "  Fragmentation: %.1f%%\n", s.fragmentation * 100.0);
+    fprintf(stderr, "  GC runs:       %zu\n", s.gc_runs);
+}
+
+void rt_arena_stats_last_gc(RtArenaV2 *arena, RtArenaV2GCReport *report)
+{
+    if (arena == NULL || report == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+    report->handles_swept = arena->last_gc_handles_swept;
+    report->handles_collected = arena->last_gc_handles_collected;
+    report->blocks_swept = arena->last_gc_blocks_swept;
+    report->blocks_freed = arena->last_gc_blocks_freed;
+    report->bytes_collected = arena->last_gc_bytes_collected;
+    pthread_mutex_unlock(&arena->mutex);
+}
+
+void rt_arena_stats_snapshot(RtArenaV2 *arena)
+{
+    if (arena == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+
+    fprintf(stderr, "=== Arena Snapshot: '%s' ===\n",
+            arena->name ? arena->name : "(unnamed)");
+
+    size_t block_idx = 0;
+    size_t total_live = 0;
+    size_t total_dead = 0;
+
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        size_t live = 0, dead = 0;
+        size_t live_bytes = 0, dead_bytes = 0;
+
+        RtHandleV2 *h = block->handles_head;
+        while (h != NULL) {
+            if (h->flags & RT_HANDLE_FLAG_DEAD) {
+                dead++;
+                dead_bytes += h->size;
+            } else {
+                live++;
+                live_bytes += h->size;
+            }
+            h = h->next;
+        }
+
+        const char *marker = (block == arena->current_block) ? " [current]" : "";
+        double occupancy = block->capacity > 0
+            ? ((double)block->used / (double)block->capacity) * 100.0
+            : 0.0;
+
+        fprintf(stderr, "  block[%zu]: cap=%zu used=%zu (%.0f%%) handles=%zu live/%zu dead "
+                "bytes=%zu live/%zu dead%s\n",
+                block_idx, block->capacity, block->used, occupancy,
+                live, dead, live_bytes, dead_bytes, marker);
+
+        total_live += live;
+        total_dead += dead;
+        block_idx++;
+        block = block->next;
+    }
+
+    fprintf(stderr, "  --- %zu blocks, %zu live handles, %zu dead handles ---\n",
+            block_idx, total_live, total_dead);
+
+    pthread_mutex_unlock(&arena->mutex);
+}
+
+void rt_arena_stats_enable_gc_log(RtArenaV2 *arena)
+{
+    if (arena == NULL) return;
+    arena->gc_log_enabled = true;
+}
+
+void rt_arena_stats_disable_gc_log(RtArenaV2 *arena)
+{
+    if (arena == NULL) return;
+    arena->gc_log_enabled = false;
 }

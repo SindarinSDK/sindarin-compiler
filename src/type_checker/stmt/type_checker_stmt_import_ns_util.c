@@ -88,14 +88,6 @@ void process_nested_namespaces(ImportStmt *import, Token ns_token, SymbolTable *
 
                         FunctionModifier modifier = func->modifier;
                         FunctionModifier effective_modifier = modifier;
-                        if (func->return_type &&
-                            (func->return_type->kind == TYPE_FUNCTION ||
-                             func->return_type->kind == TYPE_STRING ||
-                             func->return_type->kind == TYPE_ARRAY) &&
-                            modifier != FUNC_PRIVATE)
-                        {
-                            effective_modifier = FUNC_SHARED;
-                        }
                         symbol_table_add_function_to_nested_namespace(table, ns_token, nested_ns_token,
                             *func_name, func_type, effective_modifier, modifier);
                     }
@@ -133,14 +125,6 @@ void register_functions_in_namespace(ImportStmt *import, Token ns_token,
 
             FunctionModifier modifier = func->modifier;
             FunctionModifier effective_modifier = modifier;
-            if (func->return_type &&
-                (func->return_type->kind == TYPE_FUNCTION ||
-                 func->return_type->kind == TYPE_STRING ||
-                 func->return_type->kind == TYPE_ARRAY) &&
-                modifier != FUNC_PRIVATE)
-            {
-                effective_modifier = FUNC_SHARED;
-            }
 
             /* Add to namespace */
             symbol_table_add_function_to_namespace(table, ns_token, *func_name,

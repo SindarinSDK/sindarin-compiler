@@ -149,10 +149,24 @@ struct RtArenaV2 {
     /* Cleanup callbacks */
     RtCleanupNodeV2 *cleanups;
 
-    /* Statistics */
-    size_t total_allocated;     /* Total bytes allocated */
-    size_t total_freed;         /* Total bytes freed by GC */
-    size_t gc_runs;             /* Number of GC runs */
+    /* Statistics - cumulative counters (monotonic, never decremented) */
+    size_t total_allocated;     /* Bytes allocated (cumulative) */
+    size_t total_freed;         /* Bytes freed by GC (cumulative) */
+    size_t gc_runs;             /* GC passes completed */
+    size_t handles_created;     /* Handles ever created */
+    size_t handles_collected;   /* Handles collected by GC */
+    size_t blocks_created;      /* Blocks ever created */
+    size_t blocks_freed;        /* Blocks freed by GC (all handles dead) */
+
+    /* Last GC run report */
+    size_t last_gc_handles_swept;
+    size_t last_gc_handles_collected;
+    size_t last_gc_blocks_swept;
+    size_t last_gc_blocks_freed;
+    size_t last_gc_bytes_collected;
+
+    /* GC logging */
+    bool gc_log_enabled;        /* Print one-line report per GC pass */
 
     /* Root arena reference - for quick access to tree root */
     RtArenaV2 *root;            /* Root ancestor (self if this is root) */
@@ -311,18 +325,74 @@ static inline RtArenaV2 *rt_arena_v2_thread_or(RtArenaV2 *fallback) {
 }
 
 /* ============================================================================
- * Debug / Statistics
+ * Statistics API (rt_arena_stats_*)
+ * ============================================================================
+ * Opt-in observability for arena memory behavior.
+ * Call these from your program to understand allocation patterns,
+ * GC effectiveness, fragmentation, and block lifecycle.
  * ============================================================================ */
 
+/* Cumulative arena statistics */
 typedef struct {
-    size_t handle_count;
-    size_t total_allocated;
-    size_t total_freed;
-    size_t gc_runs;
+    /* Handle metrics */
+    size_t handle_count;            /* Live handles right now */
+    size_t dead_handle_count;       /* Dead handles awaiting GC */
+    size_t handles_created;         /* Cumulative: handles ever created */
+    size_t handles_collected;       /* Cumulative: handles collected by GC */
+
+    /* Byte metrics */
+    size_t total_allocated;         /* Cumulative bytes allocated */
+    size_t total_freed;             /* Cumulative bytes freed by GC */
+    size_t live_bytes;              /* Bytes held by live handles */
+    size_t dead_bytes;              /* Bytes held by dead handles (reclaimable) */
+
+    /* Block metrics */
+    size_t block_count;             /* Current number of blocks */
+    size_t block_capacity_total;    /* Sum of all block capacities */
+    size_t block_used_total;        /* Sum of all block->used (bump pointer) */
+    size_t blocks_created;          /* Cumulative: blocks ever created */
+    size_t blocks_freed;            /* Cumulative: blocks freed by GC */
+
+    /* GC metrics */
+    size_t gc_runs;                 /* Total GC passes */
+
+    /* Computed - fragmentation ratio: wasted block space / total block space
+     * 0.0 = all block space is live data, 1.0 = all block space is wasted */
+    double fragmentation;
 } RtArenaV2Stats;
 
-void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats);
-void rt_arena_v2_print_stats(RtArenaV2 *arena);
+/* Per-GC-run report */
+typedef struct {
+    size_t handles_swept;           /* Handles examined */
+    size_t handles_collected;       /* Handles freed */
+    size_t blocks_swept;            /* Blocks examined */
+    size_t blocks_freed;            /* Blocks freed (all handles dead) */
+    size_t bytes_collected;         /* Bytes freed */
+} RtArenaV2GCReport;
+
+/* Get cumulative stats for an arena */
+void rt_arena_stats_get(RtArenaV2 *arena, RtArenaV2Stats *stats);
+
+/* Print human-readable summary to stderr */
+void rt_arena_stats_print(RtArenaV2 *arena);
+
+/* Get the last GC run report */
+void rt_arena_stats_last_gc(RtArenaV2 *arena, RtArenaV2GCReport *report);
+
+/* Print detailed per-block breakdown to stderr */
+void rt_arena_stats_snapshot(RtArenaV2 *arena);
+
+/* Enable/disable one-line GC logging per pass to stderr */
+void rt_arena_stats_enable_gc_log(RtArenaV2 *arena);
+void rt_arena_stats_disable_gc_log(RtArenaV2 *arena);
+
+/* Backward compatibility wrappers */
+static inline void rt_arena_v2_get_stats(RtArenaV2 *arena, RtArenaV2Stats *stats) {
+    rt_arena_stats_get(arena, stats);
+}
+static inline void rt_arena_v2_print_stats(RtArenaV2 *arena) {
+    rt_arena_stats_print(arena);
+}
 
 /* Simple arena creation with default mode */
 static inline RtArenaV2 *rt_arena_create(RtArenaV2 *parent) {
