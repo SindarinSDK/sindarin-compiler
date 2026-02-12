@@ -314,15 +314,9 @@ RtArenaV2 *rt_arena_v2_redirect_current(void);
  * Thread Support
  * ============================================================================ */
 
-/* Get/set the current thread's arena. */
-RtArenaV2 *rt_arena_v2_thread_current(void);
-void rt_arena_v2_thread_set(RtArenaV2 *arena);
-
-/* Get thread arena or fallback if not set. */
-static inline RtArenaV2 *rt_arena_v2_thread_or(RtArenaV2 *fallback) {
-    RtArenaV2 *current = rt_arena_v2_thread_current();
-    return current ? current : fallback;
-}
+/* Get/set the current thread's arena (TLS). */
+RtArenaV2 *rt_tls_arena_get(void);
+void rt_tls_arena_set(RtArenaV2 *arena);
 
 /* ============================================================================
  * Statistics API (rt_arena_stats_*)

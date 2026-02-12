@@ -236,8 +236,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     char *wrapper_def = arena_sprintf(gen->arena,
         "static void *%s(void *arg) {\n"
         "    RtThread *__t__ = (RtThread *)arg;\n"
-        "    rt_thread_v2_set_current(__t__);\n"
+        "    rt_tls_thread_set(__t__);\n"
         "    RtArenaV2 *__arena__ = rt_thread_v2_get_arena(__t__);\n"
+        "    rt_tls_arena_set(__arena__);\n"
         "\n"
         "    /* Unpack args from thread handle */\n"
         "    rt_handle_v2_pin(__t__->args);\n"
@@ -747,10 +748,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, callee_str, call_args,
                 gen->spawn_is_fire_and_forget
-                    ? "    rt_thread_v2_set_current(NULL);\n"
+                    ? "    rt_tls_thread_set(NULL);\n"
+                      "    rt_tls_arena_set(NULL);\n"
                       "    rt_thread_v2_fire_and_forget_done(__t__);\n"
                     : "    rt_thread_v2_signal_done(__t__);\n"
-                      "    rt_thread_v2_set_current(NULL);\n");
+                      "    rt_tls_thread_set(NULL);\n"
+                      "    rt_tls_arena_set(NULL);\n");
         }
         else
         {
@@ -913,7 +916,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v2_set_result(__t__, __result__);\n"
                     "\n"
                     "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
@@ -939,7 +943,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
@@ -965,7 +970,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_thread_v2_set_current(NULL);\n"
+                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
@@ -986,10 +992,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "}\n\n",
             wrapper_def, callee_str, call_args,
             gen->spawn_is_fire_and_forget
-                ? "    rt_thread_v2_set_current(NULL);\n"
+                ? "    rt_tls_thread_set(NULL);\n"
+                  "    rt_tls_arena_set(NULL);\n"
                   "    rt_thread_v2_fire_and_forget_done(__t__);\n"
                 : "    rt_thread_v2_signal_done(__t__);\n"
-                  "    rt_thread_v2_set_current(NULL);\n");
+                  "    rt_tls_thread_set(NULL);\n"
+                  "    rt_tls_arena_set(NULL);\n");
     }
     else
     {
@@ -1012,7 +1020,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v2_set_result(__t__, __result__);\n"
                 "\n"
                 "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_thread_v2_set_current(NULL);\n"
+                "    rt_tls_thread_set(NULL);\n"
+                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args);
@@ -1032,7 +1041,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_thread_v2_set_current(NULL);\n"
+                "    rt_tls_thread_set(NULL);\n"
+                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
@@ -1052,7 +1062,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_thread_v2_set_current(NULL);\n"
+                "    rt_tls_thread_set(NULL);\n"
+                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
@@ -1153,7 +1164,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 {
                     /* Prepend arena from closure as first argument.
                      * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
-                    thunk_call_args = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__cl__)->arena)");
+                    thunk_call_args = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__cl__)->arena; })");
                 }
                 else
                 {

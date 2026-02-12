@@ -315,19 +315,19 @@ void rt_thread_v2_signal_done(RtThread *t)
  * Panic Integration
  * ============================================================================ */
 
-void rt_thread_v2_set_current(RtThread *t)
+void rt_tls_thread_set(RtThread *t)
 {
     rt_current_thread = t;
 }
 
-RtThread *rt_thread_v2_get_current(void)
+RtThread *rt_tls_thread_get(void)
 {
     return rt_current_thread;
 }
 
 bool rt_thread_v2_capture_panic(const char *msg)
 {
-    RtThread *t = rt_thread_v2_get_current();
+    RtThread *t = rt_tls_thread_get();
     if (t == NULL) {
         return false;  /* Not in thread context, let caller handle */
     }
@@ -350,9 +350,9 @@ void rt_panic(const char *msg)
     /* Try to capture in V2 thread context first */
     if (rt_thread_v2_capture_panic(msg)) {
         /* Signal thread completion and exit thread */
-        RtThread *t = rt_thread_v2_get_current();
+        RtThread *t = rt_tls_thread_get();
         rt_thread_v2_signal_done(t);
-        rt_thread_v2_set_current(NULL);
+        rt_tls_thread_set(NULL);
         pthread_exit(NULL);
         /* Not reached */
     }

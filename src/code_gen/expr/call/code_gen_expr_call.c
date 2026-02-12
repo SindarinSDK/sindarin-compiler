@@ -97,7 +97,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
                              arg_sym->type->as.function.has_body);
     if (wrapped_has_body)
     {
-        args_forward = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena)");
+        args_forward = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; })");
     }
 
     for (int p = 0; p < func_type->as.function.param_count; p++)

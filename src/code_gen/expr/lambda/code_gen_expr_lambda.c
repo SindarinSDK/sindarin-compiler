@@ -175,7 +175,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
          * Parent is thread arena if in thread context, otherwise closure's stored arena. */
         arena_setup = arena_sprintf(gen->arena,
             "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_create("
-            "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena), RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
+            "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; }), RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
             "    rt_arena_v2_destroy(__lambda_arena__);\n");
@@ -195,8 +195,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         /* Default lambda: use thread arena if in thread context,
          * otherwise use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_thread_or("
-            "((__Closure__ *)__closure__)->arena);\n");
+            "    RtArenaV2 *__lambda_arena__ = "
+            "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; });\n");
     }
 
     if (cv.count > 0)

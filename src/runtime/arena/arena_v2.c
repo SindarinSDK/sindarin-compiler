@@ -349,6 +349,12 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     /* Set root arena reference - walk up to find the root, or self if no parent */
     if (parent != NULL) {
         arena->root = parent->root;  /* Inherit root from parent */
+        arena->gc_log_enabled = parent->gc_log_enabled;  /* Inherit GC logging */
+
+        if (parent->gc_log_enabled) {
+            fprintf(stderr, "[ARENA] created '%s' parent='%s'\n",
+                    name ? name : "(unnamed)", parent->name ? parent->name : "(unnamed)");
+        }
 
         /* Link into parent's child list */
         pthread_mutex_lock(&parent->mutex);
@@ -434,6 +440,9 @@ static void arena_v2_destroy_internal(RtArenaV2 *arena, bool unlink_from_parent)
 void rt_arena_v2_condemn(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
+    if (arena->gc_log_enabled) {
+        fprintf(stderr, "[ARENA] condemn '%s'\n", arena->name ? arena->name : "(unnamed)");
+    }
     arena->flags |= RT_ARENA_FLAG_DEAD;
 }
 
@@ -893,12 +902,12 @@ RtArenaV2 *rt_arena_v2_redirect_current(void)
  * Thread Support
  * ============================================================================ */
 
-RtArenaV2 *rt_arena_v2_thread_current(void)
+RtArenaV2 *rt_tls_arena_get(void)
 {
     return tls_current_arena;
 }
 
-void rt_arena_v2_thread_set(RtArenaV2 *arena)
+void rt_tls_arena_set(RtArenaV2 *arena)
 {
     tls_current_arena = arena;
 }

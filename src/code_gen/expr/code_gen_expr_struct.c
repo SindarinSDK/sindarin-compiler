@@ -113,7 +113,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                                              func_sym->type->as.function.has_body);
                     if (wrapped_has_body)
                     {
-                        args_forward = arena_strdup(gen->arena, "rt_arena_v2_thread_or(((__Closure__ *)__closure__)->arena)");
+                        args_forward = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; })");
                     }
 
                     for (int p = 0; p < func_type->as.function.param_count; p++)
