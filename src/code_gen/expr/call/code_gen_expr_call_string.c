@@ -13,21 +13,24 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-/* Helper macro for string methods that return strings with temp object handling */
+/* Helper macro for string methods that return RtHandleV2* with temp object handling.
+ * Pins the result handle to produce a char* value. */
 #define STRING_METHOD_RETURNING_STRING(gen, object_is_temp, object_str, method_call) \
     do { \
         if (object_is_temp) { \
             if ((gen)->current_arena_var != NULL) { \
                 return arena_sprintf((gen)->arena, \
-                    "({ char *_obj_tmp = %s; char *_res = %s; _res; })", \
+                    "({ char *_obj_tmp = %s; RtHandleV2 *_rh = %s; rt_handle_v2_pin(_rh); (char *)_rh->ptr; })", \
                     object_str, method_call); \
             } else { \
                 return arena_sprintf((gen)->arena, \
-                    "({ char *_obj_tmp = %s; char *_res = %s; rt_free_string(_obj_tmp); _res; })", \
+                    "({ char *_obj_tmp = %s; RtHandleV2 *_rh = %s; rt_handle_v2_pin(_rh); char *_res = (char *)_rh->ptr; rt_free_string(_obj_tmp); _res; })", \
                     object_str, method_call); \
             } \
         } else { \
-            return arena_sprintf((gen)->arena, "%s", method_call); \
+            return arena_sprintf((gen)->arena, \
+                "({ RtHandleV2 *_rh = %s; rt_handle_v2_pin(_rh); (char *)_rh->ptr; })", \
+                method_call); \
         } \
     } while(0)
 

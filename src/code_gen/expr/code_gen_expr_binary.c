@@ -202,17 +202,20 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
                                      ARENA_VAR(gen), left_str, right_str);
             }
         }
-        /* Non-arena context (legacy): use old approach */
+        /* Non-arena context (legacy): rt_str_concat now returns RtHandleV2*, pin to get char* */
         bool free_left = expression_produces_temp(expr->left);
         bool free_right = expression_produces_temp(expr->right);
         if (!free_left && !free_right)
         {
-            return arena_sprintf(gen->arena, "rt_str_concat(NULL, %s, %s)", left_str, right_str);
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__h = rt_str_concat(NULL, %s, %s); rt_handle_v2_pin(__h); (char *)__h->ptr; })",
+                left_str, right_str);
         }
         char *free_l_str = free_left ? "rt_free_string(_left); " : "";
         char *free_r_str = free_right ? "rt_free_string(_right); " : "";
-        return arena_sprintf(gen->arena, "({ char *_left = %s; char *_right = %s; char *_res = rt_str_concat(NULL, _left, _right); %s%s _res; })",
-                             left_str, right_str, free_l_str, free_r_str);
+        return arena_sprintf(gen->arena,
+            "({ char *_left = %s; char *_right = %s; RtHandleV2 *__h = rt_str_concat(NULL, _left, _right); rt_handle_v2_pin(__h); char *_res = (char *)__h->ptr; %s%s _res; })",
+            left_str, right_str, free_l_str, free_r_str);
     }
     else
     {

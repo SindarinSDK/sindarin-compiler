@@ -486,7 +486,9 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
     char **elem_strs = (char **)elem_strs_h->ptr;
     size_t total_len = 2; /* {} */
     for (size_t i = 0; i < len; i++) {
-        elem_strs[i] = rt_any_to_string((RtArenaV2 *)arena, arr[i]);
+        RtHandleV2 *_eh = rt_any_to_string((RtArenaV2 *)arena, arr[i]);
+        rt_handle_v2_pin(_eh);
+        elem_strs[i] = (char *)_eh->ptr;
         if (i > 0) total_len += 2; /* ", " */
         total_len += strlen(elem_strs[i]);
     }

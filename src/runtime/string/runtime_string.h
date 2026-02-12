@@ -68,19 +68,19 @@ typedef struct {
  * ============================================================================ */
 
 /* String concatenation - allocates from arena (IMMUTABLE string, no metadata) */
-char *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right);
+RtHandleV2 *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right);
 
 /* Create mutable string with pre-allocated capacity */
-char *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity);
+RtHandleV2 *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity);
 
 /* Create mutable string from source (copies source into new mutable string) */
-char *rt_string_from(RtArenaV2 *arena, const char *src);
+RtHandleV2 *rt_string_from(RtArenaV2 *arena, const char *src);
 
 /* Ensure string is mutable - converts immutable to mutable if needed */
-char *rt_string_ensure_mutable(RtArenaV2 *arena, char *str);
+RtHandleV2 *rt_string_ensure_mutable(RtArenaV2 *arena, char *str);
 
 /* Append source to mutable destination string (in-place modification) */
-char *rt_string_append(char *dest, const char *src);
+RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src);
 
 /* ============================================================================
  * Type-to-String Conversion Functions
@@ -130,13 +130,13 @@ long rt_str_length(const char *str);
 long rt_str_indexOf(const char *str, const char *search);
 int rt_str_contains(const char *str, const char *search);
 long rt_str_charAt(const char *str, long index);
-char *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end);
-char *rt_str_toUpper(RtArenaV2 *arena, const char *str);
-char *rt_str_toLower(RtArenaV2 *arena, const char *str);
+RtHandleV2 *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long end);
+RtHandleV2 *rt_str_toUpper(RtArenaV2 *arena, const char *str);
+RtHandleV2 *rt_str_toLower(RtArenaV2 *arena, const char *str);
 int rt_str_startsWith(const char *str, const char *prefix);
 int rt_str_endsWith(const char *str, const char *suffix);
-char *rt_str_trim(RtArenaV2 *arena, const char *str);
-char *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str);
+RtHandleV2 *rt_str_trim(RtArenaV2 *arena, const char *str);
+RtHandleV2 *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, const char *new_str);
 char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter);
 char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, int limit);
 
@@ -161,11 +161,8 @@ static inline int rt_string_is_mutable(RtArenaV2 *arena, char *str) {
 }
 
 /* Fast inline ensure_mutable - avoids function call when already mutable */
-static inline char *rt_string_ensure_mutable_inline(RtArenaV2 *arena, char *str) {
-    if (str != NULL && rt_string_is_mutable(arena, str)) {
-        return str;  /* Already mutable, fast path */
-    }
-    return rt_string_ensure_mutable(arena, str);  /* Slow path */
+static inline RtHandleV2 *rt_string_ensure_mutable_inline(RtArenaV2 *arena, char *str) {
+    return rt_string_ensure_mutable(arena, str);
 }
 
 /* Compare a region of a string with a pattern without allocating.

@@ -187,9 +187,10 @@ char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
             return arena_sprintf(gen->arena, "%s = rt_str_concat_v2(%s, %s, %s)",
                                  var_name, ARENA_VAR(gen), target_code, value_code);
         }
-        /* Legacy non-arena context */
-        return arena_sprintf(gen->arena, "%s = rt_str_concat(NULL, %s, %s)",
-                             target_code, target_code, value_code);
+        /* Legacy non-arena context - rt_str_concat now returns RtHandleV2*, pin to get char* */
+        return arena_sprintf(gen->arena,
+            "%s = ({ RtHandleV2 *__h = rt_str_concat(NULL, %s, %s); rt_handle_v2_pin(__h); (char *)__h->ptr; })",
+            target_code, target_code, value_code);
     }
 
     /* For numeric types, generate: target = target op value */

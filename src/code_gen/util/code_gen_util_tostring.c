@@ -45,7 +45,7 @@ const char *get_rt_to_string_func(TypeKind kind)
 
 const char *get_rt_to_string_func_v2(TypeKind kind)
 {
-    /* V2 raw pointer versions - for use with RtArenaV2* */
+    /* V2 handle-returning versions - return RtHandleV2* */
     switch (kind)
     {
     case TYPE_INT:
@@ -53,18 +53,18 @@ const char *get_rt_to_string_func_v2(TypeKind kind)
     case TYPE_UINT:
     case TYPE_UINT32:
     case TYPE_LONG:
-        return "rt_to_string_long_raw_v2";
+        return "rt_to_string_long_v2";
     case TYPE_DOUBLE:
     case TYPE_FLOAT:
-        return "rt_to_string_double_raw_v2";
+        return "rt_to_string_double_v2";
     case TYPE_CHAR:
-        return "rt_to_string_char_raw_v2";
+        return "rt_to_string_char_v2";
     case TYPE_STRING:
         return "rt_to_string_string";  /* Strings don't need conversion */
     case TYPE_BOOL:
-        return "rt_to_string_bool_raw_v2";
+        return "rt_to_string_bool_v2";
     case TYPE_BYTE:
-        return "rt_to_string_byte_raw_v2";
+        return "rt_to_string_byte_v2";
     default:
         return get_rt_to_string_func(kind);  /* Fallback to V1 */
     }
@@ -75,7 +75,7 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
     /* V2 versions for all types */
     if (type == NULL) return "rt_to_string_pointer";
 
-    /* For simple types, use V2 raw functions */
+    /* For simple types, use V2 handle-returning functions */
     if (type->kind == TYPE_INT || type->kind == TYPE_INT32 ||
         type->kind == TYPE_UINT || type->kind == TYPE_UINT32 ||
         type->kind == TYPE_LONG || type->kind == TYPE_DOUBLE ||

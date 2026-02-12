@@ -14,7 +14,7 @@
  * ============================================================================ */
 
 /* Stdin - read line from standard input */
-char *rt_stdin_read_line(RtArenaV2 *arena) {
+RtHandleV2 *rt_stdin_read_line(RtArenaV2 *arena) {
     /* Read a line from stdin, stripping trailing newline */
     char buffer[4096];
     if (fgets(buffer, sizeof(buffer), stdin) == NULL) {
@@ -23,7 +23,8 @@ char *rt_stdin_read_line(RtArenaV2 *arena) {
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     /* Strip trailing newline if present */
@@ -37,7 +38,8 @@ char *rt_stdin_read_line(RtArenaV2 *arena) {
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
     memcpy(result, buffer, len + 1);
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* Stdin - read single character from standard input */
@@ -47,7 +49,7 @@ long rt_stdin_read_char(void) {
 }
 
 /* Stdin - read whitespace-delimited word from standard input */
-char *rt_stdin_read_word(RtArenaV2 *arena) {
+RtHandleV2 *rt_stdin_read_word(RtArenaV2 *arena) {
     char buffer[4096];
     if (scanf("%4095s", buffer) != 1) {
         /* EOF or error - return empty string */
@@ -55,7 +57,8 @@ char *rt_stdin_read_word(RtArenaV2 *arena) {
         rt_handle_v2_pin(result_h);
         char *result = (char *)result_h->ptr;
         result[0] = '\0';
-        return result;
+        rt_handle_v2_unpin(result_h);
+        return result_h;
     }
 
     size_t len = strlen(buffer);
@@ -63,7 +66,8 @@ char *rt_stdin_read_word(RtArenaV2 *arena) {
     rt_handle_v2_pin(result_h);
     char *result = (char *)result_h->ptr;
     memcpy(result, buffer, len + 1);
-    return result;
+    rt_handle_v2_unpin(result_h);
+    return result_h;
 }
 
 /* Stdin - check if characters available */
@@ -140,7 +144,7 @@ void rt_stderr_flush(void) {
  * ============================================================================ */
 
 /* Global convenience: read line */
-char *rt_read_line(RtArenaV2 *arena) {
+RtHandleV2 *rt_read_line(RtArenaV2 *arena) {
     return rt_stdin_read_line(arena);
 }
 

@@ -103,7 +103,9 @@ static int test_gc_collects_dead(void)
     RtHandleV2 *h2 = rt_arena_v2_alloc(arena, 100);
     (void)rt_arena_v2_alloc(arena, 100);  /* h3 - kept */
 
-    if (arena->handle_count != 3) { rt_arena_v2_destroy(arena); return 0; }
+    RtArenaV2Stats stats;
+    rt_arena_v2_get_stats(arena, &stats);
+    if (stats.handle_count != 3) { rt_arena_v2_destroy(arena); return 0; }
 
     /* Mark h2 as dead */
     rt_arena_v2_free(h2);
@@ -111,7 +113,8 @@ static int test_gc_collects_dead(void)
     /* GC should collect h2 */
     size_t collected = rt_arena_v2_gc(arena);
     if (collected != 1) { rt_arena_v2_destroy(arena); return 0; }
-    if (arena->handle_count != 2) { rt_arena_v2_destroy(arena); return 0; }
+    rt_arena_v2_get_stats(arena, &stats);
+    if (stats.handle_count != 2) { rt_arena_v2_destroy(arena); return 0; }
 
     rt_arena_v2_destroy(arena);
     return 1;
@@ -131,7 +134,9 @@ static int test_gc_skips_pinned(void)
 
     size_t collected = rt_arena_v2_gc(arena);
     if (collected != 0) { rt_arena_v2_destroy(arena); return 0; }
-    if (arena->handle_count != 1) { rt_arena_v2_destroy(arena); return 0; }
+    RtArenaV2Stats stats;
+    rt_arena_v2_get_stats(arena, &stats);
+    if (stats.handle_count != 1) { rt_arena_v2_destroy(arena); return 0; }
 
     /* Unpin, GC should now collect */
     rt_handle_v2_unpin(h);

@@ -386,31 +386,31 @@ bool rt_any_equals(RtAny a, RtAny b) {
  * Utility Functions
  * ============================================================================ */
 
-char *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
+RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
     char buffer[256];
 
     switch (value.tag) {
         case RT_ANY_NIL:
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, "nil"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, "nil");
         case RT_ANY_INT:
         case RT_ANY_LONG:
             snprintf(buffer, sizeof(buffer), "%lld", (long long)value.value.i64);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_INT32:
             snprintf(buffer, sizeof(buffer), "%d", value.value.i32);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_UINT:
             snprintf(buffer, sizeof(buffer), "%llu", (unsigned long long)value.value.u64);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_UINT32:
             snprintf(buffer, sizeof(buffer), "%u", value.value.u32);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_DOUBLE:
             snprintf(buffer, sizeof(buffer), "%g", value.value.d);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_FLOAT:
             snprintf(buffer, sizeof(buffer), "%g", (double)value.value.f);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_STRING:
             if (value.value.s) {
                 size_t len = strlen(value.value.s);
@@ -421,27 +421,28 @@ char *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
                 memcpy(result + 1, value.value.s, len);
                 result[len + 1] = '"';
                 result[len + 2] = '\0';
-                return result;
+                rt_handle_v2_unpin(result_h);
+                return result_h;
             }
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, "null"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, "null");
         case RT_ANY_CHAR:
             snprintf(buffer, sizeof(buffer), "%c", value.value.c);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_BOOL:
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, value.value.b ? "true" : "false"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, value.value.b ? "true" : "false");
         case RT_ANY_BYTE:
             snprintf(buffer, sizeof(buffer), "%u", value.value.byte);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_ARRAY:
             snprintf(buffer, sizeof(buffer), "[array of %zu elements]",
                     value.value.arr ? rt_v2_data_array_length(value.value.arr) : 0);
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, buffer); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_FUNCTION:
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, "[function]"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, "[function]");
         case RT_ANY_STRUCT:
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, "[struct]"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, "[struct]");
         default:
-            { RtHandleV2 *_h = rt_arena_v2_strdup(arena, "[unknown]"); rt_handle_v2_pin(_h); return (char *)_h->ptr; }
+            return rt_arena_v2_strdup(arena, "[unknown]");
     }
 }
 
