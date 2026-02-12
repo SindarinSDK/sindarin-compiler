@@ -135,7 +135,7 @@ void rt_thread_v2_sync_all(RtThread **threads, int count);
  *
  *   void *my_fn_wrapper(void *arg) {
  *       RtThread *t = arg;
- *       rt_thread_v2_set_current(t);
+ *       rt_tls_thread_set(t);
  *       RtArenaV2 *arena = rt_thread_v2_get_arena(t);
  *
  *       // Unpack args
@@ -147,7 +147,7 @@ void rt_thread_v2_sync_all(RtThread **threads, int count);
  *       // Store result - sync handles promotion to caller arena
  *       rt_thread_v2_set_result(t, result);
  *       rt_thread_v2_signal_done(t);
- *       rt_thread_v2_set_current(NULL);
+ *       rt_tls_thread_set(NULL);
  *       return NULL;
  *   }
  *
@@ -175,8 +175,8 @@ void rt_thread_v2_fire_and_forget_done(RtThread *t);
  * ============================================================================ */
 
 /* TLS current thread context */
-void rt_thread_v2_set_current(RtThread *t);
-RtThread *rt_thread_v2_get_current(void);
+void rt_tls_thread_set(RtThread *t);
+RtThread *rt_tls_thread_get(void);
 
 /* Called by rt_panic - returns true if captured in thread context */
 bool rt_thread_v2_capture_panic(const char *msg);
