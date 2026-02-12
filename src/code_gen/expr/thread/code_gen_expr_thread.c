@@ -1245,8 +1245,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    RtThread *%s = rt_thread_v2_create(%s, %s);\n"
         "    RtArenaV2 *__thread_arena__ = rt_thread_v2_get_arena(%s);\n"
         "\n"
-        "    /* Allocate args in thread arena */\n"
-        "    %s->args = rt_arena_v2_alloc(__thread_arena__, sizeof(%s));\n"
+        "    /* Allocate args in thread arena (min 1 byte for empty structs) */\n"
+        "    %s->args = rt_arena_v2_alloc(__thread_arena__, sizeof(%s) > 0 ? sizeof(%s) : 1);\n"
         "    rt_handle_v2_pin(%s->args);\n"
         "    %s *%s = (%s *)%s->args->ptr;\n"
         "    %s"
@@ -1257,7 +1257,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "})",
         handle_var, caller_arena, thread_mode,
         handle_var,
-        handle_var, args_struct_name,
+        handle_var, args_struct_name, args_struct_name,
         handle_var,
         args_struct_name, args_var, args_struct_name, handle_var,
         arg_assignments,
