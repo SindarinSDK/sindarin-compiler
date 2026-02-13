@@ -23,7 +23,14 @@ Stmt *parser_return_statement(Parser *parser)
         value = parser_expression(parser);
     }
 
-    if (!parser_match(parser, TOKEN_SEMICOLON) && !parser_check(parser, TOKEN_NEWLINE) && !parser_is_at_end(parser))
+    /* Match expressions consume their own block structure (INDENT/DEDENT),
+     * so they don't need an additional trailing terminator */
+    if (value != NULL && value->type == EXPR_MATCH)
+    {
+        parser_match(parser, TOKEN_NEWLINE);
+    }
+    else if (!parser_match(parser, TOKEN_SEMICOLON) && !parser_check(parser, TOKEN_NEWLINE) &&
+        !parser_check(parser, TOKEN_DEDENT) && !parser_is_at_end(parser))
     {
         parser_consume(parser, TOKEN_SEMICOLON, "Expected ';' or newline after return value");
     }
