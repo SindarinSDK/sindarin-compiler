@@ -615,6 +615,14 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     }
     else if (type->kind == TYPE_ARRAY && in_arena_context)
     {
+        /* Reset pending elements companion when reassigning an array with pending elements */
+        char *pending_reset = arena_strdup(gen->arena, "");
+        if (symbol->has_pending_elements)
+        {
+            char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", base_var_name);
+            pending_reset = arena_sprintf(gen->arena, " %s = NULL;", pending_elems_var);
+        }
+
         if (value_is_new_handle)
         {
             /* Array literal or 2D/3D conversion already produced a new handle.
@@ -623,14 +631,24 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
              * V2 handles carry their own arena reference, so no source arena needed. */
             if (is_global)
             {
-                return arena_sprintf(gen->arena, "(%s = rt_arena_v2_promote(__main_arena__, %s))",
-                                     var_name, value_str);
+                return arena_sprintf(gen->arena, "({%s %s = rt_arena_v2_promote(__main_arena__, %s); %s; })",
+                                     pending_reset, var_name, value_str, var_name);
+            }
+            if (symbol->has_pending_elements)
+            {
+                return arena_sprintf(gen->arena, "({%s %s = %s; %s; })",
+                                     pending_reset, var_name, value_str, var_name);
             }
             return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
         }
         /* For handle-based arrays: clone to target arena with old handle.
          * Use rt_arena_v2_clone for cross-arena cloning (e.g., to __main_arena__ for globals). */
         const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+        if (symbol->has_pending_elements)
+        {
+            return arena_sprintf(gen->arena, "({%s %s = rt_arena_v2_clone(%s, %s); %s; })",
+                                 pending_reset, var_name, target_arena, value_str, var_name);
+        }
         return arena_sprintf(gen->arena, "(%s = rt_arena_v2_clone(%s, %s))",
                              var_name, target_arena, value_str);
     }

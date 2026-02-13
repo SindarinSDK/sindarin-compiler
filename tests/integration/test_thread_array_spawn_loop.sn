@@ -1,0 +1,32 @@
+// Test spawning threads in a loop and collecting handles in an array
+
+fn compute(x: int): int =>
+    return x * 2
+
+fn main(): void =>
+    // Test 1: Sync individual elements with arr[i]!
+    var handles: int[] = {}
+    for i in 0..3 =>
+        handles.push(&compute(i))
+    for i in 0..handles.length =>
+        handles[i]!
+    for i in 0..handles.length =>
+        print($"compute({i}) = {handles[i]}\n")
+
+    // Test 2: Re-assign array and sync entire array with arr!
+    handles = {}
+    for i in 3..6 =>
+        handles.push(&compute(i))
+    handles!
+    for i in 0..handles.length =>
+        print($"compute({i + 3}) = {handles[i]}\n")
+
+    // Test 3: Re-assign again with different handles
+    handles = {}
+    for i in 6..8 =>
+        handles.push(&compute(i))
+    handles!
+    for i in 0..handles.length =>
+        print($"compute({i + 6}) = {handles[i]}\n")
+
+    print("SUCCESS: Array-based thread spawning works\n")

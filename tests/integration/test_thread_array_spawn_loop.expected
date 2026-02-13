@@ -1,0 +1,9 @@
+compute(0) = 0
+compute(1) = 2
+compute(2) = 4
+compute(3) = 6
+compute(4) = 8
+compute(5) = 10
+compute(6) = 12
+compute(7) = 14
+SUCCESS: Array-based thread spawning works

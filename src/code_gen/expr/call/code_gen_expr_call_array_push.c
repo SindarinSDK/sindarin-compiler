@@ -25,6 +25,50 @@ static const char *get_arena_for_mutation(CodeGen *gen, Expr *object)
 static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                                   Expr *arg)
 {
+    /* Handle thread spawn push: arr.push(&fn())
+     * Generates code that:
+     * 1. Evaluates the spawn -> RtThread*
+     * 2. Pushes a zero/default to the data array
+     * 3. Lazily creates the pending elems array if NULL
+     * 4. Pushes the RtThread* to the pending elems array */
+    if (arg->type == EXPR_THREAD_SPAWN && object->type == EXPR_VARIABLE)
+    {
+        Symbol *arr_sym = symbol_table_lookup_symbol(gen->symbol_table, object->as.variable.name);
+        if (arr_sym != NULL && arr_sym->has_pending_elements)
+        {
+            char *raw_arr_name = get_var_name(gen->arena, object->as.variable.name);
+            char *arr_name = sn_mangle_name(gen->arena, raw_arr_name);
+            char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", raw_arr_name);
+
+            /* Evaluate the spawn expression */
+            char *spawn_str = code_gen_expression(gen, arg);
+
+            const char *arena_to_use = get_arena_for_mutation(gen, object);
+            const char *elem_c = get_c_array_elem_type(gen->arena, element_type);
+            const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
+
+            /* Generate: ({
+             *     RtThread *__spawn_tmp__ = <spawn>;
+             *     <arr> = rt_array_push_v2(<arena>, <arr>, &(<elem_c>){0}, <sizeof>);
+             *     if (<pending_elems> == NULL) <pending_elems> = rt_array_create_v2(<arena>, 0, sizeof(void *));
+             *     <pending_elems> = rt_array_push_v2(<arena>, <pending_elems>, &(void *){(void *)__spawn_tmp__}, sizeof(void *));
+             *     (void)0;
+             * }) */
+            return arena_sprintf(gen->arena,
+                "({\n"
+                "    RtThread *__spawn_tmp__ = %s;\n"
+                "    %s = rt_array_push_v2(%s, %s, &(%s){0}, %s);\n"
+                "    if (%s == NULL) %s = rt_array_create_generic_v2(%s, 0, sizeof(void *), NULL);\n"
+                "    %s = rt_array_push_v2(%s, %s, &(void *){(void *)__spawn_tmp__}, sizeof(void *));\n"
+                "    (void)0;\n"
+                "})",
+                spawn_str,
+                arr_name, arena_to_use, arr_name, elem_c, sizeof_expr,
+                pending_elems_var, pending_elems_var, arena_to_use,
+                pending_elems_var, arena_to_use, pending_elems_var);
+        }
+    }
+
     char *handle_str = NULL;
     char *lvalue_str = NULL;
 

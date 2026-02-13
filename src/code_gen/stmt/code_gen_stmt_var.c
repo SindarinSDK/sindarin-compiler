@@ -137,7 +137,17 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
                 if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
             }
+            if (stmt->has_pending_elements)
+            {
+                Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
+                if (sym != NULL) sym->has_pending_elements = true;
+            }
             indented_fprintf(gen, indent, "%s%s %s = NULL;\n", static_prefix, type_c, var_name);
+            /* Emit companion pending elements array for thread spawn push tracking */
+            if (stmt->has_pending_elements)
+            {
+                indented_fprintf(gen, indent, "%sRtHandleV2 *__%s_pending_elems__ = NULL;\n", static_prefix, raw_var_name);
+            }
             return;
         }
     }
@@ -198,6 +208,13 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         {
             Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
             if (sym != NULL) sym->sync_mod = SYNC_ATOMIC;
+        }
+        /* Emit companion pending elements array for arrays with thread spawn push */
+        if (stmt->has_pending_elements && stmt->type->kind == TYPE_ARRAY)
+        {
+            indented_fprintf(gen, indent, "RtHandleV2 *__%s_pending_elems__ = NULL;\n", raw_var_name);
+            Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
+            if (sym != NULL) sym->has_pending_elements = true;
         }
         return;
     }
@@ -431,6 +448,14 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     else
     {
         indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
+    }
+
+    /* Emit companion pending elements array for arrays with thread spawn push tracking */
+    if (stmt->has_pending_elements && stmt->type->kind == TYPE_ARRAY && !is_global_scope)
+    {
+        indented_fprintf(gen, indent, "RtHandleV2 *__%s_pending_elems__ = NULL;\n", raw_var_name);
+        Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
+        if (sym != NULL) sym->has_pending_elements = true;
     }
 
     /* Handle recursive lambda fixup */
