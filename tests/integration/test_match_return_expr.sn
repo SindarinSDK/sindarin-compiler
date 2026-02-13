@@ -1,0 +1,14 @@
+
+fn myMatchReturn(val1: int): str =>
+    return match val1 =>
+        1 => "One"
+        2 => "Two"
+        3 => "Three"
+        else => "Unknown"
+
+fn main(): void =>
+    var val1: int = 2
+    var res = myMatchReturn(val1)
+    println($"{val1} = {res}")
+
+    println("All tests completed")
