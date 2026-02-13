@@ -50,6 +50,8 @@ typedef struct Symbol
     bool is_static;             /* True if this is a static variable (shared across import aliases) */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
     ThreadState thread_state;   /* Thread handle state for synchronization tracking */
+    bool has_pending_elements;  /* True if array has thread spawn elements via push */
+    struct Stmt *var_decl_origin;  /* Back-pointer to VarDeclStmt for setting flags during type checking */
     /* Namespace support */
     bool is_namespace;          /* True if this symbol represents a namespace */
     bool also_imported_directly;/* True if the namespace's module was also imported directly (no alias) */

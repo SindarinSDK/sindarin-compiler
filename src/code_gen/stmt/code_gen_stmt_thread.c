@@ -185,9 +185,109 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
     }
     else
     {
+        /* Array element sync statement: arr[i]! */
+        Expr *handle = sync->handle;
+
+        if (handle->type == EXPR_ARRAY_ACCESS)
+        {
+            Expr *arr_expr = handle->as.array_access.array;
+            Expr *idx_expr = handle->as.array_access.index;
+
+            if (arr_expr->type == EXPR_VARIABLE)
+            {
+                char *raw_arr_name = get_var_name(gen->arena, arr_expr->as.variable.name);
+                char *arr_name = sn_mangle_name(gen->arena, raw_arr_name);
+                char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", raw_arr_name);
+                char *idx_str = code_gen_expression(gen, idx_expr);
+
+                Type *result_type = expr->expr_type;
+                const char *c_type = get_c_type(gen->arena, result_type);
+
+                bool is_primitive = (result_type->kind == TYPE_INT ||
+                                    result_type->kind == TYPE_LONG ||
+                                    result_type->kind == TYPE_DOUBLE ||
+                                    result_type->kind == TYPE_BOOL ||
+                                    result_type->kind == TYPE_BYTE ||
+                                    result_type->kind == TYPE_CHAR);
+
+                indented_fprintf(gen, indent, "{\n");
+                indented_fprintf(gen, indent + 1, "int __sync_idx__ = (int)(%s);\n", idx_str);
+                indented_fprintf(gen, indent + 1, "if (__sync_idx__ < 0) __sync_idx__ = (int)rt_array_length_v2(%s) + __sync_idx__;\n", arr_name);
+                indented_fprintf(gen, indent + 1, "if (%s != NULL) {\n", pending_elems_var);
+                indented_fprintf(gen, indent + 2, "void **__pe_data__ = (void **)rt_array_data_v2(%s);\n", pending_elems_var);
+                indented_fprintf(gen, indent + 2, "if (__pe_data__[__sync_idx__] != NULL) {\n");
+
+                if (is_primitive)
+                {
+                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n");
+                    indented_fprintf(gen, indent + 3, "rt_handle_v2_pin(__sync_h__);\n");
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n",
+                        c_type, arr_name, c_type);
+                }
+                else
+                {
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n",
+                        c_type, arr_name, c_type);
+                }
+
+                indented_fprintf(gen, indent + 3, "__pe_data__[__sync_idx__] = NULL;\n");
+                indented_fprintf(gen, indent + 2, "}\n");
+                indented_fprintf(gen, indent + 1, "}\n");
+                indented_fprintf(gen, indent, "}\n");
+                return;
+            }
+        }
+
+        /* Whole-array sync statement: arr! (for arrays with pending elements) */
+        if (handle->type == EXPR_VARIABLE)
+        {
+            Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, handle->as.variable.name);
+            if (sym != NULL && sym->has_pending_elements)
+            {
+                char *raw_var_name = get_var_name(gen->arena, handle->as.variable.name);
+                char *var_name = sn_mangle_name(gen->arena, raw_var_name);
+                char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", raw_var_name);
+
+                Type *result_type = expr->expr_type;
+                Type *elem_type = result_type->as.array.element_type;
+                const char *elem_c_type = get_c_type(gen->arena, elem_type);
+
+                bool is_primitive_elem = (elem_type->kind == TYPE_INT ||
+                                          elem_type->kind == TYPE_LONG ||
+                                          elem_type->kind == TYPE_DOUBLE ||
+                                          elem_type->kind == TYPE_BOOL ||
+                                          elem_type->kind == TYPE_BYTE ||
+                                          elem_type->kind == TYPE_CHAR);
+
+                indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_elems_var);
+                indented_fprintf(gen, indent + 1, "int __sync_len__ = (int)rt_array_length_v2(%s);\n", pending_elems_var);
+                indented_fprintf(gen, indent + 1, "void **__pe_data__ = (void **)rt_array_data_v2(%s);\n", pending_elems_var);
+                indented_fprintf(gen, indent + 1, "for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n");
+                indented_fprintf(gen, indent + 2, "if (__pe_data__[__i__] != NULL) {\n");
+
+                if (is_primitive_elem)
+                {
+                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n");
+                    indented_fprintf(gen, indent + 3, "rt_handle_v2_pin(__sync_h__);\n");
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n",
+                        elem_c_type, var_name, elem_c_type);
+                }
+                else
+                {
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n",
+                        elem_c_type, var_name, elem_c_type);
+                }
+
+                indented_fprintf(gen, indent + 3, "__pe_data__[__i__] = NULL;\n");
+                indented_fprintf(gen, indent + 2, "}\n");
+                indented_fprintf(gen, indent + 1, "}\n");
+                indented_fprintf(gen, indent, "}\n");
+                return;
+            }
+        }
+
         /* Single sync: r!
          * Only assign back if the handle is a variable */
-        Expr *handle = sync->handle;
 
         if (handle->type == EXPR_VARIABLE)
         {

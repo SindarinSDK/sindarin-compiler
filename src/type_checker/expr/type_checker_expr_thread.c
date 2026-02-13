@@ -257,6 +257,33 @@ Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
         return sym->type;
     }
 
+    /* Array element sync: arr[i]! */
+    if (handle->type == EXPR_ARRAY_ACCESS)
+    {
+        Type *access_type = type_check_expr(handle, table);
+        if (access_type == NULL)
+        {
+            type_error(expr->token, "Invalid array access in sync");
+            return NULL;
+        }
+        /* Validate element type is thread-compatible */
+        bool is_thread_compatible = (access_type->kind == TYPE_INT ||
+            access_type->kind == TYPE_LONG ||
+            access_type->kind == TYPE_DOUBLE ||
+            access_type->kind == TYPE_BOOL ||
+            access_type->kind == TYPE_BYTE ||
+            access_type->kind == TYPE_CHAR ||
+            access_type->kind == TYPE_STRING ||
+            access_type->kind == TYPE_ARRAY ||
+            access_type->kind == TYPE_STRUCT);
+        if (!is_thread_compatible)
+        {
+            type_error(expr->token, "Cannot sync array element of this type");
+            return NULL;
+        }
+        return access_type;
+    }
+
     type_error(expr->token, "Sync requires thread handle variable");
     return NULL;
 }

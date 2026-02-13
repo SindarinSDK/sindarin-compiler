@@ -183,6 +183,15 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         symbol_table_add_symbol_with_kind(table, stmt->as.var_decl.name, decl_type, SYMBOL_LOCAL);
     }
 
+    /* Store back-pointer from symbol to VarDeclStmt for flag propagation (e.g., has_pending_elements) */
+    {
+        Symbol *sym = symbol_table_lookup_symbol_current(table, stmt->as.var_decl.name);
+        if (sym != NULL)
+        {
+            sym->var_decl_origin = stmt;
+        }
+    }
+
     /* Handle sync modifier */
     if (stmt->as.var_decl.sync_modifier == SYNC_ATOMIC)
     {

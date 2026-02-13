@@ -79,6 +79,156 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
     }
     else
     {
+        /* Array element sync: arr[i]! */
+        if (sync->handle->type == EXPR_ARRAY_ACCESS)
+        {
+            Expr *arr_expr = sync->handle->as.array_access.array;
+            Expr *idx_expr = sync->handle->as.array_access.index;
+
+            if (arr_expr->type == EXPR_VARIABLE)
+            {
+                char *raw_arr_name = get_var_name(gen->arena, arr_expr->as.variable.name);
+                char *arr_name = sn_mangle_name(gen->arena, raw_arr_name);
+                char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", raw_arr_name);
+                char *idx_str = code_gen_expression(gen, idx_expr);
+
+                Type *result_type = expr->expr_type;
+                const char *c_type = get_c_type(gen->arena, result_type);
+
+                bool is_primitive = (result_type->kind == TYPE_INT ||
+                                     result_type->kind == TYPE_LONG ||
+                                     result_type->kind == TYPE_DOUBLE ||
+                                     result_type->kind == TYPE_BOOL ||
+                                     result_type->kind == TYPE_BYTE ||
+                                     result_type->kind == TYPE_CHAR);
+
+                if (is_primitive)
+                {
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    int __sync_idx__ = (int)(%s);\n"
+                        "    if (__sync_idx__ < 0) __sync_idx__ = (int)rt_array_length_v2(%s) + __sync_idx__;\n"
+                        "    if (%s != NULL) {\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        if (__pe_data__[__sync_idx__] != NULL) {\n"
+                        "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
+                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n"
+                        "            __pe_data__[__sync_idx__] = NULL;\n"
+                        "        }\n"
+                        "    }\n"
+                        "    ((%s *)rt_array_data_v2(%s))[__sync_idx__];\n"
+                        "})",
+                        idx_str,
+                        arr_name,
+                        pending_elems_var,
+                        pending_elems_var,
+                        c_type, arr_name, c_type,
+                        c_type, arr_name);
+                }
+                else
+                {
+                    /* Handle types (string/array) and struct - similar pattern */
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    int __sync_idx__ = (int)(%s);\n"
+                        "    if (__sync_idx__ < 0) __sync_idx__ = (int)rt_array_length_v2(%s) + __sync_idx__;\n"
+                        "    if (%s != NULL) {\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        if (__pe_data__[__sync_idx__] != NULL) {\n"
+                        "            %s __sync_result__ = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
+                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_result__;\n"
+                        "            __pe_data__[__sync_idx__] = NULL;\n"
+                        "        }\n"
+                        "    }\n"
+                        "    ((%s *)rt_array_data_v2(%s))[__sync_idx__];\n"
+                        "})",
+                        idx_str,
+                        arr_name,
+                        pending_elems_var,
+                        pending_elems_var,
+                        c_type, c_type,
+                        c_type, arr_name,
+                        c_type, arr_name);
+                }
+            }
+        }
+
+        /* Whole-array sync for variables with pending elements: arr!
+         * Iterates over ALL pending elements and syncs each one. */
+        if (sync->handle->type == EXPR_VARIABLE)
+        {
+            Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, sync->handle->as.variable.name);
+            if (sym != NULL && sym->has_pending_elements)
+            {
+                char *raw_var_name = get_var_name(gen->arena, sync->handle->as.variable.name);
+                char *var_name = sn_mangle_name(gen->arena, raw_var_name);
+                char *pending_elems_var = arena_sprintf(gen->arena, "__%s_pending_elems__", raw_var_name);
+
+                Type *result_type = expr->expr_type;
+                /* For whole-array sync, the result type is the array type.
+                 * We need the element type for the sync loop. */
+                Type *elem_type = result_type->as.array.element_type;
+                const char *elem_c_type = get_c_type(gen->arena, elem_type);
+
+                bool is_primitive_elem = (elem_type->kind == TYPE_INT ||
+                                          elem_type->kind == TYPE_LONG ||
+                                          elem_type->kind == TYPE_DOUBLE ||
+                                          elem_type->kind == TYPE_BOOL ||
+                                          elem_type->kind == TYPE_BYTE ||
+                                          elem_type->kind == TYPE_CHAR);
+
+                if (is_primitive_elem)
+                {
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    if (%s != NULL) {\n"
+                        "        int __sync_len__ = (int)rt_array_length_v2(%s);\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
+                        "            if (__pe_data__[__i__] != NULL) {\n"
+                        "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
+                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                ((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n"
+                        "                __pe_data__[__i__] = NULL;\n"
+                        "            }\n"
+                        "        }\n"
+                        "    }\n"
+                        "    %s;\n"
+                        "})",
+                        pending_elems_var,
+                        pending_elems_var,
+                        pending_elems_var,
+                        elem_c_type, var_name, elem_c_type,
+                        var_name);
+                }
+                else
+                {
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    if (%s != NULL) {\n"
+                        "        int __sync_len__ = (int)rt_array_length_v2(%s);\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
+                        "            if (__pe_data__[__i__] != NULL) {\n"
+                        "                %s __sync_result__ = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
+                        "                ((%s *)rt_array_data_v2(%s))[__i__] = __sync_result__;\n"
+                        "                __pe_data__[__i__] = NULL;\n"
+                        "            }\n"
+                        "        }\n"
+                        "    }\n"
+                        "    %s;\n"
+                        "})",
+                        pending_elems_var,
+                        pending_elems_var,
+                        pending_elems_var,
+                        elem_c_type, elem_c_type,
+                        elem_c_type, var_name,
+                        var_name);
+                }
+            }
+        }
+
         /* Single variable sync: r!
          * This generates code to:
          * 1. Call rt_thread_join to wait for thread and get result pointer

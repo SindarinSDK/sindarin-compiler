@@ -287,6 +287,35 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
         }
     }
 
+    /* Detect thread spawn pushed into array: arr.push(&fn())
+     * If a spawn expression is pushed into an array variable, mark the array
+     * symbol as having pending elements for thread sync support. */
+    if (callee->type == EXPR_MEMBER &&
+        expr->as.call.arg_count == 1 &&
+        expr->as.call.arguments[0] != NULL &&
+        expr->as.call.arguments[0]->type == EXPR_THREAD_SPAWN)
+    {
+        Expr *member_expr = callee;
+        Token member_name = member_expr->as.member.member_name;
+        if (member_name.length == 4 && strncmp(member_name.start, "push", 4) == 0)
+        {
+            Expr *object = member_expr->as.member.object;
+            if (object->type == EXPR_VARIABLE)
+            {
+                Symbol *arr_sym = symbol_table_lookup_symbol(table, object->as.variable.name);
+                if (arr_sym != NULL && arr_sym->type != NULL && arr_sym->type->kind == TYPE_ARRAY)
+                {
+                    arr_sym->has_pending_elements = true;
+                    /* Propagate flag to VarDeclStmt so codegen can emit companion variable */
+                    if (arr_sym->var_decl_origin != NULL)
+                    {
+                        arr_sym->var_decl_origin->as.var_decl.has_pending_elements = true;
+                    }
+                }
+            }
+        }
+    }
+
     DEBUG_VERBOSE("Returning function return type: %d", callee_type->as.function.return_type->kind);
     return callee_type->as.function.return_type;
 }
