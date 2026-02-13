@@ -102,6 +102,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                                      result_type->kind == TYPE_BYTE ||
                                      result_type->kind == TYPE_CHAR);
 
+                bool is_struct = (result_type->kind == TYPE_STRUCT);
+                bool struct_needs_promo = is_struct && struct_has_handle_fields(result_type);
+
                 if (is_primitive)
                 {
                     return arena_sprintf(gen->arena,
@@ -126,9 +129,12 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         c_type, arr_name, c_type,
                         c_type, arr_name);
                 }
-                else
+                else if (struct_needs_promo)
                 {
-                    /* Handle types (string/array) and struct - similar pattern */
+                    /* Struct with handle fields: keep arena, deref, promote, destroy */
+                    char *field_promotion = gen_struct_field_promotion(gen, result_type, "__sync_tmp__",
+                        ARENA_VAR(gen), "__thread_arena__");
+                    if (!field_promotion) field_promotion = "";
                     return arena_sprintf(gen->arena,
                         "({\n"
                         "    int __sync_idx__ = (int)(%s);\n"
@@ -136,8 +142,13 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "    if (%s != NULL) {\n"
                         "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
                         "        if (__pe_data__[__sync_idx__] != NULL) {\n"
-                        "            %s __sync_result__ = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
-                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_result__;\n"
+                        "            RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__sync_idx__])->arena;\n"
+                        "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__sync_idx__]);\n"
+                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                        "%s"
+                        "            if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_tmp__;\n"
                         "            __pe_data__[__sync_idx__] = NULL;\n"
                         "        }\n"
                         "    }\n"
@@ -148,7 +159,56 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         pending_elems_var,
                         pending_elems_var,
                         c_type, c_type,
+                        field_promotion,
                         c_type, arr_name,
+                        c_type, arr_name);
+                }
+                else if (is_struct)
+                {
+                    /* Simple struct (no handle fields): sync, pin, deref */
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    int __sync_idx__ = (int)(%s);\n"
+                        "    if (__sync_idx__ < 0) __sync_idx__ = (int)rt_array_length_v2(%s) + __sync_idx__;\n"
+                        "    if (%s != NULL) {\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        if (__pe_data__[__sync_idx__] != NULL) {\n"
+                        "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
+                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n"
+                        "            __pe_data__[__sync_idx__] = NULL;\n"
+                        "        }\n"
+                        "    }\n"
+                        "    ((%s *)rt_array_data_v2(%s))[__sync_idx__];\n"
+                        "})",
+                        idx_str,
+                        arr_name,
+                        pending_elems_var,
+                        pending_elems_var,
+                        c_type, arr_name, c_type,
+                        c_type, arr_name);
+                }
+                else
+                {
+                    /* Handle types (string/array): direct cast */
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    int __sync_idx__ = (int)(%s);\n"
+                        "    if (__sync_idx__ < 0) __sync_idx__ = (int)rt_array_length_v2(%s) + __sync_idx__;\n"
+                        "    if (%s != NULL) {\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        if (__pe_data__[__sync_idx__] != NULL) {\n"
+                        "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
+                        "            __pe_data__[__sync_idx__] = NULL;\n"
+                        "        }\n"
+                        "    }\n"
+                        "    ((%s *)rt_array_data_v2(%s))[__sync_idx__];\n"
+                        "})",
+                        idx_str,
+                        arr_name,
+                        pending_elems_var,
+                        pending_elems_var,
+                        c_type, arr_name, c_type,
                         c_type, arr_name);
                 }
             }
@@ -178,6 +238,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                                           elem_type->kind == TYPE_BYTE ||
                                           elem_type->kind == TYPE_CHAR);
 
+                bool is_struct_elem = (elem_type->kind == TYPE_STRUCT);
+                bool struct_elem_needs_promo = is_struct_elem && struct_has_handle_fields(elem_type);
+
                 if (is_primitive_elem)
                 {
                     return arena_sprintf(gen->arena,
@@ -202,8 +265,12 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         elem_c_type, var_name, elem_c_type,
                         var_name);
                 }
-                else
+                else if (struct_elem_needs_promo)
                 {
+                    /* Struct with handle fields: keep arena, deref, promote, destroy */
+                    char *field_promotion = gen_struct_field_promotion(gen, elem_type, "__sync_tmp__",
+                        ARENA_VAR(gen), "__thread_arena__");
+                    if (!field_promotion) field_promotion = "";
                     return arena_sprintf(gen->arena,
                         "({\n"
                         "    if (%s != NULL) {\n"
@@ -211,8 +278,13 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
                         "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
                         "            if (__pe_data__[__i__] != NULL) {\n"
-                        "                %s __sync_result__ = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
-                        "                ((%s *)rt_array_data_v2(%s))[__i__] = __sync_result__;\n"
+                        "                RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__i__])->arena;\n"
+                        "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__i__]);\n"
+                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                        "%s"
+                        "                if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                        "                ((%s *)rt_array_data_v2(%s))[__i__] = __sync_tmp__;\n"
                         "                __pe_data__[__i__] = NULL;\n"
                         "            }\n"
                         "        }\n"
@@ -223,7 +295,56 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         pending_elems_var,
                         pending_elems_var,
                         elem_c_type, elem_c_type,
+                        field_promotion,
                         elem_c_type, var_name,
+                        var_name);
+                }
+                else if (is_struct_elem)
+                {
+                    /* Simple struct (no handle fields): sync, pin, deref */
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    if (%s != NULL) {\n"
+                        "        int __sync_len__ = (int)rt_array_length_v2(%s);\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
+                        "            if (__pe_data__[__i__] != NULL) {\n"
+                        "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
+                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                ((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n"
+                        "                __pe_data__[__i__] = NULL;\n"
+                        "            }\n"
+                        "        }\n"
+                        "    }\n"
+                        "    %s;\n"
+                        "})",
+                        pending_elems_var,
+                        pending_elems_var,
+                        pending_elems_var,
+                        elem_c_type, var_name, elem_c_type,
+                        var_name);
+                }
+                else
+                {
+                    /* Handle types (string/array): direct cast */
+                    return arena_sprintf(gen->arena,
+                        "({\n"
+                        "    if (%s != NULL) {\n"
+                        "        int __sync_len__ = (int)rt_array_length_v2(%s);\n"
+                        "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
+                        "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
+                        "            if (__pe_data__[__i__] != NULL) {\n"
+                        "                ((%s *)rt_array_data_v2(%s))[__i__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
+                        "                __pe_data__[__i__] = NULL;\n"
+                        "            }\n"
+                        "        }\n"
+                        "    }\n"
+                        "    %s;\n"
+                        "})",
+                        pending_elems_var,
+                        pending_elems_var,
+                        pending_elems_var,
+                        elem_c_type, var_name, elem_c_type,
                         var_name);
                 }
             }
