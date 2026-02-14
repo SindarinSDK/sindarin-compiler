@@ -24,6 +24,28 @@
 #include <string.h>
 #include "runtime_malloc_hooks.h"
 
+/* ============================================================================
+ * Handler Registration API (always compiled - used by arena_redirect.c)
+ * ============================================================================ */
+
+/* Thread-local handler for arena redirection */
+static __thread RtMallocHandler *tls_handler = NULL;
+
+void rt_malloc_hooks_set_handler(RtMallocHandler *handler)
+{
+    tls_handler = handler;
+}
+
+void rt_malloc_hooks_clear_handler(void)
+{
+    tls_handler = NULL;
+}
+
+RtMallocHandler *rt_malloc_hooks_get_handler(void)
+{
+    return tls_handler;
+}
+
 #ifdef SN_MALLOC_HOOKS
 
 /* Linux/macOS: Need dlfcn.h for dlsym bootstrap in hooked functions */
@@ -40,30 +62,8 @@ static void (*orig_free)(void *) = NULL;
 static void *(*orig_calloc)(size_t, size_t) = NULL;
 static void *(*orig_realloc)(void *, size_t) = NULL;
 
-/* Thread-local handler for arena redirection */
-static __thread RtMallocHandler *tls_handler = NULL;
-
 /* Thread-local guard to prevent recursive hook calls */
 static __thread int tls_hook_guard = 0;
-
-/* ============================================================================
- * Handler Registration API
- * ============================================================================ */
-
-void rt_malloc_hooks_set_handler(RtMallocHandler *handler)
-{
-    tls_handler = handler;
-}
-
-void rt_malloc_hooks_clear_handler(void)
-{
-    tls_handler = NULL;
-}
-
-RtMallocHandler *rt_malloc_hooks_get_handler(void)
-{
-    return tls_handler;
-}
 
 /* ============================================================================
  * Original Function Access (for handlers to pass through)
