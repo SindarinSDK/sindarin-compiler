@@ -354,9 +354,29 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
         LockStmt *lock_stmt = &stmt->as.lock_stmt;
         char *lock_var = code_gen_expression(gen, lock_stmt->lock_expr);
         indented_fprintf(gen, indent, "rt_sync_lock(&%s);\n", lock_var);
+
+        /* Push lock variable onto the lock stack so return statements
+         * inside this block can emit the corresponding unlock. */
+        if (gen->lock_stack_depth >= gen->lock_stack_capacity)
+        {
+            int new_cap = gen->lock_stack_capacity == 0 ? 4 : gen->lock_stack_capacity * 2;
+            char **new_stack = arena_alloc(gen->arena, new_cap * sizeof(char *));
+            for (int i = 0; i < gen->lock_stack_depth; i++)
+            {
+                new_stack[i] = gen->lock_stack[i];
+            }
+            gen->lock_stack = new_stack;
+            gen->lock_stack_capacity = new_cap;
+        }
+        gen->lock_stack[gen->lock_stack_depth++] = lock_var;
+
         indented_fprintf(gen, indent, "{\n");
         code_gen_statement(gen, lock_stmt->body, indent + 1);
         indented_fprintf(gen, indent, "}\n");
+
+        /* Pop the lock stack */
+        gen->lock_stack_depth--;
+
         indented_fprintf(gen, indent, "rt_sync_unlock(&%s);\n", lock_var);
         break;
     }

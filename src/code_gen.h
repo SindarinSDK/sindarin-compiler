@@ -48,6 +48,12 @@ typedef struct {
     int arena_stack_depth;      // Current depth of private block nesting
     int arena_stack_capacity;   // Capacity of arena stack
 
+    /* Lock stack - tracks lock variable names for nested lock blocks.
+     * Used by return statements to emit rt_sync_unlock() before goto. */
+    char **lock_stack;          // Stack of lock variable expressions
+    int lock_stack_depth;       // Current depth of lock nesting
+    int lock_stack_capacity;    // Capacity of lock stack
+
     /* Lambda support */
     int lambda_count;           // Counter for unique lambda IDs
     char *lambda_forward_decls; // Buffer for lambda forward declarations

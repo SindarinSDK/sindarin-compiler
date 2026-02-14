@@ -43,6 +43,11 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->arena_stack_depth = 0;
     gen->arena_stack_capacity = 0;
 
+    /* Initialize lock stack for tracking active locks */
+    gen->lock_stack = NULL;
+    gen->lock_stack_depth = 0;
+    gen->lock_stack_capacity = 0;
+
     /* Initialize lambda fields */
     gen->lambda_count = 0;
     gen->lambda_forward_decls = arena_strdup(arena, "");
