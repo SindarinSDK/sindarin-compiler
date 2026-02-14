@@ -11,7 +11,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
-#include <pthread.h>
+#include "arena_compat.h"
 
 /* ============================================================================
  * Thread-Local State
