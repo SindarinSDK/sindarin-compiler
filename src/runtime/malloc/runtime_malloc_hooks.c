@@ -15,6 +15,7 @@
  *   Uses MinHook library for inline function hooking via trampolines.
  *   Intercepts all malloc/free calls via code patching.
  *
+ * Build the runtime with: -DSN_MALLOC_HOOKS
  */
 
 #include <stdio.h>
@@ -44,6 +45,8 @@ RtMallocHandler *rt_malloc_hooks_get_handler(void)
 {
     return tls_handler;
 }
+
+#ifdef SN_MALLOC_HOOKS
 
 /* Linux/macOS: Need dlfcn.h for dlsym bootstrap in hooked functions */
 #ifndef _WIN32
@@ -580,3 +583,5 @@ static void sn_uninstall_malloc_hooks(void)
 #else
 #error "Unsupported platform for malloc hooks"
 #endif
+
+#endif /* SN_MALLOC_HOOKS */
