@@ -271,6 +271,8 @@ set(SN_RUNTIME_SOURCES
     src/runtime/runtime_byte.c
     src/runtime/runtime_any.c
     src/runtime/runtime_intercept.c
+    # malloc/ (needed by arena_redirect.c)
+    src/runtime/malloc/runtime_malloc_hooks.c
 )
 
 # All compiler sources (excluding main.c)

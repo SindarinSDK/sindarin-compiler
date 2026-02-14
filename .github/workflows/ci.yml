@@ -106,6 +106,8 @@ jobs:
       #------------------------------------------------------------------------
       - name: Setup libs
         shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: make setup
 
       - name: Build
