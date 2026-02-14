@@ -125,5 +125,11 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         }
     }
 
+    /* Release all active locks before returning (reverse order for nested locks) */
+    for (int i = gen->lock_stack_depth - 1; i >= 0; i--)
+    {
+        indented_fprintf(gen, indent, "rt_sync_unlock(&%s);\n", gen->lock_stack[i]);
+    }
+
     indented_fprintf(gen, indent, "goto %s_return;\n", gen->current_function);
 }
