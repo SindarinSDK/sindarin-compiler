@@ -275,6 +275,21 @@ set(SN_RUNTIME_SOURCES
     src/runtime/malloc/runtime_malloc_hooks.c
 )
 
+# Platform-specific hooking libraries for SN_RUNTIME_SOURCES
+if(APPLE)
+    list(APPEND SN_RUNTIME_SOURCES src/runtime/hooks/fishhook.c)
+elseif(WIN32)
+    list(APPEND SN_RUNTIME_SOURCES
+        src/runtime/hooks/minhook/hook.c
+        src/runtime/hooks/minhook/buffer.c
+        src/runtime/hooks/minhook/trampoline.c
+        src/runtime/hooks/minhook/hde/hde32.c
+        src/runtime/hooks/minhook/hde/hde64.c
+    )
+else()
+    list(APPEND SN_RUNTIME_SOURCES src/runtime/hooks/plthook_elf.c)
+endif()
+
 # All compiler sources (excluding main.c)
 set(SN_COMPILER_SOURCES
     ${SN_CORE_SOURCES}
@@ -301,8 +316,17 @@ add_executable(sn
 target_include_directories(sn PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/runtime
+    ${CMAKE_SOURCE_DIR}/src/runtime/hooks
     ${CMAKE_SOURCE_DIR}/src/platform
 )
+
+# Windows: Add MinHook include paths
+if(WIN32)
+    target_include_directories(sn PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook
+        ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde
+    )
+endif()
 
 
 # Platform-specific libraries
@@ -328,8 +352,17 @@ add_executable(tests
 target_include_directories(tests PRIVATE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/src/runtime
+    ${CMAKE_SOURCE_DIR}/src/runtime/hooks
     ${CMAKE_SOURCE_DIR}/src/platform
 )
+
+# Windows: Add MinHook include paths
+if(WIN32)
+    target_include_directories(tests PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook
+        ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde
+    )
+endif()
 
 # Suppress unused-variable warnings in test code - test patterns intentionally
 # allocate variables to exercise allocation paths without reading them back.
