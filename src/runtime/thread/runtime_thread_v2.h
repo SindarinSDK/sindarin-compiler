@@ -70,6 +70,7 @@ typedef enum {
 
 typedef struct RtThread {
     pthread_t pthread;
+    uint64_t thread_id;         /* Unique runtime thread ID */
 
     RtArenaV2 *arena;           /* Thread's own arena (NULL if shared) */
     RtArenaV2 *caller;          /* Caller's arena (owns this struct) */
@@ -125,9 +126,11 @@ void rt_thread_v2_sync_all(RtThread **threads, int count);
  *
  *   // Pack args in thread arena (safe - lives until sync)
  *   t->args = rt_arena_v2_alloc(arena, sizeof(MyFnArgs));
- *   MyFnArgs *args = rt_handle_v2_pin(t->args);
+ *   rt_handle_begin_transaction(t->args);
+ *   MyFnArgs *args = (MyFnArgs *)t->args->ptr;
  *   args->x = x;
  *   args->y = rt_arena_v2_promote(arena, y_handle);  // Clone handles into thread arena
+ *   rt_handle_end_transaction(t->args);
  *
  *   rt_thread_v2_start(t, my_fn_wrapper);
  *
@@ -139,10 +142,12 @@ void rt_thread_v2_sync_all(RtThread **threads, int count);
  *       RtArenaV2 *arena = rt_thread_v2_get_arena(t);
  *
  *       // Unpack args
- *       MyFnArgs *a = rt_handle_v2_pin(t->args);
+ *       rt_handle_begin_transaction(t->args);
+ *       MyFnArgs *a = (MyFnArgs *)t->args->ptr;
  *
  *       // Call actual function (result is in thread arena)
  *       RtHandleV2 *result = my_fn(arena, a->x, a->y);
+ *       rt_handle_end_transaction(t->args);
  *
  *       // Store result - sync handles promotion to caller arena
  *       rt_thread_v2_set_result(t, result);
@@ -177,6 +182,9 @@ void rt_thread_v2_fire_and_forget_done(RtThread *t);
 /* TLS current thread context */
 void rt_tls_thread_set(RtThread *t);
 RtThread *rt_tls_thread_get(void);
+
+/* Get unique thread ID for current thread (lazy init for main thread) */
+uint64_t rt_thread_get_id(void);
 
 /* Called by rt_panic - returns true if captured in thread context */
 bool rt_thread_v2_capture_panic(const char *msg);

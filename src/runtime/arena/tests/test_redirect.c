@@ -54,7 +54,7 @@ static int test_malloc_redirect(void)
     void *ptr = malloc(100);
     if (ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -74,7 +74,7 @@ static int test_malloc_redirect(void)
     /* Note: We don't call free(ptr) because it's arena-managed.
      * The arena destroy will clean it up. */
 
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
     return success;
 }
 
@@ -90,7 +90,7 @@ static int test_free_redirect(void)
     void *ptr = malloc(100);
     if (ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -108,7 +108,7 @@ static int test_free_redirect(void)
     /* Should have collected 1 handle */
     int success = (collected == 1);
 
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
     return success;
 }
 
@@ -124,7 +124,7 @@ static int test_calloc_redirect(void)
     int *arr = calloc(10, sizeof(int));
     if (arr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -143,7 +143,7 @@ static int test_calloc_redirect(void)
     int in_arena = (stats.handle_count >= 1);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return all_zero && in_arena;
 }
@@ -160,7 +160,7 @@ static int test_realloc_grow(void)
     char *ptr = malloc(10);
     if (ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -171,7 +171,7 @@ static int test_realloc_grow(void)
     char *new_ptr = realloc(ptr, 100);
     if (new_ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -182,7 +182,7 @@ static int test_realloc_grow(void)
     memset(new_ptr + 10, 'X', 90);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return data_ok;
 }
@@ -199,7 +199,7 @@ static int test_realloc_null(void)
     void *ptr = realloc(NULL, 50);
     if (ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -209,7 +209,7 @@ static int test_realloc_null(void)
     int in_arena = (stats.handle_count >= 1);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return in_arena;
 }
@@ -225,7 +225,7 @@ static int test_realloc_zero(void)
     void *ptr = malloc(50);
     if (ptr == NULL) {
         rt_arena_v2_redirect_pop();
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -239,7 +239,7 @@ static int test_realloc_zero(void)
     size_t collected = rt_arena_v2_gc(arena);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return is_null && (collected == 1);
 }
@@ -250,8 +250,8 @@ static int test_nested_redirect(void)
     RtArenaV2 *arena1 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "arena1");
     RtArenaV2 *arena2 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "arena2");
     if (arena1 == NULL || arena2 == NULL) {
-        if (arena1) rt_arena_v2_destroy(arena1);
-        if (arena2) rt_arena_v2_destroy(arena2);
+        if (arena1) rt_arena_v2_condemn(arena1);
+        if (arena2) rt_arena_v2_condemn(arena2);
         return 0;
     }
 
@@ -279,8 +279,8 @@ static int test_nested_redirect(void)
     /* arena2 should have 1 allocation (ptr2) */
     int success = (stats1.handle_count == 2 && stats2.handle_count == 1);
 
-    rt_arena_v2_destroy(arena1);
-    rt_arena_v2_destroy(arena2);
+    rt_arena_v2_condemn(arena1);
+    rt_arena_v2_condemn(arena2);
 
     return success;
 }
@@ -294,7 +294,7 @@ static int test_passthrough(void)
     /* No redirect pushed - should use system malloc */
     void *ptr = malloc(100);
     if (ptr == NULL) {
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -306,7 +306,7 @@ static int test_passthrough(void)
     /* Must free with system free since it didn't go to arena */
     free(ptr);
 
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
     return not_in_arena;
 }
 
@@ -324,7 +324,7 @@ static int test_many_allocations(void)
         ptrs[i] = malloc(64);
         if (ptrs[i] == NULL) {
             rt_arena_v2_redirect_pop();
-            rt_arena_v2_destroy(arena);
+            rt_arena_v2_condemn(arena);
             return 0;
         }
         memset(ptrs[i], i, 64);
@@ -343,7 +343,7 @@ static int test_many_allocations(void)
     rt_arena_v2_get_stats(arena, &stats);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return (collected == 50 && stats.handle_count == 50);
 }
@@ -400,8 +400,8 @@ static int test_thread_isolation(void)
     RtArenaV2 *arena1 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "thread1");
     RtArenaV2 *arena2 = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "thread2");
     if (!arena1 || !arena2) {
-        if (arena1) rt_arena_v2_destroy(arena1);
-        if (arena2) rt_arena_v2_destroy(arena2);
+        if (arena1) rt_arena_v2_condemn(arena1);
+        if (arena2) rt_arena_v2_condemn(arena2);
         return 0;
     }
 
@@ -434,8 +434,8 @@ static int test_thread_isolation(void)
         }
     }
 
-    rt_arena_v2_destroy(arena1);
-    rt_arena_v2_destroy(arena2);
+    rt_arena_v2_condemn(arena1);
+    rt_arena_v2_condemn(arena2);
 
     return success;
 }
@@ -473,7 +473,7 @@ static int test_thread_death_cleanup(void)
     pthread_join(t, NULL);
 
     if (!data.success) {
-        rt_arena_v2_destroy(arena);
+        rt_arena_v2_condemn(arena);
         return 0;
     }
 
@@ -484,7 +484,7 @@ static int test_thread_death_cleanup(void)
     /* Should have collected the allocations from dead thread */
     int success = (collected == 5);
 
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
     return success;
 }
 
@@ -526,7 +526,7 @@ static int test_concurrent_stress(void)
     for (int i = 0; i < NUM_THREADS; i++) {
         arenas[i] = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "stress");
         if (!arenas[i]) {
-            for (int j = 0; j < i; j++) rt_arena_v2_destroy(arenas[j]);
+            for (int j = 0; j < i; j++) rt_arena_v2_condemn(arenas[j]);
             return 0;
         }
         data[i].arena = arenas[i];
@@ -557,7 +557,7 @@ static int test_concurrent_stress(void)
         rt_arena_v2_get_stats(arenas[i], &stats);
         /* After GC, should have no live handles (all were freed) */
         if (stats.handle_count != 0) success = 0;
-        rt_arena_v2_destroy(arenas[i]);
+        rt_arena_v2_condemn(arenas[i]);
     }
 
     return success;
@@ -598,7 +598,7 @@ static int test_redirect_not_inherited(void)
     pthread_join(t, NULL);
 
     rt_arena_v2_redirect_pop();
-    rt_arena_v2_destroy(arena);
+    rt_arena_v2_condemn(arena);
 
     return thread_result;
 }

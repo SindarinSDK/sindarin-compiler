@@ -21,12 +21,12 @@ static void test_rt_str_long_string_operations(void)
     long_str[1000] = '\0';
 
     RtHandleV2 *result_h = rt_str_concat(arena, long_str, "suffix");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strlen(result) == 1006);
     assert(rt_str_endsWith(result, "suffix") == 1);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_unicode_like_sequences(void)
@@ -35,11 +35,11 @@ static void test_rt_str_unicode_like_sequences(void)
 
     // Test with escape-like sequences (not actual unicode, just chars)
     RtHandleV2 *result_h = rt_str_concat(arena, "hello\\n", "world\\t");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello\\nworld\\t") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_special_chars(void)
@@ -47,12 +47,12 @@ static void test_rt_str_special_chars(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_concat(arena, "line1\nline2", "\ttab");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(rt_str_contains(result, "\n") == 1);
     assert(rt_str_contains(result, "\t") == 1);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_repeated_replace(void)
@@ -61,17 +61,17 @@ static void test_rt_str_repeated_replace(void)
 
     // Replace in string with overlapping patterns
     RtHandleV2 *result_h = rt_str_replace(arena, "ababab", "ab", "X");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "XXX") == 0);
 
     result_h = rt_str_replace(arena, "aaa", "aa", "b");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     // First 'aa' replaced with 'b', leaving 'ba'
     assert(strcmp(result, "ba") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_indexOf_edge_positions(void)
@@ -96,28 +96,28 @@ static void test_rt_str_substring_boundary(void)
 
     // Test exact boundaries
     RtHandleV2 *result_h = rt_str_substring(arena, "hello", 0, 5);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     // Indices at string boundary
     result_h = rt_str_substring(arena, "x", 0, 1);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "x") == 0);
 
     // Out of bounds indices clamped
     result_h = rt_str_substring(arena, "hello", 0, 100);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_substring(arena, "hello", -100, 5);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_split_empty_results(void)
@@ -135,7 +135,7 @@ static void test_rt_str_split_empty_results(void)
     assert(rt_array_length(parts) == 1);
     assert(strcmp(parts[0], "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_trim_various_whitespace(void)
@@ -143,21 +143,21 @@ static void test_rt_str_trim_various_whitespace(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_trim(arena, " \t\r\n hello \t\r\n ");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_trim(arena, "nowhitespace");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "nowhitespace") == 0);
 
     result_h = rt_str_trim(arena, "\n\n\n");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_startsWith_endsWith_full_match(void)
@@ -195,7 +195,7 @@ static void test_rt_format_long_edge_values(void)
     result = rt_format_long(arena, 0, "x");
     assert(strcmp(result, "0") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_format_double_edge_values(void)
@@ -214,7 +214,7 @@ static void test_rt_format_double_edge_values(void)
     result = rt_format_double(arena, 0.001, ".4f");
     assert(strcmp(result, "0.0010") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_format_string_edge_cases(void)
@@ -233,7 +233,7 @@ static void test_rt_format_string_edge_cases(void)
     result = rt_format_string(arena, "x", "5");
     assert(strcmp(result, "    x") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -261,7 +261,7 @@ static void test_rt_to_string_edge_values(void)
     result = rt_to_string_byte(arena, 128);
     assert(strcmp(result, "128") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_special_doubles(void)
@@ -277,7 +277,7 @@ static void test_rt_to_string_special_doubles(void)
     result = rt_to_string_double(arena, 1e10);
     assert(strlen(result) > 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -289,7 +289,7 @@ static void test_rt_string_capacity(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *str_h = rt_string_with_capacity(arena, 100);
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(RT_STR_META(str)->capacity >= 100);
     assert(RT_STR_META(str)->length == 0);
@@ -299,11 +299,11 @@ static void test_rt_string_capacity(void)
     str_h = rt_string_append(str_h, "hello");
     str_h = rt_string_append(str_h, " ");
     str_h = rt_string_append(str_h, "world");
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello world") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_string_append_chain(void)
@@ -317,12 +317,12 @@ static void test_rt_string_append_chain(void)
         str_h = rt_string_append(str_h, "a");
     }
 
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "aaaaaaaaaa") == 0);
     assert(RT_STR_META(str)->length == 10);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_string_from_empty(void)
@@ -330,18 +330,18 @@ static void test_rt_string_from_empty(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *str_h = rt_string_from(arena, "");
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "") == 0);
     assert(RT_STR_META(str)->length == 0);
 
     // Can append to empty string
     str_h = rt_string_append(str_h, "test");
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "test") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================

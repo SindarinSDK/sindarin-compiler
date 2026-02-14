@@ -370,7 +370,7 @@ static void test_rt_str_split_whitespace(void)
     parts = rt_str_split_whitespace(arena, NULL);
     assert(rt_array_length(parts) == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -429,7 +429,7 @@ static void test_rt_str_split_lines(void)
     lines = rt_str_split_lines(arena, NULL);
     assert(rt_array_length(lines) == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================

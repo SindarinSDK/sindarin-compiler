@@ -147,7 +147,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "            rt_handle_v2_pin(__sync_h__);\n"
                         "            %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
                         "%s"
-                        "            if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                        "            if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                         "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_tmp__;\n"
                         "            __pe_data__[__sync_idx__] = NULL;\n"
                         "        }\n"
@@ -283,7 +283,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "                rt_handle_v2_pin(__sync_h__);\n"
                         "                %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
                         "%s"
-                        "                if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                        "                if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                         "                ((%s *)rt_array_data_v2(%s))[__i__] = __sync_tmp__;\n"
                         "                __pe_data__[__i__] = NULL;\n"
                         "            }\n"
@@ -468,7 +468,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "        /* Deep promote array from thread arena to caller arena */\n"
                     "        %s = (%s)%s(%s, __sync_tmp__);\n"
                     "        /* Now destroy the thread arena */\n"
-                    "        if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                    "        if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                     "        %s = NULL;\n"
                     "    }\n"
                     "    %s;\n"
@@ -493,7 +493,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "    /* Deep promote array from thread arena to caller arena */\n"
                     "    %s __result__ = (%s)%s(%s, __sync_tmp__);\n"
                     "    /* Now destroy the thread arena */\n"
-                    "    if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                    "    if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                     "    __result__;\n"
                     "})",
                     handle_code,
@@ -587,7 +587,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
              * We use rt_thread_v2_sync_keep_arena which:
              * 1. Syncs the thread and gets the result (promoted to caller arena)
              * 2. Does NOT destroy the thread arena (so we can promote handle fields)
-             * Then we promote fields and call rt_arena_v2_destroy.
+             * Then we promote fields and call rt_arena_v2_condemn.
              */
             char *promo_code = gen_struct_field_promotion(gen, result_type, "__sync_tmp__",
                                                            ARENA_VAR(gen), "__thread_arena__");
@@ -610,7 +610,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "        /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "        /* Now destroy the thread arena */\n"
-                    "        if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                    "        if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                     "        %s = __sync_tmp__;\n"
                     "        %s = NULL;\n"
                     "    }\n"
@@ -640,7 +640,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "    /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "    /* Now destroy the thread arena */\n"
-                    "    if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n"
+                    "    if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                     "    __sync_tmp__;\n"
                     "})",
                     handle_code,

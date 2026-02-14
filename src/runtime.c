@@ -252,10 +252,11 @@ char **rt_str_split_whitespace(RtArenaV2 *arena, const char *str) {
         /* Add word to result */
         size_t len = p - start;
         RtHandleV2 *word_h = rt_arena_v2_alloc(arena, len + 1);
-        rt_handle_v2_pin(word_h);
+        rt_handle_begin_transaction(word_h);
         char *word = (char *)word_h->ptr;
         memcpy(word, start, len);
         word[len] = '\0';
+        rt_handle_end_transaction(word_h);
         result = rt_push_string_to_array(arena, result, word);
     }
 
@@ -277,10 +278,11 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
             /* Unix line ending or end of Windows \r\n */
             size_t len = p - start;
             RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
-            rt_handle_v2_pin(line_h);
+            rt_handle_begin_transaction(line_h);
             char *line = (char *)line_h->ptr;
             memcpy(line, start, len);
             line[len] = '\0';
+            rt_handle_end_transaction(line_h);
             result = rt_push_string_to_array(arena, result, line);
             p++;
             start = p;
@@ -288,10 +290,11 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
             /* Carriage return - check for \r\n or standalone \r */
             size_t len = p - start;
             RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
-            rt_handle_v2_pin(line_h);
+            rt_handle_begin_transaction(line_h);
             char *line = (char *)line_h->ptr;
             memcpy(line, start, len);
             line[len] = '\0';
+            rt_handle_end_transaction(line_h);
             result = rt_push_string_to_array(arena, result, line);
             p++;
             if (*p == '\n') {
@@ -308,10 +311,11 @@ char **rt_str_split_lines(RtArenaV2 *arena, const char *str) {
     if (p > start) {
         size_t len = p - start;
         RtHandleV2 *line_h = rt_arena_v2_alloc(arena, len + 1);
-        rt_handle_v2_pin(line_h);
+        rt_handle_begin_transaction(line_h);
         char *line = (char *)line_h->ptr;
         memcpy(line, start, len);
         line[len] = '\0';
+        rt_handle_end_transaction(line_h);
         result = rt_push_string_to_array(arena, result, line);
     }
 

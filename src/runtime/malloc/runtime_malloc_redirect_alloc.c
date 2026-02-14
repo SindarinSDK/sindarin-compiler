@@ -17,7 +17,7 @@ static NOINLINE void *redirected_malloc(size_t size)
 
     /* Check max size limit */
     if (state->config.max_arena_size > 0) {
-        size_t current = rt_arena_total_allocated(state->arena);
+        size_t current = state->total_allocated;
         if (current + size + sizeof(RtAllocHeader) > state->config.max_arena_size) {
             switch (state->config.overflow_policy) {
             case RT_REDIRECT_OVERFLOW_GROW:
@@ -55,7 +55,7 @@ static NOINLINE void *redirected_malloc(size_t size)
     /* Allocate with header */
     size_t total_size = sizeof(RtAllocHeader) + size;
     RtHandleV2 *raw_h = rt_arena_v2_alloc(state->arena, total_size);
-    void *raw = raw_h ? (rt_handle_v2_pin(raw_h), raw_h->ptr) : NULL;
+    void *raw = raw_h ? (rt_handle_begin_transaction(raw_h), raw_h->ptr) : NULL;
 
     if (state->mutex) {
         pthread_mutex_unlock(state->mutex);

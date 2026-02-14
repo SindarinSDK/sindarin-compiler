@@ -16,26 +16,26 @@ static void test_rt_str_concat_basic(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_concat(arena, "hello", " world");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello world") == 0);
 
     result_h = rt_str_concat(arena, "", "test");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "test") == 0);
 
     result_h = rt_str_concat(arena, "test", "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "test") == 0);
 
     result_h = rt_str_concat(arena, "", "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_concat_null(void)
@@ -43,21 +43,21 @@ static void test_rt_str_concat_null(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_concat(arena, NULL, "world");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "world") == 0);
 
     result_h = rt_str_concat(arena, "hello", NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_concat(arena, NULL, NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -138,58 +138,58 @@ static void test_rt_str_substring(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_substring(arena, "hello world", 0, 5);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_substring(arena, "hello world", 6, 11);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "world") == 0);
 
     result_h = rt_str_substring(arena, "hello world", 0, 11);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello world") == 0);
 
     /* Negative indices */
     result_h = rt_str_substring(arena, "hello world", -5, 11);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "world") == 0);
 
     result_h = rt_str_substring(arena, "hello world", 0, -1);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello worl") == 0);
 
     result_h = rt_str_substring(arena, "hello world", -5, -1);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "worl") == 0);
 
     /* Edge cases */
     result_h = rt_str_substring(arena, "hello", 5, 5);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_substring(arena, "hello", 3, 2);  /* start > end */
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_substring(arena, "", 0, 0);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_substring(arena, NULL, 0, 5);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -201,36 +201,36 @@ static void test_rt_str_toUpper(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_toUpper(arena, "hello");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "HELLO") == 0);
 
     result_h = rt_str_toUpper(arena, "Hello World");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "HELLO WORLD") == 0);
 
     result_h = rt_str_toUpper(arena, "ALREADY UPPER");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "ALREADY UPPER") == 0);
 
     result_h = rt_str_toUpper(arena, "123abc");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "123ABC") == 0);
 
     result_h = rt_str_toUpper(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_toUpper(arena, NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_str_toLower(void)
@@ -238,36 +238,36 @@ static void test_rt_str_toLower(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_toLower(arena, "HELLO");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_toLower(arena, "Hello World");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello world") == 0);
 
     result_h = rt_str_toLower(arena, "already lower");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "already lower") == 0);
 
     result_h = rt_str_toLower(arena, "123ABC");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "123abc") == 0);
 
     result_h = rt_str_toLower(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_toLower(arena, NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -307,41 +307,41 @@ static void test_rt_str_trim(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *result_h = rt_str_trim(arena, "  hello  ");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_trim(arena, "hello");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_trim(arena, "   ");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_trim(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_trim(arena, "\t\nhello\r\n");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_trim(arena, "  hello world  ");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello world") == 0);
 
     result_h = rt_str_trim(arena, NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -354,63 +354,63 @@ static void test_rt_str_replace(void)
 
     /* Basic replacement */
     RtHandleV2 *result_h = rt_str_replace(arena, "hello world", "world", "universe");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
     assert(strcmp(result, "hello universe") == 0);
 
     /* Multiple occurrences */
     result_h = rt_str_replace(arena, "aaa", "a", "b");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "bbb") == 0);
 
     /* No occurrences */
     result_h = rt_str_replace(arena, "hello", "x", "y");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     /* Replace with empty string */
     result_h = rt_str_replace(arena, "hello world", "world", "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello ") == 0);
 
     /* Replace with longer string */
     result_h = rt_str_replace(arena, "hi", "hi", "hello");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     /* Empty search string */
     result_h = rt_str_replace(arena, "hello", "", "x");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     /* Empty input */
     result_h = rt_str_replace(arena, "", "a", "b");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     /* NULL handling */
     result_h = rt_str_replace(arena, NULL, "a", "b");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "") == 0);
 
     result_h = rt_str_replace(arena, "hello", NULL, "b");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
     result_h = rt_str_replace(arena, "hello", "l", NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)result_h->ptr;
     assert(strcmp(result, "hello") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -462,7 +462,7 @@ static void test_rt_str_split(void)
     assert(strcmp(parts[2], "b") == 0);
     assert(strcmp(parts[3], "") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -482,7 +482,7 @@ static void test_rt_to_string_long(void)
     result = rt_to_string_long(arena, 0);
     assert(strcmp(result, "0") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_double(void)
@@ -498,7 +498,7 @@ static void test_rt_to_string_double(void)
     result = rt_to_string_double(arena, 0.0);
     assert(strncmp(result, "0.00000", 7) == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_char(void)
@@ -514,7 +514,7 @@ static void test_rt_to_string_char(void)
     result = rt_to_string_char(arena, ' ');
     assert(strcmp(result, " ") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_bool(void)
@@ -530,7 +530,7 @@ static void test_rt_to_string_bool(void)
     result = rt_to_string_bool(arena, 42);  /* Non-zero is true */
     assert(strcmp(result, "true") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_byte(void)
@@ -546,7 +546,7 @@ static void test_rt_to_string_byte(void)
     result = rt_to_string_byte(arena, 171);
     assert(strcmp(result, "171") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_string(void)
@@ -562,7 +562,7 @@ static void test_rt_to_string_string(void)
     result = rt_to_string_string(arena, NULL);
     assert(strcmp(result, "(null)") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_to_string_pointer(void)
@@ -574,7 +574,7 @@ static void test_rt_to_string_pointer(void)
 
     /* Create a handle to test non-NULL pointer conversion */
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, sizeof(int));
-    rt_handle_v2_pin(handle);
+    rt_handle_begin_transaction(handle);
     *(int *)handle->ptr = 42;
     result = rt_to_string_pointer(arena, handle);
     /* Non-NULL pointer should return non-empty string that isn't "nil" */
@@ -583,7 +583,7 @@ static void test_rt_to_string_pointer(void)
     assert(strlen(result) > 0);
     assert(strcmp(result, "nil") != 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -629,7 +629,7 @@ static void test_rt_format_long(void)
     result = rt_format_long(arena, 5, "08b");
     assert(strcmp(result, "00000101") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -662,7 +662,7 @@ static void test_rt_format_double(void)
     result = rt_format_double(arena, 0.755, ".1%");
     assert(strcmp(result, "75.5%") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -697,7 +697,7 @@ static void test_rt_format_string(void)
     result = rt_format_string(arena, NULL, NULL);
     assert(strcmp(result, "nil") == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -709,7 +709,7 @@ static void test_rt_string_from(void)
     RtArenaV2 *arena = rt_arena_create(NULL);
 
     RtHandleV2 *str_h = rt_string_from(arena, "hello");
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     char *str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "hello") == 0);
     assert(RT_STR_META(str)->length == 5);
@@ -718,19 +718,19 @@ static void test_rt_string_from(void)
 
     /* Empty string */
     str_h = rt_string_from(arena, "");
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "") == 0);
     assert(RT_STR_META(str)->length == 0);
 
     /* NULL becomes empty mutable string */
     str_h = rt_string_from(arena, NULL);
-    rt_handle_v2_pin(str_h);
+    rt_handle_begin_transaction(str_h);
     str = (char *)((RtStringMeta *)str_h->ptr + 1);
     assert(strcmp(str, "") == 0);
     assert(RT_STR_META(str)->length == 0);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_string_ensure_mutable(void)
@@ -740,22 +740,22 @@ static void test_rt_string_ensure_mutable(void)
     /* Already mutable string should return same pointer */
     RtHandleV2 *mutable_h = rt_string_with_capacity(arena, 20);
     mutable_h = rt_string_append(mutable_h, "test");
-    rt_handle_v2_pin(mutable_h);
+    rt_handle_begin_transaction(mutable_h);
     char *mutable_str = (char *)((RtStringMeta *)mutable_h->ptr + 1);
     RtHandleV2 *result_h = rt_string_ensure_mutable(arena, mutable_str);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)((RtStringMeta *)result_h->ptr + 1);
     assert(result == mutable_str);
 
     /* NULL becomes empty mutable string */
     result_h = rt_string_ensure_mutable(arena, NULL);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     result = (char *)((RtStringMeta *)result_h->ptr + 1);
     assert(result != NULL);
     assert(strcmp(result, "") == 0);
     assert(RT_STR_META(result)->arena == arena);
 
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================

@@ -24,7 +24,7 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
             fprintf(stderr, "rt_str_split: allocation failed\n");
             exit(1);
         }
-        rt_handle_v2_pin(meta_h);
+        rt_handle_begin_transaction(meta_h);
         RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = len;
@@ -33,7 +33,7 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
 
         for (size_t i = 0; i < len; i++) {
             RtHandleV2 *ch_h = rt_arena_v2_alloc(arena, 2);
-            rt_handle_v2_pin(ch_h);
+            rt_handle_begin_transaction(ch_h);
             char *ch = (char *)ch_h->ptr;
             ch[0] = str[i];
             ch[1] = '\0';
@@ -57,7 +57,7 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
         fprintf(stderr, "rt_str_split: allocation failed\n");
         exit(1);
     }
-    rt_handle_v2_pin(meta_h);
+    rt_handle_begin_transaction(meta_h);
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
     meta->arena = arena;
     meta->size = count;
@@ -71,7 +71,7 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
     while ((p = strstr(p, delimiter)) != NULL) {
         size_t part_len = p - start;
         RtHandleV2 *part_h = rt_arena_v2_alloc(arena, part_len + 1);
-        rt_handle_v2_pin(part_h);
+        rt_handle_begin_transaction(part_h);
         char *part = (char *)part_h->ptr;
         memcpy(part, start, part_len);
         part[part_len] = '\0';
@@ -81,7 +81,7 @@ char **rt_str_split(RtArenaV2 *arena, const char *str, const char *delimiter) {
     }
     /* Add final part */
     RtHandleV2 *final_h = rt_arena_v2_strdup(arena, start);
-    rt_handle_v2_pin(final_h);
+    rt_handle_begin_transaction(final_h);
     result[idx] = (char *)final_h->ptr;
 
     return result;
@@ -108,14 +108,14 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
         }
-        rt_handle_v2_pin(meta_h);
+        rt_handle_begin_transaction(meta_h);
         RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = 1;
         meta->capacity = capacity;
         char **result = (char **)(meta + 1);
         RtHandleV2 *str_h = rt_arena_v2_strdup(arena, str);
-        rt_handle_v2_pin(str_h);
+        rt_handle_begin_transaction(str_h);
         result[0] = (char *)str_h->ptr;
         return result;
     }
@@ -135,7 +135,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
             fprintf(stderr, "rt_str_split_n: allocation failed\n");
             exit(1);
         }
-        rt_handle_v2_pin(meta_h);
+        rt_handle_begin_transaction(meta_h);
         RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
         meta->arena = arena;
         meta->size = actual_count;
@@ -144,7 +144,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
 
         for (size_t i = 0; i < actual_count - 1 && i < len; i++) {
             RtHandleV2 *ch_h = rt_arena_v2_alloc(arena, 2);
-            rt_handle_v2_pin(ch_h);
+            rt_handle_begin_transaction(ch_h);
             char *ch = (char *)ch_h->ptr;
             ch[0] = str[i];
             ch[1] = '\0';
@@ -153,7 +153,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
         /* Last part is the remainder */
         if (actual_count > 0 && actual_count - 1 < len) {
             RtHandleV2 *rem_h = rt_arena_v2_strdup(arena, str + actual_count - 1);
-            rt_handle_v2_pin(rem_h);
+            rt_handle_begin_transaction(rem_h);
             result[actual_count - 1] = (char *)rem_h->ptr;
         }
         return result;
@@ -174,7 +174,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
         fprintf(stderr, "rt_str_split_n: allocation failed\n");
         exit(1);
     }
-    rt_handle_v2_pin(meta_h);
+    rt_handle_begin_transaction(meta_h);
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)meta_h->ptr;
     meta->arena = arena;
     meta->size = count;
@@ -188,7 +188,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
     while ((p = strstr(p, delimiter)) != NULL && idx < count - 1) {
         size_t part_len = p - start;
         RtHandleV2 *part_h = rt_arena_v2_alloc(arena, part_len + 1);
-        rt_handle_v2_pin(part_h);
+        rt_handle_begin_transaction(part_h);
         char *part = (char *)part_h->ptr;
         memcpy(part, start, part_len);
         part[part_len] = '\0';
@@ -198,7 +198,7 @@ char **rt_str_split_n(RtArenaV2 *arena, const char *str, const char *delimiter, 
     }
     /* Add final part (remainder of string) */
     RtHandleV2 *final_h = rt_arena_v2_strdup(arena, start);
-    rt_handle_v2_pin(final_h);
+    rt_handle_begin_transaction(final_h);
     result[idx] = (char *)final_h->ptr;
 
     return result;

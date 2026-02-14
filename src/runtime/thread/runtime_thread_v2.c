@@ -6,7 +6,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <stdatomic.h>
 #include "runtime_thread_v2.h"
+#include "runtime/arena/arena_id.h"  /* Thread ID system */
 #include "runtime/array/runtime_array_v2.h"  /* For array promotion functions */
 
 /* ============================================================================
@@ -28,7 +30,7 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
 
     /* Allocate RtThread in caller arena (survives until sync/cleanup) */
     RtHandleV2 *t_h = rt_arena_v2_alloc(caller, sizeof(RtThread));
-    rt_handle_v2_pin(t_h);
+    rt_handle_begin_transaction(t_h);
     RtThread *t = (RtThread *)t_h->ptr;
     if (t == NULL) {
         fprintf(stderr, "rt_thread_create: allocation failed\n");
@@ -37,6 +39,7 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
 
     /* Initialize fields */
     t->pthread = 0;
+    t->thread_id = rt_arena_alloc_thread_id();
     t->self_handle = t_h;
     t->caller = caller;
     t->mode = mode;
@@ -63,6 +66,7 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
                 fprintf(stderr, "rt_thread_create: failed to create thread arena\n");
                 pthread_mutex_destroy(&t->mutex);
                 pthread_cond_destroy(&t->cond);
+                rt_handle_end_transaction(t_h);
                 return NULL;
             }
             break;
@@ -74,10 +78,14 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
                 fprintf(stderr, "rt_thread_create: failed to create private thread arena\n");
                 pthread_mutex_destroy(&t->mutex);
                 pthread_cond_destroy(&t->cond);
+                rt_handle_end_transaction(t_h);
                 return NULL;
             }
             break;
     }
+
+    /* End transaction - initialization complete */
+    rt_handle_end_transaction(t_h);
 
     return t;
 }
@@ -132,8 +140,9 @@ RtHandleV2 *rt_thread_v2_sync(RtThread *t)
     char *promoted_panic = NULL;
     if (panic_msg != NULL && t->arena != NULL) {
         RtHandleV2 *_h = rt_arena_v2_strdup(t->caller, panic_msg);
-        rt_handle_v2_pin(_h);
+        rt_handle_begin_transaction(_h);
         promoted_panic = (char *)_h->ptr;
+        rt_handle_end_transaction(_h);
     } else {
         promoted_panic = panic_msg;  /* Already in caller arena or NULL */
     }
@@ -151,7 +160,7 @@ RtHandleV2 *rt_thread_v2_sync(RtThread *t)
             if (result != NULL) {
                 result = rt_arena_v2_promote(t->caller, result);
             }
-            rt_arena_v2_destroy(t->arena);
+            rt_arena_v2_condemn(t->arena);
             t->arena = NULL;
             break;
 
@@ -160,7 +169,7 @@ RtHandleV2 *rt_thread_v2_sync(RtThread *t)
             if (result != NULL) {
                 result = rt_arena_v2_promote(t->caller, result);
             }
-            rt_arena_v2_destroy(t->arena);
+            rt_arena_v2_condemn(t->arena);
             t->arena = NULL;
             break;
     }
@@ -200,8 +209,9 @@ RtHandleV2 *rt_thread_v2_sync_keep_arena(RtThread *t)
     char *promoted_panic = NULL;
     if (panic_msg != NULL && t->arena != NULL) {
         RtHandleV2 *_h = rt_arena_v2_strdup(t->caller, panic_msg);
-        rt_handle_v2_pin(_h);
+        rt_handle_begin_transaction(_h);
         promoted_panic = (char *)_h->ptr;
+        rt_handle_end_transaction(_h);
     } else {
         promoted_panic = panic_msg;
     }
@@ -210,7 +220,7 @@ RtHandleV2 *rt_thread_v2_sync_keep_arena(RtThread *t)
      * This is used for:
      * 1. Structs with handle fields that need field-by-field promotion
      * 2. 2D/3D arrays that need deep promotion
-     * Caller must call appropriate promotion function then rt_arena_v2_destroy(t->arena) */
+     * Caller must call appropriate promotion function then rt_arena_v2_condemn(t->arena) */
 
     /* Destroy synchronization primitives */
     pthread_mutex_destroy(&t->mutex);
@@ -262,7 +272,7 @@ void rt_thread_v2_fire_and_forget_done(RtThread *t)
     }
 
     /* Unpin and mark self_handle dead so GC reclaims the RtThread from caller arena */
-    rt_handle_v2_unpin(t->self_handle);
+    rt_handle_end_transaction(t->self_handle);
     rt_arena_v2_free(t->self_handle);
 }
 
@@ -291,8 +301,9 @@ void rt_thread_v2_set_panic(RtThread *t, const char *msg)
     RtArenaV2 *arena = rt_thread_v2_get_arena(t);
     if (msg != NULL && arena != NULL) {
         RtHandleV2 *_h = rt_arena_v2_strdup(arena, msg);
-        rt_handle_v2_pin(_h);
+        rt_handle_begin_transaction(_h);
         t->panic_msg = (char *)_h->ptr;
+        rt_handle_end_transaction(_h);
     } else {
         t->panic_msg = (char *)msg;
     }
@@ -318,11 +329,19 @@ void rt_thread_v2_signal_done(RtThread *t)
 void rt_tls_thread_set(RtThread *t)
 {
     rt_current_thread = t;
+    if (t != NULL) {
+        rt_arena_set_thread_id(t->thread_id);
+    }
 }
 
 RtThread *rt_tls_thread_get(void)
 {
     return rt_current_thread;
+}
+
+uint64_t rt_thread_get_id(void)
+{
+    return rt_arena_get_thread_id();
 }
 
 bool rt_thread_v2_capture_panic(const char *msg)
@@ -336,8 +355,9 @@ bool rt_thread_v2_capture_panic(const char *msg)
     RtArenaV2 *arena = rt_thread_v2_get_arena(t);
     if (msg != NULL && arena != NULL) {
         RtHandleV2 *_h = rt_arena_v2_strdup(arena, msg);
-        rt_handle_v2_pin(_h);
+        rt_handle_begin_transaction(_h);
         t->panic_msg = (char *)_h->ptr;
+        rt_handle_end_transaction(_h);
     } else {
         t->panic_msg = (char *)msg;
     }

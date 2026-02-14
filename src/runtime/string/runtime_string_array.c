@@ -14,7 +14,7 @@ char **rt_create_string_array(RtArenaV2 *arena, size_t initial_capacity)
     size_t alloc_size = header_size + (initial_capacity + 1) * sizeof(char *);
     RtHandleV2 *block_h = rt_arena_v2_alloc(arena, alloc_size);
     if (block_h == NULL) return NULL;
-    rt_handle_v2_pin(block_h);
+    rt_handle_begin_transaction(block_h);
     void *block = block_h->ptr;
 
     size_t *header = (size_t *)block;

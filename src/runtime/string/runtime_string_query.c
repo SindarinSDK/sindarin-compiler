@@ -51,12 +51,12 @@ RtHandleV2 *rt_str_substring(RtArenaV2 *arena, const char *str, long start, long
     long sub_len = end - start;
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, sub_len + 1);
     if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
 
     memcpy(result, str + start, sub_len);
     result[sub_len] = '\0';
-    rt_handle_v2_unpin(result_h);
+    rt_handle_end_transaction(result_h);
     return result_h;
 }
 
@@ -65,7 +65,7 @@ RtHandleV2 *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
 
     RtHandleV2 *result_h = rt_arena_v2_strdup(arena, str);
     if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
 
     for (char *p = result; *p; p++) {
@@ -73,7 +73,7 @@ RtHandleV2 *rt_str_toUpper(RtArenaV2 *arena, const char *str) {
             *p = *p - 'a' + 'A';
         }
     }
-    rt_handle_v2_unpin(result_h);
+    rt_handle_end_transaction(result_h);
     return result_h;
 }
 
@@ -82,7 +82,7 @@ RtHandleV2 *rt_str_toLower(RtArenaV2 *arena, const char *str) {
 
     RtHandleV2 *result_h = rt_arena_v2_strdup(arena, str);
     if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
 
     for (char *p = result; *p; p++) {
@@ -90,7 +90,7 @@ RtHandleV2 *rt_str_toLower(RtArenaV2 *arena, const char *str) {
             *p = *p - 'A' + 'a';
         }
     }
-    rt_handle_v2_unpin(result_h);
+    rt_handle_end_transaction(result_h);
     return result_h;
 }
 
@@ -128,12 +128,12 @@ RtHandleV2 *rt_str_trim(RtArenaV2 *arena, const char *str) {
     size_t len = end - str + 1;
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
     if (result_h == NULL) return rt_arena_v2_strdup(arena, "");
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
 
     memcpy(result, str, len);
     result[len] = '\0';
-    rt_handle_v2_unpin(result_h);
+    rt_handle_end_transaction(result_h);
     return result_h;
 }
 
@@ -161,7 +161,7 @@ RtHandleV2 *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, c
 
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, result_len + 1);
     if (result_h == NULL) return rt_arena_v2_strdup(arena, str);
-    rt_handle_v2_pin(result_h);
+    rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
 
     /* Build result */
@@ -179,6 +179,6 @@ RtHandleV2 *rt_str_replace(RtArenaV2 *arena, const char *str, const char *old, c
     /* Copy remainder */
     strcpy(dst, p);
 
-    rt_handle_v2_unpin(result_h);
+    rt_handle_end_transaction(result_h);
     return result_h;
 }

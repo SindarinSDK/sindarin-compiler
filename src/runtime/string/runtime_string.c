@@ -38,11 +38,11 @@ RtHandleV2 *rt_str_concat(RtArenaV2 *arena, const char *left, const char *right)
     if (new_str_h == NULL) {
         return NULL;
     }
-    rt_handle_v2_pin(new_str_h);
+    rt_handle_begin_transaction(new_str_h);
     char *new_str = (char *)new_str_h->ptr;
     memcpy(new_str, l, left_len);
     memcpy(new_str + left_len, r, right_len + 1);
-    rt_handle_v2_unpin(new_str_h);
+    rt_handle_end_transaction(new_str_h);
     return new_str_h;
 }
 

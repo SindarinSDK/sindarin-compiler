@@ -270,7 +270,7 @@ static RtAny call_next_interceptor(void)
     // Create args array handle: [RtArrayMetadataV2][RtAny elements...]
     size_t args_alloc = sizeof(RtArrayMetadataV2) + ctx->arg_count * sizeof(RtAny);
     RtHandleV2 *args_h = rt_arena_v2_alloc(arena, args_alloc);
-    rt_handle_v2_pin(args_h);
+    rt_handle_begin_transaction(args_h);
     void *args_raw = args_h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)args_raw;
     meta->arena = NULL;
@@ -288,7 +288,7 @@ static RtAny call_next_interceptor(void)
     // Copy any modifications back to the original args array
     if (ctx->arg_count > 0)
     {
-        rt_handle_v2_pin(args_h);
+        rt_handle_begin_transaction(args_h);
         void *args_ptr = args_h->ptr;
         RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadataV2));
         memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));

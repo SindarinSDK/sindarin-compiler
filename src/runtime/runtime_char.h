@@ -13,10 +13,11 @@
 /* Convert char to string (single character string) - V2 handle version */
 static inline RtHandleV2 *rt_char_toString_v2(RtArenaV2 *arena, char c) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, 2);
-    rt_handle_v2_pin(handle);
+    rt_handle_begin_transaction(handle);
     char *result = (char *)handle->ptr;
     result[0] = c;
     result[1] = '\0';
+    rt_handle_end_transaction(handle);
     return handle;
 }
 

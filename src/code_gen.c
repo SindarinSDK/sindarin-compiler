@@ -534,7 +534,7 @@ void code_gen_module(CodeGen *gen, Module *module)
 
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
-        indented_fprintf(gen, 1, "rt_arena_v2_destroy(__local_arena__);\n");
+        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
         indented_fprintf(gen, 1, "return _return_value;\n");
         indented_fprintf(gen, 0, "}\n");
     }

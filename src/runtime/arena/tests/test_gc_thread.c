@@ -62,7 +62,7 @@ TEST(gc_thread_start_stop)
     rt_arena_v2_gc_thread_stop();
     ASSERT(!rt_arena_v2_gc_thread_running());
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
@@ -98,7 +98,7 @@ TEST(gc_thread_collects_dead)
     ASSERT(stats.handle_count == 0);
     ASSERT(stats.gc_runs > 0);
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
@@ -112,7 +112,7 @@ TEST(gc_thread_respects_pinned)
     /* Create a pinned handle marked as dead */
     RtHandleV2 *pinned = rt_arena_v2_alloc(root, 64);
     ASSERT(pinned != NULL);
-    rt_handle_v2_pin(pinned);  /* Pin it */
+    rt_handle_begin_transaction(pinned);  /* Pin it */
     rt_arena_v2_free(pinned);  /* Mark as dead (but pinned!) */
 
     /* Create unpinned dead handles */
@@ -135,7 +135,7 @@ TEST(gc_thread_respects_pinned)
     ASSERT(stats.dead_handle_count == 1);
 
     /* Unpin and verify it gets collected next time */
-    rt_handle_v2_unpin(pinned);
+    rt_handle_end_transaction(pinned);
 
     rt_arena_v2_gc_thread_start(root, 20);
     sleep_ms(100);
@@ -144,7 +144,7 @@ TEST(gc_thread_respects_pinned)
     rt_arena_v2_get_stats(root, &stats);
     ASSERT(stats.handle_count == 0);
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
@@ -200,7 +200,7 @@ TEST(gc_thread_recursive)
     rt_arena_v2_get_stats(grandchild, &stats);
     ASSERT(stats.handle_count == 0);
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
@@ -225,7 +225,7 @@ TEST(root_pointer_correct)
     /* Grandchild's root should also be the actual root */
     ASSERT(grandchild->root == root);
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
@@ -273,8 +273,8 @@ TEST(multiple_roots)
     ASSERT(stats.dead_handle_count == 10);
     ASSERT(stats.gc_runs == 0);
 
-    rt_arena_v2_destroy(root1);
-    rt_arena_v2_destroy(root2);
+    rt_arena_v2_condemn(root1);
+    rt_arena_v2_condemn(root2);
 }
 
 /* ============================================================================
@@ -305,7 +305,7 @@ TEST(gc_thread_double_start)
     rt_arena_v2_gc_thread_stop();
     ASSERT(!rt_arena_v2_gc_thread_running());
 
-    rt_arena_v2_destroy(root);
+    rt_arena_v2_condemn(root);
 }
 
 /* ============================================================================
