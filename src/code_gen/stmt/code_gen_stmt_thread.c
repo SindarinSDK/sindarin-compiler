@@ -138,7 +138,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_tmp__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
                 indented_fprintf(gen, indent + 1, "%s = (%s)%s(%s, __sync_tmp__);\n",
                     var_name, c_type, promo_func, ARENA_VAR(gen));
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_handle)
             {
@@ -162,7 +162,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                     indented_fprintf(gen, indent + 1, "%s", field_promotion);
                 }
                 /* Clean up the thread arena after field promotion */
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_primitive || is_struct)
             {
@@ -237,7 +237,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                     if (field_promotion && field_promotion[0] != '\0') {
                         indented_fprintf(gen, indent + 3, "%s", field_promotion);
                     }
-                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
                     indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_tmp__;\n",
                         c_type, arr_name);
                 }
@@ -310,7 +310,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                     if (field_promotion && field_promotion[0] != '\0') {
                         indented_fprintf(gen, indent + 3, "%s", field_promotion);
                     }
-                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
                     indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = __sync_tmp__;\n",
                         elem_c_type, var_name);
                 }
@@ -429,7 +429,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_tmp__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
                 indented_fprintf(gen, indent + 1, "%s = (%s)%s(%s, __sync_tmp__);\n",
                     var_name, c_type, promo_func, ARENA_VAR(gen));
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_handle)
             {
@@ -453,7 +453,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                     indented_fprintf(gen, indent + 1, "%s", field_promotion);
                 }
                 /* Clean up the thread arena after field promotion */
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_destroy(__thread_arena__);\n");
+                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_primitive || is_struct)
             {

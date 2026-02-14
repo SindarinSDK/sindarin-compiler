@@ -10,9 +10,9 @@
  * Each function follows the pattern:
  *   1. Compute output size
  *   2. RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
- *   3. rt_handle_v2_pin(h); char *ptr = (char *)h->ptr;
+ *   3. rt_handle_begin_transaction(h); char *ptr = (char *)h->ptr;
  *   4. Write string data to ptr
- *   5. rt_handle_v2_unpin(h);
+ *   5. rt_handle_end_transaction(h);
  *   6. return h;
  *
  * Key differences from V1:
@@ -39,11 +39,11 @@ RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, const char *a, const char *b) {
     if (!b) b = "";
     size_t la = strlen(a), lb = strlen(b);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, la + lb + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, a, la);
     memcpy(ptr + la, b, lb + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -56,11 +56,11 @@ RtHandleV2 *rt_str_append_v2(RtArenaV2 *arena, const char *old_str, const char *
     if (!suffix) suffix = "";
     size_t la = strlen(old_str), lb = strlen(suffix);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, la + lb + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, old_str, la);
     memcpy(ptr + la, suffix, lb + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -72,10 +72,10 @@ RtHandleV2 *rt_to_string_long_v2(RtArenaV2 *arena, long long val) {
     char buf[32];
     int len = snprintf(buf, sizeof(buf), "%lld", val);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -83,20 +83,20 @@ RtHandleV2 *rt_to_string_double_v2(RtArenaV2 *arena, double val) {
     char buf[64];
     int len = snprintf(buf, sizeof(buf), "%.5f", val);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
 RtHandleV2 *rt_to_string_char_v2(RtArenaV2 *arena, char val) {
     RtHandleV2 *h = rt_arena_v2_alloc(arena, 2);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     ptr[0] = val;
     ptr[1] = '\0';
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -104,10 +104,10 @@ RtHandleV2 *rt_to_string_bool_v2(RtArenaV2 *arena, int val) {
     const char *s = val ? "true" : "false";
     size_t len = val ? 4 : 5;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, s, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -115,10 +115,10 @@ RtHandleV2 *rt_to_string_byte_v2(RtArenaV2 *arena, unsigned char val) {
     char buf[8];
     int len = snprintf(buf, sizeof(buf), "%u", (unsigned int)val);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -136,10 +136,10 @@ RtHandleV2 *rt_format_long_v2(RtArenaV2 *arena, long long val, const char *fmt) 
     if (len < 0) len = 0;
     if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -149,10 +149,10 @@ RtHandleV2 *rt_format_double_v2(RtArenaV2 *arena, double val, const char *fmt) {
     if (len < 0) len = 0;
     if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -162,10 +162,10 @@ RtHandleV2 *rt_format_string_v2(RtArenaV2 *arena, const char *val, const char *f
     if (len < 0) len = 0;
     if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, buf, len + 1);
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -186,11 +186,11 @@ RtHandleV2 *rt_str_substring_v2(RtArenaV2 *arena, const char *str, long start, l
 
     size_t sub_len = (size_t)(end - start);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, sub_len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, str + start, sub_len);
     ptr[sub_len] = '\0';
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -198,13 +198,13 @@ RtHandleV2 *rt_str_toUpper_v2(RtArenaV2 *arena, const char *str) {
     if (!str) str = "";
     size_t len = strlen(str);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     for (size_t i = 0; i < len; i++) {
         ptr[i] = (char)toupper((unsigned char)str[i]);
     }
     ptr[len] = '\0';
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -212,13 +212,13 @@ RtHandleV2 *rt_str_toLower_v2(RtArenaV2 *arena, const char *str) {
     if (!str) str = "";
     size_t len = strlen(str);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     for (size_t i = 0; i < len; i++) {
         ptr[i] = (char)tolower((unsigned char)str[i]);
     }
     ptr[len] = '\0';
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -236,11 +236,11 @@ RtHandleV2 *rt_str_trim_v2(RtArenaV2 *arena, const char *str) {
 
     size_t trimmed_len = (size_t)(end - start);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, trimmed_len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     memcpy(ptr, start, trimmed_len);
     ptr[trimmed_len] = '\0';
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -273,7 +273,7 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old
     size_t result_len = str_len + count * (new_len - old_len);
 
     RtHandleV2 *h = rt_arena_v2_alloc(arena, result_len + 1);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
 
     /* Build replaced string */
@@ -291,7 +291,7 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old
     /* Copy remaining tail */
     strcpy(dst, p);
 
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -312,7 +312,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
 
         size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-        rt_handle_v2_pin(h);
+        rt_handle_begin_transaction(h);
     void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
@@ -329,7 +329,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
             }
         }
 
-        rt_handle_v2_unpin(h);
+        rt_handle_end_transaction(h);
         return h;
     }
 
@@ -344,7 +344,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
     /* Allocate array: [RtArrayMetaV2Local][RtHandleV2* elements...] */
     size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
     meta->arena = arena;
@@ -375,7 +375,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
     /* Copy the remaining tail */
     arr[idx] = rt_arena_v2_strdup(arena, p);
 
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -393,7 +393,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
     if (limit == 1) {
         size_t alloc_size = sizeof(RtArrayMetaV2Local) + sizeof(RtHandleV2 *);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-        rt_handle_v2_pin(h);
+        rt_handle_begin_transaction(h);
     void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
@@ -401,7 +401,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
         meta->capacity = 1;
         RtHandleV2 **arr = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetaV2Local));
         arr[0] = rt_arena_v2_strdup(arena, str);
-        rt_handle_v2_unpin(h);
+        rt_handle_end_transaction(h);
         return h;
     }
 
@@ -418,7 +418,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
     /* Allocate array: [RtArrayMetaV2Local][RtHandleV2* elements...] */
     size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
     meta->arena = arena;
@@ -449,7 +449,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
     /* Copy the remaining tail (unsplit) */
     arr[idx] = rt_arena_v2_strdup(arena, p);
 
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -475,20 +475,20 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str) {
     if (count == 0) {
         size_t alloc_size = sizeof(RtArrayMetaV2Local);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-        rt_handle_v2_pin(h);
+        rt_handle_begin_transaction(h);
     void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = 0;
         meta->capacity = 0;
-        rt_handle_v2_unpin(h);
+        rt_handle_end_transaction(h);
         return h;
     }
 
     /* Allocate array: [RtArrayMetaV2Local][RtHandleV2* elements...] */
     size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
     meta->arena = arena;
@@ -518,7 +518,7 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str) {
         if (word != stack_buf) free(word);
     }
 
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -529,13 +529,13 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
     if (*str == '\0') {
         size_t alloc_size = sizeof(RtArrayMetaV2Local);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-        rt_handle_v2_pin(h);
+        rt_handle_begin_transaction(h);
     void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = 0;
         meta->capacity = 0;
-        rt_handle_v2_unpin(h);
+        rt_handle_end_transaction(h);
         return h;
     }
 
@@ -564,7 +564,7 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
     /* Allocate array: [RtArrayMetaV2Local][RtHandleV2* elements...] */
     size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
     meta->arena = arena;
@@ -617,7 +617,7 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
         arr[idx] = rt_arena_v2_strdup(arena, start);
     }
 
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 

@@ -248,6 +248,11 @@ set(SN_RUNTIME_SOURCES
     src/runtime.c
     # arena/
     src/runtime/arena/arena_v2.c
+    src/runtime/arena/arena_id.c
+    src/runtime/arena/arena_stats.c
+    src/runtime/arena/arena_gc.c
+    src/runtime/arena/arena_handle.c
+    src/runtime/arena/arena_redirect.c
     # string/
     src/runtime/string/runtime_string.c
     src/runtime/string/runtime_string_v2.c
@@ -357,6 +362,11 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime.c
         # arena/
         ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_v2.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_id.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_stats.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_gc.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_handle.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_redirect.c
         # string/
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_v2.c
@@ -428,8 +438,8 @@ if(NOT MSVC)
         target_compile_definitions(sn_runtime PRIVATE SN_USE_WIN32_THREADS)
     endif()
 
-    # Enable malloc redirect to arena (experimental)
-    target_compile_definitions(sn_runtime PRIVATE SN_MALLOC_REDIRECT)
+    # Enable malloc hooks and redirect to arena
+    target_compile_definitions(sn_runtime PRIVATE SN_MALLOC_HOOKS SN_MALLOC_REDIRECT)
 
     # Optimization flags
     target_compile_options(sn_runtime PRIVATE -O2)

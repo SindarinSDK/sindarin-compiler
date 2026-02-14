@@ -32,14 +32,14 @@ RtHandleV2 *rt_string_with_capacity(RtArenaV2 *arena, size_t capacity) {
         fprintf(stderr, "rt_string_with_capacity: allocation failed\n");
         exit(1);
     }
-    rt_handle_v2_pin(meta_h);
+    rt_handle_begin_transaction(meta_h);
     RtStringMeta *meta = (RtStringMeta *)meta_h->ptr;
     meta->arena = arena;
     meta->length = 0;
     meta->capacity = capacity;
     char *str = (char*)(meta + 1);
     str[0] = '\0';
-    rt_handle_v2_unpin(meta_h);
+    rt_handle_end_transaction(meta_h);
     return meta_h;
 }
 
@@ -56,14 +56,14 @@ RtHandleV2 *rt_string_from(RtArenaV2 *arena, const char *src) {
     size_t capacity = len < 16 ? 32 : len * 2;
 
     RtHandleV2 *h = rt_string_with_capacity(arena, capacity);
-    rt_handle_v2_pin(h);
+    rt_handle_begin_transaction(h);
     char *str = (char *)((RtStringMeta *)h->ptr + 1);
     if (src && len > 0) {
         memcpy(str, src, len);
         str[len] = '\0';
         ((RtStringMeta *)h->ptr)->length = len;
     }
-    rt_handle_v2_unpin(h);
+    rt_handle_end_transaction(h);
     return h;
 }
 
@@ -99,7 +99,7 @@ RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src) {
         return dest_h;  /* Appending NULL is a no-op */
     }
 
-    rt_handle_v2_pin(dest_h);
+    rt_handle_begin_transaction(dest_h);
     char *dest = (char *)((RtStringMeta *)dest_h->ptr + 1);
 
     /* Get metadata and validate it's a mutable string */
@@ -133,9 +133,9 @@ RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src) {
             exit(1);
         }
 
-        rt_handle_v2_unpin(dest_h);
+        rt_handle_end_transaction(dest_h);
         RtHandleV2 *new_h = rt_string_with_capacity(meta->arena, new_cap);
-        rt_handle_v2_pin(new_h);
+        rt_handle_begin_transaction(new_h);
         char *new_str = (char *)((RtStringMeta *)new_h->ptr + 1);
 
         /* Copy existing content to new buffer */
@@ -151,6 +151,6 @@ RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src) {
     memcpy(dest + old_len, src, src_len + 1);
     meta->length = new_len;
 
-    rt_handle_v2_unpin(dest_h);
+    rt_handle_end_transaction(dest_h);
     return dest_h;
 }

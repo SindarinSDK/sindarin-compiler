@@ -178,7 +178,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; }), RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
-            "    rt_arena_v2_destroy(__lambda_arena__);\n");
+            "    rt_arena_v2_condemn(__lambda_arena__);\n");
     }
     else if (modifier == FUNC_SHARED)
     {

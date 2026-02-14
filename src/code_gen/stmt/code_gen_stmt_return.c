@@ -121,7 +121,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
     {
         if (gen->arena_stack[i] != NULL)
         {
-            indented_fprintf(gen, indent, "rt_arena_v2_destroy(%s);\n", gen->arena_stack[i]);
+            indented_fprintf(gen, indent, "rt_arena_v2_condemn(%s);\n", gen->arena_stack[i]);
         }
     }
 

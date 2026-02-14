@@ -415,13 +415,13 @@ RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
             if (value.value.s) {
                 size_t len = strlen(value.value.s);
                 RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 3);  /* "str" + null */
-                rt_handle_v2_pin(result_h);
+                rt_handle_begin_transaction(result_h);
                 char *result = (char *)result_h->ptr;
                 result[0] = '"';
                 memcpy(result + 1, value.value.s, len);
                 result[len + 1] = '"';
                 result[len + 2] = '\0';
-                rt_handle_v2_unpin(result_h);
+                rt_handle_end_transaction(result_h);
                 return result_h;
             }
             return rt_arena_v2_strdup(arena, "null");
@@ -462,7 +462,7 @@ RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
             /* Strings need to be copied to the target arena */
             if (value.value.s != NULL) {
                 RtHandleV2 *_h = rt_arena_v2_strdup(target_arena, value.value.s);
-                rt_handle_v2_pin(_h);
+                rt_handle_begin_transaction(_h);
                 result.value.s = (char *)_h->ptr;
             }
             break;
@@ -509,11 +509,11 @@ RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
 
     switch (value.tag) {
         case RT_ANY_STRING:
-            /* Strings in V2 mode are stored as char* from rt_handle_v2_pin().
+            /* Strings in V2 mode are stored as char* from rt_handle_begin_transaction().
              * Need to create a new string in target arena. */
             if (value.value.s != NULL) {
                 RtHandleV2 *new_str = rt_arena_v2_strdup(target_arena, value.value.s);
-                rt_handle_v2_pin(new_str);
+                rt_handle_begin_transaction(new_str);
                 result.value.s = (char *)new_str->ptr;
             }
             break;

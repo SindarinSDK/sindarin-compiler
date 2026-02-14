@@ -54,10 +54,10 @@ static inline size_t rt_v2_data_array_length(const void *arr) {
 }
 
 /* Get pointer to array DATA area (after metadata) for element access.
- * This is what you use for arr[i] indexing. */
+ * This is what you use for arr[i] indexing.
+ * IMPORTANT: Caller must hold a transaction on arr_h. */
 static inline void *rt_array_data_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
-    rt_handle_v2_pin(arr_h);
     void *raw = arr_h->ptr;
     if (raw == NULL) return NULL;
     return (char *)raw + sizeof(RtArrayMetadataV2);

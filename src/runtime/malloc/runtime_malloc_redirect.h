@@ -25,7 +25,7 @@
  *   // No need to free - arena handles it
  *
  *   rt_malloc_redirect_pop();
- *   rt_arena_destroy(arena);  // Frees all redirected allocations
+ *   rt_arena_v2_condemn(arena);  // Frees all redirected allocations
  *
  * Build Notes:
  *   - Core redirect functionality works with all optimization levels

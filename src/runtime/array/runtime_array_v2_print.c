@@ -83,7 +83,7 @@ void rt_print_array_string_v2(RtHandleV2 *arr_h) {
         for (size_t i = 0; i < len; i++) {
             if (i > 0) printf(", ");
             if (arr[i] != NULL) {
-                rt_handle_v2_pin(arr[i]);
+                rt_handle_begin_transaction(arr[i]);
                 const char *s = (const char *)arr[i]->ptr;
                 printf("\"%s\"", s);
             } else {
