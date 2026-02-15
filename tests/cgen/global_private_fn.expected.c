@@ -36,8 +36,8 @@ long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
     // private function uses its own private arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
     // Mutating 'message' should use __main_arena__ since it's a global
-    (__sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, ({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }), " World")));
-    _return_value = (long)strlen(({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }));
+    (__sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), rt_arena_v2_strdup(__local_arena__, " World"))));
+    _return_value = (long)rt_str_length_v2(rt_arena_v2_clone(__local_arena__, __sn__greeting));
     goto __sn__process_greeting_return;
 __sn__process_greeting_return:
     rt_arena_v2_condemn(__local_arena__);
@@ -50,7 +50,7 @@ int main() {
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     __sn__message = rt_arena_v2_strdup(__main_arena__, "");
     int _return_value = 0;
-    rt_println("Global with private function test:");
+    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "Global with private function test:"));
     RtThread *__result_pending__ = NULL;
     long long __sn__result = ({
     long long __intercept_result;
@@ -65,12 +65,12 @@ int main() {
     }
     __intercept_result;
 });
-    rt_println(({ rt_handle_v2_pin(__sn__message); (char *)__sn__message->ptr; }));
-    rt_println(({
-        RtHandleV2 *_ph0 = rt_to_string_long_v2(__local_arena__, __sn__result); rt_handle_v2_pin(_ph0); char *_p0 = (char *)_ph0->ptr;
-        RtHandleV2 *__h = rt_str_concat_v2(__local_arena__, "Greeting length: ", _p0); rt_handle_v2_pin(__h); (char *)__h->ptr;
+    rt_println_v2(rt_arena_v2_clone(__local_arena__, __sn__message));
+    rt_println_v2(({
+        RtHandleV2 *_p0 = rt_to_string_long_v2(__local_arena__, __sn__result);
+        rt_str_concat_v2(__local_arena__, rt_arena_v2_strdup(__local_arena__, "Greeting length: "), _p0);
     }));
-    rt_println("PASS");
+    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "PASS"));
     _return_value = 0LL;
     goto main_return;
 main_return:

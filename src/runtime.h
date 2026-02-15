@@ -112,6 +112,66 @@ static inline int rt_ge_string(const char *a, const char *b) {
     return strcmp(a, b) >= 0;
 }
 
+/* String comparisons V2 - accept RtHandleV2* with transactional access */
+static inline int rt_eq_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) == 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+static inline int rt_ne_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL && b == NULL) return 0;
+    if (a == NULL || b == NULL) return 1;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) != 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+static inline int rt_lt_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL || b == NULL) return 0;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) < 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+static inline int rt_le_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) <= 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+static inline int rt_gt_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL || b == NULL) return 0;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) > 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+static inline int rt_ge_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
+    if (a == NULL && b == NULL) return 1;
+    if (a == NULL || b == NULL) return 0;
+    rt_handle_begin_transaction(a);
+    rt_handle_begin_transaction(b);
+    int result = strcmp((const char *)a->ptr, (const char *)b->ptr) >= 0;
+    rt_handle_end_transaction(b);
+    rt_handle_end_transaction(a);
+    return result;
+}
+
 /* Check if string is empty or contains only whitespace */
 int rt_str_is_blank(const char *str);
 

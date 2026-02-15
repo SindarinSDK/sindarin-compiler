@@ -42,10 +42,18 @@ DEFINE_ARRAY_ALLOC_V2(uint, uint64_t)
 DEFINE_ARRAY_ALLOC_V2(float, float)
 
 /* String alloc */
-RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, const char *default_value) {
+RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, RtHandleV2 *default_value) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(RtHandleV2 *);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
     if (!h) return NULL;
+
+    /* Extract default string from handle */
+    const char *def_str = "";
+    if (default_value) {
+        rt_handle_begin_transaction(default_value);
+        const char *s = (const char *)default_value->ptr;
+        if (s) def_str = s;
+    }
 
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
@@ -56,10 +64,11 @@ RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, const char 
 
     RtHandleV2 **arr = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetadataV2));
     for (size_t i = 0; i < count; i++) {
-        arr[i] = rt_arena_v2_strdup(arena, default_value ? default_value : "");
+        arr[i] = rt_arena_v2_strdup(arena, def_str);
     }
 
     rt_handle_end_transaction(h);
+    if (default_value) rt_handle_end_transaction(default_value);
     return h;
 }
 

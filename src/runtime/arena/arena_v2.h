@@ -205,6 +205,11 @@ static inline RtArenaV2 *rt_arena_create(RtArenaV2 *parent) {
     return rt_arena_v2_create(parent, RT_ARENA_MODE_DEFAULT, NULL);
 }
 
+/* Legacy destroy shim - condemn the arena for GC collection */
+static inline void rt_arena_destroy(RtArenaV2 *arena) {
+    if (arena) rt_arena_v2_condemn(arena);
+}
+
 /* ============================================================================
  * Include Split Headers for Complete API
  * ============================================================================ */

@@ -456,8 +456,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         char *closure_init = arena_sprintf(gen->arena,
             "({\n"
             "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__closure_%d__));\n"
-            "    rt_handle_v2_pin(__cl_h__);\n"
             "    __closure_%d__ *__cl__ = (__closure_%d__ *)__cl_h__->ptr;\n"
+            "    rt_handle_begin_transaction(__cl_h__);\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__closure_%d__);\n",
@@ -510,7 +510,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     /* It's a value (lambda param, loop var, etc.) - need to heap-allocate (V2) */
                     const char *c_type = get_c_type(gen->arena, cv.types[i]);
                     closure_init = arena_sprintf(gen->arena,
-                        "%s    __cl__->%s = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_v2_pin(__ah); %s *__tmp__ = (%s *)__ah->ptr; *__tmp__ = %s; __tmp__; });\n",
+                        "%s    __cl__->%s = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_begin_transaction(__ah); %s *__tmp__ = (%s *)__ah->ptr; *__tmp__ = %s; rt_handle_end_transaction(__ah); __tmp__; });\n",
                         closure_init, cv.names[i], closure_arena, c_type, c_type, c_type, mangled_cv_name);
                 }
             }
@@ -521,7 +521,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             }
         }
         closure_init = arena_sprintf(gen->arena,
-            "%s    (__Closure__ *)__cl__;\n"
+            "%s    rt_handle_end_transaction(__cl_h__);\n"
+            "    (__Closure__ *)__cl__;\n"
             "})",
             closure_init);
 
@@ -702,11 +703,12 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         return arena_sprintf(gen->arena,
             "({\n"
             "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
-            "    rt_handle_v2_pin(__cl_h__);\n"
             "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
+            "    rt_handle_begin_transaction(__cl_h__);\n"
             "    __cl__->fn = (void *)__lambda_%d__;\n"
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__Closure__);\n"
+            "    rt_handle_end_transaction(__cl_h__);\n"
             "    __cl__;\n"
             "})",
             closure_arena, lambda_id, closure_arena);

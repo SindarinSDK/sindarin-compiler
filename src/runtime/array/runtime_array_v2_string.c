@@ -12,8 +12,17 @@
  * ============================================================================ */
 
 /* String push -- stores element as RtHandleV2* */
-RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const char *element) {
-    RtHandleV2 *elem_h = rt_arena_v2_strdup(arena, element ? element : "");
+RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element) {
+    /* Strdup element into target arena for ownership safety */
+    RtHandleV2 *elem_h;
+    if (element) {
+        rt_handle_begin_transaction(element);
+        const char *str = (const char *)element->ptr;
+        elem_h = rt_arena_v2_strdup(arena, str ? str : "");
+        rt_handle_end_transaction(element);
+    } else {
+        elem_h = rt_arena_v2_strdup(arena, "");
+    }
 
     if (arr_h == NULL) {
         size_t new_cap = 4;
@@ -580,8 +589,8 @@ RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index) {
  * Array Insert At Index Functions
  * ============================================================================ */
 
-/* String insert - takes handle, returns new array handle */
-RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long index) {
+/* String insert - takes handle element, returns new array handle */
+RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, RtHandleV2 *elem, long index) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
     RtHandleV2 **arr = (RtHandleV2 **)rt_array_data_v2(arr_h);
@@ -590,6 +599,17 @@ RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long ind
     if (index < 0) index += (long)len + 1;
     if (index < 0) index = 0;
     if (index > (long)len) index = (long)len;
+
+    /* Strdup the element into the array's arena */
+    RtHandleV2 *elem_h;
+    if (elem) {
+        rt_handle_begin_transaction(elem);
+        const char *str = (const char *)elem->ptr;
+        elem_h = rt_arena_v2_strdup(arena, str ? str : "");
+        rt_handle_end_transaction(elem);
+    } else {
+        elem_h = rt_arena_v2_strdup(arena, "");
+    }
 
     size_t new_len = len + 1;
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * sizeof(RtHandleV2 *);
@@ -610,7 +630,7 @@ RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long ind
         result[i] = arr[i];  /* Keep existing handle */
     }
     /* Insert new element */
-    result[index] = rt_arena_v2_strdup(arena, elem ? elem : "");
+    result[index] = elem_h;
     /* Copy remaining handles after insertion point */
     for (size_t i = index; i < len && arr; i++) {
         result[i + 1] = arr[i];  /* Keep existing handle */
@@ -624,7 +644,7 @@ RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, const char *elem, long ind
  * Array Push Copy Functions (non-mutating)
  * ============================================================================ */
 
-RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, const char *elem) {
+RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, RtHandleV2 *elem) {
     if (arr_h == NULL) return NULL;
     return rt_array_ins_string_v2(arr_h, elem, (long)rt_array_length_v2(arr_h));
 }
@@ -636,8 +656,16 @@ RtHandleV2 *rt_array_push_copy_string_v2(RtHandleV2 *arr_h, const char *elem) {
 /**
  * Find the index of an element in a string array (V2).
  */
-long rt_array_indexOf_string_v2(RtHandleV2 *arr_h, const char *elem) {
+long rt_array_indexOf_string_v2(RtHandleV2 *arr_h, RtHandleV2 *elem_h) {
     if (arr_h == NULL) return -1;
+
+    /* Extract search string */
+    const char *elem = NULL;
+    if (elem_h) {
+        rt_handle_begin_transaction(elem_h);
+        elem = (const char *)elem_h->ptr;
+    }
+
     size_t len = rt_array_length_v2(arr_h);
     RtHandleV2 **arr = (RtHandleV2 **)rt_array_data_v2(arr_h);
 
@@ -647,20 +675,25 @@ long rt_array_indexOf_string_v2(RtHandleV2 *arr_h, const char *elem) {
         const char *str = (const char *)arr[i]->ptr;
         if (str != NULL && elem != NULL && strcmp(str, elem) == 0) {
             rt_handle_end_transaction(arr[i]);
+            if (elem_h) rt_handle_end_transaction(elem_h);
             return (long)i;
         }
         if (str == NULL && elem == NULL) {
+            rt_handle_end_transaction(arr[i]);
+            if (elem_h) rt_handle_end_transaction(elem_h);
             return (long)i;
         }
         rt_handle_end_transaction(arr[i]);
     }
+
+    if (elem_h) rt_handle_end_transaction(elem_h);
     return -1;
 }
 
 /**
  * Check if a string array contains an element (V2).
  */
-int rt_array_contains_string_v2(RtHandleV2 *arr_h, const char *elem) {
+int rt_array_contains_string_v2(RtHandleV2 *arr_h, RtHandleV2 *elem) {
     return rt_array_indexOf_string_v2(arr_h, elem) >= 0;
 }
 

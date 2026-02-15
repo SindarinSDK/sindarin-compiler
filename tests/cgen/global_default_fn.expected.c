@@ -33,7 +33,7 @@ RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     RtHandleV2 * _return_value = NULL;
     // default function uses its own arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
-    _return_value = rt_str_concat_v2(__local_arena__, ({ rt_handle_v2_pin(__sn__greeting); (char *)__sn__greeting->ptr; }), " World");
+    _return_value = rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), rt_arena_v2_strdup(__local_arena__, " World"));
     goto __sn__append_world_return;
 __sn__append_world_return:
     _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);
@@ -46,7 +46,7 @@ int main() {
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
-    rt_println("Global with default function test:");
+    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "Global with default function test:"));
     RtThread *__result_pending__ = NULL;
     RtHandleV2 * __sn__result = ({
     RtHandleV2 * __intercept_result;
@@ -61,8 +61,8 @@ int main() {
     }
     __intercept_result;
 });
-    rt_println(({ rt_handle_v2_pin(__sn__result); (char *)__sn__result->ptr; }));
-    rt_println("PASS");
+    rt_println_v2(__sn__result);
+    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "PASS"));
     _return_value = 0LL;
     goto main_return;
 main_return:
@@ -73,8 +73,7 @@ main_return:
 
 /* Interceptor thunk definitions */
 static RtAny __thunk_0(void) {
-    RtHandleV2 *__pin = __sn__append_world((RtArenaV2 *)__rt_thunk_arena); rt_handle_v2_pin(__pin);
-    RtAny __result = rt_box_string((char *)__pin->ptr);
+    RtAny __result = rt_box_string((char *)(__sn__append_world((RtArenaV2 *)__rt_thunk_arena))->ptr);
     return __result;
 }
 

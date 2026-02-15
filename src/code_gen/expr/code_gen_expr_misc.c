@@ -60,11 +60,11 @@ char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
     /* Generate code for the default value */
     char *default_str;
     if (default_value != NULL) {
-        /* For string arrays, the alloc function takes a raw char* and converts
-           to RtHandle internally, so we must evaluate in raw mode */
+        /* For string arrays, the alloc function takes RtHandleV2* -
+           evaluate in handle mode to get the string handle */
         bool saved_handle = gen->expr_as_handle;
-        if (element_type->kind == TYPE_STRING) {
-            gen->expr_as_handle = false;
+        if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
+            gen->expr_as_handle = true;
         }
         default_str = code_gen_expression(gen, default_value);
         gen->expr_as_handle = saved_handle;
@@ -173,10 +173,10 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
         }
         else if (field->type != NULL && field->type->kind == TYPE_STRING)
         {
-            /* Copy string field: pin source handle → strdup to new handle */
+            /* Copy string field: clone handle to new arena allocation */
             result = arena_sprintf(gen->arena,
-                                   "%s        __deep_copy.%s = __deep_copy.%s ? ({ rt_handle_v2_pin(__deep_copy.%s); rt_arena_v2_strdup(%s, (char *)__deep_copy.%s->ptr); }) : NULL;\n",
-                                   result, c_field_name, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
+                                   "%s        __deep_copy.%s = __deep_copy.%s ? rt_arena_v2_clone(%s, __deep_copy.%s) : NULL;\n",
+                                   result, c_field_name, c_field_name, ARENA_VAR(gen), c_field_name);
         }
     }
 
@@ -230,10 +230,10 @@ char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
             return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
                                 operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
         }
-        /* Raw pointer mode: strdup into arena handle, then pin and access ->ptr */
+        /* Raw pointer mode: strdup into arena handle, then extract raw char* */
         return arena_sprintf(gen->arena,
-            "((%s) ? ({ RtHandleV2 *__pin_h__ = rt_arena_v2_strdup(%s, %s); rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; }) "
-            ": ({ RtHandleV2 *__pin_h__ = rt_arena_v2_strdup(%s, \"\"); rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; }))",
+            "((%s) ? ((char *)rt_arena_v2_strdup(%s, %s)->ptr) "
+            ": ((char *)rt_arena_v2_strdup(%s, \"\")->ptr))",
             operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
     }
     else if (as_val->is_struct_deep_copy)

@@ -153,10 +153,11 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
         return arena_sprintf(gen->arena,
             "({\n"
             "    RtHandleV2 *__cl_h = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
-            "    rt_handle_v2_pin(__cl_h);\n"
+            "    rt_handle_begin_transaction(__cl_h);\n"
             "    __Closure__ *__cl__ = (__Closure__ *)__cl_h->ptr;\n"
             "    __cl__->fn = (void *)%s;\n"
             "    __cl__->arena = %s;\n"
+            "    rt_handle_end_transaction(__cl_h);\n"
             "    __cl__;\n"
             "})",
             arena_var, wrapper_name, arena_var);
@@ -256,6 +257,54 @@ static char *code_gen_member_call(CodeGen *gen, Expr *expr, CallExpr *call)
     return NULL;  /* Not handled - fall through to regular call processing */
 }
 
+/* Wrap a call expression in transactions for native string handle args.
+ * Generates: ({ RtHandleV2 *__nsh_0__ = h0; ... begin_tx(all); result = call; end_tx(all); result; }) */
+static char *wrap_native_str_transactions(CodeGen *gen, char *call_expr,
+    char **handle_exprs, int handle_count, Type *return_type)
+{
+    if (handle_count == 0) return call_expr;
+
+    bool returns_void = (return_type != NULL && return_type->kind == TYPE_VOID);
+    char *result = arena_strdup(gen->arena, "({\n");
+
+    /* Declare handle temporaries */
+    for (int i = 0; i < handle_count; i++)
+    {
+        result = arena_sprintf(gen->arena, "%s    RtHandleV2 *__nsh_%d__ = %s;\n",
+                               result, i, handle_exprs[i]);
+    }
+    /* Begin transactions on all handles */
+    for (int i = 0; i < handle_count; i++)
+    {
+        result = arena_sprintf(gen->arena, "%s    rt_handle_begin_transaction(__nsh_%d__);\n",
+                               result, i);
+    }
+    /* Execute the call */
+    if (returns_void)
+    {
+        result = arena_sprintf(gen->arena, "%s    %s;\n", result, call_expr);
+    }
+    else
+    {
+        const char *ret_c = get_c_type(gen->arena, return_type);
+        result = arena_sprintf(gen->arena, "%s    %s __nffi_r__ = %s;\n",
+                               result, ret_c, call_expr);
+    }
+    /* End transactions in reverse order */
+    for (int i = handle_count - 1; i >= 0; i--)
+    {
+        result = arena_sprintf(gen->arena, "%s    rt_handle_end_transaction(__nsh_%d__);\n",
+                               result, i);
+    }
+    /* Return result */
+    if (returns_void)
+        result = arena_sprintf(gen->arena, "%s    (void)0;\n})", result);
+    else
+        result = arena_sprintf(gen->arena, "%s    __nffi_r__;\n})", result);
+
+    return result;
+}
+
 /* ============================================================================
  * Regular Function Call Generation
  * ============================================================================ */
@@ -285,6 +334,11 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
     bool *arg_is_temp = arena_alloc(gen->arena, call->arg_count * sizeof(bool));
     bool has_temps = false;
+
+    /* Track native string handle args for transactional FFI boundary */
+    char **native_str_handle_exprs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
+    int native_str_handle_count = 0;
+
     for (int i = 0; i < call->arg_count; i++)
     {
         /* For native functions receiving str[] args */
@@ -301,7 +355,8 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
                                          handle_expr);
         }
-        /* For native functions receiving individual str args - convert RtHandle to const char* */
+        /* For native functions receiving individual str args - convert RtHandle to const char*
+         * using transactional access: begin_transaction before call, end after. */
         else if (!callee_is_sindarin && callee_is_native && gen->current_arena_var != NULL &&
                  call->arguments[i]->expr_type != NULL &&
                  call->arguments[i]->expr_type->kind == TYPE_STRING)
@@ -310,9 +365,11 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
-                handle_expr);
+            /* Save handle expr for transaction wrapping */
+            int idx = native_str_handle_count++;
+            native_str_handle_exprs[idx] = handle_expr;
+            /* Use temp variable that will be declared in the wrapper */
+            arg_strs[i] = arena_sprintf(gen->arena, "(const char *)__nsh_%d__->ptr", idx);
         }
         else
         {
@@ -498,7 +555,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 if (expr->expr_type->kind == TYPE_STRING)
                 {
                     return arena_sprintf(gen->arena,
-                        "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                        "((char *)(%s)->ptr)",
                         intercept_expr);
                 }
                 else if (expr->expr_type->kind == TYPE_ARRAY)
@@ -513,6 +570,10 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
 
         char *call_expr = arena_sprintf(gen->arena, "%s(%s)", callee_str, args_list);
 
+        /* Wrap native call with string handle transactions */
+        call_expr = wrap_native_str_transactions(gen, call_expr,
+            native_str_handle_exprs, native_str_handle_count, expr->expr_type);
+
         /* Handle return type conversions */
         if (!gen->expr_as_handle && callee_has_body &&
             gen->current_arena_var != NULL &&
@@ -521,7 +582,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             if (expr->expr_type->kind == TYPE_STRING)
             {
                 return arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    "((char *)(%s)->ptr)",
                     call_expr);
             }
             else if (expr->expr_type->kind == TYPE_ARRAY)
@@ -586,6 +647,18 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         }
     }
 
+    /* Declare native string handle temps and begin transactions */
+    for (int i = 0; i < native_str_handle_count; i++)
+    {
+        result = arena_sprintf(gen->arena, "%s        RtHandleV2 *__nsh_%d__ = %s;\n",
+                               result, i, native_str_handle_exprs[i]);
+    }
+    for (int i = 0; i < native_str_handle_count; i++)
+    {
+        result = arena_sprintf(gen->arena, "%s        rt_handle_begin_transaction(__nsh_%d__);\n",
+                               result, i);
+    }
+
     const char *ret_c = get_c_type(gen->arena, expr->expr_type);
     if (returns_void)
     {
@@ -594,6 +667,13 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     else
     {
         result = arena_sprintf(gen->arena, "%s        %s _call_result = %s(%s);\n", result, ret_c, callee_str, args_list);
+    }
+
+    /* End native string handle transactions */
+    for (int i = native_str_handle_count - 1; i >= 0; i--)
+    {
+        result = arena_sprintf(gen->arena, "%s        rt_handle_end_transaction(__nsh_%d__);\n",
+                               result, i);
     }
 
     if (gen->current_arena_var == NULL)
@@ -617,7 +697,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     {
         if (expr->expr_type->kind == TYPE_STRING)
         {
-            result = arena_sprintf(gen->arena, "%s        rt_handle_v2_pin(_call_result);\n        (char *)_call_result->ptr;\n    })",
+            result = arena_sprintf(gen->arena, "%s        (char *)_call_result->ptr;\n    })",
                                    result);
         }
         else

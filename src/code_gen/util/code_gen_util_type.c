@@ -186,6 +186,26 @@ const char *get_c_sizeof_elem(Arena *arena, Type *elem_type)
     return arena_sprintf(arena, "sizeof(%s)", c_type);
 }
 
+const char *get_array_accessor_suffix(Type *elem_type)
+{
+    if (elem_type == NULL) return "long"; /* default */
+    switch (elem_type->kind) {
+        case TYPE_INT:
+        case TYPE_LONG: return "long";
+        case TYPE_INT32: return "int32";
+        case TYPE_UINT: return "uint";
+        case TYPE_UINT32: return "uint32";
+        case TYPE_DOUBLE: return "double";
+        case TYPE_FLOAT: return "float";
+        case TYPE_CHAR: return "char";
+        case TYPE_BOOL: return "bool";
+        case TYPE_BYTE: return "byte";
+        case TYPE_STRING:
+        case TYPE_ARRAY: return "handle";
+        default: return NULL; /* struct/complex: use rt_array_data_begin_v2 */
+    }
+}
+
 char *get_var_name(Arena *arena, Token name)
 {
     DEBUG_VERBOSE("Entering get_var_name");

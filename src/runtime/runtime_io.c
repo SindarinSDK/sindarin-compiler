@@ -164,6 +164,44 @@ void rt_print_err_ln(const char *text) {
 }
 
 /* ============================================================================
+ * Handle-Based I/O Functions (V2)
+ * ============================================================================ */
+
+void rt_print_string_v2(RtHandleV2 *text) {
+    if (text == NULL) return;
+    rt_handle_begin_transaction(text);
+    const char *s = (const char *)text->ptr;
+    if (s != NULL) fputs(s, stdout);
+    rt_handle_end_transaction(text);
+}
+
+void rt_println_v2(RtHandleV2 *text) {
+    if (text == NULL) { fputc('\n', stdout); return; }
+    rt_handle_begin_transaction(text);
+    const char *s = (const char *)text->ptr;
+    if (s != NULL) fputs(s, stdout);
+    fputc('\n', stdout);
+    rt_handle_end_transaction(text);
+}
+
+void rt_print_err_v2(RtHandleV2 *text) {
+    if (text == NULL) return;
+    rt_handle_begin_transaction(text);
+    const char *s = (const char *)text->ptr;
+    if (s != NULL) fputs(s, stderr);
+    rt_handle_end_transaction(text);
+}
+
+void rt_print_err_ln_v2(RtHandleV2 *text) {
+    if (text == NULL) { fputc('\n', stderr); return; }
+    rt_handle_begin_transaction(text);
+    const char *s = (const char *)text->ptr;
+    if (s != NULL) fputs(s, stderr);
+    fputc('\n', stderr);
+    rt_handle_end_transaction(text);
+}
+
+/* ============================================================================
  * Program Control Functions
  * ============================================================================ */
 
@@ -179,6 +217,25 @@ void rt_assert(int condition, const char *message)
     if (!condition)
     {
         fprintf(stderr, "%s\n", message);
+        exit(1);
+    }
+}
+
+/* Assert with handle-based message. */
+void rt_assert_v2(int condition, RtHandleV2 *message)
+{
+    if (!condition)
+    {
+        const char *msg = "assertion failed";
+        if (message) {
+            rt_handle_begin_transaction(message);
+            const char *s = (const char *)message->ptr;
+            if (s) msg = s;
+            fprintf(stderr, "%s\n", msg);
+            rt_handle_end_transaction(message);
+        } else {
+            fprintf(stderr, "%s\n", msg);
+        }
         exit(1);
     }
 }

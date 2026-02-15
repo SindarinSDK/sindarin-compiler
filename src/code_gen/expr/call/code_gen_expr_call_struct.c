@@ -105,6 +105,10 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
         }
     }
 
+    /* Track native string handle args for transactional FFI boundary */
+    char **native_str_handle_exprs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
+    int native_str_handle_count = 0;
+
     /* Add remaining arguments */
     for (int i = 0; i < call->arg_count; i++)
     {
@@ -124,7 +128,8 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
             arg_str = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
                                      handle_expr);
         }
-        /* For native methods receiving individual str args: convert RtHandle to const char* */
+        /* For native methods receiving individual str args: convert RtHandle to const char*
+         * using transactional access that spans the entire native call. */
         else if (gen->current_arena_var != NULL &&
                  call->arguments[i]->expr_type != NULL &&
                  call->arguments[i]->expr_type->kind == TYPE_STRING)
@@ -133,9 +138,9 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
             gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
             gen->expr_as_handle = prev;
-            arg_str = arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
-                handle_expr);
+            int idx = native_str_handle_count++;
+            native_str_handle_exprs[idx] = handle_expr;
+            arg_str = arena_sprintf(gen->arena, "(const char *)__nsh_%d__->ptr", idx);
         }
         else
         {
@@ -153,15 +158,44 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
 
     char *call_result = arena_sprintf(gen->arena, "%s(%s)", func_name, args_list);
 
+    /* Wrap with transactions for native string handle args */
+    if (native_str_handle_count > 0)
+    {
+        bool returns_void = (method->return_type != NULL && method->return_type->kind == TYPE_VOID);
+        char *wrapped = arena_strdup(gen->arena, "({\n");
+        for (int i = 0; i < native_str_handle_count; i++)
+            wrapped = arena_sprintf(gen->arena, "%s    RtHandleV2 *__nsh_%d__ = %s;\n",
+                                    wrapped, i, native_str_handle_exprs[i]);
+        for (int i = 0; i < native_str_handle_count; i++)
+            wrapped = arena_sprintf(gen->arena, "%s    rt_handle_begin_transaction(__nsh_%d__);\n",
+                                    wrapped, i);
+        if (returns_void)
+            wrapped = arena_sprintf(gen->arena, "%s    %s;\n", wrapped, call_result);
+        else
+        {
+            const char *ret_c = get_c_type(gen->arena, method->return_type);
+            wrapped = arena_sprintf(gen->arena, "%s    %s __nffi_r__ = %s;\n",
+                                    wrapped, ret_c, call_result);
+        }
+        for (int i = native_str_handle_count - 1; i >= 0; i--)
+            wrapped = arena_sprintf(gen->arena, "%s    rt_handle_end_transaction(__nsh_%d__);\n",
+                                    wrapped, i);
+        if (returns_void)
+            wrapped = arena_sprintf(gen->arena, "%s    (void)0;\n})", wrapped);
+        else
+            wrapped = arena_sprintf(gen->arena, "%s    __nffi_r__;\n})", wrapped);
+        call_result = wrapped;
+    }
+
     /* Handle native methods returning str */
     if (method->return_type != NULL && method->return_type->kind == TYPE_STRING &&
         gen->current_arena_var != NULL)
     {
         if (!gen->expr_as_handle)
         {
-            /* Need char* - pin the handle returned by native method */
+            /* Need char* - extract string pointer from handle */
             return arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 call_result);
         }
     }
@@ -219,7 +253,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
             if (method->return_type->kind == TYPE_STRING)
             {
                 return arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    "((char *)(%s)->ptr)",
                     intercept_result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)
@@ -286,7 +320,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
         if (method->return_type->kind == TYPE_STRING)
         {
             return arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 method_call);
         }
         else if (method->return_type->kind == TYPE_ARRAY)
@@ -338,7 +372,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
             if (method->return_type->kind == TYPE_STRING)
             {
                 return arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    "((char *)(%s)->ptr)",
                     intercept_result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)
@@ -392,7 +426,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
         if (method->return_type->kind == TYPE_STRING)
         {
             return arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 method_call);
         }
         else if (method->return_type->kind == TYPE_ARRAY)

@@ -197,8 +197,9 @@ char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type)
         const char *struct_name = get_c_type(gen->arena, value_type);
         return arena_sprintf(gen->arena,
             "({ RtHandleV2 *__bh = rt_arena_v2_alloc(%s, sizeof(%s)); "
-            "rt_handle_v2_pin(__bh); "
+            "rt_handle_begin_transaction(__bh); "
             "memcpy(__bh->ptr, &(%s), sizeof(%s)); "
+            "rt_handle_end_transaction(__bh); "
             "rt_box_struct(%s, __bh, sizeof(%s), %d); })",
             ARENA_VAR(gen), struct_name,
             value_str, struct_name,
@@ -246,19 +247,21 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
         const char *struct_name = get_c_type(gen->arena, target_type);
         return arena_sprintf(gen->arena,
             "({ RtHandleV2 *__uh = rt_unbox_struct(%s, %d); "
-            "rt_handle_v2_pin(__uh); "
-            "*((%s *)__uh->ptr); })",
-            any_str, type_id, struct_name);
+            "rt_handle_begin_transaction(__uh); "
+            "%s __uh_val = *((%s *)__uh->ptr); "
+            "rt_handle_end_transaction(__uh); "
+            "__uh_val; })",
+            any_str, type_id, struct_name, struct_name);
     }
 
-    /* Strings in arena mode with handle context: unbox returns char*, wrap in V2 handle.
+    /* Strings in arena mode with handle context: use V2 unbox which returns RtHandleV2*.
      * When expr_as_handle is false (e.g. inside string interpolation), just return
      * the raw char* from rt_unbox_string directly. */
     if (target_type->kind == TYPE_STRING && gen->current_arena_var != NULL
         && gen->expr_as_handle)
     {
-        return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s(%s))",
-                             ARENA_VAR(gen), unbox_func, any_str);
+        return arena_sprintf(gen->arena, "rt_unbox_string_v2(%s, %s)",
+                             ARENA_VAR(gen), any_str);
     }
 
     return arena_sprintf(gen->arena, "%s(%s)", unbox_func, any_str);

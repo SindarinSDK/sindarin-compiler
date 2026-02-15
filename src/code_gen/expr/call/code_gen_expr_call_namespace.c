@@ -125,7 +125,7 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
         if (expr->expr_type->kind == TYPE_STRING)
         {
             return arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 ns_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
@@ -259,7 +259,7 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
         if (expr->expr_type->kind == TYPE_STRING)
         {
             nested_ns_call_expr = arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 nested_ns_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
@@ -341,7 +341,7 @@ char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr
         if (expr->expr_type->kind == TYPE_STRING)
         {
             static_call_expr = arena_sprintf(gen->arena,
-                "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                "((char *)(%s)->ptr)",
                 static_call_expr);
         }
         else if (expr->expr_type->kind == TYPE_ARRAY)
