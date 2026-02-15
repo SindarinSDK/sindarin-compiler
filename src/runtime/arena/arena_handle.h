@@ -23,7 +23,6 @@ typedef struct RtBlockV2 RtBlockV2;
 
 typedef enum {
     RT_HANDLE_FLAG_NONE     = 0,
-    RT_HANDLE_FLAG_PINNED   = 1 << 0,  /* Legacy - no longer used */
     RT_HANDLE_FLAG_DEAD     = 1 << 1,  /* Marked for collection */
     RT_HANDLE_FLAG_ROOT     = 1 << 2,  /* Is a GC root (global/static) */
     RT_HANDLE_FLAG_EXTERN   = 1 << 3,  /* Data allocated externally (don't free ptr) */
@@ -78,11 +77,6 @@ RtArenaV2 *rt_handle_v2_arena(RtHandleV2 *handle);
 
 /* Check if handle is valid (not null, not dead). */
 bool rt_handle_v2_is_valid(RtHandleV2 *handle);
-
-/* Legacy pinning stubs (no-ops). Use rt_handle_begin/end_transaction instead.
- * Kept for backward compatibility with native .sn.c files in SDK packages. */
-static inline void rt_handle_v2_pin(RtHandleV2 *handle) { (void)handle; }
-static inline void rt_handle_v2_unpin(RtHandleV2 *handle) { (void)handle; }
 
 /* ============================================================================
  * Handle List Management

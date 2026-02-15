@@ -305,16 +305,16 @@ for backward compatibility with SDK native `.sn.c` files (e.g., `random.sn.c`) t
 call `rt_arena_destroy()`. It maps to `rt_arena_v2_condemn()` internally.
 
 ### Task 5.8.1: Remove rt_arena_destroy from arena_v2.h
-- [ ] Remove `rt_arena_destroy()` inline function
-- [ ] Keep only `rt_arena_v2_condemn()` for arena destruction
+- [x] Remove `rt_arena_destroy()` inline function
+- [x] Keep only `rt_arena_v2_condemn()` for arena destruction
 
 ### Task 5.8.2: Update call sites
-- [ ] Find all uses of `rt_arena_destroy()`
-- [ ] Replace with `rt_arena_v2_condemn()`
+- [x] Find all uses of `rt_arena_destroy()`
+- [x] Replace with `rt_arena_v2_condemn()`
 
 ### Task 5.8.3: Build and test
-- [ ] Full rebuild
-- [ ] Run all tests
+- [x] Full rebuild
+- [x] Run all tests
 
 ---
 
@@ -323,63 +323,28 @@ call `rt_arena_destroy()`. It maps to `rt_arena_v2_condemn()` internally.
 All functions declared in arena_handle.h should be implemented in arena_handle.c.
 
 ### Task 5.9.1: Create arena_handle.c
-- [ ] Create arena_handle.c source file
-- [ ] Move `rt_handle_v2_arena()` from inline to arena_handle.c
-- [ ] Move `rt_handle_v2_is_valid()` from inline to arena_handle.c
+- [x] Create arena_handle.c source file
+- [x] Move `rt_handle_v2_arena()` from inline to arena_handle.c
+- [x] Move `rt_handle_v2_is_valid()` from inline to arena_handle.c
 
 ### Task 5.9.2: Move transaction functions from arena_v2.c
-- [ ] Move `rt_handle_begin_transaction()` to arena_handle.c
-- [ ] Move `rt_handle_begin_transaction_with_timeout()` to arena_handle.c
-- [ ] Move `rt_handle_end_transaction()` to arena_handle.c
-- [ ] Move `rt_handle_renew_transaction()` to arena_handle.c
-- [ ] Move `rt_get_monotonic_ns()` helper to arena_handle.c (used by transactions)
+- [x] Move `rt_handle_begin_transaction()` to arena_handle.c
+- [x] Move `rt_handle_begin_transaction_with_timeout()` to arena_handle.c
+- [x] Move `rt_handle_end_transaction()` to arena_handle.c
+- [x] Move `rt_handle_renew_transaction()` to arena_handle.c
+- [x] Move `rt_get_monotonic_ns()` helper to arena_handle.c (used by transactions)
 
 ### Task 5.9.3: Update arena_handle.h
-- [ ] Remove inline implementations
-- [ ] Keep only function declarations
+- [x] Remove inline implementations
+- [x] Keep only function declarations
 
 ### Task 5.9.4: Update build system
-- [ ] Add arena_handle.c to CMakeLists.txt (SN_RUNTIME_SOURCES)
-- [ ] Add arena_handle.c to CMakeLists.txt (SN_RUNTIME_LIB_SOURCES)
+- [x] Add arena_handle.c to CMakeLists.txt (SN_RUNTIME_SOURCES)
+- [x] Add arena_handle.c to CMakeLists.txt (SN_RUNTIME_LIB_SOURCES)
 
 ### Task 5.9.5: Build and test
-- [ ] Full rebuild
-- [ ] Run all tests
-
----
-
-## Phase 5.10: Consolidate Thread ID into arena_id
-
-Move thread ID implementation from runtime_thread_v2 into arena_id module.
-
-### Task 5.10.1: Update arena_id.h
-- [ ] Add declaration: `uint64_t rt_thread_get_id(void)`
-- [ ] Add declaration: `void rt_thread_set_id(uint64_t id)` (for runtime_thread_v2.c to use)
-- [ ] Add declaration: `uint64_t rt_thread_next_id(void)` (for runtime_thread_v2.c to use)
-
-### Task 5.10.2: Update arena_id.c
-- [ ] Add `static _Atomic uint64_t g_thread_id_counter = 1`
-- [ ] Add TLS variable for current thread ID
-- [ ] Implement `rt_thread_get_id()` with lazy init for main thread
-- [ ] Implement `rt_thread_set_id()` to set TLS thread ID
-- [ ] Implement `rt_thread_next_id()` to get next ID from counter
-- [ ] Remove include of runtime/thread/runtime_thread_v2.h
-- [ ] Update `rt_arena_get_thread_id()` to call `rt_thread_get_id()`
-
-### Task 5.10.3: Update runtime_thread_v2.c
-- [ ] Remove `g_thread_id_counter` (moved to arena_id.c)
-- [ ] Remove `rt_current_thread_id` TLS variable (moved to arena_id.c)
-- [ ] Remove `rt_thread_get_id()` implementation (moved to arena_id.c)
-- [ ] Include arena_id.h
-- [ ] Update `rt_thread_v2_create()` to use `rt_thread_next_id()`
-- [ ] Update `rt_tls_thread_set()` to use `rt_thread_set_id()`
-
-### Task 5.10.4: Update runtime_thread_v2.h
-- [ ] Remove `uint64_t rt_thread_get_id(void)` declaration
-
-### Task 5.10.5: Build and test
-- [ ] Full rebuild
-- [ ] Run all tests
+- [x] Full rebuild
+- [x] Run all tests
 
 ---
 

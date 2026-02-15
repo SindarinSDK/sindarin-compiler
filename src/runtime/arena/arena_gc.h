@@ -10,6 +10,7 @@
 #ifndef ARENA_GC_H
 #define ARENA_GC_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -33,5 +34,10 @@ typedef struct {
  * Pass 2: Compacts blocks in all live arenas (acquires block locks)
  */
 size_t rt_arena_v2_gc(RtArenaV2 *arena);
+
+/* Synchronously destroy an arena and all its children/handles/blocks.
+ * Use for detached arenas (parent=NULL) that GC cannot reach.
+ * For arenas in the GC tree, use rt_arena_v2_condemn() instead. */
+void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent);
 
 #endif /* ARENA_GC_H */

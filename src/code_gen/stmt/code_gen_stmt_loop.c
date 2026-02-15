@@ -125,19 +125,23 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
         char *handle_str = code_gen_expression(gen, stmt->iterable);
         gen->expr_as_handle = prev_as_handle;
 
-        /* Generate V2 for-each loop:
+        /* Generate V2 for-each loop with transaction protection:
          * {
          *     RtHandleV2 *__handle__ = iterable;
          *     long __len__ = rt_array_length_v2(__handle__);
+         *     rt_handle_begin_transaction(__handle__);
          *     arr_type __arr__ = (arr_type)rt_array_data_v2(__handle__);
          *     for (long __idx__ = 0; __idx__ < __len__; __idx__++) {
+         *         rt_handle_renew_transaction(__handle__);
          *         elem_type var = __arr__[__idx__];
          *         body
          *     }
+         *     rt_handle_end_transaction(__handle__);
          * } */
         char *handle_var = arena_sprintf(gen->arena, "__handle_%d__", temp_idx);
         indented_fprintf(gen, indent + 1, "RtHandleV2 *%s = %s;\n", handle_var, handle_str);
         indented_fprintf(gen, indent + 1, "long %s = rt_array_length_v2(%s);\n", len_var, handle_var);
+        indented_fprintf(gen, indent + 1, "rt_handle_begin_transaction(%s);\n", handle_var);
         indented_fprintf(gen, indent + 1, "%s %s = (%s)rt_array_data_v2(%s);\n", arr_c_type, arr_var, arr_c_type, handle_var);
     }
     else
@@ -162,12 +166,23 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     }
     indented_fprintf(gen, indent + 1, "for (long %s = 0; %s < %s; %s++) {\n", idx_var, idx_var, len_var, idx_var);
 
+    /* In V2 mode, renew the transaction each iteration to prevent GC timeout */
+    if (gen->current_arena_var != NULL)
+    {
+        indented_fprintf(gen, indent + 2, "rt_handle_renew_transaction(__handle_%d__);\n", temp_idx);
+    }
+
     indented_fprintf(gen, indent + 2, "%s %s = %s[%s];\n", elem_c_type, var_name, arr_var, idx_var);
 
     /* Generate the body */
     code_gen_statement(gen, stmt->body, indent + 2);
 
     indented_fprintf(gen, indent + 1, "}\n");
+    /* In V2 mode, end the transaction after the loop */
+    if (gen->current_arena_var != NULL)
+    {
+        indented_fprintf(gen, indent + 1, "rt_handle_end_transaction(__handle_%d__);\n", temp_idx);
+    }
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
     indented_fprintf(gen, indent, "}\n");
 

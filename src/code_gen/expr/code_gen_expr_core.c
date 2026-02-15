@@ -559,7 +559,6 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         if (struct_name != NULL)
         {
             // Generate: ({ RtHandleV2 *__esc_h__ = rt_arena_v2_alloc(arena, sizeof(StructType));
-            //             rt_handle_v2_pin(__esc_h__);
             //             StructType *__esc_tmp__ = (StructType *)__esc_h__->ptr;
             //             StructType __src_tmp__ = value;
             //             memcpy(__esc_tmp__, &__src_tmp__, sizeof(StructType));
