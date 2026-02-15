@@ -1,7 +1,7 @@
 /*
  * Arena Stats - Statistics and Observability Implementation
  * ==========================================================
- * Stats are computed during GC cycles only.
+ * Stats are recomputed on demand when rt_arena_stats_get() is called.
  */
 
 #include "arena_stats.h"
@@ -11,19 +11,12 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Forward declaration - used recursively by compute_children_stats */
+static void recompute_stats(RtArenaV2 *arena);
+
 /* ============================================================================
- * GC Support Functions
+ * Internal: Stats Computation
  * ============================================================================ */
-
-void rt_arena_stats_record_gc(RtArenaV2 *arena, const RtArenaGCResult *result)
-{
-    if (arena == NULL || result == NULL) return;
-
-    arena->stats.gc_runs++;
-    arena->stats.last_handles_freed = result->handles_freed;
-    arena->stats.last_bytes_freed = result->bytes_freed;
-    arena->stats.last_blocks_freed = result->blocks_freed;
-}
 
 /* Compute local stats for a single arena (not including children) */
 static void compute_local_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
@@ -82,7 +75,7 @@ static void compute_children_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
     RtArenaV2 *child = arena->first_child;
     while (child != NULL) {
         /* Recursively recompute child stats first */
-        rt_arena_stats_recompute(child);
+        recompute_stats(child);
 
         /* Aggregate child totals (which include their children) */
         child_handles += child->stats.handles.total;
@@ -97,7 +90,7 @@ static void compute_children_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
     stats->blocks.children = child_blocks;
 }
 
-void rt_arena_stats_recompute(RtArenaV2 *arena)
+static void recompute_stats(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
 
@@ -127,15 +120,30 @@ void rt_arena_stats_recompute(RtArenaV2 *arena)
     arena->stats.last_handles_freed = last_handles_freed;
     arena->stats.last_bytes_freed = last_bytes_freed;
     arena->stats.last_blocks_freed = last_blocks_freed;
+}
+
+/* ============================================================================
+ * GC Support Functions (called by arena_gc.c)
+ * ============================================================================ */
+
+void rt_arena_stats_record_gc(RtArenaV2 *arena, const RtArenaGCResult *result)
+{
+    if (arena == NULL || result == NULL) return;
+
+    arena->stats.gc_runs++;
+    arena->stats.last_handles_freed = result->handles_freed;
+    arena->stats.last_bytes_freed = result->bytes_freed;
+    arena->stats.last_blocks_freed = result->blocks_freed;
 
     /* Log if enabled */
     if (arena->gc_log_enabled) {
+        recompute_stats(arena);
         fprintf(stderr, "[GC] arena=%s handles=%zu/%zu bytes=%zu/%zu blocks=%zu freed=%zu/%zu/%zu\n",
                 arena->name ? arena->name : "(unnamed)",
                 arena->stats.handles.local, arena->stats.handles.total,
                 arena->stats.bytes.local, arena->stats.bytes.total,
                 arena->stats.blocks.local,
-                last_handles_freed, last_bytes_freed, last_blocks_freed);
+                result->handles_freed, result->bytes_freed, result->blocks_freed);
     }
 }
 
@@ -146,6 +154,8 @@ void rt_arena_stats_recompute(RtArenaV2 *arena)
 void rt_arena_stats_get(RtArenaV2 *arena, RtArenaV2Stats *stats)
 {
     if (arena == NULL || stats == NULL) return;
+
+    recompute_stats(arena);
 
     pthread_mutex_lock(&arena->mutex);
     memcpy(stats, &arena->stats, sizeof(RtArenaV2Stats));

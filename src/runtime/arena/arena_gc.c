@@ -291,9 +291,8 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Pass 2: Compact blocks in all live arenas */
     gc_compact_all(arena, &result);
 
-    /* Record GC results and recompute stats */
+    /* Record GC results */
     rt_arena_stats_record_gc(arena, &result);
-    rt_arena_stats_recompute(arena);
 
     return result.handles_freed;
 }
