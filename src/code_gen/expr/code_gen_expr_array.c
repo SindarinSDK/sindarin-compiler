@@ -342,10 +342,8 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 char *code_gen_array_access_expression(CodeGen *gen, ArrayAccessExpr *expr)
 {
     DEBUG_VERBOSE("Entering code_gen_array_access_expression");
-    /* For V2 arrays:
-     * - Keep handle form for rt_array_length_v2(handle) and rt_array_data_v2(handle)
-     * - Use rt_array_data_v2() to get the data pointer for element access
-     */
+    /* For V2 arrays, use typed element accessors with built-in transactions.
+     * This ensures the data pointer is stable during element access. */
     bool saved_as_handle = gen->expr_as_handle;
     gen->expr_as_handle = true;  /* Keep handle form for V2 functions */
     char *handle_str = code_gen_expression(gen, expr->array);
@@ -361,47 +359,54 @@ char *code_gen_array_access_expression(CodeGen *gen, ArrayAccessExpr *expr)
     }
     /* Resolve forward-declared struct types so we get the correct c_alias */
     if (elem_type) elem_type = resolve_struct_type(gen, elem_type);
-    const char *elem_c = elem_type ? get_c_array_elem_type(gen->arena, elem_type) : "long long";
 
-    /* Generate the data pointer access: (T *)rt_array_data_v2(handle) */
-    char *data_str = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, handle_str);
-
-    /* Build the subscript expression */
-    char *result;
-    // Check if index is provably non-negative (literal >= 0 or tracked loop counter)
+    /* Compute the adjusted index for negative index support */
+    char *adj_index;
     if (is_provably_non_negative(gen, expr->index))
     {
-        // Non-negative index - direct array access, no adjustment needed
-        result = arena_sprintf(gen->arena, "%s[%s]", data_str, index_str);
+        adj_index = index_str;
     }
-    // Check if index is a negative literal - can simplify to: arr[len + idx]
     else if (expr->index->type == EXPR_LITERAL &&
         expr->index->as.literal.type != NULL &&
         (expr->index->as.literal.type->kind == TYPE_INT ||
          expr->index->as.literal.type->kind == TYPE_LONG))
     {
-        // Negative literal - adjust by array length
-        result = arena_sprintf(gen->arena, "%s[rt_array_length_v2(%s) + %s]",
-                             data_str, handle_str, index_str);
+        adj_index = arena_sprintf(gen->arena, "(rt_array_length_v2(%s) + %s)",
+                                  handle_str, index_str);
     }
     else
     {
-        // For potentially negative variable indices, generate runtime check
-        // data[idx < 0 ? rt_array_length_v2(handle) + idx : idx]
-        result = arena_sprintf(gen->arena, "%s[(%s) < 0 ? rt_array_length_v2(%s) + (%s) : (%s)]",
-                             data_str, index_str, handle_str, index_str, index_str);
+        adj_index = arena_sprintf(gen->arena, "((%s) < 0 ? rt_array_length_v2(%s) + (%s) : (%s))",
+                                  index_str, handle_str, index_str, index_str);
+    }
+
+    /* Use typed accessor if available (primitives, handles) */
+    const char *suffix = get_array_accessor_suffix(elem_type);
+    char *result;
+
+    if (suffix != NULL)
+    {
+        /* Typed accessor: rt_array_get_<suffix>_v2(handle, index) */
+        result = arena_sprintf(gen->arena, "rt_array_get_%s_v2(%s, %s)",
+                               suffix, handle_str, adj_index);
+    }
+    else
+    {
+        /* Struct/complex type: use rt_array_data_v2 for lvalue access.
+         * This must return an lvalue so code like &(arr[i]) works. */
+        const char *elem_c = elem_type ? get_c_array_elem_type(gen->arena, elem_type) : "long long";
+        result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))[%s]",
+                               elem_c, handle_str, adj_index);
     }
 
     /* If the element type is a handle type (string/array) and we're NOT in handle mode,
-     * pin the element to get a raw pointer. */
+     * extract the raw pointer from the handle result. */
     if (!saved_as_handle && elem_type != NULL && is_handle_type(elem_type) &&
         gen->current_arena_var != NULL)
     {
-        /* Pin element handles. V2 handles don't need the arena parameter. */
         if (elem_type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
-                                 result);
+            return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
         }
         else if (elem_type->kind == TYPE_ARRAY)
         {

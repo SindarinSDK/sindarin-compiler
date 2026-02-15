@@ -97,9 +97,9 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
         lvalue_str = handle_str;
     }
 
-    /* For nested arrays in handle mode, generate arg in handle mode to get RtHandle */
+    /* For nested arrays and strings in handle mode, generate arg in handle mode to get RtHandle */
     bool prev_arg_as_handle = gen->expr_as_handle;
-    if (element_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL) {
+    if ((element_type->kind == TYPE_ARRAY || element_type->kind == TYPE_STRING) && gen->current_arena_var != NULL) {
         gen->expr_as_handle = true;
     }
     char *arg_str = code_gen_expression(gen, arg);

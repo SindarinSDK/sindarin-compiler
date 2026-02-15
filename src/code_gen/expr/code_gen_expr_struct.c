@@ -178,10 +178,11 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                         value_code = arena_sprintf(gen->arena,
                             "({\n"
                             "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
-                            "    rt_handle_v2_pin(__cl_h__);\n"
+                            "    rt_handle_begin_transaction(__cl_h__);\n"
                             "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
                             "    __cl__->fn = (void *)%s;\n"
                             "    __cl__->arena = %s;\n"
+                            "    rt_handle_end_transaction(__cl_h__);\n"
                             "    __cl__;\n"
                             "})",
                             arena_var, wrapper_name, arena_var);

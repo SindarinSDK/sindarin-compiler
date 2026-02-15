@@ -116,8 +116,7 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
                         Type *ptype = innermost->params[pi].type;
                         if (ptype->kind == TYPE_STRING)
                         {
-                            return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })",
-                                                 mangled_param, mangled_param);
+                            return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", mangled_param);
                         }
                         else if (ptype->kind == TYPE_ARRAY)
                         {
@@ -143,7 +142,7 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
             symbol->type != NULL && is_handle_type(symbol->type))
         {
             if (symbol->type->kind == TYPE_STRING)
-                return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })", deref, deref);
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", deref);
             else if (symbol->type->kind == TYPE_ARRAY)
             {
                 const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
@@ -231,8 +230,10 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
          * For arrays, rt_array_data_v2 returns the element data (not metadata). */
         if (symbol->type->kind == TYPE_STRING)
         {
-            return arena_sprintf(gen->arena, "({ rt_handle_v2_pin(%s); (char *)%s->ptr; })",
-                                 mangled, mangled);
+            /* Transaction-based raw pointer extraction for V1 callers */
+            return arena_sprintf(gen->arena,
+                "((char *)(%s)->ptr)",
+                mangled);
         }
         else if (symbol->type->kind == TYPE_ARRAY)
         {
@@ -566,11 +567,13 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             // This allocates in the outer arena first, then copies using memcpy
             return arena_sprintf(gen->arena,
                 "({ RtHandleV2 *__esc_h__ = rt_arena_v2_alloc(%s, sizeof(%s)); "
-                "rt_handle_v2_pin(__esc_h__); "
+                "rt_handle_begin_transaction(__esc_h__); "
                 "%s *__esc_tmp__ = (%s *)__esc_h__->ptr; "
                 "%s __esc_src__ = %s; "
                 "memcpy(__esc_tmp__, &__esc_src__, sizeof(%s)); "
-                "%s = *__esc_tmp__; %s; })",
+                "%s = *__esc_tmp__; "
+                "rt_handle_end_transaction(__esc_h__); "
+                "%s; })",
                 ARENA_VAR(gen), struct_name,
                 struct_name, struct_name,
                 struct_name, value_str,
@@ -697,30 +700,79 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
 char *code_gen_index_assign_expression(CodeGen *gen, IndexAssignExpr *expr)
 {
     DEBUG_VERBOSE("Entering code_gen_index_assign_expression");
+
+    /* Get the element type for typed accessor selection */
+    Type *elem_type = NULL;
+    if (expr->array->expr_type && expr->array->expr_type->kind == TYPE_ARRAY)
+    {
+        elem_type = expr->array->expr_type->as.array.element_type;
+    }
+    if (elem_type) elem_type = resolve_struct_type(gen, elem_type);
+
+    const char *suffix = get_array_accessor_suffix(elem_type);
+
+    /* In V2 arena mode with typed accessors, evaluate array as handle */
+    if (gen->current_arena_var != NULL && suffix != NULL)
+    {
+        bool saved_as_handle = gen->expr_as_handle;
+        gen->expr_as_handle = true;
+        char *handle_str = code_gen_expression(gen, expr->array);
+        gen->expr_as_handle = saved_as_handle;
+
+        char *index_str = code_gen_expression(gen, expr->index);
+
+        /* For handle-type values (string/array), evaluate value in handle mode */
+        if (elem_type != NULL && is_handle_type(elem_type))
+        {
+            gen->expr_as_handle = true;
+        }
+        char *value_str = code_gen_expression(gen, expr->value);
+        gen->expr_as_handle = saved_as_handle;
+
+        /* Compute adjusted index for negative index support */
+        char *adj_index;
+        if (is_provably_non_negative(gen, expr->index))
+        {
+            adj_index = index_str;
+        }
+        else if (expr->index->type == EXPR_LITERAL &&
+            expr->index->as.literal.type != NULL &&
+            (expr->index->as.literal.type->kind == TYPE_INT ||
+             expr->index->as.literal.type->kind == TYPE_LONG))
+        {
+            adj_index = arena_sprintf(gen->arena, "(rt_array_length_v2(%s) + %s)",
+                                      handle_str, index_str);
+        }
+        else
+        {
+            adj_index = arena_sprintf(gen->arena, "((%s) < 0 ? rt_array_length_v2(%s) + (%s) : (%s))",
+                                      index_str, handle_str, index_str, index_str);
+        }
+
+        return arena_sprintf(gen->arena, "rt_array_set_%s_v2(%s, %s, %s)",
+                             suffix, handle_str, adj_index, value_str);
+    }
+
+    /* Fallback: non-arena mode or struct elements - use data pointer approach */
     char *array_str = code_gen_expression(gen, expr->array);
     char *index_str = code_gen_expression(gen, expr->index);
     char *value_str = code_gen_expression(gen, expr->value);
 
-    // Check if index is provably non-negative (literal >= 0 or tracked loop counter)
     if (is_provably_non_negative(gen, expr->index))
     {
-        // Non-negative index - direct array access
         return arena_sprintf(gen->arena, "(%s[%s] = %s)",
                              array_str, index_str, value_str);
     }
 
-    // Check if index is a negative literal - can simplify to: arr[len + idx]
     if (expr->index->type == EXPR_LITERAL &&
         expr->index->as.literal.type != NULL &&
         (expr->index->as.literal.type->kind == TYPE_INT ||
          expr->index->as.literal.type->kind == TYPE_LONG))
     {
-        // Negative literal - adjust by array length
         return arena_sprintf(gen->arena, "(%s[rt_v2_data_array_length(%s) + %s] = %s)",
                              array_str, array_str, index_str, value_str);
     }
 
-    // For potentially negative variable indices, generate runtime check
     return arena_sprintf(gen->arena, "(%s[(%s) < 0 ? rt_v2_data_array_length(%s) + (%s) : (%s)] = %s)",
                          array_str, index_str, array_str, index_str, index_str, value_str);
 }

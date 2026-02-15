@@ -79,14 +79,8 @@ RtArenaV2 *rt_handle_v2_arena(RtHandleV2 *handle);
 /* Check if handle is valid (not null, not dead). */
 bool rt_handle_v2_is_valid(RtHandleV2 *handle);
 
-/* ============================================================================
- * Legacy Pinning API (No-ops for backward compatibility)
- * ============================================================================
- * These functions exist for backward compatibility with generated code.
- * The pinning model has been replaced by transactions. New code should use
- * rt_handle_begin_transaction/rt_handle_end_transaction instead.
- * ============================================================================ */
-
+/* Legacy pinning stubs (no-ops). Use rt_handle_begin/end_transaction instead.
+ * Kept for backward compatibility with native .sn.c files in SDK packages. */
 static inline void rt_handle_v2_pin(RtHandleV2 *handle) { (void)handle; }
 static inline void rt_handle_v2_unpin(RtHandleV2 *handle) { (void)handle; }
 

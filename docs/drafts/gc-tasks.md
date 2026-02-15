@@ -300,6 +300,10 @@ typedef struct {
 
 ## Phase 5.8: Remove rt_arena_destroy Wrapper
 
+Note: Intentionally deferred. The `rt_arena_destroy()` shim was kept (and re-added)
+for backward compatibility with SDK native `.sn.c` files (e.g., `random.sn.c`) that
+call `rt_arena_destroy()`. It maps to `rt_arena_v2_condemn()` internally.
+
 ### Task 5.8.1: Remove rt_arena_destroy from arena_v2.h
 - [ ] Remove `rt_arena_destroy()` inline function
 - [ ] Keep only `rt_arena_v2_condemn()` for arena destruction
@@ -381,23 +385,29 @@ Move thread ID implementation from runtime_thread_v2 into arena_id module.
 
 ## Phase 6: Codegen Updates
 
+See `gc-tasks-v2.md` for the detailed breakdown (Phases 6.1-6.10, all complete).
+
 ### Task 6.1: Update handle access in codegen
-- [ ] Emit `rt_handle_begin_transaction` before ptr access
-- [ ] Emit `rt_handle_end_transaction` after ptr access
+- [x] Emit `rt_handle_begin_transaction` before ptr access
+- [x] Emit `rt_handle_end_transaction` after ptr access
 
 ### Task 6.2: Update array operations in codegen
-- [ ] Wrap array element access in transactions
+- [x] Wrap array element access in transactions
 
 ### Task 6.3: Update string operations in codegen
-- [ ] Wrap string operations in transactions
+- [x] Wrap string operations in transactions
 
 ### Task 6.4: Add renewal for long operations
 - [ ] Identify long-running loops in generated code
 - [ ] Add periodic `rt_handle_renew_transaction` calls
+- Note: Deferred — not yet needed since current transaction timeout (2s) is sufficient for all existing use cases
 
 ---
 
 ## Phase 7: Testing
+
+Note: All existing tests pass (~3290 compiler, 28 SDK, 4 HTTP). This phase is for
+adding dedicated transaction/GC unit tests beyond integration coverage.
 
 ### Task 7.1: Update existing tests
 - [ ] Replace pin/unpin with transactions in test code

@@ -108,7 +108,13 @@ static char *code_gen_array_concat(CodeGen *gen, Expr *object, Type *element_typ
 static char *code_gen_array_indexof(CodeGen *gen, Expr *object, Type *element_type,
                                      Expr *arg)
 {
+    /* String arrays: evaluate arg in handle mode for RtHandleV2* parameter */
+    bool prev_arg = gen->expr_as_handle;
+    if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
+        gen->expr_as_handle = true;
+    }
     char *arg_str = code_gen_expression(gen, arg);
+    gen->expr_as_handle = prev_arg;
 
     bool saved = gen->expr_as_handle;
     gen->expr_as_handle = true;
@@ -139,7 +145,13 @@ static char *code_gen_array_indexof(CodeGen *gen, Expr *object, Type *element_ty
 static char *code_gen_array_contains(CodeGen *gen, Expr *object, Type *element_type,
                                       Expr *arg)
 {
+    /* String arrays: evaluate arg in handle mode for RtHandleV2* parameter */
+    bool prev_arg = gen->expr_as_handle;
+    if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
+        gen->expr_as_handle = true;
+    }
     char *arg_str = code_gen_expression(gen, arg);
+    gen->expr_as_handle = prev_arg;
 
     bool saved = gen->expr_as_handle;
     gen->expr_as_handle = true;

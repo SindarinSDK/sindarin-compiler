@@ -88,6 +88,11 @@ char *gen_native_arithmetic(CodeGen *gen, const char *left_str, const char *righ
    Returns the expression string, or NULL if runtime function is required. */
 char *gen_native_unary(CodeGen *gen, const char *operand_str, SnTokenType op, Type *type);
 
+/* Array element accessor suffix for typed get/set functions.
+   Returns the suffix for rt_array_get_<suffix>_v2 / rt_array_set_<suffix>_v2.
+   Returns NULL for struct/complex types that need rt_array_data_begin_v2. */
+const char *get_array_accessor_suffix(Type *elem_type);
+
 /* Struct field promotion for thread sync and function returns */
 
 /* Generate code to promote all handle fields in a struct from src_arena to dest_arena.

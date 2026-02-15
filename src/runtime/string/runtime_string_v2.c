@@ -8,16 +8,14 @@
  * Handle-Based String Functions V2 — Implementation
  * ============================================================================
  * Each function follows the pattern:
- *   1. Compute output size
- *   2. RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
- *   3. rt_handle_begin_transaction(h); char *ptr = (char *)h->ptr;
- *   4. Write string data to ptr
- *   5. rt_handle_end_transaction(h);
- *   6. return h;
- *
- * Key differences from V1:
- *   - No 'old' handle parameter - caller manages old handle
- *   - pin/unpin don't take arena parameter
+ *   1. Begin transaction on input handle(s) to safely read ptr
+ *   2. Compute output size from input data
+ *   3. RtHandleV2 *h = rt_arena_v2_alloc(arena, size);
+ *   4. rt_handle_begin_transaction(h); char *ptr = (char *)h->ptr;
+ *   5. Write string data to ptr
+ *   6. rt_handle_end_transaction(h);
+ *   7. End transactions on input handles
+ *   8. return h;
  * ============================================================================ */
 
 /* ============================================================================
@@ -34,9 +32,13 @@ typedef struct {
  * String Concatenation
  * ============================================================================ */
 
-RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, const char *a, const char *b) {
-    if (!a) a = "";
-    if (!b) b = "";
+RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, RtHandleV2 *a_h, RtHandleV2 *b_h) {
+    /* Get raw pointers with transactions */
+    const char *a = "";
+    const char *b = "";
+    if (a_h) { rt_handle_begin_transaction(a_h); a = (const char *)a_h->ptr; if (!a) a = ""; }
+    if (b_h) { rt_handle_begin_transaction(b_h); b = (const char *)b_h->ptr; if (!b) b = ""; }
+
     size_t la = strlen(a), lb = strlen(b);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, la + lb + 1);
     rt_handle_begin_transaction(h);
@@ -44,6 +46,9 @@ RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, const char *a, const char *b) {
     memcpy(ptr, a, la);
     memcpy(ptr + la, b, lb + 1);
     rt_handle_end_transaction(h);
+
+    if (b_h) rt_handle_end_transaction(b_h);
+    if (a_h) rt_handle_end_transaction(a_h);
     return h;
 }
 
@@ -51,9 +56,12 @@ RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, const char *a, const char *b) {
  * String Append (for += operator)
  * ============================================================================ */
 
-RtHandleV2 *rt_str_append_v2(RtArenaV2 *arena, const char *old_str, const char *suffix) {
-    if (!old_str) old_str = "";
-    if (!suffix) suffix = "";
+RtHandleV2 *rt_str_append_v2(RtArenaV2 *arena, RtHandleV2 *old_h, RtHandleV2 *suffix_h) {
+    const char *old_str = "";
+    const char *suffix = "";
+    if (old_h) { rt_handle_begin_transaction(old_h); old_str = (const char *)old_h->ptr; if (!old_str) old_str = ""; }
+    if (suffix_h) { rt_handle_begin_transaction(suffix_h); suffix = (const char *)suffix_h->ptr; if (!suffix) suffix = ""; }
+
     size_t la = strlen(old_str), lb = strlen(suffix);
     RtHandleV2 *h = rt_arena_v2_alloc(arena, la + lb + 1);
     rt_handle_begin_transaction(h);
@@ -61,6 +69,9 @@ RtHandleV2 *rt_str_append_v2(RtArenaV2 *arena, const char *old_str, const char *
     memcpy(ptr, old_str, la);
     memcpy(ptr + la, suffix, lb + 1);
     rt_handle_end_transaction(h);
+
+    if (suffix_h) rt_handle_end_transaction(suffix_h);
+    if (old_h) rt_handle_end_transaction(old_h);
     return h;
 }
 
@@ -122,50 +133,192 @@ RtHandleV2 *rt_to_string_byte_v2(RtArenaV2 *arena, unsigned char val) {
     return h;
 }
 
-RtHandleV2 *rt_to_string_string_v2(RtArenaV2 *arena, const char *val) {
-    return rt_arena_v2_strdup(arena, val ? val : "");
+RtHandleV2 *rt_to_string_string_v2(RtArenaV2 *arena, RtHandleV2 *val_h) {
+    if (!val_h) return rt_arena_v2_strdup(arena, "");
+    rt_handle_begin_transaction(val_h);
+    const char *s = (const char *)val_h->ptr;
+    RtHandleV2 *result = rt_arena_v2_strdup(arena, s ? s : "");
+    rt_handle_end_transaction(val_h);
+    return result;
 }
 
 /* ============================================================================
  * Format Functions
+ * Parse Sindarin format specs (e.g., "05d", ".2f", "10s") into C printf format
+ * strings. Same parsing logic as V1 rt_format_* but returns RtHandleV2*.
  * ============================================================================ */
+
+/* Helper: allocate a handle and copy buf into it */
+static RtHandleV2 *format_result_to_handle(RtArenaV2 *arena, const char *buf) {
+    size_t len = strlen(buf);
+    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
+    rt_handle_begin_transaction(h);
+    memcpy((char *)h->ptr, buf, len + 1);
+    rt_handle_end_transaction(h);
+    return h;
+}
 
 RtHandleV2 *rt_format_long_v2(RtArenaV2 *arena, long long val, const char *fmt) {
     char buf[128];
-    int len = snprintf(buf, sizeof(buf), fmt, val);
-    if (len < 0) len = 0;
-    if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_begin_transaction(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
-    rt_handle_end_transaction(h);
-    return h;
+    char format_str[64];
+
+    if (fmt == NULL || fmt[0] == '\0') {
+        snprintf(buf, sizeof(buf), "%lld", val);
+        return format_result_to_handle(arena, buf);
+    }
+
+    int width = 0;
+    int zero_pad = 0;
+    const char *p = fmt;
+
+    if (*p == '0') { zero_pad = 1; p++; }
+    while (*p >= '0' && *p <= '9') { width = width * 10 + (*p - '0'); p++; }
+
+    char type = *p ? *p : 'd';
+
+    switch (type) {
+        case 'd':
+            if (zero_pad && width > 0) snprintf(format_str, sizeof(format_str), "%%0%dlld", width);
+            else if (width > 0)        snprintf(format_str, sizeof(format_str), "%%%dlld", width);
+            else                        snprintf(format_str, sizeof(format_str), "%%lld");
+            snprintf(buf, sizeof(buf), format_str, val);
+            break;
+        case 'x':
+            if (zero_pad && width > 0) snprintf(format_str, sizeof(format_str), "%%0%dllx", width);
+            else if (width > 0)        snprintf(format_str, sizeof(format_str), "%%%dllx", width);
+            else                        snprintf(format_str, sizeof(format_str), "%%llx");
+            snprintf(buf, sizeof(buf), format_str, val);
+            break;
+        case 'X':
+            if (zero_pad && width > 0) snprintf(format_str, sizeof(format_str), "%%0%dllX", width);
+            else if (width > 0)        snprintf(format_str, sizeof(format_str), "%%%dllX", width);
+            else                        snprintf(format_str, sizeof(format_str), "%%llX");
+            snprintf(buf, sizeof(buf), format_str, val);
+            break;
+        case 'o':
+            if (zero_pad && width > 0) snprintf(format_str, sizeof(format_str), "%%0%dllo", width);
+            else if (width > 0)        snprintf(format_str, sizeof(format_str), "%%%dllo", width);
+            else                        snprintf(format_str, sizeof(format_str), "%%llo");
+            snprintf(buf, sizeof(buf), format_str, val);
+            break;
+        case 'b': {
+            char binbuf[65];
+            int len = 0;
+            unsigned long long uval = (unsigned long long)val;
+            if (uval == 0) { binbuf[len++] = '0'; }
+            else { while (uval > 0) { binbuf[len++] = (uval & 1) ? '1' : '0'; uval >>= 1; } }
+            for (int i = 0; i < len / 2; i++) { char tmp = binbuf[i]; binbuf[i] = binbuf[len - 1 - i]; binbuf[len - 1 - i] = tmp; }
+            if (width > len) {
+                int pad = width - len;
+                memmove(binbuf + pad, binbuf, len);
+                for (int i = 0; i < pad; i++) binbuf[i] = zero_pad ? '0' : ' ';
+                len = width;
+            }
+            binbuf[len] = '\0';
+            return format_result_to_handle(arena, binbuf);
+        }
+        default:
+            snprintf(buf, sizeof(buf), "%lld", val);
+            break;
+    }
+
+    return format_result_to_handle(arena, buf);
 }
 
 RtHandleV2 *rt_format_double_v2(RtArenaV2 *arena, double val, const char *fmt) {
     char buf[128];
-    int len = snprintf(buf, sizeof(buf), fmt, val);
-    if (len < 0) len = 0;
-    if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
-    rt_handle_begin_transaction(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
-    rt_handle_end_transaction(h);
-    return h;
+    char format_str[64];
+
+    if (fmt == NULL || fmt[0] == '\0') {
+        snprintf(buf, sizeof(buf), "%g", val);
+        return format_result_to_handle(arena, buf);
+    }
+
+    int width = 0;
+    int precision = -1;
+    int zero_pad = 0;
+    const char *p = fmt;
+
+    if (*p == '0') { zero_pad = 1; p++; }
+    while (*p >= '0' && *p <= '9') { width = width * 10 + (*p - '0'); p++; }
+    if (*p == '.') { p++; precision = 0; while (*p >= '0' && *p <= '9') { precision = precision * 10 + (*p - '0'); p++; } }
+
+    char type = *p ? *p : 'f';
+
+    if (type == '%') {
+        val *= 100.0;
+        if (precision >= 0) snprintf(format_str, sizeof(format_str), "%%.%df%%%%", precision);
+        else                snprintf(format_str, sizeof(format_str), "%%f%%%%");
+        snprintf(buf, sizeof(buf), format_str, val);
+        return format_result_to_handle(arena, buf);
+    }
+
+    int pos = 0;
+    format_str[pos++] = '%';
+    if (zero_pad) format_str[pos++] = '0';
+    if (width > 0) pos += snprintf(format_str + pos, sizeof(format_str) - pos, "%d", width);
+    if (precision >= 0) pos += snprintf(format_str + pos, sizeof(format_str) - pos, ".%d", precision);
+
+    switch (type) {
+        case 'f': format_str[pos++] = 'f'; break;
+        case 'e': format_str[pos++] = 'e'; break;
+        case 'E': format_str[pos++] = 'E'; break;
+        case 'g': format_str[pos++] = 'g'; break;
+        case 'G': format_str[pos++] = 'G'; break;
+        default:  format_str[pos++] = 'f'; break;
+    }
+    format_str[pos] = '\0';
+
+    snprintf(buf, sizeof(buf), format_str, val);
+    return format_result_to_handle(arena, buf);
 }
 
-RtHandleV2 *rt_format_string_v2(RtArenaV2 *arena, const char *val, const char *fmt) {
-    char buf[256];
-    int len = snprintf(buf, sizeof(buf), fmt, val ? val : "");
-    if (len < 0) len = 0;
-    if ((size_t)len >= sizeof(buf)) len = sizeof(buf) - 1;
-    RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
+RtHandleV2 *rt_format_string_v2(RtArenaV2 *arena, RtHandleV2 *val_h, const char *fmt) {
+    const char *val = "";
+    if (val_h) { rt_handle_begin_transaction(val_h); val = (const char *)val_h->ptr; if (!val) val = ""; }
+
+    if (fmt == NULL || fmt[0] == '\0') {
+        RtHandleV2 *result = rt_arena_v2_strdup(arena, val);
+        if (val_h) rt_handle_end_transaction(val_h);
+        return result;
+    }
+
+    /* Parse format specifier: [-][width][.maxlen]s */
+    int width = 0;
+    int maxlen = -1;
+    int left_align = 0;
+    const char *p = fmt;
+
+    if (*p == '-') { left_align = 1; p++; }
+    while (*p >= '0' && *p <= '9') { width = width * 10 + (*p - '0'); p++; }
+    if (*p == '.') { p++; maxlen = 0; while (*p >= '0' && *p <= '9') { maxlen = maxlen * 10 + (*p - '0'); p++; } }
+
+    int len = strlen(val);
+    if (maxlen >= 0 && len > maxlen) len = maxlen;
+
+    int out_len = len;
+    if (width > len) out_len = width;
+
+    RtHandleV2 *h = rt_arena_v2_alloc(arena, out_len + 1);
     rt_handle_begin_transaction(h);
-    char *ptr = (char *)h->ptr;
-    memcpy(ptr, buf, len + 1);
+    char *result = (char *)h->ptr;
+
+    if (width > len) {
+        if (left_align) {
+            memcpy(result, val, len);
+            memset(result + len, ' ', width - len);
+        } else {
+            memset(result, ' ', width - len);
+            memcpy(result + (width - len), val, len);
+        }
+        result[width] = '\0';
+    } else {
+        memcpy(result, val, len);
+        result[len] = '\0';
+    }
+
     rt_handle_end_transaction(h);
+    if (val_h) rt_handle_end_transaction(val_h);
     return h;
 }
 
@@ -173,7 +326,10 @@ RtHandleV2 *rt_format_string_v2(RtArenaV2 *arena, const char *val, const char *f
  * String Operations
  * ============================================================================ */
 
-RtHandleV2 *rt_str_substring_v2(RtArenaV2 *arena, const char *str, long start, long end) {
+RtHandleV2 *rt_str_substring_v2(RtArenaV2 *arena, RtHandleV2 *str_h, long start, long end) {
+    if (!str_h) return rt_arena_v2_strdup(arena, "");
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (!str) str = "";
     size_t len = strlen(str);
 
@@ -191,12 +347,18 @@ RtHandleV2 *rt_str_substring_v2(RtArenaV2 *arena, const char *str, long start, l
     memcpy(ptr, str + start, sub_len);
     ptr[sub_len] = '\0';
     rt_handle_end_transaction(h);
+
+    rt_handle_end_transaction(str_h);
     return h;
 }
 
-RtHandleV2 *rt_str_toUpper_v2(RtArenaV2 *arena, const char *str) {
+RtHandleV2 *rt_str_toUpper_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    if (!str_h) return rt_arena_v2_strdup(arena, "");
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (!str) str = "";
     size_t len = strlen(str);
+
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
     rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
@@ -205,12 +367,18 @@ RtHandleV2 *rt_str_toUpper_v2(RtArenaV2 *arena, const char *str) {
     }
     ptr[len] = '\0';
     rt_handle_end_transaction(h);
+
+    rt_handle_end_transaction(str_h);
     return h;
 }
 
-RtHandleV2 *rt_str_toLower_v2(RtArenaV2 *arena, const char *str) {
+RtHandleV2 *rt_str_toLower_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    if (!str_h) return rt_arena_v2_strdup(arena, "");
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (!str) str = "";
     size_t len = strlen(str);
+
     RtHandleV2 *h = rt_arena_v2_alloc(arena, len + 1);
     rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
@@ -219,10 +387,15 @@ RtHandleV2 *rt_str_toLower_v2(RtArenaV2 *arena, const char *str) {
     }
     ptr[len] = '\0';
     rt_handle_end_transaction(h);
+
+    rt_handle_end_transaction(str_h);
     return h;
 }
 
-RtHandleV2 *rt_str_trim_v2(RtArenaV2 *arena, const char *str) {
+RtHandleV2 *rt_str_trim_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    if (!str_h) return rt_arena_v2_strdup(arena, "");
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (!str) str = "";
     size_t len = strlen(str);
 
@@ -241,16 +414,33 @@ RtHandleV2 *rt_str_trim_v2(RtArenaV2 *arena, const char *str) {
     memcpy(ptr, start, trimmed_len);
     ptr[trimmed_len] = '\0';
     rt_handle_end_transaction(h);
+
+    rt_handle_end_transaction(str_h);
     return h;
 }
 
-RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old_s, const char *new_s) {
+RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *old_h, RtHandleV2 *new_h) {
+    if (!str_h) return rt_arena_v2_strdup(arena, "");
+
+    /* Begin transactions on all inputs */
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (!str) str = "";
-    if (!old_s || !*old_s) {
+
+    const char *old_s = "";
+    if (old_h) { rt_handle_begin_transaction(old_h); old_s = (const char *)old_h->ptr; if (!old_s) old_s = ""; }
+
+    const char *new_s = "";
+    if (new_h) { rt_handle_begin_transaction(new_h); new_s = (const char *)new_h->ptr; if (!new_s) new_s = ""; }
+
+    if (!*old_s) {
         /* Empty search string: return copy of original */
-        return rt_arena_v2_strdup(arena, str);
+        RtHandleV2 *result = rt_arena_v2_strdup(arena, str);
+        if (new_h) rt_handle_end_transaction(new_h);
+        if (old_h) rt_handle_end_transaction(old_h);
+        rt_handle_end_transaction(str_h);
+        return result;
     }
-    if (!new_s) new_s = "";
 
     size_t old_len = strlen(old_s);
     size_t new_len = strlen(new_s);
@@ -265,7 +455,11 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old
 
     if (count == 0) {
         /* No occurrences: return copy of original */
-        return rt_arena_v2_strdup(arena, str);
+        RtHandleV2 *result = rt_arena_v2_strdup(arena, str);
+        if (new_h) rt_handle_end_transaction(new_h);
+        if (old_h) rt_handle_end_transaction(old_h);
+        rt_handle_end_transaction(str_h);
+        return result;
     }
 
     /* Calculate new length */
@@ -292,6 +486,10 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old
     strcpy(dst, p);
 
     rt_handle_end_transaction(h);
+
+    if (new_h) rt_handle_end_transaction(new_h);
+    if (old_h) rt_handle_end_transaction(old_h);
+    rt_handle_end_transaction(str_h);
     return h;
 }
 
@@ -299,9 +497,12 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, const char *str, const char *old
  * String Split
  * ============================================================================ */
 
-RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delimiter) {
-    if (!str) str = "";
-    if (!delimiter) delimiter = "";
+RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *delim_h) {
+    /* Get raw string data within transactions */
+    const char *str = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    const char *delimiter = "";
+    if (delim_h) { rt_handle_begin_transaction(delim_h); delimiter = (const char *)delim_h->ptr; if (!delimiter) delimiter = ""; }
 
     size_t del_len = strlen(delimiter);
 
@@ -313,7 +514,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
         size_t alloc_size = sizeof(RtArrayMetaV2Local) + count * sizeof(RtHandleV2 *);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
         rt_handle_begin_transaction(h);
-    void *raw = h->ptr;
+        void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = count;
@@ -330,6 +531,8 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
         }
 
         rt_handle_end_transaction(h);
+        if (delim_h) rt_handle_end_transaction(delim_h);
+        if (str_h) rt_handle_end_transaction(str_h);
         return h;
     }
 
@@ -376,17 +579,25 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, const char *str, const char *delim
     arr[idx] = rt_arena_v2_strdup(arena, p);
 
     rt_handle_end_transaction(h);
+    if (delim_h) rt_handle_end_transaction(delim_h);
+    if (str_h) rt_handle_end_transaction(str_h);
     return h;
 }
 
 /* Split with limit - handle version */
-RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *delimiter, int limit) {
-    if (!str) str = "";
-    if (!delimiter) delimiter = "";
+RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *delim_h, int limit) {
+    /* Get raw string data within transactions */
+    const char *str = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    const char *delimiter = "";
+    if (delim_h) { rt_handle_begin_transaction(delim_h); delimiter = (const char *)delim_h->ptr; if (!delimiter) delimiter = ""; }
 
     /* If limit is 0 or negative, use unlimited split */
     if (limit <= 0) {
-        return rt_str_split_v2(arena, str, delimiter);
+        /* End our transactions and delegate - split_v2 will re-acquire */
+        if (delim_h) rt_handle_end_transaction(delim_h);
+        if (str_h) rt_handle_end_transaction(str_h);
+        return rt_str_split_v2(arena, str_h, delim_h);
     }
 
     /* If limit is 1, return the whole string as one part */
@@ -394,7 +605,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
         size_t alloc_size = sizeof(RtArrayMetaV2Local) + sizeof(RtHandleV2 *);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
         rt_handle_begin_transaction(h);
-    void *raw = h->ptr;
+        void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = 1;
@@ -402,6 +613,8 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
         RtHandleV2 **arr = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetaV2Local));
         arr[0] = rt_arena_v2_strdup(arena, str);
         rt_handle_end_transaction(h);
+        if (delim_h) rt_handle_end_transaction(delim_h);
+        if (str_h) rt_handle_end_transaction(str_h);
         return h;
     }
 
@@ -450,6 +663,8 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, const char *str, const char *del
     arr[idx] = rt_arena_v2_strdup(arena, p);
 
     rt_handle_end_transaction(h);
+    if (delim_h) rt_handle_end_transaction(delim_h);
+    if (str_h) rt_handle_end_transaction(str_h);
     return h;
 }
 
@@ -458,8 +673,9 @@ static int is_whitespace_v2(char c) {
     return c == ' ' || c == '\t' || c == '\n' || c == '\r' || c == '\v' || c == '\f';
 }
 
-RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str) {
-    if (!str) str = "";
+RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    const char *str = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
 
     /* Count words first */
     size_t count = 0;
@@ -476,12 +692,13 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str) {
         size_t alloc_size = sizeof(RtArrayMetaV2Local);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
         rt_handle_begin_transaction(h);
-    void *raw = h->ptr;
+        void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = 0;
         meta->capacity = 0;
         rt_handle_end_transaction(h);
+        if (str_h) rt_handle_end_transaction(str_h);
         return h;
     }
 
@@ -519,23 +736,26 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, const char *str) {
     }
 
     rt_handle_end_transaction(h);
+    if (str_h) rt_handle_end_transaction(str_h);
     return h;
 }
 
-RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
-    if (!str) str = "";
+RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    const char *str = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
 
     /* Empty string returns empty array */
     if (*str == '\0') {
         size_t alloc_size = sizeof(RtArrayMetaV2Local);
         RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
         rt_handle_begin_transaction(h);
-    void *raw = h->ptr;
+        void *raw = h->ptr;
         RtArrayMetaV2Local *meta = (RtArrayMetaV2Local *)raw;
         meta->arena = arena;
         meta->size = 0;
         meta->capacity = 0;
         rt_handle_end_transaction(h);
+        if (str_h) rt_handle_end_transaction(str_h);
         return h;
     }
 
@@ -618,6 +838,192 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, const char *str) {
     }
 
     rt_handle_end_transaction(h);
+    if (str_h) rt_handle_end_transaction(str_h);
     return h;
 }
 
+/* ============================================================================
+ * String Query Functions (Handle-Based)
+ * ============================================================================ */
+
+long rt_str_length_v2(RtHandleV2 *str_h) {
+    if (!str_h) return 0;
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
+    long result = (str ? (long)strlen(str) : 0);
+    rt_handle_end_transaction(str_h);
+    return result;
+}
+
+long rt_str_indexOf_v2(RtHandleV2 *str_h, RtHandleV2 *search_h) {
+    const char *str = "";
+    const char *search = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    if (search_h) { rt_handle_begin_transaction(search_h); search = (const char *)search_h->ptr; if (!search) search = ""; }
+
+    const char *pos = strstr(str, search);
+    long result = pos ? (long)(pos - str) : -1;
+
+    if (search_h) rt_handle_end_transaction(search_h);
+    if (str_h) rt_handle_end_transaction(str_h);
+    return result;
+}
+
+int rt_str_contains_v2(RtHandleV2 *str_h, RtHandleV2 *search_h) {
+    const char *str = "";
+    const char *search = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    if (search_h) { rt_handle_begin_transaction(search_h); search = (const char *)search_h->ptr; if (!search) search = ""; }
+
+    int result = strstr(str, search) != NULL;
+
+    if (search_h) rt_handle_end_transaction(search_h);
+    if (str_h) rt_handle_end_transaction(str_h);
+    return result;
+}
+
+long rt_str_charAt_v2(RtHandleV2 *str_h, long index) {
+    if (!str_h) return 0;
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
+    if (!str) { rt_handle_end_transaction(str_h); return 0; }
+
+    long len = (long)strlen(str);
+    if (index < 0) index = len + index;
+    long result = (index >= 0 && index < len) ? (long)(unsigned char)str[index] : 0;
+
+    rt_handle_end_transaction(str_h);
+    return result;
+}
+
+int rt_str_startsWith_v2(RtHandleV2 *str_h, RtHandleV2 *prefix_h) {
+    const char *str = "";
+    const char *prefix = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    if (prefix_h) { rt_handle_begin_transaction(prefix_h); prefix = (const char *)prefix_h->ptr; if (!prefix) prefix = ""; }
+
+    size_t prefix_len = strlen(prefix);
+    int result = (strlen(str) >= prefix_len && strncmp(str, prefix, prefix_len) == 0);
+
+    if (prefix_h) rt_handle_end_transaction(prefix_h);
+    if (str_h) rt_handle_end_transaction(str_h);
+    return result;
+}
+
+int rt_str_endsWith_v2(RtHandleV2 *str_h, RtHandleV2 *suffix_h) {
+    const char *str = "";
+    const char *suffix = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    if (suffix_h) { rt_handle_begin_transaction(suffix_h); suffix = (const char *)suffix_h->ptr; if (!suffix) suffix = ""; }
+
+    size_t str_len = strlen(str);
+    size_t suffix_len = strlen(suffix);
+    int result = (str_len >= suffix_len && strcmp(str + str_len - suffix_len, suffix) == 0);
+
+    if (suffix_h) rt_handle_end_transaction(suffix_h);
+    if (str_h) rt_handle_end_transaction(str_h);
+    return result;
+}
+
+int rt_str_region_equals_v2(RtHandleV2 *str_h, long start, long end, RtHandleV2 *pattern_h) {
+    const char *str = "";
+    const char *pattern = "";
+    if (str_h) { rt_handle_begin_transaction(str_h); str = (const char *)str_h->ptr; if (!str) str = ""; }
+    if (pattern_h) { rt_handle_begin_transaction(pattern_h); pattern = (const char *)pattern_h->ptr; if (!pattern) pattern = ""; }
+
+    long pat_len = (long)strlen(pattern);
+    int result = 0;
+    if (end - start == pat_len) {
+        result = 1;
+        for (long i = 0; i < pat_len; i++) {
+            if (str[start + i] != pattern[i]) { result = 0; break; }
+        }
+    }
+
+    if (pattern_h) rt_handle_end_transaction(pattern_h);
+    if (str_h) rt_handle_end_transaction(str_h);
+    return result;
+}
+
+int rt_str_is_blank_v2(RtHandleV2 *str_h) {
+    if (!str_h) return 1;
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
+    if (!str || *str == '\0') { rt_handle_end_transaction(str_h); return 1; }
+
+    const char *p = str;
+    while (*p) {
+        if (*p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' && *p != '\v' && *p != '\f') {
+            rt_handle_end_transaction(str_h);
+            return 0;
+        }
+        p++;
+    }
+    rt_handle_end_transaction(str_h);
+    return 1;
+}
+
+/* ============================================================================
+ * String Parse Functions (Handle-Based)
+ * ============================================================================ */
+
+long long rt_str_to_int_v2(RtHandleV2 *str_h) {
+    if (!str_h) return 0;
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
+    if (!str || *str == '\0') { rt_handle_end_transaction(str_h); return 0; }
+
+    long long result = 0;
+    int negative = 0;
+    const char *p = str;
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++;
+    if (*p == '-') { negative = 1; p++; } else if (*p == '+') { p++; }
+    while (*p >= '0' && *p <= '9') { result = result * 10 + (*p - '0'); p++; }
+
+    rt_handle_end_transaction(str_h);
+    return negative ? -result : result;
+}
+
+long long rt_str_to_long_v2(RtHandleV2 *str_h) {
+    return rt_str_to_int_v2(str_h);
+}
+
+double rt_str_to_double_v2(RtHandleV2 *str_h) {
+    if (!str_h) return 0.0;
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
+    if (!str || *str == '\0') { rt_handle_end_transaction(str_h); return 0.0; }
+
+    double result = 0.0;
+    double fraction = 0.0;
+    double fraction_div = 1.0;
+    int negative = 0;
+    int in_fraction = 0;
+    int exp_negative = 0;
+    int exponent = 0;
+    const char *p = str;
+
+    while (*p == ' ' || *p == '\t' || *p == '\n' || *p == '\r') p++;
+    if (*p == '-') { negative = 1; p++; } else if (*p == '+') { p++; }
+    while ((*p >= '0' && *p <= '9') || *p == '.') {
+        if (*p == '.') { in_fraction = 1; p++; continue; }
+        if (in_fraction) { fraction = fraction * 10 + (*p - '0'); fraction_div *= 10; }
+        else { result = result * 10 + (*p - '0'); }
+        p++;
+    }
+    if (*p == 'e' || *p == 'E') {
+        p++;
+        if (*p == '-') { exp_negative = 1; p++; } else if (*p == '+') { p++; }
+        while (*p >= '0' && *p <= '9') { exponent = exponent * 10 + (*p - '0'); p++; }
+    }
+    result = result + fraction / fraction_div;
+    if (negative) result = -result;
+    if (exponent > 0) {
+        double multiplier = 1.0;
+        for (int i = 0; i < exponent; i++) multiplier *= 10.0;
+        if (exp_negative) result /= multiplier; else result *= multiplier;
+    }
+
+    rt_handle_end_transaction(str_h);
+    return result;
+}

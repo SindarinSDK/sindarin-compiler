@@ -115,8 +115,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
                         "        if (__pe_data__[__sync_idx__] != NULL) {\n"
                         "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
-                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            rt_handle_begin_transaction(__sync_h__);\n"
                         "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n"
+                        "            rt_handle_end_transaction(__sync_h__);\n"
                         "            __pe_data__[__sync_idx__] = NULL;\n"
                         "        }\n"
                         "    }\n"
@@ -144,8 +145,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        if (__pe_data__[__sync_idx__] != NULL) {\n"
                         "            RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__sync_idx__])->arena;\n"
                         "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__sync_idx__]);\n"
-                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            rt_handle_begin_transaction(__sync_h__);\n"
                         "            %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                        "            rt_handle_end_transaction(__sync_h__);\n"
                         "%s"
                         "            if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                         "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_tmp__;\n"
@@ -174,8 +176,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        void **__pe_data__ = (void **)rt_array_data_v2(%s);\n"
                         "        if (__pe_data__[__sync_idx__] != NULL) {\n"
                         "            RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n"
-                        "            rt_handle_v2_pin(__sync_h__);\n"
+                        "            rt_handle_begin_transaction(__sync_h__);\n"
                         "            ((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n"
+                        "            rt_handle_end_transaction(__sync_h__);\n"
                         "            __pe_data__[__sync_idx__] = NULL;\n"
                         "        }\n"
                         "    }\n"
@@ -251,8 +254,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
                         "            if (__pe_data__[__i__] != NULL) {\n"
                         "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
-                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                rt_handle_begin_transaction(__sync_h__);\n"
                         "                ((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n"
+                        "                rt_handle_end_transaction(__sync_h__);\n"
                         "                __pe_data__[__i__] = NULL;\n"
                         "            }\n"
                         "        }\n"
@@ -280,8 +284,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "            if (__pe_data__[__i__] != NULL) {\n"
                         "                RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__i__])->arena;\n"
                         "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__i__]);\n"
-                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                rt_handle_begin_transaction(__sync_h__);\n"
                         "                %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                        "                rt_handle_end_transaction(__sync_h__);\n"
                         "%s"
                         "                if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n"
                         "                ((%s *)rt_array_data_v2(%s))[__i__] = __sync_tmp__;\n"
@@ -310,8 +315,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                         "        for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n"
                         "            if (__pe_data__[__i__] != NULL) {\n"
                         "                RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n"
-                        "                rt_handle_v2_pin(__sync_h__);\n"
+                        "                rt_handle_begin_transaction(__sync_h__);\n"
                         "                ((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n"
+                        "                rt_handle_end_transaction(__sync_h__);\n"
                         "                __pe_data__[__i__] = NULL;\n"
                         "            }\n"
                         "        }\n"
@@ -547,8 +553,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                  * ({
                  *     if (__var_pending__ != NULL) {
                  *         RtHandleV2 *__sync_h__ = rt_thread_v2_sync(__var_pending__);
-                 *         rt_handle_v2_pin(__sync_h__);
+                 *         rt_handle_begin_transaction(__sync_h__);
                  *         var = *(type*)__sync_h__->ptr;
+                 *         rt_handle_end_transaction(__sync_h__);
                  *         __var_pending__ = NULL;
                  *     }
                  *     var;
@@ -560,8 +567,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "({\n"
                     "    if (%s != NULL) {\n"
                     "        RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n"
-                    "        rt_handle_v2_pin(__sync_h__);\n"
+                    "        rt_handle_begin_transaction(__sync_h__);\n"
                     "        %s = *(%s *)__sync_h__->ptr;\n"
+                    "        rt_handle_end_transaction(__sync_h__);\n"
                     "        %s = NULL;\n"
                     "    }\n"
                     "    %s;\n"
@@ -576,8 +584,8 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
             {
                 /* Non-variable (e.g., inline spawn): just return the value */
                 return arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s); rt_handle_v2_pin(__sync_h__); *(%s *)__sync_h__->ptr; })",
-                    handle_code, c_type);
+                    "({ RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s); rt_handle_begin_transaction(__sync_h__); %s __sync_val__ = *(%s *)__sync_h__->ptr; rt_handle_end_transaction(__sync_h__); __sync_val__; })",
+                    handle_code, c_type, c_type);
             }
         }
         else if (struct_needs_field_promotion)
@@ -605,8 +613,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "        RtArenaV2 *__thread_arena__ = %s->arena;\n"
                     "        /* V2: Get struct from thread result - arena NOT destroyed yet */\n"
                     "        RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n"
-                    "        rt_handle_v2_pin(__sync_h__);\n"
+                    "        rt_handle_begin_transaction(__sync_h__);\n"
                     "        %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                    "        rt_handle_end_transaction(__sync_h__);\n"
                     "        /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "        /* Now destroy the thread arena */\n"
@@ -635,8 +644,9 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                     "    RtArenaV2 *__thread_arena__ = __sync_handle__->arena;\n"
                     "    /* V2: Get struct from thread result - arena NOT destroyed yet */\n"
                     "    RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(__sync_handle__);\n"
-                    "    rt_handle_v2_pin(__sync_h__);\n"
+                    "    rt_handle_begin_transaction(__sync_h__);\n"
                     "    %s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n"
+                    "    rt_handle_end_transaction(__sync_h__);\n"
                     "    /* Promote handle fields from thread arena to caller arena */\n"
                     "%s"
                     "    /* Now destroy the thread arena */\n"

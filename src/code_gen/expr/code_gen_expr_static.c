@@ -141,14 +141,13 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             char *result = arena_sprintf(gen->arena, "%s_%s(%s)",
                                          mangled_struct, method->name, args_list);
 
-            /* Pin result if method returns string/array and we need raw pointer */
+            /* Extract raw pointer if method returns string/array and caller needs char* */
             if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
                 method->return_type != NULL && is_handle_type(method->return_type))
             {
                 if (method->return_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
-                                         result);
+                    return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
                 }
                 else if (method->return_type->kind == TYPE_ARRAY)
                 {
@@ -304,14 +303,13 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
                                                     call->args, self_ptr_str,
                                                     is_self_pointer, method->return_type);
 
-            /* Pin result if caller expects raw pointer */
+            /* Extract raw pointer if caller expects char* */
             if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
                 method->return_type != NULL && is_handle_type(method->return_type))
             {
                 if (method->return_type->kind == TYPE_STRING)
                 {
-                    return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
-                                         intercept_result);
+                    return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", intercept_result);
                 }
                 else if (method->return_type->kind == TYPE_ARRAY)
                 {
@@ -360,14 +358,13 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
         char *result = arena_sprintf(gen->arena, "%s_%s(%s)",
                                      mangled_struct, method->name, args_list);
 
-        /* If method returns handle type and caller expects raw pointer, pin result */
+        /* Extract raw pointer if method returns handle type and caller needs char* */
         if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
             method->return_type != NULL && is_handle_type(method->return_type))
         {
             if (method->return_type->kind == TYPE_STRING)
             {
-                return arena_sprintf(gen->arena, "({ RtHandleV2 *__pin_h__ = %s; rt_handle_v2_pin(__pin_h__); (char *)__pin_h__->ptr; })",
-                                     result);
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
             }
             else if (method->return_type->kind == TYPE_ARRAY)
             {

@@ -291,10 +291,8 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             if (init_sym != NULL && init_sym->kind == SYMBOL_PARAM)
             {
                 init_str = arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__src_h__ = %s; "
-                    "rt_handle_v2_pin(__src_h__); "
-                    "rt_arena_v2_strdup(%s, (char *)__src_h__->ptr); })",
-                    init_str, ARENA_VAR(gen));
+                    "rt_arena_v2_clone(%s, %s)",
+                    ARENA_VAR(gen), init_str);
             }
         }
 
@@ -404,7 +402,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             : ARENA_VAR(gen);
         indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
                          var_name, alloc_arena, type_c);
-        indented_fprintf(gen, indent, "rt_handle_v2_pin(__%s_h__);\n", var_name);
         indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
                          type_c, var_name, type_c, var_name);
         indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
@@ -429,7 +426,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         {
             indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
                              var_name, ARENA_VAR(gen), type_c);
-            indented_fprintf(gen, indent, "rt_handle_v2_pin(__%s_h__);\n", var_name);
             indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
                              type_c, var_name, type_c, var_name);
             indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);

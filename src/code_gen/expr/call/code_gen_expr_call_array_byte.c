@@ -128,16 +128,22 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
             {
                 /* Pin the RtHandleV2* to get char* */
                 result = arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__pin = %s; rt_handle_v2_pin(__pin); (char *)__pin->ptr; })",
+                    "((char *)(%s)->ptr)",
                     result);
             }
             /* In handle mode, result is already RtHandleV2* - return as-is */
         }
-        else if (saved_handle_mode && strcmp(method_name, "join") == 0)
+        else if (strcmp(method_name, "join") == 0)
         {
-            /* join still returns char*, wrap in handle */
-            result = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
-                                   ARENA_VAR(gen), result);
+            /* join now returns RtHandleV2* */
+            if (!saved_handle_mode)
+            {
+                /* Non-handle mode: get char* from handle */
+                result = arena_sprintf(gen->arena,
+                    "((char *)(%s)->ptr)",
+                    result);
+            }
+            /* In handle mode, result is already RtHandleV2* - return as-is */
         }
     }
 

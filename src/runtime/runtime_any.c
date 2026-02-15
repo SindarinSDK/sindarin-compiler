@@ -82,6 +82,20 @@ RtAny rt_box_string(const char *value) {
     return result;
 }
 
+RtAny rt_box_string_v2(RtHandleV2 *value) {
+    RtAny result;
+    result.tag = RT_ANY_STRING;
+    if (value) {
+        rt_handle_begin_transaction(value);
+        result.value.s = (char *)value->ptr;
+        rt_handle_end_transaction(value);
+    } else {
+        result.value.s = NULL;
+    }
+    result.element_tag = RT_ANY_NIL;
+    return result;
+}
+
 RtAny rt_box_char(char value) {
     RtAny result;
     result.tag = RT_ANY_CHAR;
@@ -199,6 +213,14 @@ const char *rt_unbox_string(RtAny value) {
         rt_any_type_error("str", value);
     }
     return value.value.s;
+}
+
+RtHandleV2 *rt_unbox_string_v2(RtArenaV2 *arena, RtAny value) {
+    if (value.tag != RT_ANY_STRING) {
+        rt_any_type_error("str", value);
+    }
+    if (value.value.s == NULL) return NULL;
+    return rt_arena_v2_strdup(arena, value.value.s);
 }
 
 char rt_unbox_char(RtAny value) {

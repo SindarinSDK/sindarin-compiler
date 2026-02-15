@@ -77,6 +77,22 @@ void rt_print_err(const char *text);
 void rt_print_err_ln(const char *text);
 
 /* ============================================================================
+ * Handle-Based I/O Functions (V2)
+ * ============================================================================ */
+
+/* Print string handle to stdout (no newline) */
+void rt_print_string_v2(RtHandleV2 *text);
+
+/* Print string handle with newline to stdout */
+void rt_println_v2(RtHandleV2 *text);
+
+/* Print string handle to stderr (no newline) */
+void rt_print_err_v2(RtHandleV2 *text);
+
+/* Print string handle with newline to stderr */
+void rt_print_err_ln_v2(RtHandleV2 *text);
+
+/* ============================================================================
  * Program Control Functions
  * ============================================================================ */
 
@@ -89,5 +105,8 @@ void rt_exit(int code);
  * If the condition is false, writes the message to stderr and exits with code 1.
  */
 void rt_assert(int condition, const char *message);
+
+/* Assert with handle-based message */
+void rt_assert_v2(int condition, RtHandleV2 *message);
 
 #endif /* RUNTIME_IO_H */

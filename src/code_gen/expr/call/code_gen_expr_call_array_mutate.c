@@ -4,11 +4,17 @@
  * V2 Only: All functions use handle-based V2 API.
  */
 
-/* Generate code for array.join(separator) method */
+/* Generate code for array.join(separator) method - returns RtHandleV2* */
 static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
                                   Expr *separator)
 {
+    /* Join separator is now RtHandleV2* - evaluate in handle mode */
+    bool prev_sep = gen->expr_as_handle;
+    if (gen->current_arena_var != NULL) {
+        gen->expr_as_handle = true;
+    }
     char *sep_str = code_gen_expression(gen, separator);
+    gen->expr_as_handle = prev_sep;
 
     const char *join_func_v2 = NULL;
     switch (element_type->kind) {
@@ -91,7 +97,13 @@ static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_ty
 static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_type,
                                     Expr *element, Expr *index)
 {
+    /* String arrays: evaluate element in handle mode for RtHandleV2* parameter */
+    bool prev_elem = gen->expr_as_handle;
+    if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
+        gen->expr_as_handle = true;
+    }
     char *elem_str = code_gen_expression(gen, element);
+    gen->expr_as_handle = prev_elem;
     char *idx_str = code_gen_expression(gen, index);
 
     bool saved = gen->expr_as_handle;

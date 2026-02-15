@@ -14,21 +14,27 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
     MatchExpr *match = &expr->as.match_expr;
     int match_id = gen->match_count++;
 
-    /* Generate subject expression - always as raw pointer for comparisons */
+    /* Generate subject expression */
     bool saved_as_handle = gen->expr_as_handle;
     Type *subject_type = match->subject->expr_type;
     if (subject_type && is_handle_type(subject_type))
     {
-        gen->expr_as_handle = false;
+        if (gen->current_arena_var != NULL)
+            gen->expr_as_handle = true;  /* Arena mode: keep as handle */
+        else
+            gen->expr_as_handle = false;
     }
     char *subject_str = code_gen_expression(gen, match->subject);
     gen->expr_as_handle = saved_as_handle;
 
-    /* Get C type for subject - subject is evaluated as raw pointer for handle types */
+    /* Get C type for subject */
     const char *subject_c_type;
     if (subject_type && subject_type->kind == TYPE_STRING)
     {
-        subject_c_type = "char *";
+        if (gen->current_arena_var != NULL)
+            subject_c_type = "RtHandleV2 *";  /* Arena mode: handle type */
+        else
+            subject_c_type = "char *";
     }
     else if (subject_type && subject_type->kind == TYPE_ARRAY)
     {
@@ -72,18 +78,24 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
             char *condition = arena_strdup(gen->arena, "");
             for (int j = 0; j < arm->pattern_count; j++)
             {
-                /* Pattern values for string comparisons must be raw char*, not handles */
+                /* Pattern values for string comparisons */
                 bool saved_pat_handle = gen->expr_as_handle;
                 if (subject_type && subject_type->kind == TYPE_STRING)
                 {
-                    gen->expr_as_handle = false;
+                    if (gen->current_arena_var != NULL)
+                        gen->expr_as_handle = true;  /* Arena mode: keep as handle */
+                    else
+                        gen->expr_as_handle = false;
                 }
                 char *pattern_str = code_gen_expression(gen, arm->patterns[j]);
                 gen->expr_as_handle = saved_pat_handle;
                 char *cmp;
                 if (subject_type->kind == TYPE_STRING)
                 {
-                    cmp = arena_sprintf(gen->arena, "rt_eq_string(%s, %s)", subj_var, pattern_str);
+                    if (gen->current_arena_var != NULL)
+                        cmp = arena_sprintf(gen->arena, "rt_eq_string_v2(%s, %s)", subj_var, pattern_str);
+                    else
+                        cmp = arena_sprintf(gen->arena, "rt_eq_string(%s, %s)", subj_var, pattern_str);
                 }
                 else
                 {

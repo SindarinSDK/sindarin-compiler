@@ -468,16 +468,16 @@ RtHandleV2 *rt_array_from_any_string_v2(RtHandleV2 *arr_h) {
  * Any Array toString V2 Functions
  * ============================================================================ */
 
-char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return "{}";
+RtHandleV2 *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
+    if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
-    const RtAny *arr = (const RtAny *)rt_array_data_v2(arr_h);
+    rt_handle_begin_transaction(arr_h);
+    const RtAny *arr = (const RtAny *)((char *)arr_h->ptr + sizeof(RtArrayMetadataV2));
     size_t len = rt_array_length_v2(arr_h);
 
     if (len == 0) {
-        RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        rt_handle_begin_transaction(h);
-        return (char *)h->ptr;
+        rt_handle_end_transaction(arr_h);
+        return rt_arena_v2_strdup(arena, "{}");
     }
 
     /* First pass: convert each element to string and calculate total length */
@@ -492,6 +492,7 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
         if (i > 0) total_len += 2; /* ", " */
         total_len += strlen(elem_strs[i]);
     }
+    rt_handle_end_transaction(arr_h);
 
     /* Build result string */
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
@@ -507,19 +508,21 @@ char *rt_to_string_array_any_v2(RtHandleV2 *arr_h) {
     }
     *p++ = '}';
     *p = '\0';
-    return result;
+    rt_handle_end_transaction(elem_strs_h);
+    rt_handle_end_transaction(handle);
+    return handle;
 }
 
-char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
-    if (outer_h == NULL) return "{}";
+RtHandleV2 *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
+    if (outer_h == NULL) return NULL;
     RtArenaV2 *arena = outer_h->arena;
-    RtHandleV2 **outer = (RtHandleV2 **)rt_array_data_v2(outer_h);
+    rt_handle_begin_transaction(outer_h);
+    RtHandleV2 **outer = (RtHandleV2 **)((char *)outer_h->ptr + sizeof(RtArrayMetadataV2));
     size_t outer_len = rt_array_length_v2(outer_h);
 
     if (outer_len == 0) {
-        RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        rt_handle_begin_transaction(h);
-        return (char *)h->ptr;
+        rt_handle_end_transaction(outer_h);
+        return rt_arena_v2_strdup(arena, "{}");
     }
 
     RtHandleV2 *inner_strs_h = rt_arena_v2_alloc(arena, outer_len * sizeof(char *));
@@ -527,10 +530,13 @@ char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
     char **inner_strs = (char **)inner_strs_h->ptr;
     size_t total_len = 2;
     for (size_t i = 0; i < outer_len; i++) {
-        inner_strs[i] = rt_to_string_array_any_v2(outer[i]);
+        RtHandleV2 *inner_h = rt_to_string_array_any_v2(outer[i]);
+        rt_handle_begin_transaction(inner_h);
+        inner_strs[i] = (char *)inner_h->ptr;
         if (i > 0) total_len += 2;
         total_len += strlen(inner_strs[i]);
     }
+    rt_handle_end_transaction(outer_h);
 
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
     rt_handle_begin_transaction(handle);
@@ -544,19 +550,21 @@ char *rt_to_string_array2_any_v2(RtHandleV2 *outer_h) {
     }
     *p++ = '}';
     *p = '\0';
-    return result;
+    rt_handle_end_transaction(inner_strs_h);
+    rt_handle_end_transaction(handle);
+    return handle;
 }
 
-char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
-    if (outer_h == NULL) return "{}";
+RtHandleV2 *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
+    if (outer_h == NULL) return NULL;
     RtArenaV2 *arena = outer_h->arena;
-    RtHandleV2 **outer = (RtHandleV2 **)rt_array_data_v2(outer_h);
+    rt_handle_begin_transaction(outer_h);
+    RtHandleV2 **outer = (RtHandleV2 **)((char *)outer_h->ptr + sizeof(RtArrayMetadataV2));
     size_t outer_len = rt_array_length_v2(outer_h);
 
     if (outer_len == 0) {
-        RtHandleV2 *h = rt_arena_v2_strdup(arena, "{}");
-        rt_handle_begin_transaction(h);
-        return (char *)h->ptr;
+        rt_handle_end_transaction(outer_h);
+        return rt_arena_v2_strdup(arena, "{}");
     }
 
     RtHandleV2 *inner_strs_h = rt_arena_v2_alloc(arena, outer_len * sizeof(char *));
@@ -564,10 +572,13 @@ char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
     char **inner_strs = (char **)inner_strs_h->ptr;
     size_t total_len = 2;
     for (size_t i = 0; i < outer_len; i++) {
-        inner_strs[i] = rt_to_string_array2_any_v2(outer[i]);
+        RtHandleV2 *inner_h = rt_to_string_array2_any_v2(outer[i]);
+        rt_handle_begin_transaction(inner_h);
+        inner_strs[i] = (char *)inner_h->ptr;
         if (i > 0) total_len += 2;
         total_len += strlen(inner_strs[i]);
     }
+    rt_handle_end_transaction(outer_h);
 
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
     rt_handle_begin_transaction(handle);
@@ -581,5 +592,7 @@ char *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
     }
     *p++ = '}';
     *p = '\0';
-    return result;
+    rt_handle_end_transaction(inner_strs_h);
+    rt_handle_end_transaction(handle);
+    return handle;
 }
