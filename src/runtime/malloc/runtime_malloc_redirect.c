@@ -11,8 +11,6 @@
 #include "runtime_malloc_redirect.h"
 #include "arena/arena_v2.h"
 
-#ifdef SN_MALLOC_REDIRECT
-
 /* ============================================================================
  * Thread-Local State
  * ============================================================================ */
@@ -38,5 +36,3 @@ static bool hooks_installed = false;
 #include "runtime_malloc_redirect_track.c"
 #include "runtime_malloc_redirect_alloc.c"
 #include "runtime_malloc_redirect_hooks.c"
-
-#endif /* SN_MALLOC_REDIRECT */
