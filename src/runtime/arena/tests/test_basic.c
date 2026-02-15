@@ -112,7 +112,6 @@ static int test_gc_collects_dead(void)
     (void)rt_arena_v2_alloc(arena, 100);  /* h3 - kept */
 
     RtArenaV2Stats stats;
-    rt_arena_stats_recompute(arena);  /* Stats are cached, need to recompute */
     rt_arena_stats_get(arena, &stats);
     if (stats.handles.local != 3) { rt_arena_v2_condemn(arena); rt_arena_v2_gc(test_root); return 0; }
 

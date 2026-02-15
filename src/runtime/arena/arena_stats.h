@@ -2,7 +2,7 @@
  * Arena Stats - Statistics and Observability
  * ===========================================
  * Opt-in observability for arena memory behavior.
- * Stats are computed during GC cycles - normal arena operations don't update stats.
+ * Stats are recomputed on demand when rt_arena_stats_get() is called.
  */
 
 #ifndef ARENA_STATS_H
@@ -56,9 +56,6 @@ typedef struct {
 
 /* Record results from a GC cycle */
 void rt_arena_stats_record_gc(RtArenaV2 *arena, const RtArenaGCResult *result);
-
-/* Recompute all stats by walking arena tree */
-void rt_arena_stats_recompute(RtArenaV2 *arena);
 
 /* ============================================================================
  * Statistics API
