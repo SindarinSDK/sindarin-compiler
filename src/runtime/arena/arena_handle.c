@@ -145,3 +145,31 @@ void rt_handle_renew_transaction(RtHandleV2 *handle)
     /* Reset start time */
     atomic_store(&block->tx_start_ns, rt_get_monotonic_ns());
 }
+
+/* ============================================================================
+ * Copy Callback Management
+ * ============================================================================ */
+
+void rt_handle_set_copy_callback(RtHandleV2 *handle, RtHandleV2CopyCallback callback)
+{
+    if (handle == NULL) return;
+    handle->copy_callback = callback;
+}
+
+RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle)
+{
+    if (handle == NULL) return NULL;
+    return handle->copy_callback;
+}
+
+void rt_handle_set_free_callback(RtHandleV2 *handle, RtHandleV2FreeCallback callback)
+{
+    if (handle == NULL) return;
+    handle->free_callback = callback;
+}
+
+RtHandleV2FreeCallback rt_handle_get_free_callback(RtHandleV2 *handle)
+{
+    if (handle == NULL) return NULL;
+    return handle->free_callback;
+}

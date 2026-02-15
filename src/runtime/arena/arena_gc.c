@@ -24,6 +24,10 @@
 
 static void rt_handle_v2_destroy(RtHandleV2 *handle)
 {
+    /* Call destroy callback if set (cleanup pthread primitives, file handles, etc.) */
+    if (handle->free_callback != NULL) {
+        handle->free_callback(handle);
+    }
     free(handle);
 }
 
