@@ -33,10 +33,10 @@ static void rt_block_destroy(RtBlockV2 *block)
 }
 
 /* Forward declaration for recursive call */
-static void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent);
+void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent);
 
 /* Destroy an arena and all its handles/blocks */
-static void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
+void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 {
     if (arena == NULL) return;
 

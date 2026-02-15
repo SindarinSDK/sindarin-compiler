@@ -845,7 +845,7 @@ void* thread_wrapper(void* arg) {
     }
 
     // Destroy thread arena
-    rt_arena_destroy(arena);
+    rt_arena_v2_condemn(arena);
     return NULL;
 }
 ```
