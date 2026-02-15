@@ -45,7 +45,7 @@ static int test_malloc_redirect(void)
 
     /* Get initial stats */
     RtArenaV2Stats stats_before;
-    rt_arena_v2_get_stats(arena, &stats_before);
+    rt_arena_stats_get(arena, &stats_before);
 
     /* Push redirect - malloc should now go to arena */
     rt_arena_v2_redirect_push(arena);
@@ -63,13 +63,13 @@ static int test_malloc_redirect(void)
 
     /* Get stats after - should show allocation */
     RtArenaV2Stats stats_after;
-    rt_arena_v2_get_stats(arena, &stats_after);
+    rt_arena_stats_get(arena, &stats_after);
 
     /* Pop redirect */
     rt_arena_v2_redirect_pop();
 
     /* Verify allocation went to arena */
-    int success = (stats_after.handle_count > stats_before.handle_count);
+    int success = (stats_after.handles.total > stats_before.handles.total);
 
     /* Note: We don't call free(ptr) because it's arena-managed.
      * The arena destroy will clean it up. */
@@ -95,7 +95,7 @@ static int test_free_redirect(void)
     }
 
     RtArenaV2Stats stats_before_free;
-    rt_arena_v2_get_stats(arena, &stats_before_free);
+    rt_arena_stats_get(arena, &stats_before_free);
 
     /* Free should mark handle as dead */
     free(ptr);
@@ -139,8 +139,8 @@ static int test_calloc_redirect(void)
 
     /* Verify it went to arena */
     RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(arena, &stats);
-    int in_arena = (stats.handle_count >= 1);
+    rt_arena_stats_get(arena, &stats);
+    int in_arena = (stats.handles.total >= 1);
 
     rt_arena_v2_redirect_pop();
     rt_arena_v2_condemn(arena);
@@ -205,8 +205,8 @@ static int test_realloc_null(void)
 
     /* Verify it went to arena */
     RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(arena, &stats);
-    int in_arena = (stats.handle_count >= 1);
+    rt_arena_stats_get(arena, &stats);
+    int in_arena = (stats.handles.total >= 1);
 
     rt_arena_v2_redirect_pop();
     rt_arena_v2_condemn(arena);
@@ -272,12 +272,12 @@ static int test_nested_redirect(void)
 
     /* Check allocations went to correct arenas */
     RtArenaV2Stats stats1, stats2;
-    rt_arena_v2_get_stats(arena1, &stats1);
-    rt_arena_v2_get_stats(arena2, &stats2);
+    rt_arena_stats_get(arena1, &stats1);
+    rt_arena_stats_get(arena2, &stats2);
 
     /* arena1 should have 2 allocations (ptr1, ptr3) */
     /* arena2 should have 1 allocation (ptr2) */
-    int success = (stats1.handle_count == 2 && stats2.handle_count == 1);
+    int success = (stats1.handles.total == 2 && stats2.handles.total == 1);
 
     rt_arena_v2_condemn(arena1);
     rt_arena_v2_condemn(arena2);
@@ -300,8 +300,8 @@ static int test_passthrough(void)
 
     /* Arena should have no allocations */
     RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(arena, &stats);
-    int not_in_arena = (stats.handle_count == 0);
+    rt_arena_stats_get(arena, &stats);
+    int not_in_arena = (stats.handles.total == 0);
 
     /* Must free with system free since it didn't go to arena */
     free(ptr);
@@ -340,12 +340,12 @@ static int test_many_allocations(void)
 
     /* Verify remaining count */
     RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(arena, &stats);
+    rt_arena_stats_get(arena, &stats);
 
     rt_arena_v2_redirect_pop();
     rt_arena_v2_condemn(arena);
 
-    return (collected == 50 && stats.handle_count == 50);
+    return (collected == 50 && stats.handles.total == 50);
 }
 
 /* ============================================================================
@@ -386,9 +386,9 @@ static void *thread_allocate_to_arena(void *arg)
 
     /* Verify all allocations went to our arena */
     RtArenaV2Stats stats;
-    rt_arena_v2_get_stats(data->arena, &stats);
+    rt_arena_stats_get(data->arena, &stats);
     /* +1 for the ptrs array itself */
-    data->success = (stats.handle_count >= (size_t)data->alloc_count);
+    data->success = (stats.handles.total >= (size_t)data->alloc_count);
 
     rt_arena_v2_redirect_pop();
     return NULL;
@@ -417,8 +417,8 @@ static int test_thread_isolation(void)
 
     /* Verify each arena has its allocations */
     RtArenaV2Stats stats1, stats2;
-    rt_arena_v2_get_stats(arena1, &stats1);
-    rt_arena_v2_get_stats(arena2, &stats2);
+    rt_arena_stats_get(arena1, &stats1);
+    rt_arena_stats_get(arena2, &stats2);
 
     int success = data1.success && data2.success;
 
@@ -554,9 +554,9 @@ static int test_concurrent_stress(void)
     for (int i = 0; i < NUM_THREADS; i++) {
         rt_arena_v2_gc(arenas[i]);
         RtArenaV2Stats stats;
-        rt_arena_v2_get_stats(arenas[i], &stats);
+        rt_arena_stats_get(arenas[i], &stats);
         /* After GC, should have no live handles (all were freed) */
-        if (stats.handle_count != 0) success = 0;
+        if (stats.handles.total != 0) success = 0;
         rt_arena_v2_condemn(arenas[i]);
     }
 
