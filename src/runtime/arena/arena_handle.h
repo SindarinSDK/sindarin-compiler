@@ -18,6 +18,44 @@ typedef struct RtArenaV2 RtArenaV2;
 typedef struct RtBlockV2 RtBlockV2;
 
 /* ============================================================================
+ * Copy Callback - Deep Copy Support
+ * ============================================================================
+ * When a handle is promoted/cloned, the shallow copy happens first, then
+ * the copy callback (if set) is invoked to handle deep copying of nested
+ * handles. The callback receives the destination arena and a pointer to
+ * the already-copied data in the new handle.
+ *
+ * Example: A struct with handle fields
+ *   void __copy_MyStruct__(RtArenaV2 *dest, void *ptr) {
+ *       MyStruct *s = (MyStruct *)ptr;
+ *       s->name = rt_arena_v2_promote(dest, s->name);
+ *       s->data = rt_arena_v2_promote(dest, s->data);
+ *   }
+ *
+ * The callback is inherited during promote/clone, so nested structures
+ * with their own callbacks work automatically.
+ * ============================================================================ */
+
+typedef void (*RtHandleV2CopyCallback)(RtArenaV2 *dest, void *ptr);
+
+/* ============================================================================
+ * Destroy Callback - Cleanup Before Free
+ * ============================================================================
+ * When GC frees a handle, the destroy callback (if set) is invoked first.
+ * Use this to release resources that can't be abandoned (pthread primitives,
+ * file handles, etc.).
+ *
+ * Example: RtThread cleanup
+ *   void __destroy_RtThread__(void *ptr) {
+ *       RtThread *t = (RtThread *)ptr;
+ *       pthread_mutex_destroy(&t->mutex);
+ *       pthread_cond_destroy(&t->cond);
+ *   }
+ * ============================================================================ */
+
+typedef void (*RtHandleV2FreeCallback)(RtHandleV2 *handle);
+
+/* ============================================================================
  * Handle Flags
  * ============================================================================ */
 
@@ -46,6 +84,10 @@ struct RtHandleV2 {
 
     /* GC metadata */
     uint16_t flags;             /* RtHandleFlags */
+
+    /* Callbacks */
+    RtHandleV2CopyCallback copy_callback;     /* Called after shallow copy (NULL for simple types) */
+    RtHandleV2FreeCallback free_callback;     /* Called before GC frees handle (NULL if no cleanup) */
 
     /* Intrusive linked list for block's handle tracking */
     RtHandleV2 *next;           /* Next handle in block */
@@ -132,5 +174,21 @@ void rt_handle_end_transaction(RtHandleV2 *handle);
  * Use this in long-running operations to prevent GC from force-acquiring.
  * Panics if current thread does not hold the lease. */
 void rt_handle_renew_transaction(RtHandleV2 *handle);
+
+/* ============================================================================
+ * Copy Callback Management
+ * ============================================================================ */
+
+/* Set copy callback for deep copy support during promote/clone. */
+void rt_handle_set_copy_callback(RtHandleV2 *handle, RtHandleV2CopyCallback callback);
+
+/* Get copy callback (NULL if none set). */
+RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle);
+
+/* Set destroy callback for cleanup before GC frees handle. */
+void rt_handle_set_free_callback(RtHandleV2 *handle, RtHandleV2FreeCallback callback);
+
+/* Get destroy callback (NULL if none set). */
+RtHandleV2FreeCallback rt_handle_get_free_callback(RtHandleV2 *handle);
 
 #endif /* ARENA_HANDLE_H */

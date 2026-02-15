@@ -73,7 +73,7 @@ RtThread *rt_thread_v2_create(RtArenaV2 *caller, RtThreadMode mode)
 
         case RT_THREAD_MODE_PRIVATE:
             /* Private: isolated arena with no parent */
-            t->arena = rt_arena_v2_create(NULL, RT_ARENA_MODE_PRIVATE, "thread_private");
+            t->arena = rt_arena_v2_create(caller, RT_ARENA_MODE_PRIVATE, "thread_private");
             if (t->arena == NULL) {
                 fprintf(stderr, "rt_thread_create: failed to create private thread arena\n");
                 pthread_mutex_destroy(&t->mutex);

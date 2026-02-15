@@ -81,6 +81,8 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     handle->arena = arena;
     handle->block = block;
     handle->flags = RT_HANDLE_FLAG_NONE;
+    handle->copy_callback = NULL;     /* No deep copy by default */
+    handle->free_callback = NULL;  /* No cleanup by default */
     handle->next = NULL;
     handle->prev = NULL;
 
@@ -300,7 +302,7 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle)
     if (dest == NULL || handle == NULL) return NULL;
     if (handle->arena == dest) return handle;  /* Already in dest */
 
-    /* Clone to dest */
+    /* Clone to dest (handles both shallow copy and deep copy via callback) */
     RtHandleV2 *new_handle = rt_arena_v2_clone(dest, handle);
 
     /* Mark old as dead */
@@ -317,7 +319,19 @@ RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle)
 
     RtHandleV2 *new_handle = rt_arena_v2_alloc(dest, handle->size);
     if (new_handle != NULL) {
+        /* Shallow copy */
         memcpy(new_handle->ptr, handle->ptr, handle->size);
+
+        /* Inherit callbacks */
+        new_handle->copy_callback = handle->copy_callback;
+        new_handle->free_callback = handle->free_callback;
+
+        /* Deep copy if callback registered */
+        if (new_handle->copy_callback != NULL) {
+            rt_handle_begin_transaction(new_handle);
+            new_handle->copy_callback(dest, new_handle->ptr);
+            rt_handle_end_transaction(new_handle);
+        }
     }
     return new_handle;
 }
