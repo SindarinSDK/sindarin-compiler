@@ -521,7 +521,6 @@ static void sn_install_malloc_hooks(void)
     /* Initialize MinHook */
     status = MH_Initialize();
     if (status != MH_OK && status != MH_ERROR_ALREADY_INITIALIZED) {
-        fprintf(stderr, "[SN_ALLOC] Warning: MH_Initialize failed: %d\n", status);
         return;
     }
 
@@ -533,41 +532,26 @@ static void sn_install_malloc_hooks(void)
 
     /* Hook malloc */
     if (crt_malloc) {
-        status = MH_CreateHook(crt_malloc, hooked_malloc, (void **)&orig_malloc);
-        if (status != MH_OK) {
-            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook malloc: %d\n", status);
-        }
+        MH_CreateHook(crt_malloc, hooked_malloc, (void **)&orig_malloc);
     }
 
     /* Hook free */
     if (crt_free) {
-        status = MH_CreateHook(crt_free, hooked_free, (void **)&orig_free);
-        if (status != MH_OK) {
-            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook free: %d\n", status);
-        }
+        MH_CreateHook(crt_free, hooked_free, (void **)&orig_free);
     }
 
     /* Hook calloc */
     if (crt_calloc) {
-        status = MH_CreateHook(crt_calloc, hooked_calloc, (void **)&orig_calloc);
-        if (status != MH_OK) {
-            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook calloc: %d\n", status);
-        }
+        MH_CreateHook(crt_calloc, hooked_calloc, (void **)&orig_calloc);
     }
 
     /* Hook realloc */
     if (crt_realloc) {
-        status = MH_CreateHook(crt_realloc, hooked_realloc, (void **)&orig_realloc);
-        if (status != MH_OK) {
-            fprintf(stderr, "[SN_ALLOC] Warning: failed to hook realloc: %d\n", status);
-        }
+        MH_CreateHook(crt_realloc, hooked_realloc, (void **)&orig_realloc);
     }
 
     /* Enable all hooks */
-    status = MH_EnableHook(MH_ALL_HOOKS);
-    if (status != MH_OK) {
-        fprintf(stderr, "[SN_ALLOC] Warning: MH_EnableHook failed: %d\n", status);
-    }
+    MH_EnableHook(MH_ALL_HOOKS);
 }
 
 __attribute__((destructor))
