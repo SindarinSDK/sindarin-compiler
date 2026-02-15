@@ -3,8 +3,8 @@
  * =================================
  * Tests the malloc/free/calloc/realloc redirection to arena.
  *
- * Compile with hooks:
- *   gcc -DSN_MALLOC_HOOKS -o arena_v2_redirect_test \
+ * Compile:
+ *   gcc -o arena_v2_redirect_test \
  *       arena_v2.c arena_v2_redirect_test.c \
  *       ../malloc/runtime_malloc_hooks.c \
  *       -I.. -I../.. -lpthread
@@ -352,8 +352,6 @@ static int test_many_allocations(void)
  * Multi-threaded Tests
  * ============================================================================ */
 
-#ifdef SN_MALLOC_HOOKS
-
 /* Shared state for thread tests */
 typedef struct {
     RtArenaV2 *arena;
@@ -603,8 +601,6 @@ static int test_redirect_not_inherited(void)
     return thread_result;
 }
 
-#endif /* SN_MALLOC_HOOKS */
-
 /* ============================================================================
  * Main
  * ============================================================================ */
@@ -613,9 +609,6 @@ int main(void)
 {
     printf("Arena V2 Redirect Tests\n");
     printf("=======================\n\n");
-
-#ifdef SN_MALLOC_HOOKS
-    printf("Hooks enabled - running redirect tests\n\n");
 
     printf("--- Single-threaded Tests ---\n");
     TEST(malloc_redirect);
@@ -636,9 +629,4 @@ int main(void)
 
     printf("\n%d/%d tests passed\n", tests_passed, tests_run);
     return tests_passed == tests_run ? 0 : 1;
-#else
-    printf("SN_MALLOC_HOOKS not defined - skipping redirect tests\n");
-    printf("Compile with -DSN_MALLOC_HOOKS to enable\n");
-    return 0;
-#endif
 }

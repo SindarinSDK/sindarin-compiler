@@ -283,7 +283,7 @@ test-arena2:
 ifeq ($(PLATFORM),windows)
 	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) -Wno-unused-variable \
 		-Isrc/runtime/hooks $(MINHOOK_INCLUDES) \
-		-DSN_MALLOC_HOOKS -DTEST_RUNNER \
+		-DTEST_RUNNER \
 		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/test_redirect.c \
 		src/runtime/malloc/runtime_malloc_hooks.c \
 		$(MINHOOK_SRCS) \
