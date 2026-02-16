@@ -32,7 +32,7 @@
 #include "runtime/runtime_char.h"
 
 /* Threading module - depends on arena */
-#include "runtime/thread/runtime_thread_v2.h"
+#include "runtime/thread/runtime_thread_v3.h"
 
 /* Any type module - depends on arena and array */
 #include "runtime/runtime_any.h"

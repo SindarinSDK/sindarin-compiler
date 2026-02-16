@@ -23,6 +23,7 @@ char **rt_create_string_array(RtArenaV2 *arena, size_t initial_capacity)
 
     char **arr = (char **)((char *)block + header_size);
     arr[0] = NULL;  /* NULL terminator */
+    rt_handle_end_transaction(block_h);
     return arr;
 }
 

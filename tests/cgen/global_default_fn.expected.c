@@ -47,7 +47,7 @@ int main() {
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
     rt_println_v2(rt_arena_v2_strdup(__local_arena__, "Global with default function test:"));
-    RtThread *__result_pending__ = NULL;
+    RtHandleV2 *__result_pending__ = NULL;
     RtHandleV2 * __sn__result = ({
     RtHandleV2 * __intercept_result;
     if (__rt_interceptor_count > 0) {

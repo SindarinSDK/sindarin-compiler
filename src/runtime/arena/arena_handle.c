@@ -68,6 +68,40 @@ uint64_t rt_get_monotonic_ns(void)
     return (uint64_t)ts.tv_sec * 1000000000ULL + (uint64_t)ts.tv_nsec;
 }
 
+/* Claim a block: set start time, timeout, and recurse count */
+static void tx_claim(RtBlockV2 *block, uint64_t timeout_ns)
+{
+    atomic_store(&block->tx_start_ns, rt_get_monotonic_ns());
+    atomic_store(&block->tx_timeout_ns, timeout_ns);
+    atomic_store(&block->tx_recurse_count, 1);
+}
+
+/* Try to force-acquire a block whose holder's lease has expired.
+ * Returns true if we successfully took over. */
+static bool tx_try_force_acquire(RtBlockV2 *block, uint64_t my_id, uint64_t timeout_ns)
+{
+    uint64_t start   = atomic_load(&block->tx_start_ns);
+    uint64_t timeout = atomic_load(&block->tx_timeout_ns);
+    if (start == 0 || timeout == 0) return false;
+
+    uint64_t now = rt_get_monotonic_ns();
+    if (now - start <= timeout) return false;
+
+    uint64_t stale = atomic_load(&block->tx_holder);
+    if (stale == 0 || stale == my_id) return false;
+    if (!atomic_compare_exchange_strong(&block->tx_holder, &stale, my_id)) return false;
+
+    fprintf(stderr, "WARNING: force-acquired expired tx on block %p "
+            "(stale=%lu, recurse=%u, acquirer=%lu, held %llu ms)\n",
+            (void *)block, (unsigned long)stale,
+            (unsigned)atomic_load(&block->tx_recurse_count),
+            (unsigned long)my_id,
+            (unsigned long long)((now - start) / 1000000ULL));
+
+    tx_claim(block, timeout_ns);
+    return true;
+}
+
 void rt_handle_begin_transaction_with_timeout(RtHandleV2 *handle, uint64_t timeout_ns)
 {
     if (handle == NULL || handle->block == NULL) return;
@@ -75,27 +109,24 @@ void rt_handle_begin_transaction_with_timeout(RtHandleV2 *handle, uint64_t timeo
     RtBlockV2 *block = handle->block;
     uint64_t my_id = rt_arena_get_thread_id();
 
-    /* Check if we already hold this block */
-    uint64_t current_holder = atomic_load(&block->tx_holder);
-    if (current_holder == my_id) {
-        /* Same thread - increment nesting count */
+    /* Re-entrant: same thread already holds this block */
+    if (atomic_load(&block->tx_holder) == my_id) {
         atomic_fetch_add(&block->tx_recurse_count, 1);
         return;
     }
 
-    /* Try to acquire the block */
+    /* Spin to acquire */
+    int spins = 0;
     while (1) {
         uint64_t expected = 0;
         if (atomic_compare_exchange_weak(&block->tx_holder, &expected, my_id)) {
-            /* Successfully acquired - set start time and timeout */
-            atomic_store(&block->tx_start_ns, rt_get_monotonic_ns());
-            atomic_store(&block->tx_timeout_ns, timeout_ns);
-            atomic_store(&block->tx_recurse_count, 1);
+            tx_claim(block, timeout_ns);
             return;
         }
-
-        /* Block is held by someone else - spin and retry
-         * In the future, we could add backoff or yield here */
+        if (++spins >= 1000) {
+            spins = 0;
+            if (tx_try_force_acquire(block, my_id, timeout_ns)) return;
+        }
     }
 }
 

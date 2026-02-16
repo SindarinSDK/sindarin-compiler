@@ -486,6 +486,7 @@ RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
                 RtHandleV2 *_h = rt_arena_v2_strdup(target_arena, value.value.s);
                 rt_handle_begin_transaction(_h);
                 result.value.s = (char *)_h->ptr;
+                rt_handle_end_transaction(_h);
             }
             break;
             
@@ -524,6 +525,56 @@ RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
     return result;
 }
 
+/* ============================================================================
+ * Deep Copy/Free for Any Values (GC Callback Support)
+ * ============================================================================
+ * Used by any[] array callbacks to deep-copy/free individual any elements.
+ * Modifies the RtAny in-place (caller owns the storage).
+ * ============================================================================ */
+
+void rt_any_deep_copy(RtArenaV2 *dest, RtAny *any) {
+    switch (any->tag) {
+        case RT_ANY_STRING:
+            if (any->value.s != NULL) {
+                RtHandleV2 *h = rt_arena_v2_strdup(dest, any->value.s);
+                rt_handle_begin_transaction(h);
+                any->value.s = (char *)h->ptr;
+                rt_handle_end_transaction(h);
+            }
+            break;
+        case RT_ANY_ARRAY:
+            if (any->value.arr != NULL)
+                any->value.arr = rt_arena_v2_promote(dest, any->value.arr);
+            break;
+        case RT_ANY_STRUCT:
+            if (any->value.obj != NULL)
+                any->value.obj = rt_arena_v2_promote(dest, any->value.obj);
+            break;
+        default: break; /* Primitives - no action */
+    }
+}
+
+void rt_any_deep_free(RtAny *any) {
+    switch (any->tag) {
+        case RT_ANY_STRING:
+            any->value.s = NULL; /* Can't free - stored as char*, not handle */
+            break;
+        case RT_ANY_ARRAY:
+            if (any->value.arr != NULL) {
+                rt_arena_v2_free(any->value.arr);
+                any->value.arr = NULL;
+            }
+            break;
+        case RT_ANY_STRUCT:
+            if (any->value.obj != NULL) {
+                rt_arena_v2_free(any->value.obj);
+                any->value.obj = NULL;
+            }
+            break;
+        default: break;
+    }
+}
+
 /* V2 version: Promote an any value's heap-allocated data to a target arena.
  * For V2 arena mode - strings stored as RtHandleV2*, need rt_arena_v2_promote. */
 RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
@@ -537,12 +588,22 @@ RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
                 RtHandleV2 *new_str = rt_arena_v2_strdup(target_arena, value.value.s);
                 rt_handle_begin_transaction(new_str);
                 result.value.s = (char *)new_str->ptr;
+                rt_handle_end_transaction(new_str);
             }
             break;
 
         case RT_ANY_ARRAY:
-            /* Arrays need deep cloning - for now just copy pointer
-             * TODO: implement proper array cloning for any[] */
+            /* Arrays use callbacks for deep promotion automatically */
+            if (value.value.arr != NULL) {
+                result.value.arr = rt_arena_v2_promote(target_arena, value.value.arr);
+            }
+            break;
+
+        case RT_ANY_STRUCT:
+            /* Structs use callbacks for deep promotion automatically */
+            if (value.value.obj != NULL) {
+                result.value.obj = rt_arena_v2_promote(target_arena, value.value.obj);
+            }
             break;
 
         /* Primitive types don't need promotion */
@@ -561,11 +622,6 @@ RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
 
         /* Object types - shallow copy for now */
         case RT_ANY_FUNCTION:
-            break;
-
-        case RT_ANY_STRUCT:
-            /* Structs are arena-allocated; for now shallow copy pointer.
-             * Full deep copy would require storing struct size metadata. */
             break;
 
         default:

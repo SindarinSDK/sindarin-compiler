@@ -33,6 +33,7 @@ typedef struct {
     RtArenaV2 *arena;   /* Arena that owns this array */
     size_t size;        /* Number of elements currently in array */
     size_t capacity;    /* Total allocated space for elements */
+    size_t element_size; /* Size of each element in bytes */
 } RtArrayMetadataV2;
 
 /* ============================================================================
@@ -41,8 +42,11 @@ typedef struct {
 
 static inline size_t rt_array_length_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return 0;
+    rt_handle_begin_transaction(arr_h);
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)(arr_h->ptr);
-    return meta ? meta->size : 0;
+    size_t len = meta ? meta->size : 0;
+    rt_handle_end_transaction(arr_h);
+    return len;
 }
 
 /* Get array length from a raw data pointer (data area, after metadata).
@@ -108,6 +112,10 @@ static inline RtHandleV2 *rt_array_get_handle_v2(RtHandleV2 *arr_h, long long id
 static inline RtHandleV2 *rt_array_set_handle_v2(RtHandleV2 *arr_h, long long idx, RtHandleV2 *val) {
     rt_handle_begin_transaction(arr_h);
     RtHandleV2 **data = (RtHandleV2 **)((char *)arr_h->ptr + sizeof(RtArrayMetadataV2));
+    /* Free old handle on reassignment to prevent leaks in long-lived arenas */
+    if (data[idx] != NULL && data[idx] != val) {
+        rt_arena_v2_free(data[idx]);
+    }
     data[idx] = val;
     rt_handle_end_transaction(arr_h);
     return val;
@@ -339,26 +347,19 @@ int rt_array_eq_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h);
 RtHandleV2 *rt_args_create_v2(RtArenaV2 *arena, int argc, char **argv);
 
 /* ============================================================================
- * Deep Array Promotion
+ * Generic Array GC Callbacks
  * ============================================================================
- * V2 promotion is simpler - no source arena parameter needed!
- * Handle carries its arena reference.
+ * Self-describing handles: set these on arrays containing nested handles
+ * so rt_arena_v2_promote() and GC sweep work automatically.
  * ============================================================================ */
 
-/* Promote str[] - promotes array AND all string elements */
-RtHandleV2 *rt_promote_array_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
+/* Copy/free callbacks for arrays of handles (str[], T[][], etc.) */
+void rt_array_copy_callback(RtArenaV2 *dest, void *ptr);
+void rt_array_free_callback(RtHandleV2 *handle);
 
-/* Promote T[][] - promotes outer array AND all inner array handles */
-RtHandleV2 *rt_promote_array_handle_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
-
-/* Promote T[][][] - promotes outer, middle, and inner array handles */
-RtHandleV2 *rt_promote_array_handle_3d_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
-
-/* Promote str[][] - promotes outer, inner arrays, AND strings */
-RtHandleV2 *rt_promote_array2_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
-
-/* Promote str[][][] - promotes all three levels AND strings */
-RtHandleV2 *rt_promote_array3_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h);
+/* Copy/free callbacks for any[] arrays */
+void rt_array_any_copy_callback(RtArenaV2 *dest, void *ptr);
+void rt_array_any_free_callback(RtHandleV2 *handle);
 
 /* ============================================================================
  * Array Join Functions (V2)

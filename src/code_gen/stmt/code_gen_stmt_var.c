@@ -180,12 +180,12 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         if (is_thread_spawn)
         {
             char *init_str = code_gen_expression(gen, stmt->initializer);
-            indented_fprintf(gen, indent, "RtThread *%s = %s;\n", pending_var, init_str);
+            indented_fprintf(gen, indent, "RtHandleV2 *%s = %s;\n", pending_var, init_str);
             indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
         }
         else
         {
-            indented_fprintf(gen, indent, "RtThread *%s = NULL;\n", pending_var);
+            indented_fprintf(gen, indent, "RtHandleV2 *%s = NULL;\n", pending_var);
             if (stmt->initializer)
             {
                 bool prev_as_handle = gen->expr_as_handle;

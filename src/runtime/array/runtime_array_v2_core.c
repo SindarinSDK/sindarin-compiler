@@ -22,6 +22,7 @@ static RtHandleV2 *array_create_v2(RtArenaV2 *arena, size_t count, size_t elem_s
     meta->arena = arena;
     meta->size = count;
     meta->capacity = count;
+    meta->element_size = elem_size;
 
     void *arr_data = (char *)raw + sizeof(RtArrayMetadataV2);
     if (data && count > 0) {
@@ -40,15 +41,20 @@ static RtHandleV2 *array_create_v2(RtArenaV2 *arena, size_t count, size_t elem_s
 RtHandleV2 *rt_array_clone_v2(RtHandleV2 *arr_h, size_t elem_size) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     size_t count = rt_array_length_v2(arr_h);
     const void *src = rt_array_data_v2(arr_h);
-    return array_create_v2(arena, count, elem_size, src);
+    RtHandleV2 *result = array_create_v2(arena, count, elem_size, src);
+    rt_handle_end_transaction(arr_h);
+    return result;
 }
 
 /* Concat: Create new array from two arrays */
 RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size) {
     if (a_h == NULL && b_h == NULL) return NULL;
     RtArenaV2 *arena = a_h ? a_h->arena : b_h->arena;
+    if (a_h) rt_handle_begin_transaction(a_h);
+    if (b_h) rt_handle_begin_transaction(b_h);
     size_t len_a = rt_array_length_v2(a_h);
     size_t len_b = rt_array_length_v2(b_h);
     const char *a = len_a ? (const char *)rt_array_data_v2(a_h) : NULL;
@@ -64,10 +70,13 @@ RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_siz
     meta->arena = arena;
     meta->size = total;
     meta->capacity = total;
+    meta->element_size = elem_size;
     char *arr = (char *)raw + sizeof(RtArrayMetadataV2);
     if (len_a > 0) memcpy(arr, a, len_a * elem_size);
     if (len_b > 0) memcpy(arr + len_a * elem_size, b, len_b * elem_size);
     rt_handle_end_transaction(h);
+    if (b_h) rt_handle_end_transaction(b_h);
+    if (a_h) rt_handle_end_transaction(a_h);
     return h;
 }
 
@@ -75,6 +84,7 @@ RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_siz
 RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step, size_t elem_size) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     size_t len = rt_array_length_v2(arr_h);
     const char *src = (const char *)rt_array_data_v2(arr_h);
 
@@ -95,28 +105,34 @@ RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step
 
     size_t alloc_size = sizeof(RtArrayMetadataV2) + result_size * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!h) return NULL;
+    if (!h) { rt_handle_end_transaction(arr_h); return NULL; }
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = result_size;
     meta->capacity = result_size;
+    meta->element_size = elem_size;
     char *dst = (char *)raw + sizeof(RtArrayMetadataV2);
 
     size_t j = 0;
     if (step > 0) {
         for (long i = start; i < end; i += step) {
+            rt_handle_renew_transaction(h);
+            rt_handle_renew_transaction(arr_h);
             memcpy(dst + j * elem_size, src + i * elem_size, elem_size);
             j++;
         }
     } else {
         for (long i = start; i > end; i += step) {
+            rt_handle_renew_transaction(h);
+            rt_handle_renew_transaction(arr_h);
             memcpy(dst + j * elem_size, src + i * elem_size, elem_size);
             j++;
         }
     }
     rt_handle_end_transaction(h);
+    rt_handle_end_transaction(arr_h);
     return h;
 }
 
@@ -124,24 +140,29 @@ RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step
 RtHandleV2 *rt_array_rev_v2(RtHandleV2 *arr_h, size_t elem_size) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     size_t len = rt_array_length_v2(arr_h);
     const char *src = (const char *)rt_array_data_v2(arr_h);
 
     size_t alloc_size = sizeof(RtArrayMetadataV2) + len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!h) return NULL;
+    if (!h) { rt_handle_end_transaction(arr_h); return NULL; }
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = len;
     meta->capacity = len;
+    meta->element_size = elem_size;
     char *dst = (char *)raw + sizeof(RtArrayMetadataV2);
 
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(h);
+        rt_handle_renew_transaction(arr_h);
         memcpy(dst + i * elem_size, src + (len - 1 - i) * elem_size, elem_size);
     }
     rt_handle_end_transaction(h);
+    rt_handle_end_transaction(arr_h);
     return h;
 }
 
@@ -155,18 +176,20 @@ RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size) {
     if (index < 0) index = (long)len + index;
     if (index < 0 || index >= (long)len) return rt_array_clone_v2(arr_h, elem_size);
 
+    rt_handle_begin_transaction(arr_h);
     const char *src = (const char *)rt_array_data_v2(arr_h);
     size_t new_len = len - 1;
 
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!h) return NULL;
+    if (!h) { rt_handle_end_transaction(arr_h); return NULL; }
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = new_len;
     meta->capacity = new_len;
+    meta->element_size = elem_size;
     char *dst = (char *)raw + sizeof(RtArrayMetadataV2);
 
     if (index > 0) memcpy(dst, src, index * elem_size);
@@ -174,6 +197,7 @@ RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size) {
         memcpy(dst + index * elem_size, src + (index + 1) * elem_size, (len - index - 1) * elem_size);
     }
     rt_handle_end_transaction(h);
+    rt_handle_end_transaction(arr_h);
     return h;
 }
 
@@ -189,18 +213,20 @@ RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, siz
     if (index < 0) index = 0;
     if (index > (long)len) index = (long)len;
 
+    rt_handle_begin_transaction(arr_h);
     const char *src = len ? (const char *)rt_array_data_v2(arr_h) : NULL;
     size_t new_len = len + 1;
 
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!h) return NULL;
+    if (!h) { rt_handle_end_transaction(arr_h); return NULL; }
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     meta->arena = arena;
     meta->size = new_len;
     meta->capacity = new_len;
+    meta->element_size = elem_size;
     char *dst = (char *)raw + sizeof(RtArrayMetadataV2);
 
     if (index > 0 && src) memcpy(dst, src, index * elem_size);
@@ -209,6 +235,7 @@ RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, siz
         memcpy(dst + (index + 1) * elem_size, src + index * elem_size, (len - index) * elem_size);
     }
     rt_handle_end_transaction(h);
+    rt_handle_end_transaction(arr_h);
     return h;
 }
 
@@ -226,6 +253,7 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
         meta->arena = arena;
         meta->size = 1;
         meta->capacity = new_cap;
+        meta->element_size = elem_size;
         memcpy(arr, elem, elem_size);
         rt_handle_end_transaction(new_h);
         return new_h;
@@ -273,13 +301,14 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
     RtArenaV2 *arena = arr_h ? arr_h->arena : NULL;
     if (arena == NULL) return NULL;
 
+    rt_handle_begin_transaction(arr_h);
     size_t len = rt_array_length_v2(arr_h);
     const char *src = len ? (const char *)rt_array_data_v2(arr_h) : NULL;
     size_t new_len = len + 1;
 
     size_t alloc_size = sizeof(RtArrayMetadataV2) + new_len * elem_size;
     RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
-    if (!h) return NULL;
+    if (!h) { rt_handle_end_transaction(arr_h); return NULL; }
     rt_handle_begin_transaction(h);
     void *raw = h->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
@@ -291,6 +320,7 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
     if (len > 0 && src) memcpy(dst, src, len * elem_size);
     memcpy(dst + len * elem_size, elem, elem_size);
     rt_handle_end_transaction(h);
+    rt_handle_end_transaction(arr_h);
     return h;
 }
 
@@ -324,13 +354,17 @@ void rt_array_clear_v2(RtHandleV2 *arr_h) {
 /* IndexOf: Find first index of element using memcmp */
 long rt_array_indexOf_v2(RtHandleV2 *arr_h, const void *elem, size_t elem_size) {
     if (arr_h == NULL || elem == NULL) return -1;
+    rt_handle_begin_transaction(arr_h);
     size_t len = rt_array_length_v2(arr_h);
     const char *arr = (const char *)rt_array_data_v2(arr_h);
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(arr_h);
         if (memcmp(arr + i * elem_size, elem, elem_size) == 0) {
+            rt_handle_end_transaction(arr_h);
             return (long)i;
         }
     }
+    rt_handle_end_transaction(arr_h);
     return -1;
 }
 
@@ -345,9 +379,14 @@ int rt_array_eq_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_size) {
     size_t len_b = rt_array_length_v2(b_h);
     if (len_a != len_b) return 0;
     if (len_a == 0) return 1;
+    rt_handle_begin_transaction(a_h);
+    rt_handle_begin_transaction(b_h);
     const void *a = rt_array_data_v2(a_h);
     const void *b = rt_array_data_v2(b_h);
-    return memcmp(a, b, len_a * elem_size) == 0;
+    int result = memcmp(a, b, len_a * elem_size) == 0;
+    rt_handle_end_transaction(b_h);
+    rt_handle_end_transaction(a_h);
+    return result;
 }
 
 /* ============================================================================
@@ -366,13 +405,17 @@ RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char
     meta->arena = arena;
     meta->size = count;
     meta->capacity = count;
+    meta->element_size = sizeof(RtHandleV2 *);
 
     RtHandleV2 **arr = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetadataV2));
     for (size_t i = 0; i < count; i++) {
+        rt_handle_renew_transaction(h);
         arr[i] = rt_arena_v2_strdup(arena, data[i] ? data[i] : "");
     }
 
     rt_handle_end_transaction(h);
+    rt_handle_set_copy_callback(h, rt_array_copy_callback);
+    rt_handle_set_free_callback(h, rt_array_free_callback);
     return h;
 }
 
@@ -382,5 +425,41 @@ RtHandleV2 *rt_array_create_generic_v2(RtArenaV2 *arena, size_t count, size_t el
 
 /* Pointer (nested array) create -- elements are RtHandleV2* */
 RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **data) {
-    return array_create_v2(arena, count, sizeof(RtHandleV2 *), data);
+    RtHandleV2 *h = array_create_v2(arena, count, sizeof(RtHandleV2 *), data);
+    if (h) {
+        rt_handle_set_copy_callback(h, rt_array_copy_callback);
+        rt_handle_set_free_callback(h, rt_array_free_callback);
+    }
+    return h;
+}
+
+/* ============================================================================
+ * Generic Array GC Callbacks
+ * ============================================================================
+ * These callbacks enable self-describing handles for arrays containing
+ * nested handles (str[], T[][], etc.). When set, rt_arena_v2_promote()
+ * and GC sweep can deep-copy/free array contents automatically.
+ * ============================================================================ */
+
+/* Copy callback for arrays of handles (str[], T[][], etc.) */
+void rt_array_copy_callback(RtArenaV2 *dest, void *ptr) {
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;
+    meta->arena = dest;  /* Update arena reference after shallow copy */
+    if (meta->element_size == sizeof(RtHandleV2 *)) {
+        RtHandleV2 **arr = (RtHandleV2 **)((char *)ptr + sizeof(RtArrayMetadataV2));
+        for (size_t i = 0; i < meta->size; i++) {
+            if (arr[i] != NULL) arr[i] = rt_arena_v2_promote(dest, arr[i]);
+        }
+    }
+}
+
+/* Free callback for arrays of handles (str[], T[][], etc.) */
+void rt_array_free_callback(RtHandleV2 *handle) {
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)handle->ptr;
+    if (meta->element_size == sizeof(RtHandleV2 *)) {
+        RtHandleV2 **arr = (RtHandleV2 **)((char *)handle->ptr + sizeof(RtArrayMetadataV2));
+        for (size_t i = 0; i < meta->size; i++) {
+            if (arr[i] != NULL) rt_arena_v2_free(arr[i]);
+        }
+    }
 }

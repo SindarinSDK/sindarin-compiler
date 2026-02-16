@@ -105,6 +105,11 @@ char *gen_struct_field_promotion(CodeGen *gen, Type *struct_type, const char *va
 /* Check if a struct type has any handle fields that need promotion */
 bool struct_has_handle_fields(Type *struct_type);
 
+/* GC callback generation for struct types.
+ * Generates copy/free callbacks for structs with handle fields so that
+ * rt_arena_v2_promote() and GC sweep handle deep copy/free automatically. */
+void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type);
+
 /* Arena destination calculation for scope escape */
 
 /* Calculate the target arena for an escaping allocation based on scope depth.

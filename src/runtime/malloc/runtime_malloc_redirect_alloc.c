@@ -55,7 +55,7 @@ static NOINLINE void *redirected_malloc(size_t size)
     /* Allocate with header */
     size_t total_size = sizeof(RtAllocHeader) + size;
     RtHandleV2 *raw_h = rt_arena_v2_alloc(state->arena, total_size);
-    void *raw = raw_h ? (rt_handle_begin_transaction(raw_h), raw_h->ptr) : NULL;
+    void *raw = raw_h ? (raw_h->ptr) : NULL;
 
     if (state->mutex) {
         pthread_mutex_unlock(state->mutex);

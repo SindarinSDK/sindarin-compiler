@@ -26,6 +26,7 @@ static unsigned char *create_byte_array(RtArenaV2 *arena, size_t count) {
     meta->size = count;
     meta->capacity = count;
 
+    rt_handle_end_transaction(raw_h);
     return (unsigned char *)((char *)raw + sizeof(RtArrayMetadataV2));
 }
 

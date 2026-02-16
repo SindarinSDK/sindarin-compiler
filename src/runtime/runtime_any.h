@@ -149,4 +149,10 @@ RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value);
 struct RtArenaV2;
 RtAny rt_any_promote_v2(struct RtArenaV2 *target_arena, RtAny value);
 
+/* Deep copy/free for individual any values (used by any[] GC callbacks).
+ * deep_copy promotes nested handles to dest arena, modifying the RtAny in-place.
+ * deep_free releases nested handles, setting pointers to NULL. */
+void rt_any_deep_copy(struct RtArenaV2 *dest, RtAny *any);
+void rt_any_deep_free(RtAny *any);
+
 #endif /* RUNTIME_ANY_H */
