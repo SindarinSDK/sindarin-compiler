@@ -1,0 +1,48 @@
+# Test: Nested struct containing an array of structs with handles.
+# Combines both nested struct promotion and array-of-struct callback issues.
+# The outer struct has a nested struct field, which itself contains
+# an array of structs with string handles.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+struct Config =>
+    name: str
+    entries: Entry[]
+
+struct App =>
+    version: str
+    config: Config
+
+fn buildApp(): App =>
+    var cfg: Config = Config { name: "myapp", entries: {} }
+    cfg.entries.push(Entry { key: "host", value: "localhost" })
+    cfg.entries.push(Entry { key: "port", value: "8080" })
+    var app: App = App { version: "1.0", config: cfg }
+    return app
+
+fn main(): void =>
+    var app: App = buildApp()
+
+    # Force GC
+    gc_collect()
+
+    # Everything must survive: outer string, nested struct string,
+    # nested array of structs with string handles
+    print($"Version: {app.version}\n")
+    print($"Config: {app.config.name}\n")
+    print($"Entries: {app.config.entries.length}\n")
+    for var i: int = 0; i < app.config.entries.length; i++ =>
+        print($"  {app.config.entries[i].key}={app.config.entries[i].value}\n")
+
+    if app.version == "1.0" && app.config.name == "myapp" =>
+        if app.config.entries.length == 2 =>
+            if app.config.entries[0].key == "host" && app.config.entries[0].value == "localhost" =>
+                if app.config.entries[1].key == "port" && app.config.entries[1].value == "8080" =>
+                    print("PASS\n")
+                    return
+    print("FAIL\n")

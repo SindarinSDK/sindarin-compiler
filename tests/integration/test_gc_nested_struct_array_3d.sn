@@ -1,0 +1,44 @@
+# Test: 3D array of nested structs (Person[][][] where Person has Address)
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildCube(): Person[][][] =>
+    var r1: Person[] = { Person { name: "A", addr: Address { street: "s1", city: "c1" } } }
+    var r2: Person[] = { Person { name: "B", addr: Address { street: "s2", city: "c2" } } }
+    var layer1: Person[][] = { r1, r2 }
+
+    var r3: Person[] = { Person { name: "C", addr: Address { street: "s3", city: "c3" } } }
+    var layer2: Person[][] = { r3 }
+
+    var cube: Person[][][] = { layer1, layer2 }
+    return cube
+
+fn main(): void =>
+    var cube: Person[][][] = buildCube()
+    gc_collect()
+
+    if cube.length != 2 =>
+        print("FAIL: depth\n")
+        return
+    if cube[0].length != 2 || cube[1].length != 1 =>
+        print("FAIL: layers\n")
+        return
+    if cube[0][0][0].name != "A" || cube[0][0][0].addr.street != "s1" || cube[0][0][0].addr.city != "c1" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[0][1][0].name != "B" || cube[0][1][0].addr.street != "s2" || cube[0][1][0].addr.city != "c2" =>
+        print("FAIL: [0][1][0]\n")
+        return
+    if cube[1][0][0].name != "C" || cube[1][0][0].addr.street != "s3" || cube[1][0][0].addr.city != "c3" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

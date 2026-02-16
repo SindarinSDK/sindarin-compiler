@@ -1,0 +1,32 @@
+# Test: Concatenate two struct arrays and verify callbacks survive
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildConcat(): Entry[] =>
+    var a: Entry[] = { Entry { key: "a", value: "1" }, Entry { key: "b", value: "2" } }
+    var b: Entry[] = { Entry { key: "c", value: "3" } }
+    var combined: Entry[] = a.concat(b)
+    return combined
+
+fn main(): void =>
+    var items: Entry[] = buildConcat()
+    gc_collect()
+
+    if items.length != 3 =>
+        print($"FAIL: length {items.length}\n")
+        return
+    if items[0].key != "a" || items[0].value != "1" =>
+        print("FAIL: item 0\n")
+        return
+    if items[1].key != "b" || items[1].value != "2" =>
+        print("FAIL: item 1\n")
+        return
+    if items[2].key != "c" || items[2].value != "3" =>
+        print("FAIL: item 2\n")
+        return
+    print("PASS\n")

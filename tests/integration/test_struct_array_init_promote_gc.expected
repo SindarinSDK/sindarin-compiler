@@ -1,0 +1,6 @@
+Item: widget
+Tags: 3
+  color=red
+  size=large
+  material=steel
+PASS

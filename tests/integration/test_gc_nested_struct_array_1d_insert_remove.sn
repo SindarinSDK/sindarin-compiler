@@ -1,0 +1,36 @@
+# Test: Insert and remove on 1D nested struct array, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildModified(): Person[] =>
+    var people: Person[] = {
+        Person { name: "Alice", addr: Address { street: "1st", city: "NYC" } },
+        Person { name: "Charlie", addr: Address { street: "3rd", city: "CHI" } }
+    }
+    people.insert(Person { name: "Bob", addr: Address { street: "2nd", city: "LA" } }, 1)
+    people.remove(0)
+    return people
+
+fn main(): void =>
+    var people: Person[] = buildModified()
+    gc_collect()
+
+    if people.length != 2 =>
+        print($"FAIL: length {people.length}\n")
+        return
+    if people[0].name != "Bob" || people[0].addr.city != "LA" =>
+        print("FAIL: 0\n")
+        return
+    if people[1].name != "Charlie" || people[1].addr.street != "3rd" =>
+        print("FAIL: 1\n")
+        return
+    print("PASS\n")

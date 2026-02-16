@@ -1,0 +1,35 @@
+# Test: Concat 2D nested struct arrays, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildConcat(): Person[][] =>
+    var r1: Person[] = { Person { name: "Alice", addr: Address { street: "1st", city: "NYC" } } }
+    var r2: Person[] = { Person { name: "Bob", addr: Address { street: "2nd", city: "LA" } } }
+    var g1: Person[][] = { r1 }
+    var g2: Person[][] = { r2 }
+    var combined: Person[][] = g1.concat(g2)
+    return combined
+
+fn main(): void =>
+    var grid: Person[][] = buildConcat()
+    gc_collect()
+
+    if grid.length != 2 =>
+        print($"FAIL: length {grid.length}\n")
+        return
+    if grid[0][0].name != "Alice" || grid[0][0].addr.city != "NYC" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[1][0].name != "Bob" || grid[1][0].addr.street != "2nd" =>
+        print("FAIL: [1][0]\n")
+        return
+    print("PASS\n")

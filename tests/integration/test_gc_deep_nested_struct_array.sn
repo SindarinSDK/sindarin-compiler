@@ -1,0 +1,49 @@
+# Test: 3-level deep nested structs in a 1D array, returned and GC'd
+# Inner -> Middle -> Outer, each with string fields, wrapped in array
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Inner =>
+    x: str
+
+struct Middle =>
+    y: str
+    inner: Inner
+
+struct Outer =>
+    z: str
+    middle: Middle
+
+fn buildOuters(): Outer[] =>
+    var items: Outer[] = {}
+    items.push(Outer {
+        z: "z1",
+        middle: Middle {
+            y: "y1",
+            inner: Inner { x: "x1" }
+        }
+    })
+    items.push(Outer {
+        z: "z2",
+        middle: Middle {
+            y: "y2",
+            inner: Inner { x: "x2" }
+        }
+    })
+    return items
+
+fn main(): void =>
+    var items: Outer[] = buildOuters()
+    gc_collect()
+
+    if items.length != 2 =>
+        print("FAIL: length\n")
+        return
+    if items[0].z != "z1" || items[0].middle.y != "y1" || items[0].middle.inner.x != "x1" =>
+        print("FAIL: item 0\n")
+        return
+    if items[1].z != "z2" || items[1].middle.y != "y2" || items[1].middle.inner.x != "x2" =>
+        print("FAIL: item 1\n")
+        return
+    print("PASS\n")

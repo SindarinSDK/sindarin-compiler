@@ -1,0 +1,40 @@
+# Test: Struct containing a 1D array of structs field, returned and GC'd
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Tag =>
+    key: str
+    text: str
+
+struct Document =>
+    title: str
+    tags: Tag[]
+
+fn buildDoc(): Document =>
+    var doc: Document = Document { title: "My Doc", tags: {} }
+    doc.tags.push(Tag { key: "lang", text: "en" })
+    doc.tags.push(Tag { key: "type", text: "article" })
+    doc.tags.push(Tag { key: "status", text: "draft" })
+    return doc
+
+fn main(): void =>
+    var doc: Document = buildDoc()
+    gc_collect()
+
+    if doc.title != "My Doc" =>
+        print("FAIL: title\n")
+        return
+    if doc.tags.length != 3 =>
+        print("FAIL: tags length\n")
+        return
+    if doc.tags[0].key != "lang" || doc.tags[0].text != "en" =>
+        print("FAIL: tag 0\n")
+        return
+    if doc.tags[1].key != "type" || doc.tags[1].text != "article" =>
+        print("FAIL: tag 1\n")
+        return
+    if doc.tags[2].key != "status" || doc.tags[2].text != "draft" =>
+        print("FAIL: tag 2\n")
+        return
+    print("PASS\n")

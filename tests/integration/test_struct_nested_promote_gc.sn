@@ -1,0 +1,39 @@
+# Test: Nested struct with handle fields must survive GC after promotion.
+# When a function returns a struct containing a nested struct with str fields,
+# the string handles inside the nested struct must be promoted to the caller arena.
+# Without recursive struct promotion, GC will free the local arena strings.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    age: int
+    address: Address
+
+fn createPerson(): Person =>
+    var addr: Address = Address { street: "123 Main St", city: "Springfield" }
+    var p: Person = Person { name: "Alice", age: 30, address: addr }
+    return p
+
+fn main(): void =>
+    var p: Person = createPerson()
+
+    # Force GC to collect the condemned local arena from createPerson
+    gc_collect()
+
+    # Access all fields - nested struct handles must have been promoted
+    print($"Name: {p.name}\n")
+    print($"Age: {p.age}\n")
+    print($"Street: {p.address.street}\n")
+    print($"City: {p.address.city}\n")
+
+    if p.name == "Alice" && p.age == 30 =>
+        if p.address.street == "123 Main St" && p.address.city == "Springfield" =>
+            print("PASS\n")
+            return
+    print("FAIL\n")

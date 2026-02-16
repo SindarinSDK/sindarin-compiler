@@ -1,0 +1,38 @@
+# Test: 2D array of structs (Item[][]) returned from function, GC'd
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Item =>
+    name: str
+    value: str
+
+fn buildGrid(): Item[][] =>
+    var row1: Item[] = { Item { name: "a1", value: "v1" }, Item { name: "a2", value: "v2" } }
+    var row2: Item[] = { Item { name: "b1", value: "v3" }, Item { name: "b2", value: "v4" } }
+    var grid: Item[][] = { row1, row2 }
+    return grid
+
+fn main(): void =>
+    var grid: Item[][] = buildGrid()
+    gc_collect()
+
+    if grid.length != 2 =>
+        print("FAIL: outer length\n")
+        return
+    if grid[0].length != 2 || grid[1].length != 2 =>
+        print("FAIL: inner length\n")
+        return
+    if grid[0][0].name != "a1" || grid[0][0].value != "v1" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[0][1].name != "a2" || grid[0][1].value != "v2" =>
+        print("FAIL: [0][1]\n")
+        return
+    if grid[1][0].name != "b1" || grid[1][0].value != "v3" =>
+        print("FAIL: [1][0]\n")
+        return
+    if grid[1][1].name != "b2" || grid[1][1].value != "v4" =>
+        print("FAIL: [1][1]\n")
+        return
+    print("PASS\n")

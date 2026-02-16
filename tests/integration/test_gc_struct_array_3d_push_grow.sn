@@ -1,0 +1,39 @@
+# Test: Push layers into a 3D struct array causing growth, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildCube(): Entry[][][] =>
+    var cube: Entry[][][] = {}
+    for var i: int = 0; i < 3; i++ =>
+        var layer: Entry[][] = {}
+        for var j: int = 0; j < 2; j++ =>
+            var row: Entry[] = { Entry { key: $"k{i}{j}", value: $"v{i}{j}" } }
+            layer.push(row)
+        cube.push(layer)
+    return cube
+
+fn main(): void =>
+    var cube: Entry[][][] = buildCube()
+    gc_collect()
+
+    if cube.length != 3 =>
+        print($"FAIL: depth {cube.length}\n")
+        return
+    if cube[0].length != 2 =>
+        print("FAIL: layer size\n")
+        return
+    if cube[0][0][0].key != "k00" || cube[0][0][0].value != "v00" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[1][1][0].key != "k11" || cube[1][1][0].value != "v11" =>
+        print("FAIL: [1][1][0]\n")
+        return
+    if cube[2][0][0].key != "k20" || cube[2][0][0].value != "v20" =>
+        print("FAIL: [2][0][0]\n")
+        return
+    print("PASS\n")

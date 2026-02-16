@@ -45,6 +45,9 @@ RtHandleV2 *rt_array_clone_v2(RtHandleV2 *arr_h, size_t elem_size) {
     size_t count = rt_array_length_v2(arr_h);
     const void *src = rt_array_data_v2(arr_h);
     RtHandleV2 *result = array_create_v2(arena, count, elem_size, src);
+    /* Propagate callbacks from source array */
+    result->copy_callback = arr_h->copy_callback;
+    result->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(arr_h);
     return result;
 }
@@ -74,6 +77,14 @@ RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_siz
     char *arr = (char *)raw + sizeof(RtArrayMetadataV2);
     if (len_a > 0) memcpy(arr, a, len_a * elem_size);
     if (len_b > 0) memcpy(arr + len_a * elem_size, b, len_b * elem_size);
+    /* Propagate callbacks from source array */
+    if (a_h) {
+        h->copy_callback = a_h->copy_callback;
+        h->free_callback = a_h->free_callback;
+    } else if (b_h) {
+        h->copy_callback = b_h->copy_callback;
+        h->free_callback = b_h->free_callback;
+    }
     rt_handle_end_transaction(h);
     if (b_h) rt_handle_end_transaction(b_h);
     if (a_h) rt_handle_end_transaction(a_h);
@@ -131,6 +142,9 @@ RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step
             j++;
         }
     }
+    /* Propagate callbacks from source array */
+    h->copy_callback = arr_h->copy_callback;
+    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -161,6 +175,9 @@ RtHandleV2 *rt_array_rev_v2(RtHandleV2 *arr_h, size_t elem_size) {
         rt_handle_renew_transaction(arr_h);
         memcpy(dst + i * elem_size, src + (len - 1 - i) * elem_size, elem_size);
     }
+    /* Propagate callbacks from source array */
+    h->copy_callback = arr_h->copy_callback;
+    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -196,6 +213,9 @@ RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size) {
     if ((size_t)index < len - 1) {
         memcpy(dst + index * elem_size, src + (index + 1) * elem_size, (len - index - 1) * elem_size);
     }
+    /* Propagate callbacks from source array */
+    h->copy_callback = arr_h->copy_callback;
+    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -234,6 +254,9 @@ RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, siz
     if ((size_t)index < len && src) {
         memcpy(dst + (index + 1) * elem_size, src + index * elem_size, (len - index) * elem_size);
     }
+    /* Propagate callbacks from source array */
+    h->copy_callback = arr_h->copy_callback;
+    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -287,7 +310,12 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
     new_meta->arena = arena;
     new_meta->size = old_size + 1;
     new_meta->capacity = new_cap;
+    new_meta->element_size = elem_size;
     memcpy(new_arr + old_size * elem_size, elem, elem_size);
+
+    /* Propagate callbacks from old handle to new handle */
+    new_h->copy_callback = arr_h->copy_callback;
+    new_h->free_callback = arr_h->free_callback;
 
     rt_handle_end_transaction(new_h);
     rt_handle_end_transaction(arr_h);
@@ -319,6 +347,9 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
 
     if (len > 0 && src) memcpy(dst, src, len * elem_size);
     memcpy(dst + len * elem_size, elem, elem_size);
+    /* Propagate callbacks from source array */
+    h->copy_callback = arr_h->copy_callback;
+    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;

@@ -1,0 +1,40 @@
+# Test: 3D array of deep nested structs (Outer[][][] where Outer.Middle.Inner)
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Inner =>
+    x: str
+
+struct Middle =>
+    y: str
+    inner: Inner
+
+struct Outer =>
+    z: str
+    middle: Middle
+
+fn buildCube(): Outer[][][] =>
+    var r1: Outer[] = { Outer { z: "a", middle: Middle { y: "b", inner: Inner { x: "c" } } } }
+    var layer1: Outer[][] = { r1 }
+
+    var r2: Outer[] = { Outer { z: "d", middle: Middle { y: "e", inner: Inner { x: "f" } } } }
+    var layer2: Outer[][] = { r2 }
+
+    var cube: Outer[][][] = { layer1, layer2 }
+    return cube
+
+fn main(): void =>
+    var cube: Outer[][][] = buildCube()
+    gc_collect()
+
+    if cube.length != 2 =>
+        print("FAIL: depth\n")
+        return
+    if cube[0][0][0].z != "a" || cube[0][0][0].middle.y != "b" || cube[0][0][0].middle.inner.x != "c" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[1][0][0].z != "d" || cube[1][0][0].middle.y != "e" || cube[1][0][0].middle.inner.x != "f" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

@@ -118,8 +118,9 @@ struct RtArenaV2 {
     RtBlockV2 *current_block;   /* Current allocation block */
 
     /* GC state */
-    bool gc_running;            /* Is GC currently running? */
+    bool gc_running;            /* Is GC currently running on this arena? */
     volatile uint16_t flags;    /* RtArenaFlags */
+    pthread_mutex_t gc_mutex;   /* Serializes GC runs (only used on root) */
 
     /* Synchronization - simple mutex, no lock-free */
     pthread_mutex_t mutex;

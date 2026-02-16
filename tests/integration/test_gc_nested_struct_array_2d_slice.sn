@@ -1,0 +1,35 @@
+# Test: Slice 2D nested struct array, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildAndSlice(): Person[][] =>
+    var r1: Person[] = { Person { name: "Alice", addr: Address { street: "1st", city: "NYC" } } }
+    var r2: Person[] = { Person { name: "Bob", addr: Address { street: "2nd", city: "LA" } } }
+    var r3: Person[] = { Person { name: "Charlie", addr: Address { street: "3rd", city: "CHI" } } }
+    var grid: Person[][] = { r1, r2, r3 }
+    var sliced: Person[][] = grid[1..3]
+    return sliced
+
+fn main(): void =>
+    var grid: Person[][] = buildAndSlice()
+    gc_collect()
+
+    if grid.length != 2 =>
+        print($"FAIL: length {grid.length}\n")
+        return
+    if grid[0][0].name != "Bob" || grid[0][0].addr.city != "LA" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[1][0].name != "Charlie" || grid[1][0].addr.street != "3rd" =>
+        print("FAIL: [1][0]\n")
+        return
+    print("PASS\n")

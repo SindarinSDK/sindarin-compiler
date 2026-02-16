@@ -116,6 +116,7 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->flags = RT_ARENA_FLAG_NONE;
 
     pthread_mutex_init(&arena->mutex, NULL);
+    pthread_mutex_init(&arena->gc_mutex, NULL);
 
     arena->cleanups = NULL;
     memset(&arena->stats, 0, sizeof(arena->stats));

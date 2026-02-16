@@ -32,26 +32,43 @@ static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field
                      prefix, c_field_name, prefix, c_field_name);
 }
 
+/* Forward declaration for recursive promotion */
+static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, const char *prefix, int indent);
+
 /* Generate promotion code for struct return values */
 void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, int indent)
 {
-    int field_count = return_type->as.struct_type.field_count;
+    code_gen_promote_struct_fields(gen, return_type, "_return_value", indent);
+}
+
+/* Recursively generate promotion code for all handle fields in a struct.
+ * Handles direct string/array fields and recurses into nested struct fields. */
+static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, const char *prefix, int indent)
+{
+    int field_count = struct_type->as.struct_type.field_count;
 
     for (int i = 0; i < field_count; i++)
     {
-        StructField *field = &return_type->as.struct_type.fields[i];
+        StructField *field = &struct_type->as.struct_type.fields[i];
         if (field->type == NULL) continue;
 
         const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
 
         if (field->type->kind == TYPE_STRING)
         {
-            indented_fprintf(gen, indent, "_return_value.%s = rt_arena_v2_promote(__caller_arena__, _return_value.%s);\n",
-                             c_field_name, c_field_name);
+            indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(__caller_arena__, %s.%s);\n",
+                             prefix, c_field_name, prefix, c_field_name);
         }
         else if (field->type->kind == TYPE_ARRAY)
         {
-            code_gen_promote_struct_array_field(gen, field, "_return_value", indent);
+            indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(__caller_arena__, %s.%s);\n",
+                             prefix, c_field_name, prefix, c_field_name);
+        }
+        else if (field->type->kind == TYPE_STRUCT && struct_has_handle_fields(field->type))
+        {
+            /* Recurse into nested struct to promote its handle fields */
+            const char *nested_prefix = arena_sprintf(gen->arena, "%s.%s", prefix, c_field_name);
+            code_gen_promote_struct_fields(gen, field->type, nested_prefix, indent);
         }
     }
 }

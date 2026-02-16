@@ -1,0 +1,6 @@
+Version: 1.0
+Config: myapp
+Entries: 2
+  host=localhost
+  port=8080
+PASS

@@ -1,0 +1,44 @@
+# Test: Empty struct array field initialized in constructor must have copy callbacks.
+# When a struct is created with an empty array field of a struct type (e.g. headers: {}),
+# the array handle must have copy/free callbacks registered so that promotion
+# can deep-copy the inner struct handles when the array is promoted.
+# This specifically tests the struct initializer codegen path.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Tag =>
+    key: str
+    value: str
+
+struct Item =>
+    name: str
+    tags: Tag[]
+
+fn buildItem(): Item =>
+    # The empty tags: {} creates an array via code_gen_expr_struct.c path
+    var item: Item = Item { name: "widget", tags: {} }
+    item.tags.push(Tag { key: "color", value: "red" })
+    item.tags.push(Tag { key: "size", value: "large" })
+    item.tags.push(Tag { key: "material", value: "steel" })
+    return item
+
+fn main(): void =>
+    var item: Item = buildItem()
+
+    # Force GC - local arena from buildItem should be collected
+    gc_collect()
+
+    # All tag strings must survive GC
+    print($"Item: {item.name}\n")
+    print($"Tags: {item.tags.length}\n")
+    for var i: int = 0; i < item.tags.length; i++ =>
+        print($"  {item.tags[i].key}={item.tags[i].value}\n")
+
+    if item.tags.length == 3 =>
+        if item.tags[0].key == "color" && item.tags[0].value == "red" =>
+            if item.tags[1].key == "size" && item.tags[1].value == "large" =>
+                if item.tags[2].key == "material" && item.tags[2].value == "steel" =>
+                    print("PASS\n")
+                    return
+    print("FAIL\n")

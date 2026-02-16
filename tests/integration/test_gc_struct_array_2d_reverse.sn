@@ -1,0 +1,34 @@
+# Test: Reverse a 2D struct array (reverses outer dimension) and GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildReversed(): Entry[][] =>
+    var r1: Entry[] = { Entry { key: "a", value: "1" } }
+    var r2: Entry[] = { Entry { key: "b", value: "2" } }
+    var r3: Entry[] = { Entry { key: "c", value: "3" } }
+    var grid: Entry[][] = { r1, r2, r3 }
+    grid.reverse()
+    return grid
+
+fn main(): void =>
+    var grid: Entry[][] = buildReversed()
+    gc_collect()
+
+    if grid.length != 3 =>
+        print($"FAIL: length {grid.length}\n")
+        return
+    if grid[0][0].key != "c" || grid[0][0].value != "3" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[1][0].key != "b" || grid[1][0].value != "2" =>
+        print("FAIL: [1][0]\n")
+        return
+    if grid[2][0].key != "a" || grid[2][0].value != "1" =>
+        print("FAIL: [2][0]\n")
+        return
+    print("PASS\n")

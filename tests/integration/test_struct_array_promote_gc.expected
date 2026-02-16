@@ -1,0 +1,5 @@
+Code: 200
+Headers: 2
+  Content-Type: text/plain
+  X-Custom: test-value
+PASS

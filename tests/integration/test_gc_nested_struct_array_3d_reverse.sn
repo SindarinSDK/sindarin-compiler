@@ -1,0 +1,36 @@
+# Test: Reverse 3D nested struct array, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildReversed(): Person[][][] =>
+    var r1: Person[] = { Person { name: "Alice", addr: Address { street: "1st", city: "NYC" } } }
+    var r2: Person[] = { Person { name: "Bob", addr: Address { street: "2nd", city: "LA" } } }
+    var l1: Person[][] = { r1 }
+    var l2: Person[][] = { r2 }
+    var cube: Person[][][] = { l1, l2 }
+    cube.reverse()
+    return cube
+
+fn main(): void =>
+    var cube: Person[][][] = buildReversed()
+    gc_collect()
+
+    if cube.length != 2 =>
+        print($"FAIL: length {cube.length}\n")
+        return
+    if cube[0][0][0].name != "Bob" || cube[0][0][0].addr.city != "LA" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[1][0][0].name != "Alice" || cube[1][0][0].addr.street != "1st" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

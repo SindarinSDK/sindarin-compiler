@@ -10,6 +10,7 @@
 #include "arena_gc.h"
 #include "arena_v2.h"
 #include "arena_handle.h"
+#include "arena_id.h"
 #include "arena_stats.h"
 
 #include <stdio.h>
@@ -104,6 +105,7 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 
     pthread_mutex_unlock(&arena->mutex);
     pthread_mutex_destroy(&arena->mutex);
+    pthread_mutex_destroy(&arena->gc_mutex);
 
     free(arena);
 }
@@ -120,6 +122,7 @@ static int gc_acquire_block(RtBlockV2 *block)
 
     /* Try to acquire free block */
     if (atomic_compare_exchange_strong(&block->tx_holder, &expected, GC_OWNER_ID)) {
+        atomic_store(&block->tx_recurse_count, 1);
         return 0;  /* Successfully acquired free block */
     }
 
@@ -131,6 +134,7 @@ static int gc_acquire_block(RtBlockV2 *block)
     if (timeout_ns > 0 && (now_ns - start_ns) > timeout_ns) {
         /* Lease expired - force acquire */
         atomic_store(&block->tx_holder, GC_OWNER_ID);
+        atomic_store(&block->tx_recurse_count, 1);
         return -1;  /* Force acquired expired lease */
     }
 
@@ -141,6 +145,7 @@ static int gc_acquire_block(RtBlockV2 *block)
 /* Release a block after GC processing */
 static void gc_release_block(RtBlockV2 *block)
 {
+    atomic_store(&block->tx_recurse_count, 0);
     atomic_store(&block->tx_holder, 0);
 }
 
@@ -286,8 +291,19 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
     if (arena == NULL) return 0;
 
+    /* Serialize GC runs - only one thread can GC at a time.
+     * Multiple threads may call GC.collect() concurrently (e.g., HTTP workers),
+     * and concurrent tree traversal + arena destruction is unsafe. */
+    pthread_mutex_lock(&arena->gc_mutex);
+
     /* Initialize result */
     RtArenaGCResult result = {0};
+
+    /* Temporarily identify this thread as GC so that free_callbacks
+     * invoked during compaction can re-entrantly acquire blocks that
+     * GC already holds (tx_holder == GC_OWNER_ID == our thread id). */
+    uint64_t saved_thread_id = rt_arena_get_thread_id();
+    rt_arena_set_thread_id(GC_OWNER_ID);
 
     /* Pass 1: Sweep dead arenas */
     gc_sweep_dead_arenas(arena);
@@ -295,8 +311,13 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Pass 2: Compact blocks in all live arenas */
     gc_compact_all(arena, &result);
 
+    /* Restore thread identity */
+    rt_arena_set_thread_id(saved_thread_id);
+
     /* Record GC results */
     rt_arena_stats_record_gc(arena, &result);
+
+    pthread_mutex_unlock(&arena->gc_mutex);
 
     return result.handles_freed;
 }

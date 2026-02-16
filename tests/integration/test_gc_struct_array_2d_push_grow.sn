@@ -1,0 +1,38 @@
+# Test: Push rows into a 2D struct array causing growth, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildGrid(): Entry[][] =>
+    var grid: Entry[][] = {}
+    for var i: int = 0; i < 5; i++ =>
+        var row: Entry[] = {}
+        for var j: int = 0; j < 3; j++ =>
+            row.push(Entry { key: $"k{i}{j}", value: $"v{i}{j}" })
+        grid.push(row)
+    return grid
+
+fn main(): void =>
+    var grid: Entry[][] = buildGrid()
+    gc_collect()
+
+    if grid.length != 5 =>
+        print($"FAIL: rows {grid.length}\n")
+        return
+    if grid[0].length != 3 =>
+        print("FAIL: cols\n")
+        return
+    if grid[0][0].key != "k00" || grid[0][0].value != "v00" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[2][1].key != "k21" || grid[2][1].value != "v21" =>
+        print("FAIL: [2][1]\n")
+        return
+    if grid[4][2].key != "k42" || grid[4][2].value != "v42" =>
+        print("FAIL: [4][2]\n")
+        return
+    print("PASS\n")

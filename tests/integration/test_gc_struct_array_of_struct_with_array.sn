@@ -1,0 +1,56 @@
+# Test: Array of structs where each struct contains an array of structs
+# This is the "array of containers" pattern - exercises both outer and inner callbacks
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Item =>
+    name: str
+    desc: str
+
+struct Container =>
+    label: str
+    items: Item[]
+
+fn buildContainers(): Container[] =>
+    var c1: Container = Container { label: "box1", items: {} }
+    c1.items.push(Item { name: "pen", desc: "blue ink" })
+    c1.items.push(Item { name: "pencil", desc: "HB graphite" })
+
+    var c2: Container = Container { label: "box2", items: {} }
+    c2.items.push(Item { name: "eraser", desc: "white rubber" })
+
+    var containers: Container[] = {}
+    containers.push(c1)
+    containers.push(c2)
+    return containers
+
+fn main(): void =>
+    var containers: Container[] = buildContainers()
+    gc_collect()
+
+    if containers.length != 2 =>
+        print("FAIL: outer length\n")
+        return
+    if containers[0].label != "box1" =>
+        print("FAIL: label 0\n")
+        return
+    if containers[0].items.length != 2 =>
+        print("FAIL: items 0 length\n")
+        return
+    if containers[0].items[0].name != "pen" || containers[0].items[0].desc != "blue ink" =>
+        print("FAIL: box1 item 0\n")
+        return
+    if containers[0].items[1].name != "pencil" || containers[0].items[1].desc != "HB graphite" =>
+        print("FAIL: box1 item 1\n")
+        return
+    if containers[1].label != "box2" =>
+        print("FAIL: label 1\n")
+        return
+    if containers[1].items.length != 1 =>
+        print("FAIL: items 1 length\n")
+        return
+    if containers[1].items[0].name != "eraser" || containers[1].items[0].desc != "white rubber" =>
+        print("FAIL: box2 item 0\n")
+        return
+    print("PASS\n")
