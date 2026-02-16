@@ -1,0 +1,47 @@
+# Test: 2D array of deep nested structs (Outer[][] where Outer has Middle has Inner)
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Inner =>
+    x: str
+
+struct Middle =>
+    y: str
+    inner: Inner
+
+struct Outer =>
+    z: str
+    middle: Middle
+
+fn buildGrid(): Outer[][] =>
+    var r1: Outer[] = {
+        Outer { z: "z00", middle: Middle { y: "y00", inner: Inner { x: "x00" } } },
+        Outer { z: "z01", middle: Middle { y: "y01", inner: Inner { x: "x01" } } }
+    }
+    var r2: Outer[] = {
+        Outer { z: "z10", middle: Middle { y: "y10", inner: Inner { x: "x10" } } }
+    }
+    var grid: Outer[][] = { r1, r2 }
+    return grid
+
+fn main(): void =>
+    var grid: Outer[][] = buildGrid()
+    gc_collect()
+
+    if grid.length != 2 =>
+        print("FAIL: rows\n")
+        return
+    if grid[0].length != 2 || grid[1].length != 1 =>
+        print("FAIL: cols\n")
+        return
+    if grid[0][0].z != "z00" || grid[0][0].middle.y != "y00" || grid[0][0].middle.inner.x != "x00" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[0][1].z != "z01" || grid[0][1].middle.y != "y01" || grid[0][1].middle.inner.x != "x01" =>
+        print("FAIL: [0][1]\n")
+        return
+    if grid[1][0].z != "z10" || grid[1][0].middle.y != "y10" || grid[1][0].middle.inner.x != "x10" =>
+        print("FAIL: [1][0]\n")
+        return
+    print("PASS\n")

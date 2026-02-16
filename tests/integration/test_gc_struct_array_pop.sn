@@ -1,0 +1,31 @@
+# Test: Pop from a 1D struct array and verify remaining elements survive GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildAndPop(): Entry[] =>
+    var items: Entry[] = {}
+    items.push(Entry { key: "a", value: "1" })
+    items.push(Entry { key: "b", value: "2" })
+    items.push(Entry { key: "c", value: "3" })
+    items.pop()
+    return items
+
+fn main(): void =>
+    var items: Entry[] = buildAndPop()
+    gc_collect()
+
+    if items.length != 2 =>
+        print($"FAIL: length {items.length}\n")
+        return
+    if items[0].key != "a" || items[0].value != "1" =>
+        print("FAIL: item 0\n")
+        return
+    if items[1].key != "b" || items[1].value != "2" =>
+        print("FAIL: item 1\n")
+        return
+    print("PASS\n")

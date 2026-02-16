@@ -1,0 +1,51 @@
+# Test: Struct containing 2D array of nested structs
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+struct Organization =>
+    name: str
+    departments: Person[][]
+
+fn buildOrg(): Organization =>
+    var eng: Person[] = {
+        Person { name: "Alice", addr: Address { street: "1st", city: "NYC" } },
+        Person { name: "Bob", addr: Address { street: "2nd", city: "LA" } }
+    }
+    var sales: Person[] = {
+        Person { name: "Charlie", addr: Address { street: "3rd", city: "CHI" } }
+    }
+    var org: Organization = Organization { name: "Acme", departments: { eng, sales } }
+    return org
+
+fn main(): void =>
+    var org: Organization = buildOrg()
+    gc_collect()
+
+    if org.name != "Acme" =>
+        print("FAIL: name\n")
+        return
+    if org.departments.length != 2 =>
+        print("FAIL: dept count\n")
+        return
+    if org.departments[0].length != 2 || org.departments[1].length != 1 =>
+        print("FAIL: dept sizes\n")
+        return
+    if org.departments[0][0].name != "Alice" || org.departments[0][0].addr.city != "NYC" =>
+        print("FAIL: [0][0]\n")
+        return
+    if org.departments[0][1].name != "Bob" || org.departments[0][1].addr.city != "LA" =>
+        print("FAIL: [0][1]\n")
+        return
+    if org.departments[1][0].name != "Charlie" || org.departments[1][0].addr.city != "CHI" =>
+        print("FAIL: [1][0]\n")
+        return
+    print("PASS\n")

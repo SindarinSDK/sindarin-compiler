@@ -1,0 +1,33 @@
+# Test: 1D array of structs with string fields, returned from function, GC'd
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Item =>
+    name: str
+    value: str
+
+fn buildItems(): Item[] =>
+    var items: Item[] = {}
+    items.push(Item { name: "alpha", value: "one" })
+    items.push(Item { name: "beta", value: "two" })
+    items.push(Item { name: "gamma", value: "three" })
+    return items
+
+fn main(): void =>
+    var items: Item[] = buildItems()
+    gc_collect()
+
+    if items.length != 3 =>
+        print("FAIL: length\n")
+        return
+    if items[0].name != "alpha" || items[0].value != "one" =>
+        print("FAIL: item 0\n")
+        return
+    if items[1].name != "beta" || items[1].value != "two" =>
+        print("FAIL: item 1\n")
+        return
+    if items[2].name != "gamma" || items[2].value != "three" =>
+        print("FAIL: item 2\n")
+        return
+    print("PASS\n")

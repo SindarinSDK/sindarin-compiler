@@ -1,0 +1,40 @@
+# Test: Struct containing 1D array of nested structs
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+struct Team =>
+    label: str
+    members: Person[]
+
+fn buildTeam(): Team =>
+    var team: Team = Team { label: "Engineering", members: {} }
+    team.members.push(Person { name: "Alice", addr: Address { street: "1st Ave", city: "NYC" } })
+    team.members.push(Person { name: "Bob", addr: Address { street: "2nd Ave", city: "LA" } })
+    return team
+
+fn main(): void =>
+    var team: Team = buildTeam()
+    gc_collect()
+
+    if team.label != "Engineering" =>
+        print("FAIL: label\n")
+        return
+    if team.members.length != 2 =>
+        print("FAIL: length\n")
+        return
+    if team.members[0].name != "Alice" || team.members[0].addr.city != "NYC" =>
+        print("FAIL: member 0\n")
+        return
+    if team.members[1].name != "Bob" || team.members[1].addr.street != "2nd Ave" =>
+        print("FAIL: member 1\n")
+        return
+    print("PASS\n")

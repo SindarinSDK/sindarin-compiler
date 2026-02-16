@@ -505,6 +505,17 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         "rt_array_create_ptr_v2((RtArenaV2 *)__rt_thunk_arena, "
                         "rt_v2_data_array_length((void *)__arr_data), __arr_data); })",
                         unboxed_args, unbox_func, thunk_arg_idx);
+                } else if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
+                    code_gen_ensure_struct_callbacks(gen, elem_type);
+                    const char *sn_name = elem_type->as.struct_type.name
+                        ? elem_type->as.struct_type.name : elem_c;
+                    unboxed_args = arena_sprintf(gen->arena,
+                        "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
+                        "RtHandleV2 *__arr_h__ = rt_array_create_generic_v2((RtArenaV2 *)__rt_thunk_arena, "
+                        "rt_v2_data_array_length((void *)__arr_data), sizeof(%s), __arr_data);"
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                        unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, elem_c, sn_name, sn_name);
                 } else {
                     unboxed_args = arena_sprintf(gen->arena,
                         "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "

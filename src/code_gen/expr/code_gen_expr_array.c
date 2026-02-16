@@ -192,6 +192,15 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     if (elem_type->kind == TYPE_ARRAY) {
                         elem_str = arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, 1, (RtHandleV2 *[]){%s})",
                                                 ARENA_VAR(gen), val);
+                    } else if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
+                        code_gen_ensure_struct_callbacks(gen, elem_type);
+                        const char *sn_name = elem_type->as.struct_type.name
+                            ? elem_type->as.struct_type.name : literal_type;
+                        elem_str = arena_sprintf(gen->arena,
+                            "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s});"
+                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                            " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                            ARENA_VAR(gen), literal_type, literal_type, val, sn_name, sn_name);
                     } else {
                         elem_str = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s})",
                                                 ARENA_VAR(gen), literal_type, literal_type, val);
@@ -243,6 +252,17 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
             }
             if (elem_type->kind == TYPE_ARRAY) {
                 return arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, 0, NULL)", ARENA_VAR(gen));
+            }
+            if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
+                code_gen_ensure_struct_callbacks(gen, elem_type);
+                const char *elem_c = get_c_type(gen->arena, elem_type);
+                const char *sn_name = elem_type->as.struct_type.name
+                    ? elem_type->as.struct_type.name : elem_c;
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL);"
+                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                    " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                    ARENA_VAR(gen), elem_c, sn_name, sn_name);
             }
             const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
             return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, %s, NULL)", ARENA_VAR(gen), sizeof_expr);
@@ -363,6 +383,16 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
         if (elem_type->kind == TYPE_ARRAY) {
             return arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, %d, (RtHandleV2 *[]){%s})",
                                  ARENA_VAR(gen), arr->element_count, inits);
+        }
+        if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
+            code_gen_ensure_struct_callbacks(gen, elem_type);
+            const char *sn_name = elem_type->as.struct_type.name
+                ? elem_type->as.struct_type.name : literal_type;
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s});"
+                " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits, sn_name, sn_name);
         }
         return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s})",
                              ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits);
@@ -507,6 +537,16 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
     {
         const char *elem_c = get_c_type(gen->arena, elem_type);
         if (gen->expr_as_handle) {
+            if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
+                code_gen_ensure_struct_callbacks(gen, elem_type);
+                const char *sn_name = elem_type->as.struct_type.name
+                    ? elem_type->as.struct_type.name : elem_c;
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s));"
+                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                    " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                    ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str, sn_name, sn_name);
+            }
             return arena_sprintf(gen->arena,
                 "rt_array_create_generic_v2(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s))",
                 ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str);

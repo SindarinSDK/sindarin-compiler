@@ -1,0 +1,41 @@
+# Test: Deeply nested structs with handle fields at multiple levels.
+# Tests that struct promotion recurses correctly through multiple levels
+# of nested structs, each containing string handles.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Inner =>
+    value: str
+
+struct Middle =>
+    label: str
+    inner: Inner
+
+struct Outer =>
+    title: str
+    middle: Middle
+
+fn buildOuter(): Outer =>
+    var i: Inner = Inner { value: "deep-value" }
+    var m: Middle = Middle { label: "mid-label", inner: i }
+    var o: Outer = Outer { title: "top-title", middle: m }
+    return o
+
+fn main(): void =>
+    var o: Outer = buildOuter()
+
+    # Force GC
+    gc_collect()
+
+    # All three levels of string handles must survive
+    print($"Title: {o.title}\n")
+    print($"Label: {o.middle.label}\n")
+    print($"Value: {o.middle.inner.value}\n")
+
+    if o.title == "top-title" =>
+        if o.middle.label == "mid-label" =>
+            if o.middle.inner.value == "deep-value" =>
+                print("PASS\n")
+                return
+    print("FAIL\n")

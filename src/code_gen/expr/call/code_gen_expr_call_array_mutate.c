@@ -97,9 +97,9 @@ static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_ty
 static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_type,
                                     Expr *element, Expr *index)
 {
-    /* String arrays: evaluate element in handle mode for RtHandleV2* parameter */
+    /* String/array elements: evaluate in handle mode for RtHandleV2* parameter */
     bool prev_elem = gen->expr_as_handle;
-    if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
+    if ((element_type->kind == TYPE_STRING || element_type->kind == TYPE_ARRAY) && gen->current_arena_var != NULL) {
         gen->expr_as_handle = true;
     }
     char *elem_str = code_gen_expression(gen, element);

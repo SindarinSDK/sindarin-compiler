@@ -1,0 +1,40 @@
+# Test: Array of structs with handle fields must survive GC after promotion.
+# When a function returns a struct containing an array of structs with str fields,
+# the string handles inside the array elements must be deep-promoted to the caller arena.
+# Without deep promotion, GC will free the local arena and the handles become dangling.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+struct Response =>
+    code: int
+    headers: Header[]
+
+fn createResponse(): Response =>
+    var res: Response = Response { code: 200, headers: {} }
+    res.headers.push(Header { name: "Content-Type", value: "text/plain" })
+    res.headers.push(Header { name: "X-Custom", value: "test-value" })
+    return res
+
+fn main(): void =>
+    var res: Response = createResponse()
+
+    # Force GC to collect the condemned local arena from createResponse
+    gc_collect()
+
+    # Now access the promoted values - these should still be valid
+    print($"Code: {res.code}\n")
+    print($"Headers: {res.headers.length}\n")
+    for var i: int = 0; i < res.headers.length; i++ =>
+        print($"  {res.headers[i].name}: {res.headers[i].value}\n")
+
+    if res.headers.length == 2 =>
+        if res.headers[0].name == "Content-Type" && res.headers[0].value == "text/plain" =>
+            if res.headers[1].name == "X-Custom" && res.headers[1].value == "test-value" =>
+                print("PASS\n")
+                return
+    print("FAIL\n")

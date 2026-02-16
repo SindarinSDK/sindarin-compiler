@@ -1,0 +1,48 @@
+# Test: Array of structs where each struct contains a 2D array of structs
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Cell =>
+    label: str
+    value: str
+
+struct Sheet =>
+    name: str
+    rows: Cell[][]
+
+fn buildSheets(): Sheet[] =>
+    var r1: Cell[] = { Cell { label: "A1", value: "x" }, Cell { label: "B1", value: "y" } }
+    var s1: Sheet = Sheet { name: "S1", rows: { r1 } }
+
+    var r2: Cell[] = { Cell { label: "A1", value: "p" } }
+    var s2: Sheet = Sheet { name: "S2", rows: { r2 } }
+
+    var sheets: Sheet[] = {}
+    sheets.push(s1)
+    sheets.push(s2)
+    return sheets
+
+fn main(): void =>
+    var sheets: Sheet[] = buildSheets()
+    gc_collect()
+
+    if sheets.length != 2 =>
+        print("FAIL: count\n")
+        return
+    if sheets[0].name != "S1" =>
+        print("FAIL: name 0\n")
+        return
+    if sheets[0].rows[0][0].label != "A1" || sheets[0].rows[0][0].value != "x" =>
+        print("FAIL: S1[0][0]\n")
+        return
+    if sheets[0].rows[0][1].label != "B1" || sheets[0].rows[0][1].value != "y" =>
+        print("FAIL: S1[0][1]\n")
+        return
+    if sheets[1].name != "S2" =>
+        print("FAIL: name 1\n")
+        return
+    if sheets[1].rows[0][0].label != "A1" || sheets[1].rows[0][0].value != "p" =>
+        print("FAIL: S2[0][0]\n")
+        return
+    print("PASS\n")

@@ -1,0 +1,40 @@
+# Test: Struct containing 3D array of structs field
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Cell =>
+    label: str
+    value: str
+
+struct Workbook =>
+    name: str
+    sheets: Cell[][][]
+
+fn buildWorkbook(): Workbook =>
+    var r1: Cell[] = { Cell { label: "A1", value: "hello" } }
+    var s1: Cell[][] = { r1 }
+
+    var r2: Cell[] = { Cell { label: "B1", value: "world" } }
+    var s2: Cell[][] = { r2 }
+
+    var wb: Workbook = Workbook { name: "Book1", sheets: { s1, s2 } }
+    return wb
+
+fn main(): void =>
+    var wb: Workbook = buildWorkbook()
+    gc_collect()
+
+    if wb.name != "Book1" =>
+        print("FAIL: name\n")
+        return
+    if wb.sheets.length != 2 =>
+        print("FAIL: sheet count\n")
+        return
+    if wb.sheets[0][0][0].label != "A1" || wb.sheets[0][0][0].value != "hello" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if wb.sheets[1][0][0].label != "B1" || wb.sheets[1][0][0].value != "world" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

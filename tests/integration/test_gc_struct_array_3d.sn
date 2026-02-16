@@ -1,0 +1,46 @@
+# Test: 3D array of structs (Item[][][]) returned from function, GC'd
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Item =>
+    name: str
+    value: str
+
+fn buildCube(): Item[][][] =>
+    var r1: Item[] = { Item { name: "x00", value: "a" }, Item { name: "x01", value: "b" } }
+    var r2: Item[] = { Item { name: "x10", value: "c" } }
+    var layer1: Item[][] = { r1, r2 }
+
+    var r3: Item[] = { Item { name: "y00", value: "d" } }
+    var layer2: Item[][] = { r3 }
+
+    var cube: Item[][][] = { layer1, layer2 }
+    return cube
+
+fn main(): void =>
+    var cube: Item[][][] = buildCube()
+    gc_collect()
+
+    if cube.length != 2 =>
+        print("FAIL: depth\n")
+        return
+    if cube[0].length != 2 =>
+        print("FAIL: layer1 rows\n")
+        return
+    if cube[0][0].length != 2 =>
+        print("FAIL: layer1 row1 cols\n")
+        return
+    if cube[0][0][0].name != "x00" || cube[0][0][0].value != "a" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[0][0][1].name != "x01" || cube[0][0][1].value != "b" =>
+        print("FAIL: [0][0][1]\n")
+        return
+    if cube[0][1][0].name != "x10" || cube[0][1][0].value != "c" =>
+        print("FAIL: [0][1][0]\n")
+        return
+    if cube[1][0][0].name != "y00" || cube[1][0][0].value != "d" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

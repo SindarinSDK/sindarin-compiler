@@ -1,0 +1,35 @@
+# Test: Push layers of nested structs into 3D array causing growth, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildCube(): Person[][][] =>
+    var cube: Person[][][] = {}
+    for var i: int = 0; i < 3; i++ =>
+        var row: Person[] = { Person { name: $"p{i}", addr: Address { street: $"st{i}", city: $"c{i}" } } }
+        var layer: Person[][] = { row }
+        cube.push(layer)
+    return cube
+
+fn main(): void =>
+    var cube: Person[][][] = buildCube()
+    gc_collect()
+
+    if cube.length != 3 =>
+        print($"FAIL: length {cube.length}\n")
+        return
+    if cube[0][0][0].name != "p0" || cube[0][0][0].addr.city != "c0" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[2][0][0].name != "p2" || cube[2][0][0].addr.street != "st2" =>
+        print("FAIL: [2][0][0]\n")
+        return
+    print("PASS\n")

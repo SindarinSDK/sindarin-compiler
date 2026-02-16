@@ -60,6 +60,14 @@ static char *code_gen_array_pop(CodeGen *gen, Expr *object, Type *element_type)
         case TYPE_ARRAY:
             pop_func = "rt_array_pop_ptr_v2";
             break;
+        case TYPE_STRUCT:
+        {
+            /* Struct pop uses generic rt_array_pop_v2 with a temp buffer */
+            const char *struct_c = get_c_type(gen->arena, element_type);
+            return arena_sprintf(gen->arena,
+                "({ %s __pop_tmp__; rt_array_pop_v2(%s, &__pop_tmp__, sizeof(%s)); __pop_tmp__; })",
+                struct_c, handle_str, struct_c);
+        }
         default:
             fprintf(stderr, "Error: Unsupported array element type for pop\n");
             exit(1);

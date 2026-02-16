@@ -1,0 +1,35 @@
+# Test: Concat two 3D struct arrays and GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildConcat(): Entry[][][] =>
+    var r1: Entry[] = { Entry { key: "a", value: "1" } }
+    var l1: Entry[][] = { r1 }
+    var c1: Entry[][][] = { l1 }
+
+    var r2: Entry[] = { Entry { key: "b", value: "2" } }
+    var l2: Entry[][] = { r2 }
+    var c2: Entry[][][] = { l2 }
+
+    var combined: Entry[][][] = c1.concat(c2)
+    return combined
+
+fn main(): void =>
+    var cube: Entry[][][] = buildConcat()
+    gc_collect()
+
+    if cube.length != 2 =>
+        print($"FAIL: length {cube.length}\n")
+        return
+    if cube[0][0][0].key != "a" || cube[0][0][0].value != "1" =>
+        print("FAIL: [0][0][0]\n")
+        return
+    if cube[1][0][0].key != "b" || cube[1][0][0].value != "2" =>
+        print("FAIL: [1][0][0]\n")
+        return
+    print("PASS\n")

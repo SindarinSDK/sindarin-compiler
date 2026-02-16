@@ -1,0 +1,44 @@
+# Test: 2D array of nested structs (Person[][] where Person has nested Address)
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildGroups(): Person[][] =>
+    var g1: Person[] = {
+        Person { name: "Alice", addr: Address { street: "1st Ave", city: "NYC" } },
+        Person { name: "Bob", addr: Address { street: "2nd Ave", city: "LA" } }
+    }
+    var g2: Person[] = {
+        Person { name: "Charlie", addr: Address { street: "3rd Ave", city: "CHI" } }
+    }
+    var groups: Person[][] = { g1, g2 }
+    return groups
+
+fn main(): void =>
+    var groups: Person[][] = buildGroups()
+    gc_collect()
+
+    if groups.length != 2 =>
+        print("FAIL: outer\n")
+        return
+    if groups[0].length != 2 || groups[1].length != 1 =>
+        print("FAIL: inner lengths\n")
+        return
+    if groups[0][0].name != "Alice" || groups[0][0].addr.city != "NYC" =>
+        print("FAIL: [0][0]\n")
+        return
+    if groups[0][1].name != "Bob" || groups[0][1].addr.street != "2nd Ave" =>
+        print("FAIL: [0][1]\n")
+        return
+    if groups[1][0].name != "Charlie" || groups[1][0].addr.city != "CHI" =>
+        print("FAIL: [1][0]\n")
+        return
+    print("PASS\n")

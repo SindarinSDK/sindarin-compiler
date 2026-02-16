@@ -1,0 +1,34 @@
+# Test: Push enough struct elements to trigger multiple reallocs, then GC
+# Verifies callback propagation survives multiple growth cycles
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Entry =>
+    key: str
+    value: str
+
+fn buildMany(): Entry[] =>
+    var items: Entry[] = {}
+    for var i: int = 0; i < 20; i++ =>
+        items.push(Entry { key: $"key_{i}", value: $"val_{i}" })
+    return items
+
+fn main(): void =>
+    var items: Entry[] = buildMany()
+    gc_collect()
+
+    if items.length != 20 =>
+        print($"FAIL: length {items.length}\n")
+        return
+    # Check first, middle, last
+    if items[0].key != "key_0" || items[0].value != "val_0" =>
+        print("FAIL: item 0\n")
+        return
+    if items[10].key != "key_10" || items[10].value != "val_10" =>
+        print("FAIL: item 10\n")
+        return
+    if items[19].key != "key_19" || items[19].value != "val_19" =>
+        print("FAIL: item 19\n")
+        return
+    print("PASS\n")

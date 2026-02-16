@@ -1,0 +1,34 @@
+# Test: Push rows of nested structs into 2D array causing growth, then GC
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn buildGrid(): Person[][] =>
+    var grid: Person[][] = {}
+    for var i: int = 0; i < 4; i++ =>
+        var row: Person[] = { Person { name: $"p{i}", addr: Address { street: $"st{i}", city: $"c{i}" } } }
+        grid.push(row)
+    return grid
+
+fn main(): void =>
+    var grid: Person[][] = buildGrid()
+    gc_collect()
+
+    if grid.length != 4 =>
+        print($"FAIL: length {grid.length}\n")
+        return
+    if grid[0][0].name != "p0" || grid[0][0].addr.city != "c0" =>
+        print("FAIL: [0][0]\n")
+        return
+    if grid[3][0].name != "p3" || grid[3][0].addr.street != "st3" =>
+        print("FAIL: [3][0]\n")
+        return
+    print("PASS\n")

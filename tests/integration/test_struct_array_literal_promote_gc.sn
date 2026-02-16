@@ -1,0 +1,32 @@
+# Test: Array literal of structs with handle fields must have copy callbacks.
+# When a function creates an array literal like [Header{...}, Header{...}]
+# and returns it (or a struct containing it), the array must have callbacks
+# so promotion deep-copies the inner handles.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Pair =>
+    left: str
+    right: str
+
+fn makePairs(): Pair[] =>
+    return { Pair { left: "a", right: "b" }, Pair { left: "c", right: "d" } }
+
+fn main(): void =>
+    var pairs: Pair[] = makePairs()
+
+    # Force GC
+    gc_collect()
+
+    # Access after GC - handles must have been deep-promoted
+    print($"Count: {pairs.length}\n")
+    for var i: int = 0; i < pairs.length; i++ =>
+        print($"  {pairs[i].left},{pairs[i].right}\n")
+
+    if pairs.length == 2 =>
+        if pairs[0].left == "a" && pairs[0].right == "b" =>
+            if pairs[1].left == "c" && pairs[1].right == "d" =>
+                print("PASS\n")
+                return
+    print("FAIL\n")
