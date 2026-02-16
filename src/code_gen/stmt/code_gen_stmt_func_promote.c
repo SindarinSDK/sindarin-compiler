@@ -22,16 +22,6 @@ void code_gen_promote_array_return(CodeGen *gen, Type *return_type, int indent)
     indented_fprintf(gen, indent, "_return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
 }
 
-/* Generate promotion code for struct array fields.
- * Callbacks handle deep promotion automatically - just use rt_arena_v2_promote. */
-static void code_gen_promote_struct_array_field(CodeGen *gen, StructField *field,
-                                                 const char *prefix, int indent)
-{
-    const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-    indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(__caller_arena__, %s.%s);\n",
-                     prefix, c_field_name, prefix, c_field_name);
-}
-
 /* Forward declaration for recursive promotion */
 static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, const char *prefix, int indent);
 

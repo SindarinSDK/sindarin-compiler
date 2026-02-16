@@ -54,7 +54,7 @@ static const char *get_struct_c_name(CodeGen *gen, Type *struct_type) {
 }
 
 /* Get the Sindarin name for a struct (for callback function naming) */
-static const char *get_struct_sn_name(CodeGen *gen, Type *struct_type) {
+static const char *get_struct_sn_name(CodeGen *gen __attribute__((unused)), Type *struct_type) {
     if (struct_type->as.struct_type.name != NULL)
         return struct_type->as.struct_type.name;
     if (struct_type->as.struct_type.c_alias != NULL)
