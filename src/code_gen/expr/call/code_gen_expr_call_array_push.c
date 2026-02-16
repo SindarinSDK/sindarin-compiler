@@ -48,7 +48,7 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
             const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
 
             /* Generate: ({
-             *     RtThread *__spawn_tmp__ = <spawn>;
+             *     RtHandleV2 *__spawn_tmp__ = <spawn>;
              *     <arr> = rt_array_push_v2(<arena>, <arr>, &(<elem_c>){0}, <sizeof>);
              *     if (<pending_elems> == NULL) <pending_elems> = rt_array_create_v2(<arena>, 0, sizeof(void *));
              *     <pending_elems> = rt_array_push_v2(<arena>, <pending_elems>, &(void *){(void *)__spawn_tmp__}, sizeof(void *));
@@ -56,7 +56,7 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
              * }) */
             return arena_sprintf(gen->arena,
                 "({\n"
-                "    RtThread *__spawn_tmp__ = %s;\n"
+                "    RtHandleV2 *__spawn_tmp__ = %s;\n"
                 "    %s = rt_array_push_v2(%s, %s, &(%s){0}, %s);\n"
                 "    if (%s == NULL) %s = rt_array_create_generic_v2(%s, 0, sizeof(void *), NULL);\n"
                 "    %s = rt_array_push_v2(%s, %s, &(void *){(void *)__spawn_tmp__}, sizeof(void *));\n"

@@ -2,7 +2,8 @@
  * code_gen_stmt_thread.c - Thread synchronization statement code generation
  *
  * Handles the thread sync statement (r!) for waiting on async results.
- * Uses V2 threading API.
+ * Uses V3 threading API where rt_thread_v3_sync handles promotion
+ * including deep copy via copy_callback.
  */
 
 #include "code_gen/stmt/code_gen_stmt.h"
@@ -14,17 +15,14 @@
 #include <string.h>
 #include <stdio.h>
 
-/* Generate thread sync as a statement - assigns results back to variables
- * For single sync (r!): r = sync_result
- * For sync list ([r1, r2, r3]!): r1 = sync_result1; r2 = sync_result2; ... */
+/* Generate thread sync as a statement - assigns results back to variables */
 void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
 {
     ThreadSyncExpr *sync = &expr->as.thread_sync;
 
     if (sync->is_array)
     {
-        /* Sync list: [r1, r2, r3]!
-         * Generate sync and assignment for each variable */
+        /* Sync list: [r1, r2, r3]! */
         Expr *list_expr = sync->handle;
         if (list_expr->type != EXPR_SYNC_LIST)
         {
@@ -36,11 +34,9 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
 
         if (sync_list->element_count == 0)
         {
-            /* Empty sync list - no-op */
             return;
         }
 
-        /* Sync each variable and assign result back */
         for (int i = 0; i < sync_list->element_count; i++)
         {
             Expr *elem = sync_list->elements[i];
@@ -53,15 +49,16 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             char *raw_var_name = get_var_name(gen->arena, elem->as.variable.name);
             char *var_name = sn_mangle_name(gen->arena, raw_var_name);
 
-            /* Look up the variable's type from the symbol table
-             * The elem->expr_type may not be set for array elements */
             Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, elem->as.variable.name);
             Type *result_type = (sym != NULL) ? sym->type : elem->expr_type;
 
-            /* Check if void - just sync, no assignment */
             if (result_type == NULL || result_type->kind == TYPE_VOID)
             {
-                indented_fprintf(gen, indent, "rt_thread_v2_sync(%s);\n", var_name);
+                char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
+                indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_thread_v3_sync(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "%s = NULL;\n", pending_var);
+                indented_fprintf(gen, indent, "}\n");
                 continue;
             }
 
@@ -75,100 +72,22 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_CHAR);
             bool is_handle = gen->current_arena_var != NULL &&
                             (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
-
             bool is_struct = (result_type->kind == TYPE_STRUCT);
-            bool struct_needs_field_promotion = is_struct && struct_has_handle_fields(result_type);
-
-            /* Check if array needs deep promotion (2D/3D arrays or string arrays) */
-            bool array_needs_deep_promotion = is_handle && result_type->kind == TYPE_ARRAY &&
-                result_type->as.array.element_type != NULL &&
-                (result_type->as.array.element_type->kind == TYPE_ARRAY ||
-                 result_type->as.array.element_type->kind == TYPE_STRING);
 
             char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
             indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
 
-            if (array_needs_deep_promotion)
+            if (is_handle)
             {
-                /* Arrays that need deep promotion (2D/3D arrays, string arrays):
-                 * Use sync_keep_arena, then deep promote, then destroy arena */
-                Type *elem_type = result_type->as.array.element_type;
-                const char *promo_func;
-                if (elem_type->kind == TYPE_STRING)
-                {
-                    /* 1D string array - promote each string handle */
-                    promo_func = "rt_promote_array_string_v2";
-                }
-                else if (elem_type->kind == TYPE_ARRAY)
-                {
-                    /* Nested array - check depth and element type */
-                    Type *inner_elem = elem_type->as.array.element_type;
-                    if (inner_elem != NULL && inner_elem->kind == TYPE_ARRAY)
-                    {
-                        /* 3D array - check innermost type */
-                        Type *innermost = inner_elem->as.array.element_type;
-                        if (innermost != NULL && innermost->kind == TYPE_STRING)
-                        {
-                            /* 3D string array (string[][][]) */
-                            promo_func = "rt_promote_array3_string_v2";
-                        }
-                        else
-                        {
-                            /* 3D array of primitives (T[][][]) */
-                            promo_func = "rt_promote_array_handle_3d_v2";
-                        }
-                    }
-                    else if (inner_elem != NULL && inner_elem->kind == TYPE_STRING)
-                    {
-                        /* 2D string array (string[][]) */
-                        promo_func = "rt_promote_array2_string_v2";
-                    }
-                    else
-                    {
-                        /* 2D array of primitives (T[][]) */
-                        promo_func = "rt_promote_array_handle_v2";
-                    }
-                }
-                else
-                {
-                    promo_func = "rt_arena_v2_promote"; /* Fallback - shouldn't happen */
-                }
-
-                indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_tmp__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
-                indented_fprintf(gen, indent + 1, "%s = (%s)%s(%s, __sync_tmp__);\n",
-                    var_name, c_type, promo_func, ARENA_VAR(gen));
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
-            }
-            else if (is_handle)
-            {
-                /* Handle types (string/simple array in arena mode): thread stored result directly,
-                 * sync returns the promoted handle which we assign directly */
-                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v2_sync(%s);\n",
+                /* Handle types: V3 sync returns promoted handle directly */
+                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
-            }
-            else if (struct_needs_field_promotion)
-            {
-                /* Struct with handle fields - keep arena alive for field promotion */
-                indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
-                indented_fprintf(gen, indent + 1, "rt_handle_begin_transaction(__sync_h__);\n");
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
-                    var_name, c_type);
-                indented_fprintf(gen, indent + 1, "rt_handle_end_transaction(__sync_h__);\n");
-                /* Generate field promotion code */
-                char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
-                    ARENA_VAR(gen), "__thread_arena__");
-                if (field_promotion && field_promotion[0] != '\0') {
-                    indented_fprintf(gen, indent + 1, "%s", field_promotion);
-                }
-                /* Clean up the thread arena after field promotion */
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_primitive || is_struct)
             {
-                /* Primitives and simple structs: result is wrapped, dereference it */
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n", pending_var);
+                /* Primitives and structs: V3 sync returns promoted handle, dereference.
+                 * For structs with handle fields, copy_callback handles deep copy. */
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v3_sync(%s);\n", pending_var);
                 indented_fprintf(gen, indent + 1, "rt_handle_begin_transaction(__sync_h__);\n");
                 indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
                     var_name, c_type);
@@ -176,8 +95,8 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* Reference types without arena mode: assign directly */
-                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v2_sync(%s);\n",
+                /* Reference types without arena mode */
+                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
             }
 
@@ -212,7 +131,6 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                     result_type->kind == TYPE_BYTE ||
                                     result_type->kind == TYPE_CHAR);
                 bool is_struct = (result_type->kind == TYPE_STRUCT);
-                bool struct_needs_promo = is_struct && struct_has_handle_fields(result_type);
 
                 indented_fprintf(gen, indent, "{\n");
                 indented_fprintf(gen, indent + 1, "int __sync_idx__ = (int)(%s);\n", idx_str);
@@ -221,33 +139,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 indented_fprintf(gen, indent + 2, "void **__pe_data__ = (void **)rt_array_data_v2(%s);\n", pending_elems_var);
                 indented_fprintf(gen, indent + 2, "if (__pe_data__[__sync_idx__] != NULL) {\n");
 
-                if (is_primitive)
+                if (is_primitive || is_struct)
                 {
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n");
-                    indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n",
-                        c_type, arr_name, c_type);
-                    indented_fprintf(gen, indent + 3, "rt_handle_end_transaction(__sync_h__);\n");
-                }
-                else if (struct_needs_promo)
-                {
-                    indented_fprintf(gen, indent + 3, "RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__sync_idx__])->arena;\n");
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__sync_idx__]);\n");
-                    indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
-                    indented_fprintf(gen, indent + 3, "%s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n", c_type, c_type);
-                    indented_fprintf(gen, indent + 3, "rt_handle_end_transaction(__sync_h__);\n");
-                    char *field_promotion = gen_struct_field_promotion(gen, result_type, "__sync_tmp__",
-                        ARENA_VAR(gen), "__thread_arena__");
-                    if (field_promotion && field_promotion[0] != '\0') {
-                        indented_fprintf(gen, indent + 3, "%s", field_promotion);
-                    }
-                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = __sync_tmp__;\n",
-                        c_type, arr_name);
-                }
-                else if (is_struct)
-                {
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n");
+                    /* V3 sync returns promoted handle, dereference */
+                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v3_sync((RtHandleV2 *)__pe_data__[__sync_idx__]);\n");
                     indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
                     indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = *(%s *)__sync_h__->ptr;\n",
                         c_type, arr_name, c_type);
@@ -255,7 +150,8 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 }
                 else
                 {
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__sync_idx__]);\n",
+                    /* Handle types: V3 sync returns promoted handle directly */
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__sync_idx__] = (%s)rt_thread_v3_sync((RtHandleV2 *)__pe_data__[__sync_idx__]);\n",
                         c_type, arr_name, c_type);
                 }
 
@@ -267,7 +163,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
         }
 
-        /* Whole-array sync statement: arr! (for arrays with pending elements) */
+        /* Whole-array sync statement: arr! */
         if (handle->type == EXPR_VARIABLE)
         {
             Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, handle->as.variable.name);
@@ -288,7 +184,6 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                           elem_type->kind == TYPE_BYTE ||
                                           elem_type->kind == TYPE_CHAR);
                 bool is_struct_elem = (elem_type->kind == TYPE_STRUCT);
-                bool struct_elem_needs_promo = is_struct_elem && struct_has_handle_fields(elem_type);
 
                 indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_elems_var);
                 indented_fprintf(gen, indent + 1, "int __sync_len__ = (int)rt_array_length_v2(%s);\n", pending_elems_var);
@@ -296,35 +191,10 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 indented_fprintf(gen, indent + 1, "for (int __i__ = 0; __i__ < __sync_len__; __i__++) {\n");
                 indented_fprintf(gen, indent + 2, "if (__pe_data__[__i__] != NULL) {\n");
 
-                if (is_primitive_elem)
+                if (is_primitive_elem || is_struct_elem)
                 {
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n");
-                    indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n",
-                        elem_c_type, var_name, elem_c_type);
-                    indented_fprintf(gen, indent + 3, "rt_handle_end_transaction(__sync_h__);\n");
-                }
-                else if (struct_elem_needs_promo)
-                {
-                    /* Struct with handle fields: keep arena, deref, promote fields, destroy arena */
-                    indented_fprintf(gen, indent + 3, "RtArenaV2 *__thread_arena__ = ((RtThread *)__pe_data__[__i__])->arena;\n");
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena((RtThread *)__pe_data__[__i__]);\n");
-                    indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
-                    indented_fprintf(gen, indent + 3, "%s __sync_tmp__ = *(%s *)__sync_h__->ptr;\n", elem_c_type, elem_c_type);
-                    indented_fprintf(gen, indent + 3, "rt_handle_end_transaction(__sync_h__);\n");
-                    char *field_promotion = gen_struct_field_promotion(gen, elem_type, "__sync_tmp__",
-                        ARENA_VAR(gen), "__thread_arena__");
-                    if (field_promotion && field_promotion[0] != '\0') {
-                        indented_fprintf(gen, indent + 3, "%s", field_promotion);
-                    }
-                    indented_fprintf(gen, indent + 3, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = __sync_tmp__;\n",
-                        elem_c_type, var_name);
-                }
-                else if (is_struct_elem)
-                {
-                    /* Simple struct (no handle fields): sync, pin, deref */
-                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n");
+                    /* V3 sync returns promoted handle, dereference */
+                    indented_fprintf(gen, indent + 3, "RtHandleV2 *__sync_h__ = rt_thread_v3_sync((RtHandleV2 *)__pe_data__[__i__]);\n");
                     indented_fprintf(gen, indent + 3, "rt_handle_begin_transaction(__sync_h__);\n");
                     indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = *(%s *)__sync_h__->ptr;\n",
                         elem_c_type, var_name, elem_c_type);
@@ -332,8 +202,8 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                 }
                 else
                 {
-                    /* Handle types (string/array): direct cast */
-                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = (%s)rt_thread_v2_sync((RtThread *)__pe_data__[__i__]);\n",
+                    /* Handle types: V3 sync returns promoted handle directly */
+                    indented_fprintf(gen, indent + 3, "((%s *)rt_array_data_v2(%s))[__i__] = (%s)rt_thread_v3_sync((RtHandleV2 *)__pe_data__[__i__]);\n",
                         elem_c_type, var_name, elem_c_type);
                 }
 
@@ -345,21 +215,18 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
         }
 
-        /* Single sync: r!
-         * Only assign back if the handle is a variable */
-
+        /* Single sync: r! */
         if (handle->type == EXPR_VARIABLE)
         {
             char *raw_var_name = get_var_name(gen->arena, handle->as.variable.name);
             char *var_name = sn_mangle_name(gen->arena, raw_var_name);
             Type *result_type = expr->expr_type;
 
-            /* Check if void - just sync, no assignment */
             if (result_type == NULL || result_type->kind == TYPE_VOID)
             {
                 char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
                 indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
-                indented_fprintf(gen, indent + 1, "rt_thread_v2_sync(%s);\n", pending_var);
+                indented_fprintf(gen, indent + 1, "rt_thread_v3_sync(%s);\n", pending_var);
                 indented_fprintf(gen, indent + 1, "%s = NULL;\n", pending_var);
                 indented_fprintf(gen, indent, "}\n");
                 return;
@@ -376,98 +243,21 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             bool is_handle = gen->current_arena_var != NULL &&
                             (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
             bool is_struct = (result_type->kind == TYPE_STRUCT);
-            bool struct_needs_field_promotion = is_struct && struct_has_handle_fields(result_type);
-
-            /* Check if array needs deep promotion (2D/3D arrays or string arrays) */
-            bool array_needs_deep_promotion = is_handle && result_type->kind == TYPE_ARRAY &&
-                result_type->as.array.element_type != NULL &&
-                (result_type->as.array.element_type->kind == TYPE_ARRAY ||
-                 result_type->as.array.element_type->kind == TYPE_STRING);
 
             char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
             indented_fprintf(gen, indent, "if (%s != NULL) {\n", pending_var);
 
-            if (array_needs_deep_promotion)
+            if (is_handle)
             {
-                /* Arrays that need deep promotion (2D/3D arrays, string arrays):
-                 * Use sync_keep_arena, then deep promote, then destroy arena */
-                Type *elem_type = result_type->as.array.element_type;
-                const char *promo_func;
-                if (elem_type->kind == TYPE_STRING)
-                {
-                    /* 1D string array - promote each string handle */
-                    promo_func = "rt_promote_array_string_v2";
-                }
-                else if (elem_type->kind == TYPE_ARRAY)
-                {
-                    /* Nested array - check depth and element type */
-                    Type *inner_elem = elem_type->as.array.element_type;
-                    if (inner_elem != NULL && inner_elem->kind == TYPE_ARRAY)
-                    {
-                        /* 3D array - check innermost type */
-                        Type *innermost = inner_elem->as.array.element_type;
-                        if (innermost != NULL && innermost->kind == TYPE_STRING)
-                        {
-                            /* 3D string array (string[][][]) */
-                            promo_func = "rt_promote_array3_string_v2";
-                        }
-                        else
-                        {
-                            /* 3D array of primitives (T[][][]) */
-                            promo_func = "rt_promote_array_handle_3d_v2";
-                        }
-                    }
-                    else if (inner_elem != NULL && inner_elem->kind == TYPE_STRING)
-                    {
-                        /* 2D string array (string[][]) */
-                        promo_func = "rt_promote_array2_string_v2";
-                    }
-                    else
-                    {
-                        /* 2D array of primitives (T[][]) */
-                        promo_func = "rt_promote_array_handle_v2";
-                    }
-                }
-                else
-                {
-                    promo_func = "rt_arena_v2_promote"; /* Fallback - shouldn't happen */
-                }
-
-                indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_tmp__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
-                indented_fprintf(gen, indent + 1, "%s = (%s)%s(%s, __sync_tmp__);\n",
-                    var_name, c_type, promo_func, ARENA_VAR(gen));
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
-            }
-            else if (is_handle)
-            {
-                /* Handle types (string/simple array in arena mode): thread stored result directly,
-                 * sync returns the promoted handle which we assign directly */
-                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v2_sync(%s);\n",
+                /* Handle types: V3 sync returns promoted handle directly */
+                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
-            }
-            else if (struct_needs_field_promotion)
-            {
-                /* Struct with handle fields - keep arena alive for field promotion */
-                indented_fprintf(gen, indent + 1, "RtArenaV2 *__thread_arena__ = %s->arena;\n", pending_var);
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync_keep_arena(%s);\n", pending_var);
-                indented_fprintf(gen, indent + 1, "rt_handle_begin_transaction(__sync_h__);\n");
-                indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
-                    var_name, c_type);
-                indented_fprintf(gen, indent + 1, "rt_handle_end_transaction(__sync_h__);\n");
-                /* Generate field promotion code */
-                char *field_promotion = gen_struct_field_promotion(gen, result_type, var_name,
-                    ARENA_VAR(gen), "__thread_arena__");
-                if (field_promotion && field_promotion[0] != '\0') {
-                    indented_fprintf(gen, indent + 1, "%s", field_promotion);
-                }
-                /* Clean up the thread arena after field promotion */
-                indented_fprintf(gen, indent + 1, "if (__thread_arena__ != NULL) rt_arena_v2_condemn(__thread_arena__);\n");
             }
             else if (is_primitive || is_struct)
             {
-                /* Primitives and simple structs: result is wrapped, dereference it */
-                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v2_sync(%s);\n", pending_var);
+                /* Primitives and structs: V3 sync returns promoted handle, dereference.
+                 * For structs with handle fields, copy_callback handles deep copy. */
+                indented_fprintf(gen, indent + 1, "RtHandleV2 *__sync_h__ = rt_thread_v3_sync(%s);\n", pending_var);
                 indented_fprintf(gen, indent + 1, "rt_handle_begin_transaction(__sync_h__);\n");
                 indented_fprintf(gen, indent + 1, "%s = *(%s *)__sync_h__->ptr;\n",
                     var_name, c_type);
@@ -475,8 +265,8 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* Reference types without arena mode: assign directly */
-                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v2_sync(%s);\n",
+                /* Reference types without arena mode */
+                indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
             }
 
@@ -485,7 +275,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
         }
         else
         {
-            /* Non-variable sync (e.g., &fn()!) - just execute the sync expression */
+            /* Non-variable sync - just execute the sync expression */
             char *expr_str = code_gen_expression(gen, expr);
             indented_fprintf(gen, indent, "%s;\n", expr_str);
         }

@@ -189,8 +189,13 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     } else {
                         literal_type = elem_c;
                     }
-                    elem_str = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s})",
-                                            ARENA_VAR(gen), literal_type, literal_type, val);
+                    if (elem_type->kind == TYPE_ARRAY) {
+                        elem_str = arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, 1, (RtHandleV2 *[]){%s})",
+                                                ARENA_VAR(gen), val);
+                    } else {
+                        elem_str = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s})",
+                                                ARENA_VAR(gen), literal_type, literal_type, val);
+                    }
                 } else {
                     // V1 mode: create single-element array as raw pointer
                     char *val = code_gen_expression(gen, elem);
@@ -235,6 +240,9 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
             // Empty array fallback - strings need special create, others use generic
             if (string_handle_mode) {
                 return arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, 0, NULL)", ARENA_VAR(gen));
+            }
+            if (elem_type->kind == TYPE_ARRAY) {
+                return arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, 0, NULL)", ARENA_VAR(gen));
             }
             const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
             return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, %s, NULL)", ARENA_VAR(gen), sizeof_expr);
@@ -290,6 +298,26 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
         // For struct arrays, use rt_array_create_generic so the array has proper metadata
         if (is_struct_array) {
             if (gen->expr_as_handle && gen->current_arena_var != NULL) {
+                /* Check if struct has handle fields - if so, ensure callbacks are generated
+                 * and wrap creation to set them on the new array handle */
+                bool needs_callbacks = struct_has_handle_fields(elem_type);
+                if (needs_callbacks) {
+                    code_gen_ensure_struct_callbacks(gen, elem_type);
+                    const char *sn_name = elem_type->as.struct_type.name
+                        ? elem_type->as.struct_type.name : elem_c;
+                    if (arr->element_count == 0) {
+                        return arena_sprintf(gen->arena,
+                            "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL);"
+                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                            " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                            ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                    }
+                    return arena_sprintf(gen->arena,
+                        "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s});"
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
+                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
+                        ARENA_VAR(gen), arr->element_count, elem_c, elem_c, inits, sn_name, sn_name);
+                }
                 /* Handle mode: use _h variant returning RtHandle */
                 if (arr->element_count == 0) {
                     return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL)",
@@ -327,10 +355,14 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
 
     if (gen->expr_as_handle && gen->current_arena_var != NULL)
     {
-        /* Handle mode: strings need special create, others use generic */
+        /* Handle mode: strings need special create, nested arrays need ptr create, others use generic */
         if (elem_type->kind == TYPE_STRING) {
             return arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, %d, (%s[]){%s})",
                                  ARENA_VAR(gen), arr->element_count, literal_type, inits);
+        }
+        if (elem_type->kind == TYPE_ARRAY) {
+            return arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, %d, (RtHandleV2 *[]){%s})",
+                                 ARENA_VAR(gen), arr->element_count, inits);
         }
         return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s})",
                              ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits);

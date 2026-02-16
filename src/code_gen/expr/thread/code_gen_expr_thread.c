@@ -184,7 +184,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     char *args_struct_name = arena_sprintf(gen->arena, "__ThreadArgs_%d__", wrapper_id);
 
     /* Build argument struct definition - V2: only function-specific arguments
-     * The struct is allocated in the thread arena after rt_thread_v2_create. */
+     * The struct is allocated in the thread arena after rt_thread_v3_create. */
     char *struct_def = arena_sprintf(gen->arena,
         "typedef struct {\n"
         "    /* Function-specific arguments */\n");
@@ -230,20 +230,21 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     struct_def = arena_sprintf(gen->arena, "%s} %s;\n\n",
                                struct_def, args_struct_name);
 
-    /* Generate wrapper function definition using V2 API.
-     * V2 simplifies threading: RtThread contains all state, no startup barrier,
-     * and panic handling is via TLS capture rather than setjmp/longjmp. */
+    /* Generate wrapper function definition using V3 API.
+     * V3 uses handle-first design: wrapper receives RtHandleV2* (not RtThread*),
+     * all field access through transactions, and V3 TLS for panic capture. */
     char *wrapper_def = arena_sprintf(gen->arena,
         "static void *%s(void *arg) {\n"
-        "    RtThread *__t__ = (RtThread *)arg;\n"
-        "    rt_tls_thread_set(__t__);\n"
-        "    RtArenaV2 *__arena__ = rt_thread_v2_get_arena(__t__);\n"
+        "    RtHandleV2 *__th__ = (RtHandleV2 *)arg;\n"
+        "    rt_tls_thread_set_v3(__th__);\n"
+        "    RtArenaV2 *__arena__ = rt_thread_v3_get_arena(__th__);\n"
         "    rt_tls_arena_set(__arena__);\n"
         "\n"
         "    /* Unpack args from thread handle */\n"
-        "    rt_handle_begin_transaction(__t__->args);\n"
-        "    %s __args_copy__ = *(%s *)__t__->args->ptr;\n"
-        "    rt_handle_end_transaction(__t__->args);\n"
+        "    RtHandleV2 *__args_h__ = rt_thread_v3_get_args(__th__);\n"
+        "    rt_handle_begin_transaction(__args_h__);\n"
+        "    %s __args_copy__ = *(%s *)__args_h__->ptr;\n"
+        "    rt_handle_end_transaction(__args_h__);\n"
         "    %s *args = &__args_copy__;\n"
         "\n",
         wrapper_name, args_struct_name, args_struct_name, args_struct_name);
@@ -498,6 +499,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         "rt_array_create_string_v2((RtArenaV2 *)__rt_thunk_arena, "
                         "rt_v2_data_array_length((void *)__arr_data), __arr_data); })",
                         unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx);
+                } else if (elem_type->kind == TYPE_ARRAY) {
+                    unboxed_args = arena_sprintf(gen->arena,
+                        "%s({ RtHandleV2 **__arr_data = (RtHandleV2 **)%s(__rt_thunk_args[%d]); "
+                        "rt_array_create_ptr_v2((RtArenaV2 *)__rt_thunk_arena, "
+                        "rt_v2_data_array_length((void *)__arr_data), __arr_data); })",
+                        unboxed_args, unbox_func, thunk_arg_idx);
                 } else {
                     unboxed_args = arena_sprintf(gen->arena,
                         "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
@@ -749,11 +756,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, callee_str, call_args,
                 gen->spawn_is_fire_and_forget
-                    ? "    rt_tls_thread_set(NULL);\n"
+                    ? "    rt_tls_thread_set_v3(NULL);\n"
                       "    rt_tls_arena_set(NULL);\n"
-                      "    rt_thread_v2_fire_and_forget_done(__t__);\n"
-                    : "    rt_thread_v2_signal_done(__t__);\n"
-                      "    rt_tls_thread_set(NULL);\n"
+                      "    rt_thread_v3_dispose(__th__);\n"
+                    : "    rt_thread_v3_signal_done(__th__);\n"
+                      "    rt_tls_thread_set_v3(NULL);\n"
                       "    rt_tls_arena_set(NULL);\n");
         }
         else
@@ -912,11 +919,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "        __result__ = %s(%s);\n"
                     "    }\n"
                     "\n"
-                    "    /* V2: Handle type - store directly, sync site handles promotion */\n"
-                    "    rt_thread_v2_set_result(__t__, __result__);\n"
+                    "    /* V3: Handle type - store directly, sync site handles promotion */\n"
+                    "    rt_thread_v3_set_result(__th__, __result__);\n"
                     "\n"
-                    "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
@@ -936,15 +943,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "        __result__ = %s(%s);\n"
                     "    }\n"
                     "\n"
-                    "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                    "    /* V3: Store result in handle - sync will promote to caller arena */\n"
                     "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
                     "    rt_handle_begin_transaction(__result_handle__);\n"
                     "    *(%s *)__result_handle__->ptr = __result__;\n"
                     "    rt_handle_end_transaction(__result_handle__);\n"
-                    "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                    "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                     "\n"
-                    "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
@@ -964,15 +971,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "        __result__ = %s(%s);\n"
                     "    }\n"
                     "\n"
-                    "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                    "    /* V3: Store result in handle - sync will promote to caller arena */\n"
                     "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
                     "    rt_handle_begin_transaction(__result_handle__);\n"
                     "    *(%s *)__result_handle__->ptr = __result__;\n"
                     "    rt_handle_end_transaction(__result_handle__);\n"
-                    "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                    "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                     "\n"
-                    "    rt_thread_v2_signal_done(__t__);\n"
-                    "    rt_tls_thread_set(NULL);\n"
+                    "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
                     "}\n\n",
@@ -983,7 +990,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     }
     else if (is_void_return)
     {
-        /* Non-interceptable void function - just call it. V2: sync handles arena cleanup. */
+        /* Non-interceptable void function - just call it. V3: sync handles arena cleanup. */
         wrapper_def = arena_sprintf(gen->arena,
             "%s"
             "    /* Call the function */\n"
@@ -994,11 +1001,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "}\n\n",
             wrapper_def, callee_str, call_args,
             gen->spawn_is_fire_and_forget
-                ? "    rt_tls_thread_set(NULL);\n"
+                ? "    rt_tls_thread_set_v3(NULL);\n"
                   "    rt_tls_arena_set(NULL);\n"
-                  "    rt_thread_v2_fire_and_forget_done(__t__);\n"
-                : "    rt_thread_v2_signal_done(__t__);\n"
-                  "    rt_tls_thread_set(NULL);\n"
+                  "    rt_thread_v3_dispose(__th__);\n"
+                : "    rt_thread_v3_signal_done(__th__);\n"
+                  "    rt_tls_thread_set_v3(NULL);\n"
                   "    rt_tls_arena_set(NULL);\n");
     }
     else
@@ -1018,11 +1025,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    /* Call the function and store result */\n"
                 "    %s __result__ = %s(%s);\n"
                 "\n"
-                "    /* V2: Handle type - store directly, sync site handles promotion */\n"
-                "    rt_thread_v2_set_result(__t__, __result__);\n"
+                "    /* V3: Handle type - store directly, sync site handles promotion */\n"
+                "    rt_thread_v3_set_result(__th__, __result__);\n"
                 "\n"
-                "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_tls_thread_set(NULL);\n"
+                "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
@@ -1036,15 +1043,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    /* Call the function and store result */\n"
                 "    %s __result__ = %s(%s);\n"
                 "\n"
-                "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                "    /* V3: Store result in handle - sync will promote to caller arena */\n"
                 "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
                 "    rt_handle_begin_transaction(__result_handle__);\n"
                 "    *(%s *)__result_handle__->ptr = __result__;\n"
                 "    rt_handle_end_transaction(__result_handle__);\n"
-                "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                 "\n"
-                "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_tls_thread_set(NULL);\n"
+                "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
@@ -1058,15 +1065,15 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    /* Call the function and store result */\n"
                 "    %s __result__ = %s(%s);\n"
                 "\n"
-                "    /* V2: Store result in handle - sync will promote to caller arena */\n"
+                "    /* V3: Store result in handle - sync will promote to caller arena */\n"
                 "    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof(%s));\n"
                 "    rt_handle_begin_transaction(__result_handle__);\n"
                 "    *(%s *)__result_handle__->ptr = __result__;\n"
                 "    rt_handle_end_transaction(__result_handle__);\n"
-                "    rt_thread_v2_set_result(__t__, __result_handle__);\n"
+                "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                 "\n"
-                "    rt_thread_v2_signal_done(__t__);\n"
-                "    rt_tls_thread_set(NULL);\n"
+                "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
@@ -1242,29 +1249,29 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         thread_mode = "RT_THREAD_MODE_DEFAULT";
     }
 
-    /* Generate the thread spawn expression using V2 API */
+    /* Generate the thread spawn expression using V3 API */
     char *result = arena_sprintf(gen->arena,
         "({\n"
-        "    /* V2: Create thread with its own arena */\n"
-        "    RtThread *%s = rt_thread_v2_create(%s, %s);\n"
-        "    RtArenaV2 *__thread_arena__ = rt_thread_v2_get_arena(%s);\n"
+        "    /* V3: Create thread with its own arena */\n"
+        "    RtHandleV2 *%s = rt_thread_v3_create(%s, %s);\n"
+        "    RtArenaV2 *__thread_arena__ = rt_thread_v3_get_arena(%s);\n"
         "\n"
         "    /* Allocate args in thread arena (min 1 byte for empty structs) */\n"
-        "    %s->args = rt_arena_v2_alloc(__thread_arena__, sizeof(%s) > 0 ? sizeof(%s) : 1);\n"
-        "    rt_handle_begin_transaction(%s->args);\n"
-        "    %s *%s = (%s *)%s->args->ptr;\n"
+        "    RtHandleV2 *__args_h__ = rt_arena_v2_alloc(__thread_arena__, sizeof(%s) > 0 ? sizeof(%s) : 1);\n"
+        "    rt_handle_begin_transaction(__args_h__);\n"
+        "    %s *%s = (%s *)__args_h__->ptr;\n"
         "    %s"
-        "    rt_handle_end_transaction(%s->args);\n"
+        "    rt_handle_end_transaction(__args_h__);\n"
+        "    rt_thread_v3_set_args(%s, __args_h__);\n"
         "\n"
         "    /* Start the thread */\n"
-        "    rt_thread_v2_start(%s, %s);\n"
+        "    rt_thread_v3_start(%s, %s);\n"
         "    %s;\n"
         "})",
         handle_var, caller_arena, thread_mode,
         handle_var,
-        handle_var, args_struct_name, args_struct_name,
-        handle_var,
-        args_struct_name, args_var, args_struct_name, handle_var,
+        args_struct_name, args_struct_name,
+        args_struct_name, args_var, args_struct_name,
         arg_assignments,
         handle_var,
         handle_var, wrapper_name,

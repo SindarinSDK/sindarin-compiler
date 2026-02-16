@@ -16,9 +16,10 @@
 RtHandleV2 *rt_array_join_long_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const long long *arr = (const long long *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -34,6 +35,7 @@ RtHandleV2 *rt_array_join_long_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -41,6 +43,8 @@ RtHandleV2 *rt_array_join_long_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -49,15 +53,17 @@ RtHandleV2 *rt_array_join_long_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_double_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const double *arr = (const double *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -72,6 +78,7 @@ RtHandleV2 *rt_array_join_double_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -79,6 +86,8 @@ RtHandleV2 *rt_array_join_double_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -87,15 +96,17 @@ RtHandleV2 *rt_array_join_double_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_char_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const char *arr = (const char *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -110,6 +121,7 @@ RtHandleV2 *rt_array_join_char_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -117,6 +129,8 @@ RtHandleV2 *rt_array_join_char_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -126,15 +140,17 @@ RtHandleV2 *rt_array_join_char_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_bool_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const int *arr = (const int *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -150,6 +166,7 @@ RtHandleV2 *rt_array_join_bool_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -157,6 +174,8 @@ RtHandleV2 *rt_array_join_bool_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -165,15 +184,17 @@ RtHandleV2 *rt_array_join_bool_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_byte_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const unsigned char *arr = (const unsigned char *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -189,6 +210,7 @@ RtHandleV2 *rt_array_join_byte_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -196,6 +218,8 @@ RtHandleV2 *rt_array_join_byte_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -204,15 +228,17 @@ RtHandleV2 *rt_array_join_byte_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_int32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const int32_t *arr = (const int32_t *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -228,6 +254,7 @@ RtHandleV2 *rt_array_join_int32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -235,6 +262,8 @@ RtHandleV2 *rt_array_join_int32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -243,15 +272,17 @@ RtHandleV2 *rt_array_join_int32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_uint32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const uint32_t *arr = (const uint32_t *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -267,6 +298,7 @@ RtHandleV2 *rt_array_join_uint32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -274,6 +306,8 @@ RtHandleV2 *rt_array_join_uint32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -282,15 +316,17 @@ RtHandleV2 *rt_array_join_uint32_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_uint_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const uint64_t *arr = (const uint64_t *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -306,6 +342,7 @@ RtHandleV2 *rt_array_join_uint_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -313,6 +350,8 @@ RtHandleV2 *rt_array_join_uint_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -321,15 +360,17 @@ RtHandleV2 *rt_array_join_uint_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_float_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     const float *arr = (const float *)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -344,6 +385,7 @@ RtHandleV2 *rt_array_join_float_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, buf_size);
     if (handle == NULL) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -351,6 +393,8 @@ RtHandleV2 *rt_array_join_float_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     char *ptr = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (i > 0 && sep) {
             ptr += sprintf(ptr, "%s", sep);
         }
@@ -359,15 +403,17 @@ RtHandleV2 *rt_array_join_float_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }
 
 RtHandleV2 *rt_array_join_string_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     if (arr_h == NULL) return NULL;
     RtArenaV2 *arena = arr_h->arena;
+    rt_handle_begin_transaction(arr_h);
     RtHandleV2 **arr = (RtHandleV2 **)rt_array_data_v2(arr_h);
     size_t len = rt_array_length_v2(arr_h);
-    if (len == 0) return rt_arena_v2_strdup(arena, "");
+    if (len == 0) { rt_handle_end_transaction(arr_h); return rt_arena_v2_strdup(arena, ""); }
 
     /* Extract separator string from handle */
     const char *sep = NULL;
@@ -381,6 +427,7 @@ RtHandleV2 *rt_array_join_string_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     /* Calculate total size needed */
     size_t total_len = 0;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(arr_h);
         if (arr[i] != NULL) {
             rt_handle_begin_transaction(arr[i]);
             const char *s = (const char *)arr[i]->ptr;
@@ -394,6 +441,7 @@ RtHandleV2 *rt_array_join_string_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     RtHandleV2 *handle = rt_arena_v2_alloc(arena, total_len + 1);
     if (!handle) {
         if (separator) rt_handle_end_transaction(separator);
+        rt_handle_end_transaction(arr_h);
         return NULL;
     }
     rt_handle_begin_transaction(handle);
@@ -402,6 +450,8 @@ RtHandleV2 *rt_array_join_string_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
     /* Build result string */
     char *p = result;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(handle);
+        rt_handle_renew_transaction(arr_h);
         if (arr[i] != NULL) {
             rt_handle_begin_transaction(arr[i]);
             const char *s = (const char *)arr[i]->ptr;
@@ -421,5 +471,6 @@ RtHandleV2 *rt_array_join_string_v2(RtHandleV2 *arr_h, RtHandleV2 *separator) {
 
     rt_handle_end_transaction(handle);
     if (separator) rt_handle_end_transaction(separator);
+    rt_handle_end_transaction(arr_h);
     return handle;
 }

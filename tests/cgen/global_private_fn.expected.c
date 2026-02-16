@@ -36,7 +36,7 @@ long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
     // private function uses its own private arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
     // Mutating 'message' should use __main_arena__ since it's a global
-    (__sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), rt_arena_v2_strdup(__local_arena__, " World"))));
+    ({ rt_arena_v2_free(__sn__message); __sn__message = rt_arena_v2_promote(__main_arena__, rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), rt_arena_v2_strdup(__local_arena__, " World"))); });
     _return_value = (long)rt_str_length_v2(rt_arena_v2_clone(__local_arena__, __sn__greeting));
     goto __sn__process_greeting_return;
 __sn__process_greeting_return:
@@ -51,7 +51,7 @@ int main() {
     __sn__message = rt_arena_v2_strdup(__main_arena__, "");
     int _return_value = 0;
     rt_println_v2(rt_arena_v2_strdup(__local_arena__, "Global with private function test:"));
-    RtThread *__result_pending__ = NULL;
+    RtHandleV2 *__result_pending__ = NULL;
     long long __sn__result = ({
     long long __intercept_result;
     if (__rt_interceptor_count > 0) {

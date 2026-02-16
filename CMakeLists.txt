@@ -183,6 +183,7 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/util/code_gen_util_native.c
     src/code_gen/util/code_gen_util_arena.c
     src/code_gen/util/code_gen_util_promote.c
+    src/code_gen/util/code_gen_util_callbacks.c
     # expr/
     src/code_gen/expr/code_gen_expr.c
     src/code_gen/expr/code_gen_expr_core.c
@@ -265,7 +266,7 @@ set(SN_RUNTIME_SOURCES
     src/runtime/array/runtime_array_v2_any.c
     src/runtime/array/runtime_array_v2_print.c
     # thread/
-    src/runtime/thread/runtime_thread_v2.c
+    src/runtime/thread/runtime_thread_v3.c
     # core
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
@@ -414,7 +415,7 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_print.c
         # thread/
-        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread_v2.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread_v3.c
         # core
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c

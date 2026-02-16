@@ -457,6 +457,18 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         }
     }
 
+    /* Free old handle on struct field reassignment to prevent leaks in long-lived arenas.
+     * Applies to string and array fields in arena context. */
+    if (field != NULL && gen->current_arena_var != NULL &&
+        (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
+    {
+        const char *accessor = (object_type != NULL && object_type->kind == TYPE_POINTER) ? "->" : ".";
+        return arena_sprintf(gen->arena,
+            "({ rt_arena_v2_free(%s%s%s); %s%s%s = %s; })",
+            object_code, accessor, field_name,
+            object_code, accessor, field_name, value_code);
+    }
+
     /* Check if this is pointer-to-struct (needs -> instead of .) */
     if (object_type != NULL && object_type->kind == TYPE_POINTER)
     {

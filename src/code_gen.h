@@ -179,6 +179,13 @@ typedef struct {
     const char **emitted_globals;  /* Global variable names (mangled) that have been emitted */
     int emitted_globals_count;
     int emitted_globals_capacity;
+
+    /* GC callback generation for struct types with handle fields */
+    char *callback_forward_decls;   /* Buffer for GC callback forward declarations */
+    char *callback_definitions;     /* Buffer for GC callback function bodies */
+    const char **emitted_callbacks; /* Track which struct types have callbacks */
+    int emitted_callback_count;
+    int emitted_callback_capacity;
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

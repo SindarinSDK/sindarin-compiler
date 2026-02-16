@@ -24,6 +24,7 @@ RtHandleV2 *rt_array_alloc_##suffix##_v2(RtArenaV2 *arena, size_t count,        
     meta->capacity = count;                                                      \
     elem_type *arr = (elem_type *)((char *)raw + sizeof(RtArrayMetadataV2));     \
     for (size_t i = 0; i < count; i++) {                                         \
+        rt_handle_renew_transaction(h);                                          \
         arr[i] = default_value;                                                  \
     }                                                                            \
     rt_handle_end_transaction(h);                                                       \
@@ -61,14 +62,18 @@ RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, RtHandleV2 
     meta->arena = arena;
     meta->size = count;
     meta->capacity = count;
+    meta->element_size = sizeof(RtHandleV2 *);
 
     RtHandleV2 **arr = (RtHandleV2 **)((char *)raw + sizeof(RtArrayMetadataV2));
     for (size_t i = 0; i < count; i++) {
+        rt_handle_renew_transaction(h);
         arr[i] = rt_arena_v2_strdup(arena, def_str);
     }
 
     rt_handle_end_transaction(h);
     if (default_value) rt_handle_end_transaction(default_value);
+    rt_handle_set_copy_callback(h, rt_array_copy_callback);
+    rt_handle_set_free_callback(h, rt_array_free_callback);
     return h;
 }
 
@@ -95,6 +100,7 @@ RtHandleV2 *rt_array_range_v2(RtArenaV2 *arena, long long start, long long end) 
 
     long long *arr = (long long *)((char *)raw + sizeof(RtArrayMetadataV2));
     for (size_t i = 0; i < count; i++) {
+        rt_handle_renew_transaction(h);
         arr[i] = start + (long long)i;
     }
 
@@ -132,7 +138,10 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
 
     rt_handle_begin_transaction(arr_h);
     void *raw = arr_h->ptr;
-    if (raw == NULL) return NULL;
+    if (raw == NULL) {
+        rt_handle_end_transaction(arr_h);
+        return NULL;
+    }
 
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
     size_t count = meta->size;
@@ -144,12 +153,18 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
      * This ensures rt_v2_data_array_length() works on the returned pointer,
      * since native functions use it to get the array length. */
     RtArenaV2 *arena = rt_handle_v2_arena(arr_h);
-    if (arena == NULL) return NULL;
+    if (arena == NULL) {
+        rt_handle_end_transaction(arr_h);
+        return NULL;
+    }
 
     /* Allocate space for metadata + char** result with null terminator */
     size_t alloc_size = sizeof(RtArrayMetadataV2) + (count + 1) * sizeof(char *);
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, alloc_size);
-    if (result_h == NULL) return NULL;
+    if (result_h == NULL) {
+        rt_handle_end_transaction(arr_h);
+        return NULL;
+    }
     rt_handle_begin_transaction(result_h);
     void *result_raw = result_h->ptr;
 
@@ -163,14 +178,19 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
 
     /* Pin each string element to extract char* */
     for (size_t i = 0; i < count; i++) {
+        rt_handle_renew_transaction(result_h);
         if (handles[i] != NULL) {
             rt_handle_begin_transaction(handles[i]);
             result[i] = (char *)handles[i]->ptr;
+            rt_handle_end_transaction(handles[i]);
         } else {
             result[i] = NULL;
         }
     }
     result[count] = NULL; /* Null terminator */
+
+    rt_handle_end_transaction(result_h);
+    rt_handle_end_transaction(arr_h);
 
     return result;
 }
@@ -186,202 +206,3 @@ RtHandleV2 *rt_args_create_v2(RtArenaV2 *arena, int argc, char **argv) {
     return rt_array_create_string_v2(arena, (size_t)argc, (const char **)argv);
 }
 
-/* ============================================================================
- * Deep Array Promotion
- * ============================================================================
- * V2 promotion is simpler - handle carries its arena reference!
- * No source arena parameter needed.
- * ============================================================================ */
-
-/* Promote str[] - promotes array AND all string elements */
-RtHandleV2 *rt_promote_array_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return NULL;
-
-    /* Get source arena from handle */
-    RtArenaV2 *src = rt_handle_v2_arena(arr_h);
-    if (src == dest) return arr_h;  /* Already in dest arena */
-
-    size_t len = rt_array_length_v2(arr_h);
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(RtHandleV2 *);
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
-    if (!new_h) return NULL;
-
-    rt_handle_begin_transaction(arr_h);
-    void *old_raw = arr_h->ptr;
-    rt_handle_begin_transaction(new_h);
-    void *new_raw = new_h->ptr;
-
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    new_meta->arena = dest;
-    new_meta->size = len;
-    new_meta->capacity = len;
-
-    RtHandleV2 **old_arr = (RtHandleV2 **)((char *)old_raw + sizeof(RtArrayMetadataV2));
-    RtHandleV2 **new_arr = (RtHandleV2 **)((char *)new_raw + sizeof(RtArrayMetadataV2));
-
-    /* Promote each string element */
-    for (size_t i = 0; i < len; i++) {
-        new_arr[i] = rt_arena_v2_promote(dest, old_arr[i]);
-    }
-
-    rt_handle_end_transaction(new_h);
-    rt_handle_end_transaction(arr_h);
-
-    /* Mark old array as dead */
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}
-
-/* Promote T[][] - promotes outer array AND all inner array handles */
-RtHandleV2 *rt_promote_array_handle_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return NULL;
-
-    RtArenaV2 *src = rt_handle_v2_arena(arr_h);
-    if (src == dest) return arr_h;
-
-    size_t len = rt_array_length_v2(arr_h);
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(RtHandleV2 *);
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
-    if (!new_h) return NULL;
-
-    rt_handle_begin_transaction(arr_h);
-    void *old_raw = arr_h->ptr;
-    rt_handle_begin_transaction(new_h);
-    void *new_raw = new_h->ptr;
-
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    new_meta->arena = dest;
-    new_meta->size = len;
-    new_meta->capacity = len;
-
-    RtHandleV2 **old_arr = (RtHandleV2 **)((char *)old_raw + sizeof(RtArrayMetadataV2));
-    RtHandleV2 **new_arr = (RtHandleV2 **)((char *)new_raw + sizeof(RtArrayMetadataV2));
-
-    /* Promote each inner array handle */
-    for (size_t i = 0; i < len; i++) {
-        new_arr[i] = rt_arena_v2_promote(dest, old_arr[i]);
-    }
-
-    rt_handle_end_transaction(new_h);
-    rt_handle_end_transaction(arr_h);
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}
-
-/* Promote T[][][] - promotes all three levels of handles */
-RtHandleV2 *rt_promote_array_handle_3d_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return NULL;
-
-    RtArenaV2 *src = rt_handle_v2_arena(arr_h);
-    if (src == dest) return arr_h;
-
-    size_t len = rt_array_length_v2(arr_h);
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(RtHandleV2 *);
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
-    if (!new_h) return NULL;
-
-    rt_handle_begin_transaction(arr_h);
-    void *old_raw = arr_h->ptr;
-    rt_handle_begin_transaction(new_h);
-    void *new_raw = new_h->ptr;
-
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    new_meta->arena = dest;
-    new_meta->size = len;
-    new_meta->capacity = len;
-
-    RtHandleV2 **old_arr = (RtHandleV2 **)((char *)old_raw + sizeof(RtArrayMetadataV2));
-    RtHandleV2 **new_arr = (RtHandleV2 **)((char *)new_raw + sizeof(RtArrayMetadataV2));
-
-    /* Recursively promote each 2D inner array */
-    for (size_t i = 0; i < len; i++) {
-        new_arr[i] = rt_promote_array_handle_v2(dest, old_arr[i]);
-    }
-
-    rt_handle_end_transaction(new_h);
-    rt_handle_end_transaction(arr_h);
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}
-
-/* Promote str[][] - promotes outer, inner arrays, AND strings */
-RtHandleV2 *rt_promote_array2_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return NULL;
-
-    RtArenaV2 *src = rt_handle_v2_arena(arr_h);
-    if (src == dest) return arr_h;
-
-    size_t len = rt_array_length_v2(arr_h);
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(RtHandleV2 *);
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
-    if (!new_h) return NULL;
-
-    rt_handle_begin_transaction(arr_h);
-    void *old_raw = arr_h->ptr;
-    rt_handle_begin_transaction(new_h);
-    void *new_raw = new_h->ptr;
-
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    new_meta->arena = dest;
-    new_meta->size = len;
-    new_meta->capacity = len;
-
-    RtHandleV2 **old_arr = (RtHandleV2 **)((char *)old_raw + sizeof(RtArrayMetadataV2));
-    RtHandleV2 **new_arr = (RtHandleV2 **)((char *)new_raw + sizeof(RtArrayMetadataV2));
-
-    /* Recursively promote each str[] inner array */
-    for (size_t i = 0; i < len; i++) {
-        new_arr[i] = rt_promote_array_string_v2(dest, old_arr[i]);
-    }
-
-    rt_handle_end_transaction(new_h);
-    rt_handle_end_transaction(arr_h);
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}
-
-/* Promote str[][][] - promotes all three levels AND strings */
-RtHandleV2 *rt_promote_array3_string_v2(RtArenaV2 *dest, RtHandleV2 *arr_h) {
-    if (arr_h == NULL) return NULL;
-
-    RtArenaV2 *src = rt_handle_v2_arena(arr_h);
-    if (src == dest) return arr_h;
-
-    size_t len = rt_array_length_v2(arr_h);
-    size_t alloc_size = sizeof(RtArrayMetadataV2) + len * sizeof(RtHandleV2 *);
-
-    RtHandleV2 *new_h = rt_arena_v2_alloc(dest, alloc_size);
-    if (!new_h) return NULL;
-
-    rt_handle_begin_transaction(arr_h);
-    void *old_raw = arr_h->ptr;
-    rt_handle_begin_transaction(new_h);
-    void *new_raw = new_h->ptr;
-
-    RtArrayMetadataV2 *new_meta = (RtArrayMetadataV2 *)new_raw;
-    new_meta->arena = dest;
-    new_meta->size = len;
-    new_meta->capacity = len;
-
-    RtHandleV2 **old_arr = (RtHandleV2 **)((char *)old_raw + sizeof(RtArrayMetadataV2));
-    RtHandleV2 **new_arr = (RtHandleV2 **)((char *)new_raw + sizeof(RtArrayMetadataV2));
-
-    /* Recursively promote each str[][] inner array */
-    for (size_t i = 0; i < len; i++) {
-        new_arr[i] = rt_promote_array2_string_v2(dest, old_arr[i]);
-    }
-
-    rt_handle_end_transaction(new_h);
-    rt_handle_end_transaction(arr_h);
-    rt_arena_v2_free(arr_h);
-
-    return new_h;
-}

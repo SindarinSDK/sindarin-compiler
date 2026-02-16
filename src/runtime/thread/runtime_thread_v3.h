@@ -3,20 +3,16 @@
  * ============================================================================
  *
  * Design principles:
- * 1. RtHandleV2 is first-class - all thread access via handle, always in transaction
+ * 1. RtHandleV2 is first-class - all thread access via handle
  * 2. Clean lifecycle - create, start, sync, dispose (4 public functions)
- * 3. All promotion in runtime - rt_thread_v3_promote handles everything
- * 4. Transaction safety - all t->field access within begin/end transaction
- * 5. RtThread arena-allocated - transactions protect pthread primitives from GC
+ * 3. All promotion in runtime - copy_callback handles deep copy
+ * 4. RtThread arena-allocated - transactions protect pthread primitives from GC
  *
  * Public API:
  *   rt_thread_v3_create  - Create thread handle
  *   rt_thread_v3_start   - Start the thread
  *   rt_thread_v3_sync    - Wait, promote result, cleanup
  *   rt_thread_v3_dispose - Explicit cleanup (for fire-and-forget)
- *
- * Internal (used by sync):
- *   rt_thread_v3_promote - Promotes result based on type info
  *
  * ============================================================================ */
 
@@ -37,8 +33,24 @@
     #include <pthread.h>
 #endif
 
+/* Thread-local storage compatibility */
+#ifdef __TINYC__
+    #define RT_THREAD_LOCAL
+#elif defined(_MSC_VER)
+    #define RT_THREAD_LOCAL __declspec(thread)
+#else
+    #define RT_THREAD_LOCAL __thread
+#endif
+
+/* Backwards compat for any code still using RT_THREAD_LOCAL_V2 */
+#define RT_THREAD_LOCAL_V2 RT_THREAD_LOCAL
+
 /* ============================================================================
- * Thread Mode
+ * Thread Mode - Matches Function Arena Modes
+ * ============================================================================
+ * Default: Thread gets own arena (child of caller), result promoted at sync
+ * Shared:  Thread uses caller's arena, no promotion needed
+ * Private: Thread gets isolated arena, only void/primitives returned
  * ============================================================================ */
 
 typedef enum {
@@ -46,6 +58,32 @@ typedef enum {
     RT_THREAD_MODE_SHARED,      /* Use caller's arena directly */
     RT_THREAD_MODE_PRIVATE      /* Isolated arena, void/primitives only */
 } RtThreadMode;
+
+/* ============================================================================
+ * RtThread - Single Structure
+ * ============================================================================
+ * Allocated in CALLER arena (survives until sync or arena cleanup).
+ * t->arena is thread's working arena (NULL if shared mode).
+ * ============================================================================ */
+
+typedef struct RtThread {
+    pthread_t pthread;
+    uint64_t thread_id;         /* Unique runtime thread ID */
+
+    RtArenaV2 *arena;           /* Thread's own arena (NULL if shared) */
+    RtArenaV2 *caller;          /* Caller's arena (owns this struct) */
+    RtThreadMode mode;          /* Thread mode for sync behavior */
+
+    pthread_mutex_t mutex;      /* Destroyed by sync or dispose */
+    pthread_cond_t cond;
+    bool done;
+    bool disposed;              /* Dispose tracking */
+
+    RtHandleV2 *self_handle;    /* Handle to this RtThread in caller arena */
+    RtHandleV2 *args;           /* Handle to packed args (in thread arena) */
+    RtHandleV2 *result;         /* Result handle (NULL for void) */
+    char *panic_msg;            /* NULL = success */
+} RtThread;
 
 /* ============================================================================
  * Deep Copy via copy_callback
@@ -63,40 +101,6 @@ typedef enum {
  * This means rt_thread_v3_sync() just calls rt_arena_v2_promote() and
  * everything works.
  * ============================================================================ */
-
-/* ============================================================================
- * RtThread - Core Structure (Arena-Allocated)
- * ============================================================================
- * RtThread is allocated in the CALLER's arena. All access to fields
- * (including pthread primitives) MUST be within a transaction. This ensures
- * GC cannot move the memory while pthread operations are in progress.
- * ============================================================================ */
-
-typedef struct RtThread {
-    /* pthread primitives - protected by transaction during use */
-    pthread_t pthread;
-    pthread_mutex_t mutex;
-    pthread_cond_t cond;
-
-    /* Thread identity */
-    uint64_t thread_id;
-
-    /* Arena management */
-    RtArenaV2 *arena;           /* Thread's own arena (NULL if shared) */
-    RtArenaV2 *caller;          /* Caller's arena */
-    RtThreadMode mode;
-
-    /* State */
-    bool done;
-    bool disposed;
-
-    /* Result */
-    RtHandleV2 *args;           /* Handle to packed args (in thread arena) */
-    RtHandleV2 *result;         /* Result handle (NULL for void/primitives) */
-
-    /* Error state */
-    char *panic_msg;            /* NULL = success, else error message */
-} RtThread;
 
 /* ============================================================================
  * Public API - Thread Lifecycle
@@ -176,6 +180,37 @@ RtHandleV2 *rt_tls_thread_get_v3(void);
 
 /* Panic - stores message in thread (if in thread context), signals done,
  * and exits thread. If not in thread context, prints and exits process. */
-void rt_panic_v3(const char *msg);
+void rt_panic(const char *msg);
+
+/* ============================================================================
+ * Args Helpers (used by codegen for accessing thread args via handle)
+ * ============================================================================ */
+
+/* Get the args handle from a thread handle (transaction-safe). */
+RtHandleV2 *rt_thread_v3_get_args(RtHandleV2 *thread_handle);
+
+/* Set the args handle on a thread handle (transaction-safe). */
+void rt_thread_v3_set_args(RtHandleV2 *thread_handle, RtHandleV2 *args);
+
+/* ============================================================================
+ * Sync Lock Table
+ * ============================================================================
+ * These functions provide mutex-based synchronization for sync variables
+ * when using lock(var) => { ... } blocks.
+ * ============================================================================ */
+
+/* Acquire a mutex lock for a sync variable (by handle)
+ * Creates mutex on first use. Thread-safe. */
+void rt_sync_lock(RtHandleV2 *handle);
+
+/* Release a mutex lock for a sync variable (by handle)
+ * Must be called after rt_sync_lock with the same handle. */
+void rt_sync_unlock(RtHandleV2 *handle);
+
+/* Initialize the sync lock table (called automatically if needed) */
+void rt_sync_lock_table_init(void);
+
+/* Clean up all sync locks (called on process exit) */
+void rt_sync_lock_table_cleanup(void);
 
 #endif /* RUNTIME_THREAD_V3_H */

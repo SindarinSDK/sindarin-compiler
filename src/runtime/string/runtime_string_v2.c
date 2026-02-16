@@ -26,6 +26,7 @@ typedef struct {
     RtArenaV2 *arena;   /* Arena that owns this array */
     size_t size;        /* Number of elements currently in array */
     size_t capacity;    /* Total allocated space for elements */
+    size_t element_size; /* Size of each element in bytes */
 } RtArrayMetaV2Local;
 
 /* ============================================================================
@@ -363,6 +364,7 @@ RtHandleV2 *rt_str_toUpper_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
     rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(h);
         ptr[i] = (char)toupper((unsigned char)str[i]);
     }
     ptr[len] = '\0';
@@ -383,6 +385,7 @@ RtHandleV2 *rt_str_toLower_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
     rt_handle_begin_transaction(h);
     char *ptr = (char *)h->ptr;
     for (size_t i = 0; i < len; i++) {
+        rt_handle_renew_transaction(h);
         ptr[i] = (char)tolower((unsigned char)str[i]);
     }
     ptr[len] = '\0';
@@ -475,6 +478,10 @@ RtHandleV2 *rt_str_replace_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *o
     p = str;
     const char *found;
     while ((found = strstr(p, old_s)) != NULL) {
+        rt_handle_renew_transaction(h);
+        rt_handle_renew_transaction(str_h);
+        if (old_h) rt_handle_renew_transaction(old_h);
+        if (new_h) rt_handle_renew_transaction(new_h);
         size_t seg_len = (size_t)(found - p);
         memcpy(dst, p, seg_len);
         dst += seg_len;
@@ -525,6 +532,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *del
             arr[0] = rt_arena_v2_strdup(arena, "");
         } else {
             for (size_t i = 0; i < count; i++) {
+                rt_handle_renew_transaction(h);
                 char ch_buf[2] = { str[i], '\0' };
                 arr[i] = rt_arena_v2_strdup(arena, ch_buf);
             }
@@ -560,6 +568,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *del
     p = str;
     const char *found;
     while ((found = strstr(p, delimiter)) != NULL && idx < count - 1) {
+        rt_handle_renew_transaction(h);
         size_t seg_len = (size_t)(found - p);
         /* Allocate temporary buffer for segment (on stack if small enough) */
         char stack_buf[256];
@@ -644,6 +653,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *d
     p = str;
     const char *found;
     while ((found = strstr(p, delimiter)) != NULL && idx < count - 1) {
+        rt_handle_renew_transaction(h);
         size_t seg_len = (size_t)(found - p);
         /* Allocate temporary buffer for segment */
         char stack_buf[256];
@@ -717,6 +727,7 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
     size_t idx = 0;
     p = str;
     while (*p && idx < count) {
+        rt_handle_renew_transaction(h);
         while (*p && is_whitespace_v2(*p)) p++;
         if (*p == '\0') break;
         const char *start = p;
@@ -797,6 +808,7 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
     p = str;
     const char *start = str;
     while (*p && idx < count) {
+        rt_handle_renew_transaction(h);
         if (*p == '\n') {
             size_t line_len = p - start;
             char stack_buf[256];
@@ -953,6 +965,7 @@ int rt_str_is_blank_v2(RtHandleV2 *str_h) {
 
     const char *p = str;
     while (*p) {
+        rt_handle_renew_transaction(str_h);
         if (*p != ' ' && *p != '\t' && *p != '\n' && *p != '\r' && *p != '\v' && *p != '\f') {
             rt_handle_end_transaction(str_h);
             return 0;

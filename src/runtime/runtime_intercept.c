@@ -281,6 +281,7 @@ static RtAny call_next_interceptor(void)
     {
         memcpy(args_data, ctx->args, ctx->arg_count * sizeof(RtAny));
     }
+    rt_handle_end_transaction(args_h);
 
     // Call the interceptor handler with handle-based parameters
     RtAny result = entry->handler(arena, name_h, args_h, &continue_closure);
@@ -292,6 +293,7 @@ static RtAny call_next_interceptor(void)
         void *args_ptr = args_h->ptr;
         RtAny *args_after = (RtAny *)((char *)args_ptr + sizeof(RtArrayMetadataV2));
         memcpy(ctx->args, args_after, ctx->arg_count * sizeof(RtAny));
+        rt_handle_end_transaction(args_h);
     }
 
     // Decrement depth after handler returns

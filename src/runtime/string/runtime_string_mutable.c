@@ -133,13 +133,13 @@ RtHandleV2 *rt_string_append(RtHandleV2 *dest_h, const char *src) {
             exit(1);
         }
 
-        rt_handle_end_transaction(dest_h);
         RtHandleV2 *new_h = rt_string_with_capacity(meta->arena, new_cap);
         rt_handle_begin_transaction(new_h);
         char *new_str = (char *)((RtStringMeta *)new_h->ptr + 1);
 
         /* Copy existing content to new buffer */
         memcpy(new_str, dest, old_len);
+        rt_handle_end_transaction(dest_h);
 
         /* Update dest_h, dest, and meta to point to new buffer */
         dest_h = new_h;

@@ -599,16 +599,21 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
                  * V2 handles carry their own arena reference, so no source arena needed. */
                 if (is_global)
                 {
-                    return arena_sprintf(gen->arena, "(%s = rt_arena_v2_promote(__main_arena__, %s))",
-                                         var_name, value_str);
+                    return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); })",
+                                         var_name, var_name, value_str);
                 }
                 /* For locals, just do a direct assignment. */
                 return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
             }
             /* For handle-based strings: create new handle and assign (old will be GC'd).
              * The value_str is a raw pointer (pinned by expression generator).
-             * For globals, use main arena. Otherwise use function arena. */
+             * For globals, use main arena and free old handle. Otherwise use function arena. */
             const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+            if (is_global)
+            {
+                return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_strdup(%s, %s); })",
+                                     var_name, var_name, target_arena, value_str);
+            }
             return arena_sprintf(gen->arena, "(%s = rt_arena_v2_strdup(%s, %s))",
                                  var_name, target_arena, value_str);
         }
@@ -633,8 +638,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
              * V2 handles carry their own arena reference, so no source arena needed. */
             if (is_global)
             {
-                return arena_sprintf(gen->arena, "({%s %s = rt_arena_v2_promote(__main_arena__, %s); %s; })",
-                                     pending_reset, var_name, value_str, var_name);
+                return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); %s; })",
+                                     pending_reset, var_name, var_name, value_str, var_name);
             }
             if (symbol->has_pending_elements)
             {
@@ -646,6 +651,16 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         /* For handle-based arrays: clone to target arena with old handle.
          * Use rt_arena_v2_clone for cross-arena cloning (e.g., to __main_arena__ for globals). */
         const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+        if (is_global)
+        {
+            if (symbol->has_pending_elements)
+            {
+                return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); %s; })",
+                                     pending_reset, var_name, var_name, target_arena, value_str, var_name);
+            }
+            return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); })",
+                                 var_name, var_name, target_arena, value_str);
+        }
         if (symbol->has_pending_elements)
         {
             return arena_sprintf(gen->arena, "({%s %s = rt_arena_v2_clone(%s, %s); %s; })",
@@ -672,8 +687,23 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         }
         if (needs_deep_promote)
         {
-            // Build: ({ var = value; promote fields...; var; })
-            char *result = arena_sprintf(gen->arena, "({ %s = %s; ", var_name, value_str);
+            // Build: ({ free old fields; var = value; promote new fields...; var; })
+            char *result = arena_sprintf(gen->arena, "({ ");
+            // Free old handle fields first
+            for (int i = 0; i < field_count; i++)
+            {
+                StructField *field = &type->as.struct_type.fields[i];
+                if (field->type == NULL) continue;
+                const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
+                if (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY)
+                {
+                    result = arena_sprintf(gen->arena, "%srt_arena_v2_free(%s.%s); ",
+                                           result, var_name, c_field_name);
+                }
+            }
+            // Assign new value
+            result = arena_sprintf(gen->arena, "%s%s = %s; ", result, var_name, value_str);
+            // Promote new handle fields to main arena
             for (int i = 0; i < field_count; i++)
             {
                 StructField *field = &type->as.struct_type.fields[i];

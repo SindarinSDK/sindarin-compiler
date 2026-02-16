@@ -144,6 +144,13 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->emitted_globals_count = 0;
     gen->emitted_globals_capacity = 0;
 
+    /* Initialize GC callback generation buffers */
+    gen->callback_forward_decls = arena_strdup(arena, "");
+    gen->callback_definitions = arena_strdup(arena, "");
+    gen->emitted_callbacks = NULL;
+    gen->emitted_callback_count = 0;
+    gen->emitted_callback_capacity = 0;
+
     if (gen->output == NULL)
     {
         exit(1);
@@ -176,7 +183,7 @@ static void code_gen_headers(CodeGen *gen)
     indented_fprintf(gen, 0, "#include <stdint.h>\n");  /* For int32_t, uint32_t, uint64_t */
     indented_fprintf(gen, 0, "#include <limits.h>\n");
     indented_fprintf(gen, 0, "#include <setjmp.h>\n");  /* For thread panic handling */
-    /* pthread.h is included via runtime.h -> runtime_thread_v2.h (handles Windows compatibility) */
+    /* pthread.h is included via runtime.h -> runtime_thread_v3.h (handles Windows compatibility) */
     /* Include runtime.h for inline function definitions (comparisons, array_length, etc.) */
     indented_fprintf(gen, 0, "#include \"runtime.h\"\n");
     /* Undefine Windows min/max macros to avoid name collisions with user functions */
@@ -542,6 +549,14 @@ void code_gen_module(CodeGen *gen, Module *module)
     // Restore original output
     gen->output = original_output;
 
+    /* Output GC callback forward declarations BEFORE lambda forward declarations */
+    if (gen->callback_forward_decls && strlen(gen->callback_forward_decls) > 0)
+    {
+        indented_fprintf(gen, 0, "/* GC callback forward declarations */\n");
+        fprintf(gen->output, "%s", gen->callback_forward_decls);
+        indented_fprintf(gen, 0, "\n");
+    }
+
     /* Output accumulated lambda forward declarations BEFORE function definitions */
     if (gen->lambda_forward_decls && strlen(gen->lambda_forward_decls) > 0)
     {
@@ -570,6 +585,13 @@ void code_gen_module(CodeGen *gen, Module *module)
         fprintf(gen->output, "%s", func_buf);
     }
     fclose(func_temp);
+
+    /* Output GC callback definitions BEFORE lambda definitions */
+    if (gen->callback_definitions && strlen(gen->callback_definitions) > 0)
+    {
+        indented_fprintf(gen, 0, "\n/* GC callback definitions */\n");
+        fprintf(gen->output, "%s", gen->callback_definitions);
+    }
 
     /* Output accumulated lambda function definitions at the end */
     if (gen->lambda_definitions && strlen(gen->lambda_definitions) > 0)
