@@ -10,7 +10,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
-#include <pthread.h>
+#include "arena_compat.h"
 
 /* ============================================================================
  * Debug Logging (enabled via RT_ARENA_DEBUG=1 environment variable)
@@ -30,7 +30,7 @@ void arena_debug_init(void)
 #define ARENA_DEBUG_LOG(fmt, ...) do { \
     if (!arena_debug_initialized) arena_debug_init(); \
     if (arena_debug_enabled) { \
-        fprintf(stderr, "[ARENA:T%lu] " fmt "\n", (unsigned long)pthread_self(), ##__VA_ARGS__); \
+        fprintf(stderr, "[ARENA:T%lu] " fmt "\n", (unsigned long)(uintptr_t)pthread_self(), ##__VA_ARGS__); \
         fflush(stderr); \
     } \
 } while(0)

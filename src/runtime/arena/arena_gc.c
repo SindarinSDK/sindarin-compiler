@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdatomic.h>
-#include <pthread.h>
+#include "arena_compat.h"
 
 /* Debug logging (shared with arena_v2.c) */
 extern int arena_debug_initialized;
@@ -26,7 +26,7 @@ void arena_debug_init(void);
 #define GC_DEBUG_LOG(fmt, ...) do { \
     if (!arena_debug_initialized) arena_debug_init(); \
     if (arena_debug_enabled) { \
-        fprintf(stderr, "[GC:T%lu] " fmt "\n", (unsigned long)pthread_self(), ##__VA_ARGS__); \
+        fprintf(stderr, "[GC:T%lu] " fmt "\n", (unsigned long)(uintptr_t)pthread_self(), ##__VA_ARGS__); \
         fflush(stderr); \
     } \
 } while(0)
