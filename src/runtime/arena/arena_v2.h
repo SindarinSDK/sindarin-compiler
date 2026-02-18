@@ -120,9 +120,8 @@ struct RtArenaV2 {
     /* GC state */
     bool gc_running;            /* Is GC currently running on this arena? */
     volatile uint16_t flags;    /* RtArenaFlags */
-    pthread_mutex_t gc_mutex;   /* Serializes GC runs (only used on root) */
 
-    /* Synchronization - simple mutex, no lock-free */
+    /* Synchronization */
     pthread_mutex_t mutex;
 
     /* Cleanup callbacks */

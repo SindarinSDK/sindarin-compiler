@@ -18,23 +18,78 @@
 #include <stdatomic.h>
 
 /* ============================================================================
- * Destruction Functions
- * ============================================================================
- * GC owns all actual destruction. Public APIs only mark intentions.
+ * Core Helpers
  * ============================================================================ */
 
-static void rt_handle_v2_destroy(RtHandleV2 *handle)
+/* Call all handle free_callbacks in a block (handles remain allocated) */
+static void gc_call_block_callbacks(RtBlockV2 *block)
 {
-    /* Call destroy callback if set (cleanup pthread primitives, file handles, etc.) */
-    if (handle->free_callback != NULL) {
-        handle->free_callback(handle);
+    RtHandleV2 *handle = block->handles_head;
+    while (handle != NULL) {
+        if (handle->free_callback != NULL) {
+            handle->free_callback(handle);
+            handle->free_callback = NULL;
+        }
+        handle = handle->next;
     }
-    free(handle);
 }
 
-static void rt_block_destroy(RtBlockV2 *block)
+/* Free all handles in a block (callbacks must already be called) */
+static void gc_free_block_handles(RtBlockV2 *block)
 {
-    free(block);
+    RtHandleV2 *handle = block->handles_head;
+    while (handle != NULL) {
+        RtHandleV2 *next = handle->next;
+        free(handle);
+        handle = next;
+    }
+    block->handles_head = NULL;
+}
+
+/* Run cleanup callbacks for an arena */
+static void gc_run_cleanup_callbacks(RtArenaV2 *arena)
+{
+    RtCleanupNodeV2 *cleanup = arena->cleanups;
+    arena->cleanups = NULL;
+    while (cleanup != NULL) {
+        RtCleanupNodeV2 *next = cleanup->next;
+        if (cleanup->fn) {
+            cleanup->fn(cleanup->data);
+        }
+        free(cleanup);
+        cleanup = next;
+    }
+}
+
+/* Call all handle callbacks in an arena's blocks */
+static void gc_call_arena_handle_callbacks(RtArenaV2 *arena)
+{
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        gc_call_block_callbacks(block);
+        block = block->next;
+    }
+}
+
+/* Free all handles and blocks in an arena */
+static void gc_free_arena_blocks(RtArenaV2 *arena)
+{
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        RtBlockV2 *next = block->next;
+        gc_free_block_handles(block);
+        free(block);
+        block = next;
+    }
+    arena->blocks_head = NULL;
+    arena->current_block = NULL;
+}
+
+/* Destroy arena struct (mutex and memory) */
+static void gc_destroy_arena_struct(RtArenaV2 *arena)
+{
+    pthread_mutex_destroy(&arena->mutex);
+    free(arena);
 }
 
 /* Forward declaration for recursive call */
@@ -47,47 +102,24 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 
     /* Run cleanup callbacks FIRST (before destroying children).
      * This is critical because thread cleanup callbacks need to join threads
-     * that may still be using their child arenas. If we destroy children first,
-     * threads would crash trying to use destroyed arenas. */
-    RtCleanupNodeV2 *cleanup = arena->cleanups;
-    arena->cleanups = NULL;  /* Clear list before invoking to prevent re-entry issues */
-    while (cleanup != NULL) {
-        RtCleanupNodeV2 *next = cleanup->next;
-        if (cleanup->fn) {
-            cleanup->fn(cleanup->data);
-        }
-        free(cleanup);
-        cleanup = next;
-    }
+     * that may still be using their child arenas. */
+    gc_run_cleanup_callbacks(arena);
 
     pthread_mutex_lock(&arena->mutex);
 
-    /* Destroy children (recursive) - children don't need to unlink,
-     * we're clearing the whole child list anyway.
-     * This is safe now because cleanup callbacks (e.g., thread joins) have completed. */
+    /* Destroy children (recursive) - children don't need to unlink */
     RtArenaV2 *child = arena->first_child;
-    arena->first_child = NULL;  /* Clear list before destroying */
+    arena->first_child = NULL;
     while (child != NULL) {
         RtArenaV2 *next = child->next_sibling;
-        child->parent = NULL;  /* Prevent child from trying to unlink */
+        child->parent = NULL;
         rt_arena_v2_destroy(child, false);
         child = next;
     }
 
-    /* Destroy all blocks and their handles */
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        RtBlockV2 *next_block = block->next;
-        /* Free all handles in this block */
-        RtHandleV2 *handle = block->handles_head;
-        while (handle != NULL) {
-            RtHandleV2 *next_handle = handle->next;
-            rt_handle_v2_destroy(handle);
-            handle = next_handle;
-        }
-        rt_block_destroy(block);
-        block = next_block;
-    }
+    /* Two passes: callbacks first, then free (avoids use-after-free) */
+    gc_call_arena_handle_callbacks(arena);
+    gc_free_arena_blocks(arena);
 
     /* Unlink from parent (only if requested and parent exists) */
     if (unlink_from_parent && arena->parent != NULL) {
@@ -104,10 +136,7 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
     }
 
     pthread_mutex_unlock(&arena->mutex);
-    pthread_mutex_destroy(&arena->mutex);
-    pthread_mutex_destroy(&arena->gc_mutex);
-
-    free(arena);
+    gc_destroy_arena_struct(arena);
 }
 
 /* ============================================================================
@@ -150,12 +179,23 @@ static void gc_release_block(RtBlockV2 *block)
 }
 
 /* ============================================================================
- * Pass 1: Dead Arena Sweep
+ * Pass 1: Dead Arena Sweep (Two-Phase Collection)
+ * ============================================================================
+ * To avoid use-after-free when arenas reference handles in other arenas,
+ * we collect all dead arenas first, then destroy them in two passes:
+ * 1. Call all free_callbacks (handles still valid across all arenas)
+ * 2. Free all handles and arena structs
  * ============================================================================ */
 
-/* Sweep dead arenas recursively.
- * Destroys arenas marked with RT_ARENA_FLAG_DEAD. */
-static void gc_sweep_dead_arenas(RtArenaV2 *arena)
+/* Simple arena list for collection */
+typedef struct ArenaListNode {
+    RtArenaV2 *arena;
+    struct ArenaListNode *next;
+} ArenaListNode;
+
+/* Collect dead arenas recursively into a list.
+ * Also collects all children of dead arenas (they must be destroyed too). */
+static void gc_collect_dead_arenas(RtArenaV2 *arena, ArenaListNode **list)
 {
     if (arena == NULL) return;
 
@@ -169,14 +209,33 @@ static void gc_sweep_dead_arenas(RtArenaV2 *arena)
             /* Unlink from sibling list */
             *pp = child->next_sibling;
             child->parent = NULL;
+            child->next_sibling = NULL;
 
+            /* Add to collection list */
+            ArenaListNode *node = malloc(sizeof(ArenaListNode));
+            node->arena = child;
+            node->next = *list;
+            *list = node;
+
+            /* Collect all children of this dead arena too (they're implicitly dead) */
             pthread_mutex_unlock(&arena->mutex);
-            rt_arena_v2_destroy(child, false);
+            RtArenaV2 *grandchild = child->first_child;
+            while (grandchild != NULL) {
+                RtArenaV2 *next_grandchild = grandchild->next_sibling;
+                grandchild->parent = NULL;
+                grandchild->next_sibling = NULL;
+                ArenaListNode *gc_node = malloc(sizeof(ArenaListNode));
+                gc_node->arena = grandchild;
+                gc_node->next = *list;
+                *list = gc_node;
+                grandchild = next_grandchild;
+            }
+            child->first_child = NULL;
             pthread_mutex_lock(&arena->mutex);
             /* pp already points to the next child after unlinking */
         } else {
             pthread_mutex_unlock(&arena->mutex);
-            gc_sweep_dead_arenas(child);  /* Recurse into live children */
+            gc_collect_dead_arenas(child, list);  /* Recurse into live children */
             pthread_mutex_lock(&arena->mutex);
             pp = &child->next_sibling;
         }
@@ -185,99 +244,192 @@ static void gc_sweep_dead_arenas(RtArenaV2 *arena)
     pthread_mutex_unlock(&arena->mutex);
 }
 
+/* Call all callbacks in an arena (cleanup + handle callbacks) */
+static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
+{
+    gc_run_cleanup_callbacks(arena);
+    gc_call_arena_handle_callbacks(arena);
+}
+
+/* Free all handles/blocks and destroy arena struct */
+static void gc_destroy_arena_fully(RtArenaV2 *arena)
+{
+    gc_free_arena_blocks(arena);
+    gc_destroy_arena_struct(arena);
+}
+
+/* Sweep dead arenas using two-phase collection.
+ * Phase 1: Collect all dead arenas, call all callbacks
+ * Phase 2: Free all handles and arena structs */
+static void gc_sweep_dead_arenas(RtArenaV2 *arena)
+{
+    if (arena == NULL) return;
+
+    /* Collect all dead arenas */
+    ArenaListNode *dead_list = NULL;
+    gc_collect_dead_arenas(arena, &dead_list);
+
+    if (dead_list == NULL) return;
+
+    /* Pass 1: Call all callbacks on all dead arenas */
+    for (ArenaListNode *node = dead_list; node != NULL; node = node->next) {
+        gc_call_all_arena_callbacks(node->arena);
+    }
+
+    /* Pass 2: Free all handles and arena structs */
+    ArenaListNode *node = dead_list;
+    while (node != NULL) {
+        ArenaListNode *next = node->next;
+        gc_destroy_arena_fully(node->arena);
+        free(node);
+        node = next;
+    }
+}
+
 /* ============================================================================
- * Pass 2: Block Compaction
+ * Pass 2: Block Compaction (Two-Phase)
+ * ============================================================================
+ * Similar to dead arena sweep, we collect all dead handles first, then
+ * destroy them in two passes to avoid use-after-free when callbacks
+ * reference other dead handles.
  * ============================================================================ */
 
-/* Compact a single block - free dead handles.
- * Block must be acquired by GC before calling.
- * Updates result with handles and bytes freed. */
-static void gc_compact_block(RtBlockV2 *block, RtArenaGCResult *result)
+/* Simple handle list for collection */
+typedef struct HandleListNode {
+    RtHandleV2 *handle;
+    RtBlockV2 *block;
+    struct HandleListNode *next;
+} HandleListNode;
+
+/* Collect dead handles from a single block */
+static void gc_collect_dead_handles_block(RtBlockV2 *block, HandleListNode **list, RtArenaGCResult *result)
 {
     RtHandleV2 *handle = block->handles_head;
     while (handle != NULL) {
         RtHandleV2 *next = handle->next;
         if (handle->flags & RT_HANDLE_FLAG_DEAD) {
+            /* Unlink from block now */
             rt_handle_v2_unlink(block, handle);
             result->bytes_freed += handle->size;
-            rt_handle_v2_destroy(handle);
             result->handles_freed++;
+
+            /* Add to collection list */
+            HandleListNode *node = malloc(sizeof(HandleListNode));
+            node->handle = handle;
+            node->block = block;
+            node->next = *list;
+            *list = node;
         }
         handle = next;
     }
 }
 
-/* GC a single arena's blocks.
- * Acquires blocks before processing.
- * Updates result with collection stats. */
-static void gc_compact_arena(RtArenaV2 *arena, RtArenaGCResult *result)
+/* Collect dead handles from a single arena's blocks */
+static void gc_collect_arena_handles(RtArenaV2 *arena, HandleListNode **list, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
     pthread_mutex_lock(&arena->mutex);
 
-    if (arena->gc_running) {
-        pthread_mutex_unlock(&arena->mutex);
-        return;
-    }
-    arena->gc_running = true;
-
-    RtBlockV2 **bp = &arena->blocks_head;
-
-    while (*bp != NULL) {
-        RtBlockV2 *block = *bp;
-
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
         /* Try to acquire block for GC */
         int acquire_result = gc_acquire_block(block);
-        if (acquire_result == 1) {
-            /* Skip - valid lease held */
-            bp = &block->next;
-            continue;
+        if (acquire_result != 1) {
+            /* Collect dead handles from this block */
+            gc_collect_dead_handles_block(block, list, result);
+            gc_release_block(block);
         }
+        block = block->next;
+    }
 
-        /* Compact the block */
-        gc_compact_block(block, result);
+    pthread_mutex_unlock(&arena->mutex);
+}
 
-        /* Release the block */
-        gc_release_block(block);
+/* Recursively collect dead handles from all arenas */
+static void gc_collect_all_handles(RtArenaV2 *arena, HandleListNode **list, RtArenaGCResult *result)
+{
+    if (arena == NULL) return;
 
-        /* If block is empty, free it */
+    gc_collect_arena_handles(arena, list, result);
+
+    /* Recursively collect from children */
+    pthread_mutex_lock(&arena->mutex);
+    RtArenaV2 *child = arena->first_child;
+
+    while (child != NULL) {
+        gc_collect_all_handles(child, list, result);
+        child = child->next_sibling;
+    }
+    
+    pthread_mutex_unlock(&arena->mutex);
+}
+
+/* Clean up empty blocks after compaction */
+static void gc_cleanup_empty_blocks(RtArenaV2 *arena, RtArenaGCResult *result)
+{
+    if (arena == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+
+    RtBlockV2 **bp = &arena->blocks_head;
+    while (*bp != NULL) {
+        RtBlockV2 *block = *bp;
         if (block->handles_head == NULL) {
-            *bp = block->next;  /* Unlink from chain */
+            *bp = block->next;
             if (arena->current_block == block) {
                 arena->current_block = NULL;
             }
-            rt_block_destroy(block);
+            free(block);
             result->blocks_freed++;
         } else {
             bp = &block->next;
         }
     }
 
-    arena->gc_running = false;
+    /* Recursively clean children */
+    RtArenaV2 *child = arena->first_child;
+
+    while (child != NULL) {
+        gc_cleanup_empty_blocks(child, result);
+        child = child->next_sibling;
+    }
 
     pthread_mutex_unlock(&arena->mutex);
 }
 
-/* GC all arenas in tree recursively (Pass 2 helper) */
+/* GC all arenas using two-phase approach:
+ * Phase 1: Collect all dead handles, call their callbacks
+ * Phase 2: Free all collected handles, cleanup empty blocks */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
-    gc_compact_arena(arena, result);
+    /* Collect all dead handles */
+    HandleListNode *dead_handles = NULL;
+    gc_collect_all_handles(arena, &dead_handles, result);
 
-    /* Recursively GC children */
-    pthread_mutex_lock(&arena->mutex);
-    RtArenaV2 *child = arena->first_child;
-    pthread_mutex_unlock(&arena->mutex);
+    if (dead_handles == NULL) return;
 
-    while (child != NULL) {
-        gc_compact_all(child, result);
-
-        pthread_mutex_lock(&arena->mutex);
-        child = child->next_sibling;
-        pthread_mutex_unlock(&arena->mutex);
+    /* Pass 1: Call all free_callbacks */
+    for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
+        if (node->handle->free_callback != NULL) {
+            node->handle->free_callback(node->handle);
+            node->handle->free_callback = NULL;
+        }
     }
+
+    /* Pass 2: Free all handle structs */
+    HandleListNode *node = dead_handles;
+    while (node != NULL) {
+        HandleListNode *next = node->next;
+        free(node->handle);
+        free(node);
+        node = next;
+    }
+
+    /* Cleanup empty blocks */
+    gc_cleanup_empty_blocks(arena, result);
 }
 
 /* ============================================================================
@@ -289,12 +441,21 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
  * Pass 2: Compact blocks in all live arenas */
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
-    if (arena == NULL) return 0;
+    /* First check (lock-free fast path) */
+    if (arena->gc_running) {
+        return 0;
+    }
 
-    /* Serialize GC runs - only one thread can GC at a time.
-     * Multiple threads may call GC.collect() concurrently (e.g., HTTP workers),
-     * and concurrent tree traversal + arena destruction is unsafe. */
-    pthread_mutex_lock(&arena->gc_mutex);
+    /* Lock briefly to safely set gc_running */
+    pthread_mutex_lock(&arena->mutex);
+
+    if (arena->gc_running) {
+        pthread_mutex_unlock(&arena->mutex);
+        return 0;
+    }
+
+    arena->gc_running = true;
+    pthread_mutex_unlock(&arena->mutex);  /* Release before calling helpers */
 
     /* Initialize result */
     RtArenaGCResult result = {0};
@@ -317,7 +478,10 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Record GC results */
     rt_arena_stats_record_gc(arena, &result);
 
-    pthread_mutex_unlock(&arena->gc_mutex);
+    /* Lock briefly to clear gc_running */
+    pthread_mutex_lock(&arena->mutex);
+    arena->gc_running = false;
+    pthread_mutex_unlock(&arena->mutex);
 
     return result.handles_freed;
 }
