@@ -16,6 +16,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdatomic.h>
+#include <pthread.h>
+
+/* Debug logging (shared with arena_v2.c) */
+extern int arena_debug_initialized;
+extern int arena_debug_enabled;
+void arena_debug_init(void);
+
+#define GC_DEBUG_LOG(fmt, ...) do { \
+    if (!arena_debug_initialized) arena_debug_init(); \
+    if (arena_debug_enabled) { \
+        fprintf(stderr, "[GC:T%lu] " fmt "\n", (unsigned long)pthread_self(), ##__VA_ARGS__); \
+        fflush(stderr); \
+    } \
+} while(0)
 
 /* ============================================================================
  * Core Helpers
@@ -411,18 +425,27 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 
     if (dead_handles == NULL) return;
 
+    GC_DEBUG_LOG("gc_compact_all: Pass 1 - calling callbacks");
+
     /* Pass 1: Call all free_callbacks */
     for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
         if (node->handle->free_callback != NULL) {
+            GC_DEBUG_LOG("  callback: h=%p ptr=%p arena=%p(%s)",
+                         (void *)node->handle, node->handle->ptr,
+                         (void *)node->handle->arena,
+                         node->handle->arena && node->handle->arena->name ? node->handle->arena->name : "?");
             node->handle->free_callback(node->handle);
             node->handle->free_callback = NULL;
         }
     }
 
+    GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handles");
+
     /* Pass 2: Free all handle structs */
     HandleListNode *node = dead_handles;
     while (node != NULL) {
         HandleListNode *next = node->next;
+        GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)node->handle, node->handle->ptr);
         free(node->handle);
         free(node);
         node = next;

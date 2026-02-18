@@ -10,6 +10,30 @@
 #include <string.h>
 #include <stdio.h>
 #include <time.h>
+#include <pthread.h>
+
+/* ============================================================================
+ * Debug Logging (enabled via RT_ARENA_DEBUG=1 environment variable)
+ * ============================================================================ */
+
+int arena_debug_initialized = 0;
+int arena_debug_enabled = 0;
+
+void arena_debug_init(void)
+{
+    if (arena_debug_initialized) return;
+    arena_debug_initialized = 1;
+    const char *debug_env = getenv("RT_ARENA_DEBUG");
+    arena_debug_enabled = (debug_env != NULL && debug_env[0] == '1');
+}
+
+#define ARENA_DEBUG_LOG(fmt, ...) do { \
+    if (!arena_debug_initialized) arena_debug_init(); \
+    if (arena_debug_enabled) { \
+        fprintf(stderr, "[ARENA:T%lu] " fmt "\n", (unsigned long)pthread_self(), ##__VA_ARGS__); \
+        fflush(stderr); \
+    } \
+} while(0)
 
 /* ============================================================================
  * Thread-Local State
@@ -86,6 +110,10 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     handle->next = NULL;
     handle->prev = NULL;
 
+    ARENA_DEBUG_LOG("handle_create: h=%p ptr=%p size=%zu arena=%p(%s)",
+                    (void *)handle, ptr, size, (void *)arena,
+                    arena && arena->name ? arena->name : "?");
+
     return handle;
 }
 
@@ -115,7 +143,14 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->gc_running = false;
     arena->flags = RT_ARENA_FLAG_NONE;
 
-    pthread_mutex_init(&arena->mutex, NULL);
+    /* Use recursive mutex to allow re-entrant locking during nested promotes.
+     * When promoting a struct with handle fields, we lock the source arena,
+     * then the copy callback promotes nested handles which may be in the same arena. */
+    pthread_mutexattr_t attr;
+    pthread_mutexattr_init(&attr);
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&arena->mutex, &attr);
+    pthread_mutexattr_destroy(&attr);
 
     arena->cleanups = NULL;
     memset(&arena->stats, 0, sizeof(arena->stats));
@@ -290,6 +325,13 @@ RtHandleV2 *rt_arena_v2_strdup(RtArenaV2 *arena, const char *str)
 void rt_arena_v2_free(RtHandleV2 *handle)
 {
     if (handle == NULL) return;
+
+    ARENA_DEBUG_LOG("rt_arena_v2_free: h=%p ptr=%p flags=0x%x arena=%p(%s) %s",
+                    (void *)handle, handle->ptr, handle->flags,
+                    (void *)handle->arena,
+                    handle->arena && handle->arena->name ? handle->arena->name : "?",
+                    (handle->flags & RT_HANDLE_FLAG_DEAD) ? "(ALREADY DEAD!)" : "");
+
     handle->flags |= RT_HANDLE_FLAG_DEAD;
 }
 
@@ -302,6 +344,14 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle)
     if (dest == NULL || handle == NULL) return NULL;
     if (handle->arena == dest) return handle;  /* Already in dest */
 
+    /* Hold source arena mutex during entire promote operation.
+     * This prevents GC from collecting handles from this arena while we're
+     * in the middle of promoting. Without this lock, the copy callback can
+     * mark child handles dead, GC can collect and free them, and then the
+     * parent's free callback later tries to access freed memory. */
+    RtArenaV2 *source_arena = handle->arena;
+    pthread_mutex_lock(&source_arena->mutex);
+
     /* Clone to dest (handles both shallow copy and deep copy via callback) */
     RtHandleV2 *new_handle = rt_arena_v2_clone(dest, handle);
 
@@ -309,6 +359,8 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle)
     if (new_handle != NULL) {
         rt_arena_v2_free(handle);
     }
+
+    pthread_mutex_unlock(&source_arena->mutex);
 
     return new_handle;
 }
