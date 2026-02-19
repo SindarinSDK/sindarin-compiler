@@ -30,6 +30,13 @@ typedef struct {
     int current_indent;        // Current statement indent level (for temp var emission)
     char *for_continue_label;  // Label to jump to for continue in for loops
 
+    /* Loop scope tracking for break/continue cleanup.
+     * When breaking/continuing, we need to clean up struct locals in all inner scopes.
+     * This stack tracks the scope at the start of each loop so we know where to stop. */
+    Scope **loop_scope_stack;   // Stack of scope pointers at loop entry
+    int loop_scope_depth;       // Current depth of loop nesting
+    int loop_scope_capacity;    // Capacity of loop scope stack
+
     /* Arena context for memory management */
     int arena_depth;            // Current arena nesting level
     bool in_shared_context;     // Are we in a shared block?

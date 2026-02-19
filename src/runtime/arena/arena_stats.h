@@ -70,6 +70,9 @@ void rt_arena_stats_print(RtArenaV2 *arena);
 /* Print detailed per-block breakdown to stderr */
 void rt_arena_stats_snapshot(RtArenaV2 *arena);
 
+/* Get total live handle count (for interop) */
+long long rt_arena_v2_get_handle_count(RtArenaV2 *arena);
+
 /* Enable/disable one-line GC logging per pass to stderr */
 void rt_arena_stats_enable_gc_log(RtArenaV2 *arena);
 void rt_arena_stats_disable_gc_log(RtArenaV2 *arena);

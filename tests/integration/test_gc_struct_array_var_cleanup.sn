@@ -1,0 +1,36 @@
+# Test: Array of structs variable should have all elements' handle fields cleaned up
+# When array goes out of scope, each struct element's handles should be freed
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Item =>
+    name: str
+    value: str
+
+fn createItems(): Item[] =>
+    var items: Item[] = {}
+    items.push(Item { name: "one", value: "1" })
+    items.push(Item { name: "two", value: "2" })
+    items.push(Item { name: "three", value: "3" })
+    return items
+
+fn main(): void =>
+    var i: int = 0
+    while i < 100 =>
+        var items: Item[] = createItems()
+        # items goes out of scope - should free:
+        # - 3 items * 2 handles each = 6 handles per iteration
+        # - plus the array handle itself
+        gc_collect()
+        i = i + 1
+
+    # 100 iterations * ~7 handles = 700 leaked if broken
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

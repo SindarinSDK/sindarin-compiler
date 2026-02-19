@@ -15,9 +15,38 @@
  * This simplifies handle management - handles are always in the function arena.
  * ============================================================================ */
 
+/* Push the current scope onto the loop scope stack */
+static void push_loop_scope(CodeGen *gen)
+{
+    if (gen->loop_scope_depth >= gen->loop_scope_capacity)
+    {
+        int new_cap = gen->loop_scope_capacity == 0 ? 4 : gen->loop_scope_capacity * 2;
+        Scope **new_stack = arena_alloc(gen->arena, new_cap * sizeof(Scope *));
+        for (int i = 0; i < gen->loop_scope_depth; i++)
+        {
+            new_stack[i] = gen->loop_scope_stack[i];
+        }
+        gen->loop_scope_stack = new_stack;
+        gen->loop_scope_capacity = new_cap;
+    }
+    gen->loop_scope_stack[gen->loop_scope_depth++] = gen->symbol_table->current;
+}
+
+/* Pop the loop scope stack */
+static void pop_loop_scope(CodeGen *gen)
+{
+    if (gen->loop_scope_depth > 0)
+    {
+        gen->loop_scope_depth--;
+    }
+}
+
 void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_while_statement");
+
+    /* Track loop scope for break/continue cleanup */
+    push_loop_scope(gen);
 
     char *cond_str = code_gen_expression(gen, stmt->condition);
     indented_fprintf(gen, indent, "while (%s) {\n", cond_str);
@@ -25,6 +54,8 @@ void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
     code_gen_statement(gen, stmt->body, indent + 1);
 
     indented_fprintf(gen, indent, "}\n");
+
+    pop_loop_scope(gen);
 }
 
 void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
@@ -59,6 +90,9 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
     char *continue_label = arena_sprintf(gen->arena, "__for_continue_%d__", label_num);
     gen->for_continue_label = continue_label;
 
+    /* Track loop scope for break/continue cleanup */
+    push_loop_scope(gen);
+
     indented_fprintf(gen, indent + 1, "while (%s) {\n", cond_str ? cond_str : "1");
 
     code_gen_statement(gen, stmt->body, indent + 2);
@@ -75,6 +109,8 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
 
     /* Restore old continue label */
     gen->for_continue_label = old_continue_label;
+
+    pop_loop_scope(gen);
 
     code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
     indented_fprintf(gen, indent, "}\n");
@@ -167,6 +203,10 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
         indented_fprintf(gen, indent + 1, "%s %s = %s;\n", arr_c_type, arr_var, iterable_str);
         indented_fprintf(gen, indent + 1, "long %s = rt_v2_data_array_length(%s);\n", len_var, arr_var);
     }
+
+    /* Track loop scope for break/continue cleanup */
+    push_loop_scope(gen);
+
     indented_fprintf(gen, indent + 1, "for (long %s = 0; %s < %s; %s++) {\n", idx_var, idx_var, len_var, idx_var);
 
     /* In V2 mode, acquire transaction to extract element, then release before body */
@@ -186,8 +226,13 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     /* Generate the body (no transaction held - safe for blocking operations) */
     code_gen_statement(gen, stmt->body, indent + 2);
 
+    /* Clean up loop variable at end of each iteration (inside the for loop).
+     * This is important for struct loop variables with handle fields. */
+    code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 2);
+
     indented_fprintf(gen, indent + 1, "}\n");
-    code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 1);
+
+    pop_loop_scope(gen);
     indented_fprintf(gen, indent, "}\n");
 
     symbol_table_pop_scope(gen->symbol_table);

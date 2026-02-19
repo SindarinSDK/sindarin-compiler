@@ -1,0 +1,39 @@
+# Test: Struct variables should be cleaned up on early loop exit (break)
+# When break is executed, structs in scope should have handles freed
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    message: str
+    data: str
+
+fn createResponse(): Response =>
+    return Response { status: 200, message: "OK", data: "payload" }
+
+fn doWork(breakAt: int): void =>
+    var i: int = 0
+    while i < 1000 =>
+        var resp: Response = createResponse()
+        if i >= breakAt =>
+            break  # resp should still be freed here
+        i = i + 1
+    gc_collect()
+
+fn main(): void =>
+    # Call doWork 100 times, each time breaking after creating some structs
+    var j: int = 0
+    while j < 100 =>
+        doWork(5)  # Creates 6 responses (0-5), breaks on 6th
+        j = j + 1
+
+    # 100 calls * 6 responses * 2 handles = 1200 leaked if broken
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

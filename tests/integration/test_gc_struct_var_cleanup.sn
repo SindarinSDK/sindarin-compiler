@@ -1,0 +1,32 @@
+# Test: Struct variables with handle fields should be cleaned up when going out of scope
+# This tests that __free_StructName_inline__ is generated and called for struct types
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    message: str
+    data: str
+
+fn createResponse(): Response =>
+    return Response { status: 200, message: "OK", data: "Hello World" }
+
+fn main(): void =>
+    # Create many responses in a loop - if cleanup works, memory should be stable
+    var i: int = 0
+    while i < 100 =>
+        var resp: Response = createResponse()
+        # resp goes out of scope here - its handle fields should be freed
+        gc_collect()
+        i = i + 1
+
+    # Check handle count - should be small if cleanup is working
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

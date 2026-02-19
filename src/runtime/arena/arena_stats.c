@@ -235,6 +235,14 @@ void rt_arena_stats_snapshot(RtArenaV2 *arena)
     pthread_mutex_unlock(&arena->mutex);
 }
 
+long long rt_arena_v2_get_handle_count(RtArenaV2 *arena)
+{
+    if (arena == NULL) return 0;
+    RtArenaV2Stats stats;
+    rt_arena_stats_get(arena, &stats);
+    return (long long)stats.handles.total;
+}
+
 void rt_arena_stats_enable_gc_log(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
