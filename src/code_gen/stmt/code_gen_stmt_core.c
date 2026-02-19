@@ -114,6 +114,27 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                         }
                     }
                 }
+                else if (sym->type->kind == TYPE_ARRAY)
+                {
+                    /* Free array handle so its free callback runs.
+                     * This is needed for arrays of structs (to free struct handle fields)
+                     * and arrays of strings (to free string handles). */
+                    Type *elem_type = sym->type->as.array.element_type;
+                    bool needs_cleanup = false;
+                    if (elem_type != NULL)
+                    {
+                        if (elem_type->kind == TYPE_STRING)
+                            needs_cleanup = true;
+                        else if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type))
+                            needs_cleanup = true;
+                        else if (elem_type->kind == TYPE_ARRAY)
+                            needs_cleanup = true; /* nested arrays */
+                    }
+                    if (needs_cleanup)
+                    {
+                        indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
+                    }
+                }
             }
             else
             {
