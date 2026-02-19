@@ -26,6 +26,15 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_var_declaration");
 
+    /* Ensure struct callbacks are generated for struct types with handle fields.
+     * This is needed so that __free_StructName_inline__ is available for scope cleanup.
+     * Skip native structs - they manage their own memory in their native C code. */
+    if (stmt->type->kind == TYPE_STRUCT && struct_has_handle_fields(stmt->type) &&
+        !stmt->type->as.struct_type.is_native)
+    {
+        code_gen_ensure_struct_callbacks(gen, stmt->type);
+    }
+
     char *raw_var_name = get_var_name(gen->arena, stmt->name);
 
     /* Detect global scope: no current arena means we're at file scope */

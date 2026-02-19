@@ -1,0 +1,38 @@
+# Test: Struct variables in conditional branches should be cleaned up
+# Structs created in if/else branches should have handles freed at branch end
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    message: str
+    data: str
+
+fn createSuccess(): Response =>
+    return Response { status: 200, message: "OK", data: "success" }
+
+fn createError(): Response =>
+    return Response { status: 500, message: "Error", data: "failure" }
+
+fn main(): void =>
+    var i: int = 0
+    while i < 100 =>
+        if i % 2 == 0 =>
+            var resp: Response = createSuccess()
+            # resp should be freed here at end of if branch
+        else =>
+            var resp: Response = createError()
+            # resp should be freed here at end of else branch
+        gc_collect()
+        i = i + 1
+
+    # 100 iterations * 2 handles = 200 leaked if broken
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

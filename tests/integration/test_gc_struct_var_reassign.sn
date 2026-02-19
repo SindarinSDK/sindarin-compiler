@@ -1,0 +1,33 @@
+# Test: Struct variable reassignment should free old handles before assigning new value
+# When a struct variable is reassigned, the previous value's handle fields should be freed
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    message: str
+    data: str
+
+fn createResponse(): Response =>
+    return Response { status: 200, message: "OK", data: "payload" }
+
+fn main(): void =>
+    var resp: Response = createResponse()
+
+    # Reassign 100 times - each reassignment should free the old handles
+    var i: int = 0
+    while i < 100 =>
+        resp = createResponse()  # OLD resp handles should be freed here
+        gc_collect()
+        i = i + 1
+
+    # Should only have handles for the final resp (2 handles) plus maybe a few others
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

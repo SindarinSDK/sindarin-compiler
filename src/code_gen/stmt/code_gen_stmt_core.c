@@ -83,61 +83,87 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
 {
     DEBUG_VERBOSE("Entering code_gen_free_locals");
 
-    /* Skip manual freeing when in arena context */
-    if (gen->current_arena_var != NULL)
-    {
-        return;
-    }
+    bool in_arena_context = (gen->current_arena_var != NULL);
 
     Symbol *sym = scope->symbols;
     while (sym)
     {
-        if (sym->type && sym->type->kind == TYPE_STRING && sym->kind == SYMBOL_LOCAL)
+        if (sym->type && sym->kind == SYMBOL_LOCAL)
         {
             char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, sym->name));
-            indented_fprintf(gen, indent, "if (%s) {\n", var_name);
-            if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
+
+            /* In arena context, handle struct types with handle fields and arrays.
+             * Arrays need to be freed so their free callback runs (for struct elements).
+             * Strings are simple handles and don't need special cleanup - GC handles them. */
+            if (in_arena_context)
             {
-                indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
-                indented_fprintf(gen, indent + 2, "rt_free_string(%s);\n", var_name);
-                indented_fprintf(gen, indent + 1, "}\n");
+                if (sym->type->kind == TYPE_STRUCT && struct_has_handle_fields(sym->type))
+                {
+                    /* Skip native structs - they manage their own memory */
+                    if (sym->type->as.struct_type.is_native)
+                    {
+                        /* Built-in type - skip cleanup, runtime handles it */
+                    }
+                    else
+                    {
+                        /* Call the generated free callback to mark handle fields as dead */
+                        const char *struct_name = sym->type->as.struct_type.name;
+                        if (struct_name != NULL)
+                        {
+                            indented_fprintf(gen, indent, "__free_%s_inline__(&%s);\n", struct_name, var_name);
+                        }
+                    }
+                }
             }
             else
             {
-                indented_fprintf(gen, indent + 1, "rt_free_string(%s);\n", var_name);
+                /* Non-arena context: manual memory management */
+                if (sym->type->kind == TYPE_STRING)
+                {
+                    indented_fprintf(gen, indent, "if (%s) {\n", var_name);
+                    if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
+                    {
+                        indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
+                        indented_fprintf(gen, indent + 2, "rt_free_string(%s);\n", var_name);
+                        indented_fprintf(gen, indent + 1, "}\n");
+                    }
+                    else
+                    {
+                        indented_fprintf(gen, indent + 1, "rt_free_string(%s);\n", var_name);
+                    }
+                    indented_fprintf(gen, indent, "}\n");
+                }
+                else if (sym->type->kind == TYPE_ARRAY)
+                {
+                    Type *elem_type = sym->type->as.array.element_type;
+                    indented_fprintf(gen, indent, "if (%s) {\n", var_name);
+                    if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_ARRAY)
+                    {
+                        indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
+                        if (elem_type && elem_type->kind == TYPE_STRING)
+                        {
+                            indented_fprintf(gen, indent + 2, "rt_array_free_string(%s);\n", var_name);
+                        }
+                        else
+                        {
+                            indented_fprintf(gen, indent + 2, "rt_array_free(%s);\n", var_name);
+                        }
+                        indented_fprintf(gen, indent + 1, "}\n");
+                    }
+                    else
+                    {
+                        if (elem_type && elem_type->kind == TYPE_STRING)
+                        {
+                            indented_fprintf(gen, indent + 1, "rt_array_free_string(%s);\n", var_name);
+                        }
+                        else
+                        {
+                            indented_fprintf(gen, indent + 1, "rt_array_free(%s);\n", var_name);
+                        }
+                    }
+                    indented_fprintf(gen, indent, "}\n");
+                }
             }
-            indented_fprintf(gen, indent, "}\n");
-        }
-        else if (sym->type && sym->type->kind == TYPE_ARRAY && sym->kind == SYMBOL_LOCAL)
-        {
-            char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, sym->name));
-            Type *elem_type = sym->type->as.array.element_type;
-            indented_fprintf(gen, indent, "if (%s) {\n", var_name);
-            if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_ARRAY)
-            {
-                indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
-                if (elem_type && elem_type->kind == TYPE_STRING)
-                {
-                    indented_fprintf(gen, indent + 2, "rt_array_free_string(%s);\n", var_name);
-                }
-                else
-                {
-                    indented_fprintf(gen, indent + 2, "rt_array_free(%s);\n", var_name);
-                }
-                indented_fprintf(gen, indent + 1, "}\n");
-            }
-            else
-            {
-                if (elem_type && elem_type->kind == TYPE_STRING)
-                {
-                    indented_fprintf(gen, indent + 1, "rt_array_free_string(%s);\n", var_name);
-                }
-                else
-                {
-                    indented_fprintf(gen, indent + 1, "rt_array_free(%s);\n", var_name);
-                }
-            }
-            indented_fprintf(gen, indent, "}\n");
         }
         sym = sym->next;
     }
@@ -223,18 +249,39 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
         code_gen_for_each_statement(gen, &stmt->as.for_each_stmt, indent);
         break;
     case STMT_BREAK:
-        indented_fprintf(gen, indent, "break;\n");
-        break;
     case STMT_CONTINUE:
-        if (gen->for_continue_label)
+    {
+        /* Clean up struct locals in all scopes from current up to the loop scope.
+         * This handles the case where break/continue is nested inside inner blocks. */
+        Scope *loop_scope = NULL;
+        if (gen->loop_scope_depth > 0)
         {
-            indented_fprintf(gen, indent, "goto %s;\n", gen->for_continue_label);
+            loop_scope = gen->loop_scope_stack[gen->loop_scope_depth - 1];
         }
-        else
+        Scope *scope = gen->symbol_table->current;
+        while (scope != NULL && scope != loop_scope)
         {
-            indented_fprintf(gen, indent, "continue;\n");
+            code_gen_free_locals(gen, scope, false, indent);
+            scope = scope->enclosing;
+        }
+
+        if (stmt->type == STMT_BREAK)
+        {
+            indented_fprintf(gen, indent, "break;\n");
+        }
+        else  /* STMT_CONTINUE */
+        {
+            if (gen->for_continue_label)
+            {
+                indented_fprintf(gen, indent, "goto %s;\n", gen->for_continue_label);
+            }
+            else
+            {
+                indented_fprintf(gen, indent, "continue;\n");
+            }
         }
         break;
+    }
     case STMT_IMPORT:
         /* Handle namespaced imports */
         if (stmt->as.import.namespace != NULL && stmt->as.import.imported_stmts != NULL)

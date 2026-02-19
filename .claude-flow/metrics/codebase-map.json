@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-02-19T09:29:31.055Z",
+  "projectRoot": "/home/gavin/code/sindarin/sindarin-compiler",
+  "structure": {
+    "hasPackageJson": false,
+    "hasTsConfig": false,
+    "hasClaudeConfig": true,
+    "hasClaudeFlow": true
+  },
+  "scannedAt": 1771493371055
+}

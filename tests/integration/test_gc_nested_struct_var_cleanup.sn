@@ -1,0 +1,40 @@
+# Test: Nested struct variables should have all handle fields cleaned up
+# Outer struct contains inner struct, both have handle fields
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Address =>
+    street: str
+    city: str
+
+struct Person =>
+    name: str
+    addr: Address
+
+fn createPerson(): Person =>
+    return Person {
+        name: "Alice",
+        addr: Address { street: "123 Main St", city: "Springfield" }
+    }
+
+fn main(): void =>
+    var i: int = 0
+    while i < 100 =>
+        var person: Person = createPerson()
+        # person goes out of scope - should free:
+        # - person.name (1 handle)
+        # - person.addr.street (1 handle)
+        # - person.addr.city (1 handle)
+        gc_collect()
+        i = i + 1
+
+    # 100 iterations * 3 handles per Person = 300 leaked if broken
+    var handles: int = get_handle_count()
+    if handles > 10 =>
+        print($"FAIL: leaked {handles} handles\n")
+    else =>
+        print("PASS\n")

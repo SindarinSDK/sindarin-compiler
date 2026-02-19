@@ -48,6 +48,11 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->lock_stack_depth = 0;
     gen->lock_stack_capacity = 0;
 
+    /* Initialize loop scope tracking for break/continue cleanup */
+    gen->loop_scope_stack = NULL;
+    gen->loop_scope_depth = 0;
+    gen->loop_scope_capacity = 0;
+
     /* Initialize lambda fields */
     gen->lambda_count = 0;
     gen->lambda_forward_decls = arena_strdup(arena, "");
