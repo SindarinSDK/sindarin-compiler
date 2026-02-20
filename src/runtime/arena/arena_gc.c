@@ -412,9 +412,178 @@ static void gc_cleanup_empty_blocks(RtArenaV2 *arena, RtArenaGCResult *result)
     pthread_mutex_unlock(&arena->mutex);
 }
 
-/* GC all arenas using two-phase approach:
- * Phase 1: Collect all dead handles, call their callbacks
- * Phase 2: Free all collected handles, cleanup empty blocks */
+/* ============================================================================
+ * Reference Count Hash Table
+ * ============================================================================
+ * Simple open-addressing hash table mapping handle addresses to reference
+ * counts. Used during GC to determine if a dead handle's children are
+ * shared with other handles (live or dead).
+ * ============================================================================ */
+
+#define RC_TABLE_INITIAL_CAP 256
+
+typedef struct {
+    void *key;          /* Handle address */
+    size_t count;       /* Number of handles referencing this address */
+} RcEntry;
+
+typedef struct {
+    RcEntry *entries;
+    size_t capacity;
+    size_t size;
+} RcTable;
+
+static void rc_table_init(RcTable *t)
+{
+    t->capacity = RC_TABLE_INITIAL_CAP;
+    t->size = 0;
+    t->entries = calloc(t->capacity, sizeof(RcEntry));
+}
+
+static void rc_table_free(RcTable *t)
+{
+    free(t->entries);
+    t->entries = NULL;
+    t->capacity = 0;
+    t->size = 0;
+}
+
+static void rc_table_grow(RcTable *t)
+{
+    size_t old_cap = t->capacity;
+    RcEntry *old = t->entries;
+    t->capacity *= 2;
+    t->entries = calloc(t->capacity, sizeof(RcEntry));
+    t->size = 0;
+
+    for (size_t i = 0; i < old_cap; i++) {
+        if (old[i].key != NULL) {
+            /* Re-insert */
+            size_t idx = ((uintptr_t)old[i].key >> 3) % t->capacity;
+            while (t->entries[idx].key != NULL) {
+                idx = (idx + 1) % t->capacity;
+            }
+            t->entries[idx] = old[i];
+            t->size++;
+        }
+    }
+    free(old);
+}
+
+static void rc_table_inc(RcTable *t, void *key)
+{
+    if (key == NULL) return;
+    if (t->size * 2 >= t->capacity) rc_table_grow(t);
+
+    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
+    while (t->entries[idx].key != NULL) {
+        if (t->entries[idx].key == key) {
+            t->entries[idx].count++;
+            return;
+        }
+        idx = (idx + 1) % t->capacity;
+    }
+    t->entries[idx].key = key;
+    t->entries[idx].count = 1;
+    t->size++;
+}
+
+static size_t rc_table_get(RcTable *t, void *key)
+{
+    if (key == NULL || t->size == 0) return 0;
+
+    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
+    while (t->entries[idx].key != NULL) {
+        if (t->entries[idx].key == key) {
+            return t->entries[idx].count;
+        }
+        idx = (idx + 1) % t->capacity;
+    }
+    return 0;
+}
+
+/* Build a set of all known handle addresses across all arenas.
+ * Used to filter conservative pointer scanning to avoid false positives. */
+static void gc_build_handle_set(RtArenaV2 *arena, RcTable *handle_set)
+{
+    if (arena == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        RtHandleV2 *handle = block->handles_head;
+        while (handle != NULL) {
+            rc_table_inc(handle_set, (void *)handle);
+            handle = handle->next;
+        }
+        block = block->next;
+    }
+
+    RtArenaV2 *child = arena->first_child;
+    while (child != NULL) {
+        gc_build_handle_set(child, handle_set);
+        child = child->next_sibling;
+    }
+
+    pthread_mutex_unlock(&arena->mutex);
+}
+
+/* Build reference count table by scanning all LIVE handles across all arenas.
+ * Only counts references to known handle addresses (avoids false positives
+ * from non-handle pointers like arena metadata). */
+static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handle_set)
+{
+    if (arena == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+
+    RtBlockV2 *block = arena->blocks_head;
+    while (block != NULL) {
+        RtHandleV2 *handle = block->handles_head;
+        while (handle != NULL) {
+            if (handle->ptr != NULL) {
+                void **scan = (void **)handle->ptr;
+                size_t slots = handle->size / sizeof(void *);
+                for (size_t i = 0; i < slots; i++) {
+                    /* Only count if value is a known handle address */
+                    if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
+                        rc_table_inc(t, scan[i]);
+                    }
+                }
+            }
+            handle = handle->next;
+        }
+        block = block->next;
+    }
+
+    RtArenaV2 *child = arena->first_child;
+    while (child != NULL) {
+        gc_build_refcount_table(child, t, handle_set);
+        child = child->next_sibling;
+    }
+
+    pthread_mutex_unlock(&arena->mutex);
+}
+
+/* Check if a dead handle has any children (pointer-sized values in its data)
+ * that are still referenced by at least one live handle (ref count >= 1). */
+static bool gc_handle_has_shared_children(RcTable *t, RtHandleV2 *handle)
+{
+    if (handle->ptr == NULL) return false;
+    void **scan = (void **)handle->ptr;
+    size_t slots = handle->size / sizeof(void *);
+    for (size_t i = 0; i < slots; i++) {
+        if (scan[i] != NULL && rc_table_get(t, scan[i]) >= 1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/* GC all arenas using two-phase approach with reference counting:
+ * Phase 1: Build ref counts, call callbacks only on exclusively-owned handles
+ * Phase 2: Free all dead handle structs, cleanup empty blocks */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
@@ -425,23 +594,48 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 
     if (dead_handles == NULL) return;
 
-    GC_DEBUG_LOG("gc_compact_all: Pass 1 - calling callbacks");
+    /* Build set of all known handle addresses (live + dead) to filter
+     * the conservative pointer scan against. This prevents false positives
+     * from non-handle pointers (e.g., arena pointers in array metadata). */
+    RcTable handle_set;
+    rc_table_init(&handle_set);
+    gc_build_handle_set(arena, &handle_set);
+    for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
+        rc_table_inc(&handle_set, (void *)node->handle);
+    }
 
-    /* Pass 1: Call all free_callbacks */
+    /* Build reference count table from LIVE handles only.
+     * Dead handles were already unlinked, so only live handles are scanned.
+     * Only counts references to known handle addresses (no false positives). */
+    RcTable rctable;
+    rc_table_init(&rctable);
+    gc_build_refcount_table(arena, &rctable, &handle_set);
+
+    GC_DEBUG_LOG("gc_compact_all: Pass 1 - ref count callbacks");
+
+    /* Pass 1: For each dead handle with a free_callback, check if any of its
+     * children are shared (ref count > 1). If shared, shallow free (skip
+     * callback). If exclusively owned, deep free (run callback). */
     for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
         if (node->handle->free_callback != NULL) {
-            GC_DEBUG_LOG("  callback: h=%p ptr=%p arena=%p(%s)",
-                         (void *)node->handle, node->handle->ptr,
-                         (void *)node->handle->arena,
-                         node->handle->arena && node->handle->arena->name ? node->handle->arena->name : "?");
-            node->handle->free_callback(node->handle);
+            if (gc_handle_has_shared_children(&rctable, node->handle)) {
+                GC_DEBUG_LOG("  shared children (shallow free): h=%p ptr=%p",
+                             (void *)node->handle, node->handle->ptr);
+                /* Skip callback - children are referenced elsewhere */
+            } else {
+                GC_DEBUG_LOG("  exclusive children (deep free): h=%p ptr=%p arena=%p(%s)",
+                             (void *)node->handle, node->handle->ptr,
+                             (void *)node->handle->arena,
+                             node->handle->arena && node->handle->arena->name ? node->handle->arena->name : "?");
+                node->handle->free_callback(node->handle);
+            }
             node->handle->free_callback = NULL;
         }
     }
 
     GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handles");
 
-    /* Pass 2: Free all handle structs */
+    /* Pass 2: Free all dead handle structs */
     HandleListNode *node = dead_handles;
     while (node != NULL) {
         HandleListNode *next = node->next;
@@ -450,6 +644,9 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
         free(node);
         node = next;
     }
+
+    rc_table_free(&rctable);
+    rc_table_free(&handle_set);
 
     /* Cleanup empty blocks */
     gc_cleanup_empty_blocks(arena, result);

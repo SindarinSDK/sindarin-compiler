@@ -156,6 +156,11 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->emitted_callback_count = 0;
     gen->emitted_callback_capacity = 0;
 
+    /* Initialize forward-declared cleanup variable tracking */
+    gen->fwd_cleanup_vars = NULL;
+    gen->fwd_cleanup_count = 0;
+    gen->fwd_cleanup_capacity = 0;
+
     if (gen->output == NULL)
     {
         exit(1);

@@ -1,0 +1,58 @@
+# Test: Early return skips variable declaration, cleanup reads uninitialized var
+#
+# Bug: When a function has an early return (goto to return label) that skips
+# past a variable declaration, the cleanup code at the return label tries to
+# rt_arena_v2_free an uninitialized pointer.
+#
+# This reproduces the HTTP server crash in matchPath() where early returns
+# skip past pathParts/patternParts declarations.
+
+fn matchPath(pattern: str, path: str): bool =>
+    # Normalize
+    var p: str = pattern
+    var r: str = path
+
+    # Early returns that skip past patternParts/pathParts declarations
+    if p == r =>
+        return true
+
+    if p.endsWith("/*") =>
+        var prefix: str = p.substring(0, p.length - 2)
+        if !r.startsWith(prefix) =>
+            return false
+        return true
+
+    # These declarations are skipped by the early returns above
+    var patternParts: str[] = p.split("/")
+    var pathParts: str[] = r.split("/")
+
+    if patternParts.length != pathParts.length =>
+        return false
+
+    var i: int = 0
+    while i < patternParts.length =>
+        if patternParts[i] != pathParts[i] =>
+            return false
+        i = i + 1
+    return true
+
+fn main(): void =>
+    # Test early return path (skips array declarations)
+    var i: int = 0
+    while i < 100 =>
+        var result: bool = matchPath("/items", "/items")
+        i = i + 1
+
+    # Test wildcard path (also early return)
+    i = 0
+    while i < 100 =>
+        var result: bool = matchPath("/items/*", "/items/1")
+        i = i + 1
+
+    # Test full path comparison (reaches array declarations)
+    i = 0
+    while i < 100 =>
+        var result: bool = matchPath("/items/list", "/items/list")
+        i = i + 1
+
+    print("PASS\n")

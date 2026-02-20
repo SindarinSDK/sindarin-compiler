@@ -226,9 +226,10 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
     /* Generate the body (no transaction held - safe for blocking operations) */
     code_gen_statement(gen, stmt->body, indent + 2);
 
-    /* Clean up loop variable at end of each iteration (inside the for loop).
-     * This is important for struct loop variables with handle fields. */
-    code_gen_free_locals(gen, gen->symbol_table->current, false, indent + 2);
+    /* Do NOT clean up for-each loop variables. The loop variable is a shallow
+     * copy of the array element - the array owns the handle fields, not the
+     * loop variable. Calling __free_*_inline__ here would mark shared handles
+     * as DEAD, causing use-after-free when GC compacts. */
 
     indented_fprintf(gen, indent + 1, "}\n");
 

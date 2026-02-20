@@ -193,6 +193,13 @@ typedef struct {
     const char **emitted_callbacks; /* Track which struct types have callbacks */
     int emitted_callback_count;
     int emitted_callback_capacity;
+
+    /* Forward-declared cleanup variables - tracks variables that were declared
+     * early (with NULL init) at the top of a function to avoid uninitialized
+     * reads when goto-based early returns skip past their declaration point. */
+    const char **fwd_cleanup_vars;  /* Mangled variable names that have been forward-declared */
+    int fwd_cleanup_count;
+    int fwd_cleanup_capacity;
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

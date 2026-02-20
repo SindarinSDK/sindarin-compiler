@@ -37,15 +37,16 @@ static void test_code_gen_block_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    {\n"
-                                  "        long long __sn__block_var = 0;\n"
+                                  "        RtHandleV2 *__block_var_pending__ = NULL;\n"
+                                  "        long long __sn__block_var;\n"
                                   "    }\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -101,7 +102,7 @@ static void test_code_gen_if_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    if (1L) {\n"
@@ -109,7 +110,7 @@ static void test_code_gen_if_statement(void)
                                   "    }\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -165,7 +166,7 @@ static void test_code_gen_while_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    while (1L) {\n"
@@ -173,7 +174,7 @@ static void test_code_gen_while_statement(void)
                                   "    }\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -271,10 +272,11 @@ static void test_code_gen_for_statement(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    {\n"
+                                  "        RtHandleV2 *__k_pending__ = NULL;\n"
                                   "        long long __sn__k = 0LL;\n"
                                   "        while (rt_lt_long(__sn__k, 5LL)) {\n"
                                   "            rt_print_long(__sn__k);\n"
@@ -284,7 +286,7 @@ static void test_code_gen_for_statement(void)
                                   "    }\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

@@ -12,6 +12,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent);
 void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int indent);
 void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent);
 void code_gen_function(CodeGen *gen, FunctionStmt *stmt);
+void code_gen_forward_declare_cleanup_vars(CodeGen *gen, Stmt **body, int body_count, int indent);
 void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent);
 void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent);
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent);

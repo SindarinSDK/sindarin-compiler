@@ -1,0 +1,48 @@
+# Test: GC use-after-free from struct array copy + inline free
+#
+# Bug: When iterating a struct array with a for loop, the loop variable is a
+# shallow copy of the element. If that element is pushed to a new array,
+# both the loop variable and the new array element share the same handle
+# pointers (name, value). At end of loop iteration, __free_*_inline__
+# marks those shared handles as DEAD. GC compact then frees them, leaving
+# the new array with dangling pointers.
+#
+# This reproduces the HTTP server crash in HttpResponse.setHeader() where
+# headers are copied from old array to new array, then the loop variable's
+# inline free marks the shared name/value handles as dead.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+fn copyHeaders(old: Header[]): Header[] =>
+    # Mimics setHeader: copy matching headers to new array
+    var result: Header[] = { Header { name: "placeholder", value: "placeholder" } }
+    for h in old =>
+        # h is a shallow copy - same name/value handle pointers as old[i]
+        # push copies h's bytes to result (sharing handle pointers)
+        result.push(h)
+        # At end of iteration, __free_Header_inline__ marks h.name/h.value DEAD
+        # Now result's last element also has dead name/value handles!
+    return result
+
+fn doWork(): str =>
+    var headers: Header[] = { Header { name: "Content-Type", value: "text/html" }, Header { name: "Connection", value: "keep-alive" } }
+    var newHeaders: Header[] = copyHeaders(headers)
+    # GC compact: frees dead name/value handles (marked dead by for loop cleanup)
+    gc_collect()
+    # newHeaders elements now have dangling pointers to freed handles
+    # Access them to trigger UAF:
+    var first: Header = newHeaders[1]
+    return first.name
+
+fn main(): void =>
+    var i: int = 0
+    while i < 5 =>
+        var name: str = doWork()
+        gc_collect()
+        i = i + 1
+    print("PASS\n")

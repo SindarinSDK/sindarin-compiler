@@ -1,0 +1,56 @@
+# Test: Temporary handles created inside a loop should not accumulate
+# This tests the server pattern where string literals and struct arrays
+# are created each iteration but never explicitly freed.
+# GC should be able to collect them because they go out of scope.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+fn setHeader(headers: Header[], name: str, value: str): Header[] =>
+    var newHeaders: Header[] = {}
+    var i: int = 0
+    while i < headers.length =>
+        if headers[i].name == name =>
+            i = i + 1
+            continue
+        newHeaders.push(headers[i])
+        i = i + 1
+    newHeaders.push(Header { name: name, value: value })
+    return newHeaders
+
+fn main(): void =>
+    # Warm up and establish baseline
+    var i: int = 0
+    while i < 10 =>
+        var headers: Header[] = {}
+        headers.push(Header { name: "Content-Type", value: "application/json" })
+        headers = setHeader(headers, "Connection", "keep-alive")
+        headers = setHeader(headers, "Connection", "close")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Run 1000 more iterations
+    i = 0
+    while i < 1000 =>
+        var headers: Header[] = {}
+        headers.push(Header { name: "Content-Type", value: "application/json" })
+        headers = setHeader(headers, "Connection", "keep-alive")
+        headers = setHeader(headers, "Connection", "close")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

@@ -15,6 +15,69 @@
 #include <string.h>
 #include <stdio.h>
 
+/* Check if a variable type needs cleanup at function return (rt_arena_v2_free or __free_*_inline__) */
+static bool var_needs_cleanup(Type *type)
+{
+    if (type == NULL) return false;
+
+    if (type->kind == TYPE_ARRAY)
+    {
+        Type *elem = type->as.array.element_type;
+        if (elem == NULL) return false;
+        return elem->kind == TYPE_STRING ||
+               (elem->kind == TYPE_STRUCT && struct_has_handle_fields(elem)) ||
+               elem->kind == TYPE_ARRAY;
+    }
+
+    if (type->kind == TYPE_STRUCT && struct_has_handle_fields(type) &&
+        !type->as.struct_type.is_native)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+/* Pre-scan function body for variable declarations that need cleanup at the
+ * return label. Emit forward NULL/{0} declarations so that goto-based early
+ * returns don't leave these variables uninitialized. */
+void code_gen_forward_declare_cleanup_vars(CodeGen *gen, Stmt **body, int body_count, int indent)
+{
+    /* Reset forward declaration tracking */
+    gen->fwd_cleanup_count = 0;
+
+    for (int i = 0; i < body_count; i++)
+    {
+        if (body[i]->type != STMT_VAR_DECL) continue;
+        VarDeclStmt *vd = &body[i]->as.var_decl;
+        if (!var_needs_cleanup(vd->type)) continue;
+
+        char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, vd->name));
+        const char *type_c = get_c_type(gen->arena, vd->type);
+
+        if (vd->type->kind == TYPE_ARRAY)
+        {
+            indented_fprintf(gen, indent, "%s %s = NULL;\n", type_c, var_name);
+        }
+        else if (vd->type->kind == TYPE_STRUCT)
+        {
+            indented_fprintf(gen, indent, "%s %s = {0};\n", type_c, var_name);
+        }
+
+        /* Track the forward-declared variable name */
+        if (gen->fwd_cleanup_count >= gen->fwd_cleanup_capacity)
+        {
+            int new_cap = gen->fwd_cleanup_capacity == 0 ? 8 : gen->fwd_cleanup_capacity * 2;
+            const char **new_arr = arena_alloc(gen->arena, new_cap * sizeof(const char *));
+            for (int j = 0; j < gen->fwd_cleanup_count; j++)
+                new_arr[j] = gen->fwd_cleanup_vars[j];
+            gen->fwd_cleanup_vars = new_arr;
+            gen->fwd_cleanup_capacity = new_cap;
+        }
+        gen->fwd_cleanup_vars[gen->fwd_cleanup_count++] = arena_strdup(gen->arena, var_name);
+    }
+}
+
 void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 {
     DEBUG_VERBOSE("Entering code_gen_function");
@@ -280,6 +343,16 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
     /* Generate body */
     int body_indent = has_tail_calls ? 2 : 1;
+
+    /* Forward-declare function-scope variables that need cleanup at the return
+     * label. This ensures they are NULL-initialized even if a goto (from an
+     * early return) skips past their declaration point. Without this, the
+     * cleanup code at the return label would read uninitialized pointers. */
+    if (gen->current_arena_var != NULL)
+    {
+        code_gen_forward_declare_cleanup_vars(gen, stmt->body, stmt->body_count, body_indent);
+    }
+
     for (int i = 0; i < stmt->body_count; i++)
     {
         code_gen_statement(gen, stmt->body[i], body_indent);

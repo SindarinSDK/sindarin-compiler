@@ -106,11 +106,14 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                     }
                     else
                     {
-                        /* Call the generated free callback to mark handle fields as dead */
+                        /* Call the generated free callback to mark handle fields as dead.
+                         * Pass the local arena as owner so only handles owned by this arena
+                         * are freed - handles borrowed from other arenas are left alone. */
                         const char *struct_name = sym->type->as.struct_type.name;
                         if (struct_name != NULL)
                         {
-                            indented_fprintf(gen, indent, "__free_%s_inline__(&%s);\n", struct_name, var_name);
+                            indented_fprintf(gen, indent, "__free_%s_inline__(&%s, %s);\n",
+                                struct_name, var_name, gen->current_arena_var);
                         }
                     }
                 }
