@@ -54,13 +54,13 @@ static void test_code_gen_array_literal(void)
     // code_gen_array_expression generates rt_array_create_*_h for runtime arrays in handle mode
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    rt_array_create_long_h(__local_arena__, 2, (long long[]){1LL, 2LL});\n"
+                                  "    rt_array_create_generic_v2(__local_arena__, 2, sizeof(long long), (long long[]){1LL, 2LL});\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -138,14 +138,15 @@ static void test_code_gen_array_var_declaration_with_init(void)
     // In handle mode, accessing a handle variable just returns the handle (no pinning needed)
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    RtHandle __sn__arr = rt_array_create_long_h(__local_arena__, 2, (long long[]){3LL, 4LL});\n"
+                                  "    RtHandleV2 *__arr_pending__ = NULL;\n"
+                                  "    RtHandleV2 * __sn__arr = rt_array_create_generic_v2(__local_arena__, 2, sizeof(long long), (long long[]){3LL, 4LL});\n"
                                   "    __sn__arr;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -198,14 +199,15 @@ static void test_code_gen_array_var_declaration_without_init(void)
     // In handle mode, accessing a handle variable just returns the handle (no pinning needed)
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    RtHandle __sn__empty_arr = RT_HANDLE_NULL;\n"
+                                  "    RtHandleV2 *__empty_arr_pending__ = NULL;\n"
+                                  "    RtHandleV2 * __sn__empty_arr;\n"
                                   "    __sn__empty_arr;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -301,14 +303,15 @@ static void test_code_gen_array_access(void)
     // Array access uses pin+bracket for direct indexing
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    RtHandle __sn__arr = rt_array_create_long_h(__local_arena__, 3, (long long[]){10LL, 20LL, 30LL});\n"
-                                  "    ((long long *)rt_managed_pin_array(__local_arena__, __sn__arr))[1LL];\n"
+                                  "    RtHandleV2 *__arr_pending__ = NULL;\n"
+                                  "    RtHandleV2 * __sn__arr = rt_array_create_generic_v2(__local_arena__, 3, sizeof(long long), (long long[]){10LL, 20LL, 30LL});\n"
+                                  "    rt_array_get_long_v2(__sn__arr, 1LL);\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -417,16 +420,18 @@ static void test_code_gen_array_pop(void)
     // In handle mode, accessing a handle variable just returns the handle (no pinning needed)
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    RtHandle __sn__arr = rt_array_create_long_h(__local_arena__, 3, (long long[]){1LL, 2LL, 3LL});\n"
-                                  "    long long __sn__result = rt_array_pop_long_h(__local_arena__, __sn__arr);\n"
+                                  "    RtHandleV2 *__arr_pending__ = NULL;\n"
+                                  "    RtHandleV2 * __sn__arr = rt_array_create_generic_v2(__local_arena__, 3, sizeof(long long), (long long[]){1LL, 2LL, 3LL});\n"
+                                  "    RtHandleV2 *__result_pending__ = NULL;\n"
+                                  "    long long __sn__result = rt_array_pop_long_v2(__sn__arr);\n"
                                   "    __sn__result;\n"
                                   "    __sn__arr;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

@@ -95,10 +95,10 @@ static const char *CODE_GEN_RUNTIME_HEADER =
     "\n"
     "\n"
     "/* Closure type for lambdas */\n"
-    "typedef struct __Closure__ { void *fn; RtArena *arena; size_t size; } __Closure__;\n"
+    "typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;\n"
     "\n"
     "/* Forward declarations */\n"
-    "static RtManagedArena *__main_arena__ = NULL;\n"
+    "static RtArenaV2 *__main_arena__ = NULL;\n"
     "\n";
 
 /*

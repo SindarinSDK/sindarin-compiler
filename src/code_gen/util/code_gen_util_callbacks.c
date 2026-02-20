@@ -111,8 +111,8 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                 "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
                 copy_body, f_c_name, f_c_name);
             free_body = arena_sprintf(gen->arena,
-                "%s    if (s->%s) rt_arena_v2_free(s->%s);\n",
-                free_body, f_c_name, f_c_name);
+                "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
+                free_body, f_c_name, f_c_name, f_c_name);
         }
         else if (kind == TYPE_ANY) {
             copy_body = arena_sprintf(gen->arena,
@@ -129,7 +129,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                 "%s    __copy_%s_inline__(dest, &s->%s);\n",
                 copy_body, nested_sn, f_c_name);
             free_body = arena_sprintf(gen->arena,
-                "%s    __free_%s_inline__(&s->%s);\n",
+                "%s    __free_%s_inline__(&s->%s, owner);\n",
                 free_body, nested_sn, f_c_name);
         }
         else if (kind == TYPE_FUNCTION) {
@@ -137,8 +137,8 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                 "%s    s->%s = (__Closure__ *)rt_arena_v2_promote(dest, (RtHandleV2 *)s->%s);\n",
                 copy_body, f_c_name, f_c_name);
             free_body = arena_sprintf(gen->arena,
-                "%s    if (s->%s) rt_arena_v2_free((RtHandleV2 *)s->%s);\n",
-                free_body, f_c_name, f_c_name);
+                "%s    if (s->%s && ((RtHandleV2 *)s->%s)->arena == owner) rt_arena_v2_free((RtHandleV2 *)s->%s);\n",
+                free_body, f_c_name, f_c_name, f_c_name);
         }
     }
 
@@ -146,7 +146,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
     gen->callback_forward_decls = arena_sprintf(gen->arena,
         "%s"
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s);\n"
-        "static void __free_%s_inline__(%s *s);\n"
+        "static void __free_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __copy_%s__(RtArenaV2 *dest, void *ptr);\n"
         "static void __free_%s__(RtHandleV2 *handle);\n"
         "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr);\n"
@@ -167,7 +167,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "%s"
         "}\n"
         /* __free_StructName_inline__ */
-        "static void __free_%s_inline__(%s *s) {\n"
+        "static void __free_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
         "%s"
         "}\n"
         /* __copy_StructName__ - callback wrapper */
@@ -176,7 +176,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "}\n"
         /* __free_StructName__ - callback wrapper */
         "static void __free_%s__(RtHandleV2 *handle) {\n"
-        "    __free_%s_inline__((%s *)handle->ptr);\n"
+        "    __free_%s_inline__((%s *)handle->ptr, handle->arena);\n"
         "}\n"
         /* __copy_array_StructName__ - iterates array elements */
         "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr) {\n"
@@ -192,7 +192,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)handle->ptr;\n"
         "    %s *arr = (%s *)((char *)handle->ptr + sizeof(RtArrayMetadataV2));\n"
         "    for (size_t i = 0; i < meta->size; i++) {\n"
-        "        __free_%s_inline__(&arr[i]);\n"
+        "        __free_%s_inline__(&arr[i], handle->arena);\n"
         "    }\n"
         "}\n",
         gen->callback_definitions,

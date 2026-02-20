@@ -1,0 +1,73 @@
+# Test: Memory accumulation during tight loop without periodic GC
+# Reproduces the HTTP server benchmark pattern where per-request allocations
+# accumulate during the keep-alive loop because GC only runs after the loop.
+#
+# The issue: each loop iteration creates condemned function arenas that
+# pile up without being swept, causing memory to grow unboundedly.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    message: str
+    body: str
+
+fn buildResponse(i: int): Response =>
+    var msg: str = $"response-{i}"
+    return Response { status: 200, message: msg, body: "payload-data" }
+
+fn processRequest(i: int): str =>
+    var resp: Response = buildResponse(i)
+    return resp.message
+
+# Loop WITHOUT periodic GC - measure handle count midway
+fn loopWithoutGC(count: int): int =>
+    var peakHandles: int = 0
+    var i: int = 0
+    while i < count =>
+        var result: str = processRequest(i)
+        i = i + 1
+        if i == count =>
+            peakHandles = get_handle_count()
+    gc_collect()
+    return peakHandles
+
+# Loop WITH periodic GC - measure handle count midway
+fn loopWithGC(count: int): int =>
+    var peakHandles: int = 0
+    var i: int = 0
+    while i < count =>
+        var result: str = processRequest(i)
+        i = i + 1
+        if i % 50 == 0 =>
+            gc_collect()
+        if i == count =>
+            peakHandles = get_handle_count()
+    gc_collect()
+    return peakHandles
+
+fn main(): void =>
+    gc_collect()
+
+    # Test 1: 500 iterations without periodic GC
+    var peak1: int = loopWithoutGC(500)
+    gc_collect()
+
+    # Test 2: 500 iterations with periodic GC every 50 iterations
+    var peak2: int = loopWithGC(500)
+    gc_collect()
+
+    print($"peak_no_gc={peak1}\n")
+    print($"peak_with_gc={peak2}\n")
+
+    # With periodic GC, peak handles should be significantly lower
+    if peak1 > 100 && peak2 < peak1 =>
+        print("PASS: periodic GC reduces peak memory\n")
+    else if peak1 <= 100 =>
+        print("PASS: handles already well managed\n")
+    else =>
+        print($"FAIL: expected periodic GC to reduce peak (no_gc={peak1}, with_gc={peak2})\n")

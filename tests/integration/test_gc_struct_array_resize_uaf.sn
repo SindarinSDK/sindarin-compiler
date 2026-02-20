@@ -1,0 +1,43 @@
+# Test: Array resize of struct[] causes use-after-free
+#
+# Bug: rt_array_push_v2 grows arrays via memcpy (shallow copy) + marks old
+# handle dead. The old handle's free_callback marks shared child handles dead.
+# Next GC frees those child handles. New array still references them → UAF.
+#
+# This test does pushes in main() (no function boundary/promotion) to expose
+# the bug. With ASAN, this should crash if the bug exists.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+fn main(): void =>
+    var headers: Header[] = {}
+    # Push 5 elements - capacity goes 0→4→8, so 5th push triggers resize
+    headers.push(Header { name: "h1", value: "v1" })
+    headers.push(Header { name: "h2", value: "v2" })
+    headers.push(Header { name: "h3", value: "v3" })
+    headers.push(Header { name: "h4", value: "v4" })
+    # This push triggers resize: old handle marked dead, elements shallow-copied
+    headers.push(Header { name: "h5", value: "v5" })
+
+    # GC should collect the dead old array handle, calling __free_array_Header__
+    # which marks all element string handles as dead
+    gc_collect()
+    # Second GC frees the dead string handles
+    gc_collect()
+
+    # Access elements - these strings should be freed if bug exists
+    if headers[0].name != "h1" =>
+        print("FAIL: h1\n")
+        return
+    if headers[3].name != "h4" =>
+        print("FAIL: h4\n")
+        return
+    if headers[4].name != "h5" =>
+        print("FAIL: h5\n")
+        return
+    print("PASS\n")

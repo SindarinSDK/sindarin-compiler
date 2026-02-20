@@ -22,6 +22,17 @@
  * This matches the same threshold used for fixed arrays. */
 #define STRUCT_STACK_THRESHOLD 8192  /* 8KB */
 
+/* Check if a variable was forward-declared at the top of the function */
+static bool is_forward_declared(CodeGen *gen, const char *var_name)
+{
+    for (int i = 0; i < gen->fwd_cleanup_count; i++)
+    {
+        if (strcmp(gen->fwd_cleanup_vars[i], var_name) == 0)
+            return true;
+    }
+    return false;
+}
+
 void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_var_declaration");
@@ -194,6 +205,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
         else
         {
+            bool fwd = is_forward_declared(gen, var_name);
             indented_fprintf(gen, indent, "RtHandleV2 *%s = NULL;\n", pending_var);
             if (stmt->initializer)
             {
@@ -204,9 +216,12 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 }
                 char *init_str = code_gen_expression(gen, stmt->initializer);
                 gen->expr_as_handle = prev_as_handle;
-                indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
+                if (fwd)
+                    indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
+                else
+                    indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
             }
-            else
+            else if (!fwd)
             {
                 indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
             }
@@ -447,12 +462,18 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
         else
         {
-            indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
+            if (is_forward_declared(gen, var_name))
+                indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
+            else
+                indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
         }
     }
     else
     {
-        indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
+        if (is_forward_declared(gen, var_name))
+            indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
+        else
+            indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
     }
 
     /* Emit companion pending elements array for arrays with thread spawn push tracking */

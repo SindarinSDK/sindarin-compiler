@@ -146,12 +146,12 @@ static void test_code_gen_headers_and_externs(void)
     // Expected with full headers and externs + dummy main with managed arena
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

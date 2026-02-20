@@ -45,15 +45,16 @@ static void test_code_gen_string_free_in_block(void)
     // function calls in global initializers. The block body is emitted inside main().
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    {\n"
-                                  "        RtHandle __sn__s = rt_managed_strdup(__local_arena__, RT_HANDLE_NULL, \"test\");\n"
+                                  "        RtHandleV2 *__s_pending__ = NULL;\n"
+                                  "        RtHandleV2 * __sn__s = rt_arena_v2_strdup(__local_arena__, \"test\");\n"
                                   "    }\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -102,14 +103,15 @@ static void test_code_gen_increment_decrement(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    long long __sn__counter = 0;\n"
+                                  "    RtHandleV2 *__counter_pending__ = NULL;\n"
+                                  "    long long __sn__counter;\n"
                                   "    rt_post_inc_long(&__sn__counter);\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -149,12 +151,12 @@ static void test_code_gen_null_expression(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -215,12 +217,12 @@ static void test_code_gen_module_no_main_adds_dummy(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 

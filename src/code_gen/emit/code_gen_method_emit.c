@@ -299,6 +299,10 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                     indented_fprintf(gen, 1, "%s _return_value = %s;\n", ret_type, default_val);
                 }
 
+                /* Forward-declare variables that need cleanup at the return label.
+                 * This ensures goto-based early returns don't leave them uninitialized. */
+                code_gen_forward_declare_cleanup_vars(gen, method->body, method->body_count, 1);
+
                 /* Generate method body */
                 for (int k = 0; k < method->body_count; k++)
                 {

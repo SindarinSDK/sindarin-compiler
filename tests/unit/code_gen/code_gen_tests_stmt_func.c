@@ -48,13 +48,13 @@ static void test_code_gen_call_expression_simple(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    rt_print_string(\"Hello, world!\");\n"
+                                  "    rt_print_string_v2(rt_arena_v2_strdup(__local_arena__, \"Hello, world!\"));\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -101,21 +101,21 @@ static void test_code_gen_function_simple_void(void)
 
     /* All non-main functions receive arena as first parameter */
     const char *expected = get_expected(&arena,
-                                  "void __sn__myfn(RtManagedArena *);\n\n"
-                                  "void __sn__myfn(RtManagedArena *__caller_arena__) {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n"
+                                  "void __sn__myfn(RtArenaV2 *);\n\n"
+                                  "void __sn__myfn(RtArenaV2 *__caller_arena__) {\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n"
                                   "    goto __sn__myfn_return;\n"
                                   "__sn__myfn_return:\n"
-                                  "    rt_managed_arena_destroy_child(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return;\n"
                                   "}\n\n"
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -182,23 +182,23 @@ static void test_code_gen_function_with_params_and_return(void)
 
     /* All non-main functions receive arena as first parameter */
     const char *expected = get_expected(&arena,
-                                  "long long __sn__add(RtManagedArena *, long long);\n\n"
-                                  "long long __sn__add(RtManagedArena *__caller_arena__, long long __sn__a) {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create_child(__caller_arena__);\n"
+                                  "long long __sn__add(RtArenaV2 *, long long);\n\n"
+                                  "long long __sn__add(RtArenaV2 *__caller_arena__, long long __sn__a) {\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n"
                                   "    long long _return_value = 0;\n"
                                   "    _return_value = __sn__a;\n"
                                   "    goto __sn__add_return;\n"
                                   "__sn__add_return:\n"
-                                  "    rt_managed_arena_destroy_child(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n\n"
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n");
 
@@ -245,12 +245,12 @@ static void test_code_gen_main_function_special_case(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
-                                  "    RtManagedArena *__local_arena__ = rt_managed_arena_create();\n"
+                                  "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
-                                  "    rt_managed_arena_destroy(__local_arena__);\n"
+                                  "    rt_arena_v2_condemn(__local_arena__);\n"
                                   "    return _return_value;\n"
                                   "}\n\n");
 
