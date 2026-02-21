@@ -321,6 +321,7 @@ void rt_thread_v3_dispose(RtHandleV2 *thread_handle)
     if (!(thread_handle->flags & RT_HANDLE_FLAG_DEAD)) {
         rt_arena_v2_free(thread_handle);
     }
+
 }
 
 /* ============================================================================

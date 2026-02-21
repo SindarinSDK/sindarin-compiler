@@ -96,6 +96,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     bool old_in_shared_context = gen->in_shared_context;
     char *old_arena_var = gen->current_arena_var;
     int old_arena_depth = gen->arena_depth;
+    Scope *old_function_scope = gen->function_scope;
 
     char *raw_fn_name = get_var_name(gen->arena, stmt->name);
     bool is_main = strcmp(raw_fn_name, "main") == 0;
@@ -142,6 +143,11 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
     gen->current_return_type = stmt->return_type;
     gen->current_func_modifier = stmt->modifier;
+
+    /* Reset arena temp tracking for this function */
+    gen->arena_temp_serial = 0;
+    gen->arena_temp_count = 0;
+
     bool main_has_args = is_main && stmt->param_count == 1;
     bool is_private = stmt->modifier == FUNC_PRIVATE;
     bool is_shared = stmt->modifier == FUNC_SHARED;
@@ -157,6 +163,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
     symbol_table_push_scope(gen->symbol_table);
     symbol_table_enter_arena(gen->symbol_table);
+    gen->function_scope = gen->symbol_table->current;
 
     for (int i = 0; i < stmt->param_count; i++)
     {
@@ -417,4 +424,5 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     gen->in_shared_context = old_in_shared_context;
     gen->current_arena_var = old_arena_var;
     gen->arena_depth = old_arena_depth;
+    gen->function_scope = old_function_scope;
 }

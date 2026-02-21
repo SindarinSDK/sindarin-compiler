@@ -85,7 +85,35 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->expr_as_handle = true;
         }
 
+        int saved_temp_count = gen->arena_temp_count;
         char *value_str = code_gen_expression(gen, stmt->value);
+
+        /* Handle temps created during return expression evaluation */
+        if (gen->current_arena_var != NULL && gen->arena_temp_count > saved_temp_count)
+        {
+            bool in_method = (gen->function_arena_var != NULL &&
+                              strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+            if (in_method)
+            {
+                /* Struct method: no arena condemn, so free intermediate temps now.
+                 * Skip the temp that IS the return value to avoid use-after-free. */
+                for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+                {
+                    if (strcmp(gen->arena_temps[i], value_str) != 0)
+                    {
+                        indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+                    }
+                }
+                gen->arena_temp_count = saved_temp_count;
+            }
+            else
+            {
+                /* Regular function: adopt temps — the return value is promoted to
+                 * caller's arena, freeing would cause use-after-free. Arena condemn
+                 * handles cleanup of non-return-value temps. */
+                code_gen_adopt_arena_temps_from(gen, saved_temp_count);
+            }
+        }
 
         gen->expr_as_handle = prev_as_handle;
 
@@ -129,6 +157,36 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
     for (int i = gen->lock_stack_depth - 1; i >= 0; i--)
     {
         indented_fprintf(gen, indent, "rt_sync_unlock(&%s);\n", gen->lock_stack[i]);
+    }
+
+    /* In struct methods, free any tracked arena temps before the goto.
+     * Temps created in inner expressions (e.g. toLower in a loop) would normally
+     * be freed at statement boundary, but goto skips past that cleanup.
+     * IMPORTANT: Do NOT clear arena_temp_count here. This code runs inside a
+     * branch (if body). The if-condition/statement flush also emits frees for
+     * the fallthrough path. Both paths need frees; only one executes at runtime. */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > 0 &&
+        gen->function_arena_var != NULL &&
+        strcmp(gen->function_arena_var, "__caller_arena__") == 0)
+    {
+        for (int i = 0; i < gen->arena_temp_count; i++)
+        {
+            indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+        }
+    }
+
+    /* Clean up locals in all scopes between current and function scope.
+     * When a return (goto) is inside nested blocks (if/while), the normal
+     * block-exit cleanup is skipped. Walk inner scopes and emit cleanup
+     * so string/struct/array handles are freed before the goto. */
+    if (gen->function_scope != NULL)
+    {
+        Scope *scope = gen->symbol_table->current;
+        while (scope != NULL && scope != gen->function_scope)
+        {
+            code_gen_free_locals(gen, scope, false, indent);
+            scope = scope->enclosing;
+        }
     }
 
     indented_fprintf(gen, indent, "goto %s_return;\n", gen->current_function);

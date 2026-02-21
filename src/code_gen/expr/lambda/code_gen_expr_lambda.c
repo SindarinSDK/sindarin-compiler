@@ -55,6 +55,11 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
 
     /* Generate code for each statement in the lambda body */
     /* We need to capture the output since code_gen_statement writes to gen->output */
+    int saved_tc = gen->arena_temp_count;
+    int saved_ts = gen->arena_temp_serial;
+    gen->arena_temp_count = 0;
+    gen->arena_temp_serial = 0;
+
     FILE *old_output = gen->output;
     char *body_buffer = NULL;
     size_t body_size = 0;
@@ -67,6 +72,9 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
 
     sn_fclose(gen->output);
     gen->output = old_output;
+
+    gen->arena_temp_count = saved_tc;
+    gen->arena_temp_serial = saved_ts;
 
     /* Pop the lambda parameter scope */
     symbol_table_pop_scope(gen->symbol_table);
@@ -394,7 +402,27 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                                     (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
             bool saved_expr_handle = gen->expr_as_handle;
             if (is_handle_return) gen->expr_as_handle = true;
+
+            /* Redirect output so hoisted arena temps go into the lambda
+             * function body, not the enclosing function. */
+            int saved_tc_e = gen->arena_temp_count;
+            int saved_ts_e = gen->arena_temp_serial;
+            gen->arena_temp_count = 0;
+            gen->arena_temp_serial = 0;
+            FILE *old_out_e = gen->output;
+            char *expr_buf = NULL;
+            size_t expr_sz = 0;
+            gen->output = open_memstream(&expr_buf, &expr_sz);
+
             char *body_code = code_gen_expression(gen, lambda->body);
+
+            sn_fclose(gen->output);
+            gen->output = old_out_e;
+            char *hoisted_decls = arena_strdup(gen->arena, expr_buf ? expr_buf : "");
+            free(expr_buf);
+            gen->arena_temp_count = saved_tc_e;
+            gen->arena_temp_serial = saved_ts_e;
+
             gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
@@ -403,12 +431,13 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     "static %s %s(%s) {\n"
                     "%s"
                     "%s"
+                    "%s"
                     "    %s __result__ = %s;\n"
                     "%s"
                     "    return __result__;\n"
                     "}\n\n",
                     ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls,
-                    ret_c_type, body_code, arena_cleanup);
+                    hoisted_decls, ret_c_type, body_code, arena_cleanup);
             }
             else
             {
@@ -416,9 +445,10 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     "static %s %s(%s) {\n"
                     "%s"
                     "%s"
+                    "%s"
                     "    return %s;\n"
                     "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls, body_code);
+                    ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls, hoisted_decls, body_code);
             }
         }
         gen->current_arena_var = saved_arena_var;
@@ -645,7 +675,27 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                                     (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
             bool saved_expr_handle = gen->expr_as_handle;
             if (is_handle_return) gen->expr_as_handle = true;
+
+            /* Redirect output so hoisted arena temps go into the lambda
+             * function body, not the enclosing function. */
+            int saved_tc_e = gen->arena_temp_count;
+            int saved_ts_e = gen->arena_temp_serial;
+            gen->arena_temp_count = 0;
+            gen->arena_temp_serial = 0;
+            FILE *old_out_e = gen->output;
+            char *expr_buf = NULL;
+            size_t expr_sz = 0;
+            gen->output = open_memstream(&expr_buf, &expr_sz);
+
             char *body_code = code_gen_expression(gen, lambda->body);
+
+            sn_fclose(gen->output);
+            gen->output = old_out_e;
+            char *hoisted_decls = arena_strdup(gen->arena, expr_buf ? expr_buf : "");
+            free(expr_buf);
+            gen->arena_temp_count = saved_tc_e;
+            gen->arena_temp_serial = saved_ts_e;
+
             gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
@@ -653,21 +703,23 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                 lambda_func = arena_sprintf(gen->arena,
                     "static %s %s(%s) {\n"
                     "%s"
+                    "%s"
                     "    %s __result__ = %s;\n"
                     "%s"
                     "    return __result__;\n"
                     "}\n\n",
                     ret_c_type, lambda_func_name, params_decl, arena_setup,
-                    ret_c_type, body_code, arena_cleanup);
+                    hoisted_decls, ret_c_type, body_code, arena_cleanup);
             }
             else
             {
                 lambda_func = arena_sprintf(gen->arena,
                     "static %s %s(%s) {\n"
                     "%s"
+                    "%s"
                     "    return %s;\n"
                     "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup, body_code);
+                    ret_c_type, lambda_func_name, params_decl, arena_setup, hoisted_decls, body_code);
             }
         }
         gen->current_arena_var = saved_arena_var;

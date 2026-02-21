@@ -77,6 +77,26 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     {
         indented_fprintf(gen, indent, "%s;\n", expr_str);
     }
+
+    /* Flush any arena temps accumulated during this expression statement */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > 0)
+    {
+        bool in_method = (gen->function_arena_var != NULL &&
+                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+        if (gen->loop_scope_depth > 0 || in_method)
+        {
+            /* In loops: flush to prevent accumulation across iterations.
+             * In struct methods: flush always — no arena condemn to clean up. */
+            code_gen_flush_arena_temps(gen, indent);
+        }
+        else
+        {
+            /* Outside loops in regular functions: don't free (arena condemn
+             * handles cleanup), but reset counter so stale temps don't
+             * leak into loops. */
+            gen->arena_temp_count = 0;
+        }
+    }
 }
 
 void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int indent)
@@ -92,9 +112,9 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
         {
             char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, sym->name));
 
-            /* In arena context, handle struct types with handle fields and arrays.
-             * Arrays need to be freed so their free callback runs (for struct elements).
-             * Strings are simple handles and don't need special cleanup - GC handles them. */
+            /* In arena context, handle struct types with handle fields, arrays,
+             * and string handles. All need explicit cleanup at scope exit to
+             * prevent handle accumulation in loops. */
             if (in_arena_context)
             {
                 if (sym->type->kind == TYPE_STRUCT && struct_has_handle_fields(sym->type))
@@ -134,6 +154,77 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                             needs_cleanup = true; /* nested arrays */
                     }
                     if (needs_cleanup)
+                    {
+                        /* In struct methods, also free individual string elements
+                         * since there's no arena condemn to clean them up. */
+                        bool in_method = (gen->function_arena_var != NULL &&
+                                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+                        if (elem_type->kind == TYPE_STRING && in_method && is_function)
+                        {
+                            indented_fprintf(gen, indent, "if (%s) { for (long long __fi = 0; __fi < rt_array_length_v2(%s); __fi++) {\n", var_name, var_name);
+                            indented_fprintf(gen, indent + 1, "RtHandleV2 *__fe = rt_array_get_handle_v2(%s, __fi);\n", var_name);
+                            if (gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
+                            {
+                                indented_fprintf(gen, indent + 1, "if (__fe != _return_value) rt_arena_v2_free(__fe);\n");
+                            }
+                            else
+                            {
+                                indented_fprintf(gen, indent + 1, "rt_arena_v2_free(__fe);\n");
+                            }
+                            indented_fprintf(gen, indent, "} }\n");
+                        }
+                        indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
+                    }
+                }
+                else if (sym->type->kind == TYPE_STRING && !is_function)
+                {
+                    /* Free string handle at block scope exit to prevent handle
+                     * accumulation in loops. Each iteration creates a new handle
+                     * for the variable — without this, old handles leak.
+                     * Skip at function scope: rt_arena_v2_condemn handles it.
+                     * Note: GC's rescue mechanism (ref count check) protects handles
+                     * that are still referenced by live data structures. */
+                    indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
+                }
+                else if (sym->type->kind == TYPE_STRING && is_function
+                         && gen->function_arena_var != NULL
+                         && strcmp(gen->function_arena_var, "__caller_arena__") == 0)
+                {
+                    /* Struct method: no local arena condemn, must free explicitly.
+                     * Guard against freeing the return value handle. */
+                    if (gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
+                    {
+                        indented_fprintf(gen, indent, "if (%s != _return_value) rt_arena_v2_free(%s);\n",
+                                         var_name, var_name);
+                    }
+                    else if (gen->current_return_type && gen->current_return_type->kind == TYPE_STRUCT
+                             && struct_has_handle_fields(gen->current_return_type))
+                    {
+                        /* Return type is a struct with handle fields — the string local
+                         * might be stored in a return value field. Guard against each
+                         * string field of the return struct. */
+                        int field_count = gen->current_return_type->as.struct_type.field_count;
+                        char *guard = arena_strdup(gen->arena, "");
+                        for (int fi = 0; fi < field_count; fi++)
+                        {
+                            StructField *field = &gen->current_return_type->as.struct_type.fields[fi];
+                            if (field->type && field->type->kind == TYPE_STRING)
+                            {
+                                const char *c_field = field->c_alias != NULL
+                                    ? field->c_alias
+                                    : sn_mangle_name(gen->arena, field->name);
+                                if (strlen(guard) > 0)
+                                    guard = arena_sprintf(gen->arena, "%s && ", guard);
+                                guard = arena_sprintf(gen->arena, "%s%s != _return_value.%s",
+                                                       guard, var_name, c_field);
+                            }
+                        }
+                        if (strlen(guard) > 0)
+                            indented_fprintf(gen, indent, "if (%s) rt_arena_v2_free(%s);\n", guard, var_name);
+                        else
+                            indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
+                    }
+                    else
                     {
                         indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
                     }
@@ -224,6 +315,20 @@ void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent)
         code_gen_statement(gen, stmt->else_branch, indent + 1);
         indented_fprintf(gen, indent, "}\n");
     }
+
+    /* Flush temps created during if-condition evaluation.
+     * In struct methods, there's no arena condemn, so condition temps
+     * (e.g., string literals for comparisons) must be explicitly freed.
+     * In loops, flush to prevent accumulation across iterations. */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > 0)
+    {
+        bool in_method = (gen->function_arena_var != NULL &&
+                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+        if (in_method || gen->loop_scope_depth > 0)
+        {
+            code_gen_flush_arena_temps(gen, indent);
+        }
+    }
 }
 
 void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
@@ -275,6 +380,22 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
     case STMT_BREAK:
     case STMT_CONTINUE:
     {
+        /* In struct methods, free tracked arena temps before break/continue.
+         * Temps (e.g. from trim/toLower) would normally be freed at statement
+         * boundary, but break/continue skips past that cleanup.
+         * IMPORTANT: Do NOT clear arena_temp_count. The per-statement/if-condition
+         * flush also emits frees for the non-break path. Both paths need frees;
+         * only one executes at runtime. */
+        if (gen->current_arena_var != NULL && gen->arena_temp_count > 0 &&
+            gen->function_arena_var != NULL &&
+            strcmp(gen->function_arena_var, "__caller_arena__") == 0)
+        {
+            for (int i = 0; i < gen->arena_temp_count; i++)
+            {
+                indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+            }
+        }
+
         /* Clean up struct locals in all scopes from current up to the loop scope.
          * This handles the case where break/continue is nested inside inner blocks. */
         Scope *loop_scope = NULL;

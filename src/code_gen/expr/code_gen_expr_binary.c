@@ -80,6 +80,50 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
             return arena_sprintf(gen->arena, "((%s) %s NULL)", handle_str, c_op);
         }
     }
+    /* Early return for string concat in arena mode — evaluate operands directly
+     * in handle mode to avoid redundant non-handle evaluation that creates
+     * duplicate temps in chained concats like a + b + c + d. */
+    if (expr->operator == TOKEN_PLUS &&
+        left_type && left_type->kind == TYPE_STRING &&
+        gen->current_arena_var != NULL)
+    {
+        gen->expr_as_handle = true;
+        char *left_h = code_gen_expression(gen, expr->left);
+        gen->expr_as_handle = true; /* restore in case left eval modified it */
+        char *right_h = code_gen_expression(gen, expr->right);
+        gen->expr_as_handle = saved_as_handle;
+
+        char *concat_expr = arena_sprintf(gen->arena, "rt_str_concat_v2(%s, %s, %s)",
+                                 ARENA_VAR(gen), left_h, right_h);
+        if (saved_as_handle)
+        {
+            return code_gen_emit_arena_temp(gen, concat_expr);
+        }
+        else
+        {
+            char *tmp = code_gen_emit_arena_temp(gen, concat_expr);
+            return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", tmp);
+        }
+    }
+
+    /* Early return for string comparison in arena mode — evaluate operands
+     * directly in handle mode to avoid a redundant raw-mode evaluation that
+     * creates duplicate temps for method calls like toLower(). */
+    if ((expr->operator == TOKEN_EQUAL_EQUAL || expr->operator == TOKEN_BANG_EQUAL ||
+         expr->operator == TOKEN_LESS || expr->operator == TOKEN_LESS_EQUAL ||
+         expr->operator == TOKEN_GREATER || expr->operator == TOKEN_GREATER_EQUAL) &&
+        left_type && left_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+    {
+        char *op_str = code_gen_binary_op_str(expr->operator);
+        gen->expr_as_handle = true;
+        char *left_h = code_gen_expression(gen, expr->left);
+        gen->expr_as_handle = true;
+        char *right_h = code_gen_expression(gen, expr->right);
+        gen->expr_as_handle = saved_as_handle;
+        return arena_sprintf(gen->arena, "rt_%s_string_v2(%s, %s)",
+                             op_str, left_h, right_h);
+    }
+
     if ((left_type && is_handle_type(left_type)) || (right_type && is_handle_type(right_type)))
     {
         gen->expr_as_handle = false;
@@ -198,15 +242,16 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
             char *right_h = code_gen_expression(gen, expr->right);
             gen->expr_as_handle = saved_as_handle;
 
-            char *concat_result = arena_sprintf(gen->arena, "rt_str_concat_v2(%s, %s, %s)",
+            char *concat_expr = arena_sprintf(gen->arena, "rt_str_concat_v2(%s, %s, %s)",
                                      ARENA_VAR(gen), left_h, right_h);
             if (saved_as_handle)
             {
-                return concat_result;
+                return code_gen_emit_arena_temp(gen, concat_expr);
             }
             else
             {
-                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", concat_result);
+                char *tmp = code_gen_emit_arena_temp(gen, concat_expr);
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", tmp);
             }
         }
         /* Non-arena context (legacy): rt_str_concat now returns RtHandleV2*, pin to get char* */

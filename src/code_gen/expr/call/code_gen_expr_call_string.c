@@ -110,11 +110,27 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
     if (arena_mode) {
         gen->expr_as_handle = true;
         object_h = code_gen_expression(gen, object);
+
+        /* In struct methods, if the receiver is a call expression that creates a
+         * new string handle (e.g., chained call like text.substring(0, idx).trim()),
+         * hoist the receiver result to a tracked temp so the intermediate handle
+         * can be freed. Without this, the intermediate is inlined and never freed. */
+        bool in_method = (gen->function_arena_var != NULL &&
+                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+        if (in_method && object->type == EXPR_CALL &&
+            object->expr_type != NULL && object->expr_type->kind == TYPE_STRING)
+        {
+            object_h = code_gen_emit_arena_temp(gen, object_h);
+        }
     }
     /* V1 methods need raw char* arguments — keep expr_as_handle = false.
      * V2 method handlers set it to true when needed for specific args.
      * Each return path must restore gen->expr_as_handle = handle_mode. */
     gen->expr_as_handle = false;
+
+    /* Check if we're in a struct method (no arena condemn — must track temps) */
+    bool in_method = (gen->function_arena_var != NULL &&
+                      strcmp(gen->function_arena_var, "__caller_arena__") == 0);
 
     /* substring(start, end) - returns string */
     if (strcmp(method_name, "substring") == 0 && arg_count == 2) {
@@ -125,6 +141,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             char *v2_call = arena_sprintf(gen->arena, "rt_str_substring_v2(%s, %s, %s, %s)",
                 ARENA_VAR(gen), object_h, start_str, end_str);
             gen->expr_as_handle = handle_mode;
+            /* In struct methods, hoist to temp for tracking */
+            if (in_method) {
+                char *temp = code_gen_emit_arena_temp(gen, v2_call);
+                if (handle_mode) return temp;
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", temp);
+            }
             if (handle_mode) {
                 return v2_call;
             }
@@ -195,6 +217,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             char *v2_call = arena_sprintf(gen->arena, "rt_str_trim_v2(%s, %s)",
                 ARENA_VAR(gen), object_h);
             gen->expr_as_handle = handle_mode;
+            /* In struct methods, hoist to temp for tracking */
+            if (in_method) {
+                char *temp = code_gen_emit_arena_temp(gen, v2_call);
+                if (handle_mode) return temp;
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", temp);
+            }
             if (handle_mode) {
                 return v2_call;
             }
@@ -213,6 +241,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             char *v2_call = arena_sprintf(gen->arena, "rt_str_toUpper_v2(%s, %s)",
                 ARENA_VAR(gen), object_h);
             gen->expr_as_handle = handle_mode;
+            /* In struct methods, hoist to temp for tracking */
+            if (in_method) {
+                char *temp = code_gen_emit_arena_temp(gen, v2_call);
+                if (handle_mode) return temp;
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", temp);
+            }
             if (handle_mode) {
                 return v2_call;
             }
@@ -231,6 +265,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             char *v2_call = arena_sprintf(gen->arena, "rt_str_toLower_v2(%s, %s)",
                 ARENA_VAR(gen), object_h);
             gen->expr_as_handle = handle_mode;
+            /* In struct methods, hoist to temp for tracking */
+            if (in_method) {
+                char *temp = code_gen_emit_arena_temp(gen, v2_call);
+                if (handle_mode) return temp;
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", temp);
+            }
             if (handle_mode) {
                 return v2_call;
             }
@@ -297,6 +337,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
             gen->expr_as_handle = handle_mode;
             char *v2_call = arena_sprintf(gen->arena, "rt_str_replace_v2(%s, %s, %s, %s)",
                 ARENA_VAR(gen), object_h, old_h, new_h);
+            /* In struct methods, hoist to temp for tracking */
+            if (in_method) {
+                char *temp = code_gen_emit_arena_temp(gen, v2_call);
+                if (handle_mode) return temp;
+                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", temp);
+            }
             if (handle_mode) {
                 return v2_call;
             }

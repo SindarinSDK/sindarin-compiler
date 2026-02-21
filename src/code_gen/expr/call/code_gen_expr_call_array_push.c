@@ -102,8 +102,20 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     if ((element_type->kind == TYPE_ARRAY || element_type->kind == TYPE_STRING) && gen->current_arena_var != NULL) {
         gen->expr_as_handle = true;
     }
+    /* Save temp count before arg evaluation — for struct pushes with handle fields,
+     * the field handles are memcpied into the array and must not be freed. */
+    int saved_push_temps = gen->arena_temp_count;
     char *arg_str = code_gen_expression(gen, arg);
     gen->expr_as_handle = prev_arg_as_handle;
+
+    /* For struct types with handle fields pushed into arrays, adopt the
+     * field temps — the array stores the handle pointers directly via memcpy,
+     * so freeing them would cause use-after-free on array access. */
+    if (element_type->kind == TYPE_STRUCT && struct_has_handle_fields(element_type) &&
+        gen->current_arena_var != NULL && gen->arena_temp_count > saved_push_temps)
+    {
+        code_gen_adopt_arena_temps_from(gen, saved_push_temps);
+    }
 
     const char *arena_to_use = get_arena_for_mutation(gen, object);
 
@@ -113,9 +125,20 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                       object->type == EXPR_MEMBER_ACCESS ||
                       object->type == EXPR_MEMBER);
 
+    /* In struct methods there's no arena condemn, so old array handles from
+     * push reallocation would leak. Free the old handle if push created a new one. */
+    bool push_free_old = (gen->function_arena_var != NULL &&
+                          strcmp(gen->function_arena_var, "__caller_arena__") == 0 &&
+                          is_lvalue);
+
     /* String arrays use specialized push (strdup) */
     if (element_type->kind == TYPE_STRING) {
         if (is_lvalue) {
+            if (push_free_old) {
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_string_v2(%s, %s, %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr); %s; })",
+                    handle_str, lvalue_str, arena_to_use, handle_str, arg_str, lvalue_str, lvalue_str);
+            }
             return arena_sprintf(gen->arena, "(%s = rt_array_push_string_v2(%s, %s, %s))",
                                  lvalue_str, arena_to_use, handle_str, arg_str);
         }
@@ -126,6 +149,11 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     /* Any type uses specialized push (boxing) */
     if (element_type->kind == TYPE_ANY) {
         if (is_lvalue) {
+            if (push_free_old) {
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_any_v2(%s, %s, %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr); %s; })",
+                    handle_str, lvalue_str, arena_to_use, handle_str, arg_str, lvalue_str, lvalue_str);
+            }
             return arena_sprintf(gen->arena, "(%s = rt_array_push_any_v2(%s, %s, %s))",
                                  lvalue_str, arena_to_use, handle_str, arg_str);
         }
@@ -139,6 +167,11 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
             ? "(void *)(uintptr_t)" : "(void *)";
         const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
         if (is_lvalue) {
+            if (push_free_old) {
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_v2(%s, %s, &(void *){%s%s}, %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr); %s; })",
+                    handle_str, lvalue_str, arena_to_use, handle_str, cast, arg_str, sizeof_expr, lvalue_str, lvalue_str);
+            }
             return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(void *){%s%s}, %s))",
                                  lvalue_str, arena_to_use, handle_str, cast, arg_str, sizeof_expr);
         }
@@ -149,7 +182,38 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     /* Struct types: arg_str is already a compound literal, just take its address */
     if (element_type->kind == TYPE_STRUCT) {
         const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
+
+        /* In struct methods, after pushing a struct with handle fields into an
+         * array (memcpy), zero the source struct's handle fields. This prevents
+         * __free_X_inline__ at method return from freeing handles that are now
+         * shared with the array. The array's free callback owns them. */
+        char *zero_fields = arena_strdup(gen->arena, "");
+        if (struct_has_handle_fields(element_type) && push_free_old &&
+            arg->type == EXPR_VARIABLE)
+        {
+            int field_count = element_type->as.struct_type.field_count;
+            for (int fi = 0; fi < field_count; fi++)
+            {
+                StructField *field = &element_type->as.struct_type.fields[fi];
+                if (field->type == NULL) continue;
+                TypeKind fk = field->type->kind;
+                if (fk == TYPE_STRING || fk == TYPE_ARRAY || fk == TYPE_ANY ||
+                    fk == TYPE_FUNCTION)
+                {
+                    const char *c_field = field->c_alias != NULL
+                        ? field->c_alias : sn_mangle_name(gen->arena, field->name);
+                    zero_fields = arena_sprintf(gen->arena, "%s %s.%s = NULL;",
+                                                zero_fields, arg_str, c_field);
+                }
+            }
+        }
+
         if (is_lvalue) {
+            if (push_free_old) {
+                return arena_sprintf(gen->arena,
+                    "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_v2(%s, %s, &(%s), %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr);%s %s; })",
+                    handle_str, lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr, lvalue_str, zero_fields, lvalue_str);
+            }
             return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(%s), %s))",
                                  lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr);
         }
@@ -162,6 +226,11 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
 
     if (is_lvalue) {
+        if (push_free_old) {
+            return arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_v2(%s, %s, &(%s){%s}, %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr); %s; })",
+                handle_str, lvalue_str, arena_to_use, handle_str, elem_c, arg_str, sizeof_expr, lvalue_str, lvalue_str);
+        }
         return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(%s){%s}, %s))",
                              lvalue_str, arena_to_use, handle_str, elem_c, arg_str, sizeof_expr);
     }
