@@ -32,8 +32,6 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdatomic.h>
-
 /* Use arena_compat.h for pthread types/functions to avoid conflicts on Windows */
 #include "runtime/arena/arena_compat.h"
 
@@ -42,7 +40,6 @@
 
 /* Forward declarations for types defined in this header */
 typedef struct RtArenaV2 RtArenaV2;
-typedef struct RtBlockV2 RtBlockV2;
 
 /* Include stats types before RtArenaV2 definition (stats are embedded in arena) */
 #include "runtime/arena/arena_stats.h"
@@ -51,34 +48,10 @@ typedef struct RtBlockV2 RtBlockV2;
 #define RT_HANDLE_V2_NULL ((RtHandleV2 *)NULL)
 
 /* ============================================================================
- * Block V2 - Backing Storage
- * ============================================================================
- * Simple block for bulk memory allocation. No lock-free complexity.
- * ============================================================================ */
-
-struct RtBlockV2 {
-    RtBlockV2 *next;            /* Next block in arena's chain */
-    RtArenaV2 *arena;           /* Owning arena */
-    size_t capacity;            /* Total block capacity */
-    size_t used;                /* Bytes used */
-    RtHandleV2 *handles_head;   /* Head of per-block handle linked list */
-
-    /* Transaction state for GC synchronization */
-    _Atomic uint64_t tx_holder;        /* 0 = free, thread ID = held, GC_OWNER_ID = GC */
-    _Atomic uint32_t tx_recurse_count; /* Nesting depth for same thread */
-    _Atomic uint64_t tx_start_ns;      /* Lease start time (monotonic ns) */
-    _Atomic uint64_t tx_timeout_ns;    /* Per-transaction timeout */
-
-    char data[];                /* Flexible array for actual data */
-};
-
-/* Default block size: 64KB */
-#define RT_BLOCK_V2_SIZE (64 * 1024)
-
-/* ============================================================================
  * Arena V2 - Memory Region with Scoped Lifetime
  * ============================================================================
- * Arenas own handles and blocks. Simple mutex-based synchronization.
+ * Arenas own handles. Simple mutex-based synchronization.
+ * Handle data is allocated via malloc and freed when GC collects.
  * ============================================================================ */
 
 typedef enum {
@@ -113,9 +86,8 @@ struct RtArenaV2 {
     RtArenaV2 *first_child;     /* First child arena */
     RtArenaV2 *next_sibling;    /* Next sibling arena */
 
-    /* Block storage */
-    RtBlockV2 *blocks_head;     /* Head of block chain */
-    RtBlockV2 *current_block;   /* Current allocation block */
+    /* Handle storage */
+    RtHandleV2 *handles_head;   /* Head of arena handle linked list */
 
     /* GC state */
     bool gc_running;            /* Is GC currently running on this arena? */
