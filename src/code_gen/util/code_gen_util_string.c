@@ -48,7 +48,7 @@ char *escape_char_literal(Arena *arena, char ch)
         sprintf(buf, "'\\r'");
     } else if (ch == '\0') {
         sprintf(buf, "'\\0'");
-    } else if ((unsigned char)ch >= 0x80 || ch < 0) {
+    } else if ((unsigned char)ch >= 0x80) {
         sprintf(buf, "'\\x%02x'", (unsigned char)ch);
     } else if (ch < ' ' || ch > '~') {
         sprintf(buf, "'\\x%02x'", (unsigned char)ch);
