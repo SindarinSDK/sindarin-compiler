@@ -57,6 +57,13 @@ void code_gen_emit_struct_typedef(CodeGen *gen, StructDeclStmt *struct_decl, int
 
     /* Generate: typedef struct { fields... } StructName; */
     indented_fprintf(gen, 0, "typedef struct {\n");
+
+    /* Add hidden arena reference as first field for non-native, non-packed structs */
+    if (!struct_decl->is_native && !struct_decl->is_packed)
+    {
+        indented_fprintf(gen, 1, "RtArenaV2 *__arena__;\n");
+    }
+
     for (int j = 0; j < struct_decl->field_count; j++)
     {
         StructField *field = &struct_decl->fields[j];

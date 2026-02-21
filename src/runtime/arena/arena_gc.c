@@ -272,25 +272,32 @@ static void gc_destroy_arena_fully(RtArenaV2 *arena)
     gc_destroy_arena_struct(arena);
 }
 
-/* Sweep dead arenas using two-phase collection.
- * Phase 1: Collect all dead arenas, call all callbacks
- * Phase 2: Free all handles and arena structs */
-static void gc_sweep_dead_arenas(RtArenaV2 *arena)
+/* Sweep dead arenas - phase 1: collect and call callbacks.
+ * Returns the list of dead arenas (handle structs still valid).
+ * Caller must pass the returned list to gc_sweep_finalize() to free memory. */
+static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 {
-    if (arena == NULL) return;
+    if (arena == NULL) return NULL;
 
     /* Collect all dead arenas */
     ArenaListNode *dead_list = NULL;
     gc_collect_dead_arenas(arena, &dead_list);
 
-    if (dead_list == NULL) return;
+    if (dead_list == NULL) return NULL;
 
-    /* Pass 1: Call all callbacks on all dead arenas */
+    /* Call all callbacks on all dead arenas (handle structs still valid) */
     for (ArenaListNode *node = dead_list; node != NULL; node = node->next) {
         gc_call_all_arena_callbacks(node->arena);
     }
 
-    /* Pass 2: Free all handles and arena structs */
+    return dead_list;
+}
+
+/* Sweep dead arenas - phase 2: free all handle structs and arena structs.
+ * Must be called AFTER gc_compact_all so that compact's free_callbacks
+ * can still read handle structs from dead arenas. */
+static void gc_sweep_finalize(ArenaListNode *dead_list)
+{
     ArenaListNode *node = dead_list;
     while (node != NULL) {
         ArenaListNode *next = node->next;
@@ -755,9 +762,10 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
  * Public API
  * ============================================================================ */
 
-/* Main GC entry point - two-pass collection.
- * Pass 1: Sweep dead arenas
- * Pass 2: Compact blocks in all live arenas */
+/* Main GC entry point - three-phase collection.
+ * Phase 1: Collect dead arenas, call their callbacks (handle structs stay valid)
+ * Phase 2: Compact dead handles in live arenas (callbacks can read dead arena handles)
+ * Phase 3: Free dead arena handle structs and arena structs */
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
     /* First check (lock-free fast path) */
@@ -785,11 +793,17 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     uint64_t saved_thread_id = rt_arena_get_thread_id();
     rt_arena_set_thread_id(GC_OWNER_ID);
 
-    /* Pass 1: Sweep dead arenas */
-    gc_sweep_dead_arenas(arena);
+    /* Phase 1: Sweep dead arenas - call callbacks but keep handle structs alive.
+     * Handle structs must remain valid so that compact's free_callbacks
+     * (which may reference handles in dead arenas) don't hit use-after-free. */
+    ArenaListNode *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
 
-    /* Pass 2: Compact blocks in all live arenas */
+    /* Phase 2: Compact dead handles in all live arenas */
     gc_compact_all(arena, &result);
+
+    /* Phase 3: Now safe to free dead arena handle structs and arena structs.
+     * All callbacks (both sweep and compact) have completed. */
+    gc_sweep_finalize(dead_arenas);
 
     /* Restore thread identity */
     rt_arena_set_thread_id(saved_thread_id);

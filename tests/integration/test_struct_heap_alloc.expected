@@ -1,5 +1,5 @@
 Testing heap-allocated structs (>=8KB):
-sizeof(LargeStruct) = 8192 (at 8KB threshold)
+sizeof(LargeStruct) = 8200 (at 8KB threshold)
 Size test: PASS
 Allocation test: PASS
 Field access test: PASS

@@ -8,17 +8,17 @@ sizeof(bool) = 1
 sizeof(char) = 1
 sizeof(int32) = 4
 
-sizeof(Point) = 16
-sizeof(Rectangle) = 32
-sizeof(SmallStruct) = 8
+sizeof(Point) = 24
+sizeof(Rectangle) = 48
+sizeof(SmallStruct) = 16
 
-sizeof p = 16
-sizeof r = 32
-sizeof s = 8
-sizeof(p) = 16
-sizeof(r) = 32
+sizeof p = 24
+sizeof r = 48
+sizeof s = 16
+sizeof(p) = 24
+sizeof(r) = 48
 
-sizeof(Point) + sizeof(Rectangle) = 48
+sizeof(Point) + sizeof(Rectangle) = 72
 sizeof(Point) > 8
 
 === Testing struct equality ===

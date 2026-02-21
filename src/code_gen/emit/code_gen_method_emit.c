@@ -8,6 +8,7 @@
 #include "code_gen/emit/code_gen_method_emit.h"
 #include "code_gen/util/code_gen_util.h"
 #include "code_gen/stmt/code_gen_stmt.h"
+#include "code_gen/stmt/code_gen_stmt_func_promote.h"
 #include "arena.h"
 #include <string.h>
 #include <ctype.h>
@@ -274,13 +275,36 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 char *saved_arena_var = gen->current_arena_var;
                 char *saved_function_arena = gen->function_arena_var;
                 Scope *saved_function_scope = gen->function_scope;
+                FunctionModifier saved_func_modifier = gen->current_func_modifier;
+                bool saved_in_private = gen->in_private_context;
+                bool saved_in_shared = gen->in_shared_context;
                 int saved_temp_serial = gen->arena_temp_serial;
                 int saved_temp_count = gen->arena_temp_count;
 
                 gen->current_function = method_full_name;
                 gen->current_return_type = method->return_type;
-                gen->current_arena_var = "__caller_arena__";
-                gen->function_arena_var = "__caller_arena__";
+
+                /* Determine if this is an instance method on a regular (non-native, non-packed) struct */
+                bool is_instance_method = (!method->is_static &&
+                                           !struct_decl->is_native &&
+                                           !struct_decl->is_packed);
+
+                bool is_private = (method->modifier == FUNC_PRIVATE);
+                bool is_shared = (method->modifier == FUNC_SHARED);
+
+                if (is_instance_method)
+                {
+                    gen->current_arena_var = "__local_arena__";
+                    gen->function_arena_var = "__local_arena__";
+                    gen->current_func_modifier = method->modifier;
+                    if (is_private) gen->in_private_context = true;
+                    gen->in_shared_context = is_shared;
+                }
+                else
+                {
+                    gen->current_arena_var = "__caller_arena__";
+                    gen->function_arena_var = "__caller_arena__";
+                }
                 gen->arena_temp_serial = 0;
                 gen->arena_temp_count = 0;
 
@@ -305,6 +329,24 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                     indented_fprintf(gen, 1, "%s _return_value = %s;\n", ret_type, default_val);
                 }
 
+                /* Emit arena setup for instance methods */
+                if (is_instance_method)
+                {
+                    if (is_shared)
+                    {
+                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __sn__self->__arena__;\n");
+                    }
+                    else if (is_private)
+                    {
+                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_PRIVATE, \"method\");\n");
+                    }
+                    else
+                    {
+                        /* DEFAULT */
+                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_DEFAULT, \"method\");\n");
+                    }
+                }
+
                 /* Forward-declare variables that need cleanup at the return label.
                  * This ensures goto-based early returns don't leave them uninitialized. */
                 code_gen_forward_declare_cleanup_vars(gen, method->body, method->body_count, 1);
@@ -321,6 +363,32 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 /* Add return label and cleanup */
                 indented_fprintf(gen, 0, "%s_return:\n", method_full_name);
                 code_gen_free_locals(gen, gen->symbol_table->current, true, 1);
+
+                if (is_instance_method)
+                {
+                    /* Return value promotion FIRST — before self-field promotion.
+                     * If the return value shares handles with self, promoting the return
+                     * value first ensures those handles are cloned to caller_arena while
+                     * still alive. Self-field promotion then safely re-promotes the
+                     * (now dead) originals to self->__arena__. */
+                    if (has_return_value && !is_private)
+                    {
+                        code_gen_return_promotion(gen, method->return_type, false, is_shared, "__sn__self->__arena__", 1);
+                    }
+
+                    if (!is_shared)
+                    {
+                        /* DEFAULT/PRIVATE: promote self handle fields before condemn */
+                        code_gen_promote_self_fields(gen, struct_decl, 1);
+                    }
+
+                    if (!is_shared)
+                    {
+                        /* DEFAULT/PRIVATE: condemn the local arena */
+                        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
+                    }
+                }
+
                 if (has_return_value)
                 {
                     indented_fprintf(gen, 1, "return _return_value;\n");
@@ -339,6 +407,9 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 gen->current_arena_var = saved_arena_var;
                 gen->function_arena_var = saved_function_arena;
                 gen->function_scope = saved_function_scope;
+                gen->current_func_modifier = saved_func_modifier;
+                gen->in_private_context = saved_in_private;
+                gen->in_shared_context = saved_in_shared;
                 gen->arena_temp_serial = saved_temp_serial;
                 gen->arena_temp_count = saved_temp_count;
 

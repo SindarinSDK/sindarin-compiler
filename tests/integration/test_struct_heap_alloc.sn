@@ -1030,8 +1030,8 @@ struct LargeStruct =>
 
 fn test_large_struct_size(): void =>
     # Verify struct size is exactly at threshold
-    if sizeof(LargeStruct) != 8192 =>
-        print($"FAIL: sizeof(LargeStruct) = {sizeof(LargeStruct)}, expected 8192\n")
+    if sizeof(LargeStruct) != 8200 =>
+        print($"FAIL: sizeof(LargeStruct) = {sizeof(LargeStruct)}, expected 8200\n")
         return
     print($"sizeof(LargeStruct) = {sizeof(LargeStruct)} (at 8KB threshold)\n")
     print("Size test: PASS\n")

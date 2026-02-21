@@ -17,7 +17,7 @@ nested value: PASS
 PackedData sizeof=10: PASS (expected 10)
 
 --- Testing Unpacked Struct Alignment ---
-AfterPacked sizeof=24: checking alignment
+AfterPacked sizeof=32: checking alignment
 AfterPacked alignment: PASS (size >= 17)
 
 --- C Type Sizes ---

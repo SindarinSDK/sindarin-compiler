@@ -356,7 +356,7 @@ setup:
 else
 setup:
 	@echo "Setting up build dependencies for $(PLATFORM)..."
-	@mkdir -p libs && cd libs && curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.sh | bash
+	@mkdir -p libs && cd libs && export GITHUB_TOKEN=$$(gh auth token 2>/dev/null); curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.sh | bash
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 endif
