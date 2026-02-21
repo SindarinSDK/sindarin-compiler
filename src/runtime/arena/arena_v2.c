@@ -43,58 +43,11 @@ void arena_debug_init(void)
 static __thread RtArenaV2 *tls_current_arena = NULL;
 
 /* ============================================================================
- * Internal: Block Management
- * ============================================================================ */
-
-static RtBlockV2 *block_create(RtArenaV2 *arena, size_t min_size)
-{
-    size_t capacity = RT_BLOCK_V2_SIZE;
-    if (min_size > capacity) {
-        capacity = min_size;
-    }
-
-    RtBlockV2 *block = malloc(sizeof(RtBlockV2) + capacity);
-    if (block == NULL) {
-        fprintf(stderr, "arena_v2: block allocation failed\n");
-        return NULL;
-    }
-
-    block->next = NULL;
-    block->arena = arena;
-    block->capacity = capacity;
-    block->used = 0;
-    block->handles_head = NULL;
-
-    /* Initialize transaction state */
-    atomic_store(&block->tx_holder, 0);
-    atomic_store(&block->tx_recurse_count, 0);
-    atomic_store(&block->tx_start_ns, 0);
-    atomic_store(&block->tx_timeout_ns, 0);
-
-    return block;
-}
-
-static void *block_alloc(RtBlockV2 *block, size_t size)
-{
-    /* Align to 8 bytes */
-    size_t aligned = (size + 7) & ~7;
-
-    if (block->used + aligned > block->capacity) {
-        return NULL;  /* Block full */
-    }
-
-    void *ptr = block->data + block->used;
-    block->used += aligned;
-    return ptr;
-}
-
-/* ============================================================================
  * Internal: Handle Management
  * ============================================================================ */
 
-static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlockV2 *block)
+static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size)
 {
-    /* Allocate handle struct itself via malloc (not in arena block) */
     RtHandleV2 *handle = malloc(sizeof(RtHandleV2));
     if (handle == NULL) {
         fprintf(stderr, "arena_v2: handle allocation failed\n");
@@ -104,10 +57,9 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size, RtBlo
     handle->ptr = ptr;
     handle->size = size;
     handle->arena = arena;
-    handle->block = block;
     handle->flags = RT_HANDLE_FLAG_NONE;
-    handle->copy_callback = NULL;     /* No deep copy by default */
-    handle->free_callback = NULL;  /* No cleanup by default */
+    handle->copy_callback = NULL;
+    handle->free_callback = NULL;
     handle->next = NULL;
     handle->prev = NULL;
 
@@ -138,8 +90,7 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->first_child = NULL;
     arena->next_sibling = NULL;
 
-    arena->blocks_head = NULL;
-    arena->current_block = NULL;
+    arena->handles_head = NULL;
 
     arena->gc_running = false;
     arena->flags = RT_ARENA_FLAG_NONE;
@@ -240,38 +191,22 @@ RtHandleV2 *rt_arena_v2_alloc(RtArenaV2 *arena, size_t size)
 {
     if (arena == NULL || size == 0) return NULL;
 
+    void *ptr = malloc(size);
+    if (ptr == NULL) {
+        fprintf(stderr, "arena_v2: data allocation failed (size=%zu)\n", size);
+        return NULL;
+    }
+
     pthread_mutex_lock(&arena->mutex);
 
-    /* Try current block first */
-    void *ptr = NULL;
-    if (arena->current_block != NULL) {
-        ptr = block_alloc(arena->current_block, size);
-    }
-
-    /* Need a new block */
-    if (ptr == NULL) {
-        RtBlockV2 *block = block_create(arena, size);
-        if (block == NULL) {
-            pthread_mutex_unlock(&arena->mutex);
-            return NULL;
-        }
-
-        /* Link new block */
-        block->next = arena->blocks_head;
-        arena->blocks_head = block;
-        arena->current_block = block;
-
-        ptr = block_alloc(block, size);
-    }
-
-    /* Create handle */
-    RtHandleV2 *handle = handle_create(arena, ptr, size, arena->current_block);
+    RtHandleV2 *handle = handle_create(arena, ptr, size);
     if (handle == NULL) {
+        free(ptr);
         pthread_mutex_unlock(&arena->mutex);
         return NULL;
     }
 
-    rt_handle_v2_link(arena->current_block, handle);
+    rt_handle_v2_link(arena, handle);
 
     pthread_mutex_unlock(&arena->mutex);
 

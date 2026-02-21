@@ -4,7 +4,7 @@
  * Stop-the-world garbage collection for arena memory management.
  * Two-pass algorithm:
  * 1. Dead arena sweep - remove arenas marked with RT_ARENA_FLAG_DEAD
- * 2. Block compaction - acquire blocks, compact live handles, free dead ones
+ * 2. Handle collection - collect dead handles, free data via free()
  */
 
 #ifndef ARENA_GC_H
@@ -17,25 +17,21 @@
 /* Forward declaration */
 typedef struct RtArenaV2 RtArenaV2;
 
-/* Special marker for GC ownership of blocks */
-#define GC_OWNER_ID UINT64_MAX
-
 /* GC result - tracks what was freed during a GC cycle */
 typedef struct {
     size_t handles_freed;
     size_t bytes_freed;
-    size_t blocks_freed;
 } RtArenaGCResult;
 
 /* Run GC on arena tree. Returns total handles collected.
  * This is the main GC entry point - call on root arena.
  *
  * Pass 1: Sweeps dead arenas (marked with RT_ARENA_FLAG_DEAD)
- * Pass 2: Compacts blocks in all live arenas (acquires block locks)
+ * Pass 2: Collects dead handles in all live arenas
  */
 size_t rt_arena_v2_gc(RtArenaV2 *arena);
 
-/* Synchronously destroy an arena and all its children/handles/blocks.
+/* Synchronously destroy an arena and all its children/handles.
  * Use for detached arenas (parent=NULL) that GC cannot reach.
  * For arenas in the GC tree, use rt_arena_v2_condemn() instead. */
 void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent);

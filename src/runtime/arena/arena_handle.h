@@ -15,7 +15,6 @@
 /* Forward declarations */
 typedef struct RtHandleV2 RtHandleV2;
 typedef struct RtArenaV2 RtArenaV2;
-typedef struct RtBlockV2 RtBlockV2;
 
 /* ============================================================================
  * Copy Callback - Deep Copy Support
@@ -70,7 +69,7 @@ typedef enum {
  * Handle V2 - The First-Class Citizen
  * ============================================================================
  * Fat handle containing everything needed. No separate entry table.
- * Handles form a doubly-linked list within their owning block.
+ * Handles form a doubly-linked list within their owning arena.
  * ============================================================================ */
 
 struct RtHandleV2 {
@@ -80,7 +79,6 @@ struct RtHandleV2 {
 
     /* Ownership */
     RtArenaV2 *arena;           /* Owning arena (never NULL for valid handles) */
-    RtBlockV2 *block;           /* Block containing the data */
 
     /* GC metadata */
     uint16_t flags;             /* RtHandleFlags */
@@ -89,9 +87,9 @@ struct RtHandleV2 {
     RtHandleV2CopyCallback copy_callback;     /* Called after shallow copy (NULL for simple types) */
     RtHandleV2FreeCallback free_callback;     /* Called before GC frees handle (NULL if no cleanup) */
 
-    /* Intrusive linked list for block's handle tracking */
-    RtHandleV2 *next;           /* Next handle in block */
-    RtHandleV2 *prev;           /* Previous handle in block */
+    /* Intrusive linked list for arena's handle tracking */
+    RtHandleV2 *next;           /* Next handle in arena */
+    RtHandleV2 *prev;           /* Previous handle in arena */
 };
 
 /* ============================================================================
@@ -123,27 +121,21 @@ bool rt_handle_v2_is_valid(RtHandleV2 *handle);
 /* ============================================================================
  * Handle List Management
  * ============================================================================
- * Internal functions for managing the handle linked list within blocks.
+ * Internal functions for managing the handle linked list within arenas.
  * Used by allocation (link) and GC (unlink).
  * ============================================================================ */
 
-/* Link handle into block's handle list (at head) */
-void rt_handle_v2_link(RtBlockV2 *block, RtHandleV2 *handle);
+/* Link handle into arena's handle list (at head) */
+void rt_handle_v2_link(RtArenaV2 *arena, RtHandleV2 *handle);
 
-/* Unlink handle from block's handle list */
-void rt_handle_v2_unlink(RtBlockV2 *block, RtHandleV2 *handle);
+/* Unlink handle from arena's handle list */
+void rt_handle_v2_unlink(RtArenaV2 *arena, RtHandleV2 *handle);
 
 /* ============================================================================
  * Handle Transactions
  * ============================================================================
  * All access to handle->ptr must occur within a transaction. Transactions
- * provide block-level locking that allows GC to safely compact memory.
- *
- * Rules:
- * - Never hold handle->ptr outside a transaction
- * - Transactions have a timeout (default 2 seconds)
- * - Long-running operations must call rt_handle_renew_transaction() periodically
- * - GC can force-acquire expired leases
+ * lock the arena's recursive mutex for safe concurrent access.
  *
  * Example:
  *   rt_handle_begin_transaction(handle);
@@ -153,26 +145,19 @@ void rt_handle_v2_unlink(RtBlockV2 *block, RtHandleV2 *handle);
  *
  * ============================================================================ */
 
-/* Transaction constants */
-#define TX_DEFAULT_TIMEOUT_NS (2ULL * 1000000000ULL)  /* 2 seconds */
-
-/* Get monotonic time in nanoseconds (used for transaction timeouts) */
+/* Get monotonic time in nanoseconds (used by runtime) */
 uint64_t rt_get_monotonic_ns(void);
 
-/* Begin a transaction with default timeout (2 seconds).
- * Acquires a lease on the handle's block. Same thread can nest transactions. */
+/* Begin a transaction. Locks the arena's recursive mutex. */
 void rt_handle_begin_transaction(RtHandleV2 *handle);
 
-/* Begin a transaction with custom timeout (in nanoseconds). */
+/* Begin a transaction (timeout parameter ignored, for API compatibility). */
 void rt_handle_begin_transaction_with_timeout(RtHandleV2 *handle, uint64_t timeout_ns);
 
-/* End a transaction. Decrements nesting count, releases when count reaches 0.
- * Panics if current thread does not hold the lease. */
+/* End a transaction. Unlocks the arena's recursive mutex. */
 void rt_handle_end_transaction(RtHandleV2 *handle);
 
-/* Renew a transaction's timeout. Resets the start time to now.
- * Use this in long-running operations to prevent GC from force-acquiring.
- * Panics if current thread does not hold the lease. */
+/* Renew a transaction (no-op, kept for API compatibility). */
 void rt_handle_renew_transaction(RtHandleV2 *handle);
 
 /* ============================================================================

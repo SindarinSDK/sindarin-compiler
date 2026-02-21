@@ -4,7 +4,7 @@
  * Stop-the-world garbage collection for arena memory management.
  * Two-pass algorithm:
  * 1. Dead arena sweep - remove arenas marked with RT_ARENA_FLAG_DEAD
- * 2. Block compaction - acquire blocks, compact live handles, free dead ones
+ * 2. Handle collection - collect dead handles, free data via free()
  */
 
 #include "arena_gc.h"
@@ -15,7 +15,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdatomic.h>
 #include "arena_compat.h"
 
 /* Debug logging (shared with arena_v2.c) */
@@ -35,10 +34,10 @@ void arena_debug_init(void);
  * Core Helpers
  * ============================================================================ */
 
-/* Call all handle free_callbacks in a block (handles remain allocated) */
-static void gc_call_block_callbacks(RtBlockV2 *block)
+/* Call all handle free_callbacks in an arena (handles remain allocated) */
+static void gc_call_arena_handle_callbacks(RtArenaV2 *arena)
 {
-    RtHandleV2 *handle = block->handles_head;
+    RtHandleV2 *handle = arena->handles_head;
     while (handle != NULL) {
         if (handle->free_callback != NULL) {
             handle->free_callback(handle);
@@ -48,16 +47,19 @@ static void gc_call_block_callbacks(RtBlockV2 *block)
     }
 }
 
-/* Free all handles in a block (callbacks must already be called) */
-static void gc_free_block_handles(RtBlockV2 *block)
+/* Free all handles in an arena (callbacks must already be called) */
+static void gc_free_arena_handles(RtArenaV2 *arena)
 {
-    RtHandleV2 *handle = block->handles_head;
+    RtHandleV2 *handle = arena->handles_head;
     while (handle != NULL) {
         RtHandleV2 *next = handle->next;
+        if (!(handle->flags & RT_HANDLE_FLAG_EXTERN)) {
+            free(handle->ptr);
+        }
         free(handle);
         handle = next;
     }
-    block->handles_head = NULL;
+    arena->handles_head = NULL;
 }
 
 /* Run cleanup callbacks for an arena */
@@ -75,30 +77,6 @@ static void gc_run_cleanup_callbacks(RtArenaV2 *arena)
     }
 }
 
-/* Call all handle callbacks in an arena's blocks */
-static void gc_call_arena_handle_callbacks(RtArenaV2 *arena)
-{
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        gc_call_block_callbacks(block);
-        block = block->next;
-    }
-}
-
-/* Free all handles and blocks in an arena */
-static void gc_free_arena_blocks(RtArenaV2 *arena)
-{
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        RtBlockV2 *next = block->next;
-        gc_free_block_handles(block);
-        free(block);
-        block = next;
-    }
-    arena->blocks_head = NULL;
-    arena->current_block = NULL;
-}
-
 /* Destroy arena struct (mutex and memory) */
 static void gc_destroy_arena_struct(RtArenaV2 *arena)
 {
@@ -109,7 +87,7 @@ static void gc_destroy_arena_struct(RtArenaV2 *arena)
 /* Forward declaration for recursive call */
 void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent);
 
-/* Destroy an arena and all its handles/blocks */
+/* Destroy an arena and all its handles */
 void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 {
     if (arena == NULL) return;
@@ -133,7 +111,7 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 
     /* Two passes: callbacks first, then free (avoids use-after-free) */
     gc_call_arena_handle_callbacks(arena);
-    gc_free_arena_blocks(arena);
+    gc_free_arena_handles(arena);
 
     /* Unlink from parent (only if requested and parent exists) */
     if (unlink_from_parent && arena->parent != NULL) {
@@ -151,54 +129,6 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
 
     pthread_mutex_unlock(&arena->mutex);
     gc_destroy_arena_struct(arena);
-}
-
-/* ============================================================================
- * Internal: Block Acquisition
- * ============================================================================ */
-
-/* Try to acquire a block for GC.
- * Returns: 0 = acquired, 1 = skip (valid lease), -1 = force acquired (expired) */
-static int gc_acquire_block(RtBlockV2 *block)
-{
-    uint64_t expected = 0;
-
-    /* Try to acquire free block */
-    if (atomic_compare_exchange_strong(&block->tx_holder, &expected, GC_OWNER_ID)) {
-        atomic_store(&block->tx_recurse_count, 1);
-        return 0;  /* Successfully acquired free block */
-    }
-
-    /* Block is held - check timeout.
-     * After failed CAS, 'expected' contains the current tx_holder value.
-     * We require start_ns > 0 because end_transaction clears it — a zero
-     * start_ns means the block was recently released and re-acquired, and
-     * tx_claim hasn't set the new start time yet. */
-    uint64_t start_ns = atomic_load(&block->tx_start_ns);
-    uint64_t timeout_ns = atomic_load(&block->tx_timeout_ns);
-    uint64_t now_ns = rt_get_monotonic_ns();
-
-    if (timeout_ns > 0 && start_ns > 0 && (now_ns - start_ns) > timeout_ns) {
-        /* Lease appears expired - use CAS to force-acquire.
-         * CAS verifies the holder hasn't changed since our initial check,
-         * preventing us from overwriting a different thread's legitimate holder. */
-        if (atomic_compare_exchange_strong(&block->tx_holder, &expected, GC_OWNER_ID)) {
-            atomic_store(&block->tx_recurse_count, 1);
-            return -1;  /* Force acquired expired lease */
-        }
-    }
-
-    /* Valid lease or holder changed - skip this block */
-    return 1;
-}
-
-/* Release a block after GC processing */
-static void gc_release_block(RtBlockV2 *block)
-{
-    atomic_store(&block->tx_start_ns, 0);
-    atomic_store(&block->tx_timeout_ns, 0);
-    atomic_store(&block->tx_recurse_count, 0);
-    atomic_store(&block->tx_holder, 0);
 }
 
 /* ============================================================================
@@ -274,10 +204,10 @@ static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
     gc_call_arena_handle_callbacks(arena);
 }
 
-/* Free all handles/blocks and destroy arena struct */
+/* Free all handles and destroy arena struct */
 static void gc_destroy_arena_fully(RtArenaV2 *arena)
 {
-    gc_free_arena_blocks(arena);
+    gc_free_arena_handles(arena);
     gc_destroy_arena_struct(arena);
 }
 
@@ -317,7 +247,7 @@ static void gc_sweep_finalize(ArenaListNode *dead_list)
 }
 
 /* ============================================================================
- * Pass 2: Block Compaction (Two-Phase)
+ * Pass 2: Handle Collection (Two-Phase)
  * ============================================================================
  * Similar to dead arena sweep, we collect all dead handles first, then
  * destroy them in two passes to avoid use-after-free when callbacks
@@ -327,52 +257,32 @@ static void gc_sweep_finalize(ArenaListNode *dead_list)
 /* Simple handle list for collection */
 typedef struct HandleListNode {
     RtHandleV2 *handle;
-    RtBlockV2 *block;
+    RtArenaV2 *arena;
     struct HandleListNode *next;
 } HandleListNode;
 
-/* Collect dead handles from a single block */
-static void gc_collect_dead_handles_block(RtBlockV2 *block, HandleListNode **list, RtArenaGCResult *result)
-{
-    RtHandleV2 *handle = block->handles_head;
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
-        if (handle->flags & RT_HANDLE_FLAG_DEAD) {
-            /* Unlink from block now */
-            rt_handle_v2_unlink(block, handle);
-            result->bytes_freed += handle->size;
-            result->handles_freed++;
-
-            /* Add to collection list */
-            HandleListNode *node = malloc(sizeof(HandleListNode));
-            node->handle = handle;
-            node->block = block;
-            node->next = *list;
-            *list = node;
-        }
-        handle = next;
-    }
-}
-
-/* Collect dead handles from a single arena's blocks */
+/* Collect dead handles from a single arena */
 static void gc_collect_arena_handles(RtArenaV2 *arena, HandleListNode **list, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
-    pthread_mutex_lock(&arena->mutex);
+    if (pthread_mutex_trylock(&arena->mutex) != 0) return;  /* skip if locked */
 
-    int block_count = 0;
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        block_count++;
-        /* Try to acquire block for GC */
-        int acquire_result = gc_acquire_block(block);
-        if (acquire_result != 1) {
-            /* Collect dead handles from this block */
-            gc_collect_dead_handles_block(block, list, result);
-            gc_release_block(block);
+    RtHandleV2 *handle = arena->handles_head;
+    while (handle != NULL) {
+        RtHandleV2 *next = handle->next;
+        if (handle->flags & RT_HANDLE_FLAG_DEAD) {
+            rt_handle_v2_unlink(arena, handle);
+            result->bytes_freed += handle->size;
+            result->handles_freed++;
+
+            HandleListNode *node = malloc(sizeof(HandleListNode));
+            node->handle = handle;
+            node->arena = arena;
+            node->next = *list;
+            *list = node;
         }
-        block = block->next;
+        handle = next;
     }
 
     pthread_mutex_unlock(&arena->mutex);
@@ -386,8 +296,8 @@ static void gc_collect_all_handles(RtArenaV2 *arena, HandleListNode **list, RtAr
     gc_collect_arena_handles(arena, list, result);
 
     /* Snapshot children while holding mutex, then recurse without holding it.
-     * This avoids parent→child lock ordering that deadlocks with promote's
-     * child→parent ordering. */
+     * This avoids parent->child lock ordering that deadlocks with promote's
+     * child->parent ordering. */
     pthread_mutex_lock(&arena->mutex);
     size_t child_count = 0;
     for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
@@ -406,50 +316,6 @@ static void gc_collect_all_handles(RtArenaV2 *arena, HandleListNode **list, RtAr
 
     for (i = 0; i < child_count; i++)
         gc_collect_all_handles(children[i], list, result);
-
-    free(children);
-}
-
-/* Clean up empty blocks after compaction */
-static void gc_cleanup_empty_blocks(RtArenaV2 *arena, RtArenaGCResult *result)
-{
-    if (arena == NULL) return;
-
-    pthread_mutex_lock(&arena->mutex);
-
-    RtBlockV2 **bp = &arena->blocks_head;
-    while (*bp != NULL) {
-        RtBlockV2 *block = *bp;
-        if (block->handles_head == NULL) {
-            *bp = block->next;
-            if (arena->current_block == block) {
-                arena->current_block = NULL;
-            }
-            free(block);
-            result->blocks_freed++;
-        } else {
-            bp = &block->next;
-        }
-    }
-
-    /* Snapshot children, release mutex, then recurse */
-    size_t child_count = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        child_count++;
-
-    if (child_count == 0) {
-        pthread_mutex_unlock(&arena->mutex);
-        return;
-    }
-
-    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
-    size_t i = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        children[i++] = c;
-    pthread_mutex_unlock(&arena->mutex);
-
-    for (i = 0; i < child_count; i++)
-        gc_cleanup_empty_blocks(children[i], result);
 
     free(children);
 }
@@ -552,14 +418,10 @@ static void gc_build_handle_set(RtArenaV2 *arena, RcTable *handle_set)
 
     pthread_mutex_lock(&arena->mutex);
 
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        RtHandleV2 *handle = block->handles_head;
-        while (handle != NULL) {
-            rc_table_inc(handle_set, (void *)handle);
-            handle = handle->next;
-        }
-        block = block->next;
+    RtHandleV2 *handle = arena->handles_head;
+    while (handle != NULL) {
+        rc_table_inc(handle_set, (void *)handle);
+        handle = handle->next;
     }
 
     /* Snapshot children, release mutex, then recurse */
@@ -593,23 +455,19 @@ static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handl
 
     pthread_mutex_lock(&arena->mutex);
 
-    RtBlockV2 *block = arena->blocks_head;
-    while (block != NULL) {
-        RtHandleV2 *handle = block->handles_head;
-        while (handle != NULL) {
-            if (handle->ptr != NULL) {
-                void **scan = (void **)handle->ptr;
-                size_t slots = handle->size / sizeof(void *);
-                for (size_t i = 0; i < slots; i++) {
-                    /* Only count if value is a known handle address */
-                    if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
-                        rc_table_inc(t, scan[i]);
-                    }
+    RtHandleV2 *handle = arena->handles_head;
+    while (handle != NULL) {
+        if (handle->ptr != NULL) {
+            void **scan = (void **)handle->ptr;
+            size_t slots = handle->size / sizeof(void *);
+            for (size_t i = 0; i < slots; i++) {
+                /* Only count if value is a known handle address */
+                if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
+                    rc_table_inc(t, scan[i]);
                 }
             }
-            handle = handle->next;
         }
-        block = block->next;
+        handle = handle->next;
     }
 
     /* Snapshot children, release mutex, then recurse */
@@ -650,14 +508,14 @@ static bool gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, 
     for (size_t i = 0; i < slots; i++) {
         if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
             if (rc_table_get(rctable, scan[i]) == 0) {
-                /* ref count 0: only dead handles reference this child — free it */
+                /* ref count 0: only dead handles reference this child -- free it */
                 RtHandleV2 *child = (RtHandleV2 *)scan[i];
                 if (!(child->flags & RT_HANDLE_FLAG_DEAD)) {
                     GC_DEBUG_LOG("    free exclusive child: h=%p ptr=%p", (void *)child, child->ptr);
                     rt_arena_v2_free(child);
                 }
             } else {
-                /* ref count >= 1: shared with a live handle — leave it */
+                /* ref count >= 1: shared with a live handle -- leave it */
                 all_exclusive = false;
             }
         }
@@ -667,7 +525,7 @@ static bool gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, 
 
 /* GC all arenas using two-phase approach with reference counting:
  * Phase 1: Build ref counts, free exclusively-owned children per ref count
- * Phase 2: Free all dead handle structs, cleanup empty blocks */
+ * Phase 2: Free all dead handle data + structs */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
@@ -698,22 +556,22 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     /* Rescue pass: Dead handles still referenced by live handles are rescued.
      * This prevents use-after-free when scope cleanup marks handles as DEAD
      * but they're still stored in live data structures (e.g., struct fields
-     * pushed into arrays). Re-link rescued handles into their blocks and
+     * pushed into arrays). Re-link rescued handles into their arenas and
      * clear the DEAD flag so they stay alive. */
     HandleListNode *truly_dead = NULL;
     HandleListNode *temp_node = dead_handles;
     while (temp_node != NULL) {
         HandleListNode *next = temp_node->next;
         if (rc_table_get(&rctable, (void *)temp_node->handle) > 0) {
-            /* Handle is referenced by a live handle — rescue it */
+            /* Handle is referenced by a live handle -- rescue it */
             GC_DEBUG_LOG("  rescue: h=%p ptr=%p (refcount > 0)", (void *)temp_node->handle, temp_node->handle->ptr);
             temp_node->handle->flags &= ~RT_HANDLE_FLAG_DEAD;
-            rt_handle_v2_link(temp_node->block, temp_node->handle);
+            rt_handle_v2_link(temp_node->arena, temp_node->handle);
             result->handles_freed--;  /* Undo the count from collection */
             result->bytes_freed -= temp_node->handle->size;
             free(temp_node);
         } else {
-            /* Truly dead — keep in list for freeing */
+            /* Truly dead -- keep in list for freeing */
             temp_node->next = truly_dead;
             truly_dead = temp_node;
         }
@@ -725,8 +583,8 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 
     /* Pass 1: For each dead handle, free exclusively-owned children using
      * ref counts. A child with ref count 0 (no live handle references it) is
-     * only reachable through dead handles — mark it DEAD. A child with ref
-     * count >= 1 is shared with a live handle — leave it alone.
+     * only reachable through dead handles -- mark it DEAD. A child with ref
+     * count >= 1 is shared with a live handle -- leave it alone.
      *
      * If ALL children were exclusively owned, also run the free callback for
      * any non-pointer cleanup. Otherwise skip the callback since it would
@@ -748,13 +606,16 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
         }
     }
 
-    GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handles");
+    GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
 
-    /* Pass 2: Free all dead handle structs */
+    /* Pass 2: Free all dead handle data + structs */
     HandleListNode *node = dead_handles;
     while (node != NULL) {
         HandleListNode *next = node->next;
         GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)node->handle, node->handle->ptr);
+        if (!(node->handle->flags & RT_HANDLE_FLAG_EXTERN)) {
+            free(node->handle->ptr);
+        }
         free(node->handle);
         free(node);
         node = next;
@@ -762,9 +623,6 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 
     rc_table_free(&rctable);
     rc_table_free(&handle_set);
-
-    /* Cleanup empty blocks */
-    gc_cleanup_empty_blocks(arena, result);
 }
 
 /* ============================================================================
@@ -773,7 +631,7 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 
 /* Main GC entry point - three-phase collection.
  * Phase 1: Collect dead arenas, call their callbacks (handle structs stay valid)
- * Phase 2: Compact dead handles in live arenas (callbacks can read dead arena handles)
+ * Phase 2: Collect dead handles in live arenas, free data via free()
  * Phase 3: Free dead arena handle structs and arena structs */
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
@@ -796,26 +654,17 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Initialize result */
     RtArenaGCResult result = {0};
 
-    /* Temporarily identify this thread as GC so that free_callbacks
-     * invoked during compaction can re-entrantly acquire blocks that
-     * GC already holds (tx_holder == GC_OWNER_ID == our thread id). */
-    uint64_t saved_thread_id = rt_arena_get_thread_id();
-    rt_arena_set_thread_id(GC_OWNER_ID);
-
     /* Phase 1: Sweep dead arenas - call callbacks but keep handle structs alive.
      * Handle structs must remain valid so that compact's free_callbacks
      * (which may reference handles in dead arenas) don't hit use-after-free. */
     ArenaListNode *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
 
-    /* Phase 2: Compact dead handles in all live arenas */
+    /* Phase 2: Collect dead handles in all live arenas */
     gc_compact_all(arena, &result);
 
     /* Phase 3: Now safe to free dead arena handle structs and arena structs.
      * All callbacks (both sweep and compact) have completed. */
     gc_sweep_finalize(dead_arenas);
-
-    /* Restore thread identity */
-    rt_arena_set_thread_id(saved_thread_id);
 
     /* Record GC results */
     rt_arena_stats_record_gc(arena, &result);
