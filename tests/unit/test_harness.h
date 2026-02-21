@@ -42,6 +42,7 @@ static int _test_section_failed = 0;
 static double _test_suite_start_ms = 0;
 static double _test_current_start_ms = 0;
 
+
 // Print section header
 // Usage: TEST_SECTION("Runtime Arena");
 #define TEST_SECTION(name) do { \
