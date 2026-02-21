@@ -45,16 +45,19 @@ char *code_gen_emit_arena_temp(CodeGen *gen, const char *expr_str)
     return name;
 }
 
-/* Free all tracked arena temps. Called after a statement completes. */
+/* Free tracked arena temps above the flush floor. Called after a statement
+ * completes. The floor is set by if-statements to protect condition temps
+ * from being consumed by branch-internal flushes. */
 void code_gen_flush_arena_temps(CodeGen *gen, int indent)
 {
     if (gen->current_arena_var == NULL) return;
 
-    for (int i = 0; i < gen->arena_temp_count; i++)
+    int floor = gen->arena_temp_flush_floor;
+    for (int i = floor; i < gen->arena_temp_count; i++)
     {
         indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
     }
-    gen->arena_temp_count = 0;
+    gen->arena_temp_count = floor;
 }
 
 /* Remove temps from saved_count onwards — they are adopted by a consumer
