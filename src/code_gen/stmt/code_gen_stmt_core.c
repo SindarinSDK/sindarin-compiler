@@ -78,8 +78,11 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
         indented_fprintf(gen, indent, "%s;\n", expr_str);
     }
 
-    /* Flush any arena temps accumulated during this expression statement */
-    if (gen->current_arena_var != NULL && gen->arena_temp_count > 0)
+    /* Flush any arena temps accumulated during this expression statement.
+     * Only flush temps above arena_temp_flush_floor — temps below the floor
+     * are condition temps from an enclosing if-statement that must persist
+     * until after the entire if/else. */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > gen->arena_temp_flush_floor)
     {
         bool in_method = (gen->function_arena_var != NULL &&
                           strcmp(gen->function_arena_var, "__caller_arena__") == 0);
@@ -93,8 +96,8 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
         {
             /* Outside loops in regular functions: don't free (arena condemn
              * handles cleanup), but reset counter so stale temps don't
-             * leak into loops. */
-            gen->arena_temp_count = 0;
+             * leak into loops. Respect flush floor. */
+            gen->arena_temp_count = gen->arena_temp_flush_floor;
         }
     }
 }
@@ -178,27 +181,24 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                 }
                 else if (sym->type->kind == TYPE_ARRAY)
                 {
-                    /* Free array handle so its free callback runs.
-                     * This is needed for arrays of structs (to free struct handle fields)
-                     * and arrays of strings (to free string handles). */
+                    /* Free array handle at scope exit to prevent handle accumulation
+                     * in loops. ALL array types need this — primitive arrays (byte[],
+                     * int[], etc.) are arena-allocated handles just like string[] or
+                     * struct[]. Without this, array handles leak across iterations.
+                     *
+                     * At function scope: skip for regular functions (arena condemn
+                     * handles it) and the variable may be uninitialized if an early
+                     * return jumped over its declaration. Only free at function scope
+                     * in struct methods where there's no arena condemn. */
                     Type *elem_type = sym->type->as.array.element_type;
-                    bool needs_cleanup = false;
-                    if (elem_type != NULL)
+                    bool in_method = (gen->function_arena_var != NULL &&
+                                      strcmp(gen->function_arena_var, "__caller_arena__") == 0);
+
+                    if (!is_function || in_method)
                     {
-                        if (elem_type->kind == TYPE_STRING)
-                            needs_cleanup = true;
-                        else if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type))
-                            needs_cleanup = true;
-                        else if (elem_type->kind == TYPE_ARRAY)
-                            needs_cleanup = true; /* nested arrays */
-                    }
-                    if (needs_cleanup)
-                    {
-                        /* In struct methods, also free individual string elements
-                         * since there's no arena condemn to clean them up. */
-                        bool in_method = (gen->function_arena_var != NULL &&
-                                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
-                        if (elem_type->kind == TYPE_STRING && in_method && is_function)
+                        /* For arrays with handle elements in struct methods, also free
+                         * individual elements since there's no arena condemn. */
+                        if (elem_type != NULL && elem_type->kind == TYPE_STRING && in_method && is_function)
                         {
                             indented_fprintf(gen, indent, "if (%s) { for (long long __fi = 0; __fi < rt_array_length_v2(%s); __fi++) {\n", var_name, var_name);
                             indented_fprintf(gen, indent + 1, "RtHandleV2 *__fe = rt_array_get_handle_v2(%s, __fi);\n", var_name);
@@ -344,29 +344,49 @@ void code_gen_block(CodeGen *gen, BlockStmt *stmt, int indent)
 void code_gen_if_statement(CodeGen *gen, IfStmt *stmt, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_if_statement");
+
+    int saved_temp_count = gen->arena_temp_count;
+    int saved_floor = gen->arena_temp_flush_floor;
+
     char *cond_str = code_gen_expression(gen, stmt->condition);
     indented_fprintf(gen, indent, "if (%s) {\n", cond_str);
+
+    /* Protect condition temps from branch-internal flushes by raising the
+     * floor. Expression statement flushes inside branches will only free
+     * temps above this floor, leaving condition temps intact.
+     * Break/continue handlers ignore the floor and free ALL temps
+     * (including condition temps) since they exit the scope. */
+    gen->arena_temp_flush_floor = gen->arena_temp_count;
+
     code_gen_statement(gen, stmt->then_branch, indent + 1);
+    gen->arena_temp_count = gen->arena_temp_flush_floor;
+
     indented_fprintf(gen, indent, "}\n");
     if (stmt->else_branch)
     {
         indented_fprintf(gen, indent, "else {\n");
         code_gen_statement(gen, stmt->else_branch, indent + 1);
+        gen->arena_temp_count = gen->arena_temp_flush_floor;
         indented_fprintf(gen, indent, "}\n");
     }
 
-    /* Flush temps created during if-condition evaluation.
-     * In struct methods, there's no arena condemn, so condition temps
-     * (e.g., string literals for comparisons) must be explicitly freed.
-     * In loops, flush to prevent accumulation across iterations. */
-    if (gen->current_arena_var != NULL && gen->arena_temp_count > 0)
+    gen->arena_temp_flush_floor = saved_floor;
+
+    /* Flush condition temps AFTER the entire if/else so they are freed
+     * on ALL code paths (fallthrough). Break/continue paths emit their
+     * own frees via the break handler; only one path executes at runtime. */
+    if (gen->arena_temp_count > saved_temp_count && gen->current_arena_var != NULL)
     {
         bool in_method = (gen->function_arena_var != NULL &&
                           strcmp(gen->function_arena_var, "__caller_arena__") == 0);
         if (in_method || gen->loop_scope_depth > 0)
         {
-            code_gen_flush_arena_temps(gen, indent);
+            for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+            {
+                indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+            }
         }
+        gen->arena_temp_count = saved_temp_count;
     }
 }
 

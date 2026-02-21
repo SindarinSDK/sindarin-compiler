@@ -208,6 +208,10 @@ typedef struct {
     int arena_temp_count;
     int arena_temp_capacity;
     int arena_temp_serial;        /* Monotonic counter for unique temp names */
+    int arena_temp_flush_floor;   /* Flush boundary: expression stmt flush only frees from here up.
+                                   * Set by if-statements to protect condition temps from being
+                                   * consumed by branch-internal flushes. Break/continue ignores
+                                   * this and frees ALL temps (from 0) since it exits the scope. */
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

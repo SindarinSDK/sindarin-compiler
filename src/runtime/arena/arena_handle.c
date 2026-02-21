@@ -153,7 +153,12 @@ void rt_handle_end_transaction(RtHandleV2 *handle)
     /* Decrement nesting count */
     uint32_t count = atomic_fetch_sub(&block->tx_recurse_count, 1);
     if (count == 1) {
-        /* Last nested transaction - release the block */
+        /* Last nested transaction - release the block.
+         * Clear tx_start_ns and tx_timeout_ns BEFORE clearing tx_holder
+         * to prevent stale timeout values from causing false force-acquires
+         * in gc_acquire_block or tx_try_force_acquire. */
+        atomic_store(&block->tx_start_ns, 0);
+        atomic_store(&block->tx_timeout_ns, 0);
         atomic_store(&block->tx_holder, 0);
     }
 }

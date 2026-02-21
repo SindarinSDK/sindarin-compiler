@@ -169,25 +169,34 @@ static int gc_acquire_block(RtBlockV2 *block)
         return 0;  /* Successfully acquired free block */
     }
 
-    /* Block is held - check timeout */
+    /* Block is held - check timeout.
+     * After failed CAS, 'expected' contains the current tx_holder value.
+     * We require start_ns > 0 because end_transaction clears it — a zero
+     * start_ns means the block was recently released and re-acquired, and
+     * tx_claim hasn't set the new start time yet. */
     uint64_t start_ns = atomic_load(&block->tx_start_ns);
     uint64_t timeout_ns = atomic_load(&block->tx_timeout_ns);
     uint64_t now_ns = rt_get_monotonic_ns();
 
-    if (timeout_ns > 0 && (now_ns - start_ns) > timeout_ns) {
-        /* Lease expired - force acquire */
-        atomic_store(&block->tx_holder, GC_OWNER_ID);
-        atomic_store(&block->tx_recurse_count, 1);
-        return -1;  /* Force acquired expired lease */
+    if (timeout_ns > 0 && start_ns > 0 && (now_ns - start_ns) > timeout_ns) {
+        /* Lease appears expired - use CAS to force-acquire.
+         * CAS verifies the holder hasn't changed since our initial check,
+         * preventing us from overwriting a different thread's legitimate holder. */
+        if (atomic_compare_exchange_strong(&block->tx_holder, &expected, GC_OWNER_ID)) {
+            atomic_store(&block->tx_recurse_count, 1);
+            return -1;  /* Force acquired expired lease */
+        }
     }
 
-    /* Valid lease - skip this block */
+    /* Valid lease or holder changed - skip this block */
     return 1;
 }
 
 /* Release a block after GC processing */
 static void gc_release_block(RtBlockV2 *block)
 {
+    atomic_store(&block->tx_start_ns, 0);
+    atomic_store(&block->tx_timeout_ns, 0);
     atomic_store(&block->tx_recurse_count, 0);
     atomic_store(&block->tx_holder, 0);
 }
