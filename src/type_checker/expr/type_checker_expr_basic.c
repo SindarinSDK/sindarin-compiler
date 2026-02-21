@@ -21,8 +21,16 @@ Type *type_check_variable(Expr *expr, SymbolTable *table)
     }
     if (sym->type == NULL)
     {
+        /* Check if this is 'self' used in a static method (poisoned symbol with NULL type) */
+        if (expr->as.variable.name.length == 4 &&
+            memcmp(expr->as.variable.name.start, "self", 4) == 0)
+        {
+            type_error(&expr->as.variable.name,
+                "Cannot use 'self' in a static method. "
+                "Static methods don't have access to an instance");
+        }
         /* Check if this is a namespace being used incorrectly as a variable */
-        if (sym->is_namespace)
+        else if (sym->is_namespace)
         {
             char name_str[128];
             int name_len = expr->as.variable.name.length < 127 ? expr->as.variable.name.length : 127;

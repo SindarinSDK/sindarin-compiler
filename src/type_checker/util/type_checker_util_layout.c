@@ -66,6 +66,18 @@ void calculate_struct_layout(Type *struct_type)
     size_t current_offset = 0;
     size_t max_alignment = 1;
 
+    /* Account for hidden __arena__ pointer field in non-native, non-packed structs */
+    if (!struct_type->as.struct_type.is_native && !is_packed)
+    {
+        size_t ptr_size = 8;
+        size_t ptr_align = is_packed ? 1 : 8;
+        current_offset = ptr_size;
+        if (ptr_align > max_alignment)
+        {
+            max_alignment = ptr_align;
+        }
+    }
+
     /* Process each field */
     for (int i = 0; i < struct_type->as.struct_type.field_count; i++)
     {

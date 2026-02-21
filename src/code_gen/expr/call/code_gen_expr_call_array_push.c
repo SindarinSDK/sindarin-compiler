@@ -125,8 +125,8 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                       object->type == EXPR_MEMBER_ACCESS ||
                       object->type == EXPR_MEMBER);
 
-    /* In struct methods there's no arena condemn, so old array handles from
-     * push reallocation would leak. Free the old handle if push created a new one. */
+    /* In contexts without arena condemn (e.g., static methods using __caller_arena__),
+     * old array handles from push reallocation would leak. Free explicitly. */
     bool push_free_old = (gen->function_arena_var != NULL &&
                           strcmp(gen->function_arena_var, "__caller_arena__") == 0 &&
                           is_lvalue);
@@ -183,13 +183,14 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
     if (element_type->kind == TYPE_STRUCT) {
         const char *sizeof_expr = get_c_sizeof_elem(gen->arena, element_type);
 
-        /* In struct methods, after pushing a struct with handle fields into an
-         * array (memcpy), zero the source struct's handle fields. This prevents
-         * __free_X_inline__ at method return from freeing handles that are now
-         * shared with the array. The array's free callback owns them. */
+        /* After pushing a struct with handle fields into an array (memcpy),
+         * zero the source struct's handle fields. This prevents the struct's
+         * inline free from freeing handles that are now shared with the array.
+         * Needed in ANY arena context where the struct has handle fields,
+         * not just __caller_arena__ contexts. */
         char *zero_fields = arena_strdup(gen->arena, "");
-        if (struct_has_handle_fields(element_type) && push_free_old &&
-            arg->type == EXPR_VARIABLE)
+        if (struct_has_handle_fields(element_type) && is_lvalue &&
+            gen->current_arena_var != NULL && arg->type == EXPR_VARIABLE)
         {
             int field_count = element_type->as.struct_type.field_count;
             for (int fi = 0; fi < field_count; fi++)
@@ -207,12 +208,18 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                 }
             }
         }
+        bool has_zero_fields = (zero_fields[0] != '\0');
 
         if (is_lvalue) {
             if (push_free_old) {
                 return arena_sprintf(gen->arena,
                     "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_v2(%s, %s, &(%s), %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr);%s %s; })",
                     handle_str, lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr, lvalue_str, zero_fields, lvalue_str);
+            }
+            if (has_zero_fields) {
+                return arena_sprintf(gen->arena,
+                    "({ %s = rt_array_push_v2(%s, %s, &(%s), %s);%s %s; })",
+                    lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr, zero_fields, lvalue_str);
             }
             return arena_sprintf(gen->arena, "(%s = rt_array_push_v2(%s, %s, &(%s), %s))",
                                  lvalue_str, arena_to_use, handle_str, arg_str, sizeof_expr);

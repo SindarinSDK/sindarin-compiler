@@ -387,7 +387,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Promote return value if needed */
     if (has_return_value)
     {
-        code_gen_return_promotion(gen, stmt->return_type, is_main, is_shared, 1);
+        code_gen_return_promotion(gen, stmt->return_type, is_main, is_shared, "__caller_arena__", 1);
     }
 
     /* Stop GC thread and destroy arena */

@@ -2,6 +2,7 @@
 #include "type_checker/stmt/type_checker_stmt_func.h"
 #include "type_checker/stmt/type_checker_stmt.h"
 #include "type_checker/util/type_checker_util.h"
+#include "type_checker/util/type_checker_util_escape.h"
 #include "type_checker/expr/type_checker_expr.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
@@ -108,6 +109,21 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
             }
         }
 
+        /* Validate PRIVATE method return types - only primitives allowed */
+        if (method->modifier == FUNC_PRIVATE && method->return_type != NULL &&
+            method->return_type->kind != TYPE_VOID)
+        {
+            if (!can_escape_private(method->return_type))
+            {
+                const char *reason = get_private_escape_block_reason(method->return_type);
+                char msg[512];
+                snprintf(msg, sizeof(msg),
+                         "Private method '%s' can only return primitive types, but returns a type that %s",
+                         method->name, reason ? reason : "cannot escape private scope");
+                type_error(&method->name_token, msg);
+            }
+        }
+
         /* For non-native methods, type check the body */
         if (!method->is_native && method->body != NULL)
         {
@@ -115,6 +131,19 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
 
             /* Add 'arena' built-in identifier for non-native methods */
             add_arena_builtin(table, &struct_decl->name);
+
+            /* For static methods, add a poisoned 'self' symbol (NULL type) so that
+             * referencing 'self' gives a clear error instead of 'undefined variable' */
+            if (method->is_static)
+            {
+                Token self_token;
+                self_token.start = "self";
+                self_token.length = 4;
+                self_token.line = struct_decl->name.line;
+                self_token.filename = struct_decl->name.filename;
+                self_token.type = TOKEN_IDENTIFIER;
+                symbol_table_add_symbol(table, self_token, NULL);
+            }
 
             /* For instance methods, add 'self' parameter to scope */
             if (!method->is_static)

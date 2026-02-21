@@ -5,6 +5,49 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/* Generate a field-by-field equality comparison for a struct, skipping __arena__.
+   Returns an expression string that evaluates to 1 if equal, 0 if not. */
+static char *gen_struct_field_equality(CodeGen *gen, Type *type, const char *left, const char *right)
+{
+    int field_count = type->as.struct_type.field_count;
+    if (field_count == 0)
+    {
+        return arena_strdup(gen->arena, "1");
+    }
+    char *cmp = arena_strdup(gen->arena, "(");
+    for (int i = 0; i < field_count; i++)
+    {
+        StructField *field = &type->as.struct_type.fields[i];
+        const char *fname = field->c_alias != NULL
+            ? field->c_alias
+            : sn_mangle_name(gen->arena, field->name);
+        if (i > 0)
+        {
+            cmp = arena_sprintf(gen->arena, "%s && ", cmp);
+        }
+        if (field->type->kind == TYPE_STRUCT &&
+            !field->type->as.struct_type.is_native &&
+            !field->type->as.struct_type.is_packed)
+        {
+            /* Nested non-native, non-packed struct - recurse to skip its __arena__ too */
+            char *nl = arena_sprintf(gen->arena, "(%s).%s", left, fname);
+            char *nr = arena_sprintf(gen->arena, "(%s).%s", right, fname);
+            char *nested = gen_struct_field_equality(gen, field->type, nl, nr);
+            cmp = arena_sprintf(gen->arena, "%s%s", cmp, nested);
+        }
+        else
+        {
+            /* Primitive, handle, or native/packed struct field - compare bytes */
+            const char *ft = get_c_type(gen->arena, field->type);
+            cmp = arena_sprintf(gen->arena,
+                "%smemcmp(&(%s).%s, &(%s).%s, sizeof(%s)) == 0",
+                cmp, left, fname, right, fname, ft);
+        }
+    }
+    cmp = arena_sprintf(gen->arena, "%s)", cmp);
+    return cmp;
+}
+
 /* Helper to determine if a type is numeric */
 static bool is_numeric(Type *type)
 {
@@ -183,20 +226,25 @@ char *code_gen_binary_expression(CodeGen *gen, BinaryExpr *expr)
         return arena_sprintf(gen->arena, "((%s) %s (%s))", left_str, c_op, right_str);
     }
 
-    // Handle struct comparison (== and !=) using memcmp
+    // Handle struct comparison (== and !=) using field-by-field or memcmp
     if (type->kind == TYPE_STRUCT && (op == TOKEN_EQUAL_EQUAL || op == TOKEN_BANG_EQUAL))
     {
         const char *struct_name = sn_mangle_name(gen->arena, type->as.struct_type.name);
-        if (op == TOKEN_EQUAL_EQUAL)
+        /* Native/packed structs have no hidden __arena__ field - use simple memcmp */
+        if (type->as.struct_type.is_native || type->as.struct_type.is_packed)
         {
-            return arena_sprintf(gen->arena, "(memcmp(&(%s), &(%s), sizeof(%s)) == 0)",
-                                 left_str, right_str, struct_name);
+            const char *cmp_op = (op == TOKEN_EQUAL_EQUAL) ? "==" : "!=";
+            return arena_sprintf(gen->arena, "(memcmp(&(%s), &(%s), sizeof(%s)) %s 0)",
+                                 left_str, right_str, struct_name, cmp_op);
         }
-        else
+        /* Non-native, non-packed structs: compare user fields only, skipping __arena__.
+           This handles nested structs correctly by recursing into struct fields. */
+        char *cmp = gen_struct_field_equality(gen, type, left_str, right_str);
+        if (op == TOKEN_BANG_EQUAL)
         {
-            return arena_sprintf(gen->arena, "(memcmp(&(%s), &(%s), sizeof(%s)) != 0)",
-                                 left_str, right_str, struct_name);
+            cmp = arena_sprintf(gen->arena, "(!%s)", cmp);
         }
+        return cmp;
     }
 
     /* Bitwise operators always use native C operators (no overflow concerns) */

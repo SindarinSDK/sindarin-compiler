@@ -404,6 +404,7 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
                     "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
                     "    __cl__->fn = (void *)%s;\n"
                     "    __cl__->arena = NULL;\n"
+                    "    __cl__->size = sizeof(__Closure__);\n"
                     "    __cl__;\n"
                     "})",
                     wrapper_name);
@@ -418,6 +419,7 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
                     "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
                     "    __cl__->fn = (void *)%s;\n"
                     "    __cl__->arena = %s;\n"
+                    "    __cl__->size = sizeof(__Closure__);\n"
                     "    rt_handle_end_transaction(__cl_h__);\n"
                     "    __cl__;\n"
                     "})",

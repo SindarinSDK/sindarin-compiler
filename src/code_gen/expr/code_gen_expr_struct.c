@@ -46,6 +46,23 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
     }
 
     bool first = true;
+
+    /* Initialize hidden arena reference for non-native, non-packed structs */
+    if (!struct_type->as.struct_type.is_native && !struct_type->as.struct_type.is_packed)
+    {
+        const char *arena_var = ARENA_VAR(gen);
+        if (gen->current_arena_var == NULL)
+        {
+            /* File scope - no arena available, use NULL (C requires constant initializers) */
+            result = arena_sprintf(gen->arena, "%s.__arena__ = NULL", result);
+        }
+        else
+        {
+            result = arena_sprintf(gen->arena, "%s.__arena__ = rt_arena_v2_create(%s, RT_ARENA_MODE_DEFAULT, \"struct\")", result, arena_var);
+        }
+        first = false;
+    }
+
     for (int i = 0; i < total_fields; i++)
     {
         StructField *field = &struct_type->as.struct_type.fields[i];
@@ -168,6 +185,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                             "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
                             "    __cl__->fn = (void *)%s;\n"
                             "    __cl__->arena = NULL;\n"
+                            "    __cl__->size = sizeof(__Closure__);\n"
                             "    __cl__;\n"
                             "})",
                             wrapper_name);
@@ -182,6 +200,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                             "    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;\n"
                             "    __cl__->fn = (void *)%s;\n"
                             "    __cl__->arena = %s;\n"
+                            "    __cl__->size = sizeof(__Closure__);\n"
                             "    rt_handle_end_transaction(__cl_h__);\n"
                             "    __cl__;\n"
                             "})",

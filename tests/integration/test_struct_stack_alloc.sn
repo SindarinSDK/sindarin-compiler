@@ -116,8 +116,8 @@ struct MediumStruct =>
 fn test_small_point(): void =>
     var p: SmallPoint = SmallPoint { x: 1.5, y: 2.5 }
     # Verify sizeof matches expected C struct size
-    if sizeof(SmallPoint) != 16 =>
-        print($"FAIL: sizeof(SmallPoint) = {sizeof(SmallPoint)}, expected 16\n")
+    if sizeof(SmallPoint) != 24 =>
+        print($"FAIL: sizeof(SmallPoint) = {sizeof(SmallPoint)}, expected 24\n")
         return
     # Verify field values
     if p.x != 1.5 =>
@@ -144,8 +144,8 @@ fn test_config_with_defaults(): void =>
 
 fn test_medium_struct(): void =>
     # 800 bytes is well under 8KB threshold
-    if sizeof(MediumStruct) != 800 =>
-        print($"FAIL: sizeof(MediumStruct) = {sizeof(MediumStruct)}, expected 800\n")
+    if sizeof(MediumStruct) != 808 =>
+        print($"FAIL: sizeof(MediumStruct) = {sizeof(MediumStruct)}, expected 808\n")
         return
 
     var m: MediumStruct = MediumStruct { field0: 42, field99: 99 }

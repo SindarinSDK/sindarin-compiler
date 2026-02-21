@@ -47,13 +47,13 @@ fn main(): void =>
     print("test_primitive_types: PASS\n")
 
     // --- Struct types ---
-    assert(sizeof(Point) == 16, "sizeof(Point) - 2 doubles")
-    assert(sizeof(NestedStruct) == 24, "sizeof(NestedStruct) - Point + int")
-    // SmallStruct has padding: int32(4) + byte(1) + bool(1) + padding = 8
-    assert(sizeof(SmallStruct) == 8, "sizeof(SmallStruct) with padding")
-    // AllPrimitives: int(8) + long(8) + double(8) + float(4) + byte(1) + bool(1) + char(1) + padding(1) + int32(4) + uint(8) + uint32(4) + padding(4) = 52 rounded to 56
-    assert(sizeof(AllPrimitives) >= 48, "sizeof(AllPrimitives) minimum size")
-    assert(sizeof(EmptyStruct) == 1, "sizeof(EmptyStruct) - single byte")
+    assert(sizeof(Point) == 24, "sizeof(Point) - arena ptr + 2 doubles")
+    assert(sizeof(NestedStruct) == 40, "sizeof(NestedStruct) - arena ptr + Point + int")
+    // SmallStruct has padding: arena ptr(8) + int32(4) + byte(1) + bool(1) + padding = 16
+    assert(sizeof(SmallStruct) == 16, "sizeof(SmallStruct) with padding")
+    // AllPrimitives: arena ptr(8) + int(8) + long(8) + double(8) + float(4) + byte(1) + bool(1) + char(1) + padding(1) + int32(4) + uint(8) + uint32(4) + padding(4) = 64
+    assert(sizeof(AllPrimitives) >= 56, "sizeof(AllPrimitives) minimum size")
+    assert(sizeof(EmptyStruct) == 16, "sizeof(EmptyStruct) - arena ptr + single byte")
     print("test_struct_types: PASS\n")
 
     // --- Primitive variables ---
@@ -85,16 +85,16 @@ fn main(): void =>
     var s: SmallStruct = SmallStruct { a: 1, b: 2, c: true }
     var n: NestedStruct = NestedStruct { point: Point { x: 0.0, y: 0.0 }, value: 42 }
 
-    assert(sizeof(p) == 16, "sizeof Point variable")
-    assert(sizeof(s) == 8, "sizeof SmallStruct variable")
-    assert(sizeof(n) == 24, "sizeof NestedStruct variable")
+    assert(sizeof(p) == 24, "sizeof Point variable")
+    assert(sizeof(s) == 16, "sizeof SmallStruct variable")
+    assert(sizeof(n) == 40, "sizeof NestedStruct variable")
     print("test_struct_variables: PASS\n")
 
     // --- sizeof without parentheses ---
     assert(sizeof i == 8, "sizeof i without parens")
-    assert(sizeof p == 16, "sizeof p without parens")
+    assert(sizeof p == 24, "sizeof p without parens")
     assert(sizeof int == 8, "sizeof int without parens")
-    assert(sizeof Point == 16, "sizeof Point without parens")
+    assert(sizeof Point == 24, "sizeof Point without parens")
     print("test_without_parentheses: PASS\n")
 
     // --- sizeof in expressions ---
@@ -102,7 +102,7 @@ fn main(): void =>
     assert(sum == 16, "sizeof in addition")
 
     var product: int = sizeof(Point) * 2
-    assert(product == 32, "sizeof in multiplication")
+    assert(product == 48, "sizeof in multiplication")
 
     var cond: bool = sizeof(int) > sizeof(byte)
     assert(cond, "sizeof in comparison")
@@ -169,15 +169,15 @@ fn test_sizeof_in_normal_function(): void =>
     assert(sizeof(uint32) == 4, "normal fn: sizeof(uint32)")
 
     // Struct types
-    assert(sizeof(Point) == 16, "normal fn: sizeof(Point)")
-    assert(sizeof(SmallStruct) == 8, "normal fn: sizeof(SmallStruct)")
-    assert(sizeof(NestedStruct) == 24, "normal fn: sizeof(NestedStruct)")
+    assert(sizeof(Point) == 24, "normal fn: sizeof(Point)")
+    assert(sizeof(SmallStruct) == 16, "normal fn: sizeof(SmallStruct)")
+    assert(sizeof(NestedStruct) == 40, "normal fn: sizeof(NestedStruct)")
 
     // Variables
     var x: int = 42
     var p: Point = Point { x: 1.0, y: 2.0 }
     assert(sizeof(x) == 8, "normal fn: sizeof int var")
-    assert(sizeof(p) == 16, "normal fn: sizeof Point var")
+    assert(sizeof(p) == 24, "normal fn: sizeof Point var")
 
     // Arrays
     var arr: int[] = {1, 2, 3}
@@ -207,17 +207,17 @@ native fn test_sizeof_in_native(): void =>
     assert(sizeof(*Point) == 8, "native: sizeof(*Point)")
 
     // Struct types (all defined structs)
-    assert(sizeof(Point) == 16, "native: sizeof(Point)")
-    assert(sizeof(SmallStruct) == 8, "native: sizeof(SmallStruct)")
-    assert(sizeof(NestedStruct) == 24, "native: sizeof(NestedStruct)")
-    assert(sizeof(AllPrimitives) >= 48, "native: sizeof(AllPrimitives)")
-    assert(sizeof(EmptyStruct) == 1, "native: sizeof(EmptyStruct)")
+    assert(sizeof(Point) == 24, "native: sizeof(Point)")
+    assert(sizeof(SmallStruct) == 16, "native: sizeof(SmallStruct)")
+    assert(sizeof(NestedStruct) == 40, "native: sizeof(NestedStruct)")
+    assert(sizeof(AllPrimitives) >= 56, "native: sizeof(AllPrimitives)")
+    assert(sizeof(EmptyStruct) == 16, "native: sizeof(EmptyStruct)")
 
     // Variables
     var x: int = 42
     var p: Point = Point { x: 1.0, y: 2.0 }
     assert(sizeof(x) == 8, "native: sizeof int var")
-    assert(sizeof(p) == 16, "native: sizeof Point var")
+    assert(sizeof(p) == 24, "native: sizeof Point var")
 
     // Pointer variables
     var ptr: *int = nil

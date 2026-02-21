@@ -135,6 +135,45 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                             indented_fprintf(gen, indent, "__free_%s_inline__(&%s, %s);\n",
                                 struct_name, var_name, gen->current_arena_var);
                         }
+                        /* Condemn the struct's child arena so the GC can reclaim
+                         * temporaries allocated during method calls on this struct.
+                         * Guard: if the function returns a struct, skip condemn when
+                         * this variable's arena IS the return value's arena (ownership
+                         * transfers to the caller). */
+                        if (!sym->type->as.struct_type.is_packed)
+                        {
+                            bool returns_struct = (gen->current_return_type != NULL &&
+                                                   gen->current_return_type->kind == TYPE_STRUCT);
+                            if (returns_struct)
+                            {
+                                indented_fprintf(gen, indent, "if (%s.__arena__ && %s.__arena__ != _return_value.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
+                                    var_name, var_name, var_name);
+                            }
+                            else
+                            {
+                                indented_fprintf(gen, indent, "if (%s.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
+                                    var_name, var_name);
+                            }
+                        }
+                    }
+                }
+                else if (sym->type->kind == TYPE_STRUCT
+                         && !sym->type->as.struct_type.is_native
+                         && !sym->type->as.struct_type.is_packed)
+                {
+                    /* Struct without handle fields but still has __arena__.
+                     * Condemn the arena so GC can reclaim method temporaries. */
+                    bool returns_struct = (gen->current_return_type != NULL &&
+                                           gen->current_return_type->kind == TYPE_STRUCT);
+                    if (returns_struct)
+                    {
+                        indented_fprintf(gen, indent, "if (%s.__arena__ && %s.__arena__ != _return_value.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
+                            var_name, var_name, var_name);
+                    }
+                    else
+                    {
+                        indented_fprintf(gen, indent, "if (%s.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
+                            var_name, var_name);
                     }
                 }
                 else if (sym->type->kind == TYPE_ARRAY)

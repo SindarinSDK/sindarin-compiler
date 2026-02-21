@@ -144,6 +144,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
             "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
             "    __cl__->fn = (void *)%s;\n"
             "    __cl__->arena = NULL;\n"
+            "    __cl__->size = sizeof(__Closure__);\n"
             "    __cl__;\n"
             "})",
             wrapper_name);
@@ -157,6 +158,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
             "    __Closure__ *__cl__ = (__Closure__ *)__cl_h->ptr;\n"
             "    __cl__->fn = (void *)%s;\n"
             "    __cl__->arena = %s;\n"
+            "    __cl__->size = sizeof(__Closure__);\n"
             "    rt_handle_end_transaction(__cl_h);\n"
             "    __cl__;\n"
             "})",

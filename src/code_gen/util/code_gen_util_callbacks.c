@@ -133,12 +133,20 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                 free_body, nested_sn, f_c_name);
         }
         else if (kind == TYPE_FUNCTION) {
+            /* Closures are stored as __Closure__* (= handle->ptr), NOT as RtHandleV2*.
+             * We cannot cast them to RtHandleV2* for promotion. Instead, allocate a new
+             * handle in the destination arena and copy the closure data. */
             copy_body = arena_sprintf(gen->arena,
-                "%s    s->%s = (__Closure__ *)rt_arena_v2_promote(dest, (RtHandleV2 *)s->%s);\n",
-                copy_body, f_c_name, f_c_name);
-            free_body = arena_sprintf(gen->arena,
-                "%s    if (s->%s && ((RtHandleV2 *)s->%s)->arena == owner) rt_arena_v2_free((RtHandleV2 *)s->%s);\n",
-                free_body, f_c_name, f_c_name, f_c_name);
+                "%s    if (s->%s) {\n"
+                "        RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(dest, s->%s->size);\n"
+                "        rt_handle_begin_transaction(__cl_h__);\n"
+                "        memcpy(__cl_h__->ptr, s->%s, s->%s->size);\n"
+                "        ((__Closure__ *)__cl_h__->ptr)->arena = dest;\n"
+                "        rt_handle_end_transaction(__cl_h__);\n"
+                "        s->%s = (__Closure__ *)__cl_h__->ptr;\n"
+                "    }\n",
+                copy_body, f_c_name, f_c_name, f_c_name, f_c_name, f_c_name);
+            /* Closures are freed when their owning arena is freed - no per-field cleanup needed */
         }
     }
 
