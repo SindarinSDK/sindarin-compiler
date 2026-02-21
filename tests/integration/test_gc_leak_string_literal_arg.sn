@@ -1,0 +1,48 @@
+# Test: String literal passed as function argument leaks handle
+#
+# Bug: When a string literal is passed to a function, the codegen creates
+# rt_arena_v2_strdup(caller_arena, "literal") to produce an RtHandleV2*.
+# The function clones this handle into its own local arena on entry.
+# After the function returns, the original handle in the caller's arena
+# is never freed - it's an anonymous temporary with no scope cleanup.
+#
+# Each call leaks one handle per string literal argument.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+fn identity(s: str): str =>
+    return s
+
+fn twoArgs(a: str, b: str): str =>
+    return a
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var r1: str = identity("hello")
+        var r2: str = twoArgs("foo", "bar")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: identity("hello") leaks 1 handle,
+    # twoArgs("foo", "bar") leaks 2 handles = 3 per iteration
+    i = 0
+    while i < 1000 =>
+        var r1: str = identity("hello")
+        var r2: str = twoArgs("foo", "bar")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

@@ -1,0 +1,66 @@
+# Test: Struct method early return skips cleanup of allocated handles
+#
+# Bug: When a struct method has early return paths (e.g. guard clauses),
+# handles allocated before the early return are never freed. Since struct
+# methods don't have a local arena to condemn, there is no cleanup mechanism.
+#
+# Pattern:
+#   fn process(input: str): str =>
+#       var prepared = input.replace(...)  // allocated on caller arena
+#       var parts = prepared.split(...)    // allocated on caller arena
+#       if parts.length == 0 =>
+#           return ""    // early return: prepared + parts leak!
+#       ...do more work...
+#       return result
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct QueryParser =>
+    query: str
+
+    fn getParam(name: str): str =>
+        if self.query == "" =>
+            return ""
+        var pairs: str[] = self.query.split("&")
+        var i: int = 0
+        while i < pairs.length =>
+            var eqIdx: int = pairs[i].indexOf("=")
+            if eqIdx > 0 =>
+                var key: str = pairs[i].substring(0, eqIdx)
+                if key == name =>
+                    # Early return: pairs array and all prior keys leak
+                    return pairs[i].substring(eqIdx + 1, pairs[i].length)
+            i = i + 1
+        # Normal return: pairs leaks
+        return ""
+
+fn main(): void =>
+    var parser: QueryParser = QueryParser { query: "foo=1&bar=2&baz=3&target=found" }
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var found: str = parser.getParam("target")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each call leaks: pairs array, intermediate substrings for keys,
+    # plus the early-return substring intermediate
+    i = 0
+    while i < 1000 =>
+        var found: str = parser.getParam("target")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

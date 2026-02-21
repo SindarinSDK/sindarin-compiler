@@ -1,0 +1,64 @@
+# Test: Static method string argument temps leak on caller arena
+#
+# Bug: When calling a static struct method with string literal arguments,
+# the literals are strdup'd into __caller_arena__ temps. But since struct
+# methods don't create local arenas, these temps are never freed.
+# The __htmp_N__ temps in the calling code are freed by the caller's
+# temp flush, but handles created INSIDE the static method leak.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Route =>
+    method: str
+    pattern: str
+
+    static fn create(method: str, pattern: str): Route =>
+        # method and pattern are on caller arena (struct method)
+        # Creating a new route copies them but the originals are never freed
+        var normalized: str = pattern.toLower()
+        return Route { method: method, pattern: normalized }
+
+struct Router =>
+    routes: Route[]
+
+    fn addRoute(method: str, pattern: str): void =>
+        # Inside this method, method/pattern are on caller arena
+        # Creating route involves string operations that leak
+        var route: Route = Route.create(method, pattern)
+        self.routes.push(route)
+
+fn main(): void =>
+    var router: Router = Router { routes: {} }
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        router.addRoute("GET", "/items")
+        router.addRoute("POST", "/items")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: 2 addRoute calls, each stores 2 handle fields (method +
+    # pattern) in the routes array. That's 4 persistent handles per iteration.
+    # Over 1000 iterations = 4000 expected growth from array data.
+    # Temps (original pattern strings before toLower) should be collected.
+    # Threshold 4200 catches real temp leaks (~6000+) while allowing array growth.
+    i = 0
+    while i < 1000 =>
+        router.addRoute("GET", "/items")
+        router.addRoute("POST", "/items")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 4200 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

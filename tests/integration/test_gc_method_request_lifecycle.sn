@@ -1,0 +1,111 @@
+# Test: Full request lifecycle - aggregates all struct method leak patterns
+#
+# This test mimics the real HTTP server request processing pattern that
+# causes 3.3M handle accumulation under load. It combines:
+# - Request parsing with split/substring/trim (nested intermediates)
+# - Header lookup with toLower comparison (comparison intermediates)
+# - Response building with string concatenation (unreturned locals)
+# - Conditional branch handling (conditional temp leaks)
+#
+# All struct method calls happen in main's loop (no regular function
+# intermediary), so leaks accumulate on main's arena.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+struct Request =>
+    method: str
+    path: str
+    headers: Header[]
+    body: str
+
+    static fn parse(raw: str): Request =>
+        var normalized: str = raw.replace("\r\n", "\n")
+        var lines: str[] = normalized.split("\n")
+        var req: Request = Request { method: "", path: "", headers: {}, body: "" }
+        if lines.length == 0 =>
+            return req
+        var parts: str[] = lines[0].split(" ")
+        if parts.length >= 1 =>
+            req.method = parts[0]
+        if parts.length >= 2 =>
+            req.path = parts[1]
+        var i: int = 1
+        while i < lines.length =>
+            var line: str = lines[i]
+            if line.trim() == "" =>
+                break
+            var colonIdx: int = line.indexOf(":")
+            if colonIdx > 0 =>
+                var hname: str = line.substring(0, colonIdx).trim()
+                var hvalue: str = line.substring(colonIdx + 1, line.length).trim()
+                req.headers.push(Header { name: hname, value: hvalue })
+            i = i + 1
+        return req
+
+    fn getHeader(target: str): str =>
+        var lowerName: str = target.toLower()
+        var i: int = 0
+        while i < self.headers.length =>
+            if self.headers[i].name.toLower() == lowerName =>
+                return self.headers[i].value
+            i = i + 1
+        return ""
+
+struct Response =>
+    status: int
+    body: str
+
+    fn toText(): str =>
+        var result: str = $"HTTP/1.1 {self.status} OK\r\n"
+        result = result + "Content-Type: text/plain\r\n\r\n"
+        result = result + self.body
+        return result
+
+fn main(): void =>
+    var raw: str = "GET /items HTTP/1.1\r\nHost: localhost\r\nConnection: keep-alive\r\nAccept: */*\r\n\r\n"
+
+    # Warmup - call struct methods directly from main's loop
+    var i: int = 0
+    while i < 10 =>
+        var req: Request = Request.parse(raw)
+        var conn: str = req.getHeader("connection")
+        var resp: Response = Response { status: 200, body: "Hello" }
+        if conn == "keep-alive" =>
+            resp = Response { status: 200, body: "Hello (keep-alive)" }
+        var text: str = resp.toText()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration exercises all leak patterns directly in main:
+    # - parse: normalized, lines, parts, substring/trim intermediates
+    # - getHeader: lowerName, toLower intermediates per header
+    # - toText: concat intermediates
+    # - conditional branch temps
+    # - struct reassignment in conditional
+    i = 0
+    while i < 1000 =>
+        var req: Request = Request.parse(raw)
+        var conn: str = req.getHeader("connection")
+        var resp: Response = Response { status: 200, body: "Hello" }
+        if conn == "keep-alive" =>
+            resp = Response { status: 200, body: "Hello (keep-alive)" }
+        var text: str = resp.toText()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")
