@@ -1,0 +1,69 @@
+# Test: Struct method conditional branch temp leaks
+#
+# Bug: When a struct method creates a string temp for comparison in an if
+# condition, the temp is only freed in one branch. In the other branch,
+# the temp leaks on __caller_arena__.
+#
+# Pattern:
+#   var tmp = "close"           // allocated on caller arena
+#   if value == tmp =>
+#       // tmp freed here
+#   else =>
+#       // tmp NOT freed - leaks!
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Connection =>
+    connType: str
+
+    fn isKeepAlive(): bool =>
+        # "close" is allocated as a temp, only freed if match
+        if self.connType == "close" =>
+            return false
+        # In the else path, the "close" temp is never freed
+        if self.connType == "HTTP/1.0" =>
+            return false
+        return true
+
+    fn getTimeout(): int =>
+        # Multiple conditional temps - each leaks in the non-matching branch
+        if self.connType == "close" =>
+            return 0
+        if self.connType == "short" =>
+            return 5
+        if self.connType == "long" =>
+            return 60
+        return 30
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var conn: Connection = Connection { connType: "keep-alive" }
+        var ka: bool = conn.isKeepAlive()
+        var timeout: int = conn.getTimeout()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: isKeepAlive leaks 2 temps ("close", "HTTP/1.0"),
+    # getTimeout leaks 3 temps ("close", "short", "long")
+    i = 0
+    while i < 1000 =>
+        var conn: Connection = Connection { connType: "keep-alive" }
+        var ka: bool = conn.isKeepAlive()
+        var timeout: int = conn.getTimeout()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

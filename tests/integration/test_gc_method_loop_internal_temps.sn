@@ -1,0 +1,73 @@
+# Test: Struct method internal loop creates handles that accumulate
+#
+# Bug: When a struct method has an internal loop that creates string handles
+# per iteration (e.g. parsing lines, processing elements), those handles
+# are allocated on __caller_arena__ and never freed. A regular function
+# would have a local arena that's condemned at return, cleaning up all
+# such handles. Struct methods lack this cleanup.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct CsvParser =>
+    data: str
+
+    fn countFields(sep: str): int =>
+        # split creates an array handle on caller arena, never freed
+        var parts: str[] = self.data.split(sep)
+        return parts.length
+
+    fn getField(sep: str, index: int): str =>
+        # split creates a new array handle each call, never freed
+        var parts: str[] = self.data.split(sep)
+        if index >= 0 =>
+            if index < parts.length =>
+                return parts[index]
+        return ""
+
+    fn joinFields(sep: str, newSep: str): str =>
+        # split + loop with concat: multiple intermediates per call
+        var parts: str[] = self.data.split(sep)
+        var result: str = ""
+        var i: int = 0
+        while i < parts.length =>
+            if i > 0 =>
+                result = result + newSep
+            result = result + parts[i].trim()
+            i = i + 1
+        # parts array, each trim intermediate, each concat intermediate leak
+        return result
+
+fn main(): void =>
+    var csv: CsvParser = CsvParser { data: " alice , bob , charlie , dave , eve " }
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var count: int = csv.countFields(",")
+        var first: str = csv.getField(",", 0)
+        var joined: str = csv.joinFields(",", " | ")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: 3 method calls creating split arrays, trim
+    # intermediates, concat intermediates - all on caller arena
+    i = 0
+    while i < 1000 =>
+        var count: int = csv.countFields(",")
+        var first: str = csv.getField(",", 0)
+        var joined: str = csv.joinFields(",", " | ")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

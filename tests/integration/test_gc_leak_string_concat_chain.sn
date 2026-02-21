@@ -1,0 +1,45 @@
+# Test: String concatenation chain leaks intermediate handles
+#
+# Bug: When evaluating `a + b + c`, the codegen generates:
+#   rt_str_concat_v2(arena, rt_str_concat_v2(arena, a, b), c)
+#
+# The inner rt_str_concat_v2(arena, a, b) creates a temporary handle
+# that is consumed by the outer concat. After the outer concat completes,
+# the inner handle is garbage but never freed - it's an inline expression
+# with no cleanup. Each chain of N concats leaks N-1 intermediate handles.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+fn main(): void =>
+    var a: str = "hello"
+    var b: str = " "
+    var c: str = "world"
+    var d: str = "!"
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        # a + b + c + d = 3 concats, 2 intermediates leaked
+        var result: str = a + b + c + d
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration leaks 2 intermediate concat handles
+    i = 0
+    while i < 1000 =>
+        var result: str = a + b + c + d
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

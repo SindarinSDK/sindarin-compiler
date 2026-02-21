@@ -1,0 +1,46 @@
+# Test: String interpolation leaks multiple temporary handles
+#
+# Bug: Evaluating $"hello {i} world" generates a compound expression:
+#   ({
+#       RtHandleV2 *_p0 = rt_to_string_long_v2(arena, i);
+#       RtHandleV2 *_rh = rt_str_concat_v2(arena, rt_arena_v2_strdup(arena, "hello "), _p0);
+#       _rh = rt_str_concat_v2(arena, _rh, rt_arena_v2_strdup(arena, " world"));
+#       _rh;
+#   })
+#
+# Leaked handles per evaluation:
+#   - _p0 (toString result) - never freed
+#   - rt_arena_v2_strdup(arena, "hello ") - inline temp, never freed
+#   - first _rh (overwritten by second concat) - old handle leaked
+#   - rt_arena_v2_strdup(arena, " world") - inline temp, never freed
+# Total: ~4 leaked handles per interpolation.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var msg: str = $"iteration {i} done"
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration leaks ~4 handles from interpolation temps
+    i = 0
+    while i < 1000 =>
+        var msg: str = $"iteration {i} done"
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

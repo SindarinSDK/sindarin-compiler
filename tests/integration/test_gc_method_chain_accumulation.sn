@@ -1,0 +1,63 @@
+# Test: Chained struct method calls accumulate intermediates
+#
+# Bug: When calling multiple struct methods in sequence, each method
+# allocates handles on __caller_arena__. The internal string operations
+# inside each method (concat, interpolation, etc.) create intermediates
+# that are never freed because struct methods have no local arena.
+#
+# Calling method A then method B then method C on the same struct
+# accumulates all intermediates from all three calls on the caller arena.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Formatter =>
+    prefix: str
+    suffix: str
+
+    fn formatName(name: str): str =>
+        # concat intermediates leak: prefix + ": " creates an intermediate
+        return self.prefix + ": " + name + " " + self.suffix
+
+    fn formatId(id: int): str =>
+        # interpolation intermediates leak on caller arena
+        return $"{self.prefix}-{id}-{self.suffix}"
+
+    fn formatBoth(name: str, id: int): str =>
+        # Calling both creates more intermediates
+        var part1: str = self.formatName(name)
+        var part2: str = self.formatId(id)
+        return part1 + " | " + part2
+
+fn main(): void =>
+    var fmt: Formatter = Formatter { prefix: "item", suffix: "end" }
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var r1: str = fmt.formatName("test")
+        var r2: str = fmt.formatId(42)
+        var r3: str = fmt.formatBoth("test", 42)
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: 3 method calls, each leaks concat/interpolation intermediates
+    i = 0
+    while i < 1000 =>
+        var r1: str = fmt.formatName("test")
+        var r2: str = fmt.formatId(42)
+        var r3: str = fmt.formatBoth("test", 42)
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

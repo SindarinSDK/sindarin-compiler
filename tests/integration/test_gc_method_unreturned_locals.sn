@@ -1,0 +1,55 @@
+# Test: Struct method local variables never freed on return
+#
+# Bug: When a struct method creates local string variables (e.g. from split,
+# replace, or other string operations), those variables are allocated on
+# __caller_arena__ and never freed when the method returns. Regular functions
+# create a __local_arena__ that is condemned on return, cleaning these up.
+# Struct methods skip this, so locals leak.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct RequestParser =>
+    raw: str
+
+    fn getMethod(): str =>
+        # split creates an array handle and element handles on __caller_arena__
+        # normalized creates a handle from replace on __caller_arena__
+        # Neither is freed when method returns
+        var normalized: str = self.raw.replace("\r\n", "\n")
+        var lines: str[] = normalized.split("\n")
+        if lines.length == 0 =>
+            return ""
+        var parts: str[] = lines[0].split(" ")
+        if parts.length == 0 =>
+            return ""
+        return parts[0]
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var p: RequestParser = RequestParser { raw: "GET /index HTTP/1.1\r\nHost: localhost\r\n\r\n" }
+        var method: str = p.getMethod()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration leaks: normalized, lines array, parts array = 3+ handles
+    i = 0
+    while i < 1000 =>
+        var p: RequestParser = RequestParser { raw: "GET /index HTTP/1.1\r\nHost: localhost\r\n\r\n" }
+        var method: str = p.getMethod()
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

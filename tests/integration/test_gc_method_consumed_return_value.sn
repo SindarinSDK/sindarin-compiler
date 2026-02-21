@@ -1,0 +1,64 @@
+# Test: Struct method return values used but never freed by caller
+#
+# Bug: When a struct method returns a string handle, and the caller uses
+# it (e.g. writes it, passes it to another function) but doesn't assign
+# it to a variable or free it, the handle leaks on the caller's arena.
+#
+# This is analogous to HttpResponse.toBytes() being called, used for
+# writing, but the returned byte array never being freed.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Response =>
+    status: int
+    body: str
+
+    fn toText(): str =>
+        var statusStr: str = $"HTTP/1.1 {self.status} OK\r\n"
+        var headers: str = "Content-Type: text/plain\r\n\r\n"
+        return statusStr + headers + self.body
+
+    fn getBody(): str =>
+        return self.body
+
+struct Server =>
+    prefix: str
+
+    fn handleRequest(path: str): str =>
+        # Build response, convert to text - intermediate Response fields leak
+        var resp: Response = Response { status: 200, body: $"{self.prefix}: {path}" }
+        # toText() creates intermediates on caller arena; the result is returned
+        # but the toText internals (statusStr, headers concat intermediates) leak
+        var text: str = resp.toText()
+        return text
+
+fn main(): void =>
+    var server: Server = Server { prefix: "OK" }
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var result: str = server.handleRequest("/index")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: toText leaks statusStr, headers, concat intermediates
+    # plus handleRequest leaks the Response body interpolation intermediates
+    i = 0
+    while i < 1000 =>
+        var result: str = server.handleRequest("/index")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

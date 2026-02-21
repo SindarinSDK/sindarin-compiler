@@ -1,0 +1,63 @@
+# Test: Struct method nested expression intermediates leak handles
+#
+# Bug: When a struct method calls chained string operations like
+# self.text.substring(0, idx).trim(), the intermediate substring result
+# is allocated on __caller_arena__ and never freed. Only the outer trim
+# result is assigned to a variable. The inner intermediate leaks.
+#
+# Struct methods use __caller_arena__ directly (no local arena), so these
+# intermediates accumulate on the caller's arena indefinitely.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct TextParser =>
+    text: str
+
+    fn extractBefore(sep: str): str =>
+        var idx: int = self.text.indexOf(sep)
+        if idx < 0 =>
+            return self.text
+        # self.text.substring(0, idx).trim() creates TWO handles:
+        #   1. substring result (intermediate) - LEAKED
+        #   2. trim result - returned
+        return self.text.substring(0, idx).trim()
+
+    fn extractAfter(sep: str): str =>
+        var idx: int = self.text.indexOf(sep)
+        if idx < 0 =>
+            return ""
+        # Same pattern: substring intermediate leaks
+        return self.text.substring(idx + 1, self.text.length).trim()
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var p: TextParser = TextParser { text: "  hello : world  " }
+        var before: str = p.extractBefore(":")
+        var after: str = p.extractAfter(":")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration: extractBefore leaks 1 substring intermediate,
+    # extractAfter leaks 1 substring intermediate = 2 per iteration
+    i = 0
+    while i < 1000 =>
+        var p: TextParser = TextParser { text: "  hello : world  " }
+        var before: str = p.extractBefore(":")
+        var after: str = p.extractAfter(":")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after_count: int = get_handle_count()
+
+    if after_count > baseline + 20 =>
+        print($"FAIL: leaked {after_count - baseline} handles (baseline={baseline} after={after_count})\n")
+    else =>
+        print("PASS\n")

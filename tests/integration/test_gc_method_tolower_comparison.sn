@@ -1,0 +1,68 @@
+# Test: Struct method toLower/toUpper comparison intermediates leak
+#
+# Bug: When a struct method does case-insensitive comparison by calling
+# .toLower() on a string, the lowered result is allocated on __caller_arena__
+# and used only for comparison. It is never freed.
+#
+# Pattern in getHeader-like methods:
+#   for h in headers =>
+#       if h.name.toLower() == targetLower =>  // toLower result leaks!
+#           return h.value
+# Each loop iteration that doesn't match leaks a toLower handle.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Header =>
+    name: str
+    value: str
+
+struct HeaderStore =>
+    headers: Header[]
+
+    fn findValue(target: str): str =>
+        var lowerTarget: str = target.toLower()
+        var i: int = 0
+        while i < self.headers.length =>
+            # h.name.toLower() creates a handle that's never freed
+            if self.headers[i].name.toLower() == lowerTarget =>
+                return self.headers[i].value
+            i = i + 1
+        return ""
+
+fn main(): void =>
+    var store: HeaderStore = HeaderStore { headers: {
+        Header { name: "Content-Type", value: "text/html" },
+        Header { name: "Accept", value: "*/*" },
+        Header { name: "Host", value: "localhost" },
+        Header { name: "Connection", value: "keep-alive" },
+        Header { name: "X-Custom", value: "test" }
+    }}
+
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        # Search for last header - all toLower results for non-matches leak
+        var found: str = store.findValue("X-Custom")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each findValue call: lowerTarget leaks + 4 toLower intermediates
+    # (4 non-matching headers checked before finding X-Custom) = 5 per call
+    i = 0
+    while i < 1000 =>
+        var found: str = store.findValue("X-Custom")
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")

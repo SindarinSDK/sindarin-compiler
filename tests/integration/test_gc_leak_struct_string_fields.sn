@@ -1,0 +1,46 @@
+# Test: Struct literal with string fields leaks field handles
+#
+# Bug: Creating a struct literal like Pair { key: "x", value: "y" } generates
+# rt_arena_v2_strdup(arena, "x") and rt_arena_v2_strdup(arena, "y") for the
+# string fields. When this struct is passed to a function, the function clones
+# the string fields into its local arena on entry. The original handles in
+# the caller's arena are never freed.
+#
+# Each struct literal with N string fields leaks N handles.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_arena_v2_get_handle_count"
+native fn get_handle_count(arena): int
+
+struct Pair =>
+    key: str
+    value: str
+
+fn processPair(p: Pair): str =>
+    return p.key
+
+fn main(): void =>
+    # Warmup
+    var i: int = 0
+    while i < 10 =>
+        var result: str = processPair(Pair { key: "hello", value: "world" })
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var baseline: int = get_handle_count()
+
+    # Each iteration leaks 2 handles (key + value field strdups)
+    i = 0
+    while i < 1000 =>
+        var result: str = processPair(Pair { key: "hello", value: "world" })
+        gc_collect()
+        i = i + 1
+    gc_collect()
+    var after: int = get_handle_count()
+
+    if after > baseline + 20 =>
+        print($"FAIL: leaked {after - baseline} handles (baseline={baseline} after={after})\n")
+    else =>
+        print("PASS\n")
