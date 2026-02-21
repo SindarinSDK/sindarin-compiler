@@ -156,4 +156,16 @@ bool function_has_marked_tail_calls(FunctionStmt *fn);
 /* Check if a statement contains any marked tail calls */
 bool stmt_has_marked_tail_calls(Stmt *stmt);
 
+/* Arena temp handle tracking */
+
+/* Emit a pre-declaration for a temp handle and track it for later cleanup.
+ * Returns the temp variable name (e.g. "__htmp_0__"). */
+char *code_gen_emit_arena_temp(CodeGen *gen, const char *expr_str);
+
+/* Free all tracked arena temps after a statement completes. */
+void code_gen_flush_arena_temps(CodeGen *gen, int indent);
+
+/* Remove temps from saved_count onwards — adopted by a consumer (var decl, return, assign). */
+void code_gen_adopt_arena_temps_from(CodeGen *gen, int saved_count);
+
 #endif /* CODE_GEN_UTIL_H */

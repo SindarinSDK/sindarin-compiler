@@ -184,6 +184,7 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/util/code_gen_util_arena.c
     src/code_gen/util/code_gen_util_promote.c
     src/code_gen/util/code_gen_util_callbacks.c
+    src/code_gen/util/code_gen_util_temps.c
     # expr/
     src/code_gen/expr/code_gen_expr.c
     src/code_gen/expr/code_gen_expr_core.c
@@ -475,8 +476,8 @@ if(NOT MSVC)
     endif()
 
 
-    # Optimization flags
-    target_compile_options(sn_runtime PRIVATE -O2)
+    # Optimization flags — use -fno-lto so runtime works with both -flto and non-flto user builds
+    target_compile_options(sn_runtime PRIVATE -O2 -fno-lto)
 
     # Output to lib directory with correct name (libsn_runtime.a on Unix, sn_runtime.lib on Windows)
     set_target_properties(sn_runtime PROPERTIES

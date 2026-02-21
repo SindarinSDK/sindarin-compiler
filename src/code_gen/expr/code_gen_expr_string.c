@@ -638,8 +638,29 @@ char *code_gen_interpolated_expression(CodeGen *gen, InterpolExpr *expr)
             for (int i = 2; i < count; i++)
             {
                 result = arena_sprintf(gen->arena,
-                    "%s        _rh = rt_str_concat_v2(%s, _rh, %s);\n",
-                    result, ARENA_VAR(gen), use_strs[i]);
+                    "%s        RtHandleV2 *_rh_old_%d = _rh;\n"
+                    "        _rh = rt_str_concat_v2(%s, _rh, %s);\n"
+                    "        rt_arena_v2_free(_rh_old_%d);\n",
+                    result, i, ARENA_VAR(gen), use_strs[i], i);
+            }
+
+            /* Free intermediate _pN temps that were used as concat operands */
+            for (int i = 0; i < count; i++)
+            {
+                if (use_strs[i] != part_strs[i])
+                {
+                    /* This is a _pN temp variable — free it */
+                    result = arena_sprintf(gen->arena,
+                        "%s        rt_arena_v2_free(%s);\n",
+                        result, use_strs[i]);
+                }
+                else if (part_types[i]->kind == TYPE_STRING && is_literal[i])
+                {
+                    /* String literal handle — free it (it was strdup'd in handle mode) */
+                    result = arena_sprintf(gen->arena,
+                        "%s        rt_arena_v2_free(%s);\n",
+                        result, use_strs[i]);
+                }
             }
 
             if (handle_mode)

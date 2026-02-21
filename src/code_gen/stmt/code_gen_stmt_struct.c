@@ -115,11 +115,15 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
         Type *saved_return_type = gen->current_return_type;
         char *saved_arena_var = gen->current_arena_var;
         char *saved_function_arena = gen->function_arena_var;
+        int saved_temp_serial = gen->arena_temp_serial;
+        int saved_temp_count = gen->arena_temp_count;
 
         gen->current_function = method_full_name;
         gen->current_return_type = method->return_type;
         gen->current_arena_var = "__caller_arena__";
         gen->function_arena_var = "__caller_arena__";
+        gen->arena_temp_serial = 0;
+        gen->arena_temp_count = 0;
 
         /* Push scope and add method params to symbol table for proper pinning */
         symbol_table_push_scope(gen->symbol_table);
@@ -141,6 +145,10 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             indented_fprintf(gen, indent + 1, "%s _return_value = %s;\n", ret_type, default_val);
         }
 
+        /* Forward-declare variables that need cleanup at the return label.
+         * This ensures goto-based early returns don't leave them uninitialized. */
+        code_gen_forward_declare_cleanup_vars(gen, method->body, method->body_count, indent + 1);
+
         /* Generate method body */
         for (int k = 0; k < method->body_count; k++)
         {
@@ -150,8 +158,9 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             }
         }
 
-        /* Add return label and return statement */
+        /* Add return label and cleanup */
         indented_fprintf(gen, indent, "%s_return:\n", method_full_name);
+        code_gen_free_locals(gen, gen->symbol_table->current, true, indent + 1);
         if (has_return_value)
         {
             indented_fprintf(gen, indent + 1, "return _return_value;\n");
@@ -169,6 +178,8 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
         gen->current_return_type = saved_return_type;
         gen->current_arena_var = saved_arena_var;
         gen->function_arena_var = saved_function_arena;
+        gen->arena_temp_serial = saved_temp_serial;
+        gen->arena_temp_count = saved_temp_count;
 
         /* Close function */
         indented_fprintf(gen, indent, "}\n\n");

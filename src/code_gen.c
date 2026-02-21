@@ -31,6 +31,10 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->in_shared_context = false;
     gen->in_private_context = false;
     gen->current_arena_var = NULL;
+    gen->function_arena_var = NULL;
+    gen->function_scope = NULL;
+    gen->current_indent = 0;
+    gen->spawn_is_fire_and_forget = false;
     gen->current_func_modifier = FUNC_DEFAULT;
 
     /* Initialize loop counter tracking for optimization */
@@ -160,6 +164,12 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->fwd_cleanup_vars = NULL;
     gen->fwd_cleanup_count = 0;
     gen->fwd_cleanup_capacity = 0;
+
+    /* Initialize arena temp handle tracking */
+    gen->arena_temps = NULL;
+    gen->arena_temp_count = 0;
+    gen->arena_temp_capacity = 0;
+    gen->arena_temp_serial = 0;
 
     if (gen->output == NULL)
     {
@@ -532,6 +542,8 @@ void code_gen_module(CodeGen *gen, Module *module)
         gen->current_arena_var = "__local_arena__";
         gen->current_function = "main";
         gen->expr_as_handle = true;
+        gen->arena_temp_serial = 0;
+        gen->arena_temp_count = 0;
 
         // Emit all non-declaration top-level statements inside main
         for (int i = 0; i < module->count; i++)

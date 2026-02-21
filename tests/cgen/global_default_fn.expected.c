@@ -33,7 +33,9 @@ RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     RtHandleV2 * _return_value = NULL;
     // default function uses its own arena (__local_arena__)
     // global 'greeting' is in __main_arena__, accessed via parent-walking
-    _return_value = rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), rt_arena_v2_strdup(__local_arena__, " World"));
+    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, " World");
+    RtHandleV2 *__htmp_1__ = rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), __htmp_0__);
+    _return_value = __htmp_1__;
     goto __sn__append_world_return;
 __sn__append_world_return:
     _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);
@@ -46,7 +48,8 @@ int main() {
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
-    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "Global with default function test:"));
+    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with default function test:");
+    rt_println_v2(__htmp_0__);
     RtHandleV2 *__result_pending__ = NULL;
     RtHandleV2 * __sn__result = ({
     RtHandleV2 * __intercept_result;
@@ -62,7 +65,8 @@ int main() {
     __intercept_result;
 });
     rt_println_v2(__sn__result);
-    rt_println_v2(rt_arena_v2_strdup(__local_arena__, "PASS"));
+    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "PASS");
+    rt_println_v2(__htmp_1__);
     _return_value = 0LL;
     goto main_return;
 main_return:

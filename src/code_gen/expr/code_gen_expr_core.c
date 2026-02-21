@@ -34,11 +34,13 @@ char *code_gen_literal_expression(CodeGen *gen, LiteralExpr *expr)
     case TYPE_STRING:
     {
         char *raw = escape_c_string(gen->arena, expr->value.string_value);
-        /* In handle mode, wrap string literals to produce an RtHandle */
+        /* In handle mode, wrap string literals to produce an RtHandle.
+         * Hoist to a named temp so it can be tracked and freed after the statement. */
         if (gen->expr_as_handle && gen->current_arena_var != NULL)
         {
-            return arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
-                                 ARENA_VAR(gen), raw);
+            char *strdup_expr = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
+                                              ARENA_VAR(gen), raw);
+            return code_gen_emit_arena_temp(gen, strdup_expr);
         }
         return raw;
     }
@@ -376,8 +378,40 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             gen->expr_as_handle = true;
         }
     }
+    int saved_temp_count = gen->arena_temp_count;
     char *value_str = code_gen_expression(gen, expr->value);
     gen->expr_as_handle = saved_as_handle;
+
+    /* Adopt only the result temp (if it matches value_str). Leave non-result
+     * temps in the tracking array — the expression statement flush will free
+     * them AFTER the full assignment expression is emitted and evaluated.
+     * This is critical: flushing here would free function arg temps before
+     * they're actually used in the assignment expression. */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > saved_temp_count)
+    {
+        /* For struct assignments with handle fields, adopt ALL temps from the
+         * value evaluation. These temps are struct field values (e.g., string
+         * handles in compound literals) stored via memcpy — freeing them would
+         * cause use-after-free when the struct fields are later accessed. */
+        if (type->kind == TYPE_STRUCT && !type->as.struct_type.is_native &&
+            struct_has_handle_fields(type))
+        {
+            code_gen_adopt_arena_temps_from(gen, saved_temp_count);
+        }
+        else
+        {
+            for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+            {
+                if (strcmp(gen->arena_temps[i], value_str) == 0)
+                {
+                    /* Remove result temp by swapping with last element */
+                    gen->arena_temps[i] = gen->arena_temps[gen->arena_temp_count - 1];
+                    gen->arena_temp_count--;
+                    break;
+                }
+            }
+        }
+    }
 
     // Handle boxing when assigning to 'any' type
     if (type->kind == TYPE_ANY && expr->value->expr_type != NULL &&
@@ -387,15 +421,19 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     }
 
     // Handle conversion when assigning typed array to any[], any[][], or any[][][]
-    // Track if the conversion already produced a handle (2D/3D cases, or array literals).
-    // Array literals (EXPR_ARRAY) already produce a fresh handle via rt_array_create_*_h,
-    // so they don't need cloning - just direct assignment.
-    // Thread sync expressions (EXPR_THREAD_SYNC) also produce fresh handles - the sync
-    // returns an RtHandle directly from rt_thread_sync_with_result, no cloning needed.
+    // Track if the expression already produced a fresh handle that can be assigned
+    // directly without cloning. This includes:
+    // - Array literals: fresh handle via rt_array_create_*_h
+    // - Thread sync: fresh handle from rt_thread_sync_with_result
+    // - Function/method calls: return value is promoted to caller's arena,
+    //   so it's already a fresh handle in the local arena. Cloning would create
+    //   a redundant copy and leak the original promoted handle.
     bool value_is_new_handle = (expr->value->type == EXPR_ARRAY) ||
                                (expr->value->type == EXPR_THREAD_SYNC &&
                                 expr->value->expr_type != NULL &&
-                                expr->value->expr_type->kind == TYPE_ARRAY);
+                                expr->value->expr_type->kind == TYPE_ARRAY) ||
+                               (expr->value->type == EXPR_CALL) ||
+                               (expr->value->type == EXPR_METHOD_CALL);
     if (type->kind == TYPE_ARRAY &&
         type->as.array.element_type != NULL &&
         expr->value->expr_type != NULL &&

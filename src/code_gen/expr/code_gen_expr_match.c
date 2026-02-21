@@ -125,6 +125,10 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
         /* Generate arm body */
         if (arm->body != NULL && arm->body->type == STMT_BLOCK)
         {
+            /* Save arena temp state — temps inside arm body are scoped to the
+             * ({...}) block's if branch and must not be flushed at statement level. */
+            int saved_temp_count = gen->arena_temp_count;
+
             FILE *old_output = gen->output;
             char *body_buffer = NULL;
             size_t body_size = 0;
@@ -160,6 +164,10 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
 
             sn_fclose(gen->output);
             gen->output = old_output;
+
+            /* Restore temp count — arm-internal temps are embedded in the
+             * body string and scoped to the if-branch, not the outer statement. */
+            gen->arena_temp_count = saved_temp_count;
 
             char *body_str = arena_strdup(gen->arena, body_buffer ? body_buffer : "");
             free(body_buffer);

@@ -196,11 +196,13 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     if (needs_pending_var && !is_global_scope && !has_special_mem_qual && !is_captured_by_ref)
     {
         char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
+        int saved_temp_count = gen->arena_temp_count;
+        char *pending_init_str = NULL;
 
         if (is_thread_spawn)
         {
-            char *init_str = code_gen_expression(gen, stmt->initializer);
-            indented_fprintf(gen, indent, "RtHandleV2 *%s = %s;\n", pending_var, init_str);
+            pending_init_str = code_gen_expression(gen, stmt->initializer);
+            indented_fprintf(gen, indent, "RtHandleV2 *%s = %s;\n", pending_var, pending_init_str);
             indented_fprintf(gen, indent, "%s %s;\n", type_c, var_name);
         }
         else
@@ -214,12 +216,12 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                 {
                     gen->expr_as_handle = true;
                 }
-                char *init_str = code_gen_expression(gen, stmt->initializer);
+                pending_init_str = code_gen_expression(gen, stmt->initializer);
                 gen->expr_as_handle = prev_as_handle;
                 if (fwd)
-                    indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
+                    indented_fprintf(gen, indent, "%s = %s;\n", var_name, pending_init_str);
                 else
-                    indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, init_str);
+                    indented_fprintf(gen, indent, "%s %s = %s;\n", type_c, var_name, pending_init_str);
             }
             else if (!fwd)
             {
@@ -239,6 +241,39 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             indented_fprintf(gen, indent, "RtHandleV2 *__%s_pending_elems__ = NULL;\n", raw_var_name);
             Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
             if (sym != NULL) sym->has_pending_elements = true;
+        }
+        /* Handle arena temps from the initializer.
+         * For array literals, adopt ALL temps — struct field handles and string
+         * handles are memcpied into the array data and must not be freed.
+         * For other expressions, selectively adopt only the result temp. */
+        if (gen->current_arena_var != NULL && gen->arena_temp_count > saved_temp_count && pending_init_str != NULL)
+        {
+            bool adopt_all = (stmt->initializer != NULL &&
+                (stmt->initializer->type == EXPR_ARRAY || stmt->initializer->type == EXPR_STRUCT_LITERAL));
+            if (adopt_all)
+            {
+                gen->arena_temp_count = saved_temp_count;
+            }
+            else
+            {
+                int result_idx = -1;
+                for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+                {
+                    if (strcmp(gen->arena_temps[i], pending_init_str) == 0)
+                    {
+                        result_idx = i;
+                        break;
+                    }
+                }
+                for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+                {
+                    if (i != result_idx)
+                    {
+                        indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+                    }
+                }
+                gen->arena_temp_count = saved_temp_count;
+            }
         }
         return;
     }
@@ -263,6 +298,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
 
     /* Generate initializer expression */
     char *init_str;
+    int saved_temp_count = gen->arena_temp_count;
     if (stmt->initializer)
     {
         if (stmt->initializer->type == EXPR_LAMBDA)
@@ -414,6 +450,40 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
     else
     {
         init_str = arena_strdup(gen->arena, get_default_value(stmt->type));
+    }
+
+    /* Handle arena temps from the initializer.
+     * For array literals, adopt ALL temps — struct field handles and string
+     * handles are memcpied into the array data and must not be freed.
+     * For other expressions, selectively adopt only the result temp. */
+    if (gen->current_arena_var != NULL && gen->arena_temp_count > saved_temp_count)
+    {
+        bool adopt_all = (stmt->initializer != NULL &&
+            (stmt->initializer->type == EXPR_ARRAY || stmt->initializer->type == EXPR_STRUCT_LITERAL));
+        if (adopt_all)
+        {
+            gen->arena_temp_count = saved_temp_count;
+        }
+        else
+        {
+            int result_idx = -1;
+            for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+            {
+                if (strcmp(gen->arena_temps[i], init_str) == 0)
+                {
+                    result_idx = i;
+                    break;
+                }
+            }
+            for (int i = saved_temp_count; i < gen->arena_temp_count; i++)
+            {
+                if (i != result_idx)
+                {
+                    indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", gen->arena_temps[i]);
+                }
+            }
+            gen->arena_temp_count = saved_temp_count;
+        }
     }
 
     /* Handle 'as ref' - heap allocate */

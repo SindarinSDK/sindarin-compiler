@@ -43,6 +43,7 @@ typedef struct {
     bool in_private_context;    // Are we in a private block/function?
     char *current_arena_var;    // Name of current arena variable (e.g., "__arena__")
     char *function_arena_var;   // Arena variable for the function scope
+    Scope *function_scope;      // Scope at function/method entry (for return cleanup)
     FunctionModifier current_func_modifier;  // Current function's modifier
 
     /* Loop counter tracking for optimization - tracks variables known to be non-negative */
@@ -200,6 +201,13 @@ typedef struct {
     const char **fwd_cleanup_vars;  /* Mangled variable names that have been forward-declared */
     int fwd_cleanup_count;
     int fwd_cleanup_capacity;
+
+    /* Arena temp handle tracking - temps created during expression evaluation
+     * that need to be freed after the containing statement completes. */
+    const char **arena_temps;     /* Array of temp variable names (e.g. "__htmp_0__") */
+    int arena_temp_count;
+    int arena_temp_capacity;
+    int arena_temp_serial;        /* Monotonic counter for unique temp names */
 } CodeGen;
 
 void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const char *output_file);

@@ -345,8 +345,10 @@ static void gc_collect_arena_handles(RtArenaV2 *arena, HandleListNode **list, Rt
 
     pthread_mutex_lock(&arena->mutex);
 
+    int block_count = 0;
     RtBlockV2 *block = arena->blocks_head;
     while (block != NULL) {
+        block_count++;
         /* Try to acquire block for GC */
         int acquire_result = gc_acquire_block(block);
         if (acquire_result != 1) {
@@ -367,16 +369,29 @@ static void gc_collect_all_handles(RtArenaV2 *arena, HandleListNode **list, RtAr
 
     gc_collect_arena_handles(arena, list, result);
 
-    /* Recursively collect from children */
+    /* Snapshot children while holding mutex, then recurse without holding it.
+     * This avoids parent→child lock ordering that deadlocks with promote's
+     * child→parent ordering. */
     pthread_mutex_lock(&arena->mutex);
-    RtArenaV2 *child = arena->first_child;
+    size_t child_count = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        child_count++;
 
-    while (child != NULL) {
-        gc_collect_all_handles(child, list, result);
-        child = child->next_sibling;
+    if (child_count == 0) {
+        pthread_mutex_unlock(&arena->mutex);
+        return;
     }
-    
+
+    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
+    size_t i = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        children[i++] = c;
     pthread_mutex_unlock(&arena->mutex);
+
+    for (i = 0; i < child_count; i++)
+        gc_collect_all_handles(children[i], list, result);
+
+    free(children);
 }
 
 /* Clean up empty blocks after compaction */
@@ -401,15 +416,26 @@ static void gc_cleanup_empty_blocks(RtArenaV2 *arena, RtArenaGCResult *result)
         }
     }
 
-    /* Recursively clean children */
-    RtArenaV2 *child = arena->first_child;
+    /* Snapshot children, release mutex, then recurse */
+    size_t child_count = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        child_count++;
 
-    while (child != NULL) {
-        gc_cleanup_empty_blocks(child, result);
-        child = child->next_sibling;
+    if (child_count == 0) {
+        pthread_mutex_unlock(&arena->mutex);
+        return;
     }
 
+    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
+    size_t i = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        children[i++] = c;
     pthread_mutex_unlock(&arena->mutex);
+
+    for (i = 0; i < child_count; i++)
+        gc_cleanup_empty_blocks(children[i], result);
+
+    free(children);
 }
 
 /* ============================================================================
@@ -520,13 +546,26 @@ static void gc_build_handle_set(RtArenaV2 *arena, RcTable *handle_set)
         block = block->next;
     }
 
-    RtArenaV2 *child = arena->first_child;
-    while (child != NULL) {
-        gc_build_handle_set(child, handle_set);
-        child = child->next_sibling;
+    /* Snapshot children, release mutex, then recurse */
+    size_t child_count = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        child_count++;
+
+    if (child_count == 0) {
+        pthread_mutex_unlock(&arena->mutex);
+        return;
     }
 
+    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
+    size_t i = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        children[i++] = c;
     pthread_mutex_unlock(&arena->mutex);
+
+    for (i = 0; i < child_count; i++)
+        gc_build_handle_set(children[i], handle_set);
+
+    free(children);
 }
 
 /* Build reference count table by scanning all LIVE handles across all arenas.
@@ -557,32 +596,61 @@ static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handl
         block = block->next;
     }
 
-    RtArenaV2 *child = arena->first_child;
-    while (child != NULL) {
-        gc_build_refcount_table(child, t, handle_set);
-        child = child->next_sibling;
+    /* Snapshot children, release mutex, then recurse */
+    size_t child_count = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        child_count++;
+
+    if (child_count == 0) {
+        pthread_mutex_unlock(&arena->mutex);
+        return;
     }
 
+    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
+    size_t i = 0;
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+        children[i++] = c;
     pthread_mutex_unlock(&arena->mutex);
+
+    for (i = 0; i < child_count; i++)
+        gc_build_refcount_table(children[i], t, handle_set);
+
+    free(children);
 }
 
-/* Check if a dead handle has any children (pointer-sized values in its data)
- * that are still referenced by at least one live handle (ref count >= 1). */
-static bool gc_handle_has_shared_children(RcTable *t, RtHandleV2 *handle)
+/* Free children of a dead handle based on reference counts.
+ * Scans the handle's data for pointer-sized values that match known handle
+ * addresses. For each child handle found:
+ *   - ref count == 0 (no live handle references it): exclusively owned by this
+ *     dead handle, mark it DEAD so it's collected next GC pass.
+ *   - ref count >= 1 (referenced by a live handle): shared, leave it alone.
+ * Returns true if all children were exclusively owned (ref count 0). */
+static bool gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
 {
-    if (handle->ptr == NULL) return false;
+    if (handle->ptr == NULL) return true;
     void **scan = (void **)handle->ptr;
     size_t slots = handle->size / sizeof(void *);
+    bool all_exclusive = true;
     for (size_t i = 0; i < slots; i++) {
-        if (scan[i] != NULL && rc_table_get(t, scan[i]) >= 1) {
-            return true;
+        if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
+            if (rc_table_get(rctable, scan[i]) == 0) {
+                /* ref count 0: only dead handles reference this child — free it */
+                RtHandleV2 *child = (RtHandleV2 *)scan[i];
+                if (!(child->flags & RT_HANDLE_FLAG_DEAD)) {
+                    GC_DEBUG_LOG("    free exclusive child: h=%p ptr=%p", (void *)child, child->ptr);
+                    rt_arena_v2_free(child);
+                }
+            } else {
+                /* ref count >= 1: shared with a live handle — leave it */
+                all_exclusive = false;
+            }
         }
     }
-    return false;
+    return all_exclusive;
 }
 
 /* GC all arenas using two-phase approach with reference counting:
- * Phase 1: Build ref counts, call callbacks only on exclusively-owned handles
+ * Phase 1: Build ref counts, free exclusively-owned children per ref count
  * Phase 2: Free all dead handle structs, cleanup empty blocks */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
@@ -611,23 +679,54 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     rc_table_init(&rctable);
     gc_build_refcount_table(arena, &rctable, &handle_set);
 
-    GC_DEBUG_LOG("gc_compact_all: Pass 1 - ref count callbacks");
+    /* Rescue pass: Dead handles still referenced by live handles are rescued.
+     * This prevents use-after-free when scope cleanup marks handles as DEAD
+     * but they're still stored in live data structures (e.g., struct fields
+     * pushed into arrays). Re-link rescued handles into their blocks and
+     * clear the DEAD flag so they stay alive. */
+    HandleListNode *truly_dead = NULL;
+    HandleListNode *temp_node = dead_handles;
+    while (temp_node != NULL) {
+        HandleListNode *next = temp_node->next;
+        if (rc_table_get(&rctable, (void *)temp_node->handle) > 0) {
+            /* Handle is referenced by a live handle — rescue it */
+            GC_DEBUG_LOG("  rescue: h=%p ptr=%p (refcount > 0)", (void *)temp_node->handle, temp_node->handle->ptr);
+            temp_node->handle->flags &= ~RT_HANDLE_FLAG_DEAD;
+            rt_handle_v2_link(temp_node->block, temp_node->handle);
+            result->handles_freed--;  /* Undo the count from collection */
+            result->bytes_freed -= temp_node->handle->size;
+            free(temp_node);
+        } else {
+            /* Truly dead — keep in list for freeing */
+            temp_node->next = truly_dead;
+            truly_dead = temp_node;
+        }
+        temp_node = next;
+    }
+    dead_handles = truly_dead;
 
-    /* Pass 1: For each dead handle with a free_callback, check if any of its
-     * children are shared (ref count > 1). If shared, shallow free (skip
-     * callback). If exclusively owned, deep free (run callback). */
+    GC_DEBUG_LOG("gc_compact_all: Pass 1 - free children by ref count");
+
+    /* Pass 1: For each dead handle, free exclusively-owned children using
+     * ref counts. A child with ref count 0 (no live handle references it) is
+     * only reachable through dead handles — mark it DEAD. A child with ref
+     * count >= 1 is shared with a live handle — leave it alone.
+     *
+     * If ALL children were exclusively owned, also run the free callback for
+     * any non-pointer cleanup. Otherwise skip the callback since it would
+     * attempt to free shared children. */
     for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
         if (node->handle->free_callback != NULL) {
-            if (gc_handle_has_shared_children(&rctable, node->handle)) {
-                GC_DEBUG_LOG("  shared children (shallow free): h=%p ptr=%p",
-                             (void *)node->handle, node->handle->ptr);
-                /* Skip callback - children are referenced elsewhere */
-            } else {
-                GC_DEBUG_LOG("  exclusive children (deep free): h=%p ptr=%p arena=%p(%s)",
+            bool all_exclusive = gc_free_dead_handle_children(&rctable, &handle_set, node->handle);
+            if (all_exclusive) {
+                GC_DEBUG_LOG("  all exclusive (deep free): h=%p ptr=%p arena=%p(%s)",
                              (void *)node->handle, node->handle->ptr,
                              (void *)node->handle->arena,
                              node->handle->arena && node->handle->arena->name ? node->handle->arena->name : "?");
                 node->handle->free_callback(node->handle);
+            } else {
+                GC_DEBUG_LOG("  mixed ownership (children freed by ref count): h=%p ptr=%p",
+                             (void *)node->handle, node->handle->ptr);
             }
             node->handle->free_callback = NULL;
         }
