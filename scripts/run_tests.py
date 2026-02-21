@@ -286,7 +286,12 @@ class TestRunner:
         elapsed = time.perf_counter() - start_time
 
         if stdout:
-            print(stdout)
+            # Filter out passing test lines and section headers, keep failures and summary
+            for line in stdout.splitlines():
+                if 'Results:' in line:
+                    print(line)
+                elif line.startswith('  ') and 'PASS' not in line and line.strip():
+                    print(line)
         if stderr and exit_code != 0:
             print(stderr)
 
@@ -427,12 +432,10 @@ class TestRunner:
             # Sequential execution (original behavior with live output)
             results = []
             for info in test_infos:
-                test_name = info['test_name']
-                print(f"  {test_name:45} ", end='', flush=True)
                 result = self._run_single_test(info)
                 results.append(result)
-                # Print result immediately in sequential mode
-                self._print_test_result(result)
+                # Print result immediately in sequential mode (only failures/skips)
+                self._print_test_result(result, include_name=True)
 
         # Print results (for parallel mode, print all at end)
         passed = 0
@@ -472,26 +475,27 @@ class TestRunner:
             return f"{elapsed * 1000:.0f}ms"
 
     def _print_test_result(self, result: Dict[str, Any], include_name: bool = False):
-        """Print a single test result."""
+        """Print a single test result. Passing tests are silent."""
         test_name = result['test_name']
         status = result['status']
         reason = result['reason']
         details = result['details']
         elapsed = result.get('elapsed', 0.0)
 
+        if status == 'pass':
+            return  # Silent on pass
+
         if include_name:
             print(f"  {test_name:45} ", end='')
 
         time_str = f"  ({self._format_elapsed(elapsed)})" if elapsed > 0 else ""
 
-        if status == 'pass':
-            print(f"{Colors.GREEN}PASS{Colors.NC}{time_str}")
-        elif status == 'skip':
+        if status == 'skip':
             print(f"{Colors.YELLOW}SKIP{Colors.NC} ({reason})")
         else:
             print(f"{Colors.RED}FAIL{Colors.NC} ({reason}){time_str}")
-            if self.verbose and details:
-                for line in details[:20]:
+            if details:
+                for line in details[:5]:
                     print(f"    {line}")
 
     def _run_error_test_internal(self, test_file: str, expected_file: str,
