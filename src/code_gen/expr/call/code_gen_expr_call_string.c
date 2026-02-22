@@ -111,13 +111,12 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
         gen->expr_as_handle = true;
         object_h = code_gen_expression(gen, object);
 
-        /* In struct methods, if the receiver is a call expression that creates a
-         * new string handle (e.g., chained call like text.substring(0, idx).trim()),
-         * hoist the receiver result to a tracked temp so the intermediate handle
-         * can be freed. Without this, the intermediate is inlined and never freed. */
-        bool in_method = (gen->function_arena_var != NULL &&
-                          strcmp(gen->function_arena_var, "__caller_arena__") == 0);
-        if (in_method && object->type == EXPR_CALL &&
+        /* If the receiver is a call expression that creates a new string handle
+         * (e.g., chained call like text.substring(0, idx).trim()), hoist the
+         * receiver result to a tracked temp so the intermediate handle can be
+         * freed. Without this, the intermediate is inlined and never freed,
+         * leaking in long-lived arenas (e.g., server handler loops). */
+        if (object->type == EXPR_CALL &&
             object->expr_type != NULL && object->expr_type->kind == TYPE_STRING)
         {
             object_h = code_gen_emit_arena_temp(gen, object_h);
