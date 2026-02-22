@@ -108,13 +108,15 @@ static void code_gen_promote_self_array_elements(CodeGen *gen, const char *field
             }
         }
 
-        /* Clear the element's __arena__ — the struct is now inline in the array
-         * and its handle fields have been promoted to self->__arena__. The original
-         * per-element struct arena (child of __local_arena__) will be orphaned when
-         * __local_arena__ is condemned. Setting it to NULL prevents later code from
-         * condemning the freed arena. */
-        indented_fprintf(gen, indent + 2, "if (__pa__[__pi__].__arena__ && __pa__[__pi__].__arena__ != __sn__self->__arena__)\n");
+        /* Condemn the element's per-element struct arena — the struct is now inline
+         * in the array and its handle fields have been promoted to self->__arena__.
+         * The original per-element arena (child of __local_arena__) must be condemned
+         * immediately, not left as an orphan child, because __local_arena__ may be
+         * long-lived (e.g., a while loop) and orphans would accumulate. */
+        indented_fprintf(gen, indent + 2, "if (__pa__[__pi__].__arena__ && __pa__[__pi__].__arena__ != __sn__self->__arena__) {\n");
+        indented_fprintf(gen, indent + 3, "rt_arena_v2_condemn(__pa__[__pi__].__arena__);\n");
         indented_fprintf(gen, indent + 3, "__pa__[__pi__].__arena__ = NULL;\n");
+        indented_fprintf(gen, indent + 2, "}\n");
 
         indented_fprintf(gen, indent + 1, "}\n");
         indented_fprintf(gen, indent, "}\n");
