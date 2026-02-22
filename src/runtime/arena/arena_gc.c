@@ -147,29 +147,9 @@ typedef struct ArenaListNode {
     struct ArenaListNode *next;
 } ArenaListNode;
 
-/* Recursively collect all descendants of a condemned arena into the list. */
-static void gc_collect_descendants(RtArenaV2 *arena, ArenaListNode **list)
-{
-    pthread_mutex_lock(&arena->mutex);
-    RtArenaV2 *child = arena->first_child;
-    arena->first_child = NULL;
-    pthread_mutex_unlock(&arena->mutex);
-
-    while (child != NULL) {
-        RtArenaV2 *next = child->next_sibling;
-        child->parent = NULL;
-        child->next_sibling = NULL;
-        gc_collect_descendants(child, list);  /* Recurse first (depth-first) */
-        ArenaListNode *node = malloc(sizeof(ArenaListNode));
-        node->arena = child;
-        node->next = *list;
-        *list = node;
-        child = next;
-    }
-}
-
-/* Drain the root's condemned queue and collect all condemned arenas
- * plus their descendants into a list. O(condemned) instead of O(tree). */
+/* Drain the root's condemned queue into a list.
+ * Children are NOT destroyed — they'll be condemned individually by
+ * compiler-generated cleanup code and pushed to the queue on their own. */
 static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
 {
     if (root == NULL) return;
@@ -187,9 +167,6 @@ static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
         node->next = *list;
         *list = node;
 
-        /* Collect all descendants (they're implicitly dead) */
-        gc_collect_descendants(condemned, list);
-
         condemned = next;
     }
 }
@@ -202,9 +179,22 @@ static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
 }
 
 /* Free all handles and destroy arena struct (non-recursive).
- * Descendants must already be collected separately in the dead list. */
+ * Orphans any remaining children — they'll be condemned individually by
+ * compiler-generated cleanup code. Must not destroy children here because
+ * the caller may still hold references to child arenas (e.g. struct arenas
+ * that outlive their creating function's arena). */
 static void gc_destroy_arena_fully(RtArenaV2 *arena)
 {
+    /* Orphan children so they don't hold dangling parent pointers */
+    pthread_mutex_lock(&arena->mutex);
+    RtArenaV2 *child = arena->first_child;
+    while (child != NULL) {
+        child->parent = NULL;
+        child = child->next_sibling;
+    }
+    arena->first_child = NULL;
+    pthread_mutex_unlock(&arena->mutex);
+
     gc_free_arena_handles(arena);
     gc_destroy_arena_struct(arena);
 }

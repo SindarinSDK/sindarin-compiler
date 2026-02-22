@@ -159,13 +159,15 @@ static int test_child_arenas(void)
     RtArenaV2 *child1 = rt_arena_v2_create(parent, RT_ARENA_MODE_DEFAULT, "child1");
     RtArenaV2 *child2 = rt_arena_v2_create(parent, RT_ARENA_MODE_DEFAULT, "child2");
 
-    if (child1 == NULL || child2 == NULL) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (child1 == NULL || child2 == NULL) { rt_arena_v2_condemn(child1); rt_arena_v2_condemn(child2); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
     /* Children should have parent set */
-    if (child1->parent != parent) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
-    if (child2->parent != parent) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (child1->parent != parent) { rt_arena_v2_condemn(child1); rt_arena_v2_condemn(child2); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (child2->parent != parent) { rt_arena_v2_condemn(child1); rt_arena_v2_condemn(child2); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
-    /* Destroying parent should destroy children too */
+    /* Condemn children before parent (matches compiler pattern) */
+    rt_arena_v2_condemn(child1);
+    rt_arena_v2_condemn(child2);
     rt_arena_v2_condemn(parent);
     rt_arena_v2_gc(test_root);
     return 1;
@@ -179,20 +181,21 @@ static int test_promote(void)
 
     /* Allocate in child */
     RtHandleV2 *h = rt_arena_v2_strdup(child, "test data");
-    if (h == NULL) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
-    if (h->arena != child) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (h == NULL) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (h->arena != child) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
     /* Promote to parent */
     RtHandleV2 *promoted = rt_arena_v2_promote(parent, h);
-    if (promoted == NULL) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
-    if (promoted->arena != parent) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (promoted == NULL) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (promoted->arena != parent) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
     /* Original should be dead */
-    if (!(h->flags & RT_HANDLE_FLAG_DEAD)) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (!(h->flags & RT_HANDLE_FLAG_DEAD)) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
     /* Data should be copied */
-    if (strcmp((char *)promoted->ptr, "test data") != 0) { rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
+    if (strcmp((char *)promoted->ptr, "test data") != 0) { rt_arena_v2_condemn(child); rt_arena_v2_condemn(parent); rt_arena_v2_gc(test_root); return 0; }
 
+    rt_arena_v2_condemn(child);
     rt_arena_v2_condemn(parent);
     rt_arena_v2_gc(test_root);
     return 1;
