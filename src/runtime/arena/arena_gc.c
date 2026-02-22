@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "arena_compat.h"
+#include "../malloc/runtime_malloc_hooks.h"
 
 /* Debug logging (shared with arena_v2.c) */
 extern int arena_debug_initialized;
@@ -146,55 +147,51 @@ typedef struct ArenaListNode {
     struct ArenaListNode *next;
 } ArenaListNode;
 
-/* Collect dead arenas recursively into a list.
- * Also collects all children of dead arenas (they must be destroyed too). */
-static void gc_collect_dead_arenas(RtArenaV2 *arena, ArenaListNode **list)
+/* Recursively collect all descendants of a condemned arena into the list. */
+static void gc_collect_descendants(RtArenaV2 *arena, ArenaListNode **list)
 {
-    if (arena == NULL) return;
-
     pthread_mutex_lock(&arena->mutex);
-
-    RtArenaV2 **pp = &arena->first_child;
-    while (*pp != NULL) {
-        RtArenaV2 *child = *pp;
-
-        if (child->flags & RT_ARENA_FLAG_DEAD) {
-            /* Unlink from sibling list */
-            *pp = child->next_sibling;
-            child->parent = NULL;
-            child->next_sibling = NULL;
-
-            /* Add to collection list */
-            ArenaListNode *node = malloc(sizeof(ArenaListNode));
-            node->arena = child;
-            node->next = *list;
-            *list = node;
-
-            /* Collect all children of this dead arena too (they're implicitly dead) */
-            pthread_mutex_unlock(&arena->mutex);
-            RtArenaV2 *grandchild = child->first_child;
-            while (grandchild != NULL) {
-                RtArenaV2 *next_grandchild = grandchild->next_sibling;
-                grandchild->parent = NULL;
-                grandchild->next_sibling = NULL;
-                ArenaListNode *gc_node = malloc(sizeof(ArenaListNode));
-                gc_node->arena = grandchild;
-                gc_node->next = *list;
-                *list = gc_node;
-                grandchild = next_grandchild;
-            }
-            child->first_child = NULL;
-            pthread_mutex_lock(&arena->mutex);
-            /* pp already points to the next child after unlinking */
-        } else {
-            pthread_mutex_unlock(&arena->mutex);
-            gc_collect_dead_arenas(child, list);  /* Recurse into live children */
-            pthread_mutex_lock(&arena->mutex);
-            pp = &child->next_sibling;
-        }
-    }
-
+    RtArenaV2 *child = arena->first_child;
+    arena->first_child = NULL;
     pthread_mutex_unlock(&arena->mutex);
+
+    while (child != NULL) {
+        RtArenaV2 *next = child->next_sibling;
+        child->parent = NULL;
+        child->next_sibling = NULL;
+        gc_collect_descendants(child, list);  /* Recurse first (depth-first) */
+        ArenaListNode *node = malloc(sizeof(ArenaListNode));
+        node->arena = child;
+        node->next = *list;
+        *list = node;
+        child = next;
+    }
+}
+
+/* Drain the root's condemned queue and collect all condemned arenas
+ * plus their descendants into a list. O(condemned) instead of O(tree). */
+static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
+{
+    if (root == NULL) return;
+
+    /* Atomically swap out the entire condemned list */
+    RtArenaV2 *condemned = __sync_lock_test_and_set(&root->condemned_head, NULL);
+
+    while (condemned != NULL) {
+        RtArenaV2 *next = condemned->condemned_next;
+        condemned->condemned_next = NULL;
+
+        /* Add this condemned arena to the collection list */
+        ArenaListNode *node = malloc(sizeof(ArenaListNode));
+        node->arena = condemned;
+        node->next = *list;
+        *list = node;
+
+        /* Collect all descendants (they're implicitly dead) */
+        gc_collect_descendants(condemned, list);
+
+        condemned = next;
+    }
 }
 
 /* Call all callbacks in an arena (cleanup + handle callbacks) */
@@ -204,27 +201,31 @@ static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
     gc_call_arena_handle_callbacks(arena);
 }
 
-/* Free all handles and destroy arena struct */
+/* Free all handles and destroy arena struct (non-recursive).
+ * Descendants must already be collected separately in the dead list. */
 static void gc_destroy_arena_fully(RtArenaV2 *arena)
 {
     gc_free_arena_handles(arena);
     gc_destroy_arena_struct(arena);
 }
 
-/* Sweep dead arenas - phase 1: collect and call callbacks.
- * Returns the list of dead arenas (handle structs still valid).
+/* Sweep dead arenas - phase 1: drain the condemned queue and collect
+ * all condemned arenas + descendants. Call callbacks on all of them.
+ * Returns the list (handle structs valid).
  * Caller must pass the returned list to gc_sweep_finalize() to free memory. */
 static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 {
     if (arena == NULL) return NULL;
 
-    /* Collect all dead arenas */
+    /* Drain the condemned queue — O(condemned) not O(tree) */
     ArenaListNode *dead_list = NULL;
-    gc_collect_dead_arenas(arena, &dead_list);
+    gc_drain_condemned_queue(arena, &dead_list);
 
     if (dead_list == NULL) return NULL;
 
-    /* Call all callbacks on all dead arenas (handle structs still valid) */
+    /* Call all callbacks on all dead arenas (handle structs still valid).
+     * This must happen before any handles are freed to avoid use-after-free
+     * when callbacks reference handles across arena boundaries. */
     for (ArenaListNode *node = dead_list; node != NULL; node = node->next) {
         gc_call_all_arena_callbacks(node->arena);
     }
@@ -232,7 +233,8 @@ static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
     return dead_list;
 }
 
-/* Sweep dead arenas - phase 2: free all handle structs and arena structs.
+/* Sweep dead arenas - phase 2: free all handle data and arena structs.
+ * Each arena is freed non-recursively (descendants already in the list).
  * Must be called AFTER gc_compact_all so that compact's free_callbacks
  * can still read handle structs from dead arenas. */
 static void gc_sweep_finalize(ArenaListNode *dead_list)
@@ -266,7 +268,7 @@ static void gc_collect_arena_handles(RtArenaV2 *arena, HandleListNode **list, Rt
 {
     if (arena == NULL) return;
 
-    if (pthread_mutex_trylock(&arena->mutex) != 0) return;  /* skip if locked */
+    pthread_mutex_lock(&arena->mutex);
 
     RtHandleV2 *handle = arena->handles_head;
     while (handle != NULL) {
@@ -651,6 +653,18 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     arena->gc_running = true;
     pthread_mutex_unlock(&arena->mutex);  /* Release before calling helpers */
 
+    /* Temporarily clear the malloc redirect handler to prevent GC's internal
+     * allocations (HandleListNode, RcTable, etc.) from being redirected into
+     * the arena being collected. On Windows (MinHook inline hooking), ALL
+     * malloc/free calls are intercepted including GC internals. If these
+     * allocations go to the arena, the GC's reference counting scan sees
+     * pointers to dead handles in its own bookkeeping data and falsely
+     * rescues them, causing GC to report 0 collected instead of the correct
+     * count. Arena-managed data (handle->ptr) was allocated via orig_malloc
+     * (hook guard was set), so orig_free from the cleared handler is correct. */
+    RtMallocHandler *saved_handler = rt_malloc_hooks_get_handler();
+    if (saved_handler) rt_malloc_hooks_clear_handler();
+
     /* Initialize result */
     RtArenaGCResult result = {0};
 
@@ -668,6 +682,9 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
 
     /* Record GC results */
     rt_arena_stats_record_gc(arena, &result);
+
+    /* Restore malloc redirect handler */
+    if (saved_handler) rt_malloc_hooks_set_handler(saved_handler);
 
     /* Lock briefly to clear gc_running */
     pthread_mutex_lock(&arena->mutex);

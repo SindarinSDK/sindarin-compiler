@@ -107,6 +107,14 @@ struct RtArenaV2 {
 
     /* Root arena reference - for quick access to tree root */
     RtArenaV2 *root;            /* Root ancestor (self if this is root) */
+
+    /* Condemned queue (root arena only) — lock-free LIFO stack.
+     * Condemned arenas are pushed here by rt_arena_v2_condemn and
+     * drained by GC Phase 1, avoiding slow tree walks. */
+    RtArenaV2 *condemned_head;  /* Head of condemned list (root only) */
+
+    /* Per-arena field for condemned queue linkage */
+    RtArenaV2 *condemned_next;  /* Next in condemned list */
 };
 
 /* ============================================================================

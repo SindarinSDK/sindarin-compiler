@@ -107,6 +107,10 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->cleanups = NULL;
     memset(&arena->stats, 0, sizeof(arena->stats));
 
+    /* Condemned queue fields */
+    arena->condemned_head = NULL;
+    arena->condemned_next = NULL;
+
     /* Set root arena reference - walk up to find the root, or self if no parent */
     if (parent != NULL) {
         arena->root = parent->root;  /* Inherit root from parent */
@@ -136,6 +140,33 @@ void rt_arena_v2_condemn(RtArenaV2 *arena)
         fprintf(stderr, "[ARENA] condemn '%s'\n", arena->name ? arena->name : "(unnamed)");
     }
     arena->flags |= RT_ARENA_FLAG_DEAD;
+
+    /* Unlink from parent's child list */
+    RtArenaV2 *parent = arena->parent;
+    if (parent != NULL) {
+        pthread_mutex_lock(&parent->mutex);
+        RtArenaV2 **pp = &parent->first_child;
+        while (*pp != NULL) {
+            if (*pp == arena) {
+                *pp = arena->next_sibling;
+                break;
+            }
+            pp = &(*pp)->next_sibling;
+        }
+        pthread_mutex_unlock(&parent->mutex);
+        arena->parent = NULL;
+        arena->next_sibling = NULL;
+    }
+
+    /* Push onto root's condemned queue (lock-free CAS) */
+    RtArenaV2 *root = arena->root;
+    if (root != NULL) {
+        RtArenaV2 *old_head;
+        do {
+            old_head = root->condemned_head;
+            arena->condemned_next = old_head;
+        } while (!__sync_bool_compare_and_swap(&root->condemned_head, old_head, arena));
+    }
 }
 
 
