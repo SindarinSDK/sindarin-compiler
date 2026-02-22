@@ -136,6 +136,7 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
 void rt_arena_v2_condemn(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
+    if (arena->flags & RT_ARENA_FLAG_DEAD) return;  /* Already condemned */
     if (arena->gc_log_enabled) {
         fprintf(stderr, "[ARENA] condemn '%s'\n", arena->name ? arena->name : "(unnamed)");
     }

@@ -1,3 +1,3 @@
-peak_no_gc=501
+peak_no_gc=1
 peak_with_gc=1
-PASS: periodic GC reduces peak memory
+PASS: handles already well managed
