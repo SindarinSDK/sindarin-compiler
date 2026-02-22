@@ -90,7 +90,7 @@ struct RtArenaV2 {
     RtHandleV2 *handles_head;   /* Head of arena handle linked list */
 
     /* GC state */
-    bool gc_running;            /* Is GC currently running on this arena? */
+    volatile bool gc_running;   /* Is GC currently running on this arena? */
     volatile uint16_t flags;    /* RtArenaFlags */
 
     /* Synchronization */

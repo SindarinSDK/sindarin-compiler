@@ -171,11 +171,15 @@ static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
     }
 }
 
-/* Call all callbacks in an arena (cleanup + handle callbacks) */
+/* Call all callbacks in an arena (cleanup only, NOT handle free_callbacks).
+ * Handle free_callbacks are not called for condemned arenas because:
+ * - Same-arena children: freed by arena destruction (gc_free_arena_handles)
+ * - Cross-arena children: callback is a no-op (arena != owner check fails)
+ * - Calling them risks use-after-free when handles in other arenas have
+ *   been freed by concurrent GC on another thread. */
 static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
 {
     gc_run_cleanup_callbacks(arena);
-    gc_call_arena_handle_callbacks(arena);
 }
 
 /* Free all handles and destroy arena struct (non-recursive).
@@ -227,15 +231,21 @@ static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
  * Each arena is freed non-recursively (descendants already in the list).
  * Must be called AFTER gc_compact_all so that compact's free_callbacks
  * can still read handle structs from dead arenas. */
-static void gc_sweep_finalize(ArenaListNode *dead_list)
+static size_t gc_sweep_finalize(ArenaListNode *dead_list)
 {
+    size_t total_bytes = 0;
     ArenaListNode *node = dead_list;
     while (node != NULL) {
         ArenaListNode *next = node->next;
+        /* Count bytes in arena's handles before freeing */
+        for (RtHandleV2 *h = node->arena->handles_head; h != NULL; h = h->next)
+            total_bytes += h->size + sizeof(RtHandleV2);
+        total_bytes += sizeof(RtArenaV2); /* arena struct itself */
         gc_destroy_arena_fully(node->arena);
         free(node);
         node = next;
     }
+    return total_bytes;
 }
 
 /* ============================================================================
@@ -388,6 +398,19 @@ static void rc_table_inc(RcTable *t, void *key)
     t->size++;
 }
 
+static void rc_table_dec(RcTable *t, void *key)
+{
+    if (key == NULL) return;
+    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
+    while (t->entries[idx].key != NULL) {
+        if (t->entries[idx].key == key) {
+            if (t->entries[idx].count > 0) t->entries[idx].count--;
+            return;
+        }
+        idx = (idx + 1) % t->capacity;
+    }
+}
+
 static size_t rc_table_get(RcTable *t, void *key)
 {
     if (key == NULL || t->size == 0) return 0;
@@ -490,13 +513,45 @@ static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handl
  *   - ref count == 0 (no live handle references it): exclusively owned by this
  *     dead handle, mark it DEAD so it's collected next GC pass.
  *   - ref count >= 1 (referenced by a live handle): shared, leave it alone.
- * Returns true if all children were exclusively owned (ref count 0). */
-static bool gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
+ *
+ * For nested structs (handle → array → handle → struct fields...),
+ * gc_cascade_free_children handles the recursive case: when a child was live
+ * when the ref count table was built, its data contributed to ref counts,
+ * so we must decrement those counts and recurse if any drop to zero. */
+
+/* Forward declaration for mutual recursion */
+static void gc_cascade_free_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle);
+
+/* Cascade into a formerly-live handle: its data WAS scanned when building the
+ * ref count table, so we decrement ref counts for its children and recurse
+ * into any that drop to zero. */
+static void gc_cascade_free_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
 {
-    if (handle->ptr == NULL) return true;
+    if (handle->ptr == NULL) return;
     void **scan = (void **)handle->ptr;
     size_t slots = handle->size / sizeof(void *);
-    bool all_exclusive = true;
+    for (size_t i = 0; i < slots; i++) {
+        if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
+            rc_table_dec(rctable, scan[i]);  /* undo the live reference */
+            RtHandleV2 *child = (RtHandleV2 *)scan[i];
+            if (!(child->flags & RT_HANDLE_FLAG_DEAD) && rc_table_get(rctable, scan[i]) == 0) {
+                GC_DEBUG_LOG("    cascade free child: h=%p ptr=%p", (void *)child, child->ptr);
+                rt_arena_v2_free(child);
+                gc_cascade_free_children(rctable, handle_set, child);
+            }
+        }
+    }
+}
+
+/* Free exclusively-owned children of a dead handle. The dead handle's data was
+ * NOT scanned when building the ref count table (it was already unlinked), so
+ * we check ref counts directly without decrementing. When a child is found with
+ * ref count 0, we mark it dead and cascade into it (since it WAS live). */
+static void gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
+{
+    if (handle->ptr == NULL) return;
+    void **scan = (void **)handle->ptr;
+    size_t slots = handle->size / sizeof(void *);
     for (size_t i = 0; i < slots; i++) {
         if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
             if (rc_table_get(rctable, scan[i]) == 0) {
@@ -505,14 +560,11 @@ static bool gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, 
                 if (!(child->flags & RT_HANDLE_FLAG_DEAD)) {
                     GC_DEBUG_LOG("    free exclusive child: h=%p ptr=%p", (void *)child, child->ptr);
                     rt_arena_v2_free(child);
+                    gc_cascade_free_children(rctable, handle_set, child);
                 }
-            } else {
-                /* ref count >= 1: shared with a live handle -- leave it */
-                all_exclusive = false;
             }
         }
     }
-    return all_exclusive;
 }
 
 /* GC all arenas using two-phase approach with reference counting:
@@ -574,28 +626,18 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     GC_DEBUG_LOG("gc_compact_all: Pass 1 - free children by ref count");
 
     /* Pass 1: For each dead handle, free exclusively-owned children using
-     * ref counts. A child with ref count 0 (no live handle references it) is
-     * only reachable through dead handles -- mark it DEAD. A child with ref
-     * count >= 1 is shared with a live handle -- leave it alone.
+     * ref counts with recursive cascading for nested structs.
+     * A child with ref count 0 (no live handle references it) is only
+     * reachable through dead handles -- mark it DEAD and cascade into its
+     * data to handle nested struct/array children.
+     * A child with ref count >= 1 is shared with a live handle -- leave it.
      *
-     * If ALL children were exclusively owned, also run the free callback for
-     * any non-pointer cleanup. Otherwise skip the callback since it would
-     * attempt to free shared children. */
+     * NOTE: free_callback is NOT invoked here. The recursive cascade via
+     * gc_free_dead_handle_children + gc_cascade_free_children handles all
+     * nesting depths safely without dereferencing potentially-freed handles. */
     for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
-        if (node->handle->free_callback != NULL) {
-            bool all_exclusive = gc_free_dead_handle_children(&rctable, &handle_set, node->handle);
-            if (all_exclusive) {
-                GC_DEBUG_LOG("  all exclusive (deep free): h=%p ptr=%p arena=%p(%s)",
-                             (void *)node->handle, node->handle->ptr,
-                             (void *)node->handle->arena,
-                             node->handle->arena && node->handle->arena->name ? node->handle->arena->name : "?");
-                node->handle->free_callback(node->handle);
-            } else {
-                GC_DEBUG_LOG("  mixed ownership (children freed by ref count): h=%p ptr=%p",
-                             (void *)node->handle, node->handle->ptr);
-            }
-            node->handle->free_callback = NULL;
-        }
+        gc_free_dead_handle_children(&rctable, &handle_set, node->handle);
+        node->handle->free_callback = NULL;
     }
 
     GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
@@ -625,23 +667,23 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
  * Phase 1: Collect dead arenas, call their callbacks (handle structs stay valid)
  * Phase 2: Collect dead handles in live arenas, free data via free()
  * Phase 3: Free dead arena handle structs and arena structs */
+/* GC call/skip counters for diagnostics */
+static volatile size_t _gc_call_count = 0;
+static volatile size_t _gc_skip_count = 0;
+
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
-    /* First check (lock-free fast path) */
-    if (arena->gc_running) {
-        return 0;
-    }
+    __sync_add_and_fetch(&_gc_call_count, 1);
 
-    /* Lock briefly to safely set gc_running */
+    /* Serialized GC entry: use mutex to prevent concurrent GC on same arena */
     pthread_mutex_lock(&arena->mutex);
-
     if (arena->gc_running) {
+        __sync_add_and_fetch(&_gc_skip_count, 1);
         pthread_mutex_unlock(&arena->mutex);
         return 0;
     }
-
     arena->gc_running = true;
-    pthread_mutex_unlock(&arena->mutex);  /* Release before calling helpers */
+    pthread_mutex_unlock(&arena->mutex);
 
     /* Temporarily clear the malloc redirect handler to prevent GC's internal
      * allocations (HandleListNode, RcTable, etc.) from being redirected into
@@ -663,14 +705,24 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
      * (which may reference handles in dead arenas) don't hit use-after-free. */
     ArenaListNode *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
 
+    /* Count dead arenas for debug */
+    size_t dead_arena_count = 0;
+    for (ArenaListNode *n = dead_arenas; n != NULL; n = n->next) dead_arena_count++;
+
     /* Phase 2: Collect dead handles in all live arenas */
     gc_compact_all(arena, &result);
 
     /* Phase 3: Now safe to free dead arena handle structs and arena structs.
      * All callbacks (both sweep and compact) have completed. */
-    gc_sweep_finalize(dead_arenas);
+    size_t phase3_bytes = gc_sweep_finalize(dead_arenas);
 
-    /* Record GC results */
+    /* Fill in arena-level results */
+    result.arenas_freed = dead_arena_count;
+    result.arena_bytes_freed = phase3_bytes;
+
+    /* Record GC results (also handles logging if gc_log_enabled) */
+    result.gc_calls = _gc_call_count;
+    result.gc_skips = _gc_skip_count;
     rt_arena_stats_record_gc(arena, &result);
 
     /* Restore malloc redirect handler */

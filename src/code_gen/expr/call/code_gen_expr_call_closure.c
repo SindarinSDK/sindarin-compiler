@@ -97,9 +97,34 @@ char *code_gen_closure_call(CodeGen *gen, Expr *expr, CallExpr *call)
     }
     gen->expr_as_handle = saved_closure_handle;
 
-    /* Generate the call: ((<ret> (*)(<params>))closure->fn)(args) */
-    char *call_expr = arena_sprintf(gen->arena, "((%s (*)(%s))%s->fn)(%s)",
+    /* Generate the call: ((<ret> (*)(<params>))closure->fn)(args)
+     * Wrap with TLS arena save/set/restore so closure thunks pick up
+     * the caller's arena instead of the thread-global TLS arena. */
+    char *raw_call = arena_sprintf(gen->arena, "((%s (*)(%s))%s->fn)(%s)",
                          ret_c_type, param_types_str, closure_str, args_str);
+    char *call_expr;
+    if (gen->current_arena_var != NULL)
+    {
+        Type *fn_ret = callee_type->as.function.return_type;
+        if (fn_ret != NULL && fn_ret->kind != TYPE_VOID)
+        {
+            call_expr = arena_sprintf(gen->arena,
+                "({ RtArenaV2 *__stls__ = rt_tls_arena_get(); rt_tls_arena_set(%s); "
+                "%s __clr__ = %s; rt_tls_arena_set(__stls__); __clr__; })",
+                gen->current_arena_var, ret_c_type, raw_call);
+        }
+        else
+        {
+            call_expr = arena_sprintf(gen->arena,
+                "({ RtArenaV2 *__stls__ = rt_tls_arena_get(); rt_tls_arena_set(%s); "
+                "%s; rt_tls_arena_set(__stls__); })",
+                gen->current_arena_var, raw_call);
+        }
+    }
+    else
+    {
+        call_expr = raw_call;
+    }
 
     /* If returning string/array handle but caller expects raw pointer, pin the result */
     Type *ret_type = callee_type->as.function.return_type;

@@ -99,6 +99,16 @@ static void recompute_stats(RtArenaV2 *arena)
  * GC Support Functions (called by arena_gc.c)
  * ============================================================================ */
 
+/* Global allocation counters (defined in arena_v2.c) */
+extern volatile size_t rt_alloc_total_bytes;
+extern volatile size_t rt_alloc_total_count;
+extern volatile size_t rt_arena_create_count;
+
+/* Cumulative freed tracking */
+static volatile size_t _cumulative_freed_bytes = 0;
+static volatile size_t _cumulative_freed_handles = 0;
+static volatile size_t _gc_cycle_count = 0;
+
 void rt_arena_stats_record_gc(RtArenaV2 *arena, const RtArenaGCResult *result)
 {
     if (arena == NULL || result == NULL) return;
@@ -107,14 +117,29 @@ void rt_arena_stats_record_gc(RtArenaV2 *arena, const RtArenaGCResult *result)
     arena->stats.last_handles_freed = result->handles_freed;
     arena->stats.last_bytes_freed = result->bytes_freed;
 
-    /* Log if enabled */
-    if (arena->gc_log_enabled) {
+    /* Accumulate freed totals */
+    size_t freed_this_cycle = result->bytes_freed + result->arena_bytes_freed;
+    __sync_add_and_fetch(&_cumulative_freed_bytes, freed_this_cycle);
+    __sync_add_and_fetch(&_cumulative_freed_handles, result->handles_freed);
+    size_t cycle = __sync_add_and_fetch(&_gc_cycle_count, 1);
+
+    /* Log if enabled (periodic to avoid flooding under high concurrency) */
+    if (arena->gc_log_enabled && (cycle <= 10 || cycle % 50 == 0)) {
         recompute_stats(arena);
-        fprintf(stderr, "[GC] arena=%s handles=%zu/%zu bytes=%zu/%zu freed=%zu/%zu\n",
-                arena->name ? arena->name : "(unnamed)",
-                arena->stats.handles.local, arena->stats.handles.total,
-                arena->stats.bytes.local, arena->stats.bytes.total,
-                result->handles_freed, result->bytes_freed);
+        size_t alloc_total = rt_alloc_total_bytes;
+        size_t freed_total = _cumulative_freed_bytes;
+        size_t delta = alloc_total > freed_total ? alloc_total - freed_total : 0;
+        fprintf(stderr,
+                "[GC #%zu] live=%zuh/%zub | freed=%zuh/%zub arenas=%zu/%zub"
+                " | alloc=%zub freed=%zub delta=%zub"
+                " | calls=%zu skips=%zu\n",
+                cycle,
+                arena->stats.handles.total, arena->stats.bytes.total,
+                result->handles_freed, result->bytes_freed,
+                result->arenas_freed, result->arena_bytes_freed,
+                alloc_total, freed_total, delta,
+                result->gc_calls, result->gc_skips);
+        fflush(stderr);
     }
 }
 

@@ -19,8 +19,12 @@ typedef struct RtArenaV2 RtArenaV2;
 
 /* GC result - tracks what was freed during a GC cycle */
 typedef struct {
-    size_t handles_freed;
-    size_t bytes_freed;
+    size_t handles_freed;       /* Dead handles collected from live arenas (Phase 2) */
+    size_t bytes_freed;         /* Bytes freed from dead handles (Phase 2) */
+    size_t arenas_freed;        /* Condemned arenas destroyed (Phase 1+3) */
+    size_t arena_bytes_freed;   /* Bytes freed from condemned arenas (Phase 3) */
+    size_t gc_calls;            /* Cumulative GC entry attempts */
+    size_t gc_skips;            /* Cumulative GC skips (gc_running was true) */
 } RtArenaGCResult;
 
 /* Run GC on arena tree. Returns total handles collected.
