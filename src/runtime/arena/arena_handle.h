@@ -38,23 +38,6 @@ typedef struct RtArenaV2 RtArenaV2;
 typedef void (*RtHandleV2CopyCallback)(RtArenaV2 *dest, void *ptr);
 
 /* ============================================================================
- * Destroy Callback - Cleanup Before Free
- * ============================================================================
- * When GC frees a handle, the destroy callback (if set) is invoked first.
- * Use this to release resources that can't be abandoned (pthread primitives,
- * file handles, etc.).
- *
- * Example: RtThread cleanup
- *   void __destroy_RtThread__(void *ptr) {
- *       RtThread *t = (RtThread *)ptr;
- *       pthread_mutex_destroy(&t->mutex);
- *       pthread_cond_destroy(&t->cond);
- *   }
- * ============================================================================ */
-
-typedef void (*RtHandleV2FreeCallback)(RtHandleV2 *handle);
-
-/* ============================================================================
  * Handle Flags
  * ============================================================================ */
 
@@ -85,7 +68,6 @@ struct RtHandleV2 {
 
     /* Callbacks */
     RtHandleV2CopyCallback copy_callback;     /* Called after shallow copy (NULL for simple types) */
-    RtHandleV2FreeCallback free_callback;     /* Called before GC frees handle (NULL if no cleanup) */
 
     /* Intrusive linked list for arena's handle tracking */
     RtHandleV2 *next;           /* Next handle in arena */
@@ -169,11 +151,5 @@ void rt_handle_set_copy_callback(RtHandleV2 *handle, RtHandleV2CopyCallback call
 
 /* Get copy callback (NULL if none set). */
 RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle);
-
-/* Set destroy callback for cleanup before GC frees handle. */
-void rt_handle_set_free_callback(RtHandleV2 *handle, RtHandleV2FreeCallback callback);
-
-/* Get destroy callback (NULL if none set). */
-RtHandleV2FreeCallback rt_handle_get_free_callback(RtHandleV2 *handle);
 
 #endif /* ARENA_HANDLE_H */

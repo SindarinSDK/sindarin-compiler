@@ -59,7 +59,6 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size)
     handle->arena = arena;
     handle->flags = RT_HANDLE_FLAG_NONE;
     handle->copy_callback = NULL;
-    handle->free_callback = NULL;
     handle->next = NULL;
     handle->prev = NULL;
 
@@ -137,8 +136,8 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
 void rt_arena_v2_condemn(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
-    if (arena->flags & RT_ARENA_FLAG_DEAD) return;  /* Already condemned */
-    arena->flags |= RT_ARENA_FLAG_DEAD;
+    uint16_t old_flags = __sync_fetch_and_or(&arena->flags, RT_ARENA_FLAG_DEAD);
+    if (old_flags & RT_ARENA_FLAG_DEAD) return;  /* Already condemned */
 
     /* Unlink from parent's child list */
     RtArenaV2 *parent = arena->parent;
@@ -342,9 +341,8 @@ RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle)
         /* Shallow copy */
         memcpy(new_handle->ptr, handle->ptr, handle->size);
 
-        /* Inherit callbacks */
+        /* Inherit copy callback */
         new_handle->copy_callback = handle->copy_callback;
-        new_handle->free_callback = handle->free_callback;
 
         /* Deep copy if callback registered */
         if (new_handle->copy_callback != NULL) {

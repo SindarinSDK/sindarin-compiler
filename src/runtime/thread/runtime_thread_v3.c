@@ -91,7 +91,7 @@ static void rt_thread_copy_callback(RtArenaV2 *dest, void *ptr)
     }
 }
 
-/* Forward declaration for use as free_callback */
+/* Forward declaration for use as cleanup callback */
 void rt_thread_v3_dispose(RtHandleV2 *thread_handle);
 
 /* ============================================================================
@@ -115,9 +115,11 @@ RtHandleV2 *rt_thread_v3_create(RtArenaV2 *caller, RtThreadMode mode)
     rt_handle_begin_transaction(handle);
     RtThread *t = (RtThread *)handle->ptr;
 
-    /* Set callbacks for pthread primitive safety */
+    /* Set copy callback for pthread primitive safety */
     rt_handle_set_copy_callback(handle, rt_thread_copy_callback);
-    rt_handle_set_free_callback(handle, rt_thread_v3_dispose);
+
+    /* Register cleanup callback so thread is disposed when caller arena is destroyed */
+    rt_arena_v2_on_cleanup(caller, handle, rt_thread_v3_dispose, 0);
 
     /* Initialize pthread primitives */
     pthread_mutex_init(&t->mutex, NULL);
@@ -316,11 +318,8 @@ void rt_thread_v3_dispose(RtHandleV2 *thread_handle)
 
     rt_handle_end_transaction(thread_handle);
 
-    /* Only free handle if not already being destroyed by GC.
-     * When GC calls us via free_callback, handle has DEAD flag set. */
-    if (!(thread_handle->flags & RT_HANDLE_FLAG_DEAD)) {
-        rt_arena_v2_free(thread_handle);
-    }
+    /* Mark handle as dead so GC can collect it */
+    rt_arena_v2_free(thread_handle);
 
 }
 

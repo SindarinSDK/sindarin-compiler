@@ -353,13 +353,11 @@ RtHandleV2 *rt_args_create_v2(RtArenaV2 *arena, int argc, char **argv);
  * so rt_arena_v2_promote() and GC sweep work automatically.
  * ============================================================================ */
 
-/* Copy/free callbacks for arrays of handles (str[], T[][], etc.) */
+/* Copy callback for arrays of handles (str[], T[][], etc.) */
 void rt_array_copy_callback(RtArenaV2 *dest, void *ptr);
-void rt_array_free_callback(RtHandleV2 *handle);
 
-/* Copy/free callbacks for any[] arrays */
+/* Copy callback for any[] arrays */
 void rt_array_any_copy_callback(RtArenaV2 *dest, void *ptr);
-void rt_array_any_free_callback(RtHandleV2 *handle);
 
 /* ============================================================================
  * Array Join Functions (V2)
