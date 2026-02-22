@@ -72,12 +72,18 @@ static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size)
 
 /* Handle link/unlink/destroy functions moved to arena_handle.c */
 
+/* Global allocation counters (extern-visible for GC logging) */
+volatile size_t rt_alloc_total_bytes = 0;
+volatile size_t rt_alloc_total_count = 0;
+volatile size_t rt_arena_create_count = 0;
+
 /* ============================================================================
  * Arena Lifecycle
  * ============================================================================ */
 
 RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *name)
 {
+    __sync_add_and_fetch(&rt_arena_create_count, 1);
     RtArenaV2 *arena = calloc(1, sizeof(RtArenaV2));
     if (arena == NULL) {
         fprintf(stderr, "arena_v2: arena allocation failed\n");
@@ -116,11 +122,6 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
         arena->root = parent->root;  /* Inherit root from parent */
         arena->gc_log_enabled = parent->gc_log_enabled;  /* Inherit GC logging */
 
-        if (parent->gc_log_enabled) {
-            fprintf(stderr, "[ARENA] created '%s' parent='%s'\n",
-                    name ? name : "(unnamed)", parent->name ? parent->name : "(unnamed)");
-        }
-
         /* Link into parent's child list */
         pthread_mutex_lock(&parent->mutex);
         arena->next_sibling = parent->first_child;
@@ -137,9 +138,6 @@ void rt_arena_v2_condemn(RtArenaV2 *arena)
 {
     if (arena == NULL) return;
     if (arena->flags & RT_ARENA_FLAG_DEAD) return;  /* Already condemned */
-    if (arena->gc_log_enabled) {
-        fprintf(stderr, "[ARENA] condemn '%s'\n", arena->name ? arena->name : "(unnamed)");
-    }
     arena->flags |= RT_ARENA_FLAG_DEAD;
 
     /* Unlink from parent's child list */
@@ -222,6 +220,8 @@ void rt_arena_v2_remove_cleanup(RtArenaV2 *arena, RtHandleV2 *data)
 RtHandleV2 *rt_arena_v2_alloc(RtArenaV2 *arena, size_t size)
 {
     if (arena == NULL || size == 0) return NULL;
+    __sync_add_and_fetch(&rt_alloc_total_bytes, size + sizeof(RtHandleV2));
+    __sync_add_and_fetch(&rt_alloc_total_count, 1);
 
     void *ptr = malloc(size);
     if (ptr == NULL) {

@@ -32,10 +32,15 @@ void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, const char 
 }
 
 /* Recursively generate promotion code for all handle fields in a struct.
- * Handles direct string/array fields and recurses into nested struct fields. */
+ * Handles direct string/array fields and recurses into nested struct fields.
+ * For struct methods, an arena guard prevents promoting handles already on
+ * self->__arena__ (which would mark them dead if the method returns self). */
 static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, const char *prefix, const char *target_arena, int indent)
 {
     int field_count = struct_type->as.struct_type.field_count;
+    /* Use function_arena_var as guard: only promote handles on the local arena
+     * (about to be condemned). Handles on self->__arena__ are left alone. */
+    const char *guard_arena = gen->function_arena_var;
 
     for (int i = 0; i < field_count; i++)
     {
@@ -46,12 +51,16 @@ static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, cons
 
         if (field->type->kind == TYPE_STRING)
         {
-            indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(%s, %s.%s);\n",
+            indented_fprintf(gen, indent, "if (%s.%s && %s.%s->arena == %s)\n",
+                             prefix, c_field_name, prefix, c_field_name, guard_arena);
+            indented_fprintf(gen, indent + 1, "%s.%s = rt_arena_v2_promote(%s, %s.%s);\n",
                              prefix, c_field_name, target_arena, prefix, c_field_name);
         }
         else if (field->type->kind == TYPE_ARRAY)
         {
-            indented_fprintf(gen, indent, "%s.%s = rt_arena_v2_promote(%s, %s.%s);\n",
+            indented_fprintf(gen, indent, "if (%s.%s && %s.%s->arena == %s)\n",
+                             prefix, c_field_name, prefix, c_field_name, guard_arena);
+            indented_fprintf(gen, indent + 1, "%s.%s = rt_arena_v2_promote(%s, %s.%s);\n",
                              prefix, c_field_name, target_arena, prefix, c_field_name);
         }
         else if (field->type->kind == TYPE_STRUCT && struct_has_handle_fields(field->type))
@@ -98,6 +107,14 @@ static void code_gen_promote_self_array_elements(CodeGen *gen, const char *field
                                  cf, cf);
             }
         }
+
+        /* Clear the element's __arena__ — the struct is now inline in the array
+         * and its handle fields have been promoted to self->__arena__. The original
+         * per-element struct arena (child of __local_arena__) will be orphaned when
+         * __local_arena__ is condemned. Setting it to NULL prevents later code from
+         * condemning the freed arena. */
+        indented_fprintf(gen, indent + 2, "if (__pa__[__pi__].__arena__ && __pa__[__pi__].__arena__ != __sn__self->__arena__)\n");
+        indented_fprintf(gen, indent + 3, "__pa__[__pi__].__arena__ = NULL;\n");
 
         indented_fprintf(gen, indent + 1, "}\n");
         indented_fprintf(gen, indent, "}\n");

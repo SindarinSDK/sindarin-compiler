@@ -210,10 +210,12 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
              * If the return value shares handles with self, promoting the return
              * value first ensures those handles are cloned to caller_arena while
              * still alive. Self-field promotion then safely re-promotes the
-             * (now dead) originals to self->__arena__. */
+             * (now dead) originals to self->__arena__.
+             * Target is __caller_arena__ — the arena guard (->arena == __local_arena__)
+             * ensures handles already on self->__arena__ are left untouched. */
             if (has_return_value && !is_private)
             {
-                code_gen_return_promotion(gen, method->return_type, false, is_shared, "__sn__self->__arena__", indent + 1);
+                code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", indent + 1);
             }
 
             if (!is_shared)
