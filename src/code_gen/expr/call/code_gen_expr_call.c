@@ -635,9 +635,8 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                         return arena_sprintf(gen->arena,
                             "({ %s *__native_arr = %s; "
                             "RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)__native_arr), sizeof(%s), __native_arr);"
-                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                            " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                            elem_c, call_expr, ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                            elem_c, call_expr, ARENA_VAR(gen), elem_c, sn_name);
                     }
                     return arena_sprintf(gen->arena,
                         "({ %s *__native_arr = %s; "
@@ -754,9 +753,8 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                         ? elem->as.struct_type.name : elem_c;
                     result = arena_sprintf(gen->arena,
                         "%s        ({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)_call_result), sizeof(%s), _call_result);"
-                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; });\n    })",
-                        result, ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; });\n    })",
+                        result, ARENA_VAR(gen), elem_c, sn_name);
                 } else {
                     result = arena_sprintf(gen->arena,
                         "%s        rt_array_create_generic_v2(%s, rt_v2_data_array_length((void *)_call_result), sizeof(%s), _call_result);\n    })",

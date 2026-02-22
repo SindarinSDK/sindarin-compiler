@@ -73,6 +73,76 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     {
         indented_fprintf(gen, indent, "%s;\n", expr_str);
     }
+    else if (gen->current_arena_var != NULL &&
+             stmt->expression->type == EXPR_CALL &&
+             stmt->expression->as.call.callee != NULL &&
+             stmt->expression->as.call.callee->type == EXPR_MEMBER &&
+             stmt->expression->expr_type != NULL &&
+             stmt->expression->expr_type->kind == TYPE_STRUCT)
+    {
+        /* Struct-returning method call used as a statement (return value discarded).
+         * When an instance method returns self (fluent pattern), the method's
+         * return-value promotes clone handle fields into __caller_arena__. If the
+         * return value is discarded, these clones become unreachable but alive —
+         * the GC cannot collect them (it's not a tracing GC). This leaks ~5 handles
+         * per request in HTTP server benchmarks.
+         * Fix: capture the discarded return value, compare each handle field with
+         * self's field, and mark newly-promoted copies (which differ) as dead. */
+        MemberExpr *member = &stmt->expression->as.call.callee->as.member;
+        Type *return_type = resolve_struct_type(gen, stmt->expression->expr_type);
+
+        if (member->resolved_method != NULL &&
+            !member->resolved_method->is_static &&
+            return_type != NULL &&
+            return_type->kind == TYPE_STRUCT &&
+            struct_has_handle_fields(return_type) &&
+            member->object != NULL &&
+            member->object->type == EXPR_VARIABLE)
+        {
+            const char *c_type = sn_mangle_name(gen->arena,
+                                     return_type->as.struct_type.name);
+
+            /* Re-generate self expression (safe for EXPR_VARIABLE — no side effects) */
+            char *self_str = code_gen_expression(gen, member->object);
+            bool is_ptr = (member->object->expr_type != NULL &&
+                           member->object->expr_type->kind == TYPE_POINTER);
+            const char *acc = is_ptr ? "->" : ".";
+
+            int tid = gen->temp_count++;
+            indented_fprintf(gen, indent, "{ %s __dsc_%d__ = %s;\n",
+                             c_type, tid, expr_str);
+
+            int fc = return_type->as.struct_type.field_count;
+            for (int i = 0; i < fc; i++)
+            {
+                StructField *f = &return_type->as.struct_type.fields[i];
+                if (f->type == NULL) continue;
+                TypeKind k = f->type->kind;
+                if (k == TYPE_STRING || k == TYPE_ARRAY)
+                {
+                    const char *fn = sn_mangle_name(gen->arena, f->name);
+                    indented_fprintf(gen, indent + 1,
+                        "if (__dsc_%d__.%s != %s%s%s && __dsc_%d__.%s) "
+                        "rt_arena_v2_free(__dsc_%d__.%s);\n",
+                        tid, fn, self_str, acc, fn,
+                        tid, fn,
+                        tid, fn);
+                }
+            }
+
+            /* Condemn the discard's struct arena if different from self's */
+            indented_fprintf(gen, indent + 1,
+                "if (__dsc_%d__.__arena__ && __dsc_%d__.__arena__ != %s%s__arena__) "
+                "rt_arena_v2_condemn(__dsc_%d__.__arena__);\n",
+                tid, tid, self_str, acc, tid);
+
+            indented_fprintf(gen, indent, "}\n");
+        }
+        else
+        {
+            indented_fprintf(gen, indent, "%s;\n", expr_str);
+        }
+    }
     else
     {
         indented_fprintf(gen, indent, "%s;\n", expr_str);

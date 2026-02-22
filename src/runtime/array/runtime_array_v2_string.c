@@ -40,7 +40,6 @@ RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandl
         arr[0] = elem_h;
         rt_handle_end_transaction(new_h);
         rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-        rt_handle_set_free_callback(new_h, rt_array_free_callback);
         return new_h;
     }
 
@@ -79,7 +78,6 @@ RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandl
     rt_arena_v2_free(arr_h);
 
     rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-    rt_handle_set_free_callback(new_h, rt_array_free_callback);
     return new_h;
 }
 
@@ -103,7 +101,6 @@ RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2
         arr[0] = elem_h;
         rt_handle_end_transaction(new_h);
         rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-        rt_handle_set_free_callback(new_h, rt_array_free_callback);
         return new_h;
     }
 
@@ -141,7 +138,6 @@ RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2
     rt_arena_v2_free(arr_h);
 
     rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-    rt_handle_set_free_callback(new_h, rt_array_free_callback);
     return new_h;
 }
 
@@ -163,7 +159,6 @@ RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHand
         arr[0] = element;
         rt_handle_end_transaction(new_h);
         rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-        rt_handle_set_free_callback(new_h, rt_array_free_callback);
         return new_h;
     }
 
@@ -201,7 +196,6 @@ RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHand
     rt_arena_v2_free(arr_h);
 
     rt_handle_set_copy_callback(new_h, rt_array_copy_callback);
-    rt_handle_set_free_callback(new_h, rt_array_free_callback);
     return new_h;
 }
 
@@ -223,7 +217,6 @@ RtHandleV2 *rt_array_push_any_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtAny elem
         arr[0] = element;
         rt_handle_end_transaction(new_h);
         rt_handle_set_copy_callback(new_h, rt_array_any_copy_callback);
-        rt_handle_set_free_callback(new_h, rt_array_any_free_callback);
         return new_h;
     }
 
@@ -261,7 +254,6 @@ RtHandleV2 *rt_array_push_any_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtAny elem
     rt_arena_v2_free(arr_h);
 
     rt_handle_set_copy_callback(new_h, rt_array_any_copy_callback);
-    rt_handle_set_free_callback(new_h, rt_array_any_free_callback);
     return new_h;
 }
 
@@ -369,7 +361,6 @@ RtHandleV2 *rt_array_clone_string_v2(RtHandleV2 *arr_h) {
     rt_handle_end_transaction(h);
     /* Inherit callbacks from source */
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(arr_h));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(arr_h));
     return h;
 }
 
@@ -446,7 +437,6 @@ RtHandleV2 *rt_array_concat_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h) {
     if (b_h) rt_handle_end_transaction(b_h);
     if (a_h) rt_handle_end_transaction(a_h);
     rt_handle_set_copy_callback(h, rt_array_copy_callback);
-    rt_handle_set_free_callback(h, rt_array_free_callback);
     return h;
 }
 
@@ -484,7 +474,6 @@ RtHandleV2 *rt_array_concat_ptr_v2(RtHandleV2 *a_h, RtHandleV2 *b_h) {
     /* Inherit callbacks from first source */
     RtHandleV2 *src = a_h ? a_h : b_h;
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(src));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(src));
     return h;
 }
 
@@ -563,7 +552,6 @@ RtHandleV2 *rt_array_slice_string_v2(RtHandleV2 *arr_h,
     rt_handle_end_transaction(arr_h);
     /* Inherit callbacks from source */
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(arr_h));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(arr_h));
     return h;
 }
 
@@ -609,7 +597,6 @@ RtHandleV2 *rt_array_rev_string_v2(RtHandleV2 *arr_h) {
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(arr_h));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(arr_h));
     return h;
 }
 
@@ -666,7 +653,6 @@ RtHandleV2 *rt_array_rem_string_v2(RtHandleV2 *arr_h, long index) {
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(arr_h));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(arr_h));
     return h;
 }
 
@@ -730,7 +716,6 @@ RtHandleV2 *rt_array_ins_string_v2(RtHandleV2 *arr_h, RtHandleV2 *elem, long ind
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     rt_handle_set_copy_callback(h, rt_handle_get_copy_callback(arr_h));
-    rt_handle_set_free_callback(h, rt_handle_get_free_callback(arr_h));
     return h;
 }
 

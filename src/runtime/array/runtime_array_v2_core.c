@@ -47,7 +47,6 @@ RtHandleV2 *rt_array_clone_v2(RtHandleV2 *arr_h, size_t elem_size) {
     RtHandleV2 *result = array_create_v2(arena, count, elem_size, src);
     /* Propagate callbacks from source array */
     result->copy_callback = arr_h->copy_callback;
-    result->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(arr_h);
     return result;
 }
@@ -80,10 +79,8 @@ RtHandleV2 *rt_array_concat_v2(RtHandleV2 *a_h, RtHandleV2 *b_h, size_t elem_siz
     /* Propagate callbacks from source array */
     if (a_h) {
         h->copy_callback = a_h->copy_callback;
-        h->free_callback = a_h->free_callback;
     } else if (b_h) {
         h->copy_callback = b_h->copy_callback;
-        h->free_callback = b_h->free_callback;
     }
     rt_handle_end_transaction(h);
     if (b_h) rt_handle_end_transaction(b_h);
@@ -144,7 +141,6 @@ RtHandleV2 *rt_array_slice_v2(RtHandleV2 *arr_h, long start, long end, long step
     }
     /* Propagate callbacks from source array */
     h->copy_callback = arr_h->copy_callback;
-    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -177,7 +173,6 @@ RtHandleV2 *rt_array_rev_v2(RtHandleV2 *arr_h, size_t elem_size) {
     }
     /* Propagate callbacks from source array */
     h->copy_callback = arr_h->copy_callback;
-    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -215,7 +210,6 @@ RtHandleV2 *rt_array_rem_v2(RtHandleV2 *arr_h, long index, size_t elem_size) {
     }
     /* Propagate callbacks from source array */
     h->copy_callback = arr_h->copy_callback;
-    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -256,7 +250,6 @@ RtHandleV2 *rt_array_ins_v2(RtHandleV2 *arr_h, const void *elem, long index, siz
     }
     /* Propagate callbacks from source array */
     h->copy_callback = arr_h->copy_callback;
-    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -315,7 +308,6 @@ RtHandleV2 *rt_array_push_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, const void *el
 
     /* Propagate callbacks from old handle to new handle */
     new_h->copy_callback = arr_h->copy_callback;
-    new_h->free_callback = arr_h->free_callback;
 
     rt_handle_end_transaction(new_h);
     rt_handle_end_transaction(arr_h);
@@ -349,7 +341,6 @@ RtHandleV2 *rt_array_push_copy_v2(RtHandleV2 *arr_h, const void *elem, size_t el
     memcpy(dst + len * elem_size, elem, elem_size);
     /* Propagate callbacks from source array */
     h->copy_callback = arr_h->copy_callback;
-    h->free_callback = arr_h->free_callback;
     rt_handle_end_transaction(h);
     rt_handle_end_transaction(arr_h);
     return h;
@@ -446,7 +437,6 @@ RtHandleV2 *rt_array_create_string_v2(RtArenaV2 *arena, size_t count, const char
 
     rt_handle_end_transaction(h);
     rt_handle_set_copy_callback(h, rt_array_copy_callback);
-    rt_handle_set_free_callback(h, rt_array_free_callback);
     return h;
 }
 
@@ -459,7 +449,6 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **
     RtHandleV2 *h = array_create_v2(arena, count, sizeof(RtHandleV2 *), data);
     if (h) {
         rt_handle_set_copy_callback(h, rt_array_copy_callback);
-        rt_handle_set_free_callback(h, rt_array_free_callback);
     }
     return h;
 }
@@ -467,9 +456,9 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **
 /* ============================================================================
  * Generic Array GC Callbacks
  * ============================================================================
- * These callbacks enable self-describing handles for arrays containing
+ * Copy callback enables self-describing handles for arrays containing
  * nested handles (str[], T[][], etc.). When set, rt_arena_v2_promote()
- * and GC sweep can deep-copy/free array contents automatically.
+ * can deep-copy array contents automatically.
  * ============================================================================ */
 
 /* Copy callback for arrays of handles (str[], T[][], etc.) */
@@ -484,13 +473,3 @@ void rt_array_copy_callback(RtArenaV2 *dest, void *ptr) {
     }
 }
 
-/* Free callback for arrays of handles (str[], T[][], etc.) */
-void rt_array_free_callback(RtHandleV2 *handle) {
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)handle->ptr;
-    if (meta->element_size == sizeof(RtHandleV2 *)) {
-        RtHandleV2 **arr = (RtHandleV2 **)((char *)handle->ptr + sizeof(RtArrayMetadataV2));
-        for (size_t i = 0; i < meta->size; i++) {
-            if (arr[i] != NULL) rt_arena_v2_free(arr[i]);
-        }
-    }
-}

@@ -724,11 +724,3 @@ void rt_array_any_copy_callback(RtArenaV2 *dest, void *ptr) {
     }
 }
 
-/* Free callback for any[] arrays - deep frees string/array/struct elements */
-void rt_array_any_free_callback(RtHandleV2 *handle) {
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)handle->ptr;
-    RtAny *arr = (RtAny *)((char *)handle->ptr + sizeof(RtArrayMetadataV2));
-    for (size_t i = 0; i < meta->size; i++) {
-        rt_any_deep_free(&arr[i]);
-    }
-}

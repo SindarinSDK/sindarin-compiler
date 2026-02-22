@@ -513,9 +513,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "
                         "RtHandleV2 *__arr_h__ = rt_array_create_generic_v2((RtArenaV2 *)__rt_thunk_arena, "
                         "rt_v2_data_array_length((void *)__arr_data), sizeof(%s), __arr_data);"
-                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                        unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, elem_c, sn_name, sn_name);
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                        unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, elem_c, sn_name);
                 } else {
                     unboxed_args = arena_sprintf(gen->arena,
                         "%s({ %s *__arr_data = (%s *)%s(__rt_thunk_args[%d]); "

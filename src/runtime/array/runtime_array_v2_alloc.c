@@ -73,7 +73,6 @@ RtHandleV2 *rt_array_alloc_string_v2(RtArenaV2 *arena, size_t count, RtHandleV2 
     rt_handle_end_transaction(h);
     if (default_value) rt_handle_end_transaction(default_value);
     rt_handle_set_copy_callback(h, rt_array_copy_callback);
-    rt_handle_set_free_callback(h, rt_array_free_callback);
     return h;
 }
 

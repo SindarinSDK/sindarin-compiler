@@ -198,9 +198,8 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                             ? elem_type->as.struct_type.name : literal_type;
                         elem_str = arena_sprintf(gen->arena,
                             "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s});"
-                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                            " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                            ARENA_VAR(gen), literal_type, literal_type, val, sn_name, sn_name);
+                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                            ARENA_VAR(gen), literal_type, literal_type, val, sn_name);
                     } else {
                         elem_str = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 1, sizeof(%s), (%s[]){%s})",
                                                 ARENA_VAR(gen), literal_type, literal_type, val);
@@ -260,9 +259,8 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     ? elem_type->as.struct_type.name : elem_c;
                 return arena_sprintf(gen->arena,
                     "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL);"
-                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                    " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                    ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                    ARENA_VAR(gen), elem_c, sn_name);
             }
             const char *sizeof_expr = get_c_sizeof_elem(gen->arena, elem_type);
             return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, %s, NULL)", ARENA_VAR(gen), sizeof_expr);
@@ -328,15 +326,13 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                     if (arr->element_count == 0) {
                         return arena_sprintf(gen->arena,
                             "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL);"
-                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                            " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                            ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                            " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                            ARENA_VAR(gen), elem_c, sn_name);
                     }
                     return arena_sprintf(gen->arena,
                         "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s});"
-                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                        ARENA_VAR(gen), arr->element_count, elem_c, elem_c, inits, sn_name, sn_name);
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                        ARENA_VAR(gen), arr->element_count, elem_c, elem_c, inits, sn_name);
                 }
                 /* Handle mode: use _h variant returning RtHandle */
                 if (arr->element_count == 0) {
@@ -390,9 +386,8 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
                 ? elem_type->as.struct_type.name : literal_type;
             return arena_sprintf(gen->arena,
                 "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s});"
-                " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits, sn_name, sn_name);
+                " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits, sn_name);
         }
         return arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, %d, sizeof(%s), (%s[]){%s})",
                              ARENA_VAR(gen), arr->element_count, literal_type, literal_type, inits);
@@ -543,9 +538,8 @@ char *code_gen_array_slice_expression(CodeGen *gen, Expr *expr)
                     ? elem_type->as.struct_type.name : elem_c;
                 return arena_sprintf(gen->arena,
                     "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s));"
-                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                    " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                    ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str, sn_name, sn_name);
+                    " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                    ARENA_VAR(gen), end_str, start_str, elem_c, array_str, start_str, sn_name);
             }
             return arena_sprintf(gen->arena,
                 "rt_array_create_generic_v2(%s, (size_t)((%s) - (%s)), sizeof(%s), (%s) + (%s))",

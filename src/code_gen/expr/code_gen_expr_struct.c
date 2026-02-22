@@ -235,9 +235,8 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                         ? elem_type->as.struct_type.name : elem_c;
                     value_code = arena_sprintf(gen->arena,
                         "({ RtHandleV2 *__arr_h__ = rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL);"
-                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__);"
-                        " rt_handle_set_free_callback(__arr_h__, __free_array_%s__); __arr_h__; })",
-                        ARENA_VAR(gen), elem_c, sn_name, sn_name);
+                        " rt_handle_set_copy_callback(__arr_h__, __copy_array_%s__); __arr_h__; })",
+                        ARENA_VAR(gen), elem_c, sn_name);
                 } else {
                     value_code = arena_sprintf(gen->arena, "rt_array_create_generic_v2(%s, 0, sizeof(%s), NULL)",
                                                ARENA_VAR(gen), elem_c);

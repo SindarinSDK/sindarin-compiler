@@ -12,9 +12,7 @@
  *   __copy_Person_inline__(dest, s)  - walks fields, promotes handles
  *   __free_Person_inline__(s)        - walks fields, frees handles
  *   __copy_Person__(dest, ptr)       - callback wrapper, casts ptr
- *   __free_Person__(handle)          - callback wrapper, casts handle->ptr
  *   __copy_array_Person__(dest, ptr) - iterates array elements
- *   __free_array_Person__(handle)    - iterates array elements
  */
 
 #include "code_gen/util/code_gen_util.h"
@@ -110,6 +108,31 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             copy_body = arena_sprintf(gen->arena,
                 "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
                 copy_body, f_c_name, f_c_name);
+
+            /* For struct arrays, iterate elements and free their contents
+             * before freeing the array handle. Each struct element has an
+             * __arena__ that must be condemned for GC to reclaim it. */
+            if (kind == TYPE_ARRAY &&
+                field->type->as.array.element_type &&
+                field->type->as.array.element_type->kind == TYPE_STRUCT &&
+                struct_has_handle_fields(field->type->as.array.element_type)) {
+                Type *elem = resolve_struct_type(gen, field->type->as.array.element_type);
+                const char *elem_c = get_struct_c_name(gen, elem);
+                const char *elem_sn = get_struct_sn_name(gen, elem);
+                free_body = arena_sprintf(gen->arena,
+                    "%s    if (s->%s && s->%s->ptr) {\n"
+                    "        RtArrayMetadataV2 *__meta__ = (RtArrayMetadataV2 *)s->%s->ptr;\n"
+                    "        %s *__elems__ = (%s *)((char *)s->%s->ptr + sizeof(RtArrayMetadataV2));\n"
+                    "        for (size_t __i__ = 0; __i__ < __meta__->size; __i__++) {\n"
+                    "            __free_%s_inline__(&__elems__[__i__], s->%s->arena);\n"
+                    "        }\n"
+                    "    }\n",
+                    free_body, f_c_name, f_c_name,
+                    f_c_name,
+                    elem_c, elem_c, f_c_name,
+                    elem_sn, f_c_name);
+            }
+
             free_body = arena_sprintf(gen->arena,
                 "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
                 free_body, f_c_name, f_c_name, f_c_name);
@@ -150,20 +173,21 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         }
     }
 
+    /* Condemn the struct's arena when freed (handles array element + nested cleanup) */
+    free_body = arena_sprintf(gen->arena,
+        "%s    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n",
+        free_body);
+
     /* Forward declarations */
     gen->callback_forward_decls = arena_sprintf(gen->arena,
         "%s"
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s);\n"
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __copy_%s__(RtArenaV2 *dest, void *ptr);\n"
-        "static void __free_%s__(RtHandleV2 *handle);\n"
-        "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr);\n"
-        "static void __free_array_%s__(RtHandleV2 *handle);\n",
+        "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr);\n",
         gen->callback_forward_decls,
         sn_name, c_name,
         sn_name, c_name,
-        sn_name,
-        sn_name,
         sn_name,
         sn_name);
 
@@ -182,10 +206,6 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __copy_%s__(RtArenaV2 *dest, void *ptr) {\n"
         "    __copy_%s_inline__(dest, (%s *)ptr);\n"
         "}\n"
-        /* __free_StructName__ - callback wrapper */
-        "static void __free_%s__(RtHandleV2 *handle) {\n"
-        "    __free_%s_inline__((%s *)handle->ptr, handle->arena);\n"
-        "}\n"
         /* __copy_array_StructName__ - iterates array elements */
         "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr) {\n"
         "    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;\n"
@@ -193,14 +213,6 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "    %s *arr = (%s *)((char *)ptr + sizeof(RtArrayMetadataV2));\n"
         "    for (size_t i = 0; i < meta->size; i++) {\n"
         "        __copy_%s_inline__(dest, &arr[i]);\n"
-        "    }\n"
-        "}\n"
-        /* __free_array_StructName__ - iterates array elements */
-        "static void __free_array_%s__(RtHandleV2 *handle) {\n"
-        "    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)handle->ptr;\n"
-        "    %s *arr = (%s *)((char *)handle->ptr + sizeof(RtArrayMetadataV2));\n"
-        "    for (size_t i = 0; i < meta->size; i++) {\n"
-        "        __free_%s_inline__(&arr[i], handle->arena);\n"
         "    }\n"
         "}\n",
         gen->callback_definitions,
@@ -210,10 +222,6 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         sn_name, c_name, free_body,
         /* copy wrapper */
         sn_name, sn_name, c_name,
-        /* free wrapper */
-        sn_name, sn_name, c_name,
         /* copy array */
-        sn_name, c_name, c_name, sn_name,
-        /* free array */
         sn_name, c_name, c_name, sn_name);
 }

@@ -107,14 +107,3 @@ RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle)
     return handle->copy_callback;
 }
 
-void rt_handle_set_free_callback(RtHandleV2 *handle, RtHandleV2FreeCallback callback)
-{
-    if (handle == NULL) return;
-    handle->free_callback = callback;
-}
-
-RtHandleV2FreeCallback rt_handle_get_free_callback(RtHandleV2 *handle)
-{
-    if (handle == NULL) return NULL;
-    return handle->free_callback;
-}

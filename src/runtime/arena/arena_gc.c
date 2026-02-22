@@ -3,7 +3,7 @@
  * =============================================
  * Stop-the-world garbage collection for arena memory management.
  * Two-pass algorithm:
- * 1. Dead arena sweep - remove arenas marked with RT_ARENA_FLAG_DEAD
+ * 1. Dead arena sweep - destroy arenas in the condemned queue
  * 2. Handle collection - collect dead handles, free data via free()
  */
 
@@ -35,20 +35,7 @@ void arena_debug_init(void);
  * Core Helpers
  * ============================================================================ */
 
-/* Call all handle free_callbacks in an arena (handles remain allocated) */
-static void gc_call_arena_handle_callbacks(RtArenaV2 *arena)
-{
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        if (handle->free_callback != NULL) {
-            handle->free_callback(handle);
-            handle->free_callback = NULL;
-        }
-        handle = handle->next;
-    }
-}
-
-/* Free all handles in an arena (callbacks must already be called) */
+/* Free all handles in an arena */
 static void gc_free_arena_handles(RtArenaV2 *arena)
 {
     RtHandleV2 *handle = arena->handles_head;
@@ -110,8 +97,7 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
         child = next;
     }
 
-    /* Two passes: callbacks first, then free (avoids use-after-free) */
-    gc_call_arena_handle_callbacks(arena);
+    /* Free all handles in this arena */
     gc_free_arena_handles(arena);
 
     /* Unlink from parent (only if requested and parent exists) */
@@ -137,7 +123,7 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
  * ============================================================================
  * To avoid use-after-free when arenas reference handles in other arenas,
  * we collect all dead arenas first, then destroy them in two passes:
- * 1. Call all free_callbacks (handles still valid across all arenas)
+ * 1. Call cleanup callbacks (handles still valid across all arenas)
  * 2. Free all handles and arena structs
  * ============================================================================ */
 
@@ -171,33 +157,31 @@ static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
     }
 }
 
-/* Call all callbacks in an arena (cleanup only, NOT handle free_callbacks).
- * Handle free_callbacks are not called for condemned arenas because:
- * - Same-arena children: freed by arena destruction (gc_free_arena_handles)
- * - Cross-arena children: callback is a no-op (arena != owner check fails)
- * - Calling them risks use-after-free when handles in other arenas have
- *   been freed by concurrent GC on another thread. */
+/* Call cleanup callbacks for a condemned arena. */
 static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
 {
     gc_run_cleanup_callbacks(arena);
 }
 
 /* Free all handles and destroy arena struct (non-recursive).
- * Orphans any remaining children — they'll be condemned individually by
- * compiler-generated cleanup code. Must not destroy children here because
- * the caller may still hold references to child arenas (e.g. struct arenas
- * that outlive their creating function's arena). */
+ * Condemns any remaining children so GC cleans them up on the next cycle.
+ * After promotion, copy callbacks update s->__arena__ to the destination,
+ * so these children are unreferenced orphans safe to condemn. */
 static void gc_destroy_arena_fully(RtArenaV2 *arena)
 {
-    /* Orphan children so they don't hold dangling parent pointers */
+    /* Condemn children — push them to the root's condemned queue */
     pthread_mutex_lock(&arena->mutex);
     RtArenaV2 *child = arena->first_child;
-    while (child != NULL) {
-        child->parent = NULL;
-        child = child->next_sibling;
-    }
     arena->first_child = NULL;
     pthread_mutex_unlock(&arena->mutex);
+
+    while (child != NULL) {
+        RtArenaV2 *next = child->next_sibling;
+        child->parent = NULL;
+        child->next_sibling = NULL;
+        rt_arena_v2_condemn(child);
+        child = next;
+    }
 
     gc_free_arena_handles(arena);
     gc_destroy_arena_struct(arena);
@@ -229,8 +213,8 @@ static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 
 /* Sweep dead arenas - phase 2: free all handle data and arena structs.
  * Each arena is freed non-recursively (descendants already in the list).
- * Must be called AFTER gc_compact_all so that compact's free_callbacks
- * can still read handle structs from dead arenas. */
+ * Must be called AFTER gc_compact_all so that compact can still read
+ * handle structs from dead arenas for reference counting. */
 static size_t gc_sweep_finalize(ArenaListNode *dead_list)
 {
     size_t total_bytes = 0;
@@ -632,12 +616,11 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
      * data to handle nested struct/array children.
      * A child with ref count >= 1 is shared with a live handle -- leave it.
      *
-     * NOTE: free_callback is NOT invoked here. The recursive cascade via
-     * gc_free_dead_handle_children + gc_cascade_free_children handles all
-     * nesting depths safely without dereferencing potentially-freed handles. */
+     * The recursive cascade via gc_free_dead_handle_children +
+     * gc_cascade_free_children handles all nesting depths safely
+     * without dereferencing potentially-freed handles. */
     for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
         gc_free_dead_handle_children(&rctable, &handle_set, node->handle);
-        node->handle->free_callback = NULL;
     }
 
     GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
@@ -700,9 +683,9 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Initialize result */
     RtArenaGCResult result = {0};
 
-    /* Phase 1: Sweep dead arenas - call callbacks but keep handle structs alive.
-     * Handle structs must remain valid so that compact's free_callbacks
-     * (which may reference handles in dead arenas) don't hit use-after-free. */
+    /* Phase 1: Sweep dead arenas - call cleanup callbacks but keep handle
+     * structs alive. Handle structs must remain valid so that compact's
+     * reference counting can still scan handle data in dead arenas. */
     ArenaListNode *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
 
     /* Count dead arenas for debug */
@@ -713,7 +696,7 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     gc_compact_all(arena, &result);
 
     /* Phase 3: Now safe to free dead arena handle structs and arena structs.
-     * All callbacks (both sweep and compact) have completed. */
+     * All cleanup callbacks and compact have completed. */
     size_t phase3_bytes = gc_sweep_finalize(dead_arenas);
 
     /* Fill in arena-level results */
