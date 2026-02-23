@@ -240,12 +240,26 @@ static size_t gc_sweep_finalize(ArenaListNode *dead_list)
  * reference other dead handles.
  * ============================================================================ */
 
-/* Simple handle list for collection */
-typedef struct HandleListNode {
-    RtHandleV2 *handle;
-    RtArenaV2 *arena;
-    struct HandleListNode *next;
-} HandleListNode;
+/* Dead handle list — intrusive via handle->next
+ * ================================================
+ * Dead handles are collected into a singly-linked list by repurposing the
+ * handle's own `next` pointer. This is safe because:
+ *
+ *   1. rt_handle_v2_unlink() removes the handle from the arena's doubly-linked
+ *      list, leaving next/prev stale — we overwrite next with the dead list link.
+ *
+ *   2. handle->arena still points to the owning arena (never cleared), so the
+ *      rescue pass can re-link handles without a separate arena field.
+ *
+ *   3. On rescue, rt_handle_v2_link() overwrites next/prev to re-insert into
+ *      the arena list, restoring the handle to its normal state.
+ *
+ * Scope: handle->next is repurposed ONLY between gc_collect_and_build_sets
+ * (which unlinks dead handles and chains them via next) and the end of
+ * gc_compact_all (which frees them). Outside this window, handle->next has
+ * its normal arena-list meaning.
+ *
+ * This eliminates one malloc + one free per dead handle per GC cycle. */
 
 /* Info about a live handle's data pointer for flat refcount scanning */
 typedef struct {
@@ -383,7 +397,7 @@ static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable, 
  * Merges gc_collect_all_handles + gc_build_handle_set + live handle data
  * collection into one tree walk, reducing mutex lock/unlock and children
  * snapshot malloc/free from 3x to 1x per arena. */
-static void gc_collect_and_build_sets(RtArenaV2 *arena, HandleListNode **dead_list,
+static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
                                        RcTable *handle_set, LiveHandleList *live_handles,
                                        RtArenaGCResult *result)
 {
@@ -399,16 +413,15 @@ static void gc_collect_and_build_sets(RtArenaV2 *arena, HandleListNode **dead_li
         rc_table_inc(handle_set, (void *)handle);
 
         if (handle->flags & RT_HANDLE_FLAG_DEAD) {
-            /* Dead handle: unlink and add to dead list */
+            /* Dead handle: unlink from arena and chain into dead list.
+             * After unlink, handle->next is stale — repurpose it as
+             * the intrusive dead list link (see comment above). */
             rt_handle_v2_unlink(arena, handle);
             result->bytes_freed += handle->size;
             result->handles_freed++;
 
-            HandleListNode *node = malloc(sizeof(HandleListNode));
-            node->handle = handle;
-            node->arena = arena;
-            node->next = *dead_list;
-            *dead_list = node;
+            handle->next = *dead_list;
+            *dead_list = handle;
         } else if (handle->ptr != NULL) {
             /* Live handle with data: record for refcount scanning */
             if (live_handles->count >= live_handles->capacity) {
@@ -519,7 +532,7 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
      * and gather live handle data pointers — all in one recursive traversal.
      * This reduces mutex lock/unlock and children snapshot malloc/free from
      * 3x to 1x per arena compared to three separate walks. */
-    HandleListNode *dead_handles = NULL;
+    RtHandleV2 *dead_handles = NULL;
     RcTable handle_set;
     rc_table_init(&handle_set);
     LiveHandleList live_handles = {NULL, 0, 0};
@@ -545,25 +558,29 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
      * This prevents use-after-free when scope cleanup marks handles as DEAD
      * but they're still stored in live data structures (e.g., struct fields
      * pushed into arrays). Re-link rescued handles into their arenas and
-     * clear the DEAD flag so they stay alive. */
-    HandleListNode *truly_dead = NULL;
-    HandleListNode *temp_node = dead_handles;
-    while (temp_node != NULL) {
-        HandleListNode *next = temp_node->next;
-        if (rc_table_get(&rctable, (void *)temp_node->handle) > 0) {
-            /* Handle is referenced by a live handle -- rescue it */
-            GC_DEBUG_LOG("  rescue: h=%p ptr=%p (refcount > 0)", (void *)temp_node->handle, temp_node->handle->ptr);
-            temp_node->handle->flags &= ~RT_HANDLE_FLAG_DEAD;
-            rt_handle_v2_link(temp_node->arena, temp_node->handle);
+     * clear the DEAD flag so they stay alive.
+     *
+     * Iterates the intrusive dead list via handle->next. On rescue,
+     * rt_handle_v2_link() overwrites next/prev to re-insert the handle into
+     * its arena — we save next before the call so iteration is safe. */
+    RtHandleV2 *truly_dead = NULL;
+    RtHandleV2 *h = dead_handles;
+    while (h != NULL) {
+        RtHandleV2 *next = h->next;
+        if (rc_table_get(&rctable, (void *)h) > 0) {
+            /* Handle is referenced by a live handle -- rescue it.
+             * h->arena is the original owning arena (never cleared). */
+            GC_DEBUG_LOG("  rescue: h=%p ptr=%p (refcount > 0)", (void *)h, h->ptr);
+            h->flags &= ~RT_HANDLE_FLAG_DEAD;
+            rt_handle_v2_link(h->arena, h);
             result->handles_freed--;  /* Undo the count from collection */
-            result->bytes_freed -= temp_node->handle->size;
-            free(temp_node);
+            result->bytes_freed -= h->size;
         } else {
-            /* Truly dead -- keep in list for freeing */
-            temp_node->next = truly_dead;
-            truly_dead = temp_node;
+            /* Truly dead -- chain into truly_dead list */
+            h->next = truly_dead;
+            truly_dead = h;
         }
-        temp_node = next;
+        h = next;
     }
     dead_handles = truly_dead;
 
@@ -579,23 +596,23 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
      * The recursive cascade via gc_free_dead_handle_children +
      * gc_cascade_free_children handles all nesting depths safely
      * without dereferencing potentially-freed handles. */
-    for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
-        gc_free_dead_handle_children(&rctable, &handle_set, node->handle);
+    for (RtHandleV2 *dh = dead_handles; dh != NULL; dh = dh->next) {
+        gc_free_dead_handle_children(&rctable, &handle_set, dh);
     }
 
     GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
 
-    /* Pass 2: Free all dead handle data + structs */
-    HandleListNode *node = dead_handles;
-    while (node != NULL) {
-        HandleListNode *next = node->next;
-        GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)node->handle, node->handle->ptr);
-        if (!(node->handle->flags & RT_HANDLE_FLAG_EXTERN)) {
-            free(node->handle->ptr);
+    /* Pass 2: Free all dead handle data + structs.
+     * No wrapper nodes to free — handles ARE the list nodes (intrusive). */
+    RtHandleV2 *dh = dead_handles;
+    while (dh != NULL) {
+        RtHandleV2 *next = dh->next;
+        GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)dh, dh->ptr);
+        if (!(dh->flags & RT_HANDLE_FLAG_EXTERN)) {
+            free(dh->ptr);
         }
-        free(node->handle);
-        free(node);
-        node = next;
+        free(dh);
+        dh = next;
     }
 
     rc_table_free(&rctable);
@@ -629,7 +646,7 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     pthread_mutex_unlock(&arena->mutex);
 
     /* Temporarily clear the malloc redirect handler to prevent GC's internal
-     * allocations (HandleListNode, RcTable, etc.) from being redirected into
+     * allocations (RcTable, LiveHandleList, etc.) from being redirected into
      * the arena being collected. On Windows (MinHook inline hooking), ALL
      * malloc/free calls are intercepted including GC internals. If these
      * allocations go to the arena, the GC's reference counting scan sees
