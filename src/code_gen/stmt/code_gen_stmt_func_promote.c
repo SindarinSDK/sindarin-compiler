@@ -29,6 +29,15 @@ static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, cons
 void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, const char *target_arena, int indent)
 {
     code_gen_promote_struct_fields(gen, return_type, "_return_value", target_arena, indent);
+
+    /* Reparent the struct's arena to the target arena so it survives the
+     * function's local arena destruction. The handle fields have been promoted
+     * above; this moves the struct's own arena into the caller's hierarchy. */
+    if (!return_type->as.struct_type.is_packed && !return_type->as.struct_type.is_native)
+    {
+        indented_fprintf(gen, indent, "if (_return_value.__arena__)\n");
+        indented_fprintf(gen, indent + 1, "rt_arena_v2_reparent(_return_value.__arena__, %s);\n", target_arena);
+    }
 }
 
 /* Recursively generate promotion code for all handle fields in a struct.

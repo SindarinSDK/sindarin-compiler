@@ -9,10 +9,11 @@
  *   struct Person { name: str, tags: str[], nested: Inner }
  *
  * We generate:
- *   __copy_Person_inline__(dest, s)  - walks fields, promotes handles
- *   __free_Person_inline__(s)        - walks fields, frees handles
- *   __copy_Person__(dest, ptr)       - callback wrapper, casts ptr
- *   __copy_array_Person__(dest, ptr) - iterates array elements
+ *   __copy_Person_inline__(dest, s)     - walks fields, promotes handles
+ *   __release_Person_inline__(s, owner) - releases handle fields (no arena condemn)
+ *   __free_Person_inline__(s, owner)    - release + condemn struct arena
+ *   __copy_Person__(dest, ptr)          - callback wrapper, casts ptr
+ *   __copy_array_Person__(dest, ptr)    - iterates array elements
  */
 
 #include "code_gen/util/code_gen_util.h"
@@ -183,19 +184,16 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "%s    s->__arena__ = NULL;\n",
         copy_body);
 
-    /* Condemn the struct's arena when freed (handles array element + nested cleanup) */
-    free_body = arena_sprintf(gen->arena,
-        "%s    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n",
-        free_body);
-
     /* Forward declarations */
     gen->callback_forward_decls = arena_sprintf(gen->arena,
         "%s"
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s);\n"
+        "static void __release_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __copy_%s__(RtArenaV2 *dest, void *ptr);\n"
         "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr);\n",
         gen->callback_forward_decls,
+        sn_name, c_name,
         sn_name, c_name,
         sn_name, c_name,
         sn_name,
@@ -208,9 +206,17 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s) {\n"
         "%s"
         "}\n"
-        /* __free_StructName_inline__ */
-        "static void __free_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
+        /* __release_StructName_inline__ - releases handle fields only, no arena condemn.
+         * Used by code_gen_free_locals so the caller's guard controls arena lifetime. */
+        "static void __release_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
         "%s"
+        "}\n"
+        /* __free_StructName_inline__ - full cleanup: release fields + condemn arena.
+         * Used by nested struct field cleanup and array element cleanup where the
+         * element's arena should always be condemned. */
+        "static void __free_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
+        "    __release_%s_inline__(s, owner);\n"
+        "    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n"
         "}\n"
         /* __copy_StructName__ - callback wrapper */
         "static void __copy_%s__(RtArenaV2 *dest, void *ptr) {\n"
@@ -228,8 +234,10 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         gen->callback_definitions,
         /* copy inline */
         sn_name, c_name, copy_body,
-        /* free inline */
+        /* release inline (fields only) */
         sn_name, c_name, free_body,
+        /* free inline (release + condemn) */
+        sn_name, c_name, sn_name,
         /* copy wrapper */
         sn_name, sn_name, c_name,
         /* copy array */

@@ -199,13 +199,14 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                     }
                     else
                     {
-                        /* Call the generated free callback to mark handle fields as dead.
-                         * Pass the local arena as owner so only handles owned by this arena
-                         * are freed - handles borrowed from other arenas are left alone. */
+                        /* Call the generated release callback to mark handle fields as dead.
+                         * Uses __release (not __free) so the struct's own __arena__ is NOT
+                         * condemned here — the guard below controls arena lifetime, which
+                         * is critical when the struct is also the function's return value. */
                         const char *struct_name = sym->type->as.struct_type.name;
                         if (struct_name != NULL)
                         {
-                            indented_fprintf(gen, indent, "__free_%s_inline__(&%s, %s);\n",
+                            indented_fprintf(gen, indent, "__release_%s_inline__(&%s, %s);\n",
                                 struct_name, var_name, gen->current_arena_var);
                         }
                         /* Condemn the struct's child arena so the GC can reclaim
