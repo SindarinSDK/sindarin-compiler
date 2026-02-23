@@ -173,6 +173,16 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         }
     }
 
+    /* After promoting all handle fields, NULL out __arena__ to prevent dangling
+     * pointer access. The old struct arena (child of the source) will be condemned
+     * and freed by GC. Without this, __free_*_inline__ would later try to condemn
+     * freed memory (use-after-free). This matches the pattern in
+     * code_gen_promote_self_array_elements which also NULLs __arena__ after
+     * promoting array element fields. */
+    copy_body = arena_sprintf(gen->arena,
+        "%s    s->__arena__ = NULL;\n",
+        copy_body);
+
     /* Condemn the struct's arena when freed (handles array element + nested cleanup) */
     free_body = arena_sprintf(gen->arena,
         "%s    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n",
