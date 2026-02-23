@@ -44,14 +44,12 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
     gen->current_function = (char *)lambda_func_name;
     gen->current_return_type = return_type;
 
-    /* Add lambda parameters to symbol table so they can be found during code gen.
-     * This ensures function-type parameters are recognized as closure variables,
-     * not as named functions. */
+    /* Push a scope for body-level local variables. Lambda parameters are NOT
+     * added here — they're already in the enclosing scope pushed by
+     * code_gen_lambda_expression. Adding them again would cause duplicate
+     * cleanup (e.g. double rt_arena_v2_free) when the return statement
+     * walks scopes to generate cleanup code. */
     symbol_table_push_scope(gen->symbol_table);
-    for (int i = 0; i < lambda->param_count; i++)
-    {
-        symbol_table_add_symbol(gen->symbol_table, lambda->params[i].name, lambda->params[i].type);
-    }
 
     /* Generate code for each statement in the lambda body */
     /* We need to capture the output since code_gen_statement writes to gen->output */
