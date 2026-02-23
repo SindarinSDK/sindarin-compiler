@@ -39,6 +39,7 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
     /* Save current context */
     char *old_function = gen->current_function;
     Type *old_return_type = gen->current_return_type;
+    Scope *old_function_scope = gen->function_scope;
 
     /* Set up lambda context - use the lambda function name for return labels */
     gen->current_function = (char *)lambda_func_name;
@@ -50,6 +51,12 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
      * cleanup (e.g. double rt_arena_v2_free) when the return statement
      * walks scopes to generate cleanup code. */
     symbol_table_push_scope(gen->symbol_table);
+
+    /* Set function_scope to this body scope so the return statement's cleanup
+     * walk stops here and doesn't traverse into the parameter scope above.
+     * Without this, return cleanup walks all the way to the enclosing function's
+     * scope, incorrectly freeing lambda parameters (which are caller-owned). */
+    gen->function_scope = gen->symbol_table->current;
 
     /* Generate code for each statement in the lambda body */
     /* We need to capture the output since code_gen_statement writes to gen->output */
@@ -80,6 +87,7 @@ char *code_gen_lambda_stmt_body(CodeGen *gen, LambdaExpr *lambda, int indent,
     /* Restore context */
     gen->current_function = old_function;
     gen->current_return_type = old_return_type;
+    gen->function_scope = old_function_scope;
 
     /* Copy to arena and free temp buffer */
     char *result = arena_strdup(gen->arena, body_buffer ? body_buffer : "");
@@ -106,11 +114,14 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     /* Add lambda parameters to symbol table so they can be found during code gen.
      * This ensures function-type parameters are recognized as closure variables,
      * not as named functions. We push a new scope and add params here,
-     * then pop it at the end of this function. */
+     * then pop it at the end of this function.
+     * IMPORTANT: Use SYMBOL_PARAM so code_gen_free_locals skips them —
+     * parameters are caller-owned and must not be freed by the lambda. */
     symbol_table_push_scope(gen->symbol_table);
     for (int i = 0; i < lambda->param_count; i++)
     {
-        symbol_table_add_symbol(gen->symbol_table, lambda->params[i].name, lambda->params[i].type);
+        symbol_table_add_symbol_full(gen->symbol_table, lambda->params[i].name,
+                                     lambda->params[i].type, SYMBOL_PARAM, MEM_DEFAULT);
     }
 
     int lambda_id = gen->lambda_count++;
