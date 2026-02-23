@@ -247,64 +247,17 @@ typedef struct HandleListNode {
     struct HandleListNode *next;
 } HandleListNode;
 
-/* Collect dead handles from a single arena */
-static void gc_collect_arena_handles(RtArenaV2 *arena, HandleListNode **list, RtArenaGCResult *result)
-{
-    if (arena == NULL) return;
+/* Info about a live handle's data pointer for flat refcount scanning */
+typedef struct {
+    void *ptr;
+    size_t size;
+} LiveHandleInfo;
 
-    pthread_mutex_lock(&arena->mutex);
-
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
-        if (handle->flags & RT_HANDLE_FLAG_DEAD) {
-            rt_handle_v2_unlink(arena, handle);
-            result->bytes_freed += handle->size;
-            result->handles_freed++;
-
-            HandleListNode *node = malloc(sizeof(HandleListNode));
-            node->handle = handle;
-            node->arena = arena;
-            node->next = *list;
-            *list = node;
-        }
-        handle = next;
-    }
-
-    pthread_mutex_unlock(&arena->mutex);
-}
-
-/* Recursively collect dead handles from all arenas */
-static void gc_collect_all_handles(RtArenaV2 *arena, HandleListNode **list, RtArenaGCResult *result)
-{
-    if (arena == NULL) return;
-
-    gc_collect_arena_handles(arena, list, result);
-
-    /* Snapshot children while holding mutex, then recurse without holding it.
-     * This avoids parent->child lock ordering that deadlocks with promote's
-     * child->parent ordering. */
-    pthread_mutex_lock(&arena->mutex);
-    size_t child_count = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        child_count++;
-
-    if (child_count == 0) {
-        pthread_mutex_unlock(&arena->mutex);
-        return;
-    }
-
-    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
-    size_t i = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        children[i++] = c;
-    pthread_mutex_unlock(&arena->mutex);
-
-    for (i = 0; i < child_count; i++)
-        gc_collect_all_handles(children[i], list, result);
-
-    free(children);
-}
+typedef struct {
+    LiveHandleInfo *items;
+    size_t count;
+    size_t capacity;
+} LiveHandleList;
 
 /* ============================================================================
  * Reference Count Hash Table
@@ -409,67 +362,71 @@ static size_t rc_table_get(RcTable *t, void *key)
     return 0;
 }
 
-/* Build a set of all known handle addresses across all arenas.
- * Used to filter conservative pointer scanning to avoid false positives. */
-static void gc_build_handle_set(RtArenaV2 *arena, RcTable *handle_set)
+/* Build reference count table from a flat list of live handle data pointers.
+ * Replaces the tree-walking gc_build_refcount_table — live handle data is
+ * collected during gc_collect_and_build_sets so no additional tree walk needed. */
+static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable, RcTable *handle_set)
 {
-    if (arena == NULL) return;
-
-    pthread_mutex_lock(&arena->mutex);
-
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        rc_table_inc(handle_set, (void *)handle);
-        handle = handle->next;
-    }
-
-    /* Snapshot children, release mutex, then recurse */
-    size_t child_count = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        child_count++;
-
-    if (child_count == 0) {
-        pthread_mutex_unlock(&arena->mutex);
-        return;
-    }
-
-    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
-    size_t i = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        children[i++] = c;
-    pthread_mutex_unlock(&arena->mutex);
-
-    for (i = 0; i < child_count; i++)
-        gc_build_handle_set(children[i], handle_set);
-
-    free(children);
-}
-
-/* Build reference count table by scanning all LIVE handles across all arenas.
- * Only counts references to known handle addresses (avoids false positives
- * from non-handle pointers like arena metadata). */
-static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handle_set)
-{
-    if (arena == NULL) return;
-
-    pthread_mutex_lock(&arena->mutex);
-
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        if (handle->ptr != NULL) {
-            void **scan = (void **)handle->ptr;
-            size_t slots = handle->size / sizeof(void *);
-            for (size_t i = 0; i < slots; i++) {
-                /* Only count if value is a known handle address */
-                if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
-                    rc_table_inc(t, scan[i]);
-                }
+    for (size_t i = 0; i < live->count; i++) {
+        void **scan = (void **)live->items[i].ptr;
+        size_t slots = live->items[i].size / sizeof(void *);
+        for (size_t j = 0; j < slots; j++) {
+            if (scan[j] != NULL && rc_table_get(handle_set, scan[j]) > 0) {
+                rc_table_inc(rctable, scan[j]);
             }
         }
-        handle = handle->next;
+    }
+}
+
+/* Single-pass recursive walk: collect dead handles, build handle address set,
+ * and gather live handle data pointers for refcount scanning.
+ * Merges gc_collect_all_handles + gc_build_handle_set + live handle data
+ * collection into one tree walk, reducing mutex lock/unlock and children
+ * snapshot malloc/free from 3x to 1x per arena. */
+static void gc_collect_and_build_sets(RtArenaV2 *arena, HandleListNode **dead_list,
+                                       RcTable *handle_set, LiveHandleList *live_handles,
+                                       RtArenaGCResult *result)
+{
+    if (arena == NULL) return;
+
+    pthread_mutex_lock(&arena->mutex);
+
+    RtHandleV2 *handle = arena->handles_head;
+    while (handle != NULL) {
+        RtHandleV2 *next = handle->next;
+
+        /* Add ALL handle addresses to the handle set (live + dead) */
+        rc_table_inc(handle_set, (void *)handle);
+
+        if (handle->flags & RT_HANDLE_FLAG_DEAD) {
+            /* Dead handle: unlink and add to dead list */
+            rt_handle_v2_unlink(arena, handle);
+            result->bytes_freed += handle->size;
+            result->handles_freed++;
+
+            HandleListNode *node = malloc(sizeof(HandleListNode));
+            node->handle = handle;
+            node->arena = arena;
+            node->next = *dead_list;
+            *dead_list = node;
+        } else if (handle->ptr != NULL) {
+            /* Live handle with data: record for refcount scanning */
+            if (live_handles->count >= live_handles->capacity) {
+                size_t new_cap = live_handles->capacity ? live_handles->capacity * 2 : 256;
+                live_handles->items = realloc(live_handles->items, new_cap * sizeof(LiveHandleInfo));
+                live_handles->capacity = new_cap;
+            }
+            live_handles->items[live_handles->count].ptr = handle->ptr;
+            live_handles->items[live_handles->count].size = handle->size;
+            live_handles->count++;
+        }
+
+        handle = next;
     }
 
-    /* Snapshot children, release mutex, then recurse */
+    /* Snapshot children while holding mutex, then recurse without holding it.
+     * This avoids parent->child lock ordering that deadlocks with promote's
+     * child->parent ordering. */
     size_t child_count = 0;
     for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
         child_count++;
@@ -486,7 +443,7 @@ static void gc_build_refcount_table(RtArenaV2 *arena, RcTable *t, RcTable *handl
     pthread_mutex_unlock(&arena->mutex);
 
     for (i = 0; i < child_count; i++)
-        gc_build_refcount_table(children[i], t, handle_set);
+        gc_collect_and_build_sets(children[i], dead_list, handle_set, live_handles, result);
 
     free(children);
 }
@@ -558,28 +515,31 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
-    /* Collect all dead handles */
+    /* Single-pass tree walk: collect dead handles, build handle address set,
+     * and gather live handle data pointers — all in one recursive traversal.
+     * This reduces mutex lock/unlock and children snapshot malloc/free from
+     * 3x to 1x per arena compared to three separate walks. */
     HandleListNode *dead_handles = NULL;
-    gc_collect_all_handles(arena, &dead_handles, result);
-
-    if (dead_handles == NULL) return;
-
-    /* Build set of all known handle addresses (live + dead) to filter
-     * the conservative pointer scan against. This prevents false positives
-     * from non-handle pointers (e.g., arena pointers in array metadata). */
     RcTable handle_set;
     rc_table_init(&handle_set);
-    gc_build_handle_set(arena, &handle_set);
-    for (HandleListNode *node = dead_handles; node != NULL; node = node->next) {
-        rc_table_inc(&handle_set, (void *)node->handle);
+    LiveHandleList live_handles = {NULL, 0, 0};
+    gc_collect_and_build_sets(arena, &dead_handles, &handle_set, &live_handles, result);
+
+    if (dead_handles == NULL) {
+        rc_table_free(&handle_set);
+        free(live_handles.items);
+        return;
     }
 
-    /* Build reference count table from LIVE handles only.
-     * Dead handles were already unlinked, so only live handles are scanned.
-     * Only counts references to known handle addresses (no false positives). */
+    /* Build reference count table from the flat list of live handle data
+     * pointers collected during the single walk. Only counts references to
+     * known handle addresses in handle_set (no false positives). */
     RcTable rctable;
     rc_table_init(&rctable);
-    gc_build_refcount_table(arena, &rctable, &handle_set);
+    gc_build_refcount_from_list(&live_handles, &rctable, &handle_set);
+
+    /* Live handle list no longer needed after refcount table is built */
+    free(live_handles.items);
 
     /* Rescue pass: Dead handles still referenced by live handles are rescued.
      * This prevents use-after-free when scope cleanup marks handles as DEAD
