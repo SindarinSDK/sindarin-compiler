@@ -168,6 +168,12 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle);
 /* Clone a handle to another arena (source remains valid). */
 RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle);
 
+/* Reparent an arena from its current parent to a new parent.
+ * Unlinks from old parent's child list, links into new parent's child list.
+ * Used when returning structs: the struct's arena must move to the caller's
+ * hierarchy so it survives the function's local arena destruction. */
+void rt_arena_v2_reparent(RtArenaV2 *arena, RtArenaV2 *new_parent);
+
 /* ============================================================================
  * Thread Support
  * ============================================================================ */

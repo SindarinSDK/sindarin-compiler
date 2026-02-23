@@ -168,6 +168,45 @@ void rt_arena_v2_condemn(RtArenaV2 *arena)
 }
 
 
+void rt_arena_v2_reparent(RtArenaV2 *arena, RtArenaV2 *new_parent)
+{
+    if (arena == NULL || new_parent == NULL) return;
+
+    /* Unlink from old parent's child list */
+    RtArenaV2 *old_parent = arena->parent;
+    if (old_parent != NULL) {
+        pthread_mutex_lock(&old_parent->mutex);
+        RtArenaV2 **pp = &old_parent->first_child;
+        while (*pp != NULL) {
+            if (*pp == arena) {
+                *pp = arena->next_sibling;
+                break;
+            }
+            pp = &(*pp)->next_sibling;
+        }
+        pthread_mutex_unlock(&old_parent->mutex);
+    }
+
+    /* Update root reference for this arena and all descendants */
+    RtArenaV2 *new_root = new_parent->root;
+    arena->root = new_root;
+    /* Walk children to update root (struct arenas are typically leaf nodes,
+     * but handle the general case for correctness) */
+    RtArenaV2 *child = arena->first_child;
+    while (child != NULL) {
+        child->root = new_root;
+        child = child->next_sibling;
+    }
+
+    /* Link into new parent's child list */
+    pthread_mutex_lock(&new_parent->mutex);
+    arena->next_sibling = new_parent->first_child;
+    new_parent->first_child = arena;
+    pthread_mutex_unlock(&new_parent->mutex);
+
+    arena->parent = new_parent;
+}
+
 void rt_arena_v2_on_cleanup(RtArenaV2 *arena, RtHandleV2 *data, RtCleanupFnV2 fn, int priority)
 {
     if (arena == NULL || fn == NULL) return;
