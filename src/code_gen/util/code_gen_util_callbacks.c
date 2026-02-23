@@ -95,6 +95,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
     /* Generate inline copy function body */
     char *copy_body = arena_strdup(gen->arena, "");
     char *free_body = arena_strdup(gen->arena, "");
+    char *release_body = arena_strdup(gen->arena, "");
 
     for (int i = 0; i < field_count; i++) {
         StructField *field = &struct_type->as.struct_type.fields[i];
@@ -132,11 +133,26 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                     f_c_name,
                     elem_c, elem_c, f_c_name,
                     elem_sn, f_c_name);
+                release_body = arena_sprintf(gen->arena,
+                    "%s    if (s->%s && s->%s->ptr) {\n"
+                    "        RtArrayMetadataV2 *__meta__ = (RtArrayMetadataV2 *)s->%s->ptr;\n"
+                    "        %s *__elems__ = (%s *)((char *)s->%s->ptr + sizeof(RtArrayMetadataV2));\n"
+                    "        for (size_t __i__ = 0; __i__ < __meta__->size; __i__++) {\n"
+                    "            __free_%s_inline__(&__elems__[__i__], s->%s->arena);\n"
+                    "        }\n"
+                    "    }\n",
+                    release_body, f_c_name, f_c_name,
+                    f_c_name,
+                    elem_c, elem_c, f_c_name,
+                    elem_sn, f_c_name);
             }
 
             free_body = arena_sprintf(gen->arena,
                 "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
                 free_body, f_c_name, f_c_name, f_c_name);
+            release_body = arena_sprintf(gen->arena,
+                "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
+                release_body, f_c_name, f_c_name, f_c_name);
         }
         else if (kind == TYPE_ANY) {
             copy_body = arena_sprintf(gen->arena,
@@ -145,6 +161,9 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             free_body = arena_sprintf(gen->arena,
                 "%s    rt_any_deep_free(&s->%s);\n",
                 free_body, f_c_name);
+            release_body = arena_sprintf(gen->arena,
+                "%s    rt_any_deep_free(&s->%s);\n",
+                release_body, f_c_name);
         }
         else if (kind == TYPE_STRUCT && struct_has_handle_fields(field->type)) {
             Type *nested = resolve_struct_type(gen, field->type);
@@ -152,6 +171,9 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             copy_body = arena_sprintf(gen->arena,
                 "%s    __copy_%s_inline__(dest, &s->%s);\n",
                 copy_body, nested_sn, f_c_name);
+            release_body = arena_sprintf(gen->arena,
+                "%s    __release_%s_inline__(&s->%s, owner);\n",
+                release_body, nested_sn, f_c_name);
             free_body = arena_sprintf(gen->arena,
                 "%s    __free_%s_inline__(&s->%s, owner);\n",
                 free_body, nested_sn, f_c_name);
@@ -211,11 +233,12 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __release_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
         "%s"
         "}\n"
-        /* __free_StructName_inline__ - full cleanup: release fields + condemn arena.
+        /* __free_StructName_inline__ - full cleanup: free fields + condemn arena.
          * Used by nested struct field cleanup and array element cleanup where the
-         * element's arena should always be condemned. */
+         * element's arena should always be condemned. Unlike __release__, this
+         * calls __free__ (not __release__) on nested structs to condemn their arenas. */
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
-        "    __release_%s_inline__(s, owner);\n"
+        "%s"
         "    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n"
         "}\n"
         /* __copy_StructName__ - callback wrapper */
@@ -235,9 +258,9 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         /* copy inline */
         sn_name, c_name, copy_body,
         /* release inline (fields only) */
+        sn_name, c_name, release_body,
+        /* free inline (full cleanup) */
         sn_name, c_name, free_body,
-        /* free inline (release + condemn) */
-        sn_name, c_name, sn_name,
         /* copy wrapper */
         sn_name, sn_name, c_name,
         /* copy array */

@@ -382,13 +382,14 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
 
     /* Return label and cleanup */
     indented_fprintf(gen, 0, "%s_return:\n", gen->current_function);
-    code_gen_free_locals(gen, gen->symbol_table->current, true, 1);
 
-    /* Promote return value if needed */
+    /* Promote return value BEFORE cleanup so handles are promoted while arenas are still alive */
     if (has_return_value)
     {
         code_gen_return_promotion(gen, stmt->return_type, is_main, is_shared, "__caller_arena__", 1);
     }
+
+    code_gen_free_locals(gen, gen->symbol_table->current, true, 1);
 
     /* Stop GC thread and destroy arena */
     if (is_main)

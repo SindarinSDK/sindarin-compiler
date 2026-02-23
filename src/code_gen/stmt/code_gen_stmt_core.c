@@ -172,6 +172,35 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     }
 }
 
+/* Recursively add arena guard conditions for nested struct fields in the return type.
+ * Prevents condemning a local struct arena that was reparented into the return value. */
+static char *add_nested_arena_guards(CodeGen *gen, Type *type, const char *prefix,
+                                      const char *var_name, char *guard) {
+    if (type == NULL || type->kind != TYPE_STRUCT) return guard;
+    int fc = type->as.struct_type.field_count;
+    for (int i = 0; i < fc; i++) {
+        StructField *f = &type->as.struct_type.fields[i];
+        if (f->type == NULL || f->type->kind != TYPE_STRUCT) continue;
+        if (f->type->as.struct_type.is_packed || f->type->as.struct_type.is_native) continue;
+        const char *cf = f->c_alias ? f->c_alias : sn_mangle_name(gen->arena, f->name);
+        const char *nested_prefix = arena_sprintf(gen->arena, "%s.%s", prefix, cf);
+        guard = arena_sprintf(gen->arena, "%s && %s.__arena__ != %s.__arena__",
+                              guard, var_name, nested_prefix);
+        Type *resolved = resolve_struct_type(gen, f->type);
+        if (resolved) guard = add_nested_arena_guards(gen, resolved, nested_prefix, var_name, guard);
+    }
+    return guard;
+}
+
+/* Emit a struct arena condemn with guard checking against all return value arenas. */
+static void emit_struct_arena_condemn(CodeGen *gen, const char *var_name, int indent) {
+    char *guard = arena_sprintf(gen->arena, "%s.__arena__ && %s.__arena__ != _return_value.__arena__",
+                                var_name, var_name);
+    Type *rt = resolve_struct_type(gen, gen->current_return_type);
+    if (rt) guard = add_nested_arena_guards(gen, rt, "_return_value", var_name, guard);
+    indented_fprintf(gen, indent, "if (%s) rt_arena_v2_condemn(%s.__arena__);\n", guard, var_name);
+}
+
 void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int indent)
 {
     DEBUG_VERBOSE("Entering code_gen_free_locals");
@@ -220,8 +249,7 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                                                    gen->current_return_type->kind == TYPE_STRUCT);
                             if (returns_struct)
                             {
-                                indented_fprintf(gen, indent, "if (%s.__arena__ && %s.__arena__ != _return_value.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
-                                    var_name, var_name, var_name);
+                                emit_struct_arena_condemn(gen, var_name, indent);
                             }
                             else
                             {
@@ -241,8 +269,7 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                                            gen->current_return_type->kind == TYPE_STRUCT);
                     if (returns_struct)
                     {
-                        indented_fprintf(gen, indent, "if (%s.__arena__ && %s.__arena__ != _return_value.__arena__) rt_arena_v2_condemn(%s.__arena__);\n",
-                            var_name, var_name, var_name);
+                        emit_struct_arena_condemn(gen, var_name, indent);
                     }
                     else
                     {
