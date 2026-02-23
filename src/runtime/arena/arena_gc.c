@@ -127,34 +127,15 @@ void rt_arena_v2_destroy(RtArenaV2 *arena, bool unlink_from_parent)
  * 2. Free all handles and arena structs
  * ============================================================================ */
 
-/* Simple arena list for collection */
-typedef struct ArenaListNode {
-    RtArenaV2 *arena;
-    struct ArenaListNode *next;
-} ArenaListNode;
-
-/* Drain the root's condemned queue into a list.
+/* Drain the root's condemned queue — intrusive via condemned_next.
+ * Returns the head of the condemned chain. The arenas are already linked
+ * via condemned_next from rt_arena_v2_condemn's lock-free CAS push.
  * Children are NOT destroyed — they'll be condemned individually by
  * compiler-generated cleanup code and pushed to the queue on their own. */
-static void gc_drain_condemned_queue(RtArenaV2 *root, ArenaListNode **list)
+static RtArenaV2 *gc_drain_condemned_queue(RtArenaV2 *root)
 {
-    if (root == NULL) return;
-
-    /* Atomically swap out the entire condemned list */
-    RtArenaV2 *condemned = __sync_lock_test_and_set(&root->condemned_head, NULL);
-
-    while (condemned != NULL) {
-        RtArenaV2 *next = condemned->condemned_next;
-        condemned->condemned_next = NULL;
-
-        /* Add this condemned arena to the collection list */
-        ArenaListNode *node = malloc(sizeof(ArenaListNode));
-        node->arena = condemned;
-        node->next = *list;
-        *list = node;
-
-        condemned = next;
-    }
+    if (root == NULL) return NULL;
+    return __sync_lock_test_and_set(&root->condemned_head, NULL);
 }
 
 /* Call cleanup callbacks for a condemned arena. */
@@ -187,25 +168,22 @@ static void gc_destroy_arena_fully(RtArenaV2 *arena)
     gc_destroy_arena_struct(arena);
 }
 
-/* Sweep dead arenas - phase 1: drain the condemned queue and collect
- * all condemned arenas + descendants. Call callbacks on all of them.
- * Returns the list (handle structs valid).
+/* Sweep dead arenas - phase 1: drain the condemned queue and call
+ * cleanup callbacks. Returns the intrusive list head (handle structs valid).
  * Caller must pass the returned list to gc_sweep_finalize() to free memory. */
-static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
+static RtArenaV2 *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 {
     if (arena == NULL) return NULL;
 
     /* Drain the condemned queue — O(condemned) not O(tree) */
-    ArenaListNode *dead_list = NULL;
-    gc_drain_condemned_queue(arena, &dead_list);
-
+    RtArenaV2 *dead_list = gc_drain_condemned_queue(arena);
     if (dead_list == NULL) return NULL;
 
     /* Call all callbacks on all dead arenas (handle structs still valid).
      * This must happen before any handles are freed to avoid use-after-free
      * when callbacks reference handles across arena boundaries. */
-    for (ArenaListNode *node = dead_list; node != NULL; node = node->next) {
-        gc_call_all_arena_callbacks(node->arena);
+    for (RtArenaV2 *a = dead_list; a != NULL; a = a->condemned_next) {
+        gc_call_all_arena_callbacks(a);
     }
 
     return dead_list;
@@ -214,20 +192,20 @@ static ArenaListNode *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 /* Sweep dead arenas - phase 2: free all handle data and arena structs.
  * Each arena is freed non-recursively (descendants already in the list).
  * Must be called AFTER gc_compact_all so that compact can still read
- * handle structs from dead arenas for reference counting. */
-static size_t gc_sweep_finalize(ArenaListNode *dead_list)
+ * handle structs from dead arenas for reference counting.
+ * Iterates via condemned_next (intrusive) — save next before destroying. */
+static size_t gc_sweep_finalize(RtArenaV2 *dead_list)
 {
     size_t total_bytes = 0;
-    ArenaListNode *node = dead_list;
-    while (node != NULL) {
-        ArenaListNode *next = node->next;
+    RtArenaV2 *a = dead_list;
+    while (a != NULL) {
+        RtArenaV2 *next = a->condemned_next;
         /* Count bytes in arena's handles before freeing */
-        for (RtHandleV2 *h = node->arena->handles_head; h != NULL; h = h->next)
+        for (RtHandleV2 *h = a->handles_head; h != NULL; h = h->next)
             total_bytes += h->size + sizeof(RtHandleV2);
         total_bytes += sizeof(RtArenaV2); /* arena struct itself */
-        gc_destroy_arena_fully(node->arena);
-        free(node);
-        node = next;
+        gc_destroy_arena_fully(a);
+        a = next;
     }
     return total_bytes;
 }
@@ -663,11 +641,11 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Phase 1: Sweep dead arenas - call cleanup callbacks but keep handle
      * structs alive. Handle structs must remain valid so that compact's
      * reference counting can still scan handle data in dead arenas. */
-    ArenaListNode *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
+    RtArenaV2 *dead_arenas = gc_sweep_dead_arenas_callbacks(arena);
 
     /* Count dead arenas for debug */
     size_t dead_arena_count = 0;
-    for (ArenaListNode *n = dead_arenas; n != NULL; n = n->next) dead_arena_count++;
+    for (RtArenaV2 *a = dead_arenas; a != NULL; a = a->condemned_next) dead_arena_count++;
 
     /* Phase 2: Collect dead handles in all live arenas */
     gc_compact_all(arena, &result);
