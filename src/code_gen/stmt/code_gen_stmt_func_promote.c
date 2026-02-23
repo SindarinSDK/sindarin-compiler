@@ -77,6 +77,12 @@ static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, cons
             /* Recurse into nested struct to promote its handle fields */
             const char *nested_prefix = arena_sprintf(gen->arena, "%s.%s", prefix, c_field_name);
             code_gen_promote_struct_fields(gen, field->type, nested_prefix, target_arena, indent);
+            /* Reparent nested struct arena to target so it survives local arena destruction */
+            if (!field->type->as.struct_type.is_packed && !field->type->as.struct_type.is_native)
+            {
+                indented_fprintf(gen, indent, "if (%s.%s.__arena__)\n", prefix, c_field_name);
+                indented_fprintf(gen, indent + 1, "rt_arena_v2_reparent(%s.%s.__arena__, %s);\n", prefix, c_field_name, target_arena);
+            }
         }
     }
 }
