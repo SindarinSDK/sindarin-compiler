@@ -193,6 +193,20 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             indented_fprintf(gen, indent + 1, "%s _return_value = %s;\n", ret_type, default_val);
         }
 
+        /* Declare __returns_self__ flag for instance methods that return their own
+         * struct type. This flag is set at runtime when a method does `return self`,
+         * so the epilogue can reorder promotion to avoid the double-promote bug. */
+        bool method_can_return_self = (has_return_value && is_instance_method &&
+            method->return_type->kind == TYPE_STRUCT &&
+            !(resolved_return_type && resolved_return_type->as.struct_type.is_native) &&
+            resolved_return_type != NULL &&
+            resolved_return_type->as.struct_type.name != NULL &&
+            strcmp(resolved_return_type->as.struct_type.name, raw_struct_name) == 0);
+        if (method_can_return_self)
+        {
+            indented_fprintf(gen, indent + 1, "int __returns_self__ = 0;\n");
+        }
+
         /* Emit arena setup for instance methods */
         if (is_instance_method)
         {
@@ -230,22 +244,42 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
 
         if (is_instance_method)
         {
-            /* Return value promotion FIRST — before self-field promotion.
-             * If the return value shares handles with self, promoting the return
-             * value first ensures those handles are cloned to caller_arena while
-             * still alive. Self-field promotion then safely re-promotes the
-             * (now dead) originals to self->__arena__.
-             * Target is __caller_arena__ — the arena guard (->arena == __local_arena__)
-             * ensures handles already on self->__arena__ are left untouched. */
-            if (has_return_value && !is_private)
-            {
-                code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", indent + 1);
-            }
+            bool returns_own_struct_type = (has_return_value && !is_private &&
+                method->return_type->kind == TYPE_STRUCT &&
+                !(resolved_return_type && resolved_return_type->as.struct_type.is_native) &&
+                resolved_return_type != NULL &&
+                resolved_return_type->as.struct_type.name != NULL &&
+                strcmp(resolved_return_type->as.struct_type.name, raw_struct_name) == 0);
 
-            if (!is_shared)
+            if (returns_own_struct_type)
             {
-                /* DEFAULT/PRIVATE: promote self handle fields before condemn */
-                code_gen_promote_self_fields(gen, struct_decl, indent + 1);
+                /* Conditional epilogue for struct-returning instance methods.
+                 * When returning self, handles are shared between _return_value
+                 * and __sn__self. We must self-promote first, then re-copy,
+                 * to avoid the double-promote bug (where return-promote marks
+                 * handles DEAD, then self-promote tries to promote DEAD handles
+                 * that a concurrent GC thread may have already collected). */
+                indented_fprintf(gen, indent + 1, "if (__returns_self__) {\n");
+                /* Path A: return self — self-promote first, then re-copy */
+                if (!is_shared) code_gen_promote_self_fields(gen, struct_decl, indent + 2);
+                indented_fprintf(gen, indent + 2, "_return_value = (*__sn__self);\n");
+                indented_fprintf(gen, indent + 1, "} else {\n");
+                /* Path B: independent return — return-promote, then self-promote */
+                code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", indent + 2);
+                if (!is_shared) code_gen_promote_self_fields(gen, struct_decl, indent + 2);
+                indented_fprintf(gen, indent + 1, "}\n");
+            }
+            else
+            {
+                /* Non-struct return or private: original behavior */
+                if (has_return_value && !is_private)
+                {
+                    code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", indent + 1);
+                }
+                if (!is_shared)
+                {
+                    code_gen_promote_self_fields(gen, struct_decl, indent + 1);
+                }
             }
 
             if (!is_shared)

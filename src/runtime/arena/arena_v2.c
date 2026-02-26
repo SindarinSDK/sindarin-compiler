@@ -361,9 +361,15 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle)
     /* Clone to dest (handles both shallow copy and deep copy via callback) */
     RtHandleV2 *new_handle = rt_arena_v2_clone(dest, handle);
 
-    /* Mark old as dead */
+    /* Mark old as dead and remove any cleanup callback referencing it.
+     * The copy callback on the new handle registers a fresh cleanup on the
+     * destination arena, so the old cleanup on the source arena is stale.
+     * Without removal, GC compact may free the dead handle struct, and a
+     * later condemned-arena sweep would call the stale callback on freed
+     * memory (use-after-free). */
     if (new_handle != NULL) {
         rt_arena_v2_free(handle);
+        rt_arena_v2_remove_cleanup(source_arena, handle);
     }
 
     pthread_mutex_unlock(&source_arena->mutex);
