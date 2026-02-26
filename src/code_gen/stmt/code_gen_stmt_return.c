@@ -130,6 +130,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         }
 
         /* Handle returning 'self' pointer as struct value (builder/fluent pattern) */
+        bool is_self_return = false;
         if (stmt->value->type == EXPR_VARIABLE &&
             gen->current_return_type != NULL &&
             gen->current_return_type->kind == TYPE_STRUCT)
@@ -138,6 +139,7 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             if (var_name.length == 4 && strncmp(var_name.start, "self", 4) == 0)
             {
                 value_str = arena_sprintf(gen->arena, "(*%s)", value_str);
+                is_self_return = true;
             }
         }
 
@@ -149,6 +151,14 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         }
 
         indented_fprintf(gen, indent, "_return_value = %s;\n", value_str);
+
+        /* Set runtime flag so the method epilogue knows to reorder promotion.
+         * Only applies to instance methods (function_arena_var == __local_arena__). */
+        if (is_self_return && gen->function_arena_var != NULL &&
+            strcmp(gen->function_arena_var, "__local_arena__") == 0)
+        {
+            indented_fprintf(gen, indent, "__returns_self__ = 1;\n");
+        }
     }
 
     /* Clean up all active private block arenas before returning */
