@@ -264,9 +264,18 @@ void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bo
     }
     else if (kind == TYPE_STRUCT)
     {
-        /* Struct returns use target_arena (self->__arena__ for instance methods)
-         * to avoid killing handles shared between _return_value and self */
-        code_gen_promote_struct_return(gen, return_type, target_arena, indent);
+        Type *resolved_ret = resolve_struct_type(gen, return_type);
+        if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
+        {
+            /* Native struct returns are RtHandleV2* - promote the handle like strings */
+            indented_fprintf(gen, indent, "if (_return_value) _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
+        }
+        else
+        {
+            /* Struct returns use target_arena (self->__arena__ for instance methods)
+             * to avoid killing handles shared between _return_value and self */
+            code_gen_promote_struct_return(gen, return_type, target_arena, indent);
+        }
     }
     else if (kind == TYPE_FUNCTION)
     {

@@ -354,10 +354,10 @@ RtHandleV2 *rt_args_create_v2(RtArenaV2 *arena, int argc, char **argv);
  * ============================================================================ */
 
 /* Copy callback for arrays of handles (str[], T[][], etc.) */
-void rt_array_copy_callback(RtArenaV2 *dest, void *ptr);
+void rt_array_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 
 /* Copy callback for any[] arrays */
-void rt_array_any_copy_callback(RtArenaV2 *dest, void *ptr);
+void rt_array_any_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 
 /* ============================================================================
  * Array Join Functions (V2)

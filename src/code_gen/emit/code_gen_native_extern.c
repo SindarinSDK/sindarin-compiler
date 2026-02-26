@@ -66,6 +66,10 @@ void code_gen_native_extern_declaration(CodeGen *gen, FunctionStmt *fn)
     } else if (fn->return_type && fn->return_type->kind == TYPE_ARRAY) {
         const char *elem_c = get_c_array_elem_type(gen->arena, fn->return_type->as.array.element_type);
         ret_c = arena_sprintf(gen->arena, "%s *", elem_c);
+    } else if (fn->return_type && fn->return_type->kind == TYPE_STRUCT &&
+               fn->return_type->as.struct_type.is_native && fn->has_arena_param) {
+        /* Native struct returns with arena use RtHandleV2 * (handle-based native types) */
+        ret_c = "RtHandleV2 *";
     } else {
         ret_c = get_c_type(gen->arena, fn->return_type);
     }

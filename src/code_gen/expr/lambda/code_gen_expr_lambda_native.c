@@ -16,7 +16,15 @@ static char *code_gen_native_lambda_expression(CodeGen *gen, Expr *expr)
     expr->as.lambda.lambda_id = lambda_id;
 
     /* Get C types for return type and parameters */
-    const char *ret_c_type = get_c_type(gen->arena, lambda->return_type);
+    const char *ret_c_type;
+    Type *resolved_lambda_type = resolve_struct_type(gen, lambda->return_type);
+    if (resolved_lambda_type != NULL && resolved_lambda_type->kind == TYPE_STRUCT &&
+        resolved_lambda_type->as.struct_type.is_native &&
+        resolved_lambda_type->as.struct_type.c_alias != NULL) {
+        ret_c_type = "RtHandleV2 *";
+    } else {
+        ret_c_type = get_c_type(gen->arena, resolved_lambda_type);
+    }
 
     /* Build parameter list string for the static function (no closure param) */
     char *params_decl = arena_strdup(gen->arena, "");

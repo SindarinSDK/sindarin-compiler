@@ -59,7 +59,31 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
 
         /* Resolve return type (may be forward-declared struct without c_alias) */
         Type *resolved_return_type = resolve_struct_type(gen, method->return_type);
-        const char *ret_type = get_c_type(gen->arena, resolved_return_type);
+        /* Sindarin methods returning native struct types use RtHandleV2* so the
+         * handle can be promoted before the local arena is condemned. */
+        const char *ret_type;
+        if (resolved_return_type != NULL &&
+            resolved_return_type->kind == TYPE_STRUCT &&
+            resolved_return_type->as.struct_type.is_native &&
+            resolved_return_type->as.struct_type.c_alias != NULL) {
+            ret_type = "RtHandleV2 *";
+        } else if (resolved_return_type != NULL &&
+                   resolved_return_type->kind == TYPE_STRUCT &&
+                   resolved_return_type->as.struct_type.name != NULL &&
+                   struct_decl->is_native && struct_decl->c_alias != NULL) {
+            /* Fallback: resolve_struct_type may fail for imported types because
+             * the symbol table lookup only checks global scope. If the return type
+             * is a struct with the same name as the enclosing struct, use the
+             * struct_decl's own native/c_alias info. */
+            char *raw_name = arena_strndup(gen->arena, struct_decl->name.start, struct_decl->name.length);
+            if (strcmp(resolved_return_type->as.struct_type.name, raw_name) == 0) {
+                ret_type = "RtHandleV2 *";
+            } else {
+                ret_type = get_c_type(gen->arena, resolved_return_type);
+            }
+        } else {
+            ret_type = get_c_type(gen->arena, resolved_return_type);
+        }
 
         /* Generate function signature */
         if (method->is_static)

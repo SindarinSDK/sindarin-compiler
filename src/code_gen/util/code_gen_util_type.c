@@ -27,7 +27,17 @@ Type *resolve_struct_type(CodeGen *gen, Type *type)
     Token lookup_tok;
     lookup_tok.start = type->as.struct_type.name;
     lookup_tok.length = strlen(type->as.struct_type.name);
+
+    /* First try the global type registry */
     Symbol *sym = symbol_table_lookup_type(gen->symbol_table, lookup_tok);
+    if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_STRUCT)
+    {
+        return sym->type;
+    }
+
+    /* Fallback: search the current scope chain. Imported types may not be in
+     * the global type registry but are available as symbols in the scope chain. */
+    sym = symbol_table_lookup_symbol(gen->symbol_table, lookup_tok);
     if (sym != NULL && sym->type != NULL && sym->type->kind == TYPE_STRUCT)
     {
         return sym->type;

@@ -386,7 +386,7 @@ RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle)
         /* Deep copy if callback registered */
         if (new_handle->copy_callback != NULL) {
             rt_handle_begin_transaction(new_handle);
-            new_handle->copy_callback(dest, new_handle->ptr);
+            new_handle->copy_callback(dest, new_handle);
             rt_handle_end_transaction(new_handle);
         }
     }

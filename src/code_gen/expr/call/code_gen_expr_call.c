@@ -552,19 +552,26 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                                              param_types, param_quals, param_count,
                                              expr->expr_type, callee_has_body);
             if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-                expr->expr_type != NULL && is_handle_type(expr->expr_type))
+                expr->expr_type != NULL)
             {
-                if (expr->expr_type->kind == TYPE_STRING)
+                if (is_handle_type(expr->expr_type) && expr->expr_type->kind == TYPE_STRING)
                 {
                     return arena_sprintf(gen->arena,
                         "((char *)(%s)->ptr)",
                         intercept_expr);
                 }
-                else if (expr->expr_type->kind == TYPE_ARRAY)
+                else if (is_handle_type(expr->expr_type) && expr->expr_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
                     return arena_sprintf(gen->arena, "(((%s *)rt_array_data_v2(%s)))",
                                          elem_c, intercept_expr);
+                }
+                else if (expr->expr_type->kind == TYPE_STRUCT &&
+                         expr->expr_type->as.struct_type.is_native &&
+                         expr->expr_type->as.struct_type.c_alias != NULL)
+                {
+                    const char *c_type = get_c_type(gen->arena, expr->expr_type);
+                    return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, intercept_expr);
                 }
             }
             return intercept_expr;
@@ -592,6 +599,18 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
                 return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
                                      elem_c, call_expr);
+            }
+        }
+        /* Sindarin functions returning native struct return RtHandleV2* - unwrap */
+        if (!gen->expr_as_handle && callee_has_body &&
+            gen->current_arena_var != NULL &&
+            expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT)
+        {
+            Type *resolved_ret = resolve_struct_type(gen, expr->expr_type);
+            if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
+            {
+                const char *c_type = get_c_type(gen->arena, resolved_ret);
+                return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, call_expr);
             }
         }
 
@@ -645,6 +664,16 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 }
             }
         }
+        /* Native function returning native struct with arena returns RtHandleV2* - unwrap */
+        if (!gen->expr_as_handle &&
+            !callee_has_body && callee_is_native && callee_needs_arena &&
+            gen->current_arena_var != NULL &&
+            expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT &&
+            expr->expr_type->as.struct_type.is_native)
+        {
+            const char *c_type = get_c_type(gen->arena, expr->expr_type);
+            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, call_expr);
+        }
         return call_expr;
     }
 
@@ -671,7 +700,13 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                                result, i);
     }
 
-    const char *ret_c = get_c_type(gen->arena, expr->expr_type);
+    /* For native functions returning native struct with arena, the extern returns RtHandleV2* */
+    bool native_struct_handle_return = (!gen->expr_as_handle &&
+        !callee_has_body && callee_is_native && callee_needs_arena &&
+        gen->current_arena_var != NULL &&
+        expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT &&
+        expr->expr_type->as.struct_type.is_native);
+    const char *ret_c = native_struct_handle_return ? "RtHandleV2 *" : get_c_type(gen->arena, expr->expr_type);
     if (returns_void)
     {
         result = arena_sprintf(gen->arena, "%s        %s(%s);\n", result, callee_str, args_list);
@@ -762,6 +797,11 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 }
             }
         }
+    }
+    else if (native_struct_handle_return)
+    {
+        const char *c_type = get_c_type(gen->arena, expr->expr_type);
+        result = arena_sprintf(gen->arena, "%s        (%s)_call_result->ptr;\n    })", result, c_type);
     }
     else
     {
