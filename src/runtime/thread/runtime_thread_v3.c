@@ -44,9 +44,9 @@ RtHandleV2 *rt_tls_thread_get_v3(void)
 
 /* Copy callback: RtThread contains pthread primitives and handles that need
  * proper deep copying. Called within a transaction by rt_arena_v2_clone. */
-static void rt_thread_copy_callback(RtArenaV2 *dest, void *ptr)
+static void rt_thread_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle)
 {
-    RtThread *t = (RtThread *)ptr;
+    RtThread *t = (RtThread *)new_handle->ptr;
 
     /* Reinitialize pthread primitives - memcpy'd values are invalid */
     pthread_mutex_init(&t->mutex, NULL);

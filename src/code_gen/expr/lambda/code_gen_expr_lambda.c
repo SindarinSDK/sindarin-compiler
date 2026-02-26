@@ -165,7 +165,15 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     }
 
     /* Get C types for return type and parameters */
-    const char *ret_c_type = get_c_type(gen->arena, lambda->return_type);
+    const char *ret_c_type;
+    Type *resolved_lambda_type = resolve_struct_type(gen, lambda->return_type);
+    if (resolved_lambda_type != NULL && resolved_lambda_type->kind == TYPE_STRUCT &&
+        resolved_lambda_type->as.struct_type.is_native &&
+        resolved_lambda_type->as.struct_type.c_alias != NULL) {
+        ret_c_type = "RtHandleV2 *";
+    } else {
+        ret_c_type = get_c_type(gen->arena, resolved_lambda_type);
+    }
 
     /* Build parameter list string for the static function */
     /* First param is always the closure pointer (void *) */
@@ -407,8 +415,10 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
+            Type *resolved_lambda_ret = resolve_struct_type(gen, lambda->return_type);
             bool is_handle_return = gen->current_arena_var != NULL &&
-                                    (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
+                                    (resolved_lambda_ret->kind == TYPE_ARRAY || resolved_lambda_ret->kind == TYPE_STRING ||
+                                     (resolved_lambda_ret->kind == TYPE_STRUCT && resolved_lambda_ret->as.struct_type.is_native && resolved_lambda_ret->as.struct_type.c_alias != NULL));
             bool saved_expr_handle = gen->expr_as_handle;
             if (is_handle_return) gen->expr_as_handle = true;
 
@@ -680,8 +690,10 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
+            Type *resolved_lambda_ret = resolve_struct_type(gen, lambda->return_type);
             bool is_handle_return = gen->current_arena_var != NULL &&
-                                    (lambda->return_type->kind == TYPE_ARRAY || lambda->return_type->kind == TYPE_STRING);
+                                    (resolved_lambda_ret->kind == TYPE_ARRAY || resolved_lambda_ret->kind == TYPE_STRING ||
+                                     (resolved_lambda_ret->kind == TYPE_STRUCT && resolved_lambda_ret->as.struct_type.is_native && resolved_lambda_ret->as.struct_type.c_alias != NULL));
             bool saved_expr_handle = gen->expr_as_handle;
             if (is_handle_return) gen->expr_as_handle = true;
 

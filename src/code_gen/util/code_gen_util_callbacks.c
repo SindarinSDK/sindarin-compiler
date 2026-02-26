@@ -212,8 +212,8 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s);\n"
         "static void __release_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner);\n"
-        "static void __copy_%s__(RtArenaV2 *dest, void *ptr);\n"
-        "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr);\n",
+        "static void __copy_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle);\n"
+        "static void __copy_array_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle);\n",
         gen->callback_forward_decls,
         sn_name, c_name,
         sn_name, c_name,
@@ -242,11 +242,12 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n"
         "}\n"
         /* __copy_StructName__ - callback wrapper */
-        "static void __copy_%s__(RtArenaV2 *dest, void *ptr) {\n"
-        "    __copy_%s_inline__(dest, (%s *)ptr);\n"
+        "static void __copy_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle) {\n"
+        "    __copy_%s_inline__(dest, (%s *)new_handle->ptr);\n"
         "}\n"
         /* __copy_array_StructName__ - iterates array elements */
-        "static void __copy_array_%s__(RtArenaV2 *dest, void *ptr) {\n"
+        "static void __copy_array_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle) {\n"
+        "    void *ptr = new_handle->ptr;\n"
         "    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;\n"
         "    meta->arena = dest;\n"
         "    %s *arr = (%s *)((char *)ptr + sizeof(RtArrayMetadataV2));\n"

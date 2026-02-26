@@ -25,8 +25,8 @@ typedef struct RtArenaV2 RtArenaV2;
  * the already-copied data in the new handle.
  *
  * Example: A struct with handle fields
- *   void __copy_MyStruct__(RtArenaV2 *dest, void *ptr) {
- *       MyStruct *s = (MyStruct *)ptr;
+ *   void __copy_MyStruct__(RtArenaV2 *dest, RtHandleV2 *new_handle) {
+ *       MyStruct *s = (MyStruct *)new_handle->ptr;
  *       s->name = rt_arena_v2_promote(dest, s->name);
  *       s->data = rt_arena_v2_promote(dest, s->data);
  *   }
@@ -35,7 +35,7 @@ typedef struct RtArenaV2 RtArenaV2;
  * with their own callbacks work automatically.
  * ============================================================================ */
 
-typedef void (*RtHandleV2CopyCallback)(RtArenaV2 *dest, void *ptr);
+typedef void (*RtHandleV2CopyCallback)(RtArenaV2 *dest, RtHandleV2 *new_handle);
 
 /* ============================================================================
  * Handle Flags

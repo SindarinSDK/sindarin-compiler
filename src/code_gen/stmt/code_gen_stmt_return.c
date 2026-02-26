@@ -77,12 +77,19 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->allocate_closure_in_caller_arena = true;
         }
 
-        /* If the function returns a handle type, produce RtHandle value */
+        /* If the function returns a handle type, produce RtHandle value.
+         * Native struct returns are also handle-based (RtHandleV2*) for promotion. */
         bool prev_as_handle = gen->expr_as_handle;
-        if (gen->current_return_type != NULL && is_handle_type(gen->current_return_type) &&
-            gen->current_arena_var != NULL)
+        if (gen->current_return_type != NULL && gen->current_arena_var != NULL)
         {
-            gen->expr_as_handle = true;
+            Type *resolved_ret = resolve_struct_type(gen, gen->current_return_type);
+            if (is_handle_type(resolved_ret) ||
+                (resolved_ret->kind == TYPE_STRUCT &&
+                 resolved_ret->as.struct_type.is_native &&
+                 resolved_ret->as.struct_type.c_alias != NULL))
+            {
+                gen->expr_as_handle = true;
+            }
         }
 
         int saved_temp_count = gen->arena_temp_count;

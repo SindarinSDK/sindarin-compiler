@@ -50,6 +50,16 @@ int code_gen_emit_struct_method_forwards(CodeGen *gen, Stmt **statements, int co
                            method->return_type != NULL && method->return_type->kind == TYPE_ARRAY) {
                     /* Native methods returning arrays return RtHandleV2* directly */
                     ret_type = "RtHandleV2 *";
+                } else if (method->is_native && method->body == NULL &&
+                           method->return_type != NULL && method->return_type->kind == TYPE_STRUCT &&
+                           method->return_type->as.struct_type.is_native && method->has_arena_param) {
+                    /* Native methods returning native structs with arena use RtHandleV2* */
+                    ret_type = "RtHandleV2 *";
+                } else if (method->return_type != NULL && method->return_type->kind == TYPE_STRUCT &&
+                           method->return_type->as.struct_type.is_native &&
+                           method->return_type->as.struct_type.c_alias != NULL) {
+                    /* Sindarin methods returning native struct types use RtHandleV2* for promotion */
+                    ret_type = "RtHandleV2 *";
                 } else {
                     ret_type = get_c_type(gen->arena, method->return_type);
                 }
@@ -218,7 +228,17 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                     continue;
                 }
 
-                const char *ret_type = get_c_type(gen->arena, method->return_type);
+                /* Resolve return type for native struct handle returns */
+                Type *resolved_return_type = resolve_struct_type(gen, method->return_type);
+                const char *ret_type;
+                if (resolved_return_type != NULL &&
+                    resolved_return_type->kind == TYPE_STRUCT &&
+                    resolved_return_type->as.struct_type.is_native &&
+                    resolved_return_type->as.struct_type.c_alias != NULL) {
+                    ret_type = "RtHandleV2 *";
+                } else {
+                    ret_type = get_c_type(gen->arena, resolved_return_type);
+                }
 
                 /* Generate function signature */
                 if (method->is_static)

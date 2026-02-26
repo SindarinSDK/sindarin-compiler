@@ -715,7 +715,8 @@ RtHandleV2 *rt_to_string_array3_any_v2(RtHandleV2 *outer_h) {
  * ============================================================================ */
 
 /* Copy callback for any[] arrays - deep copies string/array/struct elements */
-void rt_array_any_copy_callback(RtArenaV2 *dest, void *ptr) {
+void rt_array_any_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle) {
+    void *ptr = new_handle->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;
     meta->arena = dest;
     RtAny *arr = (RtAny *)((char *)ptr + sizeof(RtArrayMetadataV2));

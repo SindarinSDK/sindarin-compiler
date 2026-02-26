@@ -41,7 +41,14 @@ void emit_import_forward_declarations_recursive(CodeGen *gen, Stmt **stmts, int 
             /* Generate forward declaration with namespace prefix */
             char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", ns_prefix, fn_name);
             char *mangled_name = sn_mangle_name(gen->arena, prefixed_name);
-            const char *ret_c = get_c_type(gen->arena, fn->return_type);
+            const char *ret_c;
+            if (fn->return_type != NULL && fn->return_type->kind == TYPE_STRUCT &&
+                fn->return_type->as.struct_type.is_native &&
+                fn->return_type->as.struct_type.c_alias != NULL) {
+                ret_c = "RtHandleV2 *";
+            } else {
+                ret_c = get_c_type(gen->arena, fn->return_type);
+            }
 
             indented_fprintf(gen, 0, "%s %s(RtArenaV2 *", ret_c, mangled_name);
             for (int j = 0; j < fn->param_count; j++)

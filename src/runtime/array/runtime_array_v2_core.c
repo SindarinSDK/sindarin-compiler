@@ -462,7 +462,8 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **
  * ============================================================================ */
 
 /* Copy callback for arrays of handles (str[], T[][], etc.) */
-void rt_array_copy_callback(RtArenaV2 *dest, void *ptr) {
+void rt_array_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle) {
+    void *ptr = new_handle->ptr;
     RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;
     meta->arena = dest;  /* Update arena reference after shallow copy */
     if (meta->element_size == sizeof(RtHandleV2 *)) {

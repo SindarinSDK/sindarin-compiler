@@ -158,7 +158,22 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     gen->current_arena_var = "__local_arena__";
     gen->function_arena_var = "__local_arena__";
 
-    const char *ret_c = is_main ? "int" : get_c_type(gen->arena, gen->current_return_type);
+    /* Sindarin functions returning native struct types use RtHandleV2* so the
+     * handle can be promoted before the local arena is condemned. */
+    const char *ret_c;
+    if (is_main) {
+        ret_c = "int";
+    } else {
+        Type *resolved_ret = resolve_struct_type(gen, gen->current_return_type);
+        if (resolved_ret != NULL &&
+            resolved_ret->kind == TYPE_STRUCT &&
+            resolved_ret->as.struct_type.is_native &&
+            resolved_ret->as.struct_type.c_alias != NULL) {
+            ret_c = "RtHandleV2 *";
+        } else {
+            ret_c = get_c_type(gen->arena, resolved_ret);
+        }
+    }
     bool has_return_value = (gen->current_return_type && gen->current_return_type->kind != TYPE_VOID) || is_main;
 
     symbol_table_push_scope(gen->symbol_table);
