@@ -312,3 +312,21 @@ char *code_gen_type_suffix(Type *type)
         return "void";
     }
 }
+
+/* ============================================================================
+ * Native Struct Pointer Extraction
+ * ============================================================================ */
+
+char *code_gen_extract_native_ptr(CodeGen *gen, const char *c_type, const char *call_expr)
+{
+    int id = gen->temp_count++;
+    return arena_sprintf(gen->arena,
+        "({ RtHandleV2 *__nsh_%d__ = %s;"
+        " %s __nsp_%d__ = (%s)__nsh_%d__->ptr;"
+        " __nsh_%d__->flags |= (RT_HANDLE_FLAG_DEAD | RT_HANDLE_FLAG_EXTERN);"
+        " __nsp_%d__; })",
+        id, call_expr,
+        c_type, id, c_type, id,
+        id,
+        id);
+}

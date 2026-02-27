@@ -10,6 +10,7 @@
 #include "runtime_thread_v3.h"
 #include "runtime/arena/arena_handle.h"
 #include "runtime/arena/arena_id.h"
+#include "runtime/arena/arena_safepoint.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -316,6 +317,13 @@ void rt_thread_v3_dispose(RtHandleV2 *thread_handle)
         t->panic_msg = NULL;
     }
 
+    /* Detach the pthread so OS reclaims stack/TLS/resources when thread exits.
+     * Fire-and-forget threads (& func()) are never joined, so without detach
+     * the joinable thread's resources leak (~13KB RSS per thread). */
+    if (t->pthread != 0) {
+        pthread_detach(t->pthread);
+    }
+
     rt_handle_end_transaction(thread_handle);
 
     /* Mark handle as dead so GC can collect it */
@@ -537,7 +545,9 @@ void rt_sync_lock(RtHandleV2 *handle)
 
     pthread_mutex_t *mutex = rt_sync_lock_get_mutex((void *)handle);
     if (mutex != NULL) {
+        rt_safepoint_enter_native();
         pthread_mutex_lock(mutex);
+        rt_safepoint_leave_native();
     }
 }
 

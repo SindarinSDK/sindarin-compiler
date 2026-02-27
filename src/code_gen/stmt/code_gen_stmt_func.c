@@ -236,6 +236,8 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Setup local arena */
     if (is_main)
     {
+        indented_fprintf(gen, 1, "rt_safepoint_init();\n");
+        indented_fprintf(gen, 1, "rt_safepoint_thread_register();\n");
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n");
         indented_fprintf(gen, 1, "__main_arena__ = __local_arena__;\n");
         /* GC thread disabled - GC runs on hot path instead */
@@ -247,14 +249,17 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     }
     else if (is_shared)
     {
+        indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __caller_arena__;\n");
     }
     else if (is_private)
     {
+        indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, \"func\");\n");
     }
     else
     {
+        indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
         indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n");
     }
 

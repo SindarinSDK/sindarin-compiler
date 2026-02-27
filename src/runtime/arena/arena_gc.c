@@ -12,9 +12,11 @@
 #include "arena_handle.h"
 #include "arena_id.h"
 #include "arena_stats.h"
+#include "arena_safepoint.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 #include "arena_compat.h"
 #include "../malloc/runtime_malloc_hooks.h"
 
@@ -150,11 +152,10 @@ static void gc_call_all_arena_callbacks(RtArenaV2 *arena)
  * so these children are unreferenced orphans safe to condemn. */
 static void gc_destroy_arena_fully(RtArenaV2 *arena)
 {
-    /* Condemn children — push them to the root's condemned queue */
-    pthread_mutex_lock(&arena->mutex);
+    /* Condemn children — push them to the root's condemned queue.
+     * No mutex needed: called during STW, all mutators are parked. */
     RtArenaV2 *child = arena->first_child;
     arena->first_child = NULL;
-    pthread_mutex_unlock(&arena->mutex);
 
     while (child != NULL) {
         RtArenaV2 *next = child->next_sibling;
@@ -381,8 +382,7 @@ static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
 {
     if (arena == NULL) return;
 
-    pthread_mutex_lock(&arena->mutex);
-
+    /* No mutex needed: called during STW, all mutators are parked. */
     RtHandleV2 *handle = arena->handles_head;
     while (handle != NULL) {
         RtHandleV2 *next = handle->next;
@@ -415,28 +415,10 @@ static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
         handle = next;
     }
 
-    /* Snapshot children while holding mutex, then recurse without holding it.
-     * This avoids parent->child lock ordering that deadlocks with promote's
-     * child->parent ordering. */
-    size_t child_count = 0;
+    /* Recurse into children. No mutex or snapshot needed under STW —
+     * no mutators can modify the child list concurrently. */
     for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        child_count++;
-
-    if (child_count == 0) {
-        pthread_mutex_unlock(&arena->mutex);
-        return;
-    }
-
-    RtArenaV2 **children = malloc(child_count * sizeof(RtArenaV2 *));
-    size_t i = 0;
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
-        children[i++] = c;
-    pthread_mutex_unlock(&arena->mutex);
-
-    for (i = 0; i < child_count; i++)
-        gc_collect_and_build_sets(children[i], dead_list, handle_set, live_handles, result);
-
-    free(children);
+        gc_collect_and_build_sets(c, dead_list, handle_set, live_handles, result);
 }
 
 /* Free children of a dead handle based on reference counts.
@@ -581,11 +563,38 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
 
     /* Pass 2: Free all dead handle data + structs.
-     * No wrapper nodes to free — handles ARE the list nodes (intrusive). */
+     * No wrapper nodes to free — handles ARE the list nodes (intrusive).
+     *
+     * Before freeing, remove any cleanup callback that references this handle
+     * from its owning arena. Without this, the cleanup would hold a dangling
+     * pointer and fire on freed memory when the arena is later condemned.
+     * STW guarantees no concurrent access, so we walk the cleanup list
+     * without the arena mutex. */
     RtHandleV2 *dh = dead_handles;
     while (dh != NULL) {
         RtHandleV2 *next = dh->next;
         GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)dh, dh->ptr);
+
+        /* Run and remove any cleanup callback for this handle before freeing.
+         * The callback (e.g., sn_json_cleanup) may release external resources
+         * like json-c references. If we just removed it, those would leak.
+         * STW guarantees no concurrent access, so no arena mutex needed. */
+        if (dh->arena != NULL) {
+            RtCleanupNodeV2 **pp = &dh->arena->cleanups;
+            while (*pp != NULL) {
+                if ((*pp)->data == dh) {
+                    RtCleanupNodeV2 *node = *pp;
+                    *pp = node->next;
+                    if (node->fn) {
+                        node->fn(node->data);
+                    }
+                    free(node);
+                    break;
+                }
+                pp = &(*pp)->next;
+            }
+        }
+
         if (!(dh->flags & RT_HANDLE_FLAG_EXTERN)) {
             free(dh->ptr);
         }
@@ -609,19 +618,24 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 static volatile size_t _gc_call_count = 0;
 static volatile size_t _gc_skip_count = 0;
 
+/* Global GC mutex — serializes all GC operations across threads.
+ * pthread_mutex_trylock ensures at most one GC runs at a time;
+ * other callers skip rather than block. This prevents the TOCTOU race
+ * where two threads both read gc_running==false before either sets it. */
+static pthread_mutex_t _gc_global_mutex = PTHREAD_MUTEX_INITIALIZER;
+
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
     __sync_add_and_fetch(&_gc_call_count, 1);
 
-    /* Serialized GC entry: use mutex to prevent concurrent GC on same arena */
-    pthread_mutex_lock(&arena->mutex);
-    if (arena->gc_running) {
+    /* Try to acquire the global GC lock. If another thread is already
+     * running GC, skip this invocation rather than blocking. */
+    if (pthread_mutex_trylock(&_gc_global_mutex) != 0) {
         __sync_add_and_fetch(&_gc_skip_count, 1);
-        pthread_mutex_unlock(&arena->mutex);
         return 0;
     }
-    arena->gc_running = true;
-    pthread_mutex_unlock(&arena->mutex);
+
+    rt_safepoint_request_stw();
 
     /* Temporarily clear the malloc redirect handler to prevent GC's internal
      * allocations (RcTable, LiveHandleList, etc.) from being redirected into
@@ -666,10 +680,9 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     /* Restore malloc redirect handler */
     if (saved_handler) rt_malloc_hooks_set_handler(saved_handler);
 
-    /* Lock briefly to clear gc_running */
-    pthread_mutex_lock(&arena->mutex);
-    arena->gc_running = false;
-    pthread_mutex_unlock(&arena->mutex);
+    rt_safepoint_release_stw();
+
+    pthread_mutex_unlock(&_gc_global_mutex);
 
     return result.handles_freed;
 }

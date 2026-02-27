@@ -29,6 +29,7 @@ static RtAny __thunk_0(void);
 // and can access global string variables from __main_arena__.
 RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
+    rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, "func");
     RtHandleV2 * _return_value = NULL;
     // default function uses its own arena (__local_arena__)
@@ -44,6 +45,7 @@ __sn__append_world_return:
 }
 
 int main() {
+    rt_safepoint_init();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");

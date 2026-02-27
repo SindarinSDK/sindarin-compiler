@@ -168,4 +168,10 @@ void code_gen_flush_arena_temps(CodeGen *gen, int indent);
 /* Remove temps from saved_count onwards — adopted by a consumer (var decl, return, assign). */
 void code_gen_adopt_arena_temps_from(CodeGen *gen, int saved_count);
 
+/* Extract a native struct pointer from a handle expression, marking the handle
+ * DEAD+EXTERN so GC reclaims the handle struct but not the data.
+ * Generates: ({ RtHandleV2 *__htmp_N__ = (expr); c_type __p = (c_type)__htmp_N__->ptr;
+ *              __htmp_N__->flags |= (RT_HANDLE_FLAG_DEAD|RT_HANDLE_FLAG_EXTERN); __p; }) */
+char *code_gen_extract_native_ptr(CodeGen *gen, const char *c_type, const char *call_expr);
+
 #endif /* CODE_GEN_UTIL_H */

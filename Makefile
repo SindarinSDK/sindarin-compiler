@@ -242,7 +242,8 @@ test-arena:
 ARENA2_DIR := src/runtime/arena
 ARENA2_BUILD := $(BUILD_DIR)/arena2
 ARENA2_SRCS := $(ARENA2_DIR)/arena_v2.c $(ARENA2_DIR)/arena_handle.c $(ARENA2_DIR)/arena_gc.c \
-	$(ARENA2_DIR)/arena_stats.c $(ARENA2_DIR)/arena_id.c $(ARENA2_DIR)/arena_redirect.c
+	$(ARENA2_DIR)/arena_stats.c $(ARENA2_DIR)/arena_id.c $(ARENA2_DIR)/arena_redirect.c \
+	$(ARENA2_DIR)/arena_safepoint.c
 ARENA2_TEST_DIR := $(ARENA2_DIR)/tests
 ARENA2_BASIC_TEST_BIN := $(BIN_DIR)/test_arena2_basic$(EXE_EXT)
 ARENA2_GC_THREAD_TEST_BIN := $(BIN_DIR)/test_arena2_gc_thread$(EXE_EXT)
