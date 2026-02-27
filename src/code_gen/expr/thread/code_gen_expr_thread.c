@@ -239,6 +239,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    rt_tls_thread_set_v3(__th__);\n"
         "    RtArenaV2 *__arena__ = rt_thread_v3_get_arena(__th__);\n"
         "    rt_tls_arena_set(__arena__);\n"
+        "    rt_safepoint_thread_register();\n"
         "\n"
         "    /* Unpack args from thread handle */\n"
         "    RtHandleV2 *__args_h__ = rt_thread_v3_get_args(__th__);\n"
@@ -766,10 +767,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, callee_str, call_args,
                 gen->spawn_is_fire_and_forget
-                    ? "    rt_tls_thread_set_v3(NULL);\n"
+                    ? "    rt_safepoint_thread_deregister();\n"
+                      "    rt_tls_thread_set_v3(NULL);\n"
                       "    rt_tls_arena_set(NULL);\n"
                       "    rt_thread_v3_dispose(__th__);\n"
                     : "    rt_thread_v3_signal_done(__th__);\n"
+                      "    rt_safepoint_thread_deregister();\n"
                       "    rt_tls_thread_set_v3(NULL);\n"
                       "    rt_tls_arena_set(NULL);\n");
         }
@@ -933,6 +936,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_set_result(__th__, __result__);\n"
                     "\n"
                     "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
@@ -961,6 +965,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
@@ -989,6 +994,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                     "\n"
                     "    rt_thread_v3_signal_done(__th__);\n"
+                    "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
                     "    rt_tls_arena_set(NULL);\n"
                     "    return NULL;\n"
@@ -1011,10 +1017,12 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "}\n\n",
             wrapper_def, callee_str, call_args,
             gen->spawn_is_fire_and_forget
-                ? "    rt_tls_thread_set_v3(NULL);\n"
+                ? "    rt_safepoint_thread_deregister();\n"
+                  "    rt_tls_thread_set_v3(NULL);\n"
                   "    rt_tls_arena_set(NULL);\n"
                   "    rt_thread_v3_dispose(__th__);\n"
                 : "    rt_thread_v3_signal_done(__th__);\n"
+                  "    rt_safepoint_thread_deregister();\n"
                   "    rt_tls_thread_set_v3(NULL);\n"
                   "    rt_tls_arena_set(NULL);\n");
     }
@@ -1039,6 +1047,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_set_result(__th__, __result__);\n"
                 "\n"
                 "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
@@ -1061,6 +1070,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
@@ -1083,6 +1093,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_set_result(__th__, __result_handle__);\n"
                 "\n"
                 "    rt_thread_v3_signal_done(__th__);\n"
+                "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
                 "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"

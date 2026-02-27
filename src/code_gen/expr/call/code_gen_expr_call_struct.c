@@ -217,7 +217,7 @@ char *code_gen_native_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *m
         {
             /* Native struct with arena returns RtHandleV2* - extract typed pointer from handle */
             const char *c_type = get_c_type(gen->arena, method->return_type);
-            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, call_result);
+            return code_gen_extract_native_ptr(gen, c_type, call_result);
         }
     }
     return call_result;
@@ -298,7 +298,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
                      method->return_type->as.struct_type.c_alias != NULL)
             {
                 const char *c_type = get_c_type(gen->arena, method->return_type);
-                return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, intercept_result);
+                return code_gen_extract_native_ptr(gen, c_type, intercept_result);
             }
         }
         return intercept_result;
@@ -385,7 +385,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
         if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
         {
             const char *c_type = get_c_type(gen->arena, resolved_ret);
-            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, method_call);
+            return code_gen_extract_native_ptr(gen, c_type, method_call);
         }
         /* Fallback: use enclosing struct's c_alias if return type name matches */
         if (resolved_ret->as.struct_type.name != NULL &&
@@ -393,7 +393,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
             strcmp(resolved_ret->as.struct_type.name, struct_type->as.struct_type.name) == 0)
         {
             const char *c_type = arena_sprintf(gen->arena, "%s *", struct_type->as.struct_type.c_alias);
-            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, method_call);
+            return code_gen_extract_native_ptr(gen, c_type, method_call);
         }
     }
     return method_call;
@@ -452,7 +452,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
                      method->return_type->as.struct_type.c_alias != NULL)
             {
                 const char *c_type = get_c_type(gen->arena, method->return_type);
-                return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, intercept_result);
+                return code_gen_extract_native_ptr(gen, c_type, intercept_result);
             }
         }
         return intercept_result;
@@ -517,7 +517,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
         if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
         {
             const char *c_type = get_c_type(gen->arena, resolved_ret);
-            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, method_call);
+            return code_gen_extract_native_ptr(gen, c_type, method_call);
         }
         /* Fallback: use enclosing struct's c_alias if return type name matches */
         if (resolved_ret->as.struct_type.name != NULL &&
@@ -525,7 +525,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
             strcmp(resolved_ret->as.struct_type.name, struct_type->as.struct_type.name) == 0)
         {
             const char *c_type = arena_sprintf(gen->arena, "%s *", struct_type->as.struct_type.c_alias);
-            return arena_sprintf(gen->arena, "((%s)(%s)->ptr)", c_type, method_call);
+            return code_gen_extract_native_ptr(gen, c_type, method_call);
         }
     }
     return method_call;

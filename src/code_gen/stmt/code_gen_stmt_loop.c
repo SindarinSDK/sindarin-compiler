@@ -53,6 +53,7 @@ void code_gen_while_statement(CodeGen *gen, WhileStmt *stmt, int indent)
 
     code_gen_statement(gen, stmt->body, indent + 1);
 
+    indented_fprintf(gen, indent + 1, "rt_safepoint_poll();\n");
     indented_fprintf(gen, indent, "}\n");
 
     pop_loop_scope(gen);
@@ -105,6 +106,7 @@ void code_gen_for_statement(CodeGen *gen, ForStmt *stmt, int indent)
         char *inc_str = code_gen_expression(gen, stmt->increment);
         indented_fprintf(gen, indent + 2, "%s;\n", inc_str);
     }
+    indented_fprintf(gen, indent + 2, "rt_safepoint_poll();\n");
     indented_fprintf(gen, indent + 1, "}\n");
 
     /* Restore old continue label */
@@ -231,6 +233,7 @@ void code_gen_for_each_statement(CodeGen *gen, ForEachStmt *stmt, int indent)
      * loop variable. Calling __free_*_inline__ here would mark shared handles
      * as DEAD, causing use-after-free when GC compacts. */
 
+    indented_fprintf(gen, indent + 2, "rt_safepoint_poll();\n");
     indented_fprintf(gen, indent + 1, "}\n");
 
     pop_loop_scope(gen);

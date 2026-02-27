@@ -31,6 +31,7 @@ static RtAny __thunk_0(void);
 RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__message = NULL;
 long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
+    rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, "func");
     long long _return_value = 0;
     // private function uses its own private arena (__local_arena__)
@@ -47,6 +48,7 @@ __sn__process_greeting_return:
 }
 
 int main() {
+    rt_safepoint_init();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");

@@ -224,6 +224,9 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; });\n");
     }
 
+    /* Prepend safepoint poll to arena setup so every lambda checks on entry */
+    arena_setup = arena_sprintf(gen->arena, "    rt_safepoint_poll();\n%s", arena_setup);
+
     if (cv.count > 0)
     {
         /* Generate custom closure struct for this lambda (with arena and size fields) */

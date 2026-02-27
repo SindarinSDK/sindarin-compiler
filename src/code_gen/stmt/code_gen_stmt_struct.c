@@ -134,6 +134,8 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             indented_fprintf(gen, 0, ") {\n");
         }
 
+        indented_fprintf(gen, indent + 1, "rt_safepoint_poll();\n");
+
         /* Set up code generator state for method */
         char *method_full_name = arena_sprintf(gen->arena, "%s_%s", struct_name, method->name);
         char *saved_function = gen->current_function;

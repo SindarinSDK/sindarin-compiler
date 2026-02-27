@@ -404,6 +404,7 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_gc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_handle.c
         ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_redirect.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_safepoint.c
         # string/
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string.c
         ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_v2.c
