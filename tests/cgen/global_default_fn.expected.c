@@ -46,6 +46,7 @@ __sn__append_world_return:
 
 int main() {
     rt_safepoint_init();
+    rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
