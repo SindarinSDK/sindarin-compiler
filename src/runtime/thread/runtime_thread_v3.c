@@ -243,6 +243,7 @@ RtHandleV2 *rt_thread_v3_sync(RtHandleV2 *thread_handle)
     /* Re-acquire transaction to read results - worker has exited,
      * we are the sole accessor. */
     rt_handle_begin_transaction(thread_handle);
+    t->pthread = 0;  /* Already joined — prevent dispose from calling pthread_detach */
     char *panic_msg = t->panic_msg;
     t->panic_msg = NULL;  /* Prevent dispose from freeing it */
 
