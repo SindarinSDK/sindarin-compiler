@@ -17,6 +17,7 @@
 
 /* Core modules - arena must be first as other modules depend on it */
 #include "runtime/arena/arena_v2.h"
+#include "runtime/arena/arena_safepoint.h"
 
 /* Data type modules - depend on arena */
 #include "runtime/string/runtime_string.h"

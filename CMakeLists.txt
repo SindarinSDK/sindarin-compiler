@@ -254,6 +254,7 @@ set(SN_RUNTIME_SOURCES
     src/runtime/arena/arena_gc.c
     src/runtime/arena/arena_handle.c
     src/runtime/arena/arena_redirect.c
+    src/runtime/arena/arena_safepoint.c
     # string/
     src/runtime/string/runtime_string.c
     src/runtime/string/runtime_string_v2.c
