@@ -37,7 +37,7 @@ void rt_safepoint_thread_register(void) {
      * it means this thread will run unparked during GC — a data race.
      * The GC already counted threads and started; this new thread wasn't
      * included and won't be waited on. */
-    if (__atomic_load_n(&rt_gc_safepoint_requested, __ATOMIC_ACQUIRE)) {
+    if (atomic_load_explicit(&rt_gc_safepoint_requested, memory_order_acquire)) {
         __sync_add_and_fetch(&rt_safepoint_race_count, 1);
     }
     pthread_mutex_unlock(&g_sp.mutex);
@@ -102,14 +102,14 @@ void rt_safepoint_park(void) {
 }
 
 void rt_safepoint_poll(void) {
-    if (__builtin_expect(!__atomic_load_n(&rt_gc_safepoint_requested, __ATOMIC_RELAXED), 1))
+    if (__builtin_expect(!atomic_load_explicit(&rt_gc_safepoint_requested, memory_order_relaxed), 1))
         return;
     rt_safepoint_park();
 }
 
 void rt_safepoint_request_stw(void) {
     pthread_mutex_lock(&g_sp.mutex);
-    __atomic_store_n(&rt_gc_safepoint_requested, true, __ATOMIC_RELEASE);
+    atomic_store_explicit(&rt_gc_safepoint_requested, true, memory_order_release);
     /* Wait for all other registered threads to reach safepoints.
      * If the calling thread is registered (worker), exclude it (-1).
      * If the calling thread is NOT registered (main), wait for all. */
@@ -124,7 +124,7 @@ void rt_safepoint_request_stw(void) {
 void rt_safepoint_release_stw(void) {
     pthread_mutex_lock(&g_sp.mutex);
     g_sp.gc_epoch++;
-    __atomic_store_n(&rt_gc_safepoint_requested, false, __ATOMIC_RELEASE);
+    atomic_store_explicit(&rt_gc_safepoint_requested, false, memory_order_release);
     pthread_cond_broadcast(&g_sp.gc_done);
     pthread_mutex_unlock(&g_sp.mutex);
 }
