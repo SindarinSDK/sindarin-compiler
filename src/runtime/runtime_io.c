@@ -92,46 +92,12 @@ int rt_stdin_is_eof(void) {
 }
 
 /* ============================================================================
- * Stdout Operations
+ * Stdout/Stderr Operations
  * ============================================================================ */
-
-/* Stdout - write text */
-void rt_stdout_write(const char *text) {
-    if (text != NULL) {
-        fputs(text, stdout);
-    }
-}
-
-/* Stdout - write text with newline */
-void rt_stdout_write_line(const char *text) {
-    if (text != NULL) {
-        fputs(text, stdout);
-    }
-    fputc('\n', stdout);
-}
 
 /* Stdout - flush output */
 void rt_stdout_flush(void) {
     fflush(stdout);
-}
-
-/* ============================================================================
- * Stderr Operations
- * ============================================================================ */
-
-/* Stderr - write text */
-void rt_stderr_write(const char *text) {
-    if (text != NULL) {
-        fputs(text, stderr);
-    }
-}
-
-/* Stderr - write text with newline */
-void rt_stderr_write_line(const char *text) {
-    if (text != NULL) {
-        fputs(text, stderr);
-    }
-    fputc('\n', stderr);
 }
 
 /* Stderr - flush output */
@@ -148,23 +114,8 @@ RtHandleV2 *rt_read_line(RtArenaV2 *arena) {
     return rt_stdin_read_line(arena);
 }
 
-/* Global convenience: print with newline */
-void rt_println(const char *text) {
-    rt_stdout_write_line(text);
-}
-
-/* Global convenience: print to stderr */
-void rt_print_err(const char *text) {
-    rt_stderr_write(text);
-}
-
-/* Global convenience: print to stderr with newline */
-void rt_print_err_ln(const char *text) {
-    rt_stderr_write_line(text);
-}
-
 /* ============================================================================
- * Handle-Based I/O Functions (V2)
+ * Handle-Based I/O Functions
  * ============================================================================ */
 
 void rt_print_string_v2(RtHandleV2 *text) {
@@ -209,16 +160,6 @@ void rt_print_err_ln_v2(RtHandleV2 *text) {
 void rt_exit(int code)
 {
     exit(code);
-}
-
-/* Assert that a condition is true. */
-void rt_assert(int condition, const char *message)
-{
-    if (!condition)
-    {
-        fprintf(stderr, "%s\n", message);
-        exit(1);
-    }
 }
 
 /* Assert with handle-based message. */

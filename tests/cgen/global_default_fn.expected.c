@@ -52,7 +52,8 @@ int main() {
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
     RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with default function test:");
-    rt_println_v2(__htmp_0__);
+    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with default function test:");
+    rt_println_v2(__htmp_1__);
     RtHandleV2 *__result_pending__ = NULL;
     RtHandleV2 * __sn__result = ({
     RtHandleV2 * __intercept_result;
@@ -60,16 +61,17 @@ int main() {
         RtAny __args[1];
         __rt_thunk_args = __args;
         __rt_thunk_arena = __local_arena__;
-        RtAny __intercepted = rt_call_intercepted("append_world", __args, 0, __thunk_0);
-        __intercept_result = rt_arena_v2_strdup(__local_arena__, rt_unbox_string(__intercepted));
+        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__local_arena__, "append_world"), __args, 0, __thunk_0);
+        __intercept_result = rt_unbox_string_v2(__intercepted);
     } else {
         __intercept_result = __sn__append_world(__local_arena__);
     }
     __intercept_result;
 });
     rt_println_v2(__sn__result);
-    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "PASS");
-    rt_println_v2(__htmp_1__);
+    RtHandleV2 *__htmp_2__ = rt_arena_v2_strdup(__local_arena__, "PASS");
+    RtHandleV2 *__htmp_3__ = rt_arena_v2_strdup(__local_arena__, "PASS");
+    rt_println_v2(__htmp_3__);
     _return_value = 0LL;
     goto main_return;
 main_return:
@@ -80,7 +82,7 @@ main_return:
 
 /* Interceptor thunk definitions */
 static RtAny __thunk_0(void) {
-    RtAny __result = rt_box_string((char *)(__sn__append_world((RtArenaV2 *)__rt_thunk_arena))->ptr);
+    RtAny __result = rt_box_string_v2(__sn__append_world((RtArenaV2 *)__rt_thunk_arena));
     return __result;
 }
 

@@ -13,6 +13,17 @@ void rt_safepoint_init(void);
 void rt_safepoint_thread_register(void);
 void rt_safepoint_thread_deregister(void);
 
+/* Pre-registration: parent thread registers on behalf of a child BEFORE
+ * pthread_create. The child is counted as "registered and parked" so GC
+ * won't proceed without accounting for it. The child must later call
+ * rt_safepoint_adopt_registration() to claim its slot. */
+void rt_safepoint_pre_register_thread(void);
+
+/* Adopt a pre-registered slot. Called by the child thread after starting.
+ * Sets the TLS registered flag, decrements parked_count (undoing the
+ * pre-registration's implicit park), and parks if STW is active. */
+void rt_safepoint_adopt_registration(void);
+
 /* Slow path — park until GC completes */
 void rt_safepoint_park(void);
 

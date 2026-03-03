@@ -1,0 +1,9 @@
+fn add(a: int, b: int): int => a + b
+
+# Multi-line arrow function - expression on next line should be implicit return
+fn apply(f: fn(int, int): int, x: int, y: int): int =>
+    f(x, y)
+
+fn main(): void =>
+    var result: int = apply(add, 3, 4)
+    print($"{result}\n")

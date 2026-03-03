@@ -211,7 +211,6 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/expr/call/code_gen_expr_call_intercept.c
     # Note: code_gen_expr_call_intercept_{func,method}.c are #included by code_gen_expr_call_intercept.c
     src/code_gen/expr/call/code_gen_expr_call_char.c
-    src/code_gen/expr/call/code_gen_expr_call_byte_array.c
     # expr/lambda/
     src/code_gen/expr/lambda/code_gen_expr_lambda.c
     # Note: code_gen_expr_lambda_{capture,local,native}.c are #included by code_gen_expr_lambda.c

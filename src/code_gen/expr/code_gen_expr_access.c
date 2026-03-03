@@ -18,11 +18,7 @@ char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
 
     MemberAccessExpr *access = &expr->as.member_access;
 
-    /* Object evaluation should not be in handle mode (structs aren't handles) */
-    bool saved_handle = gen->expr_as_handle;
-    gen->expr_as_handle = false;
     char *object_code = code_gen_expression(gen, access->object);
-    gen->expr_as_handle = saved_handle;
 
     Type *object_type = access->object->expr_type;
 
@@ -63,24 +59,6 @@ char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     else
     {
         result = arena_sprintf(gen->arena, "%s.%s", object_code, field_name);
-    }
-
-    /* If the field is a string/array stored as RtHandle, and the caller expects
-       a raw pointer (not a handle), pin the handle to get the raw pointer.
-       rt_managed_pin automatically walks the parent chain to find the handle. */
-    if (gen->current_arena_var != NULL && !gen->expr_as_handle && field_type != NULL)
-    {
-        if (field_type->kind == TYPE_STRING)
-        {
-            /* String fields are RtHandleV2* - extract raw char* for V1 callers */
-            result = arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
-        }
-        else if (field_type->kind == TYPE_ARRAY)
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, field_type->as.array.element_type);
-            result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                   elem_c, result);
-        }
     }
 
     return result;
@@ -175,26 +153,15 @@ char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
     /* Generate code for the target */
     char *target_code = code_gen_expression(gen, target);
 
-    /* For string concatenation (str += ...), use handle-based runtime function */
-    if (target_type != NULL && target_type->kind == TYPE_STRING && op == TOKEN_PLUS)
+    /* For string concatenation (str += ...), use handle-based V2 concat */
+    if (target_type != NULL && target_type->kind == TYPE_STRING && op == TOKEN_PLUS
+        && target->type == EXPR_VARIABLE)
     {
-        if (gen->current_arena_var != NULL && target->type == EXPR_VARIABLE)
-        {
-            /* Handle-based: target is an RtHandleV2* variable.
-             * Re-evaluate target and value in handle mode for V2 API.
-             * rt_str_concat_v2 accepts RtHandleV2* parameters. */
-            char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, target->as.variable.name));
-            gen->expr_as_handle = true;
-            char *target_h = code_gen_expression(gen, target);
-            char *value_h = code_gen_expression(gen, compound->value);
-            gen->expr_as_handle = false;
-            return arena_sprintf(gen->arena, "%s = rt_str_concat_v2(%s, %s, %s)",
-                                 var_name, ARENA_VAR(gen), target_h, value_h);
-        }
-        /* Legacy non-arena context - rt_str_concat returns RtHandleV2* */
-        return arena_sprintf(gen->arena,
-            "%s = rt_str_concat(NULL, %s, %s)",
-            target_code, target_code, value_code);
+        char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, target->as.variable.name));
+        char *target_h = code_gen_expression(gen, target);
+        char *value_h = code_gen_expression(gen, compound->value);
+        return arena_sprintf(gen->arena, "%s = rt_str_concat_v2(%s, %s, %s)",
+                             var_name, ARENA_VAR(gen), target_h, value_h);
     }
 
     /* For array element compound assignment in arena mode, use typed set/get
@@ -211,10 +178,7 @@ char *code_gen_compound_assign_expression(CodeGen *gen, Expr *expr)
         if (suffix != NULL)
         {
             /* Get handle and index for typed accessor */
-            bool saved_handle = gen->expr_as_handle;
-            gen->expr_as_handle = true;
             char *handle_str = code_gen_expression(gen, aa->array);
-            gen->expr_as_handle = saved_handle;
             char *idx_str = code_gen_expression(gen, aa->index);
 
             /* Compute adjusted index for negative index support */
@@ -279,21 +243,7 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Generate object in non-handle mode (structs aren't handles) */
-    bool saved_handle = gen->expr_as_handle;
-    gen->expr_as_handle = false;
     char *object_code = code_gen_expression(gen, assign->object);
-
-    /* For string/array fields stored as RtHandle, value must be in handle mode */
-    if (field != NULL && gen->current_arena_var != NULL &&
-        (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
-    {
-        gen->expr_as_handle = true;
-    }
-    else
-    {
-        gen->expr_as_handle = false;
-    }
 
     /* If assigning to a ref parameter's field or a global struct's field,
      * allocate the value in the appropriate arena:
@@ -338,18 +288,17 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
             char *wrapper_name = arena_sprintf(gen->arena, "__wrap_%d__", wrapper_id);
             const char *ret_c_type = get_c_type(gen->arena, func_type->as.function.return_type);
 
-            /* Build parameter list: void* first, then actual params */
-            char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+            /* Build parameter list: void* first, caller arena second, then actual params */
+            char *params_decl = arena_strdup(gen->arena, "void *__closure__, RtArenaV2 *__caller_arena__");
             char *args_forward = arena_strdup(gen->arena, "");
 
-            /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena.
-             * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
+            /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena. */
             bool wrapped_has_body = (func_sym->type != NULL &&
                                      func_sym->type->kind == TYPE_FUNCTION &&
                                      func_sym->type->as.function.has_body);
             if (wrapped_has_body)
             {
-                args_forward = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; })");
+                args_forward = arena_strdup(gen->arena, "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena");
             }
 
             for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -396,22 +345,8 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
 
             /* Wrap the wrapper function in a closure struct */
             const char *arena_var = ARENA_VAR(gen);
-            if (strcmp(arena_var, "NULL") == 0)
             {
-                /* No arena - use malloc */
-                value_code = arena_sprintf(gen->arena,
-                    "({\n"
-                    "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
-                    "    __cl__->fn = (void *)%s;\n"
-                    "    __cl__->arena = NULL;\n"
-                    "    __cl__->size = sizeof(__Closure__);\n"
-                    "    __cl__;\n"
-                    "})",
-                    wrapper_name);
-            }
-            else
-            {
-                /* Use V2 arena allocation */
+                const char *alloc_arena = strcmp(arena_var, "NULL") == 0 ? "__main_arena__" : arena_var;
                 value_code = arena_sprintf(gen->arena,
                     "({\n"
                     "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
@@ -421,9 +356,9 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
                     "    __cl__->arena = %s;\n"
                     "    __cl__->size = sizeof(__Closure__);\n"
                     "    rt_handle_end_transaction(__cl_h__);\n"
-                    "    __cl__;\n"
+                    "    __cl_h__;\n"
                     "})",
-                    arena_var, wrapper_name, arena_var);
+                    alloc_arena, wrapper_name, alloc_arena);
             }
         }
         else
@@ -437,7 +372,6 @@ char *code_gen_member_assign_expression(CodeGen *gen, Expr *expr)
         value_code = code_gen_expression(gen, assign->value);
     }
     gen->current_arena_var = prev_arena_var;
-    gen->expr_as_handle = saved_handle;
 
     /* For string fields: ensure the value is copied to the current arena.
      * This is critical when the value comes from a parameter (which lives in

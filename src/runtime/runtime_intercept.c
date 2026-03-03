@@ -103,7 +103,7 @@ void rt_interceptor_register(RtInterceptHandler handler)
     rt_interceptor_register_where(handler, NULL);
 }
 
-void rt_interceptor_register_where(RtInterceptHandler handler, const char *pattern)
+void rt_interceptor_register_where(RtInterceptHandler handler, RtHandleV2 *pattern)
 {
     lock_registry();
 
@@ -116,7 +116,7 @@ void rt_interceptor_register_where(RtInterceptHandler handler, const char *patte
 
     RtInterceptorEntry *entry = &interceptor_registry[interceptor_registry_count];
     entry->handler = handler;
-    entry->pattern = pattern; // Pattern is owned by caller (typically a string literal)
+    entry->pattern = pattern; // Handle-managed pattern string (NULL for "match all")
 
     interceptor_registry_count++;
     __rt_interceptor_count = interceptor_registry_count;
@@ -204,7 +204,7 @@ bool rt_pattern_matches(const char *name, const char *pattern)
 // Context for chained interceptor calls
 typedef struct InterceptContext
 {
-    const char *name;
+    RtHandleV2 *name;
     RtAny *args;
     int arg_count;
     RtContinueFn original_fn;
@@ -225,16 +225,18 @@ static __thread InterceptContext *current_context = NULL;
 
 // Forward declarations
 static RtAny call_next_interceptor(void);
-static RtAny call_next_interceptor_closure(void *closure);
+static RtAny call_next_interceptor_closure(void *closure, RtArenaV2 *caller_arena);
 
 /**
  * Closure-compatible wrapper for call_next_interceptor.
  * This function uses the Sindarin closure calling convention where the first
- * parameter is the closure pointer (which we ignore since we use thread-local context).
+ * parameter is the closure pointer and second is the caller arena
+ * (both ignored since we use thread-local context for interceptor state).
  */
-static RtAny call_next_interceptor_closure(void *closure)
+static RtAny call_next_interceptor_closure(void *closure, RtArenaV2 *caller_arena)
 {
-    (void)closure; // Unused - context is in thread-local storage
+    (void)closure;
+    (void)caller_arena;
     return call_next_interceptor();
 }
 
@@ -256,16 +258,17 @@ static RtAny call_next_interceptor(void)
     // Increment depth before calling handler
     __rt_intercept_depth++;
 
-    // Create a closure wrapper for the continue callback
-    // This matches the __Closure__ type expected by generated Sindarin code
-    RtClosure continue_closure = {
-        .fn = (void *)call_next_interceptor_closure,
-        .arena = __rt_thunk_arena
-    };
-
-    // Convert name and args to handles for the Sindarin handler
+    // Convert args to handle for the Sindarin handler (name is already a handle)
     RtArenaV2 *arena = __rt_thunk_arena;
-    RtHandleV2 *name_h = rt_arena_v2_strdup(arena, ctx->name);
+
+    // Create a closure wrapper for the continue callback.
+    // Closures are now RtHandleV2* — allocate in arena and wrap.
+    RtHandleV2 *continue_h = rt_arena_v2_alloc(arena, sizeof(RtClosure));
+    rt_handle_begin_transaction(continue_h);
+    RtClosure *continue_closure = (RtClosure *)continue_h->ptr;
+    continue_closure->fn = (void *)call_next_interceptor_closure;
+    continue_closure->arena = arena;
+    rt_handle_end_transaction(continue_h);
 
     // Create args array handle: [RtArrayMetadataV2][RtAny elements...]
     size_t args_alloc = sizeof(RtArrayMetadataV2) + ctx->arg_count * sizeof(RtAny);
@@ -284,7 +287,7 @@ static RtAny call_next_interceptor(void)
     rt_handle_end_transaction(args_h);
 
     // Call the interceptor handler with handle-based parameters
-    RtAny result = entry->handler(arena, name_h, args_h, &continue_closure);
+    RtAny result = entry->handler(arena, ctx->name, args_h, continue_h);
 
     // Copy any modifications back to the original args array
     if (ctx->arg_count > 0)
@@ -303,7 +306,7 @@ static RtAny call_next_interceptor(void)
 }
 
 RtAny rt_call_intercepted(
-    const char *name,
+    RtHandleV2 *name,
     RtAny *args,
     int arg_count,
     RtContinueFn original_fn)
@@ -318,15 +321,30 @@ RtAny rt_call_intercepted(
     int matching_indices[MAX_INTERCEPTORS];
     int matching_count = 0;
 
+    rt_handle_begin_transaction(name);
+    const char *name_str = (const char *)name->ptr;
     lock_registry();
     for (int i = 0; i < interceptor_registry_count; i++)
     {
-        if (rt_pattern_matches(name, interceptor_registry[i].pattern))
+        const char *pattern_str = NULL;
+        RtHandleV2 *pat_h = interceptor_registry[i].pattern;
+        if (pat_h != NULL)
+        {
+            rt_handle_begin_transaction(pat_h);
+            pattern_str = (const char *)pat_h->ptr;
+        }
+        bool matches = rt_pattern_matches(name_str, pattern_str);
+        if (pat_h != NULL)
+        {
+            rt_handle_end_transaction(pat_h);
+        }
+        if (matches)
         {
             matching_indices[matching_count++] = i;
         }
     }
     unlock_registry();
+    rt_handle_end_transaction(name);
 
     // No matching interceptors
     if (matching_count == 0)

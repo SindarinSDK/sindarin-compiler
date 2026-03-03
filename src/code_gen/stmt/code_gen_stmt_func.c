@@ -339,7 +339,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
             }
             else if (param_type->kind == TYPE_STRING)
             {
-                indented_fprintf(gen, 1, "%s = rt_to_string_string(%s, %s);\n",
+                indented_fprintf(gen, 1, "%s = rt_to_string_string_v2(%s, %s);\n",
                                  param_name, ARENA_VAR(gen), param_name);
                 Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
                 if (sym) sym->kind = SYMBOL_LOCAL;

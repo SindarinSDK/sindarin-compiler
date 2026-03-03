@@ -90,23 +90,14 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
 
     /* For non-global variables, evaluate in handle mode as before */
     if (handle_str == NULL) {
-        bool prev_as_handle = gen->expr_as_handle;
-        gen->expr_as_handle = true;
         handle_str = code_gen_expression(gen, object);
-        gen->expr_as_handle = prev_as_handle;
         lvalue_str = handle_str;
     }
 
-    /* For nested arrays and strings in handle mode, generate arg in handle mode to get RtHandle */
-    bool prev_arg_as_handle = gen->expr_as_handle;
-    if ((element_type->kind == TYPE_ARRAY || element_type->kind == TYPE_STRING) && gen->current_arena_var != NULL) {
-        gen->expr_as_handle = true;
-    }
     /* Save temp count before arg evaluation — for struct pushes with handle fields,
      * the field handles are memcpied into the array and must not be freed. */
     int saved_push_temps = gen->arena_temp_count;
     char *arg_str = code_gen_expression(gen, arg);
-    gen->expr_as_handle = prev_arg_as_handle;
 
     /* For struct types with handle fields pushed into arrays, adopt the
      * field temps — the array stores the handle pointers directly via memcpy,

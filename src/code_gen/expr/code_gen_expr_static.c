@@ -98,9 +98,52 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
                 args_list = arena_strdup(gen->arena, "");
             }
 
+            /* Track native string handle args for transactional FFI boundary */
+            char **native_str_handle_exprs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
+            int native_str_handle_count = 0;
+
             for (int i = 0; i < call->arg_count; i++)
             {
-                char *arg_str = code_gen_expression(gen, call->arguments[i]);
+                char *arg_str;
+                /* For native methods receiving str[] args */
+                if (gen->current_arena_var != NULL &&
+                    call->arguments[i]->expr_type != NULL &&
+                    call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                    call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                    call->arguments[i]->expr_type->as.array.element_type->kind == TYPE_STRING)
+                {
+                    char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+                    arg_str = arena_sprintf(gen->arena,
+                        "({ RtHandleV2 *__pin_h = rt_pin_string_array_v2(%s); (char **)rt_array_data_v2(__pin_h); })",
+                        handle_expr);
+                }
+                /* For native methods receiving non-string array args (byte[], int[], etc.) */
+                else if (gen->current_arena_var != NULL &&
+                         call->arguments[i]->expr_type != NULL &&
+                         call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                         call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                         call->arguments[i]->expr_type->as.array.element_type->kind != TYPE_STRING)
+                {
+                    char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+                    const char *elem_c = get_c_array_elem_type(gen->arena,
+                        call->arguments[i]->expr_type->as.array.element_type);
+                    arg_str = arena_sprintf(gen->arena,
+                        "((%s *)rt_array_data_v2(%s))", elem_c, handle_expr);
+                }
+                /* For native methods receiving individual str args */
+                else if (gen->current_arena_var != NULL &&
+                         call->arguments[i]->expr_type != NULL &&
+                         call->arguments[i]->expr_type->kind == TYPE_STRING)
+                {
+                    char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+                    int idx = native_str_handle_count++;
+                    native_str_handle_exprs[idx] = handle_expr;
+                    arg_str = arena_sprintf(gen->arena, "(const char *)__nsh_%d__->ptr", idx);
+                }
+                else
+                {
+                    arg_str = code_gen_expression(gen, call->arguments[i]);
+                }
                 if (args_list[0] != '\0')
                 {
                     args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
@@ -112,15 +155,36 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             }
 
             char *call_result = arena_sprintf(gen->arena, "%s(%s)", func_name, args_list);
-            /* Native static methods returning native struct with arena return RtHandleV2* */
-            if (!gen->expr_as_handle &&
-                method->return_type != NULL && method->return_type->kind == TYPE_STRUCT &&
-                method->return_type->as.struct_type.is_native && method->has_arena_param &&
-                gen->current_arena_var != NULL)
+
+            /* Wrap with transactions for native string handle args */
+            if (native_str_handle_count > 0)
             {
-                const char *c_type = get_c_type(gen->arena, method->return_type);
-                return code_gen_extract_native_ptr(gen, c_type, call_result);
+                bool returns_void = (method->return_type != NULL && method->return_type->kind == TYPE_VOID);
+                char *wrapped = arena_strdup(gen->arena, "({\n");
+                for (int i = 0; i < native_str_handle_count; i++)
+                    wrapped = arena_sprintf(gen->arena, "%s    RtHandleV2 *__nsh_%d__ = %s;\n",
+                                            wrapped, i, native_str_handle_exprs[i]);
+                for (int i = 0; i < native_str_handle_count; i++)
+                    wrapped = arena_sprintf(gen->arena, "%s    rt_handle_begin_transaction(__nsh_%d__);\n",
+                                            wrapped, i);
+                if (returns_void)
+                    wrapped = arena_sprintf(gen->arena, "%s    %s;\n", wrapped, call_result);
+                else
+                {
+                    const char *ret_c = get_c_type(gen->arena, method->return_type);
+                    wrapped = arena_sprintf(gen->arena, "%s    %s __nffi_r__ = %s;\n",
+                                            wrapped, ret_c, call_result);
+                }
+                for (int i = native_str_handle_count - 1; i >= 0; i--)
+                    wrapped = arena_sprintf(gen->arena, "%s    rt_handle_end_transaction(__nsh_%d__);\n",
+                                            wrapped, i);
+                if (returns_void)
+                    wrapped = arena_sprintf(gen->arena, "%s    (void)0;\n})", wrapped);
+                else
+                    wrapped = arena_sprintf(gen->arena, "%s    __nffi_r__;\n})", wrapped);
+                call_result = wrapped;
             }
+
             return call_result;
         }
         else
@@ -138,54 +202,15 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
             char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
             char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
-            /* Non-native struct methods take RtHandle for string/array params */
-            bool saved_handle = gen->expr_as_handle;
-            gen->expr_as_handle = (gen->current_arena_var != NULL);
             for (int i = 0; i < call->arg_count; i++)
             {
                 char *arg_str = code_gen_expression(gen, call->arguments[i]);
                 args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
             }
-            gen->expr_as_handle = saved_handle;
 
             char *result = arena_sprintf(gen->arena, "%s_%s(%s)",
                                          mangled_struct, method->name, args_list);
 
-            /* Extract raw pointer if method returns string/array and caller needs char* */
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-                method->return_type != NULL && is_handle_type(method->return_type))
-            {
-                if (method->return_type->kind == TYPE_STRING)
-                {
-                    return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
-                }
-                else if (method->return_type->kind == TYPE_ARRAY)
-                {
-                    Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
-                    const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-                    return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                         elem_c, result);
-                }
-            }
-            /* Sindarin methods returning native struct return RtHandleV2* - unwrap */
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-                method->return_type != NULL && method->return_type->kind == TYPE_STRUCT)
-            {
-                Type *resolved_ret = resolve_struct_type(gen, method->return_type);
-                if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
-                {
-                    const char *c_type = get_c_type(gen->arena, resolved_ret);
-                    return code_gen_extract_native_ptr(gen, c_type, result);
-                }
-                /* Fallback: use enclosing struct's c_alias if return type name matches */
-                if (resolved_ret->as.struct_type.name != NULL &&
-                    struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL &&
-                    strcmp(resolved_ret->as.struct_type.name, struct_type->as.struct_type.name) == 0)
-                {
-                    const char *c_type = arena_sprintf(gen->arena, "%s *", struct_type->as.struct_type.c_alias);
-                    return code_gen_extract_native_ptr(gen, c_type, result);
-                }
-            }
             return result;
         }
     }
@@ -299,15 +324,6 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
         }
 
         char *call_result = arena_sprintf(gen->arena, "%s(%s)", func_name, args_list);
-        /* Native methods returning native struct with arena return RtHandleV2* */
-        if (!gen->expr_as_handle &&
-            method->return_type != NULL && method->return_type->kind == TYPE_STRUCT &&
-            method->return_type->as.struct_type.is_native && method->has_arena_param &&
-            gen->current_arena_var != NULL)
-        {
-            const char *c_type = get_c_type(gen->arena, method->return_type);
-            return code_gen_extract_native_ptr(gen, c_type, call_result);
-        }
         return call_result;
     }
     else
@@ -342,22 +358,6 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
                                                     call->args, self_ptr_str,
                                                     is_self_pointer, method->return_type);
 
-            /* Extract raw pointer if caller expects char* */
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-                method->return_type != NULL && is_handle_type(method->return_type))
-            {
-                if (method->return_type->kind == TYPE_STRING)
-                {
-                    return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", intercept_result);
-                }
-                else if (method->return_type->kind == TYPE_ARRAY)
-                {
-                    Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
-                    const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-                    return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                         elem_c, intercept_result);
-                }
-            }
             return intercept_result;
         }
 
@@ -368,16 +368,7 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
         /* For instance methods, pass self */
         if (!call->is_static && call->object != NULL)
         {
-            /* Temporarily disable handle mode for self expression generation.
-             * For native struct types, the self expression must be unwrapped to
-             * the raw pointer type (e.g., SnJson *), not kept as RtHandleV2 *. */
-            bool saved_self_handle = gen->expr_as_handle;
-            if (struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL)
-            {
-                gen->expr_as_handle = false;
-            }
             char *self_str = code_gen_expression(gen, call->object);
-            gen->expr_as_handle = saved_self_handle;
 
             if (call->object->expr_type != NULL &&
                 call->object->expr_type->kind == TYPE_POINTER)
@@ -399,55 +390,15 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
             }
         }
 
-        /* Generate other arguments in handle mode (struct methods are Sindarin functions) */
-        bool saved_handle = gen->expr_as_handle;
-        gen->expr_as_handle = (gen->current_arena_var != NULL);
         for (int i = 0; i < call->arg_count; i++)
         {
             char *arg_str = code_gen_expression(gen, call->args[i]);
             args_list = arena_sprintf(gen->arena, "%s, %s", args_list, arg_str);
         }
-        gen->expr_as_handle = saved_handle;
 
         char *result = arena_sprintf(gen->arena, "%s_%s(%s)",
                                      mangled_struct, method->name, args_list);
 
-        /* Extract raw pointer if method returns handle type and caller needs char* */
-        if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-            method->return_type != NULL && is_handle_type(method->return_type))
-        {
-            if (method->return_type->kind == TYPE_STRING)
-            {
-                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
-            }
-            else if (method->return_type->kind == TYPE_ARRAY)
-            {
-                Type *elem_type = resolve_struct_type(gen, method->return_type->as.array.element_type);
-                const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                     elem_c, result);
-            }
-        }
-        /* Sindarin methods returning native struct return RtHandleV2* - unwrap */
-        if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-            method->return_type != NULL && method->return_type->kind == TYPE_STRUCT)
-        {
-            Type *resolved_ret = resolve_struct_type(gen, method->return_type);
-            if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
-            {
-                const char *c_type = get_c_type(gen->arena, resolved_ret);
-                return code_gen_extract_native_ptr(gen, c_type, result);
-            }
-            /* Fallback: if resolve failed but the return type name matches the enclosing
-             * struct (which IS resolved), use the struct's c_alias info. */
-            if (resolved_ret->as.struct_type.name != NULL &&
-                struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL &&
-                strcmp(resolved_ret->as.struct_type.name, struct_type->as.struct_type.name) == 0)
-            {
-                const char *c_type = arena_sprintf(gen->arena, "%s *", struct_type->as.struct_type.c_alias);
-                return code_gen_extract_native_ptr(gen, c_type, result);
-            }
-        }
         return result;
     }
 }

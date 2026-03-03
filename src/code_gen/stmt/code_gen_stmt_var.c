@@ -211,13 +211,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             indented_fprintf(gen, indent, "RtHandleV2 *%s = NULL;\n", pending_var);
             if (stmt->initializer)
             {
-                bool prev_as_handle = gen->expr_as_handle;
-                if (is_spawn_handle_result)
-                {
-                    gen->expr_as_handle = true;
-                }
                 pending_init_str = code_gen_expression(gen, stmt->initializer);
-                gen->expr_as_handle = prev_as_handle;
                 if (fwd)
                     indented_fprintf(gen, indent, "%s = %s;\n", var_name, pending_init_str);
                 else
@@ -307,40 +301,23 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             gen->recursive_lambda_id = -1;
         }
 
-        bool prev_as_handle = gen->expr_as_handle;
-        if (!is_global_scope && gen->current_arena_var != NULL)
-        {
-            /* V2 clone functions take handles, so enable handle mode for as val too */
-            if (is_handle_type(stmt->type))
-            {
-                gen->expr_as_handle = true;
-            }
-            else if (stmt->type->kind == TYPE_ANY && stmt->initializer != NULL &&
-                     stmt->initializer->expr_type != NULL &&
-                     stmt->initializer->expr_type->kind == TYPE_ARRAY)
-            {
-                gen->expr_as_handle = true;
-            }
-        }
-
         /* Handle deferred global initialization */
         char *saved_arena_var = gen->current_arena_var;
         if (is_global_scope && gen->current_arena_var == NULL)
         {
             bool will_need_deferred = is_handle_type(stmt->type) ||
+                stmt->type->kind == TYPE_ANY ||
                 (stmt->type->kind == TYPE_STRUCT && stmt->initializer != NULL &&
                  (stmt->initializer->type == EXPR_CALL || stmt->initializer->type == EXPR_METHOD_CALL));
             if (will_need_deferred)
             {
                 gen->current_arena_var = "__main_arena__";
-                gen->expr_as_handle = is_handle_type(stmt->type);
             }
         }
 
         init_str = code_gen_expression(gen, stmt->initializer);
 
         gen->current_arena_var = saved_arena_var;
-        gen->expr_as_handle = prev_as_handle;
 
         /* Handle string parameter copy */
         if (!is_global_scope && gen->current_arena_var != NULL &&
@@ -360,7 +337,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         bool needs_deferred_init = false;
         if (is_global_scope)
         {
-            if (is_handle_type(stmt->type))
+            if (is_handle_type(stmt->type) || stmt->type->kind == TYPE_ANY)
             {
                 needs_deferred_init = true;
             }
@@ -369,6 +346,14 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 needs_deferred_init = true;
             }
+        }
+
+        /* Handle boxing to 'any' — must happen before deferred init saves the value,
+         * so the deferred assignment in main() includes the boxing call. */
+        if (stmt->type->kind == TYPE_ANY && stmt->initializer->expr_type != NULL &&
+            stmt->initializer->expr_type->kind != TYPE_ANY)
+        {
+            init_str = code_gen_box_value(gen, init_str, stmt->initializer->expr_type);
         }
 
         if (needs_deferred_init)
@@ -397,6 +382,10 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 init_str = arena_strdup(gen->arena, "NULL");
             }
+            else if (stmt->type->kind == TYPE_ANY)
+            {
+                init_str = arena_strdup(gen->arena, "{0}");
+            }
             else if (stmt->type->kind == TYPE_STRUCT)
             {
                 if (stmt->type->as.struct_type.is_native && stmt->type->as.struct_type.c_alias != NULL)
@@ -412,13 +401,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 init_str = arena_strdup(gen->arena, "0");
             }
-        }
-
-        /* Handle boxing to 'any' */
-        if (stmt->type->kind == TYPE_ANY && stmt->initializer->expr_type != NULL &&
-            stmt->initializer->expr_type->kind != TYPE_ANY)
-        {
-            init_str = code_gen_box_value(gen, init_str, stmt->initializer->expr_type);
         }
 
         /* Handle array-to-any conversion */
@@ -559,7 +541,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         stmt->initializer->type == EXPR_LAMBDA)
     {
         int lambda_id = gen->recursive_lambda_id;
-        indented_fprintf(gen, indent, "((__closure_%d__ *)%s)->%s = %s;\n",
+        indented_fprintf(gen, indent, "((__closure_%d__ *)%s->ptr)->%s = %s;\n",
                          lambda_id, var_name, raw_var_name, var_name);
         gen->recursive_lambda_id = -1;
     }

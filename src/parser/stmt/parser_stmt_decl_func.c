@@ -224,6 +224,22 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
         stmts = body->as.block.statements;
         stmt_count = body->as.block.count;
         body->as.block.statements = NULL;
+
+        /* For arrow functions with non-void return type, if the last statement
+         * is a bare expression, wrap it in an implicit return. This handles:
+         *   fn f(): int =>
+         *       expr        // treated as implicit return expr
+         */
+        if (stmt_count > 0 &&
+            return_type->kind != TYPE_VOID &&
+            stmts[stmt_count - 1]->type == STMT_EXPR)
+        {
+            Stmt *last = stmts[stmt_count - 1];
+            Stmt *return_stmt = ast_create_return_stmt(
+                parser->arena, arrow_token,
+                last->as.expression.expression, &arrow_token);
+            stmts[stmt_count - 1] = return_stmt;
+        }
     }
 
     Stmt *func_stmt = ast_create_function_stmt(parser->arena, name, params, param_count, return_type, stmts, stmt_count, &fn_token);

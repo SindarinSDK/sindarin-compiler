@@ -43,7 +43,7 @@ typedef RtAny (*RtInterceptHandler)(
     RtArenaV2 *arena,
     RtHandleV2 *name,
     RtHandleV2 *args,
-    RtClosure *continue_fn
+    RtHandleV2 *continue_fn
 );
 
 /**
@@ -52,7 +52,7 @@ typedef RtAny (*RtInterceptHandler)(
 typedef struct RtInterceptorEntry
 {
     RtInterceptHandler handler;
-    const char *pattern; // NULL for "match all", or a pattern like "get*", "*User", "get*Name"
+    RtHandleV2 *pattern; // NULL for "match all", or a handle to pattern like "get*", "*User", "get*Name"
 } RtInterceptorEntry;
 
 /**
@@ -128,7 +128,7 @@ void rt_interceptor_register(RtInterceptHandler handler);
  * @param handler The interceptor function to register
  * @param pattern Pattern to match function names (e.g., "get*", "*User", "get*Name")
  */
-void rt_interceptor_register_where(RtInterceptHandler handler, const char *pattern);
+void rt_interceptor_register_where(RtInterceptHandler handler, RtHandleV2 *pattern);
 
 /**
  * Clear all registered interceptors.
@@ -162,14 +162,14 @@ bool rt_interceptor_is_active(void);
  * Call a function through the interceptor chain.
  * This is called by generated code for user-defined function calls.
  *
- * @param name         The function name
+ * @param name         The function name (handle-managed string)
  * @param args         Array of boxed arguments
  * @param arg_count    Number of arguments
  * @param original_fn  The original function to call if no interception
  * @return The (possibly intercepted) result
  */
 RtAny rt_call_intercepted(
-    const char *name,
+    RtHandleV2 *name,
     RtAny *args,
     int arg_count,
     RtContinueFn original_fn

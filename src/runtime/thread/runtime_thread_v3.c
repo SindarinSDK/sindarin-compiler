@@ -86,9 +86,9 @@ static void rt_thread_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle)
         t->result = rt_arena_v2_promote(target, t->result);
     }
 
-    /* Copy panic message */
+    /* Promote panic message to new arena */
     if (t->panic_msg != NULL) {
-        t->panic_msg = strdup(t->panic_msg);
+        t->panic_msg = rt_arena_v2_promote(target, t->panic_msg);
     }
 }
 
@@ -184,6 +184,12 @@ void rt_thread_v3_start(RtHandleV2 *thread_handle, void *(*wrapper)(void *))
         return;
     }
 
+    /* Pre-register the child thread with the safepoint system BEFORE
+     * pthread_create. This ensures GC always accounts for the new thread.
+     * Without this, the child could register after STW begins, running
+     * unparked while GC walks the arena tree — a data race. */
+    rt_safepoint_pre_register_thread();
+
     rt_handle_begin_transaction(thread_handle);
     RtThread *t = (RtThread *)thread_handle->ptr;
 
@@ -193,6 +199,8 @@ void rt_thread_v3_start(RtHandleV2 *thread_handle, void *(*wrapper)(void *))
 
     if (err != 0) {
         fprintf(stderr, "rt_thread_v3_start: pthread_create failed: %d\n", err);
+        /* Undo the pre-registration since the thread won't start */
+        rt_safepoint_thread_deregister();
         rt_thread_v3_dispose(thread_handle);
         return;
     }
@@ -244,7 +252,7 @@ RtHandleV2 *rt_thread_v3_sync(RtHandleV2 *thread_handle)
      * we are the sole accessor. */
     rt_handle_begin_transaction(thread_handle);
     t->pthread = 0;  /* Already joined — prevent dispose from calling pthread_detach */
-    char *panic_msg = t->panic_msg;
+    RtHandleV2 *panic_msg = t->panic_msg;
     t->panic_msg = NULL;  /* Prevent dispose from freeing it */
 
     /* Capture result info */
@@ -252,6 +260,16 @@ RtHandleV2 *rt_thread_v3_sync(RtHandleV2 *thread_handle)
     RtThreadMode mode = t->mode;
     RtArenaV2 *caller = t->caller;
     rt_handle_end_transaction(thread_handle);
+
+    /* Promote panic message to caller arena before dispose condemns thread arena */
+    RtHandleV2 *promoted_panic = NULL;
+    if (panic_msg != NULL) {
+        if (mode == RT_THREAD_MODE_SHARED) {
+            promoted_panic = panic_msg;
+        } else {
+            promoted_panic = rt_arena_v2_promote(caller, panic_msg);
+        }
+    }
 
     /* Promote result (copy_callback handles deep copy automatically) */
     RtHandleV2 *result = NULL;
@@ -267,9 +285,11 @@ RtHandleV2 *rt_thread_v3_sync(RtHandleV2 *thread_handle)
     rt_thread_v3_dispose(thread_handle);
 
     /* Re-raise panic if needed */
-    if (panic_msg != NULL) {
-        fprintf(stderr, "panic: %s\n", panic_msg);
-        free(panic_msg);
+    if (promoted_panic != NULL) {
+        rt_handle_begin_transaction(promoted_panic);
+        const char *msg = (const char *)promoted_panic->ptr;
+        fprintf(stderr, "panic: %s\n", msg ? msg : "(no message)");
+        rt_handle_end_transaction(promoted_panic);
         exit(1);
     }
 
@@ -312,9 +332,9 @@ void rt_thread_v3_dispose(RtHandleV2 *thread_handle)
     pthread_mutex_destroy(&t->mutex);
     pthread_cond_destroy(&t->cond);
 
-    /* Free malloc'd panic message if any */
+    /* Mark panic message handle as dead for GC */
     if (t->panic_msg != NULL) {
-        free(t->panic_msg);
+        rt_arena_v2_free(t->panic_msg);
         t->panic_msg = NULL;
     }
 
@@ -389,10 +409,11 @@ void rt_panic(const char *msg)
     RtHandleV2 *th = rt_tls_thread_get_v3();
 
     if (th != NULL) {
-        /* In thread context - store message, signal done, exit thread */
+        /* In thread context - store message in thread arena, signal done, exit thread */
         rt_handle_begin_transaction(th);
         RtThread *t = (RtThread *)th->ptr;
-        t->panic_msg = msg ? strdup(msg) : NULL;
+        RtArenaV2 *msg_arena = t->arena ? t->arena : t->caller;
+        t->panic_msg = msg ? rt_arena_v2_strdup(msg_arena, msg) : NULL;
         rt_handle_end_transaction(th);
 
         rt_thread_v3_signal_done(th);

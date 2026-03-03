@@ -376,6 +376,7 @@ static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable, 
  * Merges gc_collect_all_handles + gc_build_handle_set + live handle data
  * collection into one tree walk, reducing mutex lock/unlock and children
  * snapshot malloc/free from 3x to 1x per arena. */
+
 static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
                                        RcTable *handle_set, LiveHandleList *live_handles,
                                        RtArenaGCResult *result)
@@ -417,8 +418,9 @@ static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
 
     /* Recurse into children. No mutex or snapshot needed under STW —
      * no mutators can modify the child list concurrently. */
-    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling)
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling) {
         gc_collect_and_build_sets(c, dead_list, handle_set, live_handles, result);
+    }
 }
 
 /* Free children of a dead handle based on reference counts.
@@ -659,7 +661,9 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
 
     /* Count dead arenas for debug */
     size_t dead_arena_count = 0;
-    for (RtArenaV2 *a = dead_arenas; a != NULL; a = a->condemned_next) dead_arena_count++;
+    for (RtArenaV2 *a = dead_arenas; a != NULL; a = a->condemned_next) {
+        dead_arena_count++;
+    }
 
     /* Phase 2: Collect dead handles in all live arenas */
     gc_compact_all(arena, &result);

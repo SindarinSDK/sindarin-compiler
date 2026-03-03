@@ -28,6 +28,8 @@ RtHandleV2 *rt_to_string_char_v2(RtArenaV2 *arena, char val);
 RtHandleV2 *rt_to_string_bool_v2(RtArenaV2 *arena, int val);
 RtHandleV2 *rt_to_string_byte_v2(RtArenaV2 *arena, unsigned char val);
 RtHandleV2 *rt_to_string_string_v2(RtArenaV2 *arena, RtHandleV2 *val);
+RtHandleV2 *rt_to_string_void_v2(RtArenaV2 *arena);
+RtHandleV2 *rt_to_string_pointer_v2(RtArenaV2 *arena, RtHandleV2 *p);
 
 /* Format functions (fmt is a compile-time format string, stays const char*) */
 RtHandleV2 *rt_format_long_v2(RtArenaV2 *arena, long long val, const char *fmt);

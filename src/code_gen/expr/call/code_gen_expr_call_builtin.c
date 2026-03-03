@@ -53,15 +53,10 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
         print_func = "rt_print_byte";
         break;
     case TYPE_STRING:
-        if (gen->current_arena_var != NULL) {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_print_string_v2(%s)", handle_expr);
-        }
-        print_func = "rt_print_string";
-        break;
+    {
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_print_string_v2(%s)", handle_expr);
+    }
     case TYPE_ARRAY:
     {
         Type *elem_type = arg_type->as.array.element_type;
@@ -104,10 +99,7 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
             fprintf(stderr, "Error: unsupported array element type for print\n");
             exit(1);
         }
-        bool prev = gen->expr_as_handle;
-        gen->expr_as_handle = true;
         char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-        gen->expr_as_handle = prev;
         return arena_sprintf(gen->arena, "%s(%s)", v2_func, handle_expr);
     }
     default:
@@ -123,27 +115,17 @@ static char *code_gen_builtin_print(CodeGen *gen, Expr *expr, CallExpr *call, ch
  */
 static char *code_gen_builtin_len(CodeGen *gen, CallExpr *call, char **arg_strs)
 {
-    (void)arg_strs;  /* We generate the array expression in handle mode ourselves */
+    (void)arg_strs;
     if (call->arg_count != 1)
         return NULL;
+
+    char *handle_str = code_gen_expression(gen, call->arguments[0]);
 
     Type *arg_type = call->arguments[0]->expr_type;
     if (arg_type && arg_type->kind == TYPE_STRING)
     {
-        if (gen->current_arena_var != NULL) {
-            bool saved = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_str = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = saved;
-            return arena_sprintf(gen->arena, "(long)rt_str_length_v2(%s)", handle_str);
-        }
-        return arena_sprintf(gen->arena, "(long)strlen(%s)", arg_strs[0]);
+        return arena_sprintf(gen->arena, "(long)rt_str_length_v2(%s)", handle_str);
     }
-    /* For arrays, generate the expression in handle mode for V2 */
-    bool saved = gen->expr_as_handle;
-    gen->expr_as_handle = true;
-    char *handle_str = code_gen_expression(gen, call->arguments[0]);
-    gen->expr_as_handle = saved;
     return arena_sprintf(gen->arena, "(long long)rt_array_length_v2(%s)", handle_str);
 }
 
@@ -153,12 +135,6 @@ static char *code_gen_builtin_len(CodeGen *gen, CallExpr *call, char **arg_strs)
  */
 static char *code_gen_builtin_readline(CodeGen *gen)
 {
-    if (gen->expr_as_handle && gen->current_arena_var != NULL)
-    {
-        /* Handle mode: return the RtHandleV2* directly */
-        return arena_sprintf(gen->arena, "rt_read_line(%s)", ARENA_VAR(gen));
-    }
-    /* Non-handle mode: return handle directly (callers should use handle) */
     return arena_sprintf(gen->arena, "rt_read_line(%s)", ARENA_VAR(gen));
 }
 
@@ -174,55 +150,19 @@ static char *code_gen_builtin_println(CodeGen *gen, CallExpr *call, char **arg_s
     Type *arg_type = call->arguments[0]->expr_type;
     if (arg_type->kind == TYPE_STRING)
     {
-        if (gen->current_arena_var != NULL) {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_println_v2(%s)", handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_println(%s)", arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_println_v2(%s)", handle_expr);
     }
-    else
+
+    const char *to_str_func = get_rt_to_string_func_for_type_v2(arg_type);
+    if (arg_type->kind == TYPE_ARRAY)
     {
-        const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_v2(arg_type)
-            : get_rt_to_string_func_for_type(arg_type);
-        if (gen->current_arena_var)
-        {
-            if (arg_type->kind == TYPE_ARRAY)
-            {
-                /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-                bool prev = gen->expr_as_handle;
-                gen->expr_as_handle = true;
-                char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-                gen->expr_as_handle = prev;
-                return arena_sprintf(gen->arena, "rt_println_v2(%s(%s))",
-                    to_str_func, handle_expr);
-            }
-            /* V2 toString returns RtHandleV2* - pass directly to rt_println_v2 */
-            return arena_sprintf(gen->arena, "rt_println_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        /* Non-arena path: toString returns RtHandleV2* - pass to V2 print */
-        if (arg_type->kind == TYPE_ANY)
-        {
-            return arena_sprintf(gen->arena, "rt_println_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        if (arg_type->kind == TYPE_ARRAY)
-        {
-            /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_println_v2(%s(%s))",
-                to_str_func, handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_println(%s(%s, %s))",
-                             to_str_func, ARENA_VAR(gen), arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_println_v2(%s(%s))",
+            to_str_func, handle_expr);
     }
+    return arena_sprintf(gen->arena, "rt_println_v2(%s(%s, %s))",
+        to_str_func, ARENA_VAR(gen), arg_strs[0]);
 }
 
 /**
@@ -237,55 +177,19 @@ static char *code_gen_builtin_printerr(CodeGen *gen, CallExpr *call, char **arg_
     Type *arg_type = call->arguments[0]->expr_type;
     if (arg_type->kind == TYPE_STRING)
     {
-        if (gen->current_arena_var != NULL) {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_print_err_v2(%s)", handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_print_err(%s)", arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_print_err_v2(%s)", handle_expr);
     }
-    else
+
+    const char *to_str_func = get_rt_to_string_func_for_type_v2(arg_type);
+    if (arg_type->kind == TYPE_ARRAY)
     {
-        const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_v2(arg_type)
-            : get_rt_to_string_func_for_type(arg_type);
-        if (gen->current_arena_var)
-        {
-            if (arg_type->kind == TYPE_ARRAY)
-            {
-                /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-                bool prev = gen->expr_as_handle;
-                gen->expr_as_handle = true;
-                char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-                gen->expr_as_handle = prev;
-                return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s))",
-                    to_str_func, handle_expr);
-            }
-            /* V2 toString returns RtHandleV2* - pass directly to rt_print_err_v2 */
-            return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        /* Non-arena path: toString returns RtHandleV2* - pass to V2 print */
-        if (arg_type->kind == TYPE_ANY)
-        {
-            return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        if (arg_type->kind == TYPE_ARRAY)
-        {
-            /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s))",
-                to_str_func, handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_print_err(%s(%s, %s))",
-                             to_str_func, ARENA_VAR(gen), arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s))",
+            to_str_func, handle_expr);
     }
+    return arena_sprintf(gen->arena, "rt_print_err_v2(%s(%s, %s))",
+        to_str_func, ARENA_VAR(gen), arg_strs[0]);
 }
 
 /**
@@ -300,55 +204,19 @@ static char *code_gen_builtin_printerrln(CodeGen *gen, CallExpr *call, char **ar
     Type *arg_type = call->arguments[0]->expr_type;
     if (arg_type->kind == TYPE_STRING)
     {
-        if (gen->current_arena_var != NULL) {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s)", handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_print_err_ln(%s)", arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s)", handle_expr);
     }
-    else
+
+    const char *to_str_func = get_rt_to_string_func_for_type_v2(arg_type);
+    if (arg_type->kind == TYPE_ARRAY)
     {
-        const char *to_str_func = gen->current_arena_var
-            ? get_rt_to_string_func_for_type_v2(arg_type)
-            : get_rt_to_string_func_for_type(arg_type);
-        if (gen->current_arena_var)
-        {
-            if (arg_type->kind == TYPE_ARRAY)
-            {
-                /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-                bool prev = gen->expr_as_handle;
-                gen->expr_as_handle = true;
-                char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-                gen->expr_as_handle = prev;
-                return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s))",
-                    to_str_func, handle_expr);
-            }
-            /* V2 toString returns RtHandleV2* - pass directly to rt_print_err_ln_v2 */
-            return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        /* Non-arena path: toString returns RtHandleV2* - pass to V2 print */
-        if (arg_type->kind == TYPE_ANY)
-        {
-            return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s, %s))",
-                to_str_func, ARENA_VAR(gen), arg_strs[0]);
-        }
-        if (arg_type->kind == TYPE_ARRAY)
-        {
-            /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *handle_expr = code_gen_expression(gen, call->arguments[0]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s))",
-                to_str_func, handle_expr);
-        }
-        return arena_sprintf(gen->arena, "rt_print_err_ln(%s(%s, %s))",
-                             to_str_func, ARENA_VAR(gen), arg_strs[0]);
+        char *handle_expr = code_gen_expression(gen, call->arguments[0]);
+        return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s))",
+            to_str_func, handle_expr);
     }
+    return arena_sprintf(gen->arena, "rt_print_err_ln_v2(%s(%s, %s))",
+        to_str_func, ARENA_VAR(gen), arg_strs[0]);
 }
 
 /**
@@ -395,15 +263,8 @@ char *code_gen_try_builtin_call(CodeGen *gen, Expr *expr, CallExpr *call,
     }
     else if (strcmp(callee_name, "assert") == 0 && call->arg_count == 2)
     {
-        if (gen->current_arena_var != NULL) {
-            /* Re-evaluate the message argument in handle mode */
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
-            char *msg_h = code_gen_expression(gen, call->arguments[1]);
-            gen->expr_as_handle = prev;
-            return arena_sprintf(gen->arena, "rt_assert_v2(%s, %s)", arg_strs[0], msg_h);
-        }
-        return arena_sprintf(gen->arena, "rt_assert(%s, %s)", arg_strs[0], arg_strs[1]);
+        char *msg_h = code_gen_expression(gen, call->arguments[1]);
+        return arena_sprintf(gen->arena, "rt_assert_v2(%s, %s)", arg_strs[0], msg_h);
     }
 
     return NULL;

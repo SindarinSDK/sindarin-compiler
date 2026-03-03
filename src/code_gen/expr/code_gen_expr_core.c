@@ -34,15 +34,13 @@ char *code_gen_literal_expression(CodeGen *gen, LiteralExpr *expr)
     case TYPE_STRING:
     {
         char *raw = escape_c_string(gen->arena, expr->value.string_value);
-        /* In handle mode, wrap string literals to produce an RtHandle.
-         * Hoist to a named temp so it can be tracked and freed after the statement. */
-        if (gen->expr_as_handle && gen->current_arena_var != NULL)
-        {
-            char *strdup_expr = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
-                                              ARENA_VAR(gen), raw);
-            return code_gen_emit_arena_temp(gen, strdup_expr);
-        }
-        return raw;
+        /* Wrap string literals to produce an RtHandleV2* via the current arena.
+         * Hoist to a named temp so it can be tracked and freed after the statement.
+         * current_arena_var is always set: function bodies have local arenas,
+         * and global handle/any inits are deferred to main(). */
+        char *strdup_expr = arena_sprintf(gen->arena, "rt_arena_v2_strdup(%s, %s)",
+                                          ARENA_VAR(gen), raw);
+        return code_gen_emit_arena_temp(gen, strdup_expr);
     }
     case TYPE_BOOL:
         return arena_sprintf(gen->arena, "%ldL", expr->value.bool_value ? 1L : 0L);
@@ -66,11 +64,6 @@ char *code_gen_literal_expression(CodeGen *gen, LiteralExpr *expr)
     case TYPE_INT32:
         return arena_sprintf(gen->arena, "%d", (int)expr->value.int_value);
     case TYPE_NIL:
-        /* In handle mode (arena context), nil for strings/arrays is NULL */
-        if (gen->expr_as_handle && gen->current_arena_var != NULL)
-        {
-            return arena_strdup(gen->arena, "NULL");
-        }
         return arena_strdup(gen->arena, "NULL");
     default:
         exit(1);
@@ -83,15 +76,12 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
     DEBUG_VERBOSE("Entering code_gen_variable_expression");
     char *var_name = get_var_name(gen->arena, expr->name);
 
-    /* Handle 'arena' built-in identifier - resolve to current arena variable */
+    /* Handle 'arena' built-in identifier - resolve to current arena variable.
+     * The arena keyword only appears inside function bodies where
+     * current_arena_var is always set. */
     if (expr->name.length == 5 && strncmp(expr->name.start, "arena", 5) == 0)
     {
-        if (gen->current_arena_var != NULL)
-        {
-            return arena_strdup(gen->arena, gen->current_arena_var);
-        }
-        /* Fallback to rt_current_arena() if no arena variable is available */
-        return arena_strdup(gen->arena, "rt_current_arena()");
+        return arena_strdup(gen->arena, gen->current_arena_var);
     }
 
     // Check if we're inside a lambda and this is a lambda parameter.
@@ -103,33 +93,6 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         {
             char *mangled_param = sn_mangle_name(gen->arena, var_name);
 
-            /* Lambda params of handle type need pinning when caller expects raw pointer */
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL)
-            {
-                /* Find the param type from the lambda definition */
-                for (int pi = 0; pi < innermost->param_count; pi++)
-                {
-                    char pname[256];
-                    int plen = innermost->params[pi].name.length < 255 ? innermost->params[pi].name.length : 255;
-                    strncpy(pname, innermost->params[pi].name.start, plen);
-                    pname[plen] = '\0';
-                    if (strcmp(pname, var_name) == 0 && innermost->params[pi].type != NULL)
-                    {
-                        Type *ptype = innermost->params[pi].type;
-                        if (ptype->kind == TYPE_STRING)
-                        {
-                            return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", mangled_param);
-                        }
-                        else if (ptype->kind == TYPE_ARRAY)
-                        {
-                            const char *elem_c = get_c_array_elem_type(gen->arena, ptype->as.array.element_type);
-                            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                                 elem_c, mangled_param);
-                        }
-                        break;
-                    }
-                }
-            }
             return mangled_param;
         }
     }
@@ -139,18 +102,6 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
     if (symbol && symbol->mem_qual == MEM_AS_REF)
     {
         char *deref = arena_sprintf(gen->arena, "(*%s)", sn_mangle_name(gen->arena, var_name));
-        /* as ref handle types need pinning when caller expects raw pointer */
-        if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-            symbol->type != NULL && is_handle_type(symbol->type))
-        {
-            if (symbol->type->kind == TYPE_STRING)
-                return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", deref);
-            else if (symbol->type->kind == TYPE_ARRAY)
-            {
-                const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, deref);
-            }
-        }
         return deref;
     }
 
@@ -202,11 +153,11 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
         mangled = sn_mangle_name(gen->arena, var_name);
     }
 
-    /* Global handle-type variables passed as function arguments (expr_as_handle=true)
-     * must be cloned to the local arena. Without cloning, the function would try to
-     * pin the handle from its caller arena, but the handle exists in __main_arena__.
+    /* Global handle-type variables passed as function arguments must be cloned
+     * to the local arena. Without cloning, the function would try to pin the
+     * handle from its caller arena, but the handle exists in __main_arena__.
      * Handle indices are arena-local, so the same index could refer to different data. */
-    if (symbol && gen->expr_as_handle &&
+    if (symbol &&
         gen->current_arena_var != NULL &&
         symbol->kind == SYMBOL_GLOBAL &&
         symbol->type != NULL &&
@@ -216,33 +167,6 @@ char *code_gen_variable_expression(CodeGen *gen, VariableExpr *expr)
          * V2 handles carry their own arena reference, so no source arena needed. */
         return arena_sprintf(gen->arena, "rt_arena_v2_clone(%s, %s)",
                              ARENA_VAR(gen), mangled);
-    }
-
-    /* Handle-type variables (string/array/params) need pinning when used in
-     * contexts expecting raw pointers (expr_as_handle = false).
-     * IMPORTANT: pins must use the arena that owns the handle, not necessarily
-     * the current arena (which may be a loop child arena). */
-    if (symbol && !gen->expr_as_handle &&
-        gen->current_arena_var != NULL &&
-        symbol->type != NULL &&
-        is_handle_type(symbol->type))
-    {
-        /* Pin handles. V2 handles don't need the arena parameter.
-         * For strings, pin the handle then access ->ptr for the string data.
-         * For arrays, rt_array_data_v2 returns the element data (not metadata). */
-        if (symbol->type->kind == TYPE_STRING)
-        {
-            /* Transaction-based raw pointer extraction for V1 callers */
-            return arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)",
-                mangled);
-        }
-        else if (symbol->type->kind == TYPE_ARRAY)
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, symbol->type->as.array.element_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                 elem_c, mangled);
-        }
     }
 
     return mangled;
@@ -326,61 +250,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         }
     }
 
-    /* When assigning to a handle type (array/string) or boxing an array
-     * into 'any', evaluate in handle mode so we produce RtHandle expressions. */
-    bool saved_as_handle = gen->expr_as_handle;
-    bool string_as_handle = false;
-    if (gen->current_arena_var != NULL)
-    {
-        /* For string types, enable handle mode so string operations return RtHandle. */
-        if (type->kind == TYPE_STRING)
-        {
-            gen->expr_as_handle = true;
-            string_as_handle = true;
-        }
-        else if (type->kind == TYPE_ARRAY &&
-            type->as.array.element_type != NULL &&
-            expr->value->expr_type != NULL &&
-            expr->value->expr_type->kind == TYPE_ARRAY &&
-            expr->value->expr_type->as.array.element_type != NULL)
-        {
-            Type *decl_elem = type->as.array.element_type;
-            Type *src_elem = expr->value->expr_type->as.array.element_type;
-            /* Enable handle mode for array expressions so they produce
-             * RtHandle values via rt_array_create_*_v2 or method _v2 functions.
-             * EXCEPTION: Don't enable handle mode when assigning to any[] because
-             * the conversion functions (rt_array_to_any_*) need raw pointers. */
-            if (decl_elem->kind != TYPE_ANY)
-            {
-                gen->expr_as_handle = true;
-            }
-            /* Enable handle mode when a 2D/3D any conversion will be applied,
-             * or when assigning to any[] (1D conversion needs pin). */
-            else if ((decl_elem->kind == TYPE_ANY && src_elem->kind != TYPE_ANY) ||
-                (decl_elem->kind == TYPE_ARRAY &&
-                 decl_elem->as.array.element_type != NULL &&
-                 decl_elem->as.array.element_type->kind == TYPE_ANY &&
-                 src_elem->kind == TYPE_ARRAY &&
-                 src_elem->as.array.element_type != NULL &&
-                 src_elem->as.array.element_type->kind != TYPE_ANY) ||
-                (decl_elem->kind == TYPE_ARRAY &&
-                 decl_elem->as.array.element_type != NULL &&
-                 decl_elem->as.array.element_type->kind == TYPE_ARRAY &&
-                 decl_elem->as.array.element_type->as.array.element_type != NULL &&
-                 decl_elem->as.array.element_type->as.array.element_type->kind == TYPE_ANY))
-            {
-                gen->expr_as_handle = true;
-            }
-        }
-        else if (type->kind == TYPE_ANY &&
-                 expr->value->expr_type != NULL && expr->value->expr_type->kind == TYPE_ARRAY)
-        {
-            gen->expr_as_handle = true;
-        }
-    }
     int saved_temp_count = gen->arena_temp_count;
     char *value_str = code_gen_expression(gen, expr->value);
-    gen->expr_as_handle = saved_as_handle;
 
     /* Adopt only the result temp (if it matches value_str). Leave non-result
      * temps in the tracking array — the expression statement flush will free
@@ -630,34 +501,18 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
     {
         if (in_arena_context)
         {
-            if (string_as_handle)
-            {
-                /* Value expression was evaluated in handle mode - already returns RtHandleV2*.
-                 * For globals, promote the handle to main arena so it survives function return.
-                 * V2 handles carry their own arena reference, so no source arena needed. */
-                if (is_global)
-                {
-                    return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); })",
-                                         var_name, var_name, value_str);
-                }
-                /* For locals, free old handle before reassigning. */
-                return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = %s; })",
-                                     var_name, var_name, value_str);
-            }
-            /* For handle-based strings: create new handle and assign (old will be GC'd).
-             * The value_str is a raw pointer (pinned by expression generator).
-             * For globals, use main arena and free old handle. Otherwise use function arena. */
-            const char *target_arena = is_global ? "__main_arena__" : ARENA_VAR(gen);
+            /* Value expression was evaluated in handle mode - already returns RtHandleV2*.
+             * For globals, promote the handle to main arena so it survives function return.
+             * V2 handles carry their own arena reference, so no source arena needed. */
             if (is_global)
             {
-                return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_strdup(%s, %s); })",
-                                     var_name, var_name, target_arena, value_str);
+                return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); })",
+                                     var_name, var_name, value_str);
             }
-            return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_strdup(%s, %s); })",
-                                 var_name, var_name, target_arena, value_str);
+            /* For locals, free old handle before reassigning. */
+            return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = %s; })",
+                                 var_name, var_name, value_str);
         }
-        return arena_sprintf(gen->arena, "({ char *_val = %s; if (%s) rt_free_string(%s); %s = _val; _val; })",
-                             value_str, var_name, var_name, var_name);
     }
     else if (type->kind == TYPE_ARRAY && in_arena_context)
     {
@@ -773,20 +628,11 @@ char *code_gen_index_assign_expression(CodeGen *gen, IndexAssignExpr *expr)
     /* In V2 arena mode with typed accessors, evaluate array as handle */
     if (gen->current_arena_var != NULL && suffix != NULL)
     {
-        bool saved_as_handle = gen->expr_as_handle;
-        gen->expr_as_handle = true;
         char *handle_str = code_gen_expression(gen, expr->array);
-        gen->expr_as_handle = saved_as_handle;
 
         char *index_str = code_gen_expression(gen, expr->index);
 
-        /* For handle-type values (string/array), evaluate value in handle mode */
-        if (elem_type != NULL && is_handle_type(elem_type))
-        {
-            gen->expr_as_handle = true;
-        }
         char *value_str = code_gen_expression(gen, expr->value);
-        gen->expr_as_handle = saved_as_handle;
 
         /* Compute adjusted index for negative index support */
         char *adj_index;

@@ -1,8 +1,12 @@
 #include "arena_safepoint.h"
 #include <pthread.h>
 #include <stdatomic.h>
+#include <stdio.h>
 
 _Atomic bool rt_gc_safepoint_requested = false;
+
+/* Race detection counter: incremented when a thread registers during active STW */
+volatile int rt_safepoint_race_count = 0;
 
 /* Per-thread flag: is this thread registered with the safepoint subsystem? */
 static _Thread_local bool g_sp_thread_registered = false;
@@ -29,6 +33,42 @@ void rt_safepoint_thread_register(void) {
     pthread_mutex_lock(&g_sp.mutex);
     g_sp.thread_count++;
     g_sp_thread_registered = true;
+    /* Race detection: if STW is active when a new thread registers,
+     * it means this thread will run unparked during GC — a data race.
+     * The GC already counted threads and started; this new thread wasn't
+     * included and won't be waited on. */
+    if (__atomic_load_n(&rt_gc_safepoint_requested, __ATOMIC_ACQUIRE)) {
+        __sync_add_and_fetch(&rt_safepoint_race_count, 1);
+    }
+    pthread_mutex_unlock(&g_sp.mutex);
+}
+
+void rt_safepoint_pre_register_thread(void) {
+    pthread_mutex_lock(&g_sp.mutex);
+    g_sp.thread_count++;
+    g_sp.parked_count++;
+    /* If GC is waiting for all threads to park, signal it —
+     * this new "thread" is already parked from GC's perspective. */
+    if (rt_gc_safepoint_requested &&
+        g_sp.parked_count >= g_sp.thread_count - (g_sp_thread_registered ? 1 : 0)) {
+        pthread_cond_signal(&g_sp.all_parked);
+    }
+    pthread_mutex_unlock(&g_sp.mutex);
+}
+
+void rt_safepoint_adopt_registration(void) {
+    pthread_mutex_lock(&g_sp.mutex);
+    g_sp_thread_registered = true;
+    g_sp.parked_count--;  /* Undo the implicit park from pre_register */
+    /* If STW is active, we must wait for GC to finish before running */
+    if (rt_gc_safepoint_requested) {
+        g_sp.parked_count++;
+        int my_epoch = g_sp.gc_epoch;
+        while (g_sp.gc_epoch == my_epoch && rt_gc_safepoint_requested) {
+            pthread_cond_wait(&g_sp.gc_done, &g_sp.mutex);
+        }
+        g_sp.parked_count--;
+    }
     pthread_mutex_unlock(&g_sp.mutex);
 }
 
@@ -123,4 +163,8 @@ void rt_safepoint_leave_native(void) {
         g_sp.parked_count--;
     }
     pthread_mutex_unlock(&g_sp.mutex);
+}
+
+int rt_safepoint_get_race_count(void) {
+    return __sync_add_and_fetch(&rt_safepoint_race_count, 0);
 }

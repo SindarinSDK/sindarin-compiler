@@ -143,6 +143,19 @@ RtHandleV2 *rt_to_string_string_v2(RtArenaV2 *arena, RtHandleV2 *val_h) {
     return result;
 }
 
+RtHandleV2 *rt_to_string_void_v2(RtArenaV2 *arena) {
+    return rt_arena_v2_strdup(arena, "void");
+}
+
+RtHandleV2 *rt_to_string_pointer_v2(RtArenaV2 *arena, RtHandleV2 *p) {
+    if (p == NULL) return rt_arena_v2_strdup(arena, "nil");
+    rt_handle_begin_transaction(p);
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%p", p->ptr);
+    rt_handle_end_transaction(p);
+    return rt_arena_v2_strdup(arena, buf);
+}
+
 /* ============================================================================
  * Format Functions
  * Parse Sindarin format specs (e.g., "05d", ".2f", "10s") into C printf format
@@ -570,18 +583,7 @@ RtHandleV2 *rt_str_split_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *del
     while ((found = strstr(p, delimiter)) != NULL && idx < count - 1) {
         rt_handle_renew_transaction(h);
         size_t seg_len = (size_t)(found - p);
-        /* Allocate temporary buffer for segment (on stack if small enough) */
-        char stack_buf[256];
-        char *seg;
-        if (seg_len < sizeof(stack_buf)) {
-            seg = stack_buf;
-        } else {
-            seg = malloc(seg_len + 1);
-        }
-        memcpy(seg, p, seg_len);
-        seg[seg_len] = '\0';
-        arr[idx++] = rt_arena_v2_strdup(arena, seg);
-        if (seg != stack_buf) free(seg);
+        arr[idx++] = rt_arena_v2_strndup(arena, p, seg_len);
         p = found + del_len;
     }
     /* Copy the remaining tail */
@@ -655,18 +657,7 @@ RtHandleV2 *rt_str_split_n_v2(RtArenaV2 *arena, RtHandleV2 *str_h, RtHandleV2 *d
     while ((found = strstr(p, delimiter)) != NULL && idx < count - 1) {
         rt_handle_renew_transaction(h);
         size_t seg_len = (size_t)(found - p);
-        /* Allocate temporary buffer for segment */
-        char stack_buf[256];
-        char *seg;
-        if (seg_len < sizeof(stack_buf)) {
-            seg = stack_buf;
-        } else {
-            seg = malloc(seg_len + 1);
-        }
-        memcpy(seg, p, seg_len);
-        seg[seg_len] = '\0';
-        arr[idx++] = rt_arena_v2_strdup(arena, seg);
-        if (seg != stack_buf) free(seg);
+        arr[idx++] = rt_arena_v2_strndup(arena, p, seg_len);
         p = found + del_len;
     }
     /* Copy the remaining tail (unsplit) */
@@ -733,17 +724,7 @@ RtHandleV2 *rt_str_split_whitespace_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
         const char *start = p;
         while (*p && !is_whitespace_v2(*p)) p++;
         size_t len = p - start;
-        char stack_buf[256];
-        char *word;
-        if (len < sizeof(stack_buf)) {
-            word = stack_buf;
-        } else {
-            word = malloc(len + 1);
-        }
-        memcpy(word, start, len);
-        word[len] = '\0';
-        arr[idx++] = rt_arena_v2_strdup(arena, word);
-        if (word != stack_buf) free(word);
+        arr[idx++] = rt_arena_v2_strndup(arena, start, len);
     }
 
     rt_handle_end_transaction(h);
@@ -811,32 +792,12 @@ RtHandleV2 *rt_str_split_lines_v2(RtArenaV2 *arena, RtHandleV2 *str_h) {
         rt_handle_renew_transaction(h);
         if (*p == '\n') {
             size_t line_len = p - start;
-            char stack_buf[256];
-            char *line;
-            if (line_len < sizeof(stack_buf)) {
-                line = stack_buf;
-            } else {
-                line = malloc(line_len + 1);
-            }
-            memcpy(line, start, line_len);
-            line[line_len] = '\0';
-            arr[idx++] = rt_arena_v2_strdup(arena, line);
-            if (line != stack_buf) free(line);
+            arr[idx++] = rt_arena_v2_strndup(arena, start, line_len);
             p++;
             start = p;
         } else if (*p == '\r') {
             size_t line_len = p - start;
-            char stack_buf[256];
-            char *line;
-            if (line_len < sizeof(stack_buf)) {
-                line = stack_buf;
-            } else {
-                line = malloc(line_len + 1);
-            }
-            memcpy(line, start, line_len);
-            line[line_len] = '\0';
-            arr[idx++] = rt_arena_v2_strdup(arena, line);
-            if (line != stack_buf) free(line);
+            arr[idx++] = rt_arena_v2_strndup(arena, start, line_len);
             p++;
             if (*p == '\n') p++;
             start = p;

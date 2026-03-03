@@ -55,7 +55,7 @@ const char *get_boxing_function(Type *type)
     case TYPE_FLOAT:
         return "rt_box_float";
     case TYPE_STRING:
-        return "rt_box_string";
+        return "rt_box_string_v2";
     case TYPE_CHAR:
         return "rt_box_char";
     case TYPE_BOOL:
@@ -100,7 +100,7 @@ const char *get_unboxing_function(Type *type)
     case TYPE_FLOAT:
         return "rt_unbox_float";
     case TYPE_STRING:
-        return "rt_unbox_string";
+        return "rt_unbox_string_v2";
     case TYPE_CHAR:
         return "rt_unbox_char";
     case TYPE_BOOL:
@@ -180,13 +180,11 @@ char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type)
     }
 
     /* Arrays need the element type tag as second argument.
-     * In handle mode, value_str is an RtHandle (uint32_t) - cast to void* for storage. */
+     * value_str is an RtHandleV2* - cast to void* for storage in RtAny. */
     if (value_type->kind == TYPE_ARRAY)
     {
         const char *elem_tag = get_element_type_tag(value_type->as.array.element_type);
-        if (gen->current_arena_var != NULL)
-            return arena_sprintf(gen->arena, "%s((void *)(uintptr_t)%s, %s)", box_func, value_str, elem_tag);
-        return arena_sprintf(gen->arena, "%s(%s, %s)", box_func, value_str, elem_tag);
+        return arena_sprintf(gen->arena, "%s((void *)(uintptr_t)%s, %s)", box_func, value_str, elem_tag);
     }
 
     /* Structs need arena, address, size, and type ID.
@@ -254,14 +252,10 @@ char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type)
             any_str, type_id, struct_name, struct_name);
     }
 
-    /* Strings in arena mode with handle context: use V2 unbox which returns RtHandleV2*.
-     * When expr_as_handle is false (e.g. inside string interpolation), just return
-     * the raw char* from rt_unbox_string directly. */
-    if (target_type->kind == TYPE_STRING && gen->current_arena_var != NULL
-        && gen->expr_as_handle)
+    /* String unboxing: rt_unbox_string_v2 returns RtHandleV2* directly (no arena needed) */
+    if (target_type->kind == TYPE_STRING)
     {
-        return arena_sprintf(gen->arena, "rt_unbox_string_v2(%s, %s)",
-                             ARENA_VAR(gen), any_str);
+        return arena_sprintf(gen->arena, "rt_unbox_string_v2(%s)", any_str);
     }
 
     return arena_sprintf(gen->arena, "%s(%s)", unbox_func, any_str);

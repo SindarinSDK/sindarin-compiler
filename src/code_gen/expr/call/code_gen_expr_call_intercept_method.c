@@ -166,12 +166,6 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
                                           thunk_def, box_func, callee_str, unboxed_args, elem_tag);
             }
         }
-        else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-        {
-            /* In V2 handle mode, string result is RtHandleV2* — access ptr for boxing */
-            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)(%s(%s))->ptr);\n",
-                                      thunk_def, box_func, callee_str, unboxed_args);
-        }
         else
         {
             thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s(%s(%s));\n",
@@ -197,11 +191,6 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     /* Evaluate arguments into temporaries to avoid exponential code duplication
      * when intercepted calls are nested.
      * Struct methods are Sindarin functions, so args must be in handle mode. */
-    bool saved_as_handle = gen->expr_as_handle;
-    if (gen->current_arena_var != NULL)
-    {
-        gen->expr_as_handle = true;
-    }
     char **arg_temps = arena_alloc(arena, arg_count * sizeof(char *));
     for (int i = 0; i < arg_count; i++)
     {
@@ -216,14 +205,13 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
             if (wrapped != NULL)
             {
                 arg_str = wrapped;
-                arg_c_type = "__Closure__ *";
+                arg_c_type = "RtHandleV2 *";
             }
         }
         char *temp_name = arena_sprintf(arena, "__iarg_%d_%d", thunk_id, i);
         result = arena_sprintf(arena, "%s    %s %s = %s;\n", result, arg_c_type, temp_name, arg_str);
         arg_temps[i] = temp_name;
     }
-    gen->expr_as_handle = saved_as_handle;
 
     /* Declare result variable */
     if (!returns_void)
@@ -272,12 +260,6 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
                                        result, arg_idx, box_func, arg_temps[i], elem_tag);
             }
         }
-        else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-        {
-            /* In V2 handle mode, string temps are RtHandleV2* — access ptr for boxing. */
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)%s->ptr);\n",
-                                   result, arg_idx, box_func, arg_temps[i]);
-        }
         else
         {
             result = arena_sprintf(arena, "%s        __args[%d] = %s(%s);\n",
@@ -293,8 +275,8 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
     }
 
     /* Call through interceptor chain */
-    result = arena_sprintf(arena, "%s        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n",
-                           result, qualified_name, total_arg_count, thunk_name);
+    result = arena_sprintf(arena, "%s        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(%s, \"%s\"), __args, %d, %s);\n",
+                           result, ARENA_VAR(gen), qualified_name, total_arg_count, thunk_name);
 
     /* Unbox result */
     if (!returns_void)

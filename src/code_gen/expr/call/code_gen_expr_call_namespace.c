@@ -60,8 +60,6 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
     }
 
     /* Generate arguments */
-    bool ns_outer_as_handle = gen->expr_as_handle;
-    gen->expr_as_handle = (callee_has_body && gen->current_arena_var != NULL);
     char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
     for (int i = 0; i < call->arg_count; i++)
     {
@@ -73,19 +71,29 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
             call->arguments[i]->expr_type->as.array.element_type != NULL &&
             call->arguments[i]->expr_type->as.array.element_type->kind == TYPE_STRING)
         {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
-            gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
-                                         handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin_h = rt_pin_string_array_v2(%s); (char **)rt_array_data_v2(__pin_h); })",
+                handle_expr);
+        }
+        /* For native functions receiving non-string array args (byte[], int[], etc.) */
+        else if (!callee_has_body && gen->current_arena_var != NULL &&
+                 call->arguments[i]->expr_type != NULL &&
+                 call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                 call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                 call->arguments[i]->expr_type->as.array.element_type->kind != TYPE_STRING)
+        {
+            char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+            const char *elem_c = get_c_array_elem_type(gen->arena,
+                call->arguments[i]->expr_type->as.array.element_type);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "((%s *)rt_array_data_v2(%s))", elem_c, handle_expr);
         }
         else
         {
             arg_strs[i] = code_gen_expression(gen, call->arguments[i]);
         }
     }
-    gen->expr_as_handle = ns_outer_as_handle;
 
     /* Build args list - prepend arena if function has body (Sindarin function) */
     char *args_list;
@@ -117,24 +125,6 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
     /* Emit function call using the resolved function name */
     char *ns_call_expr = arena_sprintf(gen->arena, "%s(%s)", func_name_to_use, args_list);
 
-    /* If the function returns a handle type and we need raw pointer, pin it */
-    if (!gen->expr_as_handle && callee_has_body &&
-        gen->current_arena_var != NULL &&
-        expr->expr_type != NULL && is_handle_type(expr->expr_type))
-    {
-        if (expr->expr_type->kind == TYPE_STRING)
-        {
-            return arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)",
-                ns_call_expr);
-        }
-        else if (expr->expr_type->kind == TYPE_ARRAY)
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                 elem_c, ns_call_expr);
-        }
-    }
     return ns_call_expr;
 }
 
@@ -196,8 +186,6 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
     }
 
     /* Generate arguments - same logic as regular namespace calls */
-    bool ns_outer_as_handle = gen->expr_as_handle;
-    gen->expr_as_handle = (callee_has_body && gen->current_arena_var != NULL);
     char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
     for (int i = 0; i < call->arg_count; i++)
     {
@@ -207,19 +195,29 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
             call->arguments[i]->expr_type->as.array.element_type != NULL &&
             call->arguments[i]->expr_type->as.array.element_type->kind == TYPE_STRING)
         {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
-            gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
-                                         handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin_h = rt_pin_string_array_v2(%s); (char **)rt_array_data_v2(__pin_h); })",
+                handle_expr);
+        }
+        /* For native functions receiving non-string array args (byte[], int[], etc.) */
+        else if (!callee_has_body && gen->current_arena_var != NULL &&
+                 call->arguments[i]->expr_type != NULL &&
+                 call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                 call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                 call->arguments[i]->expr_type->as.array.element_type->kind != TYPE_STRING)
+        {
+            char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+            const char *elem_c = get_c_array_elem_type(gen->arena,
+                call->arguments[i]->expr_type->as.array.element_type);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "((%s *)rt_array_data_v2(%s))", elem_c, handle_expr);
         }
         else
         {
             arg_strs[i] = code_gen_expression(gen, call->arguments[i]);
         }
     }
-    gen->expr_as_handle = ns_outer_as_handle;
 
     /* Build args list - prepend arena if function has body (Sindarin function) */
     char *args_list;
@@ -251,24 +249,6 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
     /* Emit function call */
     char *nested_ns_call_expr = arena_sprintf(gen->arena, "%s(%s)", func_name_to_use, args_list);
 
-    /* If the function returns a handle type and we need raw pointer, pin it */
-    if (!gen->expr_as_handle && callee_has_body &&
-        gen->current_arena_var != NULL &&
-        expr->expr_type != NULL && is_handle_type(expr->expr_type))
-    {
-        if (expr->expr_type->kind == TYPE_STRING)
-        {
-            nested_ns_call_expr = arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)",
-                nested_ns_call_expr);
-        }
-        else if (expr->expr_type->kind == TYPE_ARRAY)
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            nested_ns_call_expr = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                                 elem_c, nested_ns_call_expr);
-        }
-    }
     return nested_ns_call_expr;
 }
 
@@ -289,14 +269,11 @@ char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr
     bool callee_has_body = !method->is_native && method->body != NULL;
 
     /* Generate arguments */
-    bool outer_as_handle = gen->expr_as_handle;
-    gen->expr_as_handle = (callee_has_body && gen->current_arena_var != NULL);
     char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
     for (int i = 0; i < call->arg_count; i++)
     {
         arg_strs[i] = code_gen_expression(gen, call->arguments[i]);
     }
-    gen->expr_as_handle = outer_as_handle;
 
     /* Build args list - prepend arena if Sindarin function with body */
     char *args_list;
@@ -333,23 +310,5 @@ char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr
     /* Emit static method call */
     char *static_call_expr = arena_sprintf(gen->arena, "%s(%s)", func_name, args_list);
 
-    /* If the method returns a handle type and we need raw pointer, pin it */
-    if (!gen->expr_as_handle && callee_has_body &&
-        gen->current_arena_var != NULL &&
-        expr->expr_type != NULL && is_handle_type(expr->expr_type))
-    {
-        if (expr->expr_type->kind == TYPE_STRING)
-        {
-            static_call_expr = arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)",
-                static_call_expr);
-        }
-        else if (expr->expr_type->kind == TYPE_ARRAY)
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            static_call_expr = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                             elem_c, static_call_expr);
-        }
-    }
     return static_call_expr;
 }

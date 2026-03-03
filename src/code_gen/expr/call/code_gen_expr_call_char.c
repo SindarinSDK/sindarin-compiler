@@ -29,12 +29,7 @@ char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
             /* V2 arena mode - always use V2 function */
             char *v2_call = arena_sprintf(gen->arena, "rt_to_string_char_v2(%s, %s)",
                 ARENA_VAR(gen), object_str);
-            if (gen->expr_as_handle) {
-                return v2_call;
-            }
-            /* Want raw pointer - pin the result */
-            return arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)", v2_call);
+            return v2_call;
         }
         return arena_sprintf(gen->arena, "rt_char_toString(%s, %s)",
             ARENA_VAR(gen), object_str);

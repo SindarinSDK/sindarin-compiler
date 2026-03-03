@@ -9,12 +9,7 @@ static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
                                   Expr *separator)
 {
     /* Join separator is now RtHandleV2* - evaluate in handle mode */
-    bool prev_sep = gen->expr_as_handle;
-    if (gen->current_arena_var != NULL) {
-        gen->expr_as_handle = true;
-    }
     char *sep_str = code_gen_expression(gen, separator);
-    gen->expr_as_handle = prev_sep;
 
     const char *join_func_v2 = NULL;
     switch (element_type->kind) {
@@ -54,10 +49,7 @@ static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
             exit(1);
     }
 
-    bool saved = gen->expr_as_handle;
-    gen->expr_as_handle = true;
     char *handle_str = code_gen_expression(gen, object);
-    gen->expr_as_handle = saved;
 
     return arena_sprintf(gen->arena, "%s(%s, %s)", join_func_v2, handle_str, sep_str);
 }
@@ -65,10 +57,7 @@ static char *code_gen_array_join(CodeGen *gen, Expr *object, Type *element_type,
 /* Generate code for array.reverse() method - in-place reverse */
 static char *code_gen_array_reverse(CodeGen *gen, Expr *object, Type *element_type)
 {
-    bool saved = gen->expr_as_handle;
-    gen->expr_as_handle = true;
     char *handle_str = code_gen_expression(gen, object);
-    gen->expr_as_handle = saved;
 
     /* String arrays use specialized function */
     if (element_type->kind == TYPE_STRING) {
@@ -98,18 +87,10 @@ static char *code_gen_array_insert(CodeGen *gen, Expr *object, Type *element_typ
                                     Expr *element, Expr *index)
 {
     /* String/array elements: evaluate in handle mode for RtHandleV2* parameter */
-    bool prev_elem = gen->expr_as_handle;
-    if ((element_type->kind == TYPE_STRING || element_type->kind == TYPE_ARRAY) && gen->current_arena_var != NULL) {
-        gen->expr_as_handle = true;
-    }
     char *elem_str = code_gen_expression(gen, element);
-    gen->expr_as_handle = prev_elem;
     char *idx_str = code_gen_expression(gen, index);
 
-    bool saved = gen->expr_as_handle;
-    gen->expr_as_handle = true;
     char *handle_str = code_gen_expression(gen, object);
-    gen->expr_as_handle = saved;
 
     char *var_name = NULL;
     if (object->type == EXPR_VARIABLE) {
@@ -155,10 +136,7 @@ static char *code_gen_array_remove(CodeGen *gen, Expr *object, Type *element_typ
 {
     char *idx_str = code_gen_expression(gen, index);
 
-    bool saved = gen->expr_as_handle;
-    gen->expr_as_handle = true;
     char *handle_str = code_gen_expression(gen, object);
-    gen->expr_as_handle = saved;
 
     char *var_name = NULL;
     if (object->type == EXPR_VARIABLE) {

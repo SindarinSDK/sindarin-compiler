@@ -238,8 +238,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         "    RtHandleV2 *__th__ = (RtHandleV2 *)arg;\n"
         "    rt_tls_thread_set_v3(__th__);\n"
         "    RtArenaV2 *__arena__ = rt_thread_v3_get_arena(__th__);\n"
-        "    rt_tls_arena_set(__arena__);\n"
-        "    rt_safepoint_thread_register();\n"
+        "    rt_safepoint_adopt_registration();\n"
         "\n"
         "    /* Unpack args from thread handle */\n"
         "    RtHandleV2 *__args_h__ = rt_thread_v3_get_args(__th__);\n"
@@ -487,9 +486,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 /* For 'any' type or unknown, pass directly */
                 unboxed_args = arena_sprintf(gen->arena, "%s__rt_thunk_args[%d]", unboxed_args, thunk_arg_idx);
             }
-            else if (arg_type && arg_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
+            else if (arg_type && arg_type->kind == TYPE_ARRAY)
             {
-                /* In handle mode, create a new handle with a copy of the unboxed array data.
+                /* Create a new handle with a copy of the unboxed array data.
                  * We use rt_v2_data_array_length to get the length from the raw data pointer
                  * and rt_array_create_generic_v2 to create a new handle in the thunk's arena. */
                 Type *elem_type = arg_type->as.array.element_type;
@@ -524,9 +523,9 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                         unboxed_args, elem_c, elem_c, unbox_func, thunk_arg_idx, elem_c);
                 }
             }
-            else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+            else if (arg_type && arg_type->kind == TYPE_STRING)
             {
-                /* In handle mode, convert unboxed char* back to RtHandleV2* */
+                /* Convert unboxed char* back to RtHandleV2* */
                 unboxed_args = arena_sprintf(gen->arena,
                     "%srt_arena_v2_strdup((RtArenaV2 *)__rt_thunk_arena, %s(__rt_thunk_args[%d]))",
                     unboxed_args, unbox_func, thunk_arg_idx);
@@ -558,19 +557,10 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             if (return_type && return_type->kind == TYPE_ARRAY)
             {
                 const char *elem_tag = get_element_type_tag(return_type->as.array.element_type);
-                if (gen->current_arena_var != NULL)
-                {
-                    /* In handle mode, array result is RtHandle — cast to void* for boxing */
-                    thunk_def = arena_sprintf(gen->arena,
-                        "%s    RtAny __result = %s((void *)(uintptr_t)%s(%s), %s);\n",
-                        thunk_def, box_func, callee_str, unboxed_args, elem_tag);
-                }
-                else
-                {
-                    thunk_def = arena_sprintf(gen->arena,
-                        "%s    RtAny __result = %s(%s(%s), %s);\n",
-                        thunk_def, box_func, callee_str, unboxed_args, elem_tag);
-                }
+                /* Array result is RtHandle — cast to void* for boxing */
+                thunk_def = arena_sprintf(gen->arena,
+                    "%s    RtAny __result = %s((void *)(uintptr_t)%s(%s), %s);\n",
+                    thunk_def, box_func, callee_str, unboxed_args, elem_tag);
             }
             else if (return_type && return_type->kind == TYPE_STRUCT)
             {
@@ -583,13 +573,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    RtAny __result = rt_box_struct((RtArenaV2 *)__rt_thunk_arena, __box_h, sizeof(%s), %d);\n",
                     thunk_def, struct_name, callee_str, unboxed_args,
                     struct_name, struct_name, struct_name, type_id);
-            }
-            else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-            {
-                /* In handle mode, string result is RtHandleV2* — extract char* for boxing */
-                thunk_def = arena_sprintf(gen->arena,
-                    "%s    RtAny __result = %s((char *)%s(%s)->ptr);\n",
-                    thunk_def, box_func, callee_str, unboxed_args);
             }
             else
             {
@@ -684,19 +667,10 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 if (arg_type && arg_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
-                    if (gen->current_arena_var != NULL)
-                    {
-                        /* In handle mode, get array data from V2 handle for boxing */
-                        wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
-                            wrapper_def, arg_idx, box_func, i, elem_tag);
-                    }
-                    else
-                    {
-                        wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                            wrapper_def, arg_idx, box_func, i, elem_tag);
-                    }
+                    /* Get array data from V2 handle for boxing */
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
+                        wrapper_def, arg_idx, box_func, i, elem_tag);
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
                 {
@@ -711,13 +685,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
-                        wrapper_def, arg_idx, box_func, i);
-                }
-                else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-                {
-                    /* In handle mode, extract char* from string handle for boxing */
-                    wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)args->arg%d->ptr);\n",
                         wrapper_def, arg_idx, box_func, i);
                 }
                 else
@@ -755,7 +722,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             wrapper_def = arena_sprintf(gen->arena,
                 "%s        __rt_thunk_args = __args;\n"
                 "        __rt_thunk_arena = __arena__;\n"
-                "        rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                "        rt_call_intercepted(rt_arena_v2_strdup(__arena__, \"%s\"), __args, %d, %s);\n"
                 "%s"
                 "    } else {\n"
                 "        %s(%s);\n"
@@ -767,14 +734,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                 writeback_code, callee_str, call_args,
                 gen->spawn_is_fire_and_forget
-                    ? "    rt_safepoint_thread_deregister();\n"
-                      "    rt_tls_thread_set_v3(NULL);\n"
-                      "    rt_tls_arena_set(NULL);\n"
-                      "    rt_thread_v3_dispose(__th__);\n"
-                    : "    rt_thread_v3_signal_done(__th__);\n"
+                    ? "    rt_thread_v3_dispose(__th__);\n"
+                      "    rt_safepoint_poll();\n"
                       "    rt_safepoint_thread_deregister();\n"
                       "    rt_tls_thread_set_v3(NULL);\n"
-                      "    rt_tls_arena_set(NULL);\n");
+                        : "    rt_thread_v3_signal_done(__th__);\n"
+                      "    rt_safepoint_thread_deregister();\n"
+                      "    rt_tls_thread_set_v3(NULL);\n");
         }
         else
         {
@@ -820,19 +786,10 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 if (arg_type && arg_type->kind == TYPE_ARRAY)
                 {
                     const char *elem_tag = get_element_type_tag(arg_type->as.array.element_type);
-                    if (gen->current_arena_var != NULL)
-                    {
-                        /* In handle mode, get array data from V2 handle for boxing */
-                        wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
-                            wrapper_def, arg_idx, box_func, i, elem_tag);
-                    }
-                    else
-                    {
-                        wrapper_def = arena_sprintf(gen->arena,
-                            "%s        __args[%d] = %s(args->arg%d, %s);\n",
-                            wrapper_def, arg_idx, box_func, i, elem_tag);
-                    }
+                    /* Get array data from V2 handle for boxing */
+                    wrapper_def = arena_sprintf(gen->arena,
+                        "%s        __args[%d] = %s(rt_array_data_v2(args->arg%d), %s);\n",
+                        wrapper_def, arg_idx, box_func, i, elem_tag);
                 }
                 else if (arg_type && arg_type->kind == TYPE_STRUCT)
                 {
@@ -847,13 +804,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     /* Dereference pointer for as ref primitives */
                     wrapper_def = arena_sprintf(gen->arena,
                         "%s        __args[%d] = %s(*args->arg%d);\n",
-                        wrapper_def, arg_idx, box_func, i);
-                }
-                else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
-                {
-                    /* In handle mode, extract char* from string handle for boxing */
-                    wrapper_def = arena_sprintf(gen->arena,
-                        "%s        __args[%d] = %s((char *)args->arg%d->ptr);\n",
                         wrapper_def, arg_idx, box_func, i);
                 }
                 else
@@ -898,13 +848,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "({ RtHandleV2 *__uh = rt_unbox_struct(__intercepted, %d); *((%s *)__uh->ptr); })",
                     type_id, struct_name);
             }
-            else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
+            else if (return_type && return_type->kind == TYPE_STRING)
             {
                 /* String result: unbox to raw char*, then convert to handle */
                 unbox_expr = arena_sprintf(gen->arena, "rt_arena_v2_strdup(__arena__, %s(__intercepted))",
                                            unbox_func);
             }
-            else if (return_type && return_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
+            else if (return_type && return_type->kind == TYPE_ARRAY)
             {
                 /* Array result: unbox to raw pointer, cast to RtHandleV2* */
                 unbox_expr = arena_sprintf(gen->arena, "(RtHandleV2 *)%s(__intercepted)", unbox_func);
@@ -914,8 +864,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 unbox_expr = arena_sprintf(gen->arena, "%s(__intercepted)", unbox_func);
             }
 
-            /* Check if result is already a handle type (string/array in arena mode) */
-            bool is_intercepted_handle_result = gen->current_arena_var != NULL && return_type != NULL &&
+            /* Check if result is a handle type (string/array) */
+            bool is_intercepted_handle_result = return_type != NULL &&
                 (return_type->kind == TYPE_STRING || return_type->kind == TYPE_ARRAY);
             bool is_intercept_struct = return_type != NULL && return_type->kind == TYPE_STRUCT;
 
@@ -925,7 +875,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def = arena_sprintf(gen->arena,
                     "%s        __rt_thunk_args = __args;\n"
                     "        __rt_thunk_arena = __arena__;\n"
-                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__arena__, \"%s\"), __args, %d, %s);\n"
                     "%s"
                     "        __result__ = %s;\n"
                     "    } else {\n"
@@ -938,8 +888,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_signal_done(__th__);\n"
                     "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
-                    "    rt_tls_arena_set(NULL);\n"
-                    "    return NULL;\n"
+                      "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                     writeback_code, unbox_expr, callee_str, call_args);
@@ -950,7 +899,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def = arena_sprintf(gen->arena,
                     "%s        __rt_thunk_args = __args;\n"
                     "        __rt_thunk_arena = __arena__;\n"
-                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__arena__, \"%s\"), __args, %d, %s);\n"
                     "%s"
                     "        __result__ = %s;\n"
                     "    } else {\n"
@@ -967,8 +916,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_signal_done(__th__);\n"
                     "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
-                    "    rt_tls_arena_set(NULL);\n"
-                    "    return NULL;\n"
+                      "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                     writeback_code, unbox_expr, callee_str, call_args, ret_c_type, ret_c_type);
@@ -979,7 +927,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 wrapper_def = arena_sprintf(gen->arena,
                     "%s        __rt_thunk_args = __args;\n"
                     "        __rt_thunk_arena = __arena__;\n"
-                    "        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n"
+                    "        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__arena__, \"%s\"), __args, %d, %s);\n"
                     "%s"
                     "        __result__ = %s;\n"
                     "    } else {\n"
@@ -996,8 +944,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                     "    rt_thread_v3_signal_done(__th__);\n"
                     "    rt_safepoint_thread_deregister();\n"
                     "    rt_tls_thread_set_v3(NULL);\n"
-                    "    rt_tls_arena_set(NULL);\n"
-                    "    return NULL;\n"
+                      "    return NULL;\n"
                     "}\n\n",
                     wrapper_def, func_name_for_intercept, total_intercept_args, thunk_name,
                     writeback_code, unbox_expr, callee_str, call_args, ret_c_type, ret_c_type);
@@ -1017,14 +964,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             "}\n\n",
             wrapper_def, callee_str, call_args,
             gen->spawn_is_fire_and_forget
-                ? "    rt_safepoint_thread_deregister();\n"
-                  "    rt_tls_thread_set_v3(NULL);\n"
-                  "    rt_tls_arena_set(NULL);\n"
-                  "    rt_thread_v3_dispose(__th__);\n"
-                : "    rt_thread_v3_signal_done(__th__);\n"
+                ? "    rt_thread_v3_dispose(__th__);\n"
+                  "    rt_safepoint_poll();\n"
                   "    rt_safepoint_thread_deregister();\n"
                   "    rt_tls_thread_set_v3(NULL);\n"
-                  "    rt_tls_arena_set(NULL);\n");
+                : "    rt_thread_v3_signal_done(__th__);\n"
+                  "    rt_safepoint_thread_deregister();\n"
+                  "    rt_tls_thread_set_v3(NULL);\n");
     }
     else
     {
@@ -1049,7 +995,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_signal_done(__th__);\n"
                 "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
-                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args);
@@ -1072,7 +1017,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_signal_done(__th__);\n"
                 "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
-                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
@@ -1095,7 +1039,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                 "    rt_thread_v3_signal_done(__th__);\n"
                 "    rt_safepoint_thread_deregister();\n"
                 "    rt_tls_thread_set_v3(NULL);\n"
-                "    rt_tls_arena_set(NULL);\n"
                 "    return NULL;\n"
                 "}\n\n",
                 wrapper_def, ret_c_type, callee_str, call_args, ret_c_type, ret_c_type);
@@ -1143,14 +1086,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     {
         Expr *arg_expr = arguments[i];
 
-        /* For handle-type args (array/string in arena mode), generate as handle
-         * so we store the RtHandle value directly instead of pinning */
-        bool is_handle_arg = gen->current_arena_var != NULL && arg_expr->expr_type != NULL &&
-                             (arg_expr->expr_type->kind == TYPE_ARRAY || arg_expr->expr_type->kind == TYPE_STRING);
-        bool saved_handle = gen->expr_as_handle;
-        if (is_handle_arg) gen->expr_as_handle = true;
         char *arg_code = code_gen_expression(gen, arg_expr);
-        gen->expr_as_handle = saved_handle;
 
         /* Check if this is an 'as ref' primitive parameter */
         bool is_ref_primitive = false;
@@ -1189,14 +1125,13 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
                  * User-defined (non-native) functions need the arena as first argument. */
                 bool target_needs_arena = sym->is_function && !sym->is_native;
 
-                /* Build thunk parameter list with closure as first param */
-                char *thunk_params = arena_strdup(gen->arena, "void *__cl__");
+                /* Build thunk parameter list with closure as first param, caller arena second */
+                char *thunk_params = arena_strdup(gen->arena, "void *__cl__, RtArenaV2 *__caller_arena__");
                 char *thunk_call_args;
                 if (target_needs_arena)
                 {
-                    /* Prepend arena from closure as first argument.
-                     * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
-                    thunk_call_args = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__cl__)->arena; })");
+                    /* Prepend arena as first argument — use caller arena, fall back to closure's arena. */
+                    thunk_call_args = arena_strdup(gen->arena, "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__cl__)->ptr)->arena");
                 }
                 else
                 {
@@ -1250,7 +1185,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
             arg_assignments = arena_sprintf(gen->arena,
                 "%s%s->arg%d = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(__Closure__)); "
                 "rt_handle_begin_transaction(__ah); __Closure__ *__fn_cl__ = (__Closure__ *)__ah->ptr; "
-                "__fn_cl__->fn = (void *)%s; __fn_cl__->arena = %s; rt_handle_end_transaction(__ah); __fn_cl__; }); ",
+                "__fn_cl__->fn = (void *)%s; __fn_cl__->arena = %s; rt_handle_end_transaction(__ah); __ah; }); ",
                 arg_assignments, args_var, i, caller_arena, fn_thunk_name, caller_arena);
         }
         else

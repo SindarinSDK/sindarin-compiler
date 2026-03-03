@@ -56,21 +56,6 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             char *prefixed_name = arena_sprintf(gen->arena, "%s__%s", prefix_to_use, member_name_str);
             char *mangled = sn_mangle_name(gen->arena, prefixed_name);
 
-            /* Handle-type namespace variables need pinning when used in contexts
-             * expecting raw pointers (expr_as_handle = false). */
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL && is_handle_type(sym->type))
-            {
-                if (sym->type->kind == TYPE_STRING)
-                {
-                    return arena_sprintf(gen->arena, "((char *)(%s)->ptr)", mangled);
-                }
-                else if (sym->type->kind == TYPE_ARRAY)
-                {
-                    const char *elem_c = get_c_array_elem_type(gen->arena, sym->type->as.array.element_type);
-                    return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                         elem_c, mangled);
-                }
-            }
             return mangled;
         }
         /* Namespace function access - emit just the function name (functions are globally unique) */
@@ -110,38 +95,18 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* For array.length, we need the HANDLE to call rt_array_length_v2().
-     * For string.length, we need the raw pointer for strlen/rt_str_length().
-     * For array element access, we still need to pin for the data pointer. */
-    bool saved_as_handle = gen->expr_as_handle;
-
-    // Handle array.length - needs handle for V2
-    if (object_type != NULL && object_type->kind == TYPE_ARRAY && strcmp(member_name_str, "length") == 0) {
-        gen->expr_as_handle = true;  /* Keep handle form for V2 */
+    /* Handle array.length and string.length - both need handle for V2 */
+    if (object_type != NULL &&
+        (object_type->kind == TYPE_ARRAY || object_type->kind == TYPE_STRING) &&
+        strcmp(member_name_str, "length") == 0) {
         char *object_str = code_gen_expression(gen, member->object);
-        gen->expr_as_handle = saved_as_handle;
-        return arena_sprintf(gen->arena, "rt_array_length_v2(%s)", object_str);
-    }
-
-    /* For other array/string member access, evaluate in raw-pointer mode. */
-    if (object_type != NULL && (object_type->kind == TYPE_ARRAY || object_type->kind == TYPE_STRING))
-    {
-        gen->expr_as_handle = false;
-    }
-    char *object_str = code_gen_expression(gen, member->object);
-    gen->expr_as_handle = saved_as_handle;
-
-    // Handle string.length
-    if (object_type->kind == TYPE_STRING && strcmp(member_name_str, "length") == 0) {
-        if (gen->current_arena_var != NULL) {
-            /* V2: re-evaluate object in handle mode */
-            gen->expr_as_handle = true;
-            char *obj_h = code_gen_expression(gen, member->object);
-            gen->expr_as_handle = saved_as_handle;
-            return arena_sprintf(gen->arena, "rt_str_length_v2(%s)", obj_h);
+        if (object_type->kind == TYPE_ARRAY) {
+            return arena_sprintf(gen->arena, "rt_array_length_v2(%s)", object_str);
         }
-        return arena_sprintf(gen->arena, "rt_str_length(%s)", object_str);
+        return arena_sprintf(gen->arena, "rt_str_length_v2(%s)", object_str);
     }
+
+    char *object_str = code_gen_expression(gen, member->object);
 
     /* Handle struct field access - generates object.__sn__field */
     if (object_type->kind == TYPE_STRUCT) {
@@ -157,22 +122,6 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s.%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer, pin it.
-         * Pin returns void; access data via ->ptr. */
-        if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
-        {
-            if (field->type->kind == TYPE_STRING)
-            {
-                /* String field is RtHandleV2* - extract raw char* for V1 callers */
-                result = arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
-            }
-            else if (field->type->kind == TYPE_ARRAY)
-            {
-                const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                       elem_c, result);
-            }
-        }
         return result;
     }
 
@@ -192,21 +141,6 @@ char *code_gen_member_expression(CodeGen *gen, Expr *expr)
             c_field_name = sn_mangle_name(gen->arena, member_name_str);
         }
         char *result = arena_sprintf(gen->arena, "%s->%s", object_str, c_field_name);
-        /* If field is string/array stored as RtHandle and caller wants raw pointer */
-        if (field != NULL && gen->current_arena_var != NULL && !gen->expr_as_handle)
-        {
-            if (field->type->kind == TYPE_STRING)
-            {
-                /* String field is RtHandleV2* - extract raw char* for V1 callers */
-                result = arena_sprintf(gen->arena, "((char *)(%s)->ptr)", result);
-            }
-            else if (field->type->kind == TYPE_ARRAY)
-            {
-                const char *elem_c = get_c_array_elem_type(gen->arena, field->type->as.array.element_type);
-                result = arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                       elem_c, result);
-            }
-        }
         return result;
     }
 

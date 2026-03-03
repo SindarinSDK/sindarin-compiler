@@ -48,18 +48,6 @@ void rt_print_char(long c)
     }
 }
 
-void rt_print_string(const char *s)
-{
-    if (s == NULL)
-    {
-        printf("(null)");
-    }
-    else
-    {
-        printf("%s", s);
-    }
-}
-
 void rt_print_bool(long b)
 {
     printf("%s", b ? "true" : "false");

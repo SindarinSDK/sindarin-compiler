@@ -89,7 +89,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
     char *wrapper_name = arena_sprintf(gen->arena, "__wrap_%d__", wrapper_id);
     const char *ret_c_type = get_c_type(gen->arena, func_type->as.function.return_type);
 
-    char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+    char *params_decl = arena_strdup(gen->arena, "void *__closure__, RtArenaV2 *__caller_arena__");
     char *args_forward = arena_strdup(gen->arena, "");
 
     bool wrapped_has_body = (arg_sym->type != NULL &&
@@ -97,7 +97,7 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
                              arg_sym->type->as.function.has_body);
     if (wrapped_has_body)
     {
-        args_forward = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; })");
+        args_forward = arena_strdup(gen->arena, "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena");
     }
 
     for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -137,20 +137,8 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
                                               gen->lambda_forward_decls, ret_c_type, wrapper_name, params_decl);
 
     const char *arena_var = ARENA_VAR(gen);
-    if (strcmp(arena_var, "NULL") == 0)
     {
-        return arena_sprintf(gen->arena,
-            "({\n"
-            "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
-            "    __cl__->fn = (void *)%s;\n"
-            "    __cl__->arena = NULL;\n"
-            "    __cl__->size = sizeof(__Closure__);\n"
-            "    __cl__;\n"
-            "})",
-            wrapper_name);
-    }
-    else
-    {
+        const char *alloc_arena = strcmp(arena_var, "NULL") == 0 ? "__main_arena__" : arena_var;
         return arena_sprintf(gen->arena,
             "({\n"
             "    RtHandleV2 *__cl_h = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
@@ -160,9 +148,9 @@ char *code_gen_wrap_fn_arg_as_closure(CodeGen *gen, Type *param_type, Expr *arg_
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__Closure__);\n"
             "    rt_handle_end_transaction(__cl_h);\n"
-            "    __cl__;\n"
+            "    __cl_h;\n"
             "})",
-            arena_var, wrapper_name, arena_var);
+            alloc_arena, wrapper_name, alloc_arena);
     }
 }
 
@@ -216,9 +204,8 @@ static char *code_gen_member_call(CodeGen *gen, Expr *expr, CallExpr *call)
             break;
         }
         case TYPE_STRING: {
-            bool object_is_temp = expression_produces_temp(member->object);
             result = code_gen_string_method_call(gen, member_name_str,
-                member->object, object_is_temp, call->arg_count, call->arguments);
+                member->object, call->arg_count, call->arguments);
             if (result) return result;
             break;
         }
@@ -330,9 +317,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
     }
 
     /* Generate args in appropriate mode */
-    bool outer_as_handle = gen->expr_as_handle;
-    gen->expr_as_handle = (callee_is_sindarin && gen->current_arena_var != NULL);
-
     char **arg_strs = arena_alloc(gen->arena, call->arg_count * sizeof(char *));
     bool *arg_is_temp = arena_alloc(gen->arena, call->arg_count * sizeof(bool));
     bool has_temps = false;
@@ -350,12 +334,24 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
             call->arguments[i]->expr_type->as.array.element_type != NULL &&
             call->arguments[i]->expr_type->as.array.element_type->kind == TYPE_STRING)
         {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
-            gen->expr_as_handle = prev;
-            arg_strs[i] = arena_sprintf(gen->arena, "rt_pin_string_array_v2(%s)",
-                                         handle_expr);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "({ RtHandleV2 *__pin_h = rt_pin_string_array_v2(%s); (char **)rt_array_data_v2(__pin_h); })",
+                handle_expr);
+        }
+        /* For native functions receiving non-string array args (byte[], int[], etc.):
+         * extract the raw data pointer from the handle. */
+        else if (!callee_is_sindarin && callee_is_native && gen->current_arena_var != NULL &&
+                 call->arguments[i]->expr_type != NULL &&
+                 call->arguments[i]->expr_type->kind == TYPE_ARRAY &&
+                 call->arguments[i]->expr_type->as.array.element_type != NULL &&
+                 call->arguments[i]->expr_type->as.array.element_type->kind != TYPE_STRING)
+        {
+            char *handle_expr = code_gen_expression(gen, call->arguments[i]);
+            const char *elem_c = get_c_array_elem_type(gen->arena,
+                call->arguments[i]->expr_type->as.array.element_type);
+            arg_strs[i] = arena_sprintf(gen->arena,
+                "((%s *)rt_array_data_v2(%s))", elem_c, handle_expr);
         }
         /* For native functions receiving individual str args - convert RtHandle to const char*
          * using transactional access: begin_transaction before call, end after. */
@@ -363,10 +359,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                  call->arguments[i]->expr_type != NULL &&
                  call->arguments[i]->expr_type->kind == TYPE_STRING)
         {
-            bool prev = gen->expr_as_handle;
-            gen->expr_as_handle = true;
             char *handle_expr = code_gen_expression(gen, call->arguments[i]);
-            gen->expr_as_handle = prev;
             /* Save handle expr for transaction wrapping */
             int idx = native_str_handle_count++;
             native_str_handle_exprs[idx] = handle_expr;
@@ -383,8 +376,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         if (arg_is_temp[i])
             has_temps = true;
     }
-
-    gen->expr_as_handle = outer_as_handle;
 
     /* Try builtin call first */
     char *builtin_result = code_gen_try_builtin_call(gen, expr, call, arg_strs, &callee_str);
@@ -551,29 +542,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                                              callee_str, call, arg_strs, arg_names,
                                              param_types, param_quals, param_count,
                                              expr->expr_type, callee_has_body);
-            if (!gen->expr_as_handle && gen->current_arena_var != NULL &&
-                expr->expr_type != NULL)
-            {
-                if (is_handle_type(expr->expr_type) && expr->expr_type->kind == TYPE_STRING)
-                {
-                    return arena_sprintf(gen->arena,
-                        "((char *)(%s)->ptr)",
-                        intercept_expr);
-                }
-                else if (is_handle_type(expr->expr_type) && expr->expr_type->kind == TYPE_ARRAY)
-                {
-                    const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-                    return arena_sprintf(gen->arena, "(((%s *)rt_array_data_v2(%s)))",
-                                         elem_c, intercept_expr);
-                }
-                else if (expr->expr_type->kind == TYPE_STRUCT &&
-                         expr->expr_type->as.struct_type.is_native &&
-                         expr->expr_type->as.struct_type.c_alias != NULL)
-                {
-                    const char *c_type = get_c_type(gen->arena, expr->expr_type);
-                    return code_gen_extract_native_ptr(gen, c_type, intercept_expr);
-                }
-            }
             return intercept_expr;
         }
 
@@ -583,38 +551,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         call_expr = wrap_native_str_transactions(gen, call_expr,
             native_str_handle_exprs, native_str_handle_count, expr->expr_type);
 
-        /* Handle return type conversions */
-        if (!gen->expr_as_handle && callee_has_body &&
-            gen->current_arena_var != NULL &&
-            expr->expr_type != NULL && is_handle_type(expr->expr_type))
-        {
-            if (expr->expr_type->kind == TYPE_STRING)
-            {
-                return arena_sprintf(gen->arena,
-                    "((char *)(%s)->ptr)",
-                    call_expr);
-            }
-            else if (expr->expr_type->kind == TYPE_ARRAY)
-            {
-                const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-                return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))",
-                                     elem_c, call_expr);
-            }
-        }
-        /* Sindarin functions returning native struct return RtHandleV2* - unwrap */
-        if (!gen->expr_as_handle && callee_has_body &&
-            gen->current_arena_var != NULL &&
-            expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT)
-        {
-            Type *resolved_ret = resolve_struct_type(gen, expr->expr_type);
-            if (resolved_ret->as.struct_type.is_native && resolved_ret->as.struct_type.c_alias != NULL)
-            {
-                const char *c_type = get_c_type(gen->arena, resolved_ret);
-                return code_gen_extract_native_ptr(gen, c_type, call_expr);
-            }
-        }
-
-        if (gen->expr_as_handle && !callee_has_body &&
+        if (!callee_has_body &&
             gen->current_arena_var != NULL &&
             expr->expr_type != NULL && is_handle_type(expr->expr_type))
         {
@@ -664,16 +601,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 }
             }
         }
-        /* Native function returning native struct with arena returns RtHandleV2* - unwrap */
-        if (!gen->expr_as_handle &&
-            !callee_has_body && callee_is_native && callee_needs_arena &&
-            gen->current_arena_var != NULL &&
-            expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT &&
-            expr->expr_type->as.struct_type.is_native)
-        {
-            const char *c_type = get_c_type(gen->arena, expr->expr_type);
-            return code_gen_extract_native_ptr(gen, c_type, call_expr);
-        }
         return call_expr;
     }
 
@@ -700,13 +627,7 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                                result, i);
     }
 
-    /* For native functions returning native struct with arena, the extern returns RtHandleV2* */
-    bool native_struct_handle_return = (!gen->expr_as_handle &&
-        !callee_has_body && callee_is_native && callee_needs_arena &&
-        gen->current_arena_var != NULL &&
-        expr->expr_type != NULL && expr->expr_type->kind == TYPE_STRUCT &&
-        expr->expr_type->as.struct_type.is_native);
-    const char *ret_c = native_struct_handle_return ? "RtHandleV2 *" : get_c_type(gen->arena, expr->expr_type);
+    const char *ret_c = get_c_type(gen->arena, expr->expr_type);
     if (returns_void)
     {
         result = arena_sprintf(gen->arena, "%s        %s(%s);\n", result, callee_str, args_list);
@@ -723,38 +644,13 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                                result, i);
     }
 
-    if (gen->current_arena_var == NULL)
-    {
-        for (int i = 0; i < call->arg_count; i++)
-        {
-            if (arg_is_temp[i])
-            {
-                result = arena_sprintf(gen->arena, "%s        rt_free_string(%s);\n", result, arg_base_names[i]);
-            }
-        }
-    }
+
 
     if (returns_void)
     {
         result = arena_sprintf(gen->arena, "%s    })", result);
     }
-    else if (!gen->expr_as_handle && callee_has_body &&
-             gen->current_arena_var != NULL &&
-             expr->expr_type != NULL && is_handle_type(expr->expr_type))
-    {
-        if (expr->expr_type->kind == TYPE_STRING)
-        {
-            result = arena_sprintf(gen->arena, "%s        (char *)_call_result->ptr;\n    })",
-                                   result);
-        }
-        else
-        {
-            const char *elem_c = get_c_array_elem_type(gen->arena, expr->expr_type->as.array.element_type);
-            result = arena_sprintf(gen->arena, "%s        (%s *)rt_array_data_v2(_call_result);\n    })",
-                                   result, elem_c);
-        }
-    }
-    else if (gen->expr_as_handle && !callee_has_body &&
+    else if (!callee_has_body &&
              gen->current_arena_var != NULL &&
              expr->expr_type != NULL && is_handle_type(expr->expr_type))
     {
@@ -797,11 +693,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
                 }
             }
         }
-    }
-    else if (native_struct_handle_return)
-    {
-        const char *c_type = get_c_type(gen->arena, expr->expr_type);
-        result = arena_sprintf(gen->arena, "%s        _call_result->flags |= (RT_HANDLE_FLAG_DEAD | RT_HANDLE_FLAG_EXTERN); (%s)_call_result->ptr;\n    })", result, c_type);
     }
     else
     {

@@ -41,12 +41,6 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
 {
     (void)expr; /* May be used for future enhancements */
 
-    /* Most array methods need the object as a raw pointer (pinned form).
-     * Force expr_as_handle=false so object evaluates to pinned pointer.
-     * Methods that need the handle form (push, pop) manage their own state. */
-    bool saved_handle_mode = gen->expr_as_handle;
-    gen->expr_as_handle = false;
-
     char *result = NULL;
 
     /* Handle push(element) */
@@ -63,7 +57,7 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
     }
     /* Handle concat(other_array) */
     else if (strcmp(method_name, "concat") == 0 && arg_count == 1) {
-        result = code_gen_array_concat(gen, object, element_type, arguments[0], saved_handle_mode);
+        result = code_gen_array_concat(gen, object, element_type, arguments[0]);
     }
     /* Handle indexOf(element) */
     else if (strcmp(method_name, "indexOf") == 0 && arg_count == 1) {
@@ -75,7 +69,7 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
     }
     /* Handle clone() */
     else if (strcmp(method_name, "clone") == 0 && arg_count == 0) {
-        result = code_gen_array_clone(gen, object, element_type, saved_handle_mode);
+        result = code_gen_array_clone(gen, object, element_type);
     }
     /* Handle join(separator) */
     else if (strcmp(method_name, "join") == 0 && arg_count == 1) {
@@ -109,8 +103,6 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
         }
     }
 
-    gen->expr_as_handle = saved_handle_mode;
-
     /* Byte array string-returning methods (toHex, toBase64, toString, toStringLatin1)
      * now return RtHandleV2* directly. In handle mode, return the handle as-is.
      * In non-handle mode, pin to get char*. */
@@ -122,29 +114,8 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
               strcmp(method_name, "toString") == 0 ||
               strcmp(method_name, "toStringLatin1") == 0));
 
-        if (is_byte_string_method)
-        {
-            if (!saved_handle_mode)
-            {
-                /* Pin the RtHandleV2* to get char* */
-                result = arena_sprintf(gen->arena,
-                    "((char *)(%s)->ptr)",
-                    result);
-            }
-            /* In handle mode, result is already RtHandleV2* - return as-is */
-        }
-        else if (strcmp(method_name, "join") == 0)
-        {
-            /* join now returns RtHandleV2* */
-            if (!saved_handle_mode)
-            {
-                /* Non-handle mode: get char* from handle */
-                result = arena_sprintf(gen->arena,
-                    "((char *)(%s)->ptr)",
-                    result);
-            }
-            /* In handle mode, result is already RtHandleV2* - return as-is */
-        }
+        /* is_byte_string_method and join both return RtHandleV2* — return as-is */
+        (void)is_byte_string_method;
     }
 
     return result;

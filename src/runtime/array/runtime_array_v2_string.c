@@ -806,9 +806,14 @@ int rt_array_eq_string_v2(RtHandleV2 *a_h, RtHandleV2 *b_h) {
     for (size_t i = 0; i < len_a; i++) {
         rt_handle_renew_transaction(a_h);
         rt_handle_renew_transaction(b_h);
+        if (arr_a[i]) rt_handle_begin_transaction(arr_a[i]);
+        if (arr_b[i]) rt_handle_begin_transaction(arr_b[i]);
         const char *str_a = arr_a[i] ? (const char *)arr_a[i]->ptr : "";
         const char *str_b = arr_b[i] ? (const char *)arr_b[i]->ptr : "";
-        if (strcmp(str_a, str_b) != 0) {
+        int cmp = strcmp(str_a, str_b);
+        if (arr_b[i]) rt_handle_end_transaction(arr_b[i]);
+        if (arr_a[i]) rt_handle_end_transaction(arr_a[i]);
+        if (cmp != 0) {
             equal = 0;
             break;
         }

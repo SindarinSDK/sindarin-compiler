@@ -60,14 +60,7 @@ char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr)
     /* Generate code for the default value */
     char *default_str;
     if (default_value != NULL) {
-        /* For string arrays, the alloc function takes RtHandleV2* -
-           evaluate in handle mode to get the string handle */
-        bool saved_handle = gen->expr_as_handle;
-        if (element_type->kind == TYPE_STRING && gen->current_arena_var != NULL) {
-            gen->expr_as_handle = true;
-        }
         default_str = code_gen_expression(gen, default_value);
-        gen->expr_as_handle = saved_handle;
     } else {
         /* Use type-appropriate zero value when no default provided */
         switch (element_type->kind) {
@@ -196,8 +189,14 @@ char *code_gen_as_ref_expression(CodeGen *gen, Expr *expr)
 
     if (operand_type != NULL && operand_type->kind == TYPE_ARRAY)
     {
-        /* Arrays: the variable already holds a pointer to the array data.
-         * In C, Sindarin arrays are represented as T* pointing to data. */
+        /* V2 arena mode: arrays are RtHandleV2* — extract raw data pointer */
+        if (gen->current_arena_var != NULL)
+        {
+            Type *elem_type = operand_type->as.array.element_type;
+            const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
+            return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, operand_code);
+        }
+        /* V1 fallback: arrays are already raw data pointers */
         return operand_code;
     }
     else
@@ -224,16 +223,15 @@ char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
     {
         /* *char => str: convert C string to arena-managed string.
          * Handle NULL pointer by returning empty string. */
-        if (gen->expr_as_handle && gen->current_arena_var != NULL)
+        if (gen->current_arena_var != NULL)
         {
-            /* Handle mode: produce RtHandleV2* via arena strdup */
+            /* Produce RtHandleV2* via arena strdup */
             return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
                                 operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
         }
-        /* Raw pointer mode: strdup into arena handle, then extract raw char* */
+        /* Non-arena fallback */
         return arena_sprintf(gen->arena,
-            "((%s) ? ((char *)rt_arena_v2_strdup(%s, %s)->ptr) "
-            ": ((char *)rt_arena_v2_strdup(%s, \"\")->ptr))",
+            "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
             operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
     }
     else if (as_val->is_struct_deep_copy)

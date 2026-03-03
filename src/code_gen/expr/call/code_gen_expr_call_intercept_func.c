@@ -159,8 +159,8 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         }
         else if (return_type && return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In V2 handle mode, string result is RtHandleV2* — access ptr for boxing */
-            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s((char *)(%s(%s))->ptr);\n",
+            /* String result is RtHandleV2* — box directly */
+            thunk_def = arena_sprintf(arena, "%s    RtAny __result = %s(%s(%s));\n",
                                       thunk_def, box_func, callee_str, unboxed_args);
         }
         else
@@ -315,8 +315,8 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         }
         else if (arg_type && arg_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* In V2 handle mode, string temp is RtHandleV2* — access ptr for boxing. */
-            result = arena_sprintf(arena, "%s        __args[%d] = %s((char *)(%s)->ptr);\n",
+            /* String temp is RtHandleV2* — box directly */
+            result = arena_sprintf(arena, "%s        __args[%d] = %s(%s);\n",
                                    result, i, box_func, arg_temps[i]);
         }
         else
@@ -337,8 +337,8 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
     }
 
     /* Call through interceptor chain */
-    result = arena_sprintf(arena, "%s        RtAny __intercepted = rt_call_intercepted(\"%s\", __args, %d, %s);\n",
-                           result, func_name, call->arg_count, thunk_name);
+    result = arena_sprintf(arena, "%s        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(%s, \"%s\"), __args, %d, %s);\n",
+                           result, ARENA_VAR(gen), func_name, call->arg_count, thunk_name);
 
     /* Unbox result */
     if (!returns_void)
@@ -351,9 +351,9 @@ char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
         }
         else if (return_type->kind == TYPE_STRING && gen->current_arena_var != NULL)
         {
-            /* String result: unbox to raw char*, then convert to V2 handle */
-            result = arena_sprintf(arena, "%s        __intercept_result = rt_arena_v2_strdup(%s, %s(__intercepted));\n",
-                                   result, ARENA_VAR(gen), unbox_func);
+            /* String result: unbox returns RtHandleV2* directly */
+            result = arena_sprintf(arena, "%s        __intercept_result = %s(__intercepted);\n",
+                                   result, unbox_func);
         }
         else if (return_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
         {

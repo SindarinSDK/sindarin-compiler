@@ -100,6 +100,7 @@ RT_ARRAY_ACCESSOR_DECL(float, float)
 RT_ARRAY_ACCESSOR_DECL(char, char)
 RT_ARRAY_ACCESSOR_DECL(bool, int)
 RT_ARRAY_ACCESSOR_DECL(byte, unsigned char)
+RT_ARRAY_ACCESSOR_DECL(any, RtAny)
 
 /* Handle accessor for string/array elements stored as RtHandleV2* */
 static inline RtHandleV2 *rt_array_get_handle_v2(RtHandleV2 *arr_h, long long idx) {
@@ -139,7 +140,7 @@ static inline void rt_array_data_end_v2(RtHandleV2 *arr_h) {
  * to a legacy char** for use with native C functions.
  * ============================================================================ */
 
-char **rt_pin_string_array_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_pin_string_array_v2(RtHandleV2 *arr_h);
 
 /* ============================================================================
  * Generic Array Operations
@@ -329,7 +330,7 @@ RtHandleV2 *rt_array_range_v2(RtArenaV2 *arena, long long start, long long end);
  * ============================================================================ */
 
 RtHandleV2 *rt_array_from_legacy_string_v2(RtArenaV2 *arena, char **src);
-char **rt_pin_string_array_v2(RtHandleV2 *arr_h);
+RtHandleV2 *rt_pin_string_array_v2(RtHandleV2 *arr_h);
 
 /* Note: 2D/3D array to any[][] conversion functions will be added
  * when RtAny integration is complete. */
