@@ -189,14 +189,14 @@ char *code_gen_as_ref_expression(CodeGen *gen, Expr *expr)
 
     if (operand_type != NULL && operand_type->kind == TYPE_ARRAY)
     {
-        /* V2 arena mode: arrays are RtHandleV2* — extract raw data pointer */
         if (gen->current_arena_var != NULL)
         {
+            /* Arrays are RtHandleV2* — extract raw data pointer */
             Type *elem_type = operand_type->as.array.element_type;
             const char *elem_c = get_c_array_elem_type(gen->arena, elem_type);
             return arena_sprintf(gen->arena, "((%s *)rt_array_data_v2(%s))", elem_c, operand_code);
         }
-        /* V1 fallback: arrays are already raw data pointers */
+        /* File scope: no arena available, return operand as-is */
         return operand_code;
     }
     else
