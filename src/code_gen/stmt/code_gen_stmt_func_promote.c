@@ -14,14 +14,6 @@
 #include <string.h>
 #include <stdio.h>
 
-/* Generate promotion code for array return values.
- * Callbacks handle deep promotion automatically - just use rt_arena_v2_promote for all arrays. */
-void code_gen_promote_array_return(CodeGen *gen, Type *return_type, const char *target_arena, int indent)
-{
-    (void)return_type;
-    indented_fprintf(gen, indent, "_return_value = rt_arena_v2_promote(%s, _return_value);\n", target_arena);
-}
-
 /* Forward declaration for recursive promotion */
 static void code_gen_promote_struct_fields(CodeGen *gen, Type *struct_type, const char *prefix, const char *target_arena, int indent);
 
@@ -254,7 +246,7 @@ void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bo
     }
     else if (kind == TYPE_ARRAY)
     {
-        code_gen_promote_array_return(gen, return_type, "__caller_arena__", indent);
+        indented_fprintf(gen, indent, "_return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
     }
     else if (kind == TYPE_STRUCT)
     {

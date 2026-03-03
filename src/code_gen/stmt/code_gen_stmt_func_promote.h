@@ -8,9 +8,6 @@
 #include "code_gen.h"
 #include "ast.h"
 
-/* Promote array return values to target arena */
-void code_gen_promote_array_return(CodeGen *gen, Type *return_type, const char *target_arena, int indent);
-
 /* Promote struct return values to target arena */
 void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, const char *target_arena, int indent);
 
