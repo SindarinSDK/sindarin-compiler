@@ -37,6 +37,9 @@ void rt_safepoint_poll(void);
 /* Query the number of registered threads */
 int rt_safepoint_thread_count(void);
 
+/* Query the race detection counter (threads registered during active STW) */
+int rt_safepoint_get_race_count(void);
+
 /* Native-call transitions — mark thread as "in native code" so GC
  * doesn't wait for it. Call enter_native before blocking native calls
  * (e.g., libuv event loop, syscalls) and leave_native when returning
