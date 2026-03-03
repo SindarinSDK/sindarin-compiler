@@ -175,10 +175,4 @@ static inline int rt_ge_string_v2(RtHandleV2 *a, RtHandleV2 *b) {
 /* Check if string is empty or contains only whitespace */
 int rt_str_is_blank(const char *str);
 
-/* Split string on whitespace */
-char **rt_str_split_whitespace(RtArenaV2 *arena, const char *str);
-
-/* Split string on line endings */
-char **rt_str_split_lines(RtArenaV2 *arena, const char *str);
-
 #endif /* RUNTIME_H */

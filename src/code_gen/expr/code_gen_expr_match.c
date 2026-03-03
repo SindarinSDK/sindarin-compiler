@@ -15,17 +15,8 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
     int match_id = gen->match_count++;
 
     /* Generate subject expression */
-    bool saved_as_handle = gen->expr_as_handle;
     Type *subject_type = match->subject->expr_type;
-    if (subject_type && is_handle_type(subject_type))
-    {
-        if (gen->current_arena_var != NULL)
-            gen->expr_as_handle = true;  /* Arena mode: keep as handle */
-        else
-            gen->expr_as_handle = false;
-    }
     char *subject_str = code_gen_expression(gen, match->subject);
-    gen->expr_as_handle = saved_as_handle;
 
     /* Get C type for subject */
     const char *subject_c_type;
@@ -79,16 +70,7 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
             for (int j = 0; j < arm->pattern_count; j++)
             {
                 /* Pattern values for string comparisons */
-                bool saved_pat_handle = gen->expr_as_handle;
-                if (subject_type && subject_type->kind == TYPE_STRING)
-                {
-                    if (gen->current_arena_var != NULL)
-                        gen->expr_as_handle = true;  /* Arena mode: keep as handle */
-                    else
-                        gen->expr_as_handle = false;
-                }
                 char *pattern_str = code_gen_expression(gen, arm->patterns[j]);
-                gen->expr_as_handle = saved_pat_handle;
                 char *cmp;
                 if (subject_type->kind == TYPE_STRING)
                 {
@@ -142,17 +124,8 @@ char *code_gen_match_expression(CodeGen *gen, Expr *expr)
 
                 if (is_expr_context && is_last && stmt->type == STMT_EXPR)
                 {
-                    /* Last expression in expression context: assign to result variable.
-                     * For handle types (string/array), set expr_as_handle so variables
-                     * return handles and concat returns handles. */
-                    bool saved_as_handle = gen->expr_as_handle;
-                    if (expr->expr_type && is_handle_type(expr->expr_type) &&
-                        gen->current_arena_var != NULL)
-                    {
-                        gen->expr_as_handle = true;
-                    }
+                    /* Last expression in expression context: assign to result variable. */
                     char *val_str = code_gen_expression(gen, stmt->as.expression.expression);
-                    gen->expr_as_handle = saved_as_handle;
 
                     fprintf(gen->output, "%s = %s; ", result_var, val_str);
                 }

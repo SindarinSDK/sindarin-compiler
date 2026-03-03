@@ -2,47 +2,6 @@
 #include "debug.h"
 #include <stdlib.h>
 
-const char *get_rt_to_string_func(TypeKind kind)
-{
-    DEBUG_VERBOSE("Entering get_rt_to_string_func");
-    switch (kind)
-    {
-    case TYPE_INT:
-    case TYPE_INT32:
-    case TYPE_UINT:
-    case TYPE_UINT32:
-    case TYPE_LONG:
-        return "rt_to_string_long";
-    case TYPE_DOUBLE:
-    case TYPE_FLOAT:
-        return "rt_to_string_double";
-    case TYPE_CHAR:
-        return "rt_to_string_char";
-    case TYPE_STRING:
-        return "rt_to_string_string";
-    case TYPE_BOOL:
-        return "rt_to_string_bool";
-    case TYPE_BYTE:
-        return "rt_to_string_byte";
-    case TYPE_VOID:
-        return "rt_to_string_void";
-    case TYPE_ANY:
-        return "rt_any_to_string";
-    case TYPE_NIL:
-    case TYPE_ARRAY:
-    case TYPE_FUNCTION:
-    case TYPE_POINTER:
-    case TYPE_STRUCT:
-        /* For structs, fallback to pointer representation.
-         * Proper struct-to-string conversion (via toString() method)
-         * is handled at a higher level in code_gen_expr_string.c */
-        return "rt_to_string_pointer";
-    default:
-        exit(1);
-    }
-    return NULL;
-}
-
 const char *get_rt_to_string_func_v2(TypeKind kind)
 {
     /* V2 handle-returning versions - return RtHandleV2* */
@@ -60,20 +19,24 @@ const char *get_rt_to_string_func_v2(TypeKind kind)
     case TYPE_CHAR:
         return "rt_to_string_char_v2";
     case TYPE_STRING:
-        return "rt_to_string_string";  /* Strings don't need conversion */
+        return "rt_to_string_string_v2";
     case TYPE_BOOL:
         return "rt_to_string_bool_v2";
     case TYPE_BYTE:
         return "rt_to_string_byte_v2";
+    case TYPE_VOID:
+        return "rt_to_string_void_v2";
+    case TYPE_ANY:
+        return "rt_any_to_string";
     default:
-        return get_rt_to_string_func(kind);  /* Fallback to V1 */
+        return "rt_to_string_pointer_v2";
     }
 }
 
 const char *get_rt_to_string_func_for_type_v2(Type *type)
 {
     /* V2 versions for all types */
-    if (type == NULL) return "rt_to_string_pointer";
+    if (type == NULL) return "rt_to_string_pointer_v2";
 
     /* For simple types, use V2 handle-returning functions */
     if (type->kind == TYPE_INT || type->kind == TYPE_INT32 ||
@@ -141,13 +104,13 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
                     case TYPE_ANY:
                         return "rt_to_string_array3_any_v2";
                     default:
-                        return "rt_to_string_pointer";
+                        return "rt_to_string_pointer_v2";
                     }
                 }
-                return "rt_to_string_pointer";
+                return "rt_to_string_pointer_v2";
             }
             default:
-                return "rt_to_string_pointer";
+                return "rt_to_string_pointer_v2";
             }
         }
 
@@ -178,101 +141,12 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
         case TYPE_ANY:
             return "rt_to_string_array_any_v2";
         default:
-            return "rt_to_string_pointer";
+            return "rt_to_string_pointer_v2";
         }
     }
 
-    /* Non-arrays: use base functions */
-    return get_rt_to_string_func(type->kind);
-}
-
-const char *get_rt_to_string_func_for_type(Type *type)
-{
-    DEBUG_VERBOSE("Entering get_rt_to_string_func_for_type");
-    if (type == NULL) return "rt_to_string_pointer";
-
-    /* Handle arrays specially - need to look at element type */
-    if (type->kind == TYPE_ARRAY && type->as.array.element_type != NULL)
-    {
-        Type *elem_type = type->as.array.element_type;
-        TypeKind elem_kind = elem_type->kind;
-
-        /* Check for nested arrays (2D arrays) */
-        if (elem_kind == TYPE_ARRAY && elem_type->as.array.element_type != NULL)
-        {
-            Type *inner_type = elem_type->as.array.element_type;
-            TypeKind inner_kind = inner_type->kind;
-
-            /* Check for 3D arrays */
-            if (inner_kind == TYPE_ARRAY && inner_type->as.array.element_type != NULL)
-            {
-                TypeKind innermost_kind = inner_type->as.array.element_type->kind;
-                /* Currently only support 3D any arrays */
-                if (innermost_kind == TYPE_ANY)
-                {
-                    return "rt_to_string_array3_any";
-                }
-                /* 3D+ arrays of other types - fallback to pointer */
-                return "rt_to_string_pointer";
-            }
-
-            switch (inner_kind)
-            {
-            case TYPE_INT:
-            case TYPE_INT32:
-            case TYPE_UINT:
-            case TYPE_UINT32:
-            case TYPE_LONG:
-                return "rt_to_string_array2_long";
-            case TYPE_DOUBLE:
-            case TYPE_FLOAT:
-                return "rt_to_string_array2_double";
-            case TYPE_CHAR:
-                return "rt_to_string_array2_char";
-            case TYPE_BOOL:
-                return "rt_to_string_array2_bool";
-            case TYPE_BYTE:
-                return "rt_to_string_array2_byte";
-            case TYPE_STRING:
-                return "rt_to_string_array2_string";
-            case TYPE_ANY:
-                return "rt_to_string_array2_any";
-            default:
-                /* Other nested types - fallback to pointer */
-                return "rt_to_string_pointer";
-            }
-        }
-
-        /* 1D arrays */
-        switch (elem_kind)
-        {
-        case TYPE_INT:
-        case TYPE_INT32:
-        case TYPE_UINT:
-        case TYPE_UINT32:
-        case TYPE_LONG:
-            return "rt_to_string_array_long";
-        case TYPE_DOUBLE:
-        case TYPE_FLOAT:
-            return "rt_to_string_array_double";
-        case TYPE_CHAR:
-            return "rt_to_string_array_char";
-        case TYPE_BOOL:
-            return "rt_to_string_array_bool";
-        case TYPE_BYTE:
-            return "rt_to_string_array_byte";
-        case TYPE_STRING:
-            return "rt_to_string_array_string";
-        case TYPE_ANY:
-            return "rt_to_string_array_any";
-        default:
-            /* Other complex element types - fallback to pointer */
-            return "rt_to_string_pointer";
-        }
-    }
-
-    /* For non-arrays, use the existing function */
-    return get_rt_to_string_func(type->kind);
+    /* Non-arrays: use base V2 functions */
+    return get_rt_to_string_func_v2(type->kind);
 }
 
 const char *get_default_value(Type *type)

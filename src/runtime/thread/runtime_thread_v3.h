@@ -82,7 +82,7 @@ typedef struct RtThread {
     RtHandleV2 *self_handle;    /* Handle to this RtThread in caller arena */
     RtHandleV2 *args;           /* Handle to packed args (in thread arena) */
     RtHandleV2 *result;         /* Result handle (NULL for void) */
-    char *panic_msg;            /* NULL = success */
+    RtHandleV2 *panic_msg;      /* NULL = success */
 } RtThread;
 
 /* ============================================================================

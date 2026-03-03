@@ -79,12 +79,12 @@ int code_gen_emit_struct_method_forwards(CodeGen *gen, Stmt **statements, int co
                         func_name = arena_sprintf(gen->arena, "rt_%s_%s", struct_name_lower, method->name);
                     }
 
-                    /* For opaque handle types (native struct with c_alias), use the C type directly */
+                    /* For opaque handle types (native struct with c_alias), use RtHandleV2* */
                     const char *self_c_type;
                     if (struct_decl->is_native && struct_decl->c_alias != NULL)
                     {
-                        /* Opaque handle: self type is already a pointer (e.g., RtDate *) */
-                        self_c_type = arena_sprintf(gen->arena, "%s *", struct_decl->c_alias);
+                        /* Native struct: self is an RtHandleV2* wrapping the native type */
+                        self_c_type = "RtHandleV2 *";
                     }
                     else if (struct_decl->pass_self_by_ref)
                     {
@@ -178,12 +178,11 @@ int code_gen_emit_struct_method_forwards(CodeGen *gen, Stmt **statements, int co
                     else
                     {
                         /* Instance method: first parameter is self (pointer to struct) */
-                        /* For opaque handle types (native struct with c_alias), self is already a pointer */
                         if (struct_decl->is_native && struct_decl->c_alias != NULL)
                         {
-                            /* Opaque handle: self type is the C alias pointer */
-                            indented_fprintf(gen, 0, "%s %s_%s(RtArenaV2 *__caller_arena__, %s *__sn__self",
-                                             ret_type, struct_name, method->name, struct_decl->c_alias);
+                            /* Native struct: self is RtHandleV2* */
+                            indented_fprintf(gen, 0, "%s %s_%s(RtArenaV2 *__caller_arena__, RtHandleV2 *__sn__self",
+                                             ret_type, struct_name, method->name);
                         }
                         else
                         {
@@ -266,12 +265,11 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 else
                 {
                     /* Instance method: first parameter is self (pointer to struct) */
-                    /* For opaque handle types (native struct with c_alias), self is already a pointer */
                     if (struct_decl->is_native && struct_decl->c_alias != NULL)
                     {
-                        /* Opaque handle: self type is the C alias pointer */
-                        indented_fprintf(gen, 0, "%s %s_%s(RtArenaV2 *__caller_arena__, %s *__sn__self",
-                                         ret_type, struct_name, method->name, struct_decl->c_alias);
+                        /* Native struct: self is RtHandleV2* */
+                        indented_fprintf(gen, 0, "%s %s_%s(RtArenaV2 *__caller_arena__, RtHandleV2 *__sn__self",
+                                         ret_type, struct_name, method->name);
                     }
                     else
                     {

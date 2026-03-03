@@ -37,12 +37,6 @@ void arena_debug_init(void)
 } while(0)
 
 /* ============================================================================
- * Thread-Local State
- * ============================================================================ */
-
-static __thread RtArenaV2 *tls_current_arena = NULL;
-
-/* ============================================================================
  * Internal: Handle Management
  * ============================================================================ */
 
@@ -328,6 +322,18 @@ RtHandleV2 *rt_arena_v2_strdup(RtArenaV2 *arena, const char *str)
     return handle;
 }
 
+RtHandleV2 *rt_arena_v2_strndup(RtArenaV2 *arena, const char *str, size_t len)
+{
+    if (arena == NULL || str == NULL) return NULL;
+
+    RtHandleV2 *handle = rt_arena_v2_alloc(arena, len + 1);
+    if (handle != NULL) {
+        memcpy(handle->ptr, str, len);
+        ((char *)handle->ptr)[len] = '\0';
+    }
+    return handle;
+}
+
 void rt_arena_v2_free(RtHandleV2 *handle)
 {
     if (handle == NULL) return;
@@ -399,16 +405,3 @@ RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle)
     return new_handle;
 }
 
-/* ============================================================================
- * Thread Support
- * ============================================================================ */
-
-RtArenaV2 *rt_tls_arena_get(void)
-{
-    return tls_current_arena;
-}
-
-void rt_tls_arena_set(RtArenaV2 *arena)
-{
-    tls_current_arena = arena;
-}

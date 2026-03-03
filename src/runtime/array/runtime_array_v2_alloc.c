@@ -132,7 +132,7 @@ RtHandleV2 *rt_array_from_legacy_string_v2(RtArenaV2 *arena, char **src) {
  * Each element is pinned to extract the raw char*.
  * ============================================================================ */
 
-char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
+RtHandleV2 *rt_pin_string_array_v2(RtHandleV2 *arr_h) {
     if (arr_h == NULL) return NULL;
 
     rt_handle_begin_transaction(arr_h);
@@ -191,7 +191,7 @@ char **rt_pin_string_array_v2(RtHandleV2 *arr_h) {
     rt_handle_end_transaction(result_h);
     rt_handle_end_transaction(arr_h);
 
-    return result;
+    return result_h;
 }
 
 /* ============================================================================

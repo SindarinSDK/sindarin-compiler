@@ -102,8 +102,8 @@ const char *get_c_type(Arena *arena, Type *type)
         {
             return arena_strdup(arena, type->as.function.typedef_name);
         }
-        /* Regular function values are represented as closures */
-        return arena_strdup(arena, "__Closure__ *");
+        /* Regular function values are represented as closure handles */
+        return arena_strdup(arena, "RtHandleV2 *");
     }
     case TYPE_OPAQUE:
     {
@@ -119,11 +119,11 @@ const char *get_c_type(Arena *arena, Type *type)
         /* Struct types use c_alias if available, otherwise their Sindarin name */
         if (type->as.struct_type.c_alias != NULL)
         {
-            /* Native structs with c_alias are treated as opaque handle types.
-             * Generate as pointer type (like built-in TextFile, etc.) */
+            /* Native structs with c_alias are managed via RtHandleV2.
+             * The handle wraps the native C struct; callees extract ->ptr internally. */
             if (type->as.struct_type.is_native)
             {
-                return arena_sprintf(arena, "%s *", type->as.struct_type.c_alias);
+                return arena_strdup(arena, "RtHandleV2 *");
             }
             return arena_strdup(arena, type->as.struct_type.c_alias);
         }
@@ -144,7 +144,11 @@ const char *get_c_type(Arena *arena, Type *type)
 bool is_handle_type(Type *type)
 {
     if (type == NULL) return false;
-    return (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY);
+    if (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY) return true;
+    if (type->kind == TYPE_FUNCTION && !(type->as.function.is_native && type->as.function.typedef_name != NULL)) return true;
+    if (type->kind == TYPE_STRUCT && type->as.struct_type.is_native &&
+        type->as.struct_type.c_alias != NULL) return true;
+    return false;
 }
 
 const char *get_c_param_type(Arena *arena, Type *type)
@@ -211,7 +215,9 @@ const char *get_array_accessor_suffix(Type *elem_type)
         case TYPE_BOOL: return "bool";
         case TYPE_BYTE: return "byte";
         case TYPE_STRING:
-        case TYPE_ARRAY: return "handle";
+        case TYPE_ARRAY:
+        case TYPE_FUNCTION: return "handle";
+        case TYPE_ANY: return "any";
         default: return NULL; /* struct/complex: use rt_array_data_begin_v2 */
     }
 }
@@ -313,20 +319,3 @@ char *code_gen_type_suffix(Type *type)
     }
 }
 
-/* ============================================================================
- * Native Struct Pointer Extraction
- * ============================================================================ */
-
-char *code_gen_extract_native_ptr(CodeGen *gen, const char *c_type, const char *call_expr)
-{
-    int id = gen->temp_count++;
-    return arena_sprintf(gen->arena,
-        "({ RtHandleV2 *__nsh_%d__ = %s;"
-        " %s __nsp_%d__ = (%s)__nsh_%d__->ptr;"
-        " __nsh_%d__->flags |= (RT_HANDLE_FLAG_DEAD | RT_HANDLE_FLAG_EXTERN);"
-        " __nsp_%d__; })",
-        id, call_expr,
-        c_type, id, c_type, id,
-        id,
-        id);
-}

@@ -130,43 +130,43 @@ static void test_get_unboxing_function_string(void)
 }
 
 /* ============================================================================
- * get_rt_to_string_func Tests
+ * get_rt_to_string_func_v2 Tests
  * ============================================================================ */
 
-static void test_get_rt_to_string_func_int(void)
+static void test_get_rt_to_string_func_v2_int(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_INT);
-    assert(strcmp(result, "rt_int_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_INT);
+    assert(strcmp(result, "rt_to_string_long_v2") == 0);
 }
 
-static void test_get_rt_to_string_func_double(void)
+static void test_get_rt_to_string_func_v2_double(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_DOUBLE);
-    assert(strcmp(result, "rt_double_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_DOUBLE);
+    assert(strcmp(result, "rt_to_string_double_v2") == 0);
 }
 
-static void test_get_rt_to_string_func_bool(void)
+static void test_get_rt_to_string_func_v2_bool(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_BOOL);
-    assert(strcmp(result, "rt_bool_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_BOOL);
+    assert(strcmp(result, "rt_to_string_bool_v2") == 0);
 }
 
-static void test_get_rt_to_string_func_char(void)
+static void test_get_rt_to_string_func_v2_char(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_CHAR);
-    assert(strcmp(result, "rt_char_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_CHAR);
+    assert(strcmp(result, "rt_to_string_char_v2") == 0);
 }
 
-static void test_get_rt_to_string_func_byte(void)
+static void test_get_rt_to_string_func_v2_byte(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_BYTE);
-    assert(strcmp(result, "rt_byte_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_BYTE);
+    assert(strcmp(result, "rt_to_string_byte_v2") == 0);
 }
 
-static void test_get_rt_to_string_func_long(void)
+static void test_get_rt_to_string_func_v2_long(void)
 {
-    const char *result = get_rt_to_string_func(TYPE_LONG);
-    assert(strcmp(result, "rt_long_to_string") == 0);
+    const char *result = get_rt_to_string_func_v2(TYPE_LONG);
+    assert(strcmp(result, "rt_to_string_long_v2") == 0);
 }
 
 /* ============================================================================
@@ -271,13 +271,13 @@ void test_code_gen_helpers_funcs_main(void)
     TEST_RUN("get_unboxing_function_char", test_get_unboxing_function_char);
     TEST_RUN("get_unboxing_function_string", test_get_unboxing_function_string);
 
-    TEST_SECTION("Code Gen Helpers - get_rt_to_string_func");
-    TEST_RUN("get_rt_to_string_func_int", test_get_rt_to_string_func_int);
-    TEST_RUN("get_rt_to_string_func_double", test_get_rt_to_string_func_double);
-    TEST_RUN("get_rt_to_string_func_bool", test_get_rt_to_string_func_bool);
-    TEST_RUN("get_rt_to_string_func_char", test_get_rt_to_string_func_char);
-    TEST_RUN("get_rt_to_string_func_byte", test_get_rt_to_string_func_byte);
-    TEST_RUN("get_rt_to_string_func_long", test_get_rt_to_string_func_long);
+    TEST_SECTION("Code Gen Helpers - get_rt_to_string_func_v2");
+    TEST_RUN("get_rt_to_string_func_v2_int", test_get_rt_to_string_func_v2_int);
+    TEST_RUN("get_rt_to_string_func_v2_double", test_get_rt_to_string_func_v2_double);
+    TEST_RUN("get_rt_to_string_func_v2_bool", test_get_rt_to_string_func_v2_bool);
+    TEST_RUN("get_rt_to_string_func_v2_char", test_get_rt_to_string_func_v2_char);
+    TEST_RUN("get_rt_to_string_func_v2_byte", test_get_rt_to_string_func_v2_byte);
+    TEST_RUN("get_rt_to_string_func_v2_long", test_get_rt_to_string_func_v2_long);
 
     TEST_SECTION("Code Gen Helpers - code_gen_binary_op_str");
     TEST_RUN("binary_op_str_plus", test_binary_op_str_plus);

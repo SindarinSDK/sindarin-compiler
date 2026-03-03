@@ -154,6 +154,9 @@ RtHandleV2 *rt_arena_v2_realloc(RtArenaV2 *arena, RtHandleV2 *old, size_t new_si
 /* Duplicate a string. */
 RtHandleV2 *rt_arena_v2_strdup(RtArenaV2 *arena, const char *str);
 
+/* Duplicate a string with a maximum length (like strndup). */
+RtHandleV2 *rt_arena_v2_strndup(RtArenaV2 *arena, const char *str, size_t len);
+
 /* Mark a handle as dead (eligible for GC). */
 void rt_arena_v2_free(RtHandleV2 *handle);
 
@@ -177,10 +180,6 @@ void rt_arena_v2_reparent(RtArenaV2 *arena, RtArenaV2 *new_parent);
 /* ============================================================================
  * Thread Support
  * ============================================================================ */
-
-/* Get/set the current thread's arena (TLS). */
-RtArenaV2 *rt_tls_arena_get(void);
-void rt_tls_arena_set(RtArenaV2 *arena);
 
 /* ============================================================================
  * Convenience Wrappers

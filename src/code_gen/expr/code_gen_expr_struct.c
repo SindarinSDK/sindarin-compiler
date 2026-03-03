@@ -119,18 +119,17 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                     char *wrapper_name = arena_sprintf(gen->arena, "__wrap_%d__", wrapper_id);
                     const char *ret_c_type = get_c_type(gen->arena, func_type->as.function.return_type);
 
-                    /* Build parameter list: void* first, then actual params */
-                    char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+                    /* Build parameter list: void* first, caller arena second, then actual params */
+                    char *params_decl = arena_strdup(gen->arena, "void *__closure__, RtArenaV2 *__caller_arena__");
                     char *args_forward = arena_strdup(gen->arena, "");
 
-                    /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena.
-                     * Use rt_get_thread_arena_or() to prefer thread arena when called from thread context. */
+                    /* Check if wrapped function is a Sindarin function (has body) - if so, prepend arena. */
                     bool wrapped_has_body = (func_sym->type != NULL &&
                                              func_sym->type->kind == TYPE_FUNCTION &&
                                              func_sym->type->as.function.has_body);
                     if (wrapped_has_body)
                     {
-                        args_forward = arena_strdup(gen->arena, "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; })");
+                        args_forward = arena_strdup(gen->arena, "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena");
                     }
 
                     for (int p = 0; p < func_type->as.function.param_count; p++)
@@ -177,22 +176,8 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
 
                     /* Wrap the wrapper function in a closure struct */
                     const char *arena_var = ARENA_VAR(gen);
-                    if (strcmp(arena_var, "NULL") == 0)
                     {
-                        /* No arena - use malloc */
-                        value_code = arena_sprintf(gen->arena,
-                            "({\n"
-                            "    __Closure__ *__cl__ = malloc(sizeof(__Closure__));\n"
-                            "    __cl__->fn = (void *)%s;\n"
-                            "    __cl__->arena = NULL;\n"
-                            "    __cl__->size = sizeof(__Closure__);\n"
-                            "    __cl__;\n"
-                            "})",
-                            wrapper_name);
-                    }
-                    else
-                    {
-                        /* Use V2 arena allocation */
+                        const char *alloc_arena = strcmp(arena_var, "NULL") == 0 ? "__main_arena__" : arena_var;
                         value_code = arena_sprintf(gen->arena,
                             "({\n"
                             "    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(%s, sizeof(__Closure__));\n"
@@ -202,18 +187,15 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                             "    __cl__->arena = %s;\n"
                             "    __cl__->size = sizeof(__Closure__);\n"
                             "    rt_handle_end_transaction(__cl_h__);\n"
-                            "    __cl__;\n"
+                            "    __cl_h__;\n"
                             "})",
-                            arena_var, wrapper_name, arena_var);
+                            alloc_arena, wrapper_name, alloc_arena);
                     }
                 }
                 else
                 {
                     /* Not a named function - generate normally (probably a closure variable) */
-                    bool saved_handle = gen->expr_as_handle;
-                    gen->expr_as_handle = false;
                     value_code = code_gen_expression(gen, init_value);
-                    gen->expr_as_handle = saved_handle;
                 }
             }
             /* Special handling for empty array literals: use field's element type
@@ -227,7 +209,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
                 const char *elem_c = get_c_type(gen->arena, elem_type);
 
                 if (elem_type->kind == TYPE_STRING) {
-                    value_code = arena_sprintf(gen->arena, "rt_array_create_string_v2(%s, 0, NULL)",
+                    value_code = arena_sprintf(gen->arena, "rt_array_create_ptr_v2(%s, 0, NULL)",
                                                ARENA_VAR(gen));
                 } else if (elem_type->kind == TYPE_STRUCT && struct_has_handle_fields(elem_type)) {
                     code_gen_ensure_struct_callbacks(gen, elem_type);
@@ -244,18 +226,7 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
             }
             else
             {
-                bool saved_handle = gen->expr_as_handle;
-                if (gen->current_arena_var != NULL &&
-                    (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY))
-                {
-                    gen->expr_as_handle = true;
-                }
-                else
-                {
-                    gen->expr_as_handle = false;
-                }
                 value_code = code_gen_expression(gen, init_value);
-                gen->expr_as_handle = saved_handle;
             }
             if (!first)
             {

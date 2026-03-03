@@ -8,26 +8,26 @@
  * Byte Array Conversion Functions
  * ============================================================================
  * Implementation of byte array to string and string to byte array conversions.
+ * All functions use RtHandleV2* for both input and output.
  * ============================================================================ */
 
 /* ============================================================================
- * Internal Helper: Create uninitialized byte array
+ * Internal Helper: Create uninitialized byte array (returns handle)
  * ============================================================================ */
 
-static unsigned char *create_byte_array(RtArenaV2 *arena, size_t count) {
+static RtHandleV2 *create_byte_array(RtArenaV2 *arena, size_t count) {
     size_t alloc_size = sizeof(RtArrayMetadataV2) + count * sizeof(unsigned char);
-    RtHandleV2 *raw_h = rt_arena_v2_alloc(arena, alloc_size);
-    if (raw_h == NULL) return NULL;
-    rt_handle_begin_transaction(raw_h);
-    void *raw = raw_h->ptr;
+    RtHandleV2 *h = rt_arena_v2_alloc(arena, alloc_size);
+    if (h == NULL) return NULL;
+    rt_handle_begin_transaction(h);
 
-    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)raw;
-    meta->arena = NULL;  /* Not using V2 arena here */
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)h->ptr;
+    meta->arena = NULL;
     meta->size = count;
     meta->capacity = count;
 
-    rt_handle_end_transaction(raw_h);
-    return (unsigned char *)((char *)raw + sizeof(RtArrayMetadataV2));
+    rt_handle_end_transaction(h);
+    return h;
 }
 
 /* ============================================================================
@@ -41,17 +41,16 @@ static const char base64_chars[] =
 /* Convert byte array to string using UTF-8 decoding
  * Note: This is a simple passthrough since our strings are already UTF-8.
  * Invalid UTF-8 sequences are passed through as-is. */
-RtHandleV2 *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
-    if (bytes == NULL) {
-        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
-        rt_handle_begin_transaction(result_h);
-        char *result = (char *)result_h->ptr;
-        result[0] = '\0';
-        rt_handle_end_transaction(result_h);
-        return result_h;
+RtHandleV2 *rt_byte_array_to_string(RtArenaV2 *arena, RtHandleV2 *bytes_h) {
+    if (bytes_h == NULL) {
+        return rt_arena_v2_strdup(arena, "");
     }
 
-    size_t len = rt_v2_data_array_length(bytes);
+    rt_handle_begin_transaction(bytes_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)bytes_h->ptr;
+    size_t len = meta->size;
+    unsigned char *bytes = (unsigned char *)((char *)bytes_h->ptr + sizeof(RtArrayMetadataV2));
+
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 1);
     rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
@@ -62,23 +61,22 @@ RtHandleV2 *rt_byte_array_to_string(RtArenaV2 *arena, unsigned char *bytes) {
     result[len] = '\0';
 
     rt_handle_end_transaction(result_h);
+    rt_handle_end_transaction(bytes_h);
     return result_h;
 }
 
 /* Convert byte array to string using Latin-1/ISO-8859-1 decoding
  * Each byte directly maps to its Unicode code point (0x00-0xFF).
  * This requires UTF-8 encoding for values 0x80-0xFF. */
-RtHandleV2 *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *bytes) {
-    if (bytes == NULL) {
-        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
-        rt_handle_begin_transaction(result_h);
-        char *result = (char *)result_h->ptr;
-        result[0] = '\0';
-        rt_handle_end_transaction(result_h);
-        return result_h;
+RtHandleV2 *rt_byte_array_to_string_latin1(RtArenaV2 *arena, RtHandleV2 *bytes_h) {
+    if (bytes_h == NULL) {
+        return rt_arena_v2_strdup(arena, "");
     }
 
-    size_t len = rt_v2_data_array_length(bytes);
+    rt_handle_begin_transaction(bytes_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)bytes_h->ptr;
+    size_t len = meta->size;
+    unsigned char *bytes = (unsigned char *)((char *)bytes_h->ptr + sizeof(RtArrayMetadataV2));
 
     /* Calculate output size: bytes 0x00-0x7F = 1 byte, 0x80-0xFF = 2 bytes in UTF-8 */
     size_t out_len = 0;
@@ -107,23 +105,23 @@ RtHandleV2 *rt_byte_array_to_string_latin1(RtArenaV2 *arena, unsigned char *byte
     result[out_idx] = '\0';
 
     rt_handle_end_transaction(result_h);
+    rt_handle_end_transaction(bytes_h);
     return result_h;
 }
 
 /* Convert byte array to hexadecimal string */
-RtHandleV2 *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
+RtHandleV2 *rt_byte_array_to_hex(RtArenaV2 *arena, RtHandleV2 *bytes_h) {
     static const char hex_chars[] = "0123456789abcdef";
 
-    if (bytes == NULL) {
-        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
-        rt_handle_begin_transaction(result_h);
-        char *result = (char *)result_h->ptr;
-        result[0] = '\0';
-        rt_handle_end_transaction(result_h);
-        return result_h;
+    if (bytes_h == NULL) {
+        return rt_arena_v2_strdup(arena, "");
     }
 
-    size_t len = rt_v2_data_array_length(bytes);
+    rt_handle_begin_transaction(bytes_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)bytes_h->ptr;
+    size_t len = meta->size;
+    unsigned char *bytes = (unsigned char *)((char *)bytes_h->ptr + sizeof(RtArrayMetadataV2));
+
     RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len * 2 + 1);
     rt_handle_begin_transaction(result_h);
     char *result = (char *)result_h->ptr;
@@ -135,21 +133,20 @@ RtHandleV2 *rt_byte_array_to_hex(RtArenaV2 *arena, unsigned char *bytes) {
     result[len * 2] = '\0';
 
     rt_handle_end_transaction(result_h);
+    rt_handle_end_transaction(bytes_h);
     return result_h;
 }
 
 /* Convert byte array to Base64 string */
-RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
-    if (bytes == NULL) {
-        RtHandleV2 *result_h = rt_arena_v2_alloc(arena, 1);
-        rt_handle_begin_transaction(result_h);
-        char *result = (char *)result_h->ptr;
-        result[0] = '\0';
-        rt_handle_end_transaction(result_h);
-        return result_h;
+RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, RtHandleV2 *bytes_h) {
+    if (bytes_h == NULL) {
+        return rt_arena_v2_strdup(arena, "");
     }
 
-    size_t len = rt_v2_data_array_length(bytes);
+    rt_handle_begin_transaction(bytes_h);
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)bytes_h->ptr;
+    size_t len = meta->size;
+    unsigned char *bytes = (unsigned char *)((char *)bytes_h->ptr + sizeof(RtArrayMetadataV2));
 
     /* Calculate output size: 4 output chars for every 3 input bytes, rounded up */
     size_t out_len = ((len + 2) / 3) * 4;
@@ -195,6 +192,7 @@ RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
     result[out_idx] = '\0';
 
     rt_handle_end_transaction(result_h);
+    rt_handle_end_transaction(bytes_h);
     return result_h;
 }
 
@@ -203,20 +201,35 @@ RtHandleV2 *rt_byte_array_to_base64(RtArenaV2 *arena, unsigned char *bytes) {
  * ============================================================================ */
 
 /* Convert string to UTF-8 byte array
- * Since our strings are already UTF-8, this is a simple copy. */
-unsigned char *rt_string_to_bytes(RtArenaV2 *arena, const char *str) {
+ * Since our strings are already UTF-8, this is a simple copy.
+ * Returns an RtHandleV2* to the byte array. */
+RtHandleV2 *rt_string_to_bytes(RtArenaV2 *arena, RtHandleV2 *str_h) {
+    if (str_h == NULL) {
+        return create_byte_array(arena, 0);
+    }
+
+    rt_handle_begin_transaction(str_h);
+    const char *str = (const char *)str_h->ptr;
     if (str == NULL) {
-        /* Return empty byte array */
+        rt_handle_end_transaction(str_h);
         return create_byte_array(arena, 0);
     }
 
     size_t len = strlen(str);
-    unsigned char *bytes = create_byte_array(arena, len);
+    RtHandleV2 *h = create_byte_array(arena, len);
+    if (h == NULL) {
+        rt_handle_end_transaction(str_h);
+        return NULL;
+    }
+
+    rt_handle_begin_transaction(h);
+    unsigned char *bytes = (unsigned char *)((char *)h->ptr + sizeof(RtArrayMetadataV2));
 
     for (size_t i = 0; i < len; i++) {
         bytes[i] = (unsigned char)str[i];
     }
 
-    return bytes;
+    rt_handle_end_transaction(h);
+    rt_handle_end_transaction(str_h);
+    return h;
 }
-

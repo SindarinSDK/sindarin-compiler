@@ -23,10 +23,8 @@ const char *get_c_native_param_type(Arena *arena, Type *type);  /* C types for n
 const char *get_c_array_elem_type(Arena *arena, Type *elem_type);  /* Storage type for array elements */
 const char *get_c_sizeof_elem(Arena *arena, Type *elem_type);  /* sizeof(elem_type) expression for codegen */
 bool is_handle_type(Type *type);  /* True if type uses RtHandle storage */
-const char *get_rt_to_string_func(TypeKind kind);
-const char *get_rt_to_string_func_v2(TypeKind kind);  /* V2 raw pointer version */
-const char *get_rt_to_string_func_for_type(Type *type);
-const char *get_rt_to_string_func_for_type_v2(Type *type);  /* V2 version for arena mode */
+const char *get_rt_to_string_func_v2(TypeKind kind);
+const char *get_rt_to_string_func_for_type_v2(Type *type);
 const char *get_default_value(Type *type);
 const char *get_rt_result_type(Type *type);
 
@@ -168,10 +166,5 @@ void code_gen_flush_arena_temps(CodeGen *gen, int indent);
 /* Remove temps from saved_count onwards — adopted by a consumer (var decl, return, assign). */
 void code_gen_adopt_arena_temps_from(CodeGen *gen, int saved_count);
 
-/* Extract a native struct pointer from a handle expression, marking the handle
- * DEAD+EXTERN so GC reclaims the handle struct but not the data.
- * Generates: ({ RtHandleV2 *__htmp_N__ = (expr); c_type __p = (c_type)__htmp_N__->ptr;
- *              __htmp_N__->flags |= (RT_HANDLE_FLAG_DEAD|RT_HANDLE_FLAG_EXTERN); __p; }) */
-char *code_gen_extract_native_ptr(CodeGen *gen, const char *c_type, const char *call_expr);
 
 #endif /* CODE_GEN_UTIL_H */

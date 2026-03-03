@@ -113,9 +113,9 @@ void code_gen_struct_methods(CodeGen *gen, StructDeclStmt *struct_decl, int inde
             /* Instance method: first parameter is self (pointer to struct) */
             if (struct_decl->is_native && struct_decl->c_alias != NULL)
             {
-                /* Opaque handle: self type is the C alias pointer */
-                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__, %s *__sn__self",
-                                 ret_type, struct_name, method->name, struct_decl->c_alias);
+                /* Native struct: self is RtHandleV2* */
+                indented_fprintf(gen, indent, "%s %s_%s(RtArenaV2 *__caller_arena__, RtHandleV2 *__sn__self",
+                                 ret_type, struct_name, method->name);
             }
             else
             {

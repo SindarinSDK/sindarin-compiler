@@ -176,8 +176,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     }
 
     /* Build parameter list string for the static function */
-    /* First param is always the closure pointer (void *) */
-    char *params_decl = arena_strdup(gen->arena, "void *__closure__");
+    /* First param is always the closure pointer (void *), second is caller arena */
+    char *params_decl = arena_strdup(gen->arena, "void *__closure__, RtArenaV2 *__caller_arena__");
 
     for (int i = 0; i < lambda->param_count; i++)
     {
@@ -197,10 +197,10 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     if (modifier == FUNC_PRIVATE)
     {
         /* Private lambda: create child arena, destroy before return.
-         * Parent is thread arena if in thread context, otherwise closure's stored arena. */
+         * Parent is caller arena if provided, otherwise closure's stored arena. */
         arena_setup = arena_sprintf(gen->arena,
             "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_create("
-            "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; }), RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
+            "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena, RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
             "    (void)__closure__;\n");
         arena_cleanup = arena_sprintf(gen->arena,
             "    rt_arena_v2_condemn(__lambda_arena__);\n");
@@ -213,15 +213,15 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
          * that needs to remain in the original arena. When a shared closure
          * is called from a thread, it should access the main thread's data. */
         arena_setup = arena_sprintf(gen->arena,
-            "    RtArenaV2 *__lambda_arena__ = ((__Closure__ *)__closure__)->arena;\n");
+            "    RtArenaV2 *__lambda_arena__ = ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;\n");
     }
     else
     {
-        /* Default lambda: use thread arena if in thread context,
+        /* Default lambda: use caller arena if provided,
          * otherwise use arena from closure */
         arena_setup = arena_sprintf(gen->arena,
             "    RtArenaV2 *__lambda_arena__ = "
-            "({ RtArenaV2 *__tls_a = rt_tls_arena_get(); __tls_a ? __tls_a : ((__Closure__ *)__closure__)->arena; });\n");
+            "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;\n");
     }
 
     /* Prepend safepoint poll to arena setup so every lambda checks on entry */
@@ -246,8 +246,8 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
              * Arrays need this because push/pop return new pointers. */
             if (needs_capture_by_ref(cv.types[i]))
             {
-                struct_def = arena_sprintf(gen->arena, "%s    %s *%s;\n",
-                                           struct_def, c_type, cv.names[i]);
+                struct_def = arena_sprintf(gen->arena, "%s    RtHandleV2 *%s;\n",
+                                           struct_def, cv.names[i]);
             }
             else
             {
@@ -281,14 +281,16 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                  * variable instead of #define to avoid macro replacement issues when
                  * this lambda creates nested closures. */
                 capture_decls = arena_sprintf(gen->arena,
-                    "%s    %s *%s = ((__closure_%d__ *)__closure__)->%s;\n",
-                    capture_decls, c_type, mangled_cv_name, lambda_id, cv.names[i]);
+                    "%s    RtHandleV2 *__%s_h__ = ((__closure_%d__ *)((RtHandleV2 *)__closure__)->ptr)->%s;\n"
+                    "    %s *%s = (%s *)__%s_h__->ptr;\n",
+                    capture_decls, mangled_cv_name, lambda_id, cv.names[i],
+                    c_type, mangled_cv_name, c_type, mangled_cv_name);
             }
             else
             {
                 /* Other types: copy the value */
                 capture_decls = arena_sprintf(gen->arena,
-                    "%s    %s %s = ((__closure_%d__ *)__closure__)->%s;\n",
+                    "%s    %s %s = ((__closure_%d__ *)((RtHandleV2 *)__closure__)->ptr)->%s;\n",
                     capture_decls, c_type, mangled_cv_name, lambda_id, cv.names[i]);
             }
         }
@@ -418,12 +420,6 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
-            Type *resolved_lambda_ret = resolve_struct_type(gen, lambda->return_type);
-            bool is_handle_return = gen->current_arena_var != NULL &&
-                                    (resolved_lambda_ret->kind == TYPE_ARRAY || resolved_lambda_ret->kind == TYPE_STRING ||
-                                     (resolved_lambda_ret->kind == TYPE_STRUCT && resolved_lambda_ret->as.struct_type.is_native && resolved_lambda_ret->as.struct_type.c_alias != NULL));
-            bool saved_expr_handle = gen->expr_as_handle;
-            if (is_handle_return) gen->expr_as_handle = true;
 
             /* Redirect output so hoisted arena temps go into the lambda
              * function body, not the enclosing function. */
@@ -445,7 +441,6 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             gen->arena_temp_count = saved_tc_e;
             gen->arena_temp_serial = saved_ts_e;
 
-            gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
                 /* Private: create arena, compute result, destroy arena, return */
@@ -554,7 +549,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                 if (already_pointer)
                 {
                     /* The variable is already a pointer - just copy it to the closure */
-                    closure_init = arena_sprintf(gen->arena, "%s    __cl__->%s = %s;\n",
+                    closure_init = arena_sprintf(gen->arena, "%s    __cl__->%s = __%s_h__;\n",
                                                  closure_init, cv.names[i], mangled_cv_name);
                 }
                 else
@@ -562,7 +557,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
                     /* It's a value (lambda param, loop var, etc.) - need to heap-allocate (V2) */
                     const char *c_type = get_c_type(gen->arena, cv.types[i]);
                     closure_init = arena_sprintf(gen->arena,
-                        "%s    __cl__->%s = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_begin_transaction(__ah); %s *__tmp__ = (%s *)__ah->ptr; *__tmp__ = %s; rt_handle_end_transaction(__ah); __tmp__; });\n",
+                        "%s    __cl__->%s = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(%s, sizeof(%s)); rt_handle_begin_transaction(__ah); %s *__tmp__ = (%s *)__ah->ptr; *__tmp__ = %s; rt_handle_end_transaction(__ah); __ah; });\n",
                         closure_init, cv.names[i], closure_arena, c_type, c_type, c_type, mangled_cv_name);
                 }
             }
@@ -574,7 +569,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         }
         closure_init = arena_sprintf(gen->arena,
             "%s    rt_handle_end_transaction(__cl_h__);\n"
-            "    (__Closure__ *)__cl__;\n"
+            "    __cl_h__;\n"
             "})",
             closure_init);
 
@@ -693,12 +688,6 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
         else
         {
             /* Single-line lambda with expression body */
-            Type *resolved_lambda_ret = resolve_struct_type(gen, lambda->return_type);
-            bool is_handle_return = gen->current_arena_var != NULL &&
-                                    (resolved_lambda_ret->kind == TYPE_ARRAY || resolved_lambda_ret->kind == TYPE_STRING ||
-                                     (resolved_lambda_ret->kind == TYPE_STRUCT && resolved_lambda_ret->as.struct_type.is_native && resolved_lambda_ret->as.struct_type.c_alias != NULL));
-            bool saved_expr_handle = gen->expr_as_handle;
-            if (is_handle_return) gen->expr_as_handle = true;
 
             /* Redirect output so hoisted arena temps go into the lambda
              * function body, not the enclosing function. */
@@ -720,7 +709,6 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             gen->arena_temp_count = saved_tc_e;
             gen->arena_temp_serial = saved_ts_e;
 
-            gen->expr_as_handle = saved_expr_handle;
             if (modifier == FUNC_PRIVATE)
             {
                 /* Private: create arena, compute result, destroy arena, return */
@@ -785,7 +773,7 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             "    __cl__->arena = %s;\n"
             "    __cl__->size = sizeof(__Closure__);\n"
             "    rt_handle_end_transaction(__cl_h__);\n"
-            "    __cl__;\n"
+            "    __cl_h__;\n"
             "})",
             closure_arena, lambda_id, closure_arena);
     }

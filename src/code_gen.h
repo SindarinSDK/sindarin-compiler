@@ -134,11 +134,6 @@ typedef struct {
      * generating lambda expressions that are directly returned from functions. */
     bool allocate_closure_in_caller_arena;
 
-    /* Handle-based expression mode:
-     * When true, expression generator returns RtHandle form for string/array expressions.
-     * When false (default), returns raw pointer form (pinned).
-     * Used for variable initialization and assignment RHS. */
-    bool expr_as_handle;
 
     /* Namespace prefix for imported module code generation.
      * When generating code for statements from an imported namespace,

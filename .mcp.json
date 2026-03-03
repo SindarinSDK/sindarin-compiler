@@ -20,6 +20,13 @@
       "args": [
         ".claude/claude-hooks/tool-call-memory/mcp-server.js"
       ]
+    },
+    "memory-conversation": {
+      "type": "stdio",
+      "command": "node",
+      "args": [
+        ".claude/claude-hooks/memory-conversation/mcp-server.js"
+      ]
     }
   }
 }

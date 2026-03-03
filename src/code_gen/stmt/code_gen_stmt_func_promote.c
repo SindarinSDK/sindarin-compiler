@@ -188,12 +188,9 @@ void code_gen_promote_self_fields(CodeGen *gen, StructDeclStmt *struct_decl, int
         }
         else if (field->type->kind == TYPE_FUNCTION)
         {
-            indented_fprintf(gen, indent, "if (%s && %s->arena == __local_arena__) {\n", field_access, field_access);
-            indented_fprintf(gen, indent + 1, "__Closure__ *__src_cl__ = %s;\n", field_access);
-            indented_fprintf(gen, indent + 1, "%s = (__Closure__ *)rt_arena_v2_alloc(__sn__self->__arena__, __src_cl__->size);\n", field_access);
-            indented_fprintf(gen, indent + 1, "memcpy(%s, __src_cl__, __src_cl__->size);\n", field_access);
-            indented_fprintf(gen, indent + 1, "%s->arena = __sn__self->__arena__;\n", field_access);
-            indented_fprintf(gen, indent, "}\n");
+            indented_fprintf(gen, indent, "if (%s && %s->arena == __local_arena__)\n", field_access, field_access);
+            indented_fprintf(gen, indent + 1, "%s = rt_arena_v2_promote(__sn__self->__arena__, %s);\n",
+                             field_access, field_access);
         }
         else if (field->type->kind == TYPE_ANY)
         {
@@ -230,12 +227,9 @@ static void code_gen_promote_self_struct_fields(CodeGen *gen, Type *struct_type,
         }
         else if (field->type->kind == TYPE_FUNCTION)
         {
-            indented_fprintf(gen, indent, "if (%s && %s->arena == __local_arena__) {\n", field_access, field_access);
-            indented_fprintf(gen, indent + 1, "__Closure__ *__src_cl__ = %s;\n", field_access);
-            indented_fprintf(gen, indent + 1, "%s = (__Closure__ *)rt_arena_v2_alloc(__sn__self->__arena__, __src_cl__->size);\n", field_access);
-            indented_fprintf(gen, indent + 1, "memcpy(%s, __src_cl__, __src_cl__->size);\n", field_access);
-            indented_fprintf(gen, indent + 1, "%s->arena = __sn__self->__arena__;\n", field_access);
-            indented_fprintf(gen, indent, "}\n");
+            indented_fprintf(gen, indent, "if (%s && %s->arena == __local_arena__)\n", field_access, field_access);
+            indented_fprintf(gen, indent + 1, "%s = rt_arena_v2_promote(__sn__self->__arena__, %s);\n",
+                             field_access, field_access);
         }
         else if (field->type->kind == TYPE_ANY)
         {
@@ -279,11 +273,8 @@ void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bo
     }
     else if (kind == TYPE_FUNCTION)
     {
-        /* Closures - copy to caller arena */
-        indented_fprintf(gen, indent, "{ __Closure__ *__src_cl__ = _return_value;\n");
-        indented_fprintf(gen, indent, "  _return_value = (__Closure__ *)rt_arena_v2_alloc(__caller_arena__, __src_cl__->size);\n");
-        indented_fprintf(gen, indent, "  memcpy(_return_value, __src_cl__, __src_cl__->size);\n");
-        indented_fprintf(gen, indent, "  _return_value->arena = __caller_arena__; }\n");
+        /* Closures are now RtHandleV2* — promote like other handle types */
+        indented_fprintf(gen, indent, "if (_return_value) _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);\n");
     }
     else if (kind == TYPE_ANY)
     {

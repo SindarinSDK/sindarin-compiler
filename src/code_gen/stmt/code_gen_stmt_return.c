@@ -77,21 +77,6 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             gen->allocate_closure_in_caller_arena = true;
         }
 
-        /* If the function returns a handle type, produce RtHandle value.
-         * Native struct returns are also handle-based (RtHandleV2*) for promotion. */
-        bool prev_as_handle = gen->expr_as_handle;
-        if (gen->current_return_type != NULL && gen->current_arena_var != NULL)
-        {
-            Type *resolved_ret = resolve_struct_type(gen, gen->current_return_type);
-            if (is_handle_type(resolved_ret) ||
-                (resolved_ret->kind == TYPE_STRUCT &&
-                 resolved_ret->as.struct_type.is_native &&
-                 resolved_ret->as.struct_type.c_alias != NULL))
-            {
-                gen->expr_as_handle = true;
-            }
-        }
-
         int saved_temp_count = gen->arena_temp_count;
         char *value_str = code_gen_expression(gen, stmt->value);
 
@@ -121,8 +106,6 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
                 code_gen_adopt_arena_temps_from(gen, saved_temp_count);
             }
         }
-
-        gen->expr_as_handle = prev_as_handle;
 
         if (is_lambda_return)
         {

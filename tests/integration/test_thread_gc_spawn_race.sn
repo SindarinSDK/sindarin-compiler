@@ -1,0 +1,47 @@
+# Test: Race condition between thread spawn and GC
+#
+# The race: a new thread calls rt_safepoint_thread_register() AFTER
+# GC's STW wait has completed, so the thread runs unparked while
+# GC walks the arena tree without mutex. If the thread allocates
+# (modifying handles_head) while GC reads it, we get a data race.
+#
+# This test spawns fire-and-forget threads while triggering GC,
+# then checks the race detection counter in the safepoint system.
+
+@alias "rt_arena_v2_gc"
+native fn gc_collect(arena): int
+
+@alias "rt_safepoint_get_race_count"
+native fn get_race_count(): int
+
+fn worker(id: int): void =>
+    var s1: str = $"thread-{id}-data-padding-string"
+    var s2: str = s1 + "-extended-with-more-content"
+    var s3: str = s2 + "-even-more-data-here"
+    var arr: str[] = {s1, s2, s3}
+    var i: int = 0
+    while i < 30 =>
+        arr.push($"item-{i}-{s1}")
+        i = i + 1
+
+fn main(): void =>
+    var i: int = 0
+    while i < 500 =>
+        &worker(i)
+        &worker(i + 1)
+        &worker(i + 2)
+        &worker(i + 3)
+        gc_collect()
+        i = i + 4
+
+    # Final GC passes to clean up
+    var j: int = 0
+    while j < 500 =>
+        gc_collect()
+        j = j + 1
+
+    var races: int = get_race_count()
+    if races > 0 =>
+        print($"FAIL: {races} threads registered during active STW\n")
+    else =>
+        print("PASS\n")

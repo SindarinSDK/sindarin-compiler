@@ -79,67 +79,24 @@ char *code_gen_closure_call(CodeGen *gen, Expr *expr, CallExpr *call)
 
     /* Build function pointer cast */
     const char *ret_c_type = get_c_type(gen->arena, callee_type->as.function.return_type);
-    char *param_types_str = arena_strdup(gen->arena, "void *");  /* First param is closure */
+    /* First param is closure (void *), second is caller arena (RtArenaV2 *) */
+    char *param_types_str = arena_strdup(gen->arena, "void *, RtArenaV2 *");
     for (int i = 0; i < callee_type->as.function.param_count; i++)
     {
         const char *param_c_type = get_c_type(gen->arena, callee_type->as.function.param_types[i]);
         param_types_str = arena_sprintf(gen->arena, "%s, %s", param_types_str, param_c_type);
     }
 
-    /* Generate arguments in handle mode (closures are Sindarin functions) */
-    bool saved_closure_handle = gen->expr_as_handle;
-    gen->expr_as_handle = (gen->current_arena_var != NULL);
-    char *args_str = closure_str;  /* First arg is the closure itself */
+    /* Generate arguments: closure, caller_arena, then actual args */
+    const char *arena_arg = gen->current_arena_var != NULL ? gen->current_arena_var : "NULL";
+    char *args_str = arena_sprintf(gen->arena, "%s, %s", closure_str, arena_arg);
     for (int i = 0; i < call->arg_count; i++)
     {
         char *arg_str = code_gen_expression(gen, call->arguments[i]);
         args_str = arena_sprintf(gen->arena, "%s, %s", args_str, arg_str);
     }
-    gen->expr_as_handle = saved_closure_handle;
 
-    /* Generate the call: ((<ret> (*)(<params>))closure->fn)(args)
-     * Wrap with TLS arena save/set/restore so closure thunks pick up
-     * the caller's arena instead of the thread-global TLS arena. */
-    char *raw_call = arena_sprintf(gen->arena, "((%s (*)(%s))%s->fn)(%s)",
+    /* Generate the call: ((<ret> (*)(<params>))closure->fn)(closure, arena, args...) */
+    return arena_sprintf(gen->arena, "((%s (*)(%s))((__Closure__ *)%s->ptr)->fn)(%s)",
                          ret_c_type, param_types_str, closure_str, args_str);
-    char *call_expr;
-    if (gen->current_arena_var != NULL)
-    {
-        Type *fn_ret = callee_type->as.function.return_type;
-        if (fn_ret != NULL && fn_ret->kind != TYPE_VOID)
-        {
-            call_expr = arena_sprintf(gen->arena,
-                "({ RtArenaV2 *__stls__ = rt_tls_arena_get(); rt_tls_arena_set(%s); "
-                "%s __clr__ = %s; rt_tls_arena_set(__stls__); __clr__; })",
-                gen->current_arena_var, ret_c_type, raw_call);
-        }
-        else
-        {
-            call_expr = arena_sprintf(gen->arena,
-                "({ RtArenaV2 *__stls__ = rt_tls_arena_get(); rt_tls_arena_set(%s); "
-                "%s; rt_tls_arena_set(__stls__); })",
-                gen->current_arena_var, raw_call);
-        }
-    }
-    else
-    {
-        call_expr = raw_call;
-    }
-
-    /* If returning string/array handle but caller expects raw pointer, pin the result */
-    Type *ret_type = callee_type->as.function.return_type;
-    if (gen->current_arena_var != NULL && !gen->expr_as_handle && ret_type != NULL &&
-        (ret_type->kind == TYPE_STRING || ret_type->kind == TYPE_ARRAY))
-    {
-        if (ret_type->kind == TYPE_STRING) {
-            call_expr = arena_sprintf(gen->arena,
-                "((char *)(%s)->ptr)",
-                call_expr);
-        } else {
-            const char *elem_c = get_c_array_elem_type(gen->arena, ret_type->as.array.element_type);
-            call_expr = arena_sprintf(gen->arena, "(((%s *)rt_array_data_v2(%s)))",
-                                      elem_c, call_expr);
-        }
-    }
-    return call_expr;
 }

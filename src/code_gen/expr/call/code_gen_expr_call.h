@@ -142,7 +142,7 @@ char *code_gen_array_method_call(CodeGen *gen, Expr *expr, const char *method_na
  * Returns generated C code string, or NULL if not a string method.
  */
 char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
-                                   Expr *object, bool object_is_temp,
+                                   Expr *object,
                                    int arg_count, Expr **arguments);
 
 /**
@@ -197,17 +197,5 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
  */
 char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
                                  Expr *object, int arg_count);
-
-/* ============================================================================
- * Byte Array Method Code Generation (code_gen_expr_call_byte_array.c)
- * ============================================================================ */
-
-/**
- * Generate code for byte array method calls.
- * Handles: toString, toStringLatin1, toHex, toBase64
- * Returns generated C code string, or NULL if not a byte array method.
- */
-char *code_gen_byte_array_method_call(CodeGen *gen, const char *method_name,
-                                       char *object_str, int arg_count);
 
 #endif /* CODE_GEN_EXPR_CALL_H */

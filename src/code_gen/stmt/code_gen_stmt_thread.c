@@ -70,8 +70,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_BOOL ||
                                 result_type->kind == TYPE_BYTE ||
                                 result_type->kind == TYPE_CHAR);
-            bool is_handle = gen->current_arena_var != NULL &&
-                            (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
+            bool is_handle = (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
             bool is_struct = (result_type->kind == TYPE_STRUCT);
 
             char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
@@ -95,7 +94,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* Reference types without arena mode */
+                /* Other reference types (closures etc.) */
                 indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
             }
@@ -240,8 +239,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
                                 result_type->kind == TYPE_BOOL ||
                                 result_type->kind == TYPE_BYTE ||
                                 result_type->kind == TYPE_CHAR);
-            bool is_handle = gen->current_arena_var != NULL &&
-                            (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
+            bool is_handle = (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
             bool is_struct = (result_type->kind == TYPE_STRUCT);
 
             char *pending_var = arena_sprintf(gen->arena, "__%s_pending__", raw_var_name);
@@ -265,7 +263,7 @@ void code_gen_thread_sync_statement(CodeGen *gen, Expr *expr, int indent)
             }
             else
             {
-                /* Reference types without arena mode */
+                /* Other reference types (closures etc.) */
                 indented_fprintf(gen, indent + 1, "%s = (%s)rt_thread_v3_sync(%s);\n",
                     var_name, c_type, pending_var);
             }

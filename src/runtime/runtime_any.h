@@ -41,7 +41,7 @@ typedef struct {
         uint32_t u32;       /* uint32 */
         double d;           /* double */
         float f;            /* float */
-        char *s;            /* str */
+        RtHandleV2 *s;      /* str (handle-managed) */
         char c;             /* char */
         bool b;             /* bool */
         uint8_t byte;       /* byte */
@@ -65,7 +65,6 @@ RtAny rt_box_uint(uint64_t value);
 RtAny rt_box_uint32(uint32_t value);
 RtAny rt_box_double(double value);
 RtAny rt_box_float(float value);
-RtAny rt_box_string(const char *value);
 RtAny rt_box_string_v2(RtHandleV2 *value);
 RtAny rt_box_char(char value);
 RtAny rt_box_bool(bool value);
@@ -85,8 +84,7 @@ uint64_t rt_unbox_uint(RtAny value);
 uint32_t rt_unbox_uint32(RtAny value);
 double rt_unbox_double(RtAny value);
 float rt_unbox_float(RtAny value);
-const char *rt_unbox_string(RtAny value);
-RtHandleV2 *rt_unbox_string_v2(RtArenaV2 *arena, RtAny value);
+RtHandleV2 *rt_unbox_string_v2(RtAny value);
 char rt_unbox_char(RtAny value);
 bool rt_unbox_bool(RtAny value);
 uint8_t rt_unbox_byte(RtAny value);
@@ -142,12 +140,7 @@ RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value);
 /* Promote an any value's heap-allocated data to a target arena.
  * Used when returning any values from functions to ensure data survives
  * the destruction of the function's local arena. */
-RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value);
-
-/* V2 version: Promote an any value's heap-allocated data to a target arena.
- * For V2 arena mode - strings are RtHandleV2* not raw char*. */
-struct RtArenaV2;
-RtAny rt_any_promote_v2(struct RtArenaV2 *target_arena, RtAny value);
+RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value);
 
 /* Deep copy/free for individual any values (used by any[] GC callbacks).
  * deep_copy promotes nested handles to dest arena, modifying the RtAny in-place.

@@ -242,8 +242,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
                              result_type->kind == TYPE_BOOL ||
                              result_type->kind == TYPE_BYTE ||
                              result_type->kind == TYPE_CHAR);
-        bool is_handle_type = gen->current_arena_var != NULL &&
-                              (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
+        bool is_handle_type = (result_type->kind == TYPE_STRING || result_type->kind == TYPE_ARRAY);
         bool is_struct_type = (result_type->kind == TYPE_STRUCT);
 
         bool is_variable_handle = (sync->handle->type == EXPR_VARIABLE);
@@ -311,7 +310,7 @@ char *code_gen_thread_sync_expression(CodeGen *gen, Expr *expr)
         }
         else
         {
-            /* Reference type without arena mode: V3 sync returns result directly */
+            /* Other reference types (closures etc.): V3 sync returns result directly */
             if (is_variable_handle)
             {
                 char *raw_var_name = get_var_name(gen->arena, sync->handle->as.variable.name);

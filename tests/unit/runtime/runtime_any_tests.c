@@ -134,16 +134,27 @@ static void test_rt_box_byte_max(void)
 
 static void test_rt_box_string(void)
 {
-    RtAny any = rt_box_string("hello");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtHandleV2 *h = rt_arena_v2_strdup(arena, "hello");
+    RtAny any = rt_box_string_v2(h);
     assert(any.tag == RT_ANY_STRING);
-    assert(strcmp(any.value.s, "hello") == 0);
+    assert(any.value.s == h);
+    rt_handle_begin_transaction(any.value.s);
+    assert(strcmp((const char *)any.value.s->ptr, "hello") == 0);
+    rt_handle_end_transaction(any.value.s);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_box_string_empty(void)
 {
-    RtAny any = rt_box_string("");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtHandleV2 *h = rt_arena_v2_strdup(arena, "");
+    RtAny any = rt_box_string_v2(h);
     assert(any.tag == RT_ANY_STRING);
-    assert(strcmp(any.value.s, "") == 0);
+    rt_handle_begin_transaction(any.value.s);
+    assert(strcmp((const char *)any.value.s->ptr, "") == 0);
+    rt_handle_end_transaction(any.value.s);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -201,9 +212,15 @@ static void test_rt_unbox_byte(void)
 
 static void test_rt_unbox_string(void)
 {
-    RtAny any = rt_box_string("test");
-    const char *result = rt_unbox_string(any);
-    assert(strcmp(result, "test") == 0);
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtHandleV2 *h = rt_arena_v2_strdup(arena, "test");
+    RtAny any = rt_box_string_v2(h);
+    RtHandleV2 *result = rt_unbox_string_v2(any);
+    assert(result == h);
+    rt_handle_begin_transaction(result);
+    assert(strcmp((const char *)result->ptr, "test") == 0);
+    rt_handle_end_transaction(result);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -262,9 +279,11 @@ static void test_rt_any_is_byte(void)
 
 static void test_rt_any_is_string(void)
 {
-    RtAny any = rt_box_string("hello");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny any = rt_box_string_v2(rt_arena_v2_strdup(arena, "hello"));
     assert(rt_any_is_string(any) == true);
     assert(rt_any_is_char(any) == false);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -297,8 +316,10 @@ static void test_rt_any_get_tag_bool(void)
 
 static void test_rt_any_get_tag_string(void)
 {
-    RtAny any = rt_box_string("test");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny any = rt_box_string_v2(rt_arena_v2_strdup(arena, "test"));
     assert(rt_any_get_tag(any) == RT_ANY_STRING);
+    rt_arena_v2_condemn(arena);
 }
 
 /* ============================================================================
@@ -370,16 +391,20 @@ static void test_rt_any_equals_char_different(void)
 
 static void test_rt_any_equals_string_same(void)
 {
-    RtAny a = rt_box_string("hello");
-    RtAny b = rt_box_string("hello");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny a = rt_box_string_v2(rt_arena_v2_strdup(arena, "hello"));
+    RtAny b = rt_box_string_v2(rt_arena_v2_strdup(arena, "hello"));
     assert(rt_any_equals(a, b) == true);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_any_equals_string_different(void)
 {
-    RtAny a = rt_box_string("hello");
-    RtAny b = rt_box_string("world");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny a = rt_box_string_v2(rt_arena_v2_strdup(arena, "hello"));
+    RtAny b = rt_box_string_v2(rt_arena_v2_strdup(arena, "world"));
     assert(rt_any_equals(a, b) == false);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_any_equals_different_types(void)
@@ -409,9 +434,11 @@ static void test_rt_any_same_type_int_double(void)
 
 static void test_rt_any_same_type_both_string(void)
 {
-    RtAny a = rt_box_string("a");
-    RtAny b = rt_box_string("b");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny a = rt_box_string_v2(rt_arena_v2_strdup(arena, "a"));
+    RtAny b = rt_box_string_v2(rt_arena_v2_strdup(arena, "b"));
     assert(rt_any_same_type(a, b) == true);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_any_same_type_bool_nil(void)
@@ -462,9 +489,11 @@ static void test_rt_any_type_name_char(void)
 
 static void test_rt_any_type_name_string(void)
 {
-    RtAny any = rt_box_string("test");
+    RtArenaV2 *arena = rt_arena_create(NULL);
+    RtAny any = rt_box_string_v2(rt_arena_v2_strdup(arena, "test"));
     const char *name = rt_any_type_name(any);
     assert(strcmp(name, "str") == 0);
+    rt_arena_v2_condemn(arena);
 }
 
 static void test_rt_any_type_name_byte(void)

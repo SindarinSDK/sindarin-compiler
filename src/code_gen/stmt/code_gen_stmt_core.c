@@ -55,19 +55,7 @@ void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
     if (stmt->expression->expr_type != NULL &&
         stmt->expression->expr_type->kind == TYPE_STRING && expression_produces_temp(stmt->expression))
     {
-        /* Skip freeing in arena context - arena handles cleanup */
-        if (gen->current_arena_var == NULL)
-        {
-            indented_fprintf(gen, indent, "{\n");
-            indented_fprintf(gen, indent + 1, "char *_tmp = %s;\n", expr_str);
-            indented_fprintf(gen, indent + 1, "(void)_tmp;\n");
-            indented_fprintf(gen, indent + 1, "rt_free_string(_tmp);\n");
-            indented_fprintf(gen, indent, "}\n");
-        }
-        else
-        {
-            indented_fprintf(gen, indent, "%s;\n", expr_str);
-        }
+        indented_fprintf(gen, indent, "%s;\n", expr_str);
     }
     else if (stmt->expression->type == EXPR_CALL && stmt->expression->expr_type->kind == TYPE_VOID)
     {
@@ -365,55 +353,6 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                     {
                         indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
                     }
-                }
-            }
-            else
-            {
-                /* Non-arena context: manual memory management */
-                if (sym->type->kind == TYPE_STRING)
-                {
-                    indented_fprintf(gen, indent, "if (%s) {\n", var_name);
-                    if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_STRING)
-                    {
-                        indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
-                        indented_fprintf(gen, indent + 2, "rt_free_string(%s);\n", var_name);
-                        indented_fprintf(gen, indent + 1, "}\n");
-                    }
-                    else
-                    {
-                        indented_fprintf(gen, indent + 1, "rt_free_string(%s);\n", var_name);
-                    }
-                    indented_fprintf(gen, indent, "}\n");
-                }
-                else if (sym->type->kind == TYPE_ARRAY)
-                {
-                    Type *elem_type = sym->type->as.array.element_type;
-                    indented_fprintf(gen, indent, "if (%s) {\n", var_name);
-                    if (is_function && gen->current_return_type && gen->current_return_type->kind == TYPE_ARRAY)
-                    {
-                        indented_fprintf(gen, indent + 1, "if (%s != _return_value) {\n", var_name);
-                        if (elem_type && elem_type->kind == TYPE_STRING)
-                        {
-                            indented_fprintf(gen, indent + 2, "rt_array_free_string(%s);\n", var_name);
-                        }
-                        else
-                        {
-                            indented_fprintf(gen, indent + 2, "rt_array_free(%s);\n", var_name);
-                        }
-                        indented_fprintf(gen, indent + 1, "}\n");
-                    }
-                    else
-                    {
-                        if (elem_type && elem_type->kind == TYPE_STRING)
-                        {
-                            indented_fprintf(gen, indent + 1, "rt_array_free_string(%s);\n", var_name);
-                        }
-                        else
-                        {
-                            indented_fprintf(gen, indent + 1, "rt_array_free(%s);\n", var_name);
-                        }
-                    }
-                    indented_fprintf(gen, indent, "}\n");
                 }
             }
         }

@@ -74,24 +74,10 @@ RtAny rt_box_float(float value) {
     return result;
 }
 
-RtAny rt_box_string(const char *value) {
-    RtAny result;
-    result.tag = RT_ANY_STRING;
-    result.value.s = (char *)value;
-    result.element_tag = RT_ANY_NIL;
-    return result;
-}
-
 RtAny rt_box_string_v2(RtHandleV2 *value) {
     RtAny result;
     result.tag = RT_ANY_STRING;
-    if (value) {
-        rt_handle_begin_transaction(value);
-        result.value.s = (char *)value->ptr;
-        rt_handle_end_transaction(value);
-    } else {
-        result.value.s = NULL;
-    }
+    result.value.s = value;
     result.element_tag = RT_ANY_NIL;
     return result;
 }
@@ -208,19 +194,11 @@ float rt_unbox_float(RtAny value) {
     return value.value.f;
 }
 
-const char *rt_unbox_string(RtAny value) {
+RtHandleV2 *rt_unbox_string_v2(RtAny value) {
     if (value.tag != RT_ANY_STRING) {
         rt_any_type_error("str", value);
     }
     return value.value.s;
-}
-
-RtHandleV2 *rt_unbox_string_v2(RtArenaV2 *arena, RtAny value) {
-    if (value.tag != RT_ANY_STRING) {
-        rt_any_type_error("str", value);
-    }
-    if (value.value.s == NULL) return NULL;
-    return rt_arena_v2_strdup(arena, value.value.s);
 }
 
 char rt_unbox_char(RtAny value) {
@@ -359,10 +337,16 @@ bool rt_any_equals(RtAny a, RtAny b) {
             return a.value.d == b.value.d;
         case RT_ANY_FLOAT:
             return a.value.f == b.value.f;
-        case RT_ANY_STRING:
+        case RT_ANY_STRING: {
             if (a.value.s == NULL && b.value.s == NULL) return true;
             if (a.value.s == NULL || b.value.s == NULL) return false;
-            return strcmp(a.value.s, b.value.s) == 0;
+            rt_handle_begin_transaction(a.value.s);
+            rt_handle_begin_transaction(b.value.s);
+            bool eq = strcmp((const char *)a.value.s->ptr, (const char *)b.value.s->ptr) == 0;
+            rt_handle_end_transaction(b.value.s);
+            rt_handle_end_transaction(a.value.s);
+            return eq;
+        }
         case RT_ANY_CHAR:
             return a.value.c == b.value.c;
         case RT_ANY_BOOL:
@@ -435,15 +419,18 @@ RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
             return rt_arena_v2_strdup(arena, buffer);
         case RT_ANY_STRING:
             if (value.value.s) {
-                size_t len = strlen(value.value.s);
-                RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 3);  /* "str" + null */
+                rt_handle_begin_transaction(value.value.s);
+                const char *str = (const char *)value.value.s->ptr;
+                size_t len = strlen(str);
+                RtHandleV2 *result_h = rt_arena_v2_alloc(arena, len + 3);
                 rt_handle_begin_transaction(result_h);
                 char *result = (char *)result_h->ptr;
                 result[0] = '"';
-                memcpy(result + 1, value.value.s, len);
+                memcpy(result + 1, str, len);
                 result[len + 1] = '"';
                 result[len + 2] = '\0';
                 rt_handle_end_transaction(result_h);
+                rt_handle_end_transaction(value.value.s);
                 return result_h;
             }
             return rt_arena_v2_strdup(arena, "null");
@@ -476,55 +463,6 @@ RtHandleV2 *rt_any_to_string(RtArenaV2 *arena, RtAny value) {
  * local arena will be destroyed after return.
  */
 
-RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
-    RtAny result = value;
-    
-    switch (value.tag) {
-        case RT_ANY_STRING:
-            /* Strings need to be copied to the target arena */
-            if (value.value.s != NULL) {
-                RtHandleV2 *_h = rt_arena_v2_strdup(target_arena, value.value.s);
-                rt_handle_begin_transaction(_h);
-                result.value.s = (char *)_h->ptr;
-                rt_handle_end_transaction(_h);
-            }
-            break;
-            
-        case RT_ANY_ARRAY:
-            /* Arrays need deep cloning - for now just copy pointer
-             * TODO: implement proper array cloning for any[] */
-            break;
-            
-        /* Primitive types don't need promotion */
-        case RT_ANY_NIL:
-        case RT_ANY_INT:
-        case RT_ANY_LONG:
-        case RT_ANY_INT32:
-        case RT_ANY_UINT:
-        case RT_ANY_UINT32:
-        case RT_ANY_DOUBLE:
-        case RT_ANY_FLOAT:
-        case RT_ANY_CHAR:
-        case RT_ANY_BOOL:
-        case RT_ANY_BYTE:
-            break;
-            
-        /* Object types - shallow copy for now */
-        case RT_ANY_FUNCTION:
-            break;
-
-        case RT_ANY_STRUCT:
-            /* Structs are arena-allocated; for now shallow copy pointer.
-             * Full deep copy would require storing struct size metadata. */
-            break;
-
-        default:
-            break;
-    }
-
-    return result;
-}
-
 /* ============================================================================
  * Deep Copy/Free for Any Values (GC Callback Support)
  * ============================================================================
@@ -535,12 +473,8 @@ RtAny rt_any_promote(RtArenaV2 *target_arena, RtAny value) {
 void rt_any_deep_copy(RtArenaV2 *dest, RtAny *any) {
     switch (any->tag) {
         case RT_ANY_STRING:
-            if (any->value.s != NULL) {
-                RtHandleV2 *h = rt_arena_v2_strdup(dest, any->value.s);
-                rt_handle_begin_transaction(h);
-                any->value.s = (char *)h->ptr;
-                rt_handle_end_transaction(h);
-            }
+            if (any->value.s != NULL)
+                any->value.s = rt_arena_v2_promote(dest, any->value.s);
             break;
         case RT_ANY_ARRAY:
             if (any->value.arr != NULL)
@@ -557,7 +491,10 @@ void rt_any_deep_copy(RtArenaV2 *dest, RtAny *any) {
 void rt_any_deep_free(RtAny *any) {
     switch (any->tag) {
         case RT_ANY_STRING:
-            any->value.s = NULL; /* Can't free - stored as char*, not handle */
+            if (any->value.s != NULL) {
+                rt_arena_v2_free(any->value.s);
+                any->value.s = NULL;
+            }
             break;
         case RT_ANY_ARRAY:
             if (any->value.arr != NULL) {
@@ -575,32 +512,23 @@ void rt_any_deep_free(RtAny *any) {
     }
 }
 
-/* V2 version: Promote an any value's heap-allocated data to a target arena.
- * For V2 arena mode - strings stored as RtHandleV2*, need rt_arena_v2_promote. */
 RtAny rt_any_promote_v2(RtArenaV2 *target_arena, RtAny value) {
     RtAny result = value;
 
     switch (value.tag) {
         case RT_ANY_STRING:
-            /* Strings in V2 mode are stored as char* from rt_handle_begin_transaction().
-             * Need to create a new string in target arena. */
             if (value.value.s != NULL) {
-                RtHandleV2 *new_str = rt_arena_v2_strdup(target_arena, value.value.s);
-                rt_handle_begin_transaction(new_str);
-                result.value.s = (char *)new_str->ptr;
-                rt_handle_end_transaction(new_str);
+                result.value.s = rt_arena_v2_promote(target_arena, value.value.s);
             }
             break;
 
         case RT_ANY_ARRAY:
-            /* Arrays use callbacks for deep promotion automatically */
             if (value.value.arr != NULL) {
                 result.value.arr = rt_arena_v2_promote(target_arena, value.value.arr);
             }
             break;
 
         case RT_ANY_STRUCT:
-            /* Structs use callbacks for deep promotion automatically */
             if (value.value.obj != NULL) {
                 result.value.obj = rt_arena_v2_promote(target_arena, value.value.obj);
             }

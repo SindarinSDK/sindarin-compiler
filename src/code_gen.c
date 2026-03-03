@@ -110,8 +110,6 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     /* Initialize array compound literal context flag */
     gen->in_array_compound_literal = false;
 
-    /* Initialize handle-mode flag for expressions */
-    gen->expr_as_handle = false;
 
     /* Initialize namespace prefix for imported module code generation */
     gen->current_namespace_prefix = NULL;
@@ -541,7 +539,6 @@ void code_gen_module(CodeGen *gen, Module *module)
         // Set up arena context for top-level statements
         gen->current_arena_var = "__local_arena__";
         gen->current_function = "main";
-        gen->expr_as_handle = true;
         gen->arena_temp_serial = 0;
         gen->arena_temp_count = 0;
 
@@ -559,7 +556,6 @@ void code_gen_module(CodeGen *gen, Module *module)
 
         gen->current_arena_var = NULL;
         gen->current_function = NULL;
-        gen->expr_as_handle = false;
 
         indented_fprintf(gen, 1, "goto main_return;\n");
         indented_fprintf(gen, 0, "main_return:\n");
