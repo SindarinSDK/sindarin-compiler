@@ -41,19 +41,19 @@ native fn get_mock_buffer_len(): int =>
 native fn unwrap_int(p: *int): int =>
     if p == nil =>
         return -999
-    return p as val
+    return valueOf(p)
 
 # Native function that unwraps a char pointer to str
 native fn unwrap_char(p: *char): str =>
     if p == nil =>
         return "(nil)"
-    return p as val
+    return valueOf(p)
 
 # Native function that unwraps a buffer slice
 native fn unwrap_buffer_slice(p: *byte, len: int): byte[] =>
     if p == nil =>
-        return p[0..0] as val
-    return p[0..len] as val
+        return valueOf(p[0..0])
+    return valueOf(p[0..len])
 
 # --- Section 3: Out Parameters with 'as ref' ---
 

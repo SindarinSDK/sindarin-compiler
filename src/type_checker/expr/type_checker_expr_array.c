@@ -173,11 +173,11 @@ Type *type_check_array_slice(Expr *expr, SymbolTable *table)
     /* Track if this slice came from a pointer for code generation */
     expr->as.array_slice.is_from_pointer = is_from_pointer;
 
-    /* In non-native functions, pointer slices must be wrapped in 'as val'.
+    /* In non-native functions, pointer slices must be wrapped in valueOf().
      * This enforces safe unwrapping at the call site. */
-    if (is_from_pointer && !native_context_is_active() && !as_val_context_is_active())
+    if (is_from_pointer && !native_context_is_active() && !value_of_context_is_active())
     {
-        type_error(expr->token, "Pointer slice in non-native function requires 'as val' (e.g., ptr[0..len] as val)");
+        type_error(expr->token, "Pointer slice in non-native function requires valueOf() (e.g., valueOf(ptr[0..len]))");
         return NULL;
     }
 

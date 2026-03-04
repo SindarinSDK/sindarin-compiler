@@ -180,14 +180,16 @@ void collect_used_variables(Expr *expr, Token **used_vars, int *used_count,
         collect_used_variables(expr->as.as_type.operand, used_vars, used_count, used_capacity, arena);
         break;
 
-    case EXPR_AS_VAL:
-        /* as val uses its operand expression */
-        collect_used_variables(expr->as.as_val.operand, used_vars, used_count, used_capacity, arena);
+    case EXPR_ADDRESS_OF:
+        collect_used_variables(expr->as.address_of.operand, used_vars, used_count, used_capacity, arena);
         break;
 
-    case EXPR_AS_REF:
-        /* as ref uses its operand expression */
-        collect_used_variables(expr->as.as_ref.operand, used_vars, used_count, used_capacity, arena);
+    case EXPR_VALUE_OF:
+        collect_used_variables(expr->as.value_of.operand, used_vars, used_count, used_capacity, arena);
+        break;
+
+    case EXPR_COPY_OF:
+        collect_used_variables(expr->as.copy_of.operand, used_vars, used_count, used_capacity, arena);
         break;
 
     case EXPR_STRUCT_LITERAL:

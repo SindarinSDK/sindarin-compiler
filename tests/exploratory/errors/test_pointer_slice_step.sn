@@ -11,7 +11,7 @@ fn test_pointer_slice_with_step(): void =>
     var len: int = get_length()
     # Attempt to use step parameter with pointer slice
     # This should be rejected at compile time
-    var data: byte[] = get_buffer()[0..len:2] as val
+    var data: byte[] = valueOf(get_buffer()[0..len:2])
     print($"Data: {data}\n")
 
 fn main(): int =>

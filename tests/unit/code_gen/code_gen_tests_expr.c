@@ -371,9 +371,9 @@ static void test_code_gen_assign_expression(void)
  * Test that *int as val generates C dereference: *(ptr)
  * This tests the primitive pointer unwrapping case in code_gen_as_val_expression.
  */
-static void test_code_gen_as_val_int_pointer(void)
+static void test_code_gen_value_of_int_pointer(void)
 {
-    DEBUG_INFO("Starting test_code_gen_as_val_int_pointer");
+    DEBUG_INFO("Starting test_code_gen_value_of_int_pointer");
 
     Arena arena;
     arena_init(&arena, 8192);
@@ -400,10 +400,10 @@ static void test_code_gen_as_val_int_pointer(void)
 
     Token as_val_token;
     setup_basic_token(&as_val_token, TOKEN_AS, "as");
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, ptr_expr, &as_val_token);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, ptr_expr, &as_val_token);
     as_val_expr->expr_type = int_type;
-    as_val_expr->as.as_val.is_noop = false;
-    as_val_expr->as.as_val.is_cstr_to_str = false;
+    as_val_expr->as.value_of.is_noop = false;
+    as_val_expr->as.value_of.is_cstr_to_str = false;
 
     Stmt *expr_stmt = ast_create_expr_stmt(&arena, as_val_expr, &as_val_token);
 
@@ -436,16 +436,16 @@ static void test_code_gen_as_val_int_pointer(void)
 
     arena_free(&arena);
 
-    DEBUG_INFO("Finished test_code_gen_as_val_int_pointer");
+    DEBUG_INFO("Finished test_code_gen_value_of_int_pointer");
 }
 
 /**
  * Test that *double as val generates C dereference: *(ptr)
  * This tests the primitive pointer unwrapping case for double type.
  */
-static void test_code_gen_as_val_double_pointer(void)
+static void test_code_gen_value_of_double_pointer(void)
 {
-    DEBUG_INFO("Starting test_code_gen_as_val_double_pointer");
+    DEBUG_INFO("Starting test_code_gen_value_of_double_pointer");
 
     Arena arena;
     arena_init(&arena, 8192);
@@ -472,10 +472,10 @@ static void test_code_gen_as_val_double_pointer(void)
 
     Token as_val_token;
     setup_basic_token(&as_val_token, TOKEN_AS, "as");
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, dptr_expr, &as_val_token);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, dptr_expr, &as_val_token);
     as_val_expr->expr_type = double_type;
-    as_val_expr->as.as_val.is_noop = false;
-    as_val_expr->as.as_val.is_cstr_to_str = false;
+    as_val_expr->as.value_of.is_noop = false;
+    as_val_expr->as.value_of.is_cstr_to_str = false;
 
     Stmt *expr_stmt = ast_create_expr_stmt(&arena, as_val_expr, &as_val_token);
 
@@ -508,7 +508,7 @@ static void test_code_gen_as_val_double_pointer(void)
 
     arena_free(&arena);
 
-    DEBUG_INFO("Finished test_code_gen_as_val_double_pointer");
+    DEBUG_INFO("Finished test_code_gen_value_of_double_pointer");
 }
 
 /**
@@ -519,9 +519,9 @@ static void test_code_gen_as_val_double_pointer(void)
  * 2. If not NULL, call rt_managed_strdup with the pointer
  * 3. If NULL, return empty string via rt_managed_strdup(arena, RT_HANDLE_NULL, "")
  */
-static void test_code_gen_as_val_char_pointer(void)
+static void test_code_gen_value_of_char_pointer(void)
 {
-    DEBUG_INFO("Starting test_code_gen_as_val_char_pointer");
+    DEBUG_INFO("Starting test_code_gen_value_of_char_pointer");
 
     Arena arena;
     arena_init(&arena, 8192);
@@ -548,11 +548,11 @@ static void test_code_gen_as_val_char_pointer(void)
 
     Token as_val_token;
     setup_basic_token(&as_val_token, TOKEN_AS, "as");
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, cptr_expr, &as_val_token);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, cptr_expr, &as_val_token);
     /* Result type is str (TYPE_STRING), not char */
     as_val_expr->expr_type = ast_create_primitive_type(&arena, TYPE_STRING);
-    as_val_expr->as.as_val.is_noop = false;
-    as_val_expr->as.as_val.is_cstr_to_str = true;  /* This is the key flag for C string conversion */
+    as_val_expr->as.value_of.is_noop = false;
+    as_val_expr->as.value_of.is_cstr_to_str = true;  /* This is the key flag for C string conversion */
 
     Stmt *expr_stmt = ast_create_expr_stmt(&arena, as_val_expr, &as_val_token);
 
@@ -589,7 +589,7 @@ static void test_code_gen_as_val_char_pointer(void)
 
     arena_free(&arena);
 
-    DEBUG_INFO("Finished test_code_gen_as_val_char_pointer");
+    DEBUG_INFO("Finished test_code_gen_value_of_char_pointer");
 }
 
 void test_code_gen_expr_main(void)
@@ -601,7 +601,7 @@ void test_code_gen_expr_main(void)
     TEST_RUN("code_gen_binary_expression_string_concat", test_code_gen_binary_expression_string_concat);
     TEST_RUN("code_gen_unary_expression_negate", test_code_gen_unary_expression_negate);
     TEST_RUN("code_gen_assign_expression", test_code_gen_assign_expression);
-    TEST_RUN("code_gen_as_val_int_pointer", test_code_gen_as_val_int_pointer);
-    TEST_RUN("code_gen_as_val_double_pointer", test_code_gen_as_val_double_pointer);
-    TEST_RUN("code_gen_as_val_char_pointer", test_code_gen_as_val_char_pointer);
+    TEST_RUN("code_gen_value_of_int_pointer", test_code_gen_value_of_int_pointer);
+    TEST_RUN("code_gen_value_of_double_pointer", test_code_gen_value_of_double_pointer);
+    TEST_RUN("code_gen_value_of_char_pointer", test_code_gen_value_of_char_pointer);
 }

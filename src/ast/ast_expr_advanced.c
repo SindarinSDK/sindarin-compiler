@@ -132,11 +132,11 @@ Expr *ast_create_sync_list_expr(Arena *arena, Expr **elements, int element_count
     return expr;
 }
 
-Expr *ast_create_as_val_expr(Arena *arena, Expr *operand, const Token *loc_token)
+Expr *ast_create_address_of_expr(Arena *arena, Expr *operand, const Token *loc_token)
 {
     if (operand == NULL)
     {
-        DEBUG_ERROR("Cannot create as_val expression with NULL operand");
+        DEBUG_ERROR("Cannot create addressOf expression with NULL operand");
         return NULL;
     }
     Expr *expr = arena_alloc(arena, sizeof(Expr));
@@ -146,18 +146,18 @@ Expr *ast_create_as_val_expr(Arena *arena, Expr *operand, const Token *loc_token
         exit(1);
     }
     memset(expr, 0, sizeof(Expr));
-    expr->type = EXPR_AS_VAL;
-    expr->as.as_val.operand = operand;
+    expr->type = EXPR_ADDRESS_OF;
+    expr->as.address_of.operand = operand;
     expr->expr_type = NULL;
     expr->token = ast_clone_token(arena, loc_token);
     return expr;
 }
 
-Expr *ast_create_as_ref_expr(Arena *arena, Expr *operand, const Token *loc_token)
+Expr *ast_create_value_of_expr(Arena *arena, Expr *operand, const Token *loc_token)
 {
     if (operand == NULL)
     {
-        DEBUG_ERROR("Cannot create as_ref expression with NULL operand");
+        DEBUG_ERROR("Cannot create valueOf expression with NULL operand");
         return NULL;
     }
     Expr *expr = arena_alloc(arena, sizeof(Expr));
@@ -167,8 +167,29 @@ Expr *ast_create_as_ref_expr(Arena *arena, Expr *operand, const Token *loc_token
         exit(1);
     }
     memset(expr, 0, sizeof(Expr));
-    expr->type = EXPR_AS_REF;
-    expr->as.as_ref.operand = operand;
+    expr->type = EXPR_VALUE_OF;
+    expr->as.value_of.operand = operand;
+    expr->expr_type = NULL;
+    expr->token = ast_clone_token(arena, loc_token);
+    return expr;
+}
+
+Expr *ast_create_copy_of_expr(Arena *arena, Expr *operand, const Token *loc_token)
+{
+    if (operand == NULL)
+    {
+        DEBUG_ERROR("Cannot create copyOf expression with NULL operand");
+        return NULL;
+    }
+    Expr *expr = arena_alloc(arena, sizeof(Expr));
+    if (expr == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(expr, 0, sizeof(Expr));
+    expr->type = EXPR_COPY_OF;
+    expr->as.copy_of.operand = operand;
     expr->expr_type = NULL;
     expr->token = ast_clone_token(arena, loc_token);
     return expr;

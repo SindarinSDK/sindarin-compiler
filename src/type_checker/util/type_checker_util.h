@@ -104,13 +104,13 @@ void method_context_enter(void);
 void method_context_exit(void);
 bool method_context_is_active(void);
 
-/* 'as val' operand context tracking.
- * Used to allow pointer slices inside 'as val' expressions in non-native functions.
- * ptr[0..len] as val is OK even in regular functions because as val wraps the slice.
+/* valueOf() operand context tracking.
+ * Used to allow pointer slices inside valueOf() expressions in non-native functions.
+ * valueOf(ptr[0..len]) is OK even in regular functions because valueOf wraps the slice.
  */
-void as_val_context_enter(void);
-void as_val_context_exit(void);
-bool as_val_context_is_active(void);
+void value_of_context_enter(void);
+void value_of_context_exit(void);
+bool value_of_context_is_active(void);
 
 /* C-compatible type checking.
  * Native callback types can only use C-compatible types in their signatures.

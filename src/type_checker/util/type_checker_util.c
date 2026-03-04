@@ -349,27 +349,27 @@ bool method_context_is_active(void)
 }
 
 /* ============================================================================
- * 'as val' Operand Context Tracking
+ * valueOf() Operand Context Tracking
  * ============================================================================ */
 
-static int as_val_context_depth = 0;
+static int value_of_context_depth = 0;
 
-void as_val_context_enter(void)
+void value_of_context_enter(void)
 {
-    as_val_context_depth++;
-    DEBUG_VERBOSE("Entering 'as val' context (depth: %d)", as_val_context_depth);
+    value_of_context_depth++;
+    DEBUG_VERBOSE("Entering valueOf() context (depth: %d)", value_of_context_depth);
 }
 
-void as_val_context_exit(void)
+void value_of_context_exit(void)
 {
-    if (as_val_context_depth > 0)
+    if (value_of_context_depth > 0)
     {
-        as_val_context_depth--;
-        DEBUG_VERBOSE("Exiting 'as val' context (depth: %d)", as_val_context_depth);
+        value_of_context_depth--;
+        DEBUG_VERBOSE("Exiting valueOf() context (depth: %d)", value_of_context_depth);
     }
 }
 
-bool as_val_context_is_active(void)
+bool value_of_context_is_active(void)
 {
-    return as_val_context_depth > 0;
+    return value_of_context_depth > 0;
 }

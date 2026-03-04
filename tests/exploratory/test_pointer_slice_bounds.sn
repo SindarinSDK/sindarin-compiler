@@ -29,7 +29,7 @@ native fn get_buffer_size(): int =>
 fn test_correct_bounds(): void =>
     var size: int = get_buffer_size()
     # This is correct: we slice exactly the buffer size
-    var data: byte[] = get_small_buffer()[0..size] as val
+    var data: byte[] = valueOf(get_small_buffer()[0..size])
     print($"Correct bounds: array length = {data.length}\n")
 
     if data.length == 5 =>

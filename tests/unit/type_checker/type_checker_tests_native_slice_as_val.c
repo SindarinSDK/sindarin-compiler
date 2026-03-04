@@ -2,26 +2,26 @@
 // Tests for as_val semantics with pointer slices
 
 /* Test that as_val context tracking functions work */
-static void test_as_val_context_tracking(void)
+static void test_value_of_context_tracking(void)
 {
     /* Default: not active */
-    assert(as_val_context_is_active() == false);
+    assert(value_of_context_is_active() == false);
 
     /* Enter: active */
-    as_val_context_enter();
-    assert(as_val_context_is_active() == true);
+    value_of_context_enter();
+    assert(value_of_context_is_active() == true);
 
     /* Nesting: still active */
-    as_val_context_enter();
-    assert(as_val_context_is_active() == true);
+    value_of_context_enter();
+    assert(value_of_context_is_active() == true);
 
     /* Exit once: still active (nested) */
-    as_val_context_exit();
-    assert(as_val_context_is_active() == true);
+    value_of_context_exit();
+    assert(value_of_context_is_active() == true);
 
     /* Exit again: inactive */
-    as_val_context_exit();
-    assert(as_val_context_is_active() == false);
+    value_of_context_exit();
+    assert(value_of_context_is_active() == false);
 
 }
 
@@ -72,7 +72,7 @@ static void test_pointer_slice_with_as_val_in_regular_fn(void)
     /* Wrap slice in 'as val': get_data()[0..10] as val */
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, slice_expr, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, slice_expr, &as_tok);
 
     /* Create: var data: byte[] = get_data()[0..10] as val */
     Token data_tok;
@@ -98,8 +98,8 @@ static void test_pointer_slice_with_as_val_in_regular_fn(void)
     assert(as_val_expr->expr_type->as.array.element_type->kind == TYPE_BYTE);
 
     /* Verify is_noop is true (slice already produces array type) */
-    assert(as_val_expr->as.as_val.is_noop == true);
-    assert(as_val_expr->as.as_val.is_cstr_to_str == false);
+    assert(as_val_expr->as.value_of.is_noop == true);
+    assert(as_val_expr->as.value_of.is_cstr_to_str == false);
 
     /* Verify is_from_pointer is true on the inner slice expression */
     assert(slice_expr->as.array_slice.is_from_pointer == true);
@@ -217,7 +217,7 @@ static void test_as_val_on_array_type_is_noop(void)
     Expr *arr_ref = ast_create_variable_expr(&arena, arr_ref_tok, &arr_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, arr_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, arr_ref, &as_tok);
 
     /* Create: var copy: int[] = arr as val */
     Token copy_tok;
@@ -293,7 +293,7 @@ static void test_get_buffer_slice_as_val_type_inference(void)
     /* Wrap slice in 'as val': get_buffer()[0..len] as val */
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, slice_expr, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, slice_expr, &as_tok);
 
     /* Create: var len: int = 10 (needed for type checking len variable) */
     Token len_decl_tok;

@@ -179,13 +179,13 @@ static char *code_gen_struct_deep_copy(CodeGen *gen, Type *struct_type, char *op
     return result;
 }
 
-char *code_gen_as_ref_expression(CodeGen *gen, Expr *expr)
+char *code_gen_address_of_expression(CodeGen *gen, Expr *expr)
 {
-    DEBUG_VERBOSE("Generating as_ref expression");
+    DEBUG_VERBOSE("Generating addressOf expression");
 
-    AsRefExpr *as_ref = &expr->as.as_ref;
-    char *operand_code = code_gen_expression(gen, as_ref->operand);
-    Type *operand_type = as_ref->operand->expr_type;
+    AddressOfExpr *addr = &expr->as.address_of;
+    char *operand_code = code_gen_expression(gen, addr->operand);
+    Type *operand_type = addr->operand->expr_type;
 
     if (operand_type != NULL && operand_type->kind == TYPE_ARRAY)
     {
@@ -206,48 +206,45 @@ char *code_gen_as_ref_expression(CodeGen *gen, Expr *expr)
     }
 }
 
-char *code_gen_as_val_expression(CodeGen *gen, Expr *expr)
+char *code_gen_value_of_expression(CodeGen *gen, Expr *expr)
 {
-    DEBUG_VERBOSE("Generating as_val expression");
+    DEBUG_VERBOSE("Generating valueOf expression");
 
-    AsValExpr *as_val = &expr->as.as_val;
-    char *operand_code = code_gen_expression(gen, as_val->operand);
+    ValueOfExpr *val_of = &expr->as.value_of;
+    char *operand_code = code_gen_expression(gen, val_of->operand);
 
-    if (as_val->is_noop)
+    if (val_of->is_noop)
     {
-        /* Operand is already an array type (e.g., from ptr[0..len] slice).
+        /* Operand is already an array type (e.g., from valueOf(ptr[0..len]) slice).
          * Just pass through without any transformation. */
         return operand_code;
     }
-    else if (as_val->is_cstr_to_str)
+    else if (val_of->is_cstr_to_str)
     {
         /* *char => str: convert C string to arena-managed string.
          * Handle NULL pointer by returning empty string. */
-        if (gen->current_arena_var != NULL)
-        {
-            /* Produce RtHandleV2* via arena strdup */
-            return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
-                                operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
-        }
-        /* Non-arena fallback */
-        return arena_sprintf(gen->arena,
-            "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
-            operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
-    }
-    else if (as_val->is_struct_deep_copy)
-    {
-        /* Struct deep copy: copy struct and independently copy array fields */
-        Type *operand_type = as_val->operand->expr_type;
-        if (operand_type != NULL && operand_type->kind == TYPE_STRUCT)
-        {
-            return code_gen_struct_deep_copy(gen, operand_type, operand_code);
-        }
-        /* Fallback: should not happen, but just return operand */
-        return operand_code;
+        return arena_sprintf(gen->arena, "((%s) ? rt_arena_v2_strdup(%s, %s) : rt_arena_v2_strdup(%s, \"\"))",
+                            operand_code, ARENA_VAR(gen), operand_code, ARENA_VAR(gen));
     }
     else
     {
         /* Primitive pointer dereference: *int, *double, *float, etc. */
         return arena_sprintf(gen->arena, "(*(%s))", operand_code);
     }
+}
+
+char *code_gen_copy_of_expression(CodeGen *gen, Expr *expr)
+{
+    DEBUG_VERBOSE("Generating copyOf expression");
+
+    CopyOfExpr *copy = &expr->as.copy_of;
+    char *operand_code = code_gen_expression(gen, copy->operand);
+    Type *operand_type = copy->operand->expr_type;
+
+    if (operand_type != NULL && operand_type->kind == TYPE_STRUCT)
+    {
+        return code_gen_struct_deep_copy(gen, operand_type, operand_code);
+    }
+    /* Fallback: should not happen, but just return operand */
+    return operand_code;
 }

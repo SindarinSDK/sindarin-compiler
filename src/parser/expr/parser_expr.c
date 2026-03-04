@@ -421,25 +421,14 @@ Expr *parser_postfix(Parser *parser)
         else if (parser_match(parser, TOKEN_AS))
         {
             Token as_token = parser->previous;
-            if (parser_match(parser, TOKEN_VAL))
+            Type *target_type = parser_type(parser);
+            if (target_type == NULL)
             {
-                expr = ast_create_as_val_expr(parser->arena, expr, &as_token);
-            }
-            else if (parser_match(parser, TOKEN_REF))
-            {
-                expr = ast_create_as_ref_expr(parser->arena, expr, &as_token);
+                parser_error_at_current(parser, "Expected type after 'as'");
             }
             else
             {
-                Type *target_type = parser_type(parser);
-                if (target_type == NULL)
-                {
-                    parser_error_at_current(parser, "Expected type after 'as'");
-                }
-                else
-                {
-                    expr = ast_create_as_type_expr(parser->arena, expr, target_type, &as_token);
-                }
+                expr = ast_create_as_type_expr(parser->arena, expr, target_type, &as_token);
             }
         }
         else if (parser_match(parser, TOKEN_IS))
@@ -569,10 +558,36 @@ Expr *parser_primary(Parser *parser)
         return parse_lambda_expr(parser, &fn_token);
     }
 
-    /* Identifier - could be variable, struct literal, or static call */
+    /* Identifier - could be intrinsic, variable, struct literal, or static call */
     if (parser_match(parser, TOKEN_IDENTIFIER))
     {
         Token var_token = parser->previous;
+
+        /* Check for intrinsic functions: addressOf(), valueOf(), copyOf() */
+        if (parser_check(parser, TOKEN_LEFT_PAREN))
+        {
+            if (var_token.length == 9 && strncmp(var_token.start, "addressOf", 9) == 0)
+            {
+                parser_advance(parser); /* consume '(' */
+                Expr *operand = parser_expression(parser);
+                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after addressOf argument");
+                return ast_create_address_of_expr(parser->arena, operand, &var_token);
+            }
+            else if (var_token.length == 7 && strncmp(var_token.start, "valueOf", 7) == 0)
+            {
+                parser_advance(parser); /* consume '(' */
+                Expr *operand = parser_expression(parser);
+                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after valueOf argument");
+                return ast_create_value_of_expr(parser->arena, operand, &var_token);
+            }
+            else if (var_token.length == 6 && strncmp(var_token.start, "copyOf", 6) == 0)
+            {
+                parser_advance(parser); /* consume '(' */
+                Expr *operand = parser_expression(parser);
+                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after copyOf argument");
+                return ast_create_copy_of_expr(parser->arena, operand, &var_token);
+            }
+        }
 
         /* Check for struct literal */
         if (parser_check(parser, TOKEN_LEFT_BRACE))

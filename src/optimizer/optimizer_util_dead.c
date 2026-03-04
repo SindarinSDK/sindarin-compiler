@@ -214,12 +214,16 @@ Expr *simplify_noop_expr(Optimizer *opt, Expr *expr)
         }
         break;
 
-    case EXPR_AS_VAL:
-        expr->as.as_val.operand = simplify_noop_expr(opt, expr->as.as_val.operand);
+    case EXPR_ADDRESS_OF:
+        expr->as.address_of.operand = simplify_noop_expr(opt, expr->as.address_of.operand);
         break;
 
-    case EXPR_AS_REF:
-        expr->as.as_ref.operand = simplify_noop_expr(opt, expr->as.as_ref.operand);
+    case EXPR_VALUE_OF:
+        expr->as.value_of.operand = simplify_noop_expr(opt, expr->as.value_of.operand);
+        break;
+
+    case EXPR_COPY_OF:
+        expr->as.copy_of.operand = simplify_noop_expr(opt, expr->as.copy_of.operand);
         break;
 
     case EXPR_TYPEOF:

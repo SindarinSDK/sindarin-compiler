@@ -36,7 +36,7 @@ static void test_as_val_rejects_non_pointer(void)
     Expr *n_ref = ast_create_variable_expr(&arena, n_ref_tok, &n_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, n_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, n_ref, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, int_type, as_val_expr, NULL);
 
     /* Wrap in a function */
@@ -87,7 +87,7 @@ static void test_as_val_char_pointer_to_str(void)
     Expr *p_ref = ast_create_variable_expr(&arena, p_ref_tok, &p_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, p_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, p_ref, &as_tok);
     Type *str_type = ast_create_primitive_type(&arena, TYPE_STRING);
     Stmt *s_decl = ast_create_var_decl_stmt(&arena, s_tok, str_type, as_val_expr, NULL);
 
@@ -108,7 +108,7 @@ static void test_as_val_char_pointer_to_str(void)
     assert(as_val_expr->expr_type->kind == TYPE_STRING);
 
     /* Verify the metadata flag is set */
-    assert(as_val_expr->as.as_val.is_cstr_to_str == true);
+    assert(as_val_expr->as.value_of.is_cstr_to_str == true);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);
@@ -146,7 +146,7 @@ static void test_as_val_int_pointer_no_cstr_flag(void)
     Expr *p_ref = ast_create_variable_expr(&arena, p_ref_tok, &p_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, p_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, p_ref, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, int_type, as_val_expr, NULL);
 
     /* Wrap in a native function */
@@ -166,7 +166,7 @@ static void test_as_val_int_pointer_no_cstr_flag(void)
     assert(as_val_expr->expr_type->kind == TYPE_INT);
 
     /* Verify the metadata flag is NOT set */
-    assert(as_val_expr->as.as_val.is_cstr_to_str == false);
+    assert(as_val_expr->as.value_of.is_cstr_to_str == false);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);

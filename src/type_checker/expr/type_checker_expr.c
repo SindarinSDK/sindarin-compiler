@@ -110,11 +110,14 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
         type_error(expr->token, "Sync list [r1, r2, ...] must be followed by '!' for synchronization");
         t = NULL;
         break;
-    case EXPR_AS_VAL:
-        t = type_check_as_val(expr, table);
+    case EXPR_ADDRESS_OF:
+        t = type_check_address_of(expr, table);
         break;
-    case EXPR_AS_REF:
-        t = type_check_as_ref(expr, table);
+    case EXPR_VALUE_OF:
+        t = type_check_value_of(expr, table);
+        break;
+    case EXPR_COPY_OF:
+        t = type_check_copy_of(expr, table);
         break;
     case EXPR_TYPEOF:
         t = type_check_typeof(expr, table);

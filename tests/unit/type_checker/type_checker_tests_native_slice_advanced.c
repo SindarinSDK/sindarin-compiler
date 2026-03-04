@@ -49,7 +49,7 @@ static void test_slice_invalid_type_error(void)
     /* Wrap slice in 'as val' */
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, slice_expr, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, slice_expr, &as_tok);
 
     /* Create: var data: byte[] = get_int()[0..10] as val -- SHOULD FAIL */
     Token data_tok;
@@ -121,7 +121,7 @@ static void test_int_pointer_slice_as_val_type_inference(void)
     /* Wrap slice in 'as val': get_ints()[0..5] as val */
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, slice_expr, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, slice_expr, &as_tok);
 
     /* Create: var data: int[] = get_ints()[0..5] as val */
     Token data_tok;
@@ -211,7 +211,7 @@ static void test_pointer_slice_with_step_fails(void)
     /* Wrap in as val */
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, slice_expr, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, slice_expr, &as_tok);
 
     /* Create: var data: byte[] = get_data()[0..10:2] as val */
     Token data_tok;
