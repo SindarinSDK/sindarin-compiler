@@ -209,10 +209,12 @@ static bool check_native_lambda_captures_expr(LambdaExpr *lambda, Expr *expr,
             }
         }
         return false;
-    case EXPR_AS_VAL:
-        return check_native_lambda_captures_expr(lambda, expr->as.as_val.operand, table, first_capture);
-    case EXPR_AS_REF:
-        return check_native_lambda_captures_expr(lambda, expr->as.as_ref.operand, table, first_capture);
+    case EXPR_ADDRESS_OF:
+        return check_native_lambda_captures_expr(lambda, expr->as.address_of.operand, table, first_capture);
+    case EXPR_VALUE_OF:
+        return check_native_lambda_captures_expr(lambda, expr->as.value_of.operand, table, first_capture);
+    case EXPR_COPY_OF:
+        return check_native_lambda_captures_expr(lambda, expr->as.copy_of.operand, table, first_capture);
     case EXPR_LITERAL:
     default:
         return false;

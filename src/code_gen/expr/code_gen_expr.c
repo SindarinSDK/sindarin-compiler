@@ -78,10 +78,12 @@ char *code_gen_expression(CodeGen *gen, Expr *expr)
         /* Sync lists are only valid as part of thread sync [r1, r2]! */
         fprintf(stderr, "Error: Sync list without sync operator\n");
         exit(1);
-    case EXPR_AS_VAL:
-        return code_gen_as_val_expression(gen, expr);
-    case EXPR_AS_REF:
-        return code_gen_as_ref_expression(gen, expr);
+    case EXPR_ADDRESS_OF:
+        return code_gen_address_of_expression(gen, expr);
+    case EXPR_VALUE_OF:
+        return code_gen_value_of_expression(gen, expr);
+    case EXPR_COPY_OF:
+        return code_gen_copy_of_expression(gen, expr);
     case EXPR_TYPEOF:
         return code_gen_typeof_expression(gen, expr);
     case EXPR_IS:

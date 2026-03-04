@@ -67,14 +67,14 @@ static void test_pointer_slice_with_call_parsing()
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_pointer_slice_with_as_val_parsing()
+static void test_pointer_slice_with_value_of_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    // Test that pointer slice followed by 'as val' works (for interop buffer copy)
-    const char *source = "var data: byte[] = ptr[0..len] as val\n";
+    // Test that pointer slice followed by valueOf() works (for interop buffer copy)
+    const char *source = "var data: byte[] = valueOf(ptr[0..len])\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -83,10 +83,10 @@ static void test_pointer_slice_with_as_val_parsing()
     assert(module->count == 1);
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_VAR_DECL);
-    // The initializer should be an EXPR_AS_VAL
-    assert(stmt->as.var_decl.initializer->type == EXPR_AS_VAL);
+    // The initializer should be an EXPR_VALUE_OF
+    assert(stmt->as.var_decl.initializer->type == EXPR_VALUE_OF);
     // The operand should be an EXPR_ARRAY_SLICE
-    Expr *slice = stmt->as.var_decl.initializer->as.as_val.operand;
+    Expr *slice = stmt->as.var_decl.initializer->as.value_of.operand;
     assert(slice->type == EXPR_ARRAY_SLICE);
     // The base should be 'ptr'
     assert(slice->as.array_slice.array->type == EXPR_VARIABLE);
@@ -134,15 +134,15 @@ static void test_pointer_slice_from_start_parsing()
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_inline_pointer_call_slice_as_val_parsing()
+static void test_inline_pointer_call_slice_value_of_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
     // Test inline pointer usage: function call returning pointer, sliced, then unwrapped
-    // This is the pattern from INTEROP.md: var data: byte[] = get_data()[0..len] as val
-    const char *source = "var data: byte[] = get_buffer()[0..len] as val\n";
+    // This is the pattern from INTEROP.md: var data: byte[] = valueOf(get_data()[0..len])
+    const char *source = "var data: byte[] = valueOf(get_buffer()[0..len])\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -152,12 +152,12 @@ static void test_inline_pointer_call_slice_as_val_parsing()
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_VAR_DECL);
 
-    // The initializer should be an EXPR_AS_VAL (outermost)
-    Expr *as_val_expr = stmt->as.var_decl.initializer;
-    assert(as_val_expr->type == EXPR_AS_VAL);
+    // The initializer should be an EXPR_VALUE_OF (outermost)
+    Expr *value_of_expr = stmt->as.var_decl.initializer;
+    assert(value_of_expr->type == EXPR_VALUE_OF);
 
-    // The operand of as_val should be an EXPR_ARRAY_SLICE
-    Expr *slice = as_val_expr->as.as_val.operand;
+    // The operand of valueOf should be an EXPR_ARRAY_SLICE
+    Expr *slice = value_of_expr->as.value_of.operand;
     assert(slice->type == EXPR_ARRAY_SLICE);
 
     // The base of the slice should be an EXPR_CALL (the function call)
@@ -185,7 +185,7 @@ static void test_parser_basic_slice_main()
     TEST_SECTION("Parser Basic Slice Tests");
     TEST_RUN("pointer_slice_basic_parsing", test_pointer_slice_basic_parsing);
     TEST_RUN("pointer_slice_with_call_parsing", test_pointer_slice_with_call_parsing);
-    TEST_RUN("pointer_slice_with_as_val_parsing", test_pointer_slice_with_as_val_parsing);
+    TEST_RUN("pointer_slice_with_value_of_parsing", test_pointer_slice_with_value_of_parsing);
     TEST_RUN("pointer_slice_from_start_parsing", test_pointer_slice_from_start_parsing);
-    TEST_RUN("inline_pointer_call_slice_as_val_parsing", test_inline_pointer_call_slice_as_val_parsing);
+    TEST_RUN("inline_pointer_call_slice_value_of_parsing", test_inline_pointer_call_slice_value_of_parsing);
 }

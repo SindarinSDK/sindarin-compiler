@@ -26,7 +26,7 @@ fn test_pointer_slice_codegen(): void =>
     # The key pattern: ptr[0..len] as val
     # This should generate: rt_array_create_byte(arena, len - 0, ptr + 0)
     # Not: *(rt_array_create_byte(...)) which would be wrong
-    var data: byte[] = mock_get_buffer()[0..len] as val
+    var data: byte[] = valueOf(mock_get_buffer()[0..len])
 
     # When ptr is nil, rt_array_create_byte with nil pointer
     # creates an array with nil data, but length is still set.
@@ -42,7 +42,7 @@ fn test_slice_patterns(): void =>
     var len: int = 10
 
     # Pattern 1: ptr[0..len] as val - standard pattern
-    var data1: byte[] = mock_get_buffer()[0..len] as val
+    var data1: byte[] = valueOf(mock_get_buffer()[0..len])
     print("Pattern 1 (ptr[0..len] as val): OK\n")
 
     # Pattern 2: ptr[..len] as val - slice from start (implicit 0)
@@ -51,7 +51,7 @@ fn test_slice_patterns(): void =>
     # print("Pattern 2 (ptr[..len] as val): OK\n")
 
     # Pattern 3: Direct function call in slice
-    var data3: byte[] = mock_get_buffer()[0..get_buffer_length()] as val
+    var data3: byte[] = valueOf(mock_get_buffer()[0..get_buffer_length()])
     print("Pattern 3 (fn()[0..fn2()] as val): OK\n")
 
 fn main(): void =>

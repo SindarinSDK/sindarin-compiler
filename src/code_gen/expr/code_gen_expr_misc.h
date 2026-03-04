@@ -13,11 +13,14 @@ char *code_gen_spread_expression(CodeGen *gen, Expr *expr);
 /* Sized array allocation: int[size] with default */
 char *code_gen_sized_array_alloc_expression(CodeGen *gen, Expr *expr);
 
-/* As ref expression: x as ref */
-char *code_gen_as_ref_expression(CodeGen *gen, Expr *expr);
+/* addressOf(expr) - get pointer to value */
+char *code_gen_address_of_expression(CodeGen *gen, Expr *expr);
 
-/* As val expression: ptr as val (dereference or deep copy) */
-char *code_gen_as_val_expression(CodeGen *gen, Expr *expr);
+/* valueOf(expr) - dereference pointer or convert *char to str */
+char *code_gen_value_of_expression(CodeGen *gen, Expr *expr);
+
+/* copyOf(expr) - deep copy a struct */
+char *code_gen_copy_of_expression(CodeGen *gen, Expr *expr);
 
 /* Get the array clone function suffix for a given element type */
 const char *get_array_clone_suffix(Type *element_type);

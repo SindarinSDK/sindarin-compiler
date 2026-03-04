@@ -465,14 +465,19 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
         }
         break;
 
-    case EXPR_AS_VAL:
-        DEBUG_VERBOSE_INDENT(indent_level, "AsVal:");
-        ast_print_expr(arena, expr->as.as_val.operand, indent_level + 1);
+    case EXPR_ADDRESS_OF:
+        DEBUG_VERBOSE_INDENT(indent_level, "AddressOf:");
+        ast_print_expr(arena, expr->as.address_of.operand, indent_level + 1);
         break;
 
-    case EXPR_AS_REF:
-        DEBUG_VERBOSE_INDENT(indent_level, "AsRef:");
-        ast_print_expr(arena, expr->as.as_ref.operand, indent_level + 1);
+    case EXPR_VALUE_OF:
+        DEBUG_VERBOSE_INDENT(indent_level, "ValueOf:");
+        ast_print_expr(arena, expr->as.value_of.operand, indent_level + 1);
+        break;
+
+    case EXPR_COPY_OF:
+        DEBUG_VERBOSE_INDENT(indent_level, "CopyOf:");
+        ast_print_expr(arena, expr->as.copy_of.operand, indent_level + 1);
         break;
 
     case EXPR_MATCH:

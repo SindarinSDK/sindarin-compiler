@@ -12,7 +12,7 @@ native fn get_int_ptr(): *int =>
 native fn unwrap_int_pointer(ptr: *int): int =>
     if ptr == nil =>
         return -1
-    return ptr as val
+    return valueOf(ptr)
 
 # Test harness in native context (can declare pointer variables)
 native fn test_int_unwrap(): void =>
@@ -40,7 +40,7 @@ native fn get_env_value(): *char =>
 native fn get_environment_var(ptr: *char): str =>
     if ptr == nil =>
         return "(not set)"
-    return ptr as val
+    return valueOf(ptr)
 
 # Test harness in native context
 native fn test_char_unwrap(): void =>
@@ -70,8 +70,8 @@ native fn get_buffer_len(): int =>
 native fn unwrap_buffer(ptr: *byte, len: int): byte[] =>
     if ptr == nil =>
         # Cannot return empty array directly, use slice with 0 length
-        return ptr[0..0] as val
-    return ptr[0..len] as val
+        return valueOf(ptr[0..0])
+    return valueOf(ptr[0..len])
 
 # Test harness in native context
 native fn test_buffer_unwrap(): void =>
@@ -81,7 +81,7 @@ native fn test_buffer_unwrap(): void =>
     var ptr: *byte = get_buffer()
 
     # Direct slice in native function
-    var data: byte[] = ptr[0..len] as val
+    var data: byte[] = valueOf(ptr[0..len])
     print($"  Buffer slice created with length param: {len}\n")
     print($"  Array length: {data.length}\n")
 

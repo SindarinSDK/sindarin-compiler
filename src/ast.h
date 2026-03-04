@@ -182,8 +182,9 @@ typedef enum
     EXPR_THREAD_SPAWN,
     EXPR_THREAD_SYNC,
     EXPR_SYNC_LIST,
-    EXPR_AS_VAL,
-    EXPR_AS_REF,
+    EXPR_ADDRESS_OF,
+    EXPR_VALUE_OF,
+    EXPR_COPY_OF,
     EXPR_TYPEOF,
     EXPR_IS,
     EXPR_AS_TYPE,
@@ -343,19 +344,25 @@ typedef struct
     int element_count;
 } SyncListExpr;
 
-typedef struct
-{
-    Expr *operand;          // The expression to copy/pass by value
-    bool is_cstr_to_str;    // True if this is *char => str (null-terminated string conversion)
-    bool is_noop;           // True if operand is already array type (ptr[0..len] produces array)
-    bool is_struct_deep_copy; // True if this is struct deep copy (copies array fields independently)
-} AsValExpr;
-
-/* as ref - get pointer to value (counterpart to as val) */
+/* addressOf(expr) - get pointer to value (native context only) */
 typedef struct
 {
     Expr *operand;          // The expression to get a pointer to
-} AsRefExpr;
+} AddressOfExpr;
+
+/* valueOf(expr) - dereference pointer or convert *char to str (native context only) */
+typedef struct
+{
+    Expr *operand;          // The expression to dereference
+    bool is_cstr_to_str;    // True if this is *char => str (null-terminated string conversion)
+    bool is_noop;           // True if operand is already array type (ptr[0..len] produces array)
+} ValueOfExpr;
+
+/* copyOf(expr) - deep copy a struct value */
+typedef struct
+{
+    Expr *operand;          // The expression to deep copy
+} CopyOfExpr;
 
 /* typeof operator - returns the runtime type of an any value or a type literal */
 typedef struct
@@ -484,8 +491,9 @@ struct Expr
         ThreadSpawnExpr thread_spawn;
         ThreadSyncExpr thread_sync;
         SyncListExpr sync_list;
-        AsValExpr as_val;
-        AsRefExpr as_ref;
+        AddressOfExpr address_of;
+        ValueOfExpr value_of;
+        CopyOfExpr copy_of;
         TypeofExpr typeof_expr;
         IsExpr is_expr;
         AsTypeExpr as_type;
@@ -762,8 +770,9 @@ Expr *ast_create_lambda_stmt_expr(Arena *arena, Parameter *params, int param_cou
 Expr *ast_create_thread_spawn_expr(Arena *arena, Expr *call, FunctionModifier modifier, const Token *loc_token);
 Expr *ast_create_thread_sync_expr(Arena *arena, Expr *handle, bool is_array, const Token *loc_token);
 Expr *ast_create_sync_list_expr(Arena *arena, Expr **elements, int element_count, const Token *loc_token);
-Expr *ast_create_as_val_expr(Arena *arena, Expr *operand, const Token *loc_token);
-Expr *ast_create_as_ref_expr(Arena *arena, Expr *operand, const Token *loc_token);
+Expr *ast_create_address_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
+Expr *ast_create_value_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
+Expr *ast_create_copy_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
 Expr *ast_create_struct_literal_expr(Arena *arena, Token struct_name, FieldInitializer *fields,
                                       int field_count, const Token *loc_token);
 Expr *ast_create_member_access_expr(Arena *arena, Expr *object, Token field_name, const Token *loc_token);

@@ -31,7 +31,7 @@ fn main(): int =>
 
     # Test 2: Deep copy with 'as val' - arrays are independent
     var c3 = Container{ name: "source", items: {10, 20, 30} }
-    var c4: Container = c3 as val   # Deep copy - c4.items is independent
+    var c4: Container = copyOf(c3)   # Deep copy - c4.items is independent
 
     print($"\n2. With 'as val' (deep copy):\n")
     print($"   c3.items: [{c3.items[0]}, {c3.items[1]}, {c3.items[2]}]\n")
@@ -51,7 +51,7 @@ fn main(): int =>
 
     # Test 3: Deep copy with doubles
     var d1 = DataHolder{ label: "measurements", values: {1.5, 2.5, 3.5} }
-    var d2: DataHolder = d1 as val
+    var d2: DataHolder = copyOf(d1)
 
     print($"\n3. Deep copy with doubles:\n")
     d2.values[1] = 100.5
@@ -67,7 +67,7 @@ fn main(): int =>
 
     # Test 4: Deep copy preserves string fields
     var c5 = Container{ name: "test_name", items: {5, 10, 15} }
-    var c6: Container = c5 as val
+    var c6: Container = copyOf(c5)
 
     print($"\n4. String field in deep copy:\n")
     print($"   c5.name: {c5.name}\n")

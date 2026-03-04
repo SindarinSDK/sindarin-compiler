@@ -83,7 +83,7 @@ static void test_pointer_return_with_as_val_succeeds_in_regular_fn(void)
     Expr *get_ptr_call = ast_create_call_expr(&arena, get_ptr_callee, NULL, 0, &get_ptr_call_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 5, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, get_ptr_call, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, get_ptr_call, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, int_type, as_val_expr, NULL);
 
     /* Wrap in regular (non-native) function */

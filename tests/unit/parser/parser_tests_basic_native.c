@@ -1,5 +1,5 @@
 // tests/unit/parser/parser_tests_basic_native.c
-// Native function and as_val postfix parser tests
+// Native function and valueOf parser tests
 
 static void test_native_function_without_body_parsing()
 {
@@ -102,13 +102,13 @@ static void test_regular_function_not_native_parsing()
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_as_val_postfix_with_call_parsing()
+static void test_value_of_with_call_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: int = get_ptr() as val\n";
+    const char *source = "var x: int = valueOf(get_ptr())\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -117,23 +117,23 @@ static void test_as_val_postfix_with_call_parsing()
     assert(module->count == 1);
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_VAR_DECL);
-    // The initializer should be an EXPR_AS_VAL
-    assert(stmt->as.var_decl.initializer->type == EXPR_AS_VAL);
+    // The initializer should be an EXPR_VALUE_OF
+    assert(stmt->as.var_decl.initializer->type == EXPR_VALUE_OF);
     // The operand should be a function call
-    assert(stmt->as.var_decl.initializer->as.as_val.operand->type == EXPR_CALL);
+    assert(stmt->as.var_decl.initializer->as.value_of.operand->type == EXPR_CALL);
     // The callee should be get_ptr
-    assert(strcmp(stmt->as.var_decl.initializer->as.as_val.operand->as.call.callee->as.variable.name.start, "get_ptr") == 0);
+    assert(strcmp(stmt->as.var_decl.initializer->as.value_of.operand->as.call.callee->as.variable.name.start, "get_ptr") == 0);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_as_val_postfix_with_array_access_parsing()
+static void test_value_of_with_array_access_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: int = arr[i] as val\n";
+    const char *source = "var x: int = valueOf(arr[i])\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -142,25 +142,25 @@ static void test_as_val_postfix_with_array_access_parsing()
     assert(module->count == 1);
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_VAR_DECL);
-    // The initializer should be an EXPR_AS_VAL
-    assert(stmt->as.var_decl.initializer->type == EXPR_AS_VAL);
+    // The initializer should be an EXPR_VALUE_OF
+    assert(stmt->as.var_decl.initializer->type == EXPR_VALUE_OF);
     // The operand should be an array access
-    assert(stmt->as.var_decl.initializer->as.as_val.operand->type == EXPR_ARRAY_ACCESS);
+    assert(stmt->as.var_decl.initializer->as.value_of.operand->type == EXPR_ARRAY_ACCESS);
     // The array should be 'arr'
-    assert(strcmp(stmt->as.var_decl.initializer->as.as_val.operand->as.array_access.array->as.variable.name.start, "arr") == 0);
+    assert(strcmp(stmt->as.var_decl.initializer->as.value_of.operand->as.array_access.array->as.variable.name.start, "arr") == 0);
     // The index should be 'i'
-    assert(strcmp(stmt->as.var_decl.initializer->as.as_val.operand->as.array_access.index->as.variable.name.start, "i") == 0);
+    assert(strcmp(stmt->as.var_decl.initializer->as.value_of.operand->as.array_access.index->as.variable.name.start, "i") == 0);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_as_val_postfix_with_variable_parsing()
+static void test_value_of_with_variable_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: int = ptr as val\n";
+    const char *source = "var x: int = valueOf(ptr)\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -169,23 +169,23 @@ static void test_as_val_postfix_with_variable_parsing()
     assert(module->count == 1);
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_VAR_DECL);
-    // The initializer should be an EXPR_AS_VAL
-    assert(stmt->as.var_decl.initializer->type == EXPR_AS_VAL);
+    // The initializer should be an EXPR_VALUE_OF
+    assert(stmt->as.var_decl.initializer->type == EXPR_VALUE_OF);
     // The operand should be a variable
-    assert(stmt->as.var_decl.initializer->as.as_val.operand->type == EXPR_VARIABLE);
-    assert(strcmp(stmt->as.var_decl.initializer->as.as_val.operand->as.variable.name.start, "ptr") == 0);
+    assert(stmt->as.var_decl.initializer->as.value_of.operand->type == EXPR_VARIABLE);
+    assert(strcmp(stmt->as.var_decl.initializer->as.value_of.operand->as.variable.name.start, "ptr") == 0);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_as_val_postfix_precedence_parsing()
+static void test_value_of_precedence_parsing()
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    // This tests that 'as val' binds tighter than '+' (as a postfix after array access)
-    const char *source = "var x: int = arr[0] as val + 1\n";
+    // This tests that valueOf() binds tighter than '+' (as a prefix wrapping array access)
+    const char *source = "var x: int = valueOf(arr[0]) + 1\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -197,9 +197,9 @@ static void test_as_val_postfix_precedence_parsing()
     // The initializer should be a binary expression (addition)
     assert(stmt->as.var_decl.initializer->type == EXPR_BINARY);
     assert(stmt->as.var_decl.initializer->as.binary.operator == TOKEN_PLUS);
-    // The left side should be 'arr[0] as val'
-    assert(stmt->as.var_decl.initializer->as.binary.left->type == EXPR_AS_VAL);
-    assert(stmt->as.var_decl.initializer->as.binary.left->as.as_val.operand->type == EXPR_ARRAY_ACCESS);
+    // The left side should be 'valueOf(arr[0])'
+    assert(stmt->as.var_decl.initializer->as.binary.left->type == EXPR_VALUE_OF);
+    assert(stmt->as.var_decl.initializer->as.binary.left->as.value_of.operand->type == EXPR_ARRAY_ACCESS);
     // The right side should be literal 1
     assert(stmt->as.var_decl.initializer->as.binary.right->type == EXPR_LITERAL);
     assert(stmt->as.var_decl.initializer->as.binary.right->as.literal.value.int_value == 1);
@@ -214,8 +214,8 @@ static void test_parser_basic_native_main()
     TEST_RUN("native_function_with_body_parsing", test_native_function_with_body_parsing);
     TEST_RUN("native_function_with_pointer_types_parsing", test_native_function_with_pointer_types_parsing);
     TEST_RUN("regular_function_not_native_parsing", test_regular_function_not_native_parsing);
-    TEST_RUN("as_val_postfix_with_call_parsing", test_as_val_postfix_with_call_parsing);
-    TEST_RUN("as_val_postfix_with_array_access_parsing", test_as_val_postfix_with_array_access_parsing);
-    TEST_RUN("as_val_postfix_with_variable_parsing", test_as_val_postfix_with_variable_parsing);
-    TEST_RUN("as_val_postfix_precedence_parsing", test_as_val_postfix_precedence_parsing);
+    TEST_RUN("value_of_with_call_parsing", test_value_of_with_call_parsing);
+    TEST_RUN("value_of_with_array_access_parsing", test_value_of_with_array_access_parsing);
+    TEST_RUN("value_of_with_variable_parsing", test_value_of_with_variable_parsing);
+    TEST_RUN("value_of_precedence_parsing", test_value_of_precedence_parsing);
 }

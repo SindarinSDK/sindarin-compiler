@@ -50,7 +50,7 @@ native fn test_nil_comparisons(): void =>
 native fn safe_char_unwrap(ptr: *char): str =>
 	if ptr == nil =>
 		return "(null)"
-	return ptr as val
+	return valueOf(ptr)
 
 native fn test_null_char_unwrap(): void =>
 	print("\nTest 2: *char as val when NULL\n")

@@ -168,7 +168,7 @@ static void test_as_val_unwraps_pointer_int(void)
     Expr *p_ref = ast_create_variable_expr(&arena, p_ref_tok, &p_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, p_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, p_ref, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, int_type, as_val_expr, NULL);
 
     /* Wrap in a native function */
@@ -225,7 +225,7 @@ static void test_as_val_unwraps_pointer_double(void)
     Expr *p_ref = ast_create_variable_expr(&arena, p_ref_tok, &p_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, p_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, p_ref, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, double_type, as_val_expr, NULL);
 
     /* Wrap in a native function */
@@ -282,7 +282,7 @@ static void test_as_val_unwraps_pointer_float(void)
     Expr *p_ref = ast_create_variable_expr(&arena, p_ref_tok, &p_ref_tok);
     Token as_tok;
     setup_test_token(&as_tok, TOKEN_AS, "as", 2, "test.sn", &arena);
-    Expr *as_val_expr = ast_create_as_val_expr(&arena, p_ref, &as_tok);
+    Expr *as_val_expr = ast_create_value_of_expr(&arena, p_ref, &as_tok);
     Stmt *x_decl = ast_create_var_decl_stmt(&arena, x_tok, float_type, as_val_expr, NULL);
 
     /* Wrap in a native function */

@@ -12,7 +12,7 @@ fn test_nil_slice_creates_array(): void =>
     var len: int = get_length()
     # Slicing a nil pointer should create an array structure
     # with the specified length, but nil data pointer
-    var data: byte[] = get_nil_buffer()[0..len] as val
+    var data: byte[] = valueOf(get_nil_buffer()[0..len])
 
     # The array should have the correct length property
     print($"Array length: {data.length}\n")

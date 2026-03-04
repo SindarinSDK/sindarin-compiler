@@ -21,7 +21,7 @@ void test_type_checker_native_slice_main(void)
     TEST_RUN("pointer_slice_int_to_int_array", test_pointer_slice_int_to_int_array);
     TEST_RUN("slice_non_array_non_pointer_fails", test_slice_non_array_non_pointer_fails);
     TEST_RUN("array_slice_still_works", test_array_slice_still_works);
-    TEST_RUN("as_val_context_tracking", test_as_val_context_tracking);
+    TEST_RUN("value_of_context_tracking", test_value_of_context_tracking);
     TEST_RUN("pointer_slice_with_as_val_in_regular_fn", test_pointer_slice_with_as_val_in_regular_fn);
     TEST_RUN("pointer_slice_without_as_val_in_regular_fn_fails", test_pointer_slice_without_as_val_in_regular_fn_fails);
     TEST_RUN("as_val_on_array_type_is_noop", test_as_val_on_array_type_is_noop);

@@ -8,20 +8,23 @@
  * Cast/Conversion Expression Type Checking
  * ============================================================================
  * Type checking for type conversion and introspection expressions:
- * as val, as ref, typeof, is, and as Type.
+ * addressOf(), valueOf(), copyOf(), typeof, is, and as Type.
  * ============================================================================ */
 
-/* 'as val' expression type checking (ptr as val)
- * Dereferences pointers, converts *char to str, deep-copies structs.
- * Returns the dereferenced/converted type or NULL on error.
- */
-Type *type_check_as_val(Expr *expr, SymbolTable *table);
-
-/* 'as ref' expression type checking (value as ref)
- * Gets a pointer to a value (only in native function context).
+/* addressOf(expr) - get pointer to value (native context only).
  * Returns pointer type or NULL on error.
  */
-Type *type_check_as_ref(Expr *expr, SymbolTable *table);
+Type *type_check_address_of(Expr *expr, SymbolTable *table);
+
+/* valueOf(expr) - dereference pointer or convert *char to str (native context only).
+ * Returns the dereferenced/converted type or NULL on error.
+ */
+Type *type_check_value_of(Expr *expr, SymbolTable *table);
+
+/* copyOf(expr) - deep copy a struct value.
+ * Returns the struct type or NULL on error.
+ */
+Type *type_check_copy_of(Expr *expr, SymbolTable *table);
 
 /* typeof expression type checking (typeof(value) or typeof(Type))
  * Returns int (type tag value).
