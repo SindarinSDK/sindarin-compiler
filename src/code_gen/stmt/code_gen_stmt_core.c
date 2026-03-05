@@ -300,6 +300,26 @@ void code_gen_free_locals(CodeGen *gen, Scope *scope, bool is_function, int inde
                             }
                             indented_fprintf(gen, indent, "} }\n");
                         }
+                        /* For arrays of structs with handle fields, free each element's
+                         * handles before freeing the array. Without this, struct field
+                         * handles (e.g., name/value strings in Item[]) would leak on
+                         * arenas that persist beyond scope exit. */
+                        else if (elem_type != NULL && elem_type->kind == TYPE_STRUCT
+                                 && struct_has_handle_fields(elem_type)
+                                 && !elem_type->as.struct_type.is_native)
+                        {
+                            const char *struct_name = elem_type->as.struct_type.name;
+                            const char *mangled = sn_mangle_name(gen->arena, struct_name);
+                            indented_fprintf(gen, indent, "if (%s && %s->ptr) {\n", var_name, var_name);
+                            indented_fprintf(gen, indent + 1, "RtArrayMetadataV2 *__meta__ = (RtArrayMetadataV2 *)%s->ptr;\n", var_name);
+                            indented_fprintf(gen, indent + 1, "%s *__elems__ = (%s *)((char *)%s->ptr + sizeof(RtArrayMetadataV2));\n",
+                                mangled, mangled, var_name);
+                            indented_fprintf(gen, indent + 1, "for (size_t __fi__ = 0; __fi__ < __meta__->size; __fi__++) {\n");
+                            indented_fprintf(gen, indent + 2, "__free_%s_inline__(&__elems__[__fi__], %s);\n",
+                                struct_name, gen->current_arena_var);
+                            indented_fprintf(gen, indent + 1, "}\n");
+                            indented_fprintf(gen, indent, "}\n");
+                        }
                         indented_fprintf(gen, indent, "rt_arena_v2_free(%s);\n", var_name);
                     }
                 }

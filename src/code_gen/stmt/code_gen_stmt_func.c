@@ -145,6 +145,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     gen->arena_temp_count = 0;
 
     bool main_has_args = is_main && stmt->param_count == 1;
+
+    /* Determine arena strategy for free functions */
+    ArenaStrategy strategy = ARENA_CHILD;
+    if (!is_main && !main_has_args)
+        strategy = analyze_arena_strategy(stmt->body, stmt->body_count, stmt->params, stmt->param_count);
+
     gen->current_arena_var = "__local_arena__";
     gen->function_arena_var = "__local_arena__";
 
@@ -240,11 +246,14 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     else
     {
         indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
-        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n");
+        if (strategy == ARENA_NONE)
+            indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __caller_arena__;\n");
+        else
+            indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n");
     }
 
-    /* Clone handle-type parameters */
-    if (!is_main && !main_has_args)
+    /* Clone handle-type parameters (only when function has its own arena) */
+    if (!is_main && !main_has_args && strategy == ARENA_CHILD)
     {
         for (int i = 0; i < stmt->param_count; i++)
         {
@@ -384,15 +393,16 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     indented_fprintf(gen, 0, "%s_return:\n", gen->current_function);
 
     /* Promote return value BEFORE cleanup so handles are promoted while arenas are still alive */
-    if (has_return_value)
+    if (has_return_value && strategy == ARENA_CHILD)
     {
-        code_gen_return_promotion(gen, stmt->return_type, is_main, false, "__caller_arena__", 1);
+        code_gen_return_promotion(gen, stmt->return_type, is_main, "__caller_arena__", 1);
     }
 
     code_gen_free_locals(gen, gen->symbol_table->current, true, 1);
 
-    /* Condemn the local arena */
-    indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
+    /* Condemn the local arena (only when function created its own) */
+    if (strategy == ARENA_CHILD)
+        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
 
     /* Return statement */
     if (has_return_value)

@@ -248,6 +248,7 @@ ARENA2_TEST_DIR := $(ARENA2_DIR)/tests
 ARENA2_BASIC_TEST_BIN := $(BIN_DIR)/test_arena2_basic$(EXE_EXT)
 ARENA2_GC_THREAD_TEST_BIN := $(BIN_DIR)/test_arena2_gc_thread$(EXE_EXT)
 ARENA2_REDIRECT_TEST_BIN := $(BIN_DIR)/test_arena2_redirect$(EXE_EXT)
+ARENA2_CASCADE_TEST_BIN := $(BIN_DIR)/test_arena2_gc_cascade$(EXE_EXT)
 ARENA2_CFLAGS := -Wall -Wextra -g -pthread -I. -Isrc
 
 # MinHook sources for Windows malloc redirect tests
@@ -276,6 +277,12 @@ test-arena2:
 		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/malloc_hooks_stub.c $(ARENA2_TEST_DIR)/test_basic.c \
 		-o $(ARENA2_BASIC_TEST_BIN)
 	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_BASIC_TEST_BIN)
+	@echo ""
+	@echo "=== GC Cascade Tests ==="
+	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
+		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/malloc_hooks_stub.c $(ARENA2_TEST_DIR)/test_gc_cascade.c \
+		-o $(ARENA2_CASCADE_TEST_BIN)
+	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_CASCADE_TEST_BIN)
 	@echo ""
 	@echo "=== GC Thread Tests ==="
 	@echo "Skipped - GC thread functions not implemented yet"
