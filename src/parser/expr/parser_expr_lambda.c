@@ -57,8 +57,7 @@ Expr *parse_lambda_expr(Parser *parser, Token *fn_token)
 
     parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after lambda parameters");
 
-    /* Parse optional function modifier (shared/private) before return type */
-    FunctionModifier modifier = parser_function_modifier(parser);
+    FunctionModifier modifier = FUNC_DEFAULT;
 
     /* Return type is optional - if => comes next, set return_type to NULL for inference */
     Type *return_type = NULL;

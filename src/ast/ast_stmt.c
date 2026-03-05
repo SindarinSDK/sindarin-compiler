@@ -480,3 +480,25 @@ Stmt *ast_create_lock_stmt(Arena *arena, Expr *lock_expr, Stmt *body, const Toke
     stmt->token = ast_dup_token(arena, loc_token);
     return stmt;
 }
+
+Stmt *ast_create_using_stmt(Arena *arena, Token name, Expr *initializer, Stmt *body, const Token *loc_token)
+{
+    if (initializer == NULL || body == NULL)
+    {
+        return NULL;
+    }
+    Stmt *stmt = arena_alloc(arena, sizeof(Stmt));
+    if (stmt == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(stmt, 0, sizeof(Stmt));
+    stmt->type = STMT_USING;
+    stmt->as.using_stmt.name = name;
+    stmt->as.using_stmt.type = NULL;
+    stmt->as.using_stmt.initializer = initializer;
+    stmt->as.using_stmt.body = body;
+    stmt->token = ast_dup_token(arena, loc_token);
+    return stmt;
+}

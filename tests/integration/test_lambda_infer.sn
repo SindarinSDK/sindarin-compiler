@@ -14,7 +14,7 @@ fn main(): int =>
     print($"Multiply 4 * 6 = {multiply(4, 6)}\n")
 
     // Infer with shared modifier (modifier before =>)
-    var triple: fn(int): int = fn(x) shared => x * 3
+    var triple: fn(int): int = fn(x) => x * 3
     print($"Triple 4 = {triple(4)}\n")
 
     // All types explicit (existing syntax still works)

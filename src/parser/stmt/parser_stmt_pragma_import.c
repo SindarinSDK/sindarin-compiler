@@ -26,12 +26,11 @@ static bool parser_is_keyword_token(SnTokenType type)
         case TOKEN_BOOL:
         case TOKEN_BYTE:
         case TOKEN_VOID:
-        case TOKEN_SHARED:
-        case TOKEN_PRIVATE:
         case TOKEN_AS:
         case TOKEN_VAL:
         case TOKEN_REF:
         case TOKEN_BOOL_LITERAL:  /* true/false */
+        case TOKEN_USING:
             return true;
         default:
             return false;

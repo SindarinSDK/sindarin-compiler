@@ -349,7 +349,6 @@ static void test_token_type_declarations(void)
 
 static void test_token_type_memory_keywords(void)
 {
-    assert(TOKEN_SHARED != TOKEN_PRIVATE);
     assert(TOKEN_AS != TOKEN_VAL);
     assert(TOKEN_VAL != TOKEN_REF);
 }

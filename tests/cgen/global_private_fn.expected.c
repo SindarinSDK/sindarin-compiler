@@ -23,20 +23,17 @@ long long __sn__process_greeting(RtArenaV2 *);
 /* Interceptor thunk forward declarations */
 static RtAny __thunk_0(void);
 
-// Code Generation Test: Global with private function
+// Code Generation Test: Global with function
 //
-// Tests that a private function creates its own private arena for allocations,
-// can read global string variables from __main_arena__, and can modify
-// global handles using __main_arena__ for the mutation.
+// Tests that a function can read global string variables and can modify
+// global handles.
 RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__message = NULL;
 long long __sn__process_greeting(RtArenaV2 *__caller_arena__) {
     rt_safepoint_poll();
-    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, "func");
+    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, "func");
     long long _return_value = 0;
-    // private function uses its own private arena (__local_arena__)
-    // global 'greeting' is in __main_arena__, accessed via parent-walking
-    // Mutating 'message' should use __main_arena__ since it's a global
+    // function accesses global 'greeting' and mutates global 'message'
     RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, " World");
     RtHandleV2 *__htmp_1__ = rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), __htmp_0__);
     ({ rt_arena_v2_free(__sn__message); __sn__message = rt_arena_v2_promote(__main_arena__, __htmp_1__); });
@@ -55,8 +52,8 @@ int main() {
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     __sn__message = rt_arena_v2_strdup(__main_arena__, "");
     int _return_value = 0;
-    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with private function test:");
-    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with private function test:");
+    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with function test:");
+    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with function test:");
     rt_println_v2(__htmp_1__);
     RtHandleV2 *__result_pending__ = NULL;
     long long __sn__result = ({

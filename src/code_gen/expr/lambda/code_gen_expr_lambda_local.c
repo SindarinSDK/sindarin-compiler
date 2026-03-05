@@ -85,6 +85,9 @@ void collect_local_vars_from_stmt(Stmt *stmt, LocalVars *lv, Arena *arena)
     case STMT_LOCK:
         collect_local_vars_from_stmt(stmt->as.lock_stmt.body, lv, arena);
         break;
+    case STMT_USING:
+        collect_local_vars_from_stmt(stmt->as.using_stmt.body, lv, arena);
+        break;
     default:
         break;
     }

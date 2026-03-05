@@ -1,0 +1,15 @@
+=== using/dispose() Integration Tests ===
+
+Test 1: Basic using statement
+  Using: test-resource
+  Disposing: test-resource
+  Disposed count: 1
+
+Test 2: Multiple using statements
+  Using: resource-A
+  Disposing: resource-A
+  Using: resource-B
+  Disposing: resource-B
+  Disposed count: 3
+
+PASS

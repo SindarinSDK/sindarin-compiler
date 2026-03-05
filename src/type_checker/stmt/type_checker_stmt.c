@@ -10,6 +10,65 @@
 #include "debug.h"
 #include <stdio.h>
 
+/* Type check a using statement: using name = expr => body */
+static void type_check_using(Stmt *stmt, SymbolTable *table, Type *return_type)
+{
+    DEBUG_VERBOSE("Type checking using statement: %.*s",
+                  stmt->as.using_stmt.name.length, stmt->as.using_stmt.name.start);
+
+    /* Type check the initializer expression */
+    type_check_expr(stmt->as.using_stmt.initializer, table);
+
+    /* Infer type from initializer */
+    Type *init_type = stmt->as.using_stmt.initializer->expr_type;
+    if (init_type == NULL)
+    {
+        type_error(&stmt->as.using_stmt.name, "Cannot infer type for using variable");
+        return;
+    }
+
+    /* Validate the type is a struct */
+    if (init_type->kind != TYPE_STRUCT)
+    {
+        type_error(&stmt->as.using_stmt.name,
+                   "'using' requires a struct type with a dispose() method");
+        return;
+    }
+
+    /* Validate the struct has a dispose() method */
+    StructMethod *dispose_method = ast_struct_get_method(init_type, "dispose");
+    if (dispose_method == NULL)
+    {
+        type_error(&stmt->as.using_stmt.name,
+                   "Struct used in 'using' must have a dispose() method");
+        return;
+    }
+
+    /* Validate dispose() takes no parameters and returns void */
+    if (dispose_method->param_count != 0)
+    {
+        type_error(&stmt->as.using_stmt.name,
+                   "dispose() method must take no parameters");
+        return;
+    }
+    if (dispose_method->return_type != NULL &&
+        dispose_method->return_type->kind != TYPE_VOID)
+    {
+        type_error(&stmt->as.using_stmt.name,
+                   "dispose() method must return void");
+        return;
+    }
+
+    /* Store the resolved type on the AST node */
+    stmt->as.using_stmt.type = init_type;
+
+    /* Add the variable to scope */
+    symbol_table_add_symbol_with_kind(table, stmt->as.using_stmt.name, init_type, SYMBOL_LOCAL);
+
+    /* Type check the body */
+    type_check_stmt(stmt->as.using_stmt.body, table, return_type);
+}
+
 /* Type check a lock statement */
 static void type_check_lock(Stmt *stmt, SymbolTable *table, Type *return_type)
 {
@@ -176,6 +235,10 @@ void type_check_stmt(Stmt *stmt, SymbolTable *table, Type *return_type)
 
     case STMT_LOCK:
         type_check_lock(stmt, table, return_type);
+        break;
+
+    case STMT_USING:
+        type_check_using(stmt, table, return_type);
         break;
     }
 }

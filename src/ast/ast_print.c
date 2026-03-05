@@ -20,8 +20,6 @@ static const char *block_modifier_to_string(BlockModifier mod)
     switch (mod)
     {
     case BLOCK_DEFAULT: return NULL;  /* Don't print default */
-    case BLOCK_SHARED: return "shared";
-    case BLOCK_PRIVATE: return "private";
     default: return "unknown";
     }
 }
@@ -31,8 +29,6 @@ static const char *function_modifier_to_string(FunctionModifier mod)
     switch (mod)
     {
     case FUNC_DEFAULT: return NULL;  /* Don't print default */
-    case FUNC_SHARED: return "shared";
-    case FUNC_PRIVATE: return "private";
     default: return "unknown";
     }
 }
@@ -240,6 +236,20 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
                              stmt->as.type_decl.name.length,
                              stmt->as.type_decl.name.start,
                              ast_type_to_string(arena, stmt->as.type_decl.type));
+        break;
+
+    case STMT_USING:
+        DEBUG_VERBOSE_INDENT(indent_level, "Using: %.*s",
+                             stmt->as.using_stmt.name.length,
+                             stmt->as.using_stmt.name.start);
+        if (stmt->as.using_stmt.initializer != NULL)
+        {
+            ast_print_expr(arena, stmt->as.using_stmt.initializer, indent_level + 1);
+        }
+        if (stmt->as.using_stmt.body != NULL)
+        {
+            ast_print_stmt(arena, stmt->as.using_stmt.body, indent_level + 1);
+        }
         break;
 
     /* Not handled by AST printer */

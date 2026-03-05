@@ -18,12 +18,14 @@
 #include "code_gen/stmt/code_gen_stmt_thread.h"
 #include "code_gen/expr/code_gen_expr.h"
 #include "code_gen/util/code_gen_util.h"
+#include "ast/ast_type.h"
 #include "debug.h"
 #include "symbol_table.h"
 #include "symbol_table/symbol_table_core.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 
 void code_gen_expression_statement(CodeGen *gen, ExprStmt *stmt, int indent)
 {
@@ -666,6 +668,93 @@ void code_gen_statement(CodeGen *gen, Stmt *stmt, int indent)
         gen->lock_stack_depth--;
 
         indented_fprintf(gen, indent, "rt_sync_unlock(&%s);\n", lock_var);
+        break;
+    }
+    case STMT_USING:
+    {
+        UsingStmt *using_stmt = &stmt->as.using_stmt;
+        Type *struct_type = using_stmt->type;
+        const char *struct_name = struct_type->as.struct_type.name;
+        char *var_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, using_stmt->name));
+        const char *type_c = get_c_type(gen->arena, struct_type);
+
+        /* Generate the initializer */
+        char *init_str = code_gen_expression(gen, using_stmt->initializer);
+
+        /* Emit the variable declaration */
+        indented_fprintf(gen, indent, "{\n");
+        indented_fprintf(gen, indent + 1, "%s %s = %s;\n", type_c, var_name, init_str);
+
+        /* Build the dispose call string */
+        StructMethod *dispose_method = ast_struct_get_method(struct_type, "dispose");
+        char *dispose_call;
+        if (dispose_method->is_native)
+        {
+            /* Native method: use c_alias or rt_{lowercase}_dispose naming */
+            const char *func_name;
+            if (dispose_method->c_alias != NULL)
+            {
+                func_name = dispose_method->c_alias;
+            }
+            else
+            {
+                char *struct_name_lower = arena_strdup(gen->arena, struct_name);
+                for (char *p = struct_name_lower; *p; p++)
+                    *p = (char)tolower((unsigned char)*p);
+                func_name = arena_sprintf(gen->arena, "rt_%s_dispose", struct_name_lower);
+            }
+            /* Native instance methods: pass self (handle or address-of) */
+            if (struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL)
+            {
+                /* Opaque handle: self is already a handle */
+                dispose_call = arena_sprintf(gen->arena, "%s(%s)", func_name, var_name);
+            }
+            else if (struct_type->as.struct_type.pass_self_by_ref)
+            {
+                dispose_call = arena_sprintf(gen->arena, "%s(&%s)", func_name, var_name);
+            }
+            else
+            {
+                dispose_call = arena_sprintf(gen->arena, "%s(%s)", func_name, var_name);
+            }
+        }
+        else
+        {
+            /* Sindarin method: mangled_struct_dispose(arena, &self) */
+            char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
+            dispose_call = arena_sprintf(gen->arena, "%s_dispose(%s, &%s)",
+                               mangled_struct, ARENA_VAR(gen), var_name);
+        }
+
+        /* Push dispose call onto the using stack for return cleanup */
+        if (gen->using_stack_depth >= gen->using_stack_capacity)
+        {
+            int new_cap = gen->using_stack_capacity == 0 ? 4 : gen->using_stack_capacity * 2;
+            char **new_stack = arena_alloc(gen->arena, new_cap * sizeof(char *));
+            for (int i = 0; i < gen->using_stack_depth; i++)
+            {
+                new_stack[i] = gen->using_stack[i];
+            }
+            gen->using_stack = new_stack;
+            gen->using_stack_capacity = new_cap;
+        }
+        gen->using_stack[gen->using_stack_depth++] = dispose_call;
+
+        /* Add variable to symbol table for body */
+        symbol_table_push_scope(gen->symbol_table);
+        symbol_table_add_symbol_with_kind(gen->symbol_table, using_stmt->name, struct_type, SYMBOL_LOCAL);
+
+        /* Generate the body */
+        code_gen_statement(gen, using_stmt->body, indent + 1);
+
+        symbol_table_pop_scope(gen->symbol_table);
+
+        /* Pop the using stack */
+        gen->using_stack_depth--;
+
+        /* Emit dispose call at scope end */
+        indented_fprintf(gen, indent + 1, "%s;\n", dispose_call);
+        indented_fprintf(gen, indent, "}\n");
         break;
     }
     }

@@ -2,7 +2,6 @@
 #include "type_checker/stmt/type_checker_stmt_func.h"
 #include "type_checker/stmt/type_checker_stmt.h"
 #include "type_checker/util/type_checker_util.h"
-#include "type_checker/util/type_checker_util_escape.h"
 #include "type_checker/expr/type_checker_expr.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
@@ -106,21 +105,6 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
             if (method->params[j].type != NULL)
             {
                 method->params[j].type = resolve_struct_forward_reference(method->params[j].type, table);
-            }
-        }
-
-        /* Validate PRIVATE method return types - only primitives allowed */
-        if (method->modifier == FUNC_PRIVATE && method->return_type != NULL &&
-            method->return_type->kind != TYPE_VOID)
-        {
-            if (!can_escape_private(method->return_type))
-            {
-                const char *reason = get_private_escape_block_reason(method->return_type);
-                char msg[512];
-                snprintf(msg, sizeof(msg),
-                         "Private method '%s' can only return primitive types, but returns a type that %s",
-                         method->name, reason ? reason : "cannot escape private scope");
-                type_error(&method->name_token, msg);
             }
         }
 

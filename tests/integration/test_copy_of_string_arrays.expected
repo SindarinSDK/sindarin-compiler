@@ -1,0 +1,18 @@
+=== copyOf() String Array Tests ===
+
+Test 1: Deep copy struct with string array
+  p1.tags[0]: admin
+  p2.tags[0]: guest
+  OK
+
+Test 2: Deep copy struct with multiple arrays
+  m1.rows[0]: 1, m1.cols[1]: 1
+  m2.rows[0]: 99, m2.cols[1]: 88
+  OK
+
+Test 3: Deep copy string field independence
+  p1.name: Bob
+  p2.name: Charlie
+  OK
+
+PASS

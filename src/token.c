@@ -135,10 +135,6 @@ const char *token_type_to_string(SnTokenType type)
         return "BYTE";
     case TOKEN_VOID:
         return "VOID";
-    case TOKEN_SHARED:
-        return "SHARED";
-    case TOKEN_PRIVATE:
-        return "PRIVATE";
     case TOKEN_AS:
         return "AS";
     case TOKEN_VAL:
@@ -213,6 +209,8 @@ const char *token_type_to_string(SnTokenType type)
         return "SYNC";
     case TOKEN_LOCK:
         return "LOCK";
+    case TOKEN_USING:
+        return "USING";
     case TOKEN_LEFT_PAREN:
         return "LEFT_PAREN";
     case TOKEN_RIGHT_PAREN:

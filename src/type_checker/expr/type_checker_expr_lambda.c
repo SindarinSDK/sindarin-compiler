@@ -266,6 +266,9 @@ static bool check_native_lambda_captures_stmt(LambdaExpr *lambda, Stmt *stmt,
     case STMT_LOCK:
         return check_native_lambda_captures_expr(lambda, stmt->as.lock_stmt.lock_expr, table, first_capture) ||
                check_native_lambda_captures_stmt(lambda, stmt->as.lock_stmt.body, table, first_capture);
+    case STMT_USING:
+        return check_native_lambda_captures_expr(lambda, stmt->as.using_stmt.initializer, table, first_capture) ||
+               check_native_lambda_captures_stmt(lambda, stmt->as.using_stmt.body, table, first_capture);
     case STMT_FUNCTION:
         /* Don't recurse into nested functions - they have their own scope */
         return false;
@@ -302,17 +305,6 @@ Type *type_check_lambda(Expr *expr, SymbolTable *table)
         {
             type_error(expr->token,
                        "Cannot infer lambda parameter type. Provide explicit type or use typed variable declaration.");
-            return NULL;
-        }
-    }
-
-    /* Validate private lambda return type - only primitives allowed */
-    if (lambda->modifier == FUNC_PRIVATE)
-    {
-        if (!can_escape_private(lambda->return_type))
-        {
-            type_error(expr->token,
-                       "Private lambda can only return primitive types (int, double, bool, char)");
             return NULL;
         }
     }

@@ -11,8 +11,8 @@
 static const char *reserved_keywords[] = {
     "fn", "var", "return", "if", "else", "for", "while", "break", "continue",
     "in", "import", "nil", "int", "long", "double", "char", "str", "bool",
-    "byte", "void", "shared", "private", "as", "val", "ref", "true", "false",
-    "native",
+    "byte", "void", "as", "val", "ref", "true", "false",
+    "native", "using",
     NULL
 };
 
@@ -164,9 +164,17 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
     MemoryQualifier mem_qual = stmt->as.var_decl.mem_qualifier;
     if (mem_qual == MEM_AS_REF)
     {
-        if (!is_primitive_type(decl_type))
+        if (is_primitive_type(decl_type))
         {
-            type_error(&stmt->as.var_decl.name, "'as ref' can only be used with primitive types");
+            /* Existing behavior: heap-allocate primitive */
+        }
+        else if (decl_type->kind == TYPE_STRUCT)
+        {
+            DEBUG_VERBOSE("'as ref' on struct type has no effect (already default)");
+        }
+        else if (decl_type->kind == TYPE_STRING || decl_type->kind == TYPE_ARRAY)
+        {
+            DEBUG_VERBOSE("'as ref' on string/array type has no effect (already heap)");
         }
     }
     else if (mem_qual == MEM_AS_VAL)
@@ -175,6 +183,8 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         {
             DEBUG_VERBOSE("Warning: 'as val' on primitive type has no effect");
         }
+        /* struct: valid — forces stack allocation (handled in codegen) */
+        /* array/string: existing clone behavior (already handled in codegen) */
     }
 
     /* Only add symbol if we didn't already add it for recursive lambda support */

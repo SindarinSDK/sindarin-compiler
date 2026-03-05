@@ -1,21 +1,18 @@
-// Code Generation Test: Global with private function
+// Code Generation Test: Global with function
 //
-// Tests that a private function creates its own private arena for allocations,
-// can read global string variables from __main_arena__, and can modify
-// global handles using __main_arena__ for the mutation.
+// Tests that a function can read global string variables and can modify
+// global handles.
 
 var greeting: str = "Hello"
 var message: str = ""
 
-private fn process_greeting(): int =>
-    // private function uses its own private arena (__local_arena__)
-    // global 'greeting' is in __main_arena__, accessed via parent-walking
-    // Mutating 'message' should use __main_arena__ since it's a global
+fn process_greeting(): int =>
+    // function accesses global 'greeting' and mutates global 'message'
     message = greeting + " World"
     return len(greeting)
 
 fn main(): int =>
-    println("Global with private function test:")
+    println("Global with function test:")
     var result: int = process_greeting()
     println(message)
     println($"Greeting length: {result}")

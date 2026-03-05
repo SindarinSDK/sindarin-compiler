@@ -294,9 +294,6 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 char *saved_arena_var = gen->current_arena_var;
                 char *saved_function_arena = gen->function_arena_var;
                 Scope *saved_function_scope = gen->function_scope;
-                FunctionModifier saved_func_modifier = gen->current_func_modifier;
-                bool saved_in_private = gen->in_private_context;
-                bool saved_in_shared = gen->in_shared_context;
                 int saved_temp_serial = gen->arena_temp_serial;
                 int saved_temp_count = gen->arena_temp_count;
 
@@ -308,16 +305,10 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                                            !struct_decl->is_native &&
                                            !struct_decl->is_packed);
 
-                bool is_private = (method->modifier == FUNC_PRIVATE);
-                bool is_shared = (method->modifier == FUNC_SHARED);
-
                 if (is_instance_method)
                 {
                     gen->current_arena_var = "__local_arena__";
                     gen->function_arena_var = "__local_arena__";
-                    gen->current_func_modifier = method->modifier;
-                    if (is_private) gen->in_private_context = true;
-                    gen->in_shared_context = is_shared;
                 }
                 else
                 {
@@ -365,19 +356,7 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 /* Emit arena setup for instance methods */
                 if (is_instance_method)
                 {
-                    if (is_shared)
-                    {
-                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __sn__self->__arena__;\n");
-                    }
-                    else if (is_private)
-                    {
-                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_PRIVATE, \"method\");\n");
-                    }
-                    else
-                    {
-                        /* DEFAULT */
-                        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_DEFAULT, \"method\");\n");
-                    }
+                    indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_DEFAULT, \"method\");\n");
                 }
 
                 /* Forward-declare variables that need cleanup at the return label.
@@ -399,7 +378,7 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
 
                 if (is_instance_method)
                 {
-                    bool returns_own_struct_type = (has_return_value && !is_private &&
+                    bool returns_own_struct_type = (has_return_value &&
                         method->return_type->kind == TYPE_STRUCT &&
                         !(resolved_return_type && resolved_return_type->as.struct_type.is_native) &&
                         resolved_return_type != NULL &&
@@ -414,32 +393,25 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                          * to avoid the double-promote bug. */
                         indented_fprintf(gen, 1, "if (__returns_self__) {\n");
                         /* Path A: return self — self-promote first, then re-copy */
-                        if (!is_shared) code_gen_promote_self_fields(gen, struct_decl, 2);
+                        code_gen_promote_self_fields(gen, struct_decl, 2);
                         indented_fprintf(gen, 2, "_return_value = (*__sn__self);\n");
                         indented_fprintf(gen, 1, "} else {\n");
                         /* Path B: independent return — return-promote, then self-promote */
-                        code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", 2);
-                        if (!is_shared) code_gen_promote_self_fields(gen, struct_decl, 2);
+                        code_gen_return_promotion(gen, method->return_type, false, false, "__caller_arena__", 2);
+                        code_gen_promote_self_fields(gen, struct_decl, 2);
                         indented_fprintf(gen, 1, "}\n");
                     }
                     else
                     {
-                        /* Non-struct return or private: original behavior */
-                        if (has_return_value && !is_private)
+                        if (has_return_value)
                         {
-                            code_gen_return_promotion(gen, method->return_type, false, is_shared, "__caller_arena__", 1);
+                            code_gen_return_promotion(gen, method->return_type, false, false, "__caller_arena__", 1);
                         }
-                        if (!is_shared)
-                        {
-                            code_gen_promote_self_fields(gen, struct_decl, 1);
-                        }
+                        code_gen_promote_self_fields(gen, struct_decl, 1);
                     }
 
-                    if (!is_shared)
-                    {
-                        /* DEFAULT/PRIVATE: condemn the local arena */
-                        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
-                    }
+                    /* Condemn the local arena */
+                    indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
                 }
 
                 if (has_return_value)
@@ -460,9 +432,6 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 gen->current_arena_var = saved_arena_var;
                 gen->function_arena_var = saved_function_arena;
                 gen->function_scope = saved_function_scope;
-                gen->current_func_modifier = saved_func_modifier;
-                gen->in_private_context = saved_in_private;
-                gen->in_shared_context = saved_in_shared;
                 gen->arena_temp_serial = saved_temp_serial;
                 gen->arena_temp_count = saved_temp_count;
 

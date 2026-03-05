@@ -1,0 +1,8 @@
+# Error test: using with struct that lacks dispose() method
+
+struct BadResource =>
+    name: str
+
+fn main(): void =>
+    using res = BadResource{ name: "test" } =>
+        print(res.name)

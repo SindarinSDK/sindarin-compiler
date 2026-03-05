@@ -1,13 +1,13 @@
 # ==============================================================================
-# test_match_memory.sn - Match in shared and private memory contexts
+# test_match_memory.sn - Match in different function contexts
 # ==============================================================================
 
 struct Label =>
     text: str
     priority: int
 
-# Shared function using match expression to produce a string
-shared fn classify_priority(p: int): str =>
+# Function using match expression to produce a string
+fn classify_priority(p: int): str =>
     var result: str = match p =>
         1 => "critical"
         2 => "high"
@@ -16,8 +16,8 @@ shared fn classify_priority(p: int): str =>
         else => "unknown"
     return result
 
-# Shared function using match to return a struct
-shared fn create_label(code: int): Label =>
+# Function using match to return a struct
+fn create_label(code: int): Label =>
     var text: str = match code =>
         0 => "OK"
         1 => "WARNING"
@@ -30,8 +30,8 @@ shared fn create_label(code: int): Label =>
         else => 4
     return Label { text: text, priority: priority }
 
-# Shared function with match returning a classification string
-shared fn process_code(code: int): str =>
+# Function with match returning a classification string
+fn process_code(code: int): str =>
     var result: str = match code =>
         200, 201 => "success"
         301, 302 => "redirect"
@@ -40,8 +40,8 @@ shared fn process_code(code: int): str =>
         else => "unknown"
     return result
 
-# Shared function with multiline match arms
-shared fn elaborate_status(code: int): str =>
+# Function with multiline match arms
+fn elaborate_status(code: int): str =>
     var prefix: str = "Status"
     var result: str = match code =>
         200 =>
@@ -55,8 +55,8 @@ shared fn elaborate_status(code: int): str =>
             msg
     return result
 
-# Private function with match (returns int since private can't return str)
-private fn private_classify(n: int): int =>
+# Function with match (returns int)
+fn private_classify(n: int): int =>
     var result: int = match n =>
         1 => 10
         2 => 20

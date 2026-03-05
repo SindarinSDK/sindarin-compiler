@@ -225,23 +225,23 @@ static void test_lexer_keyword_sizeof(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_kw_shared(void)
+static void test_lexer_kw_shared_is_identifier(void)
 {
     Arena arena;
     Lexer lexer;
     init_lexer_test(&arena, &lexer, "shared");
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_SHARED);
+    assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_kw_private(void)
+static void test_lexer_kw_private_is_identifier(void)
 {
     Arena arena;
     Lexer lexer;
     init_lexer_test(&arena, &lexer, "private");
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_PRIVATE);
+    assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
 
@@ -664,8 +664,8 @@ void test_lexer_keywords_main(void)
     TEST_RUN("keyword_typeof", test_lexer_keyword_typeof);
     TEST_RUN("keyword_is", test_lexer_keyword_is);
     TEST_RUN("keyword_sizeof", test_lexer_keyword_sizeof);
-    TEST_RUN("keyword_shared", test_lexer_kw_shared);
-    TEST_RUN("keyword_private", test_lexer_kw_private);
+    TEST_RUN("keyword_shared_is_identifier", test_lexer_kw_shared_is_identifier);
+    TEST_RUN("keyword_private_is_identifier", test_lexer_kw_private_is_identifier);
     TEST_RUN("keyword_sync", test_lexer_keyword_sync);
     TEST_RUN("keyword_lock", test_lexer_keyword_lock);
 

@@ -136,8 +136,6 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
             }
         }
         break;
-    case 'p':
-        return lexer_check_keyword(lexer, 1, 6, "rivate", TOKEN_PRIVATE);
     case 'r':
         if (lexer->current - lexer->start > 1)
         {
@@ -175,8 +173,6 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
                     return lexer_check_keyword(lexer, 2, 4, "atic", TOKEN_STATIC);
                 }
                 return lexer_check_keyword(lexer, 2, 1, "r", TOKEN_STR);
-            case 'h':
-                return lexer_check_keyword(lexer, 2, 4, "ared", TOKEN_SHARED);
             case 'i':
                 return lexer_check_keyword(lexer, 2, 4, "zeof", TOKEN_SIZEOF);
             case 'y':
@@ -215,6 +211,8 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
                     return lexer_check_keyword(lexer, 2, 4, "nt32", TOKEN_UINT32);
                 }
                 return lexer_check_keyword(lexer, 2, 2, "nt", TOKEN_UINT);
+            case 's':
+                return lexer_check_keyword(lexer, 2, 3, "ing", TOKEN_USING);
             }
         }
         break;

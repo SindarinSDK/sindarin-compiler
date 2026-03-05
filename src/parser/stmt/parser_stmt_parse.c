@@ -70,35 +70,31 @@ Stmt *parser_statement(Parser *parser)
         return parser_block_statement(parser);
     }
 
-    // Disallow shared/private blocks - these modifiers only apply to functions now
-    if (parser_check(parser, TOKEN_SHARED))
+    // Parse using name = expr => block
+    if (parser_match(parser, TOKEN_USING))
     {
-        parser_advance(parser);  // consume shared
+        Token using_token = parser->previous;
 
-        // Check if it's a loop (already disallowed) or block
-        if (parser_check(parser, TOKEN_WHILE) || parser_check(parser, TOKEN_FOR))
+        parser_consume(parser, TOKEN_IDENTIFIER, "Expected variable name after 'using'");
+        Token name = parser->previous;
+        /* Duplicate name to arena */
+        char *name_copy = arena_alloc(parser->arena, name.length + 1);
+        memcpy(name_copy, name.start, name.length);
+        name_copy[name.length] = '\0';
+        name.start = name_copy;
+
+        parser_consume(parser, TOKEN_EQUAL, "Expected '=' after variable name in using statement");
+        Expr *initializer = parser_expression(parser);
+        parser_consume(parser, TOKEN_ARROW, "Expected '=>' after using initializer");
+        skip_newlines(parser);
+
+        Stmt *body = parser_indented_block(parser);
+        if (body == NULL)
         {
-            parser_error_at_current(parser,
-                "'shared' modifier on loops is no longer supported. "
-                "All loops now share the function's arena by default.");
+            body = ast_create_block_stmt(parser->arena, NULL, 0, &using_token);
         }
-        else
-        {
-            parser_error_at_current(parser,
-                "'shared' blocks are no longer supported. "
-                "Use 'shared' modifier on functions instead.");
-        }
-        return NULL;
-    }
 
-    if (parser_check(parser, TOKEN_PRIVATE))
-    {
-        parser_advance(parser);  // consume private
-
-        parser_error_at_current(parser,
-            "'private' blocks are no longer supported. "
-            "Use 'private' modifier on functions instead.");
-        return NULL;
+        return ast_create_using_stmt(parser->arena, name, initializer, body, &using_token);
     }
 
     // Parse lock(expr) => block

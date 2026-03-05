@@ -257,6 +257,14 @@ bool stmt_needs_arena(Stmt *stmt)
         }
         return stmt_needs_arena(stmt->as.lock_stmt.body);
 
+    case STMT_USING:
+        /* Check initializer and body */
+        if (expr_needs_arena(stmt->as.using_stmt.initializer))
+        {
+            return true;
+        }
+        return stmt_needs_arena(stmt->as.using_stmt.body);
+
     case STMT_FUNCTION:
         /* Nested functions don't affect parent's arena needs */
         return false;

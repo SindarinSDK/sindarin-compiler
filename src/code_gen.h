@@ -39,12 +39,9 @@ typedef struct {
 
     /* Arena context for memory management */
     int arena_depth;            // Current arena nesting level
-    bool in_shared_context;     // Are we in a shared block?
-    bool in_private_context;    // Are we in a private block/function?
     char *current_arena_var;    // Name of current arena variable (e.g., "__arena__")
     char *function_arena_var;   // Arena variable for the function scope
     Scope *function_scope;      // Scope at function/method entry (for return cleanup)
-    FunctionModifier current_func_modifier;  // Current function's modifier
 
     /* Loop counter tracking for optimization - tracks variables known to be non-negative */
     char **loop_counter_names;  // Names of loop counter variables (provably non-negative)
@@ -61,6 +58,12 @@ typedef struct {
     char **lock_stack;          // Stack of lock variable expressions
     int lock_stack_depth;       // Current depth of lock nesting
     int lock_stack_capacity;    // Capacity of lock stack
+
+    /* Using stack - tracks dispose call strings for nested using blocks.
+     * Used by return statements to emit dispose() calls before goto. */
+    char **using_stack;         // Stack of dispose call C code strings
+    int using_stack_depth;      // Current depth of using nesting
+    int using_stack_capacity;   // Capacity of using stack
 
     /* Lambda support */
     int lambda_count;           // Counter for unique lambda IDs

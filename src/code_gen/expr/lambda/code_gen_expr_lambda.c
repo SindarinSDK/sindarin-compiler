@@ -192,37 +192,12 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
      * from a thread context. This ensures closures created in main() use the
      * calling thread's arena rather than main's arena. */
     char *arena_setup = arena_strdup(gen->arena, "");
-    char *arena_cleanup = arena_strdup(gen->arena, "");
 
-    if (modifier == FUNC_PRIVATE)
-    {
-        /* Private lambda: create child arena, destroy before return.
-         * Parent is caller arena if provided, otherwise closure's stored arena. */
-        arena_setup = arena_sprintf(gen->arena,
-            "    RtArenaV2 *__lambda_arena__ = rt_arena_v2_create("
-            "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena, RT_ARENA_MODE_PRIVATE, \"lambda\");\n"
-            "    (void)__closure__;\n");
-        arena_cleanup = arena_sprintf(gen->arena,
-            "    rt_arena_v2_condemn(__lambda_arena__);\n");
-    }
-    else if (modifier == FUNC_SHARED)
-    {
-        /* Shared lambda: ALWAYS use the closure's stored arena.
-         * This ensures the lambda operates on the arena where it was created,
-         * which is critical for closures capturing arrays or other state
-         * that needs to remain in the original arena. When a shared closure
-         * is called from a thread, it should access the main thread's data. */
-        arena_setup = arena_sprintf(gen->arena,
-            "    RtArenaV2 *__lambda_arena__ = ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;\n");
-    }
-    else
-    {
-        /* Default lambda: use caller arena if provided,
-         * otherwise use arena from closure */
-        arena_setup = arena_sprintf(gen->arena,
-            "    RtArenaV2 *__lambda_arena__ = "
-            "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;\n");
-    }
+    /* Default lambda: use caller arena if provided,
+     * otherwise use arena from closure */
+    arena_setup = arena_sprintf(gen->arena,
+        "    RtArenaV2 *__lambda_arena__ = "
+        "__caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;\n");
 
     /* Prepend safepoint poll to arena setup so every lambda checks on entry */
     arena_setup = arena_sprintf(gen->arena, "    rt_safepoint_poll();\n%s", arena_setup);
@@ -355,66 +330,31 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             if (is_void_return)
             {
                 /* Void return - no return value declaration needed */
-                if (modifier == FUNC_PRIVATE)
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static void %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "%s"
-                        "%s_return:\n"
-                        "%s"
-                        "    return;\n"
-                        "}\n\n",
-                        lambda_func_name, params_decl, arena_setup, capture_decls,
-                        body_code, lambda_func_name, arena_cleanup);
-                }
-                else
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static void %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "%s"
-                        "%s_return:\n"
-                        "    return;\n"
-                        "}\n\n",
-                        lambda_func_name, params_decl, arena_setup, capture_decls,
-                        body_code, lambda_func_name);
-                }
+                lambda_func = arena_sprintf(gen->arena,
+                    "static void %s(%s) {\n"
+                    "%s"
+                    "%s"
+                    "%s"
+                    "%s_return:\n"
+                    "    return;\n"
+                    "}\n\n",
+                    lambda_func_name, params_decl, arena_setup, capture_decls,
+                    body_code, lambda_func_name);
             }
             else
             {
                 const char *default_val = get_default_value(lambda->return_type);
-                if (modifier == FUNC_PRIVATE)
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static %s %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "    %s _return_value = %s;\n"
-                        "%s"
-                        "%s_return:\n"
-                        "%s"
-                        "    return _return_value;\n"
-                        "}\n\n",
-                        ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls,
-                        ret_c_type, default_val, body_code, lambda_func_name, arena_cleanup);
-                }
-                else
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static %s %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "    %s _return_value = %s;\n"
-                        "%s"
-                        "%s_return:\n"
-                        "    return _return_value;\n"
-                        "}\n\n",
-                        ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls,
-                        ret_c_type, default_val, body_code, lambda_func_name);
-                }
+                lambda_func = arena_sprintf(gen->arena,
+                    "static %s %s(%s) {\n"
+                    "%s"
+                    "%s"
+                    "    %s _return_value = %s;\n"
+                    "%s"
+                    "%s_return:\n"
+                    "    return _return_value;\n"
+                    "}\n\n",
+                    ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls,
+                    ret_c_type, default_val, body_code, lambda_func_name);
             }
         }
         else
@@ -441,32 +381,14 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             gen->arena_temp_count = saved_tc_e;
             gen->arena_temp_serial = saved_ts_e;
 
-            if (modifier == FUNC_PRIVATE)
-            {
-                /* Private: create arena, compute result, destroy arena, return */
-                lambda_func = arena_sprintf(gen->arena,
-                    "static %s %s(%s) {\n"
-                    "%s"
-                    "%s"
-                    "%s"
-                    "    %s __result__ = %s;\n"
-                    "%s"
-                    "    return __result__;\n"
-                    "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls,
-                    hoisted_decls, ret_c_type, body_code, arena_cleanup);
-            }
-            else
-            {
-                lambda_func = arena_sprintf(gen->arena,
-                    "static %s %s(%s) {\n"
-                    "%s"
-                    "%s"
-                    "%s"
-                    "    return %s;\n"
-                    "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls, hoisted_decls, body_code);
-            }
+            lambda_func = arena_sprintf(gen->arena,
+                "static %s %s(%s) {\n"
+                "%s"
+                "%s"
+                "%s"
+                "    return %s;\n"
+                "}\n\n",
+                ret_c_type, lambda_func_name, params_decl, arena_setup, capture_decls, hoisted_decls, body_code);
         }
         gen->current_arena_var = saved_arena_var;
         gen->function_arena_var = saved_function_arena;
@@ -627,62 +549,29 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             if (is_void_return)
             {
                 /* Void return - no return value declaration needed */
-                if (modifier == FUNC_PRIVATE)
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static void %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "%s_return:\n"
-                        "%s"
-                        "    return;\n"
-                        "}\n\n",
-                        lambda_func_name, params_decl, arena_setup,
-                        body_code, lambda_func_name, arena_cleanup);
-                }
-                else
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static void %s(%s) {\n"
-                        "%s"
-                        "%s"
-                        "%s_return:\n"
-                        "    return;\n"
-                        "}\n\n",
-                        lambda_func_name, params_decl, arena_setup,
-                        body_code, lambda_func_name);
-                }
+                lambda_func = arena_sprintf(gen->arena,
+                    "static void %s(%s) {\n"
+                    "%s"
+                    "%s"
+                    "%s_return:\n"
+                    "    return;\n"
+                    "}\n\n",
+                    lambda_func_name, params_decl, arena_setup,
+                    body_code, lambda_func_name);
             }
             else
             {
                 const char *default_val = get_default_value(lambda->return_type);
-                if (modifier == FUNC_PRIVATE)
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static %s %s(%s) {\n"
-                        "%s"
-                        "    %s _return_value = %s;\n"
-                        "%s"
-                        "%s_return:\n"
-                        "%s"
-                        "    return _return_value;\n"
-                        "}\n\n",
-                        ret_c_type, lambda_func_name, params_decl, arena_setup,
-                        ret_c_type, default_val, body_code, lambda_func_name, arena_cleanup);
-                }
-                else
-                {
-                    lambda_func = arena_sprintf(gen->arena,
-                        "static %s %s(%s) {\n"
-                        "%s"
-                        "    %s _return_value = %s;\n"
-                        "%s"
-                        "%s_return:\n"
-                        "    return _return_value;\n"
-                        "}\n\n",
-                        ret_c_type, lambda_func_name, params_decl, arena_setup,
-                        ret_c_type, default_val, body_code, lambda_func_name);
-                }
+                lambda_func = arena_sprintf(gen->arena,
+                    "static %s %s(%s) {\n"
+                    "%s"
+                    "    %s _return_value = %s;\n"
+                    "%s"
+                    "%s_return:\n"
+                    "    return _return_value;\n"
+                    "}\n\n",
+                    ret_c_type, lambda_func_name, params_decl, arena_setup,
+                    ret_c_type, default_val, body_code, lambda_func_name);
             }
         }
         else
@@ -709,30 +598,13 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
             gen->arena_temp_count = saved_tc_e;
             gen->arena_temp_serial = saved_ts_e;
 
-            if (modifier == FUNC_PRIVATE)
-            {
-                /* Private: create arena, compute result, destroy arena, return */
-                lambda_func = arena_sprintf(gen->arena,
-                    "static %s %s(%s) {\n"
-                    "%s"
-                    "%s"
-                    "    %s __result__ = %s;\n"
-                    "%s"
-                    "    return __result__;\n"
-                    "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup,
-                    hoisted_decls, ret_c_type, body_code, arena_cleanup);
-            }
-            else
-            {
-                lambda_func = arena_sprintf(gen->arena,
-                    "static %s %s(%s) {\n"
-                    "%s"
-                    "%s"
-                    "    return %s;\n"
-                    "}\n\n",
-                    ret_c_type, lambda_func_name, params_decl, arena_setup, hoisted_decls, body_code);
-            }
+            lambda_func = arena_sprintf(gen->arena,
+                "static %s %s(%s) {\n"
+                "%s"
+                "%s"
+                "    return %s;\n"
+                "}\n\n",
+                ret_c_type, lambda_func_name, params_decl, arena_setup, hoisted_decls, body_code);
         }
         gen->current_arena_var = saved_arena_var;
         gen->function_arena_var = saved_function_arena;

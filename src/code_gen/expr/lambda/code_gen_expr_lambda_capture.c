@@ -96,6 +96,10 @@ void collect_captured_vars_from_stmt(Stmt *stmt, LambdaExpr *lambda, SymbolTable
         collect_captured_vars_internal(stmt->as.lock_stmt.lock_expr, lambda, table, cv, lv, enclosing, arena);
         collect_captured_vars_from_stmt(stmt->as.lock_stmt.body, lambda, table, cv, lv, enclosing, arena);
         break;
+    case STMT_USING:
+        collect_captured_vars_internal(stmt->as.using_stmt.initializer, lambda, table, cv, lv, enclosing, arena);
+        collect_captured_vars_from_stmt(stmt->as.using_stmt.body, lambda, table, cv, lv, enclosing, arena);
+        break;
     case STMT_FUNCTION:
         /* Don't recurse into nested functions - they have their own scope */
         break;

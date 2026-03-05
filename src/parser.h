@@ -75,7 +75,6 @@ int parser_match(Parser *parser, SnTokenType type);
 Type *parser_type(Parser *parser);
 ParsedType parser_type_with_size(Parser *parser);
 MemoryQualifier parser_memory_qualifier(Parser *parser);
-FunctionModifier parser_function_modifier(Parser *parser);
 
 Expr *parser_expression(Parser *parser);
 Expr *parser_assignment(Parser *parser);

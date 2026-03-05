@@ -85,25 +85,6 @@ Type *type_check_thread_spawn(Expr *expr, SymbolTable *table)
     /* Extract return type from function type */
     Type *return_type = func_type->as.function.return_type;
 
-    /* Private functions can only return primitive types.
-     * This is enforced because private functions have isolated arenas that
-     * are freed immediately after execution - only primitives can escape. */
-    if (func_modifier == FUNC_PRIVATE && return_type != NULL)
-    {
-        bool is_primitive = (return_type->kind == TYPE_INT ||
-                             return_type->kind == TYPE_LONG ||
-                             return_type->kind == TYPE_DOUBLE ||
-                             return_type->kind == TYPE_BOOL ||
-                             return_type->kind == TYPE_BYTE ||
-                             return_type->kind == TYPE_CHAR ||
-                             return_type->kind == TYPE_VOID);
-        if (!is_primitive)
-        {
-            type_error(expr->token, "Private function can only return primitive types");
-            return NULL;
-        }
-    }
-
     DEBUG_VERBOSE("Thread spawn type checked, return type: %d", return_type->kind);
 
     return return_type;

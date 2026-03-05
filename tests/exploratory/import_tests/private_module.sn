@@ -1,12 +1,11 @@
-// private_module.sn - Module with public and private functions
-// Private functions should not be visible to importers
+// private_module.sn - Module with helper and public functions
 
-// Private helper function - should NOT be callable from importers
-private fn internal_helper(x: int): int =>
+// Helper function
+fn internal_helper(x: int): int =>
     return x * 2
 
-// Private validation function
-private fn validate_input(n: int): bool =>
+// Validation function
+fn validate_input(n: int): bool =>
     return n >= 0
 
 // Public function that uses private helpers internally

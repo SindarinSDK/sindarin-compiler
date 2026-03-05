@@ -89,6 +89,9 @@ bool stmt_has_marked_tail_calls(Stmt *stmt)
     case STMT_LOCK:
         return stmt_has_marked_tail_calls(stmt->as.lock_stmt.body);
 
+    case STMT_USING:
+        return stmt_has_marked_tail_calls(stmt->as.using_stmt.body);
+
     default:
         return false;
     }
