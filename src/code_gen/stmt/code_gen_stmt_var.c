@@ -468,8 +468,8 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         }
     }
 
-    /* Handle 'as ref' - heap allocate */
-    if (effective_qual == MEM_AS_REF)
+    /* Handle 'as ref' - heap allocate (skip structs — as ref on structs is a no-op) */
+    if (effective_qual == MEM_AS_REF && stmt->type->kind != TYPE_STRUCT)
     {
         bool in_main = (gen->current_function != NULL && strcmp(gen->current_function, "main") == 0);
         const char *alloc_arena = (gen->allocate_closure_in_caller_arena &&
@@ -482,42 +482,54 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                          type_c, var_name, type_c, var_name);
         indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
     }
-    /* Handle large struct heap allocation */
+    /* Handle struct allocation — as val forces stack, otherwise size-based */
     else if (stmt->type->kind == TYPE_STRUCT && gen->current_arena_var != NULL)
     {
-        int struct_size = (int)stmt->type->as.struct_type.size;
-        if (struct_size == 0 && stmt->type->as.struct_type.name != NULL)
+        if (stmt->mem_qualifier == MEM_AS_VAL)
         {
-            Token struct_name_token = {
-                .start = stmt->type->as.struct_type.name,
-                .length = (int)strlen(stmt->type->as.struct_type.name)
-            };
-            Symbol *struct_sym = symbol_table_lookup_type(gen->symbol_table, struct_name_token);
-            if (struct_sym != NULL && struct_sym->type != NULL && struct_sym->type->kind == TYPE_STRUCT)
-            {
-                struct_size = (int)struct_sym->type->as.struct_type.size;
-            }
-        }
-        if (struct_size >= STRUCT_STACK_THRESHOLD)
-        {
-            indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
-                             var_name, ARENA_VAR(gen), type_c);
-            indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
-                             type_c, var_name, type_c, var_name);
-            indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
-
-            Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
-            if (sym != NULL)
-            {
-                sym->mem_qual = MEM_AS_REF;
-            }
-        }
-        else
-        {
+            /* as val forces stack allocation regardless of struct size */
             if (is_forward_declared(gen, var_name))
                 indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
             else
                 indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
+        }
+        else
+        {
+            /* Default: size-based stack/heap decision */
+            int struct_size = (int)stmt->type->as.struct_type.size;
+            if (struct_size == 0 && stmt->type->as.struct_type.name != NULL)
+            {
+                Token struct_name_token = {
+                    .start = stmt->type->as.struct_type.name,
+                    .length = (int)strlen(stmt->type->as.struct_type.name)
+                };
+                Symbol *struct_sym = symbol_table_lookup_type(gen->symbol_table, struct_name_token);
+                if (struct_sym != NULL && struct_sym->type != NULL && struct_sym->type->kind == TYPE_STRUCT)
+                {
+                    struct_size = (int)struct_sym->type->as.struct_type.size;
+                }
+            }
+            if (struct_size >= STRUCT_STACK_THRESHOLD)
+            {
+                indented_fprintf(gen, indent, "RtHandleV2 *__%s_h__ = rt_arena_v2_alloc(%s, sizeof(%s));\n",
+                                 var_name, ARENA_VAR(gen), type_c);
+                indented_fprintf(gen, indent, "%s *%s = (%s *)__%s_h__->ptr;\n",
+                                 type_c, var_name, type_c, var_name);
+                indented_fprintf(gen, indent, "*%s = %s;\n", var_name, init_str);
+
+                Symbol *sym = symbol_table_lookup_symbol_current(gen->symbol_table, stmt->name);
+                if (sym != NULL)
+                {
+                    sym->mem_qual = MEM_AS_REF;
+                }
+            }
+            else
+            {
+                if (is_forward_declared(gen, var_name))
+                    indented_fprintf(gen, indent, "%s = %s;\n", var_name, init_str);
+                else
+                    indented_fprintf(gen, indent, "%s%s %s = %s;\n", static_prefix, type_c, var_name, init_str);
+            }
         }
     }
     else

@@ -1,0 +1,12 @@
+=== addressOf() Integration Tests ===
+
+Test 1: addressOf(int)
+  x after c_mutate_int: 99
+  y after c_double_value: 20
+
+Test 2: addressOf(array)
+  arr[0] after c_mutate_int: 99
+  arr[1] unchanged: 20
+  arr[2] unchanged: 30
+
+PASS

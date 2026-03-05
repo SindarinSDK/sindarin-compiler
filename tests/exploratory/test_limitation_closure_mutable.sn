@@ -8,7 +8,7 @@ fn main(): void =>
     var counter: int = 0
 
     # Create a closure that captures and modifies counter
-    var increment: fn(): int = fn() shared: int =>
+    var increment: fn(): int = fn(): int =>
         counter = counter + 1
         return counter
 

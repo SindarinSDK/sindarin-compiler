@@ -63,22 +63,16 @@ typedef enum
     SYNC_ATOMIC     /* sync keyword - uses atomic operations */
 } SyncModifier;
 
-/* Block modifier for memory management.
- * Note: Only BLOCK_DEFAULT is currently used.
- * BLOCK_SHARED and BLOCK_PRIVATE are deprecated (parser rejects them). */
+/* Block modifier for memory management */
 typedef enum
 {
-    BLOCK_DEFAULT,  /* Normal block - uses function's arena */
-    BLOCK_SHARED,   /* (deprecated) shared block - was parent's arena */
-    BLOCK_PRIVATE   /* (deprecated) private block - was isolated arena */
+    BLOCK_DEFAULT   /* Normal block - uses function's arena */
 } BlockModifier;
 
 /* Function modifier for memory management */
 typedef enum
 {
-    FUNC_DEFAULT,   /* Normal function with own arena */
-    FUNC_SHARED,    /* shared function - uses caller's arena */
-    FUNC_PRIVATE    /* private function - isolated arena, only primitives return */
+    FUNC_DEFAULT    /* Normal function - arena strategy is compiler-inferred */
 } FunctionModifier;
 
 /* Struct method definition */
@@ -527,7 +521,8 @@ typedef enum
     STMT_PRAGMA,
     STMT_TYPE_DECL,
     STMT_STRUCT_DECL,
-    STMT_LOCK
+    STMT_LOCK,
+    STMT_USING
 } StmtType;
 
 /* Pragma directive types */
@@ -671,6 +666,15 @@ typedef struct
     Stmt *body;                /* The lock block body */
 } LockStmt;
 
+/* Using statement for scoped resource management: using name = expr => body */
+typedef struct
+{
+    Token name;                /* Variable name */
+    Type *type;                /* Inferred type of the variable (set by type checker) */
+    Expr *initializer;         /* Initializer expression */
+    Stmt *body;                /* The using block body */
+} UsingStmt;
+
 struct Stmt
 {
     StmtType type;
@@ -696,6 +700,7 @@ struct Stmt
         TypeDeclStmt type_decl;
         StructDeclStmt struct_decl;
         LockStmt lock_stmt;
+        UsingStmt using_stmt;
     } as;
 };
 
@@ -799,6 +804,7 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
                                    bool is_native, bool is_packed, bool pass_self_by_ref,
                                    const char *c_alias, const Token *loc_token);
 Stmt *ast_create_lock_stmt(Arena *arena, Expr *lock_expr, Stmt *body, const Token *loc_token);
+Stmt *ast_create_using_stmt(Arena *arena, Token name, Expr *initializer, Stmt *body, const Token *loc_token);
 
 void ast_init_module(Arena *arena, Module *module, const char *filename);
 void ast_module_add_statement(Arena *arena, Module *module, Stmt *stmt);

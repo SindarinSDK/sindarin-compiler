@@ -42,7 +42,7 @@ fn main(): int =>
         print($"square({n}) = {square(n)}\n")
 
     print("\n=== Lambda with Shared Modifier ===\n")
-    var increment: fn(int): int = fn(x) shared => x + 1
+    var increment: fn(int): int = fn(x) => x + 1
     print($"increment(99) = {increment(99)}\n")
 
     return 0

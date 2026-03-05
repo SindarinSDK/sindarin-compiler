@@ -2,12 +2,12 @@
 
 fn main(): int =>
     // Private lambda that returns a primitive
-    var square: fn(int): int = fn(x: int) private: int => x * x
+    var square: fn(int): int = fn(x: int): int => x * x
 
     print($"Square 7 = {square(7)}\n")
 
     // Another private lambda
-    var add: fn(int, int): int = fn(a: int, b: int) private: int => a + b
+    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
     print($"Add 10 + 20 = {add(10, 20)}\n")
 
     // Multiple calls to verify arena cleanup

@@ -140,16 +140,14 @@ Stmt *parser_native_function_declaration(Parser *parser, FunctionModifier modifi
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after parameters");
     }
 
-    /* Check for misplaced modifiers after parameters */
-    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE) || parser_check(parser, TOKEN_STATIC))
+    /* Check for misplaced 'static' modifier after parameters */
+    if (parser_check(parser, TOKEN_STATIC))
     {
-        const char *keyword = parser_check(parser, TOKEN_SHARED) ? "shared" :
-                              parser_check(parser, TOKEN_PRIVATE) ? "private" : "static";
         char error_msg[256];
         snprintf(error_msg, sizeof(error_msg),
-            "'%s' must be declared before 'fn', not after the parameter list. "
-            "Example: %s native fn %.*s(...): type",
-            keyword, keyword, name.length, name.start);
+            "'static' must be declared before 'fn', not after the parameter list. "
+            "Example: static native fn %.*s(...): type",
+            name.length, name.start);
         parser_error_at_current(parser, error_msg);
         parser_advance(parser);
     }

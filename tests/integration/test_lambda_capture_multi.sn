@@ -1,5 +1,5 @@
 fn main(): void =>
     var a: int = 10
     var b: int = 20
-    var sum: fn(): int = fn() shared: int => a + b
+    var sum: fn(): int = fn(): int => a + b
     print($"{sum()}\n")

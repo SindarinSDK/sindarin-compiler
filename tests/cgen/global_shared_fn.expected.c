@@ -23,22 +23,22 @@ RtHandleV2 * __sn__append_world(RtArenaV2 *);
 /* Interceptor thunk forward declarations */
 static RtAny __thunk_0(void);
 
-// Code Generation Test: Global with shared function
+// Code Generation Test: Global with function
 //
-// Tests that a shared function uses the caller's arena for allocations,
-// and can access global string variables from __main_arena__.
+// Tests that a function can access global string variables.
 RtHandleV2 * __sn__greeting = NULL;
 RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     rt_safepoint_poll();
-    RtArenaV2 *__local_arena__ = __caller_arena__;
+    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, "func");
     RtHandleV2 * _return_value = NULL;
-    // shared function uses caller's arena for allocations
-    // global 'greeting' is in __main_arena__, accessed via parent-walking
+    // function accesses global 'greeting'
     RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, " World");
     RtHandleV2 *__htmp_1__ = rt_str_concat_v2(__local_arena__, rt_arena_v2_clone(__local_arena__, __sn__greeting), __htmp_0__);
     _return_value = __htmp_1__;
     goto __sn__append_world_return;
 __sn__append_world_return:
+    _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);
+    rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
 
@@ -49,8 +49,8 @@ int main() {
     __main_arena__ = __local_arena__;
     __sn__greeting = rt_arena_v2_strdup(__main_arena__, "Hello");
     int _return_value = 0;
-    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with shared function test:");
-    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with shared function test:");
+    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, "Global with function test:");
+    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with function test:");
     rt_println_v2(__htmp_1__);
     RtHandleV2 *__result_pending__ = NULL;
     RtHandleV2 * __sn__result = ({

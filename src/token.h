@@ -49,8 +49,6 @@ typedef enum
     TOKEN_BYTE,
     TOKEN_VOID,
     // Memory management keywords
-    TOKEN_SHARED,
-    TOKEN_PRIVATE,
     TOKEN_AS,
     TOKEN_VAL,
     TOKEN_REF,
@@ -109,6 +107,8 @@ typedef enum
     // Synchronization keywords
     TOKEN_SYNC,
     TOKEN_LOCK,
+    // Resource management keyword
+    TOKEN_USING,
     TOKEN_LEFT_PAREN,
     TOKEN_RIGHT_PAREN,
     TOKEN_LEFT_BRACE,

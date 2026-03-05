@@ -144,7 +144,7 @@ fn nested_block_return(n: int): int =>
     return result
 
 // String expression return
-shared fn string_expression(): str =>
+fn string_expression(): str =>
     var s1: str = "hello"
     var s2: str = " world"
     return s1 + s2
@@ -158,7 +158,7 @@ fn complex_arithmetic(a: int, b: int, c: int): int =>
     return (a + b) * c
 
 // Multiple return paths
-shared fn classify_number(n: int): str =>
+fn classify_number(n: int): str =>
     if n == 0 =>
         return "zero"
     if n < 10 =>

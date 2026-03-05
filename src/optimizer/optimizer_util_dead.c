@@ -369,6 +369,11 @@ void simplify_noop_stmt(Optimizer *opt, Stmt *stmt)
         simplify_noop_stmt(opt, stmt->as.lock_stmt.body);
         break;
 
+    case STMT_USING:
+        stmt->as.using_stmt.initializer = simplify_noop_expr(opt, stmt->as.using_stmt.initializer);
+        simplify_noop_stmt(opt, stmt->as.using_stmt.body);
+        break;
+
     default:
         break;
     }

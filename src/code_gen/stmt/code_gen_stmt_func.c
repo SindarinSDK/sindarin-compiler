@@ -91,9 +91,6 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Save state */
     char *old_function = gen->current_function;
     Type *old_return_type = gen->current_return_type;
-    FunctionModifier old_func_modifier = gen->current_func_modifier;
-    bool old_in_private_context = gen->in_private_context;
-    bool old_in_shared_context = gen->in_shared_context;
     char *old_arena_var = gen->current_arena_var;
     int old_arena_depth = gen->arena_depth;
     Scope *old_function_scope = gen->function_scope;
@@ -142,19 +139,12 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     gen->emitted_functions[gen->emitted_functions_count++] = arena_strdup(gen->arena, gen->current_function);
 
     gen->current_return_type = stmt->return_type;
-    gen->current_func_modifier = stmt->modifier;
 
     /* Reset arena temp tracking for this function */
     gen->arena_temp_serial = 0;
     gen->arena_temp_count = 0;
 
     bool main_has_args = is_main && stmt->param_count == 1;
-    bool is_private = stmt->modifier == FUNC_PRIVATE;
-    bool is_shared = stmt->modifier == FUNC_SHARED;
-
-    /* Setup arena context */
-    if (is_private) gen->in_private_context = true;
-    gen->in_shared_context = is_shared;
     gen->current_arena_var = "__local_arena__";
     gen->function_arena_var = "__local_arena__";
 
@@ -247,16 +237,6 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
                              gen->deferred_global_names[i], gen->deferred_global_values[i]);
         }
     }
-    else if (is_shared)
-    {
-        indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
-        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = __caller_arena__;\n");
-    }
-    else if (is_private)
-    {
-        indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
-        indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_PRIVATE, \"func\");\n");
-    }
     else
     {
         indented_fprintf(gen, 1, "rt_safepoint_poll();\n");
@@ -264,7 +244,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     }
 
     /* Clone handle-type parameters */
-    if (!is_main && !is_shared && !main_has_args)
+    if (!is_main && !main_has_args)
     {
         for (int i = 0; i < stmt->param_count; i++)
         {
@@ -406,21 +386,13 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Promote return value BEFORE cleanup so handles are promoted while arenas are still alive */
     if (has_return_value)
     {
-        code_gen_return_promotion(gen, stmt->return_type, is_main, is_shared, "__caller_arena__", 1);
+        code_gen_return_promotion(gen, stmt->return_type, is_main, false, "__caller_arena__", 1);
     }
 
     code_gen_free_locals(gen, gen->symbol_table->current, true, 1);
 
-    /* Stop GC thread and destroy arena */
-    if (is_main)
-    {
-        /* GC thread disabled - no stop needed */
-        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
-    }
-    else if (!is_shared)
-    {
-        indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
-    }
+    /* Condemn the local arena */
+    indented_fprintf(gen, 1, "rt_arena_v2_condemn(__local_arena__);\n");
 
     /* Return statement */
     if (has_return_value)
@@ -440,9 +412,6 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Restore state */
     gen->current_function = old_function;
     gen->current_return_type = old_return_type;
-    gen->current_func_modifier = old_func_modifier;
-    gen->in_private_context = old_in_private_context;
-    gen->in_shared_context = old_in_shared_context;
     gen->current_arena_var = old_arena_var;
     gen->arena_depth = old_arena_depth;
     gen->function_scope = old_function_scope;

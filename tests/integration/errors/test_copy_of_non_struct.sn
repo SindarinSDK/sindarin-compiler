@@ -1,0 +1,6 @@
+# Error test: copyOf() on non-struct type
+
+fn main(): void =>
+    var x: int = 42
+    var y: int = copyOf(x)
+    print($"{y}")

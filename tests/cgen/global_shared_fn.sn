@@ -1,17 +1,15 @@
-// Code Generation Test: Global with shared function
+// Code Generation Test: Global with function
 //
-// Tests that a shared function uses the caller's arena for allocations,
-// and can access global string variables from __main_arena__.
+// Tests that a function can access global string variables.
 
 var greeting: str = "Hello"
 
-shared fn append_world(): str =>
-    // shared function uses caller's arena for allocations
-    // global 'greeting' is in __main_arena__, accessed via parent-walking
+fn append_world(): str =>
+    // function accesses global 'greeting'
     return greeting + " World"
 
 fn main(): int =>
-    println("Global with shared function test:")
+    println("Global with function test:")
     var result: str = append_world()
     println(result)
     println("PASS")

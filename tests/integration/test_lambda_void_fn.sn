@@ -1,6 +1,6 @@
 fn main(): void =>
     var count: int = 0
-    var inc: fn(): void = fn() shared: void =>
+    var inc: fn(): void = fn(): void =>
         count++
     inc()
     inc()

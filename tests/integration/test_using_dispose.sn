@@ -1,0 +1,32 @@
+# Integration test for using/dispose() scoped cleanup
+# Tests: basic using statement, dispose called at scope end
+
+var disposed_count: int = 0
+
+struct Resource =>
+    name: str
+
+    fn dispose(): void =>
+        disposed_count = disposed_count + 1
+        print($"  Disposing: {self.name}\n")
+
+fn test_basic_using(): void =>
+    print("Test 1: Basic using statement\n")
+    using res = Resource{ name: "test-resource" } =>
+        print($"  Using: {res.name}\n")
+    print($"  Disposed count: {disposed_count}\n")
+
+fn test_multiple_using(): void =>
+    print("Test 2: Multiple using statements\n")
+    using r1 = Resource{ name: "resource-A" } =>
+        print($"  Using: {r1.name}\n")
+    using r2 = Resource{ name: "resource-B" } =>
+        print($"  Using: {r2.name}\n")
+    print($"  Disposed count: {disposed_count}\n")
+
+fn main(): void =>
+    print("=== using/dispose() Integration Tests ===\n\n")
+    test_basic_using()
+    print("\n")
+    test_multiple_using()
+    print("\nPASS\n")

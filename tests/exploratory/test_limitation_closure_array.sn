@@ -8,7 +8,7 @@ fn main(): void =>
     var data: int[] = {1, 2, 3}
 
     # Create a closure that captures and modifies an array
-    var append: fn(): void = fn() shared: void =>
+    var append: fn(): void = fn(): void =>
         data.push(99)
 
     # Spawn multiple threads with the closure

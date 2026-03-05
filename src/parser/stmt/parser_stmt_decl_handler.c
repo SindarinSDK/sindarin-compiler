@@ -23,62 +23,6 @@ Stmt *parser_declaration(Parser *parser)
         result = parser_var_declaration(parser, SYNC_NONE);
         goto attach_comments;
     }
-    /* Parse function modifiers (shared/private) before fn keyword.
-     * These can appear in any order, but shared and private are mutually exclusive.
-     * 'static' is only valid in struct method declarations. */
-    if (parser_check(parser, TOKEN_SHARED) || parser_check(parser, TOKEN_PRIVATE))
-    {
-        /* Peek ahead to see if this is a function declaration context.
-         * shared/private can be followed by: fn, native fn
-         * If not, fall through to parser_statement for block/loop handling. */
-        Token modifier_token = parser->current;
-        bool is_fn_context = false;
-
-        if (parser->current.type == TOKEN_SHARED || parser->current.type == TOKEN_PRIVATE)
-        {
-            Token peeked = parser_peek_token(parser);
-            if (peeked.type == TOKEN_FN || peeked.type == TOKEN_NATIVE)
-            {
-                is_fn_context = true;
-            }
-        }
-
-        if (is_fn_context)
-        {
-            FunctionModifier func_modifier = FUNC_DEFAULT;
-            if (parser_match(parser, TOKEN_SHARED))
-            {
-                func_modifier = FUNC_SHARED;
-            }
-            else if (parser_match(parser, TOKEN_PRIVATE))
-            {
-                func_modifier = FUNC_PRIVATE;
-            }
-
-            if (parser_match(parser, TOKEN_FN))
-            {
-                result = parser_function_declaration(parser, func_modifier);
-                goto attach_comments;
-            }
-            else if (parser_match(parser, TOKEN_NATIVE))
-            {
-                if (parser_match(parser, TOKEN_FN))
-                {
-                    result = parser_native_function_declaration(parser, func_modifier);
-                    goto attach_comments;
-                }
-                else
-                {
-                    parser_error_at(parser, &modifier_token,
-                        "Function modifiers (shared/private) can only be used before 'fn'");
-                    return NULL;
-                }
-            }
-        }
-        /* If not a function context, fall through to parser_statement
-         * which will error on shared/private blocks (no longer supported) */
-    }
-
     if (parser_match(parser, TOKEN_STATIC))
     {
         /* 'static var' or 'static sync var' at module level for static module variables */

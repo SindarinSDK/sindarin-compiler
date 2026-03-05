@@ -3,21 +3,21 @@ fn main(): int =>
     print("Test lambda modifiers:\n\n")
 
     // Shared lambda - uses caller's arena
-    var add_shared: fn(int, int): int = fn(a: int, b: int) shared: int => a + b
+    var add_shared: fn(int, int): int = fn(a: int, b: int): int => a + b
     print($"shared add(3, 4) = {add_shared(3, 4)}\n")
 
     // Shared lambda with capture
     var factor: int = 10
-    var multiply_shared: fn(int): int = fn(x: int) shared: int => x * factor
+    var multiply_shared: fn(int): int = fn(x: int): int => x * factor
     print($"shared multiply(5) = {multiply_shared(5)}\n")
 
     // Shared lambda with type inference
-    var triple_shared: fn(int): int = fn(x) shared => x * 3
+    var triple_shared: fn(int): int = fn(x) => x * 3
     print($"shared triple(7) = {triple_shared(7)}\n")
 
     // Multiple shared lambdas
-    var double_shared: fn(int): int = fn(x) shared => x * 2
-    var square_shared: fn(int): int = fn(x) shared => x * x
+    var double_shared: fn(int): int = fn(x) => x * 2
+    var square_shared: fn(int): int = fn(x) => x * x
 
     print($"shared double(6) = {double_shared(6)}\n")
     print($"shared square(6) = {square_shared(6)}\n")

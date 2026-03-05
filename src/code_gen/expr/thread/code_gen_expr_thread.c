@@ -165,15 +165,11 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         return_type->kind == TYPE_STRING ||
         return_type->kind == TYPE_ARRAY);
 
-    /* For is_shared flag: use the declared modifier, NOT the implicit conversion.
-     * This allows default mode threads to return strings/arrays with promotion.
-     * The wrapper will still pass __arena__ as first arg if function is implicitly shared,
-     * but the thread arena mode will be based on the declared modifier. */
-    const char *is_shared_str = (modifier == FUNC_SHARED) ? "true" : "false";
-    const char *is_private_str = (modifier == FUNC_PRIVATE) ? "true" : "false";
+    const char *is_shared_str = "false";
+    const char *is_private_str = "false";
 
     /* Track if function is implicitly shared for wrapper generation */
-    bool is_implicitly_shared = returns_heap_type && modifier != FUNC_SHARED && modifier != FUNC_PRIVATE;
+    bool is_implicitly_shared = returns_heap_type;
 
     DEBUG_VERBOSE("Thread spawn: is_shared=%s, is_private=%s, implicit_shared=%d",
                   is_shared_str, is_private_str, is_implicitly_shared);
@@ -368,7 +364,7 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         Type *arg_type = arguments[i]->expr_type;
         bool is_handle_arg = gen->current_arena_var != NULL && arg_type != NULL &&
                              (arg_type->kind == TYPE_ARRAY || arg_type->kind == TYPE_STRING);
-        if (is_handle_arg && modifier != FUNC_SHARED)
+        if (is_handle_arg)
         {
             call_args = arena_sprintf(gen->arena, "%srt_arena_v2_clone(__arena__, args->arg%d)",
                                       call_args, i);
@@ -1195,15 +1191,8 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
         }
     }
 
-    /* Generate the thread mode based on modifier */
-    const char *thread_mode;
-    if (modifier == FUNC_SHARED) {
-        thread_mode = "RT_THREAD_MODE_SHARED";
-    } else if (modifier == FUNC_PRIVATE) {
-        thread_mode = "RT_THREAD_MODE_PRIVATE";
-    } else {
-        thread_mode = "RT_THREAD_MODE_DEFAULT";
-    }
+    /* All threads use default arena mode */
+    const char *thread_mode = "RT_THREAD_MODE_DEFAULT";
 
     /* Generate the thread spawn expression using V3 API */
     char *result = arena_sprintf(gen->arena,

@@ -153,6 +153,12 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
         }
     }
 
+    /* Call dispose() on all active using variables before returning (reverse order) */
+    for (int i = gen->using_stack_depth - 1; i >= 0; i--)
+    {
+        indented_fprintf(gen, indent, "%s;\n", gen->using_stack[i]);
+    }
+
     /* Release all active locks before returning (reverse order for nested locks) */
     for (int i = gen->lock_stack_depth - 1; i >= 0; i--)
     {

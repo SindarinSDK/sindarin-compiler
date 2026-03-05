@@ -188,29 +188,7 @@ void type_check_function(Stmt *stmt, SymbolTable *table)
         }
     }
 
-    /* Validate private function return type */
     FunctionModifier modifier = stmt->as.function.modifier;
-    if (modifier == FUNC_PRIVATE)
-    {
-        Type *return_type = stmt->as.function.return_type;
-        if (!can_escape_private(return_type))
-        {
-            const char *reason = get_private_escape_block_reason(return_type);
-            char error_msg[512];
-            if (reason != NULL)
-            {
-                snprintf(error_msg, sizeof(error_msg),
-                         "Private function cannot return this type: %s", reason);
-            }
-            else
-            {
-                snprintf(error_msg, sizeof(error_msg),
-                         "Private function can only return primitive types or structs with only primitive fields");
-            }
-            type_error(&stmt->as.function.name, error_msg);
-        }
-    }
-
     FunctionModifier effective_modifier = modifier;
 
     /* Check for duplicate function definition */

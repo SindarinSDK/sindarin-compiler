@@ -1,4 +1,0 @@
-Before thread: count = 5
-After sync: count = 15
-After second sync: count = 45
-SUCCESS: as ref primitive was correctly modified by threads

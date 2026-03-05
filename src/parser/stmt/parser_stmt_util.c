@@ -22,20 +22,6 @@ MemoryQualifier parser_memory_qualifier(Parser *parser)
     return MEM_DEFAULT;
 }
 
-/* Parse optional "shared" or "private" function modifier */
-FunctionModifier parser_function_modifier(Parser *parser)
-{
-    if (parser_match(parser, TOKEN_SHARED))
-    {
-        return FUNC_SHARED;
-    }
-    else if (parser_match(parser, TOKEN_PRIVATE))
-    {
-        return FUNC_PRIVATE;
-    }
-    return FUNC_DEFAULT;
-}
-
 int is_at_function_boundary(Parser *parser)
 {
     if (parser_check(parser, TOKEN_DEDENT))

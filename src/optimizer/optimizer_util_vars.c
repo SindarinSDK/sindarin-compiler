@@ -345,6 +345,12 @@ void collect_used_variables_stmt(Stmt *stmt, Token **used_vars, int *used_count,
         collect_used_variables_stmt(stmt->as.lock_stmt.body, used_vars, used_count, used_capacity, arena);
         break;
 
+    case STMT_USING:
+        /* Using statement uses the initializer and body */
+        collect_used_variables(stmt->as.using_stmt.initializer, used_vars, used_count, used_capacity, arena);
+        collect_used_variables_stmt(stmt->as.using_stmt.body, used_vars, used_count, used_capacity, arena);
+        break;
+
     case STMT_BREAK:
     case STMT_CONTINUE:
     case STMT_IMPORT:

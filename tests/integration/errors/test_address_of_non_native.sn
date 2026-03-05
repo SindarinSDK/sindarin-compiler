@@ -1,0 +1,6 @@
+# Error test: addressOf() outside native function context
+
+fn main(): void =>
+    var x: int = 42
+    var ptr: *int = addressOf(x)
+    print($"{ptr}")

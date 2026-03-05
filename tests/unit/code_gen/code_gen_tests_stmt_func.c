@@ -51,7 +51,9 @@ static void test_code_gen_call_expression_simple(void)
                                   "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"
-                                  "    rt_print_string_v2(rt_arena_v2_strdup(__local_arena__, \"Hello, world!\"));\n"
+                                  "    RtHandleV2 *__htmp_0__ = rt_arena_v2_strdup(__local_arena__, \"Hello, world!\");\n"
+                                  "    RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, \"Hello, world!\");\n"
+                                  "    rt_print_string_v2(__htmp_1__);\n"
                                   "    goto main_return;\n"
                                   "main_return:\n"
                                   "    rt_arena_v2_condemn(__local_arena__);\n"
@@ -103,6 +105,7 @@ static void test_code_gen_function_simple_void(void)
     const char *expected = get_expected(&arena,
                                   "void __sn__myfn(RtArenaV2 *);\n\n"
                                   "void __sn__myfn(RtArenaV2 *__caller_arena__) {\n"
+                                  "    rt_safepoint_poll();\n"
                                   "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n"
                                   "    goto __sn__myfn_return;\n"
                                   "__sn__myfn_return:\n"
@@ -184,6 +187,7 @@ static void test_code_gen_function_with_params_and_return(void)
     const char *expected = get_expected(&arena,
                                   "long long __sn__add(RtArenaV2 *, long long);\n\n"
                                   "long long __sn__add(RtArenaV2 *__caller_arena__, long long __sn__a) {\n"
+                                  "    rt_safepoint_poll();\n"
                                   "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(__caller_arena__, RT_ARENA_MODE_DEFAULT, \"func\");\n"
                                   "    long long _return_value = 0;\n"
                                   "    _return_value = __sn__a;\n"
@@ -245,6 +249,8 @@ static void test_code_gen_main_function_special_case(void)
 
     const char *expected = get_expected(&arena,
                                   "int main() {\n"
+                                  "    rt_safepoint_init();\n"
+                                  "    rt_safepoint_thread_register();\n"
                                   "    RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, \"main\");\n"
                                   "    __main_arena__ = __local_arena__;\n"
                                   "    int _return_value = 0;\n"

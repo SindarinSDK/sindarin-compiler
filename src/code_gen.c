@@ -28,14 +28,11 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
 
     /* Initialize arena context fields */
     gen->arena_depth = 0;
-    gen->in_shared_context = false;
-    gen->in_private_context = false;
     gen->current_arena_var = NULL;
     gen->function_arena_var = NULL;
     gen->function_scope = NULL;
     gen->current_indent = 0;
     gen->spawn_is_fire_and_forget = false;
-    gen->current_func_modifier = FUNC_DEFAULT;
 
     /* Initialize loop counter tracking for optimization */
     gen->loop_counter_names = NULL;
@@ -51,6 +48,11 @@ void code_gen_init(Arena *arena, CodeGen *gen, SymbolTable *symbol_table, const 
     gen->lock_stack = NULL;
     gen->lock_stack_depth = 0;
     gen->lock_stack_capacity = 0;
+
+    /* Initialize using stack for tracking active using blocks */
+    gen->using_stack = NULL;
+    gen->using_stack_depth = 0;
+    gen->using_stack_capacity = 0;
 
     /* Initialize loop scope tracking for break/continue cleanup */
     gen->loop_scope_stack = NULL;
