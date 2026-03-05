@@ -344,16 +344,84 @@ static size_t rc_table_get(RcTable *t, void *key)
     return 0;
 }
 
+/* ============================================================================
+ * Bloom Filter — fast rejection of non-handle pointers
+ * ============================================================================
+ * Most pointer-sized slots in handle data are NOT handle addresses (they're
+ * string data, integers, etc.). The bloom filter rejects these in a few
+ * bitwise ops instead of a hash table probe. Only bloom filter hits fall
+ * through to the real rc_table_get.
+ *
+ * Uses 2 hash functions and ~8 bits per element for <1% false positive rate.
+ * The filter array fits in L1 cache for typical handle counts.
+ * ============================================================================ */
+
+typedef struct {
+    uint64_t *bits;
+    size_t nbits;
+} BloomFilter;
+
+static inline size_t bloom_hash1(uintptr_t key) { return key * 0x9E3779B97F4A7C15ULL; }
+static inline size_t bloom_hash2(uintptr_t key) { return key * 0x517CC1B727220A95ULL; }
+
+static void bloom_init(BloomFilter *bf, size_t element_count)
+{
+    /* 8 bits per element, minimum 512 bits */
+    bf->nbits = element_count * 8;
+    if (bf->nbits < 512) bf->nbits = 512;
+    size_t nwords = (bf->nbits + 63) / 64;
+    bf->bits = calloc(nwords, sizeof(uint64_t));
+}
+
+static void bloom_add(BloomFilter *bf, void *key)
+{
+    uintptr_t k = (uintptr_t)key;
+    size_t b1 = bloom_hash1(k) % bf->nbits;
+    size_t b2 = bloom_hash2(k) % bf->nbits;
+    bf->bits[b1 / 64] |= (1ULL << (b1 % 64));
+    bf->bits[b2 / 64] |= (1ULL << (b2 % 64));
+}
+
+static inline bool bloom_maybe_contains(BloomFilter *bf, void *key)
+{
+    uintptr_t k = (uintptr_t)key;
+    size_t b1 = bloom_hash1(k) % bf->nbits;
+    size_t b2 = bloom_hash2(k) % bf->nbits;
+    return (bf->bits[b1 / 64] & (1ULL << (b1 % 64)))
+        && (bf->bits[b2 / 64] & (1ULL << (b2 % 64)));
+}
+
+static void bloom_free(BloomFilter *bf)
+{
+    free(bf->bits);
+    bf->bits = NULL;
+    bf->nbits = 0;
+}
+
+/* Build bloom filter from handle_set keys */
+static void bloom_populate_from_rc_table(BloomFilter *bf, RcTable *handle_set)
+{
+    for (size_t i = 0; i < handle_set->capacity; i++) {
+        if (handle_set->entries[i].key != NULL) {
+            bloom_add(bf, handle_set->entries[i].key);
+        }
+    }
+}
+
 /* Build reference count table from a flat list of live handle data pointers.
  * Replaces the tree-walking gc_build_refcount_table — live handle data is
- * collected during gc_collect_and_build_sets so no additional tree walk needed. */
-static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable, RcTable *handle_set)
+ * collected during gc_collect_and_build_sets so no additional tree walk needed.
+ * Uses bloom filter for fast rejection of non-handle pointers. */
+static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable,
+                                        RcTable *handle_set, BloomFilter *bf)
 {
     for (size_t i = 0; i < live->count; i++) {
         void **scan = (void **)live->items[i].ptr;
         size_t slots = live->items[i].size / sizeof(void *);
         for (size_t j = 0; j < slots; j++) {
-            if (scan[j] != NULL && rc_table_get(handle_set, scan[j]) > 0) {
+            if (scan[j] != NULL
+                && bloom_maybe_contains(bf, scan[j])
+                && rc_table_get(handle_set, scan[j]) > 0) {
                 rc_table_inc(rctable, scan[j]);
             }
         }
@@ -444,12 +512,19 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
         return;
     }
 
+    /* Build bloom filter from handle_set for fast rejection in refcount scan */
+    BloomFilter bf;
+    bloom_init(&bf, handle_set.size);
+    bloom_populate_from_rc_table(&bf, &handle_set);
+
     /* Build reference count table from the flat list of live handle data
-     * pointers collected during the single walk. Only counts references to
-     * known handle addresses in handle_set (no false positives). */
+     * pointers collected during the single walk. Bloom filter rejects
+     * non-handle pointers cheaply; only hits probe the hash table. */
     RcTable rctable;
     rc_table_init(&rctable);
-    gc_build_refcount_from_list(&live_handles, &rctable, &handle_set);
+    gc_build_refcount_from_list(&live_handles, &rctable, &handle_set, &bf);
+
+    bloom_free(&bf);
 
     /* Live handle list no longer needed after refcount table is built */
     free(live_handles.items);
@@ -548,6 +623,10 @@ static volatile size_t _gc_skip_count = 0;
  * where two threads both read gc_running==false before either sets it. */
 static pthread_mutex_t _gc_global_mutex = PTHREAD_MUTEX_INITIALIZER;
 
+/* malloc_trim throttle — only call once every 5 seconds */
+#define GC_MALLOC_TRIM_INTERVAL_NS (5LL * 1000000000LL)
+static struct timespec _last_trim_time = {0, 0};
+
 size_t rt_arena_v2_gc(RtArenaV2 *arena)
 {
     __sync_add_and_fetch(&_gc_call_count, 1);
@@ -598,19 +677,29 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     result.arenas_freed = dead_arena_count;
     result.arena_bytes_freed = phase3_bytes;
 
-    /* Record GC results (also handles logging if gc_log_enabled) */
-    result.gc_calls = _gc_call_count;
-    result.gc_skips = _gc_skip_count;
-    rt_arena_stats_record_gc(arena, &result);
-
     /* Restore malloc redirect handler */
     if (saved_handler) rt_malloc_hooks_set_handler(saved_handler);
 
     rt_safepoint_release_stw();
 
+    /* Record GC results after STW release — recompute_stats walks the
+     * arena tree with mutex locks, which is expensive. Doing it outside
+     * the STW window avoids extending the pause for all threads. */
+    result.gc_calls = _gc_call_count;
+    result.gc_skips = _gc_skip_count;
+    rt_arena_stats_record_gc(arena, &result);
+
     pthread_mutex_unlock(&_gc_global_mutex);
 
-    malloc_trim(0);
+    /* Throttle malloc_trim to avoid expensive syscall on every GC cycle */
+    struct timespec now;
+    clock_gettime(CLOCK_MONOTONIC, &now);
+    long long elapsed_ns = (now.tv_sec - _last_trim_time.tv_sec) * 1000000000LL
+                         + (now.tv_nsec - _last_trim_time.tv_nsec);
+    if (elapsed_ns >= GC_MALLOC_TRIM_INTERVAL_NS || _last_trim_time.tv_sec == 0) {
+        malloc_trim(0);
+        _last_trim_time = now;
+    }
 
     return result.handles_freed;
 }
