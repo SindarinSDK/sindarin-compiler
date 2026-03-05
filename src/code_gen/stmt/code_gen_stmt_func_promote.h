@@ -13,7 +13,7 @@ void code_gen_promote_struct_return(CodeGen *gen, Type *return_type, const char 
 
 /* Main entry point for return value promotion.
  * target_arena: "__sn__self->__arena__" for instance methods, "__caller_arena__" for regular functions */
-void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bool is_shared, const char *target_arena, int indent);
+void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, const char *target_arena, int indent);
 
 /* Promote self handle fields from __local_arena__ back to self->__arena__ before condemn.
  * Only promotes fields whose arena matches __local_arena__ (modified by THIS method call). */

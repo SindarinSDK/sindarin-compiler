@@ -17,6 +17,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <malloc.h>
 #include "arena_compat.h"
 #include "../malloc/runtime_malloc_hooks.h"
 
@@ -328,18 +329,6 @@ static void rc_table_inc(RcTable *t, void *key)
     t->size++;
 }
 
-static void rc_table_dec(RcTable *t, void *key)
-{
-    if (key == NULL) return;
-    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
-    while (t->entries[idx].key != NULL) {
-        if (t->entries[idx].key == key) {
-            if (t->entries[idx].count > 0) t->entries[idx].count--;
-            return;
-        }
-        idx = (idx + 1) % t->capacity;
-    }
-}
 
 static size_t rc_table_get(RcTable *t, void *key)
 {
@@ -423,69 +412,18 @@ static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
     }
 }
 
-/* Free children of a dead handle based on reference counts.
- * Scans the handle's data for pointer-sized values that match known handle
- * addresses. For each child handle found:
- *   - ref count == 0 (no live handle references it): exclusively owned by this
- *     dead handle, mark it DEAD so it's collected next GC pass.
- *   - ref count >= 1 (referenced by a live handle): shared, leave it alone.
+/* GC all arenas using reference counting for rescue decisions.
+ * Dead handles with refcount > 0 (referenced by live handle data) are rescued.
+ * Dead handles with refcount 0 are freed.
  *
- * For nested structs (handle → array → handle → struct fields...),
- * gc_cascade_free_children handles the recursive case: when a child was live
- * when the ref count table was built, its data contributed to ref counts,
- * so we must decrement those counts and recurse if any drop to zero. */
-
-/* Forward declaration for mutual recursion */
-static void gc_cascade_free_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle);
-
-/* Cascade into a formerly-live handle: its data WAS scanned when building the
- * ref count table, so we decrement ref counts for its children and recurse
- * into any that drop to zero. */
-static void gc_cascade_free_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
-{
-    if (handle->ptr == NULL) return;
-    void **scan = (void **)handle->ptr;
-    size_t slots = handle->size / sizeof(void *);
-    for (size_t i = 0; i < slots; i++) {
-        if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
-            rc_table_dec(rctable, scan[i]);  /* undo the live reference */
-            RtHandleV2 *child = (RtHandleV2 *)scan[i];
-            if (!(child->flags & RT_HANDLE_FLAG_DEAD) && rc_table_get(rctable, scan[i]) == 0) {
-                GC_DEBUG_LOG("    cascade free child: h=%p ptr=%p", (void *)child, child->ptr);
-                rt_arena_v2_free(child);
-                gc_cascade_free_children(rctable, handle_set, child);
-            }
-        }
-    }
-}
-
-/* Free exclusively-owned children of a dead handle. The dead handle's data was
- * NOT scanned when building the ref count table (it was already unlinked), so
- * we check ref counts directly without decrementing. When a child is found with
- * ref count 0, we mark it dead and cascade into it (since it WAS live). */
-static void gc_free_dead_handle_children(RcTable *rctable, RcTable *handle_set, RtHandleV2 *handle)
-{
-    if (handle->ptr == NULL) return;
-    void **scan = (void **)handle->ptr;
-    size_t slots = handle->size / sizeof(void *);
-    for (size_t i = 0; i < slots; i++) {
-        if (scan[i] != NULL && rc_table_get(handle_set, scan[i]) > 0) {
-            if (rc_table_get(rctable, scan[i]) == 0) {
-                /* ref count 0: only dead handles reference this child -- free it */
-                RtHandleV2 *child = (RtHandleV2 *)scan[i];
-                if (!(child->flags & RT_HANDLE_FLAG_DEAD)) {
-                    GC_DEBUG_LOG("    free exclusive child: h=%p ptr=%p", (void *)child, child->ptr);
-                    rt_arena_v2_free(child);
-                    gc_cascade_free_children(rctable, handle_set, child);
-                }
-            }
-        }
-    }
-}
-
-/* GC all arenas using two-phase approach with reference counting:
- * Phase 1: Build ref counts, free exclusively-owned children per ref count
- * Phase 2: Free all dead handle data + structs */
+ * NOTE: We intentionally do NOT cascade into dead handle data to kill children.
+ * Conservative pointer scanning of dead handle data causes false positives:
+ * stale pointer values in dead handle data can match live handle addresses,
+ * and if those live handles have refcount 0 (only on thread stacks), the
+ * cascade incorrectly kills them — causing use-after-free / SIGSEGV.
+ * The compiler generates explicit rt_arena_v2_free() calls for all struct
+ * fields via __release_*_inline__ / __free_*_inline__, so children of dead
+ * handles are already marked DEAD by codegen before GC runs. */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
@@ -546,23 +484,7 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     }
     dead_handles = truly_dead;
 
-    GC_DEBUG_LOG("gc_compact_all: Pass 1 - free children by ref count");
-
-    /* Pass 1: For each dead handle, free exclusively-owned children using
-     * ref counts with recursive cascading for nested structs.
-     * A child with ref count 0 (no live handle references it) is only
-     * reachable through dead handles -- mark it DEAD and cascade into its
-     * data to handle nested struct/array children.
-     * A child with ref count >= 1 is shared with a live handle -- leave it.
-     *
-     * The recursive cascade via gc_free_dead_handle_children +
-     * gc_cascade_free_children handles all nesting depths safely
-     * without dereferencing potentially-freed handles. */
-    for (RtHandleV2 *dh = dead_handles; dh != NULL; dh = dh->next) {
-        gc_free_dead_handle_children(&rctable, &handle_set, dh);
-    }
-
-    GC_DEBUG_LOG("gc_compact_all: Pass 2 - freeing handle data + structs");
+    GC_DEBUG_LOG("gc_compact_all: freeing dead handle data + structs");
 
     /* Pass 2: Free all dead handle data + structs.
      * No wrapper nodes to free — handles ARE the list nodes (intrusive).
@@ -687,6 +609,8 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
     rt_safepoint_release_stw();
 
     pthread_mutex_unlock(&_gc_global_mutex);
+
+    malloc_trim(0);
 
     return result.handles_freed;
 }

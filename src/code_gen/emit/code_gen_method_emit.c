@@ -397,7 +397,7 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                         indented_fprintf(gen, 2, "_return_value = (*__sn__self);\n");
                         indented_fprintf(gen, 1, "} else {\n");
                         /* Path B: independent return — return-promote, then self-promote */
-                        code_gen_return_promotion(gen, method->return_type, false, false, "__caller_arena__", 2);
+                        code_gen_return_promotion(gen, method->return_type, false, "__caller_arena__", 2);
                         code_gen_promote_self_fields(gen, struct_decl, 2);
                         indented_fprintf(gen, 1, "}\n");
                     }
@@ -405,7 +405,7 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                     {
                         if (has_return_value)
                         {
-                            code_gen_return_promotion(gen, method->return_type, false, false, "__caller_arena__", 1);
+                            code_gen_return_promotion(gen, method->return_type, false, "__caller_arena__", 1);
                         }
                         code_gen_promote_self_fields(gen, struct_decl, 1);
                     }

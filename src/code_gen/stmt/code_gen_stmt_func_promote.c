@@ -233,9 +233,9 @@ static void code_gen_promote_self_struct_fields(CodeGen *gen, Type *struct_type,
 
 /* Generate all return value promotion code for a function.
  * target_arena: "__sn__self->__arena__" for instance methods, "__caller_arena__" for regular functions */
-void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, bool is_shared, const char *target_arena, int indent)
+void code_gen_return_promotion(CodeGen *gen, Type *return_type, bool is_main, const char *target_arena, int indent)
 {
-    if (is_main || is_shared || return_type == NULL)
+    if (is_main || return_type == NULL)
         return;
 
     TypeKind kind = return_type->kind;

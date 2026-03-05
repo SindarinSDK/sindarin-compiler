@@ -137,6 +137,12 @@ bool expr_needs_arena(Expr *expr);
 /* Check if a statement requires arena allocation */
 bool stmt_needs_arena(Stmt *stmt);
 
+/* Arena inference for free functions.
+ * Determines whether a function needs its own child arena (ARENA_CHILD)
+ * or can alias the caller's arena (ARENA_NONE). */
+typedef enum { ARENA_NONE, ARENA_CHILD } ArenaStrategy;
+ArenaStrategy analyze_arena_strategy(Stmt **body, int body_count, Parameter *params, int param_count);
+
 /* Tail call optimization helpers */
 
 /* Check if a function has any tail calls marked for optimization */

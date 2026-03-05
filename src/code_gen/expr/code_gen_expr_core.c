@@ -524,6 +524,29 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             pending_reset = arena_sprintf(gen->arena, " %s = NULL;", pending_elems_var);
         }
 
+        /* For struct arrays with handle fields, generate element-level cleanup
+         * code to run before freeing the old array handle. Without this, struct
+         * field handles (e.g., name/value strings in Header[]) leak on reassignment. */
+        Type *elem_type = type->as.array.element_type;
+        char *elem_free = arena_strdup(gen->arena, "");
+        if (elem_type != NULL && elem_type->kind == TYPE_STRUCT
+            && struct_has_handle_fields(elem_type)
+            && !elem_type->as.struct_type.is_native)
+        {
+            const char *struct_name = elem_type->as.struct_type.name;
+            const char *mangled = sn_mangle_name(gen->arena, struct_name);
+            elem_free = arena_sprintf(gen->arena,
+                " if (%s && %s->ptr) {"
+                " RtArrayMetadataV2 *__m__ = (RtArrayMetadataV2 *)%s->ptr;"
+                " %s *__e__ = (%s *)((char *)%s->ptr + sizeof(RtArrayMetadataV2));"
+                " for (size_t __j__ = 0; __j__ < __m__->size; __j__++)"
+                " __free_%s_inline__(&__e__[__j__], %s);"
+                " }",
+                var_name, var_name, var_name,
+                mangled, mangled, var_name,
+                struct_name, ARENA_VAR(gen));
+        }
+
         if (value_is_new_handle)
         {
             /* Array literal or 2D/3D conversion already produced a new handle.
@@ -532,16 +555,16 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
              * V2 handles carry their own arena reference, so no source arena needed. */
             if (is_global)
             {
-                return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); %s; })",
-                                     pending_reset, var_name, var_name, value_str, var_name);
+                return arena_sprintf(gen->arena, "({%s%s rt_arena_v2_free(%s); %s = rt_arena_v2_promote(__main_arena__, %s); %s; })",
+                                     pending_reset, elem_free, var_name, var_name, value_str, var_name);
             }
             if (symbol->has_pending_elements)
             {
-                return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = %s; %s; })",
-                                     pending_reset, var_name, var_name, value_str, var_name);
+                return arena_sprintf(gen->arena, "({%s%s rt_arena_v2_free(%s); %s = %s; %s; })",
+                                     pending_reset, elem_free, var_name, var_name, value_str, var_name);
             }
-            return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = %s; })",
-                                 var_name, var_name, value_str);
+            return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = %s; })",
+                                 elem_free, var_name, var_name, value_str);
         }
         /* For handle-based arrays: clone to target arena with old handle.
          * Use rt_arena_v2_clone for cross-arena cloning (e.g., to __main_arena__ for globals). */
@@ -550,19 +573,19 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
         {
             if (symbol->has_pending_elements)
             {
-                return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); %s; })",
-                                     pending_reset, var_name, var_name, target_arena, value_str, var_name);
+                return arena_sprintf(gen->arena, "({%s%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); %s; })",
+                                     pending_reset, elem_free, var_name, var_name, target_arena, value_str, var_name);
             }
-            return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); })",
-                                 var_name, var_name, target_arena, value_str);
+            return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); })",
+                                 elem_free, var_name, var_name, target_arena, value_str);
         }
         if (symbol->has_pending_elements)
         {
-            return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); %s; })",
-                                 pending_reset, var_name, var_name, target_arena, value_str, var_name);
+            return arena_sprintf(gen->arena, "({%s%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); %s; })",
+                                 pending_reset, elem_free, var_name, var_name, target_arena, value_str, var_name);
         }
-        return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); })",
-                             var_name, var_name, target_arena, value_str);
+        return arena_sprintf(gen->arena, "({%s rt_arena_v2_free(%s); %s = rt_arena_v2_clone(%s, %s); })",
+                             elem_free, var_name, var_name, target_arena, value_str);
     }
     else if (type->kind == TYPE_STRUCT && in_arena_context &&
              !type->as.struct_type.is_native && struct_has_handle_fields(type))
