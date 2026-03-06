@@ -120,8 +120,7 @@ TEST(cascade_kills_live_handle)
         tests_failed++;
 
         /* Clean up carefully — victim may have freed data */
-        pthread_mutex_destroy(&root->mutex);
-        free(root);
+        rt_arena_v2_destroy(root, false);
         return;
     }
 
@@ -133,8 +132,7 @@ TEST(cascade_kills_live_handle)
     /* Cleanup: free remaining handles, then destroy root directly */
     rt_arena_v2_free(victim);
     rt_arena_v2_gc(root);
-    pthread_mutex_destroy(&root->mutex);
-    free(root);
+    rt_arena_v2_destroy(root, false);
 }
 
 /* ============================================================================
@@ -192,8 +190,7 @@ TEST(cascade_kills_multiple_live_handles)
                (path->flags & RT_HANDLE_FLAG_DEAD) ? "DEAD" : "alive",
                (body->flags & RT_HANDLE_FLAG_DEAD) ? "DEAD" : "alive");
         tests_failed++;
-        pthread_mutex_destroy(&root->mutex);
-        free(root);
+        rt_arena_v2_destroy(root, false);
         return;
     }
 
@@ -207,8 +204,7 @@ TEST(cascade_kills_multiple_live_handles)
     rt_arena_v2_free(path);
     rt_arena_v2_free(body);
     rt_arena_v2_gc(root);
-    pthread_mutex_destroy(&root->mutex);
-    free(root);
+    rt_arena_v2_destroy(root, false);
 }
 
 /* ============================================================================
@@ -251,12 +247,7 @@ TEST(cross_arena_cascade)
         printf("FAIL\n");
         printf("    BUG REPRODUCED: cross-arena cascade killed parent's live handle!\n");
         tests_failed++;
-        pthread_mutex_destroy(&child->mutex);
-        pthread_mutex_destroy(&parent->mutex);
-        pthread_mutex_destroy(&root->mutex);
-        free(child);
-        free(parent);
-        free(root);
+        rt_arena_v2_destroy(root, false);
         return;
     }
 
@@ -266,8 +257,7 @@ TEST(cross_arena_cascade)
     rt_arena_v2_condemn(child);
     rt_arena_v2_condemn(parent);
     rt_arena_v2_gc(root);
-    pthread_mutex_destroy(&root->mutex);
-    free(root);
+    rt_arena_v2_destroy(root, false);
 }
 
 /* ============================================================================
@@ -316,8 +306,7 @@ TEST(refcounted_handle_survives_cascade)
     rt_arena_v2_free(inner);
     rt_arena_v2_free(live_struct);
     rt_arena_v2_gc(root);
-    pthread_mutex_destroy(&root->mutex);
-    free(root);
+    rt_arena_v2_destroy(root, false);
 }
 
 /* ============================================================================

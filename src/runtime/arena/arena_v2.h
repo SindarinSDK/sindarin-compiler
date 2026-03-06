@@ -48,6 +48,24 @@ typedef struct RtArenaV2 RtArenaV2;
 #define RT_HANDLE_V2_NULL ((RtHandleV2 *)NULL)
 
 /* ============================================================================
+ * Handle Blocks - Contiguous Slab Allocation
+ * ============================================================================
+ * Handles are bump-allocated into fixed-size blocks (slabs). Each block is a
+ * contiguous array of RT_HANDLE_BLOCK_SIZE handle slots. Blocks are linked
+ * in a singly-linked list per arena. GC scans blocks sequentially (cache-
+ * friendly) instead of chasing a per-handle linked list.
+ * ============================================================================ */
+
+#define RT_HANDLE_BLOCK_SIZE 64
+
+typedef struct RtHandleBlock {
+    struct RtHandleBlock *next;                     /* Next block in arena */
+    uint32_t count;                                 /* High water mark (including dead/recycled) */
+    uint32_t capacity;                              /* Always RT_HANDLE_BLOCK_SIZE */
+    RtHandleV2 slots[RT_HANDLE_BLOCK_SIZE];         /* Contiguous handle storage */
+} RtHandleBlock;
+
+/* ============================================================================
  * Arena V2 - Memory Region with Scoped Lifetime
  * ============================================================================
  * Arenas own handles. Simple mutex-based synchronization.
@@ -86,8 +104,11 @@ struct RtArenaV2 {
     RtArenaV2 *first_child;     /* First child arena */
     RtArenaV2 *next_sibling;    /* Next sibling arena */
 
-    /* Handle storage */
-    RtHandleV2 *handles_head;   /* Head of arena handle linked list */
+    /* Handle storage (block-based) */
+    RtHandleBlock *blocks_head;     /* First block (singly-linked) */
+    RtHandleBlock *current_block;   /* Block accepting new allocations */
+    RtHandleV2 *free_list_head_ptr; /* Head of intrusive free slot list */
+    uint32_t free_list_count;       /* Number of free slots available */
 
     /* GC state */
     volatile bool gc_running;   /* Is GC currently running on this arena? */

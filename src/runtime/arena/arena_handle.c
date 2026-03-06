@@ -25,35 +25,8 @@ bool rt_handle_v2_is_valid(RtHandleV2 *handle)
     return handle != NULL && !(handle->flags & RT_HANDLE_FLAG_DEAD);
 }
 
-/* ============================================================================
- * Handle List Management
- * ============================================================================ */
-
-void rt_handle_v2_link(RtArenaV2 *arena, RtHandleV2 *handle)
-{
-    /* Add to head of arena's handle list */
-    handle->next = arena->handles_head;
-    handle->prev = NULL;
-    if (arena->handles_head) {
-        arena->handles_head->prev = handle;
-    }
-    arena->handles_head = handle;
-}
-
-void rt_handle_v2_unlink(RtArenaV2 *arena, RtHandleV2 *handle)
-{
-    /* Remove from arena's handle list */
-    if (handle->prev) {
-        handle->prev->next = handle->next;
-    } else {
-        arena->handles_head = handle->next;
-    }
-    if (handle->next) {
-        handle->next->prev = handle->prev;
-    }
-    handle->prev = NULL;
-    handle->next = NULL;
-}
+/* Handle list management removed — handles now live in contiguous blocks.
+ * See arena_v2.h RtHandleBlock. */
 
 /* ============================================================================
  * Handle Transactions

@@ -26,16 +26,18 @@ static void compute_local_stats(RtArenaV2 *arena, RtArenaV2Stats *stats)
     size_t live_bytes = 0;
     size_t dead_bytes = 0;
 
-    RtHandleV2 *h = arena->handles_head;
-    while (h != NULL) {
-        if (h->flags & RT_HANDLE_FLAG_DEAD) {
-            dead_handles++;
-            dead_bytes += h->size;
-        } else {
-            live_handles++;
-            live_bytes += h->size;
+    for (RtHandleBlock *block = arena->blocks_head; block != NULL; block = block->next) {
+        for (uint32_t i = 0; i < block->count; i++) {
+            RtHandleV2 *h = &block->slots[i];
+            if (h->arena == NULL) continue;  /* Skip free/recycled slots */
+            if (h->flags & RT_HANDLE_FLAG_DEAD) {
+                dead_handles++;
+                dead_bytes += h->size;
+            } else {
+                live_handles++;
+                live_bytes += h->size;
+            }
         }
-        h = h->next;
     }
 
     stats->handles.local = live_handles;
@@ -188,16 +190,18 @@ void rt_arena_stats_snapshot(RtArenaV2 *arena)
     size_t live_bytes = 0;
     size_t dead_bytes = 0;
 
-    RtHandleV2 *h = arena->handles_head;
-    while (h != NULL) {
-        if (h->flags & RT_HANDLE_FLAG_DEAD) {
-            total_dead++;
-            dead_bytes += h->size;
-        } else {
-            total_live++;
-            live_bytes += h->size;
+    for (RtHandleBlock *block = arena->blocks_head; block != NULL; block = block->next) {
+        for (uint32_t i = 0; i < block->count; i++) {
+            RtHandleV2 *h = &block->slots[i];
+            if (h->arena == NULL) continue;  /* Skip free/recycled slots */
+            if (h->flags & RT_HANDLE_FLAG_DEAD) {
+                total_dead++;
+                dead_bytes += h->size;
+            } else {
+                total_live++;
+                live_bytes += h->size;
+            }
         }
-        h = h->next;
     }
 
     fprintf(stderr, "  --- %zu live handles (%zu bytes), %zu dead handles (%zu bytes) ---\n",

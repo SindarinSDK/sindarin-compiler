@@ -52,7 +52,7 @@ typedef enum {
  * Handle V2 - The First-Class Citizen
  * ============================================================================
  * Fat handle containing everything needed. No separate entry table.
- * Handles form a doubly-linked list within their owning arena.
+ * Handles live in contiguous blocks (slabs) within their owning arena.
  * ============================================================================ */
 
 struct RtHandleV2 {
@@ -61,18 +61,16 @@ struct RtHandleV2 {
     size_t size;                /* Size of allocation */
 
     /* Ownership */
-    RtArenaV2 *arena;           /* Owning arena (never NULL for valid handles) */
-
-    /* GC metadata */
-    uint16_t flags;             /* RtHandleFlags */
+    RtArenaV2 *arena;           /* Owning arena (NULL for free/recycled slots) */
 
     /* Callbacks */
     RtHandleV2CopyCallback copy_callback;     /* Called after shallow copy (NULL for simple types) */
 
-    /* Intrusive linked list for arena's handle tracking */
-    RtHandleV2 *next;           /* Next handle in arena */
-    RtHandleV2 *prev;           /* Previous handle in arena */
-};
+    /* GC metadata */
+    uint16_t flags;             /* RtHandleFlags */
+    uint16_t _reserved;         /* Future use */
+    uint32_t _pad;              /* Alignment padding */
+};  /* 40 bytes (down from 56) */
 
 /* ============================================================================
  * Handle Operations
@@ -101,17 +99,11 @@ RtArenaV2 *rt_handle_v2_arena(RtHandleV2 *handle);
 bool rt_handle_v2_is_valid(RtHandleV2 *handle);
 
 /* ============================================================================
- * Handle List Management
+ * Handle Block Management
  * ============================================================================
- * Internal functions for managing the handle linked list within arenas.
- * Used by allocation (link) and GC (unlink).
+ * Handles live in contiguous blocks (slabs) within arenas. Block iteration
+ * replaces linked list traversal for GC and stats.
  * ============================================================================ */
-
-/* Link handle into arena's handle list (at head) */
-void rt_handle_v2_link(RtArenaV2 *arena, RtHandleV2 *handle);
-
-/* Unlink handle from arena's handle list */
-void rt_handle_v2_unlink(RtArenaV2 *arena, RtHandleV2 *handle);
 
 /* ============================================================================
  * Handle Transactions
