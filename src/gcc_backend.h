@@ -14,6 +14,7 @@ typedef struct {
     const char *std;             /* SN_STD: C standard (default: "c99") */
     const char *debug_cflags;    /* SN_DEBUG_CFLAGS: Debug mode flags */
     const char *release_cflags;  /* SN_RELEASE_CFLAGS: Release mode flags */
+    const char *profile_cflags;  /* SN_PROFILE_CFLAGS: Profile mode flags (optimized + frame pointers) */
     const char *cflags;          /* SN_CFLAGS: Additional compiler flags */
     const char *ldflags;         /* SN_LDFLAGS: Additional linker flags */
     const char *ldlibs;          /* SN_LDLIBS: Additional libraries */
@@ -33,6 +34,7 @@ void cc_backend_load_config(const char *compiler_dir);
  *   SN_STD           = "c99"
  *   SN_DEBUG_CFLAGS  = "-no-pie -fsanitize=address -fno-omit-frame-pointer -g"
  *   SN_RELEASE_CFLAGS = "-O3 -flto"
+ *   SN_PROFILE_CFLAGS = "-O2 -fno-omit-frame-pointer -g"
  *   SN_CFLAGS        = ""
  *   SN_LDFLAGS       = ""
  *   SN_LDLIBS        = ""
@@ -78,7 +80,7 @@ bool gcc_validate_pragma_sources(PragmaSourceInfo *source_files, int source_file
  */
 bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                  const char *output_exe, const char *compiler_dir,
-                 bool verbose, bool debug_mode,
+                 bool verbose, bool debug_mode, bool profile_mode,
                  char **link_libs, int link_lib_count,
                  PragmaSourceInfo *source_files, int source_file_count);
 

@@ -274,6 +274,7 @@ RtHandleV2 *rt_arena_v2_alloc(RtArenaV2 *arena, size_t size)
     handle->arena = arena;
     handle->flags = RT_HANDLE_FLAG_NONE;
     handle->copy_callback = NULL;
+    handle->cleanup_fn = NULL;
 
     ARENA_DEBUG_LOG("rt_arena_v2_alloc: h=%p ptr=%p size=%zu arena=%p(%s)",
                     (void *)handle, ptr, size, (void *)arena,
@@ -381,6 +382,9 @@ RtHandleV2 *rt_arena_v2_promote(RtArenaV2 *dest, RtHandleV2 *handle)
      * later condemned-arena sweep would call the stale callback on freed
      * memory (use-after-free). */
     if (new_handle != NULL) {
+        /* Clear old handle's cleanup — resource ownership transferred to new handle.
+         * Also remove from arena linked list (for legacy arena-level callbacks). */
+        handle->cleanup_fn = NULL;
         rt_arena_v2_free(handle);
         rt_arena_v2_remove_cleanup(source_arena, handle);
     }
@@ -399,8 +403,9 @@ RtHandleV2 *rt_arena_v2_clone(RtArenaV2 *dest, RtHandleV2 *handle)
         /* Shallow copy */
         memcpy(new_handle->ptr, handle->ptr, handle->size);
 
-        /* Inherit copy callback */
+        /* Inherit callbacks */
         new_handle->copy_callback = handle->copy_callback;
+        new_handle->cleanup_fn = handle->cleanup_fn;
 
         /* Deep copy if callback registered */
         if (new_handle->copy_callback != NULL) {

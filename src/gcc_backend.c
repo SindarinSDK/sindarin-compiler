@@ -75,10 +75,14 @@ static bool file_exists(const char *path)
 #endif
 #define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto"
 #define DEFAULT_RELEASE_CFLAGS_CLANG "-O3 -flto"
+#define DEFAULT_PROFILE_CFLAGS_GCC "-O2 -fno-omit-frame-pointer -g"
+#define DEFAULT_PROFILE_CFLAGS_CLANG "-O2 -fno-omit-frame-pointer -g"
 #define DEFAULT_DEBUG_CFLAGS_TCC "-g"
 #define DEFAULT_RELEASE_CFLAGS_TCC "-O2"
+#define DEFAULT_PROFILE_CFLAGS_TCC "-O2 -g"
 #define DEFAULT_DEBUG_CFLAGS_MSVC "/Zi /Od"
 #define DEFAULT_RELEASE_CFLAGS_MSVC "/O2 /DNDEBUG"
+#define DEFAULT_PROFILE_CFLAGS_MSVC "/O2 /Zi"
 #define DEFAULT_CFLAGS_MSVC "/W3 /D_CRT_SECURE_NO_WARNINGS"
 #define DEFAULT_LDLIBS_MSVC "ws2_32.lib bcrypt.lib"
 #define DEFAULT_LDLIBS_CLANG_WIN "-lws2_32 -lbcrypt -lpthread"
@@ -89,6 +93,7 @@ static char cfg_cc[256];
 static char cfg_std[64];
 static char cfg_debug_cflags[1024];
 static char cfg_release_cflags[1024];
+static char cfg_profile_cflags[1024];
 static char cfg_cflags[1024];
 static char cfg_ldflags[1024];
 static char cfg_ldlibs[1024];
@@ -182,6 +187,14 @@ static void parse_config_line(const char *line)
             cfg_release_cflags[value_len] = '\0';
         }
     }
+    else if (key_len == 17 && strncmp(line, "SN_PROFILE_CFLAGS", 17) == 0)
+    {
+        if (value_len < sizeof(cfg_profile_cflags))
+        {
+            strncpy(cfg_profile_cflags, value, value_len);
+            cfg_profile_cflags[value_len] = '\0';
+        }
+    }
     else if (key_len == 9 && strncmp(line, "SN_CFLAGS", 9) == 0)
     {
         if (value_len < sizeof(cfg_cflags))
@@ -250,6 +263,7 @@ void cc_backend_init_config(CCBackendConfig *config)
     const char *default_cc;
     const char *default_debug_cflags;
     const char *default_release_cflags;
+    const char *default_profile_cflags;
     const char *default_cflags = "";
     const char *default_ldlibs = "";
 
@@ -259,6 +273,7 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_cc = "clang";
             default_debug_cflags = DEFAULT_DEBUG_CFLAGS_CLANG;
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_CLANG;
+            default_profile_cflags = DEFAULT_PROFILE_CFLAGS_CLANG;
 #ifdef _WIN32
             default_ldlibs = DEFAULT_LDLIBS_CLANG_WIN;
 #endif
@@ -267,11 +282,13 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_cc = "tcc";
             default_debug_cflags = DEFAULT_DEBUG_CFLAGS_TCC;
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_TCC;
+            default_profile_cflags = DEFAULT_PROFILE_CFLAGS_TCC;
             break;
         case BACKEND_MSVC:
             default_cc = "cl";
             default_debug_cflags = DEFAULT_DEBUG_CFLAGS_MSVC;
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_MSVC;
+            default_profile_cflags = DEFAULT_PROFILE_CFLAGS_MSVC;
             default_cflags = DEFAULT_CFLAGS_MSVC;
             default_ldlibs = DEFAULT_LDLIBS_MSVC;
             break;
@@ -280,6 +297,7 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_cc = "gcc";
             default_debug_cflags = DEFAULT_DEBUG_CFLAGS_GCC;
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_GCC;
+            default_profile_cflags = DEFAULT_PROFILE_CFLAGS_GCC;
 #ifdef _WIN32
             default_ldlibs = DEFAULT_LDLIBS_GCC_WIN;
 #endif
@@ -314,6 +332,14 @@ void cc_backend_init_config(CCBackendConfig *config)
         config->release_cflags = cfg_release_cflags;
     else
         config->release_cflags = default_release_cflags;
+
+    env_val = getenv("SN_PROFILE_CFLAGS");
+    if (env_val && env_val[0])
+        config->profile_cflags = env_val;
+    else if (cfg_profile_cflags[0])
+        config->profile_cflags = cfg_profile_cflags;
+    else
+        config->profile_cflags = default_profile_cflags;
 
     env_val = getenv("SN_CFLAGS");
     if (env_val && env_val[0])
@@ -519,7 +545,7 @@ const char *gcc_get_compiler_dir(const char *argv0)
 
 bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                  const char *output_exe, const char *compiler_dir,
-                 bool verbose, bool debug_mode,
+                 bool verbose, bool debug_mode, bool profile_mode,
                  char **link_libs, int link_lib_count,
                  PragmaSourceInfo *source_files, int source_file_count)
 {
@@ -730,7 +756,9 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     }
 #endif
 
-    const char *mode_cflags = debug_mode ? config->debug_cflags : config->release_cflags;
+    const char *mode_cflags = profile_mode ? config->profile_cflags
+                            : debug_mode  ? config->debug_cflags
+                            :               config->release_cflags;
     if (backend == BACKEND_TINYCC)
     {
         mode_cflags = filter_tinycc_flags(mode_cflags, filtered_mode_cflags, sizeof(filtered_mode_cflags));

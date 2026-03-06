@@ -65,12 +65,13 @@ struct RtHandleV2 {
 
     /* Callbacks */
     RtHandleV2CopyCallback copy_callback;     /* Called after shallow copy (NULL for simple types) */
+    void (*cleanup_fn)(RtHandleV2 *);         /* Called on GC collect or arena destroy (NULL if none) */
 
     /* GC metadata */
     uint16_t flags;             /* RtHandleFlags */
     uint16_t _reserved;         /* Future use */
     uint32_t _pad;              /* Alignment padding */
-};  /* 40 bytes (down from 56) */
+};  /* 48 bytes */
 
 /* ============================================================================
  * Handle Operations
@@ -143,5 +144,17 @@ void rt_handle_set_copy_callback(RtHandleV2 *handle, RtHandleV2CopyCallback call
 
 /* Get copy callback (NULL if none set). */
 RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle);
+
+/* ============================================================================
+ * Cleanup Callback Management
+ * ============================================================================
+ * Per-handle cleanup for external resources (json-c objects, file descriptors,
+ * sockets, etc.). Stored directly on the handle for O(1) registration and
+ * lookup, replacing the arena's O(n) linked list for per-handle cleanups.
+ * Called when GC collects the handle OR when the arena is destroyed.
+ * ============================================================================ */
+
+/* Set cleanup callback for external resource management. */
+void rt_handle_set_cleanup(RtHandleV2 *handle, void (*fn)(RtHandleV2 *));
 
 #endif /* ARENA_HANDLE_H */
