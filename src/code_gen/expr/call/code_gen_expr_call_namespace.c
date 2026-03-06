@@ -23,6 +23,7 @@
 char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *member,
                                         const char *member_name_str, CallExpr *call)
 {
+    (void)expr;
     Token ns_name = member->object->as.variable.name;
     Symbol *func_sym = symbol_table_lookup_in_namespace(gen->symbol_table, ns_name, member->member_name);
     bool callee_has_body = (func_sym != NULL &&
@@ -135,6 +136,7 @@ char *code_gen_namespace_function_call(CodeGen *gen, Expr *expr, MemberExpr *mem
 char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *member,
                                       const char *member_name_str, CallExpr *call)
 {
+    (void)expr;
     Symbol *nested_ns = member->object->as.member.resolved_namespace;
 
     /* Search for the function in the nested namespace */
@@ -259,6 +261,7 @@ char *code_gen_nested_namespace_call(CodeGen *gen, Expr *expr, MemberExpr *membe
 char *code_gen_namespace_static_method_call(CodeGen *gen, Expr *expr, MemberExpr *member,
                                              CallExpr *call)
 {
+    (void)expr;
     Type *struct_type = member->object->as.member.resolved_struct_type;
     StructMethod *method = member->resolved_method;
 

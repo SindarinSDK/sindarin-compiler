@@ -27,7 +27,6 @@ char *code_gen_thread_spawn_expression(CodeGen *gen, Expr *expr)
     DEBUG_VERBOSE("Entering code_gen_thread_spawn_expression");
 
     ThreadSpawnExpr *spawn = &expr->as.thread_spawn;
-    FunctionModifier modifier = spawn->modifier;
 
     /* Get caller arena for passing to thread args */
     const char *caller_arena = gen->current_arena_var ? gen->current_arena_var : "NULL";
