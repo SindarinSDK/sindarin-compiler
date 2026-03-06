@@ -278,11 +278,6 @@ static inline long long gc_now_ns(void)
  * Persistent GC Workspace
  * ============================================================================
  * The dead handle array is kept persistent — just reset count each cycle.
- * No hash tables, bloom filters, or refcount scanning needed: the compiler
- * generates explicit rt_arena_v2_free() for all struct fields via
- * __release_*_inline__ / __free_*_inline__, so dead handles are always
- * truly dead (no live references point to them). This was verified by
- * benchmark instrumentation: zero rescues across thousands of GC cycles.
  * ============================================================================ */
 
 static struct {
@@ -321,18 +316,61 @@ static void gc_collect_dead_handles(RtArenaV2 *arena, DeadHandleList *dead_list,
     }
 }
 
-/* Compare function for qsort/bsearch on pointer values */
-static int ptr_compare(const void *a, const void *b)
+
+/* ============================================================================
+ * Rescue: Hash-Set Based Dead Handle Detection
+ * ============================================================================
+ * When codegen marks a handle dead (rt_arena_v2_free) but the handle pointer
+ * still lives inside another handle's data (e.g. struct field in an array),
+ * GC must not free it. We build a hash set of dead handle addresses, then
+ * scan live handle data for pointer-sized values that match. Matched handles
+ * are "rescued" — their DEAD flag is cleared.
+ *
+ * Hash set uses open addressing with linear probing. The set is persistent
+ * across GC cycles (just cleared each time) to avoid repeated allocation.
+ * ============================================================================ */
+
+/* Persistent hash set for dead handle addresses */
+static struct {
+    uintptr_t *buckets;
+    size_t capacity;
+} _dead_set = {0};
+
+static void dead_set_clear(size_t cap)
 {
-    uintptr_t pa = *(const uintptr_t *)a;
-    uintptr_t pb = *(const uintptr_t *)b;
-    return (pa > pb) - (pa < pb);
+    if (_dead_set.capacity < cap) {
+        free(_dead_set.buckets);
+        _dead_set.capacity = cap;
+        _dead_set.buckets = (uintptr_t *)malloc(cap * sizeof(uintptr_t));
+    }
+    memset(_dead_set.buckets, 0, _dead_set.capacity * sizeof(uintptr_t));
 }
 
-/* Recursive scan: walk arena tree scanning live handle data for dead handle refs */
-static void gc_scan_live_for_dead_refs(RtArenaV2 *arena,
-                                        const uintptr_t *dead_addrs, size_t dead_count,
-                                        RtArenaGCResult *result)
+static inline void dead_set_insert(uintptr_t addr)
+{
+    size_t mask = _dead_set.capacity - 1;
+    /* Capacity is always a power of 2 — round up in dead_set_clear if needed */
+    size_t idx = (addr >> 3) & mask;  /* Handles are 8-byte aligned */
+    while (_dead_set.buckets[idx] != 0) {
+        idx = (idx + 1) & mask;
+    }
+    _dead_set.buckets[idx] = addr;
+}
+
+static inline bool dead_set_contains(uintptr_t addr)
+{
+    size_t mask = _dead_set.capacity - 1;
+    size_t idx = (addr >> 3) & mask;
+    while (_dead_set.buckets[idx] != 0) {
+        if (_dead_set.buckets[idx] == addr) return true;
+        idx = (idx + 1) & mask;
+    }
+    return false;
+}
+
+/* Recursive scan: walk arena tree scanning live handle data for dead handle refs.
+ * Uses hash set O(1) lookup instead of binary search O(log n). */
+static void gc_scan_live_for_dead_refs(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
@@ -348,7 +386,7 @@ static void gc_scan_live_for_dead_refs(RtArenaV2 *arena,
             for (size_t w = 0; w < word_count; w++) {
                 uintptr_t val = words[w];
                 if (val == 0) continue;
-                if (bsearch(&val, dead_addrs, dead_count, sizeof(uintptr_t), ptr_compare)) {
+                if (dead_set_contains(val)) {
                     RtHandleV2 *rescued = (RtHandleV2 *)val;
                     rescued->flags &= ~RT_HANDLE_FLAG_DEAD;
                     result->bytes_freed -= rescued->size;
@@ -359,41 +397,31 @@ static void gc_scan_live_for_dead_refs(RtArenaV2 *arena,
     }
 
     for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling) {
-        gc_scan_live_for_dead_refs(c, dead_addrs, dead_count, result);
+        gc_scan_live_for_dead_refs(c, result);
     }
 }
 
-/* Rescue: scan live handle data for references to dead handles.
- * Dead handles whose addresses appear in live handle data are "rescued" —
- * their DEAD flag is cleared and they're removed from the dead list.
- *
- * This handles the case where codegen marks a handle dead (e.g. temp freed
- * after method call) but the handle is still referenced by live data (e.g.
- * stored in a struct field inside an array). The rescue prevents premature
- * collection that would cause use-after-free during later promotion. */
+/* Rescue dead handles that are still referenced by live handle data.
+ * Builds a hash set of dead handle addresses, scans live data, rescues matches. */
 static void gc_rescue_referenced_dead_handles(RtArenaV2 *arena,
                                                 DeadHandleList *dead_list,
                                                 RtArenaGCResult *result)
 {
     if (dead_list->count == 0) return;
 
-    /* Build sorted array of dead handle addresses for binary search */
-    size_t dead_count = dead_list->count;
-    uintptr_t *dead_addrs = (uintptr_t *)malloc(dead_count * sizeof(uintptr_t));
-    if (!dead_addrs) return;
+    /* Round capacity up to next power of 2 for hash masking */
+    size_t needed = dead_list->count * 2;
+    size_t cap = 256;
+    while (cap < needed) cap <<= 1;
 
-    for (size_t i = 0; i < dead_count; i++) {
-        dead_addrs[i] = (uintptr_t)dead_list->items[i];
+    /* Build hash set of dead handle addresses */
+    dead_set_clear(cap);
+    for (size_t i = 0; i < dead_list->count; i++) {
+        dead_set_insert((uintptr_t)dead_list->items[i]);
     }
-    qsort(dead_addrs, dead_count, sizeof(uintptr_t), ptr_compare);
 
-    /* Scan all live handle data for references to dead handles.
-     * Uses recursive walk (matching gc_collect_dead_handles) to avoid
-     * stack overflow with deep arena trees (e.g. many threads). */
-    gc_scan_live_for_dead_refs(arena, dead_addrs, dead_count, result);
-
-
-    free(dead_addrs);
+    /* Scan all live handle data for references to dead handles */
+    gc_scan_live_for_dead_refs(arena, result);
 
     /* Compact dead list: remove rescued handles */
     size_t write = 0;
@@ -405,10 +433,9 @@ static void gc_rescue_referenced_dead_handles(RtArenaV2 *arena,
     dead_list->count = write;
 }
 
-/* Collect dead handles and free them. Includes a lightweight rescue pass
- * that checks whether any dead handle's address appears in live handle data.
- * This prevents premature collection of handles that codegen marked dead
- * but are still referenced (e.g. struct fields stored in arrays). */
+/* Collect dead handles and free them. Includes a rescue pass that checks
+ * whether any dead handle's address appears in live handle data, preventing
+ * premature collection of handles still referenced by live structs. */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
