@@ -513,6 +513,8 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             return arena_sprintf(gen->arena, "({ rt_arena_v2_free(%s); %s = %s; })",
                                  var_name, var_name, value_str);
         }
+        /* No arena context — simple assignment for strings outside arena scope */
+        return arena_sprintf(gen->arena, "(%s = %s)", var_name, value_str);
     }
     else if (type->kind == TYPE_ARRAY && in_arena_context)
     {

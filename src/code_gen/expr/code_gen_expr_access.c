@@ -31,13 +31,11 @@ char *code_gen_member_access_expression(CodeGen *gen, Expr *expr)
     {
         struct_type = struct_type->as.pointer.base_type;
     }
-    Type *field_type = NULL;
     if (struct_type != NULL && struct_type->kind == TYPE_STRUCT)
     {
         StructField *field = ast_struct_get_field(struct_type, field_name);
         if (field != NULL)
         {
-            field_type = field->type;
             if (field->c_alias != NULL)
             {
                 field_name = arena_strdup(gen->arena, field->c_alias);

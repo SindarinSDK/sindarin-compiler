@@ -125,7 +125,6 @@ char *code_gen_lambda_expression(CodeGen *gen, Expr *expr)
     }
 
     int lambda_id = gen->lambda_count++;
-    FunctionModifier modifier = lambda->modifier;
 
     /* Store the lambda_id in the expression for later reference */
     expr->as.lambda.lambda_id = lambda_id;
