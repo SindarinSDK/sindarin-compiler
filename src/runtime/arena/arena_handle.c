@@ -80,3 +80,13 @@ RtHandleV2CopyCallback rt_handle_get_copy_callback(RtHandleV2 *handle)
     return handle->copy_callback;
 }
 
+/* ============================================================================
+ * Cleanup Callback Management
+ * ============================================================================ */
+
+void rt_handle_set_cleanup(RtHandleV2 *handle, void (*fn)(RtHandleV2 *))
+{
+    if (handle == NULL) return;
+    handle->cleanup_fn = fn;
+}
+

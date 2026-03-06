@@ -50,6 +50,11 @@ static void gc_free_arena_handles(RtArenaV2 *arena)
             RtHandleV2 *h = &block->slots[i];
             /* Skip free/recycled slots (arena == NULL) */
             if (h->arena == NULL) continue;
+            /* Run per-handle cleanup before freeing data */
+            if (h->cleanup_fn != NULL) {
+                h->cleanup_fn(h);
+                h->cleanup_fn = NULL;
+            }
             if (h->ptr != NULL && !(h->flags & RT_HANDLE_FLAG_EXTERN)) {
                 free(h->ptr);
             }
@@ -429,10 +434,14 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
     for (size_t i = 0; i < _gc_ws.dead_handles.count; i++) {
         RtHandleV2 *dh = _gc_ws.dead_handles.items[i];
 
-        /* Run and remove any cleanup callback for this handle.
+        /* Run cleanup callback if registered on the handle (O(1) lookup).
          * STW guarantees no concurrent access, so no mutex needed. */
         RtArenaV2 *slot_arena = dh->arena;
-        if (slot_arena != NULL) {
+        if (dh->cleanup_fn != NULL) {
+            dh->cleanup_fn(dh);
+            dh->cleanup_fn = NULL;
+        } else if (slot_arena != NULL) {
+            /* Fallback: search arena's linked list for legacy callers */
             RtCleanupNodeV2 **pp = &slot_arena->cleanups;
             while (*pp != NULL) {
                 if ((*pp)->data == dh) {
@@ -458,6 +467,7 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
         dh->flags = 0;
         dh->size = 0;
         dh->copy_callback = NULL;
+        dh->cleanup_fn = NULL;
         dh->arena = NULL;  /* Marks slot as free/recycled */
         dh->ptr = (void *)slot_arena->free_list_head_ptr;
         slot_arena->free_list_head_ptr = dh;

@@ -153,7 +153,8 @@ int main(int argc, char **argv)
     }
 
     if (!gcc_compile(&cc_config, options.output_file, options.executable_file,
-                     options.compiler_dir, options.verbose, options.debug_build,
+                     options.compiler_dir, options.verbose,
+                     options.debug_build, options.profile_build,
                      options.link_libs, options.link_lib_count,
                      options.source_files, options.source_file_count))
     {

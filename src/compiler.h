@@ -34,6 +34,7 @@ typedef struct
     int emit_c_only;                 /* --emit-c: Only output C code, don't invoke GCC */
     int keep_c;                      /* --keep-c: Keep intermediate C file after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
+    int profile_build;               /* -p: Profile build (optimized with frame pointers, no ASAN/LTO) */
     char **link_libs;                /* Libraries to link from #pragma link directives */
     int link_lib_count;              /* Number of link libraries */
     PragmaSourceInfo *source_files;  /* C source files with location info from #pragma source */

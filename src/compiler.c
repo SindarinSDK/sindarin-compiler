@@ -111,6 +111,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "Debug options:\n"
                 "  -v                 Verbose mode (show compilation steps)\n"
                 "  -g                 Debug build (includes symbols and address sanitizer)\n"
+                "  -p                 Profile build (optimized with frame pointers, no ASAN or LTO)\n"
                 "  -l <level>         Set log level (0=none, 1=error, 2=warning, 3=info, 4=verbose)\n"
                 "\n"
                 "Code generation options:\n"
@@ -255,6 +256,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         {
             options->debug_build = 1;
         }
+        else if (strcmp(argv[i], "-p") == 0)
+        {
+            options->profile_build = 1;
+        }
         else if (strcmp(argv[i], "--no-install") == 0)
         {
             options->no_install = 1;
@@ -286,6 +291,20 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     if (o2_explicit && !arithmetic_mode_explicit)
     {
         options->arithmetic_mode = ARITH_UNCHECKED;
+    }
+
+    // Validate conflicting flags
+    if (options->profile_build && options->debug_build)
+    {
+        fprintf(stderr, "Error: -p (profile) and -g (debug) cannot be used together\n");
+        fprintf(stderr, "  -p builds with optimization and frame pointers for profiling\n");
+        fprintf(stderr, "  -g builds with ASAN and debug symbols for debugging\n");
+        return 0;
+    }
+    if (options->profile_build && options->emit_c_only)
+    {
+        fprintf(stderr, "Error: -p (profile) and --emit-c cannot be used together\n");
+        return 0;
     }
 
     // Check that source file was provided
