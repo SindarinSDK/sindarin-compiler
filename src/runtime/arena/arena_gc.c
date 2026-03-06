@@ -17,7 +17,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#ifdef __linux__
 #include <malloc.h>
+#endif
 #include "arena_compat.h"
 #include "../malloc/runtime_malloc_hooks.h"
 
@@ -571,6 +573,7 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
 
     pthread_mutex_unlock(&_gc_global_mutex);
 
+#ifdef __linux__
     /* Throttle malloc_trim to avoid expensive syscall on every GC cycle */
     struct timespec now;
     clock_gettime(CLOCK_MONOTONIC, &now);
@@ -580,6 +583,7 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
         malloc_trim(0);
         _last_trim_time = now;
     }
+#endif
 
     return result.handles_freed;
 }
