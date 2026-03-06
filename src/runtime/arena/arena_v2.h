@@ -136,6 +136,7 @@ struct RtArenaV2 {
 
     /* Per-arena field for condemned queue linkage */
     RtArenaV2 *condemned_next;  /* Next in condemned list */
+
 };
 
 /* ============================================================================
