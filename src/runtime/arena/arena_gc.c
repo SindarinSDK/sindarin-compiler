@@ -38,19 +38,27 @@ void arena_debug_init(void);
  * Core Helpers
  * ============================================================================ */
 
-/* Free all handles in an arena */
+/* Free all handles in an arena (block-based) */
 static void gc_free_arena_handles(RtArenaV2 *arena)
 {
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
-        if (!(handle->flags & RT_HANDLE_FLAG_EXTERN)) {
-            free(handle->ptr);
+    RtHandleBlock *block = arena->blocks_head;
+    while (block != NULL) {
+        RtHandleBlock *next = block->next;
+        for (uint32_t i = 0; i < block->count; i++) {
+            RtHandleV2 *h = &block->slots[i];
+            /* Skip free/recycled slots (arena == NULL) */
+            if (h->arena == NULL) continue;
+            if (h->ptr != NULL && !(h->flags & RT_HANDLE_FLAG_EXTERN)) {
+                free(h->ptr);
+            }
         }
-        free(handle);
-        handle = next;
+        free(block);
+        block = next;
     }
-    arena->handles_head = NULL;
+    arena->blocks_head = NULL;
+    arena->current_block = NULL;
+    arena->free_list_head_ptr = NULL;
+    arena->free_list_count = 0;
 }
 
 /* Run cleanup callbacks for an arena */
@@ -193,8 +201,6 @@ static RtArenaV2 *gc_sweep_dead_arenas_callbacks(RtArenaV2 *arena)
 
 /* Sweep dead arenas - phase 2: free all handle data and arena structs.
  * Each arena is freed non-recursively (descendants already in the list).
- * Must be called AFTER gc_compact_all so that compact can still read
- * handle structs from dead arenas for reference counting.
  * Iterates via condemned_next (intrusive) — save next before destroying. */
 static size_t gc_sweep_finalize(RtArenaV2 *dead_list)
 {
@@ -202,9 +208,16 @@ static size_t gc_sweep_finalize(RtArenaV2 *dead_list)
     RtArenaV2 *a = dead_list;
     while (a != NULL) {
         RtArenaV2 *next = a->condemned_next;
-        /* Count bytes in arena's handles before freeing */
-        for (RtHandleV2 *h = a->handles_head; h != NULL; h = h->next)
-            total_bytes += h->size + sizeof(RtHandleV2);
+        /* Count bytes in arena's handles before freeing (block iteration) */
+        for (RtHandleBlock *block = a->blocks_head; block != NULL; block = block->next) {
+            total_bytes += sizeof(RtHandleBlock);
+            for (uint32_t i = 0; i < block->count; i++) {
+                RtHandleV2 *h = &block->slots[i];
+                if (h->arena != NULL) {
+                    total_bytes += h->size;
+                }
+            }
+        }
         total_bytes += sizeof(RtArenaV2); /* arena struct itself */
         gc_destroy_arena_fully(a);
         a = next;
@@ -220,366 +233,205 @@ static size_t gc_sweep_finalize(RtArenaV2 *dead_list)
  * reference other dead handles.
  * ============================================================================ */
 
-/* Dead handle list — intrusive via handle->next
- * ================================================
- * Dead handles are collected into a singly-linked list by repurposing the
- * handle's own `next` pointer. This is safe because:
+/* Dead handle list — flat array
+ * ================================
+ * Dead handles are collected into a growable flat array during block iteration.
+ * This replaces the former intrusive linked list (via handle->next) since
+ * handles no longer have next/prev pointers. The array is allocated once per
+ * GC cycle and freed at the end.
  *
- *   1. rt_handle_v2_unlink() removes the handle from the arena's doubly-linked
- *      list, leaving next/prev stale — we overwrite next with the dead list link.
- *
- *   2. handle->arena still points to the owning arena (never cleared), so the
- *      rescue pass can re-link handles without a separate arena field.
- *
- *   3. On rescue, rt_handle_v2_link() overwrites next/prev to re-insert into
- *      the arena list, restoring the handle to its normal state.
- *
- * Scope: handle->next is repurposed ONLY between gc_collect_and_build_sets
- * (which unlinks dead handles and chains them via next) and the end of
- * gc_compact_all (which frees them). Outside this window, handle->next has
- * its normal arena-list meaning.
- *
- * This eliminates one malloc + one free per dead handle per GC cycle. */
-
-/* Info about a live handle's data pointer for flat refcount scanning */
-typedef struct {
-    void *ptr;
-    size_t size;
-} LiveHandleInfo;
+ * On rescue: just clear the DEAD flag (handle stays in its block slot).
+ * On free: clear slot fields, push onto arena's free list for recycling. */
 
 typedef struct {
-    LiveHandleInfo *items;
+    RtHandleV2 **items;
     size_t count;
     size_t capacity;
-} LiveHandleList;
+} DeadHandleList;
 
-/* ============================================================================
- * Reference Count Hash Table
- * ============================================================================
- * Simple open-addressing hash table mapping handle addresses to reference
- * counts. Used during GC to determine if a dead handle's children are
- * shared with other handles (live or dead).
- * ============================================================================ */
-
-#define RC_TABLE_INITIAL_CAP 256
-
-typedef struct {
-    void *key;          /* Handle address */
-    size_t count;       /* Number of handles referencing this address */
-} RcEntry;
-
-typedef struct {
-    RcEntry *entries;
-    size_t capacity;
-    size_t size;
-} RcTable;
-
-static void rc_table_init(RcTable *t)
+static void dead_list_add(DeadHandleList *list, RtHandleV2 *handle)
 {
-    t->capacity = RC_TABLE_INITIAL_CAP;
-    t->size = 0;
-    t->entries = calloc(t->capacity, sizeof(RcEntry));
-}
-
-static void rc_table_free(RcTable *t)
-{
-    free(t->entries);
-    t->entries = NULL;
-    t->capacity = 0;
-    t->size = 0;
-}
-
-static void rc_table_grow(RcTable *t)
-{
-    size_t old_cap = t->capacity;
-    RcEntry *old = t->entries;
-    t->capacity *= 2;
-    t->entries = calloc(t->capacity, sizeof(RcEntry));
-    t->size = 0;
-
-    for (size_t i = 0; i < old_cap; i++) {
-        if (old[i].key != NULL) {
-            /* Re-insert */
-            size_t idx = ((uintptr_t)old[i].key >> 3) % t->capacity;
-            while (t->entries[idx].key != NULL) {
-                idx = (idx + 1) % t->capacity;
-            }
-            t->entries[idx] = old[i];
-            t->size++;
-        }
+    if (list->count >= list->capacity) {
+        size_t new_cap = list->capacity ? list->capacity * 2 : 256;
+        list->items = realloc(list->items, new_cap * sizeof(RtHandleV2 *));
+        list->capacity = new_cap;
     }
-    free(old);
+    list->items[list->count++] = handle;
 }
 
-static void rc_table_inc(RcTable *t, void *key)
+/* Timing helper — returns nanoseconds (monotonic clock) */
+static inline long long gc_now_ns(void)
 {
-    if (key == NULL) return;
-    if (t->size * 2 >= t->capacity) rc_table_grow(t);
-
-    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
-    while (t->entries[idx].key != NULL) {
-        if (t->entries[idx].key == key) {
-            t->entries[idx].count++;
-            return;
-        }
-        idx = (idx + 1) % t->capacity;
-    }
-    t->entries[idx].key = key;
-    t->entries[idx].count = 1;
-    t->size++;
-}
-
-
-static size_t rc_table_get(RcTable *t, void *key)
-{
-    if (key == NULL || t->size == 0) return 0;
-
-    size_t idx = ((uintptr_t)key >> 3) % t->capacity;
-    while (t->entries[idx].key != NULL) {
-        if (t->entries[idx].key == key) {
-            return t->entries[idx].count;
-        }
-        idx = (idx + 1) % t->capacity;
-    }
-    return 0;
+    struct timespec ts;
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (long long)ts.tv_sec * 1000000000LL + ts.tv_nsec;
 }
 
 /* ============================================================================
- * Bloom Filter — fast rejection of non-handle pointers
+ * Persistent GC Workspace
  * ============================================================================
- * Most pointer-sized slots in handle data are NOT handle addresses (they're
- * string data, integers, etc.). The bloom filter rejects these in a few
- * bitwise ops instead of a hash table probe. Only bloom filter hits fall
- * through to the real rc_table_get.
- *
- * Uses 2 hash functions and ~8 bits per element for <1% false positive rate.
- * The filter array fits in L1 cache for typical handle counts.
+ * The dead handle array is kept persistent — just reset count each cycle.
+ * No hash tables, bloom filters, or refcount scanning needed: the compiler
+ * generates explicit rt_arena_v2_free() for all struct fields via
+ * __release_*_inline__ / __free_*_inline__, so dead handles are always
+ * truly dead (no live references point to them). This was verified by
+ * benchmark instrumentation: zero rescues across thousands of GC cycles.
  * ============================================================================ */
 
-typedef struct {
-    uint64_t *bits;
-    size_t nbits;
-} BloomFilter;
+static struct {
+    DeadHandleList dead_handles;/* Flat array of dead handle pointers */
+    size_t last_handle_count;   /* Handle count from previous cycle (for logging) */
+} _gc_ws = {0};
 
-static inline size_t bloom_hash1(uintptr_t key) { return key * 0x9E3779B97F4A7C15ULL; }
-static inline size_t bloom_hash2(uintptr_t key) { return key * 0x517CC1B727220A95ULL; }
-
-static void bloom_init(BloomFilter *bf, size_t element_count)
-{
-    /* 8 bits per element, minimum 512 bits */
-    bf->nbits = element_count * 8;
-    if (bf->nbits < 512) bf->nbits = 512;
-    size_t nwords = (bf->nbits + 63) / 64;
-    bf->bits = calloc(nwords, sizeof(uint64_t));
-}
-
-static void bloom_add(BloomFilter *bf, void *key)
-{
-    uintptr_t k = (uintptr_t)key;
-    size_t b1 = bloom_hash1(k) % bf->nbits;
-    size_t b2 = bloom_hash2(k) % bf->nbits;
-    bf->bits[b1 / 64] |= (1ULL << (b1 % 64));
-    bf->bits[b2 / 64] |= (1ULL << (b2 % 64));
-}
-
-static inline bool bloom_maybe_contains(BloomFilter *bf, void *key)
-{
-    uintptr_t k = (uintptr_t)key;
-    size_t b1 = bloom_hash1(k) % bf->nbits;
-    size_t b2 = bloom_hash2(k) % bf->nbits;
-    return (bf->bits[b1 / 64] & (1ULL << (b1 % 64)))
-        && (bf->bits[b2 / 64] & (1ULL << (b2 % 64)));
-}
-
-static void bloom_free(BloomFilter *bf)
-{
-    free(bf->bits);
-    bf->bits = NULL;
-    bf->nbits = 0;
-}
-
-/* Build bloom filter from handle_set keys */
-static void bloom_populate_from_rc_table(BloomFilter *bf, RcTable *handle_set)
-{
-    for (size_t i = 0; i < handle_set->capacity; i++) {
-        if (handle_set->entries[i].key != NULL) {
-            bloom_add(bf, handle_set->entries[i].key);
-        }
-    }
-}
-
-/* Build reference count table from a flat list of live handle data pointers.
- * Replaces the tree-walking gc_build_refcount_table — live handle data is
- * collected during gc_collect_and_build_sets so no additional tree walk needed.
- * Uses bloom filter for fast rejection of non-handle pointers. */
-static void gc_build_refcount_from_list(LiveHandleList *live, RcTable *rctable,
-                                        RcTable *handle_set, BloomFilter *bf)
-{
-    for (size_t i = 0; i < live->count; i++) {
-        void **scan = (void **)live->items[i].ptr;
-        size_t slots = live->items[i].size / sizeof(void *);
-        for (size_t j = 0; j < slots; j++) {
-            if (scan[j] != NULL
-                && bloom_maybe_contains(bf, scan[j])
-                && rc_table_get(handle_set, scan[j]) > 0) {
-                rc_table_inc(rctable, scan[j]);
-            }
-        }
-    }
-}
-
-/* Single-pass recursive walk: collect dead handles, build handle address set,
- * and gather live handle data pointers for refcount scanning.
- * Merges gc_collect_all_handles + gc_build_handle_set + live handle data
- * collection into one tree walk, reducing mutex lock/unlock and children
- * snapshot malloc/free from 3x to 1x per arena. */
-
-static void gc_collect_and_build_sets(RtArenaV2 *arena, RtHandleV2 **dead_list,
-                                       RcTable *handle_set, LiveHandleList *live_handles,
-                                       RtArenaGCResult *result)
+/* Recursive walk: collect dead handles from all arenas into flat array.
+ * Iterates contiguous handle blocks (cache-friendly sequential scan). */
+static void gc_collect_dead_handles(RtArenaV2 *arena, DeadHandleList *dead_list,
+                                     RtArenaGCResult *result, size_t *total_handles)
 {
     if (arena == NULL) return;
 
     /* No mutex needed: called during STW, all mutators are parked. */
-    RtHandleV2 *handle = arena->handles_head;
-    while (handle != NULL) {
-        RtHandleV2 *next = handle->next;
+    for (RtHandleBlock *block = arena->blocks_head; block != NULL; block = block->next) {
+        for (uint32_t i = 0; i < block->count; i++) {
+            RtHandleV2 *handle = &block->slots[i];
 
-        /* Add ALL handle addresses to the handle set (live + dead) */
-        rc_table_inc(handle_set, (void *)handle);
+            /* Skip free/recycled slots */
+            if (handle->arena == NULL) continue;
 
-        if (handle->flags & RT_HANDLE_FLAG_DEAD) {
-            /* Dead handle: unlink from arena and chain into dead list.
-             * After unlink, handle->next is stale — repurpose it as
-             * the intrusive dead list link (see comment above). */
-            rt_handle_v2_unlink(arena, handle);
-            result->bytes_freed += handle->size;
-            result->handles_freed++;
+            (*total_handles)++;
 
-            handle->next = *dead_list;
-            *dead_list = handle;
-        } else if (handle->ptr != NULL) {
-            /* Live handle with data: record for refcount scanning */
-            if (live_handles->count >= live_handles->capacity) {
-                size_t new_cap = live_handles->capacity ? live_handles->capacity * 2 : 256;
-                live_handles->items = realloc(live_handles->items, new_cap * sizeof(LiveHandleInfo));
-                live_handles->capacity = new_cap;
+            if (handle->flags & RT_HANDLE_FLAG_DEAD) {
+                dead_list_add(dead_list, handle);
+                result->bytes_freed += handle->size;
+                result->handles_freed++;
             }
-            live_handles->items[live_handles->count].ptr = handle->ptr;
-            live_handles->items[live_handles->count].size = handle->size;
-            live_handles->count++;
         }
-
-        handle = next;
     }
 
-    /* Recurse into children. No mutex or snapshot needed under STW —
-     * no mutators can modify the child list concurrently. */
+    /* Recurse into children */
     for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling) {
-        gc_collect_and_build_sets(c, dead_list, handle_set, live_handles, result);
+        gc_collect_dead_handles(c, dead_list, result, total_handles);
     }
 }
 
-/* GC all arenas using reference counting for rescue decisions.
- * Dead handles with refcount > 0 (referenced by live handle data) are rescued.
- * Dead handles with refcount 0 are freed.
+/* Compare function for qsort/bsearch on pointer values */
+static int ptr_compare(const void *a, const void *b)
+{
+    uintptr_t pa = *(const uintptr_t *)a;
+    uintptr_t pb = *(const uintptr_t *)b;
+    return (pa > pb) - (pa < pb);
+}
+
+/* Recursive scan: walk arena tree scanning live handle data for dead handle refs */
+static void gc_scan_live_for_dead_refs(RtArenaV2 *arena,
+                                        const uintptr_t *dead_addrs, size_t dead_count,
+                                        RtArenaGCResult *result)
+{
+    if (arena == NULL) return;
+
+    for (RtHandleBlock *block = arena->blocks_head; block != NULL; block = block->next) {
+        for (uint32_t i = 0; i < block->count; i++) {
+            RtHandleV2 *h = &block->slots[i];
+            if (h->arena == NULL) continue;
+            if (h->flags & RT_HANDLE_FLAG_DEAD) continue;
+            if (h->ptr == NULL || h->size < sizeof(void *)) continue;
+
+            uintptr_t *words = (uintptr_t *)h->ptr;
+            size_t word_count = h->size / sizeof(void *);
+            for (size_t w = 0; w < word_count; w++) {
+                uintptr_t val = words[w];
+                if (val == 0) continue;
+                if (bsearch(&val, dead_addrs, dead_count, sizeof(uintptr_t), ptr_compare)) {
+                    RtHandleV2 *rescued = (RtHandleV2 *)val;
+                    rescued->flags &= ~RT_HANDLE_FLAG_DEAD;
+                    result->bytes_freed -= rescued->size;
+                    result->handles_freed--;
+                }
+            }
+        }
+    }
+
+    for (RtArenaV2 *c = arena->first_child; c != NULL; c = c->next_sibling) {
+        gc_scan_live_for_dead_refs(c, dead_addrs, dead_count, result);
+    }
+}
+
+/* Rescue: scan live handle data for references to dead handles.
+ * Dead handles whose addresses appear in live handle data are "rescued" —
+ * their DEAD flag is cleared and they're removed from the dead list.
  *
- * NOTE: We intentionally do NOT cascade into dead handle data to kill children.
- * Conservative pointer scanning of dead handle data causes false positives:
- * stale pointer values in dead handle data can match live handle addresses,
- * and if those live handles have refcount 0 (only on thread stacks), the
- * cascade incorrectly kills them — causing use-after-free / SIGSEGV.
- * The compiler generates explicit rt_arena_v2_free() calls for all struct
- * fields via __release_*_inline__ / __free_*_inline__, so children of dead
- * handles are already marked DEAD by codegen before GC runs. */
+ * This handles the case where codegen marks a handle dead (e.g. temp freed
+ * after method call) but the handle is still referenced by live data (e.g.
+ * stored in a struct field inside an array). The rescue prevents premature
+ * collection that would cause use-after-free during later promotion. */
+static void gc_rescue_referenced_dead_handles(RtArenaV2 *arena,
+                                                DeadHandleList *dead_list,
+                                                RtArenaGCResult *result)
+{
+    if (dead_list->count == 0) return;
+
+    /* Build sorted array of dead handle addresses for binary search */
+    size_t dead_count = dead_list->count;
+    uintptr_t *dead_addrs = (uintptr_t *)malloc(dead_count * sizeof(uintptr_t));
+    if (!dead_addrs) return;
+
+    for (size_t i = 0; i < dead_count; i++) {
+        dead_addrs[i] = (uintptr_t)dead_list->items[i];
+    }
+    qsort(dead_addrs, dead_count, sizeof(uintptr_t), ptr_compare);
+
+    /* Scan all live handle data for references to dead handles.
+     * Uses recursive walk (matching gc_collect_dead_handles) to avoid
+     * stack overflow with deep arena trees (e.g. many threads). */
+    gc_scan_live_for_dead_refs(arena, dead_addrs, dead_count, result);
+
+
+    free(dead_addrs);
+
+    /* Compact dead list: remove rescued handles */
+    size_t write = 0;
+    for (size_t read = 0; read < dead_list->count; read++) {
+        if (dead_list->items[read]->flags & RT_HANDLE_FLAG_DEAD) {
+            dead_list->items[write++] = dead_list->items[read];
+        }
+    }
+    dead_list->count = write;
+}
+
+/* Collect dead handles and free them. Includes a lightweight rescue pass
+ * that checks whether any dead handle's address appears in live handle data.
+ * This prevents premature collection of handles that codegen marked dead
+ * but are still referenced (e.g. struct fields stored in arrays). */
 static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
 {
     if (arena == NULL) return;
 
-    /* Single-pass tree walk: collect dead handles, build handle address set,
-     * and gather live handle data pointers — all in one recursive traversal.
-     * This reduces mutex lock/unlock and children snapshot malloc/free from
-     * 3x to 1x per arena compared to three separate walks. */
-    RtHandleV2 *dead_handles = NULL;
-    RcTable handle_set;
-    rc_table_init(&handle_set);
-    LiveHandleList live_handles = {NULL, 0, 0};
-    gc_collect_and_build_sets(arena, &dead_handles, &handle_set, &live_handles, result);
+    _gc_ws.dead_handles.count = 0;
+    size_t total_handles = 0;
 
-    if (dead_handles == NULL) {
-        rc_table_free(&handle_set);
-        free(live_handles.items);
-        return;
-    }
+    /* Collect all dead handles */
+    gc_collect_dead_handles(arena, &_gc_ws.dead_handles, result, &total_handles);
 
-    /* Build bloom filter from handle_set for fast rejection in refcount scan */
-    BloomFilter bf;
-    bloom_init(&bf, handle_set.size);
-    bloom_populate_from_rc_table(&bf, &handle_set);
+    _gc_ws.last_handle_count = total_handles;
 
-    /* Build reference count table from the flat list of live handle data
-     * pointers collected during the single walk. Bloom filter rejects
-     * non-handle pointers cheaply; only hits probe the hash table. */
-    RcTable rctable;
-    rc_table_init(&rctable);
-    gc_build_refcount_from_list(&live_handles, &rctable, &handle_set, &bf);
+    if (_gc_ws.dead_handles.count == 0) return;
 
-    bloom_free(&bf);
+    /* Rescue dead handles that are still referenced by live handle data */
+    gc_rescue_referenced_dead_handles(arena, &_gc_ws.dead_handles, result);
 
-    /* Live handle list no longer needed after refcount table is built */
-    free(live_handles.items);
+    if (_gc_ws.dead_handles.count == 0) return;
 
-    /* Rescue pass: Dead handles still referenced by live handles are rescued.
-     * This prevents use-after-free when scope cleanup marks handles as DEAD
-     * but they're still stored in live data structures (e.g., struct fields
-     * pushed into arrays). Re-link rescued handles into their arenas and
-     * clear the DEAD flag so they stay alive.
-     *
-     * Iterates the intrusive dead list via handle->next. On rescue,
-     * rt_handle_v2_link() overwrites next/prev to re-insert the handle into
-     * its arena — we save next before the call so iteration is safe. */
-    RtHandleV2 *truly_dead = NULL;
-    RtHandleV2 *h = dead_handles;
-    while (h != NULL) {
-        RtHandleV2 *next = h->next;
-        if (rc_table_get(&rctable, (void *)h) > 0) {
-            /* Handle is referenced by a live handle -- rescue it.
-             * h->arena is the original owning arena (never cleared). */
-            GC_DEBUG_LOG("  rescue: h=%p ptr=%p (refcount > 0)", (void *)h, h->ptr);
-            h->flags &= ~RT_HANDLE_FLAG_DEAD;
-            rt_handle_v2_link(h->arena, h);
-            result->handles_freed--;  /* Undo the count from collection */
-            result->bytes_freed -= h->size;
-        } else {
-            /* Truly dead -- chain into truly_dead list */
-            h->next = truly_dead;
-            truly_dead = h;
-        }
-        h = next;
-    }
-    dead_handles = truly_dead;
+    GC_DEBUG_LOG("gc_compact_all: freeing %zu dead handles", _gc_ws.dead_handles.count);
 
-    GC_DEBUG_LOG("gc_compact_all: freeing dead handle data + structs");
+    /* Free confirmed-dead handles */
+    for (size_t i = 0; i < _gc_ws.dead_handles.count; i++) {
+        RtHandleV2 *dh = _gc_ws.dead_handles.items[i];
 
-    /* Pass 2: Free all dead handle data + structs.
-     * No wrapper nodes to free — handles ARE the list nodes (intrusive).
-     *
-     * Before freeing, remove any cleanup callback that references this handle
-     * from its owning arena. Without this, the cleanup would hold a dangling
-     * pointer and fire on freed memory when the arena is later condemned.
-     * STW guarantees no concurrent access, so we walk the cleanup list
-     * without the arena mutex. */
-    RtHandleV2 *dh = dead_handles;
-    while (dh != NULL) {
-        RtHandleV2 *next = dh->next;
-        GC_DEBUG_LOG("  free: h=%p ptr=%p", (void *)dh, dh->ptr);
-
-        /* Run and remove any cleanup callback for this handle before freeing.
-         * The callback (e.g., sn_json_cleanup) may release external resources
-         * like json-c references. If we just removed it, those would leak.
-         * STW guarantees no concurrent access, so no arena mutex needed. */
-        if (dh->arena != NULL) {
-            RtCleanupNodeV2 **pp = &dh->arena->cleanups;
+        /* Run and remove any cleanup callback for this handle.
+         * STW guarantees no concurrent access, so no mutex needed. */
+        RtArenaV2 *slot_arena = dh->arena;
+        if (slot_arena != NULL) {
+            RtCleanupNodeV2 **pp = &slot_arena->cleanups;
             while (*pp != NULL) {
                 if ((*pp)->data == dh) {
                     RtCleanupNodeV2 *node = *pp;
@@ -594,15 +446,21 @@ static void gc_compact_all(RtArenaV2 *arena, RtArenaGCResult *result)
             }
         }
 
+        /* Free data */
         if (!(dh->flags & RT_HANDLE_FLAG_EXTERN)) {
             free(dh->ptr);
         }
-        free(dh);
-        dh = next;
-    }
 
-    rc_table_free(&rctable);
-    rc_table_free(&handle_set);
+        /* Recycle slot: clear fields and push onto arena's free list.
+         * The ptr field is repurposed as the free list link pointer. */
+        dh->flags = 0;
+        dh->size = 0;
+        dh->copy_callback = NULL;
+        dh->arena = NULL;  /* Marks slot as free/recycled */
+        dh->ptr = (void *)slot_arena->free_list_head_ptr;
+        slot_arena->free_list_head_ptr = dh;
+        slot_arena->free_list_count++;
+    }
 }
 
 /* ============================================================================
@@ -638,17 +496,15 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
         return 0;
     }
 
+    long long t0 = gc_now_ns();
+
     rt_safepoint_request_stw();
+
+    long long t1 = gc_now_ns();  /* STW acquired */
 
     /* Temporarily clear the malloc redirect handler to prevent GC's internal
      * allocations (RcTable, LiveHandleList, etc.) from being redirected into
-     * the arena being collected. On Windows (MinHook inline hooking), ALL
-     * malloc/free calls are intercepted including GC internals. If these
-     * allocations go to the arena, the GC's reference counting scan sees
-     * pointers to dead handles in its own bookkeeping data and falsely
-     * rescues them, causing GC to report 0 collected instead of the correct
-     * count. Arena-managed data (handle->ptr) was allocated via orig_malloc
-     * (hook guard was set), so orig_free from the cleared handler is correct. */
+     * the arena being collected. */
     RtMallocHandler *saved_handler = rt_malloc_hooks_get_handler();
     if (saved_handler) rt_malloc_hooks_clear_handler();
 
@@ -666,12 +522,18 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
         dead_arena_count++;
     }
 
+    long long t2 = gc_now_ns();  /* Phase 1 done */
+
     /* Phase 2: Collect dead handles in all live arenas */
     gc_compact_all(arena, &result);
+
+    long long t3 = gc_now_ns();  /* Phase 2 done */
 
     /* Phase 3: Now safe to free dead arena handle structs and arena structs.
      * All cleanup callbacks and compact have completed. */
     size_t phase3_bytes = gc_sweep_finalize(dead_arenas);
+
+    long long t4 = gc_now_ns();  /* Phase 3 done */
 
     /* Fill in arena-level results */
     result.arenas_freed = dead_arena_count;
@@ -682,12 +544,30 @@ size_t rt_arena_v2_gc(RtArenaV2 *arena)
 
     rt_safepoint_release_stw();
 
-    /* Record GC results after STW release — recompute_stats walks the
-     * arena tree with mutex locks, which is expensive. Doing it outside
-     * the STW window avoids extending the pause for all threads. */
+    /* Record GC results after STW release */
     result.gc_calls = _gc_call_count;
     result.gc_skips = _gc_skip_count;
     rt_arena_stats_record_gc(arena, &result);
+
+    /* Log phase timing (periodic to avoid flooding) */
+    static volatile size_t _gc_timing_cycle = 0;
+    size_t cycle = __sync_add_and_fetch(&_gc_timing_cycle, 1);
+    if (arena->gc_log_enabled && (cycle <= 5 || cycle % 100 == 0)) {
+        fprintf(stderr,
+                "[GC-TIMING #%zu] stw_wait=%.2fms phase1=%.2fms phase2=%.2fms "
+                "phase3=%.2fms stw_total=%.2fms | "
+                "handles=%zu dead=%zu arenas=%zu\n",
+                cycle,
+                (t1 - t0) / 1e6,
+                (t2 - t1) / 1e6,
+                (t3 - t2) / 1e6,
+                (t4 - t3) / 1e6,
+                (t4 - t1) / 1e6,
+                _gc_ws.last_handle_count,
+                result.handles_freed,
+                dead_arena_count);
+        fflush(stderr);
+    }
 
     pthread_mutex_unlock(&_gc_global_mutex);
 

@@ -36,34 +36,7 @@ void arena_debug_init(void)
     } \
 } while(0)
 
-/* ============================================================================
- * Internal: Handle Management
- * ============================================================================ */
-
-static RtHandleV2 *handle_create(RtArenaV2 *arena, void *ptr, size_t size)
-{
-    RtHandleV2 *handle = malloc(sizeof(RtHandleV2));
-    if (handle == NULL) {
-        fprintf(stderr, "arena_v2: handle allocation failed\n");
-        return NULL;
-    }
-
-    handle->ptr = ptr;
-    handle->size = size;
-    handle->arena = arena;
-    handle->flags = RT_HANDLE_FLAG_NONE;
-    handle->copy_callback = NULL;
-    handle->next = NULL;
-    handle->prev = NULL;
-
-    ARENA_DEBUG_LOG("handle_create: h=%p ptr=%p size=%zu arena=%p(%s)",
-                    (void *)handle, ptr, size, (void *)arena,
-                    arena && arena->name ? arena->name : "?");
-
-    return handle;
-}
-
-/* Handle link/unlink/destroy functions moved to arena_handle.c */
+/* Handle creation is now inline in rt_arena_v2_alloc (block bump-allocation). */
 
 /* Global allocation counters (extern-visible for GC logging) */
 volatile size_t rt_alloc_total_bytes = 0;
@@ -89,7 +62,10 @@ RtArenaV2 *rt_arena_v2_create(RtArenaV2 *parent, RtArenaMode mode, const char *n
     arena->first_child = NULL;
     arena->next_sibling = NULL;
 
-    arena->handles_head = NULL;
+    arena->blocks_head = NULL;
+    arena->current_block = NULL;
+    arena->free_list_head_ptr = NULL;
+    arena->free_list_count = 0;
 
     arena->gc_running = false;
     arena->flags = RT_ARENA_FLAG_NONE;
@@ -263,14 +239,45 @@ RtHandleV2 *rt_arena_v2_alloc(RtArenaV2 *arena, size_t size)
 
     pthread_mutex_lock(&arena->mutex);
 
-    RtHandleV2 *handle = handle_create(arena, ptr, size);
-    if (handle == NULL) {
-        free(ptr);
-        pthread_mutex_unlock(&arena->mutex);
-        return NULL;
+    RtHandleV2 *handle;
+
+    /* Try free list first (recycled slots from dead handles) */
+    if (arena->free_list_count > 0) {
+        handle = arena->free_list_head_ptr;
+        arena->free_list_head_ptr = (RtHandleV2 *)handle->ptr;
+        arena->free_list_count--;
+    }
+    /* Bump-allocate in current block */
+    else if (arena->current_block != NULL &&
+             arena->current_block->count < arena->current_block->capacity) {
+        handle = &arena->current_block->slots[arena->current_block->count];
+        arena->current_block->count++;
+    }
+    /* Allocate new block */
+    else {
+        RtHandleBlock *block = calloc(1, sizeof(RtHandleBlock));
+        if (block == NULL) {
+            free(ptr);
+            pthread_mutex_unlock(&arena->mutex);
+            return NULL;
+        }
+        block->capacity = RT_HANDLE_BLOCK_SIZE;
+        block->count = 1;
+        block->next = arena->blocks_head;
+        arena->blocks_head = block;
+        arena->current_block = block;
+        handle = &block->slots[0];
     }
 
-    rt_handle_v2_link(arena, handle);
+    handle->ptr = ptr;
+    handle->size = size;
+    handle->arena = arena;
+    handle->flags = RT_HANDLE_FLAG_NONE;
+    handle->copy_callback = NULL;
+
+    ARENA_DEBUG_LOG("rt_arena_v2_alloc: h=%p ptr=%p size=%zu arena=%p(%s)",
+                    (void *)handle, ptr, size, (void *)arena,
+                    arena->name ? arena->name : "?");
 
     pthread_mutex_unlock(&arena->mutex);
 
