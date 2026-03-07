@@ -141,6 +141,7 @@ void rt_arena_v2_condemn(RtArenaV2 *arena)
 void rt_arena_v2_reparent(RtArenaV2 *arena, RtArenaV2 *new_parent)
 {
     if (arena == NULL || new_parent == NULL) return;
+    if (arena->parent == new_parent) return;  /* Already parented correctly */
 
     /* Unlink from old parent's child list */
     RtArenaV2 *old_parent = arena->parent;
