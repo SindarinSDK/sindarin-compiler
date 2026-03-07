@@ -233,6 +233,16 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/stmt/code_gen_stmt_return.c
 )
 
+set(SN_GENMODEL_SOURCES
+    src/gen_model/gen_model.c
+    src/gen_model/gen_model_type.c
+    src/gen_model/gen_model_stmt.c
+    src/gen_model/gen_model_expr.c
+    src/gen_model/gen_model_func.c
+    src/gen_model/gen_model_struct.c
+    src/gen_model/gen_model_render.c
+)
+
 set(SN_BACKEND_SOURCES
     src/gcc_backend.c
     src/gcc_backend_config.c
@@ -303,6 +313,7 @@ set(SN_COMPILER_SOURCES
     ${SN_TYPE_CHECKER_SOURCES}
     ${SN_OPTIMIZER_SOURCES}
     ${SN_CODEGEN_SOURCES}
+    ${SN_GENMODEL_SOURCES}
     ${SN_BACKEND_SOURCES}
     ${SN_RUNTIME_SOURCES}
     ${SN_PACKAGE_SOURCES}
@@ -691,6 +702,11 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
         file(INSTALL "${SINDARIN_LIBS_DIR}/include/yyjson.h" DESTINATION ${SN_DEPS_DIR}/include)
     endif()
 
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/json-c/json.h")
+        message(STATUS "  Copying json-c headers...")
+        file(INSTALL "${SINDARIN_LIBS_DIR}/include/json-c" DESTINATION ${SN_DEPS_DIR}/include)
+    endif()
+
     if(EXISTS "${SINDARIN_LIBS_DIR}/include/libxml2/libxml")
         message(STATUS "  Copying libxml2 headers...")
         file(INSTALL "${SINDARIN_LIBS_DIR}/include/libxml2/libxml" DESTINATION ${SN_DEPS_DIR}/include)
@@ -772,6 +788,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
         # Linux: Copy static libraries (.a files) for self-contained executables
         file(GLOB ZLIB_LIBS "${SINDARIN_LIBS_DIR}/lib/libz.a")
         file(GLOB YYJSON_LIBS "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
+        file(GLOB JSONC_LIBS "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
         file(GLOB XML2_LIBS "${SINDARIN_LIBS_DIR}/lib/libxml2.a")
         file(GLOB YAML_LIBS "${SINDARIN_LIBS_DIR}/lib/libyaml.a")
         file(GLOB OPENSSL_LIBS "${SINDARIN_LIBS_DIR}/lib/libssl.a" "${SINDARIN_LIBS_DIR}/lib/libcrypto.a")
@@ -781,13 +798,35 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
         file(GLOB GIT2_DEPS_LIBS "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a" "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a" "${SINDARIN_LIBS_DIR}/lib/libssh2.a")
         file(GLOB CURL_LIBS "${SINDARIN_LIBS_DIR}/lib/libcurl.a")
 
-        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
+        foreach(LIB ${ZLIB_LIBS} ${YYJSON_LIBS} ${JSONC_LIBS} ${XML2_LIBS} ${YAML_LIBS} ${OPENSSL_LIBS} ${NGTCP2_LIBS} ${SSH_LIBS} ${GIT2_LIBS} ${GIT2_DEPS_LIBS} ${CURL_LIBS})
             message(STATUS "  Copying library: ${LIB}")
             file(INSTALL ${LIB} DESTINATION ${SN_DEPS_DIR}/lib)
         endforeach()
     endif()
 
     message(STATUS "  Dependencies copied to: ${SN_DEPS_DIR}")
+
+    # Add json-c include path for gen_model
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/json-c/json.h")
+        target_include_directories(sn PRIVATE "${SINDARIN_LIBS_DIR}/include")
+        target_include_directories(tests PRIVATE "${SINDARIN_LIBS_DIR}/include")
+    endif()
+
+    # sindarin-template (handlebars) for gen_model_render
+    set(SINDARIN_PKG_LIBS_DIR "${CMAKE_SOURCE_DIR}/.sn/sindarin-pkg-libs/libs/${SINDARIN_LIBS_PLATFORM}")
+    if(EXISTS "${SINDARIN_PKG_LIBS_DIR}/include/handlebars.h")
+        message(STATUS "Found sindarin-template (handlebars)")
+        target_include_directories(sn PRIVATE "${SINDARIN_PKG_LIBS_DIR}/include")
+        target_include_directories(tests PRIVATE "${SINDARIN_PKG_LIBS_DIR}/include")
+        target_link_libraries(sn PRIVATE "${SINDARIN_PKG_LIBS_DIR}/lib/libsindarin-template.a")
+        target_link_libraries(tests PRIVATE "${SINDARIN_PKG_LIBS_DIR}/lib/libsindarin-template.a")
+    endif()
+
+    # Copy templates to bin/ for runtime access
+    if(EXISTS "${CMAKE_SOURCE_DIR}/templates/c/module.hbs")
+        file(COPY "${CMAKE_SOURCE_DIR}/templates/c" DESTINATION "${CMAKE_SOURCE_DIR}/bin/templates")
+        message(STATUS "  Templates copied to: ${CMAKE_SOURCE_DIR}/bin/templates/c")
+    endif()
 
     # Check for libcurl and enable auto-update feature
     if(EXISTS "${SINDARIN_LIBS_DIR}/include/curl/curl.h")
@@ -831,6 +870,12 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
             target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
         else()
             target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
+        endif()
+
+        # Link json-c for gen_model JSON output
+        if(EXISTS "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
+            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
+            target_link_libraries(tests PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
         endif()
     else()
         message(STATUS "libcurl not found - auto-update feature disabled")

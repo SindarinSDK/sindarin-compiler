@@ -1,0 +1,4 @@
+{{c_type return_type}} {{name}}({{#each params}}{{c_type type}} {{name}}{{#unless @last}}, {{/unless}}{{/each}}) {
+{{#each body}}    {{> stmt this}}
+{{/each}}
+}

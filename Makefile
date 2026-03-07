@@ -11,7 +11,7 @@
 # Phony targets
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
-.PHONY: test-unit test-cgen test-integration test-integration-errors
+.PHONY: test-unit test-cgen test-mgen test-mgen-c test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
 .PHONY: arena test-arena arena2 test-arena2
 .PHONY: configure install package docs
@@ -179,6 +179,12 @@ test-unit: build
 
 test-cgen: build
 	@$(PYTHON) scripts/run_tests.py cgen --verbose
+
+test-mgen: build
+	@$(PYTHON) scripts/run_tests.py mgen --verbose
+
+test-mgen-c: build
+	@$(PYTHON) scripts/run_tests.py mgen-c --verbose
 
 test-integration: build
 	@$(PYTHON) scripts/run_tests.py integration --verbose
