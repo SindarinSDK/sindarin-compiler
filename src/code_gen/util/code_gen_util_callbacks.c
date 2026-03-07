@@ -9,11 +9,14 @@
  *   struct Person { name: str, tags: str[], nested: Inner }
  *
  * We generate:
- *   __copy_Person_inline__(dest, s)     - walks fields, promotes handles
- *   __release_Person_inline__(s, owner) - releases handle fields (no arena condemn)
- *   __free_Person_inline__(s, owner)    - release + condemn struct arena
- *   __copy_Person__(dest, ptr)          - callback wrapper, casts ptr
- *   __copy_array_Person__(dest, ptr)    - iterates array elements
+ *   __copy_Person_inline__(dest, s)        - walks fields, promotes handles (copy path)
+ *   __release_Person_inline__(s, owner)    - releases handle fields (no arena condemn)
+ *   __free_Person_inline__(s, owner)       - release + condemn struct arena
+ *   __promote_Person_inline__(src, dst, s) - source-guarded promotion (boundary exit)
+ *   __copy_Person__(dest, ptr)             - callback wrapper, casts ptr
+ *   __copy_array_Person__(dest, ptr)       - iterates array elements
+ *   __promote_array_Person__(arr, src, dst)- promotes array element fields
+ *   __cleanup_array_Person__(arr, owner)   - ownership-guarded element cleanup
  */
 
 #include "code_gen/util/code_gen_util.h"
@@ -92,10 +95,14 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         }
     }
 
-    /* Generate inline copy function body */
+    /* Generate inline function bodies */
     char *copy_body = arena_strdup(gen->arena, "");
     char *free_body = arena_strdup(gen->arena, "");
     char *release_body = arena_strdup(gen->arena, "");
+    /* promote_inline_body: source-guarded promotion for boundary exit.
+     * Used by __promote_*_inline__ which is called from boundary code
+     * and from __promote_array_*__ for array element promotion. */
+    char *promote_inline_body = arena_strdup(gen->arena, "");
 
     for (int i = 0; i < field_count; i++) {
         StructField *field = &struct_type->as.struct_type.fields[i];
@@ -107,44 +114,55 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         TypeKind kind = field->type->kind;
 
         if (kind == TYPE_STRING || kind == TYPE_ARRAY) {
+            /* copy_body: guard against same-arena promotion */
             copy_body = arena_sprintf(gen->arena,
-                "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
-                copy_body, f_c_name, f_c_name);
+                "%s    if (s->%s && s->%s->arena != dest)\n"
+                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                copy_body, f_c_name, f_c_name, f_c_name, f_c_name);
 
-            /* For struct arrays, iterate elements and free their contents
-             * before freeing the array handle. Each struct element has an
-             * __arena__ that must be condemned for GC to reclaim it. */
+            /* promote_inline_body: source-guarded promotion */
+            promote_inline_body = arena_sprintf(gen->arena,
+                "%s    if (s->%s && s->%s->arena == source)\n"
+                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                promote_inline_body, f_c_name, f_c_name, f_c_name, f_c_name);
+
+            /* Array element promotion — only when the array handle was NOT
+             * promoted (not now on dest). When the handle was promoted by the
+             * lines above, its arena becomes dest and the copy callback already
+             * handled element promotion. We only need manual iteration when
+             * the array lives on a third arena (neither source nor dest). */
+            if (kind == TYPE_ARRAY && field->type->as.array.element_type) {
+                Type *elem = field->type->as.array.element_type;
+                if (elem->kind == TYPE_STRUCT && struct_has_handle_fields(elem)
+                    && !elem->as.struct_type.is_native) {
+                    Type *resolved_elem = resolve_struct_type(gen, elem);
+                    const char *elem_sn = get_struct_sn_name(gen, resolved_elem);
+                    promote_inline_body = arena_sprintf(gen->arena,
+                        "%s    if (s->%s && s->%s->arena != dest)\n"
+                        "        __promote_array_%s__(s->%s, source, dest);\n",
+                        promote_inline_body, f_c_name, f_c_name, elem_sn, f_c_name);
+                } else if (elem->kind == TYPE_STRING || elem->kind == TYPE_ANY
+                           || elem->kind == TYPE_FUNCTION) {
+                    promote_inline_body = arena_sprintf(gen->arena,
+                        "%s    if (s->%s && s->%s->arena != dest)\n"
+                        "        rt_array_promote_handle_elements(s->%s, source, dest);\n",
+                        promote_inline_body, f_c_name, f_c_name, f_c_name);
+                }
+            }
+
+            /* For struct arrays, use __cleanup_array_*__ to free element contents */
             if (kind == TYPE_ARRAY &&
                 field->type->as.array.element_type &&
                 field->type->as.array.element_type->kind == TYPE_STRUCT &&
                 struct_has_handle_fields(field->type->as.array.element_type)) {
                 Type *elem = resolve_struct_type(gen, field->type->as.array.element_type);
-                const char *elem_c = get_struct_c_name(gen, elem);
                 const char *elem_sn = get_struct_sn_name(gen, elem);
                 free_body = arena_sprintf(gen->arena,
-                    "%s    if (s->%s && s->%s->ptr) {\n"
-                    "        RtArrayMetadataV2 *__meta__ = (RtArrayMetadataV2 *)s->%s->ptr;\n"
-                    "        %s *__elems__ = (%s *)((char *)s->%s->ptr + sizeof(RtArrayMetadataV2));\n"
-                    "        for (size_t __i__ = 0; __i__ < __meta__->size; __i__++) {\n"
-                    "            __free_%s_inline__(&__elems__[__i__], s->%s->arena);\n"
-                    "        }\n"
-                    "    }\n",
-                    free_body, f_c_name, f_c_name,
-                    f_c_name,
-                    elem_c, elem_c, f_c_name,
-                    elem_sn, f_c_name);
+                    "%s    __cleanup_array_%s__(s->%s, owner);\n",
+                    free_body, elem_sn, f_c_name);
                 release_body = arena_sprintf(gen->arena,
-                    "%s    if (s->%s && s->%s->ptr) {\n"
-                    "        RtArrayMetadataV2 *__meta__ = (RtArrayMetadataV2 *)s->%s->ptr;\n"
-                    "        %s *__elems__ = (%s *)((char *)s->%s->ptr + sizeof(RtArrayMetadataV2));\n"
-                    "        for (size_t __i__ = 0; __i__ < __meta__->size; __i__++) {\n"
-                    "            __free_%s_inline__(&__elems__[__i__], s->%s->arena);\n"
-                    "        }\n"
-                    "    }\n",
-                    release_body, f_c_name, f_c_name,
-                    f_c_name,
-                    elem_c, elem_c, f_c_name,
-                    elem_sn, f_c_name);
+                    "%s    __cleanup_array_%s__(s->%s, owner);\n",
+                    release_body, elem_sn, f_c_name);
             }
 
             free_body = arena_sprintf(gen->arena,
@@ -158,6 +176,9 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             copy_body = arena_sprintf(gen->arena,
                 "%s    rt_any_deep_copy(dest, &s->%s);\n",
                 copy_body, f_c_name);
+            promote_inline_body = arena_sprintf(gen->arena,
+                "%s    s->%s = rt_any_promote_v2(dest, s->%s);\n",
+                promote_inline_body, f_c_name, f_c_name);
             free_body = arena_sprintf(gen->arena,
                 "%s    rt_any_deep_free(&s->%s);\n",
                 free_body, f_c_name);
@@ -171,6 +192,16 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             copy_body = arena_sprintf(gen->arena,
                 "%s    __copy_%s_inline__(dest, &s->%s);\n",
                 copy_body, nested_sn, f_c_name);
+            promote_inline_body = arena_sprintf(gen->arena,
+                "%s    __promote_%s_inline__(source, dest, &s->%s);\n",
+                promote_inline_body, nested_sn, f_c_name);
+            /* Reparent nested struct arena so it survives local arena destruction */
+            if (!nested->as.struct_type.is_packed && !nested->as.struct_type.is_native) {
+                promote_inline_body = arena_sprintf(gen->arena,
+                    "%s    if (s->%s.__arena__ && s->%s.__arena__ != dest)\n"
+                    "        rt_arena_v2_reparent(s->%s.__arena__, dest);\n",
+                    promote_inline_body, f_c_name, f_c_name, f_c_name);
+            }
             release_body = arena_sprintf(gen->arena,
                 "%s    __release_%s_inline__(&s->%s, owner);\n",
                 release_body, nested_sn, f_c_name);
@@ -179,10 +210,14 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                 free_body, nested_sn, f_c_name);
         }
         else if (kind == TYPE_FUNCTION) {
-            /* Closures are now RtHandleV2* — promote like other handle types */
             copy_body = arena_sprintf(gen->arena,
-                "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
-                copy_body, f_c_name, f_c_name);
+                "%s    if (s->%s && s->%s->arena != dest)\n"
+                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                copy_body, f_c_name, f_c_name, f_c_name, f_c_name);
+            promote_inline_body = arena_sprintf(gen->arena,
+                "%s    if (s->%s && s->%s->arena == source)\n"
+                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                promote_inline_body, f_c_name, f_c_name, f_c_name, f_c_name);
             free_body = arena_sprintf(gen->arena,
                 "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
                 free_body, f_c_name, f_c_name, f_c_name);
@@ -195,9 +230,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
     /* After promoting all handle fields, NULL out __arena__ to prevent dangling
      * pointer access. The old struct arena (child of the source) will be condemned
      * and freed by GC. Without this, __free_*_inline__ would later try to condemn
-     * freed memory (use-after-free). This matches the pattern in
-     * code_gen_promote_self_array_elements which also NULLs __arena__ after
-     * promoting array element fields. */
+     * freed memory (use-after-free). */
     copy_body = arena_sprintf(gen->arena,
         "%s    s->__arena__ = NULL;\n",
         copy_body);
@@ -208,12 +241,18 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s);\n"
         "static void __release_%s_inline__(%s *s, RtArenaV2 *owner);\n"
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner);\n"
+        "static void __promote_%s_inline__(RtArenaV2 *source, RtArenaV2 *dest, %s *s);\n"
         "static void __copy_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle);\n"
-        "static void __copy_array_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle);\n",
+        "static void __copy_array_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle);\n"
+        "static void __promote_array_%s__(RtHandleV2 *arr, RtArenaV2 *source, RtArenaV2 *dest);\n"
+        "static void __cleanup_array_%s__(RtHandleV2 *arr, RtArenaV2 *owner);\n",
         gen->callback_forward_decls,
         sn_name, c_name,
         sn_name, c_name,
         sn_name, c_name,
+        sn_name, c_name,
+        sn_name,
+        sn_name,
         sn_name,
         sn_name);
 
@@ -224,24 +263,26 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "static void __copy_%s_inline__(RtArenaV2 *dest, %s *s) {\n"
         "%s"
         "}\n"
-        /* __release_StructName_inline__ - releases handle fields only, no arena condemn.
-         * Used by code_gen_free_locals so the caller's guard controls arena lifetime. */
+        /* __release_StructName_inline__ */
         "static void __release_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
         "%s"
         "}\n"
-        /* __free_StructName_inline__ - full cleanup: free fields + condemn arena.
-         * Used by nested struct field cleanup and array element cleanup where the
-         * element's arena should always be condemned. Unlike __release__, this
-         * calls __free__ (not __release__) on nested structs to condemn their arenas. */
+        /* __free_StructName_inline__ */
         "static void __free_%s_inline__(%s *s, RtArenaV2 *owner) {\n"
         "%s"
         "    if (s->__arena__) rt_arena_v2_condemn(s->__arena__);\n"
         "}\n"
-        /* __copy_StructName__ - callback wrapper */
+        /* __promote_StructName_inline__ — source-guarded field promotion.
+         * The single definition of how to promote a struct's handle fields
+         * at boundary exit. Used by boundary code and __promote_array_*__. */
+        "static void __promote_%s_inline__(RtArenaV2 *source, RtArenaV2 *dest, %s *s) {\n"
+        "%s"
+        "}\n"
+        /* __copy_StructName__ — callback wrapper */
         "static void __copy_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle) {\n"
         "    __copy_%s_inline__(dest, (%s *)new_handle->ptr);\n"
         "}\n"
-        /* __copy_array_StructName__ - iterates array elements */
+        /* __copy_array_StructName__ — iterates array elements */
         "static void __copy_array_%s__(RtArenaV2 *dest, RtHandleV2 *new_handle) {\n"
         "    void *ptr = new_handle->ptr;\n"
         "    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)ptr;\n"
@@ -250,16 +291,44 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         "    for (size_t i = 0; i < meta->size; i++) {\n"
         "        __copy_%s_inline__(dest, &arr[i]);\n"
         "    }\n"
+        "}\n"
+        /* __promote_array_StructName__ — delegates to __promote_*_inline__ per element */
+        "static void __promote_array_%s__(RtHandleV2 *arr, RtArenaV2 *source, RtArenaV2 *dest) {\n"
+        "    if (!arr || !arr->ptr) return;\n"
+        "    RtArrayMetadataV2 *__pm__ = (RtArrayMetadataV2 *)arr->ptr;\n"
+        "    %s *__pa__ = (%s *)((char *)arr->ptr + sizeof(RtArrayMetadataV2));\n"
+        "    for (size_t __pi__ = 0; __pi__ < __pm__->size; __pi__++) {\n"
+        "        __promote_%s_inline__(source, dest, &__pa__[__pi__]);\n"
+        "        if (__pa__[__pi__].__arena__ && __pa__[__pi__].__arena__ != dest) {\n"
+        "            rt_arena_v2_condemn(__pa__[__pi__].__arena__);\n"
+        "            __pa__[__pi__].__arena__ = NULL;\n"
+        "        }\n"
+        "    }\n"
+        "}\n"
+        /* __cleanup_array_StructName__ — ownership-guarded element cleanup */
+        "static void __cleanup_array_%s__(RtHandleV2 *arr, RtArenaV2 *owner) {\n"
+        "    if (!arr || arr->arena != owner || !arr->ptr) return;\n"
+        "    RtArrayMetadataV2 *__cm__ = (RtArrayMetadataV2 *)arr->ptr;\n"
+        "    %s *__ca__ = (%s *)((char *)arr->ptr + sizeof(RtArrayMetadataV2));\n"
+        "    for (size_t __ci__ = 0; __ci__ < __cm__->size; __ci__++) {\n"
+        "        __free_%s_inline__(&__ca__[__ci__], arr->arena);\n"
+        "    }\n"
         "}\n",
         gen->callback_definitions,
         /* copy inline */
         sn_name, c_name, copy_body,
-        /* release inline (fields only) */
+        /* release inline */
         sn_name, c_name, release_body,
-        /* free inline (full cleanup) */
+        /* free inline */
         sn_name, c_name, free_body,
+        /* promote inline */
+        sn_name, c_name, promote_inline_body,
         /* copy wrapper */
         sn_name, sn_name, c_name,
         /* copy array */
+        sn_name, c_name, c_name, sn_name,
+        /* promote array */
+        sn_name, c_name, c_name, sn_name,
+        /* cleanup array */
         sn_name, c_name, c_name, sn_name);
 }

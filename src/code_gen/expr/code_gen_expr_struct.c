@@ -47,6 +47,40 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
 
     bool first = true;
 
+    /* Determine if handle-type fields need cloning. When a struct literal has
+     * STRING or ARRAY fields, those handles must be cloned so the struct owns
+     * independent copies. Without this, scope-exit cleanup of the original
+     * variables kills handles that the struct still references.
+     *
+     * We clone into the enclosing arena (not the struct's child arena) so the
+     * struct literal remains a plain C compound literal (lvalue). This matters
+     * because array push takes &(literal) which requires an lvalue. */
+    bool clone_handles = false;
+    if (!struct_type->as.struct_type.is_native &&
+        !struct_type->as.struct_type.is_packed &&
+        gen->current_arena_var != NULL)
+    {
+        for (int i = 0; i < total_fields && !clone_handles; i++)
+        {
+            StructField *field = &struct_type->as.struct_type.fields[i];
+            if (field->type && (field->type->kind == TYPE_STRING ||
+                                field->type->kind == TYPE_ARRAY))
+            {
+                for (int j = 0; j < lit->field_count; j++)
+                {
+                    if ((int)strlen(field->name) == lit->fields[j].name.length &&
+                        strncmp(field->name, lit->fields[j].name.start, lit->fields[j].name.length) == 0)
+                    {
+                        clone_handles = true;
+                        break;
+                    }
+                }
+                if (!clone_handles && field->default_value != NULL)
+                    clone_handles = true;
+            }
+        }
+    }
+
     /* Initialize hidden arena reference for non-native, non-packed structs */
     if (!struct_type->as.struct_type.is_native && !struct_type->as.struct_type.is_packed)
     {
@@ -228,6 +262,25 @@ char *code_gen_struct_literal_expression(CodeGen *gen, Expr *expr)
             {
                 value_code = code_gen_expression(gen, init_value);
             }
+
+            /* Clone handle-type field values that reference existing variables,
+             * so the struct owns an independent copy. Without this, scope-exit
+             * cleanup of the original variable would kill the handle that the
+             * struct still references.
+             *
+             * Only clone variable references (EXPR_VARIABLE) — string literals,
+             * function calls, etc. already produce fresh handles that aren't
+             * shared with any local variable. */
+            if (clone_handles &&
+                field->type != NULL &&
+                (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY) &&
+                init_value != NULL && init_value->type == EXPR_VARIABLE &&
+                strcmp(value_code, "NULL") != 0)
+            {
+                value_code = arena_sprintf(gen->arena, "rt_arena_v2_clone(%s, %s)",
+                                           ARENA_VAR(gen), value_code);
+            }
+
             if (!first)
             {
                 result = arena_sprintf(gen->arena, "%s, ", result);

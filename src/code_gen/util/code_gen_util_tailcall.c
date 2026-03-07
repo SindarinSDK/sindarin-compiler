@@ -1,8 +1,10 @@
-#include "code_gen/util/code_gen_util.h"
+/*
+ * code_gen_util_tailcall.c - Tail Call Optimization Helpers
+ *
+ * Functions to detect marked tail calls in AST nodes.
+ */
 
-/* ============================================================================
- * Tail Call Optimization Helpers
- * ============================================================================ */
+#include "code_gen/util/code_gen_util.h"
 
 /* Check if an expression contains a marked tail call */
 static bool expr_has_marked_tail_call(Expr *expr)
@@ -104,43 +106,6 @@ bool function_has_marked_tail_calls(FunctionStmt *fn)
     for (int i = 0; i < fn->body_count; i++)
     {
         if (stmt_has_marked_tail_calls(fn->body[i]))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-/* ============================================================================
- * Struct Field Promotion Helpers
- * ============================================================================
- * These functions help generate code to promote handle fields in structs
- * when returning from functions or synchronizing threads.
- * ============================================================================ */
-
-/* Check if a struct type has any handle fields that need promotion */
-bool struct_has_handle_fields(Type *struct_type)
-{
-    if (struct_type == NULL || struct_type->kind != TYPE_STRUCT) {
-        return false;
-    }
-
-    int field_count = struct_type->as.struct_type.field_count;
-
-    for (int i = 0; i < field_count; i++)
-    {
-        StructField *field = &struct_type->as.struct_type.fields[i];
-        if (field->type == NULL) {
-            continue;
-        }
-
-        TypeKind kind = field->type->kind;
-        if (kind == TYPE_STRING || kind == TYPE_ARRAY || kind == TYPE_ANY ||
-            kind == TYPE_FUNCTION)
-        {
-            return true;
-        }
-        if (kind == TYPE_STRUCT && struct_has_handle_fields(field->type))
         {
             return true;
         }

@@ -6,7 +6,7 @@
  */
 
 #include "code_gen/stmt/code_gen_stmt.h"
-#include "code_gen/stmt/code_gen_stmt_func_promote.h"
+#include "code_gen/boundary/code_gen_boundary.h"
 #include "code_gen/expr/code_gen_expr.h"
 #include "code_gen/util/code_gen_util.h"
 #include "debug.h"
@@ -255,35 +255,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Clone handle-type parameters (only when function has its own arena) */
     if (!is_main && !main_has_args && strategy == ARENA_CHILD)
     {
-        for (int i = 0; i < stmt->param_count; i++)
-        {
-            Type *param_type = stmt->params[i].type;
-            if (param_type == NULL) continue;
-
-            if (param_type->kind == TYPE_STRING)
-            {
-                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
-                indented_fprintf(gen, 1, "%s = rt_arena_v2_clone(__local_arena__, %s);\n",
-                                 param_name, param_name);
-                Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, stmt->params[i].name);
-                if (sym) sym->kind = SYMBOL_LOCAL;
-            }
-            else if (param_type->kind == TYPE_STRUCT && stmt->params[i].mem_qualifier != MEM_AS_REF)
-            {
-                int field_count = param_type->as.struct_type.field_count;
-                char *param_name = sn_mangle_name(gen->arena, get_var_name(gen->arena, stmt->params[i].name));
-                for (int f = 0; f < field_count; f++)
-                {
-                    StructField *field = &param_type->as.struct_type.fields[f];
-                    if (field->type && field->type->kind == TYPE_STRING)
-                    {
-                        const char *c_field_name = field->c_alias != NULL ? field->c_alias : sn_mangle_name(gen->arena, field->name);
-                        indented_fprintf(gen, 1, "%s.%s = rt_arena_v2_clone(__local_arena__, %s.%s);\n",
-                                         param_name, c_field_name, param_name, c_field_name);
-                    }
-                }
-            }
-        }
+        code_gen_boundary_enter(gen, stmt->params, stmt->param_count, 1);
     }
 
     /* Declare return value */
@@ -395,7 +367,7 @@ void code_gen_function(CodeGen *gen, FunctionStmt *stmt)
     /* Promote return value BEFORE cleanup so handles are promoted while arenas are still alive */
     if (has_return_value && strategy == ARENA_CHILD)
     {
-        code_gen_return_promotion(gen, stmt->return_type, is_main, "__caller_arena__", 1);
+        code_gen_boundary_return(gen, stmt->return_type, is_main, "__caller_arena__", 1);
     }
 
     code_gen_free_locals(gen, gen->symbol_table->current, true, 1);

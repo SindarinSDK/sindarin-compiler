@@ -319,3 +319,33 @@ char *code_gen_type_suffix(Type *type)
     }
 }
 
+/* Check if a struct type has any handle fields that need promotion */
+bool struct_has_handle_fields(Type *struct_type)
+{
+    if (struct_type == NULL || struct_type->kind != TYPE_STRUCT) {
+        return false;
+    }
+
+    int field_count = struct_type->as.struct_type.field_count;
+
+    for (int i = 0; i < field_count; i++)
+    {
+        StructField *field = &struct_type->as.struct_type.fields[i];
+        if (field->type == NULL) {
+            continue;
+        }
+
+        TypeKind kind = field->type->kind;
+        if (kind == TYPE_STRING || kind == TYPE_ARRAY || kind == TYPE_ANY ||
+            kind == TYPE_FUNCTION)
+        {
+            return true;
+        }
+        if (kind == TYPE_STRUCT && struct_has_handle_fields(field->type))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
