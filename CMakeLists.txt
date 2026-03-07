@@ -813,13 +813,12 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
     endif()
 
     # sindarin-template (handlebars) for gen_model_render
-    set(SINDARIN_PKG_LIBS_DIR "${CMAKE_SOURCE_DIR}/.sn/sindarin-pkg-libs/libs/${SINDARIN_LIBS_PLATFORM}")
-    if(EXISTS "${SINDARIN_PKG_LIBS_DIR}/include/handlebars.h")
+    if(EXISTS "${SINDARIN_LIBS_DIR}/include/handlebars.h")
         message(STATUS "Found sindarin-template (handlebars)")
-        target_include_directories(sn PRIVATE "${SINDARIN_PKG_LIBS_DIR}/include")
-        target_include_directories(tests PRIVATE "${SINDARIN_PKG_LIBS_DIR}/include")
-        target_link_libraries(sn PRIVATE "${SINDARIN_PKG_LIBS_DIR}/lib/libsindarin-template.a")
-        target_link_libraries(tests PRIVATE "${SINDARIN_PKG_LIBS_DIR}/lib/libsindarin-template.a")
+        target_include_directories(sn PRIVATE "${SINDARIN_LIBS_DIR}/include")
+        target_include_directories(tests PRIVATE "${SINDARIN_LIBS_DIR}/include")
+        target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libsindarin-template.a")
+        target_link_libraries(tests PRIVATE "${SINDARIN_LIBS_DIR}/lib/libsindarin-template.a")
     endif()
 
     # Copy templates to bin/ for runtime access
