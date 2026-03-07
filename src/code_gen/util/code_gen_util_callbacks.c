@@ -114,11 +114,13 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         TypeKind kind = field->type->kind;
 
         if (kind == TYPE_STRING || kind == TYPE_ARRAY) {
-            /* copy_body: guard against same-arena promotion */
+            /* copy_body: promote unconditionally. rt_arena_v2_promote handles
+             * the arena==dest case efficiently (returns same handle). We cannot
+             * guard with arena!=dest here because GC may free the handle between
+             * our null check and the arena read (no lock held in copy callback). */
             copy_body = arena_sprintf(gen->arena,
-                "%s    if (s->%s && s->%s->arena != dest)\n"
-                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
-                copy_body, f_c_name, f_c_name, f_c_name, f_c_name);
+                "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                copy_body, f_c_name, f_c_name);
 
             /* promote_inline_body: source-guarded promotion */
             promote_inline_body = arena_sprintf(gen->arena,
@@ -138,15 +140,15 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                     Type *resolved_elem = resolve_struct_type(gen, elem);
                     const char *elem_sn = get_struct_sn_name(gen, resolved_elem);
                     promote_inline_body = arena_sprintf(gen->arena,
-                        "%s    if (s->%s && s->%s->arena != dest)\n"
+                        "%s    if (s->%s)\n"
                         "        __promote_array_%s__(s->%s, source, dest);\n",
-                        promote_inline_body, f_c_name, f_c_name, elem_sn, f_c_name);
+                        promote_inline_body, f_c_name, elem_sn, f_c_name);
                 } else if (elem->kind == TYPE_STRING || elem->kind == TYPE_ANY
                            || elem->kind == TYPE_FUNCTION) {
                     promote_inline_body = arena_sprintf(gen->arena,
-                        "%s    if (s->%s && s->%s->arena != dest)\n"
+                        "%s    if (s->%s)\n"
                         "        rt_array_promote_handle_elements(s->%s, source, dest);\n",
-                        promote_inline_body, f_c_name, f_c_name, f_c_name);
+                        promote_inline_body, f_c_name, f_c_name);
                 }
             }
 
@@ -198,7 +200,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             /* Reparent nested struct arena so it survives local arena destruction */
             if (!nested->as.struct_type.is_packed && !nested->as.struct_type.is_native) {
                 promote_inline_body = arena_sprintf(gen->arena,
-                    "%s    if (s->%s.__arena__ && s->%s.__arena__ != dest)\n"
+                    "%s    if (s->%s.__arena__ && s->%s.__arena__->parent == source)\n"
                     "        rt_arena_v2_reparent(s->%s.__arena__, dest);\n",
                     promote_inline_body, f_c_name, f_c_name, f_c_name);
             }
@@ -211,9 +213,8 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
         }
         else if (kind == TYPE_FUNCTION) {
             copy_body = arena_sprintf(gen->arena,
-                "%s    if (s->%s && s->%s->arena != dest)\n"
-                "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
-                copy_body, f_c_name, f_c_name, f_c_name, f_c_name);
+                "%s    s->%s = rt_arena_v2_promote(dest, s->%s);\n",
+                copy_body, f_c_name, f_c_name);
             promote_inline_body = arena_sprintf(gen->arena,
                 "%s    if (s->%s && s->%s->arena == source)\n"
                 "        s->%s = rt_arena_v2_promote(dest, s->%s);\n",
