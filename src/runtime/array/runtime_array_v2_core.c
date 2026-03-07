@@ -461,6 +461,20 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **
  * can deep-copy array contents automatically.
  * ============================================================================ */
 
+/* Promote handle elements from source arena to dest arena.
+ * Only promotes elements whose arena matches source — leaves
+ * elements on other arenas untouched (ownership principle). */
+void rt_array_promote_handle_elements(RtHandleV2 *arr, RtArenaV2 *source, RtArenaV2 *dest) {
+    if (!arr || !arr->ptr) return;
+    RtArrayMetadataV2 *meta = (RtArrayMetadataV2 *)arr->ptr;
+    if (meta->element_size != sizeof(RtHandleV2 *)) return;
+    RtHandleV2 **elems = (RtHandleV2 **)((char *)arr->ptr + sizeof(RtArrayMetadataV2));
+    for (size_t i = 0; i < meta->size; i++) {
+        if (elems[i] && elems[i]->arena == source)
+            elems[i] = rt_arena_v2_promote(dest, elems[i]);
+    }
+}
+
 /* Copy callback for arrays of handles (str[], T[][], etc.) */
 void rt_array_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle) {
     void *ptr = new_handle->ptr;

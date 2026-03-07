@@ -37,7 +37,10 @@ RtHandleV2 * __sn__append_world(RtArenaV2 *__caller_arena__) {
     _return_value = __htmp_1__;
     goto __sn__append_world_return;
 __sn__append_world_return:
-    _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);
+    if (_return_value && _return_value->arena == __local_arena__)
+        _return_value = rt_arena_v2_promote(__caller_arena__, _return_value);
+    else if (_return_value)
+        _return_value = rt_arena_v2_clone(__caller_arena__, _return_value);
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }

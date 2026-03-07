@@ -8,7 +8,7 @@
 #include "code_gen/emit/code_gen_method_emit.h"
 #include "code_gen/util/code_gen_util.h"
 #include "code_gen/stmt/code_gen_stmt.h"
-#include "code_gen/stmt/code_gen_stmt_func_promote.h"
+#include "code_gen/boundary/code_gen_boundary.h"
 #include "arena.h"
 #include <string.h>
 #include <ctype.h>
@@ -357,6 +357,7 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                 if (is_instance_method)
                 {
                     indented_fprintf(gen, 1, "RtArenaV2 *__local_arena__ = rt_arena_v2_create(__sn__self->__arena__, RT_ARENA_MODE_DEFAULT, \"method\");\n");
+                    code_gen_boundary_enter(gen, method->params, method->param_count, 1);
                 }
 
                 /* Forward-declare variables that need cleanup at the return label.
@@ -393,21 +394,21 @@ void code_gen_emit_struct_method_implementations(CodeGen *gen, Stmt **statements
                          * to avoid the double-promote bug. */
                         indented_fprintf(gen, 1, "if (__returns_self__) {\n");
                         /* Path A: return self — self-promote first, then re-copy */
-                        code_gen_promote_self_fields(gen, struct_decl, 2);
+                        code_gen_boundary_self_promote(gen, struct_decl, 2);
                         indented_fprintf(gen, 2, "_return_value = (*__sn__self);\n");
                         indented_fprintf(gen, 1, "} else {\n");
                         /* Path B: independent return — return-promote, then self-promote */
-                        code_gen_return_promotion(gen, method->return_type, false, "__caller_arena__", 2);
-                        code_gen_promote_self_fields(gen, struct_decl, 2);
+                        code_gen_boundary_return(gen, method->return_type, false, "__caller_arena__", 2);
+                        code_gen_boundary_self_promote(gen, struct_decl, 2);
                         indented_fprintf(gen, 1, "}\n");
                     }
                     else
                     {
                         if (has_return_value)
                         {
-                            code_gen_return_promotion(gen, method->return_type, false, "__caller_arena__", 1);
+                            code_gen_boundary_return(gen, method->return_type, false, "__caller_arena__", 1);
                         }
-                        code_gen_promote_self_fields(gen, struct_decl, 1);
+                        code_gen_boundary_self_promote(gen, struct_decl, 1);
                     }
 
                     /* Condemn the local arena */

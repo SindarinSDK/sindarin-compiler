@@ -169,6 +169,8 @@ set(SN_OPTIMIZER_SOURCES
 
 set(SN_CODEGEN_SOURCES
     src/code_gen.c
+    # boundary/ - arena boundary protocol (ownership transfer at arena boundaries)
+    src/code_gen/boundary/code_gen_boundary.c
     # emit/
     src/code_gen/emit/code_gen_pragma.c
     src/code_gen/emit/code_gen_struct_emit.c
@@ -182,7 +184,7 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/util/code_gen_util_fold.c
     src/code_gen/util/code_gen_util_native.c
     src/code_gen/util/code_gen_util_arena.c
-    src/code_gen/util/code_gen_util_promote.c
+    src/code_gen/util/code_gen_util_tailcall.c
     src/code_gen/util/code_gen_util_callbacks.c
     src/code_gen/util/code_gen_util_temps.c
     # expr/
@@ -227,7 +229,6 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/stmt/code_gen_stmt_struct.c
     src/code_gen/stmt/code_gen_stmt_var_init.c
     src/code_gen/stmt/code_gen_stmt_var.c
-    src/code_gen/stmt/code_gen_stmt_func_promote.c
     src/code_gen/stmt/code_gen_stmt_func.c
     src/code_gen/stmt/code_gen_stmt_return.c
 )

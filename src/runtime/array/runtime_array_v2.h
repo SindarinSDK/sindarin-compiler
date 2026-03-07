@@ -357,6 +357,10 @@ RtHandleV2 *rt_args_create_v2(RtArenaV2 *arena, int argc, char **argv);
 /* Copy callback for arrays of handles (str[], T[][], etc.) */
 void rt_array_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 
+/* Promote handle elements from source arena to dest arena.
+ * Only promotes elements whose arena matches source. */
+void rt_array_promote_handle_elements(RtHandleV2 *arr, RtArenaV2 *source, RtArenaV2 *dest);
+
 /* Copy callback for any[] arrays */
 void rt_array_any_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 

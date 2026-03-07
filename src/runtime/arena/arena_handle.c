@@ -43,6 +43,11 @@ uint64_t rt_get_monotonic_ns(void)
 void rt_handle_begin_transaction(RtHandleV2 *handle)
 {
     if (handle == NULL) return;
+    if (handle->arena == NULL) {
+        fprintf(stderr, "FATAL: rt_handle_begin_transaction on handle %p with arena=NULL (flags=0x%x size=%zu ptr=%p)\n",
+                (void *)handle, handle->flags, handle->size, handle->ptr);
+        __builtin_trap();
+    }
     pthread_mutex_lock(&handle->arena->mutex);
 }
 

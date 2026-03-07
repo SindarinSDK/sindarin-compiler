@@ -526,9 +526,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             pending_reset = arena_sprintf(gen->arena, " %s = NULL;", pending_elems_var);
         }
 
-        /* For struct arrays with handle fields, generate element-level cleanup
-         * code to run before freeing the old array handle. Without this, struct
-         * field handles (e.g., name/value strings in Header[]) leak on reassignment. */
+        /* For struct arrays with handle fields, use __cleanup_array_*__ to free
+         * element contents before freeing the old array handle. Ownership guard
+         * is built into __cleanup_array_*__. */
         Type *elem_type = type->as.array.element_type;
         char *elem_free = arena_strdup(gen->arena, "");
         if (elem_type != NULL && elem_type->kind == TYPE_STRUCT
@@ -536,17 +536,9 @@ char *code_gen_assign_expression(CodeGen *gen, AssignExpr *expr)
             && !elem_type->as.struct_type.is_native)
         {
             const char *struct_name = elem_type->as.struct_type.name;
-            const char *mangled = sn_mangle_name(gen->arena, struct_name);
             elem_free = arena_sprintf(gen->arena,
-                " if (%s && %s->ptr) {"
-                " RtArrayMetadataV2 *__m__ = (RtArrayMetadataV2 *)%s->ptr;"
-                " %s *__e__ = (%s *)((char *)%s->ptr + sizeof(RtArrayMetadataV2));"
-                " for (size_t __j__ = 0; __j__ < __m__->size; __j__++)"
-                " __free_%s_inline__(&__e__[__j__], %s);"
-                " }",
-                var_name, var_name, var_name,
-                mangled, mangled, var_name,
-                struct_name, ARENA_VAR(gen));
+                " __cleanup_array_%s__(%s, %s);",
+                struct_name, var_name, ARENA_VAR(gen));
         }
 
         if (value_is_new_handle)
