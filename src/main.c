@@ -5,6 +5,8 @@
 #include "gcc_backend.h"
 #include "version.h"
 #include "package.h"
+#include "gen_model/gen_model.h"
+#include "gen_model/gen_model_render.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -65,8 +67,8 @@ int main(int argc, char **argv)
     /* Initialize C compiler backend configuration from environment variables */
     cc_backend_init_config(&cc_config);
 
-    /* Check for C compiler availability early (unless --emit-c mode) */
-    if (!options.emit_c_only)
+    /* Check for C compiler availability early (unless --emit-c or --emit-model mode) */
+    if (!options.emit_c_only && !options.emit_model && !options.emit_model_c)
     {
         if (!gcc_check_available(&cc_config, options.verbose))
         {
@@ -104,6 +106,87 @@ int main(int argc, char **argv)
     if (module == NULL) {
         compiler_cleanup(&options);
         return 1;
+    }
+
+    /* Handle --emit-model mode: generate JSON model and exit */
+    if (options.emit_model)
+    {
+        diagnostic_phase_start(PHASE_CODE_GEN);
+
+        json_object *model = gen_model_build(&options.arena, module,
+                                              &options.symbol_table,
+                                              options.arithmetic_mode);
+        int write_result = gen_model_write(model, options.output_file);
+        json_object_put(model);
+
+        diagnostic_phase_done(PHASE_CODE_GEN, 0);
+
+        if (write_result != 0)
+        {
+            compiler_cleanup(&options);
+            return 1;
+        }
+
+        struct stat st;
+        long file_size = 0;
+        if (stat(options.output_file, &st) == 0)
+        {
+            file_size = st.st_size;
+        }
+        diagnostic_compile_success(options.output_file, file_size, 0);
+        compiler_cleanup(&options);
+        return 0;
+    }
+
+    /* Handle --emit-model-c mode: generate C via JSON model + Handlebars templates */
+    if (options.emit_model_c)
+    {
+        diagnostic_phase_start(PHASE_CODE_GEN);
+
+        json_object *model = gen_model_build(&options.arena, module,
+                                              &options.symbol_table,
+                                              options.arithmetic_mode);
+
+        /* Find templates directory relative to compiler binary */
+        char template_dir[1024];
+        snprintf(template_dir, sizeof(template_dir), "%s/templates/c", options.compiler_dir);
+
+        char *c_code = gen_model_render_c(model, template_dir);
+        json_object_put(model);
+
+        if (!c_code)
+        {
+            fprintf(stderr, "Error: template rendering failed\n");
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+
+        /* Write C code to output file */
+        FILE *out = fopen(options.output_file, "w");
+        if (!out)
+        {
+            fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
+            free(c_code);
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+        fputs(c_code, out);
+        fclose(out);
+        free(c_code);
+
+        diagnostic_phase_done(PHASE_CODE_GEN, 0);
+
+        struct stat st;
+        long file_size = 0;
+        if (stat(options.output_file, &st) == 0)
+        {
+            file_size = st.st_size;
+        }
+        diagnostic_compile_success(options.output_file, file_size, 0);
+        compiler_cleanup(&options);
+        return 0;
     }
 
     /* Phase 3: Code generation */

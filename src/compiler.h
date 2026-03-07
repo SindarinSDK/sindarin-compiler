@@ -32,6 +32,8 @@ typedef struct
     ArithmeticMode arithmetic_mode;  /* Checked or unchecked arithmetic */
     int optimization_level;          /* Optimization level (0, 1, or 2) */
     int emit_c_only;                 /* --emit-c: Only output C code, don't invoke GCC */
+    int emit_model;                  /* --emit-model: Output JSON model, don't generate C */
+    int emit_model_c;                /* --emit-model-c: Generate C via model + templates */
     int keep_c;                      /* --keep-c: Keep intermediate C file after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
     int profile_build;               /* -p: Profile build (optimized with frame pointers, no ASAN/LTO) */

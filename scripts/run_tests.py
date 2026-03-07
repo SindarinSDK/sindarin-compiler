@@ -189,6 +189,12 @@ TEST_CONFIGS = {
     'cgen': TestConfig(
         'tests/cgen', '*.sn', False, 'Code Generation Tests'
     ),
+    'mgen': TestConfig(
+        'tests/mgen', '*.sn', False, 'Model Generation Tests'
+    ),
+    'mgen-c': TestConfig(
+        'tests/mgen-c', '*.sn', False, 'Model-Based C Generation Tests'
+    ),
 }
 
 
@@ -325,7 +331,25 @@ class TestRunner:
 
             start_time = time.perf_counter()
 
-            if test_type == 'cgen':
+            if test_type == 'mgen':
+                # Model generation tests: compare generated JSON model
+                expected_file = test_file.replace('.sn', '.expected.json')
+                json_file = exe_file + '.json'
+                status, reason, details = self._run_mgen_test_internal(
+                    test_file, expected_file, json_file
+                )
+            elif test_type == 'mgen-c':
+                # Model-based C generation tests: compare generated C via templates
+                expected_file = test_file.replace('.sn', '.expected.c')
+                exe_ext = get_exe_extension()
+                if exe_ext:
+                    c_file = exe_file.replace(exe_ext, '.c')
+                else:
+                    c_file = exe_file + '.c'
+                status, reason, details = self._run_mgen_c_test_internal(
+                    test_file, expected_file, c_file
+                )
+            elif test_type == 'cgen':
                 # Code generation tests: compare generated C code
                 # Use .expected.c extension for syntax highlighting in editors
                 expected_file = test_file.replace('.sn', '.expected.c')
@@ -530,6 +554,123 @@ class TestRunner:
                 details.append("  (empty)")
             return ('fail', 'wrong error', details)
 
+    def _run_mgen_test_internal(self, test_file: str, expected_file: str,
+                                 json_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Run a model generation test that compares generated JSON. Returns (status, reason, details)."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected.json', None)
+
+        # Compile with --emit-model to generate JSON model
+        compile_cmd = [self.compiler, test_file, '--emit-model', '-o', json_file, '-l', '1', '-O0', '--no-install']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'compile error', details)
+
+        # Read generated JSON
+        if not os.path.isfile(json_file):
+            return ('fail', 'no JSON output', None)
+
+        import json
+
+        try:
+            with open(json_file, 'r') as f:
+                generated_json = json.load(f)
+        except json.JSONDecodeError as e:
+            return ('fail', 'invalid JSON output', [str(e)])
+
+        try:
+            with open(expected_file, 'r') as f:
+                expected_json = json.load(f)
+        except json.JSONDecodeError as e:
+            return ('fail', 'invalid expected JSON', [str(e)])
+
+        # Compare JSON objects (structure comparison, not string comparison)
+        if generated_json == expected_json:
+            return ('pass', '', None)
+
+        # Show diff details
+        gen_str = json.dumps(generated_json, indent=2, sort_keys=True)
+        exp_str = json.dumps(expected_json, indent=2, sort_keys=True)
+        gen_lines = gen_str.split('\n')
+        exp_lines = exp_str.split('\n')
+
+        details = []
+        max_lines = max(len(gen_lines), len(exp_lines))
+        diff_count = 0
+        for i in range(max_lines):
+            exp = exp_lines[i] if i < len(exp_lines) else '<missing>'
+            act = gen_lines[i] if i < len(gen_lines) else '<missing>'
+            if exp != act:
+                if diff_count < 10:
+                    details.append(f"  line {i+1}:")
+                    details.append(f"    expected: {exp[:100]}")
+                    details.append(f"    got:      {act[:100]}")
+                diff_count += 1
+
+        if diff_count > 10:
+            details.append(f"  ... and {diff_count - 10} more differences")
+
+        return ('fail', 'JSON mismatch', details)
+
+    def _run_mgen_c_test_internal(self, test_file: str, expected_file: str,
+                                   c_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Run a model-based C generation test. Compiles .sn -> JSON model -> C via templates, then compares. Returns (status, reason, details)."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected.c', None)
+
+        # Compile with --emit-model-c to generate C code via templates
+        compile_cmd = [self.compiler, test_file, '--emit-model-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'compile error', details)
+
+        # Read generated C code
+        if not os.path.isfile(c_file):
+            return ('fail', 'no C output', None)
+
+        with open(c_file, 'r') as f:
+            generated_c = f.read()
+
+        # Read expected C code
+        with open(expected_file, 'r') as f:
+            expected_c = f.read()
+
+        # Normalize line endings for cross-platform comparison
+        normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
+        normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
+
+        if normalized_generated != normalized_expected:
+            expected_lines = normalized_expected.split('\n')
+            actual_lines = normalized_generated.split('\n')
+            details = []
+
+            max_lines = max(len(expected_lines), len(actual_lines))
+            diff_count = 0
+            for i in range(max_lines):
+                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
+                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
+                if exp != act:
+                    if diff_count < 10:
+                        details.append(f"  line {i+1}:")
+                        details.append(f"    expected: {exp[:80]}")
+                        details.append(f"    got:      {act[:80]}")
+                    diff_count += 1
+
+            if diff_count > 10:
+                details.append(f"  ... and {diff_count - 10} more differences")
+
+            return ('fail', 'C code mismatch', details)
+
+        return ('pass', '', None)
+
     def _run_cgen_test_internal(self, test_file: str, expected_file: str,
                                  c_file: str) -> Tuple[str, str, Optional[List[str]]]:
         """Run a code generation test that compares generated C code, then compiles and runs. Returns (status, reason, details)."""
@@ -718,7 +859,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'cgen', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'mgen', 'mgen-c', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -790,7 +931,7 @@ def main():
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['cgen', 'integration', 'integration-errors',
+            for test_type in ['cgen', 'mgen', 'mgen-c', 'integration', 'integration-errors',
                              'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
