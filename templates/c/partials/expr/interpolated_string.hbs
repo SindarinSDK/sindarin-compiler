@@ -1,0 +1,10 @@
+({
+{{#each parts}}
+{{#if (eq kind "text")}}
+        RtHandleV2 *__is_{{@index}}__ = rt_arena_v2_strdup(__local_arena__, "{{value}}");
+{{else}}
+        RtHandleV2 *__is_{{@index}}__ = {{> expr expr}};
+{{/if}}
+{{/each}}
+        rt_string_concat_multi_v2(__local_arena__, {{parts.length}}{{#each parts}}, __is_{{@index}}__{{/each}});
+    })

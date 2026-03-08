@@ -1,0 +1,106 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_binary_logical.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "a",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "and",
+            "left": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": true
+            },
+            "right": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "b",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "or",
+            "left": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": true
+            },
+            "right": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "literal",
+              "value_kind": "bool",
+              "value": false
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

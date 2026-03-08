@@ -1,0 +1,4 @@
+fn main(): int =>
+    var s: str = "hello"
+    var t: str = "world"
+    return 0

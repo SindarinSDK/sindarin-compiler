@@ -1,0 +1,14 @@
+({
+        {{c_type type}} __match_result__;
+        {{c_type subject.type}} __match_subject__ = {{> expr subject}};
+{{#each arms}}
+{{#if is_else}}
+        __match_result__ = {{> expr value}};
+{{else}}
+        {{#if @first}}if{{else}} else if{{/if}} (__match_subject__ == {{> expr pattern}}) {
+            __match_result__ = {{> expr value}};
+        }
+{{/if}}
+{{/each}}
+        __match_result__;
+    })

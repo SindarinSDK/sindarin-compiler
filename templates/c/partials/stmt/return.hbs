@@ -1,1 +1,1 @@
-return {{> expr value}};
+{{#if value}}_return_value = {{> expr value}}; {{/if}}goto {{return_label}};
