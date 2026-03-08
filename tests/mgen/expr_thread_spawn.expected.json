@@ -84,7 +84,8 @@
             },
             "modifier": "default",
             "is_void": false
-          }
+          },
+          "is_thread_handle": true
         },
         {
           "kind": "var_decl",
