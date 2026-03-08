@@ -142,48 +142,15 @@ jobs:
           echo "Build outputs verified successfully!"
 
       #------------------------------------------------------------------------
-      # Run Tests (same make targets for all platforms, env vars handle differences)
+      # Run Tests
       #------------------------------------------------------------------------
-      - name: Run unit tests
-        shell: bash
-        run: make test-unit
-
-      - name: Run integration tests
+      - name: Run all tests
         shell: bash
         env:
           SN_CC: ${{ matrix.sn_cc }}
           SN_CFLAGS: ${{ matrix.sn_cflags }}
           SN_EXCLUDE_TESTS: ${{ matrix.sn_exclude_tests }}
-        run: make test-integration
-
-      - name: Run integration error tests
-        shell: bash
-        env:
-          SN_CC: ${{ matrix.sn_cc }}
-          SN_CFLAGS: ${{ matrix.sn_cflags }}
-        run: make test-integration-errors
-
-      - name: Run exploratory tests
-        shell: bash
-        env:
-          SN_CC: ${{ matrix.sn_cc }}
-          SN_CFLAGS: ${{ matrix.sn_cflags }}
-        run: make test-explore
-
-      - name: Run exploratory error tests
-        shell: bash
-        env:
-          SN_CC: ${{ matrix.sn_cc }}
-          SN_CFLAGS: ${{ matrix.sn_cflags }}
-        run: make test-explore-errors
-
-      - name: Run managed arena tests
-        shell: bash
-        run: make test-arena ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
-
-      - name: Run arena v2 tests
-        shell: bash
-        run: make test-arena2 ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
+        run: make test ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
 
       #------------------------------------------------------------------------
       # Upload Artifacts
