@@ -1,0 +1,3 @@
+rt_sync_lock(&__sn__{{lock_expr.name}});
+{{> stmt body}}
+rt_sync_unlock(&__sn__{{lock_expr.name}});

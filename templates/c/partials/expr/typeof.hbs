@@ -1,0 +1,1 @@
+{{#if type_literal}}{{type_tag type_literal}}{{else}}{{#if (eq operand.type.kind "any")}}rt_any_get_tag({{> expr operand}}){{else}}{{type_tag operand.type}}{{/if}}{{/if}}
