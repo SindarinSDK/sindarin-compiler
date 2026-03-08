@@ -74,6 +74,21 @@ json_object *gen_model_type(Arena *arena, Type *type)
                     gen_model_type(arena, type->as.function.param_types[i]));
             }
             json_object_object_add(obj, "param_types", params);
+
+            /* Parameter memory qualifiers (as_ref / as_val) */
+            if (type->as.function.param_mem_quals)
+            {
+                json_object *quals = json_object_new_array();
+                for (int i = 0; i < type->as.function.param_count; i++)
+                {
+                    const char *q = "default";
+                    if (type->as.function.param_mem_quals[i] == MEM_AS_REF) q = "as_ref";
+                    else if (type->as.function.param_mem_quals[i] == MEM_AS_VAL) q = "as_val";
+                    json_object_array_add(quals, json_object_new_string(q));
+                }
+                json_object_object_add(obj, "param_mem_quals", quals);
+            }
+
             json_object_object_add(obj, "is_variadic",
                 json_object_new_boolean(type->as.function.is_variadic));
             json_object_object_add(obj, "is_native",

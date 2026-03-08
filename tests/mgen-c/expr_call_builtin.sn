@@ -1,4 +1,4 @@
-fn main(): int =>
+fn main(): void =>
     var s: str = "hello"
     var n: int = s.length
-    return 0
+    assert(n == 5, "expected string length to be 5")

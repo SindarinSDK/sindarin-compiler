@@ -324,13 +324,12 @@ Type *type_check_lambda(Expr *expr, SymbolTable *table)
             }
         }
 
-        /* 'as val' is only meaningful for reference types (arrays, strings) */
+        /* 'as val' is only meaningful for reference types (arrays, strings, structs) */
         if (param->mem_qualifier == MEM_AS_VAL)
         {
             if (is_primitive_type(param->type))
             {
-                type_error(expr->token, "'as val' is only meaningful for array types");
-                return NULL;
+                type_warning(expr->token, "'as val' on primitive parameter has no effect (already value type)");
             }
         }
     }

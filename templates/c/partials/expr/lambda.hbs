@@ -1,2 +1,28 @@
-/* lambda {{lambda_id}} */
-    NULL /* TODO: lambda codegen */
+({
+{{#if has_captures}}
+    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(__local_arena__, sizeof(__closure_{{lambda_id}}__));
+    __closure_{{lambda_id}}__ *__cl__ = (__closure_{{lambda_id}}__ *)__cl_h__->ptr;
+    rt_handle_begin_transaction(__cl_h__);
+    __cl__->fn = (void *)__lambda_{{lambda_id}}__;
+    __cl__->arena = __local_arena__;
+    __cl__->size = sizeof(__closure_{{lambda_id}}__);
+{{#each captures}}
+{{#if is_ref}}
+    __cl__->{{name}} = ____sn__{{name}}_h__;
+{{else}}
+    __cl__->{{name}} = ({ RtHandleV2 *__ah = rt_arena_v2_alloc(__local_arena__, sizeof({{c_type type}})); rt_handle_begin_transaction(__ah); *({{c_type type}} *)__ah->ptr = __sn__{{name}}; rt_handle_end_transaction(__ah); __ah; });
+{{/if}}
+{{/each}}
+    rt_handle_end_transaction(__cl_h__);
+    __cl_h__;
+{{else}}
+    RtHandleV2 *__cl_h__ = rt_arena_v2_alloc(__local_arena__, sizeof(__Closure__));
+    __Closure__ *__cl__ = (__Closure__ *)__cl_h__->ptr;
+    rt_handle_begin_transaction(__cl_h__);
+    __cl__->fn = (void *)__lambda_{{lambda_id}}__;
+    __cl__->arena = __local_arena__;
+    __cl__->size = sizeof(__Closure__);
+    rt_handle_end_transaction(__cl_h__);
+    __cl_h__;
+{{/if}}
+})

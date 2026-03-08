@@ -1,4 +1,5 @@
 #include "gen_model/gen_model.h"
+#include <string.h>
 
 static const char *mem_qual_str(MemoryQualifier mq)
 {
@@ -62,6 +63,16 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 json_object_new_string(sync_mod_str(stmt->as.var_decl.sync_modifier)));
             json_object_object_add(obj, "is_static",
                 json_object_new_boolean(stmt->as.var_decl.is_static));
+            /* Check if this variable is captured by a lambda (needs promoted storage) */
+            {
+                const char *vname = stmt->as.var_decl.name.start;
+                bool captured = false;
+                for (int ci = 0; ci < g_captured_var_count; ci++) {
+                    if (strcmp(g_captured_vars[ci], vname) == 0) { captured = true; break; }
+                }
+                if (captured)
+                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
+            }
             if (stmt->as.var_decl.initializer)
             {
                 json_object_object_add(obj, "initializer",
@@ -99,12 +110,39 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("if"));
             json_object_object_add(obj, "condition",
                 gen_model_expr(arena, stmt->as.if_stmt.condition, symbol_table, arithmetic_mode));
-            json_object_object_add(obj, "then_body",
-                gen_model_stmt(arena, stmt->as.if_stmt.then_branch, symbol_table, arithmetic_mode));
+            /* Wrap non-block then_body in a synthetic block so templates can always iterate .statements */
+            if (stmt->as.if_stmt.then_branch->type == STMT_BLOCK)
+            {
+                json_object_object_add(obj, "then_body",
+                    gen_model_stmt(arena, stmt->as.if_stmt.then_branch, symbol_table, arithmetic_mode));
+            }
+            else
+            {
+                json_object *block = json_object_new_object();
+                json_object_object_add(block, "kind", json_object_new_string("block"));
+                json_object *stmts = json_object_new_array();
+                json_object_array_add(stmts,
+                    gen_model_stmt(arena, stmt->as.if_stmt.then_branch, symbol_table, arithmetic_mode));
+                json_object_object_add(block, "statements", stmts);
+                json_object_object_add(obj, "then_body", block);
+            }
             if (stmt->as.if_stmt.else_branch)
             {
-                json_object_object_add(obj, "else_body",
-                    gen_model_stmt(arena, stmt->as.if_stmt.else_branch, symbol_table, arithmetic_mode));
+                if (stmt->as.if_stmt.else_branch->type == STMT_BLOCK)
+                {
+                    json_object_object_add(obj, "else_body",
+                        gen_model_stmt(arena, stmt->as.if_stmt.else_branch, symbol_table, arithmetic_mode));
+                }
+                else
+                {
+                    json_object *block = json_object_new_object();
+                    json_object_object_add(block, "kind", json_object_new_string("block"));
+                    json_object *stmts = json_object_new_array();
+                    json_object_array_add(stmts,
+                        gen_model_stmt(arena, stmt->as.if_stmt.else_branch, symbol_table, arithmetic_mode));
+                    json_object_object_add(block, "statements", stmts);
+                    json_object_object_add(obj, "else_body", block);
+                }
             }
             break;
         }

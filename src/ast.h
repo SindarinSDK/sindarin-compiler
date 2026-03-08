@@ -82,6 +82,7 @@ struct StructMethod
     Parameter *params;          /* Method parameters (does NOT include implicit 'self') */
     int param_count;            /* Number of parameters */
     Type *return_type;          /* Return type */
+    MemoryQualifier return_mem_qualifier; /* as ref / as val on return type */
     Stmt **body;                /* Method body statements (NULL for native declarations) */
     int body_count;             /* Number of body statements */
     FunctionModifier modifier;  /* shared or private modifier */
@@ -106,6 +107,7 @@ struct Type
         struct
         {
             Type *return_type;
+            MemoryQualifier return_mem_qual;  /* Memory qualifier on return type (as ref / as val) */
             Type **param_types;
             MemoryQualifier *param_mem_quals; /* Memory qualifiers for each parameter (NULL if all default) */
             int param_count;
@@ -568,6 +570,7 @@ typedef struct
     Type *return_type;
     Stmt **body;
     int body_count;
+    MemoryQualifier return_mem_qualifier; /* as ref / as val on return type */
     FunctionModifier modifier;  /* shared or private modifier */
     bool is_native;             /* true if declared with 'native' keyword */
     bool is_variadic;           /* true if function has variadic parameters (...) */

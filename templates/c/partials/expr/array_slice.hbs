@@ -1,1 +1,1 @@
-rt_array_slice_v2(__local_arena__, {{> expr array}}, {{> expr start}}, {{> expr end}})
+rt_array_slice_v2({{> expr array}}, {{#if start}}{{> expr start}}{{else}}0{{/if}}, {{#if end}}{{> expr end}}{{else}}-1{{/if}}, {{#if step}}{{> expr step}}{{else}}1{{/if}}, {{c_sizeof type.element_type}})

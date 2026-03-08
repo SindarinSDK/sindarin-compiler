@@ -250,7 +250,7 @@ void type_check_function(Stmt *stmt, SymbolTable *table)
         {
             if (is_primitive_type(param.type))
             {
-                DEBUG_VERBOSE("Warning: 'as val' on primitive parameter has no effect");
+                type_warning(&param.name, "'as val' on primitive parameter has no effect (already value type)");
             }
         }
         else if (param.mem_qualifier == MEM_AS_REF)

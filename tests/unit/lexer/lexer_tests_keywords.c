@@ -199,7 +199,7 @@ static void test_lexer_keyword_typeof(void)
 {
     Arena arena;
     Lexer lexer;
-    init_lexer_test(&arena, &lexer, "typeof");
+    init_lexer_test(&arena, &lexer, "typeOf");
     Token tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_TYPEOF);
     cleanup_lexer_test(&arena, &lexer);

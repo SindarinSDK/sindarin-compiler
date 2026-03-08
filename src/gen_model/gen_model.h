@@ -15,6 +15,15 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 /* Serialize the model to a file. Returns 0 on success, non-zero on error. */
 int gen_model_write(json_object *model, const char *output_path);
 
+/* Global lambda collection - populated during model building */
+extern json_object *g_model_lambdas;
+
+/* Global captured-variable set - populated by pre-scanning function bodies.
+ * Variables in this set need handle-based (promoted) storage in the outer scope
+ * so that lambdas can capture them by reference. */
+extern char **g_captured_vars;
+extern int g_captured_var_count;
+
 /* --- Internal functions (used across gen_model_*.c files) --- */
 
 /* Type handling */

@@ -144,9 +144,11 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
 
     /* Parse return type */
     Type *return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+    MemoryQualifier return_mem_qual = MEM_DEFAULT;
     if (parser_match(parser, TOKEN_COLON))
     {
         return_type = parser_type(parser);
+        return_mem_qual = parser_memory_qualifier(parser);
     }
 
     /* Parse method body if present */
@@ -209,6 +211,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
     method->params = params;
     method->param_count = param_count;
     method->return_type = return_type;
+    method->return_mem_qualifier = return_mem_qual;
     method->body = body_stmts;
     method->body_count = body_count;
     method->modifier = func_modifier;
@@ -263,15 +266,10 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
         return NULL;
     }
 
-    /* Parse optional 'as ref' or 'as val' for native structs */
+    /* Parse optional 'as ref' or 'as val' for structs */
     bool pass_self_by_ref = false;
     if (parser_match(parser, TOKEN_AS))
     {
-        if (!is_native)
-        {
-            parser_error_at_current(parser, "'as ref'/'as val' is only allowed on native structs");
-            return NULL;
-        }
         if (parser_match(parser, TOKEN_REF))
         {
             pass_self_by_ref = true;

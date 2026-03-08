@@ -20,24 +20,27 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+/* Lambda forward declarations */
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     RtHandleV2 * __sn__a = ({
-            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, 3, sizeof(long long));
-            rt_array_push_int_v2(__al__, 1LL);
-            rt_array_push_int_v2(__al__, 2LL);
-            rt_array_push_int_v2(__al__, 3LL);
+            RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, sizeof(long long), NULL);
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 1LL }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 2LL }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 3LL }, sizeof(long long));
             __al__;
         });
     RtHandleV2 * __sn__b = ({
-            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, 3, sizeof(long long));
-            rt_array_push_int_v2(__al__, /* spread */ __sn__a);
-            rt_array_push_int_v2(__al__, 4LL);
-            rt_array_push_int_v2(__al__, 5LL);
+            RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, sizeof(long long), NULL);
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ /* spread */ __sn__a }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 4LL }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 5LL }, sizeof(long long));
             __al__;
         });
     _return_value = 0LL; goto main_return;
@@ -45,3 +48,6 @@ main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

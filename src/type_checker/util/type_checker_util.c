@@ -58,6 +58,11 @@ void type_error(Token *token, const char *msg)
     had_type_error = 1;
 }
 
+void type_warning(Token *token, const char *msg)
+{
+    diagnostic_warning_at(token, "%s", msg);
+}
+
 void type_error_with_suggestion(Token *token, const char *msg, const char *suggestion)
 {
     diagnostic_error_with_suggestion(token, suggestion, "%s", msg);

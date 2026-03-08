@@ -17,6 +17,7 @@
 
 /* String concatenation */
 RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, RtHandleV2 *a, RtHandleV2 *b);
+RtHandleV2 *rt_string_concat_multi_v2(RtArenaV2 *arena, int count, ...);
 
 /* String append (for += operator) */
 RtHandleV2 *rt_str_append_v2(RtArenaV2 *arena, RtHandleV2 *old_str, RtHandleV2 *suffix);

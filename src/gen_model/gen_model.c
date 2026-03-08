@@ -2,6 +2,13 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Global lambda collection */
+json_object *g_model_lambdas = NULL;
+
+/* Global captured-variable set */
+char **g_captured_vars = NULL;
+int g_captured_var_count = 0;
+
 json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_table,
                              ArithmeticMode arithmetic_mode)
 {
@@ -35,6 +42,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     json_object *globals = json_object_new_array();
     json_object *functions = json_object_new_array();
     json_object *top_level = json_object_new_array();
+
+    /* Initialize global lambda collection */
+    g_model_lambdas = json_object_new_array();
 
     for (int i = 0; i < module->count; i++)
     {
@@ -72,8 +82,14 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 
             case STMT_VAR_DECL:
             {
-                json_object_array_add(globals,
-                    gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode));
+                json_object *gvar = gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode);
+                /* Check if initializer is non-constant (needs deferred init in main) */
+                if (stmt->as.var_decl.initializer &&
+                    stmt->as.var_decl.initializer->type != EXPR_LITERAL)
+                {
+                    json_object_object_add(gvar, "is_deferred", json_object_new_boolean(true));
+                }
+                json_object_array_add(globals, gvar);
                 break;
             }
 
@@ -101,6 +117,8 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     json_object_object_add(root, "globals", globals);
     json_object_object_add(root, "functions", functions);
     json_object_object_add(root, "top_level_statements", top_level);
+    json_object_object_add(root, "lambdas", g_model_lambdas);
+    g_model_lambdas = NULL;
 
     return root;
 }

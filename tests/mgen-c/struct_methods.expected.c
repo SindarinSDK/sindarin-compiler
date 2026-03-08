@@ -28,6 +28,8 @@ static RtArenaV2 *__main_arena__ = NULL;
 void __sn__Counter_increment(RtArenaV2 *, __sn__Counter *);
 long long __sn__Counter_getValue(RtArenaV2 *, __sn__Counter *);
 
+/* Lambda forward declarations */
+
 void __sn__Counter_increment(RtArenaV2 *__caller_arena__, __sn__Counter *self) {
     rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = __caller_arena__;
@@ -53,10 +55,14 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     __sn__Counter __sn__c = (__sn__Counter){ .__arena__ = rt_arena_v2_create(__local_arena__, RT_ARENA_MODE_DEFAULT, "struct"), .__sn__value = 0LL };
     __sn__Counter_increment(__local_arena__, &__sn__c);
-    _return_value = __sn__Counter_getValue(__local_arena__, &__sn__c); goto main_return;
+    rt_assert_v2((__sn__Counter_getValue(__local_arena__, &__sn__c) == 1LL), rt_arena_v2_strdup(__local_arena__, "expected counter to be 1 after increment"));
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

@@ -3,8 +3,8 @@
 {{#if (eq kind "text")}}
         RtHandleV2 *__is_{{@index}}__ = rt_arena_v2_strdup(__local_arena__, "{{value}}");
 {{else}}
-        RtHandleV2 *__is_{{@index}}__ = {{> expr expr}};
+        RtHandleV2 *__is_{{@index}}__ = {{#if (eq expr.type.kind "string")}}{{> expr expr}}{{else}}{{to_string_func expr.type}}(__local_arena__, {{> expr expr}}){{/if}};
 {{/if}}
 {{/each}}
-        rt_string_concat_multi_v2(__local_arena__, {{parts.length}}{{#each parts}}, __is_{{@index}}__{{/each}});
+        rt_string_concat_multi_v2(__local_arena__, {{count parts}}{{#each parts}}, __is_{{@index}}__{{/each}});
     })
