@@ -1,0 +1,17 @@
+{{#each structs}}
+{{> struct_def this}}
+{{/each}}
+{{#each functions}}
+{{#if (eq name "main")}}{{else}}{{> function this}}
+
+{{/if}}
+{{/each}}
+fn main() {
+{{#each functions}}
+{{#if (eq name "main")}}
+{{#each body}}
+    {{> stmt this}}
+{{/each}}
+{{/if}}
+{{/each}}
+}

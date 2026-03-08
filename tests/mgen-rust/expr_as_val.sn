@@ -1,0 +1,7 @@
+fn modify(arr: int[] as val): void =>
+    return
+
+fn main(): int =>
+    var a: int[] = {1, 2, 3}
+    modify(a)
+    return 0

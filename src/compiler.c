@@ -29,6 +29,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->emit_c_only = 0;  /* Default: compile to executable */
     options->emit_model = 0;   /* Default: no model output */
     options->emit_model_c = 0; /* Default: no model-based C output */
+    options->emit_model_rust = 0; /* Default: no model-based Rust output */
     options->keep_c = 0;       /* Default: delete intermediate C file */
     options->debug_build = 0;  /* Default: optimized build */
     options->link_libs = NULL;
@@ -258,6 +259,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         {
             options->emit_model_c = 1;
         }
+        else if (strcmp(argv[i], "--emit-model-rust") == 0)
+        {
+            options->emit_model_rust = 1;
+        }
         else if (strcmp(argv[i], "--keep-c") == 0)
         {
             options->keep_c = 1;
@@ -328,7 +333,25 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     const char *dot = strrchr(options->source_file, '.');
     size_t base_len = dot ? (size_t)(dot - options->source_file) : strlen(options->source_file);
 
-    if (options->emit_model_c)
+    if (options->emit_model_rust)
+    {
+        // --emit-model-rust mode: -o specifies Rust file output (generated via templates)
+        if (options->output_file == NULL)
+        {
+            size_t out_len = base_len + 4; // ".rs" + null terminator
+            char *out = arena_alloc(&options->arena, out_len);
+            if (!out)
+            {
+                DEBUG_ERROR("Failed to allocate memory for output file path");
+                return 0;
+            }
+            strncpy(out, options->source_file, base_len);
+            strcpy(out + base_len, ".rs");
+            options->output_file = out;
+        }
+        options->executable_file = NULL;
+    }
+    else if (options->emit_model_c)
     {
         // --emit-model-c mode: -o specifies C file output (generated via templates)
         if (options->output_file == NULL)

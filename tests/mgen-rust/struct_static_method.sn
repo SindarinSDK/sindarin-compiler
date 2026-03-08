@@ -1,0 +1,9 @@
+struct Counter =>
+    value: int
+
+    static fn zero(): int =>
+        return 0
+
+fn main(): int =>
+    var z: int = Counter.zero()
+    return z
