@@ -261,6 +261,18 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
                 return NULL;
             }
         }
+
+        /* Check that 'as ref' parameters receive an lvalue (variable), not a literal or expression result */
+        MemoryQualifier *param_quals = callee_type->as.function.param_mem_quals;
+        if (param_quals != NULL && param_quals[i] == MEM_AS_REF)
+        {
+            if (arg_expr->type != EXPR_VARIABLE && arg_expr->type != EXPR_MEMBER_ACCESS)
+            {
+                type_error(arg_expr->token,
+                    "'as ref' parameter requires a variable or field, not a literal or expression");
+                return NULL;
+            }
+        }
     }
 
     /* Type check variadic arguments - must be primitives, str, or pointers (not arrays) */

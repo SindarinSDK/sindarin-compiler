@@ -164,9 +164,11 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
     FunctionModifier func_modifier = modifier;
 
     Type *return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+    MemoryQualifier return_mem_qual = MEM_DEFAULT;
     if (parser_match(parser, TOKEN_COLON))
     {
         return_type = parser_type(parser);
+        return_mem_qual = parser_memory_qualifier(parser);
     }
 
     Type **param_types = arena_alloc(parser->arena, sizeof(Type *) * param_count);
@@ -243,6 +245,7 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
     if (func_stmt != NULL)
     {
         func_stmt->as.function.modifier = func_modifier;
+        func_stmt->as.function.return_mem_qualifier = return_mem_qual;
     }
     return func_stmt;
 }

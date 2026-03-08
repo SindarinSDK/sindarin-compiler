@@ -1,7 +1,7 @@
 fn add(a: int, b: int): int =>
     return a + b
 
-fn main(): int =>
+fn main(): void =>
     var x: int = 42
     var y: int = add(x, 10)
-    return y
+    assert(y == 52, "expected add(42, 10) to be 52")

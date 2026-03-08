@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/fn_tail_call.sn",
+    "filename": "tests\/mgen\/fn_tail_call.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -63,14 +63,19 @@
             "arithmetic_mode": "checked"
           },
           "then_body": {
-            "kind": "return",
-            "value": {
-              "type": {
-                "kind": "int"
-              },
-              "kind": "variable",
-              "name": "acc"
-            }
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "return",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "acc"
+                }
+              }
+            ]
           }
         },
         {

@@ -16,9 +16,12 @@
 typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;
 
 
+long long __sn__counter = 0LL;
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
+
+/* Lambda forward declarations */
 
 int main() {
     rt_safepoint_init();
@@ -26,9 +29,13 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     (__sn__counter = 42LL);
-    _return_value = __sn__counter; goto main_return;
+    rt_assert_v2((__sn__counter == 42LL), rt_arena_v2_strdup(__local_arena__, "expected counter to be 42"));
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

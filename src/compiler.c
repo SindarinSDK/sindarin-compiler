@@ -39,6 +39,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->install_target = NULL;
     options->clear_cache = 0;  /* Default: no cache clear */
     options->no_install = 0;   /* Default: auto-install enabled */
+    options->codegen_mode = 1; /* Default: legacy codegen */
 
     /* Get the compiler directory for locating runtime objects */
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
@@ -274,6 +275,27 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         else if (strcmp(argv[i], "-p") == 0)
         {
             options->profile_build = 1;
+        }
+        else if (strcmp(argv[i], "--codegen") == 0)
+        {
+            if (i + 1 < argc)
+            {
+                int mode = atoi(argv[++i]);
+                if (mode == 1 || mode == 2)
+                {
+                    options->codegen_mode = mode;
+                }
+                else
+                {
+                    fprintf(stderr, "Error: --codegen must be 1 (legacy) or 2 (model-based)\n");
+                    return 1;
+                }
+            }
+            else
+            {
+                fprintf(stderr, "Error: --codegen requires a value (1 or 2)\n");
+                return 1;
+            }
         }
         else if (strcmp(argv[i], "--no-install") == 0)
         {

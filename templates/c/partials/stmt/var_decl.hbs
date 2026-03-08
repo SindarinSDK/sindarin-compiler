@@ -1,4 +1,7 @@
-{{#if (eq type.kind "string")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{#if is_captured}}RtHandleV2 *____sn__{{name}}_h__ = rt_arena_v2_alloc(__local_arena__, sizeof({{c_type type}})); {{c_type type}} *__sn__{{name}} = ({{c_type type}} *)____sn__{{name}}_h__->ptr; *__sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
+{{else}}{{#if (eq type.kind "string")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq type.kind "array")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq type.kind "function")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq type.kind "any")}}RtAny __sn__{{name}} = {{#if initializer}}{{#if (eq initializer.type.kind "any")}}{{> expr initializer}}{{else}}{{box_func initializer.type}}({{> expr initializer}}){{/if}}{{else}}rt_box_nil(){{/if}};
 {{else}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
-{{/if}}{{/if}}
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

@@ -1,4 +1,4 @@
-{{c_type return_type}} __sn__{{name}}(RtArenaV2 *__caller_arena__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}}) {
+{{c_type return_type}} __sn__{{name}}(RtArenaV2 *__caller_arena__{{#each params}}, {{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{else}} {{/if}}__sn__{{name}}{{/each}}) {
     rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = __caller_arena__;
 {{#if (eq return_type.kind "void")}}{{else}}    {{c_type return_type}} _return_value = {{default_value return_type}};

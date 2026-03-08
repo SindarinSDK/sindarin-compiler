@@ -243,18 +243,56 @@ int main(int argc, char **argv)
     /* Phase 3: Code generation */
     diagnostic_phase_start(PHASE_CODE_GEN);
 
-    CodeGen gen;
-    code_gen_init(&options.arena, &gen, &options.symbol_table, options.output_file);
-    gen.arithmetic_mode = options.arithmetic_mode;
-    code_gen_module(&gen, module);
+    if (options.codegen_mode == 2)
+    {
+        /* Model-based codegen: JSON model + Handlebars templates */
+        json_object *model = gen_model_build(&options.arena, module,
+                                              &options.symbol_table,
+                                              options.arithmetic_mode);
 
-    /* Copy link libraries and source files from CodeGen to options for C backend */
-    options.link_libs = gen.pragma_links;
-    options.link_lib_count = gen.pragma_link_count;
-    options.source_files = gen.pragma_sources;
-    options.source_file_count = gen.pragma_source_count;
+        char template_dir[1024];
+        snprintf(template_dir, sizeof(template_dir), "%s/templates/c", options.compiler_dir);
 
-    code_gen_cleanup(&gen);
+        char *c_code = gen_model_render_c(model, template_dir);
+        json_object_put(model);
+
+        if (!c_code)
+        {
+            fprintf(stderr, "Error: template rendering failed\n");
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+
+        FILE *out = fopen(options.output_file, "w");
+        if (!out)
+        {
+            fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
+            free(c_code);
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+        fputs(c_code, out);
+        fclose(out);
+        free(c_code);
+    }
+    else
+    {
+        /* Legacy codegen */
+        CodeGen gen;
+        code_gen_init(&options.arena, &gen, &options.symbol_table, options.output_file);
+        gen.arithmetic_mode = options.arithmetic_mode;
+        code_gen_module(&gen, module);
+
+        /* Copy link libraries and source files from CodeGen to options for C backend */
+        options.link_libs = gen.pragma_links;
+        options.link_lib_count = gen.pragma_link_count;
+        options.source_files = gen.pragma_sources;
+        options.source_file_count = gen.pragma_source_count;
+
+        code_gen_cleanup(&gen);
+    }
 
     diagnostic_phase_done(PHASE_CODE_GEN, 0);
 

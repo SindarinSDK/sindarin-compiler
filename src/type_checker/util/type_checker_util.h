@@ -10,10 +10,11 @@ void type_checker_reset_error(void);
 int type_checker_had_error(void);
 void type_checker_set_error(void);
 
-/* Error reporting */
+/* Error and warning reporting */
 const char *type_name(Type *type);
 void type_error(Token *token, const char *msg);
 void type_error_with_suggestion(Token *token, const char *msg, const char *suggestion);
+void type_warning(Token *token, const char *msg);
 void type_mismatch_error(Token *token, Type *expected, Type *actual, const char *context);
 
 /* Enhanced error reporting with suggestions */

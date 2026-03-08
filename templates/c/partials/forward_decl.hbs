@@ -1,1 +1,1 @@
-{{c_type return_type}} __sn__{{name}}(RtArenaV2 *{{#each params}}, {{c_type type}}{{/each}});
+{{c_type return_type}} __sn__{{name}}(RtArenaV2 *{{#each params}}, {{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{/if}}{{/each}});

@@ -1,0 +1,1 @@
+{{#each args}}{{#if (eq type.kind "string")}}rt_println_v2({{> expr this}}){{else}}rt_println_v2({{to_string_func type}}(__local_arena__, {{> expr this}})){{/if}}{{/each}}

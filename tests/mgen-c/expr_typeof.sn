@@ -1,4 +1,4 @@
-fn main(): int =>
+fn main(): void =>
     var a: any = 42
-    var t: int = typeof a
-    return t
+    var t: int = typeOf(a)
+    assert(t == 1, "expected typeOf to return RT_ANY_INT (1)")

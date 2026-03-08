@@ -5,8 +5,8 @@ fn main(): int =>
     var a: any = 42
     println("Test 1: Basic boxing int to any")
 
-    // Test 2: typeof on any type
-    var typeTag: int = typeof a
+    // Test 2: typeOf on any type
+    var typeTag: int = typeOf(a)
     println($"Type tag of a: {typeTag}")
 
     // Test 3: is operator
@@ -48,8 +48,8 @@ fn main(): int =>
     else =>
         println("Test 8: b is bool - FAIL")
 
-    // Test 9: typeof with type literal
-    if typeof 42 == typeof int =>
+    // Test 9: typeOf with type literal
+    if typeOf(42) == typeOf(int) =>
         println("Test 9: typeof 42 == typeof int - PASS")
     else =>
         println("Test 9: typeof 42 == typeof int - FAIL")

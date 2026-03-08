@@ -20,16 +20,22 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+/* Lambda forward declarations */
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    void __sn__a = 42LL;
+
+    RtAny __sn__a = rt_box_int(42LL);
     long long __sn__t = rt_any_get_tag(__sn__a);
-    _return_value = __sn__t; goto main_return;
+    rt_assert_v2((__sn__t == 1LL), rt_arena_v2_strdup(__local_arena__, "expected typeOf to return RT_ANY_INT (1)"));
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

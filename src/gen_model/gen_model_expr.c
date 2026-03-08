@@ -1,5 +1,211 @@
 #include "gen_model/gen_model.h"
+#include "symbol_table/symbol_table_core.h"
 #include <string.h>
+
+/* ============================================================================
+ * Lightweight Capture Analysis for Lambda Expressions
+ * ============================================================================ */
+
+typedef struct {
+    char **names;
+    Type **types;
+    int count;
+    int capacity;
+} ModelCaptures;
+
+static void mc_init(ModelCaptures *mc) { mc->names = NULL; mc->types = NULL; mc->count = 0; mc->capacity = 0; }
+
+static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type)
+{
+    for (int i = 0; i < mc->count; i++)
+        if (strcmp(mc->names[i], name) == 0) return;
+    if (mc->count >= mc->capacity) {
+        int new_cap = mc->capacity == 0 ? 4 : mc->capacity * 2;
+        char **nn = arena_alloc(arena, new_cap * sizeof(char *));
+        Type **nt = arena_alloc(arena, new_cap * sizeof(Type *));
+        for (int i = 0; i < mc->count; i++) { nn[i] = mc->names[i]; nt[i] = mc->types[i]; }
+        mc->names = nn; mc->types = nt; mc->capacity = new_cap;
+    }
+    mc->names[mc->count] = arena_strdup(arena, name);
+    mc->types[mc->count] = type;
+    mc->count++;
+}
+
+static bool mc_is_param(LambdaExpr *lam, const char *name)
+{
+    for (int i = 0; i < lam->param_count; i++) {
+        if (strncmp(lam->params[i].name.start, name, lam->params[i].name.length) == 0
+            && name[lam->params[i].name.length] == '\0')
+            return true;
+    }
+    return false;
+}
+
+static bool mc_is_local(ModelCaptures *locals, const char *name)
+{
+    for (int i = 0; i < locals->count; i++)
+        if (strcmp(locals->names[i], name) == 0) return true;
+    return false;
+}
+
+/* Forward declarations for mutual recursion */
+static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
+static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena);
+
+static void mc_collect_locals(Stmt *stmt, ModelCaptures *locals, Arena *arena)
+{
+    if (!stmt) return;
+    if (stmt->type == STMT_VAR_DECL) {
+        char name[256];
+        int len = stmt->as.var_decl.name.length < 255 ? stmt->as.var_decl.name.length : 255;
+        strncpy(name, stmt->as.var_decl.name.start, len);
+        name[len] = '\0';
+        mc_add(locals, arena, name, stmt->as.var_decl.type);
+    } else if (stmt->type == STMT_BLOCK) {
+        for (int i = 0; i < stmt->as.block.count; i++)
+            mc_collect_locals(stmt->as.block.statements[i], locals, arena);
+    }
+}
+
+static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena)
+{
+    if (!expr) return;
+    switch (expr->type) {
+    case EXPR_VARIABLE: {
+        char name[256];
+        int len = expr->as.variable.name.length < 255 ? expr->as.variable.name.length : 255;
+        strncpy(name, expr->as.variable.name.start, len);
+        name[len] = '\0';
+        if (!mc_is_param(lam, name) && !mc_is_local(locals, name)) {
+            /* Skip builtins */
+            if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0 ||
+                strcmp(name, "assert") == 0 || strcmp(name, "exit") == 0 ||
+                strcmp(name, "len") == 0 || strcmp(name, "readLine") == 0) break;
+            if (expr->expr_type)
+                mc_add(caps, arena, name, expr->expr_type);
+        }
+        break;
+    }
+    case EXPR_BINARY:
+        mc_collect_expr(expr->as.binary.left, lam, locals, caps, arena);
+        mc_collect_expr(expr->as.binary.right, lam, locals, caps, arena);
+        break;
+    case EXPR_UNARY:
+        mc_collect_expr(expr->as.unary.operand, lam, locals, caps, arena);
+        break;
+    case EXPR_ASSIGN:
+        mc_collect_expr(expr->as.assign.value, lam, locals, caps, arena);
+        /* Also capture the assignment target */
+        {
+            char name[256];
+            int len = expr->as.assign.name.length < 255 ? expr->as.assign.name.length : 255;
+            strncpy(name, expr->as.assign.name.start, len);
+            name[len] = '\0';
+            if (!mc_is_param(lam, name) && !mc_is_local(locals, name) && expr->expr_type)
+                mc_add(caps, arena, name, expr->expr_type);
+        }
+        break;
+    case EXPR_COMPOUND_ASSIGN:
+        mc_collect_expr(expr->as.compound_assign.target, lam, locals, caps, arena);
+        mc_collect_expr(expr->as.compound_assign.value, lam, locals, caps, arena);
+        break;
+    case EXPR_CALL:
+        mc_collect_expr(expr->as.call.callee, lam, locals, caps, arena);
+        for (int i = 0; i < expr->as.call.arg_count; i++)
+            mc_collect_expr(expr->as.call.arguments[i], lam, locals, caps, arena);
+        break;
+    case EXPR_MEMBER:
+        mc_collect_expr(expr->as.member.object, lam, locals, caps, arena);
+        break;
+    case EXPR_ARRAY_ACCESS:
+        mc_collect_expr(expr->as.array_access.array, lam, locals, caps, arena);
+        mc_collect_expr(expr->as.array_access.index, lam, locals, caps, arena);
+        break;
+    case EXPR_LAMBDA:
+        /* Don't recurse into nested lambdas for now */
+        break;
+    default:
+        break;
+    }
+}
+
+static void mc_collect_stmt(Stmt *stmt, LambdaExpr *lam, ModelCaptures *locals, ModelCaptures *caps, Arena *arena)
+{
+    if (!stmt) return;
+    switch (stmt->type) {
+    case STMT_EXPR:
+        mc_collect_expr(stmt->as.expression.expression, lam, locals, caps, arena);
+        break;
+    case STMT_VAR_DECL:
+        if (stmt->as.var_decl.initializer)
+            mc_collect_expr(stmt->as.var_decl.initializer, lam, locals, caps, arena);
+        break;
+    case STMT_RETURN:
+        if (stmt->as.return_stmt.value)
+            mc_collect_expr(stmt->as.return_stmt.value, lam, locals, caps, arena);
+        break;
+    case STMT_BLOCK:
+        for (int i = 0; i < stmt->as.block.count; i++)
+            mc_collect_stmt(stmt->as.block.statements[i], lam, locals, caps, arena);
+        break;
+    case STMT_IF:
+        mc_collect_expr(stmt->as.if_stmt.condition, lam, locals, caps, arena);
+        mc_collect_stmt(stmt->as.if_stmt.then_branch, lam, locals, caps, arena);
+        if (stmt->as.if_stmt.else_branch)
+            mc_collect_stmt(stmt->as.if_stmt.else_branch, lam, locals, caps, arena);
+        break;
+    case STMT_WHILE:
+        mc_collect_expr(stmt->as.while_stmt.condition, lam, locals, caps, arena);
+        mc_collect_stmt(stmt->as.while_stmt.body, lam, locals, caps, arena);
+        break;
+    case STMT_FOR:
+        if (stmt->as.for_stmt.initializer)
+            mc_collect_stmt(stmt->as.for_stmt.initializer, lam, locals, caps, arena);
+        if (stmt->as.for_stmt.condition)
+            mc_collect_expr(stmt->as.for_stmt.condition, lam, locals, caps, arena);
+        if (stmt->as.for_stmt.increment)
+            mc_collect_expr(stmt->as.for_stmt.increment, lam, locals, caps, arena);
+        mc_collect_stmt(stmt->as.for_stmt.body, lam, locals, caps, arena);
+        break;
+    default:
+        break;
+    }
+}
+
+static void mc_analyze(Arena *arena, LambdaExpr *lam, ModelCaptures *caps)
+{
+    mc_init(caps);
+    ModelCaptures locals;
+    mc_init(&locals);
+
+    /* Collect local variable declarations */
+    if (lam->has_stmt_body) {
+        for (int i = 0; i < lam->body_stmt_count; i++)
+            mc_collect_locals(lam->body_stmts[i], &locals, arena);
+    }
+
+    /* Collect free variables */
+    if (lam->has_stmt_body) {
+        for (int i = 0; i < lam->body_stmt_count; i++)
+            mc_collect_stmt(lam->body_stmts[i], lam, &locals, caps, arena);
+    } else if (lam->body) {
+        mc_collect_expr(lam->body, lam, &locals, caps, arena);
+    }
+}
+
+static bool mc_is_primitive(Type *type)
+{
+    if (!type) return false;
+    switch (type->kind) {
+    case TYPE_INT: case TYPE_LONG: case TYPE_DOUBLE: case TYPE_BOOL:
+    case TYPE_BYTE: case TYPE_CHAR:
+        return true;
+    default:
+        return false;
+    }
+}
+
+/* ============================================================================ */
 
 static const char *binary_op_str(SnTokenType op)
 {
@@ -121,18 +327,32 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_VARIABLE:
         {
             json_object_object_add(obj, "kind", json_object_new_string("variable"));
-            json_object_object_add(obj, "name",
-                json_object_new_string(expr->as.variable.name.start));
+            const char *vname = expr->as.variable.name.start;
+            json_object_object_add(obj, "name", json_object_new_string(vname));
+            /* Check if this variable is captured (promoted to handle-based storage) */
+            for (int ci = 0; ci < g_captured_var_count; ci++) {
+                if (strcmp(g_captured_vars[ci], vname) == 0) {
+                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
+                    break;
+                }
+            }
             break;
         }
 
         case EXPR_ASSIGN:
         {
             json_object_object_add(obj, "kind", json_object_new_string("assign"));
-            json_object_object_add(obj, "target",
-                json_object_new_string(expr->as.assign.name.start));
+            const char *aname = expr->as.assign.name.start;
+            json_object_object_add(obj, "target", json_object_new_string(aname));
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
+            /* Check if target is captured */
+            for (int ci = 0; ci < g_captured_var_count; ci++) {
+                if (strcmp(g_captured_vars[ci], aname) == 0) {
+                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
+                    break;
+                }
+            }
             break;
         }
 
@@ -174,18 +394,83 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
         case EXPR_CALL:
         {
-            json_object_object_add(obj, "kind", json_object_new_string("call"));
-            json_object_object_add(obj, "callee",
-                gen_model_expr(arena, expr->as.call.callee, symbol_table, arithmetic_mode));
-            json_object *args = json_object_new_array();
-            for (int i = 0; i < expr->as.call.arg_count; i++)
+            /* Check for builtin functions */
+            const char *builtin_name = NULL;
+            if (expr->as.call.callee->type == EXPR_VARIABLE)
             {
-                json_object_array_add(args,
-                    gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
+                const char *name = expr->as.call.callee->as.variable.name.start;
+                if (strcmp(name, "assert") == 0 || strcmp(name, "println") == 0 ||
+                    strcmp(name, "print") == 0 || strcmp(name, "exit") == 0)
+                {
+                    builtin_name = name;
+                }
             }
-            json_object_object_add(obj, "args", args);
-            json_object_object_add(obj, "is_tail_call",
-                json_object_new_boolean(expr->as.call.is_tail_call));
+
+            if (builtin_name)
+            {
+                char kind_buf[64];
+                snprintf(kind_buf, sizeof(kind_buf), "builtin_%s", builtin_name);
+                json_object_object_add(obj, "kind", json_object_new_string(kind_buf));
+                json_object *args = json_object_new_array();
+                for (int i = 0; i < expr->as.call.arg_count; i++)
+                {
+                    json_object_array_add(args,
+                        gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
+                }
+                json_object_object_add(obj, "args", args);
+            }
+            else
+            {
+                json_object_object_add(obj, "kind", json_object_new_string("call"));
+                json_object_object_add(obj, "callee",
+                    gen_model_expr(arena, expr->as.call.callee, symbol_table, arithmetic_mode));
+
+                /* Get param mem quals from callee's function type */
+                MemoryQualifier *pmq = NULL;
+                int pmq_count = 0;
+                if (expr->as.call.callee->expr_type &&
+                    expr->as.call.callee->expr_type->kind == TYPE_FUNCTION)
+                {
+                    pmq = expr->as.call.callee->expr_type->as.function.param_mem_quals;
+                    pmq_count = expr->as.call.callee->expr_type->as.function.param_count;
+                }
+
+                json_object *args = json_object_new_array();
+                for (int i = 0; i < expr->as.call.arg_count; i++)
+                {
+                    json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
+                    /* Mark args that need address-of for as_ref params */
+                    if (pmq && i < pmq_count && pmq[i] == MEM_AS_REF)
+                        json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                    json_object_array_add(args, arg);
+                }
+                json_object_object_add(obj, "args", args);
+                json_object_object_add(obj, "is_tail_call",
+                    json_object_new_boolean(expr->as.call.is_tail_call));
+
+                /* Detect closure calls vs regular function calls.
+                 * By model-build time, only top-level symbols remain in the symbol table.
+                 * If a function-typed variable is NOT a named function, it's a closure. */
+                bool is_closure = false;
+                if (expr->as.call.callee->type == EXPR_VARIABLE)
+                {
+                    Type *ct = expr->as.call.callee->expr_type;
+                    if (ct && ct->kind == TYPE_FUNCTION && !ct->as.function.is_native)
+                    {
+                        Symbol *sym = symbol_table_lookup_symbol(symbol_table,
+                            expr->as.call.callee->as.variable.name);
+                        /* If not found in symbol table, it's a local variable (closure).
+                         * If found but not a function definition, also a closure. */
+                        if (sym == NULL || !sym->is_function)
+                            is_closure = true;
+                    }
+                }
+                /* TODO: EXPR_ARRAY_ACCESS and EXPR_MEMBER closure calls
+                 * (e.g., callbacks[0]() or handler.callback()) need special handling
+                 * to distinguish from struct method calls. */
+                json_object_object_add(obj, "is_closure_call",
+                    json_object_new_boolean(is_closure));
+            }
             break;
         }
 
@@ -287,11 +572,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
         case EXPR_MEMBER:
         {
-            json_object_object_add(obj, "kind", json_object_new_string("member"));
-            json_object_object_add(obj, "object",
-                gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
-            json_object_object_add(obj, "member_name",
-                json_object_new_string(expr->as.member.member_name.start));
+            /* Detect builtin property access: str.length, array.length */
+            const char *mname = expr->as.member.member_name.start;
+            Type *obj_type = expr->as.member.object ? expr->as.member.object->expr_type : NULL;
+            if (obj_type && strcmp(mname, "length") == 0 &&
+                (obj_type->kind == TYPE_STRING || obj_type->kind == TYPE_ARRAY))
+            {
+                json_object_object_add(obj, "kind", json_object_new_string("builtin_length"));
+                json_object_object_add(obj, "object",
+                    gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
+            }
+            else
+            {
+                json_object_object_add(obj, "kind", json_object_new_string("member"));
+                json_object_object_add(obj, "object",
+                    gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
+                json_object_object_add(obj, "member_name",
+                    json_object_new_string(mname));
+            }
             break;
         }
 
@@ -440,18 +738,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             }
             json_object_object_add(obj, "params", params);
 
-            /* Captures */
+            /* Capture analysis — walk body to find free variables */
+            ModelCaptures caps;
+            mc_analyze(arena, lam, &caps);
+
             json_object *captures = json_object_new_array();
-            for (int i = 0; i < lam->capture_count; i++)
+            for (int i = 0; i < caps.count; i++)
             {
                 json_object *cap = json_object_new_object();
                 json_object_object_add(cap, "name",
-                    json_object_new_string(lam->captured_vars[i].start));
+                    json_object_new_string(caps.names[i]));
                 json_object_object_add(cap, "type",
-                    gen_model_type(arena, lam->captured_types[i]));
+                    gen_model_type(arena, caps.types[i]));
+                json_object_object_add(cap, "is_primitive",
+                    json_object_new_boolean(mc_is_primitive(caps.types[i])));
+                /* is_ref: true if outer var is promoted (in g_captured_vars) */
+                bool is_ref = false;
+                for (int ci = 0; ci < g_captured_var_count; ci++) {
+                    if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { is_ref = true; break; }
+                }
+                json_object_object_add(cap, "is_ref", json_object_new_boolean(is_ref));
                 json_object_array_add(captures, cap);
             }
             json_object_object_add(obj, "captures", captures);
+            json_object_object_add(obj, "has_captures",
+                json_object_new_boolean(caps.count > 0));
 
             /* Body */
             if (lam->has_stmt_body)
@@ -468,6 +779,67 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 json_object_object_add(obj, "body",
                     gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+            }
+
+            /* Add to global lambdas collection for forward decls and function defs */
+            if (g_model_lambdas != NULL)
+            {
+                json_object *ldef = json_object_new_object();
+                json_object_object_add(ldef, "lambda_id", json_object_new_int(lam->lambda_id));
+                json_object_object_add(ldef, "return_type", gen_model_type(arena, lam->return_type));
+
+                json_object *lparams = json_object_new_array();
+                for (int i = 0; i < lam->param_count; i++)
+                {
+                    json_object *lp = json_object_new_object();
+                    json_object_object_add(lp, "name",
+                        json_object_new_string(lam->params[i].name.start));
+                    json_object_object_add(lp, "type",
+                        gen_model_type(arena, lam->params[i].type));
+                    json_object_array_add(lparams, lp);
+                }
+                json_object_object_add(ldef, "params", lparams);
+
+                /* Add captures to the lambda definition too */
+                json_object *lcaps = json_object_new_array();
+                for (int i = 0; i < caps.count; i++)
+                {
+                    json_object *lc = json_object_new_object();
+                    json_object_object_add(lc, "name",
+                        json_object_new_string(caps.names[i]));
+                    json_object_object_add(lc, "type",
+                        gen_model_type(arena, caps.types[i]));
+                    json_object_object_add(lc, "is_primitive",
+                        json_object_new_boolean(mc_is_primitive(caps.types[i])));
+                    bool lc_is_ref = false;
+                    for (int ci = 0; ci < g_captured_var_count; ci++) {
+                        if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { lc_is_ref = true; break; }
+                    }
+                    json_object_object_add(lc, "is_ref", json_object_new_boolean(lc_is_ref));
+                    json_object_array_add(lcaps, lc);
+                }
+                json_object_object_add(ldef, "captures", lcaps);
+                json_object_object_add(ldef, "has_captures",
+                    json_object_new_boolean(caps.count > 0));
+
+                /* Body for the lambda function definition */
+                if (lam->has_stmt_body)
+                {
+                    json_object *lbody = json_object_new_array();
+                    for (int i = 0; i < lam->body_stmt_count; i++)
+                    {
+                        json_object_array_add(lbody,
+                            gen_model_stmt(arena, lam->body_stmts[i], symbol_table, arithmetic_mode));
+                    }
+                    json_object_object_add(ldef, "body_stmts", lbody);
+                }
+                else if (lam->body)
+                {
+                    json_object_object_add(ldef, "body",
+                        gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+                }
+
+                json_object_array_add(g_model_lambdas, ldef);
             }
             break;
         }

@@ -20,22 +20,28 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+/* Lambda forward declarations */
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     RtHandleV2 * __sn__arr = ({
-            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, 3, sizeof(long long));
-            rt_array_push_int_v2(__al__, 10LL);
-            rt_array_push_int_v2(__al__, 20LL);
-            rt_array_push_int_v2(__al__, 30LL);
+            RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, sizeof(long long), NULL);
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 10LL }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 20LL }, sizeof(long long));
+            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 30LL }, sizeof(long long));
             __al__;
         });
-    rt_array_set_int(__sn__arr, 0LL, 99LL);
+    rt_array_set_long_v2(__sn__arr, 0LL, 99LL);
     _return_value = 0LL; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

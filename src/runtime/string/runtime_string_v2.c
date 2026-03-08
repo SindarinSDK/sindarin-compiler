@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include <ctype.h>
 #include "runtime_string_v2.h"
 
@@ -51,6 +52,18 @@ RtHandleV2 *rt_str_concat_v2(RtArenaV2 *arena, RtHandleV2 *a_h, RtHandleV2 *b_h)
     if (b_h) rt_handle_end_transaction(b_h);
     if (a_h) rt_handle_end_transaction(a_h);
     return h;
+}
+
+RtHandleV2 *rt_string_concat_multi_v2(RtArenaV2 *arena, int count, ...) {
+    if (count <= 0) return rt_arena_v2_strdup(arena, "");
+    va_list args;
+    va_start(args, count);
+    RtHandleV2 *result = va_arg(args, RtHandleV2 *);
+    for (int i = 1; i < count; i++) {
+        result = rt_str_concat_v2(arena, result, va_arg(args, RtHandleV2 *));
+    }
+    va_end(args);
+    return result;
 }
 
 /* ============================================================================

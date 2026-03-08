@@ -21,12 +21,30 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 {{> struct_typedef this}}
 {{/each}}
 
+{{#each globals}}
+{{#if is_static}}static {{/if}}{{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
+{{/each}}
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> forward_decl this}}
 {{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
-{{/each}}{{/each}}{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> function this}}
+{{/each}}{{/each}}
+/* Lambda forward declarations */
+{{#each lambdas}}
+{{#if has_captures}}
+typedef struct __closure_{{lambda_id}}__ {
+    void *fn;
+    RtArenaV2 *arena;
+    size_t size;
+{{#each captures}}
+    RtHandleV2 *{{name}};
+{{/each}}
+} __closure_{{lambda_id}}__;
+{{/if}}
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__, RtArenaV2 *__caller_arena__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}});
+{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> function this}}
 
 {{/if}}{{/if}}{{/each}}
 {{#each structs}}
@@ -42,7 +60,8 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-{{#each ../functions}}
+{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{> expr initializer}};
+{{/if}}{{/each}}{{#each ../functions}}
 {{#if (eq name "main")}}
 {{#each body}}
     {{> stmt this}}
@@ -54,3 +73,29 @@ main_return:
     return _return_value;
 }
 {{/if}}{{/with}}
+
+/* Lambda function definitions */
+{{#each lambdas}}
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__, RtArenaV2 *__caller_arena__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}}) {
+    rt_safepoint_poll();
+    RtArenaV2 *__lambda_arena__ = __caller_arena__ ? __caller_arena__ : ((__Closure__ *)((RtHandleV2 *)__closure__)->ptr)->arena;
+    RtArenaV2 *__local_arena__ = __lambda_arena__;
+{{#each captures}}
+{{#if is_ref}}
+    RtHandleV2 *____sn__{{name}}_h__ = ((__closure_{{../lambda_id}}__ *)((RtHandleV2 *)__closure__)->ptr)->{{name}};
+    {{c_type type}} *__sn__{{name}} = ({{c_type type}} *)____sn__{{name}}_h__->ptr;
+{{else}}
+    {{c_type type}} __sn__{{name}} = *({{c_type type}} *)(((__closure_{{../lambda_id}}__ *)((RtHandleV2 *)__closure__)->ptr)->{{name}}->ptr);
+{{/if}}
+{{/each}}
+{{#if body_stmts}}
+{{#each body_stmts}}
+    {{> stmt this}}
+{{/each}}
+__lambda_{{lambda_id}}___return:
+    return;
+{{else}}
+    return {{> expr body}};
+{{/if}}
+}
+{{/each}}

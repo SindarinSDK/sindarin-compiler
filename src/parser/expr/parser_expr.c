@@ -250,11 +250,11 @@ Expr *parser_unary(Parser *parser)
         return ast_create_unary_expr(parser->arena, op.type, right, &op);
     }
 
-    /* typeof operator */
+    /* typeOf operator - always requires parentheses: typeOf(expr) or typeOf(Type) */
     if (parser_match(parser, TOKEN_TYPEOF))
     {
         Token typeof_token = parser->previous;
-        bool has_parens = parser_match(parser, TOKEN_LEFT_PAREN);
+        parser_consume(parser, TOKEN_LEFT_PAREN, "Expected '(' after typeOf");
 
         if (parser_check(parser, TOKEN_INT) || parser_check(parser, TOKEN_INT32) ||
             parser_check(parser, TOKEN_UINT) || parser_check(parser, TOKEN_UINT32) ||
@@ -265,15 +265,13 @@ Expr *parser_unary(Parser *parser)
             parser_check(parser, TOKEN_ANY))
         {
             Type *type_literal = parser_type(parser);
-            if (has_parens)
-                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeof type");
+            parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf type");
             return ast_create_typeof_expr(parser->arena, NULL, type_literal, &typeof_token);
         }
         else
         {
             Expr *operand = parser_unary(parser);
-            if (has_parens)
-                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeof expression");
+            parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf expression");
             return ast_create_typeof_expr(parser->arena, operand, NULL, &typeof_token);
         }
     }

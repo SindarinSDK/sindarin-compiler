@@ -188,10 +188,10 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
             case 'r':
                 return lexer_check_keyword(lexer, 2, 2, "ue", TOKEN_BOOL_LITERAL);
             case 'y':
-                // Check for "type" (4 chars) vs "typeof" (6 chars)
+                // Check for "type" (4 chars) vs "typeOf" (6 chars)
                 if (lexer->current - lexer->start == 6)
                 {
-                    return lexer_check_keyword(lexer, 2, 4, "peof", TOKEN_TYPEOF);
+                    return lexer_check_keyword(lexer, 2, 4, "peOf", TOKEN_TYPEOF);
                 }
                 return lexer_check_keyword(lexer, 2, 2, "pe", TOKEN_KEYWORD_TYPE);
             }

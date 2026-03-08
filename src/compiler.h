@@ -47,6 +47,7 @@ typedef struct
     char *install_target;            /* Package URL@ref for --install */
     int clear_cache;                 /* --clear-cache: Clear package cache */
     int no_install;                  /* --no-install: Skip auto-install of dependencies */
+    int codegen_mode;                /* --codegen: 1=legacy (default), 2=model-based templates */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

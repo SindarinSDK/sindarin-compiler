@@ -1,11 +1,17 @@
 {
-    RtHandleV2 *__fe_arr__ = {{> expr iterable}};
-    long long __fe_len__ = rt_array_length_v2(__fe_arr__);
-    for (long long __fe_i__ = 0; __fe_i__ < __fe_len__; __fe_i__++) {
-        {{c_type iterable.type.element_type}} __sn__{{iterator_name}} = rt_array_get_int(__fe_arr__, __fe_i__);
+    RtHandleV2 *__handle_0__ = {{> expr iterable}};
+    long __len_0__ = rt_array_length_v2(__handle_0__);
+    {{c_type iterable.type.element_type}} * __arr_0__;
+    for (long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
+        rt_handle_begin_transaction(__handle_0__);
+        __arr_0__ = ({{c_type iterable.type.element_type}} *)rt_array_data_v2(__handle_0__);
+        {{c_type iterable.type.element_type}} __sn__{{iterator_name}} = __arr_0__[__idx_0__];
+        rt_handle_end_transaction(__handle_0__);
+        {
 {{#each body.statements}}
-        {{> stmt this}}
+            {{> stmt this}}
 {{/each}}
+        }
         rt_safepoint_poll();
     }
 }

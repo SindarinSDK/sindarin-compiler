@@ -28,15 +28,22 @@ typedef struct {
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+/* Lambda forward declarations */
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     __sn__Config __sn__c = (__sn__Config){ .__arena__ = rt_arena_v2_create(__local_arena__, RT_ARENA_MODE_DEFAULT, "struct"), .__sn__width = 800LL, .__sn__height = 600LL, .__sn__scale = 1.0 };
-    _return_value = __sn__c.__sn__width; goto main_return;
+    rt_assert_v2((__sn__c.__sn__width == 800LL), rt_arena_v2_strdup(__local_arena__, "expected default width to be 800"));
+    rt_assert_v2((__sn__c.__sn__height == 600LL), rt_arena_v2_strdup(__local_arena__, "expected default height to be 600"));
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */

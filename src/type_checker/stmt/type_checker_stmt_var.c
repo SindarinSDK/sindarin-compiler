@@ -166,25 +166,21 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
     {
         if (is_primitive_type(decl_type))
         {
-            /* Existing behavior: heap-allocate primitive */
-        }
-        else if (decl_type->kind == TYPE_STRUCT)
-        {
-            DEBUG_VERBOSE("'as ref' on struct type has no effect (already default)");
+            /* Valid: heap-allocate primitive, enables pass-by-pointer */
         }
         else if (decl_type->kind == TYPE_STRING || decl_type->kind == TYPE_ARRAY)
         {
-            DEBUG_VERBOSE("'as ref' on string/array type has no effect (already heap)");
+            type_warning(&stmt->as.var_decl.name, "'as ref' on string/array type has no effect (already heap-allocated)");
         }
     }
     else if (mem_qual == MEM_AS_VAL)
     {
         if (is_primitive_type(decl_type))
         {
-            DEBUG_VERBOSE("Warning: 'as val' on primitive type has no effect");
+            type_warning(&stmt->as.var_decl.name, "'as val' on primitive type has no effect (already value type)");
         }
-        /* struct: valid — forces stack allocation (handled in codegen) */
-        /* array/string: existing clone behavior (already handled in codegen) */
+        /* struct: valid — forces value/copy semantics */
+        /* array/string: valid — forces deep copy */
     }
 
     /* Only add symbol if we didn't already add it for recursive lambda support */

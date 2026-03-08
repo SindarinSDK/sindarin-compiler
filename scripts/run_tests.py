@@ -683,6 +683,40 @@ class TestRunner:
 
             return ('fail', 'C code mismatch', details)
 
+        # C code matches - now compile the full binary via --codegen 2
+        # Skip binary compile if no main function (library module)
+        if 'int main()' not in generated_c:
+            return ('pass', None, None)
+
+        exe_ext = get_exe_extension()
+        if exe_ext:
+            exe_file = c_file.replace('.c', exe_ext)
+        else:
+            exe_file = c_file.replace('.c', '')
+
+        compile_cmd = [self.compiler, test_file, '--codegen', '2', '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        if not is_windows():
+            compile_cmd.append('-g')
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+
+        if exit_code != 0:
+            details = stderr.split('\n')[:20] if stderr else None
+            return ('fail', 'binary compile error (codegen 2)', details)
+
+        # Run the binary
+        exit_code, output, timeout_marker = run_with_timeout(
+            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+        )
+
+        if exit_code != 0:
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
+            else:
+                details = output.split('\n')[:20] if output else None
+                return ('fail', f'run exit code: {exit_code}', details)
+
         return ('pass', '', None)
 
     def _run_mgen_rust_test_internal(self, test_file: str, expected_file: str,

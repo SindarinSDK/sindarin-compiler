@@ -20,12 +20,15 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+/* Lambda forward declarations */
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
+
     long long __sn__x = 0LL;
     while (true) {
         rt_post_inc_long(&__sn__x);
@@ -33,8 +36,11 @@ int main() {
             break;}
         rt_safepoint_poll();
     }
-    _return_value = __sn__x; goto main_return;
+    rt_assert_v2((__sn__x == 5LL), rt_arena_v2_strdup(__local_arena__, "expected x to be 5 after break"));
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
 }
+
+
+/* Lambda function definitions */
