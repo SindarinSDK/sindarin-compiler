@@ -3,10 +3,10 @@
         {{c_type subject.type}} __match_subject__ = {{> expr subject}};
 {{#each arms}}
 {{#if is_else}}
-        __match_result__ = {{> expr value}};
+        __match_result__ = {{#each body.statements}}{{> expr this.expr}}{{/each}};
 {{else}}
-        {{#if @first}}if{{else}} else if{{/if}} (__match_subject__ == {{> expr pattern}}) {
-            __match_result__ = {{> expr value}};
+        {{#if @first}}if{{else}} else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}__match_subject__ == {{> expr this}}{{/each}}) {
+            __match_result__ = {{#each body.statements}}{{> expr this.expr}}{{/each}};
         }
 {{/if}}
 {{/each}}
