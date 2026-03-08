@@ -27,7 +27,7 @@ int main() {
     __main_arena__ = __local_arena__;
     int _return_value = 0;
     RtHandleV2 *__arr_pending__ = NULL;
-        RtHandleV2 * __sn__arr = ;
+        RtHandleV2 * __sn__arr = rt_array_alloc_long_v2(__local_arena__, 10LL, 0);
     _return_value = 0LL; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);

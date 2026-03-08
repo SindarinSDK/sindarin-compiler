@@ -37,8 +37,8 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    long long __sn__handle = ;
-    long long __sn__result = ;
+    long long __sn__handle = rt_thread_spawn(__local_arena__, __sn__compute(__local_arena__));
+    long long __sn__result = rt_thread_sync(__sn__handle);
     _return_value = __sn__result; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);

@@ -32,7 +32,7 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    long long __sn__z = ;
+    long long __sn__z = __sn__Counter_zero(__local_arena__);
     _return_value = __sn__z; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);

@@ -1,1 +1,1 @@
-__sn__{{callee.name}}(__local_arena__{{#each args}}, {{> expr this}}{{/each}})
+{{#if (eq callee.kind "member")}}__sn__{{callee.object.type.name}}_{{callee.member_name}}(__local_arena__, &{{> expr callee.object}}{{#each args}}, {{> expr this}}{{/each}}){{else}}__sn__{{callee.name}}(__local_arena__{{#each args}}, {{> expr this}}{{/each}}){{/if}}

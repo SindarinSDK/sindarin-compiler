@@ -154,6 +154,35 @@ static char *helper_op_symbol(json_object **params, int param_count, hbs_options
     return strdup("+");
 }
 
+/* type_tag helper: {{type_tag type_obj}} - returns the RT_ANY_* constant for a type */
+static char *helper_type_tag(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("RT_ANY_INT");
+
+    json_object *type_obj = params[0];
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return strdup("RT_ANY_INT");
+
+    const char *kind = json_object_get_string(kind_obj);
+    if (!kind) return strdup("RT_ANY_INT");
+
+    if (strcmp(kind, "int") == 0) return strdup("RT_ANY_INT");
+    if (strcmp(kind, "long") == 0) return strdup("RT_ANY_LONG");
+    if (strcmp(kind, "double") == 0) return strdup("RT_ANY_DOUBLE");
+    if (strcmp(kind, "float") == 0) return strdup("RT_ANY_FLOAT");
+    if (strcmp(kind, "bool") == 0) return strdup("RT_ANY_BOOL");
+    if (strcmp(kind, "char") == 0) return strdup("RT_ANY_CHAR");
+    if (strcmp(kind, "byte") == 0) return strdup("RT_ANY_BYTE");
+    if (strcmp(kind, "string") == 0) return strdup("RT_ANY_STRING");
+    if (strcmp(kind, "int32") == 0) return strdup("RT_ANY_INT32");
+    if (strcmp(kind, "uint") == 0) return strdup("RT_ANY_UINT");
+    if (strcmp(kind, "uint32") == 0) return strdup("RT_ANY_UINT32");
+    if (strcmp(kind, "array") == 0) return strdup("RT_ANY_ARRAY");
+
+    return strdup("RT_ANY_INT");
+}
+
 /* return_label helper: {{return_label}} - returns the goto label for the current function.
  * Walks up the frame stack to find the enclosing function context (has "name" + "return_type").
  * For main, returns "main_return"; for others, returns "__sn__<name>_return". */
@@ -339,6 +368,7 @@ char *gen_model_render_c(json_object *model, const char *template_dir)
     hbs_register_helper(env, "type_suffix", helper_type_suffix);
     hbs_register_helper(env, "op_symbol", helper_op_symbol);
     hbs_register_helper(env, "return_label", helper_return_label);
+    hbs_register_helper(env, "type_tag", helper_type_tag);
 
     /* Register partials from the partials/ subdirectory */
     char partials_dir[1024];

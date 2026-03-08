@@ -27,7 +27,7 @@ int main() {
     __main_arena__ = __local_arena__;
     int _return_value = 0;
     void __sn__a = 42LL;
-    if () {
+    if (((__sn__a).tag == RT_ANY_INT)) {
         _return_value = 1LL; goto main_return;
     }
     _return_value = 0LL; goto main_return;

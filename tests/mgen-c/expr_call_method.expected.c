@@ -33,8 +33,8 @@ int main() {
     __main_arena__ = __local_arena__;
     int _return_value = 0;
     __sn__Counter __sn__c = (__sn__Counter){ .__arena__ = rt_arena_v2_create(__local_arena__, RT_ARENA_MODE_DEFAULT, "struct"), .__sn__value = 10LL };
-    __sn__(__local_arena__);
-    _return_value = __sn__(__local_arena__); goto main_return;
+    __sn__Counter_increment(__local_arena__, &__sn__c);
+    _return_value = __sn__Counter_getValue(__local_arena__, &__sn__c); goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;

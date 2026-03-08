@@ -27,7 +27,7 @@ int main() {
     __main_arena__ = __local_arena__;
     int _return_value = 0;
     void __sn__a = 42LL;
-    long long __sn__t = ;
+    long long __sn__t = rt_any_get_tag(__sn__a);
     _return_value = __sn__t; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);
