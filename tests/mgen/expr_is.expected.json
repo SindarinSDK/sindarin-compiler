@@ -1,0 +1,91 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_is.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "a",
+          "type": {
+            "kind": "any"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 42
+          }
+        },
+        {
+          "kind": "if",
+          "condition": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "is",
+            "operand": {
+              "type": {
+                "kind": "any"
+              },
+              "kind": "variable",
+              "name": "a"
+            },
+            "check_type": {
+              "kind": "int"
+            }
+          },
+          "then_body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "return",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

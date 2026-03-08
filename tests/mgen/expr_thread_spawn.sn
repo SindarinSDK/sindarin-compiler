@@ -1,0 +1,7 @@
+fn compute(): int =>
+    return 42
+
+fn main(): int =>
+    var handle: int = &compute()
+    var result: int = handle!
+    return result

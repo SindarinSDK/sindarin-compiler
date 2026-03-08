@@ -1,0 +1,13 @@
+struct Counter =>
+    value: int
+
+    fn getValue(): int =>
+        return self.value
+
+    fn increment(): void =>
+        self.value += 1
+
+fn main(): int =>
+    var c: Counter = Counter { value: 10 }
+    c.increment()
+    return c.getValue()

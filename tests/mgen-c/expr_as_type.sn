@@ -1,0 +1,4 @@
+fn main(): int =>
+    var a: any = 42
+    var b: int = a as int
+    return b
