@@ -13,7 +13,7 @@
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-mgen test-mgen-c test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
-.PHONY: arena test-arena arena2 test-arena2
+.PHONY: arena arena2 test-arena
 .PHONY: configure install package docs
 .PHONY: setup libs
 
@@ -170,7 +170,7 @@ run: build
 #------------------------------------------------------------------------------
 # Test targets - Delegate to Python test runner
 #------------------------------------------------------------------------------
-test: build test-arena2
+test: build test-arena
 	@echo "Running all tests..."
 	$(PYTHON) scripts/run_tests.py all --verbose
 
@@ -237,12 +237,6 @@ arena:
 	@echo "Managed arena built."
 
 #------------------------------------------------------------------------------
-# test-arena - REMOVED (V1 managed arena deleted, use test-arena2 instead)
-#------------------------------------------------------------------------------
-test-arena:
-	@echo "V1 managed arena tests removed. Use 'make test-arena2' instead."
-
-#------------------------------------------------------------------------------
 # arena2 - Build the Arena V2 library (standalone)
 #------------------------------------------------------------------------------
 ARENA2_DIR := src/runtime/arena
@@ -271,9 +265,9 @@ arena2:
 	@echo "Arena V2 built."
 
 #------------------------------------------------------------------------------
-# test-arena2 - Build and run Arena V2 tests (GC thread + redirect)
+# test-arena - Build and run Arena V2 tests (GC thread + redirect)
 #------------------------------------------------------------------------------
-test-arena2:
+test-arena:
 	@echo "Building and running Arena V2 tests..."
 	@$(MKDIR) $(ARENA2_BUILD)
 	@$(MKDIR) $(BIN_DIR)
@@ -405,10 +399,8 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
-	@echo "  make arena                  Build managed arena library (V1)"
-	@echo "  make test-arena             Build and run managed arena tests (V1)"
 	@echo "  make arena2                 Build Arena V2 library"
-	@echo "  make test-arena2            Build and run Arena V2 tests"
+	@echo "  make test-arena             Build and run arena tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"
