@@ -1,0 +1,89 @@
+{
+  "module": {
+    "filename": "tests/mgen/global_deferred.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [
+    {
+      "kind": "var_decl",
+      "name": "x",
+      "type": {
+        "kind": "int"
+      },
+      "mem_qual": "default",
+      "sync_mod": "none",
+      "is_static": false,
+      "initializer": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 10
+      }
+    },
+    {
+      "kind": "var_decl",
+      "name": "y",
+      "type": {
+        "kind": "int"
+      },
+      "mem_qual": "default",
+      "sync_mod": "none",
+      "is_static": false,
+      "initializer": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "binary",
+        "op": "add",
+        "left": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "variable",
+          "name": "x"
+        },
+        "right": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "literal",
+          "value_kind": "int",
+          "value": 5
+        },
+        "arithmetic_mode": "checked"
+      }
+    }
+  ],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "y"
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

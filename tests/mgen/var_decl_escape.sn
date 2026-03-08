@@ -1,0 +1,7 @@
+fn make_str(): str =>
+    var s: str = "hello"
+    return s
+
+fn main(): int =>
+    var result: str = make_str()
+    return 0

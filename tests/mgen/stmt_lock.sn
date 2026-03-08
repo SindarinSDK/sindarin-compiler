@@ -1,0 +1,5 @@
+fn main(): int =>
+    sync var counter: int = 0
+    lock(counter) =>
+        counter = counter + 1
+    return counter

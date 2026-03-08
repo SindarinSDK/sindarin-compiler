@@ -1,0 +1,71 @@
+{
+  "module": {
+    "filename": "tests/mgen/struct_decl_as_ref.sn",
+    "has_main": true
+  },
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "alias",
+      "value": "Vec2"
+    }
+  ],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Vec2",
+      "is_native": true,
+      "is_packed": false,
+      "pass_self_by_ref": true,
+      "c_alias": "Vec2",
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "c_alias": "x"
+        },
+        {
+          "name": "y",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "c_alias": "y"
+        }
+      ],
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}
