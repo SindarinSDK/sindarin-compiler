@@ -1,5 +1,9 @@
-match {{> expr operand}} {
+match {{> expr subject}} {
 {{#each arms}}
-    {{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}} => { {{#each body.statements}}{{> stmt this}} {{/each}} },
+{{#if is_else}}
+    _ => { {{#each body.statements}}{{> expr this.expr}}{{/each}} },
+{{else}}
+    {{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}} => { {{#each body.statements}}{{> expr this.expr}}{{/each}} },
+{{/if}}
 {{/each}}
 }

@@ -30,10 +30,10 @@ int main() {
     long long __sn__result = ({
             long long __match_result__;
             long long __match_subject__ = __sn__x;
-            if (__match_subject__ == ) {
-                __match_result__ = ;
+            if (__match_subject__ == 1LL) {
+                __match_result__ = 10LL;
             }
-            __match_result__ = ;
+            __match_result__ = 0LL;
             __match_result__;
         });
     _return_value = __sn__result; goto main_return;
