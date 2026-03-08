@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/struct_packed.sn",
+    "filename": "tests\/mgen\/struct_packed.sn",
     "has_main": true
   },
   "pragmas": [
@@ -69,5 +69,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

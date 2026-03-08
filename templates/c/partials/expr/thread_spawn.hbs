@@ -1,1 +1,17 @@
-rt_thread_spawn(__local_arena__, {{> expr call}})
+({
+    /* V3: Create thread with its own arena */
+    RtHandleV2 *__spawn_handle_{{thread_id}}__ = rt_thread_v3_create(__local_arena__, RT_THREAD_MODE_DEFAULT);
+    RtArenaV2 *__thread_arena__ = rt_thread_v3_get_arena(__spawn_handle_{{thread_id}}__);
+
+    /* Allocate args in thread arena (min 1 byte for empty structs) */
+    RtHandleV2 *__args_h__ = rt_arena_v2_alloc(__thread_arena__, sizeof(__ThreadArgs_{{thread_id}}__) > 0 ? sizeof(__ThreadArgs_{{thread_id}}__) : 1);
+    rt_handle_begin_transaction(__args_h__);
+    __ThreadArgs_{{thread_id}}__ *__spawn_args_{{thread_id}}__ = (__ThreadArgs_{{thread_id}}__ *)__args_h__->ptr;
+    {{#each call.args}}__spawn_args_{{../thread_id}}__->arg{{@index}} = {{> expr this}};
+    {{/each}}    rt_handle_end_transaction(__args_h__);
+    rt_thread_v3_set_args(__spawn_handle_{{thread_id}}__, __args_h__);
+
+    /* Start the thread */
+    rt_thread_v3_start(__spawn_handle_{{thread_id}}__, __thread_wrapper_{{thread_id}}__);
+    __spawn_handle_{{thread_id}}__;
+})

@@ -29,6 +29,7 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "is_captured": true,
           "initializer": {
             "type": {
               "kind": "int"
@@ -73,7 +74,17 @@
             "modifier": "default",
             "is_native": false,
             "params": [],
-            "captures": [],
+            "captures": [
+              {
+                "name": "x",
+                "type": {
+                  "kind": "int"
+                },
+                "is_primitive": true,
+                "is_ref": true
+              }
+            ],
+            "has_captures": true,
             "body_stmts": [
               {
                 "kind": "expr",
@@ -88,7 +99,8 @@
                       "kind": "int"
                     },
                     "kind": "variable",
-                    "name": "x"
+                    "name": "x",
+                    "is_captured": true
                   },
                   "value": {
                     "type": {
@@ -125,7 +137,8 @@
               "name": "inc"
             },
             "args": [],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": true
           }
         },
         {
@@ -136,6 +149,7 @@
             },
             "kind": "variable",
             "name": "x",
+            "is_captured": true,
             "escape_info": {
               "escapes_scope": true,
               "needs_heap": false
@@ -145,5 +159,54 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "return_type": {
+        "kind": "void"
+      },
+      "params": [],
+      "captures": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "is_primitive": true,
+          "is_ref": true
+        }
+      ],
+      "has_captures": true,
+      "body_stmts": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "x",
+              "is_captured": true
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "threads": []
 }

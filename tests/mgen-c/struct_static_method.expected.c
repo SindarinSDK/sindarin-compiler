@@ -26,7 +26,6 @@ typedef struct {
 static RtArenaV2 *__main_arena__ = NULL;
 
 long long __sn__Counter_zero(RtArenaV2 *);
-
 /* Lambda forward declarations */
 
 long long __sn__Counter_zero(RtArenaV2 *__caller_arena__) {

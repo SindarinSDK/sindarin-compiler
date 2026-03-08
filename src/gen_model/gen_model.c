@@ -5,6 +5,10 @@
 /* Global lambda collection */
 json_object *g_model_lambdas = NULL;
 
+/* Global thread collection */
+json_object *g_model_threads = NULL;
+int g_model_thread_count = 0;
+
 /* Global captured-variable set */
 char **g_captured_vars = NULL;
 int g_captured_var_count = 0;
@@ -45,6 +49,10 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 
     /* Initialize global lambda collection */
     g_model_lambdas = json_object_new_array();
+
+    /* Initialize global thread collection */
+    g_model_threads = json_object_new_array();
+    g_model_thread_count = 0;
 
     for (int i = 0; i < module->count; i++)
     {
@@ -119,6 +127,8 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     json_object_object_add(root, "top_level_statements", top_level);
     json_object_object_add(root, "lambdas", g_model_lambdas);
     g_model_lambdas = NULL;
+    json_object_object_add(root, "threads", g_model_threads);
+    g_model_threads = NULL;
 
     return root;
 }

@@ -20,7 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 long long __sn__apply(RtArenaV2 *, RtHandleV2 *, long long);
-
 /* Lambda forward declarations */
 static long long __lambda_0__(void *__closure__, RtArenaV2 *__caller_arena__, long long __sn__n);
 long long __sn__apply(RtArenaV2 *__caller_arena__, RtHandleV2 * __sn__f, long long __sn__x) {

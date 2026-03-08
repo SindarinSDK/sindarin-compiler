@@ -60,6 +60,7 @@
             "kind": "thread_sync",
             "handle": {
               "kind": "thread_spawn",
+              "thread_id": 0,
               "call": {
                 "type": {
                   "kind": "int"
@@ -80,11 +81,16 @@
                   "name": "compute"
                 },
                 "args": [],
-                "is_tail_call": false
+                "is_tail_call": false,
+                "is_closure_call": false
               },
-              "modifier": "default"
+              "modifier": "default",
+              "is_void": false
             },
-            "is_array": false
+            "is_array": false,
+            "result_type": {
+              "kind": "int"
+            }
           }
         },
         {
@@ -104,5 +110,18 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [
+    {
+      "thread_id": 0,
+      "is_void": false,
+      "return_type": {
+        "kind": "int"
+      },
+      "func_name": "compute",
+      "args": [],
+      "has_args": false
+    }
+  ]
 }

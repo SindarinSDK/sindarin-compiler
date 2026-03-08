@@ -21,7 +21,6 @@ long long __sn__y = 0;
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-
 /* Lambda forward declarations */
 
 int main() {

@@ -51,15 +51,14 @@
             "type": {
               "kind": "int"
             },
-            "kind": "member",
+            "kind": "builtin_length",
             "object": {
               "type": {
                 "kind": "string"
               },
               "kind": "variable",
               "name": "s"
-            },
-            "member_name": "length"
+            }
           }
         },
         {
@@ -76,5 +75,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

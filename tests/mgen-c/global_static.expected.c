@@ -20,7 +20,6 @@ long long __sn__counter = 0LL;
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-
 /* Lambda forward declarations */
 
 int main() {

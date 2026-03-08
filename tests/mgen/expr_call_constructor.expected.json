@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/expr_call_constructor.sn",
+    "filename": "tests\/mgen\/expr_call_constructor.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -143,5 +143,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

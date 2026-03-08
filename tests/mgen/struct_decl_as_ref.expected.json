@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/struct_decl_as_ref.sn",
+    "filename": "tests\/mgen\/struct_decl_as_ref.sn",
     "has_main": true
   },
   "pragmas": [
@@ -67,5 +67,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

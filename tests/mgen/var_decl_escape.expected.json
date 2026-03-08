@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/var_decl_escape.sn",
+    "filename": "tests\/mgen\/var_decl_escape.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -94,7 +94,8 @@
               "name": "make_str"
             },
             "args": [],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -111,5 +112,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

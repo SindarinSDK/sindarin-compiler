@@ -66,7 +66,8 @@
               "name": "sideEffect"
             },
             "args": [],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -83,5 +84,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

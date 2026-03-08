@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/expr_copy_of.sn",
+    "filename": "tests\/mgen\/expr_copy_of.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -232,5 +232,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

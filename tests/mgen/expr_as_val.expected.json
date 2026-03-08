@@ -117,6 +117,9 @@
                     }
                   }
                 ],
+                "param_mem_quals": [
+                  "as_val"
+                ],
                 "is_variadic": false,
                 "is_native": false,
                 "has_arena_param": false
@@ -136,7 +139,8 @@
                 "name": "a"
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -153,5 +157,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

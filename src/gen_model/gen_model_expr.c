@@ -876,10 +876,66 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_THREAD_SPAWN:
         {
             json_object_object_add(obj, "kind", json_object_new_string("thread_spawn"));
-            json_object_object_add(obj, "call",
-                gen_model_expr(arena, expr->as.thread_spawn.call, symbol_table, arithmetic_mode));
+            int thread_id = g_model_thread_count++;
+            json_object_object_add(obj, "thread_id", json_object_new_int(thread_id));
+
+            Expr *call_expr = expr->as.thread_spawn.call;
+            json_object *call_obj = gen_model_expr(arena, call_expr, symbol_table, arithmetic_mode);
+            json_object_object_add(obj, "call", call_obj);
             json_object_object_add(obj, "modifier",
                 json_object_new_string(func_mod_str(expr->as.thread_spawn.modifier)));
+
+            /* Determine if return type is void */
+            Type *ret_type = call_expr->expr_type;
+            bool is_void = (ret_type && ret_type->kind == TYPE_VOID);
+            json_object_object_add(obj, "is_void", json_object_new_boolean(is_void));
+
+            /* Collect thread definition for top-level wrapper generation */
+            if (g_model_threads != NULL)
+            {
+                json_object *tdef = json_object_new_object();
+                json_object_object_add(tdef, "thread_id", json_object_new_int(thread_id));
+                json_object_object_add(tdef, "is_void", json_object_new_boolean(is_void));
+                json_object_object_add(tdef, "return_type",
+                    gen_model_type(arena, ret_type));
+
+                /* Extract function name from callee */
+                if (call_expr->type == EXPR_CALL && call_expr->as.call.callee)
+                {
+                    Expr *callee = call_expr->as.call.callee;
+                    if (callee->type == EXPR_VARIABLE)
+                    {
+                        json_object_object_add(tdef, "func_name",
+                            json_object_new_string(callee->as.variable.name.start));
+                    }
+                }
+
+                /* Collect args with types for the ThreadArgs struct */
+                json_object *args = json_object_new_array();
+                if (call_expr->type == EXPR_CALL)
+                {
+                    for (int i = 0; i < call_expr->as.call.arg_count; i++)
+                    {
+                        json_object *arg = json_object_new_object();
+                        Expr *arg_expr = call_expr->as.call.arguments[i];
+                        json_object_object_add(arg, "type",
+                            gen_model_type(arena, arg_expr->expr_type));
+                        /* Create a unique arg name */
+                        char arg_name[32];
+                        snprintf(arg_name, sizeof(arg_name), "arg%d", i);
+                        json_object_object_add(arg, "name",
+                            json_object_new_string(arg_name));
+                        json_object_array_add(args, arg);
+                    }
+                }
+                json_object_object_add(tdef, "args", args);
+                json_object_object_add(tdef, "has_args",
+                    json_object_new_boolean(call_expr->type == EXPR_CALL &&
+                                            call_expr->as.call.arg_count > 0));
+
+                json_object_array_add(g_model_threads, tdef);
+            }
+
             break;
         }
 
@@ -890,6 +946,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 gen_model_expr(arena, expr->as.thread_sync.handle, symbol_table, arithmetic_mode));
             json_object_object_add(obj, "is_array",
                 json_object_new_boolean(expr->as.thread_sync.is_array));
+            /* Add the result type for sync extraction */
+            json_object_object_add(obj, "result_type",
+                gen_model_type(arena, expr->expr_type));
             break;
         }
 
