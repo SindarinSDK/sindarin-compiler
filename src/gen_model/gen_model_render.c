@@ -413,3 +413,167 @@ char *gen_model_render_c(json_object *model, const char *template_dir)
 
     return result;
 }
+
+/* ---- Rust-Specific Helpers ---- */
+
+/* rust_type helper: {{rust_type type_obj}} - converts a type JSON object to a Rust type string */
+static char *helper_rust_type(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("()");
+
+    json_object *type_obj = params[0];
+
+    if (json_object_is_type(type_obj, json_type_string)) {
+        return strdup(json_object_get_string(type_obj));
+    }
+
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return strdup("()");
+
+    const char *kind = json_object_get_string(kind_obj);
+    if (!kind) return strdup("()");
+
+    if (strcmp(kind, "int") == 0) return strdup("i64");
+    if (strcmp(kind, "long") == 0) return strdup("i64");
+    if (strcmp(kind, "int32") == 0) return strdup("i32");
+    if (strcmp(kind, "uint") == 0) return strdup("u64");
+    if (strcmp(kind, "uint32") == 0) return strdup("u32");
+    if (strcmp(kind, "double") == 0) return strdup("f64");
+    if (strcmp(kind, "float") == 0) return strdup("f32");
+    if (strcmp(kind, "bool") == 0) return strdup("bool");
+    if (strcmp(kind, "char") == 0) return strdup("char");
+    if (strcmp(kind, "byte") == 0) return strdup("u8");
+    if (strcmp(kind, "string") == 0) return strdup("String");
+    if (strcmp(kind, "void") == 0) return strdup("()");
+
+    /* Array type: Vec<element_type> */
+    if (strcmp(kind, "array") == 0) {
+        json_object *elem_obj = NULL;
+        if (json_object_object_get_ex(type_obj, "element_type", &elem_obj)) {
+            char *elem = helper_rust_type(&elem_obj, 1, options);
+            char buf[256];
+            snprintf(buf, sizeof(buf), "Vec<%s>", elem);
+            free(elem);
+            return strdup(buf);
+        }
+        return strdup("Vec<i64>");
+    }
+
+    /* Pointer type */
+    if (strcmp(kind, "pointer") == 0) {
+        json_object *pointee_obj = NULL;
+        if (json_object_object_get_ex(type_obj, "pointee_type", &pointee_obj)) {
+            char *pointee = helper_rust_type(&pointee_obj, 1, options);
+            char buf[256];
+            snprintf(buf, sizeof(buf), "*mut %s", pointee);
+            free(pointee);
+            return strdup(buf);
+        }
+        return strdup("*mut ()");
+    }
+
+    /* Struct type */
+    if (strcmp(kind, "struct") == 0) {
+        json_object *name_obj = NULL;
+        if (json_object_object_get_ex(type_obj, "name", &name_obj)) {
+            const char *sname = json_object_get_string(name_obj);
+            if (sname) return strdup(sname);
+        }
+    }
+
+    return strdup("()");
+}
+
+/* rust_default helper: {{rust_default type_obj}} - returns the Rust default value for a type */
+static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("0");
+
+    json_object *type_obj = params[0];
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return strdup("0");
+
+    const char *kind = json_object_get_string(kind_obj);
+    if (!kind) return strdup("0");
+
+    if (strcmp(kind, "int") == 0) return strdup("0_i64");
+    if (strcmp(kind, "long") == 0) return strdup("0_i64");
+    if (strcmp(kind, "int32") == 0) return strdup("0_i32");
+    if (strcmp(kind, "uint") == 0) return strdup("0_u64");
+    if (strcmp(kind, "uint32") == 0) return strdup("0_u32");
+    if (strcmp(kind, "double") == 0) return strdup("0.0_f64");
+    if (strcmp(kind, "float") == 0) return strdup("0.0_f32");
+    if (strcmp(kind, "bool") == 0) return strdup("false");
+    if (strcmp(kind, "char") == 0) return strdup("'\\0'");
+    if (strcmp(kind, "byte") == 0) return strdup("0_u8");
+    if (strcmp(kind, "string") == 0) return strdup("String::new()");
+    if (strcmp(kind, "void") == 0) return strdup("()");
+    if (strcmp(kind, "array") == 0) return strdup("Vec::new()");
+
+    return strdup("0");
+}
+
+/* ---- Rust Render ---- */
+
+char *gen_model_render_rust(json_object *model, const char *template_dir)
+{
+    if (!model || !template_dir) return NULL;
+
+    hbs_env_t *env = hbs_env_create();
+    if (!env) {
+        fprintf(stderr, "gen_model_render: failed to create handlebars environment\n");
+        return NULL;
+    }
+
+    hbs_env_set_no_escape(env, true);
+
+    /* Register helpers — reuse eq, op_symbol; add Rust-specific ones */
+    hbs_register_helper(env, "eq", helper_eq);
+    hbs_register_helper(env, "rust_type", helper_rust_type);
+    hbs_register_helper(env, "rust_default", helper_rust_default);
+    hbs_register_helper(env, "op_symbol", helper_op_symbol);
+
+    /* Register partials from the partials/ subdirectory */
+    char partials_dir[1024];
+    snprintf(partials_dir, sizeof(partials_dir), "%s/partials", template_dir);
+    if (register_partials_recursive(env, partials_dir, "") != 0) {
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    /* Read and compile the main module template */
+    char module_path[1024];
+    snprintf(module_path, sizeof(module_path), "%s/module.hbs", template_dir);
+
+    char *module_source = read_file(module_path);
+    if (!module_source) {
+        fprintf(stderr, "gen_model_render: cannot read module template: %s\n", module_path);
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    hbs_error_t err;
+    hbs_template_t *tmpl = hbs_compile(env, module_source, &err);
+    free(module_source);
+
+    if (!tmpl) {
+        fprintf(stderr, "gen_model_render: failed to compile module template: %s\n",
+                hbs_error_string(err));
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    char *result = hbs_render(tmpl, model, &err);
+    if (!result) {
+        const char *detail = hbs_render_error_message(tmpl);
+        fprintf(stderr, "gen_model_render: render failed: %s\n",
+                detail ? detail : hbs_error_string(err));
+    }
+
+    hbs_template_destroy(tmpl);
+    hbs_env_destroy(env);
+
+    return result;
+}

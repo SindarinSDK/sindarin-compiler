@@ -1,0 +1,6 @@
+fn main(): int =>
+    var x: int = 10
+    var inc: fn(): void = fn(): void =>
+        x += 1
+    inc()
+    return x

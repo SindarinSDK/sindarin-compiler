@@ -826,6 +826,10 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
         file(COPY "${CMAKE_SOURCE_DIR}/templates/c" DESTINATION "${CMAKE_SOURCE_DIR}/bin/templates")
         message(STATUS "  Templates copied to: ${CMAKE_SOURCE_DIR}/bin/templates/c")
     endif()
+    if(EXISTS "${CMAKE_SOURCE_DIR}/templates/rust/module.hbs")
+        file(COPY "${CMAKE_SOURCE_DIR}/templates/rust" DESTINATION "${CMAKE_SOURCE_DIR}/bin/templates")
+        message(STATUS "  Templates copied to: ${CMAKE_SOURCE_DIR}/bin/templates/rust")
+    endif()
 
     # Check for libcurl and enable auto-update feature
     if(EXISTS "${SINDARIN_LIBS_DIR}/include/curl/curl.h")

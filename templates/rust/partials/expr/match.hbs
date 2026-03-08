@@ -1,0 +1,5 @@
+match {{> expr operand}} {
+{{#each arms}}
+    {{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}} => { {{#each body.statements}}{{> stmt this}} {{/each}} },
+{{/each}}
+}

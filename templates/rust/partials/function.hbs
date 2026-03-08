@@ -1,0 +1,5 @@
+fn {{name}}({{#each params}}{{#if @index}}, {{/if}}{{name}}: {{rust_type type}}{{/each}}){{#if (eq return_type.kind "void")}}{{else}} -> {{rust_type return_type}}{{/if}} {
+{{#each body}}
+    {{> stmt this}}
+{{/each}}
+}

@@ -1,0 +1,7 @@
+fn increment(x: int as ref): void =>
+    x = x + 1
+
+fn main(): int =>
+    var a: int = 10
+    increment(a)
+    return a

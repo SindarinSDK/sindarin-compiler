@@ -1,0 +1,4 @@
+fn main(): int =>
+    var s: str = "hello"
+    var n: int = s.length
+    return 0
