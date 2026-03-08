@@ -1,0 +1,74 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/global_static.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [
+    {
+      "kind": "var_decl",
+      "name": "counter",
+      "type": {
+        "kind": "int"
+      },
+      "mem_qual": "default",
+      "sync_mod": "none",
+      "is_static": false,
+      "initializer": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "literal",
+        "value_kind": "int",
+        "value": 0
+      }
+    }
+  ],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "counter",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 42
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "counter"
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

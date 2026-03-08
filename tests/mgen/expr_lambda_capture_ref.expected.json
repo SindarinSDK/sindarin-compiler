@@ -1,0 +1,149 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_lambda_capture_ref.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 10
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "inc",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "void"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "void"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "lambda",
+            "lambda_id": 0,
+            "return_type": {
+              "kind": "void"
+            },
+            "modifier": "default",
+            "is_native": false,
+            "params": [],
+            "captures": [],
+            "body_stmts": [
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "x"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "inc"
+            },
+            "args": [],
+            "is_tail_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "x",
+            "escape_info": {
+              "escapes_scope": true,
+              "needs_heap": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

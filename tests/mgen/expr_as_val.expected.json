@@ -1,0 +1,157 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_as_val.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "modify",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "arr",
+          "type": {
+            "kind": "array",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "as_val",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return"
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "a",
+          "type": {
+            "kind": "array",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 2
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 3
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "array",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "modify"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "array",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "variable",
+                "name": "a"
+              }
+            ],
+            "is_tail_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

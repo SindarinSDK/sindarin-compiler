@@ -1,0 +1,4 @@
+#include "math.h"
+
+fn main(): int =>
+    return 0

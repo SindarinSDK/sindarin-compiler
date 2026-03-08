@@ -1,0 +1,59 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/pragma_alias.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "mysin",
+      "return_type": {
+        "kind": "double"
+      },
+      "modifier": "default",
+      "is_native": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": []
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

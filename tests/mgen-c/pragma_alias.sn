@@ -1,0 +1,5 @@
+#alias "my_sin"
+native fn mysin(x: double): double
+
+fn main(): int =>
+    return 0
