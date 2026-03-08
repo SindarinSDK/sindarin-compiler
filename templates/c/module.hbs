@@ -29,8 +29,7 @@ static RtArenaV2 *__main_arena__ = NULL;
 
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> forward_decl this}}
 {{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
-{{/each}}{{/each}}
-{{#each threads}}typedef struct {
+{{/each}}{{/each}}{{#each threads}}typedef struct {
 {{#each args}}
     {{c_type type}} {{name}};
 {{/each}}
