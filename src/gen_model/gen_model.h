@@ -18,6 +18,10 @@ int gen_model_write(json_object *model, const char *output_path);
 /* Global lambda collection - populated during model building */
 extern json_object *g_model_lambdas;
 
+/* Global thread collection - populated during model building */
+extern json_object *g_model_threads;
+extern int g_model_thread_count;
+
 /* Global captured-variable set - populated by pre-scanning function bodies.
  * Variables in this set need handle-based (promoted) storage in the outer scope
  * so that lambdas can capture them by reference. */

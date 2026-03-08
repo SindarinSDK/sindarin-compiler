@@ -20,7 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 RtHandleV2 * __sn__make_str(RtArenaV2 *);
-
 /* Lambda forward declarations */
 RtHandleV2 * __sn__make_str(RtArenaV2 *__caller_arena__) {
     rt_safepoint_poll();

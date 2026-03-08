@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/return_cleanup.sn",
+    "filename": "tests\/mgen\/return_cleanup.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -130,7 +130,8 @@
                 "value": "world"
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -147,5 +148,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

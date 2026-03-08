@@ -104,7 +104,8 @@
                 "value": 1.0
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -149,7 +150,8 @@
                 "value": 0.0
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -166,5 +168,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

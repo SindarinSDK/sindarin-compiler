@@ -30,6 +30,50 @@ static RtArenaV2 *__main_arena__ = NULL;
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> forward_decl this}}
 {{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
 {{/each}}{{/each}}
+{{#each threads}}typedef struct {
+{{#each args}}
+    {{c_type type}} {{name}};
+{{/each}}
+    /* Function-specific arguments */
+} __ThreadArgs_{{thread_id}}__;
+
+static void *__thread_wrapper_{{thread_id}}__(void *arg) {
+    RtHandleV2 *__th__ = (RtHandleV2 *)arg;
+    rt_tls_thread_set_v3(__th__);
+    RtArenaV2 *__arena__ = rt_thread_v3_get_arena(__th__);
+    rt_safepoint_adopt_registration();
+
+    /* Unpack args from thread handle */
+    RtHandleV2 *__args_h__ = rt_thread_v3_get_args(__th__);
+    rt_handle_begin_transaction(__args_h__);
+    __ThreadArgs_{{thread_id}}__ __args_copy__ = *(__ThreadArgs_{{thread_id}}__ *)__args_h__->ptr;
+    rt_handle_end_transaction(__args_h__);
+    __ThreadArgs_{{thread_id}}__ *args = &__args_copy__;
+
+    /* Call the function */
+{{#if is_void}}
+    __sn__{{func_name}}(__arena__{{#each args}}, args->{{name}}{{/each}});
+
+    rt_thread_v3_dispose(__th__);
+    rt_safepoint_poll();
+{{else}}
+    {{c_type return_type}} __result__ = __sn__{{func_name}}(__arena__{{#each args}}, args->{{name}}{{/each}});
+
+    /* V3: Store result in handle - sync will promote to caller arena */
+    RtHandleV2 *__result_handle__ = rt_arena_v2_alloc(__arena__, sizeof({{c_type return_type}}));
+    rt_handle_begin_transaction(__result_handle__);
+    *({{c_type return_type}} *)__result_handle__->ptr = __result__;
+    rt_handle_end_transaction(__result_handle__);
+    rt_thread_v3_set_result(__th__, __result_handle__);
+
+    rt_thread_v3_signal_done(__th__);
+{{/if}}
+    rt_safepoint_thread_deregister();
+    rt_tls_thread_set_v3(NULL);
+    return NULL;
+}
+
+{{/each}}
 /* Lambda forward declarations */
 {{#each lambdas}}
 {{#if has_captures}}

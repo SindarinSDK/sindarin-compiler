@@ -82,7 +82,8 @@
                 "name": "x"
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": true
           }
         }
       ]
@@ -149,6 +150,7 @@
               }
             ],
             "captures": [],
+            "has_captures": false,
             "body": {
               "type": {
                 "kind": "int"
@@ -241,11 +243,54 @@
                 "value": 5
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         }
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [
+        {
+          "name": "n",
+          "type": {
+            "kind": "int"
+          }
+        }
+      ],
+      "captures": [],
+      "has_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "binary",
+        "op": "multiply",
+        "left": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "variable",
+          "name": "n"
+        },
+        "right": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "literal",
+          "value_kind": "int",
+          "value": 2
+        },
+        "arithmetic_mode": "checked"
+      }
+    }
+  ],
+  "threads": []
 }

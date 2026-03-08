@@ -48,7 +48,8 @@
                   "kind": "int"
                 },
                 "kind": "variable",
-                "name": "x"
+                "name": "x",
+                "is_captured": true
               },
               "right": {
                 "type": {
@@ -59,7 +60,8 @@
                 "value": 1
               },
               "arithmetic_mode": "checked"
-            }
+            },
+            "is_captured": true
           }
         }
       ]
@@ -111,6 +113,9 @@
                     "kind": "int"
                   }
                 ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
                 "is_variadic": false,
                 "is_native": false,
                 "has_arena_param": false
@@ -124,10 +129,12 @@
                   "kind": "int"
                 },
                 "kind": "variable",
-                "name": "a"
+                "name": "a",
+                "is_ref_arg": true
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": false
           }
         },
         {
@@ -147,5 +154,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

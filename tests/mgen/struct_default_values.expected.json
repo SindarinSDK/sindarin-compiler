@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/struct_default_values.sn",
+    "filename": "tests\/mgen\/struct_default_values.sn",
     "has_main": true
   },
   "pragmas": [],
@@ -234,5 +234,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

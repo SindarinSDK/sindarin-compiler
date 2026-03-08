@@ -68,5 +68,7 @@
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
 }

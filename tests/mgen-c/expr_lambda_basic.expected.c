@@ -19,7 +19,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-
 /* Lambda forward declarations */
 static long long __lambda_0__(void *__closure__, RtArenaV2 *__caller_arena__, long long __sn__a, long long __sn__b);
 

@@ -88,7 +88,17 @@
                 }
               }
             ],
-            "captures": [],
+            "captures": [
+              {
+                "name": "x",
+                "type": {
+                  "kind": "int"
+                },
+                "is_primitive": true,
+                "is_ref": false
+              }
+            ],
+            "has_captures": true,
             "body": {
               "type": {
                 "kind": "int"
@@ -148,11 +158,62 @@
                 "value": 5
               }
             ],
-            "is_tail_call": false
+            "is_tail_call": false,
+            "is_closure_call": true
           }
         }
       ]
     }
   ],
-  "top_level_statements": []
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [
+        {
+          "name": "n",
+          "type": {
+            "kind": "int"
+          }
+        }
+      ],
+      "captures": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "is_primitive": true,
+          "is_ref": false
+        }
+      ],
+      "has_captures": true,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "binary",
+        "op": "add",
+        "left": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "variable",
+          "name": "n"
+        },
+        "right": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "variable",
+          "name": "x"
+        },
+        "arithmetic_mode": "checked"
+      }
+    }
+  ],
+  "threads": []
 }
