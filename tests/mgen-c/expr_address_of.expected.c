@@ -26,7 +26,7 @@ void __sn__test_addr(RtArenaV2 *__caller_arena__, long long __sn__x) {
     RtArenaV2 *__local_arena__ = __caller_arena__;
     void _return_value = 0;
 
-    _return_value = ; goto __sn__test_addr_return;
+    _return_value = (&(__sn__x)); goto __sn__test_addr_return;
 __sn__test_addr_return:
     return _return_value;
 }

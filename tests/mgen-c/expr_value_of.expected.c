@@ -26,7 +26,7 @@ long long __sn__test_val(RtArenaV2 *__caller_arena__, void __sn__p) {
     RtArenaV2 *__local_arena__ = __caller_arena__;
     long long _return_value = 0;
 
-    _return_value = ; goto __sn__test_val_return;
+    _return_value = (*(__sn__p)); goto __sn__test_val_return;
 __sn__test_val_return:
     return _return_value;
 }
