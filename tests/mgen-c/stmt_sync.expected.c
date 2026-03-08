@@ -26,15 +26,13 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    long long __sn__x = 0LL;
-    long long __sn__y = 0LL;
-    rt_sync_lock(&__sn__x);
+    long long __sn__counter = 0LL;
+    rt_sync_lock(&__sn__counter);
     {
-        (__sn__x = rt_add_long(__sn__x, 1LL));
-        (__sn__y = __sn__x);
+        (__sn__counter = rt_add_long(__sn__counter, 1LL));
     }
-    rt_sync_unlock(&__sn__x);
-    _return_value = __sn__y; goto main_return;
+    rt_sync_unlock(&__sn__counter);
+    _return_value = __sn__counter; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;

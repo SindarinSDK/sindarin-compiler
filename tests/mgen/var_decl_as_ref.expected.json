@@ -1,6 +1,6 @@
 {
   "module": {
-    "filename": "tests/mgen/var_decl_as_ref.sn",
+    "filename": "tests\/mgen\/var_decl_as_ref.sn",
     "has_main": true
   },
   "pragmas": [],
