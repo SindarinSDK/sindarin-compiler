@@ -1,0 +1,6 @@
+@alias "test_val"
+native fn test_val(p: *int): int =>
+    return valueOf(p)
+
+fn main(): int =>
+    return 0

@@ -1,0 +1,79 @@
+{
+  "module": {
+    "filename": "tests/mgen/struct_decl_as_val.sn",
+    "has_main": true
+  },
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "alias",
+      "value": "Color"
+    }
+  ],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Color",
+      "is_native": true,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "c_alias": "Color",
+      "fields": [
+        {
+          "name": "r",
+          "type": {
+            "kind": "byte"
+          },
+          "offset": 0,
+          "c_alias": "r"
+        },
+        {
+          "name": "g",
+          "type": {
+            "kind": "byte"
+          },
+          "offset": 0,
+          "c_alias": "g"
+        },
+        {
+          "name": "b",
+          "type": {
+            "kind": "byte"
+          },
+          "offset": 0,
+          "c_alias": "b"
+        }
+      ],
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

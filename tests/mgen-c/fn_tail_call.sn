@@ -1,0 +1,6 @@
+fn factorial(n: int, acc: int): int =>
+    if n <= 1 => return acc
+    return factorial(n - 1, acc * n)
+
+fn main(): int =>
+    return factorial(5, 1)

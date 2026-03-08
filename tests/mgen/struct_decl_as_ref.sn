@@ -1,0 +1,9 @@
+@alias "Vec2"
+native struct Vec2 as ref =>
+    @alias "x"
+    x: double
+    @alias "y"
+    y: double
+
+fn main(): int =>
+    return 0

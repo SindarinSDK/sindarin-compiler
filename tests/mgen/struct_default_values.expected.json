@@ -1,0 +1,238 @@
+{
+  "module": {
+    "filename": "tests/mgen/struct_default_values.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Config",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "fields": [
+        {
+          "name": "width",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0,
+          "default_value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 800
+          }
+        },
+        {
+          "name": "height",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0,
+          "default_value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 600
+          }
+        },
+        {
+          "name": "scale",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "default_value": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "literal",
+            "value_kind": "double",
+            "value": 1.0
+          }
+        }
+      ],
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "c",
+          "type": {
+            "kind": "struct",
+            "name": "Config",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 0,
+            "alignment": 0,
+            "fields": [
+              {
+                "name": "width",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 0
+              },
+              {
+                "name": "height",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 0
+              },
+              {
+                "name": "scale",
+                "type": {
+                  "kind": "double"
+                },
+                "offset": 0
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Config",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 32,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "width",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "height",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 16
+                },
+                {
+                  "name": "scale",
+                  "type": {
+                    "kind": "double"
+                  },
+                  "offset": 24
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Config",
+            "fields": [
+              {
+                "name": "width",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 800
+                }
+              },
+              {
+                "name": "height",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 600
+                }
+              },
+              {
+                "name": "scale",
+                "value": {
+                  "type": {
+                    "kind": "double"
+                  },
+                  "kind": "literal",
+                  "value_kind": "double",
+                  "value": 1.0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "member",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Config",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 0,
+                "alignment": 0,
+                "fields": [
+                  {
+                    "name": "width",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 0
+                  },
+                  {
+                    "name": "height",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 0
+                  },
+                  {
+                    "name": "scale",
+                    "type": {
+                      "kind": "double"
+                    },
+                    "offset": 0
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "c"
+            },
+            "member_name": "width"
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}
