@@ -33,11 +33,22 @@ static RtArenaV2 *__main_arena__ = NULL;
 {{#if (eq name "main")}}{{else}}{{> forward_decl this}}
 {{/if}}
 {{/each}}
+{{#each structs}}
+{{#each methods}}
+{{> method_forward_decl this struct_name=../name}}
+{{/each}}
+{{/each}}
 
 {{#each functions}}
 {{#if (eq name "main")}}{{else}}{{> function this}}
 
 {{/if}}
+{{/each}}
+{{#each structs}}
+{{#each methods}}
+{{> method this struct_name=../name}}
+
+{{/each}}
 {{/each}}
 int main() {
     rt_safepoint_init();

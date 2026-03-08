@@ -1,6 +1,12 @@
 {{#each structs}}
 {{> struct_def this}}
 {{/each}}
+{{#each structs}}
+{{#if methods}}
+{{> impl_block this}}
+
+{{/if}}
+{{/each}}
 {{#each functions}}
 {{#if (eq name "main")}}{{else}}{{> function this}}
 

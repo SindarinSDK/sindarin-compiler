@@ -26,6 +26,29 @@ typedef struct {
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+long long __sn__Counter_getValue(RtArenaV2 *, __sn__Counter *);
+void __sn__Counter_increment(RtArenaV2 *, __sn__Counter *);
+
+
+long long __sn__Counter_getValue(RtArenaV2 *__caller_arena__, __sn__Counter *self) {
+    rt_safepoint_poll();
+    RtArenaV2 *__local_arena__ = __caller_arena__;
+    long long _return_value = 0;
+
+    _return_value = self->__sn__value; goto __sn__getValue_return;
+__sn__getValue_return:
+    return _return_value;
+}
+
+void __sn__Counter_increment(RtArenaV2 *__caller_arena__, __sn__Counter *self) {
+    rt_safepoint_poll();
+    RtArenaV2 *__local_arena__ = __caller_arena__;
+
+    self->__sn__value = self->__sn__value + 1LL;
+__sn__increment_return:
+    return;
+}
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
