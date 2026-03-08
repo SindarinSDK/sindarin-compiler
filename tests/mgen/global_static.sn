@@ -1,5 +1,5 @@
 var counter: int = 0
 
-fn main(): int =>
+fn main(): void =>
     counter = 42
-    return counter
+    assert(counter == 42, "expected counter to be 42")

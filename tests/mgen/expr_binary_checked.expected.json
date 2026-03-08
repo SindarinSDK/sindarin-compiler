@@ -12,7 +12,7 @@
     {
       "name": "main",
       "return_type": {
-        "kind": "int"
+        "kind": "void"
       },
       "modifier": "default",
       "is_native": false,
@@ -72,17 +72,45 @@
           }
         },
         {
-          "kind": "return",
-          "value": {
+          "kind": "expr",
+          "expr": {
             "type": {
-              "kind": "int"
+              "kind": "void"
             },
-            "kind": "variable",
-            "name": "b",
-            "escape_info": {
-              "escapes_scope": true,
-              "needs_heap": false
-            }
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "b"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 150
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected 100 + 50 to be 150"
+              }
+            ]
           }
         }
       ]

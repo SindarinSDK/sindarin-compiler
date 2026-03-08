@@ -38,6 +38,12 @@
       ],
       "body": [
         {
+          "comments": [
+            " Tests recursive function calls.",
+            " TODO: Tail call optimization (TCO) is not yet implemented in template codegen.",
+            " When TCO is added, this test should be updated to verify the optimization",
+            " (e.g., factorial(100000, 1) without stack overflow)."
+          ],
           "kind": "if",
           "condition": {
             "type": {
@@ -162,7 +168,7 @@
     {
       "name": "main",
       "return_type": {
-        "kind": "int"
+        "kind": "void"
       },
       "modifier": "default",
       "is_native": false,
@@ -171,53 +177,249 @@
       "params": [],
       "body": [
         {
-          "kind": "return",
-          "value": {
+          "kind": "expr",
+          "expr": {
             "type": {
-              "kind": "int"
+              "kind": "void"
             },
-            "kind": "call",
-            "callee": {
-              "type": {
-                "kind": "function",
-                "return_type": {
-                  "kind": "int"
-                },
-                "param_types": [
-                  {
-                    "kind": "int"
-                  },
-                  {
-                    "kind": "int"
-                  }
-                ],
-                "is_variadic": false,
-                "is_native": false,
-                "has_arena_param": false
-              },
-              "kind": "variable",
-              "name": "factorial"
-            },
+            "kind": "builtin_assert",
             "args": [
               {
                 "type": {
-                  "kind": "int"
+                  "kind": "bool"
                 },
-                "kind": "literal",
-                "value_kind": "int",
-                "value": 5
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        },
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "factorial"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 5
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": false
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 120
+                },
+                "arithmetic_mode": "checked"
               },
               {
                 "type": {
-                  "kind": "int"
+                  "kind": "string"
                 },
                 "kind": "literal",
-                "value_kind": "int",
-                "value": 1
+                "value_kind": "string",
+                "value": "expected 5! to be 120"
               }
-            ],
-            "is_tail_call": false,
-            "is_closure_call": false
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        },
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "factorial"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": false
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected 1! to be 1"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        },
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "factorial"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 0
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": false
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected 0! to be 1"
+              }
+            ]
           }
         }
       ]

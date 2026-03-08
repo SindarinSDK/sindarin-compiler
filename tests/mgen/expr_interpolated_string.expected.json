@@ -12,7 +12,7 @@
     {
       "name": "main",
       "return_type": {
-        "kind": "int"
+        "kind": "void"
       },
       "modifier": "default",
       "is_native": false,
@@ -75,14 +75,51 @@
           }
         },
         {
-          "kind": "return",
-          "value": {
+          "kind": "expr",
+          "expr": {
             "type": {
-              "kind": "int"
+              "kind": "void"
             },
-            "kind": "literal",
-            "value_kind": "int",
-            "value": 0
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "builtin_length",
+                  "object": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "variable",
+                    "name": "msg"
+                  }
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 12
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected interpolated string length to be 12"
+              }
+            ]
           }
         }
       ]

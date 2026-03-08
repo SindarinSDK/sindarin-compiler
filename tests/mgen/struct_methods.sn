@@ -7,7 +7,7 @@ struct Counter =>
     fn getValue(): int =>
         return self.value
 
-fn main(): int =>
+fn main(): void =>
     var c: Counter = Counter { value: 0 }
     c.increment()
-    return c.getValue()
+    assert(c.getValue() == 1, "expected counter to be 1 after increment")

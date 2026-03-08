@@ -12,7 +12,7 @@
     {
       "name": "main",
       "return_type": {
-        "kind": "int"
+        "kind": "void"
       },
       "modifier": "default",
       "is_native": false,
@@ -109,53 +109,85 @@
           }
         },
         {
-          "kind": "return",
-          "value": {
+          "kind": "expr",
+          "expr": {
             "type": {
-              "kind": "int"
+              "kind": "void"
             },
-            "kind": "call",
-            "callee": {
-              "type": {
-                "kind": "function",
-                "return_type": {
-                  "kind": "int"
-                },
-                "param_types": [
-                  {
-                    "kind": "int"
-                  },
-                  {
-                    "kind": "int"
-                  }
-                ],
-                "is_variadic": false,
-                "is_native": false,
-                "has_arena_param": false
-              },
-              "kind": "variable",
-              "name": "add"
-            },
+            "kind": "builtin_assert",
             "args": [
               {
                 "type": {
-                  "kind": "int"
+                  "kind": "bool"
                 },
-                "kind": "literal",
-                "value_kind": "int",
-                "value": 1
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        },
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "add"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 2
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 3
+                },
+                "arithmetic_mode": "checked"
               },
               {
                 "type": {
-                  "kind": "int"
+                  "kind": "string"
                 },
                 "kind": "literal",
-                "value_kind": "int",
-                "value": 2
+                "value_kind": "string",
+                "value": "expected 1 + 2 to be 3"
               }
-            ],
-            "is_tail_call": false,
-            "is_closure_call": true
+            ]
           }
         }
       ]
