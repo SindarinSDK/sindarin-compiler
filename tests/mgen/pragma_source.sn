@@ -1,4 +1,4 @@
-#source "helper.c"
+@source "helper.c"
 
 fn main(): int =>
     return 0

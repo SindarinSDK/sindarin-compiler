@@ -3,7 +3,13 @@
     "filename": "tests\/mgen\/pragma_source.sn",
     "has_main": true
   },
-  "pragmas": [],
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "source",
+      "value": "\"helper.c\""
+    }
+  ],
   "imports": [],
   "type_decls": [],
   "structs": [],

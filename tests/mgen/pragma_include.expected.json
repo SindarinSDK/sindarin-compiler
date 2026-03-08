@@ -3,7 +3,13 @@
     "filename": "tests\/mgen\/pragma_include.sn",
     "has_main": true
   },
-  "pragmas": [],
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "include",
+      "value": "\"math.h\""
+    }
+  ],
   "imports": [],
   "type_decls": [],
   "structs": [],
