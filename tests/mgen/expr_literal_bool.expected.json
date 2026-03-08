@@ -1,0 +1,74 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_literal_bool.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "a",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "literal",
+            "value_kind": "bool",
+            "value": true
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "b",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "literal",
+            "value_kind": "bool",
+            "value": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

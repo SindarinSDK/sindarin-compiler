@@ -1,0 +1,103 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_sizeof.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Point",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0
+        },
+        {
+          "name": "y",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0
+        }
+      ],
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "s",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 0,
+              "alignment": 0,
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "double"
+                  },
+                  "offset": 0
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "double"
+                  },
+                  "offset": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

@@ -1,0 +1,310 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/struct_methods.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Counter",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0
+        }
+      ],
+      "methods": [
+        {
+          "name": "increment",
+          "return_type": {
+            "kind": "void"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "target": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "Counter",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 0,
+                        "alignment": 0,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 0
+                          }
+                        ]
+                      }
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "value"
+                },
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "getValue",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "pointer",
+                    "base_type": {
+                      "kind": "struct",
+                      "name": "Counter",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 0,
+                      "alignment": 0,
+                      "fields": [
+                        {
+                          "name": "value",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 0
+                        }
+                      ]
+                    }
+                  },
+                  "kind": "variable",
+                  "name": "self"
+                },
+                "member_name": "value"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "c",
+          "type": {
+            "kind": "struct",
+            "name": "Counter",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 0,
+            "alignment": 0,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 0
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Counter",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Counter",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 0
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Counter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 0,
+                  "alignment": 0,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 0
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "c"
+              },
+              "member_name": "increment"
+            },
+            "args": [],
+            "is_tail_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "Counter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 0,
+                  "alignment": 0,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 0
+                    }
+                  ]
+                },
+                "kind": "variable",
+                "name": "c"
+              },
+              "member_name": "getValue"
+            },
+            "args": [],
+            "is_tail_call": false
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

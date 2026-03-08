@@ -1,0 +1,7 @@
+({
+        RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, {{elements.length}}, sizeof(long long));
+{{#each elements}}
+        rt_array_push_int_v2(__al__, {{> expr this}});
+{{/each}}
+        __al__;
+    })

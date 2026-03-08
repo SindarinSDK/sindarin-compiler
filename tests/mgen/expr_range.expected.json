@@ -1,0 +1,117 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_range.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "sum",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "for_each",
+          "iterator_name": "x",
+          "iterable": {
+            "type": {
+              "kind": "array",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "range",
+            "start": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            },
+            "end": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 11
+            }
+          },
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "sum"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "x"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "sum",
+            "escape_info": {
+              "escapes_scope": true,
+              "needs_heap": false
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}

@@ -1,1 +1,1 @@
-{{value}}
+{{#if (eq value_kind "int")}}{{value}}LL{{else}}{{#if (eq value_kind "double")}}{{value}}{{else}}{{#if (eq value_kind "bool")}}{{#if value}}true{{else}}false{{/if}}{{else}}{{#if (eq value_kind "char")}}'{{value}}'{{else}}{{#if (eq value_kind "byte")}}(unsigned char){{value}}{{else}}{{#if (eq value_kind "string")}}rt_arena_v2_strdup(__local_arena__, "{{value}}"){{else}}{{#if (eq value_kind "nil")}}NULL{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

@@ -53,17 +53,161 @@ static char *helper_c_type(json_object **params, int param_count, hbs_options_t 
     const char *kind = json_object_get_string(kind_obj);
     if (!kind) return strdup("void");
 
-    if (strcmp(kind, "int") == 0) return strdup("int");
+    if (strcmp(kind, "int") == 0) return strdup("long long");
     if (strcmp(kind, "long") == 0) return strdup("long long");
     if (strcmp(kind, "double") == 0) return strdup("double");
     if (strcmp(kind, "float") == 0) return strdup("float");
-    if (strcmp(kind, "bool") == 0) return strdup("int");
+    if (strcmp(kind, "bool") == 0) return strdup("bool");
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("unsigned char");
-    if (strcmp(kind, "str") == 0) return strdup("RtHandleV2 *");
+    if (strcmp(kind, "string") == 0) return strdup("RtHandleV2 *");
     if (strcmp(kind, "void") == 0) return strdup("void");
+    if (strcmp(kind, "array") == 0) return strdup("RtHandleV2 *");
+
+    /* Struct type: return __sn__<name> */
+    if (strcmp(kind, "struct") == 0) {
+        json_object *name_obj = NULL;
+        if (json_object_object_get_ex(type_obj, "name", &name_obj)) {
+            const char *sname = json_object_get_string(name_obj);
+            if (sname) {
+                char buf[256];
+                snprintf(buf, sizeof(buf), "__sn__%s", sname);
+                return strdup(buf);
+            }
+        }
+    }
 
     return strdup("void");
+}
+
+/* default_value helper: {{default_value type_obj}} - returns the zero value for a type */
+static char *helper_default_value(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("0");
+
+    json_object *type_obj = params[0];
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return strdup("0");
+
+    const char *kind = json_object_get_string(kind_obj);
+    if (!kind) return strdup("0");
+
+    if (strcmp(kind, "int") == 0) return strdup("0");
+    if (strcmp(kind, "long") == 0) return strdup("0");
+    if (strcmp(kind, "double") == 0) return strdup("0.0");
+    if (strcmp(kind, "float") == 0) return strdup("0.0f");
+    if (strcmp(kind, "bool") == 0) return strdup("false");
+    if (strcmp(kind, "char") == 0) return strdup("'\\0'");
+    if (strcmp(kind, "byte") == 0) return strdup("0");
+    if (strcmp(kind, "string") == 0) return strdup("NULL");
+    if (strcmp(kind, "array") == 0) return strdup("NULL");
+    if (strcmp(kind, "void") == 0) return strdup("");
+
+    return strdup("0");
+}
+
+/* type_suffix helper: {{type_suffix type_obj}} - returns the runtime function suffix for a type */
+static char *helper_type_suffix(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("long");
+
+    json_object *type_obj = params[0];
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return strdup("long");
+
+    const char *kind = json_object_get_string(kind_obj);
+    if (!kind) return strdup("long");
+
+    if (strcmp(kind, "int") == 0) return strdup("long");
+    if (strcmp(kind, "long") == 0) return strdup("long");
+    if (strcmp(kind, "double") == 0) return strdup("double");
+    if (strcmp(kind, "float") == 0) return strdup("float");
+
+    return strdup("long");
+}
+
+/* op_symbol helper: {{op_symbol "add"}} - returns the C operator symbol */
+static char *helper_op_symbol(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("+");
+
+    const char *op = json_object_get_string(params[0]);
+    if (!op) return strdup("+");
+
+    if (strcmp(op, "add") == 0) return strdup("+");
+    if (strcmp(op, "subtract") == 0) return strdup("-");
+    if (strcmp(op, "multiply") == 0) return strdup("*");
+    if (strcmp(op, "divide") == 0) return strdup("/");
+    if (strcmp(op, "modulo") == 0) return strdup("%");
+    if (strcmp(op, "eq") == 0) return strdup("==");
+    if (strcmp(op, "neq") == 0) return strdup("!=");
+    if (strcmp(op, "lt") == 0) return strdup("<");
+    if (strcmp(op, "gt") == 0) return strdup(">");
+    if (strcmp(op, "lte") == 0) return strdup("<=");
+    if (strcmp(op, "gte") == 0) return strdup(">=");
+    if (strcmp(op, "and") == 0) return strdup("&&");
+    if (strcmp(op, "or") == 0) return strdup("||");
+
+    return strdup("+");
+}
+
+/* return_label helper: {{return_label}} - returns the goto label for the current function.
+ * Walks up the frame stack to find the enclosing function context (has "name" + "return_type").
+ * For main, returns "main_return"; for others, returns "__sn__<name>_return". */
+static char *helper_return_label(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)params;
+    (void)param_count;
+
+    if (!options || !options->_internal) return strdup("main_return");
+
+    /* Walk up the frame stack looking for a function context */
+    typedef struct hbs_context_frame {
+        json_object *data;
+        json_object *private_data;
+        bool owns_private_data;
+        char **block_param_names;
+        json_object **block_param_values;
+        bool *block_param_owned;
+        int block_param_count;
+        void *partial_block;
+        json_object *partial_block_context;
+        void *inline_partials;
+        struct hbs_context_frame *parent;
+    } frame_t;
+
+    typedef struct {
+        void *env;
+        frame_t *frame;
+    } state_t;
+
+    state_t *state = (state_t *)options->_internal;
+    frame_t *frame = state->frame;
+
+    while (frame) {
+        if (frame->data && json_object_is_type(frame->data, json_type_object)) {
+            json_object *name_obj = NULL;
+            json_object *ret_type = NULL;
+            if (json_object_object_get_ex(frame->data, "name", &name_obj) &&
+                json_object_object_get_ex(frame->data, "return_type", &ret_type)) {
+                const char *fn_name = json_object_get_string(name_obj);
+                if (fn_name) {
+                    if (strcmp(fn_name, "main") == 0) {
+                        return strdup("main_return");
+                    }
+                    char buf[256];
+                    snprintf(buf, sizeof(buf), "__sn__%s_return", fn_name);
+                    return strdup(buf);
+                }
+            }
+        }
+        frame = frame->parent;
+    }
+
+    return strdup("main_return");
 }
 
 /* ---- File I/O Utilities ---- */
@@ -191,6 +335,10 @@ char *gen_model_render_c(json_object *model, const char *template_dir)
     /* Register custom helpers */
     hbs_register_helper(env, "eq", helper_eq);
     hbs_register_helper(env, "c_type", helper_c_type);
+    hbs_register_helper(env, "default_value", helper_default_value);
+    hbs_register_helper(env, "type_suffix", helper_type_suffix);
+    hbs_register_helper(env, "op_symbol", helper_op_symbol);
+    hbs_register_helper(env, "return_label", helper_return_label);
 
     /* Register partials from the partials/ subdirectory */
     char partials_dir[1024];

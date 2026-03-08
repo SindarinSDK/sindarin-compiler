@@ -1,0 +1,8 @@
+/* Struct type definitions */
+typedef struct {
+    RtArenaV2 *__arena__;
+{{#each fields}}
+    {{c_type type}} __sn__{{name}};
+{{/each}}
+} __sn__{{name}};
+

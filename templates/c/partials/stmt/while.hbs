@@ -1,0 +1,6 @@
+while ({{> expr condition}}) {
+{{#each body.statements}}
+    {{> stmt this}}
+{{/each}}
+    rt_safepoint_poll();
+}
