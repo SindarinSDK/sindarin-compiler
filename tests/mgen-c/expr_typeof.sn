@@ -1,0 +1,4 @@
+fn main(): int =>
+    var a: any = 42
+    var t: int = typeof a
+    return t

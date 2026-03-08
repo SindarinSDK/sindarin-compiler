@@ -1,0 +1,170 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/fn_native.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "sin",
+      "return_type": {
+        "kind": "double"
+      },
+      "modifier": "default",
+      "is_native": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": []
+    },
+    {
+      "name": "cos",
+      "return_type": {
+        "kind": "double"
+      },
+      "modifier": "default",
+      "is_native": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": []
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "s",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "double"
+                },
+                "param_types": [
+                  {
+                    "kind": "double"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": true,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "sin"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "double"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 1.0
+              }
+            ],
+            "is_tail_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "c",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "initializer": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "double"
+                },
+                "param_types": [
+                  {
+                    "kind": "double"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": true,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "cos"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "double"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              }
+            ],
+            "is_tail_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}
