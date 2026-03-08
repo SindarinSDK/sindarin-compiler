@@ -3,6 +3,7 @@ struct Vec2 {
     y: f64,
 }
 
+
 fn main() {
     return 0_i64;
 }

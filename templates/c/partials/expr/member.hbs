@@ -1,1 +1,1 @@
-__sn__{{object.name}}.__sn__{{member_name}}
+{{#if (eq object.name "self")}}self->__sn__{{member_name}}{{else}}__sn__{{object.name}}.__sn__{{member_name}}{{/if}}

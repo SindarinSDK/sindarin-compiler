@@ -4,6 +4,7 @@ struct Color {
     b: u8,
 }
 
+
 fn main() {
     return 0_i64;
 }

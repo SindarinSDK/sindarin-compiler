@@ -3,6 +3,7 @@ struct Point {
     y: f64,
 }
 
+
 fn main() {
     let mut p: Point = Point { x: 1.0_f64, y: 2.0_f64 };
     let mut v: f64 = p.x;

@@ -26,6 +26,19 @@ typedef struct {
 static RtArenaV2 *__main_arena__ = NULL;
 
 
+long long __sn__Counter_zero(RtArenaV2 *);
+
+
+long long __sn__Counter_zero(RtArenaV2 *__caller_arena__) {
+    rt_safepoint_poll();
+    RtArenaV2 *__local_arena__ = __caller_arena__;
+    long long _return_value = 0;
+
+    _return_value = 0LL; goto __sn__zero_return;
+__sn__zero_return:
+    return _return_value;
+}
+
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
