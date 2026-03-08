@@ -73,7 +73,7 @@ int main() {
     int _return_value = 0;
 
 
-    long long __sn__handle = ({
+    RtHandleV2 * __sn__handle = ({
         /* V3: Create thread with its own arena */
         RtHandleV2 *__spawn_handle_0__ = rt_thread_v3_create(__local_arena__, RT_THREAD_MODE_DEFAULT);
         RtArenaV2 *__thread_arena__ = rt_thread_v3_get_arena(__spawn_handle_0__);

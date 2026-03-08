@@ -77,6 +77,11 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             {
                 json_object_object_add(obj, "initializer",
                     gen_model_expr(arena, stmt->as.var_decl.initializer, symbol_table, arithmetic_mode));
+                /* Thread spawn results are RtHandleV2* at the C level */
+                if (stmt->as.var_decl.initializer->type == EXPR_THREAD_SPAWN)
+                {
+                    json_object_object_add(obj, "is_thread_handle", json_object_new_boolean(true));
+                }
             }
             break;
         }

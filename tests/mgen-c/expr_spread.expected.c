@@ -37,7 +37,7 @@ int main() {
         });
     RtHandleV2 * __sn__b = ({
             RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, sizeof(long long), NULL);
-            __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ /* spread */ __sn__a }, sizeof(long long));
+            __al__ = rt_array_concat_v2(__al__, __sn__a, sizeof(long long));
             __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 4LL }, sizeof(long long));
             __al__ = rt_array_push_v2(__local_arena__, __al__, &(long long){ 5LL }, sizeof(long long));
             __al__;

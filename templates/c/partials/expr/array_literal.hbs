@@ -1,7 +1,11 @@
 ({
         RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, {{c_sizeof type.element_type}}, NULL);
 {{#each elements}}
+{{#if (eq kind "spread")}}
+        __al__ = rt_array_concat_v2(__al__, {{> expr operand}}, {{c_sizeof ../type.element_type}});
+{{else}}
         __al__ = rt_array_push_v2(__local_arena__, __al__, &({{c_type ../type.element_type}}){ {{> expr this}} }, {{c_sizeof ../type.element_type}});
+{{/if}}
 {{/each}}
         __al__;
     })
