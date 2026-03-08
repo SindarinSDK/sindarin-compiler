@@ -1,4 +1,4 @@
-/* Struct type definitions */
+{{#if is_native}}{{else}}/* Struct type definitions */
 typedef struct {
     RtArenaV2 *__arena__;
 {{#each fields}}
@@ -6,3 +6,4 @@ typedef struct {
 {{/each}}
 } __sn__{{name}};
 
+{{/if}}

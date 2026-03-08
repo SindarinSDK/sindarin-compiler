@@ -20,7 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 long long __sn__factorial(RtArenaV2 *, long long, long long);
-
 long long __sn__factorial(RtArenaV2 *__caller_arena__, long long __sn__n, long long __sn__acc) {
     rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = __caller_arena__;
@@ -33,6 +32,7 @@ long long __sn__factorial(RtArenaV2 *__caller_arena__, long long __sn__n, long l
 __sn__factorial_return:
     return _return_value;
 }
+
 
 int main() {
     rt_safepoint_init();

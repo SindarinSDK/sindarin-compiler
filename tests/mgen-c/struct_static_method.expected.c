@@ -25,9 +25,7 @@ typedef struct {
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-
 long long __sn__Counter_zero(RtArenaV2 *);
-
 
 long long __sn__Counter_zero(RtArenaV2 *__caller_arena__) {
     rt_safepoint_poll();

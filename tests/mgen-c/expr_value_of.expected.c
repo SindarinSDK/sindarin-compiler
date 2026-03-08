@@ -19,17 +19,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-long long __sn__test_val(RtArenaV2 *, void);
-
-long long __sn__test_val(RtArenaV2 *__caller_arena__, void __sn__p) {
-    rt_safepoint_poll();
-    RtArenaV2 *__local_arena__ = __caller_arena__;
-    long long _return_value = 0;
-
-    _return_value = (*(__sn__p)); goto __sn__test_val_return;
-__sn__test_val_return:
-    return _return_value;
-}
 
 int main() {
     rt_safepoint_init();

@@ -15,18 +15,9 @@
 /* Closure type for lambdas */
 typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;
 
-/* Struct type definitions */
-typedef struct {
-    RtArenaV2 *__arena__;
-    long long __sn__data;
-    long long __sn__size;
-} __sn__Buffer;
-
 
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
-
-
 
 
 int main() {

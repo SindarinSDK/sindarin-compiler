@@ -25,10 +25,8 @@ typedef struct {
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-
 long long __sn__Counter_getValue(RtArenaV2 *, __sn__Counter *);
 void __sn__Counter_increment(RtArenaV2 *, __sn__Counter *);
-
 
 long long __sn__Counter_getValue(RtArenaV2 *__caller_arena__, __sn__Counter *self) {
     rt_safepoint_poll();

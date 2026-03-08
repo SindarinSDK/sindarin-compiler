@@ -11,6 +11,7 @@
 #undef max
 #endif
 
+#include "math.h"
 
 /* Closure type for lambdas */
 typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;

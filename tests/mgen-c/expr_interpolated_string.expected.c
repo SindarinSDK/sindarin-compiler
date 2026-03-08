@@ -26,10 +26,8 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    RtHandleV2 *__name_pending__ = NULL;
-        RtHandleV2 * __sn__name = rt_arena_v2_strdup(__local_arena__, "world");
-    RtHandleV2 *__msg_pending__ = NULL;
-        RtHandleV2 * __sn__msg = ({
+    RtHandleV2 * __sn__name = rt_arena_v2_strdup(__local_arena__, "world");
+    RtHandleV2 * __sn__msg = ({
             RtHandleV2 *__is_0__ = rt_arena_v2_strdup(__local_arena__, "Hello ");
             RtHandleV2 *__is_1__ = __sn__name;
             RtHandleV2 *__is_2__ = rt_arena_v2_strdup(__local_arena__, "!");

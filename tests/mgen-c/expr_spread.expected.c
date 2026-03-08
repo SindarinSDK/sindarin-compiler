@@ -26,17 +26,15 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    RtHandleV2 *__a_pending__ = NULL;
-        RtHandleV2 * __sn__a = ({
-            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, , sizeof(long long));
+    RtHandleV2 * __sn__a = ({
+            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, 3, sizeof(long long));
             rt_array_push_int_v2(__al__, 1LL);
             rt_array_push_int_v2(__al__, 2LL);
             rt_array_push_int_v2(__al__, 3LL);
             __al__;
         });
-    RtHandleV2 *__b_pending__ = NULL;
-        RtHandleV2 * __sn__b = ({
-            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, , sizeof(long long));
+    RtHandleV2 * __sn__b = ({
+            RtHandleV2 *__al__ = rt_array_create_v2(__local_arena__, 3, sizeof(long long));
             rt_array_push_int_v2(__al__, /* spread */ __sn__a);
             rt_array_push_int_v2(__al__, 4LL);
             rt_array_push_int_v2(__al__, 5LL);

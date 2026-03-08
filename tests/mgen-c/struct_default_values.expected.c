@@ -28,8 +28,6 @@ typedef struct {
 static RtArenaV2 *__main_arena__ = NULL;
 
 
-
-
 int main() {
     rt_safepoint_init();
     rt_safepoint_thread_register();
