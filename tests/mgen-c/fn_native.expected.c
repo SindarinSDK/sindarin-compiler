@@ -11,6 +11,7 @@
 #undef max
 #endif
 
+#include <math.h>
 
 /* Closure type for lambdas */
 typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;
@@ -19,24 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
 
-double __sn__sin(RtArenaV2 *, double);
-double __sn__cos(RtArenaV2 *, double);
-
-double __sn__sin(RtArenaV2 *__caller_arena__, double __sn__x) {
-    rt_safepoint_poll();
-    RtArenaV2 *__local_arena__ = __caller_arena__;
-    double _return_value = 0.0;
-__sn__sin_return:
-    return _return_value;
-}
-
-double __sn__cos(RtArenaV2 *__caller_arena__, double __sn__x) {
-    rt_safepoint_poll();
-    RtArenaV2 *__local_arena__ = __caller_arena__;
-    double _return_value = 0.0;
-__sn__cos_return:
-    return _return_value;
-}
 
 int main() {
     rt_safepoint_init();
@@ -44,8 +27,8 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    double __sn__s = __sn__sin(__local_arena__, 1.0);
-    double __sn__c = __sn__cos(__local_arena__, 0.0);
+    double __sn__s = sin(1.0);
+    double __sn__c = cos(0.0);
     _return_value = 0LL; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);

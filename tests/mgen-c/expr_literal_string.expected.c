@@ -26,8 +26,7 @@ int main() {
     RtArenaV2 *__local_arena__ = rt_arena_v2_create(NULL, RT_ARENA_MODE_DEFAULT, "main");
     __main_arena__ = __local_arena__;
     int _return_value = 0;
-    RtHandleV2 *__s_pending__ = NULL;
-        RtHandleV2 * __sn__s = rt_arena_v2_strdup(__local_arena__, "hello");
+    RtHandleV2 * __sn__s = rt_arena_v2_strdup(__local_arena__, "hello");
     _return_value = 0LL; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);

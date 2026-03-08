@@ -15,19 +15,9 @@
 /* Closure type for lambdas */
 typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closure__;
 
-/* Struct type definitions */
-typedef struct {
-    RtArenaV2 *__arena__;
-    unsigned char __sn__r;
-    unsigned char __sn__g;
-    unsigned char __sn__b;
-} __sn__Color;
-
 
 /* Forward declarations */
 static RtArenaV2 *__main_arena__ = NULL;
-
-
 
 
 int main() {

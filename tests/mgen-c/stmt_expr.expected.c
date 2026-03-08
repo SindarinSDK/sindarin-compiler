@@ -20,7 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 long long __sn__sideEffect(RtArenaV2 *);
-
 long long __sn__sideEffect(RtArenaV2 *__caller_arena__) {
     rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = __caller_arena__;
@@ -30,6 +29,7 @@ long long __sn__sideEffect(RtArenaV2 *__caller_arena__) {
 __sn__sideEffect_return:
     return _return_value;
 }
+
 
 int main() {
     rt_safepoint_init();

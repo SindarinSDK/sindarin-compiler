@@ -1,4 +1,10 @@
+@include <math.h>
+@link m
+
+@alias "sin"
 native fn sin(x: double): double
+
+@alias "cos"
 native fn cos(x: double): double
 
 fn main(): int =>

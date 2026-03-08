@@ -1,6 +1,4 @@
-{{#if (eq type.kind "string")}}RtHandleV2 *__{{name}}_pending__ = NULL;
-    RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
-{{else}}{{#if (eq type.kind "array")}}RtHandleV2 *__{{name}}_pending__ = NULL;
-    RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{#if (eq type.kind "string")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq type.kind "array")}}RtHandleV2 * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
 {{/if}}{{/if}}

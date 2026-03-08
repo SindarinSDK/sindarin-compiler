@@ -20,7 +20,6 @@ typedef struct __Closure__ { void *fn; RtArenaV2 *arena; size_t size; } __Closur
 static RtArenaV2 *__main_arena__ = NULL;
 
 void __sn__increment(RtArenaV2 *, long long);
-
 void __sn__increment(RtArenaV2 *__caller_arena__, long long __sn__x) {
     rt_safepoint_poll();
     RtArenaV2 *__local_arena__ = __caller_arena__;
@@ -29,6 +28,7 @@ void __sn__increment(RtArenaV2 *__caller_arena__, long long __sn__x) {
 __sn__increment_return:
     return;
 }
+
 
 int main() {
     rt_safepoint_init();

@@ -183,6 +183,20 @@ static char *helper_type_tag(json_object **params, int param_count, hbs_options_
     return strdup("RT_ANY_INT");
 }
 
+/* count helper: {{count arr}} - returns the length of a JSON array */
+static char *helper_count(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) return strdup("0");
+
+    json_object *arr = params[0];
+    if (!json_object_is_type(arr, json_type_array)) return strdup("0");
+
+    char buf[32];
+    snprintf(buf, sizeof(buf), "%zu", json_object_array_length(arr));
+    return strdup(buf);
+}
+
 /* return_label helper: {{return_label}} - returns the goto label for the current function.
  * Walks up the frame stack to find the enclosing function context (has "name" + "return_type").
  * For main, returns "main_return"; for others, returns "__sn__<name>_return". */
@@ -369,6 +383,7 @@ char *gen_model_render_c(json_object *model, const char *template_dir)
     hbs_register_helper(env, "op_symbol", helper_op_symbol);
     hbs_register_helper(env, "return_label", helper_return_label);
     hbs_register_helper(env, "type_tag", helper_type_tag);
+    hbs_register_helper(env, "count", helper_count);
 
     /* Register partials from the partials/ subdirectory */
     char partials_dir[1024];
