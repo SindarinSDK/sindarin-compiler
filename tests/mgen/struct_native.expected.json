@@ -1,0 +1,62 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/struct_native.sn",
+    "has_main": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Buffer",
+      "is_native": true,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "fields": [
+        {
+          "name": "data",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0
+        },
+        {
+          "name": "size",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0
+        }
+      ],
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": []
+}
