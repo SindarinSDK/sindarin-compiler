@@ -3,6 +3,7 @@ struct Config =>
     height: int = 600
     scale: double = 1.0
 
-fn main(): int =>
+fn main(): void =>
     var c: Config = Config {}
-    return c.width
+    assert(c.width == 800, "expected default width to be 800")
+    assert(c.height == 600, "expected default height to be 600")

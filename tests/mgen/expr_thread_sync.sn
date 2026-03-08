@@ -1,6 +1,6 @@
 fn compute(): int =>
     return 42
 
-fn main(): int =>
+fn main(): void =>
     var result: int = &compute()!
-    return result
+    assert(result == 42, "expected result to be 42")

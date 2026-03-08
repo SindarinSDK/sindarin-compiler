@@ -1,5 +1,3 @@
-fn main(): int =>
+fn main(): void =>
     var a: any = 42
-    if a is int =>
-        return 1
-    return 0
+    assert(a is int, "expected a is int to be true")

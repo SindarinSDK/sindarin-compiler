@@ -12,7 +12,7 @@
     {
       "name": "main",
       "return_type": {
-        "kind": "int"
+        "kind": "void"
       },
       "modifier": "default",
       "is_native": false,
@@ -39,49 +39,38 @@
           }
         },
         {
-          "kind": "if",
-          "condition": {
+          "kind": "expr",
+          "expr": {
             "type": {
-              "kind": "bool"
+              "kind": "void"
             },
-            "kind": "is",
-            "operand": {
-              "type": {
-                "kind": "any"
-              },
-              "kind": "variable",
-              "name": "a"
-            },
-            "check_type": {
-              "kind": "int"
-            }
-          },
-          "then_body": {
-            "kind": "block",
-            "statements": [
+            "kind": "builtin_assert",
+            "args": [
               {
-                "kind": "return",
-                "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "is",
+                "operand": {
                   "type": {
-                    "kind": "int"
+                    "kind": "any"
                   },
-                  "kind": "literal",
-                  "value_kind": "int",
-                  "value": 1
+                  "kind": "variable",
+                  "name": "a"
+                },
+                "check_type": {
+                  "kind": "int"
                 }
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected a is int to be true"
               }
             ]
-          }
-        },
-        {
-          "kind": "return",
-          "value": {
-            "type": {
-              "kind": "int"
-            },
-            "kind": "literal",
-            "value_kind": "int",
-            "value": 0
           }
         }
       ]

@@ -2,6 +2,6 @@ fn greet(name: str): str =>
     var msg: str = $"Hello {name}"
     return msg
 
-fn main(): int =>
+fn main(): void =>
     var g: str = greet("world")
-    return 0
+    assert(g.length == 11, "expected greeting length to be 11")
