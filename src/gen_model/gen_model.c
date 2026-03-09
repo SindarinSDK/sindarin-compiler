@@ -144,7 +144,7 @@ int gen_model_write(json_object *model, const char *output_path)
         return 1;
     }
 
-    FILE *f = fopen(output_path, "w");
+    FILE *f = fopen(output_path, "wb");
     if (!f)
     {
         fprintf(stderr, "Error: Cannot open output file: %s\n", output_path);

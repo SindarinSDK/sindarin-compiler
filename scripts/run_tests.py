@@ -602,6 +602,17 @@ class TestRunner:
         except json.JSONDecodeError as e:
             return ('fail', 'invalid expected JSON', [str(e)])
 
+        # Normalize path separators for cross-platform comparison
+        def normalize_paths(obj):
+            if isinstance(obj, dict):
+                return {k: (v.replace('\\', '/') if k == 'filename' and isinstance(v, str) else normalize_paths(v)) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [normalize_paths(item) for item in obj]
+            return obj
+
+        generated_json = normalize_paths(generated_json)
+        expected_json = normalize_paths(expected_json)
+
         # Compare JSON objects (structure comparison, not string comparison)
         if generated_json == expected_json:
             return ('pass', '', None)

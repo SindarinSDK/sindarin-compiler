@@ -162,8 +162,8 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        /* Write C code to output file */
-        FILE *out = fopen(options.output_file, "w");
+        /* Write C code to output file (binary mode for consistent line endings) */
+        FILE *out = fopen(options.output_file, "wb");
         if (!out)
         {
             fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
@@ -213,8 +213,8 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        /* Write Rust code to output file */
-        FILE *out = fopen(options.output_file, "w");
+        /* Write Rust code to output file (binary mode for consistent line endings) */
+        FILE *out = fopen(options.output_file, "wb");
         if (!out)
         {
             fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
@@ -264,7 +264,7 @@ int main(int argc, char **argv)
             return 1;
         }
 
-        FILE *out = fopen(options.output_file, "w");
+        FILE *out = fopen(options.output_file, "wb");
         if (!out)
         {
             fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
