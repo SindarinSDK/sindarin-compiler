@@ -6,8 +6,14 @@
 *.c text eol=lf
 *.h text eol=lf
 
+# Template files - always LF
+*.hbs text eol=lf
+
 # Test expected output files - always LF
 *.expected text eol=lf
+*.expected.c text eol=lf
+*.expected.json text eol=lf
+*.expected.rs text eol=lf
 
 # Scripts
 *.sh text eol=lf
