@@ -63,7 +63,8 @@
               },
               "arithmetic_mode": "checked"
             },
-            "is_captured": true
+            "is_captured": true,
+            "assign_cleanup": "none"
           }
         }
       ]
@@ -88,6 +89,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "int"

@@ -10,10 +10,15 @@
 
 /* ---- Threading ---- */
 
+/* Platform-specific pthread include */
 #ifdef _WIN32
-#include "compat_pthread.h"
+    #if (defined(__MINGW32__) || defined(__MINGW64__)) && !defined(SN_USE_WIN32_THREADS)
+        #include <pthread.h>
+    #else
+        #include "platform/compat_pthread.h"
+    #endif
 #else
-#include <pthread.h>
+    #include <pthread.h>
 #endif
 
 typedef struct {
@@ -80,11 +85,19 @@ typedef struct {
     long long len;
     long long cap;
     size_t elem_size;
+    void (*elem_release)(void *);                    /* per-element cleanup (NULL = no-op) */
+    void (*elem_copy)(const void *src, void *dst);   /* per-element copy (NULL = memcpy) */
 } SnArray;
 
 static inline void sn_cleanup_array(SnArray **p)
 {
     if (*p) {
+        if ((*p)->elem_release) {
+            for (long long i = 0; i < (*p)->len; i++) {
+                void *elem = (char *)(*p)->data + (i * (*p)->elem_size);
+                (*p)->elem_release(elem);
+            }
+        }
         free((*p)->data);
         free(*p);
     }
@@ -97,6 +110,15 @@ void sn_array_push(SnArray *arr, const void *elem);
 void *sn_array_get(SnArray *arr, long long index);
 long long sn_array_length(SnArray *arr);
 SnArray *sn_array_range(long long start, long long end);
+SnArray *sn_array_copy(const SnArray *src);
+
+/* ---- String copy helper (for array elem_copy) ---- */
+
+static inline void sn_copy_str(const void *src, void *dst)
+{
+    const char *s = *(const char **)src;
+    *(char **)dst = s ? strdup(s) : NULL;
+}
 
 /* Type-specific array accessors */
 static inline long long sn_array_get_long(SnArray *arr, long long index)

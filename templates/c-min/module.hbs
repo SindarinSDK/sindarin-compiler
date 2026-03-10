@@ -69,9 +69,13 @@ static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each 
 {{/each}}
 {{#with module}}{{#if has_main}}
 int main() {
-{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{> expr initializer}};
+{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{#if needs_strdup}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}};
 {{/if}}{{/each}}{{#each ../functions}}{{#if (eq name "main")}}{{#each body}}
-    {{> stmt this}}{{/each}}{{/if}}{{/each}}{{#unless main_returns}}    return 0;
+    {{> stmt this}}{{/each}}{{/if}}{{/each}}{{#each ../globals}}{{#if needs_cleanup}}{{#if (eq cleanup_kind "str")}}    free(__sn__{{name}});
+{{else}}{{#if (eq cleanup_kind "arr")}}    sn_cleanup_array(&__sn__{{name}});
+{{else}}{{#if (eq cleanup_kind "release")}}    __sn__{{type.name}}_release(&__sn__{{name}});
+{{else}}{{#if (eq cleanup_kind "val_cleanup")}}    __sn__{{type.name}}_cleanup(&__sn__{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}{{#unless main_returns}}    return 0;
 {{/unless}}
 }{{/if}}{{/with}}
 {{#if lambdas}}

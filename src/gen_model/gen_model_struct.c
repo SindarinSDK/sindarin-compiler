@@ -1,4 +1,5 @@
 #include "gen_model/gen_model.h"
+#include <string.h>
 
 static const char *mem_qual_str(MemoryQualifier mq)
 {
@@ -30,6 +31,48 @@ static const char *func_mod_str(FunctionModifier fm)
     }
 }
 
+/* Determine the cleanup action for a field type */
+static const char *field_cleanup_action(Type *type)
+{
+    if (!type) return "none";
+    switch (type->kind)
+    {
+        case TYPE_STRING:   return "free";
+        case TYPE_ARRAY:    return "cleanup_array";
+        case TYPE_FUNCTION: return "free";
+        case TYPE_STRUCT:
+            if (type->as.struct_type.pass_self_by_ref)
+                return "release";
+            /* For as val structs, check if they have heap fields */
+            for (int i = 0; i < type->as.struct_type.field_count; i++)
+            {
+                const char *fa = field_cleanup_action(type->as.struct_type.fields[i].type);
+                if (strcmp(fa, "none") != 0) return "cleanup_val";
+            }
+            return "none";
+        default:
+            return "none";
+    }
+}
+
+/* Determine the copy action for a field type */
+static const char *field_copy_action(Type *type)
+{
+    if (!type) return "value_copy";
+    switch (type->kind)
+    {
+        case TYPE_STRING:   return "strdup";
+        case TYPE_ARRAY:    return "array_copy";
+        case TYPE_FUNCTION: return "none";  /* closures are shared */
+        case TYPE_STRUCT:
+            if (type->as.struct_type.pass_self_by_ref)
+                return "retain";
+            return "copy_val";
+        default:
+            return "value_copy";
+    }
+}
+
 json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *symbol_table,
                               ArithmeticMode arithmetic_mode)
 {
@@ -42,10 +85,17 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
     json_object_object_add(obj, "is_packed", json_object_new_boolean(decl->is_packed));
     json_object_object_add(obj, "pass_self_by_ref", json_object_new_boolean(decl->pass_self_by_ref));
 
+    /* Memory mode for c-min codegen */
+    json_object_object_add(obj, "mem_mode",
+        json_object_new_string(decl->pass_self_by_ref ? "ref" : "val"));
+
     if (decl->c_alias)
     {
         json_object_object_add(obj, "c_alias", json_object_new_string(decl->c_alias));
     }
+
+    /* Check if any field needs heap cleanup */
+    bool has_heap = false;
 
     /* Fields */
     json_object *fields = json_object_new_array();
@@ -56,6 +106,15 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         json_object_object_add(field, "name", json_object_new_string(f->name));
         json_object_object_add(field, "type", gen_model_type(arena, f->type));
         json_object_object_add(field, "offset", json_object_new_int64((int64_t)f->offset));
+
+        /* Per-field cleanup and copy actions for c-min codegen */
+        const char *ca = field_cleanup_action(f->type);
+        const char *cpa = field_copy_action(f->type);
+        json_object_object_add(field, "cleanup_action", json_object_new_string(ca));
+        json_object_object_add(field, "copy_action", json_object_new_string(cpa));
+
+        if (strcmp(ca, "none") != 0) has_heap = true;
+
         if (f->c_alias)
         {
             json_object_object_add(field, "c_alias", json_object_new_string(f->c_alias));
@@ -68,6 +127,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         json_object_array_add(fields, field);
     }
     json_object_object_add(obj, "fields", fields);
+    json_object_object_add(obj, "has_heap_fields", json_object_new_boolean(has_heap));
 
     /* Methods */
     json_object *methods = json_object_new_array();
@@ -98,12 +158,41 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 json_object_new_string(mem_qual_str(m->params[j].mem_qualifier)));
             json_object_object_add(p, "sync_mod",
                 json_object_new_string(sync_mod_str(m->params[j].sync_modifier)));
+            /* Param cleanup for override: as val param on as ref struct owns the copy */
+            if (m->params[j].mem_qualifier == MEM_AS_VAL &&
+                m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
+                m->params[j].type->as.struct_type.pass_self_by_ref)
+            {
+                json_object_object_add(p, "param_cleanup", json_object_new_string("release"));
+            }
             json_object_array_add(params, p);
         }
         json_object_object_add(method, "params", params);
 
         /* Method body */
         json_object *body = json_object_new_array();
+
+        /* Prepend param guard locals for as-val-on-as-ref-struct override params */
+        for (int j = 0; j < m->param_count; j++)
+        {
+            if (m->params[j].mem_qualifier == MEM_AS_VAL &&
+                m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
+                m->params[j].type->as.struct_type.pass_self_by_ref)
+            {
+                char buf[512];
+                snprintf(buf, sizeof(buf),
+                    "sn_auto_%s __sn__%s *__sn__%s__pc = __sn__%s;",
+                    m->params[j].type->as.struct_type.name,
+                    m->params[j].type->as.struct_type.name,
+                    m->params[j].name.start,
+                    m->params[j].name.start);
+                json_object *guard = json_object_new_object();
+                json_object_object_add(guard, "kind", json_object_new_string("raw_c"));
+                json_object_object_add(guard, "code", json_object_new_string(buf));
+                json_object_array_add(body, guard);
+            }
+        }
+
         if (m->body)
         {
             for (int j = 0; j < m->body_count; j++)

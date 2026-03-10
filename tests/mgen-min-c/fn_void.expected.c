@@ -8,10 +8,8 @@
 void __sn__doNothing();
 
 void __sn__doNothing() {
-    return;
-}
+    return;}
 
 int main() {
     __sn__doNothing();
-    return 0LL;
-}
+    return 0LL;}

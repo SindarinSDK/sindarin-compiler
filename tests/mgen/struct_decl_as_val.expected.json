@@ -20,6 +20,7 @@
       "is_native": true,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "mem_mode": "val",
       "c_alias": "Color",
       "fields": [
         {
@@ -28,6 +29,8 @@
             "kind": "byte"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "c_alias": "r"
         },
         {
@@ -36,6 +39,8 @@
             "kind": "byte"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "c_alias": "g"
         },
         {
@@ -44,9 +49,12 @@
             "kind": "byte"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "c_alias": "b"
         }
       ],
+      "has_heap_fields": false,
       "methods": []
     }
   ],

@@ -7,6 +7,6 @@
 #include "sn_minimal.h"
 
 
+
 int main() {
-    return 0LL;
-}
+    return 0LL;}

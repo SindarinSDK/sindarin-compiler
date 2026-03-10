@@ -8,8 +8,7 @@
 long long __sn__add(long long, long long);
 
 long long __sn__add(long long __sn__a, long long __sn__b) {
-    return sn_add_long(__sn__a, __sn__b);
-}
+    return sn_add_long(__sn__a, __sn__b);}
 
 int main() {
     long long __sn__x = 42LL;

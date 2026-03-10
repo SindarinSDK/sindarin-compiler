@@ -14,6 +14,7 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "mem_mode": "val",
       "fields": [
         {
           "name": "width",
@@ -21,6 +22,8 @@
             "kind": "int"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "default_value": {
             "type": {
               "kind": "int"
@@ -36,6 +39,8 @@
             "kind": "int"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "default_value": {
             "type": {
               "kind": "int"
@@ -51,6 +56,8 @@
             "kind": "double"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "default_value": {
             "type": {
               "kind": "double"
@@ -61,6 +68,7 @@
           }
         }
       ],
+      "has_heap_fields": false,
       "methods": []
     }
   ],
@@ -115,6 +123,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "struct",

@@ -15,8 +15,7 @@ typedef struct __Closure__ {
 static long long __lambda_0__(void *__closure__, long long __sn__n);
 
 long long __sn__apply(void * __sn__f, long long __sn__x) {
-    return ((long long (*)(void *, long long))((__Closure__ *)__sn__f)->fn)(__sn__f, __sn__x);
-}
+    return ((long long (*)(void *, long long))((__Closure__ *)__sn__f)->fn)(__sn__f, __sn__x);}
 
 int main() {
     sn_auto_ptr void * __sn__double_it = ({

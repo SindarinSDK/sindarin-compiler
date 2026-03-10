@@ -19,8 +19,7 @@ static void *__thread_wrapper_0__(void *arg) {
 }
 
 void __sn__compute() {
-    return;
-}
+    return;}
 
 int main() {
     ({
@@ -29,5 +28,4 @@ int main() {
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;
     });
-    return 0LL;
-}
+    return 0LL;}

@@ -20,8 +20,7 @@ static void *__thread_wrapper_0__(void *arg) {
 }
 
 long long __sn__compute() {
-    return 42LL;
-}
+    return 42LL;}
 
 int main() {
     long long __sn__result = ({ sn_auto_thread SnThread *__sync_th__ = ({

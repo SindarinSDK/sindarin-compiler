@@ -31,6 +31,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
           "initializer": {
             "type": {
               "kind": "string"
@@ -38,7 +40,8 @@
             "kind": "literal",
             "value_kind": "string",
             "value": "world"
-          }
+          },
+          "needs_strdup": true
         },
         {
           "kind": "var_decl",
@@ -49,6 +52,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
           "initializer": {
             "type": {
               "kind": "string"
@@ -74,7 +79,8 @@
                 "value": "!"
               }
             ]
-          }
+          },
+          "needs_strdup": false
         },
         {
           "kind": "expr",

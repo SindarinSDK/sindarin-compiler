@@ -6,12 +6,20 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
-/* Struct type definitions */
+/* Struct: Config (as val) */
 typedef struct {
     long long __sn__width;
     long long __sn__height;
     double __sn__scale;
 } __sn__Config;
+
+static inline __sn__Config __sn__Config_copy(const __sn__Config *src) {
+    __sn__Config dst;
+    dst.__sn__width = src->__sn__width;
+    dst.__sn__height = src->__sn__height;
+    dst.__sn__scale = src->__sn__scale;
+    return dst;
+}
 
 
 int main() {

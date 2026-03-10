@@ -1,1 +1,1 @@
-(*({{> expr operand}}))
+{{#if is_noop}}{{> expr operand}}{{else}}{{#if is_deep_copy}}__sn__{{type_name}}_copy({{> expr operand}}){{else}}(*({{> expr operand}})){{/if}}{{/if}}

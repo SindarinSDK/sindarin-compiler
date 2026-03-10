@@ -9,5 +9,4 @@
 int main() {
     bool __sn__a = (true && false);
     bool __sn__b = (true || false);
-    return 0LL;
-}
+    return 0LL;}

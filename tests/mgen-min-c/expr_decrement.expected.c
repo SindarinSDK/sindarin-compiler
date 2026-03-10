@@ -9,5 +9,4 @@
 int main() {
     long long __sn__x = 10LL;
     __sn__x--;
-    return 0LL;
-}
+    return 0LL;}

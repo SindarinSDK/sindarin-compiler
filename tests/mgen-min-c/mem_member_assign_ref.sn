@@ -1,0 +1,12 @@
+struct Inner as ref =>
+    value: int
+
+struct Outer as ref =>
+    child: Inner
+
+fn main(): void =>
+    var a: Inner = Inner { value: 1 }
+    var b: Inner = Inner { value: 2 }
+    var o: Outer = Outer { child: a }
+    o.child = b
+    assert(o.child.value == 2, "child should be updated")

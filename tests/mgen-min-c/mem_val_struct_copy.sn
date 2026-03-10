@@ -1,0 +1,10 @@
+struct Person as val =>
+    name: str
+    age: int
+
+fn main(): void =>
+    var a: Person = Person { name: "Alice", age: 30 }
+    var b: Person = a
+    b.age = 99
+    assert(a.age == 30, "original age should be unchanged")
+    assert(b.age == 99, "copy should have new age")

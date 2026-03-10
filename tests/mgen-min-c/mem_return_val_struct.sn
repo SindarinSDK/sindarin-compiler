@@ -1,0 +1,11 @@
+struct Point as val =>
+    x: int
+    y: int
+
+fn make_point(x: int, y: int): Point =>
+    var p: Point = Point { x: x, y: y }
+    return p
+
+fn main(): void =>
+    var p: Point = make_point(3, 4)
+    assert(p.x == 3, "x should be 3")

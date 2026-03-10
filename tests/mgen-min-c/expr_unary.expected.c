@@ -11,5 +11,4 @@ int main() {
     long long __sn__y = (-__sn__x);
     bool __sn__b = true;
     bool __sn__c = (!__sn__b);
-    return 0LL;
-}
+    return 0LL;}

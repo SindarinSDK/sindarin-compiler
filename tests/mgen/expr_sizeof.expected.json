@@ -14,22 +14,28 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "mem_mode": "val",
       "fields": [
         {
           "name": "x",
           "type": {
             "kind": "double"
           },
-          "offset": 0
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
         },
         {
           "name": "y",
           "type": {
             "kind": "double"
           },
-          "offset": 0
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
         }
       ],
+      "has_heap_fields": false,
       "methods": []
     }
   ],
@@ -55,6 +61,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "int"

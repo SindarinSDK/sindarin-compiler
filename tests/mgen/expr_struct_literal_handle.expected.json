@@ -14,22 +14,28 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "mem_mode": "val",
       "fields": [
         {
           "name": "key",
           "type": {
             "kind": "string"
           },
-          "offset": 0
+          "offset": 0,
+          "cleanup_action": "free",
+          "copy_action": "strdup"
         },
         {
           "name": "value",
           "type": {
             "kind": "string"
           },
-          "offset": 0
+          "offset": 0,
+          "cleanup_action": "free",
+          "copy_action": "strdup"
         }
       ],
+      "has_heap_fields": true,
       "methods": []
     }
   ],
@@ -77,6 +83,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
           "initializer": {
             "type": {
               "kind": "struct",
@@ -115,7 +123,8 @@
                   "kind": "literal",
                   "value_kind": "string",
                   "value": "name"
-                }
+                },
+                "needs_strdup": true
               },
               {
                 "name": "value",
@@ -126,7 +135,8 @@
                   "kind": "literal",
                   "value_kind": "string",
                   "value": "Alice"
-                }
+                },
+                "needs_strdup": true
               }
             ]
           }

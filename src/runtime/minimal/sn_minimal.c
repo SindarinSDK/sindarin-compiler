@@ -51,11 +51,13 @@ char *sn_str_concat_multi(int count, ...)
 SnArray *sn_array_new(size_t elem_size, long long initial_cap)
 {
     if (initial_cap < 4) initial_cap = 4;
-    SnArray *arr = malloc(sizeof(SnArray));
+    SnArray *arr = calloc(1, sizeof(SnArray));
     arr->data = malloc(elem_size * (size_t)initial_cap);
     arr->len = 0;
     arr->cap = initial_cap;
     arr->elem_size = elem_size;
+    arr->elem_release = NULL;
+    arr->elem_copy = NULL;
     return arr;
 }
 
@@ -87,4 +89,23 @@ SnArray *sn_array_range(long long start, long long end)
         sn_array_push(arr, &i);
     }
     return arr;
+}
+
+SnArray *sn_array_copy(const SnArray *src)
+{
+    if (!src) return NULL;
+    SnArray *dst = sn_array_new(src->elem_size, src->cap);
+    dst->elem_release = src->elem_release;
+    dst->elem_copy = src->elem_copy;
+    dst->len = src->len;
+    if (src->elem_copy) {
+        for (long long i = 0; i < src->len; i++) {
+            const void *s = (const char *)src->data + (i * src->elem_size);
+            void *d = (char *)dst->data + (i * dst->elem_size);
+            src->elem_copy(s, d);
+        }
+    } else {
+        memcpy(dst->data, src->data, (size_t)src->len * src->elem_size);
+    }
+    return dst;
 }

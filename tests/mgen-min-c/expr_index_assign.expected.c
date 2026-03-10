@@ -9,11 +9,13 @@
 int main() {
     sn_auto_arr SnArray * __sn__arr = ({
             SnArray *__al__ = sn_array_new(sizeof(long long), 3);
+    
             sn_array_push(__al__, &(long long){ 10LL });
+    
             sn_array_push(__al__, &(long long){ 20LL });
+    
             sn_array_push(__al__, &(long long){ 30LL });
             __al__;
         });
     ((long long *)__sn__arr->data)[0LL] = 99LL;
-    return 0LL;
-}
+    return 0LL;}

@@ -62,6 +62,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
           "initializer": {
             "type": {
               "kind": "array",

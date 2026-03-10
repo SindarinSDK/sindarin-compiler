@@ -103,12 +103,23 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
             case STMT_VAR_DECL:
             {
                 json_object *gvar = gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode);
-                /* Check if initializer is non-constant (needs deferred init in main) */
-                if (stmt->as.var_decl.initializer &&
-                    stmt->as.var_decl.initializer->type != EXPR_LITERAL)
+                /* Check if initializer is non-constant (needs deferred init in main).
+                 * For c-min: string globals with literal initializers are also deferred
+                 * so they can be strdup'd in main (string literals can't be free'd). */
+                bool is_deferred = false;
+                if (stmt->as.var_decl.initializer)
                 {
-                    json_object_object_add(gvar, "is_deferred", json_object_new_boolean(true));
+                    if (stmt->as.var_decl.initializer->type != EXPR_LITERAL)
+                        is_deferred = true;
+                    else if (stmt->as.var_decl.type &&
+                             stmt->as.var_decl.type->kind == TYPE_STRING)
+                        is_deferred = true;
                 }
+                if (is_deferred)
+                    json_object_object_add(gvar, "is_deferred", json_object_new_boolean(true));
+                /* Mark as global for cleanup purposes (globals don't get cleanup attrs,
+                 * but need explicit cleanup at program exit) */
+                json_object_object_add(gvar, "is_global", json_object_new_boolean(true));
                 json_object_array_add(globals, gvar);
                 break;
             }

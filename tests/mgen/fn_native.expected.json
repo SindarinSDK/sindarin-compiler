@@ -96,6 +96,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "double"
@@ -142,6 +144,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "double"

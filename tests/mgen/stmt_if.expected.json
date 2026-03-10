@@ -31,6 +31,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
           "initializer": {
             "type": {
               "kind": "int"
@@ -83,7 +85,8 @@
                     "kind": "literal",
                     "value_kind": "int",
                     "value": 1
-                  }
+                  },
+                  "assign_cleanup": "none"
                 }
               }
             ]
@@ -106,7 +109,8 @@
                     "kind": "literal",
                     "value_kind": "int",
                     "value": 2
-                  }
+                  },
+                  "assign_cleanup": "none"
                 }
               }
             ]

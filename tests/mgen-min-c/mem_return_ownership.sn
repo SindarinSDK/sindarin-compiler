@@ -1,0 +1,7 @@
+fn make_greeting(name: str): str =>
+    var result: str = $"Hello {name}"
+    return result
+
+fn main(): void =>
+    var g: str = make_greeting("world")
+    assert(g.length == 11, "greeting should be 11 chars")

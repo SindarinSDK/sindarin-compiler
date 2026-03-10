@@ -8,5 +8,4 @@
 
 int main() {
     char __sn__c = '65';
-    return 0LL;
-}
+    return 0LL;}

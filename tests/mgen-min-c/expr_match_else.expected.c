@@ -18,5 +18,4 @@ int main() {
             }
             __match_result__;
         });
-    return __sn__result;
-}
+    return __sn__result;}

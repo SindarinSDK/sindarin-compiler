@@ -73,6 +73,59 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 if (captured)
                     json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
             }
+            /* Compute cleanup annotations for c-min codegen */
+            {
+                Type *vtype = stmt->as.var_decl.type;
+                if (vtype)
+                {
+                    bool needs_cleanup = false;
+                    const char *cleanup_kind = "none";
+                    switch (vtype->kind)
+                    {
+                        case TYPE_STRING:
+                            needs_cleanup = true;
+                            cleanup_kind = "str";
+                            break;
+                        case TYPE_ARRAY:
+                            needs_cleanup = true;
+                            cleanup_kind = "arr";
+                            break;
+                        case TYPE_FUNCTION:
+                            needs_cleanup = true;
+                            cleanup_kind = "ptr";
+                            break;
+                        case TYPE_STRUCT:
+                            if (vtype->as.struct_type.pass_self_by_ref)
+                            {
+                                needs_cleanup = true;
+                                cleanup_kind = "release";
+                            }
+                            else
+                            {
+                                /* as val: only needs cleanup if it has heap fields */
+                                for (int fi = 0; fi < vtype->as.struct_type.field_count; fi++)
+                                {
+                                    Type *ft = vtype->as.struct_type.fields[fi].type;
+                                    if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                        ft->kind == TYPE_FUNCTION ||
+                                        (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                    {
+                                        needs_cleanup = true;
+                                        cleanup_kind = "val_cleanup";
+                                        break;
+                                    }
+                                }
+                            }
+                            break;
+                        default:
+                            break;
+                    }
+                    json_object_object_add(obj, "needs_cleanup",
+                        json_object_new_boolean(needs_cleanup));
+                    json_object_object_add(obj, "cleanup_kind",
+                        json_object_new_string(cleanup_kind));
+                }
+            }
             if (stmt->as.var_decl.initializer)
             {
                 json_object_object_add(obj, "initializer",
@@ -81,6 +134,45 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 if (stmt->as.var_decl.initializer->type == EXPR_THREAD_SPAWN)
                 {
                     json_object_object_add(obj, "is_thread_handle", json_object_new_boolean(true));
+                }
+                /* For string vars: determine if initializer needs strdup wrapping.
+                 * Literals and variable refs are borrowed — need strdup.
+                 * Function calls, interpolation, concat return owned strings — no strdup.
+                 * nil literals must NOT be strdup'd (strdup(NULL) crashes). */
+                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_STRING)
+                {
+                    Expr *init = stmt->as.var_decl.initializer;
+                    ExprType itype = init->type;
+                    bool is_nil_literal = (itype == EXPR_LITERAL && init->as.literal.type &&
+                                           init->as.literal.type->kind == TYPE_NIL);
+                    bool needs_strdup = !is_nil_literal &&
+                                        (itype == EXPR_LITERAL || itype == EXPR_VARIABLE);
+                    json_object_object_add(obj, "needs_strdup",
+                        json_object_new_boolean(needs_strdup));
+                }
+                /* For val struct vars with heap fields: variable initializer needs deep copy */
+                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_STRUCT &&
+                    !stmt->as.var_decl.type->as.struct_type.pass_self_by_ref &&
+                    stmt->as.var_decl.initializer->type == EXPR_VARIABLE)
+                {
+                    Type *vt = stmt->as.var_decl.type;
+                    bool has_heap = false;
+                    for (int fi = 0; fi < vt->as.struct_type.field_count; fi++)
+                    {
+                        Type *ft = vt->as.struct_type.fields[fi].type;
+                        if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                            ft->kind == TYPE_FUNCTION ||
+                            (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                        {
+                            has_heap = true;
+                            break;
+                        }
+                    }
+                    if (has_heap)
+                    {
+                        json_object_object_add(obj, "needs_val_copy",
+                            json_object_new_boolean(true));
+                    }
                 }
             }
             break;
@@ -93,6 +185,60 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             {
                 json_object_object_add(obj, "value",
                     gen_model_expr(arena, stmt->as.return_stmt.value, symbol_table, arithmetic_mode));
+                /* Ownership transfer: if returning a local variable of a type that needs cleanup,
+                 * the local must be nulled out to prevent the cleanup attribute from freeing it */
+                Expr *rv = stmt->as.return_stmt.value;
+                if (rv->type == EXPR_VARIABLE && rv->expr_type)
+                {
+                    Type *rt = rv->expr_type;
+                    bool is_owned = false;
+                    const char *transfer_kind = "none";
+                    if (rt->kind == TYPE_STRING)
+                    {
+                        is_owned = true;
+                        transfer_kind = "null_ptr";
+                    }
+                    else if (rt->kind == TYPE_ARRAY)
+                    {
+                        is_owned = true;
+                        transfer_kind = "null_ptr";
+                    }
+                    else if (rt->kind == TYPE_STRUCT)
+                    {
+                        if (rt->as.struct_type.pass_self_by_ref)
+                        {
+                            is_owned = true;
+                            transfer_kind = "null_ptr";
+                        }
+                        /* as val with heap fields needs memset */
+                        else
+                        {
+                            for (int fi = 0; fi < rt->as.struct_type.field_count; fi++)
+                            {
+                                Type *ft = rt->as.struct_type.fields[fi].type;
+                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                    ft->kind == TYPE_FUNCTION ||
+                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                {
+                                    is_owned = true;
+                                    transfer_kind = "memset";
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (is_owned)
+                    {
+                        json_object_object_add(obj, "is_ownership_transfer",
+                            json_object_new_boolean(true));
+                        json_object_object_add(obj, "transfer_kind",
+                            json_object_new_string(transfer_kind));
+                        json_object_object_add(obj, "transfer_var",
+                            json_object_new_string(rv->as.variable.name.start));
+                        json_object_object_add(obj, "transfer_type",
+                            gen_model_type(arena, rt));
+                    }
+                }
             }
             break;
         }

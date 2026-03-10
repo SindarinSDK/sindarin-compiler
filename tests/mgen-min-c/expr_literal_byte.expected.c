@@ -8,5 +8,4 @@
 
 int main() {
     unsigned char __sn__b = 255LL;
-    return 0LL;
-}
+    return 0LL;}

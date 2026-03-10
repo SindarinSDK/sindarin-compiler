@@ -1,0 +1,11 @@
+struct Address as ref =>
+    city: str
+
+struct Person as ref =>
+    name: str
+    addr: Address
+
+fn main(): void =>
+    var a: Address = Address { city: "NYC" }
+    var p: Person = Person { name: "Alice", addr: a }
+    assert(p.name.length == 5, "name should be Alice")

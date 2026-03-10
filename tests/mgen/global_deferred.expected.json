@@ -19,6 +19,8 @@
       "mem_qual": "default",
       "sync_mod": "none",
       "is_static": false,
+      "needs_cleanup": false,
+      "cleanup_kind": "none",
       "initializer": {
         "type": {
           "kind": "int"
@@ -26,7 +28,8 @@
         "kind": "literal",
         "value_kind": "int",
         "value": 10
-      }
+      },
+      "is_global": true
     },
     {
       "kind": "var_decl",
@@ -37,6 +40,8 @@
       "mem_qual": "default",
       "sync_mod": "none",
       "is_static": false,
+      "needs_cleanup": false,
+      "cleanup_kind": "none",
       "initializer": {
         "type": {
           "kind": "int"
@@ -60,7 +65,8 @@
         },
         "arithmetic_mode": "checked"
       },
-      "is_deferred": true
+      "is_deferred": true,
+      "is_global": true
     }
   ],
   "functions": [

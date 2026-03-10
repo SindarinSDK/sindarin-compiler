@@ -8,5 +8,4 @@
 
 int main() {
     sn_auto_arr SnArray * __sn__arr = sn_array_new(sizeof(long long), 10LL);
-    return 0LL;
-}
+    return 0LL;}

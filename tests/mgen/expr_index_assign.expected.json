@@ -34,6 +34,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
           "initializer": {
             "type": {
               "kind": "array",
@@ -102,7 +104,8 @@
               "kind": "literal",
               "value_kind": "int",
               "value": 99
-            }
+            },
+            "elem_cleanup": "none"
           }
         },
         {

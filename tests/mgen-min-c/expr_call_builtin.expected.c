@@ -7,7 +7,7 @@
 #include "sn_minimal.h"
 
 int main() {
-    char * __sn__s = "hello";
+    sn_auto_str char * __sn__s = strdup("hello");
     long long __sn__n = sn_str_length(__sn__s);
     sn_assert((__sn__n == 5LL), "expected string length to be 5");
     return 0;

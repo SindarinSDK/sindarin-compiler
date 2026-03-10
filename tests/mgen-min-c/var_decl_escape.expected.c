@@ -8,11 +8,13 @@
 char * __sn__make_str();
 
 char * __sn__make_str() {
-    char * __sn__s = "hello";
-    return __sn__s;
-}
+    sn_auto_str char * __sn__s = strdup("hello");
+    {
+        char * __ret__ = __sn__s;
+        __sn__s = NULL;
+        return __ret__;
+    }}
 
 int main() {
-    char * __sn__result = __sn__make_str();
-    return 0LL;
-}
+    sn_auto_str char * __sn__result = __sn__make_str();
+    return 0LL;}
