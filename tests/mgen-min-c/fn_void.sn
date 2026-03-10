@@ -1,0 +1,6 @@
+fn doNothing(): void =>
+    return
+
+fn main(): int =>
+    doNothing()
+    return 0

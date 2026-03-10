@@ -1,0 +1,13 @@
+struct Counter =>
+    value: int
+
+    fn increment(): void =>
+        self.value += 1
+
+    fn getValue(): int =>
+        return self.value
+
+fn main(): void =>
+    var c: Counter = Counter { value: 0 }
+    c.increment()
+    assert(c.getValue() == 1, "expected counter to be 1 after increment")

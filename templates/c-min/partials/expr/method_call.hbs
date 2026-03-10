@@ -1,0 +1,1 @@
+{{#if is_static}}__sn__{{struct_type.name}}_{{method_name}}({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{/each}}){{else}}__sn__{{struct_type.name}}_{{method_name}}(&{{> expr object}}{{#each args}}, {{> expr this}}{{/each}}){{/if}}

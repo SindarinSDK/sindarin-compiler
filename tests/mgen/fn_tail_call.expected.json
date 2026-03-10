@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/fn_tail_call.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": true
   },
   "pragmas": [],
   "imports": [],

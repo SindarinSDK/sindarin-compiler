@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/module_no_main.sn",
-    "has_main": false
+    "has_main": false,
+    "main_returns": false,
+    "has_forward_decls": true
   },
   "pragmas": [],
   "imports": [],

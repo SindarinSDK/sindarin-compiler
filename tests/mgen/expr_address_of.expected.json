@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/expr_address_of.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
   },
   "pragmas": [
     {

@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/stmt_expr.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": true
   },
   "pragmas": [],
   "imports": [],

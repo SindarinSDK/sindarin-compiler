@@ -1,0 +1,7 @@
+fn increment(x: int as ref): void =>
+    x = x + 1
+
+fn main(): void =>
+    var a: int = 10
+    increment(a)
+    assert(a == 11, "expected a to be 11 after increment by ref")

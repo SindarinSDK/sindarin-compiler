@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/expr_index_assign.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
   },
   "pragmas": [],
   "imports": [],

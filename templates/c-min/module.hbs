@@ -1,0 +1,97 @@
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <limits.h>
+#include "sn_minimal.h"
+{{#each pragmas}}{{#if (eq pragma_type "include")}}
+#include {{{value}}}
+{{/if}}{{/each}}{{#each structs}}
+{{> struct_typedef this}}
+{{/each}}{{#each globals}}
+{{#if is_static}}static {{/if}}{{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
+{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> forward_decl this}}
+{{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
+{{/each}}{{/each}}{{#each threads}}
+typedef struct {
+{{#each args}}
+    {{c_type type}} {{name}};
+{{/each}}
+    int _padding;
+} __ThreadArgs_{{thread_id}}__;
+
+static void *__thread_wrapper_{{thread_id}}__(void *arg) {
+    SnThread *__th__ = (SnThread *)arg;
+{{#if has_args}}
+    __ThreadArgs_{{thread_id}}__ *args = (__ThreadArgs_{{thread_id}}__ *)__th__->result;
+    __ThreadArgs_{{thread_id}}__ __args_copy__ = *args;
+    args = &__args_copy__;
+{{/if}}
+{{#if is_void}}
+    __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
+{{else}}
+    {{c_type return_type}} __result__ = __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
+    if (!__th__->result) __th__->result = calloc(1, sizeof({{c_type return_type}}));
+    *({{c_type return_type}} *)__th__->result = __result__;
+{{/if}}
+    return NULL;
+}
+{{/each}}
+{{#if lambdas}}
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+} __Closure__;
+{{#each lambdas}}
+
+{{#if has_captures}}
+typedef struct __closure_{{lambda_id}}__ {
+    void *fn;
+    size_t size;
+{{#each captures}}
+    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+{{/each}}
+} __closure_{{lambda_id}}__;
+{{/if}}
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}});
+{{/each}}
+{{/if}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}
+
+{{> function this}}
+{{/if}}{{/if}}{{/each}}
+{{#each structs}}
+{{#each methods}}
+{{> method this struct_name=../name}}
+{{/each}}
+{{/each}}
+{{#with module}}{{#if has_main}}
+int main() {
+{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{> expr initializer}};
+{{/if}}{{/each}}{{#each ../functions}}{{#if (eq name "main")}}{{#each body}}
+    {{> stmt this}}{{/each}}{{/if}}{{/each}}{{#unless main_returns}}    return 0;
+{{/unless}}
+}{{/if}}{{/with}}
+{{#if lambdas}}
+{{#each lambdas}}
+
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}}) {
+{{#each captures}}
+{{#if is_ref}}
+    {{c_type type}} *__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
+{{else}}
+    {{c_type type}} __sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
+{{/if}}
+{{/each}}
+{{#if body_stmts}}
+{{#each body_stmts}}
+    {{> stmt this}}
+{{/each}}
+{{else}}
+    return {{> expr body}};
+{{/if}}
+}
+{{/each}}
+{{/if}}

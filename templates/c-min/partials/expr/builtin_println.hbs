@@ -1,0 +1,1 @@
+{{#each args}}{{#if (eq type.kind "string")}}sn_println({{> expr this}}){{else}}printf("%lld\n", (long long)({{> expr this}})){{/if}}{{/each}}

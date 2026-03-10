@@ -1,0 +1,16 @@
+({
+        char __is_buf__[1024];
+        int __is_off__ = 0;
+{{#each parts}}
+{{#if (eq kind "text")}}
+        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "{{value}}");
+{{else}}
+{{#if (eq expr.type.kind "string")}}
+        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", {{> expr expr}});
+{{else}}
+        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%lld", (long long)({{> expr expr}}));
+{{/if}}
+{{/if}}
+{{/each}}
+        strdup(__is_buf__);
+    })

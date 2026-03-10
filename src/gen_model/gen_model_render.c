@@ -574,6 +574,75 @@ char *gen_model_render_c(json_object *model, const char *template_dir)
     return result;
 }
 
+/* ---- Minimal C Render ---- */
+
+char *gen_model_render_min_c(json_object *model, const char *template_dir)
+{
+    if (!model || !template_dir) return NULL;
+
+    hbs_env_t *env = hbs_env_create();
+    if (!env) {
+        fprintf(stderr, "gen_model_render_min_c: failed to create handlebars environment\n");
+        return NULL;
+    }
+
+    hbs_env_set_no_escape(env, true);
+
+    /* Register the same C helpers — templates control what gets emitted */
+    hbs_register_helper(env, "eq", helper_eq);
+    hbs_register_helper(env, "c_type", helper_c_type);
+    hbs_register_helper(env, "default_value", helper_default_value);
+    hbs_register_helper(env, "type_suffix", helper_type_suffix);
+    hbs_register_helper(env, "c_sizeof", helper_c_sizeof);
+    hbs_register_helper(env, "to_string_func", helper_to_string_func);
+    hbs_register_helper(env, "op_symbol", helper_op_symbol);
+    hbs_register_helper(env, "return_label", helper_return_label);
+    hbs_register_helper(env, "type_tag", helper_type_tag);
+    hbs_register_helper(env, "box_func", helper_box_func);
+    hbs_register_helper(env, "unbox_func", helper_unbox_func);
+    hbs_register_helper(env, "count", helper_count);
+
+    char partials_dir[1024];
+    snprintf(partials_dir, sizeof(partials_dir), "%s/partials", template_dir);
+    if (register_partials_recursive(env, partials_dir, "") != 0) {
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    char module_path[1024];
+    snprintf(module_path, sizeof(module_path), "%s/module.hbs", template_dir);
+
+    char *module_source = read_file(module_path);
+    if (!module_source) {
+        fprintf(stderr, "gen_model_render_min_c: cannot read module template: %s\n", module_path);
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    hbs_error_t err;
+    hbs_template_t *tmpl = hbs_compile(env, module_source, &err);
+    free(module_source);
+
+    if (!tmpl) {
+        fprintf(stderr, "gen_model_render_min_c: failed to compile module template: %s\n",
+                hbs_error_string(err));
+        hbs_env_destroy(env);
+        return NULL;
+    }
+
+    char *result = hbs_render(tmpl, model, &err);
+    if (!result) {
+        const char *detail = hbs_render_error_message(tmpl);
+        fprintf(stderr, "gen_model_render_min_c: render failed: %s\n",
+                detail ? detail : hbs_error_string(err));
+    }
+
+    hbs_template_destroy(tmpl);
+    hbs_env_destroy(env);
+
+    return result;
+}
+
 /* ---- Rust-Specific Helpers ---- */
 
 /* rust_type helper: {{rust_type type_obj}} - converts a type JSON object to a Rust type string */

@@ -240,7 +240,10 @@ set(SN_GENMODEL_SOURCES
     src/gen_model/gen_model_expr.c
     src/gen_model/gen_model_func.c
     src/gen_model/gen_model_struct.c
-    src/gen_model/gen_model_render.c
+    src/gen_model/gen_model_render_common.c
+    src/gen_model/c/gen_model_render_c.c
+    src/gen_model/c_min/gen_model_render_min_c.c
+    src/gen_model/rust/gen_model_render_rust.c
 )
 
 set(SN_BACKEND_SOURCES
@@ -499,6 +502,25 @@ if(NOT MSVC)
     )
 endif()
 
+# Build minimal runtime library (for --codegen 3)
+set(SN_RUNTIME_MIN_SOURCES
+    src/runtime/minimal/sn_minimal.c
+)
+if(EXISTS "${CMAKE_SOURCE_DIR}/src/runtime/minimal/sn_minimal.c")
+    add_library(sn_runtime_min STATIC ${SN_RUNTIME_MIN_SOURCES})
+    target_include_directories(sn_runtime_min PRIVATE
+        ${CMAKE_SOURCE_DIR}/src/runtime/minimal
+    )
+    if(NOT WIN32)
+        target_compile_definitions(sn_runtime_min PRIVATE _GNU_SOURCE)
+    endif()
+    target_compile_options(sn_runtime_min PRIVATE -O2 -fno-lto)
+    set_target_properties(sn_runtime_min PROPERTIES
+        ARCHIVE_OUTPUT_DIRECTORY ${SN_RUNTIME_LIB_DIR}
+        OUTPUT_NAME sn_runtime_min
+    )
+endif()
+
 #------------------------------------------------------------------------------
 # Setup Include and Config Directories
 #------------------------------------------------------------------------------
@@ -571,6 +593,14 @@ if(MALLOC_HEADERS)
 endif()
 
 # Arena V2 headers are now in src/runtime/arena/ and copied above
+
+# Copy minimal runtime headers
+set(MINIMAL_INCLUDE_DIR ${INCLUDE_DIR}/minimal)
+file(MAKE_DIRECTORY ${MINIMAL_INCLUDE_DIR})
+file(GLOB MINIMAL_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/minimal/*.h")
+if(MINIMAL_HEADERS)
+    file(INSTALL ${MINIMAL_HEADERS} DESTINATION "${MINIMAL_INCLUDE_DIR}")
+endif()
 
 # Copy platform headers
 file(GLOB PLATFORM_HEADERS "${CMAKE_SOURCE_DIR}/src/platform/*.h")
@@ -654,6 +684,13 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/lib/"
 install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/include/"
     DESTINATION ${SN_SDK_INSTALL_DIR}/include
     COMPONENT headers
+)
+
+# Install templates
+install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/templates/"
+    DESTINATION ${SN_SDK_INSTALL_DIR}/templates
+    COMPONENT templates
+    FILES_MATCHING PATTERN "*.hbs"
 )
 
 # Install config file
@@ -823,8 +860,9 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
 
     # Copy templates to bin/ for runtime access (re-copies when any .hbs file changes)
     file(GLOB_RECURSE C_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c/*.hbs")
+    file(GLOB_RECURSE C_MIN_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c-min/*.hbs")
     file(GLOB_RECURSE RUST_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/rust/*.hbs")
-    set(ALL_TEMPLATES ${C_TEMPLATES} ${RUST_TEMPLATES})
+    set(ALL_TEMPLATES ${C_TEMPLATES} ${C_MIN_TEMPLATES} ${RUST_TEMPLATES})
     if(ALL_TEMPLATES)
         add_custom_command(
             OUTPUT "${CMAKE_SOURCE_DIR}/bin/templates/.stamp"
@@ -832,6 +870,9 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${CMAKE_SOURCE_DIR}/templates/c"
                 "${CMAKE_SOURCE_DIR}/bin/templates/c"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${CMAKE_SOURCE_DIR}/templates/c-min"
+                "${CMAKE_SOURCE_DIR}/bin/templates/c-min"
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${CMAKE_SOURCE_DIR}/templates/rust"
                 "${CMAKE_SOURCE_DIR}/bin/templates/rust"

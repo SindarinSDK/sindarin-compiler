@@ -1,0 +1,6 @@
+fn main(): void =>
+    var x: int = 10
+    var inc: fn(): void = fn(): void =>
+        x += 1
+    inc()
+    assert(x == 11, "expected x to be 11 after inc()")

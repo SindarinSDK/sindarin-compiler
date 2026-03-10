@@ -34,14 +34,15 @@ int main() {
             long long __match_subject__ = __sn__x;
             if (__match_subject__ == 1LL || __match_subject__ == 2LL) {
                 __match_result__ = 10LL;
-            }
-             else if (__match_subject__ == 3LL || __match_subject__ == 4LL) {
+            } else if (__match_subject__ == 3LL || __match_subject__ == 4LL) {
                 __match_result__ = 20LL;
+            } else {
+                __match_result__ = 0LL;
             }
-            __match_result__ = 0LL;
             __match_result__;
         });
-    _return_value = __sn__result; goto main_return;
+    rt_assert_v2((__sn__result == 20LL), rt_arena_v2_strdup(__local_arena__, "expected match to return 20"));
+    _return_value = 0LL; goto main_return;
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;

@@ -1,0 +1,4 @@
+fn main(): void =>
+    var x: int = 10
+    var addX: fn(int): int = fn(n: int): int => n + x
+    assert(addX(5) == 15, "expected addX(5) to be 15")

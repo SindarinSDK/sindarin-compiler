@@ -1,0 +1,5 @@
+var counter: int = 0
+
+fn main(): void =>
+    counter = 42
+    assert(counter == 42, "expected counter to be 42")

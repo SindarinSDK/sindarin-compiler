@@ -1,0 +1,9 @@
+{{#if is_thread_handle}}sn_auto_thread SnThread * __sn__{{name}} = {{> expr initializer}};
+{{else}}{{#if is_captured}}{{c_type type}} __sn__{{name}}_storage = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}; {{c_type type}} *__sn__{{name}} = &__sn__{{name}}_storage;
+{{else}}{{#if (eq type.kind "string")}}char * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq type.kind "array")}}sn_auto_arr SnArray * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq type.kind "function")}}sn_auto_ptr void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{#if (eq sync_mod "atomic")}}
+pthread_mutex_t __sn__{{name}}_mutex = PTHREAD_MUTEX_INITIALIZER;
+{{/if}}
