@@ -20,6 +20,7 @@
       "is_native": true,
       "is_packed": false,
       "pass_self_by_ref": true,
+      "mem_mode": "ref",
       "c_alias": "Vec2",
       "fields": [
         {
@@ -28,6 +29,8 @@
             "kind": "double"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "c_alias": "x"
         },
         {
@@ -36,9 +39,12 @@
             "kind": "double"
           },
           "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
           "c_alias": "y"
         }
       ],
+      "has_heap_fields": false,
       "methods": []
     }
   ],

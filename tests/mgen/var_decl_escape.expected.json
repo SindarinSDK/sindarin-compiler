@@ -31,6 +31,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
           "initializer": {
             "type": {
               "kind": "string"
@@ -38,7 +40,8 @@
             "kind": "literal",
             "value_kind": "string",
             "value": "hello"
-          }
+          },
+          "needs_strdup": true
         },
         {
           "kind": "return",
@@ -52,6 +55,12 @@
               "escapes_scope": true,
               "needs_heap": false
             }
+          },
+          "is_ownership_transfer": true,
+          "transfer_kind": "null_ptr",
+          "transfer_var": "s",
+          "transfer_type": {
+            "kind": "string"
           }
         }
       ]
@@ -76,6 +85,8 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
           "initializer": {
             "type": {
               "kind": "string"
@@ -98,7 +109,8 @@
             "args": [],
             "is_tail_call": false,
             "is_closure_call": false
-          }
+          },
+          "needs_strdup": false
         },
         {
           "kind": "return",

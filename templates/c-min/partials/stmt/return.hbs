@@ -1,1 +1,9 @@
-return{{#if value}} {{> expr value}}{{/if}};
+{{#if is_ownership_transfer}}{{#if (eq transfer_kind "null_ptr")}}{
+    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
+    __sn__{{transfer_var}} = NULL;
+    return __ret__;
+}{{else}}{{#if (eq transfer_kind "memset")}}{
+    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
+    memset(&__sn__{{transfer_var}}, 0, sizeof(__sn__{{transfer_var}}));
+    return __ret__;
+}{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}

@@ -21,5 +21,4 @@ int main() {
             __match_result__;
         });
     sn_assert((__sn__result == 20LL), "expected match to return 20");
-    return 0LL;
-}
+    return 0LL;}

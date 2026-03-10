@@ -353,6 +353,77 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     break;
                 }
             }
+            /* Assignment cleanup annotations for c-min codegen */
+            if (expr->expr_type)
+            {
+                Type *atype = expr->expr_type;
+                const char *assign_cleanup = "none";
+                bool assign_needs_strdup = false;
+                bool assign_needs_retain = false;
+
+                switch (atype->kind)
+                {
+                    case TYPE_STRING:
+                        assign_cleanup = "free_str";
+                        /* RHS literal/variable → needs strdup; function return/interpolation → owned */
+                        {
+                            Expr *val = expr->as.assign.value;
+                            ExprType vt = val->type;
+                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
+                                           val->as.literal.type->kind == TYPE_NIL);
+                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE))
+                                assign_needs_strdup = true;
+                        }
+                        break;
+                    case TYPE_ARRAY:
+                        assign_cleanup = "cleanup_arr";
+                        break;
+                    case TYPE_STRUCT:
+                        if (atype->as.struct_type.pass_self_by_ref)
+                        {
+                            assign_cleanup = "release_ref";
+                            /* Variable RHS is borrowed → need retain */
+                            if (expr->as.assign.value->type == EXPR_VARIABLE)
+                                assign_needs_retain = true;
+                        }
+                        else
+                        {
+                            /* as val: only needs cleanup if it has heap fields */
+                            for (int fi = 0; fi < atype->as.struct_type.field_count; fi++)
+                            {
+                                Type *ft = atype->as.struct_type.fields[fi].type;
+                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                    ft->kind == TYPE_FUNCTION ||
+                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                {
+                                    assign_cleanup = "cleanup_val";
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                json_object_object_add(obj, "assign_cleanup",
+                    json_object_new_string(assign_cleanup));
+                if (assign_needs_strdup)
+                    json_object_object_add(obj, "needs_strdup",
+                        json_object_new_boolean(true));
+                if (assign_needs_retain)
+                    json_object_object_add(obj, "needs_retain",
+                        json_object_new_boolean(true));
+                /* Val struct from variable needs deep copy to avoid shared heap fields */
+                if (strcmp(assign_cleanup, "cleanup_val") == 0 &&
+                    expr->as.assign.value->type == EXPR_VARIABLE)
+                {
+                    json_object_object_add(obj, "needs_val_copy",
+                        json_object_new_boolean(true));
+                }
+                if (atype->kind == TYPE_STRUCT)
+                    json_object_object_add(obj, "target_type",
+                        gen_model_type(arena, atype));
+            }
             break;
         }
 
@@ -439,9 +510,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 for (int i = 0; i < expr->as.call.arg_count; i++)
                 {
                     json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
-                    /* Mark args that need address-of for as_ref params */
-                    if (pmq && i < pmq_count && pmq[i] == MEM_AS_REF)
-                        json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                    /* Override matrix: param annotation vs arg type */
+                    if (pmq && i < pmq_count)
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
+                                              arg_type->as.struct_type.pass_self_by_ref);
+                        if (pmq[i] == MEM_AS_REF && !is_ref_struct)
+                            json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                        else if (pmq[i] == MEM_AS_VAL && is_ref_struct)
+                        {
+                            json_object_object_add(arg, "is_copy_arg", json_object_new_boolean(true));
+                            json_object_object_add(arg, "copy_type_name",
+                                json_object_new_string(arg_type->as.struct_type.name));
+                        }
+                    }
                     json_object_array_add(args, arg);
                 }
                 json_object_object_add(obj, "args", args);
@@ -492,10 +576,30 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     gen_model_type(arena, expr->as.method_call.struct_type));
             }
             json_object *args = json_object_new_array();
-            for (int i = 0; i < expr->as.method_call.arg_count; i++)
             {
-                json_object_array_add(args,
-                    gen_model_expr(arena, expr->as.method_call.args[i], symbol_table, arithmetic_mode));
+                StructMethod *m = expr->as.method_call.method;
+                for (int i = 0; i < expr->as.method_call.arg_count; i++)
+                {
+                    json_object *arg = gen_model_expr(arena, expr->as.method_call.args[i], symbol_table, arithmetic_mode);
+                    /* Override matrix for method params */
+                    if (m && i < m->param_count)
+                    {
+                        MemoryQualifier mq = m->params[i].mem_qualifier;
+                        Expr *arg_expr = expr->as.method_call.args[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
+                                              arg_type->as.struct_type.pass_self_by_ref);
+                        if (mq == MEM_AS_REF && !is_ref_struct)
+                            json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                        else if (mq == MEM_AS_VAL && is_ref_struct)
+                        {
+                            json_object_object_add(arg, "is_copy_arg", json_object_new_boolean(true));
+                            json_object_object_add(arg, "copy_type_name",
+                                json_object_new_string(arg_type->as.struct_type.name));
+                        }
+                    }
+                    json_object_array_add(args, arg);
+                }
             }
             json_object_object_add(obj, "args", args);
             break;
@@ -509,10 +613,30 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "method_name",
                 json_object_new_string(expr->as.static_call.method_name.start));
             json_object *args = json_object_new_array();
-            for (int i = 0; i < expr->as.static_call.arg_count; i++)
             {
-                json_object_array_add(args,
-                    gen_model_expr(arena, expr->as.static_call.arguments[i], symbol_table, arithmetic_mode));
+                StructMethod *m = expr->as.static_call.resolved_method;
+                for (int i = 0; i < expr->as.static_call.arg_count; i++)
+                {
+                    json_object *arg = gen_model_expr(arena, expr->as.static_call.arguments[i], symbol_table, arithmetic_mode);
+                    /* Override matrix for static method params */
+                    if (m && i < m->param_count)
+                    {
+                        MemoryQualifier mq = m->params[i].mem_qualifier;
+                        Expr *arg_expr = expr->as.static_call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
+                                              arg_type->as.struct_type.pass_self_by_ref);
+                        if (mq == MEM_AS_REF && !is_ref_struct)
+                            json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                        else if (mq == MEM_AS_VAL && is_ref_struct)
+                        {
+                            json_object_object_add(arg, "is_copy_arg", json_object_new_boolean(true));
+                            json_object_object_add(arg, "copy_type_name",
+                                json_object_new_string(arg_type->as.struct_type.name));
+                        }
+                    }
+                    json_object_array_add(args, arg);
+                }
             }
             json_object_object_add(obj, "args", args);
             break;
@@ -524,10 +648,84 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object *elements = json_object_new_array();
             for (int i = 0; i < expr->as.array.element_count; i++)
             {
-                json_object_array_add(elements,
-                    gen_model_expr(arena, expr->as.array.elements[i], symbol_table, arithmetic_mode));
+                json_object *elem = gen_model_expr(arena, expr->as.array.elements[i], symbol_table, arithmetic_mode);
+                /* String array elements from literals/variables need strdup */
+                Expr *ae = expr->as.array.elements[i];
+                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRING)
+                {
+                    bool is_nil = (ae->type == EXPR_LITERAL && ae->as.literal.type &&
+                                   ae->as.literal.type->kind == TYPE_NIL);
+                    if (!is_nil && (ae->type == EXPR_LITERAL || ae->type == EXPR_VARIABLE))
+                        json_object_object_add(elem, "needs_strdup", json_object_new_boolean(true));
+                }
+                json_object_array_add(elements, elem);
             }
             json_object_object_add(obj, "elements", elements);
+            /* Element callback names for c-min codegen */
+            if (expr->expr_type && expr->expr_type->kind == TYPE_ARRAY &&
+                expr->expr_type->as.array.element_type)
+            {
+                Type *et = expr->expr_type->as.array.element_type;
+                const char *elem_release_fn = NULL;
+                const char *elem_copy_fn = NULL;
+                switch (et->kind)
+                {
+                    case TYPE_STRING:
+                        elem_release_fn = "sn_cleanup_str";
+                        elem_copy_fn = "sn_copy_str";
+                        break;
+                    case TYPE_ARRAY:
+                        elem_release_fn = "(void (*)(void *))sn_cleanup_array";
+                        elem_copy_fn = NULL;  /* TODO: nested array copy */
+                        break;
+                    case TYPE_STRUCT:
+                        if (et->as.struct_type.pass_self_by_ref)
+                        {
+                            char buf_r[256], buf_c[256];
+                            snprintf(buf_r, sizeof(buf_r),
+                                "__sn__%s_release_elem", et->as.struct_type.name);
+                            snprintf(buf_c, sizeof(buf_c),
+                                "__sn__%s_retain_into", et->as.struct_type.name);
+                            elem_release_fn = arena_strdup(arena, buf_r);
+                            elem_copy_fn = arena_strdup(arena, buf_c);
+                        }
+                        else
+                        {
+                            /* as val: check if has heap fields */
+                            bool has_heap = false;
+                            for (int fi = 0; fi < et->as.struct_type.field_count; fi++)
+                            {
+                                Type *ft = et->as.struct_type.fields[fi].type;
+                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                    ft->kind == TYPE_FUNCTION ||
+                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                {
+                                    has_heap = true;
+                                    break;
+                                }
+                            }
+                            if (has_heap)
+                            {
+                                char buf_r[256], buf_c[256];
+                                snprintf(buf_r, sizeof(buf_r),
+                                    "__sn__%s_cleanup_elem", et->as.struct_type.name);
+                                snprintf(buf_c, sizeof(buf_c),
+                                    "__sn__%s_copy_into", et->as.struct_type.name);
+                                elem_release_fn = arena_strdup(arena, buf_r);
+                                elem_copy_fn = arena_strdup(arena, buf_c);
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                if (elem_release_fn)
+                    json_object_object_add(obj, "elem_release_fn",
+                        json_object_new_string(elem_release_fn));
+                if (elem_copy_fn)
+                    json_object_object_add(obj, "elem_copy_fn",
+                        json_object_new_string(elem_copy_fn));
+            }
             break;
         }
 
@@ -567,6 +765,35 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 gen_model_expr(arena, expr->as.index_assign.index, symbol_table, arithmetic_mode));
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.index_assign.value, symbol_table, arithmetic_mode));
+            /* Element assignment cleanup annotations for c-min codegen */
+            if (expr->expr_type)
+            {
+                Type *etype = expr->expr_type;
+                const char *elem_cleanup = "none";
+                bool ia_needs_strdup = false;
+
+                switch (etype->kind)
+                {
+                    case TYPE_STRING:
+                        elem_cleanup = "free_str";
+                        {
+                            Expr *val = expr->as.index_assign.value;
+                            ExprType vt = val->type;
+                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
+                                           val->as.literal.type->kind == TYPE_NIL);
+                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE))
+                                ia_needs_strdup = true;
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                json_object_object_add(obj, "elem_cleanup",
+                    json_object_new_string(elem_cleanup));
+                if (ia_needs_strdup)
+                    json_object_object_add(obj, "needs_strdup",
+                        json_object_new_boolean(true));
+            }
             break;
         }
 
@@ -614,6 +841,68 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(expr->as.member_assign.field_name.start));
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.member_assign.value, symbol_table, arithmetic_mode));
+            /* Field assignment cleanup annotations for c-min codegen */
+            if (expr->expr_type)
+            {
+                Type *ftype = expr->expr_type;
+                const char *field_cleanup = "none";
+                bool ma_needs_strdup = false;
+                bool ma_needs_retain = false;
+
+                switch (ftype->kind)
+                {
+                    case TYPE_STRING:
+                        field_cleanup = "free_str";
+                        {
+                            Expr *val = expr->as.member_assign.value;
+                            ExprType vt = val->type;
+                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
+                                           val->as.literal.type->kind == TYPE_NIL);
+                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE))
+                                ma_needs_strdup = true;
+                        }
+                        break;
+                    case TYPE_ARRAY:
+                        field_cleanup = "cleanup_arr";
+                        break;
+                    case TYPE_STRUCT:
+                        if (ftype->as.struct_type.pass_self_by_ref)
+                        {
+                            field_cleanup = "release_ref";
+                            if (expr->as.member_assign.value->type == EXPR_VARIABLE)
+                                ma_needs_retain = true;
+                            json_object_object_add(obj, "field_type_name",
+                                json_object_new_string(ftype->as.struct_type.name));
+                        }
+                        else
+                        {
+                            for (int fi = 0; fi < ftype->as.struct_type.field_count; fi++)
+                            {
+                                Type *ft = ftype->as.struct_type.fields[fi].type;
+                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                                    ft->kind == TYPE_FUNCTION ||
+                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+                                {
+                                    field_cleanup = "cleanup_val";
+                                    json_object_object_add(obj, "field_type_name",
+                                        json_object_new_string(ftype->as.struct_type.name));
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+                json_object_object_add(obj, "field_cleanup",
+                    json_object_new_string(field_cleanup));
+                if (ma_needs_strdup)
+                    json_object_object_add(obj, "needs_strdup",
+                        json_object_new_boolean(true));
+                if (ma_needs_retain)
+                    json_object_object_add(obj, "needs_retain",
+                        json_object_new_boolean(true));
+            }
             break;
         }
 
@@ -622,6 +911,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("struct_literal"));
             json_object_object_add(obj, "struct_name",
                 json_object_new_string(expr->as.struct_literal.struct_name.start));
+            /* Add struct type info for c-min memory management */
+            if (expr->expr_type)
+            {
+                json_object_object_add(obj, "type",
+                    gen_model_type(arena, expr->expr_type));
+            }
             json_object *fields = json_object_new_array();
             for (int i = 0; i < expr->as.struct_literal.field_count; i++)
             {
@@ -630,6 +925,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_string(expr->as.struct_literal.fields[i].name.start));
                 json_object_object_add(f, "value",
                     gen_model_expr(arena, expr->as.struct_literal.fields[i].value, symbol_table, arithmetic_mode));
+                /* Check if this field's value needs ownership wrapping */
+                Expr *fv = expr->as.struct_literal.fields[i].value;
+                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRING)
+                {
+                    bool needs_strdup = (fv->type == EXPR_LITERAL || fv->type == EXPR_VARIABLE);
+                    json_object_object_add(f, "needs_strdup",
+                        json_object_new_boolean(needs_strdup));
+                }
+                /* Ref struct fields from variables need retain */
+                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
+                    fv->expr_type->as.struct_type.pass_self_by_ref &&
+                    fv->type == EXPR_VARIABLE)
+                {
+                    json_object_object_add(f, "needs_retain",
+                        json_object_new_boolean(true));
+                    json_object_object_add(f, "retain_type_name",
+                        json_object_new_string(fv->expr_type->as.struct_type.name));
+                }
                 json_object_array_add(fields, f);
             }
             json_object_object_add(obj, "fields", fields);
@@ -970,6 +1283,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("address_of"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.address_of.operand, symbol_table, arithmetic_mode));
+            /* For as ref structs, addressOf is a no-op (already pointer) */
+            if (expr->as.address_of.operand->expr_type &&
+                expr->as.address_of.operand->expr_type->kind == TYPE_STRUCT &&
+                expr->as.address_of.operand->expr_type->as.struct_type.pass_self_by_ref)
+            {
+                json_object_object_add(obj, "is_noop", json_object_new_boolean(true));
+            }
             break;
         }
 
@@ -978,6 +1298,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("value_of"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.value_of.operand, symbol_table, arithmetic_mode));
+            /* For as ref structs, valueOf does a deep copy to produce a stack value */
+            if (expr->as.value_of.operand->expr_type &&
+                expr->as.value_of.operand->expr_type->kind == TYPE_STRUCT)
+            {
+                if (expr->as.value_of.operand->expr_type->as.struct_type.pass_self_by_ref)
+                {
+                    json_object_object_add(obj, "is_deep_copy", json_object_new_boolean(true));
+                    json_object_object_add(obj, "type_name",
+                        json_object_new_string(expr->as.value_of.operand->expr_type->as.struct_type.name));
+                }
+                else
+                {
+                    /* as val struct: valueOf is a no-op */
+                    json_object_object_add(obj, "is_noop", json_object_new_boolean(true));
+                }
+            }
             break;
         }
 

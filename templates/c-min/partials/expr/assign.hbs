@@ -1,1 +1,18 @@
-{{#if is_captured}}(*__sn__{{target}} = {{> expr value}}){{else}}(__sn__{{target}} = {{> expr value}}){{/if}}
+{{#if (eq assign_cleanup "free_str")}}({
+    free({{#if is_captured}}*{{/if}}__sn__{{target}});
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}};
+}){{else}}{{#if (eq assign_cleanup "release_ref")}}({
+    __sn__{{target_type.name}} *__old__ = {{#if is_captured}}*{{/if}}__sn__{{target}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{#if needs_retain}}__sn__{{target_type.name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    __sn__{{target_type.name}}_release(&__old__);
+    {{#if is_captured}}*{{/if}}__sn__{{target}};
+}){{else}}{{#if (eq assign_cleanup "cleanup_val")}}({
+    __sn__{{target_type.name}}_cleanup(&{{#if is_captured}}*{{/if}}__sn__{{target}});
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{#if needs_val_copy}}__sn__{{target_type.name}}_copy(&{{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}};
+}){{else}}{{#if (eq assign_cleanup "cleanup_arr")}}({
+    sn_cleanup_array(&{{#if is_captured}}*{{/if}}__sn__{{target}});
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{> expr value}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}};
+}){{else}}{{#if is_captured}}(*__sn__{{target}} = {{> expr value}}){{else}}(__sn__{{target}} = {{> expr value}}){{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

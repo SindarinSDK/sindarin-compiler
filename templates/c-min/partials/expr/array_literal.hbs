@@ -1,10 +1,16 @@
 ({
         SnArray *__al__ = sn_array_new({{c_sizeof type.element_type}}, {{count elements}});
+{{#if elem_release_fn}}
+        __al__->elem_release = {{elem_release_fn}};
+{{/if}}
+{{#if elem_copy_fn}}
+        __al__->elem_copy = {{elem_copy_fn}};
+{{/if}}
 {{#each elements}}
 {{#if (eq kind "spread")}}
         /* TODO: spread into minimal array */
 {{else}}
-        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{> expr this}} });
+        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{#if needs_strdup}}strdup({{> expr this}}){{else}}{{> expr this}}{{/if}} });
 {{/if}}
 {{/each}}
         __al__;

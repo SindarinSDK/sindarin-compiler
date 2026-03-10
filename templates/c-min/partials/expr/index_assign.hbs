@@ -1,1 +1,4 @@
-(({{c_type type}} *){{> expr array}}->data)[{{> expr index}}] = {{> expr value}}
+{{#if (eq elem_cleanup "free_str")}}({
+    free((({{c_type type}} *){{> expr array}}->data)[{{> expr index}}]);
+    (({{c_type type}} *){{> expr array}}->data)[{{> expr index}}] = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+}){{else}}(({{c_type type}} *){{> expr array}}->data)[{{> expr index}}] = {{> expr value}}{{/if}}

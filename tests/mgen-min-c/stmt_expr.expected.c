@@ -8,10 +8,8 @@
 long long __sn__sideEffect();
 
 long long __sn__sideEffect() {
-    return 42LL;
-}
+    return 42LL;}
 
 int main() {
     __sn__sideEffect();
-    return 0LL;
-}
+    return 0LL;}

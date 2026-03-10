@@ -1,0 +1,5 @@
+var name: str = "hello"
+
+fn main(): void =>
+    name = "world"
+    assert(name.length == 5, "name should be world")

@@ -232,6 +232,13 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
             json_object_new_string(mem_qual_str(func->params[i].mem_qualifier)));
         json_object_object_add(p, "sync_mod",
             json_object_new_string(sync_mod_str(func->params[i].sync_modifier)));
+        /* Param cleanup for override: as val param on as ref struct owns the copy */
+        if (func->params[i].mem_qualifier == MEM_AS_VAL &&
+            func->params[i].type && func->params[i].type->kind == TYPE_STRUCT &&
+            func->params[i].type->as.struct_type.pass_self_by_ref)
+        {
+            json_object_object_add(p, "param_cleanup", json_object_new_string("release"));
+        }
         json_object_array_add(params, p);
     }
     json_object_object_add(obj, "params", params);
@@ -253,6 +260,28 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     /* Body */
     json_object *body = json_object_new_array();
+
+    /* Prepend param guard locals for as-val-on-as-ref-struct override params */
+    for (int i = 0; i < func->param_count; i++)
+    {
+        if (func->params[i].mem_qualifier == MEM_AS_VAL &&
+            func->params[i].type && func->params[i].type->kind == TYPE_STRUCT &&
+            func->params[i].type->as.struct_type.pass_self_by_ref)
+        {
+            char buf[512];
+            snprintf(buf, sizeof(buf),
+                "sn_auto_%s __sn__%s *__sn__%s__pc = __sn__%s;",
+                func->params[i].type->as.struct_type.name,
+                func->params[i].type->as.struct_type.name,
+                func->params[i].name.start,
+                func->params[i].name.start);
+            json_object *guard = json_object_new_object();
+            json_object_object_add(guard, "kind", json_object_new_string("raw_c"));
+            json_object_object_add(guard, "code", json_object_new_string(buf));
+            json_object_array_add(body, guard);
+        }
+    }
+
     if (func->body)
     {
         for (int i = 0; i < func->body_count; i++)

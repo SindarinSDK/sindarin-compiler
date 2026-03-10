@@ -1,0 +1,9 @@
+struct Node as ref =>
+    value: int
+
+fn main(): void =>
+    var a: Node = Node { value: 10 }
+    var b: Node = copyOf(a)
+    b.value = 20
+    assert(a.value == 10, "original should be unchanged")
+    assert(b.value == 20, "copy should be 20")

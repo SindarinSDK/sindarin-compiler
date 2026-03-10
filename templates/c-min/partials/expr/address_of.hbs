@@ -1,1 +1,1 @@
-(&({{> expr operand}}))
+{{#if is_noop}}{{> expr operand}}{{else}}(&({{> expr operand}})){{/if}}

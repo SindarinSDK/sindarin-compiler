@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello"
+    s = "world"
+    assert(s.length == 5, "s should be 5 chars after reassign")

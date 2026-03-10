@@ -7,7 +7,6 @@
 #include "sn_minimal.h"
 
 int main() {
-    char * __sn__s = "hello";
-    char * __sn__t = "world";
-    return 0LL;
-}
+    sn_auto_str char * __sn__s = strdup("hello");
+    sn_auto_str char * __sn__t = strdup("world");
+    return 0LL;}

@@ -1,1 +1,5 @@
-(__sn__{{struct_name}}){ {{#each fields}}{{#if @index}}, {{/if}}.__sn__{{name}} = {{> expr value}}{{/each}} }
+{{#if type.pass_self_by_ref}}({
+    __sn__{{struct_name}} *__tmp__ = __sn__{{struct_name}}_create();
+{{#each fields}}    __tmp__->__sn__{{name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{#if needs_retain}}__sn__{{retain_type_name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}}{{/if}};
+{{/each}}    __tmp__;
+}){{else}}(__sn__{{struct_name}}){ {{#each fields}}{{#if @index}}, {{/if}}.__sn__{{name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}}{{/each}} }

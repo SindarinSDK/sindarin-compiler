@@ -31,13 +31,16 @@
           "mem_qual": "default",
           "sync_mod": "none",
           "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
           "initializer": {
             "type": {
               "kind": "nil"
             },
             "kind": "literal",
             "value_kind": "nil"
-          }
+          },
+          "needs_strdup": false
         },
         {
           "kind": "return",

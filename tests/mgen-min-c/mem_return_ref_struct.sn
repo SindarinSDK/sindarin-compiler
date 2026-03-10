@@ -1,0 +1,10 @@
+struct Box as ref =>
+    value: int
+
+fn make_box(v: int): Box =>
+    var b: Box = Box { value: v }
+    return b
+
+fn main(): void =>
+    var b: Box = make_box(42)
+    assert(b.value == 42, "box value should be 42")

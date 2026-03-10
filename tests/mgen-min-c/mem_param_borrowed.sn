@@ -1,0 +1,6 @@
+fn print_name(name: str): void =>
+    assert(name.length > 0, "name should not be empty")
+
+fn main(): void =>
+    var s: str = "Alice"
+    print_name(s)

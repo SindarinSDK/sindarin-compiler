@@ -47,11 +47,19 @@ static char *helper_c_type_min(json_object **params, int param_count, hbs_option
 
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;
+        json_object *ref_obj = NULL;
         if (json_object_object_get_ex(type_obj, "name", &name_obj)) {
             const char *sname = json_object_get_string(name_obj);
             if (sname) {
                 char buf[256];
-                snprintf(buf, sizeof(buf), "__sn__%s", sname);
+                /* as ref structs are heap-allocated pointers */
+                bool is_ref = false;
+                if (json_object_object_get_ex(type_obj, "pass_self_by_ref", &ref_obj))
+                    is_ref = json_object_get_boolean(ref_obj);
+                if (is_ref)
+                    snprintf(buf, sizeof(buf), "__sn__%s *", sname);
+                else
+                    snprintf(buf, sizeof(buf), "__sn__%s", sname);
                 return strdup(buf);
             }
         }
@@ -144,11 +152,18 @@ static char *helper_c_sizeof_min(json_object **params, int param_count, hbs_opti
 
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;
+        json_object *ref_obj = NULL;
         if (json_object_object_get_ex(type_obj, "name", &name_obj)) {
             const char *sname = json_object_get_string(name_obj);
             if (sname) {
                 char buf[256];
-                snprintf(buf, sizeof(buf), "sizeof(__sn__%s)", sname);
+                bool is_ref = false;
+                if (json_object_object_get_ex(type_obj, "pass_self_by_ref", &ref_obj))
+                    is_ref = json_object_get_boolean(ref_obj);
+                if (is_ref)
+                    snprintf(buf, sizeof(buf), "sizeof(__sn__%s *)", sname);
+                else
+                    snprintf(buf, sizeof(buf), "sizeof(__sn__%s)", sname);
                 return strdup(buf);
             }
         }
