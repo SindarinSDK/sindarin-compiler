@@ -1,0 +1,4 @@
+fn main(): void =>
+    var s: str = "hello"
+    var n: int = s.length
+    assert(n == 5, "expected string length to be 5")

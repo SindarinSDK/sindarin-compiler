@@ -547,7 +547,8 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                  const char *output_exe, const char *compiler_dir,
                  bool verbose, bool debug_mode, bool profile_mode,
                  char **link_libs, int link_lib_count,
-                 PragmaSourceInfo *source_files, int source_file_count)
+                 PragmaSourceInfo *source_files, int source_file_count,
+                 int codegen_mode)
 {
     char exe_path[PATH_MAX];
     char lib_dir[PATH_MAX];
@@ -569,7 +570,10 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     const char *sdk_root = get_sdk_root(compiler_dir);
 
     snprintf(lib_dir, sizeof(lib_dir), "%s" SN_PATH_SEP_STR "%s", sdk_root, backend_lib_subdir(backend));
-    snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", sdk_root);
+    if (codegen_mode == 3)
+        snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "minimal\" -I\"%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "platform", sdk_root, sdk_root);
+    else
+        snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", sdk_root);
 
     deps_include_dir[0] = '\0';
     deps_lib_dir[0] = '\0';
@@ -612,7 +616,10 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
 
     normalize_path_separators(exe_path);
 
-    snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime.a", lib_dir);
+    if (codegen_mode == 3)
+        snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime_min.a", lib_dir);
+    else
+        snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime.a", lib_dir);
 
     if (backend != BACKEND_MSVC && access(runtime_lib, R_OK) != 0)
     {

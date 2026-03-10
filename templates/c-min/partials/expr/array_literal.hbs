@@ -1,0 +1,11 @@
+({
+        SnArray *__al__ = sn_array_new({{c_sizeof type.element_type}}, {{count elements}});
+{{#each elements}}
+{{#if (eq kind "spread")}}
+        /* TODO: spread into minimal array */
+{{else}}
+        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{> expr this}} });
+{{/if}}
+{{/each}}
+        __al__;
+    })

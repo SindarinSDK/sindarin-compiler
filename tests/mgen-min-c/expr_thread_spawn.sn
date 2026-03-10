@@ -1,0 +1,7 @@
+fn compute(): int =>
+    return 42
+
+fn main(): void =>
+    var handle: int = &compute()
+    var result: int = handle!
+    assert(result == 42, "expected result to be 42")

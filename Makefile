@@ -328,6 +328,9 @@ install: build
 	@echo "  Copying runtime library..."
 	@$(RM_DIR) $(SN_LIB_DIR)/lib
 	@$(CP_DIR) $(BIN_DIR)/lib $(SN_LIB_DIR)/lib
+	@echo "  Copying templates..."
+	@$(RM_DIR) $(SN_LIB_DIR)/templates
+	@$(CP_DIR) $(BIN_DIR)/templates $(SN_LIB_DIR)/templates
 ifeq ($(PLATFORM),windows)
 	@echo "  Copying binary to bin directory..."
 	@$(CP) $(BIN_DIR)/sn$(EXE_EXT) $(SN_BIN_DIR)/sn$(EXE_EXT)

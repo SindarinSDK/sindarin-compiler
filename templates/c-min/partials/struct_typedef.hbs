@@ -1,0 +1,8 @@
+{{#if is_native}}{{else}}/* Struct type definitions */
+typedef struct {
+{{#each fields}}
+    {{c_type type}} __sn__{{name}};
+{{/each}}
+} __sn__{{name}};
+
+{{/if}}

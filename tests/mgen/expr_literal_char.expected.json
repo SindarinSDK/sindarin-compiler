@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/expr_literal_char.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
   },
   "pragmas": [],
   "imports": [],

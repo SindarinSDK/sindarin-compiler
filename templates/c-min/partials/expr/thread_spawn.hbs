@@ -1,0 +1,11 @@
+({
+    SnThread *__th__ = sn_thread_create();
+{{#if call.args.length}}
+    __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
+{{#each call.args}}    __args__->arg{{@index}} = {{> expr this}};
+{{/each}}    __th__->result = __args__;
+{{/if}}
+    __th__->result_size = sizeof({{c_type call.type}});
+    pthread_create(&__th__->thread, NULL, __thread_wrapper_{{thread_id}}__, __th__);
+    __th__;
+})

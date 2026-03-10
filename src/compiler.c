@@ -29,6 +29,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->emit_c_only = 0;  /* Default: compile to executable */
     options->emit_model = 0;   /* Default: no model output */
     options->emit_model_c = 0; /* Default: no model-based C output */
+    options->emit_model_min_c = 0; /* Default: no minimal C output */
     options->emit_model_rust = 0; /* Default: no model-based Rust output */
     options->keep_c = 0;       /* Default: delete intermediate C file */
     options->debug_build = 0;  /* Default: optimized build */
@@ -260,6 +261,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         {
             options->emit_model_c = 1;
         }
+        else if (strcmp(argv[i], "--emit-model-min-c") == 0)
+        {
+            options->emit_model_min_c = 1;
+        }
         else if (strcmp(argv[i], "--emit-model-rust") == 0)
         {
             options->emit_model_rust = 1;
@@ -281,19 +286,19 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             if (i + 1 < argc)
             {
                 int mode = atoi(argv[++i]);
-                if (mode == 1 || mode == 2)
+                if (mode == 1 || mode == 2 || mode == 3)
                 {
                     options->codegen_mode = mode;
                 }
                 else
                 {
-                    fprintf(stderr, "Error: --codegen must be 1 (legacy) or 2 (model-based)\n");
+                    fprintf(stderr, "Error: --codegen must be 1 (legacy), 2 (model-based), or 3 (minimal)\n");
                     return 1;
                 }
             }
             else
             {
-                fprintf(stderr, "Error: --codegen requires a value (1 or 2)\n");
+                fprintf(stderr, "Error: --codegen requires a value (1, 2, or 3)\n");
                 return 1;
             }
         }
@@ -376,6 +381,24 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     else if (options->emit_model_c)
     {
         // --emit-model-c mode: -o specifies C file output (generated via templates)
+        if (options->output_file == NULL)
+        {
+            size_t out_len = base_len + 3; // ".c" + null terminator
+            char *out = arena_alloc(&options->arena, out_len);
+            if (!out)
+            {
+                DEBUG_ERROR("Failed to allocate memory for output file path");
+                return 0;
+            }
+            strncpy(out, options->source_file, base_len);
+            strcpy(out + base_len, ".c");
+            options->output_file = out;
+        }
+        options->executable_file = NULL;
+    }
+    else if (options->emit_model_min_c)
+    {
+        // --emit-model-min-c mode: -o specifies C file output (generated via minimal templates)
         if (options->output_file == NULL)
         {
             size_t out_len = base_len + 3; // ".c" + null terminator

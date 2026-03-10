@@ -23,19 +23,31 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     json_object_object_add(mod, "filename",
         json_object_new_string(module->filename ? module->filename : ""));
 
-    /* Check if module has a main function */
+    /* Check if module has a main function and forward-declarable functions */
     bool has_main = false;
+    bool main_returns = false;
+    bool has_forward_decls = false;
     for (int i = 0; i < module->count; i++)
     {
         Stmt *stmt = module->statements[i];
-        if (stmt->type == STMT_FUNCTION &&
-            strcmp(stmt->as.function.name.start, "main") == 0)
+        if (stmt->type == STMT_FUNCTION)
         {
-            has_main = true;
-            break;
+            if (strcmp(stmt->as.function.name.start, "main") == 0)
+            {
+                has_main = true;
+                int bc = stmt->as.function.body_count;
+                if (bc > 0 && stmt->as.function.body[bc - 1]->type == STMT_RETURN)
+                    main_returns = true;
+            }
+            else if (!stmt->as.function.is_native)
+            {
+                has_forward_decls = true;
+            }
         }
     }
     json_object_object_add(mod, "has_main", json_object_new_boolean(has_main));
+    json_object_object_add(mod, "main_returns", json_object_new_boolean(main_returns));
+    json_object_object_add(mod, "has_forward_decls", json_object_new_boolean(has_forward_decls));
     json_object_object_add(root, "module", mod);
 
     /* Collect top-level declarations into categorized arrays */

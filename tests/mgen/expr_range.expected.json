@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/expr_range.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": false
   },
   "pragmas": [],
   "imports": [],

@@ -1,7 +1,9 @@
 {
   "module": {
     "filename": "tests\/mgen\/return_cleanup.sn",
-    "has_main": true
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": true
   },
   "pragmas": [],
   "imports": [],

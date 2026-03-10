@@ -34,8 +34,9 @@ int main() {
             long long __match_subject__ = __sn__x;
             if (__match_subject__ == 1LL) {
                 __match_result__ = 10LL;
+            } else {
+                __match_result__ = 0LL;
             }
-            __match_result__ = 0LL;
             __match_result__;
         });
     _return_value = __sn__result; goto main_return;

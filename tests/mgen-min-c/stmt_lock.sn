@@ -1,0 +1,7 @@
+fn main(): void =>
+    sync var x: int = 0
+    sync var y: int = 0
+    lock(x) =>
+        x = x + 1
+        y = x
+    assert(y == 1, "expected y to be 1 after lock increment")

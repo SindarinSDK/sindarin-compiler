@@ -1,0 +1,1 @@
+({ sn_auto_thread SnThread *__sync_th__ = {{> expr handle}}; {{#if (eq handle.kind "variable")}}__sn__{{handle.name}} = NULL; {{/if}}sn_thread_join(__sync_th__); {{c_type result_type}} __sync_val__ = *({{c_type result_type}} *)__sync_th__->result; __sync_val__; })

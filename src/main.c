@@ -68,7 +68,7 @@ int main(int argc, char **argv)
     cc_backend_init_config(&cc_config);
 
     /* Check for C compiler availability early (unless --emit-c or --emit-model mode) */
-    if (!options.emit_c_only && !options.emit_model && !options.emit_model_c && !options.emit_model_rust)
+    if (!options.emit_c_only && !options.emit_model && !options.emit_model_c && !options.emit_model_min_c && !options.emit_model_rust)
     {
         if (!gcc_check_available(&cc_config, options.verbose))
         {
@@ -189,6 +189,57 @@ int main(int argc, char **argv)
         return 0;
     }
 
+    /* Handle --emit-model-min-c mode: generate minimal C via JSON model + Handlebars templates */
+    if (options.emit_model_min_c)
+    {
+        diagnostic_phase_start(PHASE_CODE_GEN);
+
+        json_object *model = gen_model_build(&options.arena, module,
+                                              &options.symbol_table,
+                                              options.arithmetic_mode);
+
+        /* Find templates directory relative to compiler binary */
+        char template_dir[1024];
+        snprintf(template_dir, sizeof(template_dir), "%s/templates/c-min", options.compiler_dir);
+
+        char *c_code = gen_model_render_min_c(model, template_dir);
+        json_object_put(model);
+
+        if (!c_code)
+        {
+            fprintf(stderr, "Error: minimal C template rendering failed\n");
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+
+        /* Write C code to output file (binary mode for consistent line endings) */
+        FILE *out = fopen(options.output_file, "wb");
+        if (!out)
+        {
+            fprintf(stderr, "Error: cannot open output file: %s\n", options.output_file);
+            free(c_code);
+            diagnostic_phase_failed(PHASE_CODE_GEN);
+            compiler_cleanup(&options);
+            return 1;
+        }
+        fputs(c_code, out);
+        fclose(out);
+        free(c_code);
+
+        diagnostic_phase_done(PHASE_CODE_GEN, 0);
+
+        struct stat st;
+        long file_size = 0;
+        if (stat(options.output_file, &st) == 0)
+        {
+            file_size = st.st_size;
+        }
+        diagnostic_compile_success(options.output_file, file_size, 0);
+        compiler_cleanup(&options);
+        return 0;
+    }
+
     /* Handle --emit-model-rust mode: generate Rust via JSON model + Handlebars templates */
     if (options.emit_model_rust)
     {
@@ -243,7 +294,7 @@ int main(int argc, char **argv)
     /* Phase 3: Code generation */
     diagnostic_phase_start(PHASE_CODE_GEN);
 
-    if (options.codegen_mode == 2)
+    if (options.codegen_mode == 2 || options.codegen_mode == 3)
     {
         /* Model-based codegen: JSON model + Handlebars templates */
         json_object *model = gen_model_build(&options.arena, module,
@@ -251,9 +302,14 @@ int main(int argc, char **argv)
                                               options.arithmetic_mode);
 
         char template_dir[1024];
-        snprintf(template_dir, sizeof(template_dir), "%s/templates/c", options.compiler_dir);
+        if (options.codegen_mode == 3)
+            snprintf(template_dir, sizeof(template_dir), "%s/templates/c-min", options.compiler_dir);
+        else
+            snprintf(template_dir, sizeof(template_dir), "%s/templates/c", options.compiler_dir);
 
-        char *c_code = gen_model_render_c(model, template_dir);
+        char *c_code = (options.codegen_mode == 3)
+            ? gen_model_render_min_c(model, template_dir)
+            : gen_model_render_c(model, template_dir);
         json_object_put(model);
 
         if (!c_code)
@@ -328,7 +384,8 @@ int main(int argc, char **argv)
                      options.compiler_dir, options.verbose,
                      options.debug_build, options.profile_build,
                      options.link_libs, options.link_lib_count,
-                     options.source_files, options.source_file_count))
+                     options.source_files, options.source_file_count,
+                     options.codegen_mode))
     {
         diagnostic_phase_failed(PHASE_LINKING);
         diagnostic_compile_failed();

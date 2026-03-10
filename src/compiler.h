@@ -34,6 +34,7 @@ typedef struct
     int emit_c_only;                 /* --emit-c: Only output C code, don't invoke GCC */
     int emit_model;                  /* --emit-model: Output JSON model, don't generate C */
     int emit_model_c;                /* --emit-model-c: Generate C via model + templates */
+    int emit_model_min_c;            /* --emit-model-min-c: Generate minimal C via model + templates */
     int emit_model_rust;             /* --emit-model-rust: Generate Rust via model + templates */
     int keep_c;                      /* --keep-c: Keep intermediate C file after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
@@ -47,7 +48,7 @@ typedef struct
     char *install_target;            /* Package URL@ref for --install */
     int clear_cache;                 /* --clear-cache: Clear package cache */
     int no_install;                  /* --no-install: Skip auto-install of dependencies */
-    int codegen_mode;                /* --codegen: 1=legacy (default), 2=model-based templates */
+    int codegen_mode;                /* --codegen: 1=legacy (default), 2=model-based, 3=minimal */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

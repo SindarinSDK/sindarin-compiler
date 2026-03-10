@@ -1,0 +1,6 @@
+fn main(): void =>
+    var arr: int[] = {1, 2, 3}
+    var sum: int = 0
+    for item in arr =>
+        sum += item
+    assert(sum == 6, "expected sum of {1,2,3} to be 6")

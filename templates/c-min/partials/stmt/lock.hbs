@@ -1,0 +1,3 @@
+pthread_mutex_lock(&__sn__{{lock_expr.name}}_mutex);
+{{> stmt body}}
+pthread_mutex_unlock(&__sn__{{lock_expr.name}}_mutex);

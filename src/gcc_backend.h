@@ -82,7 +82,8 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
                  const char *output_exe, const char *compiler_dir,
                  bool verbose, bool debug_mode, bool profile_mode,
                  char **link_libs, int link_lib_count,
-                 PragmaSourceInfo *source_files, int source_file_count);
+                 PragmaSourceInfo *source_files, int source_file_count,
+                 int codegen_mode);
 
 /* Get the directory containing the compiler executable.
  * Used as the default SDK root when $SN_SDK is not set.
