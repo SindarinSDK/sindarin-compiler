@@ -18,6 +18,7 @@ int main() {
     sn_auto_str char * __sn__c = ({
             char __is_buf__[1024];
             int __is_off__ = 0;
+            __is_buf__[0] = '\0';
             __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", "value: ");
             __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __sn__a);
             strdup(__is_buf__);
