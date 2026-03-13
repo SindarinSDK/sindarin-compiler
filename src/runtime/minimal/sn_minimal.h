@@ -16,7 +16,7 @@
     #if (defined(__MINGW32__) || defined(__MINGW64__)) && !defined(SN_USE_WIN32_THREADS)
         #include <pthread.h>
     #else
-        #include "platform/compat_pthread.h"
+        #include "compat_pthread.h"
     #endif
 #else
     #include <pthread.h>
