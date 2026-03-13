@@ -17,7 +17,7 @@ int main() {
             SnArray *__al__ = sn_array_new(sizeof(char *), 2);
             __al__->elem_tag = SN_TAG_STRING;
     
-            __al__->elem_release = sn_cleanup_str;
+            __al__->elem_release = (void (*)(void *))sn_cleanup_str;
     
             __al__->elem_copy = sn_copy_str;
     

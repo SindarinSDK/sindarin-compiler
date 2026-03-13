@@ -1477,7 +1477,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 switch (et->kind)
                 {
                     case TYPE_STRING:
-                        elem_release_fn = "sn_cleanup_str";
+                        elem_release_fn = "(void (*)(void *))sn_cleanup_str";
                         elem_copy_fn = "sn_copy_str";
                         break;
                     case TYPE_ARRAY:
@@ -1811,7 +1811,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 if (expected_et->kind == TYPE_STRING)
                                 {
                                     json_object_object_add(fval_obj, "elem_release_fn",
-                                        json_object_new_string("sn_cleanup_str"));
+                                        json_object_new_string("(void (*)(void *))sn_cleanup_str"));
                                     json_object_object_add(fval_obj, "elem_copy_fn",
                                         json_object_new_string("sn_copy_str"));
                                 }
