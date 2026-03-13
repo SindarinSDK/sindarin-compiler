@@ -32,7 +32,6 @@ static bool type_needs_arena(Type *type)
     case TYPE_BYTE:
     case TYPE_VOID:
     case TYPE_NIL:
-    case TYPE_ANY:
     case TYPE_POINTER:  /* Pointers are raw C pointers, no arena needed */
     default:
         return false;
@@ -452,9 +451,6 @@ static bool expr_allocates(Expr *expr)
     case EXPR_ADDRESS_OF:
         return expr_allocates(expr->as.address_of.operand);
 
-    case EXPR_TYPEOF:
-    case EXPR_IS:
-    case EXPR_AS_TYPE:
     case EXPR_SIZEOF:
         return false;
 

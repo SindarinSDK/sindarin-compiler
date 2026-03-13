@@ -34,10 +34,6 @@ size_t get_type_alignment(Type *type)
         case TYPE_STRUCT:
             return type->as.struct_type.alignment;
 
-        /* Any type needs 8-byte alignment */
-        case TYPE_ANY:
-            return 8;
-
         /* Void and nil have no alignment requirement */
         case TYPE_VOID:
         case TYPE_NIL:

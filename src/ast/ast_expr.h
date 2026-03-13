@@ -28,9 +28,6 @@ Expr *ast_create_index_assign_expr(Arena *arena, Expr *array, Expr *index, Expr 
 Expr *ast_create_address_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
 Expr *ast_create_value_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
 Expr *ast_create_copy_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
-Expr *ast_create_typeof_expr(Arena *arena, Expr *operand, Type *type_literal, const Token *loc_token);
-Expr *ast_create_is_expr(Arena *arena, Expr *operand, Type *check_type, const Token *loc_token);
-Expr *ast_create_as_type_expr(Arena *arena, Expr *operand, Type *target_type, const Token *loc_token);
 Expr *ast_create_struct_literal_expr(Arena *arena, Token struct_name, FieldInitializer *fields,
                                       int field_count, const Token *loc_token);
 Expr *ast_create_member_access_expr(Arena *arena, Expr *object, Token field_name, const Token *loc_token);

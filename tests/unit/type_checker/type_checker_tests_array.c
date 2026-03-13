@@ -17,7 +17,6 @@ void test_type_checker_array_main()
     TEST_RUN("array_decl_with_init_matching", test_type_check_array_decl_with_init_matching);
     TEST_RUN("array_decl_with_init_mismatch", test_type_check_array_decl_with_init_mismatch);
     TEST_RUN("array_literal_empty", test_type_check_array_literal_empty);
-    TEST_RUN("array_literal_heterogeneous", test_type_check_array_literal_heterogeneous);
     TEST_RUN("array_access_valid", test_type_check_array_access_valid);
     TEST_RUN("array_access_non_array", test_type_check_array_access_non_array);
     TEST_RUN("array_access_invalid_index", test_type_check_array_access_invalid_index);

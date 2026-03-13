@@ -8,53 +8,10 @@
 #include <stdio.h>
 #include <ctype.h>
 
-/* Helper to compare Token with C string */
-static bool codegen_token_equals(Token tok, const char *str)
-{
-    size_t len = strlen(str);
-    return tok.length == (int)len && strncmp(tok.start, str, len) == 0;
-}
-
 char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
 {
     DEBUG_VERBOSE("Entering code_gen_static_call_expression");
     StaticCallExpr *call = &expr->as.static_call;
-    Token type_name = call->type_name;
-    Token method_name = call->method_name;
-
-    /* Generate argument expressions */
-    char *arg0 = call->arg_count > 0 ? code_gen_expression(gen, call->arguments[0]) : NULL;
-    char *arg1 = call->arg_count > 1 ? code_gen_expression(gen, call->arguments[1]) : NULL;
-
-    /* Interceptor static methods */
-    if (codegen_token_equals(type_name, "Interceptor"))
-    {
-        /* Interceptor.register(handler) -> rt_interceptor_register((RtInterceptHandler)handler) */
-        if (codegen_token_equals(method_name, "register"))
-        {
-            return arena_sprintf(gen->arena, "(rt_interceptor_register((RtInterceptHandler)%s), (void)0)", arg0);
-        }
-        /* Interceptor.registerWhere(handler, pattern) -> rt_interceptor_register_where((RtInterceptHandler)handler, pattern) */
-        else if (codegen_token_equals(method_name, "registerWhere"))
-        {
-            return arena_sprintf(gen->arena, "(rt_interceptor_register_where((RtInterceptHandler)%s, %s), (void)0)", arg0, arg1);
-        }
-        /* Interceptor.clearAll() -> rt_interceptor_clear_all() */
-        else if (codegen_token_equals(method_name, "clearAll"))
-        {
-            return arena_sprintf(gen->arena, "(rt_interceptor_clear_all(), (void)0)");
-        }
-        /* Interceptor.isActive() -> rt_interceptor_is_active() */
-        else if (codegen_token_equals(method_name, "isActive"))
-        {
-            return arena_sprintf(gen->arena, "rt_interceptor_is_active()");
-        }
-        /* Interceptor.count() -> rt_interceptor_count() */
-        else if (codegen_token_equals(method_name, "count"))
-        {
-            return arena_sprintf(gen->arena, "rt_interceptor_count()");
-        }
-    }
 
     /* Check for user-defined struct static methods */
     if (call->resolved_method != NULL && call->resolved_struct_type != NULL)
@@ -189,16 +146,7 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
         }
         else
         {
-            /* Non-native static method: check for interception */
-            if (should_intercept_method(method, struct_type, method->return_type))
-            {
-                return code_gen_intercepted_method_call(gen, struct_name, method,
-                                                        struct_type, call->arg_count,
-                                                        call->arguments, NULL,
-                                                        false, method->return_type);
-            }
-
-            /* Direct call (no interception) */
+            /* Direct call */
             char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
             char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
@@ -218,8 +166,8 @@ char *code_gen_static_call_expression(CodeGen *gen, Expr *expr)
     /* Fallback for unimplemented static methods */
     return arena_sprintf(gen->arena,
         "(fprintf(stderr, \"Static method call not yet implemented: %.*s.%.*s\\n\"), exit(1), (void *)0)",
-        type_name.length, type_name.start,
-        method_name.length, method_name.start);
+        call->type_name.length, call->type_name.start,
+        call->method_name.length, call->method_name.start);
 }
 
 char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
@@ -330,38 +278,7 @@ char *code_gen_method_call_expression(CodeGen *gen, Expr *expr)
     {
         /* Non-native Sindarin method */
 
-        /* Check for interception */
-        if (should_intercept_method(method, struct_type, method->return_type))
-        {
-            char *self_ptr_str = NULL;
-            bool is_self_pointer = false;
-
-            if (!call->is_static && call->object != NULL)
-            {
-                char *self_str = code_gen_expression(gen, call->object);
-                if (call->object->expr_type != NULL &&
-                    call->object->expr_type->kind == TYPE_POINTER)
-                {
-                    self_ptr_str = self_str;
-                    is_self_pointer = true;
-                }
-                else
-                {
-                    char *mangled_type = sn_mangle_name(gen->arena, struct_name);
-                    self_ptr_str = code_gen_self_ref(gen, call->object, mangled_type, self_str);
-                    is_self_pointer = false;
-                }
-            }
-
-            char *intercept_result = code_gen_intercepted_method_call(gen, struct_name, method,
-                                                    struct_type, call->arg_count,
-                                                    call->args, self_ptr_str,
-                                                    is_self_pointer, method->return_type);
-
-            return intercept_result;
-        }
-
-        /* Direct call (no interception) */
+        /* Direct call */
         char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
         char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 

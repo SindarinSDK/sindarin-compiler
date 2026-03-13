@@ -5,9 +5,17 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sn_minimal.h"
+
 void __sn__print_name(char *);
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 void __sn__print_name(char * __sn__name) {
+
     sn_assert(sn_gt_long(sn_str_length(__sn__name), 0LL), "name should not be empty");
 }
 

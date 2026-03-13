@@ -8,6 +8,12 @@
 
 long long __sn__counter = 0LL;
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     (__sn__counter = 42LL);
     sn_assert((__sn__counter == 42LL), "expected counter to be 42");

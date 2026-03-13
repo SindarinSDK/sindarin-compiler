@@ -20,9 +20,6 @@ static RtArenaV2 *__main_arena__ = NULL;
 
 RtHandleV2 * __sn__append_world(RtArenaV2 *);
 
-/* Interceptor thunk forward declarations */
-static RtAny __thunk_0(void);
-
 // Code Generation Test: Global with default function
 //
 // Tests that a default function uses its own arena for allocations,
@@ -58,19 +55,7 @@ int main() {
     RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with default function test:");
     rt_println_v2(__htmp_1__);
     RtHandleV2 *__result_pending__ = NULL;
-    RtHandleV2 * __sn__result = ({
-    RtHandleV2 * __intercept_result;
-    if (__rt_interceptor_count > 0) {
-        RtAny __args[1];
-        __rt_thunk_args = __args;
-        __rt_thunk_arena = __local_arena__;
-        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__local_arena__, "append_world"), __args, 0, __thunk_0);
-        __intercept_result = rt_unbox_string_v2(__intercepted);
-    } else {
-        __intercept_result = __sn__append_world(__local_arena__);
-    }
-    __intercept_result;
-});
+    RtHandleV2 * __sn__result = __sn__append_world(__local_arena__);
     rt_println_v2(__sn__result);
     RtHandleV2 *__htmp_2__ = rt_arena_v2_strdup(__local_arena__, "PASS");
     RtHandleV2 *__htmp_3__ = rt_arena_v2_strdup(__local_arena__, "PASS");
@@ -80,12 +65,5 @@ int main() {
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
-}
-
-
-/* Interceptor thunk definitions */
-static RtAny __thunk_0(void) {
-    RtAny __result = rt_box_string_v2(__sn__append_world((RtArenaV2 *)__rt_thunk_arena));
-    return __result;
 }
 

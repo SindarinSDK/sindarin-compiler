@@ -245,21 +245,10 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
             type_error(expr->token, "Invalid argument in function call");
             return NULL;
         }
-        if (param_type->kind == TYPE_ANY)
+        if (!ast_type_equals(arg_type, param_type))
         {
-            if (!is_printable_type(arg_type))
-            {
-                type_error(expr->token, "Unsupported type for built-in function");
-                return NULL;
-            }
-        }
-        else
-        {
-            if (!ast_type_equals(arg_type, param_type))
-            {
-                argument_type_error(expr->token, func_name, i, param_type, arg_type);
-                return NULL;
-            }
+            argument_type_error(expr->token, func_name, i, param_type, arg_type);
+            return NULL;
         }
 
         /* Check that 'as ref' parameters receive an lvalue (variable), not a literal or expression result */
@@ -275,7 +264,10 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
         }
     }
 
-    /* Type check variadic arguments - must be primitives, str, or pointers (not arrays) */
+    /* Type check variadic arguments - must be primitives, str, or pointers (not arrays).
+     * Exempt builtin print/println which handle arrays natively. */
+    bool is_builtin_print = (strcmp(func_name, "print") == 0 || strcmp(func_name, "println") == 0 ||
+                             strcmp(func_name, "printErr") == 0 || strcmp(func_name, "printErrLn") == 0);
     if (is_variadic)
     {
         for (int i = expected_params; i < expr->as.call.arg_count; i++)
@@ -287,7 +279,7 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
                 type_error(expr->token, "Invalid argument in function call");
                 return NULL;
             }
-            if (!is_variadic_compatible_type(arg_type))
+            if (!is_builtin_print && !is_variadic_compatible_type(arg_type))
             {
                 char msg[256];
                 snprintf(msg, sizeof(msg),
@@ -336,7 +328,7 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
  * Static Method Call Type Checking
  * ============================================================================
  * Handles type checking for static method calls like Stdin.readLine(),
- * Stdout.write(), Interceptor.register(), and user-defined struct static methods.
+ * Stdout.write(), and user-defined struct static methods.
  * ============================================================================ */
 
 Type *type_check_static_method_call(Expr *expr, SymbolTable *table)
@@ -351,188 +343,6 @@ Type *type_check_static_method_call(Expr *expr, SymbolTable *table)
         Type *arg_type = type_check_expr(call->arguments[i], table);
         if (arg_type == NULL)
         {
-            return NULL;
-        }
-    }
-
-    /* Interceptor static methods - function interception for debugging/mocking */
-    if (token_equals(type_name, "Interceptor"))
-    {
-        if (token_equals(method_name, "register"))
-        {
-            /* Interceptor.register(handler: fn(str, any[], fn(): any): any): void */
-            if (call->arg_count != 1)
-            {
-                type_error(&method_name, "Interceptor.register requires exactly 1 argument (handler function)");
-                return NULL;
-            }
-            Type *handler_type = call->arguments[0]->expr_type;
-            if (handler_type == NULL || handler_type->kind != TYPE_FUNCTION)
-            {
-                type_error(&method_name, "Interceptor.register requires a function argument");
-                return NULL;
-            }
-            /* Validate handler signature is fn(str, any[], fn(): any): any */
-
-            /* Check parameter count */
-            if (handler_type->as.function.param_count != 3)
-            {
-                type_error(&method_name, "Interceptor handler must have 3 parameters: (name: str, args: any[], continue_fn: fn(): any)");
-                return NULL;
-            }
-
-            /* Check param 0 is str */
-            if (handler_type->as.function.param_types[0] == NULL ||
-                handler_type->as.function.param_types[0]->kind != TYPE_STRING)
-            {
-                type_error(&method_name, "Interceptor handler first parameter must be 'str' (function name)");
-                return NULL;
-            }
-
-            /* Check param 1 is any[] */
-            if (handler_type->as.function.param_types[1] == NULL ||
-                handler_type->as.function.param_types[1]->kind != TYPE_ARRAY ||
-                handler_type->as.function.param_types[1]->as.array.element_type == NULL ||
-                handler_type->as.function.param_types[1]->as.array.element_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler second parameter must be 'any[]' (arguments)");
-                return NULL;
-            }
-
-            /* Check param 2 is fn(): any */
-            Type *continue_param = handler_type->as.function.param_types[2];
-            if (continue_param == NULL || continue_param->kind != TYPE_FUNCTION)
-            {
-                type_error(&method_name, "Interceptor handler third parameter must be 'fn(): any' (continue function)");
-                return NULL;
-            }
-            if (continue_param->as.function.param_count != 0 ||
-                continue_param->as.function.return_type == NULL ||
-                continue_param->as.function.return_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler third parameter must be 'fn(): any' (continue function)");
-                return NULL;
-            }
-
-            /* Check return type is any */
-            if (handler_type->as.function.return_type == NULL ||
-                handler_type->as.function.return_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler must return 'any'");
-                return NULL;
-            }
-
-            return ast_create_primitive_type(table->arena, TYPE_VOID);
-        }
-        else if (token_equals(method_name, "registerWhere"))
-        {
-            /* Interceptor.registerWhere(handler: fn(str, any[], fn(): any): any, pattern: str): void */
-            if (call->arg_count != 2)
-            {
-                type_error(&method_name, "Interceptor.registerWhere requires exactly 2 arguments (handler, pattern)");
-                return NULL;
-            }
-            Type *handler_type = call->arguments[0]->expr_type;
-            Type *pattern_type = call->arguments[1]->expr_type;
-            if (handler_type == NULL || handler_type->kind != TYPE_FUNCTION)
-            {
-                type_error(&method_name, "Interceptor.registerWhere first argument must be a function");
-                return NULL;
-            }
-            if (pattern_type == NULL || pattern_type->kind != TYPE_STRING)
-            {
-                type_error(&method_name, "Interceptor.registerWhere second argument must be a pattern string");
-                return NULL;
-            }
-
-            /* Validate handler signature is fn(str, any[], fn(): any): any */
-
-            /* Check parameter count */
-            if (handler_type->as.function.param_count != 3)
-            {
-                type_error(&method_name, "Interceptor handler must have 3 parameters: (name: str, args: any[], continue_fn: fn(): any)");
-                return NULL;
-            }
-
-            /* Check param 0 is str */
-            if (handler_type->as.function.param_types[0] == NULL ||
-                handler_type->as.function.param_types[0]->kind != TYPE_STRING)
-            {
-                type_error(&method_name, "Interceptor handler first parameter must be 'str' (function name)");
-                return NULL;
-            }
-
-            /* Check param 1 is any[] */
-            if (handler_type->as.function.param_types[1] == NULL ||
-                handler_type->as.function.param_types[1]->kind != TYPE_ARRAY ||
-                handler_type->as.function.param_types[1]->as.array.element_type == NULL ||
-                handler_type->as.function.param_types[1]->as.array.element_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler second parameter must be 'any[]' (arguments)");
-                return NULL;
-            }
-
-            /* Check param 2 is fn(): any */
-            Type *continue_param = handler_type->as.function.param_types[2];
-            if (continue_param == NULL || continue_param->kind != TYPE_FUNCTION)
-            {
-                type_error(&method_name, "Interceptor handler third parameter must be 'fn(): any' (continue function)");
-                return NULL;
-            }
-            if (continue_param->as.function.param_count != 0 ||
-                continue_param->as.function.return_type == NULL ||
-                continue_param->as.function.return_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler third parameter must be 'fn(): any' (continue function)");
-                return NULL;
-            }
-
-            /* Check return type is any */
-            if (handler_type->as.function.return_type == NULL ||
-                handler_type->as.function.return_type->kind != TYPE_ANY)
-            {
-                type_error(&method_name, "Interceptor handler must return 'any'");
-                return NULL;
-            }
-
-            return ast_create_primitive_type(table->arena, TYPE_VOID);
-        }
-        else if (token_equals(method_name, "clearAll"))
-        {
-            /* Interceptor.clearAll(): void */
-            if (call->arg_count != 0)
-            {
-                type_error(&method_name, "Interceptor.clearAll takes no arguments");
-                return NULL;
-            }
-            return ast_create_primitive_type(table->arena, TYPE_VOID);
-        }
-        else if (token_equals(method_name, "isActive"))
-        {
-            /* Interceptor.isActive(): bool */
-            if (call->arg_count != 0)
-            {
-                type_error(&method_name, "Interceptor.isActive takes no arguments");
-                return NULL;
-            }
-            return ast_create_primitive_type(table->arena, TYPE_BOOL);
-        }
-        else if (token_equals(method_name, "count"))
-        {
-            /* Interceptor.count(): int */
-            if (call->arg_count != 0)
-            {
-                type_error(&method_name, "Interceptor.count takes no arguments");
-                return NULL;
-            }
-            return ast_create_primitive_type(table->arena, TYPE_INT);
-        }
-        else
-        {
-            char msg[128];
-            snprintf(msg, sizeof(msg), "Unknown Interceptor static method '%.*s'",
-                     method_name.length, method_name.start);
-            type_error(&method_name, msg);
             return NULL;
         }
     }

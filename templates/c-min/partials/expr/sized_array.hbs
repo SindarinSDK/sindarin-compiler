@@ -1,1 +1,21 @@
-sn_array_new({{c_sizeof element_type}}, {{> expr size}})
+({
+        SnArray *__sa__ = sn_array_new({{c_sizeof element_type}}, {{> expr size}});
+{{#if (eq element_type.kind "int")}}        __sa__->elem_tag = SN_TAG_INT;
+{{else}}{{#if (eq element_type.kind "long")}}        __sa__->elem_tag = SN_TAG_INT;
+{{else}}{{#if (eq element_type.kind "double")}}        __sa__->elem_tag = SN_TAG_DOUBLE;
+{{else}}{{#if (eq element_type.kind "float")}}        __sa__->elem_tag = SN_TAG_DOUBLE;
+{{else}}{{#if (eq element_type.kind "string")}}        __sa__->elem_tag = SN_TAG_STRING;
+        __sa__->elem_release = (void (*)(void *))sn_cleanup_str;
+        __sa__->elem_copy = sn_copy_str;
+{{else}}{{#if (eq element_type.kind "bool")}}        __sa__->elem_tag = SN_TAG_BOOL;
+{{else}}{{#if (eq element_type.kind "char")}}        __sa__->elem_tag = SN_TAG_CHAR;
+{{else}}{{#if (eq element_type.kind "byte")}}        __sa__->elem_tag = SN_TAG_BYTE;
+{{else}}{{#if (eq element_type.kind "array")}}        __sa__->elem_tag = SN_TAG_ARRAY;
+        __sa__->elem_release = (void (*)(void *))sn_cleanup_array;
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
+        for (long long __si__ = 0; __si__ < (long long)({{> expr size}}); __si__++) {
+{{#if (eq element_type.kind "string")}}            sn_array_push(__sa__, &(char *){ {{#if default_value}}strdup({{> expr default_value}}){{else}}NULL{{/if}} });
+{{else}}            sn_array_push(__sa__, &({{c_type element_type}}){ {{#if default_value}}{{> expr default_value}}{{else}}0{{/if}} });
+{{/if}}        }
+        __sa__;
+    })

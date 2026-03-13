@@ -35,12 +35,6 @@
 /* Threading module - depends on arena */
 #include "runtime/thread/runtime_thread_v3.h"
 
-/* Any type module - depends on arena and array */
-#include "runtime/runtime_any.h"
-
-/* Interceptor module - depends on any */
-#include "runtime/runtime_intercept.h"
-
 /* ============================================================================
  * Arithmetic operations
  * ============================================================================ */

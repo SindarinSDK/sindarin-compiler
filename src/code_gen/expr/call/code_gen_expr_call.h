@@ -152,41 +152,6 @@ char *code_gen_string_method_call(CodeGen *gen, const char *method_name,
 char *code_gen_string_length(CodeGen *gen, Expr *object);
 
 /* ============================================================================
- * Struct Method Interception (code_gen_expr_call_intercept.c)
- * ============================================================================ */
-
-/**
- * Generate an intercepted function call.
- * Wraps a user-defined function call with interception logic.
- */
-char *code_gen_intercepted_call(CodeGen *gen, const char *func_name,
-                                const char *callee_str,
-                                CallExpr *call, char **arg_strs, char **arg_names,
-                                Type **param_types, MemoryQualifier *param_quals,
-                                int param_count, Type *return_type, bool callee_has_body);
-
-/**
- * Check if a struct method should be intercepted.
- * Skips native methods, methods on native structs, and methods with
- * unsupported parameter/return types.
- */
-bool should_intercept_method(StructMethod *method, Type *struct_type, Type *return_type);
-
-/**
- * Generate an intercepted struct method call (instance or static).
- * Wraps the method call with interception logic including self boxing for instance methods.
- */
-char *code_gen_intercepted_method_call(CodeGen *gen,
-                                        const char *struct_name,
-                                        StructMethod *method,
-                                        Type *struct_type,
-                                        int arg_count,
-                                        Expr **arguments,
-                                        const char *self_ptr_str,
-                                        bool is_self_pointer,
-                                        Type *return_type);
-
-/* ============================================================================
  * Char Method Code Generation (code_gen_expr_call_char.c)
  * ============================================================================ */
 
@@ -196,6 +161,34 @@ char *code_gen_intercepted_method_call(CodeGen *gen,
  * Returns generated C code string, or NULL if not a char method.
  */
 char *code_gen_char_method_call(CodeGen *gen, const char *method_name,
+                                 Expr *object, int arg_count);
+
+/* ============================================================================
+ * Numeric Type Method Code Generation
+ * ============================================================================ */
+
+/** int methods: toDouble, toLong, toUint, toByte, toChar */
+char *code_gen_int_method_call(CodeGen *gen, const char *method_name,
+                                Expr *object, int arg_count);
+
+/** long methods: toInt, toDouble */
+char *code_gen_long_method_call(CodeGen *gen, const char *method_name,
+                                 Expr *object, int arg_count);
+
+/** double methods: toInt, toLong */
+char *code_gen_double_method_call(CodeGen *gen, const char *method_name,
+                                   Expr *object, int arg_count);
+
+/** uint methods: toInt, toLong, toDouble */
+char *code_gen_uint_method_call(CodeGen *gen, const char *method_name,
+                                 Expr *object, int arg_count);
+
+/** byte methods: toInt, toChar */
+char *code_gen_byte_method_call(CodeGen *gen, const char *method_name,
+                                 Expr *object, int arg_count);
+
+/** bool methods: toInt */
+char *code_gen_bool_method_call(CodeGen *gen, const char *method_name,
                                  Expr *object, int arg_count);
 
 #endif /* CODE_GEN_EXPR_CALL_H */

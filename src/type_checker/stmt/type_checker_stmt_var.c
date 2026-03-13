@@ -234,7 +234,6 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         decl_type->kind != TYPE_POINTER &&
         decl_type->kind != TYPE_STRING &&
         decl_type->kind != TYPE_ARRAY &&
-        decl_type->kind != TYPE_ANY &&
         decl_type->kind != TYPE_FUNCTION)
     {
         type_error(&stmt->as.var_decl.name, "'nil' can only be assigned to reference or pointer types");

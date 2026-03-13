@@ -34,8 +34,6 @@ Type *ast_clone_type(Arena *arena, Type *type)
     case TYPE_BYTE:
     case TYPE_VOID:
     case TYPE_NIL:
-    case TYPE_ANY:
-        break;
 
     case TYPE_OPAQUE:
         if (type->as.opaque.name != NULL)
@@ -423,9 +421,6 @@ const char *ast_type_to_string(Arena *arena, Type *type)
         return arena_strdup(arena, "void");
     case TYPE_NIL:
         return arena_strdup(arena, "nil");
-    case TYPE_ANY:
-        return arena_strdup(arena, "any");
-
     case TYPE_ARRAY:
     {
         const char *elem_str = ast_type_to_string(arena, type->as.array.element_type);

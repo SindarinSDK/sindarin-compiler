@@ -5,9 +5,17 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sn_minimal.h"
+
 long long __sn__add(long long, long long);
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 long long __sn__add(long long __sn__a, long long __sn__b) {
+
     return sn_add_long(__sn__a, __sn__b);}
 
 int main() {

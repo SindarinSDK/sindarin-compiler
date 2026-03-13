@@ -1,25 +1,29 @@
 /* C implementation for native struct Vec2 as ref method chaining test.
- * The struct layout must match what the Sindarin compiler generates. */
+ * The struct __sn__Vec2 is defined by the generated code.
+ * For 'as ref' structs, methods receive and return heap-allocated pointers. */
 
-typedef struct {
-    long long x;
-    long long y;
-} __sn__Vec2;
+#include <stdlib.h>
 
-__sn__Vec2 rt_vec2_add(__sn__Vec2 *self, __sn__Vec2 other)
+__sn__Vec2 *__sn__Vec2_add(__sn__Vec2 *self, __sn__Vec2 *other)
 {
-    __sn__Vec2 result = { self->x + other.x, self->y + other.y };
+    __sn__Vec2 *result = calloc(1, sizeof(__sn__Vec2));
+    result->__sn__x = self->__sn__x + other->__sn__x;
+    result->__sn__y = self->__sn__y + other->__sn__y;
     return result;
 }
 
-__sn__Vec2 rt_vec2_scale(__sn__Vec2 *self, long long factor)
+__sn__Vec2 *__sn__Vec2_scale(__sn__Vec2 *self, long long factor)
 {
-    __sn__Vec2 result = { self->x * factor, self->y * factor };
+    __sn__Vec2 *result = calloc(1, sizeof(__sn__Vec2));
+    result->__sn__x = self->__sn__x * factor;
+    result->__sn__y = self->__sn__y * factor;
     return result;
 }
 
-__sn__Vec2 rt_vec2_negate(__sn__Vec2 *self)
+__sn__Vec2 *__sn__Vec2_negate(__sn__Vec2 *self)
 {
-    __sn__Vec2 result = { -(self->x), -(self->y) };
+    __sn__Vec2 *result = calloc(1, sizeof(__sn__Vec2));
+    result->__sn__x = -(self->__sn__x);
+    result->__sn__y = -(self->__sn__y);
     return result;
 }

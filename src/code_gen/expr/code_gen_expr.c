@@ -10,7 +10,6 @@
 #include "code_gen/expr/code_gen_expr_incr.h"
 #include "code_gen/expr/code_gen_expr_member.h"
 #include "code_gen/expr/code_gen_expr_misc.h"
-#include "code_gen/expr/code_gen_expr_type.h"
 #include "code_gen/expr/code_gen_expr_struct.h"
 #include "code_gen/expr/code_gen_expr_access.h"
 #include "code_gen/expr/code_gen_expr_match.h"
@@ -84,12 +83,6 @@ char *code_gen_expression(CodeGen *gen, Expr *expr)
         return code_gen_value_of_expression(gen, expr);
     case EXPR_COPY_OF:
         return code_gen_copy_of_expression(gen, expr);
-    case EXPR_TYPEOF:
-        return code_gen_typeof_expression(gen, expr);
-    case EXPR_IS:
-        return code_gen_is_expression(gen, expr);
-    case EXPR_AS_TYPE:
-        return code_gen_as_type_expression(gen, expr);
     case EXPR_STRUCT_LITERAL:
         return code_gen_struct_literal_expression(gen, expr);
     case EXPR_MEMBER_ACCESS:

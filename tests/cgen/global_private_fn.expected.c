@@ -20,9 +20,6 @@ static RtArenaV2 *__main_arena__ = NULL;
 
 long long __sn__process_greeting(RtArenaV2 *);
 
-/* Interceptor thunk forward declarations */
-static RtAny __thunk_0(void);
-
 // Code Generation Test: Global with function
 //
 // Tests that a function can read global string variables and can modify
@@ -56,19 +53,7 @@ int main() {
     RtHandleV2 *__htmp_1__ = rt_arena_v2_strdup(__local_arena__, "Global with function test:");
     rt_println_v2(__htmp_1__);
     RtHandleV2 *__result_pending__ = NULL;
-    long long __sn__result = ({
-    long long __intercept_result;
-    if (__rt_interceptor_count > 0) {
-        RtAny __args[1];
-        __rt_thunk_args = __args;
-        __rt_thunk_arena = __local_arena__;
-        RtAny __intercepted = rt_call_intercepted(rt_arena_v2_strdup(__local_arena__, "process_greeting"), __args, 0, __thunk_0);
-        __intercept_result = rt_unbox_int(__intercepted);
-    } else {
-        __intercept_result = __sn__process_greeting(__local_arena__);
-    }
-    __intercept_result;
-});
+    long long __sn__result = __sn__process_greeting(__local_arena__);
     rt_println_v2(rt_arena_v2_clone(__local_arena__, __sn__message));
     RtHandleV2 *__htmp_2__ = rt_arena_v2_strdup(__local_arena__, "Greeting length: ");
     RtHandleV2 *__htmp_3__ = rt_arena_v2_strdup(__local_arena__, "Greeting length: ");
@@ -84,12 +69,5 @@ int main() {
 main_return:
     rt_arena_v2_condemn(__local_arena__);
     return _return_value;
-}
-
-
-/* Interceptor thunk definitions */
-static RtAny __thunk_0(void) {
-    RtAny __result = rt_box_int(__sn__process_greeting((RtArenaV2 *)__rt_thunk_arena));
-    return __result;
 }
 

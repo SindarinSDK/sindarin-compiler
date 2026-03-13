@@ -212,43 +212,7 @@ char *code_gen_sindarin_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr 
     const char *struct_name = struct_type->as.struct_type.name;
     char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
 
-    /* Check if this method should be intercepted */
-    if (should_intercept_method(method, struct_type, method->return_type))
-    {
-        /* Compute self pointer expression for interception */
-        char *self_ptr_str = NULL;
-        bool is_self_pointer = false;
-        if (!method->is_static)
-        {
-            /* Native struct self must stay as RtHandleV2* handle */
-            char *self_str = code_gen_expression(gen, member->object);
-            if (struct_type->as.struct_type.is_native && struct_type->as.struct_type.c_alias != NULL)
-            {
-                self_ptr_str = self_str;
-                is_self_pointer = true;
-            }
-            else if (member->object->expr_type != NULL &&
-                     member->object->expr_type->kind == TYPE_POINTER)
-            {
-                self_ptr_str = self_str;
-                is_self_pointer = true;
-            }
-            else
-            {
-                char *mangled_type = sn_mangle_name(gen->arena, struct_name);
-                self_ptr_str = code_gen_self_ref(gen, member->object, mangled_type, self_str);
-                is_self_pointer = false;
-            }
-        }
-
-        char *intercept_result = code_gen_intercepted_method_call(gen, struct_name, method,
-                                                struct_type, call->arg_count,
-                                                call->arguments, self_ptr_str,
-                                                is_self_pointer, method->return_type);
-        return intercept_result;
-    }
-
-    /* Direct call (no interception) */
+    /* Direct call */
     char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 
     /* For instance methods, pass self */
@@ -314,22 +278,7 @@ char *code_gen_pointer_struct_method_call(CodeGen *gen, Expr *expr, MemberExpr *
     Type *struct_type = member->resolved_struct_type;
     const char *struct_name = struct_type->as.struct_type.name;
 
-    /* Check if this method should be intercepted */
-    if (should_intercept_method(method, struct_type, method->return_type))
-    {
-        char *self_ptr_str = NULL;
-        if (!method->is_static)
-        {
-            self_ptr_str = code_gen_expression(gen, member->object);
-        }
-        char *intercept_result = code_gen_intercepted_method_call(gen, struct_name, method,
-                                                struct_type, call->arg_count,
-                                                call->arguments, self_ptr_str,
-                                                true, method->return_type);
-        return intercept_result;
-    }
-
-    /* Direct call (no interception) */
+    /* Direct call */
     char *mangled_struct = sn_mangle_name(gen->arena, struct_name);
     char *args_list = arena_strdup(gen->arena, ARENA_VAR(gen));
 

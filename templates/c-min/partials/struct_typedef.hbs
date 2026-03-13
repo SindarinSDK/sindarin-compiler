@@ -1,4 +1,26 @@
-{{#if is_native}}{{else}}{{#if (eq mem_mode "ref")}}/* Struct: {{name}} (as ref — refcounted) */
+{{#if is_native}}/* Struct: {{name}} (native) */
+{{#if is_packed}}#pragma pack(push, 1)
+{{/if}}typedef struct {
+{{#each fields}}
+    {{c_type type}} __sn__{{name}};
+{{/each}}
+} __sn__{{name}};
+{{#if is_packed}}#pragma pack(pop)
+{{/if}}
+{{#if pass_self_by_ref}}
+static inline __sn__{{name}} *__sn__{{name}}_alloc(void) {
+    return calloc(1, sizeof(__sn__{{name}}));
+}
+
+static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
+    if (*p) { free(*p); }
+    *p = NULL;
+}
+
+#define sn_auto_{{name}} __attribute__((cleanup(__sn__{{name}}_release)))
+#define sn_auto_ref_{{name}} __attribute__((cleanup(__sn__{{name}}_release)))
+{{/if}}
+{{else}}{{#if (eq mem_mode "ref")}}/* Struct: {{name}} (as ref — refcounted) */
 typedef struct {
     int __rc__;
 {{#each fields}}
@@ -33,7 +55,7 @@ static inline __sn__{{name}} *__sn__{{name}}_copy(const __sn__{{name}} *src) {
     dst->__rc__ = 1;
 {{#each fields}}{{#if (eq copy_action "strdup")}}    dst->__sn__{{name}} = src->__sn__{{name}} ? strdup(src->__sn__{{name}}) : NULL;
 {{else}}{{#if (eq copy_action "array_copy")}}    dst->__sn__{{name}} = sn_array_copy(src->__sn__{{name}});
-{{else}}{{#if (eq copy_action "retain")}}    dst->__sn__{{name}} = __sn__{{type.name}}_retain(src->__sn__{{name}});
+{{else}}{{#if (eq copy_action "retain")}}    dst->__sn__{{name}} = src->__sn__{{name}};
 {{else}}{{#if (eq copy_action "copy_val")}}    dst->__sn__{{name}} = __sn__{{type.name}}_copy(&src->__sn__{{name}});
 {{else}}    dst->__sn__{{name}} = src->__sn__{{name}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    return dst;
@@ -44,23 +66,46 @@ static inline __sn__{{name}} *__sn__{{name}}_copy(const __sn__{{name}} *src) {
 static inline void __sn__{{name}}_release_elem(void *p) { __sn__{{name}}_release((__sn__{{name}} **)p); }
 static inline void __sn__{{name}}_retain_into(const void *src, void *dst) { *(__sn__{{name}} **)dst = __sn__{{name}}_retain(*(__sn__{{name}} *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__{{name}}_to_string(const __sn__{{name}} *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "{{name}} { ");
+{{#each fields}}    {{#if @index}}off += snprintf(buf + off, sizeof(buf) - off, ", ");
+    {{/if}}off += snprintf(buf + off, sizeof(buf) - off, "{{name}}: ");
+{{#if (eq type.kind "string")}}    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__{{name}} ? p->__sn__{{name}} : "nil");
+{{else}}{{#if (eq type.kind "bool")}}    off += snprintf(buf + off, sizeof(buf) - off, "%s", p->__sn__{{name}} ? "true" : "false");
+{{else}}{{#if (eq type.kind "double")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "float")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "char")}}    off += snprintf(buf + off, sizeof(buf) - off, "'%c'", p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "byte")}}    off += snprintf(buf + off, sizeof(buf) - off, "%u", (unsigned)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "struct")}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
 {{else}}/* Struct: {{name}} (as val) */
-typedef struct {
+{{#if is_packed}}#pragma pack(push, 1)
+{{/if}}typedef struct {
 {{#each fields}}
     {{c_type type}} __sn__{{name}};
 {{/each}}
 } __sn__{{name}};
-
+{{#if is_packed}}#pragma pack(pop)
+{{/if}}
+/* Value operations */
 static inline __sn__{{name}} __sn__{{name}}_copy(const __sn__{{name}} *src) {
     __sn__{{name}} dst;
 {{#each fields}}{{#if (eq copy_action "strdup")}}    dst.__sn__{{name}} = src->__sn__{{name}} ? strdup(src->__sn__{{name}}) : NULL;
 {{else}}{{#if (eq copy_action "array_copy")}}    dst.__sn__{{name}} = sn_array_copy(src->__sn__{{name}});
-{{else}}{{#if (eq copy_action "retain")}}    dst.__sn__{{name}} = __sn__{{type.name}}_retain(src->__sn__{{name}});
+{{else}}{{#if (eq copy_action "retain")}}    dst.__sn__{{name}} = src->__sn__{{name}};
 {{else}}{{#if (eq copy_action "copy_val")}}    dst.__sn__{{name}} = __sn__{{type.name}}_copy(&src->__sn__{{name}});
 {{else}}    dst.__sn__{{name}} = src->__sn__{{name}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    return dst;
 }
-{{#if has_heap_fields}}
+
 static inline void __sn__{{name}}_cleanup(__sn__{{name}} *p) {
 {{#each fields}}{{#if (eq cleanup_action "free")}}    free(p->__sn__{{name}});
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}    sn_cleanup_array(&p->__sn__{{name}});
@@ -73,5 +118,45 @@ static inline void __sn__{{name}}_cleanup(__sn__{{name}} *p) {
 
 static inline void __sn__{{name}}_cleanup_elem(void *p) { __sn__{{name}}_cleanup((__sn__{{name}} *)p); }
 static inline void __sn__{{name}}_copy_into(const void *src, void *dst) { *(__sn__{{name}} *)dst = __sn__{{name}}_copy((const __sn__{{name}} *)src); }
-{{/if}}
+
+/* Ref/pointer operations */
+static inline __sn__{{name}} *__sn__{{name}}_alloc(void) {
+    return calloc(1, sizeof(__sn__{{name}}));
+}
+
+static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
+    if (*p) {
+{{#each fields}}{{#if (eq cleanup_action "free")}}        free((*p)->__sn__{{name}});
+{{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->__sn__{{name}});
+{{/if}}{{#if (eq cleanup_action "release")}}        __sn__{{type.name}}_release(&(*p)->__sn__{{name}});
+{{/if}}{{#if (eq cleanup_action "cleanup_val")}}        __sn__{{type.name}}_cleanup(&(*p)->__sn__{{name}});
+{{/if}}{{/each}}        free(*p);
+    }
+    *p = NULL;
+}
+
+#define sn_auto_ref_{{name}} __attribute__((cleanup(__sn__{{name}}_release)))
+
+static inline void __sn__{{name}}_release_elem(void *p) { __sn__{{name}}_release((__sn__{{name}} **)p); }
+
+/* Auto-toString for string interpolation */
+static inline char *__sn__{{name}}_to_string(const __sn__{{name}} *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "{{name}} { ");
+{{#each fields}}    {{#if @index}}off += snprintf(buf + off, sizeof(buf) - off, ", ");
+    {{/if}}off += snprintf(buf + off, sizeof(buf) - off, "{{name}}: ");
+{{#if (eq type.kind "string")}}    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__{{name}} ? p->__sn__{{name}} : "nil");
+{{else}}{{#if (eq type.kind "bool")}}    off += snprintf(buf + off, sizeof(buf) - off, "%s", p->__sn__{{name}} ? "true" : "false");
+{{else}}{{#if (eq type.kind "double")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "float")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "char")}}    off += snprintf(buf + off, sizeof(buf) - off, "'%c'", p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "byte")}}    off += snprintf(buf + off, sizeof(buf) - off, "%u", (unsigned)p->__sn__{{name}});
+{{else}}{{#if (eq type.kind "struct")}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
 {{/if}}{{/if}}

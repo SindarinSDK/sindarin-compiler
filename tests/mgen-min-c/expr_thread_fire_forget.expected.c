@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sn_minimal.h"
+
 void __sn__compute();
 
 typedef struct {
@@ -17,8 +18,15 @@ static void *__thread_wrapper_0__(void *arg) {
     __sn__compute();
     return NULL;
 }
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 void __sn__compute() {
+
     return;}
 
 int main() {

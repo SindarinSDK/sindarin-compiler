@@ -12,9 +12,6 @@ fn main(): void =>
     test_arrays()
     test_array_equality()
     test_2d_arrays()
-    test_any_boxing()
-    test_any_unboxing()
-    test_type_checking()
     test_lambdas()
     test_functions()
     test_control_flow()
@@ -228,70 +225,7 @@ fn test_2d_arrays(): void =>
 
     print("   PASS\n")
 
-// --- 8. Any Boxing ---
-fn test_any_boxing(): void =>
-    print("8. Any boxing\n")
-
-    var x: str = "hello"
-    var a: any = x
-    assert(a is str, "boxed type check")
-
-    var y: str = ""
-    var b: any = y
-    assert(b is str, "boxed empty type check")
-
-    // Boxing array
-    var arr: str[] = {"a", "b", "c"}
-    var c: any = arr
-    assert(c is str[], "boxed array type check")
-
-    print("   PASS\n")
-
-// --- 9. Any Unboxing ---
-fn test_any_unboxing(): void =>
-    print("9. Any unboxing\n")
-
-    var x: str = "hello world"
-    var a: any = x
-    var unboxed: str = a as str
-    assert(unboxed == "hello world", "unboxed value")
-
-    var y: str = ""
-    var b: any = y
-    var unboxed2: str = b as str
-    assert(unboxed2 == "", "unboxed empty")
-
-    // Unbox array
-    var arr: str[] = {"x", "y", "z"}
-    var c: any = arr
-    var unboxedArr: str[] = c as str[]
-    assert(unboxedArr.length == 3, "unboxed array length")
-    assert(unboxedArr[0] == "x", "unboxed array element")
-
-    print("   PASS\n")
-
-// --- 10. Type Checking ---
-fn test_type_checking(): void =>
-    print("10. Type checking with 'is'\n")
-
-    var x: str = "test"
-    var a: any = x
-
-    assert(a is str, "is str true")
-    assert(!(a is int), "is int false")
-    assert(!(a is double), "is double false")
-    assert(!(a is bool), "is bool false")
-
-    // Array type checking
-    var arr: str[] = {"a", "b", "c"}
-    var b: any = arr
-    assert(b is str[], "is str[] true")
-    assert(!(b is int[]), "is int[] false")
-    assert(!(b is char[]), "is char[] false")
-
-    print("   PASS\n")
-
-// --- 11. Lambdas ---
+// --- 8. Lambdas ---
 fn test_lambdas(): void =>
     print("11. Lambdas\n")
 

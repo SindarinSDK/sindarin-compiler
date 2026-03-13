@@ -6,9 +6,17 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     sn_auto_arr SnArray * __sn__a = ({
             SnArray *__al__ = sn_array_new(sizeof(long long), 3);
+            __al__->elem_tag = SN_TAG_INT;
+    
     
             sn_array_push(__al__, &(long long){ 1LL });
     
@@ -19,8 +27,10 @@ int main() {
         });
     sn_auto_arr SnArray * __sn__b = ({
             SnArray *__al__ = sn_array_new(sizeof(long long), 3);
+            __al__->elem_tag = SN_TAG_INT;
     
-            /* TODO: spread into minimal array */
+    
+            sn_array_extend(__al__, __sn__a);
     
             sn_array_push(__al__, &(long long){ 4LL });
     

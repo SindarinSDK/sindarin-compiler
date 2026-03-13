@@ -171,18 +171,6 @@ static void test_create_type_nil(void)
     arena_free(&arena);
 }
 
-static void test_create_type_any(void)
-{
-    Arena arena;
-    arena_init(&arena, TYPE_ARENA_SIZE);
-
-    Type *type = ast_create_primitive_type(&arena, TYPE_ANY);
-    assert(type != NULL);
-    assert(type->kind == TYPE_ANY);
-
-    arena_free(&arena);
-}
-
 /* ============================================================================
  * Array Type Tests
  * ============================================================================ */
@@ -631,7 +619,6 @@ void test_ast_types_main(void)
     TEST_RUN("create_type_byte", test_create_type_byte);
     TEST_RUN("create_type_void", test_create_type_void);
     TEST_RUN("create_type_nil", test_create_type_nil);
-    TEST_RUN("create_type_any", test_create_type_any);
 
     TEST_SECTION("AST Types - Array Types");
     TEST_RUN("create_array_type_int", test_create_array_type_int);

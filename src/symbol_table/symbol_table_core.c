@@ -79,11 +79,6 @@ int get_type_size(Type *type)
         DEBUG_VERBOSE("Returning size 8 for function");
         return 8;
 
-    /* Any type is a tagged union (type tag + value), typically 16 bytes */
-    case TYPE_ANY:
-        DEBUG_VERBOSE("Returning size 16 for any");
-        return 16;
-
     /* Void and nil have no size */
     case TYPE_VOID:
     case TYPE_NIL:

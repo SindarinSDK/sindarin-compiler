@@ -42,20 +42,41 @@ static inline __sn__Box *__sn__Box_copy(const __sn__Box *src) {
 static inline void __sn__Box_release_elem(void *p) { __sn__Box_release((__sn__Box **)p); }
 static inline void __sn__Box_retain_into(const void *src, void *dst) { *(__sn__Box **)dst = __sn__Box_retain(*(__sn__Box *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Box_to_string(const __sn__Box *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Box { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "value: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__value);
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
 
 __sn__Box * __sn__make_box(long long);
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 __sn__Box * __sn__make_box(long long __sn__v) {
+
     sn_auto_Box __sn__Box * __sn__b = ({
         __sn__Box *__tmp__ = __sn__Box_create();
         __tmp__->__sn__value = __sn__v;
         __tmp__;
     });
+
     {
         __sn__Box * __ret__ = __sn__b;
         __sn__b = NULL;
         return __ret__;
     }}
+
 
 int main() {
     sn_auto_Box __sn__Box * __sn__b = __sn__make_box(42LL);

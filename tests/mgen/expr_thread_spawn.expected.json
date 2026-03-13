@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/expr_thread_spawn.sn",
     "has_main": true,
     "main_returns": false,
+    "has_main_args": false,
     "has_forward_decls": true
   },
   "pragmas": [],
@@ -18,6 +19,7 @@
       },
       "modifier": "default",
       "is_native": false,
+      "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
       "params": [],
@@ -42,6 +44,7 @@
       },
       "modifier": "default",
       "is_native": false,
+      "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
       "params": [],
@@ -84,7 +87,8 @@
               },
               "args": [],
               "is_tail_call": false,
-              "is_closure_call": false
+              "is_closure_call": false,
+              "is_fn_field_call": false
             },
             "modifier": "default",
             "is_void": false
@@ -114,7 +118,8 @@
             "is_array": false,
             "result_type": {
               "kind": "int"
-            }
+            },
+            "is_void": false
           }
         },
         {
@@ -175,5 +180,6 @@
       "args": [],
       "has_args": false
     }
-  ]
+  ],
+  "fn_wrappers": []
 }

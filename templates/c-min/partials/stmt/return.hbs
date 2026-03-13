@@ -1,9 +1,15 @@
-{{#if is_ownership_transfer}}{{#if (eq transfer_kind "null_ptr")}}{
-    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
+{{#if is_void_return}}{{> expr value}};{{else}}{{#if is_return_self}}return {{c_type return_self_type}}_copy(__sn__self);{{else}}{{#if is_ownership_transfer}}{{#if (eq transfer_kind "null_ptr")}}{
+{{#if has_closure_escape}}    ((__Closure__ *)__sn__{{transfer_var}})->__cleanup__ = (void (*)(void *))__closure_{{closure_escape_lambda_id}}_free__;
+{{/if}}    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
     __sn__{{transfer_var}} = NULL;
-    return __ret__;
+{{#each captured_vars_to_null}}    __sn__{{this}} = NULL;
+{{/each}}    return __ret__;
 }{{else}}{{#if (eq transfer_kind "memset")}}{
-    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
-    memset(&__sn__{{transfer_var}}, 0, sizeof(__sn__{{transfer_var}}));
+    {{c_type transfer_type}} __ret__ = {{#if (eq transfer_var "self")}}*__sn__self{{else}}__sn__{{transfer_var}}{{/if}};
+    memset({{#if (eq transfer_var "self")}}__sn__self, 0, sizeof(*__sn__self){{else}}&__sn__{{transfer_var}}, 0, sizeof(__sn__{{transfer_var}}){{/if}});
     return __ret__;
-}{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}
+}{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}{{#if has_struct_transfer}}{
+    {{c_type struct_transfer_type}} __ret__ = {{> expr value}};
+{{#each struct_transfer_vars}}    __sn__{{this}} = NULL;
+{{/each}}    return __ret__;
+}{{else}}{{#if is_main_void_return}}return 0;{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

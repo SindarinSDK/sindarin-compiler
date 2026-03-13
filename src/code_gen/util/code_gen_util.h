@@ -28,14 +28,6 @@ const char *get_rt_to_string_func_for_type_v2(Type *type);
 const char *get_default_value(Type *type);
 const char *get_rt_result_type(Type *type);
 
-/* Any type boxing helpers */
-const char *get_boxing_function(Type *type);
-const char *get_unboxing_function(Type *type);
-const char *get_element_type_tag(Type *element_type);
-int get_struct_type_id(Type *struct_type);
-char *code_gen_box_value(CodeGen *gen, const char *value_str, Type *value_type);
-char *code_gen_unbox_value(CodeGen *gen, const char *any_str, Type *target_type);
-
 /* Struct type resolution for code gen */
 Type *resolve_struct_type(CodeGen *gen, Type *type);
 

@@ -119,15 +119,6 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
     case EXPR_COPY_OF:
         t = type_check_copy_of(expr, table);
         break;
-    case EXPR_TYPEOF:
-        t = type_check_typeof(expr, table);
-        break;
-    case EXPR_IS:
-        t = type_check_is(expr, table);
-        break;
-    case EXPR_AS_TYPE:
-        t = type_check_as_type(expr, table);
-        break;
     case EXPR_STRUCT_LITERAL:
         t = type_check_struct_literal(expr, table);
         break;

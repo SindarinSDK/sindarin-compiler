@@ -25,4 +25,7 @@ char *code_gen_copy_of_expression(CodeGen *gen, Expr *expr);
 /* Get the array clone function suffix for a given element type */
 const char *get_array_clone_suffix(Type *element_type);
 
+/* sizeof(Type) or sizeof(expr) - compile-time size */
+char *code_gen_sizeof_expression(CodeGen *gen, Expr *expr);
+
 #endif /* CODE_GEN_EXPR_MISC_H */

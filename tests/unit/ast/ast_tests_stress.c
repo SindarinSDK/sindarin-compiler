@@ -26,10 +26,10 @@ static void test_ast_create_all_primitive_types(void)
 
     TypeKind types[] = {
         TYPE_INT, TYPE_LONG, TYPE_DOUBLE, TYPE_STRING,
-        TYPE_BOOL, TYPE_CHAR, TYPE_BYTE, TYPE_VOID, TYPE_ANY
+        TYPE_BOOL, TYPE_CHAR, TYPE_BYTE, TYPE_VOID
     };
 
-    for (int i = 0; i < 9; i++) {
+    for (int i = 0; i < 8; i++) {
         Type *t = ast_create_primitive_type(&arena, types[i]);
         assert(t != NULL);
         assert(t->kind == types[i]);

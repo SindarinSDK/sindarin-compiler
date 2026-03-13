@@ -17,7 +17,6 @@ const char *gen_model_type_kind_str(TypeKind kind)
         case TYPE_BYTE:   return "byte";
         case TYPE_VOID:   return "void";
         case TYPE_NIL:    return "nil";
-        case TYPE_ANY:    return "any";
         case TYPE_ARRAY:  return "array";
         case TYPE_FUNCTION: return "function";
         case TYPE_POINTER:  return "pointer";
@@ -39,6 +38,7 @@ json_object *gen_model_type(Arena *arena, Type *type)
     switch (type->kind)
     {
         case TYPE_ARRAY:
+            json_object_object_add(obj, "name", json_object_new_string("arr"));
             if (type->as.array.element_type)
             {
                 json_object_object_add(obj, "element_type",
@@ -138,6 +138,10 @@ json_object *gen_model_type(Arena *arena, Type *type)
             json_object_object_add(obj, "fields", fields);
             break;
         }
+
+        case TYPE_CHAR:
+            json_object_object_add(obj, "name", json_object_new_string("char"));
+            break;
 
         default:
             /* Primitive types - kind is sufficient */

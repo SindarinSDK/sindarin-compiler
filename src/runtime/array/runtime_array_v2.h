@@ -20,7 +20,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "runtime/arena/arena_v2.h"
-#include "runtime/runtime_any.h"
 
 /* ============================================================================
  * Array Metadata V2
@@ -100,8 +99,6 @@ RT_ARRAY_ACCESSOR_DECL(float, float)
 RT_ARRAY_ACCESSOR_DECL(char, char)
 RT_ARRAY_ACCESSOR_DECL(bool, int)
 RT_ARRAY_ACCESSOR_DECL(byte, unsigned char)
-RT_ARRAY_ACCESSOR_DECL(any, RtAny)
-
 /* Handle accessor for string/array elements stored as RtHandleV2* */
 static inline RtHandleV2 *rt_array_get_handle_v2(RtHandleV2 *arr_h, long long idx) {
     rt_handle_begin_transaction(arr_h);
@@ -211,8 +208,6 @@ RtHandleV2 *rt_array_create_ptr_v2(RtArenaV2 *arena, size_t count, RtHandleV2 **
 RtHandleV2 *rt_array_push_string_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element);
 RtHandleV2 *rt_array_push_ptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element);
 RtHandleV2 *rt_array_push_voidptr_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtHandleV2 *element);
-RtHandleV2 *rt_array_push_any_v2(RtArenaV2 *arena, RtHandleV2 *arr_h, RtAny element);
-
 /* ============================================================================
  * Array Pop Functions
  * ============================================================================
@@ -240,8 +235,6 @@ RtHandleV2 *rt_array_pop_ptr_v2(RtHandleV2 *arr_h);
 
 RtHandleV2 *rt_array_clone_string_v2(RtHandleV2 *arr_h);
 RtHandleV2 *rt_array_clone_ptr_v2(RtHandleV2 *arr_h);
-RtHandleV2 *rt_array_clone_any_v2(RtHandleV2 *arr_h);
-
 /* ============================================================================
  * Array Concat Functions
  * ============================================================================
@@ -332,9 +325,6 @@ RtHandleV2 *rt_array_range_v2(RtArenaV2 *arena, long long start, long long end);
 RtHandleV2 *rt_array_from_legacy_string_v2(RtArenaV2 *arena, char **src);
 RtHandleV2 *rt_pin_string_array_v2(RtHandleV2 *arr_h);
 
-/* Note: 2D/3D array to any[][] conversion functions will be added
- * when RtAny integration is complete. */
-
 /* ============================================================================
  * String Array Equality
  * ============================================================================ */
@@ -360,9 +350,6 @@ void rt_array_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 /* Promote handle elements from source arena to dest arena.
  * Only promotes elements whose arena matches source. */
 void rt_array_promote_handle_elements(RtHandleV2 *arr, RtArenaV2 *source, RtArenaV2 *dest);
-
-/* Copy callback for any[] arrays */
-void rt_array_any_copy_callback(RtArenaV2 *dest, RtHandleV2 *new_handle);
 
 /* ============================================================================
  * Array Join Functions (V2)

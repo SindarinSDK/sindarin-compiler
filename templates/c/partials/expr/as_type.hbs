@@ -1,1 +1,0 @@
-{{#if (eq operand.type.kind "any")}}{{unbox_func target_type}}({{> expr operand}}){{else}}(({{c_type target_type}})({{> expr operand}})){{/if}}

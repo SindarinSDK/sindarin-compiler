@@ -2,6 +2,12 @@
 #include "type_checker/expr/type_checker_expr.h"
 #include "type_checker/expr/call/type_checker_expr_call.h"
 #include "type_checker/expr/call/type_checker_expr_call_char.h"
+#include "type_checker/expr/call/type_checker_expr_call_int.h"
+#include "type_checker/expr/call/type_checker_expr_call_long.h"
+#include "type_checker/expr/call/type_checker_expr_call_double.h"
+#include "type_checker/expr/call/type_checker_expr_call_uint.h"
+#include "type_checker/expr/call/type_checker_expr_call_byte.h"
+#include "type_checker/expr/call/type_checker_expr_call_bool.h"
 #include "type_checker/util/type_checker_util.h"
 #include "debug.h"
 #include <string.h>
@@ -231,6 +237,66 @@ normal_member_access:;  /* Empty statement needed - labels cannot be followed di
             return result;
         }
         /* Fall through to error handling if not a valid char method */
+    }
+
+    /* Int methods */
+    if (object_type->kind == TYPE_INT)
+    {
+        Type *result = type_check_int_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+    }
+
+    /* Long methods */
+    if (object_type->kind == TYPE_LONG)
+    {
+        Type *result = type_check_long_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+    }
+
+    /* Double methods */
+    if (object_type->kind == TYPE_DOUBLE)
+    {
+        Type *result = type_check_double_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+    }
+
+    /* Uint methods */
+    if (object_type->kind == TYPE_UINT)
+    {
+        Type *result = type_check_uint_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+    }
+
+    /* Byte methods */
+    if (object_type->kind == TYPE_BYTE)
+    {
+        Type *result = type_check_byte_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
+    }
+
+    /* Bool methods */
+    if (object_type->kind == TYPE_BOOL)
+    {
+        Type *result = type_check_bool_method(expr, object_type, expr->as.member.member_name, table);
+        if (result != NULL)
+        {
+            return result;
+        }
     }
 
     /* Handle struct field access and methods via EXPR_MEMBER */

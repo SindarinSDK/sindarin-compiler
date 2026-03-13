@@ -1,0 +1,84 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/struct_packed.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
+  },
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "pack",
+      "value": "1"
+    },
+    {
+      "kind": "pragma",
+      "pragma_type": "pack",
+      "value": ""
+    }
+  ],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "PackedData",
+      "is_native": false,
+      "is_packed": true,
+      "pass_self_by_ref": false,
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "flags",
+          "type": {
+            "kind": "byte"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

@@ -513,9 +513,6 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
         break;
 
     /* Not handled by AST printer */
-    case EXPR_TYPEOF:
-    case EXPR_IS:
-    case EXPR_AS_TYPE:
     case EXPR_STRUCT_LITERAL:
     case EXPR_MEMBER_ACCESS:
     case EXPR_MEMBER_ASSIGN:

@@ -6,9 +6,17 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     sn_auto_arr SnArray * __sn__names = ({
             SnArray *__al__ = sn_array_new(sizeof(char *), 2);
+            __al__->elem_tag = SN_TAG_STRING;
+    
             __al__->elem_release = sn_cleanup_str;
     
             __al__->elem_copy = sn_copy_str;

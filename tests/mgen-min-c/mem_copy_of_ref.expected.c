@@ -42,6 +42,24 @@ static inline __sn__Node *__sn__Node_copy(const __sn__Node *src) {
 static inline void __sn__Node_release_elem(void *p) { __sn__Node_release((__sn__Node **)p); }
 static inline void __sn__Node_retain_into(const void *src, void *dst) { *(__sn__Node **)dst = __sn__Node_retain(*(__sn__Node *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Node_to_string(const __sn__Node *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Node { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "value: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__value);
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 int main() {

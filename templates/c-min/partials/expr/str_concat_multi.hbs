@@ -1,0 +1,4 @@
+({
+{{#each parts}}{{#if is_str_temp}}    sn_auto_str char *__sct_{{@index}}__ = {{> expr this}};
+{{/if}}{{/each}}    sn_str_concat_multi({{../part_count}}{{#each parts}}, {{#if is_str_temp}}__sct_{{@index}}__{{else}}{{> expr this}}{{/if}}{{/each}});
+})

@@ -45,6 +45,27 @@ static inline __sn__Person *__sn__Person_copy(const __sn__Person *src) {
 static inline void __sn__Person_release_elem(void *p) { __sn__Person_release((__sn__Person **)p); }
 static inline void __sn__Person_retain_into(const void *src, void *dst) { *(__sn__Person **)dst = __sn__Person_retain(*(__sn__Person *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Person_to_string(const __sn__Person *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Person { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "name: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__name ? p->__sn__name : "nil");
+    off += snprintf(buf + off, sizeof(buf) - off, ", ");
+    off += snprintf(buf + off, sizeof(buf) - off, "age: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__age);
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 int main() {

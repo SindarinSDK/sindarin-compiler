@@ -1,4 +1,4 @@
-// Test conditional thread spawn for all primitive types
+// Test conditional thread spawn for primitive types
 // Tests that thread spawns can be conditionally assigned to variables
 
 fn computeInt(x: int): int =>
@@ -12,12 +12,6 @@ fn computeDouble(x: double): double =>
 
 fn computeBool(x: bool): bool =>
     return !x
-
-fn computeByte(x: byte): byte =>
-    return (x + 10b) as byte
-
-fn computeChar(x: char): char =>
-    return (x as int + 1) as char
 
 fn main(): void =>
     var doSpawn: bool = true
@@ -49,20 +43,6 @@ fn main(): void =>
         boolResult = &computeBool(false)
     boolResult!
     println($"bool: {boolResult}")
-
-    // Test byte
-    var byteResult: byte = 0b
-    if doSpawn =>
-        byteResult = &computeByte(100b)
-    byteResult!
-    println($"byte: {byteResult}")
-
-    // Test char
-    var charResult: char = 'a'
-    if doSpawn =>
-        charResult = &computeChar('A')
-    charResult!
-    println($"char: {charResult}")
 
     // Test with condition = false (no spawn)
     var noSpawn: bool = false

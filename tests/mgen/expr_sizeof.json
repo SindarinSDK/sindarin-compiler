@@ -1,0 +1,116 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_sizeof.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Point",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "y",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": []
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "s",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 0,
+              "alignment": 0,
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "double"
+                  },
+                  "offset": 0
+                },
+                {
+                  "name": "y",
+                  "type": {
+                    "kind": "double"
+                  },
+                  "offset": 0
+                }
+              ]
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

@@ -1,0 +1,49 @@
+{
+  "module": {
+    "filename": "tests\/mgen-c\/pragma_include.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
+  },
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "include",
+      "value": "\"math.h\""
+    }
+  ],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

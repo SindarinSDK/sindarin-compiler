@@ -114,14 +114,6 @@ static bool struct_has_only_primitives(Type *struct_type)
             return false;
         }
 
-        /* Any type - may contain heap references */
-        if (field_type->kind == TYPE_ANY)
-        {
-            DEBUG_VERBOSE("Struct field '%s' is any type - cannot escape private",
-                          field->name ? field->name : "unknown");
-            return false;
-        }
-
         /* Unknown type kind - conservative default: cannot escape */
         DEBUG_VERBOSE("Struct field '%s' has unknown type kind %d - cannot escape private",
                       field->name ? field->name : "unknown", field_type->kind);
@@ -203,9 +195,6 @@ static const char *find_blocking_struct_field(Type *struct_type)
             case TYPE_OPAQUE:
                 type_desc = "opaque type";
                 break;
-            case TYPE_ANY:
-                type_desc = "any type";
-                break;
             default:
                 type_desc = "non-primitive type";
                 break;
@@ -259,8 +248,6 @@ const char *get_private_escape_block_reason(Type *type)
             return "function type (closure) contains heap references";
         case TYPE_OPAQUE:
             return "opaque type references external C memory";
-        case TYPE_ANY:
-            return "any type may contain heap references";
         default:
             return "type cannot escape private block";
     }

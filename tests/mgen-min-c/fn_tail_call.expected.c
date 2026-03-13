@@ -5,11 +5,20 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sn_minimal.h"
+
 long long __sn__factorial(long long, long long);
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 long long __sn__factorial(long long __sn__n, long long __sn__acc) {
+
     if ((__sn__n <= 1LL)) {
         return __sn__acc;}
+
     return __sn__factorial(sn_sub_long(__sn__n, 1LL), sn_mul_long(__sn__acc, __sn__n));}
 
 int main() {

@@ -143,7 +143,7 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
                         "%s    if (s->%s)\n"
                         "        __promote_array_%s__(s->%s, source, dest);\n",
                         promote_inline_body, f_c_name, elem_sn, f_c_name);
-                } else if (elem->kind == TYPE_STRING || elem->kind == TYPE_ANY
+                } else if (elem->kind == TYPE_STRING
                            || elem->kind == TYPE_FUNCTION) {
                     promote_inline_body = arena_sprintf(gen->arena,
                         "%s    if (s->%s)\n"
@@ -173,20 +173,6 @@ void code_gen_ensure_struct_callbacks(CodeGen *gen, Type *struct_type) {
             release_body = arena_sprintf(gen->arena,
                 "%s    if (s->%s && s->%s->arena == owner) rt_arena_v2_free(s->%s);\n",
                 release_body, f_c_name, f_c_name, f_c_name);
-        }
-        else if (kind == TYPE_ANY) {
-            copy_body = arena_sprintf(gen->arena,
-                "%s    rt_any_deep_copy(dest, &s->%s);\n",
-                copy_body, f_c_name);
-            promote_inline_body = arena_sprintf(gen->arena,
-                "%s    s->%s = rt_any_promote_v2(dest, s->%s);\n",
-                promote_inline_body, f_c_name, f_c_name);
-            free_body = arena_sprintf(gen->arena,
-                "%s    rt_any_deep_free(&s->%s);\n",
-                free_body, f_c_name);
-            release_body = arena_sprintf(gen->arena,
-                "%s    rt_any_deep_free(&s->%s);\n",
-                release_body, f_c_name);
         }
         else if (kind == TYPE_STRUCT && struct_has_handle_fields(field->type)) {
             Type *nested = resolve_struct_type(gen, field->type);

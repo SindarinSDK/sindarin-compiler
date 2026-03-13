@@ -1008,7 +1008,7 @@ class TestRunner:
             return ('skip', 'no .expected', None)
 
         # Standard compilation (use #pragma source for C helper files)
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install', '--codegen', '3']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(

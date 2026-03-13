@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/expr_lambda_capture_ref.sn",
     "has_main": true,
     "main_returns": false,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -18,6 +19,7 @@
       },
       "modifier": "default",
       "is_native": false,
+      "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
       "params": [],
@@ -60,7 +62,7 @@
           "sync_mod": "none",
           "is_static": false,
           "needs_cleanup": true,
-          "cleanup_kind": "ptr",
+          "cleanup_kind": "closure",
           "initializer": {
             "type": {
               "kind": "function",
@@ -91,6 +93,7 @@
               }
             ],
             "has_captures": true,
+            "has_ref_captures": true,
             "body_stmts": [
               {
                 "kind": "expr",
@@ -119,7 +122,8 @@
                 }
               }
             ]
-          }
+          },
+          "closure_lambda_id": 0
         },
         {
           "kind": "expr",
@@ -144,7 +148,8 @@
             },
             "args": [],
             "is_tail_call": false,
-            "is_closure_call": true
+            "is_closure_call": true,
+            "is_fn_field_call": false
           }
         },
         {
@@ -212,6 +217,7 @@
         }
       ],
       "has_captures": true,
+      "has_ref_captures": true,
       "body_stmts": [
         {
           "kind": "expr",
@@ -242,5 +248,6 @@
       ]
     }
   ],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

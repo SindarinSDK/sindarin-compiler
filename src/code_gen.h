@@ -116,11 +116,6 @@ typedef struct {
     /* Match expression support */
     int match_count;                // Counter for unique match temp variable IDs
 
-    /* Interceptor thunk support */
-    int thunk_count;                // Counter for unique thunk IDs
-    char *thunk_forward_decls;      // Buffer for thunk forward declarations
-    char *thunk_definitions;        // Buffer for thunk function bodies
-
     /* Array compound literal context - when true, struct literals should omit
      * outer type cast since the array type already establishes element type.
      * This is needed for TCC compatibility which doesn't handle nested casts. */

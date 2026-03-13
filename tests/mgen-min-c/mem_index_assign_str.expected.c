@@ -6,9 +6,17 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     sn_auto_arr SnArray * __sn__names = ({
             SnArray *__al__ = sn_array_new(sizeof(char *), 2);
+            __al__->elem_tag = SN_TAG_STRING;
+    
             __al__->elem_release = sn_cleanup_str;
     
             __al__->elem_copy = sn_copy_str;
@@ -19,8 +27,9 @@ int main() {
             __al__;
         });
     ({
-        free(((char * *)__sn__names->data)[0LL]);
-        ((char * *)__sn__names->data)[0LL] = strdup("Charlie");
+        long long __ai__ = 0LL; if (__ai__ < 0) __ai__ += __sn__names->len;
+        free(((char * *)__sn__names->data)[__ai__]);
+        ((char * *)__sn__names->data)[__ai__] = strdup("Charlie");
     });
     sn_assert((sn_array_length(__sn__names) == 2LL), "should still have 2 names");
     return 0;

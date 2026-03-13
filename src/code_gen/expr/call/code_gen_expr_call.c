@@ -11,7 +11,6 @@
  * - code_gen_expr_call_array.c
  * - code_gen_expr_call_string.c
  * - code_gen_expr_call_char.c
- * - code_gen_expr_call_intercept.c
  */
 
 #include "code_gen/expr/call/code_gen_expr_call.h"
@@ -239,6 +238,42 @@ static char *code_gen_member_call(CodeGen *gen, Expr *expr, CallExpr *call)
             if (result) return result;
             break;
         }
+        case TYPE_INT: {
+            result = code_gen_int_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
+        case TYPE_LONG: {
+            result = code_gen_long_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
+        case TYPE_DOUBLE: {
+            result = code_gen_double_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
+        case TYPE_UINT: {
+            result = code_gen_uint_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
+        case TYPE_BYTE: {
+            result = code_gen_byte_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
+        case TYPE_BOOL: {
+            result = code_gen_bool_method_call(gen, member_name_str,
+                member->object, call->arg_count);
+            if (result) return result;
+            break;
+        }
         default:
             break;
     }
@@ -416,22 +451,15 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         args_list = arena_strdup(gen->arena, "");
     }
 
-    /* Get parameter types for boxing/ref handling */
+    /* Get parameter types for ref handling */
     MemoryQualifier *param_quals = NULL;
     Type **param_types = NULL;
     int param_count = 0;
-    bool is_user_defined_function = false;
     if (call->callee->expr_type && call->callee->expr_type->kind == TYPE_FUNCTION)
     {
         param_quals = call->callee->expr_type->as.function.param_mem_quals;
         param_types = call->callee->expr_type->as.function.param_types;
         param_count = call->callee->expr_type->as.function.param_count;
-
-        if (call->callee->type == EXPR_VARIABLE)
-        {
-            Symbol *sym = symbol_table_lookup_symbol(gen->symbol_table, call->callee->as.variable.name);
-            is_user_defined_function = (sym != NULL && sym->is_function);
-        }
     }
 
     for (int i = 0; i < call->arg_count; i++)
@@ -445,15 +473,6 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
         {
             arg_base_names[i] = arg_strs[i];
             arg_names[i] = arg_strs[i];
-        }
-
-        /* Handle boxing when parameter type is 'any' */
-        if (is_user_defined_function && param_types != NULL && i < param_count &&
-            param_types[i] != NULL && param_types[i]->kind == TYPE_ANY &&
-            call->arguments[i]->expr_type != NULL &&
-            call->arguments[i]->expr_type->kind != TYPE_ANY)
-        {
-            arg_names[i] = code_gen_box_value(gen, arg_names[i], call->arguments[i]->expr_type);
         }
 
         /* Handle 'as ref' parameters */
@@ -499,52 +518,9 @@ static char *code_gen_regular_call(CodeGen *gen, Expr *expr, CallExpr *call)
 
     bool returns_void = (expr->expr_type && expr->expr_type->kind == TYPE_VOID);
 
-    /* Check for interception */
-    char *func_name_for_intercept = NULL;
-    bool skip_interception = false;
-    if (is_user_defined_function && call->callee->type == EXPR_VARIABLE)
-    {
-        func_name_for_intercept = get_var_name(gen->arena, call->callee->as.variable.name);
-
-        if (param_types != NULL && !skip_interception)
-        {
-            for (int i = 0; i < param_count; i++)
-            {
-                if (param_types[i] != NULL &&
-                    (param_types[i]->kind == TYPE_POINTER || param_types[i]->kind == TYPE_STRUCT))
-                {
-                    skip_interception = true;
-                    break;
-                }
-            }
-        }
-
-        if (!skip_interception && call->callee->expr_type != NULL &&
-            call->callee->expr_type->kind == TYPE_FUNCTION &&
-            call->callee->expr_type->as.function.is_native)
-        {
-            skip_interception = true;
-        }
-
-        if (!skip_interception && expr->expr_type != NULL &&
-            (expr->expr_type->kind == TYPE_POINTER || expr->expr_type->kind == TYPE_STRUCT))
-        {
-            skip_interception = true;
-        }
-    }
-
     /* Generate call (simple path - no temps) */
     if (!has_temps)
     {
-        if (is_user_defined_function && func_name_for_intercept != NULL && !skip_interception)
-        {
-            char *intercept_expr = code_gen_intercepted_call(gen, func_name_for_intercept,
-                                             callee_str, call, arg_strs, arg_names,
-                                             param_types, param_quals, param_count,
-                                             expr->expr_type, callee_has_body);
-            return intercept_expr;
-        }
-
         char *call_expr = arena_sprintf(gen->arena, "%s(%s)", callee_str, args_list);
 
         /* Wrap native call with string handle transactions */

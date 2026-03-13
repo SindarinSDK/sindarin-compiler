@@ -1,1 +1,1 @@
-{{#if (eq object.name "self")}}self->__sn__{{member_name}}{{else}}{{#if object.type.pass_self_by_ref}}{{> expr object}}->__sn__{{member_name}}{{else}}{{> expr object}}.__sn__{{member_name}}{{/if}}{{/if}}
+{{#if object.type.pass_self_by_ref}}{{> expr object}}->__sn__{{member_name}}{{else}}{{> expr object}}.__sn__{{member_name}}{{/if}}

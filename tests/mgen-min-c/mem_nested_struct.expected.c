@@ -43,6 +43,17 @@ static inline __sn__Address *__sn__Address_copy(const __sn__Address *src) {
 static inline void __sn__Address_release_elem(void *p) { __sn__Address_release((__sn__Address **)p); }
 static inline void __sn__Address_retain_into(const void *src, void *dst) { *(__sn__Address **)dst = __sn__Address_retain(*(__sn__Address *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Address_to_string(const __sn__Address *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Address { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "city: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__city ? p->__sn__city : "nil");
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
 
 
 /* Struct: Person (as ref — refcounted) */
@@ -76,7 +87,7 @@ static inline __sn__Person *__sn__Person_copy(const __sn__Person *src) {
     __sn__Person *dst = calloc(1, sizeof(__sn__Person));
     dst->__rc__ = 1;
     dst->__sn__name = src->__sn__name ? strdup(src->__sn__name) : NULL;
-    dst->__sn__addr = __sn__Address_retain(src->__sn__addr);
+    dst->__sn__addr = src->__sn__addr;
     return dst;
 }
 
@@ -84,6 +95,28 @@ static inline __sn__Person *__sn__Person_copy(const __sn__Person *src) {
 
 static inline void __sn__Person_release_elem(void *p) { __sn__Person_release((__sn__Person **)p); }
 static inline void __sn__Person_retain_into(const void *src, void *dst) { *(__sn__Person **)dst = __sn__Person_retain(*(__sn__Person *const *)src); }
+
+/* Auto-toString for string interpolation */
+static inline char *__sn__Person_to_string(const __sn__Person *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Person { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "name: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__name ? p->__sn__name : "nil");
+    off += snprintf(buf + off, sizeof(buf) - off, ", ");
+    off += snprintf(buf + off, sizeof(buf) - off, "addr: ");
+    { char *__fs__ = __sn__Address_to_string(&p->__sn__addr); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 

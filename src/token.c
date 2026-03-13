@@ -151,12 +151,6 @@ const char *token_type_to_string(SnTokenType type)
         return "STRUCT";
     case TOKEN_STATIC:
         return "STATIC";
-    case TOKEN_ANY:
-        return "ANY";
-    case TOKEN_TYPEOF:
-        return "TYPEOF";
-    case TOKEN_IS:
-        return "IS";
     case TOKEN_SIZEOF:
         return "SIZEOF";
     case TOKEN_PLUS:

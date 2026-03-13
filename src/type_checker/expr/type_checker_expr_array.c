@@ -91,11 +91,10 @@ Type *type_check_array(Expr *expr, SymbolTable *table)
     }
     if (valid && elem_type != NULL)
     {
-        // If mixed types were detected, return any[] type instead
         if (has_mixed_types)
         {
-            DEBUG_VERBOSE("Returning any[] type for mixed-type array");
-            return ast_create_array_type(table->arena, ast_create_primitive_type(table->arena, TYPE_ANY));
+            type_error(expr->token, "Mixed types in array literal are not allowed");
+            return NULL;
         }
         DEBUG_VERBOSE("Returning array type with element type: %d", elem_type->kind);
         return ast_create_array_type(table->arena, elem_type);

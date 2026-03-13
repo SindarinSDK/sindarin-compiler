@@ -151,32 +151,7 @@ Type *type_check_assign(Expr *expr, SymbolTable *table)
         type_error(&expr->as.assign.name, "Cannot assign void thread spawn to variable");
         return NULL;
     }
-    // Allow assigning any concrete type to an 'any' variable (boxing)
-    // Also allow assigning T[] to any[], T[][] to any[][], etc. (element-wise boxing)
-    bool types_compatible = ast_type_equals(sym->type, value_type) ||
-                           (sym->type->kind == TYPE_ANY && value_type != NULL);
-
-    // Check for any[] assignment compatibility at any nesting level
-    if (!types_compatible && sym->type->kind == TYPE_ARRAY && value_type != NULL && value_type->kind == TYPE_ARRAY)
-    {
-        // Walk down both types to find the innermost element types
-        Type *decl_elem = sym->type->as.array.element_type;
-        Type *init_elem = value_type->as.array.element_type;
-
-        // Count nesting levels and check structure matches
-        while (decl_elem != NULL && init_elem != NULL &&
-               decl_elem->kind == TYPE_ARRAY && init_elem->kind == TYPE_ARRAY)
-        {
-            decl_elem = decl_elem->as.array.element_type;
-            init_elem = init_elem->as.array.element_type;
-        }
-
-        // If decl's innermost element is any and init's innermost element is a concrete type, allow it
-        if (decl_elem != NULL && decl_elem->kind == TYPE_ANY && init_elem != NULL)
-        {
-            types_compatible = true;
-        }
-    }
+    bool types_compatible = ast_type_equals(sym->type, value_type);
 
     if (!types_compatible)
     {

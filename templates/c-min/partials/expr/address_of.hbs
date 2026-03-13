@@ -1,1 +1,1 @@
-{{#if is_noop}}{{> expr operand}}{{else}}(&({{> expr operand}})){{/if}}
+{{#if is_noop}}{{> expr operand}}{{else}}{{#if is_array_data}}(({{c_type element_type}} *){{> expr operand}}->data){{else}}(&({{> expr operand}})){{/if}}{{/if}}

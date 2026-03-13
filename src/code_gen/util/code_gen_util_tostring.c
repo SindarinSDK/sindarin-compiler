@@ -26,8 +26,6 @@ const char *get_rt_to_string_func_v2(TypeKind kind)
         return "rt_to_string_byte_v2";
     case TYPE_VOID:
         return "rt_to_string_void_v2";
-    case TYPE_ANY:
-        return "rt_any_to_string";
     default:
         return "rt_to_string_pointer_v2";
     }
@@ -77,8 +75,6 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
                 return "rt_to_string_array2_byte_v2";
             case TYPE_STRING:
                 return "rt_to_string_array2_string_v2";
-            case TYPE_ANY:
-                return "rt_to_string_array2_any_v2";
             case TYPE_ARRAY: {
                 /* 3D array: select formatter based on innermost element type */
                 Type *innermost = elem_type->as.array.element_type->as.array.element_type;
@@ -101,8 +97,6 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
                         return "rt_to_string_array3_byte_v2";
                     case TYPE_STRING:
                         return "rt_to_string_array3_string_v2";
-                    case TYPE_ANY:
-                        return "rt_to_string_array3_any_v2";
                     default:
                         return "rt_to_string_pointer_v2";
                     }
@@ -138,8 +132,6 @@ const char *get_rt_to_string_func_for_type_v2(Type *type)
             return "rt_to_string_array_byte_v2";
         case TYPE_STRING:
             return "rt_to_string_array_string_v2";
-        case TYPE_ANY:
-            return "rt_to_string_array_any_v2";
         default:
             return "rt_to_string_pointer_v2";
         }
@@ -155,10 +147,6 @@ const char *get_default_value(Type *type)
     if (type->kind == TYPE_STRING || type->kind == TYPE_ARRAY)
     {
         return "NULL";
-    }
-    else if (type->kind == TYPE_ANY)
-    {
-        return "rt_box_nil()";
     }
     else if (type->kind == TYPE_STRUCT)
     {

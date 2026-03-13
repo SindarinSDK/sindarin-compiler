@@ -365,10 +365,6 @@ Type *parser_type(Parser *parser)
     {
         type = ast_create_primitive_type(parser->arena, TYPE_VOID);
     }
-    else if (parser_match(parser, TOKEN_ANY))
-    {
-        type = ast_create_primitive_type(parser->arena, TYPE_ANY);
-    }
     else if (parser_check(parser, TOKEN_IDENTIFIER))
     {
         Token id = parser->current;
@@ -528,7 +524,7 @@ int parser_check_method_name(Parser *parser)
     /* Allow type keywords as method names (e.g., obj.int, obj.bool, obj.any, etc.) */
     SnTokenType type = parser->current.type;
     if (type == TOKEN_INT || type == TOKEN_LONG || type == TOKEN_DOUBLE ||
-        type == TOKEN_BOOL || type == TOKEN_BYTE || type == TOKEN_ANY)
+        type == TOKEN_BOOL || type == TOKEN_BYTE)
     {
         return 1;
     }

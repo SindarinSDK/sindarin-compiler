@@ -1,0 +1,140 @@
+{
+  "module": {
+    "filename": "tests\/mgen-c\/expr_interpolated_string.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "name",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "world"
+          },
+          "needs_strdup": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "msg",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "interpolated_string",
+            "parts": [
+              {
+                "kind": "text",
+                "value": "Hello "
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "variable",
+                  "name": "name"
+                }
+              },
+              {
+                "kind": "text",
+                "value": "!"
+              }
+            ]
+          },
+          "needs_strdup": false
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "builtin_length",
+                  "object": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "variable",
+                    "name": "msg"
+                  }
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 12
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected interpolated string length to be 12"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

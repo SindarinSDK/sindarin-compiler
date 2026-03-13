@@ -6,6 +6,18 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
+/* Struct: Buffer (native) */
+typedef struct {
+    long long __sn__data;
+    long long __sn__size;
+} __sn__Buffer;
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 int main() {

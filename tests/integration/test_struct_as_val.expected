@@ -3,8 +3,8 @@ Testing 'as val' struct deep copy semantics:
 1. Before modification:
    c1.items: [1, 2, 3]
    c2.items: [1, 2, 3]
-   After c2.items[0] = 100 (shallow copy):
-   c1.items: [100, 2, 3]
+   After c2.items[0] = 100 (deep copy):
+   c1.items: [1, 2, 3]
    c2.items: [100, 2, 3]
 
 2. With 'as val' (deep copy):

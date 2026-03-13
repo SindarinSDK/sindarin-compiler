@@ -42,6 +42,17 @@ static inline __sn__Inner *__sn__Inner_copy(const __sn__Inner *src) {
 static inline void __sn__Inner_release_elem(void *p) { __sn__Inner_release((__sn__Inner **)p); }
 static inline void __sn__Inner_retain_into(const void *src, void *dst) { *(__sn__Inner **)dst = __sn__Inner_retain(*(__sn__Inner *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Inner_to_string(const __sn__Inner *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Inner { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "value: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__value);
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
 
 
 /* Struct: Outer (as ref — refcounted) */
@@ -72,7 +83,7 @@ static inline void __sn__Outer_release(__sn__Outer **p) {
 static inline __sn__Outer *__sn__Outer_copy(const __sn__Outer *src) {
     __sn__Outer *dst = calloc(1, sizeof(__sn__Outer));
     dst->__rc__ = 1;
-    dst->__sn__child = __sn__Inner_retain(src->__sn__child);
+    dst->__sn__child = src->__sn__child;
     return dst;
 }
 
@@ -80,6 +91,25 @@ static inline __sn__Outer *__sn__Outer_copy(const __sn__Outer *src) {
 
 static inline void __sn__Outer_release_elem(void *p) { __sn__Outer_release((__sn__Outer **)p); }
 static inline void __sn__Outer_retain_into(const void *src, void *dst) { *(__sn__Outer **)dst = __sn__Outer_retain(*(__sn__Outer *const *)src); }
+
+/* Auto-toString for string interpolation */
+static inline char *__sn__Outer_to_string(const __sn__Outer *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Outer { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "child: ");
+    { char *__fs__ = __sn__Inner_to_string(&p->__sn__child); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 

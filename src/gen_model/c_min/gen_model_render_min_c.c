@@ -6,19 +6,10 @@
 
 /* ---- Minimal C-Specific Helpers ---- */
 
-/* Maps Sindarin types to minimal C types:
- * string -> char *  (not RtHandleV2 *)
- * array  -> SnArray *  (not RtHandleV2 *)
- * function -> void *  (not RtHandleV2 *)
- * any -> not supported */
-static char *helper_c_type_min(json_object **params, int param_count, hbs_options_t *options)
+/* Resolve a type JSON object to a C type string */
+static char *resolve_c_type_min(json_object *type_obj)
 {
-    (void)options;
-    if (param_count < 1 || !params[0]) {
-        return strdup("void");
-    }
-
-    json_object *type_obj = params[0];
+    if (!type_obj) return strdup("void");
 
     if (json_object_is_type(type_obj, json_type_string)) {
         return strdup(json_object_get_string(type_obj));
@@ -34,6 +25,9 @@ static char *helper_c_type_min(json_object **params, int param_count, hbs_option
 
     if (strcmp(kind, "int") == 0) return strdup("long long");
     if (strcmp(kind, "long") == 0) return strdup("long long");
+    if (strcmp(kind, "int32") == 0) return strdup("int32_t");
+    if (strcmp(kind, "uint") == 0) return strdup("uint64_t");
+    if (strcmp(kind, "uint32") == 0) return strdup("uint32_t");
     if (strcmp(kind, "double") == 0) return strdup("double");
     if (strcmp(kind, "float") == 0) return strdup("float");
     if (strcmp(kind, "bool") == 0) return strdup("bool");
@@ -44,6 +38,22 @@ static char *helper_c_type_min(json_object **params, int param_count, hbs_option
     if (strcmp(kind, "any") == 0) return strdup("long long");  /* fallback */
     if (strcmp(kind, "array") == 0) return strdup("SnArray *");
     if (strcmp(kind, "function") == 0) return strdup("void *");
+
+    if (strcmp(kind, "pointer") == 0) {
+        json_object *base_obj = NULL;
+        if (json_object_object_get_ex(type_obj, "base_type", &base_obj)) {
+            char *base = resolve_c_type_min(base_obj);
+            char buf[256];
+            snprintf(buf, sizeof(buf), "%s *", base);
+            free(base);
+            return strdup(buf);
+        }
+        return strdup("void *");
+    }
+
+    if (strcmp(kind, "opaque") == 0) {
+        return strdup("void *");
+    }
 
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;
@@ -68,6 +78,20 @@ static char *helper_c_type_min(json_object **params, int param_count, hbs_option
     return strdup("void");
 }
 
+/* Maps Sindarin types to minimal C types:
+ * string -> char *  (not RtHandleV2 *)
+ * array  -> SnArray *  (not RtHandleV2 *)
+ * function -> void *  (not RtHandleV2 *)
+ * any -> not supported */
+static char *helper_c_type_min(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 1 || !params[0]) {
+        return strdup("void");
+    }
+    return resolve_c_type_min(params[0]);
+}
+
 static char *helper_default_value_min(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)options;
@@ -90,10 +114,13 @@ static char *helper_default_value_min(json_object **params, int param_count, hbs
     if (strcmp(kind, "string") == 0) return strdup("NULL");
     if (strcmp(kind, "array") == 0) return strdup("NULL");
     if (strcmp(kind, "function") == 0) return strdup("NULL");
+    if (strcmp(kind, "pointer") == 0) return strdup("NULL");
+    if (strcmp(kind, "opaque") == 0) return strdup("NULL");
     if (strcmp(kind, "void") == 0) return strdup("");
     if (strcmp(kind, "any") == 0) return strdup("0");
 
-    return strdup("0");
+    /* Struct types: use {0} for aggregate initialization */
+    return strdup("{0}");
 }
 
 static char *helper_type_suffix_min(json_object **params, int param_count, hbs_options_t *options)
@@ -144,11 +171,13 @@ static char *helper_c_sizeof_min(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "double") == 0) return strdup("sizeof(double)");
     if (strcmp(kind, "float") == 0) return strdup("sizeof(float)");
     if (strcmp(kind, "char") == 0) return strdup("sizeof(char)");
-    if (strcmp(kind, "bool") == 0) return strdup("sizeof(int)");
+    if (strcmp(kind, "bool") == 0) return strdup("sizeof(bool)");
     if (strcmp(kind, "byte") == 0) return strdup("sizeof(unsigned char)");
     if (strcmp(kind, "any") == 0) return strdup("sizeof(long long)");
     if (strcmp(kind, "string") == 0) return strdup("sizeof(char *)");
     if (strcmp(kind, "array") == 0) return strdup("sizeof(SnArray *)");
+    if (strcmp(kind, "pointer") == 0) return strdup("sizeof(void *)");
+    if (strcmp(kind, "opaque") == 0) return strdup("sizeof(void *)");
 
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;
@@ -207,6 +236,50 @@ static char *helper_type_tag_min(json_object **params, int param_count, hbs_opti
     return strdup("0");
 }
 
+/* printf_format: given a Sindarin format spec (e.g. "05d") and a type, produce
+ * the correct printf format string (e.g. "%05lld") */
+static char *helper_printf_format(json_object **params, int param_count, hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 2 || !params[0] || !params[1]) return strdup("%lld");
+
+    const char *spec = json_object_get_string(params[0]);
+    if (!spec || !*spec) return strdup("%lld");
+
+    json_object *type_obj = params[1];
+    json_object *kind_obj = NULL;
+    const char *kind = "";
+    if (json_object_object_get_ex(type_obj, "kind", &kind_obj))
+        kind = json_object_get_string(kind_obj);
+    if (!kind) kind = "";
+
+    char buf[256];
+    int len = (int)strlen(spec);
+    char conv = spec[len - 1];  /* last char is conversion specifier */
+
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 || strcmp(kind, "any") == 0 ||
+        strcmp(kind, "uint") == 0)
+    {
+        /* 64-bit integer types: insert 'll' before conversion character */
+        if (conv == 'd' || conv == 'i' || conv == 'x' || conv == 'X' ||
+            conv == 'o' || conv == 'u')
+        {
+            snprintf(buf, sizeof(buf), "%%%.*sll%c", len - 1, spec, conv);
+        }
+        else
+        {
+            snprintf(buf, sizeof(buf), "%%%s", spec);
+        }
+    }
+    else
+    {
+        /* double, float, string, char, byte, int32, uint32: use spec as-is */
+        snprintf(buf, sizeof(buf), "%%%s", spec);
+    }
+
+    return strdup(buf);
+}
+
 static char *helper_box_func_min(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)options; (void)param_count; (void)params;
@@ -235,6 +308,7 @@ static void register_min_c_helpers(hbs_env_t *env)
     hbs_register_helper(env, "box_func", helper_box_func_min);
     hbs_register_helper(env, "unbox_func", helper_unbox_func_min);
     hbs_register_helper(env, "count", helper_count);
+    hbs_register_helper(env, "printf_format", helper_printf_format);
 }
 
 /* ---- Public API ---- */
