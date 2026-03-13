@@ -11,7 +11,6 @@
 #include "runtime/runtime_arena_tests.c"
 #include "runtime/runtime_arithmetic_tests.c"
 #include "runtime/runtime_string_tests.c"
-#include "runtime/runtime_any_tests.c"
 #include "standalone/symbol_table_tests_core.c"
 #include "standalone/symbol_table_tests_thread.c"
 #include "standalone/symbol_table_tests_namespace.c"
@@ -55,10 +54,6 @@ int main()
     // *** Runtime String ***
 
     test_rt_string_main();
-
-    // *** Runtime Any Type ***
-
-    test_rt_any_main();
 
     // *** Runtime Byte Array ***
 

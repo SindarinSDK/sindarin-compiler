@@ -81,9 +81,6 @@ const char *get_rt_result_type(Type *type)
                     /* 2D arrays use RT_TYPE_ARRAY_HANDLE for deep promotion */
                     return "RT_TYPE_ARRAY_HANDLE";
                 }
-                case TYPE_ANY:
-                    /* any[] arrays contain RtAny elements */
-                    return "RT_TYPE_ARRAY_ANY";
                 default:
                     return "RT_TYPE_VOID";
             }

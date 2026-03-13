@@ -63,10 +63,6 @@ typedef enum
     TOKEN_STRUCT,
     // Static keyword (for static methods)
     TOKEN_STATIC,
-    // Any type and type operators
-    TOKEN_ANY,
-    TOKEN_TYPEOF,
-    TOKEN_IS,
     // Sizeof operator
     TOKEN_SIZEOF,
     TOKEN_PLUS,

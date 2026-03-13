@@ -11,13 +11,17 @@
 {{> struct_typedef this}}
 {{/each}}{{#each globals}}
 {{#if is_static}}static {{/if}}{{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
-{{/each}}
-{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}{{> forward_decl this}}
+{{#if (eq sync_mod "atomic")}}pthread_mutex_t __sn__{{name}}_mutex = PTHREAD_MUTEX_INITIALIZER;
+{{/if}}{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{#if has_body}}{{> forward_decl this}}
+{{/if}}{{else}}{{> forward_decl this}}
 {{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
-{{/each}}{{/each}}{{#each threads}}
+{{/each}}{{/each}}{{#each pragmas}}{{#if (eq pragma_type "source")}}
+#include {{{value}}}
+{{/if}}{{/each}}{{#each threads}}
 typedef struct {
 {{#each args}}
-    {{c_type type}} {{name}};
+    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
 {{/each}}
     int _padding;
 } __ThreadArgs_{{thread_id}}__;
@@ -31,51 +35,91 @@ static void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}
 {{#if is_void}}
     __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
-{{else}}
+{{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
+{{/if}}{{/each}}{{else}}
     {{c_type return_type}} __result__ = __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
-    if (!__th__->result) __th__->result = calloc(1, sizeof({{c_type return_type}}));
-    *({{c_type return_type}} *)__th__->result = __result__;
+{{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
+{{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
+{{/if}}    if (!__th__->result) __th__->result = calloc(1, sizeof({{c_type return_type}}));
+    *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL{{else}}__result__{{/if}};
 {{/if}}
     return NULL;
 }
 {{/each}}
-{{#if lambdas}}
 typedef struct __Closure__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
 } __Closure__;
+{{#if lambdas}}
 {{#each lambdas}}
 
 {{#if has_captures}}
 typedef struct __closure_{{lambda_id}}__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
 {{#each captures}}
     {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
 {{/each}}
 } __closure_{{lambda_id}}__;
+{{#if has_ref_captures}}
+static void __closure_{{lambda_id}}_free__(void *p) {
+    __closure_{{lambda_id}}__ *cl = (__closure_{{lambda_id}}__ *)p;
+{{#each captures}}{{#if is_ref}}    free(cl->{{name}});
+{{/if}}{{/each}}    free(cl);
+}
+static void __closure_{{lambda_id}}_cleanup__(void **p) {
+    if (*p) {
+        free(*p);
+    }
+    *p = NULL;
+}
+#define sn_auto_closure_{{lambda_id}} __attribute__((cleanup(__closure_{{lambda_id}}_cleanup__)))
+{{/if}}
 {{/if}}
 static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}});
 {{/each}}
 {{/if}}
-{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{else}}
+{{#each fn_wrappers}}
+static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}} __p{{@index}}__{{/each}}) {
+    (void)__closure__;
+    {{#unless (eq return_type.kind "void")}}return {{/unless}}{{#if is_native}}{{target_name}}{{else}}__sn__{{target_name}}{{/if}}({{#each param_types}}{{#if @index}}, {{/if}}__p{{@index}}__{{/each}});
+}
+{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{#if has_body}}
+
+{{> function this}}
+{{/if}}{{else}}
 
 {{> function this}}
 {{/if}}{{/if}}{{/each}}
 {{#each structs}}
 {{#each methods}}
+{{#if is_native}}{{#if has_body}}
 {{> method this struct_name=../name}}
-{{/each}}
+{{/if}}{{else}}
+{{> method this struct_name=../name}}
+{{/if}}{{/each}}
 {{/each}}
 {{#with module}}{{#if has_main}}
-int main() {
+{{#if has_main_args}}int main(int argc, char **argv) {
+    SnArray *__sn__args = sn_array_new(sizeof(char *), argc);
+    __sn__args->elem_tag = SN_TAG_STRING;
+    for (int __i__ = 0; __i__ < argc; __i__++) {
+        char *__s__ = strdup(argv[__i__]);
+        sn_array_push(__sn__args, &__s__);
+    }
+{{else}}int main() {
+{{/if}}
 {{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{#if needs_strdup}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}};
 {{/if}}{{/each}}{{#each ../functions}}{{#if (eq name "main")}}{{#each body}}
     {{> stmt this}}{{/each}}{{/if}}{{/each}}{{#each ../globals}}{{#if needs_cleanup}}{{#if (eq cleanup_kind "str")}}    free(__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "arr")}}    sn_cleanup_array(&__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "release")}}    __sn__{{type.name}}_release(&__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "val_cleanup")}}    __sn__{{type.name}}_cleanup(&__sn__{{name}});
-{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}{{#unless main_returns}}    return 0;
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}{{#if has_main_args}}    sn_cleanup_array(&__sn__args);
+{{/if}}{{#unless main_returns}}    return 0;
 {{/unless}}
 }{{/if}}{{/with}}
 {{#if lambdas}}

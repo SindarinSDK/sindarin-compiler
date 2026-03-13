@@ -94,17 +94,6 @@ static void test_is_variadic_compatible_long(void)
     arena_free(&arena);
 }
 
-static void test_is_variadic_compatible_any(void)
-{
-    Arena arena;
-    arena_init(&arena, TC_ARENA_SIZE);
-
-    Type *any_type = ast_create_primitive_type(&arena, TYPE_ANY);
-    assert(is_variadic_compatible_type(any_type) == true);
-
-    arena_free(&arena);
-}
-
 static void test_is_variadic_compatible_void(void)
 {
     Arena arena;
@@ -403,18 +392,6 @@ static void test_is_primitive_type_float(void)
     arena_free(&arena);
 }
 
-static void test_is_primitive_type_any(void)
-{
-    Arena arena;
-    arena_init(&arena, TC_ARENA_SIZE);
-
-    Type *any_type = ast_create_primitive_type(&arena, TYPE_ANY);
-    // Any is not considered a primitive
-    assert(is_primitive_type(any_type) == false);
-
-    arena_free(&arena);
-}
-
 static void test_is_primitive_type_array(void)
 {
     Arena arena;
@@ -502,17 +479,6 @@ static void test_is_reference_type_bool(void)
 /* ============================================================================
  * Additional is_printable_type edge cases
  * ============================================================================ */
-
-static void test_is_printable_type_any(void)
-{
-    Arena arena;
-    arena_init(&arena, TC_ARENA_SIZE);
-
-    Type *any_type = ast_create_primitive_type(&arena, TYPE_ANY);
-    assert(is_printable_type(any_type) == true);
-
-    arena_free(&arena);
-}
 
 static void test_is_printable_type_void(void)
 {
@@ -673,7 +639,6 @@ void test_type_checker_coverage_main(void)
     TEST_RUN("is_variadic_compatible_char", test_is_variadic_compatible_char);
     TEST_RUN("is_variadic_compatible_byte", test_is_variadic_compatible_byte);
     TEST_RUN("is_variadic_compatible_long", test_is_variadic_compatible_long);
-    TEST_RUN("is_variadic_compatible_any", test_is_variadic_compatible_any);
     TEST_RUN("is_variadic_compatible_void", test_is_variadic_compatible_void);
 
     TEST_SECTION("Type Checker - is_c_compatible_type");
@@ -707,7 +672,6 @@ void test_type_checker_coverage_main(void)
     TEST_RUN("is_primitive_type_uint", test_is_primitive_type_uint);
     TEST_RUN("is_primitive_type_uint32", test_is_primitive_type_uint32);
     TEST_RUN("is_primitive_type_float", test_is_primitive_type_float);
-    TEST_RUN("is_primitive_type_any", test_is_primitive_type_any);
     TEST_RUN("is_primitive_type_array", test_is_primitive_type_array);
     TEST_RUN("is_primitive_type_function", test_is_primitive_type_function);
 
@@ -719,7 +683,6 @@ void test_type_checker_coverage_main(void)
     TEST_RUN("is_reference_type_bool", test_is_reference_type_bool);
 
     TEST_SECTION("Type Checker - is_printable_type edge cases");
-    TEST_RUN("is_printable_type_any", test_is_printable_type_any);
     TEST_RUN("is_printable_type_void", test_is_printable_type_void);
     TEST_RUN("is_printable_type_long", test_is_printable_type_long);
     TEST_RUN("is_printable_type_byte", test_is_printable_type_byte);

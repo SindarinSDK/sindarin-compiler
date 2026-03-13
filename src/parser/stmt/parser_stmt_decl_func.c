@@ -44,7 +44,6 @@ int parser_can_start_expression(SnTokenType type)
         case TOKEN_BANG:
         case TOKEN_MINUS:
         /* Type operators */
-        case TOKEN_TYPEOF:
         case TOKEN_SIZEOF:
         /* Function reference */
         case TOKEN_AMPERSAND:

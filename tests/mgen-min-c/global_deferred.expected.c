@@ -10,6 +10,12 @@ long long __sn__x = 10LL;
 
 long long __sn__y = 0;
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     __sn__y = sn_add_long(__sn__x, 5LL);
     sn_assert((__sn__y == 15LL), "expected y to be 15");

@@ -1,3 +1,0 @@
-fn main(): void =>
-    var a: any = 42
-    assert(a is int, "expected a is int to be true")

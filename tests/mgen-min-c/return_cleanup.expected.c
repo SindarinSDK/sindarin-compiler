@@ -5,16 +5,25 @@
 #include <stdint.h>
 #include <limits.h>
 #include "sn_minimal.h"
+
 char * __sn__greet(char *);
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 
 char * __sn__greet(char * __sn__name) {
+
     sn_auto_str char * __sn__msg = ({
             char __is_buf__[1024];
             int __is_off__ = 0;
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "Hello ");
+            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", "Hello ");
             __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __sn__name);
             strdup(__is_buf__);
         });
+
     {
         char * __ret__ = __sn__msg;
         __sn__msg = NULL;

@@ -21,12 +21,69 @@ extern json_object *g_model_lambdas;
 /* Global thread collection - populated during model building */
 extern json_object *g_model_threads;
 extern int g_model_thread_count;
+extern int g_model_lambda_count;
 
 /* Global captured-variable set - populated by pre-scanning function bodies.
  * Variables in this set need handle-based (promoted) storage in the outer scope
  * so that lambdas can capture them by reference. */
 extern char **g_captured_vars;
 extern int g_captured_var_count;
+
+/* Global thread-handle-variable set - populated by pre-scanning function bodies.
+ * Variables in this set are assigned thread_spawn results outside their var_decl
+ * (e.g., conditional spawns) and need a companion SnThread* variable. */
+extern char **g_thread_handle_vars;
+extern int g_thread_handle_var_count;
+
+/* Suppress auto-cleanup on local array/string vars (set for functions returning structs with heap fields) */
+extern bool g_suppress_local_cleanup;
+
+/* Set to true when generating lambda body statements — prevents return from
+ * nulling captured variables (they belong to the outer scope, not the lambda). */
+extern bool g_in_lambda_body;
+
+/* Set to true when generating main()'s body when main returns void in Sindarin.
+ * C requires main to return int, so bare returns must become return 0; */
+extern bool g_in_main_void;
+
+/* Maps closure variable names to their lambda_ids for return-site cleanup.
+ * Set when a var_decl has closure_lambda_id with has_ref_captures. */
+#define MAX_CLOSURE_VAR_MAP 64
+extern char *g_closure_var_names[MAX_CLOSURE_VAR_MAP];
+extern int g_closure_var_lambda_ids[MAX_CLOSURE_VAR_MAP];
+extern int g_closure_var_count;
+
+/* Global fn-wrapper collection for function-as-parameter wrapping */
+extern json_object *g_model_fn_wrappers;
+extern int g_model_fn_wrapper_count;
+
+/* Current namespace prefix for namespaced imports (NULL when not inside a namespace) */
+extern const char *g_model_namespace_prefix;
+
+/* Module-level statement access for callee body analysis */
+extern Stmt **g_model_module_stmts;
+extern int g_model_module_stmt_count;
+
+/* Module-level variable and function names for the current namespace import.
+ * When g_model_namespace_prefix is set and a function body references one of
+ * these names, the reference gets namespace-prefixed in the model.
+ *
+ * Static vars (shared across aliases) use g_model_canonical_prefix.
+ * Instance vars (per-alias) use g_model_namespace_prefix. */
+extern const char **g_model_ns_static_var_names;
+extern int g_model_ns_static_var_count;
+extern const char **g_model_ns_instance_var_names;
+extern int g_model_ns_instance_var_count;
+extern const char **g_model_ns_fn_names;
+extern int g_model_ns_fn_count;
+
+/* Canonical module prefix for static variable sharing.
+ * Derived from module filename (e.g., "level_01").
+ * All aliases of the same module share static vars under this prefix. */
+extern const char *g_model_canonical_prefix;
+
+/* Post-processing pass: flatten method chains into sequential statements */
+void gen_model_flatten_chains(json_object *model);
 
 /* --- Internal functions (used across gen_model_*.c files) --- */
 

@@ -39,7 +39,7 @@ static const char *field_cleanup_action(Type *type)
     {
         case TYPE_STRING:   return "free";
         case TYPE_ARRAY:    return "cleanup_array";
-        case TYPE_FUNCTION: return "free";
+        case TYPE_FUNCTION: return "none";  /* fn pointers aren't heap-allocated */
         case TYPE_STRUCT:
             if (type->as.struct_type.pass_self_by_ref)
                 return "release";
@@ -164,6 +164,31 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 m->params[j].type->as.struct_type.pass_self_by_ref)
             {
                 json_object_object_add(p, "param_cleanup", json_object_new_string("release"));
+            }
+            /* as val param on val-type struct with heap fields: needs struct cleanup */
+            if (m->params[j].mem_qualifier == MEM_AS_VAL &&
+                m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
+                !m->params[j].type->as.struct_type.pass_self_by_ref)
+            {
+                bool has_heap = false;
+                for (int fi = 0; fi < m->params[j].type->as.struct_type.field_count; fi++)
+                {
+                    Type *ft = m->params[j].type->as.struct_type.fields[fi].type;
+                    if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+                              ft->kind == TYPE_FUNCTION ||
+                              (ft->kind == TYPE_STRUCT &&
+                               ft->as.struct_type.pass_self_by_ref)))
+                    {
+                        has_heap = true;
+                        break;
+                    }
+                }
+                if (has_heap)
+                {
+                    json_object_object_add(p, "needs_struct_cleanup", json_object_new_boolean(true));
+                    json_object_object_add(p, "struct_cleanup_name",
+                        json_object_new_string(m->params[j].type->as.struct_type.name));
+                }
             }
             json_object_array_add(params, p);
         }

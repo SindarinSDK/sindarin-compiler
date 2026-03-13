@@ -1,0 +1,86 @@
+{
+  "module": {
+    "filename": "tests\/mgen-c\/fn_void.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "doNothing",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "return"
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "doNothing"
+            },
+            "args": [],
+            "is_tail_call": false,
+            "is_closure_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

@@ -82,8 +82,6 @@ const char *get_c_type(Arena *arena, Type *type)
         return arena_strdup(arena, "void");
     case TYPE_NIL:
         return arena_strdup(arena, "void *");
-    case TYPE_ANY:
-        return arena_strdup(arena, "RtAny");
     case TYPE_ARRAY:
         return arena_strdup(arena, "RtHandleV2 *");
     case TYPE_POINTER:
@@ -217,7 +215,6 @@ const char *get_array_accessor_suffix(Type *elem_type)
         case TYPE_STRING:
         case TYPE_ARRAY:
         case TYPE_FUNCTION: return "handle";
-        case TYPE_ANY: return "any";
         default: return NULL; /* struct/complex: use rt_array_data_begin_v2 */
     }
 }
@@ -336,7 +333,7 @@ bool struct_has_handle_fields(Type *struct_type)
         }
 
         TypeKind kind = field->type->kind;
-        if (kind == TYPE_STRING || kind == TYPE_ARRAY || kind == TYPE_ANY ||
+        if (kind == TYPE_STRING || kind == TYPE_ARRAY ||
             kind == TYPE_FUNCTION)
         {
             return true;

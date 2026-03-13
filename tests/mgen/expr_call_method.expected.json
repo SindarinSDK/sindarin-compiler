@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/expr_call_method.sn",
     "has_main": true,
     "main_returns": false,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -66,7 +67,8 @@
                           "offset": 0
                         }
                       ]
-                    }
+                    },
+                    "pass_self_by_ref": true
                   },
                   "kind": "variable",
                   "name": "self"
@@ -120,7 +122,8 @@
                             "offset": 0
                           }
                         ]
-                      }
+                      },
+                      "pass_self_by_ref": true
                     },
                     "kind": "variable",
                     "name": "self"
@@ -151,6 +154,7 @@
       },
       "modifier": "default",
       "is_native": false,
+      "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
       "params": [],
@@ -262,7 +266,8 @@
             },
             "args": [],
             "is_tail_call": false,
-            "is_closure_call": false
+            "is_closure_call": false,
+            "is_fn_field_call": false
           }
         },
         {
@@ -322,7 +327,8 @@
                   },
                   "args": [],
                   "is_tail_call": false,
-                  "is_closure_call": false
+                  "is_closure_call": false,
+                  "is_fn_field_call": false
                 },
                 "right": {
                   "type": {
@@ -350,5 +356,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

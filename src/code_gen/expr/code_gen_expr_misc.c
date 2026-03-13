@@ -248,3 +248,25 @@ char *code_gen_copy_of_expression(CodeGen *gen, Expr *expr)
     /* Fallback: should not happen, but just return operand */
     return operand_code;
 }
+
+char *code_gen_sizeof_expression(CodeGen *gen, Expr *expr)
+{
+    DEBUG_VERBOSE("Generating sizeof expression");
+
+    SizeofExpr *sizeof_expr = &expr->as.sizeof_expr;
+
+    if (sizeof_expr->type_operand != NULL)
+    {
+        /* sizeof(Type) - compile-time size of the type.
+         * String and array types are RtHandle (uint32_t = 4 bytes). */
+        const char *c_type = get_c_param_type(gen->arena, sizeof_expr->type_operand);
+        return arena_sprintf(gen->arena, "(long long)sizeof(%s)", c_type);
+    }
+    else
+    {
+        /* sizeof(expr) - size of the expression's type */
+        Type *expr_type = sizeof_expr->expr_operand->expr_type;
+        const char *c_type = get_c_param_type(gen->arena, expr_type);
+        return arena_sprintf(gen->arena, "(long long)sizeof(%s)", c_type);
+    }
+}

@@ -83,16 +83,22 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     switch (vtype->kind)
                     {
                         case TYPE_STRING:
-                            needs_cleanup = true;
-                            cleanup_kind = "str";
+                            if (!g_suppress_local_cleanup)
+                            {
+                                needs_cleanup = true;
+                                cleanup_kind = "str";
+                            }
                             break;
                         case TYPE_ARRAY:
-                            needs_cleanup = true;
-                            cleanup_kind = "arr";
+                            if (!g_suppress_local_cleanup)
+                            {
+                                needs_cleanup = true;
+                                cleanup_kind = "arr";
+                            }
                             break;
                         case TYPE_FUNCTION:
                             needs_cleanup = true;
-                            cleanup_kind = "ptr";
+                            cleanup_kind = "fn";
                             break;
                         case TYPE_STRUCT:
                             if (vtype->as.struct_type.pass_self_by_ref)
@@ -126,6 +132,24 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         json_object_new_string(cleanup_kind));
                 }
             }
+            /* Check if this variable is assigned a thread_spawn elsewhere (conditional spawn).
+             * Skip if the initializer is already a thread_spawn (handled by is_thread_handle). */
+            {
+                bool init_is_spawn = (stmt->as.var_decl.initializer &&
+                    stmt->as.var_decl.initializer->type == EXPR_THREAD_SPAWN);
+                if (!init_is_spawn)
+                {
+                    const char *vname = stmt->as.var_decl.name.start;
+                    for (int ti = 0; ti < g_thread_handle_var_count; ti++)
+                    {
+                        if (strcmp(g_thread_handle_vars[ti], vname) == 0)
+                        {
+                            json_object_object_add(obj, "needs_thread_handle", json_object_new_boolean(true));
+                            break;
+                        }
+                    }
+                }
+            }
             if (stmt->as.var_decl.initializer)
             {
                 json_object_object_add(obj, "initializer",
@@ -146,14 +170,31 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     bool is_nil_literal = (itype == EXPR_LITERAL && init->as.literal.type &&
                                            init->as.literal.type->kind == TYPE_NIL);
                     bool needs_strdup = !is_nil_literal &&
-                                        (itype == EXPR_LITERAL || itype == EXPR_VARIABLE);
+                                        (itype == EXPR_LITERAL || itype == EXPR_VARIABLE ||
+                                         itype == EXPR_ARRAY_ACCESS || itype == EXPR_MEMBER);
                     json_object_object_add(obj, "needs_strdup",
                         json_object_new_boolean(needs_strdup));
                 }
-                /* For val struct vars with heap fields: variable initializer needs deep copy */
+                /* For array vars: variable/member initializer needs sn_array_copy to avoid double-free.
+                 * Array literals and function calls return owned arrays — no copy needed. */
+                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_ARRAY)
+                {
+                    Expr *init = stmt->as.var_decl.initializer;
+                    ExprType itype = init->type;
+                    bool needs_copy = (itype == EXPR_VARIABLE || itype == EXPR_MEMBER ||
+                                       itype == EXPR_ARRAY_ACCESS);
+                    if (needs_copy)
+                    {
+                        json_object_object_add(obj, "needs_arr_copy",
+                            json_object_new_boolean(true));
+                    }
+                }
+                /* For val struct vars with heap fields: variable/array_access initializer needs deep copy */
                 if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_STRUCT &&
                     !stmt->as.var_decl.type->as.struct_type.pass_self_by_ref &&
-                    stmt->as.var_decl.initializer->type == EXPR_VARIABLE)
+                    (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
+                     stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
+                     stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS))
                 {
                     Type *vt = stmt->as.var_decl.type;
                     bool has_heap = false;
@@ -174,6 +215,100 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                     }
                 }
+                /* Recursive lambda self-capture: when a var_decl initializer is a lambda
+                 * that captures the var being declared, mark it for post-init patching. */
+                if (stmt->as.var_decl.initializer->type == EXPR_LAMBDA)
+                {
+                    const char *vname = stmt->as.var_decl.name.start;
+                    int lid = stmt->as.var_decl.initializer->as.lambda.lambda_id;
+
+                    /* Find this lambda in g_model_lambdas and mark self-captures */
+                    int lam_count = json_object_array_length(g_model_lambdas);
+                    for (int li = 0; li < lam_count; li++)
+                    {
+                        json_object *lam_obj = json_object_array_get_idx(g_model_lambdas, li);
+                        json_object *lid_obj;
+                        json_object_object_get_ex(lam_obj, "lambda_id", &lid_obj);
+                        if (json_object_get_int(lid_obj) == lid)
+                        {
+                            json_object *caps_arr;
+                            json_object_object_get_ex(lam_obj, "captures", &caps_arr);
+                            int cap_count = json_object_array_length(caps_arr);
+                            for (int ci = 0; ci < cap_count; ci++)
+                            {
+                                json_object *cap = json_object_array_get_idx(caps_arr, ci);
+                                json_object *name_obj;
+                                json_object_object_get_ex(cap, "name", &name_obj);
+                                if (strcmp(json_object_get_string(name_obj), vname) == 0)
+                                {
+                                    json_object_object_add(cap, "is_self",
+                                        json_object_new_boolean(true));
+                                    json_object_object_add(obj, "has_self_capture",
+                                        json_object_new_boolean(true));
+                                    json_object_object_add(obj, "self_capture_lambda_id",
+                                        json_object_new_int(lid));
+                                    json_object_object_add(obj, "self_capture_name",
+                                        json_object_new_string(vname));
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    /* Also mark in the inline initializer's captures */
+                    json_object *init_obj;
+                    json_object_object_get_ex(obj, "initializer", &init_obj);
+                    if (init_obj)
+                    {
+                        json_object *init_caps;
+                        json_object_object_get_ex(init_obj, "captures", &init_caps);
+                        if (init_caps)
+                        {
+                            int ic_count = json_object_array_length(init_caps);
+                            for (int ci = 0; ci < ic_count; ci++)
+                            {
+                                json_object *cap = json_object_array_get_idx(init_caps, ci);
+                                json_object *name_obj;
+                                json_object_object_get_ex(cap, "name", &name_obj);
+                                if (strcmp(json_object_get_string(name_obj), vname) == 0)
+                                {
+                                    json_object_object_add(cap, "is_self",
+                                        json_object_new_boolean(true));
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    /* If the lambda has ref captures, use closure-specific cleanup
+                     * instead of generic sn_auto_ptr so captured heap vars are freed. */
+                    {
+                        json_object *init_obj;
+                        json_object_object_get_ex(obj, "initializer", &init_obj);
+                        if (init_obj)
+                        {
+                            json_object *ref_caps_obj;
+                            if (json_object_object_get_ex(init_obj, "has_ref_captures", &ref_caps_obj) &&
+                                json_object_get_boolean(ref_caps_obj))
+                            {
+                                json_object_object_add(obj, "cleanup_kind",
+                                    json_object_new_string("closure"));
+                                json_object_object_add(obj, "closure_lambda_id",
+                                    json_object_new_int(lid));
+                                /* Register for return-site cleanup activation */
+                                if (g_closure_var_count < MAX_CLOSURE_VAR_MAP)
+                                {
+                                    int nlen = stmt->as.var_decl.name.length;
+                                    char *ncopy = arena_alloc(arena, nlen + 1);
+                                    strncpy(ncopy, stmt->as.var_decl.name.start, nlen);
+                                    ncopy[nlen] = '\0';
+                                    g_closure_var_names[g_closure_var_count] = ncopy;
+                                    g_closure_var_lambda_ids[g_closure_var_count] = lid;
+                                    g_closure_var_count++;
+                                }
+                            }
+                        }
+                    }
+                }
             }
             break;
         }
@@ -183,12 +318,34 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("return"));
             if (stmt->as.return_stmt.value)
             {
+                /* If the return value is a void expression, flag it so the template
+                 * can emit the expression as a statement instead of return expr; */
+                if (stmt->as.return_stmt.value->expr_type &&
+                    stmt->as.return_stmt.value->expr_type->kind == TYPE_VOID)
+                {
+                    json_object_object_add(obj, "is_void_return",
+                        json_object_new_boolean(true));
+                }
                 json_object_object_add(obj, "value",
                     gen_model_expr(arena, stmt->as.return_stmt.value, symbol_table, arithmetic_mode));
                 /* Ownership transfer: if returning a local variable of a type that needs cleanup,
-                 * the local must be nulled out to prevent the cleanup attribute from freeing it */
+                 * the local must be nulled out to prevent the cleanup attribute from freeing it.
+                 * Exception: 'return self' in methods — self is a pointer parameter, not a local.
+                 * memset would zero the caller's struct through the pointer, destroying data
+                 * when the return value is discarded (e.g., chaining: obj.method(x)) */
                 Expr *rv = stmt->as.return_stmt.value;
-                if (rv->type == EXPR_VARIABLE && rv->expr_type)
+                bool is_return_self = (rv->type == EXPR_VARIABLE &&
+                    rv->as.variable.name.length == 4 &&
+                    strncmp(rv->as.variable.name.start, "self", 4) == 0);
+                if (is_return_self)
+                {
+                    json_object_object_add(obj, "is_return_self",
+                        json_object_new_boolean(true));
+                    if (rv->expr_type)
+                        json_object_object_add(obj, "return_self_type",
+                            gen_model_type(arena, rv->expr_type));
+                }
+                if (!is_return_self && rv->type == EXPR_VARIABLE && rv->expr_type)
                 {
                     Type *rt = rv->expr_type;
                     bool is_owned = false;
@@ -202,6 +359,41 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     {
                         is_owned = true;
                         transfer_kind = "null_ptr";
+                    }
+                    else if (rt->kind == TYPE_FUNCTION)
+                    {
+                        is_owned = true;
+                        transfer_kind = "null_ptr";
+                        /* Null out captured variables to prevent sn_auto_capture
+                         * from freeing them — the closure takes ownership.
+                         * Also activate the closure's __cleanup__ function so
+                         * the caller's sn_auto_fn can free captures.
+                         * Only do this in regular functions, not inside lambdas. */
+                        if (!g_in_lambda_body && g_captured_var_count > 0)
+                        {
+                            json_object *cap_vars = json_object_new_array();
+                            for (int ci = 0; ci < g_captured_var_count; ci++)
+                            {
+                                json_object_array_add(cap_vars,
+                                    json_object_new_string(g_captured_vars[ci]));
+                            }
+                            json_object_object_add(obj, "captured_vars_to_null", cap_vars);
+                            /* Find the lambda_id for this closure variable */
+                            const char *vname = rv->as.variable.name.start;
+                            int vlen = rv->as.variable.name.length;
+                            for (int ci = 0; ci < g_closure_var_count; ci++)
+                            {
+                                if ((int)strlen(g_closure_var_names[ci]) == vlen &&
+                                    strncmp(g_closure_var_names[ci], vname, vlen) == 0)
+                                {
+                                    json_object_object_add(obj, "has_closure_escape",
+                                        json_object_new_boolean(true));
+                                    json_object_object_add(obj, "closure_escape_lambda_id",
+                                        json_object_new_int(g_closure_var_lambda_ids[ci]));
+                                    break;
+                                }
+                            }
+                        }
                     }
                     else if (rt->kind == TYPE_STRUCT)
                     {
@@ -233,12 +425,91 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                         json_object_object_add(obj, "transfer_kind",
                             json_object_new_string(transfer_kind));
+                        /* Prefix transfer_var with namespace if it's a module-level variable.
+                         * Static vars use canonical prefix; instance vars use namespace prefix. */
+                        const char *tvar = rv->as.variable.name.start;
+                        if (g_model_namespace_prefix)
+                        {
+                            bool found = false;
+                            const char *prefix_to_use = g_model_namespace_prefix;
+                            if (g_model_ns_static_var_names)
+                            {
+                                for (int vi = 0; vi < g_model_ns_static_var_count; vi++)
+                                {
+                                    if (strcmp(g_model_ns_static_var_names[vi], tvar) == 0)
+                                    { found = true; prefix_to_use = g_model_canonical_prefix; break; }
+                                }
+                            }
+                            if (!found && g_model_ns_instance_var_names)
+                            {
+                                for (int vi = 0; vi < g_model_ns_instance_var_count; vi++)
+                                {
+                                    if (strcmp(g_model_ns_instance_var_names[vi], tvar) == 0)
+                                    { found = true; break; }
+                                }
+                            }
+                            if (found && prefix_to_use)
+                            {
+                                char prefixed_tvar[512];
+                                snprintf(prefixed_tvar, sizeof(prefixed_tvar), "%s__%s",
+                                         prefix_to_use, tvar);
+                                tvar = arena_alloc(arena, strlen(prefixed_tvar) + 1);
+                                strcpy((char *)tvar, prefixed_tvar);
+                            }
+                        }
                         json_object_object_add(obj, "transfer_var",
-                            json_object_new_string(rv->as.variable.name.start));
+                            json_object_new_string(tvar));
                         json_object_object_add(obj, "transfer_type",
                             gen_model_type(arena, rt));
                     }
                 }
+                /* Struct literal return: fields may reference local variables with cleanup.
+                 * Collect those variables so the template can NULL them before returning. */
+                else if (rv->type == EXPR_STRUCT_LITERAL && rv->expr_type &&
+                         rv->expr_type->kind == TYPE_STRUCT)
+                {
+                    StructLiteralExpr *sl = &rv->as.struct_literal;
+                    json_object *transfer_vars = NULL;
+                    for (int fi = 0; fi < sl->field_count; fi++)
+                    {
+                        Expr *fv = sl->fields[fi].value;
+                        if (fv && fv->type == EXPR_VARIABLE && fv->expr_type)
+                        {
+                            Type *ft = fv->expr_type;
+                            if (ft->kind == TYPE_ARRAY || ft->kind == TYPE_STRING)
+                            {
+                                if (!transfer_vars) transfer_vars = json_object_new_array();
+                                json_object_array_add(transfer_vars,
+                                    json_object_new_string(fv->as.variable.name.start));
+                            }
+                        }
+                    }
+                    if (transfer_vars)
+                    {
+                        json_object_object_add(obj, "has_struct_transfer",
+                            json_object_new_boolean(true));
+                        json_object_object_add(obj, "struct_transfer_vars", transfer_vars);
+                        json_object_object_add(obj, "struct_transfer_type",
+                            gen_model_type(arena, rv->expr_type));
+                    }
+                }
+                /* String return from non-owned source: needs strdup so caller can free.
+                 * Literals, member accesses, and array accesses all borrow from their
+                 * source — the returned string must be an independent copy. */
+                else if (rv->expr_type && rv->expr_type->kind == TYPE_STRING &&
+                         (rv->type == EXPR_LITERAL || rv->type == EXPR_MEMBER ||
+                          rv->type == EXPR_ARRAY_ACCESS))
+                {
+                    json_object_object_add(obj, "needs_strdup",
+                        json_object_new_boolean(true));
+                }
+            }
+            /* Bare return in void main: C requires main to return int,
+             * so emit return 0; instead of bare return; */
+            if (!stmt->as.return_stmt.value && g_in_main_void)
+            {
+                json_object_object_add(obj, "is_main_void_return",
+                    json_object_new_boolean(true));
             }
             break;
         }
@@ -340,6 +611,13 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
             json_object_object_add(obj, "body",
                 gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
+            /* iterable needs cleanup if it's a temporary (not a variable/member reference) */
+            Expr *iter_expr = stmt->as.for_each_stmt.iterable;
+            bool iter_is_temp = (iter_expr->type != EXPR_VARIABLE &&
+                                 iter_expr->type != EXPR_MEMBER &&
+                                 iter_expr->type != EXPR_ARRAY_ACCESS);
+            json_object_object_add(obj, "needs_iterable_cleanup",
+                json_object_new_boolean(iter_is_temp));
             break;
         }
 

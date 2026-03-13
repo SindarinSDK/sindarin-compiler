@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/global_static.sn",
     "has_main": true,
     "main_returns": false,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -40,6 +41,7 @@
       },
       "modifier": "default",
       "is_native": false,
+      "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
       "params": [],
@@ -110,5 +112,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

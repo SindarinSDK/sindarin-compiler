@@ -1,0 +1,195 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/var_decl_as_ref.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "increment",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "x",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "x",
+                "is_captured": true
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "a",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 10
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "increment"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "a",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "a"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 11
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected a to be 11 after increment by ref"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

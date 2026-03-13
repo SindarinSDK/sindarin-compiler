@@ -226,21 +226,6 @@ Expr *simplify_noop_expr(Optimizer *opt, Expr *expr)
         expr->as.copy_of.operand = simplify_noop_expr(opt, expr->as.copy_of.operand);
         break;
 
-    case EXPR_TYPEOF:
-        if (expr->as.typeof_expr.operand)
-        {
-            expr->as.typeof_expr.operand = simplify_noop_expr(opt, expr->as.typeof_expr.operand);
-        }
-        break;
-
-    case EXPR_IS:
-        expr->as.is_expr.operand = simplify_noop_expr(opt, expr->as.is_expr.operand);
-        break;
-
-    case EXPR_AS_TYPE:
-        expr->as.as_type.operand = simplify_noop_expr(opt, expr->as.as_type.operand);
-        break;
-
     case EXPR_SIZEOF:
         if (expr->as.sizeof_expr.expr_operand)
         {

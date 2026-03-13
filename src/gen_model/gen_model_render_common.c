@@ -48,6 +48,11 @@ char *helper_op_symbol(json_object **params, int param_count, hbs_options_t *opt
     if (strcmp(op, "gte") == 0) return strdup(">=");
     if (strcmp(op, "and") == 0) return strdup("&&");
     if (strcmp(op, "or") == 0) return strdup("||");
+    if (strcmp(op, "bitand") == 0) return strdup("&");
+    if (strcmp(op, "bitor") == 0) return strdup("|");
+    if (strcmp(op, "bitxor") == 0) return strdup("^");
+    if (strcmp(op, "shl") == 0) return strdup("<<");
+    if (strcmp(op, "shr") == 0) return strdup(">>");
 
     return strdup("+");
 }

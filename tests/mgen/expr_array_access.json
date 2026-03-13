@@ -1,0 +1,132 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_array_access.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "arr",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 10
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 20
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 30
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "v",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "array_access",
+            "array": {
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              },
+              "kind": "variable",
+              "name": "arr"
+            },
+            "index": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

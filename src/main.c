@@ -301,6 +301,10 @@ int main(int argc, char **argv)
                                               &options.symbol_table,
                                               options.arithmetic_mode);
 
+        /* Flatten method chains for minimal C codegen (codegen 3) */
+        if (options.codegen_mode == 3)
+            gen_model_flatten_chains(model);
+
         char template_dir[1024];
         if (options.codegen_mode == 3)
             snprintf(template_dir, sizeof(template_dir), "%s/templates/c-min", options.compiler_dir);

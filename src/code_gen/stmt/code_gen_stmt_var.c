@@ -6,7 +6,6 @@
  */
 
 #include "code_gen/stmt/code_gen_stmt.h"
-#include "code_gen/stmt/code_gen_stmt_var_init.h"
 #include "code_gen/expr/code_gen_expr.h"
 #include "code_gen/util/code_gen_util.h"
 #include "debug.h"
@@ -182,7 +181,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
                               stmt->type->kind == TYPE_CHAR);
     bool is_spawn_handle_result = gen->current_arena_var != NULL &&
                                   (stmt->type->kind == TYPE_STRING ||
-                                   (stmt->type->kind == TYPE_ARRAY && !is_any_element_array_type(stmt->type)));
+                                   (stmt->type->kind == TYPE_ARRAY));
     bool is_struct_result = (stmt->type->kind == TYPE_STRUCT);
     bool needs_pending_var = is_primitive_type || is_spawn_handle_result || is_struct_result;
 
@@ -306,7 +305,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         if (is_global_scope && gen->current_arena_var == NULL)
         {
             bool will_need_deferred = is_handle_type(stmt->type) ||
-                stmt->type->kind == TYPE_ANY ||
                 (stmt->type->kind == TYPE_STRUCT && stmt->initializer != NULL &&
                  (stmt->initializer->type == EXPR_CALL || stmt->initializer->type == EXPR_METHOD_CALL));
             if (will_need_deferred)
@@ -337,7 +335,7 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
         bool needs_deferred_init = false;
         if (is_global_scope)
         {
-            if (is_handle_type(stmt->type) || stmt->type->kind == TYPE_ANY)
+            if (is_handle_type(stmt->type))
             {
                 needs_deferred_init = true;
             }
@@ -346,14 +344,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 needs_deferred_init = true;
             }
-        }
-
-        /* Handle boxing to 'any' — must happen before deferred init saves the value,
-         * so the deferred assignment in main() includes the boxing call. */
-        if (stmt->type->kind == TYPE_ANY && stmt->initializer->expr_type != NULL &&
-            stmt->initializer->expr_type->kind != TYPE_ANY)
-        {
-            init_str = code_gen_box_value(gen, init_str, stmt->initializer->expr_type);
         }
 
         if (needs_deferred_init)
@@ -382,10 +372,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 init_str = arena_strdup(gen->arena, "NULL");
             }
-            else if (stmt->type->kind == TYPE_ANY)
-            {
-                init_str = arena_strdup(gen->arena, "{0}");
-            }
             else if (stmt->type->kind == TYPE_STRUCT)
             {
                 if (stmt->type->as.struct_type.is_native && stmt->type->as.struct_type.c_alias != NULL)
@@ -401,12 +387,6 @@ void code_gen_var_declaration(CodeGen *gen, VarDeclStmt *stmt, int indent)
             {
                 init_str = arena_strdup(gen->arena, "0");
             }
-        }
-
-        /* Handle array-to-any conversion */
-        if (stmt->type->kind == TYPE_ARRAY && stmt->initializer->expr_type != NULL)
-        {
-            init_str = code_gen_var_array_conversion(gen, stmt->type, stmt->initializer->expr_type, init_str);
         }
 
         /* Handle 'as val' cloning */

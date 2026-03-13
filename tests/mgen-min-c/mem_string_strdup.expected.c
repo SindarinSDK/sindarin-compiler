@@ -6,13 +6,19 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     sn_auto_str char * __sn__a = strdup("hello");
     sn_auto_str char * __sn__b = strdup(__sn__a);
     sn_auto_str char * __sn__c = ({
             char __is_buf__[1024];
             int __is_off__ = 0;
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "value: ");
+            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", "value: ");
             __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __sn__a);
             strdup(__is_buf__);
         });

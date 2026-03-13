@@ -12,21 +12,21 @@ struct DataHolder =>
 fn main(): int =>
     print("Testing 'as val' struct deep copy semantics:\n\n")
 
-    # Test 1: Default copy is shallow - arrays are shared
+    # Test 1: Default copy with heap fields - deep copy to prevent double-free
     var c1 = Container{ name: "original", items: {1, 2, 3} }
-    var c2: Container = c1   # Shallow copy - c2.items points to same array
+    var c2: Container = c1   # Deep copy - arrays are independent
 
     print($"1. Before modification:\n")
     print($"   c1.items: [{c1.items[0]}, {c1.items[1]}, {c1.items[2]}]\n")
     print($"   c2.items: [{c2.items[0]}, {c2.items[1]}, {c2.items[2]}]\n")
 
-    c2.items[0] = 100  # Modifying c2.items affects c1.items (shallow copy)
-    print($"   After c2.items[0] = 100 (shallow copy):\n")
+    c2.items[0] = 100  # Modifying c2.items does NOT affect c1.items (deep copy)
+    print($"   After c2.items[0] = 100 (deep copy):\n")
     print($"   c1.items: [{c1.items[0]}, {c1.items[1]}, {c1.items[2]}]\n")
     print($"   c2.items: [{c2.items[0]}, {c2.items[1]}, {c2.items[2]}]\n")
 
-    if c1.items[0] != 100 =>
-        print("FAIL: Expected c1.items[0] to be affected by shallow copy\n")
+    if c1.items[0] != 1 =>
+        print("FAIL: Expected c1.items[0] to be unchanged after deep copy\n")
         return 1
 
     # Test 2: Deep copy with 'as val' - arrays are independent

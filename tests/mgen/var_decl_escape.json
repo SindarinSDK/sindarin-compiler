@@ -1,0 +1,134 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/var_decl_escape.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "make_str",
+      "return_type": {
+        "kind": "string"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "s",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "hello"
+          },
+          "needs_strdup": true
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "variable",
+            "name": "s",
+            "escape_info": {
+              "escapes_scope": true,
+              "needs_heap": false
+            }
+          },
+          "is_ownership_transfer": true,
+          "transfer_kind": "null_ptr",
+          "transfer_var": "s",
+          "transfer_type": {
+            "kind": "string"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "result",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "string"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "make_str"
+            },
+            "args": [],
+            "is_tail_call": false,
+            "is_closure_call": false
+          },
+          "needs_strdup": false
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": []
+}

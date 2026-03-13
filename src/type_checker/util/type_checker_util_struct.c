@@ -40,7 +40,6 @@ bool is_c_compatible_type(Type *type)
         case TYPE_STRING:  /* Sindarin strings are managed */
         case TYPE_ARRAY:   /* Sindarin arrays have metadata (length, etc.) */
         case TYPE_NIL:
-        case TYPE_ANY:
         default:
             return false;
     }
@@ -68,10 +67,6 @@ bool is_valid_field_type(Type *type, SymbolTable *table)
         case TYPE_BOOL:
         case TYPE_BYTE:
         case TYPE_VOID:
-            return true;
-
-        /* Built-in reference types - always valid */
-        case TYPE_ANY:
             return true;
 
         /* Pointer types - valid (checked for native struct separately) */

@@ -29,7 +29,7 @@ bool is_builtin_name(Expr *callee, const char *name);
 bool token_equals(Token tok, const char *str);
 
 /* Static method type checking for built-in types
- * Handles: Stdin, Stdout, Stderr, Interceptor, and user-defined struct static methods
+ * Handles: Stdin, Stdout, Stderr, and user-defined struct static methods
  */
 Type *type_check_static_method_call(Expr *expr, SymbolTable *table);
 

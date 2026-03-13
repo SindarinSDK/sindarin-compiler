@@ -1,7 +1,0 @@
-# Error test: interceptor handler with wrong parameter count
-
-fn badHandler(x: int): int =>
-    return x
-
-fn main(): void =>
-    Interceptor.register(badHandler)

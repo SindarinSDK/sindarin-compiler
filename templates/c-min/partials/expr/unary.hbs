@@ -1,1 +1,1 @@
-{{#if (eq op "negate")}}(-{{> expr operand}}){{else}}{{#if (eq op "not")}}(!{{> expr operand}}){{/if}}{{/if}}
+{{#if (eq op "negate")}}(-{{> expr operand}}){{else}}{{#if (eq op "not")}}(!{{> expr operand}}){{else}}{{#if (eq op "bitnot")}}(~{{> expr operand}}){{/if}}{{/if}}{{/if}}

@@ -7,7 +7,6 @@
  * - Stdin static methods (readLine, readChar, readWord, hasChars, hasLines, isEof)
  * - Stdout static methods (write, writeLine, flush)
  * - Stderr static methods (write, writeLine, flush)
- * - Interceptor static methods (register, registerWhere, clearAll, isActive, count)
  * - User-defined struct static methods
  */
 char *code_gen_static_call_expression(CodeGen *gen, Expr *expr);

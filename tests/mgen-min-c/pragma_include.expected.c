@@ -7,5 +7,11 @@
 #include "sn_minimal.h"
 #include "math.h"
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     return 0LL;}

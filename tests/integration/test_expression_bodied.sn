@@ -16,8 +16,6 @@ fn square(x: int): int => x * x
 fn negate(x: int): int => -x
 fn is_positive(x: int): bool => x > 0
 fn is_zero(x: int): bool => x == 0
-fn to_float(x: int): float => x as float
-fn byte_to_int(b: byte): int => b as int
 fn increment(x: int): int => x + 1
 fn decrement(x: int): int => x - 1
 
@@ -31,8 +29,7 @@ fn average(a: double, b: double): double => (a + b) / 2.0
 // --- Functions with expressions ---
 fn area_circle(radius: double): double => 3.14159 * radius * radius
 fn area_rect(w: int, h: int): int => w * h
-fn distance(x: int, y: int): double => (x * x + y * y) as double
-fn clamp_byte(x: int): byte => (x % 256) as byte
+fn hypotenuse_sq(x: int, y: int): int => x * x + y * y
 
 // --- Functions calling other functions ---
 fn cube(x: int): int => x * square(x)
@@ -64,7 +61,6 @@ fn main(): void =>
     assert(!is_positive(-5), "is_positive false")
     assert(is_zero(0), "is_zero true")
     assert(!is_zero(1), "is_zero false")
-    assert(byte_to_int(200) == 200, "byte_to_int")
     assert(increment(41) == 42, "increment")
     assert(decrement(43) == 42, "decrement")
     print("test_single_param_functions: PASS\n")
@@ -77,7 +73,7 @@ fn main(): void =>
 
     // Test expression functions
     assert(area_rect(6, 7) == 42, "area_rect")
-    assert(clamp_byte(300) == 44, "clamp_byte")
+    assert(hypotenuse_sq(3, 4) == 25, "hypotenuse_sq")
     print("test_expression_functions: PASS\n")
 
     // Test nested calls

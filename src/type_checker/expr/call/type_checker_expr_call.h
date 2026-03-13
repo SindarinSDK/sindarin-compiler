@@ -67,6 +67,28 @@ Type *type_check_array_method(Expr *expr, Type *object_type, Token member_name, 
 Type *type_check_string_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
 
 /* ============================================================================
+ * Numeric Type Methods
+ * ============================================================================ */
+
+/* int methods: toDouble, toLong, toUint, toByte, toChar */
+Type *type_check_int_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* long methods: toInt, toDouble */
+Type *type_check_long_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* double methods: toInt, toLong */
+Type *type_check_double_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* uint methods: toInt, toLong, toDouble */
+Type *type_check_uint_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* byte methods: toInt, toChar */
+Type *type_check_byte_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* bool methods: toInt */
+Type *type_check_bool_method(Expr *expr, Type *object_type, Token member_name, SymbolTable *table);
+
+/* ============================================================================
  * Process Methods
  * ============================================================================ */
 

@@ -8,6 +8,12 @@
 
 char * __sn__greeting = NULL;
 
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+
 int main() {
     __sn__greeting = strdup("hello");
     sn_assert((sn_str_length(__sn__greeting) == 5LL), "greeting should be 5 chars");

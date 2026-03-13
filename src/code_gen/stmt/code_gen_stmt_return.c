@@ -126,13 +126,6 @@ void code_gen_return_statement(CodeGen *gen, ReturnStmt *stmt, int indent)
             }
         }
 
-        /* Handle boxing when function returns 'any' but expression is concrete */
-        if (gen->current_return_type != NULL && gen->current_return_type->kind == TYPE_ANY &&
-            stmt->value->expr_type != NULL && stmt->value->expr_type->kind != TYPE_ANY)
-        {
-            value_str = code_gen_box_value(gen, value_str, stmt->value->expr_type);
-        }
-
         indented_fprintf(gen, indent, "_return_value = %s;\n", value_str);
 
         /* Set runtime flag so the method epilogue knows to reorder promotion.

@@ -1,3 +1,0 @@
-fn main(): void =>
-    var x: any = true
-    print($"{typeOf(x)}\n")

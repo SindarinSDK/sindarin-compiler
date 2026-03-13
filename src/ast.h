@@ -42,7 +42,6 @@ typedef enum
     TYPE_ARRAY,
     TYPE_FUNCTION,
     TYPE_NIL,
-    TYPE_ANY,
     TYPE_POINTER,
     TYPE_OPAQUE,
     TYPE_STRUCT
@@ -181,9 +180,6 @@ typedef enum
     EXPR_ADDRESS_OF,
     EXPR_VALUE_OF,
     EXPR_COPY_OF,
-    EXPR_TYPEOF,
-    EXPR_IS,
-    EXPR_AS_TYPE,
     EXPR_STRUCT_LITERAL,
     EXPR_MEMBER_ACCESS,
     EXPR_MEMBER_ASSIGN,
@@ -360,27 +356,6 @@ typedef struct
     Expr *operand;          // The expression to deep copy
 } CopyOfExpr;
 
-/* typeof operator - returns the runtime type of an any value or a type literal */
-typedef struct
-{
-    Expr *operand;       /* Expression to get type of (can be value or type name) */
-    Type *type_literal;  /* If typeof(int), the type itself; NULL if typeof(value) */
-} TypeofExpr;
-
-/* is operator - checks if an any value is of a specific type */
-typedef struct
-{
-    Expr *operand;       /* The any value to check */
-    Type *check_type;    /* The type to check against */
-} IsExpr;
-
-/* as operator - casts an any value to a concrete type */
-typedef struct
-{
-    Expr *operand;       /* The any value to cast */
-    Type *target_type;   /* The type to cast to */
-} AsTypeExpr;
-
 /* Struct literal expression: Point { x: 1.0, y: 2.0 } */
 typedef struct
 {
@@ -490,9 +465,6 @@ struct Expr
         AddressOfExpr address_of;
         ValueOfExpr value_of;
         CopyOfExpr copy_of;
-        TypeofExpr typeof_expr;
-        IsExpr is_expr;
-        AsTypeExpr as_type;
         StructLiteralExpr struct_literal;
         MemberAccessExpr member_access;
         MemberAssignExpr member_assign;

@@ -1,0 +1,97 @@
+# Test: Full request lifecycle - static parse, instance method getHeader, response building
+# Exercises: struct static methods, instance methods, string split/substring/trim/toLower/indexOf,
+# conditionals, array push, string interpolation, string concatenation
+
+struct Header =>
+    name: str
+    value: str
+
+struct Request =>
+    method: str
+    path: str
+    headers: Header[]
+    body: str
+
+    static fn parse(raw: str): Request =>
+        var normalized: str = raw.replace("\r\n", "\n")
+        var lines: str[] = normalized.split("\n")
+        var req: Request = Request { method: "", path: "", headers: {}, body: "" }
+        if lines.length == 0 =>
+            return req
+        var parts: str[] = lines[0].split(" ")
+        if parts.length >= 1 =>
+            req.method = parts[0]
+        if parts.length >= 2 =>
+            req.path = parts[1]
+        var i: int = 1
+        while i < lines.length =>
+            var line: str = lines[i]
+            if line.trim() == "" =>
+                break
+            var colonIdx: int = line.indexOf(":")
+            if colonIdx > 0 =>
+                var hname_raw: str = line.substring(0, colonIdx)
+                var hname: str = hname_raw.trim()
+                var hvalue_raw: str = line.substring(colonIdx + 1, line.length)
+                var hvalue: str = hvalue_raw.trim()
+                req.headers.push(Header { name: hname, value: hvalue })
+            i = i + 1
+        return req
+
+    fn getHeader(target: str): str =>
+        var lowerName: str = target.toLower()
+        var i: int = 0
+        while i < self.headers.length =>
+            if self.headers[i].name.toLower() == lowerName =>
+                return self.headers[i].value
+            i = i + 1
+        return ""
+
+struct Response =>
+    status: int
+    body: str
+
+    fn toText(): str =>
+        var result: str = $"HTTP/1.1 {self.status} OK\r\n"
+        result = result + "Content-Type: text/plain\r\n\r\n"
+        result = result + self.body
+        return result
+
+fn main(): void =>
+    var raw: str = "GET /items HTTP/1.1\r\nHost: localhost\r\nConnection: keep-alive\r\nAccept: */*\r\n\r\n"
+
+    var req: Request = Request.parse(raw)
+
+    if req.method != "GET" =>
+        print($"FAIL: method={req.method}\n")
+        return
+    if req.path != "/items" =>
+        print($"FAIL: path={req.path}\n")
+        return
+    if req.headers.length != 3 =>
+        print($"FAIL: headers count={req.headers.length}\n")
+        return
+
+    var conn: str = req.getHeader("connection")
+    if conn != "keep-alive" =>
+        print($"FAIL: connection={conn}\n")
+        return
+
+    var host: str = req.getHeader("Host")
+    if host != "localhost" =>
+        print($"FAIL: host={host}\n")
+        return
+
+    var resp: Response = Response { status: 200, body: "Hello" }
+    if conn == "keep-alive" =>
+        resp = Response { status: 200, body: "Hello (keep-alive)" }
+
+    var text: str = resp.toText()
+    if text.indexOf("keep-alive") < 0 =>
+        print("FAIL: response body missing keep-alive\n")
+        return
+    if text.indexOf("HTTP/1.1 200 OK") < 0 =>
+        print("FAIL: response missing status line\n")
+        return
+
+    print("PASS\n")

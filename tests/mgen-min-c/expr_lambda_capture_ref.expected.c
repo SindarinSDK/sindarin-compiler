@@ -9,21 +9,36 @@
 typedef struct __Closure__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
 } __Closure__;
 
 typedef struct __closure_0__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
     long long *x;
 } __closure_0__;
+static void __closure_0_free__(void *p) {
+    __closure_0__ *cl = (__closure_0__ *)p;
+    free(cl->x);
+    free(cl);
+}
+static void __closure_0_cleanup__(void **p) {
+    if (*p) {
+        free(*p);
+    }
+    *p = NULL;
+}
+#define sn_auto_closure_0 __attribute__((cleanup(__closure_0_cleanup__)))
 static void __lambda_0__(void *__closure__);
 
 int main() {
-    long long __sn__x_storage = 10LL; long long *__sn__x = &__sn__x_storage;
-    sn_auto_ptr void * __sn__inc = ({
+    sn_auto_capture long long *__sn__x = malloc(sizeof(long long)); *__sn__x = 10LL;
+    sn_auto_closure_0 void * __sn__inc = ({
         __closure_0__ *__cl__ = malloc(sizeof(__closure_0__));
         __cl__->fn = (void *)__lambda_0__;
         __cl__->size = sizeof(__closure_0__);
+        __cl__->__cleanup__ = NULL;
         __cl__->x = __sn__x;
         __cl__;
     });

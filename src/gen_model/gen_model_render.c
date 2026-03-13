@@ -62,7 +62,6 @@ static char *helper_c_type(json_object **params, int param_count, hbs_options_t 
     if (strcmp(kind, "byte") == 0) return strdup("unsigned char");
     if (strcmp(kind, "string") == 0) return strdup("RtHandleV2 *");
     if (strcmp(kind, "void") == 0) return strdup("void");
-    if (strcmp(kind, "any") == 0) return strdup("RtAny");
     if (strcmp(kind, "array") == 0) return strdup("RtHandleV2 *");
     if (strcmp(kind, "function") == 0) return strdup("RtHandleV2 *");
 
@@ -106,8 +105,6 @@ static char *helper_default_value(json_object **params, int param_count, hbs_opt
     if (strcmp(kind, "array") == 0) return strdup("NULL");
     if (strcmp(kind, "function") == 0) return strdup("NULL");
     if (strcmp(kind, "void") == 0) return strdup("");
-    if (strcmp(kind, "any") == 0) return strdup("rt_box_nil()");
-
     return strdup("0");
 }
 
@@ -163,7 +160,6 @@ static char *helper_c_sizeof(json_object **params, int param_count, hbs_options_
     if (strcmp(kind, "char") == 0) return strdup("sizeof(char)");
     if (strcmp(kind, "bool") == 0) return strdup("sizeof(int)");
     if (strcmp(kind, "byte") == 0) return strdup("sizeof(unsigned char)");
-    if (strcmp(kind, "any") == 0) return strdup("sizeof(RtAny)");
     if (strcmp(kind, "string") == 0) return strdup("sizeof(RtHandleV2 *)");
     if (strcmp(kind, "array") == 0) return strdup("sizeof(RtHandleV2 *)");
 

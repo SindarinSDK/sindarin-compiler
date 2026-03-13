@@ -250,32 +250,6 @@ Expr *parser_unary(Parser *parser)
         return ast_create_unary_expr(parser->arena, op.type, right, &op);
     }
 
-    /* typeOf operator - always requires parentheses: typeOf(expr) or typeOf(Type) */
-    if (parser_match(parser, TOKEN_TYPEOF))
-    {
-        Token typeof_token = parser->previous;
-        parser_consume(parser, TOKEN_LEFT_PAREN, "Expected '(' after typeOf");
-
-        if (parser_check(parser, TOKEN_INT) || parser_check(parser, TOKEN_INT32) ||
-            parser_check(parser, TOKEN_UINT) || parser_check(parser, TOKEN_UINT32) ||
-            parser_check(parser, TOKEN_LONG) || parser_check(parser, TOKEN_DOUBLE) ||
-            parser_check(parser, TOKEN_FLOAT) || parser_check(parser, TOKEN_CHAR) ||
-            parser_check(parser, TOKEN_STR) || parser_check(parser, TOKEN_BOOL) ||
-            parser_check(parser, TOKEN_BYTE) || parser_check(parser, TOKEN_VOID) ||
-            parser_check(parser, TOKEN_ANY))
-        {
-            Type *type_literal = parser_type(parser);
-            parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf type");
-            return ast_create_typeof_expr(parser->arena, NULL, type_literal, &typeof_token);
-        }
-        else
-        {
-            Expr *operand = parser_unary(parser);
-            parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf expression");
-            return ast_create_typeof_expr(parser->arena, operand, NULL, &typeof_token);
-        }
-    }
-
     /* sizeof operator */
     if (parser_match(parser, TOKEN_SIZEOF))
     {
@@ -288,7 +262,7 @@ Expr *parser_unary(Parser *parser)
             parser_check(parser, TOKEN_FLOAT) || parser_check(parser, TOKEN_CHAR) ||
             parser_check(parser, TOKEN_STR) || parser_check(parser, TOKEN_BOOL) ||
             parser_check(parser, TOKEN_BYTE) || parser_check(parser, TOKEN_VOID) ||
-            parser_check(parser, TOKEN_ANY) || parser_check(parser, TOKEN_STAR))
+            parser_check(parser, TOKEN_STAR))
         {
             Type *type_operand = parser_type(parser);
             if (has_parens)
@@ -415,32 +389,6 @@ Expr *parser_postfix(Parser *parser)
             Token bang = parser->previous;
             bool is_sync_list = (expr->type == EXPR_SYNC_LIST);
             expr = ast_create_thread_sync_expr(parser->arena, expr, is_sync_list, &bang);
-        }
-        else if (parser_match(parser, TOKEN_AS))
-        {
-            Token as_token = parser->previous;
-            Type *target_type = parser_type(parser);
-            if (target_type == NULL)
-            {
-                parser_error_at_current(parser, "Expected type after 'as'");
-            }
-            else
-            {
-                expr = ast_create_as_type_expr(parser->arena, expr, target_type, &as_token);
-            }
-        }
-        else if (parser_match(parser, TOKEN_IS))
-        {
-            Token is_token = parser->previous;
-            Type *check_type = parser_type(parser);
-            if (check_type == NULL)
-            {
-                parser_error_at_current(parser, "Expected type after 'is'");
-            }
-            else
-            {
-                expr = ast_create_is_expr(parser->arena, expr, check_type, &is_token);
-            }
         }
         else if (skip_whitespace_for_continuation(parser))
         {

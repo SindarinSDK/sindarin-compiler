@@ -68,25 +68,6 @@ char *code_gen_array_expression(CodeGen *gen, Expr *e)
         }
     }
 
-    // Handle any[] arrays specially - need to box each element
-    // Use push-based approach to avoid TCC limitations with compound literals of structs
-    if (elem_type->kind == TYPE_ANY)
-    {
-        // For any[] arrays, box each element according to its actual type
-        char *pushes = arena_strdup(gen->arena, "");
-        for (int i = 0; i < arr->element_count; i++) {
-            Expr *elem = arr->elements[i];
-            char *el = code_gen_expression(gen, elem);
-            // Box the element based on its actual type
-            if (elem->expr_type != NULL && elem->expr_type->kind != TYPE_ANY) {
-                el = code_gen_box_value(gen, el, elem->expr_type);
-            }
-            pushes = arena_sprintf(gen->arena, "%s _arr = rt_array_push_any_v2(%s, _arr, %s);",
-                                   pushes, ARENA_VAR(gen), el);
-        }
-        return arena_sprintf(gen->arena, "({ RtHandleV2 *_arr = NULL;%s _arr; })", pushes);
-    }
-
     // Determine the runtime function suffix based on element type
     const char *suffix = NULL;
     switch (elem_type->kind) {

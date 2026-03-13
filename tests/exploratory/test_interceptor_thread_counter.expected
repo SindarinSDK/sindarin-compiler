@@ -1,3 +1,0 @@
-Testing thread-safe interceptor counting
-Total calls intercepted: 10
-Thread-safe counter test passed!

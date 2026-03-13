@@ -43,6 +43,24 @@ static inline __sn__Tag *__sn__Tag_copy(const __sn__Tag *src) {
 static inline void __sn__Tag_release_elem(void *p) { __sn__Tag_release((__sn__Tag **)p); }
 static inline void __sn__Tag_retain_into(const void *src, void *dst) { *(__sn__Tag **)dst = __sn__Tag_retain(*(__sn__Tag *const *)src); }
 
+/* Auto-toString for string interpolation */
+static inline char *__sn__Tag_to_string(const __sn__Tag *p) {
+    char buf[1024];
+    int off = 0;
+    off += snprintf(buf + off, sizeof(buf) - off, "Tag { ");
+    off += snprintf(buf + off, sizeof(buf) - off, "label: ");
+    off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__label ? p->__sn__label : "nil");
+    off += snprintf(buf + off, sizeof(buf) - off, " }");
+    return strdup(buf);
+}
+
+
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 
 
 int main() {

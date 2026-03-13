@@ -25,11 +25,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     print_token.line = 0;
     print_token.filename = arena_strdup(arena, "<built-in>");
 
-    Type *any_type = ast_create_primitive_type(arena, TYPE_ANY);
-    Type **builtin_params = arena_alloc(arena, sizeof(Type *));
-    builtin_params[0] = any_type;
-
-    Type *print_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), builtin_params, 1);
+    Type *print_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), NULL, 0);
+    print_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, print_token, print_type, SYMBOL_GLOBAL);
 
     Token to_string_token;
@@ -39,7 +36,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     to_string_token.line = 0;
     to_string_token.filename = arena_strdup(arena, "<built-in>");
 
-    Type *to_string_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_STRING), builtin_params, 1);
+    Type *to_string_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_STRING), NULL, 0);
+    to_string_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, to_string_token, to_string_type, SYMBOL_GLOBAL);
 
     // Array built-in: len(arr) -> int (works on arrays and strings)
@@ -49,7 +47,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     len_token.type = TOKEN_IDENTIFIER;
     len_token.line = 0;
     len_token.filename = arena_strdup(arena, "<built-in>");
-    Type *len_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_INT), builtin_params, 1);
+    Type *len_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_INT), NULL, 0);
+    len_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, len_token, len_type, SYMBOL_GLOBAL);
 
     // Console I/O convenience functions
@@ -70,7 +69,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     println_token.type = TOKEN_IDENTIFIER;
     println_token.line = 0;
     println_token.filename = arena_strdup(arena, "<built-in>");
-    Type *println_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), builtin_params, 1);
+    Type *println_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), NULL, 0);
+    println_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, println_token, println_type, SYMBOL_GLOBAL);
 
     // printErr(any) -> void
@@ -80,7 +80,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     printErr_token.type = TOKEN_IDENTIFIER;
     printErr_token.line = 0;
     printErr_token.filename = arena_strdup(arena, "<built-in>");
-    Type *printErr_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), builtin_params, 1);
+    Type *printErr_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), NULL, 0);
+    printErr_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, printErr_token, printErr_type, SYMBOL_GLOBAL);
 
     // printErrLn(any) -> void
@@ -90,7 +91,8 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     printErrLn_token.type = TOKEN_IDENTIFIER;
     printErrLn_token.line = 0;
     printErrLn_token.filename = arena_strdup(arena, "<built-in>");
-    Type *printErrLn_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), builtin_params, 1);
+    Type *printErrLn_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), NULL, 0);
+    printErrLn_type->as.function.is_variadic = true;
     symbol_table_add_symbol_with_kind(parser->symbol_table, printErrLn_token, printErrLn_type, SYMBOL_GLOBAL);
 
     // exit(code: int) -> void

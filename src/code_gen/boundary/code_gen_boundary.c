@@ -146,10 +146,6 @@ void code_gen_boundary_return(CodeGen *gen, Type *return_type, bool is_main,
         /* Closures are RtHandleV2* — promote or clone like other handles */
         emit_handle_return_promote(gen, indent, true);
     }
-    else if (kind == TYPE_ANY)
-    {
-        indented_fprintf(gen, indent, "_return_value = rt_any_promote_v2(__caller_arena__, _return_value);\n");
-    }
 }
 
 /* --- Self-field promotion -------------------------------------------------- */

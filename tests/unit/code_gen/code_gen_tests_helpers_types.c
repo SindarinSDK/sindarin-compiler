@@ -105,17 +105,6 @@ static void test_is_handle_type_array(void)
     arena_free(&arena);
 }
 
-static void test_is_handle_type_any(void)
-{
-    Arena arena;
-    arena_init(&arena, 4096);
-
-    Type *any_type = ast_create_primitive_type(&arena, TYPE_ANY);
-    assert(is_handle_type(any_type) == true);
-
-    arena_free(&arena);
-}
-
 /* ============================================================================
  * escape_char_literal Tests
  * ============================================================================ */
@@ -283,8 +272,6 @@ void test_code_gen_helpers_types_main(void)
     TEST_RUN("is_handle_type_void", test_is_handle_type_void);
     TEST_RUN("is_handle_type_long", test_is_handle_type_long);
     TEST_RUN("is_handle_type_array", test_is_handle_type_array);
-    TEST_RUN("is_handle_type_any", test_is_handle_type_any);
-
     TEST_SECTION("Code Gen Helpers - escape_char_literal");
     TEST_RUN("escape_char_newline", test_escape_char_newline);
     TEST_RUN("escape_char_tab", test_escape_char_tab);

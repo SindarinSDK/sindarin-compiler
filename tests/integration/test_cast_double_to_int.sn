@@ -1,4 +1,0 @@
-fn main(): void =>
-    var d: double = 3.7
-    var x: int = d as int
-    print($"{x}\n")

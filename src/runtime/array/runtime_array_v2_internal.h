@@ -14,7 +14,6 @@
 #include <limits.h>
 #include <stdint.h>
 #include "runtime_array_v2.h"
-#include "runtime/runtime_any.h"
 
 /* Helper to get length from raw V2 array data pointer */
 static inline size_t get_array_len_from_data(const void *arr) {

@@ -1,0 +1,334 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_call_closure.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "apply",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [
+        {
+          "name": "f",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [
+              {
+                "kind": "int"
+              }
+            ],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "f"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "x"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "double_it",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [
+              {
+                "kind": "int"
+              }
+            ],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "ptr",
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [
+                {
+                  "kind": "int"
+                }
+              ],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "lambda",
+            "lambda_id": 0,
+            "return_type": {
+              "kind": "int"
+            },
+            "modifier": "default",
+            "is_native": false,
+            "params": [
+              {
+                "name": "n",
+                "type": {
+                  "kind": "int"
+                }
+              }
+            ],
+            "captures": [],
+            "has_captures": false,
+            "body": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "multiply",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "n"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 2
+              },
+              "arithmetic_mode": "checked"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_assert",
+            "args": [
+              {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "int"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "int"
+                            }
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "apply"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [
+                          {
+                            "kind": "int"
+                          }
+                        ],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "double_it"
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 5
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": false
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "expected apply(double_it, 5) to be 10"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "return_type": {
+        "kind": "int"
+      },
+      "params": [
+        {
+          "name": "n",
+          "type": {
+            "kind": "int"
+          }
+        }
+      ],
+      "captures": [],
+      "has_captures": false,
+      "body": {
+        "type": {
+          "kind": "int"
+        },
+        "kind": "binary",
+        "op": "multiply",
+        "left": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "variable",
+          "name": "n"
+        },
+        "right": {
+          "type": {
+            "kind": "int"
+          },
+          "kind": "literal",
+          "value_kind": "int",
+          "value": 2
+        },
+        "arithmetic_mode": "checked"
+      }
+    }
+  ],
+  "threads": []
+}

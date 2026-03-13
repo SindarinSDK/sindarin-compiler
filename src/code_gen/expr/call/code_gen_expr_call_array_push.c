@@ -137,21 +137,6 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                              arena_to_use, handle_str, arg_str);
     }
 
-    /* Any type uses specialized push (boxing) */
-    if (element_type->kind == TYPE_ANY) {
-        if (is_lvalue) {
-            if (push_free_old) {
-                return arena_sprintf(gen->arena,
-                    "({ RtHandleV2 *__old_arr = %s; %s = rt_array_push_any_v2(%s, %s, %s); if (__old_arr != %s) rt_arena_v2_free(__old_arr); %s; })",
-                    handle_str, lvalue_str, arena_to_use, handle_str, arg_str, lvalue_str, lvalue_str);
-            }
-            return arena_sprintf(gen->arena, "(%s = rt_array_push_any_v2(%s, %s, %s))",
-                                 lvalue_str, arena_to_use, handle_str, arg_str);
-        }
-        return arena_sprintf(gen->arena, "rt_array_push_any_v2(%s, %s, %s)",
-                             arena_to_use, handle_str, arg_str);
-    }
-
     /* Pointer types (function/array) need casting */
     if (element_type->kind == TYPE_FUNCTION || element_type->kind == TYPE_ARRAY) {
         const char *cast = (element_type->kind == TYPE_ARRAY && gen->current_arena_var != NULL)
@@ -189,7 +174,7 @@ static char *code_gen_array_push(CodeGen *gen, Expr *object, Type *element_type,
                 StructField *field = &element_type->as.struct_type.fields[fi];
                 if (field->type == NULL) continue;
                 TypeKind fk = field->type->kind;
-                if (fk == TYPE_STRING || fk == TYPE_ARRAY || fk == TYPE_ANY ||
+                if (fk == TYPE_STRING || fk == TYPE_ARRAY ||
                     fk == TYPE_FUNCTION)
                 {
                     const char *c_field = field->c_alias != NULL

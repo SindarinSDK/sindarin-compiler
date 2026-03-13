@@ -138,6 +138,12 @@ Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
                 return NULL;
             }
 
+            /* Propagate type info to the element expression for codegen */
+            if (sym->type && !elem->expr_type)
+            {
+                elem->expr_type = sym->type;
+            }
+
             /* Check thread state - must be either pending or already synchronized.
              * Normal state (never spawned) is an error. */
             if (sym->thread_state == THREAD_STATE_NORMAL)

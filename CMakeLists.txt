@@ -147,6 +147,12 @@ set(SN_TYPE_CHECKER_SOURCES
     src/type_checker/expr/call/type_checker_expr_call_core.c
     src/type_checker/expr/call/type_checker_expr_call_array.c
     src/type_checker/expr/call/type_checker_expr_call_char.c
+    src/type_checker/expr/call/type_checker_expr_call_int.c
+    src/type_checker/expr/call/type_checker_expr_call_long.c
+    src/type_checker/expr/call/type_checker_expr_call_double.c
+    src/type_checker/expr/call/type_checker_expr_call_uint.c
+    src/type_checker/expr/call/type_checker_expr_call_byte.c
+    src/type_checker/expr/call/type_checker_expr_call_bool.c
     src/type_checker/expr/call/type_checker_expr_call_string.c
     # stmt/
     src/type_checker/stmt/type_checker_stmt.c
@@ -180,7 +186,6 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/util/code_gen_util_string.c
     src/code_gen/util/code_gen_util_type.c
     src/code_gen/util/code_gen_util_tostring.c
-    src/code_gen/util/code_gen_util_boxing.c
     src/code_gen/util/code_gen_util_fold.c
     src/code_gen/util/code_gen_util_native.c
     src/code_gen/util/code_gen_util_arena.c
@@ -197,7 +202,6 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/expr/code_gen_expr_incr.c
     src/code_gen/expr/code_gen_expr_member.c
     src/code_gen/expr/code_gen_expr_misc.c
-    src/code_gen/expr/code_gen_expr_type.c
     src/code_gen/expr/code_gen_expr_struct.c
     src/code_gen/expr/code_gen_expr_access.c
     src/code_gen/expr/code_gen_expr_match.c
@@ -210,9 +214,13 @@ set(SN_CODEGEN_SOURCES
     src/code_gen/expr/call/code_gen_expr_call_array.c
     # Note: code_gen_expr_call_array_{byte,mutate,push,query}.c are #included by code_gen_expr_call_array.c
     src/code_gen/expr/call/code_gen_expr_call_string.c
-    src/code_gen/expr/call/code_gen_expr_call_intercept.c
-    # Note: code_gen_expr_call_intercept_{func,method}.c are #included by code_gen_expr_call_intercept.c
     src/code_gen/expr/call/code_gen_expr_call_char.c
+    src/code_gen/expr/call/code_gen_expr_call_int.c
+    src/code_gen/expr/call/code_gen_expr_call_long.c
+    src/code_gen/expr/call/code_gen_expr_call_double.c
+    src/code_gen/expr/call/code_gen_expr_call_uint.c
+    src/code_gen/expr/call/code_gen_expr_call_byte.c
+    src/code_gen/expr/call/code_gen_expr_call_bool.c
     # expr/lambda/
     src/code_gen/expr/lambda/code_gen_expr_lambda.c
     # Note: code_gen_expr_lambda_{capture,local,native}.c are #included by code_gen_expr_lambda.c
@@ -238,6 +246,7 @@ set(SN_GENMODEL_SOURCES
     src/gen_model/gen_model_type.c
     src/gen_model/gen_model_stmt.c
     src/gen_model/gen_model_expr.c
+    src/gen_model/gen_model_chain_flatten.c
     src/gen_model/gen_model_func.c
     src/gen_model/gen_model_struct.c
     src/gen_model/gen_model_render_common.c
@@ -278,15 +287,12 @@ set(SN_RUNTIME_SOURCES
     src/runtime/array/runtime_array_v2_alloc.c
     src/runtime/array/runtime_array_v2_join.c
     src/runtime/array/runtime_array_v2_tostring.c
-    src/runtime/array/runtime_array_v2_any.c
     src/runtime/array/runtime_array_v2_print.c
     # thread/
     src/runtime/thread/runtime_thread_v3.c
     # core
     src/runtime/runtime_io.c
     src/runtime/runtime_byte.c
-    src/runtime/runtime_any.c
-    src/runtime/runtime_intercept.c
     # malloc/ (needed by arena_redirect.c)
     src/runtime/malloc/runtime_malloc_hooks.c
 )
@@ -429,15 +435,12 @@ if(NOT MSVC)
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_alloc.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_join.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_tostring.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_any.c
         ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_print.c
         # thread/
         ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread_v3.c
         # core
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
         ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_any.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_intercept.c
         # malloc/
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_hooks.c
         ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_redirect.c

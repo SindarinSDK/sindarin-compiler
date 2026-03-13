@@ -135,13 +135,6 @@ static char *generate_struct_auto_tostring(CodeGen *gen, Type *struct_type, cons
                 *temp_counter, ARENA_VAR(gen), *temp_counter, ARENA_VAR(gen), field_access,
                 *temp_counter, ARENA_VAR(gen), *temp_counter, ARENA_VAR(gen));
         }
-        else if (field_type->kind == TYPE_ANY)
-        {
-            /* TYPE_ANY: rt_any_to_string returns RtHandleV2* - pass directly */
-            result = arena_sprintf(gen->arena,
-                "%s_auto_h%d = rt_str_concat_v2(%s, _auto_h%d, rt_any_to_string(%s, %s)); ",
-                result, *temp_counter, ARENA_VAR(gen), *temp_counter, ARENA_VAR(gen), field_access);
-        }
         else if (field_type->kind == TYPE_ARRAY)
         {
             /* Array toString V2 takes 1 arg (handle), returns RtHandleV2* */

@@ -174,8 +174,6 @@ RUNTIME_MODULE_SRCS := \
     runtime/runtime_array_search.c \
     runtime/runtime_array_join.c \
     runtime/runtime_array_print.c \
-    runtime/runtime_array_any.c \
-    runtime/runtime_array_any_nested.c \
     runtime/runtime_array_tostring.c \
     runtime/runtime_array_tostring_nested.c \
     runtime/runtime_array_create.c \
@@ -187,9 +185,7 @@ RUNTIME_MODULE_SRCS := \
     runtime/runtime_path.c \
     runtime/runtime_date.c \
     runtime/runtime_time.c \
-    runtime/runtime_thread.c \
-    runtime/runtime_any.c \
-    runtime/runtime_intercept.c
+    runtime/runtime_thread.c
 
 # All compiler sources
 SRCS := $(CORE_SRCS) $(LEXER_SRCS) $(AST_SRCS) $(PARSER_SRCS) \
@@ -213,9 +209,7 @@ RUNTIME_HEADERS := \
     runtime/runtime_path.h \
     runtime/runtime_date.h \
     runtime/runtime_time.h \
-    runtime/thread/runtime_thread_v3.h \
-    runtime/runtime_any.h \
-    runtime/runtime_intercept.h
+    runtime/thread/runtime_thread_v3.h
 
 #------------------------------------------------------------------------------
 # Object Files
@@ -319,11 +313,10 @@ TEST_COMPILER_OBJS := $(filter-out $(BIN_DIR)/main.o, \
 RUNTIME_OBJ_NAMES := runtime.o runtime_arena.o runtime_string.o \
     runtime_array_core.o runtime_array_slice.o runtime_array_modify.o \
     runtime_array_search.o runtime_array_join.o runtime_array_print.o \
-    runtime_array_any.o runtime_array_any_nested.o runtime_array_tostring.o \
+    runtime_array_tostring.o \
     runtime_array_tostring_nested.o runtime_array_create.o runtime_array_alloc.o \
     runtime_text_file.o runtime_binary_file.o runtime_io.o runtime_byte.o \
-    runtime_path.o runtime_date.o runtime_time.o runtime_thread.o \
-    runtime_any.o runtime_intercept.o
+    runtime_path.o runtime_date.o runtime_time.o runtime_thread.o
 
 TEST_RUNTIME_GCC   := $(addprefix $(BIN_DIR)/, $(RUNTIME_OBJ_NAMES))
 TEST_RUNTIME_CLANG := $(addprefix $(BIN_DIR)/lib/clang/, $(RUNTIME_OBJ_NAMES))

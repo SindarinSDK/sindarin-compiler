@@ -101,9 +101,7 @@ bool apply_array_coercion(Stmt *stmt, Type *decl_type, Type **init_type_ptr)
 
 bool check_var_type_compatibility(Type *decl_type, Type *init_type, Stmt *stmt)
 {
-    /* Allow assigning any concrete type to an 'any' variable (boxing) */
     bool types_compatible = ast_type_equals(init_type, decl_type) ||
-                           (decl_type->kind == TYPE_ANY && init_type != NULL) ||
                            (init_type != NULL && init_type->kind == TYPE_NIL &&
                             (decl_type->kind == TYPE_POINTER || decl_type->kind == TYPE_STRING ||
                              decl_type->kind == TYPE_ARRAY || decl_type->kind == TYPE_FUNCTION));
@@ -122,11 +120,7 @@ bool check_var_type_compatibility(Type *decl_type, Type *init_type, Stmt *stmt)
             init_elem = init_elem->as.array.element_type;
         }
 
-        if (decl_elem != NULL && decl_elem->kind == TYPE_ANY && init_elem != NULL)
-        {
-            types_compatible = true;
-        }
-        else if (decl_elem != NULL && init_elem != NULL &&
+        if (decl_elem != NULL && init_elem != NULL &&
                  is_numeric_type(decl_elem) && is_numeric_type(init_elem) &&
                  decl_elem->kind != TYPE_DOUBLE && decl_elem->kind != TYPE_FLOAT &&
                  init_elem->kind != TYPE_DOUBLE && init_elem->kind != TYPE_FLOAT)

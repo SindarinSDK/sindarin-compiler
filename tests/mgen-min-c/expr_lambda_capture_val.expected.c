@@ -9,21 +9,24 @@
 typedef struct __Closure__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
 } __Closure__;
 
 typedef struct __closure_0__ {
     void *fn;
     size_t size;
+    void (*__cleanup__)(void *);
     long long x;
 } __closure_0__;
 static long long __lambda_0__(void *__closure__, long long __sn__n);
 
 int main() {
     long long __sn__x = 10LL;
-    sn_auto_ptr void * __sn__addX = ({
+    sn_auto_fn void * __sn__addX = ({
         __closure_0__ *__cl__ = malloc(sizeof(__closure_0__));
         __cl__->fn = (void *)__lambda_0__;
         __cl__->size = sizeof(__closure_0__);
+        __cl__->__cleanup__ = NULL;
         __cl__->x = __sn__x;
         __cl__;
     });

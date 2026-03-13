@@ -368,7 +368,6 @@ static void test_get_type_size_primitives()
     /* Special types */
     assert(get_type_size(ast_create_primitive_type(&arena, TYPE_VOID)) == 0);
     assert(get_type_size(ast_create_primitive_type(&arena, TYPE_NIL)) == 0);
-    assert(get_type_size(ast_create_primitive_type(&arena, TYPE_ANY)) == 16);
 
     /* NULL type */
     assert(get_type_size(NULL) == 0);
@@ -407,7 +406,6 @@ static void test_get_type_alignment_primitives()
     assert(get_type_alignment(ast_create_primitive_type(&arena, TYPE_LONG)) == 8);
     assert(get_type_alignment(ast_create_primitive_type(&arena, TYPE_DOUBLE)) == 8);
     assert(get_type_alignment(ast_create_primitive_type(&arena, TYPE_STRING)) == 8);
-    assert(get_type_alignment(ast_create_primitive_type(&arena, TYPE_ANY)) == 8);
 
     /* Pointer and array types (8-byte alignment) */
     assert(get_type_alignment(ast_create_pointer_type(&arena, ast_create_primitive_type(&arena, TYPE_INT))) == 8);
