@@ -132,11 +132,11 @@ jobs:
           echo "Found: bin/tests${{ matrix.exe_ext }}"
 
           echo "Checking for runtime library..."
-          if [ ! -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a" ]; then
-            echo "ERROR: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a not found"
+          if [ ! -f "bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a" ]; then
+            echo "ERROR: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a not found"
             exit 1
           fi
-          echo "Found: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a"
+          echo "Found: bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a"
 
           echo ""
           echo "Build outputs verified successfully!"
@@ -163,7 +163,7 @@ jobs:
           path: |
             bin/sn${{ matrix.exe_ext }}
             bin/tests${{ matrix.exe_ext }}
-            bin/lib/${{ matrix.runtime_dir }}/libsn_runtime.a
+            bin/lib/${{ matrix.runtime_dir }}/libsn_runtime_min.a
             bin/include/**/*
             bin/*.cfg
           retention-days: 7
