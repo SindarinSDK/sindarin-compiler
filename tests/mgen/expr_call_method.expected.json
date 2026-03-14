@@ -22,7 +22,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         }
@@ -56,15 +56,15 @@
                       "is_native": false,
                       "is_packed": false,
                       "pass_self_by_ref": false,
-                      "size": 0,
-                      "alignment": 0,
+                      "size": 16,
+                      "alignment": 8,
                       "fields": [
                         {
                           "name": "value",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 8
                         }
                       ]
                     },
@@ -111,15 +111,15 @@
                         "is_native": false,
                         "is_packed": false,
                         "pass_self_by_ref": false,
-                        "size": 0,
-                        "alignment": 0,
+                        "size": 16,
+                        "alignment": 8,
                         "fields": [
                           {
                             "name": "value",
                             "type": {
                               "kind": "int"
                             },
-                            "offset": 0
+                            "offset": 8
                           }
                         ]
                       },
@@ -168,15 +168,15 @@
             "is_native": false,
             "is_packed": false,
             "pass_self_by_ref": false,
-            "size": 0,
-            "alignment": 0,
+            "size": 16,
+            "alignment": 8,
             "fields": [
               {
                 "name": "value",
                 "type": {
                   "kind": "int"
                 },
-                "offset": 0
+                "offset": 8
               }
             ]
           },
@@ -247,15 +247,15 @@
                   "is_native": false,
                   "is_packed": false,
                   "pass_self_by_ref": false,
-                  "size": 0,
-                  "alignment": 0,
+                  "size": 16,
+                  "alignment": 8,
                   "fields": [
                     {
                       "name": "value",
                       "type": {
                         "kind": "int"
                       },
-                      "offset": 0
+                      "offset": 8
                     }
                   ]
                 },
@@ -308,15 +308,15 @@
                         "is_native": false,
                         "is_packed": false,
                         "pass_self_by_ref": false,
-                        "size": 0,
-                        "alignment": 0,
+                        "size": 16,
+                        "alignment": 8,
                         "fields": [
                           {
                             "name": "value",
                             "type": {
                               "kind": "int"
                             },
-                            "offset": 0
+                            "offset": 8
                           }
                         ]
                       },

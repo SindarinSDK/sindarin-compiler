@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/expr_member_assign.sn",
     "has_main": true,
     "main_returns": true,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -21,7 +22,7 @@
           "type": {
             "kind": "double"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         },
@@ -30,7 +31,7 @@
           "type": {
             "kind": "double"
           },
-          "offset": 0,
+          "offset": 16,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         }
@@ -62,22 +63,22 @@
             "is_native": false,
             "is_packed": false,
             "pass_self_by_ref": false,
-            "size": 0,
-            "alignment": 0,
+            "size": 24,
+            "alignment": 8,
             "fields": [
               {
                 "name": "x",
                 "type": {
                   "kind": "double"
                 },
-                "offset": 0
+                "offset": 8
               },
               {
                 "name": "y",
                 "type": {
                   "kind": "double"
                 },
-                "offset": 0
+                "offset": 16
               }
             ]
           },
@@ -154,22 +155,22 @@
                 "is_native": false,
                 "is_packed": false,
                 "pass_self_by_ref": false,
-                "size": 0,
-                "alignment": 0,
+                "size": 24,
+                "alignment": 8,
                 "fields": [
                   {
                     "name": "x",
                     "type": {
                       "kind": "double"
                     },
-                    "offset": 0
+                    "offset": 8
                   },
                   {
                     "name": "y",
                     "type": {
                       "kind": "double"
                     },
-                    "offset": 0
+                    "offset": 16
                   }
                 ]
               },
@@ -204,5 +205,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

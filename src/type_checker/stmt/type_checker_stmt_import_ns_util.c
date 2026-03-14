@@ -156,7 +156,7 @@ void register_functions_in_namespace(ImportStmt *import, Token ns_token,
             }
             else
             {
-                existing->type = ast_clone_type(table->arena, func_type);
+                existing->type = func_type;
                 existing->is_function = true;
                 existing->is_native = func->is_native;
                 existing->func_mod = effective_modifier;

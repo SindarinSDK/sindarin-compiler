@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/struct_decl_as_val.sn",
     "has_main": true,
     "main_returns": true,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [
@@ -38,7 +39,7 @@
           "type": {
             "kind": "byte"
           },
-          "offset": 0,
+          "offset": 1,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "c_alias": "g"
@@ -48,7 +49,7 @@
           "type": {
             "kind": "byte"
           },
-          "offset": 0,
+          "offset": 2,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "c_alias": "b"
@@ -88,5 +89,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

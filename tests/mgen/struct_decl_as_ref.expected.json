@@ -39,7 +39,7 @@
           "type": {
             "kind": "double"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "c_alias": "y"

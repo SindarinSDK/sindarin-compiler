@@ -40,7 +40,7 @@ void symbol_table_add_type(SymbolTable *table, Token name, Type *type)
             memcmp(existing->name.start, name.start, name.length) == 0)
         {
             DEBUG_VERBOSE("Type alias '%s' already exists, updating type", name_str);
-            existing->type = ast_clone_type(table->arena, type);
+            existing->type = type;
             return;
         }
         existing = existing->next;
@@ -67,7 +67,7 @@ void symbol_table_add_type(SymbolTable *table, Token name, Type *type)
     symbol->name.line = name.line;
     symbol->name.type = name.type;
     symbol->name.filename = name.filename;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = SYMBOL_TYPE;
     symbol->offset = 0;
     symbol->arena_depth = 0;  /* Global scope */

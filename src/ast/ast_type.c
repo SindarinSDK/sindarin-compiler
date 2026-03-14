@@ -279,7 +279,7 @@ Type *ast_create_function_type(Arena *arena, Type *return_type, Type **param_typ
     memset(type, 0, sizeof(Type));
     type->kind = TYPE_FUNCTION;
 
-    type->as.function.return_type = ast_clone_type(arena, return_type);
+    type->as.function.return_type = return_type;
 
     type->as.function.param_count = param_count;
     if (param_count > 0)
@@ -297,7 +297,7 @@ Type *ast_create_function_type(Arena *arena, Type *return_type, Type **param_typ
         }
         for (int i = 0; i < param_count; i++)
         {
-            type->as.function.param_types[i] = ast_clone_type(arena, param_types[i]);
+            type->as.function.param_types[i] = param_types[i];
         }
     }
     else
@@ -573,7 +573,7 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
         {
             type->as.struct_type.fields[i].name = fields[i].name
                 ? arena_strdup(arena, fields[i].name) : NULL;
-            type->as.struct_type.fields[i].type = ast_clone_type(arena, fields[i].type);
+            type->as.struct_type.fields[i].type = fields[i].type;
             type->as.struct_type.fields[i].offset = fields[i].offset;
             type->as.struct_type.fields[i].default_value = fields[i].default_value;
             type->as.struct_type.fields[i].c_alias = fields[i].c_alias
@@ -599,7 +599,7 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
             type->as.struct_type.methods[i].name = methods[i].name
                 ? arena_strdup(arena, methods[i].name) : NULL;
             type->as.struct_type.methods[i].param_count = methods[i].param_count;
-            type->as.struct_type.methods[i].return_type = ast_clone_type(arena, methods[i].return_type);
+            type->as.struct_type.methods[i].return_type = methods[i].return_type;
             type->as.struct_type.methods[i].body = methods[i].body;  /* Shallow copy - statements already in arena */
             type->as.struct_type.methods[i].body_count = methods[i].body_count;
             type->as.struct_type.methods[i].modifier = methods[i].modifier;
@@ -627,7 +627,7 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
                         type->as.struct_type.methods[i].params[j].name.start =
                             arena_strndup(arena, methods[i].params[j].name.start, methods[i].params[j].name.length);
                     }
-                    type->as.struct_type.methods[i].params[j].type = ast_clone_type(arena, methods[i].params[j].type);
+                    type->as.struct_type.methods[i].params[j].type = methods[i].params[j].type;
                 }
             }
             else

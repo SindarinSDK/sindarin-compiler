@@ -22,7 +22,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         }

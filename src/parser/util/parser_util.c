@@ -414,8 +414,8 @@ Type *parser_type(Parser *parser)
                 }
                 else
                 {
-                    /* Return a clone of the type to avoid aliasing issues */
-                    type = ast_clone_type(parser->arena, found_type);
+                    /* Return the type directly - no cloning needed */
+                    type = found_type;
                 }
             }
             else
