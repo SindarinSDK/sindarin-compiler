@@ -38,6 +38,7 @@ static const char *field_cleanup_action(Type *type)
     switch (type->kind)
     {
         case TYPE_STRING:   return "free";
+        case TYPE_POINTER:  return "free";  /* raw pointer fields (e.g. *byte) are heap-allocated */
         case TYPE_ARRAY:    return "cleanup_array";
         case TYPE_FUNCTION: return "none";  /* fn pointers aren't heap-allocated */
         case TYPE_STRUCT:
