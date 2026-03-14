@@ -647,7 +647,11 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                      * the generated C file's location */
                     char abs_path[PATH_MAX];
                     char full_path[PATH_MAX + 4];
+#ifdef _WIN32
+                    if (_fullpath(abs_path, rel_path, sizeof(abs_path)))
+#else
                     if (realpath(rel_path, abs_path))
+#endif
                     {
                         snprintf(full_path, sizeof(full_path), "\"%s\"", abs_path);
                     }
