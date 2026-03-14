@@ -566,9 +566,11 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
     /* Register the struct type in the symbol table so it can be used by later declarations */
     symbol_table_add_type(parser->symbol_table, name, struct_type);
 
-    /* Create struct declaration statement */
-    Stmt *stmt = ast_create_struct_decl_stmt(parser->arena, name, fields, field_count,
-                                              methods, method_count, is_native, is_packed,
+    /* Create struct declaration statement using the Type's arrays so both share the same data */
+    Stmt *stmt = ast_create_struct_decl_stmt(parser->arena, name,
+                                              struct_type->as.struct_type.fields, field_count,
+                                              struct_type->as.struct_type.methods, method_count,
+                                              is_native, is_packed,
                                               pass_self_by_ref, c_alias, &struct_token);
 
     return stmt;

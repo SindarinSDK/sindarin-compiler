@@ -406,7 +406,7 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     if (existing != NULL)
     {
         DEBUG_VERBOSE("Existing symbol found: '%s', updating type and kind", name_str);
-        existing->type = ast_clone_type(table->arena, type);
+        existing->type = type;
         existing->kind = kind;  /* Update kind for correct arena selection (e.g., SYMBOL_GLOBAL) */
         return;
     }
@@ -419,7 +419,7 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
     }
 
     symbol->name = name;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = kind;
 
     if (kind == SYMBOL_PARAM)

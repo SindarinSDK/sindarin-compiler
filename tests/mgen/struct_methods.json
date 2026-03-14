@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/struct_methods.sn",
     "has_main": true,
     "main_returns": false,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -21,7 +22,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         }
@@ -61,15 +62,15 @@
                         "is_native": false,
                         "is_packed": false,
                         "pass_self_by_ref": false,
-                        "size": 0,
-                        "alignment": 0,
+                        "size": 16,
+                        "alignment": 8,
                         "fields": [
                           {
                             "name": "value",
                             "type": {
                               "kind": "int"
                             },
-                            "offset": 0
+                            "offset": 8
                           }
                         ]
                       },
@@ -119,15 +120,15 @@
                       "is_native": false,
                       "is_packed": false,
                       "pass_self_by_ref": false,
-                      "size": 0,
-                      "alignment": 0,
+                      "size": 16,
+                      "alignment": 8,
                       "fields": [
                         {
                           "name": "value",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 8
                         }
                       ]
                     },
@@ -167,15 +168,15 @@
             "is_native": false,
             "is_packed": false,
             "pass_self_by_ref": false,
-            "size": 0,
-            "alignment": 0,
+            "size": 16,
+            "alignment": 8,
             "fields": [
               {
                 "name": "value",
                 "type": {
                   "kind": "int"
                 },
-                "offset": 0
+                "offset": 8
               }
             ]
           },
@@ -246,15 +247,15 @@
                   "is_native": false,
                   "is_packed": false,
                   "pass_self_by_ref": false,
-                  "size": 0,
-                  "alignment": 0,
+                  "size": 16,
+                  "alignment": 8,
                   "fields": [
                     {
                       "name": "value",
                       "type": {
                         "kind": "int"
                       },
-                      "offset": 0
+                      "offset": 8
                     }
                   ]
                 },
@@ -265,7 +266,8 @@
             },
             "args": [],
             "is_tail_call": false,
-            "is_closure_call": false
+            "is_closure_call": false,
+            "is_fn_field_call": false
           }
         },
         {
@@ -306,15 +308,15 @@
                         "is_native": false,
                         "is_packed": false,
                         "pass_self_by_ref": false,
-                        "size": 0,
-                        "alignment": 0,
+                        "size": 16,
+                        "alignment": 8,
                         "fields": [
                           {
                             "name": "value",
                             "type": {
                               "kind": "int"
                             },
-                            "offset": 0
+                            "offset": 8
                           }
                         ]
                       },
@@ -325,7 +327,8 @@
                   },
                   "args": [],
                   "is_tail_call": false,
-                  "is_closure_call": false
+                  "is_closure_call": false,
+                  "is_fn_field_call": false
                 },
                 "right": {
                   "type": {
@@ -353,5 +356,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

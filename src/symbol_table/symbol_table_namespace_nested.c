@@ -162,7 +162,7 @@ void symbol_table_add_function_to_nested_namespace(SymbolTable *table, Token par
             memcmp(existing->name.start, symbol_name.start, symbol_name.length) == 0)
         {
             DEBUG_VERBOSE("Function '%s' already exists in '%s.%s', updating", sym_str, parent_str, nested_str);
-            existing->type = ast_clone_type(table->arena, type);
+            existing->type = type;
             existing->func_mod = func_mod;
             existing->declared_func_mod = declared_func_mod;
             existing->is_function = true;
@@ -192,7 +192,7 @@ void symbol_table_add_function_to_nested_namespace(SymbolTable *table, Token par
     symbol->name.line = symbol_name.line;
     symbol->name.type = symbol_name.type;
     symbol->name.filename = symbol_name.filename;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = SYMBOL_GLOBAL;
     symbol->offset = 0;
     symbol->arena_depth = 0;
@@ -279,7 +279,7 @@ void symbol_table_add_symbol_to_nested_namespace(SymbolTable *table, Token paren
             memcmp(existing->name.start, symbol_name.start, symbol_name.length) == 0)
         {
             DEBUG_VERBOSE("Symbol '%s' already exists in '%s.%s', updating", sym_str, parent_str, nested_str);
-            existing->type = ast_clone_type(table->arena, type);
+            existing->type = type;
             existing->is_static = is_static;
             return;
         }
@@ -306,7 +306,7 @@ void symbol_table_add_symbol_to_nested_namespace(SymbolTable *table, Token paren
     symbol->name.line = symbol_name.line;
     symbol->name.type = symbol_name.type;
     symbol->name.filename = symbol_name.filename;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = SYMBOL_GLOBAL;
     symbol->offset = 0;
     symbol->arena_depth = 0;

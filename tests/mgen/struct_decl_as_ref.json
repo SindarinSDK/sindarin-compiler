@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/struct_decl_as_ref.sn",
     "has_main": true,
     "main_returns": true,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [
@@ -38,7 +39,7 @@
           "type": {
             "kind": "double"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "c_alias": "y"
@@ -78,5 +79,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

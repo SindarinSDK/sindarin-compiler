@@ -22,7 +22,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "default_value": {
@@ -39,7 +39,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 16,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "default_value": {
@@ -56,7 +56,7 @@
           "type": {
             "kind": "double"
           },
-          "offset": 0,
+          "offset": 24,
           "cleanup_action": "none",
           "copy_action": "value_copy",
           "default_value": {
@@ -96,29 +96,29 @@
             "is_native": false,
             "is_packed": false,
             "pass_self_by_ref": false,
-            "size": 0,
-            "alignment": 0,
+            "size": 32,
+            "alignment": 8,
             "fields": [
               {
                 "name": "width",
                 "type": {
                   "kind": "int"
                 },
-                "offset": 0
+                "offset": 8
               },
               {
                 "name": "height",
                 "type": {
                   "kind": "int"
                 },
-                "offset": 0
+                "offset": 16
               },
               {
                 "name": "scale",
                 "type": {
                   "kind": "double"
                 },
-                "offset": 0
+                "offset": 24
               }
             ]
           },
@@ -225,29 +225,29 @@
                       "is_native": false,
                       "is_packed": false,
                       "pass_self_by_ref": false,
-                      "size": 0,
-                      "alignment": 0,
+                      "size": 32,
+                      "alignment": 8,
                       "fields": [
                         {
                           "name": "width",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 8
                         },
                         {
                           "name": "height",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 16
                         },
                         {
                           "name": "scale",
                           "type": {
                             "kind": "double"
                           },
-                          "offset": 0
+                          "offset": 24
                         }
                       ]
                     },
@@ -303,29 +303,29 @@
                       "is_native": false,
                       "is_packed": false,
                       "pass_self_by_ref": false,
-                      "size": 0,
-                      "alignment": 0,
+                      "size": 32,
+                      "alignment": 8,
                       "fields": [
                         {
                           "name": "width",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 8
                         },
                         {
                           "name": "height",
                           "type": {
                             "kind": "int"
                           },
-                          "offset": 0
+                          "offset": 16
                         },
                         {
                           "name": "scale",
                           "type": {
                             "kind": "double"
                           },
-                          "offset": 0
+                          "offset": 24
                         }
                       ]
                     },

@@ -400,61 +400,9 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
     stmt->as.struct_decl.pass_self_by_ref = pass_self_by_ref;
     stmt->as.struct_decl.c_alias = c_alias ? arena_strdup(arena, c_alias) : NULL;
 
-    if (field_count > 0 && fields != NULL)
-    {
-        stmt->as.struct_decl.fields = arena_alloc(arena, sizeof(StructField) * field_count);
-        if (stmt->as.struct_decl.fields == NULL)
-        {
-            DEBUG_ERROR("Out of memory");
-            exit(1);
-        }
-        for (int i = 0; i < field_count; i++)
-        {
-            stmt->as.struct_decl.fields[i].name = fields[i].name
-                ? arena_strdup(arena, fields[i].name) : NULL;
-            stmt->as.struct_decl.fields[i].type = fields[i].type;
-            stmt->as.struct_decl.fields[i].offset = fields[i].offset;
-            stmt->as.struct_decl.fields[i].default_value = fields[i].default_value;
-            stmt->as.struct_decl.fields[i].c_alias = fields[i].c_alias
-                ? arena_strdup(arena, fields[i].c_alias) : NULL;
-        }
-    }
-    else
-    {
-        stmt->as.struct_decl.fields = NULL;
-    }
-
-    /* Copy methods if any */
-    if (method_count > 0 && methods != NULL)
-    {
-        stmt->as.struct_decl.methods = arena_alloc(arena, sizeof(StructMethod) * method_count);
-        if (stmt->as.struct_decl.methods == NULL)
-        {
-            DEBUG_ERROR("Out of memory");
-            exit(1);
-        }
-        for (int i = 0; i < method_count; i++)
-        {
-            stmt->as.struct_decl.methods[i].name = methods[i].name
-                ? arena_strdup(arena, methods[i].name) : NULL;
-            stmt->as.struct_decl.methods[i].params = methods[i].params;
-            stmt->as.struct_decl.methods[i].param_count = methods[i].param_count;
-            stmt->as.struct_decl.methods[i].return_type = methods[i].return_type;
-            stmt->as.struct_decl.methods[i].body = methods[i].body;
-            stmt->as.struct_decl.methods[i].body_count = methods[i].body_count;
-            stmt->as.struct_decl.methods[i].modifier = methods[i].modifier;
-            stmt->as.struct_decl.methods[i].is_static = methods[i].is_static;
-            stmt->as.struct_decl.methods[i].is_native = methods[i].is_native;
-            stmt->as.struct_decl.methods[i].has_arena_param = methods[i].has_arena_param;
-            stmt->as.struct_decl.methods[i].name_token = methods[i].name_token;
-            stmt->as.struct_decl.methods[i].c_alias = methods[i].c_alias
-                ? arena_strdup(arena, methods[i].c_alias) : NULL;
-        }
-    }
-    else
-    {
-        stmt->as.struct_decl.methods = NULL;
-    }
+    /* Share fields and methods arrays directly — no copying */
+    stmt->as.struct_decl.fields = fields;
+    stmt->as.struct_decl.methods = methods;
 
     stmt->token = ast_dup_token(arena, loc_token);
     return stmt;

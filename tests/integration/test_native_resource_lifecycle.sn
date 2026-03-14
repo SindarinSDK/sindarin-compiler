@@ -1,0 +1,119 @@
+@source "test_native_resource_lifecycle.sn.impl.c"
+
+# MockStream - models TcpStream (resource with buffer + string fields)
+@alias "MockStream"
+native struct MockStream as ref =>
+    @alias "remote_addr"
+    _remote_addr: str
+    @alias "buffer"
+    _buffer: *byte
+    @alias "capacity"
+    _capacity: int
+    @alias "length"
+    _length: int
+    @alias "is_open"
+    _is_open: int32
+
+    fn write(data: str): void =>
+        mock_stream_write(self, data)
+
+    fn read(): str =>
+        return mock_stream_read(self)
+
+    fn remoteAddress(): str =>
+        return mock_stream_get_remote_addr(self)
+
+    fn close(): void =>
+        mock_stream_close(self)
+
+    fn dispose(): void =>
+        mock_stream_close(self)
+
+# MockListener - models TcpListener (factory that creates streams)
+@alias "MockListener"
+native struct MockListener as ref =>
+    @alias "address"
+    _address: str
+    @alias "port"
+    _port: int
+    @alias "is_bound"
+    _is_bound: int32
+
+    static fn bind(address: str): MockListener =>
+        return mock_listener_bind(address)
+
+    fn accept(): MockStream =>
+        return mock_listener_accept(self)
+
+    fn port(): int =>
+        return mock_listener_get_port(self)
+
+    fn close(): void =>
+        mock_listener_close(self)
+
+    fn dispose(): void =>
+        mock_listener_close(self)
+
+# Native function declarations (no arena param - target state)
+native fn mock_listener_bind(address: str): MockListener
+native fn mock_listener_accept(listener: MockListener): MockStream
+native fn mock_listener_get_port(listener: MockListener): int
+native fn mock_listener_close(listener: MockListener): void
+
+native fn mock_stream_write(stream: MockStream, data: str): void
+native fn mock_stream_read(stream: MockStream): str
+native fn mock_stream_get_remote_addr(stream: MockStream): str
+native fn mock_stream_close(stream: MockStream): void
+
+fn test_basic_lifecycle(): void =>
+    print("Test 1: Basic listener + stream lifecycle\n")
+    var listener: MockListener = MockListener.bind("127.0.0.1:0")
+    var port: int = listener.port()
+    assert(port > 0, "port should be assigned")
+    print($"  Bound on port {port}\n")
+
+    var stream: MockStream = listener.accept()
+    stream.write("hello world")
+    var data: str = stream.read()
+    assert(data == "hello world", "should read what was written")
+    print($"  Read: {data}\n")
+
+    var addr: str = stream.remoteAddress()
+    print($"  Remote: {addr}\n")
+
+    stream.close()
+    listener.close()
+    print("  PASS\n")
+
+fn test_using_blocks(): void =>
+    print("Test 2: Using blocks for scoped cleanup\n")
+    using listener = MockListener.bind("127.0.0.1:0") =>
+        var port: int = listener.port()
+        print($"  Bound on port {port}\n")
+        using stream = listener.accept() =>
+            stream.write("scoped data")
+            var data: str = stream.read()
+            assert(data == "scoped data", "should read scoped data")
+            print($"  Read: {data}\n")
+    print("  PASS\n")
+
+fn test_auto_cleanup(): void =>
+    print("Test 3: Auto cleanup on scope exit\n")
+    var listener: MockListener = MockListener.bind("127.0.0.1:0")
+    var stream: MockStream = listener.accept()
+    stream.write("auto cleanup test")
+    var data: str = stream.read()
+    assert(data == "auto cleanup test", "read back data")
+    print($"  Read: {data}\n")
+    # listener and stream go out of scope here
+    # sn_auto_MockListener and sn_auto_MockStream should cleanup
+    print("  PASS\n")
+
+fn main(): void =>
+    print("=== Native Resource Lifecycle Tests (Codegen 3) ===\n\n")
+    test_basic_lifecycle()
+    print("\n")
+    test_using_blocks()
+    print("\n")
+    test_auto_cleanup()
+    print("\nAll tests passed.\n")

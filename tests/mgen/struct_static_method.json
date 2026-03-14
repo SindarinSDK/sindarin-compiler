@@ -3,6 +3,7 @@
     "filename": "tests\/mgen\/struct_static_method.sn",
     "has_main": true,
     "main_returns": true,
+    "has_main_args": false,
     "has_forward_decls": false
   },
   "pragmas": [],
@@ -21,7 +22,7 @@
           "type": {
             "kind": "int"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "none",
           "copy_action": "value_copy"
         }
@@ -109,5 +110,6 @@
   ],
   "top_level_statements": [],
   "lambdas": [],
-  "threads": []
+  "threads": [],
+  "fn_wrappers": []
 }

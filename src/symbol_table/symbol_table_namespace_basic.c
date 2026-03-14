@@ -124,7 +124,7 @@ void symbol_table_add_symbol_to_namespace(SymbolTable *table, Token namespace_na
             memcmp(existing->name.start, symbol_name.start, symbol_name.length) == 0)
         {
             DEBUG_VERBOSE("Symbol '%s' already exists in namespace '%s', updating type", sym_str, ns_str);
-            existing->type = ast_clone_type(table->arena, type);
+            existing->type = type;
             return;
         }
         existing = existing->next;
@@ -151,7 +151,7 @@ void symbol_table_add_symbol_to_namespace(SymbolTable *table, Token namespace_na
     symbol->name.line = symbol_name.line;
     symbol->name.type = symbol_name.type;
     symbol->name.filename = symbol_name.filename;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = SYMBOL_GLOBAL;
     symbol->offset = 0;
     symbol->arena_depth = 0;  /* Global scope */
@@ -216,7 +216,7 @@ void symbol_table_add_function_to_namespace(SymbolTable *table, Token namespace_
             memcmp(existing->name.start, symbol_name.start, symbol_name.length) == 0)
         {
             DEBUG_VERBOSE("Function '%s' already exists in namespace '%s', updating", sym_str, ns_str);
-            existing->type = ast_clone_type(table->arena, type);
+            existing->type = type;
             existing->func_mod = func_mod;
             existing->declared_func_mod = declared_func_mod;
             existing->is_function = true;
@@ -247,7 +247,7 @@ void symbol_table_add_function_to_namespace(SymbolTable *table, Token namespace_
     symbol->name.line = symbol_name.line;
     symbol->name.type = symbol_name.type;
     symbol->name.filename = symbol_name.filename;
-    symbol->type = ast_clone_type(table->arena, type);
+    symbol->type = type;
     symbol->kind = SYMBOL_GLOBAL;
     symbol->offset = 0;
     symbol->arena_depth = 0;
@@ -312,7 +312,7 @@ void symbol_table_add_struct_to_namespace(SymbolTable *table, Token namespace_na
             memcmp(existing->name.start, struct_name.start, struct_name.length) == 0)
         {
             DEBUG_VERBOSE("Struct '%s' already exists in namespace '%s', updating", struct_str, ns_str);
-            existing->type = ast_clone_type(table->arena, struct_type);
+            existing->type = struct_type;
             existing->is_struct_type = true;
             existing->struct_decl = struct_decl;
             return;
@@ -341,7 +341,7 @@ void symbol_table_add_struct_to_namespace(SymbolTable *table, Token namespace_na
     symbol->name.line = struct_name.line;
     symbol->name.type = struct_name.type;
     symbol->name.filename = struct_name.filename;
-    symbol->type = ast_clone_type(table->arena, struct_type);
+    symbol->type = struct_type;
     symbol->kind = SYMBOL_TYPE;  /* Mark as a type */
     symbol->offset = 0;
     symbol->arena_depth = 0;

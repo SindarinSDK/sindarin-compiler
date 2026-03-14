@@ -22,7 +22,7 @@
           "type": {
             "kind": "string"
           },
-          "offset": 0,
+          "offset": 8,
           "cleanup_action": "free",
           "copy_action": "strdup"
         },
@@ -31,7 +31,7 @@
           "type": {
             "kind": "string"
           },
-          "offset": 0,
+          "offset": 16,
           "cleanup_action": "free",
           "copy_action": "strdup"
         }
@@ -63,22 +63,22 @@
             "is_native": false,
             "is_packed": false,
             "pass_self_by_ref": false,
-            "size": 0,
-            "alignment": 0,
+            "size": 24,
+            "alignment": 8,
             "fields": [
               {
                 "name": "key",
                 "type": {
                   "kind": "string"
                 },
-                "offset": 0
+                "offset": 8
               },
               {
                 "name": "value",
                 "type": {
                   "kind": "string"
                 },
-                "offset": 0
+                "offset": 16
               }
             ]
           },
