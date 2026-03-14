@@ -1,0 +1,18 @@
+=== Native Resource Lifecycle Tests (Codegen 3) ===
+
+Test 1: Basic listener + stream lifecycle
+  Bound on port 8080
+  Read: hello world
+  Remote: 192.168.1.175:9080
+  PASS
+
+Test 2: Using blocks for scoped cleanup
+  Bound on port 8081
+  Read: scoped data
+  PASS
+
+Test 3: Auto cleanup on scope exit
+  Read: auto cleanup test
+  PASS
+
+All tests passed.

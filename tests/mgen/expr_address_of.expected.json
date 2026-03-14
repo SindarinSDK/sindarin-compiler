@@ -31,6 +31,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/expr_address_of.sn",
       "c_alias": "test_addr",
       "params": [
         {
@@ -74,6 +75,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/expr_address_of.sn",
       "params": [],
       "body": [
         {

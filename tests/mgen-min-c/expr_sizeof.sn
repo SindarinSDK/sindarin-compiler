@@ -1,7 +1,0 @@
-struct Point =>
-    x: double
-    y: double
-
-fn main(): int =>
-    var s: int = sizeof(Point)
-    return 0

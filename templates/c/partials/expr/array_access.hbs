@@ -1,1 +1,1 @@
-rt_array_get_{{type_suffix type}}_v2({{> expr array}}, {{> expr index}})
+((({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })])

@@ -10,7 +10,8 @@
     {
       "kind": "pragma",
       "pragma_type": "source",
-      "value": "\"helper.c\""
+      "source_dir": "tests\/mgen",
+      "value": "\"tests\/mgen\/helper.c\""
     }
   ],
   "imports": [],
@@ -28,6 +29,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/pragma_source.sn",
       "params": [],
       "body": [
         {

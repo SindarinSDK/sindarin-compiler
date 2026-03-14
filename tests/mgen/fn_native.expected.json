@@ -43,6 +43,7 @@
       "has_body": false,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/fn_native.sn",
       "c_alias": "sin",
       "params": [
         {
@@ -66,6 +67,7 @@
       "has_body": false,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/fn_native.sn",
       "c_alias": "cos",
       "params": [
         {
@@ -89,6 +91,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/fn_native.sn",
       "params": [],
       "body": [
         {

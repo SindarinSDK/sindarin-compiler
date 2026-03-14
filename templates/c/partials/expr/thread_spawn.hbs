@@ -1,17 +1,13 @@
 ({
-    /* V3: Create thread with its own arena */
-    RtHandleV2 *__spawn_handle_{{thread_id}}__ = rt_thread_v3_create(__local_arena__, RT_THREAD_MODE_DEFAULT);
-    RtArenaV2 *__thread_arena__ = rt_thread_v3_get_arena(__spawn_handle_{{thread_id}}__);
-
-    /* Allocate args in thread arena (min 1 byte for empty structs) */
-    RtHandleV2 *__args_h__ = rt_arena_v2_alloc(__thread_arena__, sizeof(__ThreadArgs_{{thread_id}}__) > 0 ? sizeof(__ThreadArgs_{{thread_id}}__) : 1);
-    rt_handle_begin_transaction(__args_h__);
-    __ThreadArgs_{{thread_id}}__ *__spawn_args_{{thread_id}}__ = (__ThreadArgs_{{thread_id}}__ *)__args_h__->ptr;
-    {{#each call.args}}__spawn_args_{{../thread_id}}__->arg{{@index}} = {{> expr this}};
-    {{/each}}    rt_handle_end_transaction(__args_h__);
-    rt_thread_v3_set_args(__spawn_handle_{{thread_id}}__, __args_h__);
-
-    /* Start the thread */
-    rt_thread_v3_start(__spawn_handle_{{thread_id}}__, __thread_wrapper_{{thread_id}}__);
-    __spawn_handle_{{thread_id}}__;
+    SnThread *__th__ = sn_thread_create();
+{{#if call.args}}
+    __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
+{{#if (eq call.callee.kind "member")}}    __args__->self_arg = {{> expr call.callee.object}};
+{{/if}}{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __args__->arg{{@index}} = __fc__; }
+{{else}}    __args__->arg{{@index}} = {{#if is_ref_arg}}&{{/if}}{{> expr this}};
+{{/if}}{{/each}}    __th__->result = __args__;
+{{/if}}
+    __th__->result_size = sizeof({{c_type call.type}});
+    pthread_create(&__th__->thread, NULL, __thread_wrapper_{{thread_id}}__, __th__);
+    __th__;
 })

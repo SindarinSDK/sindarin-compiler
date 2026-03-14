@@ -1,4 +1,0 @@
-fn main(): int =>
-    var x: int = 10
-    var addX: fn(int): int = fn(n: int): int => n + x
-    return addX(5)

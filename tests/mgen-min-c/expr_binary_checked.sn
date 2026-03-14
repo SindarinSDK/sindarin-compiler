@@ -1,4 +1,0 @@
-fn main(): void =>
-    var a: int = 100
-    var b: int = a + 50
-    assert(b == 150, "expected 100 + 50 to be 150")

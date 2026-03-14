@@ -1,6 +1,0 @@
-{{#if (eq target.type.kind "string")}}({
-    char *__old__ = {{> expr target}};
-    {{> expr target}} = sn_str_concat({{> expr target}}, {{> expr value}});
-    free(__old__);
-    {{> expr target}};
-}){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}

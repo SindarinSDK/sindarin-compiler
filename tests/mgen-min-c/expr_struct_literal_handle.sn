@@ -1,7 +1,0 @@
-struct Entry =>
-    key: str
-    value: str
-
-fn main(): int =>
-    var e: Entry = Entry { key: "name", value: "Alice" }
-    return 0

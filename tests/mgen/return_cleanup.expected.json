@@ -22,6 +22,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/return_cleanup.sn",
       "params": [
         {
           "name": "name",
@@ -100,6 +101,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/return_cleanup.sn",
       "params": [],
       "body": [
         {

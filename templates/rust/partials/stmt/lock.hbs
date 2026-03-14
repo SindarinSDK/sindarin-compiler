@@ -1,6 +1,0 @@
-{
-    let _lock_{{lock_expr.name}} = {{> expr lock_expr}}.lock().unwrap();
-{{#each body.statements}}
-    {{> stmt this}}
-{{/each}}
-}

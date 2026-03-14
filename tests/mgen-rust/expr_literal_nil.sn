@@ -1,3 +1,0 @@
-fn main(): int =>
-    var p: str = nil
-    return 0

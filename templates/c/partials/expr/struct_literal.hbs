@@ -1,1 +1,5 @@
-(__sn__{{struct_name}}){ .__arena__ = rt_arena_v2_create(__local_arena__, RT_ARENA_MODE_DEFAULT, "struct"){{#each fields}}, .__sn__{{name}} = {{> expr value}}{{/each}} }
+{{#if type.pass_self_by_ref}}({
+    __sn__{{struct_name}} *__tmp__ = {{#if type.is_native}}__sn__{{struct_name}}_alloc(){{else}}__sn__{{struct_name}}_create(){{/if}};
+{{#each fields}}    __tmp__->__sn__{{name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{#if needs_retain}}__sn__{{retain_type_name}}_retain({{> expr value}}){{else}}{{#if needs_struct_copy}}__sn__{{copy_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}}{{/if}}{{/if}};
+{{/each}}    __tmp__;
+}){{else}}(__sn__{{struct_name}}){ {{#each fields}}{{#if @index}}, {{/if}}.__sn__{{name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{#if needs_struct_copy}}__sn__{{copy_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}}{{/if}}{{/each}} }

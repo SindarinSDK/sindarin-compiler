@@ -1,1 +1,0 @@
-__sn__{{type_name}}_{{method_name}}({{#each args}}{{#if @index}}, {{/if}}{{#if is_copy_arg}}__sn__{{copy_type_name}}_copy({{> expr this}}){{else}}{{#if is_ref_arg}}&{{/if}}{{> expr this}}{{/if}}{{/each}})

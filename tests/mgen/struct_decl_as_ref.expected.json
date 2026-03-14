@@ -21,6 +21,7 @@
       "is_native": true,
       "is_packed": false,
       "pass_self_by_ref": true,
+      "source_file": "tests\/mgen\/struct_decl_as_ref.sn",
       "mem_mode": "ref",
       "c_alias": "Vec2",
       "fields": [
@@ -61,6 +62,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/struct_decl_as_ref.sn",
       "params": [],
       "body": [
         {

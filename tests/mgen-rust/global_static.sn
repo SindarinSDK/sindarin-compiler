@@ -1,5 +1,0 @@
-var counter: int = 0
-
-fn main(): int =>
-    counter = 42
-    return counter

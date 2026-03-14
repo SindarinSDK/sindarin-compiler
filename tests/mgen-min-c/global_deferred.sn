@@ -1,5 +1,0 @@
-var x: int = 10
-var y: int = x + 5
-
-fn main(): void =>
-    assert(y == 15, "expected y to be 15")

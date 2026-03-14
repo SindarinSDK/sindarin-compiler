@@ -1,1 +1,0 @@
-{{c_type return_type}} __sn__{{struct_name}}_{{name}}({{#unless is_static}}__sn__{{struct_name}} *{{/unless}}{{#each params}}{{#unless ../is_static}}{{#if @first}}, {{/if}}{{/unless}}{{#if @index}}, {{/if}}{{c_type type}}{{/each}});

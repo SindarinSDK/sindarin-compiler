@@ -1,1 +1,1 @@
-{{c_type return_type}} __sn__{{struct_name}}_{{name}}(RtArenaV2 *{{#unless is_static}}, __sn__{{struct_name}} *{{/unless}}{{#each params}}, {{c_type type}}{{/each}});
+{{c_type return_type}} {{#if has_c_alias}}{{c_alias}}{{else}}__sn__{{struct_name}}_{{name}}{{/if}}({{#unless is_static}}__sn__{{struct_name}} *{{/unless}}{{#each params}}{{#unless ../is_static}}{{#if @first}}, {{/if}}{{/unless}}{{#if @index}}, {{/if}}{{c_type type}}{{/each}});

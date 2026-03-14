@@ -1,1 +1,0 @@
-{{#if is_pointer_slice}}sn_array_from_ptr({{> expr array}}, {{#if start}}{{> expr start}}{{else}}0LL{{/if}}, {{#if end}}{{> expr end}}{{else}}0LL{{/if}}){{else}}sn_array_slice({{> expr array}}, {{#if start}}{{> expr start}}{{else}}0LL{{/if}}, {{#if end}}{{> expr end}}{{else}}sn_array_length({{> expr array}}){{/if}}){{/if}}

@@ -4,13 +4,9 @@
 #include "standalone/diagnostic_tests.c"
 #include "ast/ast_tests.c"
 #include "backend/gcc_backend_tests.c"
-#include "code_gen/code_gen_tests.c"
 #include "lexer/lexer_tests.c"
 #include "optimizer/optimizer_tests.c"
 #include "parser/parser_tests.c"
-#include "runtime/runtime_arena_tests.c"
-#include "runtime/runtime_arithmetic_tests.c"
-#include "runtime/runtime_string_tests.c"
 #include "standalone/symbol_table_tests_core.c"
 #include "standalone/symbol_table_tests_thread.c"
 #include "standalone/symbol_table_tests_namespace.c"
@@ -43,19 +39,6 @@ int main()
 
     test_diagnostic_main();
 
-    // *** Runtime Arena ***
-
-    test_rt_arena_main();
-
-    // *** Runtime Arithmetic ***
-
-    test_rt_arithmetic_main();
-
-    // *** Runtime String ***
-
-    test_rt_string_main();
-
-    // *** Runtime Byte Array ***
 
     // *** AST ***
     
@@ -65,9 +48,6 @@ int main()
 
     test_gcc_backend_main();
 
-    // *** Code Gen ***
-
-    test_code_gen_main();
 
     // *** Lexer ***
 

@@ -30,6 +30,7 @@
         "value_kind": "int",
         "value": 0
       },
+      "source_file": "tests\/mgen\/global_static.sn",
       "is_global": true
     }
   ],
@@ -44,6 +45,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/global_static.sn",
       "params": [],
       "body": [
         {

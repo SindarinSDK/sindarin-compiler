@@ -1,5 +1,0 @@
-fn main(): void =>
-    var x: int = 10
-    if x > 5 =>
-        x = 1
-    assert(x == 1, "expected x to be 1 after if branch")

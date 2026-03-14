@@ -1,6 +1,0 @@
-fn apply(f: fn(int): int, x: int): int =>
-    return f(x)
-
-fn main(): void =>
-    var double_it: fn(int): int = fn(n: int): int => n * 2
-    assert(apply(double_it, 5) == 10, "expected apply(double_it, 5) to be 10")

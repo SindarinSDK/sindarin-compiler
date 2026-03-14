@@ -1,5 +1,0 @@
-fn main(): int =>
-    var sum: int = 0
-    for x in 1..11 =>
-        sum += x
-    return sum

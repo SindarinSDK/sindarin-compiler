@@ -1,8 +1,0 @@
-#pragma pack(1)
-struct PackedData =>
-    flags: byte
-    value: int
-#pragma pack()
-
-fn main(): int =>
-    return 0

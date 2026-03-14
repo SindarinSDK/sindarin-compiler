@@ -7,7 +7,11 @@
 #include "../ast.h"
 #include "../debug.h"
 
-/* Note: setup_basic_token is defined in code_gen_tests_util.c */
+/* Helper: initialize a token with basic properties */
+void setup_basic_token(Token *token, SnTokenType type, const char *lexeme)
+{
+    token_init(token, type, lexeme, (int)strlen(lexeme), 1, "test.sn");
+}
 
 /* Include split modules */
 #include "optimizer_tests_helpers.c"

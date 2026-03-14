@@ -22,6 +22,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/var_decl_escape.sn",
       "params": [],
       "body": [
         {
@@ -77,6 +78,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/var_decl_escape.sn",
       "params": [],
       "body": [
         {

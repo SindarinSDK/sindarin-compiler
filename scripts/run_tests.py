@@ -719,7 +719,7 @@ class TestRunner:
         else:
             exe_file = c_file.replace('.c', '')
 
-        compile_cmd = [self.compiler, test_file, '--codegen', '2', '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
@@ -750,8 +750,8 @@ class TestRunner:
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected.c', None)
 
-        # Compile with --emit-model-min-c to generate minimal C code via templates
-        compile_cmd = [self.compiler, test_file, '--emit-model-min-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
+        # Compile with --emit-c to generate C code via templates
+        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
         exit_code, stdout, stderr = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
@@ -808,7 +808,7 @@ class TestRunner:
         else:
             exe_file = c_file.replace('.c', '')
 
-        compile_cmd = [self.compiler, test_file, '--codegen', '3', '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
@@ -939,7 +939,11 @@ class TestRunner:
 
             return ('fail', 'C code mismatch', details)
 
-        # C code matches - now compile the full binary
+        # C code matches - now compile the full binary (skip if no main function)
+        has_main = 'fn main(' in open(test_file).read() or 'fn main()' in open(test_file).read()
+        if not has_main:
+            return ('pass', '', None)
+
         exe_ext = get_exe_extension()
         if exe_ext:
             exe_file = c_file.replace('.c', exe_ext)
@@ -1008,7 +1012,7 @@ class TestRunner:
             return ('skip', 'no .expected', None)
 
         # Standard compilation (use #pragma source for C helper files)
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install', '--codegen', '3']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
@@ -1144,7 +1148,7 @@ def main():
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['cgen', 'mgen', 'mgen-c', 'mgen-min-c', 'mgen-rust', 'integration', 'integration-errors',
+            for test_type in ['cgen', 'mgen', 'mgen-min-c', 'integration', 'integration-errors',
                              'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed

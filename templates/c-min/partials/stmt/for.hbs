@@ -1,7 +1,0 @@
-{
-    for ({{c_type init.type}} __sn__{{init.name}} = {{#if init.initializer}}{{> expr init.initializer}}{{else}}{{default_value init.type}}{{/if}}; {{> expr condition}}; {{> expr increment}}) {
-{{#each body.statements}}
-        {{> stmt this}}
-{{/each}}
-    }
-}

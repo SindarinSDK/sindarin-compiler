@@ -1,7 +1,6 @@
 #include "gcc_backend.h"
 #include "gcc_backend_config.h"
 #include "gcc_backend_pkgconfig.h"
-#include "code_gen.h"
 #include "debug.h"
 #include "package.h"
 #include <stdio.h>
@@ -420,63 +419,6 @@ bool gcc_check_available(const CCBackendConfig *config, bool verbose)
     return false;
 }
 
-bool gcc_validate_pragma_sources(PragmaSourceInfo *source_files, int source_file_count,
-                                  bool verbose)
-{
-#ifdef _WIN32
-    (void)source_files;
-    (void)source_file_count;
-    (void)verbose;
-    return true;
-#else
-    if (source_files == NULL || source_file_count == 0)
-        return true;
-
-    bool all_valid = true;
-
-    for (int i = 0; i < source_file_count; i++)
-    {
-        const char *src = source_files[i].value;
-        const char *source_dir = source_files[i].source_dir;
-
-        size_t len = strlen(src);
-        char unquoted[PATH_MAX];
-        if (len >= 2 && src[0] == '"' && src[len - 1] == '"')
-        {
-            strncpy(unquoted, src + 1, len - 2);
-            unquoted[len - 2] = '\0';
-            src = unquoted;
-        }
-
-        char full_path[PATH_MAX];
-        if (src[0] == '/')
-        {
-            strncpy(full_path, src, sizeof(full_path) - 1);
-            full_path[sizeof(full_path) - 1] = '\0';
-        }
-        else
-        {
-            snprintf(full_path, sizeof(full_path), "%s/%s", source_dir, src);
-        }
-
-        if (verbose)
-        {
-            DEBUG_INFO("Checking pragma source: %s", full_path);
-        }
-
-        if (!file_exists(full_path))
-        {
-            fprintf(stderr, "error: pragma source file not found: %s\n", source_files[i].value);
-            fprintf(stderr, "  --> Resolved path: %s\n", full_path);
-            fprintf(stderr, "  --> Searched relative to: %s\n\n", source_dir);
-            all_valid = false;
-        }
-    }
-
-    return all_valid;
-#endif
-}
-
 const char *gcc_get_compiler_dir(const char *argv0)
 {
 #ifdef _WIN32
@@ -543,37 +485,57 @@ const char *gcc_get_compiler_dir(const char *argv0)
     return compiler_dir_buf;
 }
 
-bool gcc_compile(const CCBackendConfig *config, const char *c_file,
-                 const char *output_exe, const char *compiler_dir,
-                 bool verbose, bool debug_mode, bool profile_mode,
-                 char **link_libs, int link_lib_count,
-                 PragmaSourceInfo *source_files, int source_file_count,
-                 int codegen_mode)
+/* ---- Compilation ---- */
+
+/* Helper: run a command and check result */
+static bool run_compile_cmd(const char *command, const char *error_file, bool verbose)
 {
-    char exe_path[PATH_MAX];
+    if (verbose)
+        DEBUG_INFO("Executing: %s", command);
+
+    int result = system(command);
+    if (result != 0)
+    {
+        FILE *errfile = fopen(error_file, "r");
+        if (errfile)
+        {
+            char line[1024];
+            fprintf(stderr, "\n");
+            while (fgets(line, sizeof(line), errfile))
+                fprintf(stderr, "%s", line);
+            fclose(errfile);
+        }
+        unlink(error_file);
+        return false;
+    }
+    unlink(error_file);
+    return true;
+}
+
+bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
+                          const char **c_files, int c_file_count,
+                          const char *output_exe, const char *compiler_dir,
+                          bool verbose, bool debug_mode, bool profile_mode,
+                          char **link_libs, int link_lib_count,
+                          char **pragma_sources, char **pragma_dirs, int pragma_count)
+{
     char lib_dir[PATH_MAX];
     char include_dir[PATH_MAX];
     char deps_include_dir[PATH_MAX];
     char deps_lib_dir[PATH_MAX];
     char runtime_lib[PATH_MAX];
     char command[8192];
-    char extra_libs[PATH_MAX];
-    char extra_sources[2048];
     char filtered_mode_cflags[1024];
-    char c_file_normalized[PATH_MAX];
-
-    strncpy(c_file_normalized, c_file, sizeof(c_file_normalized) - 1);
-    c_file_normalized[sizeof(c_file_normalized) - 1] = '\0';
-    normalize_path_separators(c_file_normalized);
 
     BackendType backend = detect_backend(config->cc);
     const char *sdk_root = get_sdk_root(compiler_dir);
 
     snprintf(lib_dir, sizeof(lib_dir), "%s" SN_PATH_SEP_STR "%s", sdk_root, backend_lib_subdir(backend));
-    if (codegen_mode == 3)
-        snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "minimal\" -I\"%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "platform", sdk_root, sdk_root);
-    else
-        snprintf(include_dir, sizeof(include_dir), "%s" SN_PATH_SEP_STR "include", sdk_root);
+    snprintf(include_dir, sizeof(include_dir),
+        "%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "minimal\" "
+        "-I\"%s" SN_PATH_SEP_STR "include" SN_PATH_SEP_STR "platform\" "
+        "-I\"%s" SN_PATH_SEP_STR "include",
+        sdk_root, sdk_root, sdk_root);
 
     deps_include_dir[0] = '\0';
     deps_lib_dir[0] = '\0';
@@ -592,34 +554,7 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     if (deps_include_dir[0]) normalize_path_separators(deps_include_dir);
     if (deps_lib_dir[0]) normalize_path_separators(deps_lib_dir);
 
-    if (verbose)
-    {
-        DEBUG_INFO("Using %s backend, lib_dir=%s", backend_name(backend), lib_dir);
-    }
-
-    if (output_exe == NULL || output_exe[0] == '\0')
-    {
-        strncpy(exe_path, c_file, sizeof(exe_path) - 1);
-        exe_path[sizeof(exe_path) - 1] = '\0';
-
-        char *dot = strrchr(exe_path, '.');
-        if (dot != NULL && strcmp(dot, ".c") == 0)
-        {
-            *dot = '\0';
-        }
-    }
-    else
-    {
-        strncpy(exe_path, output_exe, sizeof(exe_path) - 1);
-        exe_path[sizeof(exe_path) - 1] = '\0';
-    }
-
-    normalize_path_separators(exe_path);
-
-    if (codegen_mode == 3)
-        snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime_min.a", lib_dir);
-    else
-        snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime.a", lib_dir);
+    snprintf(runtime_lib, sizeof(runtime_lib), "%s" SN_PATH_SEP_STR "libsn_runtime_min.a", lib_dir);
 
     if (backend != BACKEND_MSVC && access(runtime_lib, R_OK) != 0)
     {
@@ -628,140 +563,6 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         fprintf(stderr, "Run 'make build' to build the runtime.\n");
         return false;
     }
-
-    extra_libs[0] = '\0';
-    if (link_libs != NULL && link_lib_count > 0)
-    {
-        int offset = 0;
-        for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
-        {
-            const char *lib = translate_lib_name(link_libs[i]);
-            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", lib);
-            if (written > 0)
-            {
-                offset += written;
-            }
-        }
-    }
-
-    /* Append transitive dependencies for statically-linked libraries */
-    if (link_libs != NULL && link_lib_count > 0)
-    {
-        bool needs_openssl_deps = false;
-        bool needs_ssh_deps = false;
-        bool needs_git2_deps = false;
-
-        for (int i = 0; i < link_lib_count; i++)
-        {
-            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0 ||
-                strcmp(link_libs[i], "ngtcp2") == 0 || strcmp(link_libs[i], "ngtcp2_crypto_ossl") == 0)
-            {
-                needs_openssl_deps = true;
-            }
-            if (strcmp(link_libs[i], "ssh") == 0)
-            {
-                needs_ssh_deps = true;
-            }
-            if (strcmp(link_libs[i], "git2") == 0)
-            {
-                needs_git2_deps = true;
-            }
-        }
-
-        int offset = (int)strlen(extra_libs);
-        if (needs_openssl_deps)
-        {
-#ifdef _WIN32
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lcrypt32");
-#elif defined(__APPLE__)
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -framework Security -framework CoreFoundation");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -ldl");
-#endif
-            offset = (int)strlen(extra_libs);
-        }
-
-        if (needs_ssh_deps)
-        {
-#ifdef _WIN32
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lzlib -lbcrypt -lws2_32 -liphlpapi");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lz -lpthread");
-#endif
-            offset = (int)strlen(extra_libs);
-        }
-
-        if (needs_git2_deps)
-        {
-#ifdef _WIN32
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto -lws2_32 -lsecur32 -lbcrypt -lcrypt32 -lrpcrt4 -lole32");
-#elif defined(__APPLE__)
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv -framework Security -framework CoreFoundation");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
-#endif
-        }
-    }
-
-    extra_sources[0] = '\0';
-    if (source_files != NULL && source_file_count > 0)
-    {
-        int offset = 0;
-        for (int i = 0; i < source_file_count && offset < (int)sizeof(extra_sources) - 256; i++)
-        {
-            const char *src = source_files[i].value;
-            const char *source_dir = source_files[i].source_dir;
-
-            size_t len = strlen(src);
-            char unquoted[PATH_MAX];
-            if (len >= 2 && src[0] == '"' && src[len - 1] == '"')
-            {
-                strncpy(unquoted, src + 1, len - 2);
-                unquoted[len - 2] = '\0';
-                src = unquoted;
-            }
-
-            char full_path[PATH_MAX];
-            if (src[0] == '/' || (strlen(src) > 1 && src[1] == ':'))
-            {
-                strncpy(full_path, src, sizeof(full_path) - 1);
-                full_path[sizeof(full_path) - 1] = '\0';
-            }
-            else
-            {
-                snprintf(full_path, sizeof(full_path), "%s" SN_PATH_SEP_STR "%s", source_dir, src);
-            }
-            normalize_path_separators(full_path);
-
-            int written = snprintf(extra_sources + offset, sizeof(extra_sources) - offset, " \"%s\"", full_path);
-            if (written > 0)
-            {
-                offset += written;
-            }
-        }
-    }
-
-    char error_file[PATH_MAX];
-#ifdef _WIN32
-    const char *temp_dir = getenv("TEMP");
-    if (!temp_dir) temp_dir = getenv("TMP");
-    if (!temp_dir) temp_dir = ".";
-    snprintf(error_file, sizeof(error_file), "%s\\sn_cc_errors_%d.txt", temp_dir, (int)getpid());
-#else
-    strcpy(error_file, "/tmp/sn_cc_errors_XXXXXX");
-    int error_fd = mkstemp(error_file);
-    if (error_fd == -1)
-    {
-        strcpy(error_file, "/tmp/sn_cc_errors.txt");
-    }
-    else
-    {
-        close(error_fd);
-    }
-#endif
 
     const char *mode_cflags = profile_mode ? config->profile_cflags
                             : debug_mode  ? config->debug_cflags
@@ -778,9 +579,7 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
     else
         deps_include_opt[0] = '\0';
     if (deps_lib_dir[0])
-    {
         snprintf(deps_lib_opt, sizeof(deps_lib_opt), "-L\"%s\" -Wl,-rpath,\"%s\"", deps_lib_dir, deps_lib_dir);
-    }
     else
         deps_lib_opt[0] = '\0';
 
@@ -795,90 +594,218 @@ bool gcc_compile(const CCBackendConfig *config, const char *c_file,
         DEBUG_INFO("Package libs: %s", pkg_lib_opt);
     }
 
-    if (backend == BACKEND_MSVC)
-    {
-        char runtime_lib_msvc[PATH_MAX];
-        snprintf(runtime_lib_msvc, sizeof(runtime_lib_msvc), "%s" SN_PATH_SEP_STR "sn_runtime.lib", lib_dir);
+    char error_file[PATH_MAX];
+#ifdef _WIN32
+    const char *temp_dir = getenv("TEMP");
+    if (!temp_dir) temp_dir = getenv("TMP");
+    if (!temp_dir) temp_dir = ".";
+    snprintf(error_file, sizeof(error_file), "%s\\sn_cc_errors_%d.txt", temp_dir, (int)getpid());
+#else
+    strcpy(error_file, "/tmp/sn_cc_errors_XXXXXX");
+    int error_fd = mkstemp(error_file);
+    if (error_fd == -1)
+        strcpy(error_file, "/tmp/sn_cc_errors.txt");
+    else
+        close(error_fd);
+#endif
 
-        if (access(runtime_lib_msvc, R_OK) != 0)
+    const char *cc_quote = (strchr(config->cc, ' ') != NULL) ? "\"" : "";
+
+    /* ---- Step 1: Compile each .c file to .o ---- */
+    char *obj_files[512];
+    int obj_count = 0;
+
+    for (int i = 0; i < c_file_count && obj_count < 510; i++)
+    {
+        char c_path[PATH_MAX];
+        char o_path[PATH_MAX];
+        snprintf(c_path, sizeof(c_path), "%s" SN_PATH_SEP_STR "%s", build_dir, c_files[i]);
+        snprintf(o_path, sizeof(o_path), "%s" SN_PATH_SEP_STR "%.*s.o", build_dir,
+                 (int)(strlen(c_files[i]) - 2), c_files[i]);
+
+        snprintf(command, sizeof(command),
+            "%s%s%s -c %s -w -std=%s -D_GNU_SOURCE %s "
+            "-I\"%s\" -I\"%s\" %s %s "
+            "\"%s\" -o \"%s\" 2>\"%s\"",
+            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
+            build_dir, include_dir, deps_include_opt, pkg_include_opt,
+            c_path, o_path, error_file);
+
+        if (!run_compile_cmd(command, error_file, verbose))
         {
-            fprintf(stderr, "Error: Runtime library not found: %s\n", runtime_lib_msvc);
-            fprintf(stderr, "The MSVC backend runtime is not built.\n");
+            fprintf(stderr, "Error: failed to compile %s\n", c_files[i]);
+            for (int j = 0; j < obj_count; j++) free(obj_files[j]);
             return false;
         }
 
-        const char *cc_quote = (strchr(config->cc, ' ') != NULL) ? "\"" : "";
-        char msvc_deps_opt[PATH_MAX + 8];
-        if (deps_include_dir[0])
-            snprintf(msvc_deps_opt, sizeof(msvc_deps_opt), "/I\"%s\"", deps_include_dir);
-        else
-            msvc_deps_opt[0] = '\0';
-
-        snprintf(command, sizeof(command),
-            "%s%s%s %s %s /I\"%s\" %s \"%s\"%s \"%s\" %s %s /Fe\"%s\" /link %s 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->cflags, include_dir, msvc_deps_opt,
-            c_file_normalized, extra_sources, runtime_lib_msvc, config->ldlibs, config->ldflags, exe_path,
-            config->ldlibs, error_file);
-    }
-    else
-    {
-        const char *cc_quote = (strchr(config->cc, ' ') != NULL) ? "\"" : "";
-#ifdef _WIN32
-        snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -DSN_USE_WIN32_THREADS %s -I\"%s\" %s %s "
-            "\"%s\"%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
-            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
-            c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
-#elif defined(__APPLE__)
-        snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s %s "
-            "\"%s\"%s -Wl,-force_load,\"%s\" "
-            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
-            c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
-#else
-        snprintf(command, sizeof(command),
-            "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s -I\"%s\" %s %s "
-            "\"%s\"%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
-            "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags, include_dir, deps_include_opt, pkg_include_opt,
-            c_file_normalized, extra_sources, runtime_lib,
-            deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags, exe_path, error_file);
-#endif
+        obj_files[obj_count] = strdup(o_path);
+        obj_count++;
     }
 
-    if (verbose)
+    /* ---- Step 2: Compile pragma source files ---- */
+    for (int i = 0; i < pragma_count && obj_count < 510; i++)
     {
-        DEBUG_INFO("Executing: %s", command);
-    }
+        const char *src = pragma_sources[i];
+        const char *source_dir = pragma_dirs[i];
 
-    int result = system(command);
-
-    if (result != 0)
-    {
-        FILE *errfile = fopen(error_file, "r");
-        if (errfile)
+        /* Unquote if needed */
+        size_t len = strlen(src);
+        char unquoted[PATH_MAX];
+        if (len >= 2 && src[0] == '"' && src[len - 1] == '"')
         {
-            char line[1024];
-            fprintf(stderr, "\n");
-            while (fgets(line, sizeof(line), errfile))
-            {
-                fprintf(stderr, "%s", line);
-            }
-            fclose(errfile);
+            strncpy(unquoted, src + 1, len - 2);
+            unquoted[len - 2] = '\0';
+            src = unquoted;
         }
-        unlink(error_file);
+
+        /* Resolve full path */
+        char full_path[PATH_MAX];
+        if (src[0] == '/')
+        {
+            strncpy(full_path, src, sizeof(full_path) - 1);
+            full_path[sizeof(full_path) - 1] = '\0';
+        }
+        else
+        {
+            snprintf(full_path, sizeof(full_path), "%s" SN_PATH_SEP_STR "%s", source_dir, src);
+        }
+
+        /* Derive .o output path in build_dir */
+        const char *base = strrchr(full_path, '/');
+        base = base ? base + 1 : full_path;
+        char o_path[PATH_MAX];
+        const char *dot = strrchr(base, '.');
+        int blen = dot ? (int)(dot - base) : (int)strlen(base);
+        snprintf(o_path, sizeof(o_path), "%s" SN_PATH_SEP_STR "pragma_%.*s.o", build_dir, blen, base);
+
+        snprintf(command, sizeof(command),
+            "%s%s%s -c %s -w -std=%s -D_GNU_SOURCE %s "
+            "-include \"%s/sn_types.h\" "
+            "-I\"%s\" -I\"%s\" %s %s "
+            "\"%s\" -o \"%s\" 2>\"%s\"",
+            cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
+            build_dir,
+            build_dir, include_dir, deps_include_opt, pkg_include_opt,
+            full_path, o_path, error_file);
+
+        if (!run_compile_cmd(command, error_file, verbose))
+        {
+            fprintf(stderr, "Error: failed to compile pragma source %s\n", full_path);
+            for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+            return false;
+        }
+
+        obj_files[obj_count] = strdup(o_path);
+        obj_count++;
+    }
+
+    /* ---- Step 3: Link all .o files ---- */
+    char extra_libs[PATH_MAX];
+    extra_libs[0] = '\0';
+    if (link_libs && link_lib_count > 0)
+    {
+        int offset = 0;
+        for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
+        {
+            const char *lib = translate_lib_name(link_libs[i]);
+            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", lib);
+            if (written > 0) offset += written;
+        }
+    }
+
+    /* Append transitive dependencies for statically-linked libraries */
+    if (link_libs && link_lib_count > 0)
+    {
+        bool needs_openssl_deps = false;
+        bool needs_ssh_deps = false;
+        bool needs_git2_deps = false;
+
+        for (int i = 0; i < link_lib_count; i++)
+        {
+            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0 ||
+                strcmp(link_libs[i], "ngtcp2") == 0 || strcmp(link_libs[i], "ngtcp2_crypto_ossl") == 0)
+                needs_openssl_deps = true;
+            if (strcmp(link_libs[i], "ssh") == 0)
+                needs_ssh_deps = true;
+            if (strcmp(link_libs[i], "git2") == 0)
+                needs_git2_deps = true;
+        }
+
+        int offset = (int)strlen(extra_libs);
+        if (needs_openssl_deps)
+        {
+#ifdef __APPLE__
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -framework Security -framework CoreFoundation");
+#else
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -ldl");
+#endif
+            offset = (int)strlen(extra_libs);
+        }
+        if (needs_ssh_deps)
+        {
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lz -lpthread");
+            offset = (int)strlen(extra_libs);
+        }
+        if (needs_git2_deps)
+        {
+#ifdef __APPLE__
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv -framework Security -framework CoreFoundation");
+#else
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
+#endif
+        }
+    }
+
+    /* Build the link command with all .o files */
+    char all_objs[8192];
+    int obj_offset = 0;
+    for (int i = 0; i < obj_count && obj_offset < (int)sizeof(all_objs) - PATH_MAX; i++)
+    {
+        int written = snprintf(all_objs + obj_offset, sizeof(all_objs) - obj_offset, " \"%s\"", obj_files[i]);
+        if (written > 0) obj_offset += written;
+    }
+
+    char exe_path[PATH_MAX];
+    strncpy(exe_path, output_exe, sizeof(exe_path) - 1);
+    exe_path[sizeof(exe_path) - 1] = '\0';
+    normalize_path_separators(exe_path);
+
+#ifdef __APPLE__
+    snprintf(command, sizeof(command),
+        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
+        "%s -Wl,-force_load,\"%s\" "
+        "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
+        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
+        all_objs, runtime_lib,
+        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
+        exe_path, error_file);
+#else
+    snprintf(command, sizeof(command),
+        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
+        "%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
+        "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
+        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
+        all_objs, runtime_lib,
+        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
+        exe_path, error_file);
+#endif
+
+    bool link_ok = run_compile_cmd(command, error_file, verbose);
+
+    /* Free obj_files */
+    for (int i = 0; i < obj_count; i++) free(obj_files[i]);
+
+    if (!link_ok)
+    {
+        fprintf(stderr, "Error: linking failed\n");
         return false;
     }
 
-    unlink(error_file);
-
     if (verbose)
     {
-        DEBUG_INFO("Successfully compiled to: %s", exe_path);
+        DEBUG_INFO("Successfully compiled (modular) to: %s", exe_path);
     }
 
     return true;

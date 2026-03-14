@@ -1,8 +1,8 @@
-# 🐍 Sn Compiler
+# Sn Compiler
 
 A statically-typed procedural language that compiles `.sn` → C → executable.
 
-## 🔨 Build & Run
+## Build & Run
 
 ```bash
 make build            # Build compiler and test binary
@@ -17,7 +17,7 @@ make help             # Show all targets
 
 Binaries: `bin/sn` (compiler), `bin/tests` (unit test runner)
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 Source (.sn)
@@ -35,34 +35,51 @@ Source (.sn)
 │  Optimizer (optimizer.c)                             │
 │    → optimized AST                                   │
 ├─────────────────────────────────────────────────────┤
-│  Code Gen (code_gen.c, _stmt.c, _expr.c, _util.c)   │
-│    → C code                                          │
+│  Code Gen (cgen/gen_model*.c + templates/c/*.hbs)    │
+│    → JSON model → split by source file               │
+│    → sn_types.h + per-module .c files                │
 ├─────────────────────────────────────────────────────┤
 │  GCC Backend (gcc_backend.c)                         │
-│    → executable                                      │
+│    → compile each .c → .o, link → executable         │
 └─────────────────────────────────────────────────────┘
 ```
 
 Key modules:
 - `main.c` → `compiler.c`: Entry point and orchestration
+- `cgen/`: Code generation (JSON model building, template rendering, model splitting)
 - `symbol_table.c`: Scope and symbol management
-- `runtime.c/h`: Built-in functions and types
 - `diagnostic.c`: Error reporting and phase tracking
-- `arena.c`: Memory management
+- `arena.c`: Memory management (compiler internals only)
 
-## ⚙️ Usage
+## Compilation Pipeline
+
+The compiler uses **modular compilation**:
+
+1. Parse all source files into a merged AST
+2. Type-check the merged AST
+3. Build a JSON model from the AST
+4. Split the model by source file (each `.sn` file → its own module)
+5. Render `sn_types.h` (shared header) + per-module `.c` files via Handlebars templates
+6. Compile each `.c` to `.o` independently
+7. Link all `.o` files + runtime library → executable
+
+Build artifacts go to `.sn/build/<source_basename>/`. The `.o` files persist between builds.
+
+## Usage
 
 ```bash
 bin/sn <source.sn> [-o <executable>] [options]
 
 Output options:
-  -o <file>          Specify output executable (default: source without extension)
-  --emit-c           Only output C code, don't compile to executable
-  --keep-c           Keep intermediate C file after compilation
+  -o <file>          Specify output executable (default: source_file without extension)
+  --emit-c           Output generated C code, don't compile to executable
+  --emit-model       Output JSON model, don't generate C
+  --keep-c           Keep generated C files after compilation
 
 Debug options:
   -v                 Verbose mode (show compilation steps)
   -g                 Debug build (includes symbols and address sanitizer)
+  -p                 Profile build (optimized with frame pointers, no ASAN or LTO)
   -l <level>         Set log level (0=none, 1=error, 2=warning, 3=info, 4=verbose)
 
 Code generation options:
@@ -81,16 +98,17 @@ Package management:
   --install          Install dependencies from sn.yaml
   --install <url>    Install a package (e.g., https://github.com/user/lib.git@v1.0)
   --clear-cache      Clear the package cache (~/.sn-cache)
+  --clean            Remove build cache (.sn/build/)
   --no-install       Skip automatic dependency installation
 ```
 
-## 🧪 Tests
+## Tests
 
 - **Unit:** `tests/unit/*_tests.c` → `bin/tests`
 - **Integration:** `tests/integration/*.sn`
 - **Exploratory:** `tests/exploratory/*.sn`
 
-## 📚 Syntax
+## Syntax
 
 ```
 fn add(a: int, b: int): int => a + b
@@ -105,13 +123,13 @@ Types: `int`, `long`, `double`, `str`, `char`, `bool`, `byte`, `void`
 
 Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
 
-## 🚨 IMPORTANT: 
- 
+## IMPORTANT:
+
  - This project uses ASAN not valgrind. All memory issues are detected using `-fsanitize=address`. Do not introduce valgrind into this project!
 
  - ALWAYS execute compiled artifacts (both the compiler and sindarin code files) using a `timeout` prefix to avoid crashing the host machine if there is an accidental/unintended infinite loops.
 
- - ALWAYS debug with output written to the /tmp/ directory, this avoids accidentally comitting generated artifacts which do not form part of the solution. 
+ - ALWAYS debug with output written to the /tmp/ directory, this avoids accidentally comitting generated artifacts which do not form part of the solution.
 
  - When tests fail, ALWAYS FIX THEM. Do not label them as "pre-existing issue" and ignore.
 
@@ -123,30 +141,18 @@ Built-in types: `TextFile`, `BinaryFile`, `Date`, `Time`, `Process`
    - timeout 900 python3 scripts/run_tests.py all
 
  - NEVER implement work arounds, ALWAYS FIX THE PROBLEMS PROPERLY.
- - NEVER ignore test failures as "pre-existing failures", TESTS SHOULD ALWAYS PASS. 
+ - NEVER ignore test failures as "pre-existing failures", TESTS SHOULD ALWAYS PASS.
  - NEVER generate extern forwards for native sindarin functions without bodies.
 
-## 📖 Documentation
+## Documentation
 
 Is available at https://sindarinsdk.github.io/.
 
 ## CRITICAL: File Editing on Windows
 
-### ⚠️ MANDATORY: Always Use Backslashes on Windows for File Paths
+### MANDATORY: Always Use Backslashes on Windows for File Paths
 
 **When using Edit or MultiEdit tools on Windows, you MUST use backslashes (`\`) in file paths, NOT forward slashes (`/`).**
-
-#### ❌ WRONG - Will cause errors:
-```
-Edit(file_path: "tests/cgen/escape_default_3_loop_chained.sn", ...)
-MultiEdit(file_path: "tests/cgen/escape_default_3_loop_chained.sn", ...)
-```
-
-#### ✅ CORRECT - Always works:
-```
-Edit(file_path: ".\tests\cgen\escape_default_3_loop_chained.sn", ...)
-MultiEdit(file_path: ".\tests\cgen\escape_default_3_loop_chained.sn", ...)
-```
 
 ## Sindarin Ecosystem Development
 
@@ -175,28 +181,13 @@ git clone git@github.com:SindarinSDK/sindarin-pkg-libs-v2.git sindarin-pkg-libs
 cd sindarin-compiler
 ```
 
-### Global Compiler Location
-
-The globally installed compiler lives at:
-
-Linux:
-```
-~/.sn/bin/sn
-```
-
-Windows:
-```
-~/.sn/bin/sn.exe
-```
-
-**IMPORTANT**: All packages (sindarin-pkg-sdk, sindarin-pkg-http, etc.) use the globally installed compiler. To test compiler changes in other packages, you MUST copy the built compiler to the global location:
+### Installing the Compiler Globally
 
 ```bash
-# From sindarin-compiler root
-cp -r bin/* ~/.sn/bin/
+make build && make install && sn --clear-cache
 ```
 
-Without this step, other packages will continue using the old compiler.
+**IMPORTANT**: All packages (sindarin-pkg-sdk, sindarin-pkg-http, etc.) use the globally installed compiler. To test compiler changes in other packages, you MUST run `make install`.
 
 ### Package Dependencies
 
@@ -209,138 +200,53 @@ dependencies:
 ```
 
 Dependencies are installed to `.sn/<package-name>/` within each project directory.
-Transitive dependencies are nested: `.sn/<pkg>/.sn/<transitive-pkg>/`
+Build cache is stored in `.sn/build/`.
 
 ### Workflow: Compiler Changes
 
-When making changes to the compiler:
-
 ```bash
-# 1. Make changes to source files
+# 1. Build
+make build
 
-# 2. Build
-make clean && make build
-
-# 3. Run all tests (use timeout to prevent infinite loops)
+# 2. Run all tests
 timeout 900 make test
 
-# 4. Copy to global location (REQUIRED to test in other packages)
-cp -r bin/* ~/.sn/bin/
-
-# 5. Commit and push
-git add -A && git commit -m "Description" && git push origin main
-
-# 6. Tag release (check latest tag first)
-git tag --list --sort=-v:refname | head -5
-git tag -a v0.0.XX-alpha -m "Release notes" && git push origin v0.0.XX-alpha
-```
-
-### Workflow: Testing Compiler Changes in Other Packages
-
-To test compiler changes in sindarin-pkg-sdk or sindarin-pkg-http:
-
-```bash
-# 1. Build the compiler
-make clean && make build
-
-# 2. CRITICAL: Overwrite the global compiler installation
-cp -r bin/* ~/.sn/bin/
-
-# 3. Test in SDK package
-cd ../sindarin-pkg-sdk
-make test
-
-# 4. Reinstall and test HTTP package
-cd ../sindarin-pkg-http
-sn --clear-cache && rm -rf ./.sn && sn --install
-make test
-
-# 5. Return to compiler directory
-cd ../sindarin-compiler
-```
-
-The global compiler at `~/.sn/bin/` is what `sn` resolves to when running commands. If you don't copy the built compiler there, other packages will use the old version.
-
-### Workflow: SDK Changes
-
-When making changes to `sindarin-pkg-sdk`:
-
-```bash
-cd ../sindarin-pkg-sdk
-
-# 1. Make changes to source files (.sn and .sn.c files)
-
-# 2. Run SDK tests
-make test
-
-# 3. Commit and push
-git add -A && git commit -m "Description" && git push origin main
-
-cd ../sindarin-compiler
-```
-
-After pushing SDK changes, dependent packages need to reinstall:
-```bash
-cd ../sindarin-pkg-http
-sn --clear-cache
-rm -rf ./.sn
-sn --install
-cd ../sindarin-compiler
-```
-
-### Workflow: HTTP Package Changes
-
-When making changes to `sindarin-pkg-http`:
-
-```bash
-cd ../sindarin-pkg-http
-
-# 1. Make changes
-
-# 2. Run tests
-make test
-
-# 3. Commit and push
-git add -A && git commit -m "Description" && git push origin main
-
-cd ../sindarin-compiler
+# 3. Install globally (REQUIRED to test in other packages)
+make install && sn --clear-cache
 ```
 
 ### Workflow: Full Integration Test
 
-To test changes across all repositories:
-
 ```bash
-# 1. Build and test compiler
-make clean && make build && timeout 900 make test
-cp -r bin/* ~/.sn/bin/
+# 1. Build, test, install compiler
+make build && timeout 900 make test && make install && sn --clear-cache
 
 # 2. Test SDK
 cd ../sindarin-pkg-sdk
+rm -rf .sn && sn --install
+cp -a ../sindarin-pkg-sdk/* .sn/sindarin-pkg-sdk/
+cp -a ../sindarin-pkg-test/* .sn/sindarin-pkg-test/
 make test
 
-# 3. Reinstall and test HTTP package
+# 3. Test HTTP package
 cd ../sindarin-pkg-http
-sn --clear-cache && rm -rf ./.sn && sn --install
+rm -rf .sn && sn --install
+cp -a ../sindarin-pkg-sdk/* .sn/sindarin-pkg-sdk/
+cp -a ../sindarin-pkg-test/* .sn/sindarin-pkg-test/
 make test
 
 # 4. Return to compiler
 cd ../sindarin-compiler
 ```
 
-### Runtime Include Paths
-
-Native C files (`.sn.c`) that use runtime headers must use correct paths:
-- `#include "runtime/array/runtime_array.h"` (NOT `runtime/runtime_array.h`)
-- `#include "runtime/string/runtime_string_h.h"` (NOT `runtime/runtime_string_h.h`)
-- `#include "runtime/arena/managed_arena.h"`
-
 ### Native Function Codegen
 
 When calling native functions (marked with `native` keyword and `@alias`):
-- `str` parameters are converted from `RtHandle` to `const char*` via `rt_managed_pin()`
-- `str[]` parameters are converted via `rt_managed_pin_string_array()`
-- Regular Sindarin functions (not marked `native`) do NOT get this conversion
+- `str` parameters map to `char *` in generated C
+- `int` parameters map to `long long`
+- Struct parameters map to `__sn__<StructName>` (value) or `__sn__<StructName> *` (as ref)
+- Arrays map to `SnArray *`
+- Regular Sindarin functions (not marked `native`) use the same types
 
 ### Package Library Discovery
 
