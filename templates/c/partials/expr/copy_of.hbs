@@ -1,1 +1,1 @@
-{{> expr operand}}
+{{#if (eq operand.type.kind "struct")}}{{#if operand.type.pass_self_by_ref}}__sn__{{operand.type.name}}_copy({{> expr operand}}){{else}}__sn__{{operand.type.name}}_copy(&({{> expr operand}})){{/if}}{{else}}{{#if (eq operand.type.kind "string")}}strdup({{> expr operand}}){{else}}{{#if (eq operand.type.kind "array")}}sn_array_copy({{> expr operand}}){{else}}{{> expr operand}}{{/if}}{{/if}}{{/if}}

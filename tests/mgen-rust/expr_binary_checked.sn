@@ -1,4 +1,0 @@
-fn main(): int =>
-    var a: int = 100
-    var b: int = a + 50
-    return b

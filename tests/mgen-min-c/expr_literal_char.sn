@@ -1,3 +1,0 @@
-fn main(): int =>
-    var c: char = 'A'
-    return 0

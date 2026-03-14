@@ -1,6 +1,0 @@
-{{c_type return_type}} __sn__{{struct_name}}_{{name}}({{#unless is_static}}__sn__{{struct_name}} *__sn__self{{/unless}}{{#each params}}{{#unless ../is_static}}{{#if @first}}, {{/if}}{{/unless}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{else}} {{/if}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
-{{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
-{{/if}}{{/each}}{{#each body}}
-    {{> stmt this}}
-{{/each}}
-}

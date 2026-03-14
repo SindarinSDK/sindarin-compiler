@@ -1,7 +1,0 @@
-native fn sin(x: double): double
-native fn cos(x: double): double
-
-fn main(): int =>
-    var s: double = sin(1.0)
-    var c: double = cos(0.0)
-    return 0

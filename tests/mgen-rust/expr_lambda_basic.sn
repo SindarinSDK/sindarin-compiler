@@ -1,3 +1,0 @@
-fn main(): int =>
-    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
-    return add(1, 2)

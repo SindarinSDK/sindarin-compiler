@@ -1,5 +1,0 @@
-fn main(): void =>
-    sync var counter: int = 0
-    lock(counter) =>
-        counter = counter + 1
-    assert(counter == 1, "expected counter to be 1 after lock increment")

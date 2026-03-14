@@ -1,4 +1,0 @@
-fn main(): int =>
-    var a: bool = true
-    var b: bool = false
-    return 0

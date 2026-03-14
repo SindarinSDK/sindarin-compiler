@@ -26,6 +26,7 @@
       "is_native": false,
       "is_packed": true,
       "pass_self_by_ref": false,
+      "source_file": "tests\/mgen\/struct_packed.sn",
       "mem_mode": "val",
       "fields": [
         {
@@ -63,6 +64,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/struct_packed.sn",
       "params": [],
       "body": [
         {

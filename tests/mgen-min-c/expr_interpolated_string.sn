@@ -1,4 +1,0 @@
-fn main(): void =>
-    var name: str = "world"
-    var msg: str = $"Hello {name}!"
-    assert(msg.length == 12, "expected interpolated string length to be 12")

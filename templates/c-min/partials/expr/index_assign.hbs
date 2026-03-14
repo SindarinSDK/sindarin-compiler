@@ -1,5 +1,0 @@
-{{#if (eq elem_cleanup "free_str")}}({
-    long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
-    free((({{c_type type}} *){{> expr array}}->data)[__ai__]);
-    (({{c_type type}} *){{> expr array}}->data)[__ai__] = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
-}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}

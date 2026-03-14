@@ -1,10 +1,35 @@
 ({
-        RtHandleV2 *__al__ = rt_array_create_generic_v2(__local_arena__, 0, {{c_sizeof type.element_type}}, NULL);
+        SnArray *__al__ = sn_array_new({{c_sizeof type.element_type}}, {{count elements}});
+{{#if (eq type.element_type.kind "int")}}        __al__->elem_tag = SN_TAG_INT;
+{{else}}{{#if (eq type.element_type.kind "long")}}        __al__->elem_tag = SN_TAG_INT;
+{{else}}{{#if (eq type.element_type.kind "double")}}        __al__->elem_tag = SN_TAG_DOUBLE;
+{{else}}{{#if (eq type.element_type.kind "float")}}        __al__->elem_tag = SN_TAG_DOUBLE;
+{{else}}{{#if (eq type.element_type.kind "string")}}        __al__->elem_tag = SN_TAG_STRING;
+{{else}}{{#if (eq type.element_type.kind "bool")}}        __al__->elem_tag = SN_TAG_BOOL;
+{{else}}{{#if (eq type.element_type.kind "char")}}        __al__->elem_tag = SN_TAG_CHAR;
+{{else}}{{#if (eq type.element_type.kind "byte")}}        __al__->elem_tag = SN_TAG_BYTE;
+{{else}}{{#if (eq type.element_type.kind "struct")}}        __al__->elem_tag = SN_TAG_STRUCT;
+{{else}}{{#if (eq type.element_type.kind "array")}}        __al__->elem_tag = SN_TAG_ARRAY;
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
+{{#if elem_release_fn}}
+        __al__->elem_release = {{elem_release_fn}};
+{{/if}}
+{{#if elem_copy_fn}}
+        __al__->elem_copy = {{elem_copy_fn}};
+{{/if}}
 {{#each elements}}
 {{#if (eq kind "spread")}}
-        __al__ = rt_array_concat_v2(__al__, {{> expr operand}}, {{c_sizeof ../type.element_type}});
+        sn_array_extend(__al__, {{> expr operand}});
 {{else}}
-        __al__ = rt_array_push_v2(__local_arena__, __al__, &({{c_type ../type.element_type}}){ {{> expr this}} }, {{c_sizeof ../type.element_type}});
+{{#if (eq kind "range")}}
+        { SnArray *__rng__ = {{> expr this}}; sn_array_extend(__al__, __rng__); sn_array_free(__rng__); }
+{{else}}
+{{#if (eq kind "struct_literal")}}
+        sn_array_push(__al__, &({{> expr this}}));
+{{else}}
+        sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{#if needs_strdup}}strdup({{> expr this}}){{else}}{{#if needs_arr_copy}}sn_array_copy({{> expr this}}){{else}}{{> expr this}}{{/if}}{{/if}} });
+{{/if}}
+{{/if}}
 {{/if}}
 {{/each}}
         __al__;

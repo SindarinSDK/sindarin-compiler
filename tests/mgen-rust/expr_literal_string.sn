@@ -1,3 +1,0 @@
-fn main(): int =>
-    var s: str = "hello"
-    return 0

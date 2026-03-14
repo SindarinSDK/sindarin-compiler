@@ -1,6 +1,0 @@
-fn main(): int =>
-    var arr: int[] = {1, 2, 3}
-    var sum: int = 0
-    for item in arr =>
-        sum += item
-    return sum

@@ -1,6 +1,0 @@
-fn compute(): int =>
-    return 42
-
-fn main(): int =>
-    var result: int = &compute()!
-    return result

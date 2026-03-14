@@ -1,3 +1,0 @@
-{{#if (eq kind "return")}}{{> stmt_return this}}{{else}}{{#if (eq kind "var_decl")}}{{> stmt_var_decl this}}{{else}}{{#if (eq kind "expr")}}{{> stmt_expr this}}{{else}}{{#if (eq kind "if")}}{{> stmt_if this}}{{else}}{{#if (eq kind "while")}}{{> stmt_while this}}{{else}}{{#if (eq kind "for")}}{{> stmt_for this}}{{else}}{{#if (eq kind "for_each")}}{{> stmt_for_each this}}{{else}}{{#if (eq kind "break")}}break;
-{{else}}{{#if (eq kind "continue")}}continue;
-{{else}}{{#if (eq kind "block")}}{{> stmt_block this}}{{else}}{{#if (eq kind "lock")}}{{> stmt_lock this}}{{else}}{{#if (eq kind "using")}}{{> stmt_using this}}{{else}}{{#if (eq kind "raw_c")}}{{{code}}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

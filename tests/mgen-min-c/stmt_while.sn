@@ -1,5 +1,0 @@
-fn main(): void =>
-    var x: int = 0
-    while x < 10 =>
-        x++
-    assert(x == 10, "expected x to be 10 after while loop")

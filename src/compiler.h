@@ -5,15 +5,16 @@
 #include "file.h"
 #include "lexer.h"
 #include "parser.h"
-#include "code_gen.h"
 #include <stdio.h>
 #include <stdbool.h>
 
-/* Optimization levels:
- * -O0: No optimization (for debugging, generates simpler code)
- * -O1: Basic optimizations (dead code elimination, string literal merging)
- * -O2: Full optimizations (+ tail call optimization, constant folding)
- */
+/* Arithmetic mode for code generation */
+typedef enum {
+    ARITH_CHECKED,     /* Use runtime functions with overflow checking (default) */
+    ARITH_UNCHECKED    /* Use native C operators without overflow checking */
+} ArithmeticMode;
+
+/* Optimization levels */
 #define OPT_LEVEL_NONE  0  /* -O0: No optimization */
 #define OPT_LEVEL_BASIC 1  /* -O1: Basic optimizations */
 #define OPT_LEVEL_FULL  2  /* -O2: Full optimizations (default) */
@@ -31,24 +32,17 @@ typedef struct
     int log_level;
     ArithmeticMode arithmetic_mode;  /* Checked or unchecked arithmetic */
     int optimization_level;          /* Optimization level (0, 1, or 2) */
-    int emit_c_only;                 /* --emit-c: Only output C code, don't invoke GCC */
+    int emit_c;                      /* --emit-c: Output generated C code, don't compile */
     int emit_model;                  /* --emit-model: Output JSON model, don't generate C */
-    int emit_model_c;                /* --emit-model-c: Generate C via model + templates */
-    int emit_model_min_c;            /* --emit-model-min-c: Generate minimal C via model + templates */
-    int emit_model_rust;             /* --emit-model-rust: Generate Rust via model + templates */
-    int keep_c;                      /* --keep-c: Keep intermediate C file after compilation */
+    int keep_c;                      /* --keep-c: Keep generated C files after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
     int profile_build;               /* -p: Profile build (optimized with frame pointers, no ASAN/LTO) */
-    char **link_libs;                /* Libraries to link from #pragma link directives */
-    int link_lib_count;              /* Number of link libraries */
-    PragmaSourceInfo *source_files;  /* C source files with location info from #pragma source */
-    int source_file_count;           /* Number of source files */
     int do_init;                     /* --init: Initialize new package */
     int do_install;                  /* --install: Install packages */
     char *install_target;            /* Package URL@ref for --install */
     int clear_cache;                 /* --clear-cache: Clear package cache */
+    int do_clean;                    /* --clean: Remove build cache (.sn/build/) and exit */
     int no_install;                  /* --no-install: Skip auto-install of dependencies */
-    int codegen_mode;                /* --codegen: 1=legacy (default), 2=model-based, 3=minimal */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

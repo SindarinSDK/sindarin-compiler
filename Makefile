@@ -11,11 +11,9 @@
 # Phony targets
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
-.PHONY: test-unit test-cgen test-mgen test-mgen-c test-integration test-integration-errors
+.PHONY: test-unit test-cgen test-mgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
-.PHONY: arena arena2 test-arena
-.PHONY: configure install package docs
-.PHONY: setup libs
+.PHONY: configure install package setup
 
 #------------------------------------------------------------------------------
 # Platform Detection
@@ -170,7 +168,7 @@ run: build
 #------------------------------------------------------------------------------
 # Test targets - Delegate to Python test runner
 #------------------------------------------------------------------------------
-test: build test-arena
+test: build
 	@echo "Running all tests..."
 	$(PYTHON) scripts/run_tests.py all --verbose
 
@@ -183,9 +181,6 @@ test-cgen: build
 test-mgen: build
 	@$(PYTHON) scripts/run_tests.py mgen --verbose
 
-test-mgen-c: build
-	@$(PYTHON) scripts/run_tests.py mgen-c --verbose
-
 test-integration: build
 	@$(PYTHON) scripts/run_tests.py integration --verbose
 
@@ -197,111 +192,6 @@ test-explore: build
 
 test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
-
-#------------------------------------------------------------------------------
-# arena - Build the managed arena library (standalone)
-#------------------------------------------------------------------------------
-ARENA_DIR := src/runtime/arena
-ARENA_BUILD := $(BUILD_DIR)/arena
-ARENA_SRCS := $(ARENA_DIR)/managed_arena.c $(ARENA_DIR)/managed_arena_gc.c
-ARENA_TEST_SRCS := $(ARENA_DIR)/tests/test_main.c \
-	$(ARENA_DIR)/tests/test_alloc.c \
-	$(ARENA_DIR)/tests/test_pin.c \
-	$(ARENA_DIR)/tests/test_reassignment.c \
-	$(ARENA_DIR)/tests/test_gc.c \
-	$(ARENA_DIR)/tests/test_concurrency.c \
-	$(ARENA_DIR)/tests/test_hierarchy.c \
-	$(ARENA_DIR)/tests/test_api.c \
-	$(ARENA_DIR)/tests/test_stress_profiles.c \
-	$(ARENA_DIR)/tests/test_race_detection.c \
-	$(ARENA_DIR)/tests/test_race_detection_scaling.c \
-	$(ARENA_DIR)/tests/test_race_detection_mixed_lifecycle.c \
-	$(ARENA_DIR)/tests/test_race_detection_compaction.c \
-	$(ARENA_DIR)/tests/test_race_detection_table_stability.c \
-	$(ARENA_DIR)/tests/test_race_detection_pins.c \
-	$(ARENA_DIR)/tests/test_race_detection_hierarchy.c \
-	$(ARENA_DIR)/tests/test_race_detection_destroy_reset.c \
-	$(ARENA_DIR)/tests/test_race_detection_recycling_clone.c
-ARENA_TEST_BIN := $(BIN_DIR)/test_arena$(EXE_EXT)
-ARENA_CFLAGS := -Wall -Wextra -g -pthread
-# ASAN for arena tests (override with ARENA_SANITIZE= to disable, e.g. on LLVM-MinGW)
-ARENA_SANITIZE ?= -fsanitize=address
-
-arena:
-	@echo "Building managed arena..."
-	@$(MKDIR) $(ARENA_BUILD)
-	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
-		-c $(ARENA_DIR)/managed_arena.c -o $(ARENA_BUILD)/managed_arena.o
-	$(CMAKE_C_COMPILER) $(ARENA_CFLAGS) $(ARENA_SANITIZE) \
-		-c $(ARENA_DIR)/managed_arena_gc.c -o $(ARENA_BUILD)/managed_arena_gc.o
-	@echo "Managed arena built."
-
-#------------------------------------------------------------------------------
-# arena2 - Build the Arena V2 library (standalone)
-#------------------------------------------------------------------------------
-ARENA2_DIR := src/runtime/arena
-ARENA2_BUILD := $(BUILD_DIR)/arena2
-ARENA2_SRCS := $(ARENA2_DIR)/arena_v2.c $(ARENA2_DIR)/arena_handle.c $(ARENA2_DIR)/arena_gc.c \
-	$(ARENA2_DIR)/arena_stats.c $(ARENA2_DIR)/arena_id.c $(ARENA2_DIR)/arena_redirect.c \
-	$(ARENA2_DIR)/arena_safepoint.c
-ARENA2_TEST_DIR := $(ARENA2_DIR)/tests
-ARENA2_BASIC_TEST_BIN := $(BIN_DIR)/test_arena2_basic$(EXE_EXT)
-ARENA2_GC_THREAD_TEST_BIN := $(BIN_DIR)/test_arena2_gc_thread$(EXE_EXT)
-ARENA2_REDIRECT_TEST_BIN := $(BIN_DIR)/test_arena2_redirect$(EXE_EXT)
-ARENA2_CASCADE_TEST_BIN := $(BIN_DIR)/test_arena2_gc_cascade$(EXE_EXT)
-ARENA2_CFLAGS := -Wall -Wextra -g -pthread -I. -Isrc
-
-# MinHook sources for Windows malloc redirect tests
-MINHOOK_DIR := src/runtime/hooks/minhook
-MINHOOK_SRCS := $(MINHOOK_DIR)/hook.c $(MINHOOK_DIR)/buffer.c $(MINHOOK_DIR)/trampoline.c \
-	$(MINHOOK_DIR)/hde/hde32.c $(MINHOOK_DIR)/hde/hde64.c
-MINHOOK_INCLUDES := -I$(MINHOOK_DIR) -I$(MINHOOK_DIR)/hde
-
-arena2:
-	@echo "Building Arena V2..."
-	@$(MKDIR) $(ARENA2_BUILD)
-	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
-		-c $(ARENA2_SRCS) -o $(ARENA2_BUILD)/arena_v2.o
-	@echo "Arena V2 built."
-
-#------------------------------------------------------------------------------
-# test-arena - Build and run Arena V2 tests (GC thread + redirect)
-#------------------------------------------------------------------------------
-test-arena:
-	@echo "Building and running Arena V2 tests..."
-	@$(MKDIR) $(ARENA2_BUILD)
-	@$(MKDIR) $(BIN_DIR)
-	@echo ""
-	@echo "=== Basic Tests ==="
-	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
-		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/malloc_hooks_stub.c $(ARENA2_TEST_DIR)/test_basic.c \
-		-o $(ARENA2_BASIC_TEST_BIN)
-	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_BASIC_TEST_BIN)
-	@echo ""
-	@echo "=== GC Cascade Tests ==="
-	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) $(ARENA_SANITIZE) \
-		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/malloc_hooks_stub.c $(ARENA2_TEST_DIR)/test_gc_cascade.c \
-		-o $(ARENA2_CASCADE_TEST_BIN)
-	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_CASCADE_TEST_BIN)
-	@echo ""
-	@echo "=== GC Thread Tests ==="
-	@echo "Skipped - GC thread functions not implemented yet"
-	@echo ""
-	@echo "=== Malloc Redirect Tests ==="
-ifeq ($(PLATFORM),windows)
-	$(CMAKE_C_COMPILER) $(ARENA2_CFLAGS) -Wno-unused-variable \
-		-Isrc/runtime/hooks $(MINHOOK_INCLUDES) \
-		-DTEST_RUNNER \
-		$(ARENA2_SRCS) $(ARENA2_TEST_DIR)/test_redirect.c \
-		src/runtime/malloc/runtime_malloc_hooks.c \
-		$(MINHOOK_SRCS) \
-		-o $(ARENA2_REDIRECT_TEST_BIN)
-	$(if $(TIMEOUT_CMD),$(TIMEOUT_CMD) 30) $(ARENA2_REDIRECT_TEST_BIN)
-else
-	@echo "Malloc redirect tests only available on Windows (MinHook required)"
-endif
-	@echo ""
-	@echo "Arena V2 tests complete."
 
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
@@ -373,11 +263,6 @@ setup:
 endif
 
 #------------------------------------------------------------------------------
-# libs - Alias for setup (backwards compatibility)
-#------------------------------------------------------------------------------
-libs: setup
-
-#------------------------------------------------------------------------------
 # help - Show available targets
 #------------------------------------------------------------------------------
 help:
@@ -398,12 +283,11 @@ help:
 	@echo "  make test                   Run all tests"
 	@echo "  make test-unit              Run unit tests only"
 	@echo "  make test-cgen              Run code generation tests (compare generated C)"
+	@echo "  make test-mgen              Run model generation tests (compare JSON model)"
 	@echo "  make test-integration       Run integration tests"
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
-	@echo "  make arena2                 Build Arena V2 library"
-	@echo "  make test-arena             Build and run arena tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"
@@ -411,7 +295,6 @@ help:
 	@echo ""
 	@echo "Setup:"
 	@echo "  make setup        Download pre-built dependencies"
-	@echo "  make libs         Alias for 'make setup'"
 	@echo ""
 	@echo "CMake Presets (Advanced):"
 	@echo "  cmake --preset linux-gcc-release    Linux with GCC"

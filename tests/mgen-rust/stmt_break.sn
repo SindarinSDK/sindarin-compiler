@@ -1,7 +1,0 @@
-fn main(): int =>
-    var x: int = 0
-    while true =>
-        x++
-        if x == 5 =>
-            break
-    return x

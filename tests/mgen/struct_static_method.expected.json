@@ -15,6 +15,7 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "source_file": "tests\/mgen\/struct_static_method.sn",
       "mem_mode": "val",
       "fields": [
         {
@@ -38,6 +39,7 @@
           "is_static": true,
           "is_native": false,
           "has_arena_param": false,
+          "has_c_alias": false,
           "params": [],
           "body": [
             {
@@ -68,6 +70,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/struct_static_method.sn",
       "params": [],
       "body": [
         {

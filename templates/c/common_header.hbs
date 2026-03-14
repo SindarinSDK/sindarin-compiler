@@ -1,0 +1,71 @@
+#ifndef SN_TYPES_H
+#define SN_TYPES_H
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <limits.h>
+#include "sn_minimal.h"
+{{#each pragmas}}{{#if (eq pragma_type "include")}}
+#include {{{value}}}
+{{/if}}{{/each}}
+{{#each structs}}
+{{> struct_typedef this}}
+{{/each}}
+{{#each globals}}
+extern {{#if is_static}}/* static */ {{/if}}{{c_type type}} __sn__{{name}};
+{{#if (eq sync_mod "atomic")}}extern pthread_mutex_t __sn__{{name}}_mutex;
+{{/if}}{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{> forward_decl this}}
+{{/if}}{{/each}}
+{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
+{{/each}}{{/each}}
+{{#each threads}}
+typedef struct {
+{{#each args}}
+    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+{{/each}}
+    int _padding;
+} __ThreadArgs_{{thread_id}}__;
+void *__thread_wrapper_{{thread_id}}__(void *arg);
+{{/each}}
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
+{{#each lambdas}}
+{{#if has_captures}}
+typedef struct __closure_{{lambda_id}}__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+{{#each captures}}
+    {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
+{{/each}}
+} __closure_{{lambda_id}}__;
+{{#if has_ref_captures}}
+static void __closure_{{lambda_id}}_free__(void *p) {
+    __closure_{{lambda_id}}__ *cl = (__closure_{{lambda_id}}__ *)p;
+{{#each captures}}{{#if is_ref}}    free(cl->{{name}});
+{{/if}}{{/each}}    free(cl);
+}
+static void __closure_{{lambda_id}}_cleanup__(void **p) {
+    if (*p) {
+        free(*p);
+    }
+    *p = NULL;
+}
+#define sn_auto_closure_{{lambda_id}} __attribute__((cleanup(__closure_{{lambda_id}}_cleanup__)))
+{{/if}}
+{{/if}}
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}});
+{{/each}}
+{{#each fn_wrappers}}
+{{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}} __p{{@index}}__{{/each}});
+{{/each}}
+
+#endif

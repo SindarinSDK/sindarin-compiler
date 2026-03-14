@@ -7,7 +7,7 @@
 #include <assert.h>
 #include "../test_harness.h"
 #include "../gcc_backend.h"
-#include "../code_gen.h"
+#include "../compiler.h"
 #include "../debug.h"
 
 /* ============================================================================
@@ -235,21 +235,6 @@ static void test_compiler_dir_handles_basename(void)
  * Pragma Source Validation Tests
  * ============================================================================ */
 
-static void test_validate_null_sources(void)
-{
-    /* NULL sources should return true (nothing to validate) */
-    bool result = gcc_validate_pragma_sources(NULL, 0, false);
-    assert(result == true);
-}
-
-static void test_validate_empty_sources(void)
-{
-    /* Empty count should return true */
-    PragmaSourceInfo sources[1];
-    bool result = gcc_validate_pragma_sources(sources, 0, false);
-    assert(result == true);
-}
-
 /* ============================================================================
  * Config Load Tests
  * ============================================================================ */
@@ -434,20 +419,6 @@ static void test_sdk_resolve_after_reset(void)
  * Validate Sources Edge Cases
  * ============================================================================ */
 
-static void test_validate_zero_count(void)
-{
-    PragmaSourceInfo info[1] = {{0}};
-    bool result = gcc_validate_pragma_sources(info, 0, false);
-    assert(result == true);
-}
-
-static void test_validate_verbose_mode(void)
-{
-    /* Verbose mode should not crash with NULL sources */
-    bool result = gcc_validate_pragma_sources(NULL, 0, true);
-    assert(result == true);
-}
-
 /* ============================================================================
  * Config Isolation Tests
  * ============================================================================ */
@@ -581,10 +552,6 @@ void test_gcc_backend_main(void)
     TEST_RUN("compiler_dir_special_chars", test_compiler_dir_special_chars);
 
     TEST_SECTION("GCC Backend - Pragma Validation");
-    TEST_RUN("validate_null_sources", test_validate_null_sources);
-    TEST_RUN("validate_empty_sources", test_validate_empty_sources);
-    TEST_RUN("validate_zero_count", test_validate_zero_count);
-    TEST_RUN("validate_verbose_mode", test_validate_verbose_mode);
 
     TEST_SECTION("GCC Backend - Config Load");
     TEST_RUN("load_config_no_crash", test_load_config_no_crash);

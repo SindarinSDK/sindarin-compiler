@@ -1,6 +1,0 @@
-fn main(): int =>
-    var x: int = 10
-    var y: int = -x
-    var b: bool = true
-    var c: bool = !b
-    return 0

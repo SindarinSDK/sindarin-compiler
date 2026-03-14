@@ -7,11 +7,27 @@
 bool package_sync(void)
 {
     if (!package_yaml_exists()) {
-        /* No sn.yaml - remove .sn directory if it exists */
+        /* No sn.yaml - remove package directories from .sn/ (preserve build cache) */
         if (dir_exists(PKG_DEPS_DIR)) {
-            printf("Removing orphaned %s directory (no sn.yaml found)...\n", PKG_DEPS_DIR);
-            if (!remove_directory_recursive(PKG_DEPS_DIR)) {
-                pkg_warning("failed to remove %s directory", PKG_DEPS_DIR);
+            DIR *cleanup_dir = opendir(PKG_DEPS_DIR);
+            if (cleanup_dir) {
+                struct dirent *entry;
+                bool any_removed = false;
+                while ((entry = readdir(cleanup_dir)) != NULL) {
+                    if (entry->d_name[0] == '.') continue;
+                    if (strcmp(entry->d_name, "build") == 0) continue;
+                    char pkg_path[PKG_MAX_PATH_LEN];
+                    snprintf(pkg_path, sizeof(pkg_path), "%s%c%s",
+                             PKG_DEPS_DIR, PATH_SEP, entry->d_name);
+                    if (dir_exists(pkg_path)) {
+                        if (!any_removed) {
+                            printf("Removing orphaned packages (no sn.yaml found)...\n");
+                            any_removed = true;
+                        }
+                        remove_directory_recursive(pkg_path);
+                    }
+                }
+                closedir(cleanup_dir);
             }
         }
         return true;
@@ -49,6 +65,11 @@ bool package_sync(void)
         while ((entry = readdir(dir)) != NULL) {
             /* Skip . and .. and hidden files */
             if (entry->d_name[0] == '.') {
+                continue;
+            }
+
+            /* Skip build cache directory */
+            if (strcmp(entry->d_name, "build") == 0) {
                 continue;
             }
 

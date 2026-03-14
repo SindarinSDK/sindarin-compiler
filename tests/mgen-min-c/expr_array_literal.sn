@@ -1,3 +1,0 @@
-fn main(): int =>
-    var arr: int[] = {10, 20, 30}
-    return 0

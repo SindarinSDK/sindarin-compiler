@@ -1,7 +1,0 @@
-fn greet(name: str): str =>
-    var msg: str = $"Hello {name}"
-    return msg
-
-fn main(): int =>
-    var g: str = greet("world")
-    return 0

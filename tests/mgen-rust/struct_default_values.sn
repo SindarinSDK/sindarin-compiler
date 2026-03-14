@@ -1,8 +1,0 @@
-struct Config =>
-    width: int = 800
-    height: int = 600
-    scale: double = 1.0
-
-fn main(): int =>
-    var c: Config = Config {}
-    return c.width

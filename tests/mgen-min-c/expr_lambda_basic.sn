@@ -1,3 +1,0 @@
-fn main(): void =>
-    var add: fn(int, int): int = fn(a: int, b: int): int => a + b
-    assert(add(1, 2) == 3, "expected 1 + 2 to be 3")

@@ -173,86 +173,18 @@ set(SN_OPTIMIZER_SOURCES
     src/optimizer/optimizer_string.c
 )
 
-set(SN_CODEGEN_SOURCES
-    src/code_gen.c
-    # boundary/ - arena boundary protocol (ownership transfer at arena boundaries)
-    src/code_gen/boundary/code_gen_boundary.c
-    # emit/
-    src/code_gen/emit/code_gen_pragma.c
-    src/code_gen/emit/code_gen_struct_emit.c
-    src/code_gen/emit/code_gen_native_extern.c
-    src/code_gen/emit/code_gen_method_emit.c
-    # util/
-    src/code_gen/util/code_gen_util_string.c
-    src/code_gen/util/code_gen_util_type.c
-    src/code_gen/util/code_gen_util_tostring.c
-    src/code_gen/util/code_gen_util_fold.c
-    src/code_gen/util/code_gen_util_native.c
-    src/code_gen/util/code_gen_util_arena.c
-    src/code_gen/util/code_gen_util_tailcall.c
-    src/code_gen/util/code_gen_util_callbacks.c
-    src/code_gen/util/code_gen_util_temps.c
-    # expr/
-    src/code_gen/expr/code_gen_expr.c
-    src/code_gen/expr/code_gen_expr_core.c
-    src/code_gen/expr/code_gen_expr_binary.c
-    src/code_gen/expr/code_gen_expr_array.c
-    src/code_gen/expr/code_gen_expr_static.c
-    src/code_gen/expr/code_gen_expr_string.c
-    src/code_gen/expr/code_gen_expr_incr.c
-    src/code_gen/expr/code_gen_expr_member.c
-    src/code_gen/expr/code_gen_expr_misc.c
-    src/code_gen/expr/code_gen_expr_struct.c
-    src/code_gen/expr/code_gen_expr_access.c
-    src/code_gen/expr/code_gen_expr_match.c
-    # expr/call/
-    src/code_gen/expr/call/code_gen_expr_call.c
-    src/code_gen/expr/call/code_gen_expr_call_namespace.c
-    src/code_gen/expr/call/code_gen_expr_call_struct.c
-    src/code_gen/expr/call/code_gen_expr_call_closure.c
-    src/code_gen/expr/call/code_gen_expr_call_builtin.c
-    src/code_gen/expr/call/code_gen_expr_call_array.c
-    # Note: code_gen_expr_call_array_{byte,mutate,push,query}.c are #included by code_gen_expr_call_array.c
-    src/code_gen/expr/call/code_gen_expr_call_string.c
-    src/code_gen/expr/call/code_gen_expr_call_char.c
-    src/code_gen/expr/call/code_gen_expr_call_int.c
-    src/code_gen/expr/call/code_gen_expr_call_long.c
-    src/code_gen/expr/call/code_gen_expr_call_double.c
-    src/code_gen/expr/call/code_gen_expr_call_uint.c
-    src/code_gen/expr/call/code_gen_expr_call_byte.c
-    src/code_gen/expr/call/code_gen_expr_call_bool.c
-    # expr/lambda/
-    src/code_gen/expr/lambda/code_gen_expr_lambda.c
-    # Note: code_gen_expr_lambda_{capture,local,native}.c are #included by code_gen_expr_lambda.c
-    # expr/thread/
-    src/code_gen/expr/thread/code_gen_expr_thread.c
-    src/code_gen/expr/thread/code_gen_expr_thread_util.c
-    src/code_gen/expr/thread/code_gen_expr_thread_sync.c
-    # stmt/
-    src/code_gen/stmt/code_gen_stmt_core.c
-    src/code_gen/stmt/code_gen_stmt_loop.c
-    src/code_gen/stmt/code_gen_stmt_capture.c
-    src/code_gen/stmt/code_gen_stmt_import.c
-    src/code_gen/stmt/code_gen_stmt_thread.c
-    src/code_gen/stmt/code_gen_stmt_struct.c
-    src/code_gen/stmt/code_gen_stmt_var_init.c
-    src/code_gen/stmt/code_gen_stmt_var.c
-    src/code_gen/stmt/code_gen_stmt_func.c
-    src/code_gen/stmt/code_gen_stmt_return.c
-)
-
-set(SN_GENMODEL_SOURCES
-    src/gen_model/gen_model.c
-    src/gen_model/gen_model_type.c
-    src/gen_model/gen_model_stmt.c
-    src/gen_model/gen_model_expr.c
-    src/gen_model/gen_model_chain_flatten.c
-    src/gen_model/gen_model_func.c
-    src/gen_model/gen_model_struct.c
-    src/gen_model/gen_model_render_common.c
-    src/gen_model/c/gen_model_render_c.c
-    src/gen_model/c_min/gen_model_render_min_c.c
-    src/gen_model/rust/gen_model_render_rust.c
+set(SN_CGEN_SOURCES
+    src/cgen/gen_model.c
+    src/cgen/gen_model_type.c
+    src/cgen/gen_model_stmt.c
+    src/cgen/gen_model_expr.c
+    src/cgen/gen_model_chain_flatten.c
+    src/cgen/gen_model_func.c
+    src/cgen/gen_model_struct.c
+    src/cgen/gen_model_render_common.c
+    src/cgen/gen_model_split.c
+    src/cgen/gen_model_render_modular.c
+    src/cgen/c/gen_model_render_min_c.c
 )
 
 set(SN_BACKEND_SOURCES
@@ -269,48 +201,10 @@ set(SN_PACKAGE_SOURCES
 )
 
 set(SN_RUNTIME_SOURCES
-    src/runtime.c
-    # arena/
-    src/runtime/arena/arena_v2.c
-    src/runtime/arena/arena_id.c
-    src/runtime/arena/arena_stats.c
-    src/runtime/arena/arena_gc.c
-    src/runtime/arena/arena_handle.c
-    src/runtime/arena/arena_redirect.c
-    src/runtime/arena/arena_safepoint.c
-    # string/
-    src/runtime/string/runtime_string.c
-    src/runtime/string/runtime_string_v2.c
-    # array/
-    src/runtime/array/runtime_array_v2_core.c
-    src/runtime/array/runtime_array_v2_string.c
-    src/runtime/array/runtime_array_v2_alloc.c
-    src/runtime/array/runtime_array_v2_join.c
-    src/runtime/array/runtime_array_v2_tostring.c
-    src/runtime/array/runtime_array_v2_print.c
-    # thread/
-    src/runtime/thread/runtime_thread_v3.c
-    # core
-    src/runtime/runtime_io.c
-    src/runtime/runtime_byte.c
-    # malloc/ (needed by arena_redirect.c)
-    src/runtime/malloc/runtime_malloc_hooks.c
+    src/runtime/sn_array.c
+    src/runtime/sn_string.c
+    src/runtime/sn_byte.c
 )
-
-# Platform-specific hooking libraries for SN_RUNTIME_SOURCES
-if(APPLE)
-    list(APPEND SN_RUNTIME_SOURCES src/runtime/hooks/fishhook.c)
-elseif(WIN32)
-    list(APPEND SN_RUNTIME_SOURCES
-        src/runtime/hooks/minhook/hook.c
-        src/runtime/hooks/minhook/buffer.c
-        src/runtime/hooks/minhook/trampoline.c
-        src/runtime/hooks/minhook/hde/hde32.c
-        src/runtime/hooks/minhook/hde/hde64.c
-    )
-else()
-    list(APPEND SN_RUNTIME_SOURCES src/runtime/hooks/plthook_elf.c)
-endif()
 
 # All compiler sources (excluding main.c)
 set(SN_COMPILER_SOURCES
@@ -321,8 +215,7 @@ set(SN_COMPILER_SOURCES
     ${SN_SYMBOL_TABLE_SOURCES}
     ${SN_TYPE_CHECKER_SOURCES}
     ${SN_OPTIMIZER_SOURCES}
-    ${SN_CODEGEN_SOURCES}
-    ${SN_GENMODEL_SOURCES}
+    ${SN_CGEN_SOURCES}
     ${SN_BACKEND_SOURCES}
     ${SN_RUNTIME_SOURCES}
     ${SN_PACKAGE_SOURCES}
@@ -413,106 +306,16 @@ if(NOT MSVC)
 
     file(MAKE_DIRECTORY ${SN_RUNTIME_LIB_DIR})
 
-    # Runtime source files
+    # Runtime library (minimal runtime)
     set(SN_RUNTIME_LIB_SOURCES
-        ${CMAKE_SOURCE_DIR}/src/arena.c
-        ${CMAKE_SOURCE_DIR}/src/debug.c
-        ${CMAKE_SOURCE_DIR}/src/runtime.c
-        # arena/
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_v2.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_id.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_stats.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_gc.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_handle.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_redirect.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/arena/arena_safepoint.c
-        # string/
-        ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/string/runtime_string_v2.c
-        # array/
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_core.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_string.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_alloc.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_join.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_tostring.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/array/runtime_array_v2_print.c
-        # thread/
-        ${CMAKE_SOURCE_DIR}/src/runtime/thread/runtime_thread_v3.c
-        # core
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_io.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/runtime_byte.c
-        # malloc/
-        ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_hooks.c
-        ${CMAKE_SOURCE_DIR}/src/runtime/malloc/runtime_malloc_redirect.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/sn_array.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/sn_string.c
+        ${CMAKE_SOURCE_DIR}/src/runtime/sn_byte.c
     )
 
-    # Platform-specific hooking libraries for malloc interception
-    if(APPLE)
-        # macOS: fishhook for runtime symbol rebinding
-        list(APPEND SN_RUNTIME_LIB_SOURCES
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/fishhook.c
-        )
-    elseif(WIN32)
-        # Windows: MinHook for inline function hooking
-        list(APPEND SN_RUNTIME_LIB_SOURCES
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hook.c
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/buffer.c
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/trampoline.c
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde/hde32.c
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde/hde64.c
-        )
-    else()
-        # Linux: plthook for PLT/GOT modification
-        list(APPEND SN_RUNTIME_LIB_SOURCES
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/plthook_elf.c
-        )
-    endif()
-
-    # Create static library for runtime
-    add_library(sn_runtime STATIC ${SN_RUNTIME_LIB_SOURCES})
-
-    target_include_directories(sn_runtime PRIVATE
-        ${CMAKE_SOURCE_DIR}/src
-        ${CMAKE_SOURCE_DIR}/src/runtime
-        ${CMAKE_SOURCE_DIR}/src/runtime/hooks
-        ${CMAKE_SOURCE_DIR}/src/platform
-    )
-
-    # Windows: Add MinHook include paths
-    if(WIN32)
-        target_include_directories(sn_runtime PRIVATE
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook
-            ${CMAKE_SOURCE_DIR}/src/runtime/hooks/minhook/hde
-        )
-    endif()
-
-    # Platform-specific compile definitions
-    if(NOT WIN32)
-        target_compile_definitions(sn_runtime PRIVATE _GNU_SOURCE)
-    else()
-        # Force Windows API threading instead of pthreads for packaged builds
-        target_compile_definitions(sn_runtime PRIVATE SN_USE_WIN32_THREADS)
-    endif()
-
-
-    # Optimization flags — use -fno-lto so runtime works with both -flto and non-flto user builds
-    target_compile_options(sn_runtime PRIVATE -O2 -fno-lto)
-
-    # Output to lib directory with correct name (libsn_runtime.a on Unix, sn_runtime.lib on Windows)
-    set_target_properties(sn_runtime PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ${SN_RUNTIME_LIB_DIR}
-        OUTPUT_NAME sn_runtime
-    )
-endif()
-
-# Build minimal runtime library (for --codegen 3)
-set(SN_RUNTIME_MIN_SOURCES
-    src/runtime/minimal/sn_minimal.c
-)
-if(EXISTS "${CMAKE_SOURCE_DIR}/src/runtime/minimal/sn_minimal.c")
-    add_library(sn_runtime_min STATIC ${SN_RUNTIME_MIN_SOURCES})
+    add_library(sn_runtime_min STATIC ${SN_RUNTIME_LIB_SOURCES})
     target_include_directories(sn_runtime_min PRIVATE
-        ${CMAKE_SOURCE_DIR}/src/runtime/minimal
+        ${CMAKE_SOURCE_DIR}/src/runtime
     )
     if(NOT WIN32)
         target_compile_definitions(sn_runtime_min PRIVATE _GNU_SOURCE)
@@ -545,64 +348,30 @@ if(EXISTS ${SN_CONFIG_FILE})
     endif()
 endif()
 
-# Copy runtime headers
+# Copy runtime headers (legacy runtime.h if present)
 if(EXISTS "${CMAKE_SOURCE_DIR}/src/runtime.h")
     file(INSTALL "${CMAKE_SOURCE_DIR}/src/runtime.h" DESTINATION "${INCLUDE_DIR}")
+endif()
+
+# Copy all runtime headers to include/runtime/ and include/minimal/
+# (gcc_backend uses -I include/minimal for generated code compilation)
+# Clean destinations first to remove stale headers from renames/deletions
+file(GLOB OLD_RUNTIME_HEADERS "${RUNTIME_INCLUDE_DIR}/*.h")
+if(OLD_RUNTIME_HEADERS)
+    file(REMOVE ${OLD_RUNTIME_HEADERS})
+endif()
+
+set(MINIMAL_INCLUDE_DIR ${INCLUDE_DIR}/minimal)
+file(MAKE_DIRECTORY ${MINIMAL_INCLUDE_DIR})
+file(GLOB OLD_MINIMAL_HEADERS "${MINIMAL_INCLUDE_DIR}/*.h")
+if(OLD_MINIMAL_HEADERS)
+    file(REMOVE ${OLD_MINIMAL_HEADERS})
 endif()
 
 file(GLOB RUNTIME_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/*.h")
 if(RUNTIME_HEADERS)
     file(INSTALL ${RUNTIME_HEADERS} DESTINATION "${RUNTIME_INCLUDE_DIR}")
-endif()
-
-# Copy arena headers (managed arena)
-set(ARENA_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/arena)
-file(MAKE_DIRECTORY ${ARENA_INCLUDE_DIR})
-file(GLOB ARENA_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/arena/*.h")
-if(ARENA_HEADERS)
-    file(INSTALL ${ARENA_HEADERS} DESTINATION "${ARENA_INCLUDE_DIR}")
-endif()
-
-# Copy string headers
-set(STRING_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/string)
-file(MAKE_DIRECTORY ${STRING_INCLUDE_DIR})
-file(GLOB STRING_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/string/*.h")
-if(STRING_HEADERS)
-    file(INSTALL ${STRING_HEADERS} DESTINATION "${STRING_INCLUDE_DIR}")
-endif()
-
-# Copy array headers
-set(ARRAY_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/array)
-file(MAKE_DIRECTORY ${ARRAY_INCLUDE_DIR})
-file(GLOB ARRAY_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/array/*.h")
-if(ARRAY_HEADERS)
-    file(INSTALL ${ARRAY_HEADERS} DESTINATION "${ARRAY_INCLUDE_DIR}")
-endif()
-
-# Copy thread headers
-set(THREAD_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/thread)
-file(MAKE_DIRECTORY ${THREAD_INCLUDE_DIR})
-file(GLOB THREAD_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/thread/*.h")
-if(THREAD_HEADERS)
-    file(INSTALL ${THREAD_HEADERS} DESTINATION "${THREAD_INCLUDE_DIR}")
-endif()
-
-# Copy malloc headers
-set(MALLOC_INCLUDE_DIR ${RUNTIME_INCLUDE_DIR}/malloc)
-file(MAKE_DIRECTORY ${MALLOC_INCLUDE_DIR})
-file(GLOB MALLOC_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/malloc/*.h")
-if(MALLOC_HEADERS)
-    file(INSTALL ${MALLOC_HEADERS} DESTINATION "${MALLOC_INCLUDE_DIR}")
-endif()
-
-# Arena V2 headers are now in src/runtime/arena/ and copied above
-
-# Copy minimal runtime headers
-set(MINIMAL_INCLUDE_DIR ${INCLUDE_DIR}/minimal)
-file(MAKE_DIRECTORY ${MINIMAL_INCLUDE_DIR})
-file(GLOB MINIMAL_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/minimal/*.h")
-if(MINIMAL_HEADERS)
-    file(INSTALL ${MINIMAL_HEADERS} DESTINATION "${MINIMAL_INCLUDE_DIR}")
+    file(INSTALL ${RUNTIME_HEADERS} DESTINATION "${MINIMAL_INCLUDE_DIR}")
 endif()
 
 # Copy platform headers
@@ -626,7 +395,7 @@ add_custom_target(run-unit-tests
 add_custom_target(run-tests
     COMMAND ${CMAKE_COMMAND} -E env PYTHONUNBUFFERED=1
         python3 ${CMAKE_SOURCE_DIR}/scripts/run_tests.py all
-    DEPENDS sn tests sn_runtime
+    DEPENDS sn tests sn_runtime_min
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running all tests"
 )
@@ -635,7 +404,7 @@ add_custom_target(run-tests
 add_custom_target(run-integration-tests
     COMMAND ${CMAKE_COMMAND} -E env PYTHONUNBUFFERED=1
         python3 ${CMAKE_SOURCE_DIR}/scripts/run_tests.py integration
-    DEPENDS sn sn_runtime
+    DEPENDS sn sn_runtime_min
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     COMMENT "Running integration tests"
 )
@@ -863,9 +632,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
 
     # Copy templates to bin/ for runtime access (re-copies when any .hbs file changes)
     file(GLOB_RECURSE C_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c/*.hbs")
-    file(GLOB_RECURSE C_MIN_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c-min/*.hbs")
-    file(GLOB_RECURSE RUST_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/rust/*.hbs")
-    set(ALL_TEMPLATES ${C_TEMPLATES} ${C_MIN_TEMPLATES} ${RUST_TEMPLATES})
+    set(ALL_TEMPLATES ${C_TEMPLATES})
     if(ALL_TEMPLATES)
         add_custom_command(
             OUTPUT "${CMAKE_SOURCE_DIR}/bin/templates/.stamp"
@@ -873,12 +640,6 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${CMAKE_SOURCE_DIR}/templates/c"
                 "${CMAKE_SOURCE_DIR}/bin/templates/c"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${CMAKE_SOURCE_DIR}/templates/c-min"
-                "${CMAKE_SOURCE_DIR}/bin/templates/c-min"
-            COMMAND ${CMAKE_COMMAND} -E copy_directory
-                "${CMAKE_SOURCE_DIR}/templates/rust"
-                "${CMAKE_SOURCE_DIR}/bin/templates/rust"
             COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/bin/templates/.stamp"
             COMMENT "Copying templates to bin/templates"
         )

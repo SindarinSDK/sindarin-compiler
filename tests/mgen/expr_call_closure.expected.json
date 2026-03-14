@@ -22,6 +22,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/expr_call_closure.sn",
       "params": [
         {
           "name": "f",
@@ -103,6 +104,7 @@
       "has_body": true,
       "is_variadic": false,
       "has_arena_param": false,
+      "source_file": "tests\/mgen\/expr_call_closure.sn",
       "params": [],
       "body": [
         {

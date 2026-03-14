@@ -1,6 +1,0 @@
-fn main(): int =>
-    var x: int = 99
-    var result: int = match x =>
-        1 => 10
-        else => 0
-    return result

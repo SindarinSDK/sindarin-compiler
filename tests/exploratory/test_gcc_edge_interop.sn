@@ -78,16 +78,13 @@ fn test_duplicate_includes(): void =>
     // Just verify compilation works with duplicate includes
     print("Duplicate includes test: PASS\n")
 
-// --- Native function with string parameter ---
-native fn atoi(s: str): int
-native fn atof(s: str): double
-
+// --- String-to-number conversion using built-in methods ---
 fn test_string_native(): void =>
-    var i: int = atoi("12345")
-    var d: double = atof("3.14159")
+    var i: int = "12345".toInt()
+    var d: double = "3.14159".toDouble()
 
-    print($"atoi('12345') = {i}\n")
-    print($"atof('3.14159') = {d}\n")
+    print($"toInt('12345') = {i}\n")
+    print($"toDouble('3.14159') = {d}\n")
 
 // --- Native struct with native function ---
 native struct MathResult =>

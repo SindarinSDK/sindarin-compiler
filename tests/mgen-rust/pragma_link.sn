@@ -1,4 +1,0 @@
-@link "m"
-
-fn main(): int =>
-    return 0
