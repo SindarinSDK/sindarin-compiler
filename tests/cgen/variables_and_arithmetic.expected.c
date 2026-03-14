@@ -22,5 +22,6 @@ int main() {
     long long __sn__x = 42LL;
     long long __sn__y = __sn__add(__sn__x, 10LL);
     sn_assert((__sn__y == 52LL), "expected add(42, 10) to be 52");
+    fflush(stdout);
     return 0;
 }

@@ -70,4 +70,5 @@ typedef struct __Closure__ {
 
 
 int main() {
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

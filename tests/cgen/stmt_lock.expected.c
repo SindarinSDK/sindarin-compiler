@@ -26,5 +26,6 @@ int main() {
     }
     pthread_mutex_unlock(&__sn__x_mutex);
     sn_assert((__sn__y == 1LL), "expected y to be 1 after lock increment");
+    fflush(stdout);
     return 0;
 }

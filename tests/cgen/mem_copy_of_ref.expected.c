@@ -72,5 +72,6 @@ int main() {
     (__sn__b->__sn__value = 20LL);
     sn_assert((__sn__a->__sn__value == 10LL), "original should be unchanged");
     sn_assert((__sn__b->__sn__value == 20LL), "copy should be 20");
+    fflush(stdout);
     return 0;
 }

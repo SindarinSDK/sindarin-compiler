@@ -14,4 +14,5 @@ typedef struct __Closure__ {
 
 int main() {
     char __sn__c = (char)65;
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

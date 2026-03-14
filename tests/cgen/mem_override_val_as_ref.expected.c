@@ -78,5 +78,6 @@ int main() {
     __sn__Point __sn__p = (__sn__Point){ .__sn__x = 1LL, .__sn__y = 2LL };
     __sn__mutate(&__sn__p);
     sn_assert((__sn__p.__sn__x == 99LL), "should be mutated via ref");
+    fflush(stdout);
     return 0;
 }

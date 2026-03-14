@@ -18,4 +18,5 @@ long long test_val(long long * __sn__p) {
     return (*(__sn__p));}
 
 int main() {
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

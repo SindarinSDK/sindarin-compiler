@@ -133,5 +133,6 @@ int main() {
         __tmp__;
     });
     sn_assert((sn_str_length(__sn__p->__sn__name) == 5LL), "name should be Alice");
+    fflush(stdout);
     return 0;
 }

@@ -26,4 +26,5 @@ char * __sn__make_str() {
 
 int main() {
     sn_auto_str char * __sn__result = __sn__make_str();
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

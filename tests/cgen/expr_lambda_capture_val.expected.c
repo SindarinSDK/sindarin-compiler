@@ -31,6 +31,7 @@ int main() {
         __cl__;
     });
     sn_assert((((long long (*)(void *, long long))((__Closure__ *)__sn__addX)->fn)(__sn__addX, 5LL) == 15LL), "expected addX(5) to be 15");
+    fflush(stdout);
     return 0;
 }
 

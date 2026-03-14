@@ -81,5 +81,6 @@ int main() {
         __sn__Resource_dispose(&__sn__r);
     }
     sn_assert(__sn__disposed, "expected dispose to be called after using block");
+    fflush(stdout);
     return 0;
 }

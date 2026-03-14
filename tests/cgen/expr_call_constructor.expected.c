@@ -69,4 +69,5 @@ typedef struct __Closure__ {
 
 int main() {
     __sn__Point __sn__p = (__sn__Point){ .__sn__x = 1.0, .__sn__y = 2.0 };
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

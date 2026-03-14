@@ -25,5 +25,6 @@ int main() {
         }
     }
     sn_assert((__sn__sum == 55LL), "expected sum of 1..10 to be 55");
+    fflush(stdout);
     return 0;
 }

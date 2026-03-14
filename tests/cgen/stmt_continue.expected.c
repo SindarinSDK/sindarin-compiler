@@ -23,5 +23,6 @@ int main() {
         }
     }
     sn_assert((__sn__sum == 40LL), "expected sum to be 40 (skipping 5)");
+    fflush(stdout);
     return 0;
 }

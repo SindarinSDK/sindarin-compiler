@@ -22,4 +22,5 @@ int main() {
             }
             __sa__;
         });
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

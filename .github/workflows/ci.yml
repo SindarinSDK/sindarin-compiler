@@ -39,6 +39,7 @@ jobs:
             runtime_dir: clang
             sn_cc: clang
             sn_cflags: '--target=x86_64-w64-mingw32 -fuse-ld=lld -rtlib=compiler-rt -unwindlib=none'
+            sn_release_cflags: '-O3'
             sn_exclude_tests: ''
 
           - os: macos-latest
@@ -142,6 +143,31 @@ jobs:
           echo "Build outputs verified successfully!"
 
       #------------------------------------------------------------------------
+      # Diagnostics (Windows only) - test that generated executables produce output
+      #------------------------------------------------------------------------
+      - name: Windows hello world diagnostic
+        if: runner.os == 'Windows'
+        shell: bash
+        env:
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+          SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
+        run: |
+          echo "=== Compiling hello world ==="
+          bin/sn.exe tests/integration/test_hello_world.sn -o /tmp/hello_test.exe -v --keep-c 2>&1 || true
+          echo "=== Generated main.c ==="
+          cat .sn/build/*/main.c 2>/dev/null || echo "No main.c found"
+          echo "=== Generated sn_types.h (first 20 lines) ==="
+          head -20 .sn/build/*/sn_types.h 2>/dev/null || echo "No sn_types.h found"
+          echo "=== Running hello world ==="
+          /tmp/hello_test.exe 2>&1 || echo "Exit code: $?"
+          echo "=== Direct C test ==="
+          echo '#include <stdio.h>' > /tmp/test_direct.c
+          echo 'int main() { printf("DIRECT OUTPUT WORKS\n"); return 0; }' >> /tmp/test_direct.c
+          $SN_CC $SN_CFLAGS /tmp/test_direct.c -o /tmp/test_direct.exe 2>&1 || echo "Direct compile failed"
+          /tmp/test_direct.exe 2>&1 || echo "Direct run failed: $?"
+
+      #------------------------------------------------------------------------
       # Run Tests
       #------------------------------------------------------------------------
       - name: Run all tests
@@ -149,6 +175,7 @@ jobs:
         env:
           SN_CC: ${{ matrix.sn_cc }}
           SN_CFLAGS: ${{ matrix.sn_cflags }}
+          SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
           SN_EXCLUDE_TESTS: ${{ matrix.sn_exclude_tests }}
         run: make test ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
 

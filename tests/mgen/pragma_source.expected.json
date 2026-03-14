@@ -11,7 +11,7 @@
       "kind": "pragma",
       "pragma_type": "source",
       "source_dir": "tests\/mgen",
-      "value": "\"tests\/mgen\/helper.c\""
+      "value": "\"helper.c\""
     }
   ],
   "imports": [],

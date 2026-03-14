@@ -72,5 +72,6 @@ typedef struct __Closure__ {
 int main() {
     sn_auto_Person __sn__Person __sn__p = (__sn__Person){ .__sn__name = strdup("Alice"), .__sn__age = 30LL };
     sn_assert((__sn__p.__sn__age == 30LL), "age should be 30");
+    fflush(stdout);
     return 0;
 }

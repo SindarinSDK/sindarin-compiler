@@ -44,6 +44,7 @@ int main() {
     });
     ((void (*)(void *))((__Closure__ *)__sn__inc)->fn)(__sn__inc);
     sn_assert(((*__sn__x) == 11LL), "expected x to be 11 after inc()");
+    fflush(stdout);
     return 0;
 }
 

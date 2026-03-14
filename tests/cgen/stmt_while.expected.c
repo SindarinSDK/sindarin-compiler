@@ -18,5 +18,6 @@ int main() {
         __sn__x++;
     }
     sn_assert((__sn__x == 10LL), "expected x to be 10 after while loop");
+    fflush(stdout);
     return 0;
 }

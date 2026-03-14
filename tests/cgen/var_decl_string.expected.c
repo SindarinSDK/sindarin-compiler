@@ -15,4 +15,5 @@ typedef struct __Closure__ {
 int main() {
     sn_auto_str char * __sn__s = strdup("hello");
     sn_auto_str char * __sn__t = strdup("world");
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

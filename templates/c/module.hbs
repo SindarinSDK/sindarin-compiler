@@ -119,7 +119,8 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{else}}{{#if (eq cleanup_kind "release")}}    __sn__{{type.name}}_release(&__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "val_cleanup")}}    __sn__{{type.name}}_cleanup(&__sn__{{name}});
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}{{#if has_main_args}}    sn_cleanup_array(&__sn__args);
-{{/if}}{{#unless main_returns}}    return 0;
+{{/if}}    fflush(stdout);
+{{#unless main_returns}}    return 0;
 {{/unless}}
 }{{/if}}{{/with}}
 {{#if lambdas}}

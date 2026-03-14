@@ -81,5 +81,6 @@ int main() {
     (__sn__a.__sn__age = 99LL);
     sn_assert((__sn__b.__sn__age == 25LL), "original b should be unchanged");
     sn_assert((__sn__a.__sn__age == 99LL), "a should have new age");
+    fflush(stdout);
     return 0;
 }

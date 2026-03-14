@@ -448,7 +448,7 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     /* Source file tracking for modular compilation */
     if (func->name.filename)
-        json_object_object_add(obj, "source_file", json_object_new_string(func->name.filename));
+        gen_model_add_source_file(obj, func->name.filename);
 
     if (func->c_alias)
     {
