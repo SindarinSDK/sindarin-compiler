@@ -8,8 +8,8 @@
 
 /* Struct: Vec2 (native) */
 typedef struct {
-    double __sn__x;
-    double __sn__y;
+    double x;
+    double y;
 } __sn__Vec2;
 
 static inline __sn__Vec2 *__sn__Vec2_alloc(void) {
@@ -17,7 +17,9 @@ static inline __sn__Vec2 *__sn__Vec2_alloc(void) {
 }
 
 static inline void __sn__Vec2_release(__sn__Vec2 **p) {
-    if (*p) { free(*p); }
+    if (*p) {
+        free(*p);
+    }
     *p = NULL;
 }
 

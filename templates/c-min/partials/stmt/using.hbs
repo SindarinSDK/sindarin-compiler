@@ -1,5 +1,5 @@
 {
     sn_auto_{{type.name}} {{c_type type}} __sn__{{name}} = {{> expr initializer}};
 {{> stmt body}}
-    __sn__{{type.name}}_dispose(&__sn__{{name}});
+    __sn__{{type.name}}_dispose({{#if type.pass_self_by_ref}}__sn__{{name}}{{else}}&__sn__{{name}}{{/if}});
 }
