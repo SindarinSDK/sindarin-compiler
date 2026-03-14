@@ -71,4 +71,5 @@ typedef struct __Closure__ {
 
 int main() {
     sn_auto_Person __sn__Person __sn__p = (__sn__Person){ .__sn__name = strdup("Alice"), .__sn__age = 30LL };
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

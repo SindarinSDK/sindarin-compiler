@@ -69,4 +69,5 @@ typedef struct __Closure__ {
 
 int main() {
     long long __sn__s = sizeof(__sn__Point);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

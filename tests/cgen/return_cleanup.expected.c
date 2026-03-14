@@ -34,5 +34,6 @@ char * __sn__greet(char * __sn__name) {
 int main() {
     sn_auto_str char * __sn__g = __sn__greet("world");
     sn_assert((sn_str_length(__sn__g) == 11LL), "expected greeting length to be 11");
+    fflush(stdout);
     return 0;
 }

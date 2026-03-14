@@ -18,4 +18,5 @@ long long * test_addr(long long __sn__x) {
     return (&(__sn__x));}
 
 int main() {
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

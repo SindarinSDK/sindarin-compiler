@@ -75,5 +75,6 @@ int main() {
     (__sn__b.__sn__age = 99LL);
     sn_assert((__sn__a.__sn__age == 30LL), "original age should be unchanged");
     sn_assert((__sn__b.__sn__age == 99LL), "copy should have new age");
+    fflush(stdout);
     return 0;
 }

@@ -77,5 +77,6 @@ int main() {
     __sn__Counter __sn__c = (__sn__Counter){ .__sn__value = 0LL };
     __sn__Counter_increment(&__sn__c);
     sn_assert((__sn__Counter_getValue(&__sn__c) == 1LL), "expected counter to be 1 after increment");
+    fflush(stdout);
     return 0;
 }

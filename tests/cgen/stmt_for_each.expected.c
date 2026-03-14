@@ -37,5 +37,6 @@ int main() {
         }
     }
     sn_assert((__sn__sum == 6LL), "expected sum of {1,2,3} to be 6");
+    fflush(stdout);
     return 0;
 }

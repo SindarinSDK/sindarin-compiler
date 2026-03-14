@@ -624,6 +624,11 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
 
                     /* Build relative path from source directory + filename */
                     const char *last_slash = strrchr(prag_file, '/');
+#ifdef _WIN32
+                    const char *last_bslash = strrchr(prag_file, '\\');
+                    if (last_bslash && (!last_slash || last_bslash > last_slash))
+                        last_slash = last_bslash;
+#endif
                     char rel_path[2048];
                     if (last_slash)
                     {
@@ -643,23 +648,11 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             json_object_new_string("."));
                     }
 
-                    /* Resolve to absolute path so GCC can find it regardless of
-                     * the generated C file's location */
-                    char abs_path[PATH_MAX];
+                    /* Store the bare filename — gcc_backend prepends source_dir
+                     * when compiling pragma sources. Using realpath() here would
+                     * make the generated C machine-dependent. */
                     char full_path[PATH_MAX + 4];
-#ifdef _WIN32
-                    if (_fullpath(abs_path, rel_path, sizeof(abs_path)))
-#else
-                    if (realpath(rel_path, abs_path))
-#endif
-                    {
-                        snprintf(full_path, sizeof(full_path), "\"%s\"", abs_path);
-                    }
-                    else
-                    {
-                        /* Fallback to relative path if realpath fails */
-                        snprintf(full_path, sizeof(full_path), "\"%s\"", rel_path);
-                    }
+                    snprintf(full_path, sizeof(full_path), "\"%s\"", unquoted);
 
                     json_object_object_add(obj, "value",
                         json_object_new_string(full_path));

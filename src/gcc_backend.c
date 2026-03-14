@@ -772,25 +772,14 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     exe_path[sizeof(exe_path) - 1] = '\0';
     normalize_path_separators(exe_path);
 
-#ifdef __APPLE__
     snprintf(command, sizeof(command),
         "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
-        "%s -Wl,-force_load,\"%s\" "
+        "%s \"%s\" "
         "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
         cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
         all_objs, runtime_lib,
         deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
         exe_path, error_file);
-#else
-    snprintf(command, sizeof(command),
-        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
-        "%s -Wl,--whole-archive \"%s\" -Wl,--no-whole-archive "
-        "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
-        all_objs, runtime_lib,
-        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
-        exe_path, error_file);
-#endif
 
     bool link_ok = run_compile_cmd(command, error_file, verbose);
 

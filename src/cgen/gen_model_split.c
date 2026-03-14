@@ -11,6 +11,10 @@
 static const char *basename_no_ext(const char *path)
 {
     const char *last_slash = strrchr(path, '/');
+#ifdef _WIN32
+    const char *last_bslash = strrchr(path, '\\');
+    if (last_bslash && (!last_slash || last_bslash > last_slash)) last_slash = last_bslash;
+#endif
     const char *base = last_slash ? last_slash + 1 : path;
 
     /* Strip .sn extension if present */

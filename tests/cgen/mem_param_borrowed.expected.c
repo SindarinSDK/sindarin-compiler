@@ -22,5 +22,6 @@ void __sn__print_name(char * __sn__name) {
 int main() {
     sn_auto_str char * __sn__s = strdup("Alice");
     __sn__print_name(__sn__s);
+    fflush(stdout);
     return 0;
 }

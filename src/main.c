@@ -12,6 +12,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <limits.h>
+#ifdef _WIN32
+#include <process.h>
+#define getpid _getpid
+#else
+#include <unistd.h>
+#endif
 
 #ifdef _WIN32
 #include "platform/platform.h"
@@ -55,14 +61,19 @@ static bool write_file(const char *path, const char *content)
 static void get_build_dir(const char *source_file, char *build_dir, size_t build_dir_size)
 {
     const char *slash = strrchr(source_file, '/');
+#ifdef _WIN32
+    const char *bslash = strrchr(source_file, '\\');
+    if (bslash && (!slash || bslash > slash)) slash = bslash;
+#endif
     const char *base = slash ? slash + 1 : source_file;
     const char *dot = strrchr(base, '.');
     int blen = dot ? (int)(dot - base) : (int)strlen(base);
-    if (blen > 255) blen = 255;
+    if (blen > 200) blen = 200;
     char base_name[256];
     memcpy(base_name, base, blen);
     base_name[blen] = '\0';
-    snprintf(build_dir, build_dir_size, ".sn/build/%s", base_name);
+    /* Include PID so parallel compilations of the same source don't collide */
+    snprintf(build_dir, build_dir_size, ".sn/build/%s_%d", base_name, (int)getpid());
 }
 
 static void ensure_build_dir(const char *build_dir)
@@ -117,7 +128,8 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
         return 1;
     }
 
-    /* Write generated files to .sn/build/<source_basename>/ */
+    /* Write generated files to .sn/build/<source_basename>_<pid>/
+     * The PID suffix ensures parallel compilations don't collide. */
     char build_dir[PATH_MAX];
     get_build_dir(options->source_file, build_dir, sizeof(build_dir));
     ensure_build_dir(build_dir);

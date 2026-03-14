@@ -16,4 +16,5 @@ typedef struct __Closure__ {
 int main() {
     double __sn__s = sin(1.0);
     double __sn__c = cos(0.0);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

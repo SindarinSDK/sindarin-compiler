@@ -24,5 +24,6 @@ int main() {
             strdup(__is_buf__);
         });
     sn_assert((sn_str_length(__sn__msg) == 12LL), "expected interpolated string length to be 12");
+    fflush(stdout);
     return 0;
 }

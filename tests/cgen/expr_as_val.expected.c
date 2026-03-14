@@ -32,4 +32,5 @@ int main() {
             __al__;
         });
     __sn__modify(__sn__a);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

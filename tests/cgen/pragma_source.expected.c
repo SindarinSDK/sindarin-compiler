@@ -6,7 +6,7 @@
 #include <limits.h>
 #include "sn_minimal.h"
 
-#include "/home/gavin/code/sindarin/sindarin-compiler/tests/cgen/helper.c"
+#include "helper.c"
 typedef struct __Closure__ {
     void *fn;
     size_t size;
@@ -14,4 +14,5 @@ typedef struct __Closure__ {
 } __Closure__;
 
 int main() {
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

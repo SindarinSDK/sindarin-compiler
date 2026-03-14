@@ -69,4 +69,5 @@ long long __sn__Counter_zero() {
 
 int main() {
     long long __sn__z = __sn__Counter_zero();
-    return __sn__z;}
+    return __sn__z;    fflush(stdout);
+}

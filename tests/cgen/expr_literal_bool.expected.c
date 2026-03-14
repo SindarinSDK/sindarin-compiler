@@ -15,4 +15,5 @@ typedef struct __Closure__ {
 int main() {
     bool __sn__a = true;
     bool __sn__b = false;
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

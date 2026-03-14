@@ -76,5 +76,6 @@ int main() {
     __sn__Config __sn__c = (__sn__Config){ .__sn__width = 800LL, .__sn__height = 600LL, .__sn__scale = 1.0 };
     sn_assert((__sn__c.__sn__width == 800LL), "expected default width to be 800");
     sn_assert((__sn__c.__sn__height == 600LL), "expected default height to be 600");
+    fflush(stdout);
     return 0;
 }

@@ -29,6 +29,7 @@ int main() {
         __cl__;
     });
     sn_assert((__sn__apply(__sn__double_it, 5LL) == 10LL), "expected apply(double_it, 5) to be 10");
+    fflush(stdout);
     return 0;
 }
 

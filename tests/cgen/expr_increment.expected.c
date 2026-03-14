@@ -15,4 +15,5 @@ typedef struct __Closure__ {
 int main() {
     long long __sn__x = 0LL;
     __sn__x++;
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

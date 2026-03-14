@@ -18,5 +18,6 @@ int main() {
         (__sn__x = 1LL);
     }
     sn_assert((__sn__x == 1LL), "expected x to be 1 after if branch");
+    fflush(stdout);
     return 0;
 }

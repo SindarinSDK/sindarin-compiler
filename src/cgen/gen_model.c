@@ -297,8 +297,18 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 
     /* Module metadata */
     json_object *mod = json_object_new_object();
-    json_object_object_add(mod, "filename",
-        json_object_new_string(module->filename ? module->filename : ""));
+    /* Normalize path separators so JSON model is consistent across platforms */
+    {
+        const char *fn = module->filename ? module->filename : "";
+        char norm_fn[1024];
+        size_t fnlen = strlen(fn);
+        if (fnlen >= sizeof(norm_fn)) fnlen = sizeof(norm_fn) - 1;
+        memcpy(norm_fn, fn, fnlen);
+        norm_fn[fnlen] = '\0';
+        for (size_t i = 0; i < fnlen; i++)
+            if (norm_fn[i] == '\\') norm_fn[i] = '/';
+        json_object_object_add(mod, "filename", json_object_new_string(norm_fn));
+    }
 
     /* Check if module has a main function and forward-declarable functions */
     bool has_main = false;
@@ -429,8 +439,7 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                 json_object *gvar = gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode);
                 /* Source file tracking for modular compilation */
                 if (stmt->as.var_decl.name.filename)
-                    json_object_object_add(gvar, "source_file",
-                        json_object_new_string(stmt->as.var_decl.name.filename));
+                    gen_model_add_source_file(gvar, stmt->as.var_decl.name.filename);
                 /* Check if initializer is non-constant (needs deferred init in main).
                  * For c-min: string globals with literal initializers are also deferred
                  * so they can be strdup'd in main (string literals can't be free'd). */

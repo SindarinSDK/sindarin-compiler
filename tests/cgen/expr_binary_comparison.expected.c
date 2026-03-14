@@ -17,4 +17,5 @@ int main() {
     bool __sn__b = (1LL != 2LL);
     bool __sn__c = sn_lt_long(1LL, 2LL);
     bool __sn__d = sn_gt_long(1LL, 2LL);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

@@ -16,5 +16,6 @@ int main() {
     long long __sn__a = 100LL;
     long long __sn__b = sn_add_long(__sn__a, 50LL);
     sn_assert((__sn__b == 150LL), "expected 100 + 50 to be 150");
+    fflush(stdout);
     return 0;
 }

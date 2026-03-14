@@ -43,5 +43,6 @@ int main() {
         long long __sync_val__ = *(long long *)__sync_th__->result; __sync_val__; })
     ;
     sn_assert((__sn__result == 42LL), "expected result to be 42");
+    fflush(stdout);
     return 0;
 }

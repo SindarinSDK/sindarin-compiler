@@ -73,4 +73,5 @@ typedef struct __Closure__ {
 
 int main() {
     sn_auto_Entry __sn__Entry __sn__e = (__sn__Entry){ .__sn__key = strdup("name"), .__sn__value = strdup("Alice") };
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

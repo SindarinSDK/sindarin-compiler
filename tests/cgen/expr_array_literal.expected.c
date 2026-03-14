@@ -25,4 +25,5 @@ int main() {
             sn_array_push(__al__, &(long long){ 30LL });
             __al__;
         });
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

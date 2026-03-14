@@ -7,7 +7,23 @@
 #include "compiler.h"
 #include <json-c/json.h>
 #include <stdio.h>
+#include <string.h>
 #include <stdbool.h>
+
+/* Add a source_file field to a JSON object, normalizing backslashes to forward slashes
+ * so that JSON model output is consistent across platforms. */
+static inline void gen_model_add_source_file(json_object *obj, const char *filename)
+{
+    if (!filename) return;
+    char buf[1024];
+    size_t len = strlen(filename);
+    if (len >= sizeof(buf)) len = sizeof(buf) - 1;
+    memcpy(buf, filename, len);
+    buf[len] = '\0';
+    for (size_t i = 0; i < len; i++)
+        if (buf[i] == '\\') buf[i] = '/';
+    json_object_object_add(obj, "source_file", json_object_new_string(buf));
+}
 
 /* Build a language-agnostic JSON model from a typed/optimized AST module.
  * The returned json_object must be freed by the caller with json_object_put(). */

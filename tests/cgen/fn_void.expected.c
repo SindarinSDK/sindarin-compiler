@@ -20,4 +20,5 @@ void __sn__doNothing() {
 
 int main() {
     __sn__doNothing();
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

@@ -74,5 +74,6 @@ int main() {
     sn_assert((sn_str_length(__sn__s) == 5LL), "string ok");
     sn_assert((sn_str_length(__sn__t->__sn__label) == 4LL), "tag ok");
     sn_assert((__sn__n == 42LL), "int ok");
+    fflush(stdout);
     return 0;
 }

@@ -21,5 +21,6 @@ int main() {
         }
     }
     sn_assert((__sn__x == 5LL), "expected x to be 5 after break");
+    fflush(stdout);
     return 0;
 }

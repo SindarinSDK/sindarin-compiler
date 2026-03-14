@@ -136,5 +136,6 @@ int main() {
         __sn__o->__sn__child;
     });
     sn_assert((__sn__o->__sn__child->__sn__value == 2LL), "child should be updated");
+    fflush(stdout);
     return 0;
 }

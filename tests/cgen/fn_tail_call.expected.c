@@ -25,5 +25,6 @@ int main() {
     sn_assert((__sn__factorial(5LL, 1LL) == 120LL), "expected 5! to be 120");
     sn_assert((__sn__factorial(1LL, 1LL) == 1LL), "expected 1! to be 1");
     sn_assert((__sn__factorial(0LL, 1LL) == 1LL), "expected 0! to be 1");
+    fflush(stdout);
     return 0;
 }

@@ -59,7 +59,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
 
     /* Source file tracking for modular compilation */
     if (decl->name.filename)
-        json_object_object_add(obj, "source_file", json_object_new_string(decl->name.filename));
+        gen_model_add_source_file(obj, decl->name.filename);
 
     /* Memory mode for c-min codegen */
     json_object_object_add(obj, "mem_mode",

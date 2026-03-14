@@ -30,4 +30,5 @@ int main() {
             __al__;
         });
     sn_auto_arr SnArray * __sn__s = sn_array_slice(__sn__arr, 1LL, 3LL);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}

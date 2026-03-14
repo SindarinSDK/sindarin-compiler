@@ -26,4 +26,5 @@ int main() {
             __al__;
         });
     long long __sn__v = (((long long *)__sn__arr->data)[({ long long __ai__ = 1LL; __ai__ < 0 ? __ai__ + __sn__arr->len : __ai__; })]);
-    return 0LL;}
+    return 0LL;    fflush(stdout);
+}
