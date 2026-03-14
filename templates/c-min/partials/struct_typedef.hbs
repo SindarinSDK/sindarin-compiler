@@ -2,7 +2,7 @@
 {{#if is_packed}}#pragma pack(push, 1)
 {{/if}}typedef struct {
 {{#each fields}}
-    {{c_type type}} __sn__{{name}};
+    {{c_type type}} {{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}};
 {{/each}}
 } __sn__{{name}};
 {{#if is_packed}}#pragma pack(pop)
@@ -13,7 +13,13 @@ static inline __sn__{{name}} *__sn__{{name}}_alloc(void) {
 }
 
 static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
-    if (*p) { free(*p); }
+    if (*p) {
+{{#each fields}}{{#if (eq cleanup_action "free")}}        free((*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+{{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+{{/if}}{{#if (eq cleanup_action "release")}}        __sn__{{type.name}}_release(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+{{/if}}{{#if (eq cleanup_action "cleanup_val")}}        __sn__{{type.name}}_cleanup(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+{{/if}}{{/each}}        free(*p);
+    }
     *p = NULL;
 }
 

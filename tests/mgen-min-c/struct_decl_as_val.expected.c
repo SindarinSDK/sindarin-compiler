@@ -8,9 +8,9 @@
 
 /* Struct: Color (native) */
 typedef struct {
-    unsigned char __sn__r;
-    unsigned char __sn__g;
-    unsigned char __sn__b;
+    unsigned char r;
+    unsigned char g;
+    unsigned char b;
 } __sn__Color;
 
 
