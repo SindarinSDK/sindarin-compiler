@@ -1,0 +1,14 @@
+struct Result =>
+    value: int
+    name: str
+
+fn compute(x: int): Result =>
+    return Result { value: x * 2, name: "done" }
+
+fn main(): void =>
+    var results: Result[] = {}
+    for i in 0..4 =>
+        results.push(&compute(i))
+    results!
+    for i in 0..results.length =>
+        print($"{results[i].value}\n")

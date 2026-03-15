@@ -1,6 +1,6 @@
 {{#if is_array_sync}}({
     for (long long __si__ = 0; __si__ < __sn__{{handle.name}}->len; __si__++) {
-        SnThread *__th__ = (SnThread*)(((long long*)__sn__{{handle.name}}->data)[__si__]);
+        SnThread *__th__ = *(SnThread**)((char*)__sn__{{handle.name}}->data + __sn__{{handle.name}}->elem_size * (size_t)__si__);
         if (__th__) { sn_thread_join(__th__); (({{c_type element_type}} *)__sn__{{handle.name}}->data)[__si__] = *({{c_type element_type}} *)__th__->result; free(__th__->result); free(__th__); }
     }
     __sn__{{handle.name}}; })

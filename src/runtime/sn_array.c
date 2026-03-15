@@ -26,6 +26,20 @@ void sn_array_push(SnArray *arr, const void *elem)
     arr->len++;
 }
 
+void sn_array_push_safe(SnArray *arr, const void *elem, size_t value_size)
+{
+    if (arr->len >= arr->cap) {
+        arr->cap *= 2;
+        arr->data = sn_realloc(arr->data, arr->elem_size * (size_t)arr->cap);
+    }
+    char *dest = (char *)arr->data + arr->elem_size * (size_t)arr->len;
+    size_t copy_size = value_size < (size_t)arr->elem_size ? value_size : (size_t)arr->elem_size;
+    if (copy_size < (size_t)arr->elem_size)
+        memset(dest, 0, arr->elem_size);
+    memcpy(dest, elem, copy_size);
+    arr->len++;
+}
+
 void *sn_array_get(SnArray *arr, long long index)
 {
     return (char *)arr->data + arr->elem_size * (size_t)index;

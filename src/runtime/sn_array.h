@@ -72,6 +72,7 @@ static inline void sn_array_copy_elems(
 
 SnArray *sn_array_new(size_t elem_size, long long initial_cap);
 void sn_array_push(SnArray *arr, const void *elem);
+void sn_array_push_safe(SnArray *arr, const void *elem, size_t value_size);
 void *sn_array_get(SnArray *arr, long long index);
 long long sn_array_length(SnArray *arr);
 SnArray *sn_array_range(long long start, long long end);
@@ -143,10 +144,13 @@ static inline void *          sn_array_get_generic(SnArray *arr, long long i) { 
 
 /* ---- Array built-in methods ---- */
 
-/* push: arr.push(value) */
+/* push: arr.push(value)
+ * Uses sizeof(value) for the copy to handle cases where the pushed value
+ * is smaller than elem_size (e.g., thread handles pushed into struct arrays).
+ * Zero-fills the slot first to avoid reading uninitialized memory. */
 #define __sn___push(arr_ptr, ...) do { \
     __typeof__(__VA_ARGS__) __sn_push_tmp__ = (__VA_ARGS__); \
-    sn_array_push(*(arr_ptr), &__sn_push_tmp__); \
+    sn_array_push_safe(*(arr_ptr), &__sn_push_tmp__, sizeof(__sn_push_tmp__)); \
 } while(0)
 
 /* pop: returns void* to the popped element */
