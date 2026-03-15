@@ -44,7 +44,7 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
-# Detect operating system and return the tarball suffix
+# Detect operating system
 detect_os() {
     case "$(uname -s)" in
         Darwin)
@@ -55,6 +55,22 @@ detect_os() {
             ;;
         *)
             write_status "Unsupported operating system: $(uname -s)" "Error"
+            exit 1
+            ;;
+    esac
+}
+
+# Detect CPU architecture
+detect_arch() {
+    case "$(uname -m)" in
+        x86_64|amd64)
+            echo "x64"
+            ;;
+        aarch64|arm64)
+            echo "arm64"
+            ;;
+        *)
+            write_status "Unsupported architecture: $(uname -m)" "Error"
             exit 1
             ;;
     esac
@@ -96,7 +112,8 @@ install_sindarin() {
     version_num=$(echo "$TAG_NAME" | sed 's/^v//' | sed 's/-.*$//')
 
     # Determine the tarball name
-    local tarball_name="sindarin-${version_num}-${os_type}-x64.tar.gz"
+    local arch_type="$2"
+    local tarball_name="sindarin-${version_num}-${os_type}-${arch_type}.tar.gz"
     local download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/${tarball_name}"
 
     # Create temp directory
@@ -237,16 +254,18 @@ main() {
     echo -e "${MAGENTA}========================================${NC}"
     echo ""
 
-    # Step 1: Detect OS
+    # Step 1: Detect OS and architecture
     local os_type
     os_type=$(detect_os)
-    write_status "Detected OS: $os_type"
+    local arch_type
+    arch_type=$(detect_arch)
+    write_status "Detected OS: $os_type ($arch_type)"
 
     # Step 2: Get latest release info
     get_latest_release
 
     # Step 3: Download and install
-    install_sindarin "$os_type"
+    install_sindarin "$os_type" "$arch_type"
 
     # Step 4: Add to PATH (idempotent - won't duplicate)
     add_to_path

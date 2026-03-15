@@ -846,13 +846,20 @@ set(CPACK_COMPONENT_HEADERS_DISPLAY_NAME "Development Headers")
 set(CPACK_COMPONENT_HEADERS_DEPENDS runtime)
 set(CPACK_COMPONENT_CONFIGS_DISPLAY_NAME "Configuration Files")
 
+# Detect CPU architecture for package naming
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+    set(SN_ARCH "arm64")
+else()
+    set(SN_ARCH "x64")
+endif()
+
 # Platform-specific generators
 if(WIN32)
     set(CPACK_GENERATOR "ZIP")
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-windows-x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-windows-${SN_ARCH}")
 elseif(APPLE)
     set(CPACK_GENERATOR "TGZ")
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-darwin-x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-darwin-${SN_ARCH}")
 else()
     # Check if rpmbuild is available for RPM generation
     find_program(RPMBUILD_EXECUTABLE rpmbuild)
@@ -862,7 +869,7 @@ else()
         set(CPACK_GENERATOR "TGZ;DEB")
         message(STATUS "rpmbuild not found - RPM package generation disabled")
     endif()
-    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-x64")
+    set(CPACK_PACKAGE_FILE_NAME "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-linux-${SN_ARCH}")
 
     # DEB settings
     set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Sindarin Maintainers")
