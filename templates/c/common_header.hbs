@@ -11,6 +11,12 @@
 {{#each pragmas}}{{#if (eq pragma_type "include")}}
 #include {{{value}}}
 {{/if}}{{/each}}
+
+typedef struct __Closure__ {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+} __Closure__;
 {{#each structs}}
 {{> struct_typedef this}}
 {{/each}}
@@ -33,11 +39,6 @@ typedef struct {
 void *__thread_wrapper_{{thread_id}}__(void *arg);
 {{/each}}
 
-typedef struct __Closure__ {
-    void *fn;
-    size_t size;
-    void (*__cleanup__)(void *);
-} __Closure__;
 {{#each lambdas}}
 {{#if has_captures}}
 typedef struct __closure_{{lambda_id}}__ {

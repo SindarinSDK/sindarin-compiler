@@ -2,143 +2,6 @@
 #include "symbol_table/symbol_table_core.h"
 #include <string.h>
 
-/* Check if a parameter is ONLY stored in struct fields (not called or passed to other fns).
- * Returns true if the parameter is ONLY used in struct field assignments.
- * Returns false if the parameter is called, passed as argument, or used in any other way. */
-static bool param_is_only_stored_in_expr(Expr *expr, const char *param_name, int param_len, bool *found)
-{
-    if (!expr) return true;
-    switch (expr->type)
-    {
-        case EXPR_STRUCT_LITERAL:
-            /* Check field values — param used as struct field value is OK (stored) */
-            for (int i = 0; i < expr->as.struct_literal.field_count; i++)
-            {
-                Expr *val = expr->as.struct_literal.fields[i].value;
-                if (val && val->type == EXPR_VARIABLE)
-                {
-                    Token t = val->as.variable.name;
-                    if (t.length == param_len && strncmp(t.start, param_name, param_len) == 0)
-                    {
-                        *found = true;
-                        continue; /* This usage is OK — stored in struct field */
-                    }
-                }
-                if (!param_is_only_stored_in_expr(val, param_name, param_len, found))
-                    return false;
-            }
-            return true;
-        case EXPR_VARIABLE:
-        {
-            /* Bare reference to param outside struct literal context — not just stored */
-            Token t = expr->as.variable.name;
-            if (t.length == param_len && strncmp(t.start, param_name, param_len) == 0)
-            {
-                *found = true;
-                return false; /* Used in non-storage context */
-            }
-            return true;
-        }
-        case EXPR_CALL:
-            if (!param_is_only_stored_in_expr(expr->as.call.callee, param_name, param_len, found))
-                return false;
-            for (int i = 0; i < expr->as.call.arg_count; i++)
-                if (!param_is_only_stored_in_expr(expr->as.call.arguments[i], param_name, param_len, found))
-                    return false;
-            return true;
-        case EXPR_BINARY:
-            return param_is_only_stored_in_expr(expr->as.binary.left, param_name, param_len, found) &&
-                   param_is_only_stored_in_expr(expr->as.binary.right, param_name, param_len, found);
-        case EXPR_UNARY:
-            return param_is_only_stored_in_expr(expr->as.unary.operand, param_name, param_len, found);
-        case EXPR_MEMBER:
-            return param_is_only_stored_in_expr(expr->as.member.object, param_name, param_len, found);
-        case EXPR_MEMBER_ACCESS:
-            return param_is_only_stored_in_expr(expr->as.member_access.object, param_name, param_len, found);
-        case EXPR_ASSIGN:
-            return param_is_only_stored_in_expr(expr->as.assign.value, param_name, param_len, found);
-        case EXPR_MEMBER_ASSIGN:
-        {
-            /* RHS assigned to a struct field — param used here counts as "stored" */
-            if (expr->as.member_assign.value && expr->as.member_assign.value->type == EXPR_VARIABLE)
-            {
-                Token t = expr->as.member_assign.value->as.variable.name;
-                if (t.length == param_len && strncmp(t.start, param_name, param_len) == 0)
-                {
-                    *found = true;
-                    return true; /* Stored in struct field via member assignment */
-                }
-            }
-            return param_is_only_stored_in_expr(expr->as.member_assign.object, param_name, param_len, found) &&
-                   param_is_only_stored_in_expr(expr->as.member_assign.value, param_name, param_len, found);
-        }
-        case EXPR_METHOD_CALL:
-            if (!param_is_only_stored_in_expr(expr->as.method_call.object, param_name, param_len, found))
-                return false;
-            for (int i = 0; i < expr->as.method_call.arg_count; i++)
-                if (!param_is_only_stored_in_expr(expr->as.method_call.args[i], param_name, param_len, found))
-                    return false;
-            return true;
-        default:
-            return true;
-    }
-}
-
-/* Forward declaration for mutual recursion */
-static bool param_is_only_stored_in_stmt(Stmt *s, const char *param_name, int param_len, bool *found);
-
-/* Check if a parameter is only stored (not called/passed) in a list of statements */
-static bool param_is_only_stored_in_stmts(Stmt **stmts, int count, const char *param_name, int param_len, bool *found)
-{
-    for (int i = 0; i < count; i++)
-        if (!param_is_only_stored_in_stmt(stmts[i], param_name, param_len, found))
-            return false;
-    return true;
-}
-
-/* Check if a parameter is only stored (not called/passed) in a single statement */
-static bool param_is_only_stored_in_stmt(Stmt *s, const char *param_name, int param_len, bool *found)
-{
-    if (!s) return true;
-    switch (s->type)
-    {
-        case STMT_EXPR:
-            return param_is_only_stored_in_expr(s->as.expression.expression, param_name, param_len, found);
-        case STMT_VAR_DECL:
-            return param_is_only_stored_in_expr(s->as.var_decl.initializer, param_name, param_len, found);
-        case STMT_RETURN:
-            return param_is_only_stored_in_expr(s->as.return_stmt.value, param_name, param_len, found);
-        case STMT_IF:
-            if (!param_is_only_stored_in_expr(s->as.if_stmt.condition, param_name, param_len, found))
-                return false;
-            if (!param_is_only_stored_in_stmt(s->as.if_stmt.then_branch, param_name, param_len, found))
-                return false;
-            if (!param_is_only_stored_in_stmt(s->as.if_stmt.else_branch, param_name, param_len, found))
-                return false;
-            return true;
-        case STMT_BLOCK:
-            return param_is_only_stored_in_stmts(s->as.block.statements, s->as.block.count, param_name, param_len, found);
-        case STMT_WHILE:
-            if (!param_is_only_stored_in_expr(s->as.while_stmt.condition, param_name, param_len, found))
-                return false;
-            return param_is_only_stored_in_stmt(s->as.while_stmt.body, param_name, param_len, found);
-        case STMT_FOR:
-            if (!param_is_only_stored_in_stmt(s->as.for_stmt.initializer, param_name, param_len, found))
-                return false;
-            if (!param_is_only_stored_in_expr(s->as.for_stmt.condition, param_name, param_len, found))
-                return false;
-            if (!param_is_only_stored_in_expr(s->as.for_stmt.increment, param_name, param_len, found))
-                return false;
-            return param_is_only_stored_in_stmt(s->as.for_stmt.body, param_name, param_len, found);
-        case STMT_FOR_EACH:
-            if (!param_is_only_stored_in_expr(s->as.for_each_stmt.iterable, param_name, param_len, found))
-                return false;
-            return param_is_only_stored_in_stmt(s->as.for_each_stmt.body, param_name, param_len, found);
-        default:
-            return true;
-    }
-}
-
 /* Re-escape a string value for C output.
  * The lexer already interprets escape sequences (\n → 0x0A), but the C
  * templates need the two-character escape form so that the generated C
@@ -1243,105 +1106,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 arg_expr->as.variable.name);
                             if (arg_sym && arg_sym->is_function)
                             {
-                                /* Check if the callee actually calls this parameter
-                                 * (closure pattern) vs just storing it (raw fn pointer).
-                                 * Look up the callee function body and check. */
-                                /* Check if the callee ONLY stores this parameter in struct fields
-                                 * (no calling, no passing to other functions). If so, skip wrapping
-                                 * so the raw function pointer is stored directly. */
-                                bool skip_wrapping = false;
-                                const char *callee_fn_name = NULL;
-                                int callee_fn_name_len = 0;
-                                if (expr->as.call.callee->type == EXPR_VARIABLE)
-                                {
-                                    callee_fn_name = expr->as.call.callee->as.variable.name.start;
-                                    callee_fn_name_len = expr->as.call.callee->as.variable.name.length;
-                                }
-                                else if (expr->as.call.callee->type == EXPR_MEMBER)
-                                {
-                                    callee_fn_name = expr->as.call.callee->as.member.member_name.start;
-                                    callee_fn_name_len = expr->as.call.callee->as.member.member_name.length;
-                                }
-                                /* Search current module AND imported modules for the callee */
-                                if (callee_fn_name && g_model_module_stmts)
-                                {
-                                    /* Collect all statement lists to search: current module + imports */
-                                    Stmt **search_lists[64];
-                                    int search_counts[64];
-                                    int search_n = 0;
-                                    search_lists[search_n] = g_model_module_stmts;
-                                    search_counts[search_n] = g_model_module_stmt_count;
-                                    search_n++;
-                                    /* Add imported module statements */
-                                    for (int si = 0; si < g_model_module_stmt_count && search_n < 64; si++)
-                                    {
-                                        Stmt *s = g_model_module_stmts[si];
-                                        if (s && s->type == STMT_IMPORT && s->as.import.imported_stmts)
-                                        {
-                                            search_lists[search_n] = s->as.import.imported_stmts;
-                                            search_counts[search_n] = s->as.import.imported_count;
-                                            search_n++;
-                                        }
-                                    }
-                                    bool callee_found = false;
-                                    for (int sl = 0; sl < search_n && !callee_found; sl++)
-                                    {
-                                        for (int si = 0; si < search_counts[sl] && !callee_found; si++)
-                                        {
-                                            Stmt *ms = search_lists[sl][si];
-                                            if (!ms) continue;
-                                            /* Check top-level functions */
-                                            if (ms->type == STMT_FUNCTION)
-                                            {
-                                                if ((int)ms->as.function.name.length != callee_fn_name_len ||
-                                                    strncmp(ms->as.function.name.start, callee_fn_name, callee_fn_name_len) != 0)
-                                                    continue;
-                                                callee_found = true;
-                                                if (i < ms->as.function.param_count)
-                                                {
-                                                    const char *pname = ms->as.function.params[i].name.start;
-                                                    int plen = ms->as.function.params[i].name.length;
-                                                    bool found = false;
-                                                    bool only_stored = param_is_only_stored_in_stmts(
-                                                        ms->as.function.body, ms->as.function.body_count,
-                                                        pname, plen, &found);
-                                                    if (found && only_stored)
-                                                        skip_wrapping = true;
-                                                }
-                                            }
-                                            /* Check struct methods */
-                                            else if (ms->type == STMT_STRUCT_DECL)
-                                            {
-                                                for (int mi = 0; mi < ms->as.struct_decl.method_count; mi++)
-                                                {
-                                                    StructMethod *meth = &ms->as.struct_decl.methods[mi];
-                                                    if ((int)strlen(meth->name) != callee_fn_name_len ||
-                                                        strncmp(meth->name, callee_fn_name, callee_fn_name_len) != 0)
-                                                        continue;
-                                                    callee_found = true;
-                                                    if (i < meth->param_count)
-                                                    {
-                                                        const char *pname = meth->params[i].name.start;
-                                                        int plen = meth->params[i].name.length;
-                                                        bool found = false;
-                                                        bool only_stored = param_is_only_stored_in_stmts(
-                                                            meth->body, meth->body_count,
-                                                            pname, plen, &found);
-                                                        if (found && only_stored)
-                                                            skip_wrapping = true;
-                                                    }
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (skip_wrapping)
-                                {
-                                    /* Callee only stores this param in struct fields — pass raw fn pointer */
-                                }
-                                else
+                                /* All function references must be wrapped in closures
+                                 * for uniform calling convention. */
                                 {
                                 /* Generate a wrapper function that adapts the calling convention.
                                  * The wrapper accepts (void *__closure__, params...) and forwards
@@ -1841,6 +1607,39 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                         }
                         break;
+                    case TYPE_FUNCTION:
+                        field_cleanup = "free_closure";
+                        {
+                            Expr *val = expr->as.member_assign.value;
+                            if (val && val->type == EXPR_VARIABLE)
+                            {
+                                Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, val->as.variable.name) : NULL;
+                                if (sym && sym->is_function && sym->kind != SYMBOL_PARAM)
+                                {
+                                    /* Create a wrapper function for the bare function reference */
+                                    Type *fn_type = ftype;
+                                    int wrap_id = g_model_fn_wrapper_count++;
+                                    json_object *wrapper = json_object_new_object();
+                                    json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
+                                    json_object_object_add(wrapper, "target_name",
+                                        json_object_new_string(val->as.variable.name.start));
+                                    json_object_object_add(wrapper, "return_type",
+                                        gen_model_type(arena, fn_type->as.function.return_type));
+                                    json_object *wrap_params = json_object_new_array();
+                                    for (int p = 0; p < fn_type->as.function.param_count; p++)
+                                        json_object_array_add(wrap_params,
+                                            gen_model_type(arena, fn_type->as.function.param_types[p]));
+                                    json_object_object_add(wrapper, "param_types", wrap_params);
+                                    json_object_object_add(wrapper, "is_native",
+                                        json_object_new_boolean(fn_type->as.function.is_native));
+                                    json_object_array_add(g_model_fn_wrappers, wrapper);
+
+                                    json_object_object_add(obj, "needs_closure_wrap", json_object_new_boolean(true));
+                                    json_object_object_add(obj, "fn_wrapper_id", json_object_new_int(wrap_id));
+                                }
+                            }
+                        }
+                        break;
                     default:
                         break;
                 }
@@ -1995,6 +1794,35 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                             break;
                         }
+                    }
+                }
+                /* Function-typed fields need heap closure wrapping for bare function references.
+                 * Parameters of function type are already closure pointers. */
+                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_FUNCTION && fv->type == EXPR_VARIABLE)
+                {
+                    Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, fv->as.variable.name) : NULL;
+                    if (sym && sym->is_function && sym->kind != SYMBOL_PARAM)
+                    {
+                        /* Create a wrapper function (same as is_fn_ref_arg) */
+                        Type *fn_type = fv->expr_type;
+                        int wrap_id = g_model_fn_wrapper_count++;
+                        json_object *wrapper = json_object_new_object();
+                        json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
+                        json_object_object_add(wrapper, "target_name",
+                            json_object_new_string(fv->as.variable.name.start));
+                        json_object_object_add(wrapper, "return_type",
+                            gen_model_type(arena, fn_type->as.function.return_type));
+                        json_object *wrap_params = json_object_new_array();
+                        for (int p = 0; p < fn_type->as.function.param_count; p++)
+                            json_object_array_add(wrap_params,
+                                gen_model_type(arena, fn_type->as.function.param_types[p]));
+                        json_object_object_add(wrapper, "param_types", wrap_params);
+                        json_object_object_add(wrapper, "is_native",
+                            json_object_new_boolean(fn_type->as.function.is_native));
+                        json_object_array_add(g_model_fn_wrappers, wrapper);
+
+                        json_object_object_add(f, "needs_closure_wrap", json_object_new_boolean(true));
+                        json_object_object_add(f, "fn_wrapper_id", json_object_new_int(wrap_id));
                     }
                 }
                 json_object_array_add(fields, f);
