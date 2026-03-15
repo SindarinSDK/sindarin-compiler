@@ -1206,6 +1206,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 /* Resolve the target function's actual param info to detect borrow.
                                  * Look up the target function in module stmts to get Parameter data. */
                                 bool target_is_native = fn_type->as.function.is_native;
+                                bool has_borrow = false;
                                 for (int p = 0; p < fn_type->as.function.param_count; p++)
                                 {
                                     json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
@@ -1221,6 +1222,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                         {
                                             json_object_object_add(pt, "is_borrow",
                                                 json_object_new_boolean(true));
+                                            has_borrow = true;
                                         }
                                     }
                                     json_object_array_add(wrap_params, pt);
@@ -1228,6 +1230,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_object_add(wrapper, "param_types", wrap_params);
                                 json_object_object_add(wrapper, "is_native",
                                     json_object_new_boolean(fn_type->as.function.is_native));
+                                if (has_borrow)
+                                    json_object_object_add(wrapper, "has_borrow_cleanup",
+                                        json_object_new_boolean(true));
                                 json_object_array_add(g_model_fn_wrappers, wrapper);
 
                                 json_object_object_add(arg, "is_fn_ref_arg",
@@ -1768,11 +1773,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_object_add(wrapper, "return_type",
                                         gen_model_type(arena, fn_type->as.function.return_type));
                                     json_object *wrap_params = json_object_new_array();
-                                    bool tgt_native = fn_type->as.function.is_native;
+                                    bool tgt_native2 = fn_type->as.function.is_native;
+                                    bool has_borrow2 = false;
                                     for (int p = 0; p < fn_type->as.function.param_count; p++)
                                     {
                                         json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
-                                        if (!tgt_native)
+                                        if (!tgt_native2)
                                         {
                                             Type *ptype = fn_type->as.function.param_types[p];
                                             MemoryQualifier pmq_val = MEM_DEFAULT;
@@ -1780,13 +1786,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                                 pmq_val = fn_type->as.function.param_mem_quals[p];
                                             if (pmq_val == MEM_DEFAULT && ptype &&
                                                 gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                                            {
                                                 json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
+                                                has_borrow2 = true;
+                                            }
                                         }
                                         json_object_array_add(wrap_params, pt);
                                     }
                                     json_object_object_add(wrapper, "param_types", wrap_params);
                                     json_object_object_add(wrapper, "is_native",
                                         json_object_new_boolean(fn_type->as.function.is_native));
+                                    if (has_borrow2)
+                                        json_object_object_add(wrapper, "has_borrow_cleanup",
+                                            json_object_new_boolean(true));
                                     json_object_array_add(g_model_fn_wrappers, wrapper);
 
                                     json_object_object_add(obj, "needs_closure_wrap", json_object_new_boolean(true));
@@ -1939,6 +1951,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             gen_model_type(arena, fn_type->as.function.return_type));
                         json_object *wrap_params = json_object_new_array();
                         bool tgt_native3 = fn_type->as.function.is_native;
+                        bool has_borrow3 = false;
                         for (int p = 0; p < fn_type->as.function.param_count; p++)
                         {
                             json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
@@ -1950,13 +1963,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     pmq_val = fn_type->as.function.param_mem_quals[p];
                                 if (pmq_val == MEM_DEFAULT && ptype &&
                                     gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                                {
                                     json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
+                                    has_borrow3 = true;
+                                }
                             }
                             json_object_array_add(wrap_params, pt);
                         }
                         json_object_object_add(wrapper, "param_types", wrap_params);
                         json_object_object_add(wrapper, "is_native",
                             json_object_new_boolean(fn_type->as.function.is_native));
+                        if (has_borrow3)
+                            json_object_object_add(wrapper, "has_borrow_cleanup",
+                                json_object_new_boolean(true));
                         json_object_array_add(g_model_fn_wrappers, wrapper);
 
                         json_object_object_add(f, "needs_closure_wrap", json_object_new_boolean(true));
