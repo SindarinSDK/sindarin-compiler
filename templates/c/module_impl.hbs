@@ -1,7 +1,7 @@
 #include "sn_types.h"
 {{#each native_externs}}
-{{> forward_decl this}}
-{{/each}}
+{{#unless c_alias}}{{> forward_decl this}}
+{{/unless}}{{/each}}
 {{#each globals}}
 {{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
 {{#if (eq sync_mod "atomic")}}pthread_mutex_t __sn__{{name}}_mutex = PTHREAD_MUTEX_INITIALIZER;

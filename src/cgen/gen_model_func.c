@@ -427,13 +427,23 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     json_object *obj = json_object_new_object();
 
-    /* Prefix function name with namespace if inside a namespaced import */
+    /* Prefix function name with namespace if inside a namespaced import.
+     * Exception: native functions with @alias use the alias as-is (they link
+     * to external C symbols like sin, compress, etc.) */
     if (g_model_namespace_prefix != NULL)
     {
-        char prefixed[512];
-        snprintf(prefixed, sizeof(prefixed), "%s__%.*s",
-                 g_model_namespace_prefix, func->name.length, func->name.start);
-        json_object_object_add(obj, "name", json_object_new_string(prefixed));
+        if (func->is_native && func->c_alias && func->body_count == 0)
+        {
+            /* Native extern with @alias: use the C symbol name directly */
+            json_object_object_add(obj, "name", json_object_new_string(func->c_alias));
+        }
+        else
+        {
+            char prefixed[512];
+            snprintf(prefixed, sizeof(prefixed), "%s__%.*s",
+                     g_model_namespace_prefix, func->name.length, func->name.start);
+            json_object_object_add(obj, "name", json_object_new_string(prefixed));
+        }
     }
     else
     {
