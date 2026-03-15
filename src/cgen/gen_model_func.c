@@ -487,22 +487,10 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
         }
     }
 
-    /* Suppress auto-cleanup for local array/string vars in functions returning structs with heap fields.
-     * This prevents use-after-free when struct literal returns reference local variables. */
+    /* Local cleanup is always enabled. Struct literal returns that reference
+     * local variables must use copyOf() to avoid double-free — the compiler
+     * emits warnings to guide the user. */
     g_suppress_local_cleanup = false;
-    if (func->return_type && func->return_type->kind == TYPE_STRUCT &&
-        !func->return_type->as.struct_type.pass_self_by_ref)
-    {
-        for (int fi = 0; fi < func->return_type->as.struct_type.field_count; fi++)
-        {
-            Type *ft = func->return_type->as.struct_type.fields[fi].type;
-            if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY))
-            {
-                g_suppress_local_cleanup = true;
-                break;
-            }
-        }
-    }
 
     /* Body */
     json_object *body = json_object_new_array();
