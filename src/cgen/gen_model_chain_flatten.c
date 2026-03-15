@@ -227,13 +227,28 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
                                strcmp(akind, "static_call") == 0);
         if (!is_call_result) continue;
 
-        /* Only extract string and array types (not structs — push takes ownership) */
+        /* Only extract types that need cleanup: strings, arrays, and native as-ref structs */
         json_object *arg_type = NULL;
         if (!json_object_object_get_ex(arg, "type", &arg_type)) continue;
         json_object *type_kind_obj = NULL;
         if (!json_object_object_get_ex(arg_type, "kind", &type_kind_obj)) continue;
         const char *type_kind = json_object_get_string(type_kind_obj);
-        if (strcmp(type_kind, "string") != 0 && strcmp(type_kind, "array") != 0) continue;
+        bool needs_extraction = false;
+        if (strcmp(type_kind, "string") == 0 || strcmp(type_kind, "array") == 0)
+        {
+            needs_extraction = true;
+        }
+        else if (strcmp(type_kind, "struct") == 0)
+        {
+            json_object *sname_obj = NULL;
+            if (json_object_object_get_ex(arg_type, "name", &sname_obj))
+            {
+                const char *sname = json_object_get_string(sname_obj);
+                if (struct_is_pass_by_ref(sname))
+                    needs_extraction = true;
+            }
+        }
+        if (!needs_extraction) continue;
 
         /* Skip args that are already borrow temps or copy args */
         json_object *bt = NULL, *ca = NULL;
