@@ -136,8 +136,6 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
     and stderr in the return value will be empty.
     """
     try:
-        # close_fds=True prevents pipe handle leaking between concurrent
-        # subprocess calls in ThreadPoolExecutor on Windows
         if merge_stderr:
             # Merge stderr into stdout (like bash's 2>&1)
             result = subprocess.run(
@@ -147,20 +145,17 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
                 text=True,
                 timeout=timeout,
                 cwd=cwd,
-                env=env,
-                close_fds=True
+                env=env
             )
             return result.returncode, result.stdout, ''
         else:
             result = subprocess.run(
                 cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
+                capture_output=True,
                 text=True,
                 timeout=timeout,
                 cwd=cwd,
-                env=env,
-                close_fds=True
+                env=env
             )
             return result.returncode, result.stdout, result.stderr
     except subprocess.TimeoutExpired:
@@ -474,7 +469,10 @@ class TestRunner:
         self._total_count = len(test_infos)
 
         # Run tests (parallel or sequential)
-        if self.parallel > 1:
+        # On Windows, force sequential execution to avoid subprocess pipe
+        # handle inheritance issues in ThreadPoolExecutor
+        effective_parallel = 1 if is_windows() else self.parallel
+        if effective_parallel > 1:
             print(f"  Running {len(test_infos)} tests with {self.parallel} workers...")
             with ThreadPoolExecutor(max_workers=self.parallel) as executor:
                 futures = {executor.submit(self._run_single_test, info): info for info in test_infos}

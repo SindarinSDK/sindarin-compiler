@@ -130,10 +130,11 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         /* Apply array type coercions */
         apply_array_coercion(stmt, decl_type, &init_type);
 
-        /* Ownership warning: reading a str/array field from a val-struct into
-         * a local variable shares the pointer. Both the struct cleanup and the
-         * local variable cleanup will free the same pointer — double-free.
-         * Suggest copyOf() to create an independent copy. */
+        /* Ownership warning: assigning a str/array from another owned source
+         * into a local variable shares the pointer. Both cleanups will free
+         * the same pointer — double-free. Covers two patterns:
+         * 1. var x: str = myStruct.field  (val-struct field read)
+         * 2. var x: str = otherLocalVar   (local-to-local assignment) */
         if (init_type != NULL &&
             (init_type->kind == TYPE_STRING || init_type->kind == TYPE_ARRAY) &&
             stmt->as.var_decl.initializer->type == EXPR_MEMBER &&
@@ -142,10 +143,23 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
             stmt->as.var_decl.initializer->as.member.object->expr_type->kind == TYPE_STRUCT &&
             !stmt->as.var_decl.initializer->as.member.object->expr_type->as.struct_type.pass_self_by_ref)
         {
-            Token mn = stmt->as.var_decl.initializer->as.member.member_name;
             type_warning(&stmt->as.var_decl.name,
                 "Reading str/array field from value struct shares ownership. "
                 "Consider using copyOf() to avoid potential double-free");
+        }
+        else if (init_type != NULL &&
+                 (init_type->kind == TYPE_STRING || init_type->kind == TYPE_ARRAY) &&
+                 stmt->as.var_decl.initializer->type == EXPR_VARIABLE)
+        {
+            /* Check if the source variable is a local (not a parameter) */
+            Symbol *src_sym = symbol_table_lookup_symbol_current(table,
+                stmt->as.var_decl.initializer->as.variable.name);
+            if (src_sym != NULL && src_sym->kind != SYMBOL_PARAM)
+            {
+                type_warning(&stmt->as.var_decl.name,
+                    "Assigning str/array variable to another variable shares ownership. "
+                    "Consider using copyOf() to avoid potential double-free");
+            }
         }
     }
 
