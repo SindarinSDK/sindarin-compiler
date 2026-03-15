@@ -212,31 +212,14 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                     }
                 }
-                /* For val struct vars with heap fields: variable/array_access initializer needs deep copy */
-                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_STRUCT &&
-                    !stmt->as.var_decl.type->as.struct_type.pass_self_by_ref &&
+                /* For composite val struct vars: variable/array_access initializer needs deep copy */
+                if (gen_model_type_category(stmt->as.var_decl.type) == TYPE_CAT_COMPOSITE &&
                     (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
                      stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
                      stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS))
                 {
-                    Type *vt = stmt->as.var_decl.type;
-                    bool has_heap = false;
-                    for (int fi = 0; fi < vt->as.struct_type.field_count; fi++)
-                    {
-                        Type *ft = vt->as.struct_type.fields[fi].type;
-                        if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                            ft->kind == TYPE_FUNCTION ||
-                            (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                        {
-                            has_heap = true;
-                            break;
-                        }
-                    }
-                    if (has_heap)
-                    {
-                        json_object_object_add(obj, "needs_val_copy",
-                            json_object_new_boolean(true));
-                    }
+                    json_object_object_add(obj, "needs_val_copy",
+                        json_object_new_boolean(true));
                 }
                 /* Recursive lambda self-capture: when a var_decl initializer is a lambda
                  * that captures the var being declared, mark it for post-init patching. */
