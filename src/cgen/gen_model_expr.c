@@ -354,7 +354,9 @@ static const char *func_mod_str(FunctionModifier fm)
 
 /* Predicate: does this string-typed expression produce a NEW heap allocation?
  * Uses a whitelist of known heap-producing expression types.
- * Generic EXPR_CALL is excluded because closures/lambdas may return borrowed strings. */
+ * Generic EXPR_CALL with variable callee is excluded because closures/native
+ * functions may return borrowed strings. Member method calls (obj.method())
+ * always return owned strings per the ownership model. */
 static bool is_heap_producing_string_expr(Expr *expr)
 {
     if (!expr || !expr->expr_type || expr->expr_type->kind != TYPE_STRING)
@@ -371,7 +373,12 @@ static bool is_heap_producing_string_expr(Expr *expr)
         /* Interpolated strings allocate */
         case EXPR_INTERPOLATED:
             return true;
-        /* Generic EXPR_CALL excluded: closures may return borrowed strings */
+        /* Member method calls (obj.method()) always return owned strings.
+         * This covers string built-ins (s.toLower()), array methods
+         * (arr.toString()), and struct methods returning string. */
+        case EXPR_CALL:
+            return (expr->as.call.callee &&
+                    expr->as.call.callee->type == EXPR_MEMBER);
         default:
             return false;
     }
