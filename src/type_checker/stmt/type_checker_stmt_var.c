@@ -129,6 +129,24 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
 
         /* Apply array type coercions */
         apply_array_coercion(stmt, decl_type, &init_type);
+
+        /* Ownership warning: reading a str/array field from a val-struct into
+         * a local variable shares the pointer. Both the struct cleanup and the
+         * local variable cleanup will free the same pointer — double-free.
+         * Suggest copyOf() to create an independent copy. */
+        if (init_type != NULL &&
+            (init_type->kind == TYPE_STRING || init_type->kind == TYPE_ARRAY) &&
+            stmt->as.var_decl.initializer->type == EXPR_MEMBER &&
+            stmt->as.var_decl.initializer->as.member.object != NULL &&
+            stmt->as.var_decl.initializer->as.member.object->expr_type != NULL &&
+            stmt->as.var_decl.initializer->as.member.object->expr_type->kind == TYPE_STRUCT &&
+            !stmt->as.var_decl.initializer->as.member.object->expr_type->as.struct_type.pass_self_by_ref)
+        {
+            Token mn = stmt->as.var_decl.initializer->as.member.member_name;
+            type_warning(&stmt->as.var_decl.name,
+                "Reading str/array field from value struct shares ownership. "
+                "Consider using copyOf() to avoid potential double-free");
+        }
     }
 
     /* Type inference: if no declared type, infer from initializer */
