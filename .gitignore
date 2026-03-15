@@ -30,15 +30,11 @@ test_lambda_shared
 test_thread
 test_state.txt
 
-# Generated intermediate C files from compiler
-# Note: vec2_native.c and test_variadic_helper.c are legitimate helper files
-tests/integration/test_any_*.c
-
 # Compiled executables (.exe on Windows)
 *.exe
 !bin/*.exe
 
-# Compiled executables (Linux/macOS - no extension)
+# Compiled executables and generated files (Linux/macOS)
 # These match the pattern of compiled test files
 tests/integration/test_*
 tests/integration/sized_*
@@ -56,9 +52,15 @@ tests/integration/ref_*
 tests/integration/stdlib_*
 tests/integration/io_*
 !tests/integration/*.sn
-!tests/integration/*.c
 !tests/integration/*.expected
 !tests/integration/*.panic
+# Hand-written C helper files (un-ignore only these specific files)
+!tests/integration/vec2_native.c
+!tests/integration/test_address_of_helper.c
+!tests/integration/test_interop_variadic.c
+!tests/integration/test_variadic_helper.c
+!tests/integration/test_variadic_native.c
+!tests/integration/test_native_resource_lifecycle.sn.impl.c
 
 tests/exploratory/test_*
 !tests/exploratory/test_*.sn
