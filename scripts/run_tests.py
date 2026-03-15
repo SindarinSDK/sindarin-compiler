@@ -435,6 +435,9 @@ class TestRunner:
         # Find test files
         pattern = os.path.join(config.test_dir, config.pattern)
         test_files = sorted(glob.glob(pattern, recursive=True))
+        # Normalize to forward slashes — the compiler expects Unix-style paths
+        # (Windows glob returns backslashes which break build dir creation)
+        test_files = [f.replace('\\', '/') for f in test_files]
 
         # Apply filter if specified
         if self.filter_pattern:
@@ -469,10 +472,7 @@ class TestRunner:
         self._total_count = len(test_infos)
 
         # Run tests (parallel or sequential)
-        # On Windows, force sequential execution to avoid subprocess pipe
-        # handle inheritance issues in ThreadPoolExecutor
-        effective_parallel = 1 if is_windows() else self.parallel
-        if effective_parallel > 1:
+        if self.parallel > 1:
             print(f"  Running {len(test_infos)} tests with {self.parallel} workers...")
             with ThreadPoolExecutor(max_workers=self.parallel) as executor:
                 futures = {executor.submit(self._run_single_test, info): info for info in test_infos}

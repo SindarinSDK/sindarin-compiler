@@ -660,18 +660,26 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 
         /* Resolve full path */
         char full_path[PATH_MAX];
+#ifdef _WIN32
+        if (src[0] == '/' || (src[0] && src[1] == ':'))
+#else
         if (src[0] == '/')
+#endif
         {
             strncpy(full_path, src, sizeof(full_path) - 1);
             full_path[sizeof(full_path) - 1] = '\0';
         }
         else
         {
-            snprintf(full_path, sizeof(full_path), "%s" SN_PATH_SEP_STR "%s", source_dir, src);
+            snprintf(full_path, sizeof(full_path), "%s/%s", source_dir, src);
         }
 
         /* Derive .o output path in build_dir */
         const char *base = strrchr(full_path, '/');
+#ifdef _WIN32
+        const char *base_bs = strrchr(full_path, '\\');
+        if (base_bs && (!base || base_bs > base)) base = base_bs;
+#endif
         base = base ? base + 1 : full_path;
         char o_path[PATH_MAX];
         const char *dot = strrchr(base, '.');
@@ -707,6 +715,10 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         int offset = 0;
         for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
         {
+#ifdef _WIN32
+            /* Skip -lm on Windows — math functions are in the C runtime */
+            if (strcmp(link_libs[i], "m") == 0) continue;
+#endif
             const char *lib = translate_lib_name(link_libs[i]);
             int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", lib);
             if (written > 0) offset += written;
@@ -772,6 +784,17 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     exe_path[sizeof(exe_path) - 1] = '\0';
     normalize_path_separators(exe_path);
 
+#ifdef _WIN32
+    /* Windows: math functions are in CRT, no separate -lm needed */
+    snprintf(command, sizeof(command),
+        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
+        "%s \"%s\" "
+        "%s %s -lpthread%s %s %s -o \"%s\" 2>\"%s\"",
+        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
+        all_objs, runtime_lib,
+        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
+        exe_path, error_file);
+#else
     snprintf(command, sizeof(command),
         "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
@@ -780,6 +803,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         all_objs, runtime_lib,
         deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
         exe_path, error_file);
+#endif
 
     bool link_ok = run_compile_cmd(command, error_file, verbose);
 
