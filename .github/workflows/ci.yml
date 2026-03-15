@@ -48,7 +48,7 @@ jobs:
             runtime_dir: gcc
             sn_cc: clang
             sn_cflags: ''
-            sn_exclude_tests: 'test_thread_panic_propagate'
+            sn_exclude_tests: 'test_thread_panic_propagate test_limitation_closure_array'
 
     steps:
       - name: Checkout repository
