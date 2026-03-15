@@ -107,6 +107,50 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
     }
 }
 
+/* Extract interpolated string arguments from a call's args array into
+ * preceding sn_auto_str temp variables. This prevents memory leaks when
+ * interpolated strings (which call strdup) are passed directly as
+ * function arguments with no variable to own the allocation. */
+static void extract_interp_string_args(json_object *args, json_object *inserts)
+{
+    if (!args) return;
+    int len = json_object_array_length(args);
+    for (int i = 0; i < len; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!arg || !json_object_is_type(arg, json_type_object)) continue;
+
+        json_object *arg_kind = NULL;
+        if (!json_object_object_get_ex(arg, "kind", &arg_kind)) continue;
+        if (strcmp(json_object_get_string(arg_kind), "interpolated_string") != 0) continue;
+
+        /* Extract into a temp variable with sn_auto_str cleanup */
+        char tmp_name[64];
+        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+
+        json_object *str_type = json_object_new_object();
+        json_object_object_add(str_type, "kind", json_object_new_string("string"));
+
+        json_object *var_decl = json_object_new_object();
+        json_object_object_add(var_decl, "kind", json_object_new_string("var_decl"));
+        json_object_object_add(var_decl, "name", json_object_new_string(tmp_name));
+        json_object_object_add(var_decl, "type", str_type);
+        json_object_object_add(var_decl, "initializer", json_object_get(arg));
+        json_object_object_add(var_decl, "needs_cleanup", json_object_new_boolean(true));
+        json_object_object_add(var_decl, "cleanup_kind", json_object_new_string("str"));
+
+        json_object_array_add(inserts, var_decl);
+
+        /* Replace the argument with a variable reference */
+        json_object *var_ref = json_object_new_object();
+        json_object_object_add(var_ref, "kind", json_object_new_string("variable"));
+        json_object_object_add(var_ref, "name", json_object_new_string(tmp_name));
+        json_object_object_add(var_ref, "type", json_object_get(str_type));
+
+        json_object_array_put_idx(args, i, var_ref);
+    }
+}
+
 /*
  * Scan an expression for member calls whose object is not an lvalue.
  * When found, extract the object into a var_decl and collect it in `inserts`.
@@ -119,6 +163,29 @@ static void flatten_expr(json_object *expr, json_object *inserts)
     json_object *kind_obj = NULL;
     if (!json_object_object_get_ex(expr, "kind", &kind_obj)) return;
     const char *kind = json_object_get_string(kind_obj);
+
+    /* Thread spawns contain a call — recurse into it but do NOT extract
+     * interpolated string args, because the temp variable's sn_auto_str
+     * cleanup would free the string before the thread copies the arg. */
+    if (strcmp(kind, "thread_spawn") == 0)
+    {
+        json_object *call = NULL;
+        if (json_object_object_get_ex(expr, "call", &call))
+        {
+            /* Recurse into the call's callee and args WITHOUT extraction */
+            json_object *callee = NULL;
+            if (json_object_object_get_ex(call, "callee", &callee))
+                flatten_expr(callee, inserts);
+            json_object *args = NULL;
+            if (json_object_object_get_ex(call, "args", &args))
+            {
+                int len = json_object_array_length(args);
+                for (int i = 0; i < len; i++)
+                    flatten_expr(json_object_array_get_idx(args, i), inserts);
+            }
+        }
+        return;
+    }
 
     /* For call expressions with member callee, check the callee's object */
     if (strcmp(kind, "call") == 0)
@@ -180,10 +247,11 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             flatten_expr(callee, inserts);
         }
 
-        /* Recurse into args */
+        /* Extract interpolated string args, then recurse into remaining args */
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
+            extract_interp_string_args(args, inserts);
             int len = json_object_array_length(args);
             for (int i = 0; i < len; i++)
                 flatten_expr(json_object_array_get_idx(args, i), inserts);
@@ -233,6 +301,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
+            extract_interp_string_args(args, inserts);
             int len = json_object_array_length(args);
             for (int i = 0; i < len; i++)
                 flatten_expr(json_object_array_get_idx(args, i), inserts);
