@@ -192,15 +192,6 @@ TEST_CONFIGS = {
     'mgen': TestConfig(
         'tests/mgen', '*.sn', False, 'Model Generation Tests'
     ),
-    'mgen-c': TestConfig(
-        'tests/mgen-c', '*.sn', False, 'Model-Based C Generation Tests'
-    ),
-    'mgen-min-c': TestConfig(
-        'tests/mgen-min-c', '*.sn', False, 'Minimal C Generation Tests'
-    ),
-    'mgen-rust': TestConfig(
-        'tests/mgen-rust', '*.sn', False, 'Model-Based Rust Generation Tests'
-    ),
 }
 
 
@@ -343,39 +334,6 @@ class TestRunner:
                 json_file = exe_file + '.json'
                 status, reason, details = self._run_mgen_test_internal(
                     test_file, expected_file, json_file
-                )
-            elif test_type == 'mgen-c':
-                # Model-based C generation tests: compare generated C via templates
-                expected_file = test_file.replace('.sn', '.expected.c')
-                exe_ext = get_exe_extension()
-                if exe_ext:
-                    c_file = exe_file.replace(exe_ext, '.c')
-                else:
-                    c_file = exe_file + '.c'
-                status, reason, details = self._run_mgen_c_test_internal(
-                    test_file, expected_file, c_file
-                )
-            elif test_type == 'mgen-min-c':
-                # Minimal C generation tests: compare generated C via minimal templates
-                expected_file = test_file.replace('.sn', '.expected.c')
-                exe_ext = get_exe_extension()
-                if exe_ext:
-                    c_file = exe_file.replace(exe_ext, '.c')
-                else:
-                    c_file = exe_file + '.c'
-                status, reason, details = self._run_mgen_min_c_test_internal(
-                    test_file, expected_file, c_file
-                )
-            elif test_type == 'mgen-rust':
-                # Model-based Rust generation tests: compare generated Rust via templates
-                expected_file = test_file.replace('.sn', '.expected.rs')
-                exe_ext = get_exe_extension()
-                if exe_ext:
-                    rs_file = exe_file.replace(exe_ext, '.rs')
-                else:
-                    rs_file = exe_file + '.rs'
-                status, reason, details = self._run_mgen_rust_test_internal(
-                    test_file, expected_file, rs_file
                 )
             elif test_type == 'cgen':
                 # Code generation tests: compare generated C code
@@ -658,235 +616,6 @@ class TestRunner:
 
         return ('fail', 'JSON mismatch', details)
 
-    def _run_mgen_c_test_internal(self, test_file: str, expected_file: str,
-                                   c_file: str) -> Tuple[str, str, Optional[List[str]]]:
-        """Run a model-based C generation test. Compiles .sn -> JSON model -> C via templates, then compares. Returns (status, reason, details)."""
-        if not os.path.isfile(expected_file):
-            return ('skip', 'no .expected.c', None)
-
-        # Compile with --emit-model-c to generate C code via templates
-        compile_cmd = [self.compiler, test_file, '--emit-model-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
-        )
-
-        if exit_code != 0:
-            details = stderr.split('\n')[:20] if stderr else None
-            return ('fail', 'compile error', details)
-
-        # Read generated C code
-        if not os.path.isfile(c_file):
-            return ('fail', 'no C output', None)
-
-        with open(c_file, 'r') as f:
-            generated_c = f.read()
-
-        # Read expected C code
-        with open(expected_file, 'r') as f:
-            expected_c = f.read()
-
-        # Normalize line endings for cross-platform comparison
-        normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
-        normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
-
-        if normalized_generated != normalized_expected:
-            expected_lines = normalized_expected.split('\n')
-            actual_lines = normalized_generated.split('\n')
-            details = []
-
-            max_lines = max(len(expected_lines), len(actual_lines))
-            diff_count = 0
-            for i in range(max_lines):
-                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
-                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
-                if exp != act:
-                    if diff_count < 10:
-                        details.append(f"  line {i+1}:")
-                        details.append(f"    expected: {exp[:80]}")
-                        details.append(f"    got:      {act[:80]}")
-                    diff_count += 1
-
-            if diff_count > 10:
-                details.append(f"  ... and {diff_count - 10} more differences")
-
-            return ('fail', 'C code mismatch', details)
-
-        # C code matches - now compile the full binary via --codegen 2
-        # Skip binary compile if no main function (library module)
-        if 'int main()' not in generated_c:
-            return ('pass', None, None)
-
-        exe_ext = get_exe_extension()
-        if exe_ext:
-            exe_file = c_file.replace('.c', exe_ext)
-        else:
-            exe_file = c_file.replace('.c', '')
-
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
-        if not is_windows():
-            compile_cmd.append('-g')
-        exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
-        )
-
-        if exit_code != 0:
-            details = stderr.split('\n')[:20] if stderr else None
-            return ('fail', 'binary compile error (codegen 2)', details)
-
-        # Run the binary
-        exit_code, output, timeout_marker = run_with_timeout(
-            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
-        )
-
-        if exit_code != 0:
-            if timeout_marker == 'TIMEOUT':
-                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
-            else:
-                details = output.split('\n')[:20] if output else None
-                return ('fail', f'run exit code: {exit_code}', details)
-
-        return ('pass', '', None)
-
-    def _run_mgen_min_c_test_internal(self, test_file: str, expected_file: str,
-                                       c_file: str) -> Tuple[str, str, Optional[List[str]]]:
-        """Run a minimal C generation test. Compiles .sn -> JSON model -> minimal C via templates, then compares. Returns (status, reason, details)."""
-        if not os.path.isfile(expected_file):
-            return ('skip', 'no .expected.c', None)
-
-        # Compile with --emit-c to generate C code via templates
-        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
-        )
-
-        if exit_code != 0:
-            details = stderr.split('\n')[:20] if stderr else None
-            return ('fail', 'compile error', details)
-
-        # Read generated C code
-        if not os.path.isfile(c_file):
-            return ('fail', 'no C output', None)
-
-        with open(c_file, 'r') as f:
-            generated_c = f.read()
-
-        # Read expected C code
-        with open(expected_file, 'r') as f:
-            expected_c = f.read()
-
-        # Normalize line endings for cross-platform comparison
-        normalized_generated = generated_c.replace('\r\n', '\n').replace('\r', '\n')
-        normalized_expected = expected_c.replace('\r\n', '\n').replace('\r', '\n')
-
-        if normalized_generated != normalized_expected:
-            expected_lines = normalized_expected.split('\n')
-            actual_lines = normalized_generated.split('\n')
-            details = []
-
-            max_lines = max(len(expected_lines), len(actual_lines))
-            diff_count = 0
-            for i in range(max_lines):
-                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
-                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
-                if exp != act:
-                    if diff_count < 10:
-                        details.append(f"  line {i+1}:")
-                        details.append(f"    expected: {exp[:80]}")
-                        details.append(f"    got:      {act[:80]}")
-                    diff_count += 1
-
-            if diff_count > 10:
-                details.append(f"  ... and {diff_count - 10} more differences")
-
-            return ('fail', 'C code mismatch', details)
-
-        # C code matches - now compile the full binary via --codegen 3
-        # Skip binary compile if no main function (library module)
-        if 'int main()' not in generated_c:
-            return ('pass', None, None)
-
-        exe_ext = get_exe_extension()
-        if exe_ext:
-            exe_file = c_file.replace('.c', exe_ext)
-        else:
-            exe_file = c_file.replace('.c', '')
-
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
-        if not is_windows():
-            compile_cmd.append('-g')
-        exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
-        )
-
-        if exit_code != 0:
-            details = stderr.split('\n')[:20] if stderr else None
-            return ('fail', 'binary compile error (codegen 3)', details)
-
-        # Run the binary
-        exit_code, output, timeout_marker = run_with_timeout(
-            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
-        )
-
-        if exit_code != 0:
-            if timeout_marker == 'TIMEOUT':
-                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
-            else:
-                details = output.split('\n')[:20] if output else None
-                return ('fail', f'run exit code: {exit_code}', details)
-
-        return ('pass', '', None)
-
-    def _run_mgen_rust_test_internal(self, test_file: str, expected_file: str,
-                                      rs_file: str) -> Tuple[str, str, Optional[List[str]]]:
-        """Run a model-based Rust generation test. Compiles .sn -> JSON model -> Rust via templates, then compares."""
-        if not os.path.isfile(expected_file):
-            return ('skip', 'no .expected.rs', None)
-
-        compile_cmd = [self.compiler, test_file, '--emit-model-rust', '-o', rs_file, '-l', '1', '-O0', '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
-        )
-
-        if exit_code != 0:
-            details = stderr.split('\n')[:20] if stderr else None
-            return ('fail', 'compile error', details)
-
-        if not os.path.isfile(rs_file):
-            return ('fail', 'no Rust output', None)
-
-        with open(rs_file, 'r') as f:
-            generated_rs = f.read()
-
-        with open(expected_file, 'r') as f:
-            expected_rs = f.read()
-
-        normalized_generated = generated_rs.replace('\r\n', '\n').replace('\r', '\n')
-        normalized_expected = expected_rs.replace('\r\n', '\n').replace('\r', '\n')
-
-        if normalized_generated != normalized_expected:
-            expected_lines = normalized_expected.split('\n')
-            actual_lines = normalized_generated.split('\n')
-            details = []
-
-            max_lines = max(len(expected_lines), len(actual_lines))
-            diff_count = 0
-            for i in range(max_lines):
-                exp = expected_lines[i] if i < len(expected_lines) else '<missing>'
-                act = actual_lines[i] if i < len(actual_lines) else '<missing>'
-                if exp != act:
-                    if diff_count < 10:
-                        details.append(f"  line {i+1}:")
-                        details.append(f"    expected: {exp[:80]}")
-                        details.append(f"    got:      {act[:80]}")
-                    diff_count += 1
-
-            if diff_count > 10:
-                details.append(f"  ... and {diff_count - 10} more differences")
-
-            return ('fail', 'Rust code mismatch', details)
-
-        return ('pass', '', None)
-
     def _run_cgen_test_internal(self, test_file: str, expected_file: str,
                                  c_file: str) -> Tuple[str, str, Optional[List[str]]]:
         """Run a code generation test that compares generated C code, then compiles and runs. Returns (status, reason, details)."""
@@ -1080,7 +809,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'cgen', 'mgen', 'mgen-c', 'mgen-min-c', 'mgen-rust', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'mgen', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -1152,7 +881,7 @@ def main():
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['cgen', 'mgen', 'mgen-min-c', 'integration', 'integration-errors',
+            for test_type in ['cgen', 'mgen', 'integration', 'integration-errors',
                              'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
