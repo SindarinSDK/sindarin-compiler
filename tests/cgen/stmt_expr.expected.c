@@ -20,5 +20,6 @@ long long __sn__sideEffect() {
 
 int main() {
     __sn__sideEffect();
+    
     return 0LL;    fflush(stdout);
 }

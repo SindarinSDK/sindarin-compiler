@@ -22,7 +22,9 @@ int main() {
         __sn__name = __sn_tmp__;
         __sn__name;
     });
+    
     sn_assert((sn_str_length(__sn__name) == 5LL), "name should be world");
+    
     free(__sn__name);
     fflush(stdout);
     return 0;

@@ -17,6 +17,7 @@ typedef struct __Closure__ {
 int main() {
     __sn__greeting = strdup("hello");
     sn_assert((sn_str_length(__sn__greeting) == 5LL), "greeting should be 5 chars");
+    
     free(__sn__greeting);
     fflush(stdout);
     return 0;

@@ -67,6 +67,7 @@ typedef struct __Closure__ {
 void __sn__Counter_increment(__sn__Counter *__sn__self) {
 
     __sn__self->__sn__value = __sn__self->__sn__value + 1LL;
+    
 }
 
 long long __sn__Counter_getValue(__sn__Counter *__sn__self) {
@@ -76,7 +77,9 @@ long long __sn__Counter_getValue(__sn__Counter *__sn__self) {
 int main() {
     __sn__Counter __sn__c = (__sn__Counter){ .__sn__value = 0LL };
     __sn__Counter_increment(&__sn__c);
+    
     sn_assert((__sn__Counter_getValue(&__sn__c) == 1LL), "expected counter to be 1 after increment");
+    
     fflush(stdout);
     return 0;
 }

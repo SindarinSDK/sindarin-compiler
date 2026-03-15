@@ -135,7 +135,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 json_object_new_string(gen_model_mem_qual_str(m->params[j].mem_qualifier)));
             json_object_object_add(p, "sync_mod",
                 json_object_new_string(gen_model_sync_mod_str(m->params[j].sync_modifier)));
-            gen_model_emit_param_cleanup(p, &m->params[j]);
+            gen_model_emit_param_cleanup(p, &m->params[j], m->is_native);
             json_object_array_add(params, p);
         }
         json_object_object_add(method, "params", params);

@@ -22,6 +22,7 @@ int g_thread_handle_var_count = 0;
 bool g_suppress_local_cleanup = false;
 bool g_in_lambda_body = false;
 bool g_in_main_void = false;
+bool g_in_thread_spawn_call = false;
 
 char *g_closure_var_names[MAX_CLOSURE_VAR_MAP];
 int g_closure_var_lambda_ids[MAX_CLOSURE_VAR_MAP];

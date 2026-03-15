@@ -16,8 +16,10 @@ int main() {
     long long __sn__x = 0LL;
     while (sn_lt_long(__sn__x, 10LL)) {
         __sn__x++;
+        
     }
     sn_assert((__sn__x == 10LL), "expected x to be 10 after while loop");
+    
     fflush(stdout);
     return 0;
 }

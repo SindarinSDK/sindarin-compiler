@@ -76,6 +76,7 @@ int main() {
         __tmp__;
     });
     sn_assert((__sn__n->__sn__value == 42LL), "value should be 42");
+    
     fflush(stdout);
     return 0;
 }

@@ -77,6 +77,7 @@ int main() {
     });
     long long __sn__v = __sn__consume(__sn__Node_copy(__sn__n));
     sn_assert((__sn__v == 42LL), "should get value from copy");
+    
     fflush(stdout);
     return 0;
 }

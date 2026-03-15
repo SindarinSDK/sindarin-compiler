@@ -24,6 +24,7 @@ int main() {
             strdup(__is_buf__);
         });
     sn_assert((sn_str_length(__sn__a) == 5LL), "a should be 5 chars");
+    
     fflush(stdout);
     return 0;
 }

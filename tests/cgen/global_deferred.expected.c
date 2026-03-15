@@ -19,6 +19,7 @@ typedef struct __Closure__ {
 int main() {
     __sn__y = sn_add_long(__sn__x, 5LL);
     sn_assert((__sn__y == 15LL), "expected y to be 15");
+    
     fflush(stdout);
     return 0;
 }

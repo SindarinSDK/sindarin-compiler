@@ -23,6 +23,7 @@ int main() {
         __cl__;
     });
     sn_assert((((long long (*)(void *, long long, long long))((__Closure__ *)__sn__add)->fn)(__sn__add, 1LL, 2LL) == 3LL), "expected 1 + 2 to be 3");
+    
     fflush(stdout);
     return 0;
 }

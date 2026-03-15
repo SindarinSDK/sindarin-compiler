@@ -477,7 +477,7 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
             json_object_new_string(gen_model_mem_qual_str(func->params[i].mem_qualifier)));
         json_object_object_add(p, "sync_mod",
             json_object_new_string(gen_model_sync_mod_str(func->params[i].sync_modifier)));
-        gen_model_emit_param_cleanup(p, &func->params[i]);
+        gen_model_emit_param_cleanup(p, &func->params[i], func->is_native);
         json_object_array_add(params, p);
     }
     json_object_object_add(obj, "params", params);

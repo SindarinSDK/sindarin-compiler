@@ -31,7 +31,9 @@ int main() {
         free(((char * *)__sn__names->data)[__ai__]);
         ((char * *)__sn__names->data)[__ai__] = strdup("Charlie");
     });
+    
     sn_assert((sn_array_length(__sn__names) == 2LL), "should still have 2 names");
+    
     fflush(stdout);
     return 0;
 }

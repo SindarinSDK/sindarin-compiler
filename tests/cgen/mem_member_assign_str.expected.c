@@ -80,7 +80,9 @@ int main() {
         __sn__p->__sn__name = strdup("Bob");
         __sn__p->__sn__name;
     });
+    
     sn_assert((sn_str_length(__sn__p->__sn__name) == 3LL), "name should be Bob");
+    
     fflush(stdout);
     return 0;
 }

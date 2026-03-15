@@ -70,6 +70,7 @@ typedef struct __Closure__ {
 void __sn__Resource_dispose(__sn__Resource *__sn__self) {
 
     (__sn__disposed = true);
+    
 }
 
 int main() {
@@ -77,10 +78,12 @@ int main() {
         sn_auto_Resource __sn__Resource __sn__r = (__sn__Resource){ .__sn__name = strdup("test") };
     {
         sn_assert((strcmp(__sn__r.__sn__name, "test") == 0), "expected resource name to be test");
+        
     }
         __sn__Resource_dispose(&__sn__r);
     }
     sn_assert(__sn__disposed, "expected dispose to be called after using block");
+    
     fflush(stdout);
     return 0;
 }

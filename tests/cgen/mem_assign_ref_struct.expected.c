@@ -86,7 +86,9 @@ int main() {
         __sn__Node_release(&__old__);
         __sn__n;
     });
+    
     sn_assert((__sn__n->__sn__value == 2LL), "value should be 2 after reassign");
+    
     fflush(stdout);
     return 0;
 }

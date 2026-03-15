@@ -73,8 +73,11 @@ int main() {
     sn_auto_Person __sn__Person __sn__a = (__sn__Person){ .__sn__name = strdup("Alice"), .__sn__age = 30LL };
     sn_auto_Person __sn__Person __sn__b = __sn__Person_copy(&__sn__a);
     (__sn__b.__sn__age = 99LL);
+    
     sn_assert((__sn__a.__sn__age == 30LL), "original age should be unchanged");
+    
     sn_assert((__sn__b.__sn__age == 99LL), "copy should have new age");
+    
     fflush(stdout);
     return 0;
 }

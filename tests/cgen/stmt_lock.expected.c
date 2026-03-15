@@ -22,10 +22,13 @@ int main() {
     pthread_mutex_lock(&__sn__x_mutex);
     {
         (__sn__x = sn_add_long(__sn__x, 1LL));
+        
         (__sn__y = __sn__x);
+        
     }
     pthread_mutex_unlock(&__sn__x_mutex);
     sn_assert((__sn__y == 1LL), "expected y to be 1 after lock increment");
+    
     fflush(stdout);
     return 0;
 }

@@ -15,6 +15,8 @@ typedef struct __Closure__ {
 int main() {
     long long __sn__x = 10LL;
     __sn__x = __sn__x + 5LL;
+    
     __sn__x = __sn__x - 3LL;
+    
     return 0LL;    fflush(stdout);
 }

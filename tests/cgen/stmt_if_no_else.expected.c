@@ -16,8 +16,10 @@ int main() {
     long long __sn__x = 10LL;
     if (sn_gt_long(__sn__x, 5LL)) {
         (__sn__x = 1LL);
+        
     }
     sn_assert((__sn__x == 1LL), "expected x to be 1 after if branch");
+    
     fflush(stdout);
     return 0;
 }

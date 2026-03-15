@@ -1,1 +1,1 @@
-{{c_type return_type}} {{#if is_native}}{{#if c_alias}}{{c_alias}}{{else}}{{name}}{{/if}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{/if}}{{/each}}{{#if is_variadic}}{{#if params}}, {{/if}}...{{/if}});
+{{c_type return_type}} {{#if is_native}}{{#if c_alias}}{{c_alias}}{{else}}{{name}}{{/if}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{/if}}{{#if is_borrow}} *{{/if}}{{/each}}{{#if is_variadic}}{{#if params}}, {{/if}}...{{/if}});

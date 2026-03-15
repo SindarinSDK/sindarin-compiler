@@ -27,6 +27,7 @@ int main() {
             __al__;
         });
     sn_assert((sn_array_length(__sn__names) == 2LL), "should have 2 names");
+    
     fflush(stdout);
     return 0;
 }

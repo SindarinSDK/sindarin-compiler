@@ -1072,10 +1072,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(arg_type->as.struct_type.name));
                         }
                     }
-                    /* For val-type struct args with heap fields: deep copy at call site
-                     * to avoid shared char* pointers that lead to double-free.
-                     * Only needed for references to existing structs (variable, member,
-                     * array access), not for struct literals or function call results. */
+                    /* For composite val-type struct args (heap fields, MEM_DEFAULT):
+                     * borrow by pointer for non-native callees.
+                     * Lvalue args pass &arg; non-lvalue args use a statement-expression temp. */
                     {
                         json_object *existing_copy, *existing_ref;
                         if (!json_object_object_get_ex(arg, "is_copy_arg", &existing_copy) &&
@@ -1083,27 +1082,81 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             Expr *arg_expr = expr->as.call.arguments[i];
                             Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
-                            if (arg_type && arg_type->kind == TYPE_STRUCT &&
-                                !arg_type->as.struct_type.pass_self_by_ref &&
-                                (arg_expr->type == EXPR_VARIABLE ||
-                                 arg_expr->type == EXPR_MEMBER ||
-                                 arg_expr->type == EXPR_ARRAY_ACCESS))
+                            /* Only borrow when: callee is a known non-native function,
+                             * param is MEM_DEFAULT, not a built-in array method,
+                             * and we're not in a thread spawn. */
+                            bool callee_is_known_fn = false;
+                            bool callee_native = false;
+                            Type *ctype = expr->as.call.callee->expr_type;
+                            if (ctype && ctype->kind == TYPE_FUNCTION)
                             {
-                                bool has_heap = false;
-                                for (int fi = 0; fi < arg_type->as.struct_type.field_count; fi++)
+                                callee_is_known_fn = true;
+                                callee_native = ctype->as.function.is_native;
+                            }
+                            /* Exclude array built-ins and fn-field calls from borrow.
+                             * Struct method calls through EXPR_CALL keep borrow. */
+                            if (expr->as.call.callee->type == EXPR_MEMBER)
+                            {
+                                Expr *callee_obj = expr->as.call.callee->as.member.object;
+                                if (callee_obj && callee_obj->expr_type)
                                 {
-                                    Type *ft = arg_type->as.struct_type.fields[fi].type;
-                                    if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                              ft->kind == TYPE_FUNCTION ||
-                                              (ft->kind == TYPE_STRUCT &&
-                                               ft->as.struct_type.pass_self_by_ref)))
+                                    Type *obj_type = callee_obj->expr_type;
+                                    if (obj_type->kind == TYPE_ARRAY)
+                                        callee_is_known_fn = false;
+                                    else
                                     {
-                                        has_heap = true;
-                                        break;
+                                        /* Resolve through pointer for fn-field check */
+                                        Type *st = obj_type;
+                                        if (st->kind == TYPE_POINTER && st->as.pointer.base_type)
+                                            st = st->as.pointer.base_type;
+                                        if (st->kind == TYPE_STRUCT)
+                                        {
+                                            const char *mname = expr->as.call.callee->as.member.member_name.start;
+                                            int mlen = expr->as.call.callee->as.member.member_name.length;
+                                            for (int fi = 0; fi < st->as.struct_type.field_count; fi++)
+                                            {
+                                                StructField *sf = &st->as.struct_type.fields[fi];
+                                                if (sf->type && sf->type->kind == TYPE_FUNCTION &&
+                                                    (int)strlen(sf->name) == mlen &&
+                                                    strncmp(sf->name, mname, mlen) == 0)
+                                                {
+                                                    callee_is_known_fn = false;
+                                                    break;
+                                                }
+                                            }
+                                        }
                                     }
                                 }
-                                if (has_heap)
+                            }
+                            bool param_is_default = true;
+                            if (pmq && i < pmq_count && pmq[i] != MEM_DEFAULT)
+                                param_is_default = false;
+                            if (arg_type && gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE)
+                            {
+                                bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
+                                                  arg_expr->type == EXPR_MEMBER ||
+                                                  arg_expr->type == EXPR_ARRAY_ACCESS);
+                                if (callee_is_known_fn && !callee_native &&
+                                    param_is_default && !g_in_thread_spawn_call)
                                 {
+                                    /* MEM_DEFAULT + non-native: borrow by pointer */
+                                    if (is_lvalue)
+                                    {
+                                        json_object_object_add(arg, "is_ref_arg",
+                                            json_object_new_boolean(true));
+                                    }
+                                    else
+                                    {
+                                        json_object_object_add(arg, "is_borrow_tmp",
+                                            json_object_new_boolean(true));
+                                        json_object_object_add(arg, "borrow_type_name",
+                                            json_object_new_string(arg_type->as.struct_type.name));
+                                    }
+                                }
+                                else if (is_lvalue)
+                                {
+                                    /* Fallback: deep-copy for non-borrow cases (as val, native, etc.)
+                                     * to avoid shared heap pointers leading to double-free. */
                                     json_object_object_add(arg, "is_copy_arg",
                                         json_object_new_boolean(true));
                                     json_object_object_add(arg, "copy_type_name",
@@ -1143,10 +1196,27 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_object_add(wrapper, "return_type",
                                     gen_model_type(arena, fn_type->as.function.return_type));
                                 json_object *wrap_params = json_object_new_array();
+                                /* Resolve the target function's actual param info to detect borrow.
+                                 * Look up the target function in module stmts to get Parameter data. */
+                                bool target_is_native = fn_type->as.function.is_native;
                                 for (int p = 0; p < fn_type->as.function.param_count; p++)
                                 {
-                                    json_object_array_add(wrap_params,
-                                        gen_model_type(arena, fn_type->as.function.param_types[p]));
+                                    json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
+                                    /* Mark borrow params: non-native target, MEM_DEFAULT, COMPOSITE type */
+                                    if (!target_is_native)
+                                    {
+                                        Type *ptype = fn_type->as.function.param_types[p];
+                                        MemoryQualifier pmq_val = MEM_DEFAULT;
+                                        if (fn_type->as.function.param_mem_quals)
+                                            pmq_val = fn_type->as.function.param_mem_quals[p];
+                                        if (pmq_val == MEM_DEFAULT && ptype &&
+                                            gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                                        {
+                                            json_object_object_add(pt, "is_borrow",
+                                                json_object_new_boolean(true));
+                                        }
+                                    }
+                                    json_object_array_add(wrap_params, pt);
                                 }
                                 json_object_object_add(wrapper, "param_types", wrap_params);
                                 json_object_object_add(wrapper, "is_native",
@@ -1309,6 +1379,34 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(arg_type->as.struct_type.name));
                         }
                     }
+                    /* Composite val-type struct args: borrow for non-native methods */
+                    {
+                        json_object *existing_copy, *existing_ref;
+                        if (!json_object_object_get_ex(arg, "is_copy_arg", &existing_copy) &&
+                            !json_object_object_get_ex(arg, "is_ref_arg", &existing_ref))
+                        {
+                            Expr *arg_expr = expr->as.method_call.args[i];
+                            Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                            bool method_param_default = true;
+                            if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
+                                method_param_default = false;
+                            if (arg_type && gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE &&
+                                m && !m->is_native && method_param_default)
+                            {
+                                bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
+                                                  arg_expr->type == EXPR_MEMBER ||
+                                                  arg_expr->type == EXPR_ARRAY_ACCESS);
+                                if (is_lvalue)
+                                    json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                                else
+                                {
+                                    json_object_object_add(arg, "is_borrow_tmp", json_object_new_boolean(true));
+                                    json_object_object_add(arg, "borrow_type_name",
+                                        json_object_new_string(arg_type->as.struct_type.name));
+                                }
+                            }
+                        }
+                    }
                     json_object_array_add(args, arg);
                 }
             }
@@ -1354,6 +1452,34 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             json_object_object_add(arg, "is_copy_arg", json_object_new_boolean(true));
                             json_object_object_add(arg, "copy_type_name",
                                 json_object_new_string(arg_type->as.struct_type.name));
+                        }
+                    }
+                    /* Composite val-type struct args: borrow for non-native static methods */
+                    {
+                        json_object *existing_copy, *existing_ref;
+                        if (!json_object_object_get_ex(arg, "is_copy_arg", &existing_copy) &&
+                            !json_object_object_get_ex(arg, "is_ref_arg", &existing_ref))
+                        {
+                            Expr *arg_expr = expr->as.static_call.arguments[i];
+                            Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                            bool static_param_default = true;
+                            if (m && i < m->param_count && m->params[i].mem_qualifier != MEM_DEFAULT)
+                                static_param_default = false;
+                            if (arg_type && gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE &&
+                                m && !m->is_native && static_param_default)
+                            {
+                                bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
+                                                  arg_expr->type == EXPR_MEMBER ||
+                                                  arg_expr->type == EXPR_ARRAY_ACCESS);
+                                if (is_lvalue)
+                                    json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                                else
+                                {
+                                    json_object_object_add(arg, "is_borrow_tmp", json_object_new_boolean(true));
+                                    json_object_object_add(arg, "borrow_type_name",
+                                        json_object_new_string(arg_type->as.struct_type.name));
+                                }
+                            }
                         }
                     }
                     json_object_array_add(args, arg);
@@ -1647,9 +1773,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_object_add(wrapper, "return_type",
                                         gen_model_type(arena, fn_type->as.function.return_type));
                                     json_object *wrap_params = json_object_new_array();
+                                    bool tgt_native = fn_type->as.function.is_native;
                                     for (int p = 0; p < fn_type->as.function.param_count; p++)
-                                        json_object_array_add(wrap_params,
-                                            gen_model_type(arena, fn_type->as.function.param_types[p]));
+                                    {
+                                        json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
+                                        if (!tgt_native)
+                                        {
+                                            Type *ptype = fn_type->as.function.param_types[p];
+                                            MemoryQualifier pmq_val = MEM_DEFAULT;
+                                            if (fn_type->as.function.param_mem_quals)
+                                                pmq_val = fn_type->as.function.param_mem_quals[p];
+                                            if (pmq_val == MEM_DEFAULT && ptype &&
+                                                gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                                                json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
+                                        }
+                                        json_object_array_add(wrap_params, pt);
+                                    }
                                     json_object_object_add(wrapper, "param_types", wrap_params);
                                     json_object_object_add(wrapper, "is_native",
                                         json_object_new_boolean(fn_type->as.function.is_native));
@@ -1834,9 +1973,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_object_add(wrapper, "return_type",
                             gen_model_type(arena, fn_type->as.function.return_type));
                         json_object *wrap_params = json_object_new_array();
+                        bool tgt_native3 = fn_type->as.function.is_native;
                         for (int p = 0; p < fn_type->as.function.param_count; p++)
-                            json_object_array_add(wrap_params,
-                                gen_model_type(arena, fn_type->as.function.param_types[p]));
+                        {
+                            json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
+                            if (!tgt_native3)
+                            {
+                                Type *ptype = fn_type->as.function.param_types[p];
+                                MemoryQualifier pmq_val = MEM_DEFAULT;
+                                if (fn_type->as.function.param_mem_quals)
+                                    pmq_val = fn_type->as.function.param_mem_quals[p];
+                                if (pmq_val == MEM_DEFAULT && ptype &&
+                                    gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+                                    json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
+                            }
+                            json_object_array_add(wrap_params, pt);
+                        }
                         json_object_object_add(wrapper, "param_types", wrap_params);
                         json_object_object_add(wrapper, "is_native",
                             json_object_new_boolean(fn_type->as.function.is_native));
@@ -1961,7 +2113,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     gen_model_type(arena, lam->params[i].type));
                 json_object_object_add(p, "mem_qual",
                     json_object_new_string(gen_model_mem_qual_str(lam->params[i].mem_qualifier)));
-                gen_model_emit_param_cleanup(p, &lam->params[i]);
+                gen_model_emit_param_cleanup(p, &lam->params[i], lam->is_native);
                 json_object_array_add(params, p);
             }
             json_object_object_add(obj, "params", params);
@@ -2046,7 +2198,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         gen_model_type(arena, lam->params[i].type));
                     json_object_object_add(lp, "mem_qual",
                         json_object_new_string(gen_model_mem_qual_str(lam->params[i].mem_qualifier)));
-                    gen_model_emit_param_cleanup(lp, &lam->params[i]);
+                    gen_model_emit_param_cleanup(lp, &lam->params[i], lam->is_native);
                     json_object_array_add(lparams, lp);
                 }
                 json_object_object_add(ldef, "params", lparams);
@@ -2151,7 +2303,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "thread_id", json_object_new_int(thread_id));
 
             Expr *call_expr = expr->as.thread_spawn.call;
+            bool was_in_ts = g_in_thread_spawn_call;
+            g_in_thread_spawn_call = true;
             json_object *call_obj = gen_model_expr(arena, call_expr, symbol_table, arithmetic_mode);
+            g_in_thread_spawn_call = was_in_ts;
             json_object_object_add(obj, "call", call_obj);
             json_object_object_add(obj, "modifier",
                 json_object_new_string(func_mod_str(expr->as.thread_spawn.modifier)));
@@ -2265,6 +2420,23 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             json_object_object_add(arg, "is_ref",
                                 json_object_new_boolean(true));
+                        }
+                        /* Check if this param would be a borrow in the function signature.
+                         * Thread wrapper must pass &args->argN for borrow params. */
+                        {
+                            Type *arg_type = arg_expr->expr_type;
+                            bool callee_native = false;
+                            Type *ctype = call_expr->as.call.callee->expr_type;
+                            if (ctype && ctype->kind == TYPE_FUNCTION)
+                                callee_native = ctype->as.function.is_native;
+                            MemoryQualifier mq = (param_mem_quals && i < param_count)
+                                ? param_mem_quals[i] : MEM_DEFAULT;
+                            if (mq == MEM_DEFAULT && !callee_native &&
+                                arg_type && gen_model_type_category(arg_type) == TYPE_CAT_COMPOSITE)
+                            {
+                                json_object_object_add(arg, "is_borrow",
+                                    json_object_new_boolean(true));
+                            }
                         }
                         /* Check if corresponding call arg is a fn_ref_arg (bare function
                          * reference wrapped in a heap-allocated __Closure__).  The thread

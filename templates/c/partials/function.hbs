@@ -1,5 +1,6 @@
-{{c_type return_type}} {{#if is_native}}{{name}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}}{{#if (eq mem_qual "as_ref")}} *{{else}} {{/if}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
+{{c_type return_type}} {{#if is_native}}{{name}}{{else}}__sn__{{name}}{{/if}}({{#each params}}{{#if @index}}, {{/if}}{{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if is_borrow}}*__bp__{{name}}{{else}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/if}}{{/each}}) {
 {{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
+{{/if}}{{#if is_borrow}}    {{c_type type}} __sn__{{name}} = *__bp__{{name}};
 {{/if}}{{/each}}{{#each body}}
     {{> stmt this}}
 {{/each}}

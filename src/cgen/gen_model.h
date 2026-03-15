@@ -64,6 +64,11 @@ extern bool g_in_lambda_body;
  * C requires main to return int, so bare returns must become return 0; */
 extern bool g_in_main_void;
 
+/* Set to true when generating the inner call of a thread_spawn expression.
+ * Thread args need owned copies, not borrowed pointers, so borrow arg
+ * logic must be skipped. */
+extern bool g_in_thread_spawn_call;
+
 /* Maps closure variable names to their lambda_ids for return-site cleanup.
  * Set when a var_decl has closure_lambda_id with has_ref_captures. */
 #define MAX_CLOSURE_VAR_MAP 64
@@ -111,12 +116,24 @@ const char *gen_model_mem_qual_str(MemoryQualifier mq);
 const char *gen_model_sync_mod_str(SyncModifier sm);
 const char *gen_model_func_mod_str(FunctionModifier fm);
 
+/* Type category classification — replaces scattered inline type checks */
+typedef enum {
+    TYPE_CAT_SCALAR,      /* int/int32/uint/uint32/long/double/float/bool/byte/char/void/nil/pointer/opaque */
+    TYPE_CAT_OWNED,       /* string/array/function — caller-owned heap allocation */
+    TYPE_CAT_REFCOUNTED,  /* struct with pass_self_by_ref — reference counted */
+    TYPE_CAT_COMPOSITE,   /* struct without pass_self_by_ref, has heap fields — needs cleanup */
+    TYPE_CAT_INERT        /* struct without pass_self_by_ref, no heap fields — plain value */
+} TypeCategory;
+
+TypeCategory gen_model_type_category(Type *type);
+const char *gen_model_type_category_str(TypeCategory cat);
+
 /* Type utilities */
 json_object *gen_model_type(Arena *arena, Type *type);
 const char *gen_model_type_kind_str(TypeKind kind);
 bool gen_model_type_has_heap_fields(Type *type);
 const char *gen_model_var_cleanup_kind(Type *type, bool suppress_local);
-void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param);
+void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool callee_is_native);
 
 /* Statement emission */
 json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,

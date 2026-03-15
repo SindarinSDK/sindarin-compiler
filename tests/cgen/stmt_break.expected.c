@@ -16,11 +16,13 @@ int main() {
     long long __sn__x = 0LL;
     while (true) {
         __sn__x++;
+        
         if ((__sn__x == 5LL)) {
             break;
         }
     }
     sn_assert((__sn__x == 5LL), "expected x to be 5 after break");
+    
     fflush(stdout);
     return 0;
 }

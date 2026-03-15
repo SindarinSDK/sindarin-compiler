@@ -56,6 +56,66 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         json_object_new_boolean(true));
                 }
             }
+            /* Discarded expression cleanup: when a STMT_EXPR produces a value of
+             * Owned/Refcounted/Composite type that nobody captures, wrap it in a
+             * cleanup block to prevent leaks (e.g. res.setHeader("X", "Y")). */
+            {
+                Expr *ex = stmt->as.expression.expression;
+                /* Skip expressions that don't produce heap values or are side-effect-only */
+                bool skip_discard = (ex->type == EXPR_ASSIGN ||
+                                     ex->type == EXPR_INDEX_ASSIGN ||
+                                     ex->type == EXPR_MEMBER_ASSIGN ||
+                                     ex->type == EXPR_COMPOUND_ASSIGN ||
+                                     ex->type == EXPR_INCREMENT ||
+                                     ex->type == EXPR_DECREMENT ||
+                                     ex->type == EXPR_THREAD_SPAWN ||
+                                     ex->type == EXPR_THREAD_SYNC);
+                /* Skip array built-in method calls (push, pop, remove, insert, etc.)
+                 * — their C macros may return void even if type checker infers a type */
+                if (!skip_discard && ex->type == EXPR_CALL && ex->as.call.callee &&
+                    ex->as.call.callee->type == EXPR_MEMBER)
+                {
+                    Expr *obj = ex->as.call.callee->as.member.object;
+                    if (obj && obj->expr_type && obj->expr_type->kind == TYPE_ARRAY)
+                        skip_discard = true;
+                }
+                if (!skip_discard && ex->expr_type)
+                {
+                    TypeCategory cat = gen_model_type_category(ex->expr_type);
+                    switch (cat)
+                    {
+                        case TYPE_CAT_OWNED:
+                            json_object_object_add(obj, "needs_discard_cleanup",
+                                json_object_new_boolean(true));
+                            if (ex->expr_type->kind == TYPE_STRING)
+                                json_object_object_add(obj, "discard_kind",
+                                    json_object_new_string("str"));
+                            else if (ex->expr_type->kind == TYPE_ARRAY)
+                                json_object_object_add(obj, "discard_kind",
+                                    json_object_new_string("arr"));
+                            else
+                                json_object_object_add(obj, "discard_kind",
+                                    json_object_new_string("fn"));
+                            break;
+                        case TYPE_CAT_REFCOUNTED:
+                            /* Do NOT discard-cleanup refcounted types. Builder methods
+                             * (setX, addY) return self — the discarded return value is
+                             * an alias, not a new reference. Releasing it would free
+                             * the object the caller still holds. */
+                            break;
+                        case TYPE_CAT_COMPOSITE:
+                            json_object_object_add(obj, "needs_discard_cleanup",
+                                json_object_new_boolean(true));
+                            json_object_object_add(obj, "discard_kind",
+                                json_object_new_string("val_cleanup"));
+                            json_object_object_add(obj, "discard_type_name",
+                                json_object_new_string(ex->expr_type->as.struct_type.name));
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
             break;
         }
 
