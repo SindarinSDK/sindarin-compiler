@@ -158,51 +158,6 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
     }
 }
 
-/* Check if a struct has heap fields by looking up the model's structs array. */
-static bool struct_has_heap_fields(const char *struct_name)
-{
-    if (!g_model_structs || !struct_name) return false;
-    int len = json_object_array_length(g_model_structs);
-    for (int i = 0; i < len; i++)
-    {
-        json_object *st = json_object_array_get_idx(g_model_structs, i);
-        json_object *name_obj = NULL;
-        if (json_object_object_get_ex(st, "name", &name_obj) &&
-            strcmp(json_object_get_string(name_obj), struct_name) == 0)
-        {
-            json_object *hh = NULL;
-            if (json_object_object_get_ex(st, "has_heap_fields", &hh))
-                return json_object_get_boolean(hh);
-            return false;
-        }
-    }
-    return false;
-}
-
-/* Check if a type JSON object represents a heap-producing type
- * (string, array, function, ref struct, or composite val struct). */
-static bool is_heap_type(json_object *type_obj)
-{
-    if (!type_obj) return false;
-    json_object *kind_obj = NULL;
-    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return false;
-    const char *kind = json_object_get_string(kind_obj);
-
-    if (strcmp(kind, "string") == 0) return true;
-    if (strcmp(kind, "array") == 0) return true;
-    if (strcmp(kind, "function") == 0) return true;
-    if (strcmp(kind, "struct") == 0)
-    {
-        json_object *name_obj = NULL;
-        json_object_object_get_ex(type_obj, "name", &name_obj);
-        if (!name_obj) return false;
-        const char *sname = json_object_get_string(name_obj);
-        if (struct_is_pass_by_ref(sname)) return true;
-        if (struct_has_heap_fields(sname)) return true;
-    }
-    return false;
-}
-
 /* Extract heap-producing call arguments that are non-lvalue call results
  * into preceding temp variables with appropriate cleanup. This catches
  * patterns like sn_str_concat(buffer, arr_toString(&chunk)) where the
