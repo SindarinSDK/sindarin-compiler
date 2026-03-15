@@ -29,6 +29,33 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("expr"));
             json_object_object_add(obj, "expr",
                 gen_model_expr(arena, stmt->as.expression.expression, symbol_table, arithmetic_mode));
+            /* Fire-and-forget thread spawn: mark the thread def so the wrapper
+             * frees __th__, and mark the statement for pthread_detach. */
+            if (stmt->as.expression.expression->type == EXPR_THREAD_SPAWN)
+            {
+                json_object *expr_obj = NULL;
+                json_object_object_get_ex(obj, "expr", &expr_obj);
+                json_object *tid_obj = NULL;
+                if (expr_obj && json_object_object_get_ex(expr_obj, "thread_id", &tid_obj))
+                {
+                    int tid = json_object_get_int(tid_obj);
+                    int tlen = json_object_array_length(g_model_threads);
+                    for (int ti = 0; ti < tlen; ti++)
+                    {
+                        json_object *tdef = json_object_array_get_idx(g_model_threads, ti);
+                        json_object *tdef_id = NULL;
+                        if (json_object_object_get_ex(tdef, "thread_id", &tdef_id) &&
+                            json_object_get_int(tdef_id) == tid)
+                        {
+                            json_object_object_add(tdef, "is_fire_and_forget",
+                                json_object_new_boolean(true));
+                            break;
+                        }
+                    }
+                    json_object_object_add(obj, "is_fire_and_forget_thread",
+                        json_object_new_boolean(true));
+                }
+            }
             break;
         }
 

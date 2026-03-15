@@ -39,18 +39,32 @@ const char *gen_model_func_mod_str(FunctionModifier fm)
  * Type utilities (shared helpers for cleanup/heap analysis)
  * ============================================================================ */
 
-bool gen_model_type_has_heap_fields(Type *type)
+static bool has_heap_fields_recursive(Type *type, Type **visited, int depth)
 {
-    if (!type || type->kind != TYPE_STRUCT) return false;
+    if (!type || type->kind != TYPE_STRUCT || depth > 32) return false;
+    for (int v = 0; v < depth; v++)
+        if (visited[v] == type) return false;  /* cycle guard */
+    visited[depth] = type;
     for (int i = 0; i < type->as.struct_type.field_count; i++)
     {
         Type *ft = type->as.struct_type.fields[i].type;
-        if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                   ft->kind == TYPE_FUNCTION ||
-                   (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
+        if (!ft) continue;
+        if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+            ft->kind == TYPE_FUNCTION ||
+            (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref))
             return true;
+        /* Recurse into nested val-type structs */
+        if (ft->kind == TYPE_STRUCT && !ft->as.struct_type.pass_self_by_ref)
+            if (has_heap_fields_recursive(ft, visited, depth + 1))
+                return true;
     }
     return false;
+}
+
+bool gen_model_type_has_heap_fields(Type *type)
+{
+    Type *visited[33];
+    return has_heap_fields_recursive(type, visited, 0);
 }
 
 const char *gen_model_var_cleanup_kind(Type *type, bool suppress_local)
@@ -79,15 +93,17 @@ void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param)
 {
     if (!param->type || param->type->kind != TYPE_STRUCT) return;
 
-    /* as val param on as ref struct: owns the copy, needs release */
+    /* Explicit 'as val' param on as ref struct: owns the copy, needs release.
+     * MEM_DEFAULT on as ref structs passes by pointer (no copy), so only MEM_AS_VAL triggers this. */
     if (param->mem_qualifier == MEM_AS_VAL && param->type->as.struct_type.pass_self_by_ref)
     {
         json_object_object_add(param_obj, "param_cleanup", json_object_new_string("release"));
     }
 
-    /* as val param on val-type struct with heap fields: needs struct cleanup.
+    /* Explicit 'as val' param on val-type struct with heap fields: needs struct cleanup.
      * GCC cleanup attribute can't go on function params, so we rename the param
-     * and generate a local with sn_auto_StructName at function body start. */
+     * and generate a local with sn_auto_StructName at function body start.
+     * MEM_DEFAULT borrows the struct (no cleanup needed), only MEM_AS_VAL takes ownership. */
     if (param->mem_qualifier == MEM_AS_VAL && !param->type->as.struct_type.pass_self_by_ref)
     {
         if (gen_model_type_has_heap_fields(param->type))

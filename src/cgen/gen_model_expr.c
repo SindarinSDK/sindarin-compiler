@@ -352,6 +352,31 @@ static const char *func_mod_str(FunctionModifier fm)
     }
 }
 
+/* Predicate: does this string-typed expression produce a NEW heap allocation?
+ * Uses a whitelist of known heap-producing expression types.
+ * Generic EXPR_CALL is excluded because closures/lambdas may return borrowed strings. */
+static bool is_heap_producing_string_expr(Expr *expr)
+{
+    if (!expr || !expr->expr_type || expr->expr_type->kind != TYPE_STRING)
+        return false;
+    switch (expr->type)
+    {
+        /* String concat (a + b) always allocates */
+        case EXPR_BINARY:
+            return (expr->as.binary.operator == TOKEN_PLUS);
+        /* Method calls on strings (toLower, trim, replace, etc.) always return owned */
+        case EXPR_METHOD_CALL:
+        /* Static calls (e.g., String.fromChar) always return owned */
+        case EXPR_STATIC_CALL:
+        /* Interpolated strings allocate */
+        case EXPR_INTERPOLATED:
+            return true;
+        /* Generic EXPR_CALL excluded: closures may return borrowed strings */
+        default:
+            return false;
+    }
+}
+
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode)
 {
@@ -643,8 +668,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(binary_op_str(expr->as.compound_assign.operator)));
             json_object_object_add(obj, "target",
                 gen_model_expr(arena, expr->as.compound_assign.target, symbol_table, arithmetic_mode));
-            json_object_object_add(obj, "value",
-                gen_model_expr(arena, expr->as.compound_assign.value, symbol_table, arithmetic_mode));
+            json_object *ca_val = gen_model_expr(arena, expr->as.compound_assign.value, symbol_table, arithmetic_mode);
+            /* For string +=, mark heap-producing value for temp cleanup */
+            if (is_heap_producing_string_expr(expr->as.compound_assign.value))
+                json_object_object_add(ca_val, "is_str_temp",
+                    json_object_new_boolean(true));
+            json_object_object_add(obj, "value", ca_val);
             break;
         }
 
@@ -694,9 +723,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object *part = gen_model_expr(arena, parts[pi],
                             symbol_table, arithmetic_mode);
                         /* Check if this part is a temp string allocation that needs cleanup */
-                        bool is_temp = (parts[pi]->type == EXPR_CALL ||
-                                        parts[pi]->type == EXPR_METHOD_CALL);
-                        if (is_temp)
+                        if (is_heap_producing_string_expr(parts[pi]))
                             json_object_object_add(part, "is_str_temp",
                                 json_object_new_boolean(true));
                         json_object_array_add(parts_arr, part);
@@ -715,20 +742,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object *left_obj = gen_model_expr(arena, expr->as.binary.left, symbol_table, arithmetic_mode);
             json_object *right_obj = gen_model_expr(arena, expr->as.binary.right, symbol_table, arithmetic_mode);
 
-            /* For string binary ops, check for temp string concat sub-expressions */
+            /* For string binary ops, mark heap-producing operands for temp cleanup */
             {
-                Type *lt = expr->as.binary.left->expr_type;
-                if (lt && lt->kind == TYPE_STRING)
-                {
-                    ExprType lk = expr->as.binary.left->type;
-                    ExprType rk = expr->as.binary.right->type;
-                    if (lk == EXPR_BINARY && expr->as.binary.left->as.binary.operator == TOKEN_PLUS)
-                        json_object_object_add(left_obj, "is_str_temp",
-                            json_object_new_boolean(true));
-                    if (rk == EXPR_BINARY && expr->as.binary.right->as.binary.operator == TOKEN_PLUS)
-                        json_object_object_add(right_obj, "is_str_temp",
-                            json_object_new_boolean(true));
-                }
+                if (is_heap_producing_string_expr(expr->as.binary.left))
+                    json_object_object_add(left_obj, "is_str_temp",
+                        json_object_new_boolean(true));
+                if (is_heap_producing_string_expr(expr->as.binary.right))
+                    json_object_object_add(right_obj, "is_str_temp",
+                        json_object_new_boolean(true));
             }
 
             json_object_object_add(obj, "left", left_obj);
@@ -1938,6 +1959,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_string(lam->params[i].name.start));
                 json_object_object_add(p, "type",
                     gen_model_type(arena, lam->params[i].type));
+                json_object_object_add(p, "mem_qual",
+                    json_object_new_string(gen_model_mem_qual_str(lam->params[i].mem_qualifier)));
+                gen_model_emit_param_cleanup(p, &lam->params[i]);
                 json_object_array_add(params, p);
             }
             json_object_object_add(obj, "params", params);
@@ -2020,6 +2044,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_new_string(lam->params[i].name.start));
                     json_object_object_add(lp, "type",
                         gen_model_type(arena, lam->params[i].type));
+                    json_object_object_add(lp, "mem_qual",
+                        json_object_new_string(gen_model_mem_qual_str(lam->params[i].mem_qualifier)));
+                    gen_model_emit_param_cleanup(lp, &lam->params[i]);
                     json_object_array_add(lparams, lp);
                 }
                 json_object_object_add(ldef, "params", lparams);

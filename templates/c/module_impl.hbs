@@ -33,7 +33,9 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{#if is_void}}
     __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
-{{/if}}{{/each}}{{else}}
+{{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
+{{/if}}{{#if is_fire_and_forget}}    free(__th__);
+{{/if}}{{else}}
     {{c_type return_type}} __result__ = __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
@@ -72,8 +74,9 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 }{{/if}}{{/with}}
 {{#each lambdas}}
 
-static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} __sn__{{name}}{{/each}}) {
-{{#each captures}}
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
+{{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
+{{/if}}{{/each}}{{#each captures}}
 {{#if is_ref}}
     {{c_type type}} *__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};
 {{else}}
