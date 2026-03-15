@@ -1,1 +1,3 @@
-{{> expr expr}};
+{{#if is_fire_and_forget_thread}}{ SnThread *__ff__ = {{> expr expr}}; pthread_detach(__ff__->thread); }
+{{else}}{{> expr expr}};
+{{/if}}

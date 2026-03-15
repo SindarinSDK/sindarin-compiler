@@ -75,7 +75,58 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
 
     json_object *kind_obj = NULL;
     json_object_object_get_ex(obj_type, "kind", &kind_obj);
-    if (!kind_obj || strcmp(json_object_get_string(kind_obj), "struct") != 0) return;
+    if (!kind_obj) return;
+    const char *kind = json_object_get_string(kind_obj);
+
+    /* Check if the initializer is a literal (non-heap) — no cleanup needed */
+    json_object *init_obj = NULL;
+    json_object_object_get_ex(var_decl, "initializer", &init_obj);
+    const char *init_kind = NULL;
+    if (init_obj)
+    {
+        json_object *ik = NULL;
+        if (json_object_object_get_ex(init_obj, "kind", &ik))
+            init_kind = json_object_get_string(ik);
+    }
+    bool is_literal = (init_kind && strcmp(init_kind, "literal") == 0);
+
+    /* String, array, function temps need cleanup (unless literal) */
+    if (strcmp(kind, "string") == 0)
+    {
+        if (!is_literal)
+        {
+            json_object_object_add(var_decl, "cleanup_kind",
+                json_object_new_string("str"));
+            json_object_object_add(var_decl, "needs_cleanup",
+                json_object_new_boolean(true));
+        }
+        return;
+    }
+    if (strcmp(kind, "array") == 0)
+    {
+        if (!is_literal)
+        {
+            json_object_object_add(var_decl, "cleanup_kind",
+                json_object_new_string("arr"));
+            json_object_object_add(var_decl, "needs_cleanup",
+                json_object_new_boolean(true));
+        }
+        return;
+    }
+    if (strcmp(kind, "function") == 0)
+    {
+        if (!is_literal)
+        {
+            json_object_object_add(var_decl, "cleanup_kind",
+                json_object_new_string("fn"));
+            json_object_object_add(var_decl, "needs_cleanup",
+                json_object_new_boolean(true));
+        }
+        return;
+    }
+
+    /* Struct temps */
+    if (strcmp(kind, "struct") != 0) return;
 
     json_object *name_obj = NULL;
     json_object_object_get_ex(obj_type, "name", &name_obj);

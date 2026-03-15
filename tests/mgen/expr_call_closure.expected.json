@@ -156,7 +156,8 @@
                 "name": "n",
                 "type": {
                   "kind": "int"
-                }
+                },
+                "mem_qual": "default"
               }
             ],
             "captures": [],
@@ -306,7 +307,8 @@
           "name": "n",
           "type": {
             "kind": "int"
-          }
+          },
+          "mem_qual": "default"
         }
       ],
       "captures": [],

@@ -1,6 +1,11 @@
 {{#if (eq target.type.kind "string")}}({
+{{#if value.is_str_temp}}    char *__sct__ = {{> expr value}};
     char *__old__ = {{> expr target}};
+    {{> expr target}} = sn_str_concat({{> expr target}}, __sct__);
+    free(__old__);
+    free(__sct__);
+{{else}}    char *__old__ = {{> expr target}};
     {{> expr target}} = sn_str_concat({{> expr target}}, {{> expr value}});
     free(__old__);
-    {{> expr target}};
+{{/if}}    {{> expr target}};
 }){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}

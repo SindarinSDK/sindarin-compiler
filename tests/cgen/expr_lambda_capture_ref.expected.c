@@ -49,6 +49,7 @@ int main() {
 }
 
 static void __lambda_0__(void *__closure__) {
+
     long long *__sn__x = ((__closure_0__ *)__closure__)->x;
 
     (*__sn__x) = (*__sn__x) + 1LL;

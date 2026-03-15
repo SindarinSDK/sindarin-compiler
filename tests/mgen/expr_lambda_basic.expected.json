@@ -80,13 +80,15 @@
                 "name": "a",
                 "type": {
                   "kind": "int"
-                }
+                },
+                "mem_qual": "default"
               },
               {
                 "name": "b",
                 "type": {
                   "kind": "int"
-                }
+                },
+                "mem_qual": "default"
               }
             ],
             "captures": [],
@@ -214,13 +216,15 @@
           "name": "a",
           "type": {
             "kind": "int"
-          }
+          },
+          "mem_qual": "default"
         },
         {
           "name": "b",
           "type": {
             "kind": "int"
-          }
+          },
+          "mem_qual": "default"
         }
       ],
       "captures": [],

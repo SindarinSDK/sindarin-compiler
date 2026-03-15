@@ -36,6 +36,7 @@ int main() {
 }
 
 static long long __lambda_0__(void *__closure__, long long __sn__n) {
+
     long long __sn__x = ((__closure_0__ *)__closure__)->x;
     return sn_add_long(__sn__n, __sn__x);
 }
