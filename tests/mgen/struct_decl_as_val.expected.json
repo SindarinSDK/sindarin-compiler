@@ -57,7 +57,8 @@
         }
       ],
       "has_heap_fields": false,
-      "methods": []
+      "methods": [],
+      "has_dispose": false
     }
   ],
   "globals": [],

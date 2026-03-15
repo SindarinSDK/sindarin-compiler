@@ -18,7 +18,8 @@ static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{#if (eq cleanup_action "release")}}        __sn__{{type.name}}_release(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{#if (eq cleanup_action "cleanup_val")}}        __sn__{{type.name}}_cleanup(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
-{{/if}}{{/each}}        free(*p);
+{{/if}}{{/each}}{{#if has_dispose}}        {{dispose_alias}}(*p);
+{{/if}}        free(*p);
     }
     *p = NULL;
 }
