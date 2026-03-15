@@ -51,12 +51,6 @@ jobs:
             artifact_name: sindarin-windows-x64
             exe_ext: '.exe'
 
-          - os: macos-15
-            platform: darwin
-            compiler: clang
-            artifact_name: sindarin-darwin-x64
-            exe_ext: ''
-
           - os: macos-latest
             platform: darwin
             compiler: clang
