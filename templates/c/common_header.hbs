@@ -18,8 +18,9 @@
 extern {{#if is_static}}/* static */ {{/if}}{{c_type type}} __sn__{{name}};
 {{#if (eq sync_mod "atomic")}}extern pthread_mutex_t __sn__{{name}}_mutex;
 {{/if}}{{/each}}
-{{#each functions}}{{#if (eq name "main")}}{{else}}{{> forward_decl this}}
-{{/if}}{{/each}}
+{{#each functions}}{{#if (eq name "main")}}{{else}}{{#if c_alias}}{{#unless has_body}}{{else}}{{> forward_decl this}}
+{{/unless}}{{else}}{{> forward_decl this}}
+{{/if}}{{/if}}{{/each}}
 {{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
 {{/each}}{{/each}}
 {{#each threads}}

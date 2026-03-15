@@ -93,6 +93,7 @@ extern int g_model_ns_static_var_count;
 extern const char **g_model_ns_instance_var_names;
 extern int g_model_ns_instance_var_count;
 extern const char **g_model_ns_fn_names;
+extern const char **g_model_ns_fn_aliases; /* c_alias for each fn (NULL if none) */
 extern int g_model_ns_fn_count;
 
 /* Canonical module prefix for static variable sharing.

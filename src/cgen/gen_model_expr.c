@@ -590,16 +590,27 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         { found = true; break; }
                     }
                 }
-                /* Check function names (use namespace prefix) */
+                /* Check function names (use namespace prefix, or c_alias if available) */
                 if (!found && g_model_ns_fn_names)
                 {
                     for (int fi = 0; fi < g_model_ns_fn_count; fi++)
                     {
                         if (strcmp(g_model_ns_fn_names[fi], vname) == 0)
-                        { found = true; break; }
+                        {
+                            found = true;
+                            /* If this function has a c_alias (e.g., native fn with @alias),
+                             * use the alias directly instead of namespace-prefixing */
+                            if (g_model_ns_fn_aliases && g_model_ns_fn_aliases[fi])
+                            {
+                                json_object_object_add(obj, "name",
+                                    json_object_new_string(g_model_ns_fn_aliases[fi]));
+                                vname = NULL; /* mark as handled */
+                            }
+                            break;
+                        }
                     }
                 }
-                if (found && prefix_to_use)
+                if (found && prefix_to_use && vname)
                 {
                     char prefixed[512];
                     snprintf(prefixed, sizeof(prefixed), "%s__%s",
@@ -994,6 +1005,34 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (expr->as.call.callee->expr_type)
                             json_object_object_add(callee_obj, "type",
                                 gen_model_type(arena, expr->as.call.callee->expr_type));
+
+                        /* Propagate c_alias for namespace function calls.
+                         * If the target function has @alias (e.g., native fn with @alias "sin"),
+                         * look it up in the namespace's symbol list and use the alias. */
+                        if (symbol_table)
+                        {
+                            Symbol *ns_sym = symbol_table_lookup_symbol(symbol_table, root->as.variable.name);
+                            if (ns_sym && ns_sym->namespace_symbols)
+                            {
+                                Token fn_tok = expr->as.call.callee->as.member.member_name;
+                                Symbol *fn_sym = ns_sym->namespace_symbols;
+                                while (fn_sym)
+                                {
+                                    if (fn_sym->name.length == fn_tok.length &&
+                                        memcmp(fn_sym->name.start, fn_tok.start, fn_tok.length) == 0)
+                                    {
+                                        if (fn_sym->c_alias)
+                                        {
+                                            json_object_object_add(callee_obj, "has_c_alias", json_object_new_boolean(true));
+                                            json_object_object_add(callee_obj, "c_alias", json_object_new_string(fn_sym->c_alias));
+                                        }
+                                        break;
+                                    }
+                                    fn_sym = fn_sym->next;
+                                }
+                            }
+                        }
+
                         json_object_object_add(obj, "callee", callee_obj);
                         is_namespace_call = true;
                     }

@@ -44,6 +44,7 @@ int g_model_ns_static_var_count = 0;
 const char **g_model_ns_instance_var_names = NULL;
 int g_model_ns_instance_var_count = 0;
 const char **g_model_ns_fn_names = NULL;
+const char **g_model_ns_fn_aliases = NULL;
 int g_model_ns_fn_count = 0;
 
 /* Canonical module prefix for static variable sharing */
@@ -99,6 +100,7 @@ static void emit_ns_import_recursive(
     Arena *arena, Stmt **stmts, int count,
     const char *ns_prefix, const char *canonical,
     json_object *structs, json_object *globals, json_object *functions,
+    json_object *pragmas,
     SymbolTable *symbol_table, ArithmeticMode arithmetic_mode,
     const char **emitted_names, int *emitted_count, int emitted_capacity)
 {
@@ -113,6 +115,7 @@ static void emit_ns_import_recursive(
     const char *instance_var_names[256];
     int instance_var_count = 0;
     const char *fn_names[256];
+    const char *fn_aliases[256];
     int fn_count = 0;
 
     for (int i = 0; i < count; i++)
@@ -186,7 +189,20 @@ static void emit_ns_import_recursive(
             char *fn = arena_alloc(arena, s->as.function.name.length + 1);
             memcpy(fn, s->as.function.name.start, s->as.function.name.length);
             fn[s->as.function.name.length] = '\0';
+            fn_aliases[fn_count] = s->as.function.c_alias; /* NULL if no alias */
             fn_names[fn_count++] = fn;
+        }
+    }
+
+    /* Collect pragmas from imported module (@include, @link directives) */
+    if (pragmas)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            Stmt *s = stmts[i];
+            if (!s || s->type != STMT_PRAGMA) continue;
+            json_object_array_add(pragmas,
+                gen_model_stmt(arena, s, symbol_table, arithmetic_mode));
         }
     }
 
@@ -239,6 +255,7 @@ static void emit_ns_import_recursive(
         g_model_ns_instance_var_names = instance_var_names;
         g_model_ns_instance_var_count = instance_var_count;
         g_model_ns_fn_names = fn_names;
+        g_model_ns_fn_aliases = fn_aliases;
         g_model_ns_fn_count = fn_count;
         json_object_array_add(functions,
             gen_model_function(arena, &s->as.function,
@@ -248,6 +265,7 @@ static void emit_ns_import_recursive(
         g_model_ns_instance_var_names = NULL;
         g_model_ns_instance_var_count = 0;
         g_model_ns_fn_names = NULL;
+        g_model_ns_fn_aliases = NULL;
         g_model_ns_fn_count = 0;
     }
 
@@ -278,7 +296,7 @@ static void emit_ns_import_recursive(
             emit_ns_import_recursive(arena, s->as.import.imported_stmts,
                                       s->as.import.imported_count,
                                       combined_ns, nested_canonical,
-                                      structs, globals, functions,
+                                      structs, globals, functions, pragmas,
                                       symbol_table, arithmetic_mode,
                                       emitted_names, emitted_count, emitted_capacity);
         }
@@ -412,7 +430,7 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                     emit_ns_import_recursive(arena, stmt->as.import.imported_stmts,
                                               stmt->as.import.imported_count,
                                               ns_buf, canon,
-                                              structs, globals, functions,
+                                              structs, globals, functions, pragmas,
                                               symbol_table, arithmetic_mode,
                                               emitted_names, &emitted_count,
                                               emitted_capacity);
