@@ -55,7 +55,8 @@
             }
           ]
         }
-      ]
+      ],
+      "has_dispose": false
     }
   ],
   "globals": [],

@@ -175,5 +175,23 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
     }
     json_object_object_add(obj, "methods", methods);
 
+    /* Check for dispose() method with @alias — used by release function */
+    bool has_dispose = false;
+    const char *dispose_alias = NULL;
+    for (int i = 0; i < decl->method_count; i++)
+    {
+        StructMethod *m = &decl->methods[i];
+        if (strcmp(m->name, "dispose") == 0 && m->c_alias != NULL &&
+            !m->is_static && m->param_count == 0)
+        {
+            has_dispose = true;
+            dispose_alias = m->c_alias;
+            break;
+        }
+    }
+    json_object_object_add(obj, "has_dispose", json_object_new_boolean(has_dispose));
+    if (dispose_alias)
+        json_object_object_add(obj, "dispose_alias", json_object_new_string(dispose_alias));
+
     return obj;
 }
