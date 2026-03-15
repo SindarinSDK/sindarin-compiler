@@ -101,8 +101,10 @@ Type *type_check_value_of(Expr *expr, SymbolTable *table)
     }
 }
 
-/* copyOf(expr) - deep copy a struct value:
- * copyOf(my_struct) -> Struct (with array fields independently copied)
+/* copyOf(expr) - deep copy a value:
+ * copyOf(my_struct) -> Struct (with array/string fields independently copied)
+ * copyOf(my_array)  -> new array with copied elements
+ * copyOf(my_string) -> new string (strdup)
  * NOT restricted to native context */
 Type *type_check_copy_of(Expr *expr, SymbolTable *table)
 {
@@ -112,15 +114,16 @@ Type *type_check_copy_of(Expr *expr, SymbolTable *table)
         type_error(expr->token, "Invalid operand in copyOf() expression");
         return NULL;
     }
-    else if (operand_type->kind != TYPE_STRUCT)
+    else if (operand_type->kind == TYPE_STRUCT ||
+             operand_type->kind == TYPE_ARRAY ||
+             operand_type->kind == TYPE_STRING)
     {
-        type_error(expr->token, "copyOf() requires a struct type operand");
-        return NULL;
+        return operand_type;
     }
     else
     {
-        DEBUG_VERBOSE("copyOf() on struct type: returns deep copy of struct");
-        return operand_type;
+        type_error(expr->token, "copyOf() requires a struct, array, or string operand");
+        return NULL;
     }
 }
 
