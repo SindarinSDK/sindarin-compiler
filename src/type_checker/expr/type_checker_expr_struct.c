@@ -90,6 +90,29 @@ Type *type_check_struct_literal(Expr *expr, SymbolTable *table)
                              field->name);
                     type_error(&init->name, msg);
                 }
+
+                /* Ownership warning: for val-struct fields of type str or array,
+                 * assigning a variable without copyOf() may cause double-free
+                 * (both the struct cleanup and variable cleanup free the same pointer).
+                 * Suggest copyOf() for safe ownership transfer. */
+                if (!struct_type->as.struct_type.is_native &&
+                    !struct_type->as.struct_type.pass_self_by_ref &&
+                    field->type != NULL &&
+                    (field->type->kind == TYPE_STRING || field->type->kind == TYPE_ARRAY) &&
+                    init->value != NULL &&
+                    init->value->type == EXPR_VARIABLE)
+                {
+                    char msg[512];
+                    snprintf(msg, sizeof(msg),
+                             "Assigning variable '%.*s' to field '%s' shares ownership. "
+                             "Consider using copyOf(%.*s) to avoid potential double-free",
+                             init->value->as.variable.name.length,
+                             init->value->as.variable.name.start,
+                             field->name,
+                             init->value->as.variable.name.length,
+                             init->value->as.variable.name.start);
+                    type_warning(&init->name, msg);
+                }
                 break;
             }
         }

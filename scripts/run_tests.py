@@ -1029,6 +1029,24 @@ class TestRunner:
             [exe_file], run_timeout, env=self.env, merge_stderr=True
         )
 
+        # Windows diagnostic: log first test that produces empty output
+        if is_windows() and not output and exit_code == 0 and not hasattr(self, '_win_diag_done'):
+            self._win_diag_done = True
+            import sys as _sys
+            print(f"\n[WIN_DIAG] test_file={test_file}", file=_sys.stderr)
+            print(f"[WIN_DIAG] exe_file={exe_file}", file=_sys.stderr)
+            print(f"[WIN_DIAG] exe_exists={os.path.exists(exe_file)}", file=_sys.stderr)
+            print(f"[WIN_DIAG] exe_size={os.path.getsize(exe_file) if os.path.exists(exe_file) else 'N/A'}", file=_sys.stderr)
+            print(f"[WIN_DIAG] exit_code={exit_code} output_len={len(output)} output_repr={repr(output[:100])}", file=_sys.stderr)
+            # Try running again directly to see if it's reproducible
+            import subprocess as _sp
+            try:
+                _r = _sp.run([exe_file], capture_output=True, text=True, timeout=5)
+                print(f"[WIN_DIAG] retry_exit={_r.returncode} retry_stdout_len={len(_r.stdout)} retry_repr={repr(_r.stdout[:100])}", file=_sys.stderr)
+                print(f"[WIN_DIAG] retry_stderr={repr(_r.stderr[:200])}", file=_sys.stderr)
+            except Exception as _e:
+                print(f"[WIN_DIAG] retry_error={_e}", file=_sys.stderr)
+
         # Check for expected panic
         if expects_panic:
             if exit_code == 0:

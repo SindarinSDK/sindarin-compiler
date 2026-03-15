@@ -1,0 +1,5 @@
+name: test
+items: 3
+original: 3
+copy: hello
+done

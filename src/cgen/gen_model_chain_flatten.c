@@ -138,7 +138,7 @@ static void flatten_expr(json_object *expr, json_object *inserts)
                         /* Recurse into the object first (flatten inner chains) */
                         flatten_expr(object, inserts);
 
-                        /* Now check if the (possibly rewritten) object is a struct-returning call */
+                        /* Now check if the (possibly rewritten) object needs extraction */
                         if (needs_temp_extraction(object))
                         {
                             /* Extract: create a temp variable */
@@ -264,6 +264,9 @@ static void flatten_expr(json_object *expr, json_object *inserts)
  * For each statement, scan its expressions and insert any extracted
  * var_decl statements before it.
  */
+/* Recurse into a body that may be an array of statements or a block object */
+static void flatten_body(json_object *body);
+
 static void flatten_stmt_list(json_object *stmts)
 {
     if (!stmts || !json_object_is_type(stmts, json_type_array)) return;
@@ -290,10 +293,9 @@ static void flatten_stmt_list(json_object *stmts)
                 {
                     json_object *then_body = NULL, *else_body = NULL;
                     if (json_object_object_get_ex(stmt, "then_body", &then_body))
-                        flatten_stmt_list(then_body);
+                        flatten_body(then_body);
                     if (json_object_object_get_ex(stmt, "else_body", &else_body))
-                        flatten_stmt_list(else_body);
-                    /* Also check else-if chains */
+                        flatten_body(else_body);
                     json_object *else_ifs = NULL;
                     if (json_object_object_get_ex(stmt, "else_ifs", &else_ifs))
                     {
@@ -303,7 +305,7 @@ static void flatten_stmt_list(json_object *stmts)
                             json_object *elif = json_object_array_get_idx(else_ifs, ei);
                             json_object *elif_body = NULL;
                             if (json_object_object_get_ex(elif, "body", &elif_body))
-                                flatten_stmt_list(elif_body);
+                                flatten_body(elif_body);
                         }
                     }
                 }
@@ -311,7 +313,7 @@ static void flatten_stmt_list(json_object *stmts)
                          strcmp(kind, "for_each") == 0 || strcmp(kind, "lock") == 0)
                 {
                     if (json_object_object_get_ex(stmt, "body", &body))
-                        flatten_stmt_list(body);
+                        flatten_body(body);
                 }
                 else if (strcmp(kind, "block") == 0)
                 {
@@ -322,17 +324,7 @@ static void flatten_stmt_list(json_object *stmts)
                 else if (strcmp(kind, "using") == 0)
                 {
                     if (json_object_object_get_ex(stmt, "body", &body))
-                    {
-                        /* using body is a single block statement */
-                        json_object *bk = NULL;
-                        if (json_object_object_get_ex(body, "kind", &bk) &&
-                            strcmp(json_object_get_string(bk), "block") == 0)
-                        {
-                            json_object *bs = NULL;
-                            if (json_object_object_get_ex(body, "statements", &bs))
-                                flatten_stmt_list(bs);
-                        }
-                    }
+                        flatten_body(body);
                 }
             }
         }
@@ -432,6 +424,30 @@ static void flatten_stmt_list(json_object *stmts)
         json_object_array_add(stmts, json_object_get(s));
     }
     json_object_put(new_stmts);
+}
+
+/* Recurse into a body that may be a statement array or a block object.
+ * The model represents bodies inconsistently — sometimes as a JSON array
+ * of statements, sometimes as a single block object with a "statements" field. */
+static void flatten_body(json_object *body)
+{
+    if (!body) return;
+    if (json_object_is_type(body, json_type_array))
+    {
+        flatten_stmt_list(body);
+        return;
+    }
+    if (json_object_is_type(body, json_type_object))
+    {
+        json_object *kind_obj = NULL;
+        if (json_object_object_get_ex(body, "kind", &kind_obj) &&
+            strcmp(json_object_get_string(kind_obj), "block") == 0)
+        {
+            json_object *stmts = NULL;
+            if (json_object_object_get_ex(body, "statements", &stmts))
+                flatten_stmt_list(stmts);
+        }
+    }
 }
 
 void gen_model_flatten_chains(json_object *model)

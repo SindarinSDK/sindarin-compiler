@@ -1,1 +1,1 @@
-copyOf() requires a struct type operand
+copyOf() requires a struct, array, or string operand
