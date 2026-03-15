@@ -1545,20 +1545,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                         else
                         {
-                            /* as val: check if has heap fields */
-                            bool has_heap = false;
-                            for (int fi = 0; fi < et->as.struct_type.field_count; fi++)
-                            {
-                                Type *ft = et->as.struct_type.fields[fi].type;
-                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                    ft->kind == TYPE_FUNCTION ||
-                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                                {
-                                    has_heap = true;
-                                    break;
-                                }
-                            }
-                            if (has_heap)
+                            /* as val: check if composite (has heap fields) */
+                            if (gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
                             {
                                 char buf_r[256], buf_c[256];
                                 snprintf(buf_r, sizeof(buf_r),
@@ -1855,25 +1843,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 /* Val struct fields from variables/members/accesses need deep copy
                  * to transfer ownership (avoid double-free when source is cleaned up) */
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
-                    !fv->expr_type->as.struct_type.pass_self_by_ref &&
+                if (fv && fv->expr_type &&
+                    gen_model_type_category(fv->expr_type) == TYPE_CAT_COMPOSITE &&
                     (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
                      fv->type == EXPR_ARRAY_ACCESS))
                 {
-                    /* Check if the struct has any heap fields (strings, arrays, nested structs) */
-                    bool has_heap_fields = false;
-                    for (int fi = 0; fi < fv->expr_type->as.struct_type.field_count; fi++)
-                    {
-                        Type *ft = fv->expr_type->as.struct_type.fields[fi].type;
-                        if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                            ft->kind == TYPE_FUNCTION ||
-                            (ft->kind == TYPE_STRUCT)))
-                        {
-                            has_heap_fields = true;
-                            break;
-                        }
-                    }
-                    if (has_heap_fields)
                     {
                         json_object_object_add(f, "needs_struct_copy",
                             json_object_new_boolean(true));
@@ -1911,24 +1885,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 }
                                 else if (expected_et->kind == TYPE_STRUCT)
                                 {
-                                    bool has_heap = false;
-                                    if (expected_et->as.struct_type.pass_self_by_ref)
-                                        has_heap = true;
-                                    else
-                                    {
-                                        for (int si = 0; si < expected_et->as.struct_type.field_count; si++)
-                                        {
-                                            Type *ft = expected_et->as.struct_type.fields[si].type;
-                                            if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                                ft->kind == TYPE_FUNCTION ||
-                                                (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                                            {
-                                                has_heap = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-                                    if (has_heap)
+                                    TypeCategory et_cat = gen_model_type_category(expected_et);
+                                    if (et_cat == TYPE_CAT_REFCOUNTED || et_cat == TYPE_CAT_COMPOSITE)
                                     {
                                         char buf_r[256], buf_c[256];
                                         if (expected_et->as.struct_type.pass_self_by_ref)

@@ -262,6 +262,26 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
                 return NULL;
             }
         }
+
+        /* Warn when a composite val-struct is passed by default (borrowed).
+         * The callee gets a shallow view — mutating heap fields (str, arr)
+         * would free the caller's data. Use 'as val' for ownership transfer. */
+        {
+            MemoryQualifier mq = MEM_DEFAULT;
+            if (param_quals != NULL) mq = param_quals[i];
+            if (mq == MEM_DEFAULT && !callee_type->as.function.is_native &&
+                param_type && param_type->kind == TYPE_STRUCT &&
+                !param_type->as.struct_type.pass_self_by_ref &&
+                type_has_heap_fields(param_type))
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                    "composite struct '%s' is borrowed by default — "
+                    "use 'as val' if the callee mutates heap fields (str/arr)",
+                    param_type->as.struct_type.name);
+                type_warning(arg_expr->token, msg);
+            }
+        }
     }
 
     /* Type check variadic arguments - must be primitives, str, or pointers (not arrays).

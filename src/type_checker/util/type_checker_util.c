@@ -164,6 +164,35 @@ bool is_reference_type(Type *type)
     return result;
 }
 
+/* Check if a val-type struct has heap fields (string, array, function, or ref-struct).
+ * Used for compile-time warnings about borrow semantics. */
+static bool _has_heap_fields_rec(Type *type, Type **visited, int depth)
+{
+    if (!type || type->kind != TYPE_STRUCT || depth > 32) return false;
+    for (int v = 0; v < depth; v++)
+        if (visited[v] == type) return false;
+    visited[depth] = type;
+    for (int i = 0; i < type->as.struct_type.field_count; i++)
+    {
+        Type *ft = type->as.struct_type.fields[i].type;
+        if (!ft) continue;
+        if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
+            ft->kind == TYPE_FUNCTION ||
+            (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref))
+            return true;
+        if (ft->kind == TYPE_STRUCT && !ft->as.struct_type.pass_self_by_ref)
+            if (_has_heap_fields_rec(ft, visited, depth + 1))
+                return true;
+    }
+    return false;
+}
+
+bool type_has_heap_fields(Type *type)
+{
+    Type *visited[33];
+    return _has_heap_fields_rec(type, visited, 0);
+}
+
 void memory_context_init(MemoryContext *ctx)
 {
     ctx->in_private_block = false;

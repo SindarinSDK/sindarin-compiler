@@ -13,15 +13,12 @@ static const char *field_cleanup_action(Type *type)
         case TYPE_ARRAY:    return "cleanup_array";
         case TYPE_FUNCTION: return "free";  /* closures are heap-allocated */
         case TYPE_STRUCT:
-            if (type->as.struct_type.pass_self_by_ref)
-                return "release";
-            /* For as val structs, check if they have heap fields */
-            for (int i = 0; i < type->as.struct_type.field_count; i++)
-            {
-                const char *fa = field_cleanup_action(type->as.struct_type.fields[i].type);
-                if (strcmp(fa, "none") != 0) return "cleanup_val";
-            }
+        {
+            TypeCategory cat = gen_model_type_category(type);
+            if (cat == TYPE_CAT_REFCOUNTED) return "release";
+            if (cat == TYPE_CAT_COMPOSITE) return "cleanup_val";
             return "none";
+        }
         default:
             return "none";
     }
