@@ -2129,6 +2129,34 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "modifier",
                 json_object_new_string(func_mod_str(expr->as.thread_spawn.modifier)));
 
+            /* Mark args that are as-ref struct variables for ownership transfer.
+             * After copying to thread args, the local should be nullified so
+             * sn_auto cleanup doesn't free the struct the thread is using. */
+            if (call_expr->type == EXPR_CALL)
+            {
+                json_object *call_args_arr = NULL;
+                json_object_object_get_ex(call_obj, "args", &call_args_arr);
+                if (call_args_arr)
+                {
+                    for (int i = 0; i < call_expr->as.call.arg_count; i++)
+                    {
+                        Expr *arg_expr = call_expr->as.call.arguments[i];
+                        if (arg_expr->type == EXPR_VARIABLE &&
+                            arg_expr->expr_type &&
+                            (arg_expr->expr_type->kind == TYPE_STRUCT &&
+                             arg_expr->expr_type->as.struct_type.pass_self_by_ref))
+                        {
+                            json_object *call_arg = json_object_array_get_idx(call_args_arr, i);
+                            if (call_arg)
+                            {
+                                json_object_object_add(call_arg, "needs_move",
+                                    json_object_new_boolean(true));
+                            }
+                        }
+                    }
+                }
+            }
+
             /* Determine if return type is void */
             Type *ret_type = call_expr->expr_type;
             bool is_void = (ret_type && ret_type->kind == TYPE_VOID);
