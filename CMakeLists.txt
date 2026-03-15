@@ -847,7 +847,14 @@ set(CPACK_COMPONENT_HEADERS_DEPENDS runtime)
 set(CPACK_COMPONENT_CONFIGS_DISPLAY_NAME "Configuration Files")
 
 # Detect CPU architecture for package naming
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
+# Prefer CMAKE_OSX_ARCHITECTURES when cross-compiling on macOS
+if(CMAKE_OSX_ARCHITECTURES)
+    if(CMAKE_OSX_ARCHITECTURES MATCHES "arm64")
+        set(SN_ARCH "arm64")
+    else()
+        set(SN_ARCH "x64")
+    endif()
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|arm64|ARM64")
     set(SN_ARCH "arm64")
 else()
     set(SN_ARCH "x64")
