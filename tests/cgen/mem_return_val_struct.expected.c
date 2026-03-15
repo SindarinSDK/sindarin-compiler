@@ -78,6 +78,7 @@ __sn__Point __sn__make_point(long long __sn__x, long long __sn__y) {
 int main() {
     __sn__Point __sn__p = __sn__make_point(3LL, 4LL);
     sn_assert((__sn__p.__sn__x == 3LL), "x should be 3");
+    
     fflush(stdout);
     return 0;
 }

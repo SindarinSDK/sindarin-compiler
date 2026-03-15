@@ -20,7 +20,9 @@ int main() {
         __sn__s = __sn_tmp__;
         __sn__s;
     });
+    
     sn_assert((sn_str_length(__sn__s) == 5LL), "s should be 5 chars after reassign");
+    
     fflush(stdout);
     return 0;
 }

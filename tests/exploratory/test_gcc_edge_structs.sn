@@ -163,7 +163,7 @@ fn test_struct_methods(): void =>
     c.display()
 
 // --- Struct passed to functions ---
-fn modify_struct(s: Counter): Counter =>
+fn modify_struct(s: Counter as val): Counter =>
     s.count = s.count + 100
     s.name = "modified"
     return s

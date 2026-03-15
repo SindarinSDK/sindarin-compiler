@@ -44,6 +44,7 @@ int main() {
         __sn__handle; })
     ;
     sn_assert((__sn__result == 42LL), "expected result to be 42");
+    
     fflush(stdout);
     return 0;
 }

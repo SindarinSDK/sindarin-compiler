@@ -16,7 +16,9 @@ typedef struct __Closure__ {
 
 int main() {
     (__sn__counter = 42LL);
+    
     sn_assert((__sn__counter == 42LL), "expected counter to be 42");
+    
     fflush(stdout);
     return 0;
 }

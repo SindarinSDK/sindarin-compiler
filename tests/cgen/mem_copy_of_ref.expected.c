@@ -70,8 +70,11 @@ int main() {
     });
     sn_auto_Node __sn__Node * __sn__b = __sn__Node_copy(__sn__a);
     (__sn__b->__sn__value = 20LL);
+    
     sn_assert((__sn__a->__sn__value == 10LL), "original should be unchanged");
+    
     sn_assert((__sn__b->__sn__value == 20LL), "copy should be 20");
+    
     fflush(stdout);
     return 0;
 }

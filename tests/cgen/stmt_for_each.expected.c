@@ -33,10 +33,12 @@ int main() {
             long long __sn__item = ((long long *)__arr_0__->data)[__idx_0__];
             {
                 __sn__sum = __sn__sum + __sn__item;
+                
             }
         }
     }
     sn_assert((__sn__sum == 6LL), "expected sum of {1,2,3} to be 6");
+    
     fflush(stdout);
     return 0;
 }

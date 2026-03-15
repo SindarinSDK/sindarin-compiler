@@ -158,6 +158,122 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
     }
 }
 
+/* Check if a struct has heap fields by looking up the model's structs array. */
+static bool struct_has_heap_fields(const char *struct_name)
+{
+    if (!g_model_structs || !struct_name) return false;
+    int len = json_object_array_length(g_model_structs);
+    for (int i = 0; i < len; i++)
+    {
+        json_object *st = json_object_array_get_idx(g_model_structs, i);
+        json_object *name_obj = NULL;
+        if (json_object_object_get_ex(st, "name", &name_obj) &&
+            strcmp(json_object_get_string(name_obj), struct_name) == 0)
+        {
+            json_object *hh = NULL;
+            if (json_object_object_get_ex(st, "has_heap_fields", &hh))
+                return json_object_get_boolean(hh);
+            return false;
+        }
+    }
+    return false;
+}
+
+/* Check if a type JSON object represents a heap-producing type
+ * (string, array, function, ref struct, or composite val struct). */
+static bool is_heap_type(json_object *type_obj)
+{
+    if (!type_obj) return false;
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(type_obj, "kind", &kind_obj)) return false;
+    const char *kind = json_object_get_string(kind_obj);
+
+    if (strcmp(kind, "string") == 0) return true;
+    if (strcmp(kind, "array") == 0) return true;
+    if (strcmp(kind, "function") == 0) return true;
+    if (strcmp(kind, "struct") == 0)
+    {
+        json_object *name_obj = NULL;
+        json_object_object_get_ex(type_obj, "name", &name_obj);
+        if (!name_obj) return false;
+        const char *sname = json_object_get_string(name_obj);
+        if (struct_is_pass_by_ref(sname)) return true;
+        if (struct_has_heap_fields(sname)) return true;
+    }
+    return false;
+}
+
+/* Extract heap-producing call arguments that are non-lvalue call results
+ * into preceding temp variables with appropriate cleanup. This catches
+ * patterns like sn_str_concat(buffer, arr_toString(&chunk)) where the
+ * inner call result would otherwise leak.
+ * Only extracts string and array call results — struct values are not
+ * extracted because array push/insert take shallow ownership. */
+static void extract_heap_producing_args(json_object *args, json_object *inserts)
+{
+    if (!args) return;
+    int len = json_object_array_length(args);
+    for (int i = 0; i < len; i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        if (!arg || !json_object_is_type(arg, json_type_object)) continue;
+
+        /* Only extract call results (not literals, variables, etc.) */
+        json_object *arg_kind = NULL;
+        if (!json_object_object_get_ex(arg, "kind", &arg_kind)) continue;
+        const char *akind = json_object_get_string(arg_kind);
+        bool is_call_result = (strcmp(akind, "call") == 0 ||
+                               strcmp(akind, "method_call") == 0 ||
+                               strcmp(akind, "static_call") == 0);
+        if (!is_call_result) continue;
+
+        /* Only extract string and array types (not structs — push takes ownership) */
+        json_object *arg_type = NULL;
+        if (!json_object_object_get_ex(arg, "type", &arg_type)) continue;
+        json_object *type_kind_obj = NULL;
+        if (!json_object_object_get_ex(arg_type, "kind", &type_kind_obj)) continue;
+        const char *type_kind = json_object_get_string(type_kind_obj);
+        if (strcmp(type_kind, "string") != 0 && strcmp(type_kind, "array") != 0) continue;
+
+        /* Skip args that are already borrow temps or copy args */
+        json_object *bt = NULL, *ca = NULL;
+        if (json_object_object_get_ex(arg, "is_borrow_tmp", &bt)) continue;
+        if (json_object_object_get_ex(arg, "is_copy_arg", &ca)) continue;
+
+        /* Extract into a temp variable with cleanup */
+        char tmp_name[64];
+        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+
+        json_object *var_decl = json_object_new_object();
+        json_object_object_add(var_decl, "kind", json_object_new_string("var_decl"));
+        json_object_object_add(var_decl, "name", json_object_new_string(tmp_name));
+        json_object_object_add(var_decl, "type", json_object_get(arg_type));
+        json_object_object_add(var_decl, "initializer", json_object_get(arg));
+
+        /* Annotate with cleanup kind based on type */
+        annotate_chain_temp(var_decl, arg_type);
+
+        json_object_array_add(inserts, var_decl);
+
+        /* Replace the argument with a variable reference */
+        json_object *var_ref = json_object_new_object();
+        json_object_object_add(var_ref, "kind", json_object_new_string("variable"));
+        json_object_object_add(var_ref, "name", json_object_new_string(tmp_name));
+        json_object_object_add(var_ref, "type", json_object_get(arg_type));
+
+        /* Preserve any arg annotations (is_ref_arg, needs_strdup, etc.) */
+        json_object_object_foreach(arg, key, val)
+        {
+            if (strcmp(key, "kind") != 0 && strcmp(key, "type") != 0)
+            {
+                json_object_object_add(var_ref, key, json_object_get(val));
+            }
+        }
+
+        json_object_array_put_idx(args, i, var_ref);
+    }
+}
+
 /* Extract interpolated string arguments from a call's args array into
  * preceding sn_auto_str temp variables. This prevents memory leaks when
  * interpolated strings (which call strdup) are passed directly as
@@ -298,11 +414,13 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             flatten_expr(callee, inserts);
         }
 
-        /* Extract interpolated string args, then recurse into remaining args */
+        /* Extract interpolated string args and heap-producing args,
+         * then recurse into remaining args */
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
             extract_interp_string_args(args, inserts);
+            extract_heap_producing_args(args, inserts);
             int len = json_object_array_length(args);
             for (int i = 0; i < len; i++)
                 flatten_expr(json_object_array_get_idx(args, i), inserts);
@@ -349,13 +467,14 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             }
         }
 
-        json_object *args = NULL;
-        if (json_object_object_get_ex(expr, "args", &args))
+        json_object *m_args = NULL;
+        if (json_object_object_get_ex(expr, "args", &m_args))
         {
-            extract_interp_string_args(args, inserts);
-            int len = json_object_array_length(args);
-            for (int i = 0; i < len; i++)
-                flatten_expr(json_object_array_get_idx(args, i), inserts);
+            extract_interp_string_args(m_args, inserts);
+            extract_heap_producing_args(m_args, inserts);
+            int mlen = json_object_array_length(m_args);
+            for (int mi = 0; mi < mlen; mi++)
+                flatten_expr(json_object_array_get_idx(m_args, mi), inserts);
         }
         return;
     }

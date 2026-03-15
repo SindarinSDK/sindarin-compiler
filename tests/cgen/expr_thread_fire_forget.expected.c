@@ -37,5 +37,6 @@ int main() {
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;
     }); pthread_detach(__ff__->thread); }
+    
     return 0LL;    fflush(stdout);
 }

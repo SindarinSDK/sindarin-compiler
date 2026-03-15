@@ -81,6 +81,7 @@ __sn__Box * __sn__make_box(long long __sn__v) {
 int main() {
     sn_auto_Box __sn__Box * __sn__b = __sn__make_box(42LL);
     sn_assert((__sn__b->__sn__value == 42LL), "box value should be 42");
+    
     fflush(stdout);
     return 0;
 }

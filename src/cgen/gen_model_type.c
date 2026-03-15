@@ -36,6 +36,61 @@ const char *gen_model_func_mod_str(FunctionModifier fm)
 }
 
 /* ============================================================================
+ * Type category classification
+ * ============================================================================ */
+
+TypeCategory gen_model_type_category(Type *type)
+{
+    if (!type) return TYPE_CAT_SCALAR;
+    switch (type->kind)
+    {
+        case TYPE_INT:
+        case TYPE_INT32:
+        case TYPE_UINT:
+        case TYPE_UINT32:
+        case TYPE_LONG:
+        case TYPE_DOUBLE:
+        case TYPE_FLOAT:
+        case TYPE_BOOL:
+        case TYPE_BYTE:
+        case TYPE_CHAR:
+        case TYPE_VOID:
+        case TYPE_NIL:
+        case TYPE_POINTER:
+        case TYPE_OPAQUE:
+            return TYPE_CAT_SCALAR;
+
+        case TYPE_STRING:
+        case TYPE_ARRAY:
+        case TYPE_FUNCTION:
+            return TYPE_CAT_OWNED;
+
+        case TYPE_STRUCT:
+            if (type->as.struct_type.pass_self_by_ref)
+                return TYPE_CAT_REFCOUNTED;
+            if (gen_model_type_has_heap_fields(type))
+                return TYPE_CAT_COMPOSITE;
+            return TYPE_CAT_INERT;
+
+        default:
+            return TYPE_CAT_SCALAR;
+    }
+}
+
+const char *gen_model_type_category_str(TypeCategory cat)
+{
+    switch (cat)
+    {
+        case TYPE_CAT_SCALAR:     return "scalar";
+        case TYPE_CAT_OWNED:      return "owned";
+        case TYPE_CAT_REFCOUNTED: return "refcounted";
+        case TYPE_CAT_COMPOSITE:  return "composite";
+        case TYPE_CAT_INERT:      return "inert";
+        default:                  return "scalar";
+    }
+}
+
+/* ============================================================================
  * Type utilities (shared helpers for cleanup/heap analysis)
  * ============================================================================ */
 
@@ -70,26 +125,25 @@ bool gen_model_type_has_heap_fields(Type *type)
 const char *gen_model_var_cleanup_kind(Type *type, bool suppress_local)
 {
     if (!type) return "none";
-    switch (type->kind)
+    TypeCategory cat = gen_model_type_category(type);
+    switch (cat)
     {
-        case TYPE_STRING:
-            return suppress_local ? "none" : "str";
-        case TYPE_ARRAY:
-            return suppress_local ? "none" : "arr";
-        case TYPE_FUNCTION:
-            return "fn";
-        case TYPE_STRUCT:
-            if (type->as.struct_type.pass_self_by_ref)
-                return "release";
-            if (gen_model_type_has_heap_fields(type))
-                return "val_cleanup";
-            return "none";
+        case TYPE_CAT_OWNED:
+            if (type->kind == TYPE_FUNCTION) return "fn";
+            /* string/array can be suppressed for struct-returning functions */
+            return suppress_local ? "none" : (type->kind == TYPE_STRING ? "str" : "arr");
+        case TYPE_CAT_REFCOUNTED:
+            return "release";
+        case TYPE_CAT_COMPOSITE:
+            return "val_cleanup";
+        case TYPE_CAT_SCALAR:
+        case TYPE_CAT_INERT:
         default:
             return "none";
     }
 }
 
-void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param)
+void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool callee_is_native)
 {
     if (!param->type || param->type->kind != TYPE_STRUCT) return;
 
@@ -110,6 +164,20 @@ void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param)
         {
             json_object_object_add(param_obj, "needs_struct_cleanup", json_object_new_boolean(true));
             json_object_object_add(param_obj, "struct_cleanup_name",
+                json_object_new_string(param->type->as.struct_type.name));
+        }
+    }
+
+    /* Composite val-type struct with MEM_DEFAULT on non-native callee: borrow by pointer.
+     * The callee receives a pointer and shallow-dereferences into a stack local
+     * without cleanup — the caller retains ownership. */
+    if (param->mem_qualifier == MEM_DEFAULT && !callee_is_native &&
+        !param->type->as.struct_type.pass_self_by_ref)
+    {
+        if (gen_model_type_has_heap_fields(param->type))
+        {
+            json_object_object_add(param_obj, "is_borrow", json_object_new_boolean(true));
+            json_object_object_add(param_obj, "borrow_type_name",
                 json_object_new_string(param->type->as.struct_type.name));
         }
     }

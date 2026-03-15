@@ -19,9 +19,11 @@ int main() {
     pthread_mutex_lock(&__sn__counter_mutex);
     {
         (__sn__counter = sn_add_long(__sn__counter, 1LL));
+        
     }
     pthread_mutex_unlock(&__sn__counter_mutex);
     sn_assert((__sn__counter == 1LL), "expected counter to be 1 after lock increment");
+    
     fflush(stdout);
     return 0;
 }
