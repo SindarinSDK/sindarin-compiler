@@ -29,6 +29,7 @@
       "is_variadic": false,
       "has_arena_param": false,
       "source_file": "tests\/mgen\/expr_value_of.sn",
+      "has_c_alias": true,
       "c_alias": "test_val",
       "params": [
         {

@@ -1043,6 +1043,21 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object *callee_model = gen_model_expr(arena, expr->as.call.callee, symbol_table, arithmetic_mode);
                     json_object_object_add(obj, "callee", callee_model);
 
+                    /* Propagate c_alias for direct calls to native functions with @alias.
+                     * e.g., test_printf("hello") where test_printf has @alias "printf"
+                     * should generate printf("hello") instead of test_printf("hello"). */
+                    if (expr->as.call.callee->type == EXPR_VARIABLE && symbol_table)
+                    {
+                        Symbol *fn_sym = symbol_table_lookup_symbol(symbol_table,
+                            expr->as.call.callee->as.variable.name);
+                        if (fn_sym && fn_sym->c_alias)
+                        {
+                            json_object_object_add(callee_model, "has_c_alias", json_object_new_boolean(true));
+                            json_object_object_add(callee_model, "c_alias",
+                                json_object_new_string(fn_sym->c_alias));
+                        }
+                    }
+
                     /* Propagate c_alias from resolved method for member-style method calls.
                      * When callee is a member access (f.writeLine), the template generates
                      * __sn__StructName_methodName. If the method has @alias, use that instead. */

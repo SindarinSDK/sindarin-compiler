@@ -462,6 +462,7 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
     if (func->c_alias)
     {
+        json_object_object_add(obj, "has_c_alias", json_object_new_boolean(true));
         json_object_object_add(obj, "c_alias", json_object_new_string(func->c_alias));
     }
 
