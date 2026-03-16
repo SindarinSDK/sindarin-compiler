@@ -1,0 +1,76 @@
+// Tests for typeOf() intrinsic
+
+struct Point =>
+    x: double
+    y: double
+
+struct Person =>
+    name: str
+    age: int
+
+fn main(): void =>
+    // --- typeOf on primitive types ---
+    var i: int = 42
+    var info: TypeInfo = typeOf(i)
+    assert(info.name == "int", "typeOf(int).name")
+    assert(info.fieldCount == 0, "typeOf(int).fieldCount")
+    assert(info.typeId != 0, "typeOf(int).typeId non-zero")
+    println("test_primitive_int: PASS")
+
+    var s: str = "hello"
+    var sinfo: TypeInfo = typeOf(s)
+    assert(sinfo.name == "str", "typeOf(str).name")
+    assert(sinfo.fieldCount == 0, "typeOf(str).fieldCount")
+    println("test_primitive_str: PASS")
+
+    var d: double = 3.14
+    var dinfo: TypeInfo = typeOf(d)
+    assert(dinfo.name == "double", "typeOf(double).name")
+    assert(dinfo.fieldCount == 0, "typeOf(double).fieldCount")
+    println("test_primitive_double: PASS")
+
+    var b: bool = true
+    var binfo: TypeInfo = typeOf(b)
+    assert(binfo.name == "bool", "typeOf(bool).name")
+    assert(binfo.fieldCount == 0, "typeOf(bool).fieldCount")
+    println("test_primitive_bool: PASS")
+
+    // --- typeOf on struct types ---
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    var pinfo: TypeInfo = typeOf(p)
+    assert(pinfo.name == "Point", "typeOf(Point).name")
+    assert(pinfo.fieldCount == 2, "typeOf(Point).fieldCount")
+    assert(pinfo.typeId != 0, "typeOf(Point).typeId non-zero")
+    println("test_struct_point: PASS")
+
+    // --- Field iteration ---
+    assert(pinfo.fields[0].name == "x", "Point field 0 name")
+    assert(pinfo.fields[0].typeName == "double", "Point field 0 typeName")
+    assert(pinfo.fields[0].typeId != 0, "Point field 0 typeId non-zero")
+    assert(pinfo.fields[1].name == "y", "Point field 1 name")
+    assert(pinfo.fields[1].typeName == "double", "Point field 1 typeName")
+    println("test_field_iteration: PASS")
+
+    // --- Person struct ---
+    var person: Person = Person { name: "Alice", age: 30 }
+    var perinfo: TypeInfo = typeOf(person)
+    assert(perinfo.name == "Person", "typeOf(Person).name")
+    assert(perinfo.fieldCount == 2, "typeOf(Person).fieldCount")
+    assert(perinfo.fields[0].name == "name", "Person field 0 name")
+    assert(perinfo.fields[0].typeName == "str", "Person field 0 typeName")
+    assert(perinfo.fields[1].name == "age", "Person field 1 name")
+    assert(perinfo.fields[1].typeName == "int", "Person field 1 typeName")
+    println("test_struct_person: PASS")
+
+    // --- Type ID comparison ---
+    var p2: Point = Point { x: 3.0, y: 4.0 }
+    assert(typeOf(p).typeId == typeOf(p2).typeId, "same type same typeId")
+    assert(typeOf(p).typeId != typeOf(person).typeId, "different type different typeId")
+    assert(typeOf(i).typeId != typeOf(s).typeId, "int != str typeId")
+    println("test_type_id_comparison: PASS")
+
+    // --- Field type ID matches primitive typeId ---
+    assert(pinfo.fields[0].typeId == typeOf(d).typeId, "Point.x typeId matches double typeId")
+    println("test_field_type_id_matches: PASS")
+
+    println("\nAll typeOf tests passed!")

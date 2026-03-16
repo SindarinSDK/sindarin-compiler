@@ -120,6 +120,43 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     Type *assert_type = ast_create_function_type(arena, ast_create_primitive_type(arena, TYPE_VOID), assert_params, 2);
     symbol_table_add_symbol_with_kind(parser->symbol_table, assert_token, assert_type, SYMBOL_GLOBAL);
 
+    // ---- Built-in struct types for reflection: FieldInfo, TypeInfo ----
+
+    // FieldInfo: { name: str, typeName: str, typeId: int }
+    {
+        StructField *fi_fields = arena_alloc(arena, sizeof(StructField) * 3);
+        fi_fields[0] = (StructField){ .name = "name", .type = ast_create_primitive_type(arena, TYPE_STRING), .offset = 0, .default_value = NULL, .c_alias = NULL };
+        fi_fields[1] = (StructField){ .name = "typeName", .type = ast_create_primitive_type(arena, TYPE_STRING), .offset = 0, .default_value = NULL, .c_alias = NULL };
+        fi_fields[2] = (StructField){ .name = "typeId", .type = ast_create_primitive_type(arena, TYPE_INT), .offset = 0, .default_value = NULL, .c_alias = NULL };
+
+        Type *fieldinfo_type = ast_create_struct_type(arena, "FieldInfo", fi_fields, 3, NULL, 0, false, false, false, NULL);
+
+        Token fi_token;
+        fi_token.start = arena_strdup(arena, "FieldInfo");
+        fi_token.length = 9;
+        fi_token.type = TOKEN_IDENTIFIER;
+        fi_token.line = 0;
+        fi_token.filename = arena_strdup(arena, "<built-in>");
+        symbol_table_add_type(parser->symbol_table, fi_token, fieldinfo_type);
+
+        // TypeInfo: { name: str, fields: [FieldInfo], fieldCount: int, typeId: int }
+        StructField *ti_fields = arena_alloc(arena, sizeof(StructField) * 4);
+        ti_fields[0] = (StructField){ .name = "name", .type = ast_create_primitive_type(arena, TYPE_STRING), .offset = 0, .default_value = NULL, .c_alias = NULL };
+        ti_fields[1] = (StructField){ .name = "fields", .type = ast_create_array_type(arena, fieldinfo_type), .offset = 0, .default_value = NULL, .c_alias = NULL };
+        ti_fields[2] = (StructField){ .name = "fieldCount", .type = ast_create_primitive_type(arena, TYPE_INT), .offset = 0, .default_value = NULL, .c_alias = NULL };
+        ti_fields[3] = (StructField){ .name = "typeId", .type = ast_create_primitive_type(arena, TYPE_INT), .offset = 0, .default_value = NULL, .c_alias = NULL };
+
+        Type *typeinfo_type = ast_create_struct_type(arena, "TypeInfo", ti_fields, 4, NULL, 0, false, false, false, NULL);
+
+        Token ti_token;
+        ti_token.start = arena_strdup(arena, "TypeInfo");
+        ti_token.length = 8;
+        ti_token.type = TOKEN_IDENTIFIER;
+        ti_token.line = 0;
+        ti_token.filename = arena_strdup(arena, "<built-in>");
+        symbol_table_add_type(parser->symbol_table, ti_token, typeinfo_type);
+    }
+
     // Note: Other array operations (push, pop, rev, rem, ins) are now method-style only:
     //   arr.push(elem), arr.pop(), arr.reverse(), arr.remove(idx), arr.insert(elem, idx)
 

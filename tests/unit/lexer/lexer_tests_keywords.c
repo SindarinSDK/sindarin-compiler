@@ -195,16 +195,6 @@ static void test_lexer_keyword_static(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_keyword_typeof(void)
-{
-    Arena arena;
-    Lexer lexer;
-    init_lexer_test(&arena, &lexer, "typeOf");
-    Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_TYPEOF);
-    cleanup_lexer_test(&arena, &lexer);
-}
-
 static void test_lexer_keyword_is(void)
 {
     Arena arena;
@@ -661,7 +651,6 @@ void test_lexer_keywords_main(void)
     TEST_RUN("keyword_struct", test_lexer_keyword_struct);
     TEST_RUN("keyword_import", test_lexer_keyword_import);
     TEST_RUN("keyword_static", test_lexer_keyword_static);
-    TEST_RUN("keyword_typeof", test_lexer_keyword_typeof);
     TEST_RUN("keyword_is", test_lexer_keyword_is);
     TEST_RUN("keyword_sizeof", test_lexer_keyword_sizeof);
     TEST_RUN("keyword_shared_is_identifier", test_lexer_kw_shared_is_identifier);

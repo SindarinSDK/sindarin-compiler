@@ -1,0 +1,11 @@
+test_primitive_int: PASS
+test_primitive_str: PASS
+test_primitive_double: PASS
+test_primitive_bool: PASS
+test_struct_point: PASS
+test_field_iteration: PASS
+test_struct_person: PASS
+test_type_id_comparison: PASS
+test_field_type_id_matches: PASS
+
+All typeOf tests passed!

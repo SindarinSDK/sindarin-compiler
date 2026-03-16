@@ -215,6 +215,8 @@ static bool check_native_lambda_captures_expr(LambdaExpr *lambda, Expr *expr,
         return check_native_lambda_captures_expr(lambda, expr->as.value_of.operand, table, first_capture);
     case EXPR_COPY_OF:
         return check_native_lambda_captures_expr(lambda, expr->as.copy_of.operand, table, first_capture);
+    case EXPR_TYPEOF:
+        return check_native_lambda_captures_expr(lambda, expr->as.typeof_expr.operand, table, first_capture);
     case EXPR_LITERAL:
     default:
         return false;

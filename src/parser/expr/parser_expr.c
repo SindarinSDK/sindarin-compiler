@@ -533,6 +533,13 @@ Expr *parser_primary(Parser *parser)
                 parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after copyOf argument");
                 return ast_create_copy_of_expr(parser->arena, operand, &var_token);
             }
+            else if (var_token.length == 6 && strncmp(var_token.start, "typeOf", 6) == 0)
+            {
+                parser_advance(parser); /* consume '(' */
+                Expr *operand = parser_expression(parser);
+                parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf argument");
+                return ast_create_typeof_expr(parser->arena, operand, &var_token);
+            }
         }
 
         /* Check for struct literal */

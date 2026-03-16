@@ -22,4 +22,9 @@ Type *type_check_struct_literal(Expr *expr, SymbolTable *table);
  */
 Type *type_check_sizeof(Expr *expr, SymbolTable *table);
 
+/* TypeOf expression type checking (typeOf(expr))
+ * Returns TypeInfo struct type.
+ */
+Type *type_check_typeof(Expr *expr, SymbolTable *table);
+
 #endif /* TYPE_CHECKER_EXPR_STRUCT_H */

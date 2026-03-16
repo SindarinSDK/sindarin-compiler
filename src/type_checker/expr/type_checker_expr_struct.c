@@ -305,3 +305,29 @@ Type *type_check_sizeof(Expr *expr, SymbolTable *table)
         return NULL;
     }
 }
+
+/* typeOf(expr) - returns TypeInfo struct type */
+Type *type_check_typeof(Expr *expr, SymbolTable *table)
+{
+    /* Type-check the operand to resolve its type */
+    Type *operand_type = type_check_expr(expr->as.typeof_expr.operand, table);
+    if (operand_type == NULL)
+    {
+        type_error(expr->token, "Invalid operand in typeOf() expression");
+        return NULL;
+    }
+
+    /* Look up the built-in TypeInfo struct type */
+    Token ti_token;
+    ti_token.start = "TypeInfo";
+    ti_token.length = 8;
+    Symbol *ti_sym = symbol_table_lookup_type(table, ti_token);
+    if (ti_sym == NULL || ti_sym->type == NULL)
+    {
+        type_error(expr->token, "Built-in type 'TypeInfo' not found (internal compiler error)");
+        return NULL;
+    }
+
+    DEBUG_VERBOSE("typeOf expression: returns TypeInfo");
+    return ti_sym->type;
+}
