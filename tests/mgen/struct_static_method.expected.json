@@ -15,6 +15,7 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "is_serializable": false,
       "source_file": "tests\/mgen\/struct_static_method.sn",
       "mem_mode": "val",
       "fields": [
@@ -39,6 +40,7 @@
           "is_static": true,
           "is_native": false,
           "has_arena_param": false,
+          "is_serializable_method": false,
           "has_c_alias": false,
           "params": [],
           "body": [

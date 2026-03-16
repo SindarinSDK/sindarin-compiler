@@ -15,8 +15,7 @@
 {{/if}}{{/each}}
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{#if has_body}}{{> forward_decl this}}
 {{/if}}{{else}}{{> forward_decl this}}
-{{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
-{{/each}}{{/each}}{{#each pragmas}}{{#if (eq pragma_type "source")}}
+{{/if}}{{/if}}{{/each}}{{#each structs}}{{#each methods}}{{#unless is_serializable_method}}{{> method_forward_decl this struct_name=../name}}{{/unless}}{{/each}}{{/each}}{{#each pragmas}}{{#if (eq pragma_type "source")}}
 #include {{{value}}}
 {{/if}}{{/each}}{{#each threads}}
 typedef struct {

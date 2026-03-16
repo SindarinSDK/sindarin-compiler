@@ -27,8 +27,7 @@ extern {{#if is_static}}/* static */ {{/if}}{{c_type type}} __sn__{{name}};
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if c_alias}}{{#unless has_body}}{{else}}{{> forward_decl this}}
 {{/unless}}{{else}}{{> forward_decl this}}
 {{/if}}{{/if}}{{/each}}
-{{#each structs}}{{#each methods}}{{> method_forward_decl this struct_name=../name}}
-{{/each}}{{/each}}
+{{#each structs}}{{#each methods}}{{#unless is_serializable_method}}{{> method_forward_decl this struct_name=../name}}{{/unless}}{{/each}}{{/each}}
 {{#each threads}}
 typedef struct {
 {{#each args}}

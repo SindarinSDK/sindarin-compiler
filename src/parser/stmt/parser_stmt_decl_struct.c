@@ -547,6 +547,108 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
     /* Check if this struct should be packed (from #pragma pack(1)) */
     bool is_packed = (parser->pack_alignment == 1);
 
+    /* Check if this struct is @serializable */
+    bool is_serializable = parser->pending_serializable;
+    parser->pending_serializable = false;
+
+    /* Validate: @serializable is not allowed on native structs */
+    if (is_serializable && is_native)
+    {
+        parser_error_at(parser, &struct_token, "@serializable is not allowed on native structs");
+        return NULL;
+    }
+
+    /* Inject synthetic encode/decode methods for @serializable structs */
+    if (is_serializable)
+    {
+        /* Look up Encoder and Decoder types from the symbol table */
+        Token enc_token = { .start = "Encoder", .length = 7 };
+        Symbol *enc_sym = symbol_table_lookup_type(parser->symbol_table, enc_token);
+        Token dec_token = { .start = "Decoder", .length = 7 };
+        Symbol *dec_sym = symbol_table_lookup_type(parser->symbol_table, dec_token);
+
+        if (enc_sym == NULL || enc_sym->type == NULL || dec_sym == NULL || dec_sym->type == NULL)
+        {
+            parser_error_at(parser, &struct_token, "Built-in types 'Encoder'/'Decoder' not found for @serializable");
+            return NULL;
+        }
+
+        /* We need room for 2 extra methods: encode and decode */
+        int new_method_count = method_count + 2;
+        StructMethod *new_methods = arena_alloc(parser->arena, sizeof(StructMethod) * new_method_count);
+        if (new_methods == NULL)
+        {
+            parser_error_at_current(parser, "Out of memory");
+            return NULL;
+        }
+        if (methods != NULL && method_count > 0)
+        {
+            memcpy(new_methods, methods, sizeof(StructMethod) * method_count);
+        }
+
+        /* encode(e: Encoder): void — instance method, native, no body */
+        {
+            Parameter *enc_params = arena_alloc(parser->arena, sizeof(Parameter));
+            enc_params[0].name = (Token){ .start = arena_strdup(parser->arena, "e"), .length = 1,
+                                           .type = TOKEN_IDENTIFIER, .line = 0,
+                                           .filename = arena_strdup(parser->arena, "<built-in>") };
+            enc_params[0].type = enc_sym->type;
+            enc_params[0].mem_qualifier = MEM_DEFAULT;
+            enc_params[0].sync_modifier = SYNC_NONE;
+
+            StructMethod *m = &new_methods[method_count];
+            memset(m, 0, sizeof(StructMethod));
+            m->name = arena_strdup(parser->arena, "encode");
+            m->params = enc_params;
+            m->param_count = 1;
+            m->return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+            m->return_mem_qualifier = MEM_DEFAULT;
+            m->body = NULL;
+            m->body_count = 0;
+            m->modifier = FUNC_DEFAULT;
+            m->is_static = false;
+            m->is_native = true;
+            m->has_arena_param = false;
+            m->name_token = (Token){ .start = m->name, .length = 6,
+                                      .type = TOKEN_IDENTIFIER, .line = 0,
+                                      .filename = arena_strdup(parser->arena, "<built-in>") };
+            m->c_alias = NULL;
+        }
+
+        /* static decode(d: Decoder): <ThisStruct> — static method, native, no body */
+        {
+            Parameter *dec_params = arena_alloc(parser->arena, sizeof(Parameter));
+            dec_params[0].name = (Token){ .start = arena_strdup(parser->arena, "d"), .length = 1,
+                                           .type = TOKEN_IDENTIFIER, .line = 0,
+                                           .filename = arena_strdup(parser->arena, "<built-in>") };
+            dec_params[0].type = dec_sym->type;
+            dec_params[0].mem_qualifier = MEM_DEFAULT;
+            dec_params[0].sync_modifier = SYNC_NONE;
+
+            /* Return type is the struct type itself — use the early_struct_type registered above */
+            StructMethod *m = &new_methods[method_count + 1];
+            memset(m, 0, sizeof(StructMethod));
+            m->name = arena_strdup(parser->arena, "decode");
+            m->params = dec_params;
+            m->param_count = 1;
+            m->return_type = early_struct_type;
+            m->return_mem_qualifier = MEM_DEFAULT;
+            m->body = NULL;
+            m->body_count = 0;
+            m->modifier = FUNC_DEFAULT;
+            m->is_static = true;
+            m->is_native = true;
+            m->has_arena_param = false;
+            m->name_token = (Token){ .start = m->name, .length = 6,
+                                      .type = TOKEN_IDENTIFIER, .line = 0,
+                                      .filename = arena_strdup(parser->arena, "<built-in>") };
+            m->c_alias = NULL;
+        }
+
+        methods = new_methods;
+        method_count = new_method_count;
+    }
+
     /* Consume any pending alias from #pragma alias */
     const char *c_alias = parser->pending_alias;
     parser->pending_alias = NULL;
@@ -562,6 +664,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
     Type *struct_type = ast_create_struct_type(parser->arena, name.start, fields, field_count,
                                                 methods, method_count, is_native, is_packed,
                                                 pass_self_by_ref, c_alias);
+    struct_type->as.struct_type.is_serializable = is_serializable;
 
     /* Register the struct type in the symbol table so it can be used by later declarations */
     symbol_table_add_type(parser->symbol_table, name, struct_type);
@@ -572,6 +675,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                                               struct_type->as.struct_type.methods, method_count,
                                               is_native, is_packed,
                                               pass_self_by_ref, c_alias, &struct_token);
+    stmt->as.struct_decl.is_serializable = is_serializable;
 
     return stmt;
 }

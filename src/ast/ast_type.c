@@ -62,6 +62,7 @@ Type *ast_clone_type(Arena *arena, Type *type)
         clone->as.struct_type.is_native = type->as.struct_type.is_native;
         clone->as.struct_type.is_packed = type->as.struct_type.is_packed;
         clone->as.struct_type.pass_self_by_ref = type->as.struct_type.pass_self_by_ref;
+        clone->as.struct_type.is_serializable = type->as.struct_type.is_serializable;
         clone->as.struct_type.c_alias = type->as.struct_type.c_alias
             ? arena_strdup(arena, type->as.struct_type.c_alias) : NULL;
         if (type->as.struct_type.field_count > 0)

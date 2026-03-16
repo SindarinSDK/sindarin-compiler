@@ -561,6 +561,12 @@ skip_indent_processing:
                 DEBUG_VERBOSE("Line %d: Emitting PRAGMA_ALIAS", lexer->line);
                 return lexer_make_token(lexer, TOKEN_PRAGMA_ALIAS);
             }
+            else if (strncmp(lexer->current, "serializable", 12) == 0)
+            {
+                lexer->current += 12;
+                DEBUG_VERBOSE("Line %d: Emitting PRAGMA_SERIALIZABLE", lexer->line);
+                return lexer_make_token(lexer, TOKEN_PRAGMA_SERIALIZABLE);
+            }
             else
             {
                 snprintf(error_buffer, sizeof(error_buffer), "Unknown pragma directive");
@@ -605,6 +611,12 @@ skip_indent_processing:
             lexer->current += 5;
             DEBUG_VERBOSE("Line %d: Emitting PRAGMA_ALIAS (@ syntax)", lexer->line);
             return lexer_make_token(lexer, TOKEN_PRAGMA_ALIAS);
+        }
+        else if (strncmp(lexer->current, "serializable", 12) == 0)
+        {
+            lexer->current += 12;
+            DEBUG_VERBOSE("Line %d: Emitting PRAGMA_SERIALIZABLE (@ syntax)", lexer->line);
+            return lexer_make_token(lexer, TOKEN_PRAGMA_SERIALIZABLE);
         }
         snprintf(error_buffer, sizeof(error_buffer), "Unknown @ directive");
         return lexer_error_token(lexer, error_buffer);

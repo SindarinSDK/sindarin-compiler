@@ -13,6 +13,7 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
     parser->in_native_function = 0;
     parser->pack_alignment = 0;  /* 0 = default alignment, 1 = packed */
     parser->pending_alias = NULL;  /* No pending alias initially */
+    parser->pending_serializable = false;  /* No pending @serializable initially */
     parser->pending_comments = NULL;  /* No pending comments initially */
     parser->pending_comment_count = 0;
     parser->pending_comment_capacity = 0;
@@ -155,6 +156,251 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         ti_token.line = 0;
         ti_token.filename = arena_strdup(arena, "<built-in>");
         symbol_table_add_type(parser->symbol_table, ti_token, typeinfo_type);
+    }
+
+    // ---- Built-in struct types for serialization: Encoder, Decoder ----
+
+    {
+        /* Encoder: native struct with vtable-based dispatch.
+         * At the Sindarin level, it's an opaque ref type with methods.
+         * The actual C definition is in sn_serial.h. */
+        Token enc_tok;
+        enc_tok.start = arena_strdup(arena, "Encoder");
+        enc_tok.length = 7;
+        enc_tok.type = TOKEN_IDENTIFIER;
+        enc_tok.line = 0;
+        enc_tok.filename = arena_strdup(arena, "<built-in>");
+
+        /* Encoder methods (14 total) — all native, dispatched via vtable macros in sn_serial.h */
+        int enc_method_count = 14;
+        StructMethod *enc_methods = arena_alloc(arena, sizeof(StructMethod) * enc_method_count);
+        memset(enc_methods, 0, sizeof(StructMethod) * enc_method_count);
+
+        /* Helper types */
+        Type *t_void = ast_create_primitive_type(arena, TYPE_VOID);
+        Type *t_str = ast_create_primitive_type(arena, TYPE_STRING);
+        Type *t_int = ast_create_primitive_type(arena, TYPE_INT);
+        Type *t_double = ast_create_primitive_type(arena, TYPE_DOUBLE);
+        Type *t_bool = ast_create_primitive_type(arena, TYPE_BOOL);
+
+        /* We need a forward reference to the Encoder type for methods that return Encoder.
+         * Create the type first, then fill in the methods. */
+        Type *encoder_type = ast_create_struct_type(arena, "Encoder", NULL, 0,
+                                                     NULL, 0, true, false, true, NULL);
+
+        /* writeStr(key: str, value: str): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 2);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            p[1] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[0] = (StructMethod){ .name = "writeStr", .params = p, .param_count = 2,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "writeStr", .length = 8 } };
+        }
+        /* writeInt(key: str, value: int): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 2);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            p[1] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[1] = (StructMethod){ .name = "writeInt", .params = p, .param_count = 2,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "writeInt", .length = 8 } };
+        }
+        /* writeDouble(key: str, value: double): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 2);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            p[1] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_double, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[2] = (StructMethod){ .name = "writeDouble", .params = p, .param_count = 2,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "writeDouble", .length = 11 } };
+        }
+        /* writeBool(key: str, value: bool): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 2);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            p[1] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_bool, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[3] = (StructMethod){ .name = "writeBool", .params = p, .param_count = 2,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "writeBool", .length = 9 } };
+        }
+        /* writeNull(key: str): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[4] = (StructMethod){ .name = "writeNull", .params = p, .param_count = 1,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "writeNull", .length = 9 } };
+        }
+        /* beginObject(key: str): Encoder */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[5] = (StructMethod){ .name = "beginObject", .params = p, .param_count = 1,
+                .return_type = encoder_type, .is_native = true, .name_token = { .start = "beginObject", .length = 11 } };
+        }
+        /* beginArray(key: str): Encoder */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[6] = (StructMethod){ .name = "beginArray", .params = p, .param_count = 1,
+                .return_type = encoder_type, .is_native = true, .name_token = { .start = "beginArray", .length = 10 } };
+        }
+        /* end(): void */
+        {
+            enc_methods[7] = (StructMethod){ .name = "end", .params = NULL, .param_count = 0,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "end", .length = 3 } };
+        }
+        /* appendStr(value: str): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[8] = (StructMethod){ .name = "appendStr", .params = p, .param_count = 1,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "appendStr", .length = 9 } };
+        }
+        /* appendInt(value: int): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[9] = (StructMethod){ .name = "appendInt", .params = p, .param_count = 1,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "appendInt", .length = 9 } };
+        }
+        /* appendDouble(value: double): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_double, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[10] = (StructMethod){ .name = "appendDouble", .params = p, .param_count = 1,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "appendDouble", .length = 12 } };
+        }
+        /* appendBool(value: bool): void */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "value", .length = 5 }, .type = t_bool, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            enc_methods[11] = (StructMethod){ .name = "appendBool", .params = p, .param_count = 1,
+                .return_type = t_void, .is_native = true, .name_token = { .start = "appendBool", .length = 10 } };
+        }
+        /* appendObject(): Encoder */
+        {
+            enc_methods[12] = (StructMethod){ .name = "appendObject", .params = NULL, .param_count = 0,
+                .return_type = encoder_type, .is_native = true, .name_token = { .start = "appendObject", .length = 12 } };
+        }
+        /* result(): str */
+        {
+            enc_methods[13] = (StructMethod){ .name = "result", .params = NULL, .param_count = 0,
+                .return_type = t_str, .is_native = true, .name_token = { .start = "result", .length = 6 } };
+        }
+
+        /* Update encoder_type with methods */
+        encoder_type->as.struct_type.methods = enc_methods;
+        encoder_type->as.struct_type.method_count = enc_method_count;
+
+        symbol_table_add_type(parser->symbol_table, enc_tok, encoder_type);
+
+        /* Decoder: native struct with vtable-based dispatch */
+        Token dec_tok;
+        dec_tok.start = arena_strdup(arena, "Decoder");
+        dec_tok.length = 7;
+        dec_tok.type = TOKEN_IDENTIFIER;
+        dec_tok.line = 0;
+        dec_tok.filename = arena_strdup(arena, "<built-in>");
+
+        int dec_method_count = 13;
+        StructMethod *dec_methods = arena_alloc(arena, sizeof(StructMethod) * dec_method_count);
+        memset(dec_methods, 0, sizeof(StructMethod) * dec_method_count);
+
+        Type *decoder_type = ast_create_struct_type(arena, "Decoder", NULL, 0,
+                                                     NULL, 0, true, false, true, NULL);
+
+        /* readStr(key: str): str */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[0] = (StructMethod){ .name = "readStr", .params = p, .param_count = 1,
+                .return_type = t_str, .is_native = true, .name_token = { .start = "readStr", .length = 7 } };
+        }
+        /* readInt(key: str): int */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[1] = (StructMethod){ .name = "readInt", .params = p, .param_count = 1,
+                .return_type = t_int, .is_native = true, .name_token = { .start = "readInt", .length = 7 } };
+        }
+        /* readDouble(key: str): double */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[2] = (StructMethod){ .name = "readDouble", .params = p, .param_count = 1,
+                .return_type = t_double, .is_native = true, .name_token = { .start = "readDouble", .length = 10 } };
+        }
+        /* readBool(key: str): bool */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[3] = (StructMethod){ .name = "readBool", .params = p, .param_count = 1,
+                .return_type = t_bool, .is_native = true, .name_token = { .start = "readBool", .length = 8 } };
+        }
+        /* hasKey(key: str): bool */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[4] = (StructMethod){ .name = "hasKey", .params = p, .param_count = 1,
+                .return_type = t_bool, .is_native = true, .name_token = { .start = "hasKey", .length = 6 } };
+        }
+        /* readObject(key: str): Decoder */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[5] = (StructMethod){ .name = "readObject", .params = p, .param_count = 1,
+                .return_type = decoder_type, .is_native = true, .name_token = { .start = "readObject", .length = 10 } };
+        }
+        /* readArray(key: str): Decoder */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "key", .length = 3 }, .type = t_str, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[6] = (StructMethod){ .name = "readArray", .params = p, .param_count = 1,
+                .return_type = decoder_type, .is_native = true, .name_token = { .start = "readArray", .length = 9 } };
+        }
+        /* length(): int */
+        {
+            dec_methods[7] = (StructMethod){ .name = "length", .params = NULL, .param_count = 0,
+                .return_type = t_int, .is_native = true, .name_token = { .start = "length", .length = 6 } };
+        }
+        /* at(index: int): Decoder */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "index", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[8] = (StructMethod){ .name = "at", .params = p, .param_count = 1,
+                .return_type = decoder_type, .is_native = true, .name_token = { .start = "at", .length = 2 } };
+        }
+        /* atStr(index: int): str */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "index", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[9] = (StructMethod){ .name = "atStr", .params = p, .param_count = 1,
+                .return_type = t_str, .is_native = true, .name_token = { .start = "atStr", .length = 5 } };
+        }
+        /* atInt(index: int): int */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "index", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[10] = (StructMethod){ .name = "atInt", .params = p, .param_count = 1,
+                .return_type = t_int, .is_native = true, .name_token = { .start = "atInt", .length = 5 } };
+        }
+        /* atDouble(index: int): double */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "index", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[11] = (StructMethod){ .name = "atDouble", .params = p, .param_count = 1,
+                .return_type = t_double, .is_native = true, .name_token = { .start = "atDouble", .length = 8 } };
+        }
+        /* atBool(index: int): bool */
+        {
+            Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+            p[0] = (Parameter){ .name = { .start = "index", .length = 5 }, .type = t_int, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+            dec_methods[12] = (StructMethod){ .name = "atBool", .params = p, .param_count = 1,
+                .return_type = t_bool, .is_native = true, .name_token = { .start = "atBool", .length = 6 } };
+        }
+
+        /* Update decoder_type with methods */
+        decoder_type->as.struct_type.methods = dec_methods;
+        decoder_type->as.struct_type.method_count = dec_method_count;
+
+        symbol_table_add_type(parser->symbol_table, dec_tok, decoder_type);
     }
 
     // Note: Other array operations (push, pop, rev, rem, ins) are now method-style only:

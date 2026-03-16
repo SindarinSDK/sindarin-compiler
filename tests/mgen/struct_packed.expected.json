@@ -26,6 +26,7 @@
       "is_native": false,
       "is_packed": true,
       "pass_self_by_ref": false,
+      "is_serializable": false,
       "source_file": "tests\/mgen\/struct_packed.sn",
       "mem_mode": "val",
       "fields": [
