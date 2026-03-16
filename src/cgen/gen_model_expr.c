@@ -223,6 +223,9 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
         }
         break;
     }
+    case EXPR_TYPEOF:
+        mc_collect_expr(expr->as.typeof_expr.operand, lam, locals, caps, arena);
+        break;
     default:
         break;
     }
@@ -2584,6 +2587,105 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("copy_of"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.copy_of.operand, symbol_table, arithmetic_mode));
+            break;
+        }
+
+        case EXPR_TYPEOF:
+        {
+            json_object_object_add(obj, "kind", json_object_new_string("typeof"));
+
+            /* Resolve the operand's type at compile time */
+            Type *op_type = expr->as.typeof_expr.operand->expr_type;
+
+            /* Compute canonical type name */
+            const char *type_name = "unknown";
+            if (op_type)
+            {
+                switch (op_type->kind)
+                {
+                    case TYPE_INT:    type_name = "int"; break;
+                    case TYPE_INT32:  type_name = "int32"; break;
+                    case TYPE_UINT:   type_name = "uint"; break;
+                    case TYPE_UINT32: type_name = "uint32"; break;
+                    case TYPE_LONG:   type_name = "long"; break;
+                    case TYPE_DOUBLE: type_name = "double"; break;
+                    case TYPE_FLOAT:  type_name = "float"; break;
+                    case TYPE_CHAR:   type_name = "char"; break;
+                    case TYPE_STRING: type_name = "str"; break;
+                    case TYPE_BOOL:   type_name = "bool"; break;
+                    case TYPE_BYTE:   type_name = "byte"; break;
+                    case TYPE_VOID:   type_name = "void"; break;
+                    case TYPE_STRUCT: type_name = op_type->as.struct_type.name ? op_type->as.struct_type.name : "struct"; break;
+                    case TYPE_ARRAY:  type_name = "array"; break;
+                    default:          type_name = "unknown"; break;
+                }
+            }
+
+            /* FNV-1a hash for type ID */
+            unsigned long hash = 2166136261u;
+            for (const char *p = type_name; *p; p++)
+            {
+                hash ^= (unsigned char)*p;
+                hash *= 16777619u;
+            }
+            int type_id = (int)(hash & 0x7FFFFFFF);
+
+            json_object_object_add(obj, "type_name", json_object_new_string(type_name));
+            json_object_object_add(obj, "type_id", json_object_new_int(type_id));
+
+            /* Build fields array (only for structs) */
+            json_object *fields_arr = json_object_new_array();
+            int field_count = 0;
+
+            if (op_type && op_type->kind == TYPE_STRUCT)
+            {
+                field_count = op_type->as.struct_type.field_count;
+                for (int i = 0; i < field_count; i++)
+                {
+                    StructField *f = &op_type->as.struct_type.fields[i];
+                    json_object *field_obj = json_object_new_object();
+                    json_object_object_add(field_obj, "name", json_object_new_string(f->name));
+
+                    /* Compute field type name */
+                    const char *field_type_name = "unknown";
+                    if (f->type)
+                    {
+                        switch (f->type->kind)
+                        {
+                            case TYPE_INT:    field_type_name = "int"; break;
+                            case TYPE_INT32:  field_type_name = "int32"; break;
+                            case TYPE_UINT:   field_type_name = "uint"; break;
+                            case TYPE_UINT32: field_type_name = "uint32"; break;
+                            case TYPE_LONG:   field_type_name = "long"; break;
+                            case TYPE_DOUBLE: field_type_name = "double"; break;
+                            case TYPE_FLOAT:  field_type_name = "float"; break;
+                            case TYPE_CHAR:   field_type_name = "char"; break;
+                            case TYPE_STRING: field_type_name = "str"; break;
+                            case TYPE_BOOL:   field_type_name = "bool"; break;
+                            case TYPE_BYTE:   field_type_name = "byte"; break;
+                            case TYPE_VOID:   field_type_name = "void"; break;
+                            case TYPE_STRUCT: field_type_name = f->type->as.struct_type.name ? f->type->as.struct_type.name : "struct"; break;
+                            case TYPE_ARRAY:  field_type_name = "array"; break;
+                            default:          field_type_name = "unknown"; break;
+                        }
+                    }
+                    json_object_object_add(field_obj, "type_name", json_object_new_string(field_type_name));
+
+                    /* FNV-1a hash for field type ID */
+                    unsigned long fhash = 2166136261u;
+                    for (const char *p = field_type_name; *p; p++)
+                    {
+                        fhash ^= (unsigned char)*p;
+                        fhash *= 16777619u;
+                    }
+                    json_object_object_add(field_obj, "type_id", json_object_new_int((int)(fhash & 0x7FFFFFFF)));
+
+                    json_object_array_add(fields_arr, field_obj);
+                }
+            }
+
+            json_object_object_add(obj, "fields", fields_arr);
+            json_object_object_add(obj, "field_count", json_object_new_int(field_count));
             break;
         }
 

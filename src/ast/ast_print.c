@@ -490,6 +490,11 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
         ast_print_expr(arena, expr->as.copy_of.operand, indent_level + 1);
         break;
 
+    case EXPR_TYPEOF:
+        DEBUG_VERBOSE_INDENT(indent_level, "TypeOf:");
+        ast_print_expr(arena, expr->as.typeof_expr.operand, indent_level + 1);
+        break;
+
     case EXPR_MATCH:
         DEBUG_VERBOSE_INDENT(indent_level, "Match (%d arms):", expr->as.match_expr.arm_count);
         DEBUG_VERBOSE_INDENT(indent_level + 1, "Subject:");

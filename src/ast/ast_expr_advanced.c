@@ -195,6 +195,27 @@ Expr *ast_create_copy_of_expr(Arena *arena, Expr *operand, const Token *loc_toke
     return expr;
 }
 
+Expr *ast_create_typeof_expr(Arena *arena, Expr *operand, const Token *loc_token)
+{
+    if (operand == NULL)
+    {
+        DEBUG_ERROR("Cannot create typeOf expression with NULL operand");
+        return NULL;
+    }
+    Expr *expr = arena_alloc(arena, sizeof(Expr));
+    if (expr == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(expr, 0, sizeof(Expr));
+    expr->type = EXPR_TYPEOF;
+    expr->as.typeof_expr.operand = operand;
+    expr->expr_type = NULL;
+    expr->token = ast_clone_token(arena, loc_token);
+    return expr;
+}
+
 Expr *ast_create_match_expr(Arena *arena, Expr *subject, MatchArm *arms, int arm_count, const Token *loc_token)
 {
     if (subject == NULL)

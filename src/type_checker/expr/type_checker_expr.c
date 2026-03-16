@@ -131,6 +131,9 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
     case EXPR_SIZEOF:
         t = type_check_sizeof(expr, table);
         break;
+    case EXPR_TYPEOF:
+        t = type_check_typeof(expr, table);
+        break;
     case EXPR_COMPOUND_ASSIGN:
         t = type_check_compound_assign(expr, table);
         break;
