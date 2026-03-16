@@ -133,7 +133,17 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
     if (!name_obj) return;
 
     const char *struct_name = json_object_get_string(name_obj);
-    if (struct_is_pass_by_ref(struct_name))
+    bool is_by_ref = struct_is_pass_by_ref(struct_name);
+    if (!is_by_ref)
+    {
+        /* Fallback: check the expression type's own pass_self_by_ref
+         * (handles built-in types like Encoder/Decoder not in model) */
+        json_object *pbr = NULL;
+        if (json_object_object_get_ex(obj_type, "pass_self_by_ref", &pbr) &&
+            json_object_get_boolean(pbr))
+            is_by_ref = true;
+    }
+    if (is_by_ref)
     {
         json_object_object_add(var_decl, "cleanup_kind",
             json_object_new_string("release"));
@@ -201,6 +211,15 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
                 const char *sname = json_object_get_string(sname_obj);
                 if (struct_is_pass_by_ref(sname))
                     needs_extraction = true;
+                else
+                {
+                    /* Fallback: check the expression type's own pass_self_by_ref
+                     * (handles built-in types like Encoder/Decoder not in model) */
+                    json_object *pbr = NULL;
+                    if (json_object_object_get_ex(arg_type, "pass_self_by_ref", &pbr) &&
+                        json_object_get_boolean(pbr))
+                        needs_extraction = true;
+                }
             }
         }
         if (!needs_extraction) continue;
@@ -386,6 +405,22 @@ static void flatten_expr(json_object *expr, json_object *inserts)
 
         /* Extract interpolated string args and heap-producing args,
          * then recurse into remaining args */
+        json_object *args = NULL;
+        if (json_object_object_get_ex(expr, "args", &args))
+        {
+            extract_interp_string_args(args, inserts);
+            extract_heap_producing_args(args, inserts);
+            int len = json_object_array_length(args);
+            for (int i = 0; i < len; i++)
+                flatten_expr(json_object_array_get_idx(args, i), inserts);
+        }
+        return;
+    }
+
+    /* For static_call expressions (e.g. Item.decode(FastJson.decoder(x))),
+     * extract heap-producing args into temp variables with cleanup */
+    if (strcmp(kind, "static_call") == 0)
+    {
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
