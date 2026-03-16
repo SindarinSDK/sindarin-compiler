@@ -1,0 +1,94 @@
+// Tests for @serializable encode/decode with Encoder/Decoder vtable dispatch
+
+@source "test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Address =>
+    street: str
+    city: str
+
+@serializable
+struct Person =>
+    name: str
+    age: int
+    score: double
+    active: bool
+    address: Address
+    tags: str[]
+
+fn main(): void =>
+    // --- Test 1: Encode primitives ---
+    var a: Address = Address { street: "123 Main St", city: "NYC" }
+    var enc: Encoder = sn_test_json_encoder()
+    a.encode(enc)
+    var json: str = enc.result()
+    assert(json == "{\"street\":\"123 Main St\",\"city\":\"NYC\"}", "Address encode")
+    println("test_encode_address: PASS")
+
+    // --- Test 2: Encode nested struct + array ---
+    var p: Person = Person {
+        name: "Alice",
+        age: 30,
+        score: 9.5,
+        active: true,
+        address: Address { street: "456 Oak Ave", city: "LA" },
+        tags: {"dev", "lead"}
+    }
+    var enc2: Encoder = sn_test_json_encoder()
+    p.encode(enc2)
+    var json2: str = enc2.result()
+    println($"encoded: {json2}")
+    // Verify key parts of the JSON
+    assert(json2 == "{\"name\":\"Alice\",\"age\":30,\"score\":9.5,\"active\":true,\"address\":{\"street\":\"456 Oak Ave\",\"city\":\"LA\"},\"tags\":[\"dev\",\"lead\"]}", "Person encode")
+    println("test_encode_person: PASS")
+
+    // --- Test 3: Decode primitives ---
+    var dec: Decoder = sn_test_json_decoder("{\"street\":\"789 Pine Rd\",\"city\":\"Chicago\"}")
+    var a2: Address = Address.decode(dec)
+    assert(a2.street == "789 Pine Rd", "Address decode street")
+    assert(a2.city == "Chicago", "Address decode city")
+    println("test_decode_address: PASS")
+
+    // --- Test 4: Decode nested struct + array ---
+    var dec2: Decoder = sn_test_json_decoder("{\"name\":\"Bob\",\"age\":25,\"score\":8.3,\"active\":false,\"address\":{\"street\":\"10 Elm\",\"city\":\"SF\"},\"tags\":[\"ops\",\"sre\",\"infra\"]}")
+    var p2: Person = Person.decode(dec2)
+    assert(p2.name == "Bob", "Person decode name")
+    assert(p2.age == 25, "Person decode age")
+    assert(p2.score == 8.3, "Person decode score")
+    assert(p2.active == false, "Person decode active")
+    assert(p2.address.street == "10 Elm", "Person decode address.street")
+    assert(p2.address.city == "SF", "Person decode address.city")
+    assert(p2.tags.length == 3, "Person decode tags length")
+    assert(p2.tags[0] == "ops", "Person decode tags[0]")
+    assert(p2.tags[1] == "sre", "Person decode tags[1]")
+    assert(p2.tags[2] == "infra", "Person decode tags[2]")
+    println("test_decode_person: PASS")
+
+    // --- Test 5: Roundtrip ---
+    var original: Person = Person {
+        name: "Charlie",
+        age: 40,
+        score: 7.7,
+        active: true,
+        address: Address { street: "99 River Dr", city: "Boston" },
+        tags: {"mgr"}
+    }
+    var rtEnc: Encoder = sn_test_json_encoder()
+    original.encode(rtEnc)
+    var rtJson: str = rtEnc.result()
+    var rtDec: Decoder = sn_test_json_decoder(rtJson)
+    var roundtrip: Person = Person.decode(rtDec)
+    assert(roundtrip.name == "Charlie", "roundtrip name")
+    assert(roundtrip.age == 40, "roundtrip age")
+    assert(roundtrip.score == 7.7, "roundtrip score")
+    assert(roundtrip.active == true, "roundtrip active")
+    assert(roundtrip.address.street == "99 River Dr", "roundtrip address.street")
+    assert(roundtrip.address.city == "Boston", "roundtrip address.city")
+    assert(roundtrip.tags.length == 1, "roundtrip tags length")
+    assert(roundtrip.tags[0] == "mgr", "roundtrip tags[0]")
+    println("test_roundtrip: PASS")
+
+    println("\nAll @serializable tests passed!")

@@ -15,6 +15,7 @@
       "is_native": false,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "is_serializable": false,
       "source_file": "tests\/mgen\/expr_copy_of.sn",
       "mem_mode": "val",
       "fields": [

@@ -184,6 +184,89 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
         }
     }
 
+    /* Validate @serializable field types */
+    if (struct_decl->is_serializable)
+    {
+        for (int i = 0; i < struct_decl->field_count; i++)
+        {
+            StructField *field = &struct_decl->fields[i];
+            Type *ft = field->type;
+            if (ft == NULL) continue;
+
+            bool is_valid_serial = false;
+            switch (ft->kind)
+            {
+                case TYPE_STRING:
+                case TYPE_INT:
+                case TYPE_DOUBLE:
+                case TYPE_BOOL:
+                    is_valid_serial = true;
+                    break;
+                case TYPE_STRUCT:
+                    /* Nested struct must also be @serializable */
+                    if (ft->as.struct_type.is_serializable)
+                    {
+                        is_valid_serial = true;
+                    }
+                    break;
+                case TYPE_ARRAY:
+                    /* Array element must be a serializable type */
+                    if (ft->as.array.element_type != NULL)
+                    {
+                        Type *elem = ft->as.array.element_type;
+                        if (elem->kind == TYPE_STRING || elem->kind == TYPE_INT ||
+                            elem->kind == TYPE_DOUBLE || elem->kind == TYPE_BOOL)
+                        {
+                            is_valid_serial = true;
+                        }
+                        else if (elem->kind == TYPE_STRUCT && elem->as.struct_type.is_serializable)
+                        {
+                            is_valid_serial = true;
+                        }
+                    }
+                    break;
+                default:
+                    break;
+            }
+
+            if (!is_valid_serial)
+            {
+                char msg[512];
+                char sname[128];
+                int sname_len = struct_decl->name.length < 127 ? struct_decl->name.length : 127;
+                memcpy(sname, struct_decl->name.start, sname_len);
+                sname[sname_len] = '\0';
+
+                const char *type_desc = "unsupported type";
+                if (ft->kind == TYPE_STRUCT && ft->as.struct_type.name != NULL)
+                {
+                    type_desc = ft->as.struct_type.name;
+                    snprintf(msg, sizeof(msg),
+                             "Field '%s' in @serializable struct '%s' has type '%s' which is not @serializable. "
+                             "Add @serializable to struct '%s'",
+                             field->name, sname, type_desc, type_desc);
+                }
+                else if (ft->kind == TYPE_ARRAY && ft->as.array.element_type != NULL &&
+                         ft->as.array.element_type->kind == TYPE_STRUCT)
+                {
+                    type_desc = ft->as.array.element_type->as.struct_type.name;
+                    snprintf(msg, sizeof(msg),
+                             "Field '%s' in @serializable struct '%s' has array element type '%s' which is not @serializable. "
+                             "Add @serializable to struct '%s'",
+                             field->name, sname, type_desc, type_desc);
+                }
+                else
+                {
+                    snprintf(msg, sizeof(msg),
+                             "Field '%s' in @serializable struct '%s' has %s which cannot be serialized. "
+                             "Only str, int, double, bool, @serializable structs, and arrays of these are supported",
+                             field->name, sname, type_desc);
+                }
+                type_error(&struct_decl->name, msg);
+            }
+        }
+    }
+
     /* Check for circular dependencies in struct types */
     Type temp_struct_type;
     temp_struct_type.kind = TYPE_STRUCT;

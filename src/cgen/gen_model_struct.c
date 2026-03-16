@@ -53,6 +53,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
     json_object_object_add(obj, "is_native", json_object_new_boolean(decl->is_native));
     json_object_object_add(obj, "is_packed", json_object_new_boolean(decl->is_packed));
     json_object_object_add(obj, "pass_self_by_ref", json_object_new_boolean(decl->pass_self_by_ref));
+    json_object_object_add(obj, "is_serializable", json_object_new_boolean(decl->is_serializable));
 
     /* Source file tracking for modular compilation */
     if (decl->name.filename)
@@ -88,6 +89,54 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
 
         if (strcmp(ca, "none") != 0) has_heap = true;
 
+        /* Serialization metadata for @serializable structs */
+        if (decl->is_serializable)
+        {
+            const char *serial_action = NULL;
+            const char *serial_struct_name = NULL;
+            const char *serial_elem_struct_name = NULL;
+
+            if (f->type)
+            {
+                switch (f->type->kind)
+                {
+                    case TYPE_STRING: serial_action = "str"; break;
+                    case TYPE_INT:    serial_action = "int"; break;
+                    case TYPE_DOUBLE: serial_action = "double"; break;
+                    case TYPE_BOOL:   serial_action = "bool"; break;
+                    case TYPE_STRUCT:
+                        serial_action = "object";
+                        serial_struct_name = f->type->as.struct_type.name;
+                        break;
+                    case TYPE_ARRAY:
+                        if (f->type->as.array.element_type)
+                        {
+                            Type *elem = f->type->as.array.element_type;
+                            switch (elem->kind)
+                            {
+                                case TYPE_STRING: serial_action = "array_str"; break;
+                                case TYPE_INT:    serial_action = "array_int"; break;
+                                case TYPE_DOUBLE: serial_action = "array_double"; break;
+                                case TYPE_BOOL:   serial_action = "array_bool"; break;
+                                case TYPE_STRUCT:
+                                    serial_action = "array_object";
+                                    serial_elem_struct_name = elem->as.struct_type.name;
+                                    break;
+                                default: break;
+                            }
+                        }
+                        break;
+                    default: break;
+                }
+            }
+            if (serial_action)
+                json_object_object_add(field, "serial_action", json_object_new_string(serial_action));
+            if (serial_struct_name)
+                json_object_object_add(field, "serial_struct_name", json_object_new_string(serial_struct_name));
+            if (serial_elem_struct_name)
+                json_object_object_add(field, "serial_elem_struct_name", json_object_new_string(serial_elem_struct_name));
+        }
+
         if (f->c_alias)
         {
             json_object_object_add(field, "c_alias", json_object_new_string(f->c_alias));
@@ -114,6 +163,12 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         json_object_object_add(method, "is_static", json_object_new_boolean(m->is_static));
         json_object_object_add(method, "is_native", json_object_new_boolean(m->is_native));
         json_object_object_add(method, "has_arena_param", json_object_new_boolean(m->has_arena_param));
+
+        /* Flag compiler-generated serializable methods (encode/decode) so templates can skip forward decls */
+        bool is_serial_method = (decl->is_serializable &&
+            (strcmp(m->name, "encode") == 0 || strcmp(m->name, "decode") == 0) &&
+            m->is_native && m->body == NULL);
+        json_object_object_add(method, "is_serializable_method", json_object_new_boolean(is_serial_method));
 
         json_object_object_add(method, "has_c_alias", json_object_new_boolean(m->c_alias != NULL));
         if (m->c_alias)

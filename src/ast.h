@@ -139,6 +139,7 @@ struct Type
             bool is_native;         /* True if declared with 'native struct' (allows pointer fields) */
             bool is_packed;         /* True if preceded by #pragma pack(1) */
             bool pass_self_by_ref;  /* True if 'as ref' - native methods receive self by pointer */
+            bool is_serializable;   /* True if preceded by @serializable */
             const char *c_alias;    /* C type name alias (from #pragma alias), NULL if none */
         } struct_type;
     } as;
@@ -639,6 +640,7 @@ typedef struct
     bool is_native;            /* True if declared with 'native struct' (allows pointer fields) */
     bool is_packed;            /* True if preceded by #pragma pack(1) */
     bool pass_self_by_ref;     /* True if 'as ref' - native methods receive self by pointer */
+    bool is_serializable;      /* True if preceded by @serializable */
     const char *c_alias;       /* C type name alias (from #pragma alias), NULL if none */
 } StructDeclStmt;
 

@@ -134,6 +134,14 @@ Stmt *parser_declaration(Parser *parser)
         result = parser_pragma_alias_statement(parser);
         goto attach_comments;
     }
+    if (parser_match(parser, TOKEN_PRAGMA_SERIALIZABLE))
+    {
+        parser->pending_serializable = true;
+        /* Consume optional newline, then parse the next declaration (must be a struct) */
+        parser_match(parser, TOKEN_NEWLINE);
+        result = parser_declaration(parser);
+        goto attach_comments;
+    }
     if (parser_match(parser, TOKEN_KEYWORD_TYPE))
     {
         result = parser_type_declaration(parser);

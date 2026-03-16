@@ -249,6 +249,8 @@ const char *token_type_to_string(SnTokenType type)
         return "NEWLINE";
     case TOKEN_PRAGMA_ALIAS:
         return "PRAGMA_ALIAS";
+    case TOKEN_PRAGMA_SERIALIZABLE:
+        return "PRAGMA_SERIALIZABLE";
     case TOKEN_COMMENT:
         return "COMMENT";
     case TOKEN_ERROR:

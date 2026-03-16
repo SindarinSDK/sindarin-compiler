@@ -1,0 +1,8 @@
+test_encode_address: PASS
+encoded: {"name":"Alice","age":30,"score":9.5,"active":true,"address":{"street":"456 Oak Ave","city":"LA"},"tags":["dev","lead"]}
+test_encode_person: PASS
+test_decode_address: PASS
+test_decode_person: PASS
+test_roundtrip: PASS
+
+All @serializable tests passed!

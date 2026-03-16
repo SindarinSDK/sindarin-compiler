@@ -61,6 +61,7 @@ tests/integration/io_*
 !tests/integration/test_variadic_helper.c
 !tests/integration/test_variadic_native.c
 !tests/integration/test_native_resource_lifecycle.sn.impl.c
+!tests/integration/test_serializable.sn.c
 
 tests/exploratory/test_*
 !tests/exploratory/test_*.sn

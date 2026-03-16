@@ -16,5 +16,6 @@
 #include "sn_arith.h"     /* checked/unchecked arithmetic */
 #include "sn_conv.h"      /* type conversions, comparisons, I/O */
 #include "sn_reflect.h"   /* TypeInfo, FieldInfo for typeOf() */
+#include "sn_serial.h"    /* Encoder, Decoder for @serializable */
 
 #endif

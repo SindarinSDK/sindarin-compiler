@@ -21,6 +21,7 @@
       "is_native": true,
       "is_packed": false,
       "pass_self_by_ref": false,
+      "is_serializable": false,
       "source_file": "tests\/mgen\/struct_decl_as_val.sn",
       "mem_mode": "val",
       "c_alias": "Color",
