@@ -39,6 +39,7 @@ typedef struct {
 struct __sn__Encoder {
     __sn__EncoderVTable *__sn__vt;
     void *__sn__ctx;
+    void (*__sn__cleanup)(__sn__Encoder *self);
 };
 
 /* ---- Decoder vtable ---- */
@@ -62,6 +63,7 @@ typedef struct {
 struct __sn__Decoder {
     __sn__DecoderVTable *__sn__vt;
     void *__sn__ctx;
+    void (*__sn__cleanup)(__sn__Decoder *self);
 };
 
 /* ---- Encoder memory management (as ref / pointer semantics) ---- */
@@ -72,6 +74,7 @@ static inline __sn__Encoder *__sn__Encoder_alloc(void) {
 
 static inline void __sn__Encoder_release(__sn__Encoder **p) {
     if (*p) {
+        if ((*p)->__sn__cleanup) (*p)->__sn__cleanup(*p);
         free(*p);
     }
     *p = NULL;
@@ -92,6 +95,7 @@ static inline __sn__Decoder *__sn__Decoder_alloc(void) {
 
 static inline void __sn__Decoder_release(__sn__Decoder **p) {
     if (*p) {
+        if ((*p)->__sn__cleanup) (*p)->__sn__cleanup(*p);
         free(*p);
     }
     *p = NULL;
