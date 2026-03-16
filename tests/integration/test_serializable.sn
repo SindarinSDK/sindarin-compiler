@@ -4,6 +4,7 @@
 
 native fn sn_test_json_encoder(): Encoder
 native fn sn_test_json_decoder(input: str): Decoder
+native fn sn_test_json_array_encoder(): Encoder
 
 @serializable
 struct Address =>
@@ -90,5 +91,47 @@ fn main(): void =>
     assert(roundtrip.tags.length == 1, "roundtrip tags length")
     assert(roundtrip.tags[0] == "mgr", "roundtrip tags[0]")
     println("test_roundtrip: PASS")
+
+    // --- Test 6: encodeArray ---
+    var addrs: Address[] = {
+        Address { street: "1 Main", city: "NYC" },
+        Address { street: "2 Oak", city: "LA" }
+    }
+    var arrEnc: Encoder = sn_test_json_array_encoder()
+    Address.encodeArray(addrs, arrEnc)
+    var arrJson: str = arrEnc.result()
+    assert(arrJson == "[{\"street\":\"1 Main\",\"city\":\"NYC\"},{\"street\":\"2 Oak\",\"city\":\"LA\"}]", "encodeArray")
+    println("test_encodeArray: PASS")
+
+    // --- Test 7: decodeArray ---
+    var arrDec: Decoder = sn_test_json_decoder("[{\"street\":\"3 Pine\",\"city\":\"SF\"},{\"street\":\"4 Elm\",\"city\":\"CHI\"}]")
+    var decoded: Address[] = Address.decodeArray(arrDec)
+    assert(decoded.length == 2, "decodeArray length")
+    assert(decoded[0].street == "3 Pine", "decodeArray[0].street")
+    assert(decoded[0].city == "SF", "decodeArray[0].city")
+    assert(decoded[1].street == "4 Elm", "decodeArray[1].street")
+    assert(decoded[1].city == "CHI", "decodeArray[1].city")
+    println("test_decodeArray: PASS")
+
+    // --- Test 8: encodeArray + decodeArray roundtrip ---
+    var people: Person[] = {
+        Person { name: "Alice", age: 30, score: 9.5, active: true, address: Address { street: "1 A", city: "X" }, tags: {"a", "b"} },
+        Person { name: "Bob", age: 25, score: 8.0, active: false, address: Address { street: "2 B", city: "Y" }, tags: {"c"} }
+    }
+    var rtArrEnc: Encoder = sn_test_json_array_encoder()
+    Person.encodeArray(people, rtArrEnc)
+    var rtArrJson: str = rtArrEnc.result()
+    var rtArrDec: Decoder = sn_test_json_decoder(rtArrJson)
+    var rtPeople: Person[] = Person.decodeArray(rtArrDec)
+    assert(rtPeople.length == 2, "array roundtrip length")
+    assert(rtPeople[0].name == "Alice", "array roundtrip [0].name")
+    assert(rtPeople[0].age == 30, "array roundtrip [0].age")
+    assert(rtPeople[0].address.city == "X", "array roundtrip [0].address.city")
+    assert(rtPeople[0].tags.length == 2, "array roundtrip [0].tags.length")
+    assert(rtPeople[0].tags[0] == "a", "array roundtrip [0].tags[0]")
+    assert(rtPeople[1].name == "Bob", "array roundtrip [1].name")
+    assert(rtPeople[1].active == false, "array roundtrip [1].active")
+    assert(rtPeople[1].tags[0] == "c", "array roundtrip [1].tags[0]")
+    println("test_array_roundtrip: PASS")
 
     println("\nAll @serializable tests passed!")

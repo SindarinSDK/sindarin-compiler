@@ -166,7 +166,8 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
 
         /* Flag compiler-generated serializable methods (encode/decode) so templates can skip forward decls */
         bool is_serial_method = (decl->is_serializable &&
-            (strcmp(m->name, "encode") == 0 || strcmp(m->name, "decode") == 0) &&
+            (strcmp(m->name, "encode") == 0 || strcmp(m->name, "decode") == 0 ||
+             strcmp(m->name, "encodeArray") == 0 || strcmp(m->name, "decodeArray") == 0) &&
             m->is_native && m->body == NULL);
         json_object_object_add(method, "is_serializable_method", json_object_new_boolean(is_serial_method));
 

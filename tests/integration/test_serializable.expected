@@ -4,5 +4,8 @@ test_encode_person: PASS
 test_decode_address: PASS
 test_decode_person: PASS
 test_roundtrip: PASS
+test_encodeArray: PASS
+test_decodeArray: PASS
+test_array_roundtrip: PASS
 
 All @serializable tests passed!
