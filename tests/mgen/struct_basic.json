@@ -1,0 +1,79 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/struct_basic.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Point",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/struct_basic.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "y",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 16,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/struct_basic.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

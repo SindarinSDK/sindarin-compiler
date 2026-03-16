@@ -2,4 +2,12 @@
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
     free((({{c_type type}} *){{> expr array}}->data)[__ai__]);
     (({{c_type type}} *){{> expr array}}->data)[__ai__] = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
-}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}
+}){{else}}{{#if (eq elem_cleanup "struct_composite")}}({
+    long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
+    __sn__{{elem_struct_name}}_cleanup(&((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]);
+    {{#if needs_deep_copy}}__sn__{{elem_struct_name}}_copy_into(&({{> expr value}}), &((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]);{{else}}((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__] = {{> expr value}};{{/if}}
+}){{else}}{{#if (eq elem_cleanup "struct_ref")}}({
+    long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
+    __sn__{{elem_struct_name}}_release(&((__sn__{{elem_struct_name}} **){{> expr array}}->data)[__ai__]);
+    ((__sn__{{elem_struct_name}} **){{> expr array}}->data)[__ai__] = {{> expr value}};
+}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}{{/if}}{{/if}}
