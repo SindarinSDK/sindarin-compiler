@@ -200,6 +200,29 @@ static inline __sn__{{name}} __sn__{{name}}_decode(__sn__Decoder *__sn__d) {
 {{/if}}{{#if (eq serial_action "array_object")}}    { __sn__Decoder *__arr__ = __sn__Decoder_readArray(__sn__d, "{{name}}"); long long __len__ = __sn__Decoder_length(__arr__); __r__.__sn__{{name}} = sn_array_new(sizeof(__sn__{{serial_elem_struct_name}}), __len__); __r__.__sn__{{name}}->elem_release = __sn__{{serial_elem_struct_name}}_cleanup_elem; __r__.__sn__{{name}}->elem_copy = __sn__{{serial_elem_struct_name}}_copy_into; for (long long __i__ = 0; __i__ < __len__; __i__++) { __sn__Decoder *__elem__ = __sn__Decoder_at(__arr__, __i__); __sn__{{serial_elem_struct_name}} __v__ = __sn__{{serial_elem_struct_name}}_decode(__elem__); sn_array_push(__r__.__sn__{{name}}, &__v__); } }
 {{/if}}{{/each}}    return __r__;
 }
+
+/* @serializable: encodeArray */
+static inline void __sn__{{name}}_encodeArray(SnArray *__sn__items, __sn__Encoder *__sn__e) {
+    for (long long __i__ = 0; __i__ < __sn__items->len; __i__++) {
+        __sn__Encoder *__obj__ = __sn__Encoder_appendObject(__sn__e);
+        __sn__{{name}}_encode(&((__sn__{{name}} *)__sn__items->data)[__i__], __obj__);
+        __sn__Encoder_end(__obj__);
+    }
+}
+
+/* @serializable: decodeArray */
+static inline SnArray *__sn__{{name}}_decodeArray(__sn__Decoder *__sn__d) {
+    long long __len__ = __sn__Decoder_length(__sn__d);
+    SnArray *__arr__ = sn_array_new(sizeof(__sn__{{name}}), __len__);
+    __arr__->elem_release = __sn__{{name}}_cleanup_elem;
+    __arr__->elem_copy = __sn__{{name}}_copy_into;
+    for (long long __i__ = 0; __i__ < __len__; __i__++) {
+        __sn__Decoder *__elem__ = __sn__Decoder_at(__sn__d, __i__);
+        __sn__{{name}} __v__ = __sn__{{name}}_decode(__elem__);
+        sn_array_push(__arr__, &__v__);
+    }
+    return __arr__;
+}
 {{/if}}
 
 {{/if}}{{/if}}

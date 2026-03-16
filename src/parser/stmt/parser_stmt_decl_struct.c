@@ -573,8 +573,8 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             return NULL;
         }
 
-        /* We need room for 2 extra methods: encode and decode */
-        int new_method_count = method_count + 2;
+        /* We need room for 4 extra methods: encode, decode, encodeArray, decodeArray */
+        int new_method_count = method_count + 4;
         StructMethod *new_methods = arena_alloc(parser->arena, sizeof(StructMethod) * new_method_count);
         if (new_methods == NULL)
         {
@@ -640,6 +640,74 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             m->is_native = true;
             m->has_arena_param = false;
             m->name_token = (Token){ .start = m->name, .length = 6,
+                                      .type = TOKEN_IDENTIFIER, .line = 0,
+                                      .filename = arena_strdup(parser->arena, "<built-in>") };
+            m->c_alias = NULL;
+        }
+
+        /* static encodeArray(items: T[], e: Encoder): void — static method, native, no body */
+        {
+            Type *array_of_struct = ast_create_array_type(parser->arena, early_struct_type);
+
+            Parameter *ea_params = arena_alloc(parser->arena, sizeof(Parameter) * 2);
+            ea_params[0].name = (Token){ .start = arena_strdup(parser->arena, "items"), .length = 5,
+                                          .type = TOKEN_IDENTIFIER, .line = 0,
+                                          .filename = arena_strdup(parser->arena, "<built-in>") };
+            ea_params[0].type = array_of_struct;
+            ea_params[0].mem_qualifier = MEM_DEFAULT;
+            ea_params[0].sync_modifier = SYNC_NONE;
+            ea_params[1].name = (Token){ .start = arena_strdup(parser->arena, "e"), .length = 1,
+                                          .type = TOKEN_IDENTIFIER, .line = 0,
+                                          .filename = arena_strdup(parser->arena, "<built-in>") };
+            ea_params[1].type = enc_sym->type;
+            ea_params[1].mem_qualifier = MEM_DEFAULT;
+            ea_params[1].sync_modifier = SYNC_NONE;
+
+            StructMethod *m = &new_methods[method_count + 2];
+            memset(m, 0, sizeof(StructMethod));
+            m->name = arena_strdup(parser->arena, "encodeArray");
+            m->params = ea_params;
+            m->param_count = 2;
+            m->return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+            m->return_mem_qualifier = MEM_DEFAULT;
+            m->body = NULL;
+            m->body_count = 0;
+            m->modifier = FUNC_DEFAULT;
+            m->is_static = true;
+            m->is_native = true;
+            m->has_arena_param = false;
+            m->name_token = (Token){ .start = m->name, .length = 11,
+                                      .type = TOKEN_IDENTIFIER, .line = 0,
+                                      .filename = arena_strdup(parser->arena, "<built-in>") };
+            m->c_alias = NULL;
+        }
+
+        /* static decodeArray(d: Decoder): T[] — static method, native, no body */
+        {
+            Type *array_of_struct = ast_create_array_type(parser->arena, early_struct_type);
+
+            Parameter *da_params = arena_alloc(parser->arena, sizeof(Parameter));
+            da_params[0].name = (Token){ .start = arena_strdup(parser->arena, "d"), .length = 1,
+                                          .type = TOKEN_IDENTIFIER, .line = 0,
+                                          .filename = arena_strdup(parser->arena, "<built-in>") };
+            da_params[0].type = dec_sym->type;
+            da_params[0].mem_qualifier = MEM_DEFAULT;
+            da_params[0].sync_modifier = SYNC_NONE;
+
+            StructMethod *m = &new_methods[method_count + 3];
+            memset(m, 0, sizeof(StructMethod));
+            m->name = arena_strdup(parser->arena, "decodeArray");
+            m->params = da_params;
+            m->param_count = 1;
+            m->return_type = array_of_struct;
+            m->return_mem_qualifier = MEM_DEFAULT;
+            m->body = NULL;
+            m->body_count = 0;
+            m->modifier = FUNC_DEFAULT;
+            m->is_static = true;
+            m->is_native = true;
+            m->has_arena_param = false;
+            m->name_token = (Token){ .start = m->name, .length = 11,
                                       .type = TOKEN_IDENTIFIER, .line = 0,
                                       .filename = arena_strdup(parser->arena, "<built-in>") };
             m->c_alias = NULL;

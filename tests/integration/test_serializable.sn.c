@@ -172,7 +172,7 @@ static __sn__Encoder *je_append_object(__sn__Encoder *self) {
 
 static char *je_result(__sn__Encoder *self) {
     JEnc *j = (JEnc *)self->__sn__ctx;
-    buf_char(j->buf, '}');
+    buf_char(j->buf, j->is_array ? ']' : '}');
     char *result = strdup(j->buf->data);
     free(j->buf->data);
     free(j->buf);
@@ -473,4 +473,18 @@ __sn__Decoder *sn_test_json_decoder(const char *input) {
     const char *p = input;
     JNode *root = jparse(&p);
     return jd_make(root);
+}
+
+/* Public factory: creates a new JSON array encoder (starts with [, result closes with ]) */
+__sn__Encoder *sn_test_json_array_encoder(void) {
+    __sn__Encoder *enc = calloc(1, sizeof(__sn__Encoder));
+    JEnc *j = calloc(1, sizeof(JEnc));
+    j->buf = buf_new();
+    j->first = 1;
+    j->is_array = 1;
+    j->is_root = 1;
+    buf_char(j->buf, '[');
+    enc->__sn__vt = &je_vt;
+    enc->__sn__ctx = j;
+    return enc;
 }
