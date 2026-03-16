@@ -1028,6 +1028,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 bool member_str_push = false;
                 /* Detect push/insert on array-of-arrays — args need sn_array_copy for ownership */
                 bool member_arr_push = false;
+                /* Detect push/insert on composite struct arrays — lvalue args need deep copy */
+                bool member_struct_push = false;
+                const char *member_struct_push_name = NULL;
                 /* Detect insert specifically — args need reordering (idx before val) for variadic macro */
                 bool member_is_insert = false;
                 if (expr->as.call.callee->type == EXPR_MEMBER)
@@ -1044,10 +1047,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (obj_type && obj_type->kind == TYPE_ARRAY &&
                             obj_type->as.array.element_type)
                         {
-                            if (obj_type->as.array.element_type->kind == TYPE_STRING)
+                            Type *et = obj_type->as.array.element_type;
+                            if (et->kind == TYPE_STRING)
                                 member_str_push = true;
-                            else if (obj_type->as.array.element_type->kind == TYPE_ARRAY)
+                            else if (et->kind == TYPE_ARRAY)
                                 member_arr_push = true;
+                            else if (et->kind == TYPE_STRUCT &&
+                                     !et->as.struct_type.pass_self_by_ref &&
+                                     gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
+                            {
+                                member_struct_push = true;
+                                member_struct_push_name = et->as.struct_type.name;
+                            }
                         }
                     }
                 }
@@ -1257,6 +1268,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     {
                         json_object_object_add(arg, "needs_arr_copy",
                             json_object_new_boolean(true));
+                    }
+                    /* Composite struct array push/insert: lvalue args need deep copy for ownership */
+                    if (member_struct_push && i == 0)
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[0];
+                        bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
+                                          arg_expr->type == EXPR_ARRAY_ACCESS ||
+                                          arg_expr->type == EXPR_MEMBER ||
+                                          arg_expr->type == EXPR_MEMBER_ACCESS);
+                        if (is_lvalue)
+                        {
+                            json_object_object_add(arg, "needs_struct_copy",
+                                json_object_new_boolean(true));
+                            json_object_object_add(arg, "copy_struct_name",
+                                json_object_new_string(member_struct_push_name));
+                        }
                     }
                     json_object_array_add(args, arg);
                 }
@@ -1527,6 +1554,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object_object_add(elem, "needs_arr_copy", json_object_new_boolean(true));
                 }
+                /* Composite struct arrays: lvalue elements need deep copy */
+                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
+                    !ae->expr_type->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
+                    (ae->type == EXPR_VARIABLE || ae->type == EXPR_ARRAY_ACCESS ||
+                     ae->type == EXPR_MEMBER || ae->type == EXPR_MEMBER_ACCESS))
+                {
+                    json_object_object_add(elem, "needs_struct_copy", json_object_new_boolean(true));
+                    json_object_object_add(elem, "copy_struct_name",
+                        json_object_new_string(ae->expr_type->as.struct_type.name));
+                }
                 json_object_array_add(elements, elem);
             }
             json_object_object_add(obj, "elements", elements);
@@ -1650,6 +1688,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 ia_needs_strdup = true;
                         }
                         break;
+                    case TYPE_STRUCT:
+                    {
+                        /* Composite val-type structs need old element cleanup + deep copy or ownership transfer */
+                        if (!etype->as.struct_type.pass_self_by_ref &&
+                            gen_model_type_category(etype) == TYPE_CAT_COMPOSITE)
+                        {
+                            elem_cleanup = "struct_composite";
+                            json_object_object_add(obj, "elem_struct_name",
+                                json_object_new_string(etype->as.struct_type.name));
+                            /* Deep copy needed when source borrows data (variable, array access, member) */
+                            Expr *val = expr->as.index_assign.value;
+                            ExprType vt = val->type;
+                            bool needs_deep_copy = (vt == EXPR_VARIABLE || vt == EXPR_ARRAY_ACCESS ||
+                                                     vt == EXPR_MEMBER || vt == EXPR_MEMBER_ACCESS);
+                            json_object_object_add(obj, "needs_deep_copy",
+                                json_object_new_boolean(needs_deep_copy));
+                        }
+                        else if (etype->as.struct_type.pass_self_by_ref)
+                        {
+                            elem_cleanup = "struct_ref";
+                            json_object_object_add(obj, "elem_struct_name",
+                                json_object_new_string(etype->as.struct_type.name));
+                        }
+                        break;
+                    }
                     default:
                         break;
                 }

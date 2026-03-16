@@ -151,6 +151,17 @@ Type *type_check_assign(Expr *expr, SymbolTable *table)
         type_error(&expr->as.assign.name, "Cannot assign void thread spawn to variable");
         return NULL;
     }
+    /* For empty array literals, adopt the target variable's element type for codegen.
+     * Without this, {} produces an array with TYPE_NIL element type, which generates
+     * sizeof(long long) instead of sizeof(__sn__StructName) in the C output. */
+    if (sym->type && sym->type->kind == TYPE_ARRAY &&
+        value_type->kind == TYPE_ARRAY &&
+        value_type->as.array.element_type &&
+        value_type->as.array.element_type->kind == TYPE_NIL)
+    {
+        value_expr->expr_type = sym->type;
+        value_type = sym->type;
+    }
     bool types_compatible = ast_type_equals(sym->type, value_type);
 
     if (!types_compatible)

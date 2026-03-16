@@ -1,0 +1,88 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/struct_decl_as_ref.sn",
+    "has_main": true,
+    "main_returns": true,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [
+    {
+      "kind": "pragma",
+      "pragma_type": "alias",
+      "value": "Vec2"
+    }
+  ],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Vec2",
+      "is_native": true,
+      "is_packed": false,
+      "pass_self_by_ref": true,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/struct_decl_as_ref.sn",
+      "mem_mode": "ref",
+      "c_alias": "Vec2",
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
+          "c_alias": "x"
+        },
+        {
+          "name": "y",
+          "type": {
+            "kind": "double"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy",
+          "c_alias": "y"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/struct_decl_as_ref.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
