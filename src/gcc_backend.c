@@ -624,7 +624,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
                  (int)(strlen(c_files[i]) - 2), c_files[i]);
 
         snprintf(command, sizeof(command),
-            "%s%s%s -c %s -w -std=%s -D_GNU_SOURCE %s "
+            "%s%s%s -c %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
             "-I\"%s\" -I\"%s\" %s %s "
             "\"%s\" -o \"%s\" 2>\"%s\"",
             cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
@@ -687,7 +687,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         snprintf(o_path, sizeof(o_path), "%s" SN_PATH_SEP_STR "pragma_%.*s.o", build_dir, blen, base);
 
         snprintf(command, sizeof(command),
-            "%s%s%s -c %s -w -std=%s -D_GNU_SOURCE %s "
+            "%s%s%s -c %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
             "-include \"%s/sn_types.h\" "
             "-I\"%s\" -I\"%s\" %s %s "
             "\"%s\" -o \"%s\" 2>\"%s\"",
@@ -787,7 +787,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 #ifdef _WIN32
     /* Windows: math functions are in CRT, no separate -lm needed */
     snprintf(command, sizeof(command),
-        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
+        "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
         "%s %s -lpthread%s %s %s -o \"%s\" 2>\"%s\"",
         cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
@@ -796,7 +796,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         exe_path, error_file);
 #else
     snprintf(command, sizeof(command),
-        "%s%s%s %s -w -std=%s -D_GNU_SOURCE %s "
+        "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
         "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
         cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,

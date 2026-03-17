@@ -12,7 +12,8 @@ static inline __sn__{{name}} *__sn__{{name}}_alloc(void) {
     return calloc(1, sizeof(__sn__{{name}}));
 }
 
-static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
+{{#if has_dispose}}void {{dispose_alias}}(__sn__{{name}} *);
+{{/if}}static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
     if (*p) {
 {{#if has_dispose}}        {{dispose_alias}}(*p);
 {{else}}{{#each fields}}{{#if (eq cleanup_action "free")}}        free((*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
