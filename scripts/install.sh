@@ -18,6 +18,19 @@ REPO_NAME="sindarin-compiler"
 INSTALL_DIR="$HOME/.sn"
 BIN_DIR="$INSTALL_DIR/bin"
 
+# Optional auth token — avoids GitHub API rate limits (60/hr unauthenticated).
+# Set GH_TOKEN or GITHUB_TOKEN in the environment to authenticate.
+# GitHub Actions sets GH_TOKEN automatically when passed via env:.
+setup_auth() {
+    TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
+    CURL_AUTH=()
+    WGET_AUTH=()
+    if [ -n "$TOKEN" ]; then
+        CURL_AUTH=(-H "Authorization: Bearer $TOKEN")
+        WGET_AUTH=(--header="Authorization: Bearer $TOKEN")
+    fi
+}
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -84,9 +97,9 @@ get_latest_release() {
     local response=""
 
     if command_exists curl; then
-        response=$(curl -fsSL -H "Accept: application/vnd.github.v3+json" -H "User-Agent: Sindarin-Installer" "$api_url")
+        response=$(curl -fsSL "${CURL_AUTH[@]}" -H "Accept: application/vnd.github.v3+json" -H "User-Agent: Sindarin-Installer" "$api_url")
     elif command_exists wget; then
-        response=$(wget -q -O - --header="Accept: application/vnd.github.v3+json" --header="User-Agent: Sindarin-Installer" "$api_url")
+        response=$(wget -q -O - "${WGET_AUTH[@]}" --header="Accept: application/vnd.github.v3+json" --header="User-Agent: Sindarin-Installer" "$api_url")
     else
         write_status "Neither curl nor wget found. Please install one of them." "Error"
         exit 1
@@ -127,9 +140,9 @@ install_sindarin() {
     write_status "Downloading ${tarball_name}..."
 
     if command_exists curl; then
-        curl -fsSL -o "$tarball_path" "$download_url"
+        curl -fsSL "${CURL_AUTH[@]}" -o "$tarball_path" "$download_url"
     elif command_exists wget; then
-        wget -q -O "$tarball_path" "$download_url"
+        wget -q -O "$tarball_path" "${WGET_AUTH[@]}" "$download_url"
     fi
 
     if [ ! -f "$tarball_path" ]; then
@@ -186,6 +199,15 @@ install_sindarin() {
 # Add to PATH in shell configuration
 add_to_path() {
     write_status "Configuring PATH..."
+
+    # In GitHub Actions, write to GITHUB_PATH so the bin dir is available
+    # to all subsequent steps without needing a shell restart.
+    if [ -n "${GITHUB_PATH:-}" ]; then
+        write_status "GitHub Actions detected, registering in GITHUB_PATH..."
+        echo "$BIN_DIR" >> "$GITHUB_PATH"
+        write_status "Added $BIN_DIR to GITHUB_PATH" "Success"
+        return
+    fi
 
     local path_line="export PATH=\"\$HOME/.sn/bin:\$PATH\""
     local path_added=false
@@ -254,20 +276,23 @@ main() {
     echo -e "${MAGENTA}========================================${NC}"
     echo ""
 
-    # Step 1: Detect OS and architecture
+    # Step 1: Set up optional auth headers
+    setup_auth
+
+    # Step 2: Detect OS and architecture
     local os_type
     os_type=$(detect_os)
     local arch_type
     arch_type=$(detect_arch)
     write_status "Detected OS: $os_type ($arch_type)"
 
-    # Step 2: Get latest release info
+    # Step 3: Get latest release info
     get_latest_release
 
-    # Step 3: Download and install
+    # Step 4: Download and install
     install_sindarin "$os_type" "$arch_type"
 
-    # Step 4: Add to PATH (idempotent - won't duplicate)
+    # Step 5: Add to PATH (idempotent - won't duplicate)
     add_to_path
 
     echo ""

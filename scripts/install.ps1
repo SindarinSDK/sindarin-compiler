@@ -19,6 +19,11 @@ $RepoName = "sindarin-compiler"
 $InstallDir = Join-Path $env:USERPROFILE ".sn"
 $BinDir = Join-Path $InstallDir "bin"
 
+# Optional auth token — avoids GitHub API rate limits (60/hr unauthenticated).
+# Set GH_TOKEN or GITHUB_TOKEN in the environment to authenticate.
+# GitHub Actions sets GH_TOKEN automatically when passed via env:.
+$GHToken = if ($env:GH_TOKEN) { $env:GH_TOKEN } elseif ($env:GITHUB_TOKEN) { $env:GITHUB_TOKEN } else { $null }
+
 function Write-Status {
     param([string]$Message, [string]$Type = "Info")
 
@@ -37,9 +42,10 @@ function Get-LatestWindowsRelease {
 
     try {
         $headers = @{
-            "Accept" = "application/vnd.github.v3+json"
+            "Accept"     = "application/vnd.github.v3+json"
             "User-Agent" = "Sindarin-Installer"
         }
+        if ($GHToken) { $headers["Authorization"] = "Bearer $GHToken" }
 
         $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers -Method Get
 
@@ -75,7 +81,9 @@ function Install-Sindarin {
 
         # Download the release zip
         Write-Status "Downloading $($Release.AssetName)..."
-        Invoke-WebRequest -Uri $Release.AssetUrl -OutFile $zipPath -UseBasicParsing
+        $iwrArgs = @{ Uri = $Release.AssetUrl; OutFile = $zipPath; UseBasicParsing = $true }
+        if ($GHToken) { $iwrArgs["Headers"] = @{ Authorization = "Bearer $GHToken" } }
+        Invoke-WebRequest @iwrArgs
         Write-Status "Download complete" "Success"
 
         # Remove existing installation if present
@@ -130,6 +138,15 @@ function Install-Sindarin {
 
 function Add-ToPath {
     Write-Status "Configuring PATH..."
+
+    # In GitHub Actions, write to GITHUB_PATH so the bin dir is available
+    # to all subsequent steps without needing a shell restart.
+    if ($env:GITHUB_PATH) {
+        Write-Status "GitHub Actions detected, registering in GITHUB_PATH..."
+        Add-Content -Path $env:GITHUB_PATH -Value $BinDir
+        Write-Status "Added $BinDir to GITHUB_PATH" "Success"
+        return
+    }
 
     # Get current user PATH
     $currentPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
