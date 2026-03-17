@@ -127,7 +127,7 @@ jobs:
         run: |
           if [ "${{ matrix.libs_arch }}" != "" ]; then
             # Cross-compilation: download libs for target arch instead of host arch
-            REPO="SindarinSDK/sindarin-pkg-libs-v2"
+            REPO="SindarinSDK/sindarin-pkg-libs"
             ARCH="${{ matrix.libs_arch }}"
             PLATFORM="${{ matrix.platform }}"
             API_URL="https://api.github.com/repos/${REPO}/releases/latest"
