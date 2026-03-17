@@ -251,13 +251,13 @@ package: build
 ifeq ($(PLATFORM),windows)
 setup:
 	@echo "Setting up build dependencies for Windows..."
-	@powershell -NoProfile -ExecutionPolicy Bypass -Command "New-Item -ItemType Directory -Force -Path libs | Out-Null; cd libs; irm https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.ps1 | iex"
+	@powershell -NoProfile -ExecutionPolicy Bypass -Command "New-Item -ItemType Directory -Force -Path libs | Out-Null; cd libs; irm https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs/main/scripts/install.ps1 | iex"
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 else
 setup:
 	@echo "Setting up build dependencies for $(PLATFORM)..."
-	@mkdir -p libs && cd libs && export GITHUB_TOKEN=$${GITHUB_TOKEN:-$$(gh auth token 2>/dev/null)}; curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs-v2/main/scripts/install.sh | bash
+	@mkdir -p libs && cd libs && export GITHUB_TOKEN=$${GITHUB_TOKEN:-$$(gh auth token 2>/dev/null)}; curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs/main/scripts/install.sh | bash
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 endif

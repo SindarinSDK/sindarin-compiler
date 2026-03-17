@@ -177,7 +177,7 @@ If the sibling repositories don't exist, clone them into the parent directory:
 cd ..
 git clone git@github.com:SindarinSDK/sindarin-pkg-sdk.git
 git clone git@github.com:SindarinSDK/sindarin-pkg-http.git
-git clone git@github.com:SindarinSDK/sindarin-pkg-libs-v2.git sindarin-pkg-libs
+git clone git@github.com:SindarinSDK/sindarin-pkg-libs.git
 cd sindarin-compiler
 ```
 
