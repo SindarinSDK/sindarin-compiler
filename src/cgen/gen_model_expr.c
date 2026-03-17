@@ -1793,6 +1793,15 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         break;
                     case TYPE_ARRAY:
                         field_cleanup = "cleanup_arr";
+                        /* Array from variable/member needs copy to avoid double-free */
+                        {
+                            Expr *val = expr->as.member_assign.value;
+                            if (val->type == EXPR_VARIABLE || val->type == EXPR_MEMBER)
+                            {
+                                json_object_object_add(obj, "needs_arr_copy",
+                                    json_object_new_boolean(true));
+                            }
+                        }
                         break;
                     case TYPE_STRUCT:
                         if (ftype->as.struct_type.pass_self_by_ref)
@@ -1884,6 +1893,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 if (ma_needs_retain)
                     json_object_object_add(obj, "needs_retain",
                         json_object_new_boolean(true));
+                /* Val struct from variable/member needs deep copy to avoid shared heap fields */
+                if (strcmp(field_cleanup, "cleanup_val") == 0 &&
+                    (expr->as.member_assign.value->type == EXPR_VARIABLE ||
+                     expr->as.member_assign.value->type == EXPR_MEMBER))
+                {
+                    json_object_object_add(obj, "needs_val_copy",
+                        json_object_new_boolean(true));
+                }
             }
             break;
         }
