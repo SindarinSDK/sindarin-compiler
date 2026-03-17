@@ -45,6 +45,10 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 /* Get the directory containing the compiler executable */
 const char *gcc_get_compiler_dir(const char *argv0);
 
+/* Resolve compiler_dir to the actual SDK root (where templates/ lives).
+ * Handles the case where the binary is in bin/ but templates are in ../lib/sindarin/. */
+void gcc_resolve_compiler_dir(char *dir_buf, int buf_size);
+
 /* Resolve an SDK import to its full file path */
 const char *gcc_resolve_sdk_import(const char *compiler_dir, const char *module_name);
 
