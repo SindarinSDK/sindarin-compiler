@@ -69,8 +69,23 @@ var name: str = "Sindarin"
 var count: int = 42
 var pi: double = 3.14159
 var active: bool = true
-var letter: char = 'S'
+var letter: char = 'A'
+var b: byte = 255
+var p: str = nil
 ```
+
+| Type   | Description |
+|--------|-------------|
+| `int`  | 64-bit signed integer |
+| `long` | 64-bit signed integer (alias) |
+| `double` | 64-bit floating point |
+| `bool` | `true` or `false` |
+| `str`  | String (pointer type, can be `nil`) |
+| `char` | Single character, written with single quotes: `'A'` |
+| `byte` | 8-bit unsigned integer (0–255) |
+| `void` | No value (used as function return type) |
+
+`nil` can be assigned to pointer types such as `str` and struct references.
 
 ### Functions
 
@@ -103,6 +118,14 @@ Expression-bodied syntax works with all function types including `native` functi
 
 ```sindarin
 native fn double_it(x: int): int => x * 2
+```
+
+#### Variadic Functions
+
+Native functions can accept a variable number of arguments using `...` after the fixed parameters:
+
+```sindarin
+native fn my_variadic_fn(fmt: str, ...): int
 ```
 
 ### String Interpolation
@@ -179,6 +202,24 @@ var msg: str = match code =>
     else => "Unknown"
 ```
 
+Use `break` to exit a loop early and `continue` to skip to the next iteration:
+
+```sindarin
+// break — exit the loop
+var x: int = 0
+while true =>
+    x++
+    if x == 5 =>
+        break
+
+// continue — skip to next iteration
+var sum: int = 0
+for var i: int = 0; i < 10; i++ =>
+    if i == 5 =>
+        continue
+    sum += i
+```
+
 ### Boolean Operators
 
 ```sindarin
@@ -192,7 +233,71 @@ if !isBlocked =>
   print("Access granted\n")
 ```
 
+### Operators
+
+#### Arithmetic and Unary
+
+Integer arithmetic is overflow-checked by default — an overflow causes a runtime panic rather than silent wraparound. The compiler emits safe wrapper calls instead of bare C arithmetic operators:
+
+```sindarin
+var a: int = 100
+var b: int = a + 50   // checked add
+```
+
+Compiles to:
+
+```c
+long long __sn__a = 100LL;
+long long __sn__b = sn_add_long(__sn__a, 50LL);  // panics on overflow
+```
+
+Without checking the same expression compiles to a plain C addition:
+
+```c
+long long __sn__b = __sn__a + 50LL;
+```
+
+Use the following flags to control overflow checking:
+
+| Flag | Effect |
+|------|--------|
+| (default) | Checked arithmetic |
+| `--unchecked` | Disable overflow checking (faster) |
+| `-O2` | Full optimizations, implies `--unchecked` |
+| `--checked` | Force checking even when `-O2` is active |
+
+```sindarin
+var x: int = 10
+var y: int = -x    // unary negation
+var b: bool = !true // logical NOT
+```
+
+#### Increment and Decrement
+
+```sindarin
+x++   // increment x by 1
+x--   // decrement x by 1
+```
+
+#### Compound Assignment
+
+```sindarin
+x += 5   // x = x + 5
+x -= 3   // x = x - 3
+x *= 2   // x = x * 2
+x /= 4   // x = x / 4
+x %= 3   // x = x % 3
+```
+
+#### sizeof
+
+```sindarin
+var s: int = sizeof(Point)   // size of a struct type in bytes
+```
+
 ## Module System
+
+### Imports
 
 Split code across files with imports:
 
@@ -208,21 +313,40 @@ fn main(): void =>
   helper()
 ```
 
-## Memory Management
+### Library Modules
 
-Sindarin uses arena-based memory with optional control:
+A source file without a `main()` function is a library module — it exports only functions and types for use by other files:
 
 ```sindarin
-// Shared function - uses caller's arena (no promotion overhead)
-shared fn helper(a: int, b: int): int =>
-  return a + b
+// math.sn — no main(), just exports
+fn add(a: int, b: int): int =>
+    return a + b
+```
 
-// Private function - isolated arena, only primitives can escape
-private fn count_items(path: str): int =>
-  var contents: str = read_file(path)
-  return contents.split("\n").length  // Only int escapes
+Import it from any other file using `import "math"`.
 
-// Value copy semantics
+### Global Variables
+
+Variables declared at the top level (outside any function) are global and initialized at program start:
+
+```sindarin
+var counter: int = 0
+
+fn main(): void =>
+    counter = 42
+```
+
+A `static var` at module level persists its value across calls from other modules and is scoped to the declaring module:
+
+```sindarin
+static var staticCounter: int = 100
+```
+
+## Memory Management
+
+Sindarin uses explicit ownership semantics. Use `as val` to request an independent value copy of a variable:
+
+```sindarin
 var original: int[] = {1, 2, 3}
 var copy: int[] as val = original  // Independent copy
 ```

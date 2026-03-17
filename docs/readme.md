@@ -14,7 +14,7 @@ Sindarin is a statically-typed procedural programming language that compiles to 
 
 2. **Safety First** - Panic on errors rather than returning null or error codes. This keeps code clean and avoids pervasive null checks.
 
-3. **Simple Memory Model** - Arena-based memory management with clear ownership semantics. No manual malloc/free, no garbage collector pauses.
+3. **Simple Memory Model** - Explicit ownership with `as ref`/`as val` semantics. No manual malloc/free, no garbage collector pauses.
 
 4. **Clean Syntax** - Arrow-based blocks (`=>`) provide consistent, readable structure. No curly braces for blocks.
 
@@ -285,18 +285,9 @@ fn main(): void =>
 
 ## Memory Management
 
-Sindarin uses arena-based memory with optional control:
+Sindarin uses explicit ownership semantics with `as ref` and `as val`:
 
 ```sindarin
-// Shared function - uses caller's arena (no promotion overhead)
-shared fn helper(a: int, b: int): int =>
-  return a + b
-
-// Private function - isolated arena, only primitives can escape
-private fn count_items(path: str): int =>
-  var contents: str = read_file(path)
-  return contents.split("\n").length  // Only int escapes
-
 // Value copy semantics
 var original: int[] = {1, 2, 3}
 var copy: int[] as val = original  // Independent copy
@@ -361,10 +352,9 @@ Note: The default runtime objects are compiled with GCC's LTO. To use a differen
 - [Structs](structs.md) - Struct declarations and C interop
 - [Match](match.md) - Match expressions for multi-way branching
 - [Lambdas](lambdas.md) - Lambda expressions and closures
-- [Memory](memory.md) - Arena memory management
+- [Memory](memory.md) - Ownership model, `as ref`/`as val` semantics, and memory management
 
 ### Advanced Features
 - [Threading](threading.md) - Threading with `&` spawn and `!` sync
 - [Namespaces](namespaces.md) - Namespaced imports for collision resolution
 - [Interop](interop.md) - C interoperability and native functions
-- [Interceptors](interceptors.md) - Function interception for debugging and mocking

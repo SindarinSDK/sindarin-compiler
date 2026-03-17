@@ -239,6 +239,8 @@ Or use Make targets:
 ```bash
 make test                    # All tests
 make test-unit               # Unit tests only
+make test-cgen               # Code generation tests (compare generated C)
+make test-mgen               # Model generation tests (compare JSON model)
 make test-integration        # Integration tests
 make test-integration-errors # Integration error tests
 make test-explore            # Exploratory tests
@@ -286,7 +288,24 @@ bin/sn myprogram.sn --emit-c -o myprogram.c
 
 # Debug build (with symbols, enables ASAN on Linux)
 bin/sn myprogram.sn -g -o myprogram
+
+# Profile build (optimized with frame pointers, no ASAN, no LTO)
+bin/sn myprogram.sn -p -o myprogram
 ```
+
+> **Note:** `-p` and `-g` cannot be used together.
+
+### Optimization and Arithmetic Checking Flags
+
+| Flag | Effect |
+|------|--------|
+| `-O0` | No Sn optimizer passes (useful for debugging codegen) |
+| `-O1` | Basic optimizations: dead code elimination, string merging |
+| `-O2` | Full optimizations (default): all `-O1` passes plus unchecked arithmetic |
+| `--unchecked` | Disable integer overflow checking regardless of optimization level |
+| `--checked` | Force integer overflow checking even when `-O2` is active |
+
+Integer arithmetic is overflow-checked by default. `-O2` implies `--unchecked` for performance. Use `--checked` to re-enable checking in an optimized build, or `--unchecked` to disable it at any level.
 
 ## C Compiler Configuration
 
@@ -406,6 +425,8 @@ The project uses GitHub Actions for continuous integration. CI uses the same `ma
 make setup                   # Initialize libs submodule with pre-built dependencies
 make build                   # Configure and build via cmake
 make test-unit               # Run unit tests
+make test-cgen               # Run code generation tests
+make test-mgen               # Run model generation tests
 make test-integration        # Run integration tests
 make test-integration-errors # Run integration error tests
 make test-explore            # Run exploratory tests

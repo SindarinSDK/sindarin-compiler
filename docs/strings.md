@@ -6,6 +6,30 @@ permalink: /language/strings/
 
 Sindarin provides powerful string manipulation with string interpolation, comprehensive methods, and escape sequences.
 
+## The `char` Type
+
+`char` represents a single character. Character literals use single quotes:
+
+```sindarin
+var c: char = 'A'
+```
+
+The same escape sequences supported in string literals also work in char literals:
+
+```sindarin
+var newline: char = '\n'
+var tab: char = '\t'
+var backslash: char = '\\'
+var single_quote: char = '\''
+var null_char: char = '\0'
+```
+
+`char` values can be obtained from a string using `charAt`:
+
+```sindarin
+var ch: char = "Hello".charAt(0)  // 'H'
+```
+
 ## String Literals
 
 Basic string literals use double quotes:
@@ -429,7 +453,37 @@ var csv: str = parts.join(",")          // "apple,banana,cherry"
 var sentence: str = parts.join(" and ") // "apple and banana and cherry"
 ```
 
+## String Comparison Semantics
+
+String equality (`==` and `!=`) compares the **contents** of the strings, not their memory addresses. Two independently created strings with the same characters compare as equal:
+
+```sindarin
+var a: str = "hello"
+var b: str = "hello"
+print(a == b)  // true
+```
+
+This uses `strcmp`-based comparison, not pointer equality. Use `==` freely for string comparisons.
+
+For case-insensitive comparison, normalize with `toLower()` first:
+
+```sindarin
+fn equalsIgnoreCase(a: str, b: str): bool =>
+  return a.toLower() == b.toLower()
+```
+
+## String Memory
+
+Each string value is a heap-allocated copy. Assigning a new string to a variable automatically frees the old value:
+
+```sindarin
+var s: str = "hello"
+s = "world"  // "hello" is freed automatically; s now points to a copy of "world"
+```
+
+String interpolation and methods such as `substring`, `toLower`, and `replace` always return a new heap-allocated string — the original is not modified.
+
 ## See Also
 
-- [Arrays](arrays.md) - Array operations including string arrays
-- [SDK I/O documentation](sdk/io/readme.md) - File I/O for reading and writing text files
+- [Arrays](/language/arrays/) - Array operations including string arrays
+- SDK I/O documentation - File I/O for reading and writing text files (see the sindarin-pkg-sdk repository)
