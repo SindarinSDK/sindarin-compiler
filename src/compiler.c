@@ -7,6 +7,7 @@
 #include "version.h"
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 void compiler_init(CompilerOptions *options, int argc, char **argv)
 {
@@ -38,6 +39,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->no_install = 0;
 
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
+    gcc_resolve_compiler_dir(options->compiler_dir, PATH_MAX);
 
     if (!compiler_parse_args(argc, argv, options))
     {

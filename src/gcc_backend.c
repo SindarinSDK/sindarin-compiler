@@ -485,6 +485,58 @@ const char *gcc_get_compiler_dir(const char *argv0)
     return compiler_dir_buf;
 }
 
+/* Check if the resolved compiler_dir actually contains templates.
+ * On Windows (and any install where the binary is copied rather than
+ * symlinked), the exe may live in bin/ while templates are in
+ * ../lib/sindarin/. Fall back to that path if needed. */
+void gcc_resolve_compiler_dir(char *dir_buf, int buf_size)
+{
+    char check_path[PATH_MAX];
+    snprintf(check_path, sizeof(check_path), "%s/templates/c", dir_buf);
+
+    /* If templates exist at the resolved dir, nothing to do */
+#ifdef _WIN32
+    DWORD attrs = GetFileAttributesA(check_path);
+    if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY))
+        return;
+#else
+    if (access(check_path, F_OK) == 0)
+        return;
+#endif
+
+    /* Try ../lib/sindarin/ relative to the resolved dir */
+    char fallback[PATH_MAX];
+    snprintf(fallback, sizeof(fallback), "%s/../lib/sindarin", dir_buf);
+
+    char fallback_check[PATH_MAX];
+    snprintf(fallback_check, sizeof(fallback_check), "%s/templates/c", fallback);
+
+#ifdef _WIN32
+    attrs = GetFileAttributesA(fallback_check);
+    if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY))
+    {
+        /* Normalize the path */
+        char resolved[PATH_MAX];
+        if (GetFullPathNameA(fallback, sizeof(resolved), resolved, NULL))
+            strncpy(dir_buf, resolved, buf_size - 1);
+        else
+            strncpy(dir_buf, fallback, buf_size - 1);
+        dir_buf[buf_size - 1] = '\0';
+    }
+#else
+    char resolved[PATH_MAX];
+    if (realpath(fallback, resolved) != NULL)
+    {
+        snprintf(fallback_check, sizeof(fallback_check), "%s/templates/c", resolved);
+        if (access(fallback_check, F_OK) == 0)
+        {
+            strncpy(dir_buf, resolved, buf_size - 1);
+            dir_buf[buf_size - 1] = '\0';
+        }
+    }
+#endif
+}
+
 /* ---- Compilation ---- */
 
 /* Helper: run a command and check result */
