@@ -17,11 +17,10 @@ Since Sindarin compiles to C, interoperability is natural but requires explicit 
 native fn sin(x: double): double
 native fn cos(x: double): double
 
-fn main(): int =>
+fn main(): void =>
     var angle: double = 3.14159 / 4.0
     print($"sin(45°) = {sin(angle)}\n")
     print($"cos(45°) = {cos(angle)}\n")
-    return 0
 ```
 
 ---
@@ -57,15 +56,15 @@ native fn <name>(<params>): <return_type>
 ### Examples
 
 ```sindarin
-# Math library
+// Math library
 native fn sin(x: double): double
 native fn cos(x: double): double
 native fn sqrt(x: double): double
 
-# Standard I/O
+// Standard I/O
 native fn puts(s: str): int
 
-# Memory (if exposed)
+// Memory
 native fn malloc(size: int): *void
 native fn free(ptr: *void): void
 ```
@@ -99,12 +98,12 @@ This generates calls to the C function name specified in `@alias` while using th
 The compiler supports an `arena` keyword as the first parameter of a native function declaration (without a type). When present, the compiler recognises it during parsing but does not emit any additional argument at call sites — the parameter is a no-op marker:
 
 ```sindarin
-# 'arena' marker - accepted by parser, no argument emitted at call sites
+// 'arena' marker - accepted by parser, no argument emitted at call sites
 native fn sn_date_today(arena): Date
 
-# Called without explicitly passing arena
+// Called without explicitly passing arena
 fn example(): void =>
-    var today: Date = sn_date_today()  # No hidden argument added
+    var today: Date = sn_date_today()  // No hidden argument added
 ```
 
 This syntax is retained for source compatibility but the minimal runtime does not use arena allocation. SDK C implementations use `calloc`/`malloc` directly and do not expect an arena argument.
@@ -161,7 +160,7 @@ The `@source` directive compiles and links additional C source files with your S
 **Example — Module Pattern:**
 
 ```sindarin
-# time/date.sn
+// time/date.sn
 @source "date.sn.c"
 
 @alias "RtDate"
@@ -179,10 +178,6 @@ native fn sn_date_today(): Date
 // date.sn.c
 #include <stdlib.h>
 #include <stdint.h>
-
-typedef struct __sn__Date {
-    int32_t days;
-} __sn__Date;
 
 typedef __sn__Date RtDate;
 
@@ -220,13 +215,13 @@ Sindarin types naturally map to C types.
 
 | Sindarin Type | C Type | Notes |
 |---------------|--------|-------|
-| `T[]` | `RtArray_{T} *` | Pointer to typed array struct |
+| `T[]` | `SnArray *` | Pointer to dynamic array struct |
 | `*T` | `T *` | Pointer to T |
 | `fn(...): T` | `__Closure__ *` | Pointer to closure struct (non-native) |
 | `fn(...): T` (native) | Custom typedef | C function pointer |
-| `struct S` | `S` or `S *` | Value or pointer depending on context |
-| `native struct S` | `S` | Matches C struct layout exactly |
-| `native struct S as ref` | `S *` | Pointer to C struct (handle type) |
+| `struct S` | `__sn__S` or `__sn__S *` | Value or pointer depending on context |
+| `native struct S` | `__sn__S` | Matches C struct layout exactly |
+| `native struct S as ref` | `__sn__S *` | Pointer to C struct (handle type) |
 | `opaque` | `void` or named | Opaque handle type |
 
 ### Type Mismatch Considerations
@@ -244,6 +239,247 @@ When declaring native functions, ensure Sindarin type mappings match the actual 
 
 ---
 
+## Writing C for Sindarin
+
+When you use `@source "file.sn.c"`, that C file is compiled and linked with your Sindarin module. This section explains how to write that C code to integrate correctly with the Sindarin runtime.
+
+### The `__sn__` Naming Convention
+
+The compiler generates C struct types prefixed with `__sn__`. A Sindarin struct:
+
+```sindarin
+@alias "RtDate"
+native struct Date as ref =>
+    @alias "days"
+    _days: int32
+```
+
+...generates this C typedef:
+
+```c
+typedef struct {
+    int32_t days;
+} __sn__Date;
+```
+
+Your `.sn.c` file can reference `__sn__Date` directly. SDK files create a local alias for readability:
+
+```c
+typedef __sn__Date RtDate;  // convenience alias matching @alias "RtDate"
+```
+
+### Runtime Header
+
+The compiler automatically includes `sn_minimal.h` in all generated C modules. Your `.sn.c` file does **not** need to include it — `SnArray`, `sn_array_new()`, `sn_auto_str`, `strdup`, and all other runtime types and helpers are already available.
+
+Your `.sn.c` file does need its own standard library includes:
+
+```c
+#include <stdlib.h>    // calloc, free, strdup
+#include <string.h>    // strlen, memcpy, strcmp
+#include <stdio.h>     // fprintf, stderr (for error reporting)
+#include <stdint.h>    // int32_t, uint64_t, etc.
+```
+
+### String Ownership
+
+**Rule: any `str` returned from C to Sindarin must be heap-allocated via `strdup()`.**
+
+The Sindarin runtime attaches `sn_auto_str __attribute__((cleanup(sn_cleanup_str)))` to every received `str` variable, which automatically calls `free()` when the variable goes out of scope.
+
+```c
+// Correct: return a strdup'd string
+char *sn_greet(char *name) {
+    char buf[256];
+    snprintf(buf, sizeof(buf), "Hello, %s!", name);
+    return strdup(buf);  // Sindarin will free this on scope exit
+}
+
+// Correct: always strdup, even for empty/error cases
+char *sn_get_name(__sn__Foo *f) {
+    if (f == NULL) return strdup("");
+    return strdup(f->name);
+}
+```
+
+**Borrowed parameters:** `char *` parameters passed in from Sindarin are owned by the caller. Do not free them in your C function — just read them:
+
+```c
+// name is borrowed — do not free it
+bool sn_name_equals(__sn__Foo *f, char *name) {
+    if (f == NULL || name == NULL) return false;
+    return strcmp(f->name, name) == 0;
+}
+```
+
+**Field assignment:** When writing to a string field in a struct, free the old value before assigning the new one:
+
+```c
+void sn_foo_set_name(__sn__Foo *f, char *name) {
+    free(f->name);               // free old value
+    f->name = strdup(name);      // assign new heap copy
+}
+```
+
+### Struct Allocation
+
+**`native struct as ref`** — allocate with `calloc`, return the pointer. Sindarin automatically frees it via a generated cleanup attribute when the variable goes out of scope:
+
+```c
+__sn__Date *sn_date_today(void) {
+    __sn__Date *d = (__sn__Date *)calloc(1, sizeof(__sn__Date));
+    if (d == NULL) { fprintf(stderr, "sn_date_today: allocation failed\n"); exit(1); }
+    d->days = compute_today_days();
+    return d;  // Sindarin's cleanup attribute frees this on scope exit
+}
+```
+
+String fields in the struct must be `strdup`'d on creation. The generated cleanup function frees them automatically:
+
+```c
+__sn__Process *sn_process_create(int exit_code, const char *stdout_str) {
+    __sn__Process *p = (__sn__Process *)calloc(1, sizeof(__sn__Process));
+    if (p == NULL) { fprintf(stderr, "allocation failed\n"); exit(1); }
+    p->exit_code  = exit_code;
+    p->stdout_str = strdup(stdout_str ? stdout_str : "");  // must strdup
+    return p;
+}
+```
+
+Do **not** implement your own cleanup or `free()` for the struct — the runtime handles this.
+
+### Working with SnArray
+
+`SnArray *` is the C representation of a Sindarin array (`T[]`). To create and return an array from C:
+
+```c
+SnArray *sn_json_keys(__sn__Json *j) {
+    // Create: elem_size = sizeof element, second arg is initial capacity
+    SnArray *keys = sn_array_new(sizeof(char *), 16);
+
+    // For string arrays: set element type tag and lifecycle callbacks
+    keys->elem_tag     = SN_TAG_STRING;
+    keys->elem_release = (void (*)(void *))sn_cleanup_str;  // frees each char *
+    keys->elem_copy    = sn_copy_str;                        // strdup on copy
+
+    // Push elements: always pass a pointer to the value
+    char *key = strdup("hello");
+    sn_array_push(keys, &key);
+
+    return keys;  // Sindarin's sn_auto_arr frees this and all elements on scope exit
+}
+```
+
+For scalar element types, omit `elem_release` and `elem_copy`:
+
+```c
+SnArray *sn_make_ints(long long a, long long b) {
+    SnArray *arr = sn_array_new(sizeof(long long), 8);
+    arr->elem_tag = SN_TAG_INT;
+    // No elem_release/elem_copy needed for scalar types
+    sn_array_push(arr, &a);
+    sn_array_push(arr, &b);
+    return arr;
+}
+```
+
+Element type tags and their required callbacks:
+
+| Sindarin type | `elem_tag` | `elem_release` | `elem_copy` |
+|---|---|---|---|
+| `int`, `long` | `SN_TAG_INT` | none | none |
+| `double` | `SN_TAG_DOUBLE` | none | none |
+| `bool` | `SN_TAG_BOOL` | none | none |
+| `char` | `SN_TAG_CHAR` | none | none |
+| `byte` | `SN_TAG_BYTE` | none | none |
+| `str` | `SN_TAG_STRING` | `sn_cleanup_str` | `sn_copy_str` |
+| struct as ref | `SN_TAG_STRUCT` | `(void (*)(void *))__sn__T_release` | (retain fn) |
+
+### Dispose Functions
+
+If your native struct wraps an external resource (file handle, library object, network connection), implement a `dispose` function. Sindarin calls it via the `using` statement at scope exit, before the struct's generated cleanup runs:
+
+```sindarin
+// Sindarin side: declare a dispose method
+fn dispose(): void =>
+    sn_json_dispose(self)
+```
+
+```c
+// C side: release the underlying resource, but do NOT free the struct itself
+void sn_json_dispose(__sn__Json *j) {
+    if (j == NULL) return;
+    if (JSON_OBJ(j) != NULL) {
+        json_object_put(JSON_OBJ(j));  // release the json-c object
+        JSON_SET_OBJ(j, NULL);
+    }
+    // Do NOT free j — Sindarin's cleanup attribute does that
+}
+```
+
+### Complete Example: A Minimal Native Module
+
+A full-pattern example showing `.sn` declaration and `.sn.c` implementation side-by-side:
+
+**counter.sn:**
+```sindarin
+@source "counter.sn.c"
+
+@alias "RtCounter"
+native struct Counter as ref =>
+    @alias "value"
+    _value: int32
+
+    static fn new(initial: int): Counter =>
+        return sn_counter_new(initial)
+
+    @alias "sn_counter_get"
+    native fn get(): int
+
+    fn increment(): void =>
+        sn_counter_inc(self)
+
+    fn reset(): void =>
+        sn_counter_reset(self)
+
+native fn sn_counter_new(initial: int): Counter
+native fn sn_counter_inc(c: Counter): void
+native fn sn_counter_reset(c: Counter): void
+```
+
+**counter.sn.c:**
+```c
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+
+typedef __sn__Counter RtCounter;
+
+RtCounter *sn_counter_new(long long initial) {
+    RtCounter *c = (RtCounter *)calloc(1, sizeof(RtCounter));
+    if (c == NULL) { fprintf(stderr, "sn_counter_new: allocation failed\n"); exit(1); }
+    c->value = (int32_t)initial;
+    return c;
+}
+
+long long sn_counter_get(RtCounter *c) {
+    if (c == NULL) return 0;
+    return (long long)c->value;
+}
+
+void sn_counter_inc(RtCounter *c) {
+    if (c == NULL) return;
+    c->value++;
+}
+
+void sn_counter_reset(RtCounter *c) {
+    if (c == NULL) return;
+    c->value = 0;
+}
+```
+
+---
+
 ## Native Structs with Methods
 
 Native structs can include methods, enabling an object-oriented interface to C code. This is the primary pattern used in the SDK.
@@ -256,15 +492,15 @@ native struct MyType as ref =>
     @alias "c_field_name"
     _field: int32
 
-    # Static factory method
+    // Static factory method
     static fn create(): MyType =>
         return c_create_function()
 
-    # Instance method (non-native)
+    // Instance method (non-native)
     fn format(): str =>
         return c_format_function(self)
 
-    # Native instance method (direct C binding)
+    // Native instance method (direct C binding)
     @alias "c_get_value"
     native fn getValue(): int
 ```
@@ -274,12 +510,12 @@ native struct MyType as ref =>
 When a native struct is declared with `as ref`, instances are passed by pointer:
 
 ```sindarin
-# Without 'as ref' - passed by value (copied)
+// Without 'as ref' - passed by value (copied)
 native struct Point =>
     x: double
     y: double
 
-# With 'as ref' - passed by pointer (handle type)
+// With 'as ref' - passed by pointer (handle type)
 @alias "RtDate"
 native struct Date as ref =>
     _days: int32
@@ -300,7 +536,7 @@ Use `as ref` for:
 native struct Process as ref =>
     ...
 ```
-Maps `Process` to `RtProcess*` in generated C code.
+Maps `Process` to `RtProcess *` in generated C code.
 
 **2. Field alias:**
 ```sindarin
@@ -367,7 +603,7 @@ For non-native methods, `self` is automatically passed to C functions that need 
 ### Complete Module Example
 
 ```sindarin
-# os/process.sn
+// os/process.sn
 @source "process.sn.c"
 
 @alias "RtProcess"
@@ -375,20 +611,20 @@ native struct Process as ref =>
     @alias "exit_code"
     _exitCode: int32
 
-    @alias "stdout_h"
+    @alias "stdout_str"
     _stdout: str
 
-    @alias "stderr_h"
+    @alias "stderr_str"
     _stderr: str
 
-    # Static factory methods
+    // Static factory methods
     static fn run(cmd: str): Process =>
         return sn_process_run(cmd)
 
     static fn runArgs(cmd: str, args: str[]): Process =>
         return sn_process_run_args(cmd, args)
 
-    # Native getter methods
+    // Native getter methods
     @alias "sn_process_get_exit_code"
     native fn exitCode(): int
 
@@ -398,14 +634,14 @@ native struct Process as ref =>
     @alias "sn_process_get_stderr"
     native fn stderr(): str
 
-    # Convenience methods using self
+    // Convenience methods using self
     fn success(): bool =>
         return self.exitCode() == 0
 
     fn failed(): bool =>
         return self.exitCode() != 0
 
-# Runtime function declarations
+// Runtime function declarations
 native fn sn_process_run(cmd: str): Process
 native fn sn_process_run_args(cmd: str, args: str[]): Process
 ```
@@ -432,8 +668,8 @@ Sindarin uses C-style pointer syntax for native interop, with safety restriction
 
 ```sindarin
 var p: *int = ...
-var pp: **char = ...    # pointer to pointer
-var vp: *void = ...     # void pointer
+var pp: **char = ...    // pointer to pointer
+var vp: *void = ...     // void pointer
 ```
 
 ### Null Pointers
@@ -463,21 +699,21 @@ The `as val` operator copies the value a pointer points to into a local variable
 native fn get_number(): *int
 native fn get_name(): *char
 
-# Native function - can work with pointers directly
+// Native function - can work with pointers directly
 native fn process_ptr(): int =>
-    var p: *int = get_number()      # OK: store pointer
-    var val: int = p as val         # Read value from pointer
+    var p: *int = get_number()      // OK: store pointer
+    var val: int = p as val         // Read value from pointer
     return val
 
-# Regular function - must unwrap immediately with 'as val'
+// Regular function - must unwrap immediately with 'as val'
 fn process(): int =>
-    var val: int = get_number() as val    # OK: unwrapped to int
-    var name: str = get_name() as val     # OK: unwrapped to str
+    var val: int = get_number() as val    // OK: unwrapped to int
+    var name: str = get_name() as val     // OK: unwrapped to str
     return val
 
-# ERROR: cannot store pointer in non-native function
+// ERROR: cannot store pointer in non-native function
 fn bad(): void =>
-    var p: *int = get_number()            # Compile error: pointer type not allowed
+    var p: *int = get_number()            // Compile error: pointer type not allowed
 ```
 
 ### `as val` Semantics for Pointers
@@ -494,10 +730,10 @@ native fn get_data(): *byte
 native fn get_len(): int
 
 fn example(): void =>
-    # C string - null terminated, length implicit
+    // C string - null terminated, length implicit
     var home: str = getenv("HOME") as val
 
-    # Buffer - need explicit length via slice syntax
+    // Buffer - need explicit length via slice syntax
     var len: int = get_len()
     var data: byte[] = get_data()[0..len] as val
 ```
@@ -515,13 +751,13 @@ This single mechanism covers both patterns:
 #### Basic Usage
 
 ```sindarin
-# C function: void get_dimensions(int* width, int* height)
+// C function: void get_dimensions(int* width, int* height)
 native fn get_dimensions(width: int as ref, height: int as ref): void
 
 fn example(): void =>
     var w: int = 0
     var h: int = 0
-    get_dimensions(w, h)    # Compiler passes &w, &h automatically
+    get_dimensions(w, h)    // Compiler passes &w, &h automatically
     print($"Size: {w}x{h}\n")
 ```
 
@@ -536,16 +772,16 @@ This happens transparently — the caller just passes the variable normally.
 `as ref` works in both regular and native function bodies, allowing functions to mutate the caller's variable directly:
 
 ```sindarin
-# Native function with body that writes to out-parameters
+// Native function with body that writes to out-parameters
 native fn compute_stats(a: int, b: int, sum: int as ref, product: int as ref): void =>
     sum = a + b
     product = a * b
 
-# Usage
+// Usage
 var s: int = 0
 var p: int = 0
 compute_stats(7, 6, s, p)
-print($"Sum: {s}, Product: {p}\n")  # Sum: 13, Product: 42
+print($"Sum: {s}, Product: {p}\n")  // Sum: 13, Product: 42
 ```
 
 #### Supported Types
@@ -580,7 +816,7 @@ native fn divide_with_remainder(
 var q: int = 0
 var r: int = 0
 divide_with_remainder(17, 5, q, r)
-print($"17 / 5 = {q} remainder {r}\n")  # 17 / 5 = 3 remainder 2
+print($"17 / 5 = {q} remainder {r}\n")  // 17 / 5 = 3 remainder 2
 ```
 
 See `tests/integration/test_as_ref_params.sn`, `tests/integration/test_as_ref_out_params.sn`, and `tests/integration/test_interop_pointers.sn` for comprehensive examples.
@@ -598,16 +834,16 @@ native fn free(ptr: *void): void
 native fn get_handle(): *int
 native fn use_handle(h: *int): void
 
-# Regular function
+// Regular function
 fn example(): void =>
-    var val: int = get_handle() as val   # OK: unwrapped
+    var val: int = get_handle() as val   // OK: unwrapped
 
-    use_handle(get_handle())             # OK: pointer passed directly
+    use_handle(get_handle())             // OK: pointer passed directly
 
-    var p: *int = get_handle()           # ERROR: can't store pointer
-    use_handle(p)                        # ERROR: can't use stored pointer
+    var p: *int = get_handle()           // ERROR: can't store pointer
+    use_handle(p)                        // ERROR: can't use stored pointer
 
-    free(malloc(100))                    # OK: pointer passed directly
+    free(malloc(100))                    // OK: pointer passed directly
 ```
 
 ---
@@ -626,10 +862,10 @@ native fn get_buffer(): *byte
 native fn get_buffer_len(): int
 
 fn example(): void =>
-    # C string - unwrap to str
+    // C string - unwrap to str
     var home: str = getenv("HOME") as val
 
-    # Buffer with length
+    // Buffer with length
     var len: int = get_buffer_len()
     var data: byte[] = get_buffer()[0..len] as val
 ```
@@ -639,11 +875,11 @@ fn example(): void =>
 For native functions declared with a `str` return type, the returned string is heap-allocated and caller-owned. The caller is responsible for freeing it (Sindarin's `sn_auto_str` cleanup attribute handles this automatically for local variables):
 
 ```sindarin
-# Returns a heap-allocated string; the caller owns it and frees it on scope exit
+// Returns a heap-allocated string; the caller owns it and frees it on scope exit
 native fn strdup(s: str): str
 
 fn example(): void =>
-    var dup: str = strdup("hello")  # Heap-allocated, freed automatically at scope exit
+    var dup: str = strdup("hello")  // Heap-allocated, freed automatically at scope exit
 ```
 
 ### Parameter Semantics
@@ -655,14 +891,14 @@ fn example(): void =>
 | `as ref` | Pass address of variable | C writes results back to caller's variable | `func(&variable)` |
 
 ```sindarin
-# Default: pass by pointer (C sees pointer to the heap-allocated data)
+// Default: pass by pointer (C sees pointer to the heap-allocated data)
 native fn strlen(s: str): int
 native fn process(data: byte[]): void
 
-# as val: copy first, then pass the copy
+// as val: copy first, then pass the copy
 native fn sort_inplace(data: int[] as val): void
 
-# as ref: compiler generates &variable, C writes back through pointer
+// as ref: compiler generates &variable, C writes back through pointer
 native fn get_size(width: int as ref, height: int as ref): void
 ```
 
@@ -671,10 +907,10 @@ native fn get_size(width: int as ref, height: int as ref): void
 For arrays and strings, the **default** already passes a pointer (to the heap-allocated data). Use `as ref` specifically for **primitives** when C needs to write back:
 
 ```sindarin
-# Default for arrays - already passes pointer, C can modify contents
+// Default for arrays - already passes pointer, C can modify contents
 native fn fill_buffer(buf: byte[]): void
 
-# as ref for primitives - enables write-back to caller's variable
+// as ref for primitives - enables write-back to caller's variable
 native fn get_count(count: int as ref): void
 ```
 
@@ -684,14 +920,14 @@ Inside native function bodies, `as ref` can be used as an expression operator (c
 
 ```sindarin
 native fn call_c_api(data: byte[]): void =>
-    # Get pointer from array - equivalent to C's array decay
+    // Get pointer from array - equivalent to C's array decay
     var ptr: *byte = data as ref
 
-    # Get pointer from scalar value - equivalent to &value in C
+    // Get pointer from scalar value - equivalent to &value in C
     var count: int = 42
     var count_ptr: *int = count as ref
 
-    # Common usage: pass array as pointer to C functions
+    // Common usage: pass array as pointer to C functions
     c_function(data as ref, data.length)
 ```
 
@@ -713,7 +949,7 @@ native fn compress_data(source: byte[]): byte[] =>
     var dest: byte[1024]
     var destLen: uint = 1024
 
-    # Use 'as ref' to get pointers from arrays
+    // Use 'as ref' to get pointers from arrays
     compress(dest as ref, destLen, source as ref, source.length)
 
     return dest[0..destLen] as val
@@ -841,15 +1077,13 @@ native fn fprintf(f: *FILE, format: str, ...): int
 
 native fn printf(format: str, ...): int
 
-fn main(): int =>
+fn main(): void =>
     var name: str = "World"
     var count: int = 42
     var pi: double = 3.14159
 
     printf("Hello, %s!\n", name)
     printf("Count: %d, Pi: %.2f\n", count, pi)
-
-    return 0
 ```
 
 ### Allowed Variadic Argument Types
@@ -874,7 +1108,7 @@ Sindarin's lambda syntax extends to C-compatible function pointers using the `na
 ### Defining Native Callback Types
 
 ```sindarin
-# Native callback type - C-compatible function pointer
+// Native callback type - C-compatible function pointer
 type EventCallback = native fn(event: int, userdata: *void): void
 type Comparator = native fn(a: *void, b: *void): int
 type SignalHandler = native fn(signal: int): void
@@ -902,7 +1136,7 @@ native fn setup_signal_handler(): void =>
     var handler: SignalHandler = fn(sig: int): void =>
         print($"Received signal: {sig}\n")
 
-    signal(2, handler)  # SIGINT
+    signal(2, handler)  // SIGINT
 ```
 
 ### Restrictions: No Closures
@@ -913,9 +1147,9 @@ Native callbacks **cannot capture variables** from their enclosing scope. C func
 native fn setup(): void =>
     var counter: int = 0
 
-    # ERROR: Native lambda cannot capture 'counter'
+    // ERROR: Native lambda cannot capture 'counter'
     var handler: Callback = fn(event: int, data: *void): void =>
-        counter = counter + 1  # Compile error!
+        counter = counter + 1  // Compile error!
         print($"Event: {event}\n")
 ```
 
@@ -950,12 +1184,12 @@ native fn sort_integers(arr: int[]): void =>
             return 1
         return 0
 
-    qsort(arr as ref, arr.length, 8, cmp)  # 8 = sizeof(int64_t)
+    qsort(arr as ref, arr.length, 8, cmp)  // 8 = sizeof(int64_t)
 
 fn main(): void =>
     var numbers: int[] = {5, 2, 8, 1, 9}
     sort_integers(numbers)
-    print($"Sorted: {numbers}\n")  # {1, 2, 5, 8, 9}
+    print($"Sorted: {numbers}\n")  // [1, 2, 5, 8, 9]
 ```
 
 ---
@@ -971,7 +1205,7 @@ native fn fopen(path: str, mode: str): *FILE
 native fn fclose(f: *FILE): int
 native fn fread(buf: byte[], size: int, count: int, f: *FILE): int
 
-# Wrapper handles the pointer lifecycle
+// Wrapper handles the pointer lifecycle
 native fn read_file(path: str): str =>
     var f: *FILE = fopen(path, "rb")
     if f == nil =>
@@ -981,7 +1215,7 @@ native fn read_file(path: str): str =>
     fclose(f)
     return buf[0..n].toString()
 
-# Regular function uses the safe wrapper
+// Regular function uses the safe wrapper
 fn process(path: str): void =>
     var data: str = read_file(path)
     print(data)
@@ -992,14 +1226,14 @@ fn process(path: str): void =>
 For simple native functions, use the expression-bodied syntax where the expression follows `=>` on the same line:
 
 ```sindarin
-# Simple arithmetic
+// Simple arithmetic
 native fn double_it(x: int): int => x * 2
 native fn negate(x: double): double => -x
 
-# Pointer operations with expression body
+// Pointer operations with expression body
 native fn is_null(ptr: *void): bool => ptr == nil
 
-# Wrapping a C function call
+// Wrapping a C function call
 native fn abs_val(x: int): int => (x < 0) ? -x : x
 ```
 
@@ -1016,8 +1250,8 @@ Expression-bodied syntax is particularly useful for thin wrappers around C libra
 @include <math.h>
 @link m
 
-native fn sin(x: double): double     # External C function
-native fn cos(x: double): double     # External C function
+native fn sin(x: double): double     // External C function
+native fn cos(x: double): double     // External C function
 
 native fn degrees_to_radians(deg: double): double => deg * 3.14159 / 180.0
 native fn sin_deg(deg: double): double => sin(degrees_to_radians(deg))
@@ -1072,9 +1306,9 @@ In native functions, `sizeof` works on pointer types:
 
 ```sindarin
 native fn example(): void =>
-    var ptr_size: int = sizeof(*int)     # 8
-    var void_ptr: int = sizeof(*void)    # 8
-    var struct_ptr: int = sizeof(*Point) # 8
+    var ptr_size: int = sizeof(*int)     // 8
+    var void_ptr: int = sizeof(*void)    // 8
+    var struct_ptr: int = sizeof(*Point) // 8
 ```
 
 ### Arrays vs Element Size
@@ -1083,8 +1317,8 @@ For arrays, use `sizeof` on the element type, not the array:
 
 ```sindarin
 native fn process_array(arr: int[]): void =>
-    # sizeof(arr) returns 8 (pointer size)
-    # sizeof(int) returns 8 (element size)
+    // sizeof(arr) returns 8 (pointer size)
+    // sizeof(int) returns 8 (element size)
     var total_bytes: int = arr.length * sizeof(int)
 ```
 
@@ -1103,7 +1337,7 @@ native fn cos(x: double): double
 native fn sqrt(x: double): double
 native fn pow(base: double, exp: double): double
 
-fn main(): int =>
+fn main(): void =>
     var angle: double = 3.14159 / 4.0
     var s: double = sin(angle)
     var c: double = cos(angle)
@@ -1111,24 +1345,20 @@ fn main(): int =>
     print($"sin(45deg) = {s}\n")
     print($"cos(45deg) = {c}\n")
     print($"sqrt(2) = {sqrt(2.0)}\n")
-
-    return 0
 ```
 
 **Generated C (conceptual):**
 
 ```c
 #include <math.h>
-#include "runtime.h"
+#include "sn_minimal.h"
 
 int main() {
     double angle = 3.14159 / 4.0;
     double s = sin(angle);
     double c = cos(angle);
 
-    printf("sin(45deg) = %f\n", s);
-    printf("cos(45deg) = %f\n", c);
-    printf("sqrt(2) = %f\n", sqrt(2.0));
+    // ... print calls ...
 
     return 0;
 }
@@ -1153,14 +1383,14 @@ native fn create_point(x: double, y: double): Point =>
 
 **Generated C:**
 ```c
-Point create_point(double x, double y) {
-    return (Point){ .x = x, .y = y };  // Stack-allocated compound literal
+__sn__Point create_point(double x, double y) {
+    return (__sn__Point){ .x = x, .y = y };  // Stack-allocated compound literal
 }
 ```
 
 **Implications:**
 - Small structs are passed by value efficiently
-- No arena cleanup required — automatic storage duration
+- No cleanup required — automatic storage duration
 - Returned values are copied to the caller's stack frame
 
 ### Context Restriction
@@ -1171,11 +1401,11 @@ Native struct literals can only be created inside native functions:
 native struct SdkDate =>
     _days: int
 
-# ERROR: Cannot create native struct in non-native function
+// ERROR: Cannot create native struct in non-native function
 fn convert(days: int): SdkDate =>
     return SdkDate { _days: days }
 
-# OK: Native function can create native struct
+// OK: Native function can create native struct
 native fn convert(days: int): SdkDate =>
     return SdkDate { _days: days }
 ```
