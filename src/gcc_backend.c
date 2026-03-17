@@ -800,6 +800,8 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         {
 #ifdef __APPLE__
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -framework Security -framework CoreFoundation");
+#elif defined(_WIN32)
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lws2_32 -lgdi32 -lcrypt32");
 #else
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -ldl");
 #endif
@@ -807,7 +809,11 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         }
         if (needs_ssh_deps)
         {
+#ifdef _WIN32
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lzlib -lws2_32");
+#else
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lz -lpthread");
+#endif
             offset = (int)strlen(extra_libs);
         }
         if (needs_git2_deps)
@@ -815,6 +821,9 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 #ifdef __APPLE__
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
                 " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv -framework Security -framework CoreFoundation");
+#elif defined(_WIN32)
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
+                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto -lws2_32 -lsecur32");
 #else
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
                 " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
