@@ -810,7 +810,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         if (needs_ssh_deps)
         {
 #ifdef _WIN32
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lzlib -lws2_32");
+            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lzlib -lws2_32 -lcrypt32 -liphlpapi -lshell32 -ladvapi32");
 #else
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lz -lpthread");
 #endif
@@ -823,7 +823,7 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
                 " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv -framework Security -framework CoreFoundation");
 #elif defined(_WIN32)
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto -lws2_32 -lsecur32");
+                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto -lws2_32 -lsecur32 -lcrypt32");
 #else
             snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
                 " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
