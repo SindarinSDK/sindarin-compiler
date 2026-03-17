@@ -222,23 +222,38 @@ var add3: fn(int): int = curried_add(3)
 print($"add3(5) = {add3(5)}\n")  // 8
 ```
 
-## The `shared` Modifier
+## Capture Semantics: `as ref` and `as val`
 
-The `shared` modifier affects memory allocation. A `shared` lambda uses the caller's arena instead of creating its own:
+Closures capture variables from the enclosing scope. The capture mode controls whether the lambda holds a reference to the original variable or a copy of its value at the time the lambda is created.
+
+### Default Capture: `as ref`
+
+By default, a captured variable is captured **by reference**. When a variable is captured and mutated inside the closure — or when the closure needs to outlive the enclosing scope — the compiler promotes the local variable to a heap-allocated slot. For example, a captured `int x` becomes `long long *__sn__x = malloc(sizeof(long long))`. The closure struct holds a raw pointer to that slot, so mutations inside the lambda are visible outside, and mutations outside are visible inside:
 
 ```sindarin
-// Shared lambda - uses caller's arena
-var add_shared: fn(int, int): int = fn(a: int, b: int) shared: int => a + b
-
-// Shared with type inference
-var triple_shared: fn(int): int = fn(x) shared => x * 3
-
-// Shared closure with capture
-var factor: int = 10
-var multiply_shared: fn(int): int = fn(x: int) shared: int => x * factor
+var x: int = 10
+var inc: fn(): void = fn(): void =>
+    x += 1
+inc()
+// x is now 11
 ```
 
-See [Memory](memory.md) for details on arena memory management.
+### Value Capture: `as val`
+
+There is **no** `as val` keyword at the capture site — this is purely a compiler heuristic. When a captured variable is never mutated after the lambda is created, the compiler automatically captures it by value, storing the value directly inside the closure struct. Later changes to the original variable are not visible through the closure:
+
+```sindarin
+var x: int = 10
+var addX: fn(int): int = fn(n: int): int => n + x
+// x is not mutated after addX is created, so the compiler captures it by value.
+// addX holds a copy of 10; subsequent changes to x do not affect addX.
+```
+
+### Closure Lifetime
+
+Closures are heap-allocated (`__Closure__` structs allocated with `malloc`). This means a closure can safely outlive the scope in which it was created — for example, when returned from a function or stored in a struct field.
+
+Closures stored in struct fields are freed automatically when the struct is cleaned up.
 
 ## Nested Lambdas
 
@@ -272,7 +287,7 @@ print($"operations[0](10, 5) = {operations[0](10, 5)}\n")  // 15
 print($"operations[1](10, 5) = {operations[1](10, 5)}\n")  // 50
 ```
 
-See [Arrays](arrays.md) for more on arrays of function types.
+See [Arrays](/language/arrays/) for more on arrays of function types.
 
 ## Function Type Syntax
 

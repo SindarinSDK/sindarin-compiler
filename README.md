@@ -17,7 +17,7 @@
 - **File I/O** with TextFile and BinaryFile types
 - **Control flow** with for, for-each, while, match, break, continue
 - **Module imports** for code organization
-- **Arena memory** with shared/private scopes and copy semantics
+- **Memory semantics** with `as ref`/`as val` ownership and copy semantics
 - **C interoperability** with native functions, pointers, and callbacks
 - **SDK modules** for crypto, networking, JSON/XML/YAML, compression, and more
 
@@ -82,11 +82,10 @@ fn main(): void =>
 | [Structs](docs/structs.md) | Struct declarations and C interop |
 | [Match](docs/match.md) | Match expressions for multi-way branching |
 | [Lambdas](docs/lambdas.md) | Lambda expressions and closures |
-| [Memory](docs/memory.md) | Arena memory management |
+| [Memory](docs/memory.md) | Ownership model, `as ref`/`as val` semantics, and memory management |
 | [Threading](docs/threading.md) | Threading with spawn and sync |
 | [Namespaces](docs/namespaces.md) | Namespaced imports for collision resolution |
 | [Interop](docs/interop.md) | C interoperability and native functions |
-| [Interceptors](docs/interceptors.md) | Function interception for debugging and mocking |
 
 ### SDK Modules
 
@@ -126,21 +125,27 @@ See `src/` for compiler implementation details.
 ## Testing
 
 ```bash
-make test              # All tests (unit + integration + SDK + exploratory)
-make test-unit         # Unit tests only
-make test-integration  # Integration tests only
-make test-sdk          # SDK tests only
-make test-explore      # Exploratory tests only
+make test                    # All tests
+make test-unit               # Unit tests only
+make test-cgen               # Code generation tests (compare generated C)
+make test-mgen               # Model generation tests (compare JSON model)
+make test-integration        # Integration tests only
+make test-integration-errors # Integration error tests
+make test-explore            # Exploratory tests only
+make test-explore-errors     # Exploratory error tests
 ```
 
 Or use the test runner directly (cross-platform):
 
 ```bash
-python3 scripts/run_tests.py all            # All tests
-python3 scripts/run_tests.py unit           # Unit tests
-python3 scripts/run_tests.py integration    # Integration tests
-python3 scripts/run_tests.py sdk            # SDK tests
-python3 scripts/run_tests.py explore        # Exploratory tests
+python3 scripts/run_tests.py all                # All tests
+python3 scripts/run_tests.py unit               # Unit tests
+python3 scripts/run_tests.py cgen               # Code generation tests
+python3 scripts/run_tests.py mgen               # Model generation tests
+python3 scripts/run_tests.py integration        # Integration tests
+python3 scripts/run_tests.py integration-errors # Integration error tests
+python3 scripts/run_tests.py explore            # Exploratory tests
+python3 scripts/run_tests.py explore-errors     # Exploratory error tests
 ```
 
 ## Project Structure

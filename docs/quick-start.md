@@ -91,4 +91,4 @@ fn main(): void =>
 - [Building](/language/building/) - Compile and run the Sindarin compiler
 - [Strings](/language/strings/) - String interpolation and methods
 - [Arrays](/language/arrays/) - Array operations and slicing
-- [SDK Overview](/sdk/overview/) - Built-in modules for I/O, networking, and more
+- SDK documentation is available in the sindarin-pkg-sdk repository

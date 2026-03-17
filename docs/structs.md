@@ -138,7 +138,7 @@ Structs follow the same rules as fixed arrays:
 | Struct Size | Location |
 |-------------|----------|
 | Small (<8KB) | Stack |
-| Large (≥8KB) | Heap (arena-managed) |
+| Large (≥8KB) | Heap (heap-allocated) |
 | Escaping scope | Copied to outer scope |
 
 ```sindarin
@@ -149,61 +149,178 @@ fn process(): void =>
 
 ### Escape Behavior
 
-When a struct is assigned to an outer-scope variable, it is copied:
+The escape behavior depends on the struct's memory model:
+
+- **`as val` structs (default):** Assignment copies the entire struct. An inner-scope struct
+  assigned to an outer variable is copied by value; the outer variable owns its own copy.
 
 ```sindarin
 var outer: Point
 
 if condition =>
     var inner: Point = Point { x: 1.0, y: 2.0 }  // Stack allocated
-    outer = inner                                  // COPIED to outer scope
+    outer = inner                                  // COPIED to outer variable
 
 print($"x = {outer.x}\n")  // Safe - outer owns its copy
 ```
 
+- **`as ref` structs:** The struct is heap-allocated and reference-counted. Assignment retains
+  the object (increments the reference count). When a variable goes out of scope its reference
+  is released, and the object is freed when the count reaches zero. There is no copy — both
+  variables point to the same heap object.
+
+```sindarin
+struct Node as ref =>
+    value: int
+
+fn main(): void =>
+    var n: Node = Node { value: 42 }
+    var n2: Node = n   // n2 retains the same heap object (refcount = 2)
+    // When both n and n2 go out of scope the object is freed
+```
+
 ### Returning Structs
 
-Structs can be returned from functions. They are copied to the caller's arena:
+Structs can be returned from functions. The returned value is copied into the caller's variable:
 
 ```sindarin
 fn make_point(x: double, y: double): Point =>
     var p: Point = Point { x: x, y: y }
-    return p  // Copied to caller's arena
+    return p  // Copied into caller's variable
 
 var result: Point = make_point(1.0, 2.0)
 ```
 
-### Integration with `shared`
+See [Memory](memory.md) for more details on memory management.
 
-Use `shared` functions to avoid copy overhead:
+## Memory Semantics: `as ref` and `as val`
+
+Any struct — native or regular — can declare its memory model explicitly with `as ref` or
+`as val`. Without an explicit annotation, regular structs default to value semantics.
+
+### `as ref` — reference-counted heap allocation
 
 ```sindarin
-shared fn make_point(x: double, y: double): Point =>
-    var p: Point = Point { x: x, y: y }  // Allocated in caller's arena
-    return p                              // No copy needed
+struct Node as ref =>
+    value: int
 ```
 
-### Integration with `private`
-
-Structs with only primitive fields can escape `private` blocks:
+An `as ref` struct is heap-allocated and reference-counted. Each variable holds a pointer to
+the heap object. Assignment retains (increments the reference count); leaving scope releases
+it. This is appropriate when a struct needs shared ownership or must outlive the scope it was
+created in.
 
 ```sindarin
-private fn get_origin(): Point =>
-    var p: Point = Point { x: 0.0, y: 0.0 }
-    return p  // OK: struct contains only primitives
+fn make_node(v: int): Node =>
+    var n: Node = Node { value: v }
+    return n
 
-// Error: structs with heap data cannot escape
-struct NamedPoint =>
-    name: str
+fn main(): void =>
+    var n: Node = make_node(1)
+    n = make_node(2)  // old Node is released, n now points to new Node
+    assert(n.value == 2, "value should be 2 after reassign")
+```
+
+For native structs mapped to C types, `as ref` means the C struct is pointer-typed:
+
+```sindarin
+@alias "Vec2"
+native struct Vec2 as ref =>
+    @alias "x"
     x: double
+    @alias "y"
     y: double
-
-fn bad() private: NamedPoint =>
-    var p: NamedPoint = NamedPoint { name: "origin", x: 0.0, y: 0.0 }
-    return p  // COMPILE ERROR: struct contains heap data (str)
 ```
 
-See [Memory](memory.md) for more details on arena memory management.
+### `as val` — value semantics (stack/copy)
+
+```sindarin
+@alias "Color"
+native struct Color as val =>
+    @alias "r"
+    r: byte
+    @alias "g"
+    g: byte
+    @alias "b"
+    b: byte
+```
+
+An `as val` native struct is used by value — it maps directly to the C struct layout with no
+pointer indirection. The compiler generates copy and cleanup helpers but no reference counting.
+This is the default for regular (non-native) structs and matches standard C struct behavior.
+
+## Methods
+
+Structs can define both instance methods and static methods.
+
+### Instance methods
+
+Instance methods are declared inside the struct body and receive an implicit `self` reference
+to the current instance. They can read and mutate fields via `self`:
+
+```sindarin
+struct Counter =>
+    value: int
+
+    fn increment(): void =>
+        self.value += 1
+
+    fn getValue(): int =>
+        return self.value
+
+fn main(): void =>
+    var c: Counter = Counter { value: 0 }
+    c.increment()
+    assert(c.getValue() == 1, "expected counter to be 1 after increment")
+```
+
+### Static methods
+
+Static methods are declared with the `static fn` keyword inside the struct body. They have no
+`self` parameter and are called using `TypeName.method()` syntax:
+
+```sindarin
+struct Counter =>
+    value: int
+
+    static fn zero(): int =>
+        return 0
+
+fn main(): int =>
+    var z: int = Counter.zero()
+    return z
+```
+
+## Handle Fields
+
+A struct field is a "handle field" when its type requires heap-managed memory — for example,
+`str` fields, array fields, or fields holding another `as ref` struct. The compiler
+automatically generates correct copy and cleanup code for these fields.
+
+```sindarin
+struct Person =>
+    name: str   // handle field: str is heap-allocated
+    age: int    // plain field: copied by value
+
+fn main(): int =>
+    var p: Person = Person { name: "Alice", age: 30 }
+    return 0
+```
+
+For `Person` above, the compiler generates:
+- A `copy` helper that calls `strdup` on `name` so copies are independent.
+- A `cleanup` helper that calls `free` on `name` when the struct goes out of scope.
+
+This means you can assign structs freely without worrying about double-free or dangling
+references — the compiler handles it:
+
+```sindarin
+var p1: Person = Person { name: "Alice", age: 30 }
+var p2: Person = p1   // p2.name is a fresh strdup copy
+```
+
+Handle fields contrast with plain primitive fields (`int`, `double`, `bool`, `byte`) which are
+copied by value with no heap involvement. If all fields are primitives, cleanup is a no-op.
 
 ## Operators
 
@@ -333,6 +450,84 @@ struct Shape =>
 
 var triangle: Shape = Shape { name: "triangle", points: { Point { x: 0.0, y: 0.0 }, Point { x: 1.0, y: 0.0 }, Point { x: 0.5, y: 1.0 } } }
 ```
+
+## @serializable
+
+Annotating a struct with `@serializable` instructs the compiler to auto-generate four
+encode/decode methods on the struct:
+
+| Method | Description |
+|--------|-------------|
+| `instance.encode(enc: Encoder)` | Encodes the instance to an `Encoder` |
+| `TypeName.decode(dec: Decoder): TypeName` | Decodes an instance from a `Decoder` |
+| `TypeName.encodeArray(arr: TypeName[], enc: Encoder)` | Encodes an array of instances |
+| `TypeName.decodeArray(dec: Decoder): TypeName[]` | Decodes an array of instances |
+
+`Encoder` and `Decoder` are vtable types — the SDK provides a `FastJson` implementation, but
+the interface is generic so other formats can be plugged in.
+
+```sindarin
+@serializable
+struct Address =>
+    street: str
+    city: str
+
+@serializable
+struct Person =>
+    name: str
+    age: int
+    score: double
+    active: bool
+    address: Address
+    tags: str[]
+```
+
+Encoding an instance:
+
+```sindarin
+var a: Address = Address { street: "123 Main St", city: "NYC" }
+var enc: Encoder = sn_test_json_encoder()
+a.encode(enc)
+var json: str = enc.result()
+// json == "{\"street\":\"123 Main St\",\"city\":\"NYC\"}"
+```
+
+Decoding an instance (static method call):
+
+```sindarin
+var dec: Decoder = sn_test_json_decoder("{\"street\":\"789 Pine Rd\",\"city\":\"Chicago\"}")
+var a2: Address = Address.decode(dec)
+// a2.street == "789 Pine Rd", a2.city == "Chicago"
+```
+
+Encoding and decoding arrays:
+
+```sindarin
+var addrs: Address[] = {
+    Address { street: "1 Main", city: "NYC" },
+    Address { street: "2 Oak", city: "LA" }
+}
+var arrEnc: Encoder = sn_test_json_array_encoder()
+Address.encodeArray(addrs, arrEnc)
+var arrJson: str = arrEnc.result()
+
+var arrDec: Decoder = sn_test_json_decoder(arrJson)
+var decoded: Address[] = Address.decodeArray(arrDec)
+```
+
+Nested `@serializable` structs are encoded/decoded recursively. `str[]` fields are encoded as
+JSON arrays of strings.
+
+### Requirements and Limitations
+
+- **Field types must be serializable:** Only `str`, `int`, `double`, `bool`, arrays of those
+  types, and nested `@serializable` structs are supported. Non-serializable field types cause a
+  compile error.
+- **Encoder/Decoder must be provided at runtime:** `@serializable` only generates the
+  encode/decode methods. A concrete `Encoder`/`Decoder` implementation (e.g. `FastJson` from
+  the SDK) must be supplied by the caller — the compiler has no built-in format.
+- **No circular references:** Structs that directly or transitively reference themselves are
+  not supported and will produce infinite recursion at runtime.
 
 ## C Interoperability
 
@@ -481,23 +676,9 @@ Structs use value semantics (copy on assignment) to:
 
 ### Struct Methods
 
-Structs support both instance methods and static methods:
+Structs support both instance methods (accessed via `self`) and static methods (called on the type).
 
-```sindarin
-struct Point =>
-    x: double
-    y: double
-
-    fn distance(other: Point): double =>
-        var dx: double = other.x - self.x
-        var dy: double = other.y - self.y
-        return sqrt(dx * dx + dy * dy)
-
-    static fn origin(): Point =>
-        return Point { x: 0.0, y: 0.0 }
-```
-
-Instance methods access fields via `self`. Static methods are called on the type: `Point.origin()`.
+See the [Methods](#methods) section for full examples.
 
 ### No Inheritance
 
@@ -527,6 +708,6 @@ All struct fields are publicly accessible. There are no access modifiers.
 
 ## See Also
 
-- [Memory](memory.md) - Arena memory management
+- [Memory](memory.md) - Ownership model, `as ref`/`as val` semantics, and memory management
 - [Interop](interop.md) - C interoperability
 - [Arrays](arrays.md) - Array operations

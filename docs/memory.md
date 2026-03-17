@@ -1,657 +1,412 @@
 ---
 title: "Memory"
-description: "Arena-based memory management and ownership"
+description: "Two-tier ownership system: as ref and as val"
 permalink: /language/memory/
 ---
 
-## First Principles
+## Overview
 
-### 1. Primitives are values, arrays are references
-
-```sindarin
-// Primitives: assignment copies the value
-var a: int = 42
-var b: int = a
-b = 99                    // a is still 42
-
-// Arrays: assignment creates a reference (alias)
-var x: int[] = {1, 2, 3}
-var y: int[] = x          // y references the same array as x
-y[0] = 99                 // x[0] is now 99
-y.push(4)                 // x is now {99, 2, 3, 4}
-```
-
-### 2. Use `.clone()` for explicit copies
-
-```sindarin
-var x: int[] = {1, 2, 3}
-var y: int[] = x.clone()  // y is an independent copy
-y[0] = 99                 // x[0] is still 1
-```
-
-### 3. Strings are immutable, so reference vs copy doesn't matter
-
-```sindarin
-var a: str = "hello"
-var b: str = a            // Reference to same string
-b = b.toUpper()           // b now points to NEW string "HELLO"
-                          // a still points to "hello"
-```
+Sindarin uses a two-tier ownership system controlled by `as ref` and `as val` annotations on struct declarations and call sites. The compiler generates all retain/release or copy/cleanup logic automatically based on these annotations. Primitives (`int`, `double`, `bool`, `char`) are plain stack values with no ownership machinery. Strings have their own deterministic ownership rules.
 
 ---
 
-## Stack vs Heap Allocation
+## `as ref` Structs
 
-### Primitives: Stack by Default
-
-```sindarin
-var count: int = 0        // Stack
-var pi: double = 3.14     // Stack
-var flag: bool = true     // Stack
-var letter: char = 'A'    // Stack
-```
-
-### Primitives as References (Heap)
-
-Use `as ref` to allocate primitives on the heap with reference semantics:
+A struct declared with `as ref` is heap-allocated and reference-counted. The compiler generates `create`, `retain`, `release`, and `copy` functions, plus a `sn_auto_<Type>` cleanup macro that calls `release` when the variable goes out of scope.
 
 ```sindarin
-var count: int as ref = 0       // Heap allocated
-var alias: int = count          // alias references same heap location
-alias = 42                       // count is now 42
-
-// Useful for sharing mutable state
-fn increment(n: int as ref): void =>
-  n = n + 1
-
-var value: int as ref = 0
-increment(value)
-print(value)                     // 1
-increment(value)
-print(value)                     // 2
+struct Node as ref =>
+    value: int
+    label: str
 ```
 
-### Escape Behavior for Primitive References
+- Allocation: `calloc` with `__rc__` initialized to 1
+- Assignment of a struct field pointing to another `as ref` struct calls `retain` on the nested struct
+- On reassignment to a variable: old pointer is released, new pointer takes its place
+- String fields inside `as ref` structs: `strdup` on write, `free` on release
+- Cleanup on scope exit is automatic via the `sn_auto_Node` attribute
 
-Primitive references follow the same allocation rules as arrays:
+When a nested `as ref` struct is stored as a field, the release function recursively releases it:
 
 ```sindarin
-var outer: int as ref
-
-if condition =>
-  var inner: int as ref = 100   // Heap, in function's arena
-  outer = inner                  // Same arena, just reassignment
-
-print(outer)                     // 100 - safe
-```
-
-### Fixed Arrays: Stack or Heap (automatic)
-
-```sindarin
-var buffer: int[256] = {}       // Stack (2KB) - small, stays on stack
-var matrix: double[4][4] = {}   // Stack (128 bytes)
-var large: int[1024] = {}       // Stack (8KB) - at threshold
-var huge: int[10000] = {}       // Heap (80KB) - auto-promoted, too large for stack
-```
-
-**Threshold**: ~8KB (1024 `int`/`long` elements). Larger fixed arrays are automatically heap-allocated in the current arena. This is transparent to the programmer.
-
-### Dynamic Arrays: Heap (Arena-managed)
-
-```sindarin
-var items: int[] = {}           // Heap
-var names: str[] = {"a", "b"}   // Heap
-```
-
-### Strings: Heap (Arena-managed)
-
-```sindarin
-var name: str = "hello"         // Heap
-var msg: str = $"Hi {name}"     // Heap
-```
-
----
-
-## Reference Semantics for Arrays
-
-All array assignments create references, regardless of stack or heap allocation.
-
-### Same Array, Multiple Names
-
-```sindarin
-var original: int[4] = {1, 2, 3, 4}
-var alias: int[4] = original    // Both point to same memory
-
-alias[0] = 100                  // original[0] is now 100
-print(original)                 // {100, 2, 3, 4}
-```
-
-### Function Parameters are References (by default)
-
-```sindarin
-fn double_all(arr: int[]): void =>
-  for var i: int = 0; i < arr.length; i++ =>
-    arr[i] = arr[i] * 2
-
-var nums: int[] = {1, 2, 3}
-double_all(nums)
-print(nums)                     // {2, 4, 6} - modified!
-```
-
-### Function Parameters with `as val` (copy on call)
-
-Use `as val` to receive a copy. The copy behaves like a reference inside the function, but changes don't affect the caller's original.
-
-```sindarin
-fn double_all_safe(arr: int[] as val): void =>
-  // arr is a copy of the caller's array
-  for var i: int = 0; i < arr.length; i++ =>
-    arr[i] = arr[i] * 2
-  // modifications stay local to this function
-
-var nums: int[] = {1, 2, 3}
-double_all_safe(nums)
-print(nums)                     // {1, 2, 3} - unchanged!
-```
-
-### When to Use `as val`
-
-```sindarin
-// Default (reference): when you want to modify the original
-fn sort_in_place(arr: int[]): void =>
-  // ... sorting modifies arr directly ...
-
-// as val: when you need to work with data without affecting caller
-fn calculate_sum(arr: int[] as val): int =>
-  var sum: int = 0
-  while arr.length > 0 =>
-    sum = sum + arr.pop()       // Safe: only modifies local copy
-  return sum
-
-var data: int[] = {1, 2, 3, 4, 5}
-var total: int = calculate_sum(data)
-print(data.length)              // 5 - still intact
-```
-
-### Returning Arrays
-
-```sindarin
-fn make_array(): int[] =>
-  var result: int[] = {1, 2, 3}
-  return result                 // Returns reference
-
-var arr: int[] = make_array()   // arr references the returned array
-```
-
-### Nested Arrays (Arrays of References)
-
-Arrays of arrays (`int[][]`) are heap-allocated and follow the same reference and escape rules:
-
-```sindarin
-var matrix: int[][] = {}              // Heap: array of references to arrays
-
-// Each element is a reference to another array
-matrix.push({1, 2, 3})                // Inner array allocated on heap
-matrix.push({4, 5, 6})
-
-var row: int[] = matrix[0]            // row references same array as matrix[0]
-row[0] = 99                           // matrix[0][0] is now 99
-```
-
-### Escape Behavior for Nested Arrays
-
-```sindarin
-fn build_matrix(): int[][] =>
-  var result: int[][] = {}
-
-  for var i: int = 0; i < 3 =>
-    var row: int[] = {i, i+1, i+2}    // Allocated in function arena
-    result.push(row)                   // row referenced by result
-
-  return result                        // Promoted to caller's arena
-
-var m: int[][] = build_matrix()        // All nested arrays live in caller's arena
-```
-
-### Assignment Semantics
-
-{% raw %}
-```sindarin
-var a: int[][] = {{1, 2}, {3, 4}}
-var b: int[][] = a                    // b references same outer array
-
-b[0] = {9, 9}                         // a[0] is now {9, 9}
-b[0][0] = 5                           // a[0][0] is now 5
-
-// For independent copy, use clone (deep copy)
-var c: int[][] = a.clone()            // c is independent
-c[0][0] = 100                         // a[0][0] unchanged
-```
-{% endraw %}
-
----
-
-## Explicit Copies with `.clone()` or `as val`
-
-When you need an independent copy, use `.clone()` or `as val`:
-
-```sindarin
-var original: int[] = {1, 2, 3}
-
-// Using .clone()
-var copy1: int[] = original.clone()
-
-// Using as val (equivalent)
-var copy2: int[] = original as val
-
-copy1[0] = 99                   // original[0] is still 1
-copy2[0] = 88                   // original[0] is still 1
-```
-
-### Example: Safe Modification
-
-```sindarin
-fn safe_modify(arr: int[]): int[] =>
-  var copy: int[] = arr as val  // Independent copy
-  for var i: int = 0; i < copy.length; i++ =>
-    copy[i] = copy[i] * 2
-  return copy
-
-var original: int[] = {1, 2, 3}
-var doubled: int[] = safe_modify(original)
-print(original)                 // {1, 2, 3} - unchanged
-print(doubled)                  // {2, 4, 6}
-```
-
----
-
-## Function-Scoped Arenas
-
-Every function has an arena that manages heap allocations within that function.
-
-### Basic Model
-
-```sindarin
-fn process(): void =>
-  // Function arena created
-
-  var data: str[] = {"a", "b", "c"}    // Allocated in function arena
-
-  for item in data =>
-    var temp: str = item.toUpper()     // Allocated in function arena
-    print(temp)
-
-  // data and temp allocations still valid
-  print(data.length)
-
-  // Function arena destroyed when function returns - all freed
-```
-
-### Escaping References (Automatic Promotion)
-
-When an allocation is returned or assigned to an outer-scope variable, it's promoted:
-
-```sindarin
-fn find_longest(items: str[]): str =>
-  var longest: str = ""               // Function arena
-
-  for item in items =>
-    var upper: str = item.toUpper()   // Function arena
-    if upper.length > longest.length =>
-      longest = upper                 // Same arena, just reassignment
-
-  return longest                      // Promoted to caller's arena
-```
-
-### Arena Hierarchy
-
-```
-Caller's Arena
-  └── Function Arena
-        └── allocations (data, longest, temp, upper)
-```
-
----
-
-## `shared` Functions
-
-A `shared` function uses the caller's arena directly, avoiding promotion overhead.
-
-### Syntax
-
-```sindarin
-shared fn build_message(name: str): str =>
-  var greeting: str = "Hello, "
-  var result: str = greeting + name + "!"
-  return result                       // No promotion - already in caller's arena
+struct Address as ref =>
+    city: str
+
+struct Person as ref =>
+    name: str
+    addr: Address
 
 fn main(): void =>
-  var msg: str = build_message("World")
-  print(msg)
+    var a: Address = Address { city: "NYC" }
+    var p: Person = Person { name: "Alice", addr: a }
+    assert(p.name.length == 5, "name should be Alice")
 ```
 
-### When to Use `shared`
+Assigning `addr: a` in the struct literal calls `retain` on `a`. When `p` is released, `release` is called on `p->addr`.
 
-- Functions that build and return heap-allocated values
-- Builder patterns
-- Functions called frequently in loops
+---
+
+## `as val` Structs
+
+A struct declared with `as val` uses value semantics. The compiler generates `copy` and `cleanup` functions. The struct lives on the stack; cleanup frees any heap-owned fields (strings) when the variable goes out of scope.
 
 ```sindarin
-// Without shared: each call promotes return value
-fn format(n: int): str =>
-  return $"Value: {n}"
-
-// With shared: allocates directly in caller's arena
-shared fn format_fast(n: int): str =>
-  return $"Value: {n}"
+struct Person as val =>
+    name: str
+    age: int
 
 fn main(): void =>
-  for var i: int = 0; i < 1000; i++ =>
-    var s: str = format_fast(i)       // No promotion overhead
-    print(s)
+    var a: Person = Person { name: "Alice", age: 30 }
+    var b: Person = a
+    b.age = 99
+    assert(a.age == 30, "original age should be unchanged")
+    assert(b.age == 99, "copy should have new age")
 ```
 
-### `shared` Propagation
+Assigning `b = a` calls `__sn__Person_copy`, which performs a deep copy (including `strdup` for string fields). Each copy is independent. The `sn_auto_Person` cleanup macro calls `__sn__Person_cleanup` at scope exit, which frees string fields.
+
+A struct declared without either keyword defaults to `as val` behavior.
+
+---
+
+## String Semantics
+
+Every string assignment (`strdup`) creates an owned copy of the string data. The caller is responsible for freeing it. The `sn_auto_str` cleanup attribute handles this automatically for local variables.
 
 ```sindarin
-shared fn helper(): str =>
-  return "helper result"
-
-shared fn outer(): str =>
-  var h: str = helper()               // helper uses outer's arena
-  return "outer: " + h                // which is caller's arena
+fn main(): void =>
+    var a: str = "hello"
+    var b: str = a
+    var c: str = $"value: {a}"
+    assert(a.length == 5, "a should be 5 chars")
 ```
 
-### `shared` Functions for Loops
+- `var a: str = "hello"` — calls `strdup("hello")`
+- `var b: str = a` — calls `strdup(a)`, b is an independent copy
+- String interpolation `$"..."` produces a `strdup` of the formatted result
+- Each variable is independently owned and freed on scope exit
 
-When building results in a loop, use a `shared` function to avoid promotion overhead:
+**Reassignment** frees the old string before storing the new one:
 
 ```sindarin
-// Without shared: each push promotes return value
-fn collect_names(ids: int[]): str[] =>
-  var names: str[] = {}
-  for id in ids =>
-    var name: str = lookup_name(id)   // Allocated in function arena
-    names.push(name)
-  return names
+fn main(): void =>
+    var s: str = "hello"
+    s = "world"
+    assert(s.length == 5, "s should be 5 chars after reassign")
+```
 
-// With shared: allocates directly in caller's arena
-shared fn collect_names_fast(ids: int[]): str[] =>
-  var names: str[] = {}
-  for id in ids =>
-    var name: str = lookup_name(id)   // Allocated in caller's arena
-    names.push(name)                  // No promotion needed
-  return names
+**String member assignment** on a struct frees the old field value then stores the new `strdup`:
+
+```sindarin
+struct Person as ref =>
+    name: str
+    age: int
+
+fn main(): void =>
+    var p: Person = Person { name: "Alice", age: 30 }
+    p.name = "Bob"
+    assert(p.name.length == 3, "name should be Bob")
+```
+
+**String parameters are borrowed** — the callee receives the raw pointer without copying or taking ownership:
+
+```sindarin
+fn print_name(name: str): void =>
+    assert(name.length > 0, "name should not be empty")
+
+fn main(): void =>
+    var s: str = "Alice"
+    print_name(s)
+```
+
+`print_name` receives `s` as a plain `char *`. No copy is made at the call site. The caller retains ownership.
+
+**String arrays** manage element lifecycle automatically. Each element is `strdup`-ed when pushed and freed when the array is cleaned up:
+
+```sindarin
+fn main(): void =>
+    var names: str[] = {"Alice", "Bob"}
+    assert(names.length == 2, "should have 2 names")
 ```
 
 ---
 
-## `private` Functions
+## Variable Semantics
 
-A `private` function creates an isolated arena. Nothing heap-allocated can escape - only primitives can be returned.
+### Default — compiler follows the type declaration
 
 ```sindarin
-// Returns primitive - OK
-private fn count_lines(path: str): int =>
-  var contents: str = read_file(path)
-  var lines: str[] = contents.split("\n")
-  return lines.length                 // int escapes, rest freed
-
-// COMPILE ERROR: cannot return array from private
-private fn get_histogram(data: str): int[256] =>
-  var counts: int[256] = {}
-  for c in data =>
-    counts[c]++
-  return counts                       // ERROR: array cannot escape
-
-// COMPILE ERROR: cannot return str from private
-private fn bad(path: str): str =>
-  return read_file(path)              // ERROR: string cannot escape
+var n: Node = Node { value: 42 }
 ```
 
-Only primitives (`int`, `double`, `bool`, `char`) can be returned from `private` functions.
+If `Node` is declared `as ref`, the variable holds a pointer with `sn_auto_Node` cleanup. If `Node` is declared `as val`, the variable holds an inline struct value with `sn_auto_Node` cleanup.
 
-### Use Case: Processing Large Temporary Data
+### `as ref` on a variable declaration
+
+Forces heap allocation for a primitive — the variable is stored on the heap and accessed via pointer. Useful when you need stable address semantics or intend to pass the variable's address to functions:
 
 ```sindarin
-private fn count_records(path: str): int =>
-  var contents: str = read_file(path)       // Maybe 100MB
-  var records: str[] = contents.split("\n") // Thousands of strings
-  var total: int = 0
+fn main(): void =>
+    var x: int as ref = 42
+    var y: double as ref = 3.14
+    var flag: bool as ref = true
+    x = 100
+    y = 2.71
+    flag = false
+```
 
-  for record in records =>
-    var fields: str[] = record.split(",")
-    total = total + parse_int(fields[0])
+### `as val` on a variable declaration
 
-  return total  // Only the primitive escapes, all memory freed
+Forces a copy at the point of initialization, even when assigning from an existing variable:
+
+```sindarin
+struct Point =>
+    x: double
+    y: double
+
+fn main(): int =>
+    var p: Point = Point { x: 1.0, y: 2.0 }
+    var q: Point as val = p
+    return 0
 ```
 
 ---
 
-## Fixed Array Escape Rules
+## Parameter Passing
 
-Fixed arrays start on the stack but are **auto-promoted to heap** when they escape their scope. This keeps reference semantics consistent.
+### Default — borrowed, no copy
 
-### Within Same Scope: Stack + Reference
-
-```sindarin
-fn example(): void =>
-  var a: int[4] = {1, 2, 3, 4}        // Stack allocated
-  var b: int[4] = a                   // b references same stack memory
-  b[0] = 99                           // a[0] is now 99
-  // Both cleaned up when function ends
-```
-
-### Escaping Scope: Auto-Promotion to Heap
+The default calling convention passes struct pointers and strings directly. The callee borrows the value; the caller retains ownership. No copy is made.
 
 ```sindarin
-var outer: int[4]
-
-if condition =>
-  var inner: int[4] = {1, 2, 3, 4}   // Starts on stack
-  outer = inner                       // PROMOTED: copied to function's arena (heap)
-  // inner's stack space reclaimed, but data lives on in function's arena
-
-print(outer[0])                       // Safe - data is in heap arena
+fn print_name(name: str): void =>
+    assert(name.length > 0, "name should not be empty")
 ```
 
-### Returning Fixed Arrays
+### `as val` parameter — copy made at call site
+
+Annotating a parameter with `as val` tells the compiler to call `__sn__<Type>_copy` at the call site. The callee owns the copy.
 
 ```sindarin
-fn make_buffer(): int[100] =>
-  var buf: int[100] = {}              // Stack allocated
-  for var i: int = 0; i < 100; i++ =>
-    buf[i] = i
-  return buf                          // PROMOTED to caller's arena
+struct Node as ref =>
+    value: int
 
-var result: int[100] = make_buffer()  // result references heap copy
+fn consume(n: Node as val): int =>
+    return n.value
+
+fn main(): void =>
+    var n: Node = Node { value: 42 }
+    var v: int = consume(n)
+    assert(v == 42, "should get value from copy")
 ```
 
-### Why Auto-Promotion?
+The generated call is `__sn__consume(__sn__Node_copy(__sn__n))` — the copy is created at the call site, and the callee is responsible for releasing it.
 
-Keeps the mental model simple:
-- Arrays are **always references**
-- Compiler handles stack-to-heap promotion transparently
-- No special cases for the programmer to remember
+### `as ref` parameter — pointer passed directly
+
+Annotating a parameter with `as ref` passes the address of the variable. The callee can mutate the caller's value.
+
+```sindarin
+struct Point as val =>
+    x: int
+    y: int
+
+fn mutate(p: Point as ref): void =>
+    p.x = 99
+
+fn main(): void =>
+    var p: Point = Point { x: 1, y: 2 }
+    mutate(p)
+    assert(p.x == 99, "should be mutated via ref")
+```
+
+For primitives, `as ref` on a parameter passes `&variable` and the function signature receives a pointer:
+
+```sindarin
+fn increment(x: int as ref): void =>
+    x = x + 1
+```
+
+---
+
+## Return Ownership
+
+When a function returns a locally-owned value, the compiler nullifies the local variable before returning. This prevents the `sn_auto_*` cleanup attribute from freeing the value when the local goes out of scope — ownership transfers to the caller.
+
+```sindarin
+fn make_greeting(name: str): str =>
+    var result: str = $"Hello {name}"
+    return result
+```
+
+The generated return pattern is:
+
+```c
+char * __ret__ = __sn__result;
+__sn__result = NULL;
+return __ret__;
+```
+
+Setting the local to `NULL` before return means the `sn_auto_str` cleanup attribute sees `NULL` and does nothing. The returned pointer is owned by the caller.
+
+The same pattern applies to `as ref` structs:
+
+```sindarin
+struct Box as ref =>
+    value: int
+
+fn make_box(v: int): Box =>
+    var b: Box = Box { value: v }
+    return b
+```
+
+Generated:
+
+```c
+__sn__Box * __ret__ = __sn__b;
+__sn__b = NULL;
+return __ret__;
+```
+
+---
+
+## `copyOf(x)`
+
+`copyOf` performs an explicit deep copy by calling `__sn__<Type>_copy`. Use it when you need a fully independent copy of an existing value.
+
+```sindarin
+struct Node as ref =>
+    value: int
+
+fn main(): void =>
+    var a: Node = Node { value: 10 }
+    var b: Node = copyOf(a)
+    b.value = 20
+    assert(a.value == 10, "original should be unchanged")
+    assert(b.value == 20, "copy should be 20")
+```
+
+`copyOf` works on both `as ref` structs (returns a new heap-allocated copy with `__rc__ = 1`) and `as val` structs (returns a deep-copied stack value).
+
+---
+
+## `addressOf(x)` and `valueOf(x)`
+
+These are pointer intrinsics for native C interop. They map directly to C address-of (`&`) and dereference (`*`) operators. They are only meaningful in `native` function bodies where you are working with raw pointers.
+
+```sindarin
+@alias "test_addr"
+native fn test_addr(x: int): *int =>
+    return addressOf(x)
+```
+
+```sindarin
+@alias "test_val"
+native fn test_val(p: *int): int =>
+    return valueOf(p)
+```
+
+Do not use `addressOf` on locals in regular Sindarin functions — locals may be stack-allocated and the pointer becomes invalid after the function returns.
+
+---
+
+## Global Variables
+
+Global variables are declared at the top level. Primitives are initialized at the declaration site (as a C global initializer). Expressions that require computation (including string literals that need `strdup`) are initialized inside `main()` before any user code runs.
+
+```sindarin
+var counter: int = 0
+
+fn main(): void =>
+    counter = 42
+    assert(counter == 42, "expected counter to be 42")
+```
+
+Primitive globals with a literal value are emitted as C global initializers directly.
+
+Globals that depend on other globals or runtime expressions are zero-initialized at the C level and assigned at the start of `main()`:
+
+```sindarin
+var x: int = 10
+var y: int = x + 5
+
+fn main(): void =>
+    assert(y == 15, "expected y to be 15")
+```
+
+String globals are initialized with `strdup` at the start of `main()` and freed explicitly at program end:
+
+```sindarin
+var greeting: str = "hello"
+
+fn main(): void =>
+    assert(greeting.length == 5, "greeting should be 5 chars")
+```
+
+String globals do not use `sn_auto_str` — they are freed with an explicit `free` call at the end of `main()`.
+
+---
+
+## `using` Statement
+
+The `using` statement provides RAII-style resource management. The resource is created, its body executes, then `dispose()` is called automatically when the block exits — before the struct's normal cleanup macro runs.
+
+```sindarin
+var disposed: bool = false
+
+struct Resource =>
+    name: str
+
+    fn dispose(): void =>
+        disposed = true
+
+fn main(): void =>
+    using r = Resource{ name: "test" } =>
+        assert(r.name == "test", "expected resource name to be test")
+    assert(disposed, "expected dispose to be called after using block")
+```
+
+The `using` block wraps the body in a C block scope. At the end of the inner block, `dispose()` is called explicitly. The struct's `sn_auto_Resource` cleanup then fires at the end of the outer block. This ensures the user's cleanup logic runs before memory is freed.
+
+---
+
+## Escape Analysis
+
+The compiler performs escape analysis to determine whether a locally-created value outlives its scope. When it detects that data escapes (for example, a local string that is returned), it ensures the data is heap-allocated and ownership is transferred correctly via the return nullification pattern described above.
+
+The key rule: any local with a `sn_auto_*` attribute will be cleaned up when its C scope ends. The return pattern (`local = NULL; return ptr;`) is how the compiler prevents double-free when a value escapes via return.
+
+---
+
+## Scope Cleanup Lifecycle
+
+All owned locals — strings, `as ref` structs, and `as val` structs — carry a `sn_auto_*` cleanup attribute. C's `__attribute__((cleanup(...)))` guarantees cleanup runs in reverse declaration order when the scope exits, whether by falling off the end or via `return`.
+
+The lifecycle for a typical owned local:
+
+1. Declared with `sn_auto_str` / `sn_auto_<Type>` attribute
+2. Used within scope
+3. On `return`: local is nullified (`= NULL`), ownership transferred to caller
+4. On scope exit without return: cleanup attribute fires, frees the value
+
+For `as ref` structs, cleanup calls `release`, which decrements the refcount and frees when it reaches zero (including freeing any string fields or nested `as ref` fields). For `as val` structs, cleanup calls `cleanup`, which frees string fields. For strings, cleanup calls `free`.
+
+Reassignment within a scope:
+
+- **String**: new `strdup` is stored in a temp, old pointer is freed, temp is stored
+- **`as ref` struct**: new pointer is stored, old pointer is released via `release`
+- **`as ref` struct field pointing to `as ref`**: old field value is released, new value is retained and stored
 
 ---
 
 ## Summary
 
-| Concept | Behavior |
-|---------|----------|
-| Primitive assignment | Copy value (stack) |
-| Primitive `as ref` | Reference (heap), auto-promotes on escape |
-| Array assignment | Reference (alias) |
-| Explicit copy | `.clone()` or `as val` |
-| Function parameters | Reference by default, copy with `as val` |
-| Fixed arrays (`int[N]`) | Stack if small, heap if large or escapes |
-| Dynamic arrays (`int[]`) | Heap, arena-managed |
-| Strings | Heap, arena-managed, immutable |
-| Block scope | Uses function's arena |
-| Escaping values | Promoted to outer arena |
-| `shared` function | Uses caller's arena |
-| `private` function | Isolated arena, only primitives can be returned |
-
----
-
-## Lifetime Errors
-
-The compiler is strict about lifetime violations. These are compile-time errors, not runtime crashes.
-
-### Invalid Return from `private` Function
-
-```sindarin
-private fn bad(): str[] =>
-  return {"a", "b"}           // ERROR: array cannot escape private function
-```
-
-```
-error[E0102]: invalid return type for `private` function
-  --> example.sn:1:1
-   |
- 1 | private fn bad(): str[] =>
-   | -------           ^^^^^ arrays cannot be returned from private functions
-   | |
-   | function marked private here
-   |
-   = note: private functions can only return primitives (int, double, bool, char)
-```
-
----
-
-## Defaults and Backward Compatibility
-
-All memory management features are **opt-in**. Existing code compiles unchanged.
-
-| Feature | Default | Opt-in Alternative |
-|---------|---------|-------------------|
-| Array assignment | Reference | `as val` for copy |
-| Function parameters | Reference | `as val` for copy |
-| Primitives | Stack (value) | `as ref` for heap |
-| Functions | Own arena | `shared` or `private` modifiers |
-
-```sindarin
-// This existing code works exactly as before
-fn example(): void =>
-  var items: int[] = {1, 2, 3}
-  for item in items =>
-    print(item)
-```
-
----
-
-## Performance Considerations
-
-### Costs of Default Model
-
-**1. Auto-promotion copies**
-```sindarin
-fn build(): str =>
-  var result: str = compute()
-  return result                // Promoted (copied) to caller's arena
-```
-- Hidden copy when values escape function scope
-- **Mitigation**: Use `shared` function
-
-**2. Memory not freed until function ends**
-```sindarin
-fn long_running(): void =>
-  // Everything allocated here lives until function returns
-  var data1: str = load_file("a.txt")
-  var data2: str = load_file("b.txt")
-  var data3: str = load_file("c.txt")
-  // ... all three in memory until function ends
-```
-- **Mitigation**: Use `private` functions for temporary processing
-
-### Benefits of Default Model
-
-**1. No reference counting overhead**
-- No increment/decrement on every assignment
-- Faster than RC for assignment-heavy code
-
-**2. Bulk deallocation**
-- Arena destruction is O(1), not O(n) individual frees
-- Cache-friendly memory layout
-
-**3. No fragmentation**
-- Arena allocations are contiguous
-- Better memory locality
-
-**4. Deterministic cleanup**
-- Memory freed at predictable points (function exit)
-- No GC pauses
-
-### Performance Guidelines
-
-| Scenario | Recommendation |
-|----------|---------------|
-| Building/returning values | `shared` function |
-| Large temporary processing | `private` function |
-| Passing large arrays | Default (reference) is fast |
-| Need isolated copy | `as val` (explicit cost) |
-
-```sindarin
-// Default: function has own arena, return value promoted
-fn format_items(items: str[]): str[] =>
-  var results: str[] = {}
-  for item in items =>
-    results.push(item.toUpper())
-  return results  // Promoted to caller's arena
-
-// Shared: allocates directly in caller's arena, no promotion
-shared fn format_items_fast(items: str[]): str[] =>
-  var results: str[] = {}
-  for item in items =>
-    results.push(item.toUpper())
-  return results  // Already in caller's arena
-```
-
----
-
-## Design Decisions
-
-### No Null
-
-Sindarin does not have null. Use empty values instead:
-
-| Type | Empty Value |
-|------|-------------|
-| `int[]` | `{}` |
-| `str` | `""` |
-| `int` | `0` |
-| `double` | `0.0` |
-| `bool` | `false` |
-| `char` | `'\0'` |
-
-```sindarin
-fn find_items(query: str): int[] =>
-  if nothing_found =>
-    return {}              // Empty array, not null
-  return results
-
-var items: int[] = find_items("test")
-if items.length == 0 =>
-  print("nothing found")
-```
-
-**Rationale**:
-- No null pointer crashes
-- No nullable type complexity
-- Simple and predictable
-- Empty values cover most use cases
-
-If absence tracking is needed, use a separate boolean:
-```sindarin
-var loaded: bool = false
-var cache: str = ""
-```
-
----
-
-## See Also
-
-- [Arrays](arrays.md) - Array operations and memory behavior
-- [Structs](structs.md) - Struct memory model and escape behavior
-- [Interop](interop.md) - C interoperability and native memory
+| Type | Allocation | Assignment | Cleanup |
+|------|-----------|-----------|---------|
+| `int`, `double`, `bool`, `char` | Stack | Value copy | None |
+| `str` | Heap (`strdup`) | `strdup` new, `free` old | `free` via `sn_auto_str` |
+| `struct as ref` | Heap (`calloc`, `__rc__=1`) | `retain` new, `release` old | `release` via `sn_auto_<Type>` |
+| `struct as val` | Stack (inline) | Deep `copy` | `cleanup` via `sn_auto_<Type>` |
+| `str[]` and typed arrays | Heap | Element `strdup`/`copy` on push | Array cleanup frees all elements |
+| Global `str` | Heap (in `main`) | `strdup` new, `free` old | Explicit `free` at end of `main` |
+| Global primitive | C global | Direct assign | None |

@@ -5,14 +5,18 @@ A statically-typed procedural language that compiles `.sn` → C → executable.
 ## Build & Run
 
 ```bash
-make build            # Build compiler and test binary
-make run              # Compile and run samples/main.sn
-make test             # All tests (unit + integration + exploratory)
-make test-unit        # Unit tests only
-make test-integration # Integration tests only
-make test-explore     # Exploratory tests only
-make clean            # Remove build artifacts
-make help             # Show all targets
+make build                    # Build compiler and test binary
+make run                      # Compile and run samples/main.sn
+make test                     # All tests
+make test-unit                # Unit tests only
+make test-cgen                # Code generation tests (compare generated C)
+make test-mgen                # Model generation tests (compare JSON model)
+make test-integration         # Integration tests only
+make test-integration-errors  # Integration error tests
+make test-explore             # Exploratory tests only
+make test-explore-errors      # Exploratory error tests
+make clean                    # Remove build artifacts
+make help                     # Show all targets
 ```
 
 Binaries: `bin/sn` (compiler), `bin/tests` (unit test runner)

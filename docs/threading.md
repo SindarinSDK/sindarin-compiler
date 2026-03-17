@@ -233,6 +233,8 @@ var r2: int = &sum(data)       // both read same array
 [r1, r2]!
 ```
 
+**Warning:** Sharing an array across threads is safe only when all threads read. If any thread modifies the shared array, use `lock` blocks to prevent data races.
+
 ### Summary Table
 
 | Scenario | Parent Access | Thread Access |
@@ -383,7 +385,7 @@ For complex synchronization needs beyond atomic counters, consider:
 
 ## Lock Blocks
 
-The `lock` statement provides mutual exclusion for compound operations on `sync` variables. While single operations like `counter++` are atomic, multi-statement operations need explicit locking.
+The `lock` statement provides mutual exclusion for compound operations on `sync` variables. The lock target must be a `sync var` — locking a non-sync variable is a compile error. While single operations like `counter++` are atomic, multi-statement operations need explicit locking.
 
 ### Syntax
 
@@ -504,71 +506,6 @@ var normal: int = 0
 lock(normal) =>     // COMPILE ERROR: not a sync variable
     normal++
 ```
-
----
-
-## Thread Arenas
-
-Thread arena management follows the same `shared`, `private`, and default semantics as regular functions.
-
-### Default (Own Arena)
-
-Thread gets its own arena. Return value promoted to caller's arena on sync:
-
-```sindarin
-fn build(): str[] =>
-    var result: str[] = {"a", "b", "c"}  // thread's arena
-    return result                         // promoted on sync
-
-var r: str[] = &build()
-r!                        // result promoted to caller's arena
-print(r)                  // safe - lives in caller's arena
-```
-
-### `shared` (Caller's Arena)
-
-Thread allocates directly in caller's arena:
-
-```sindarin
-shared fn build(): str[] =>
-    var result: str[] = {"a", "b", "c"}  // caller's arena
-    return result                         // no promotion needed
-
-var data: str[] = {}
-var r: str[] = &build()
-
-r!
-data.push("x")            // OK after sync
-```
-
-### `private` (Isolated Arena)
-
-Thread has isolated arena. Only primitives can be returned:
-
-```sindarin
-private fn count_lines(path: str): int =>
-    var contents: str = read_file(path)  // thread's private arena
-    var lines: str[] = contents.split("\n")
-    return lines.length                   // primitive escapes, rest freed
-
-var r: int = &count_lines("big.txt")
-r!
-print(r)                  // just the count, file contents already freed
-```
-
-```sindarin
-// COMPILE ERROR: can't return array from private function
-private fn bad(path: str): str[] =>
-    return read_file(path).split("\n")
-```
-
-### Arena Summary
-
-| Function Type | Thread Arena | Return Behavior |
-|---------------|--------------|-----------------|
-| default | Own arena | Promoted on `!` |
-| `shared` | Caller's arena | No promotion |
-| `private` | Isolated arena | Primitives only |
 
 ---
 
@@ -764,91 +701,67 @@ The following scenarios require user attention:
 
 ### Code Generation
 
-The `&` operator generates pthread creation:
+The `&` operator generates a `__thread_wrapper_N__` function and a `SnThread` handle:
 
 ```sindarin
-var r: int = &add(1, 2)
+var r: int = &compute()
 ```
 
 ```c
 // Generated C
-typedef struct {
-    int arg_a;
-    int arg_b;
-    int* result;
-    bool done;
-    bool has_panic;
-    char* panic_message;
-} add_thread_args;
+static void *__thread_wrapper_0__(void *arg) {
+    SnThread *__th__ = (SnThread *)arg;
 
-void* add_thread_wrapper(void* arg) {
-    add_thread_args* args = (add_thread_args*)arg;
-    *args->result = add(args->arg_a, args->arg_b);
-    args->done = true;
+    long long __result__ = __sn__compute();
+    if (!__th__->result) __th__->result = calloc(1, sizeof(long long));
+    *(long long *)__th__->result = __result__;
     return NULL;
 }
 
 // At spawn site
-add_thread_args args = {1, 2, &r, false, false, NULL};
-pthread_t thread;
-pthread_create(&thread, NULL, add_thread_wrapper, &args);
+long long __sn__r = 0; sn_auto_thread SnThread * __sn__r__th__ = ({
+    SnThread *__th__ = sn_thread_create();
+    __th__->result_size = sizeof(long long);
+    pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
+    __th__;
+});
 ```
 
 ### Synchronization Implementation
 
-The `!` operator generates pthread_join:
+The `!` operator generates `sn_thread_join` and extracts the result:
 
 ```sindarin
-r!
+var result: int = r!
 ```
 
 ```c
 // Generated C
-pthread_join(thread, NULL);
-if (args.has_panic) {
-    rt_panic(args.panic_message);
-}
+long long __sn__result = ({
+    sn_auto_thread SnThread *__sync_th__ = __sn__r__th__; __sn__r__th__ = NULL;
+    if (__sync_th__) { sn_thread_join(__sync_th__); __sn__r = *(long long *)__sync_th__->result; }
+    __sn__r; });
 ```
 
 ### C Runtime Structures
 
+The `SnThread` struct (from `sn_minimal.h`) holds the thread handle and result:
+
 ```c
-typedef struct RtThreadHandle {
+typedef struct {
     pthread_t thread;
-    void* args;
-    bool synced;
-    bool has_panic;
-    char* panic_message;
-} RtThreadHandle;
+    void *result;
+    size_t result_size;
+    int joined;
+} SnThread;
 
-// Thread-local arena for each spawned thread
-__thread RtArena* rt_thread_arena = NULL;
+// Cleanup attribute — automatically joins and frees when the variable goes out of scope
+#define sn_auto_thread __attribute__((cleanup(sn_cleanup_thread)))
 ```
 
-### Arena Integration
+### Thread Cleanup
 
-Thread arenas follow the function arena model:
-
-```c
-void* thread_wrapper(void* arg) {
-    // Create thread-local arena (default mode)
-    RtArena* arena = rt_arena_create();
-    rt_thread_arena = arena;
-
-    // Execute function
-    thread_args* args = (thread_args*)arg;
-    args->result = target_function(args->params);
-
-    // Promote return value to parent arena
-    if (needs_promotion) {
-        args->result = rt_arena_promote(args->parent_arena, args->result);
-    }
-
-    // Destroy thread arena
-    rt_arena_v2_condemn(arena);
-    return NULL;
-}
-```
+Thread wrappers use standard C cleanup via the `sn_auto_thread` attribute macro from the minimal runtime. For fire-and-forget threads, the wrapper calls `free()` directly on the `SnThread` struct after the function returns. For joinable threads, the joining side handles cleanup. No arena-level teardown is needed — only `free()` and the `sn_auto_*` cleanup macros from `sn_minimal.h`.
 
 ---
 
@@ -866,6 +779,6 @@ The following features are fully supported:
 
 ## See Also
 
-- [Memory](memory.md) - Arena memory management, `as ref`, `as val`, `shared`, `private`
+- [Memory](memory.md) - `as ref`, `as val` ownership semantics
 - [Arrays](arrays.md) - Array operations
-- [SDK I/O documentation](sdk/io/readme.md) - File I/O operations
+- SDK I/O documentation is available in the sindarin-pkg-sdk repository

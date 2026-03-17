@@ -296,7 +296,7 @@ var handlers: (fn(str): int)[] = {}
 var transforms: (fn(int, int): int)[] = {}
 
 // Lambda returning an array (no parentheses needed - this is the default interpretation)
-var getNames: fn(): str[] = () => { return {"Alice", "Bob"} }
+var getNames: fn(): str[] = fn(): str[] => {"Alice", "Bob"}
 ```
 
 ### Parser Behavior
@@ -312,8 +312,8 @@ The parser binds `[]` to the innermost type first. So:
 var operations: (fn(int, int): int)[] = {}
 
 // Add lambdas to the array
-var add: fn(int, int): int = (a: int, b: int) => a + b
-var mul: fn(int, int): int = (a: int, b: int) => a * b
+var add: fn(int, int): int = fn(a: int, b: int): int => a + b
+var mul: fn(int, int): int = fn(a: int, b: int): int => a * b
 operations.push(add)
 operations.push(mul)
 
@@ -331,6 +331,23 @@ error: Ambiguous array declaration. Use parentheses to clarify:
   - For array of functions: (fn(str): str)[]
   - For function returning array: fn(str): str[]
 ```
+
+## Array Element Cleanup
+
+When an array holds strings or `as ref` structs, the runtime registers element cleanup and copy handlers automatically. Reassigning an element frees the old value before storing the new one:
+
+```sindarin
+var names: str[] = {"Alice", "Bob"}
+names[0] = "Charlie"  // "Alice" is freed automatically before storing "Charlie"
+```
+
+The generated code for a string array sets `elem_release` to `sn_cleanup_str` and `elem_copy` to `sn_copy_str` on the underlying `SnArray`. These handlers are called whenever an element is overwritten, removed, or the array is freed.
+
+For plain value types such as `int` or `double`, no cleanup handler is registered because those types require no heap deallocation.
+
+## `as val` Arrays
+
+Passing an array `as val` to a function creates a full copy of the array and all its elements. For arrays of strings, each string element is deep-copied via the registered `elem_copy` handler. Modifications inside the function do not affect the original array.
 
 ## Array Equality
 
