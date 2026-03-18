@@ -339,14 +339,16 @@ file(MAKE_DIRECTORY ${INCLUDE_DIR})
 file(MAKE_DIRECTORY ${RUNTIME_INCLUDE_DIR})
 file(MAKE_DIRECTORY ${PLATFORM_INCLUDE_DIR})
 
-# Copy unified config file (sn.cfg)
-set(SN_CONFIG_FILE "${CMAKE_SOURCE_DIR}/etc/sn.cfg")
-set(DEST_CONFIG "${CMAKE_SOURCE_DIR}/bin/sn.cfg")
-if(EXISTS ${SN_CONFIG_FILE})
-    if(NOT EXISTS ${DEST_CONFIG})
-        file(INSTALL ${SN_CONFIG_FILE} DESTINATION "${CMAKE_SOURCE_DIR}/bin")
+# Copy platform config files (sn.<platform>.cfg)
+foreach(PLATFORM linux darwin windows)
+    set(SN_PLATFORM_CFG "${CMAKE_SOURCE_DIR}/etc/sn.${PLATFORM}.cfg")
+    set(DEST_PLATFORM_CFG "${CMAKE_SOURCE_DIR}/bin/sn.${PLATFORM}.cfg")
+    if(EXISTS ${SN_PLATFORM_CFG})
+        if(NOT EXISTS ${DEST_PLATFORM_CFG})
+            file(INSTALL ${SN_PLATFORM_CFG} DESTINATION "${CMAKE_SOURCE_DIR}/bin")
+        endif()
     endif()
-endif()
+endforeach()
 
 # Copy runtime headers (legacy runtime.h if present)
 if(EXISTS "${CMAKE_SOURCE_DIR}/src/runtime.h")
@@ -465,11 +467,13 @@ install(DIRECTORY "${CMAKE_SOURCE_DIR}/bin/templates/"
     FILES_MATCHING PATTERN "*.hbs"
 )
 
-# Install config file
-install(FILES "${CMAKE_SOURCE_DIR}/etc/sn.cfg"
-    DESTINATION ${SN_SDK_INSTALL_DIR}
-    COMPONENT configs
-)
+# Install platform config files
+foreach(PLATFORM linux darwin windows)
+    install(FILES "${CMAKE_SOURCE_DIR}/etc/sn.${PLATFORM}.cfg"
+        DESTINATION ${SN_SDK_INSTALL_DIR}
+        COMPONENT configs
+    )
+endforeach()
 
 #------------------------------------------------------------------------------
 # Dependencies Detection (sindarin-libs submodule)

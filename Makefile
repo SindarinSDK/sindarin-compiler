@@ -211,7 +211,9 @@ install: build
 	@echo "  Copying compiler binary..."
 	@$(CP) $(BIN_DIR)/sn$(EXE_EXT) $(SN_LIB_DIR)/sn$(EXE_EXT)
 	@echo "  Copying configuration..."
-	@$(CP) $(BIN_DIR)/sn.cfg $(SN_LIB_DIR)/sn.cfg
+	@$(CP) $(BIN_DIR)/sn.linux.cfg $(SN_LIB_DIR)/sn.linux.cfg
+	@$(CP) $(BIN_DIR)/sn.darwin.cfg $(SN_LIB_DIR)/sn.darwin.cfg
+	@$(CP) $(BIN_DIR)/sn.windows.cfg $(SN_LIB_DIR)/sn.windows.cfg
 	@echo "  Copying runtime headers..."
 	@$(RM_DIR) $(SN_LIB_DIR)/include
 	@$(CP_DIR) $(BIN_DIR)/include $(SN_LIB_DIR)/include
