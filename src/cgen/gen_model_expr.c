@@ -161,6 +161,11 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
             if (strcmp(name, "print") == 0 || strcmp(name, "println") == 0 ||
                 strcmp(name, "assert") == 0 || strcmp(name, "exit") == 0 ||
                 strcmp(name, "len") == 0 || strcmp(name, "readLine") == 0) break;
+            /* Skip module-level globals — they are C globals accessible by name
+             * from any function and must not be copied into closure structs. */
+            if (expr->as.variable.declaration_scope_depth > 0 &&
+                expr->as.variable.declaration_scope_depth <= g_prescan_function_entry_depth)
+                break;
             if (expr->expr_type)
                 mc_add(caps, arena, name, expr->expr_type);
         }
@@ -175,13 +180,15 @@ static void mc_collect_expr(Expr *expr, LambdaExpr *lam, ModelCaptures *locals, 
         break;
     case EXPR_ASSIGN:
         mc_collect_expr(expr->as.assign.value, lam, locals, caps, arena);
-        /* Also capture the assignment target */
+        /* Also capture the assignment target, unless it is a module-level global */
         {
             char name[256];
             int len = expr->as.assign.name.length < 255 ? expr->as.assign.name.length : 255;
             strncpy(name, expr->as.assign.name.start, len);
             name[len] = '\0';
-            if (!mc_is_param(lam, name) && !mc_is_local(locals, name) && expr->expr_type)
+            if (!mc_is_param(lam, name) && !mc_is_local(locals, name) && expr->expr_type &&
+                !(expr->as.assign.lhs_scope_depth > 0 &&
+                  expr->as.assign.lhs_scope_depth <= g_prescan_function_entry_depth))
                 mc_add(caps, arena, name, expr->expr_type);
         }
         break;
@@ -2378,33 +2385,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "modifier",
                 json_object_new_string(func_mod_str(expr->as.thread_spawn.modifier)));
 
-            /* Mark args that are as-ref struct variables for ownership transfer.
-             * After copying to thread args, the local should be nullified so
-             * sn_auto cleanup doesn't free the struct the thread is using. */
-            if (call_expr->type == EXPR_CALL)
-            {
-                json_object *call_args_arr = NULL;
-                json_object_object_get_ex(call_obj, "args", &call_args_arr);
-                if (call_args_arr)
-                {
-                    for (int i = 0; i < call_expr->as.call.arg_count; i++)
-                    {
-                        Expr *arg_expr = call_expr->as.call.arguments[i];
-                        if (arg_expr->type == EXPR_VARIABLE &&
-                            arg_expr->expr_type &&
-                            (arg_expr->expr_type->kind == TYPE_STRUCT &&
-                             arg_expr->expr_type->as.struct_type.pass_self_by_ref))
-                        {
-                            json_object *call_arg = json_object_array_get_idx(call_args_arr, i);
-                            if (call_arg)
-                            {
-                                json_object_object_add(call_arg, "needs_move",
-                                    json_object_new_boolean(true));
-                            }
-                        }
-                    }
-                }
-            }
+            /* Thread spawn borrows as-ref struct args — no nullification.
+             * The local retains ownership and its sn_auto cleanup runs after
+             * all threads are joined.  Nullifying here breaks multi-spawn
+             * sharing (second spawn receives NULL). */
 
             /* Determine if return type is void */
             Type *ret_type = call_expr->expr_type;

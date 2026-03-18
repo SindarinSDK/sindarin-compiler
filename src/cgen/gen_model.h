@@ -41,6 +41,11 @@ extern json_object *g_model_threads;
 extern int g_model_thread_count;
 extern int g_model_lambda_count;
 
+/* Scope depth at the time prescan_function_body runs (before it pushes its own scope).
+ * Variables declared at this depth or below are module-level C globals and must
+ * never be added to lambda closure captures. */
+extern int g_prescan_function_entry_depth;
+
 /* Global captured-variable set - populated by pre-scanning function bodies.
  * Variables in this set need handle-based (promoted) storage in the outer scope
  * so that lambdas can capture them by reference. */

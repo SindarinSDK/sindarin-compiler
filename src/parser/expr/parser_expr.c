@@ -504,6 +504,12 @@ Expr *parser_primary(Parser *parser)
         return parse_lambda_expr(parser, &fn_token);
     }
 
+    /* Allow 'lock' as an identifier in expression context (e.g. implicit self.lock() in method body) */
+    if (parser_check(parser, TOKEN_LOCK))
+    {
+        parser->current.type = TOKEN_IDENTIFIER;
+    }
+
     /* Identifier - could be intrinsic, variable, struct literal, or static call */
     if (parser_match(parser, TOKEN_IDENTIFIER))
     {

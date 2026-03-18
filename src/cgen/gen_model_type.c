@@ -323,6 +323,17 @@ json_object *gen_model_type(Arena *arena, Type *type)
                 json_object_array_add(fields, field);
             }
             json_object_object_add(obj, "fields", fields);
+
+            /* Check for dispose() method @alias — used by using blocks */
+            {
+                StructMethod *dispose_m = ast_struct_get_method(type, "dispose");
+                if (dispose_m != NULL && dispose_m->c_alias != NULL &&
+                    !dispose_m->is_static && dispose_m->param_count == 0)
+                {
+                    json_object_object_add(obj, "dispose_alias",
+                        json_object_new_string(dispose_m->c_alias));
+                }
+            }
             break;
         }
 
