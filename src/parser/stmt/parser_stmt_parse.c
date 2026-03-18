@@ -98,6 +98,23 @@ Stmt *parser_statement(Parser *parser)
     }
 
     // Parse lock(expr) => block
+    // Disambiguate: lock() with empty args is a method call, not a lock statement.
+    // A lock statement always has a non-empty expression: lock(syncVar) => body.
+    {
+        bool is_lock_stmt = parser_check(parser, TOKEN_LOCK);
+        if (is_lock_stmt)
+        {
+            Token ahead1 = parser_peek_token(parser);
+            if (ahead1.type == TOKEN_LEFT_PAREN)
+            {
+                Token ahead2 = parser_peek_token2(parser);
+                if (ahead2.type == TOKEN_RIGHT_PAREN)
+                    is_lock_stmt = false; /* lock() — method call, not lock statement */
+            }
+        }
+        if (!is_lock_stmt)
+            goto parse_expression_stmt;
+    }
     if (parser_match(parser, TOKEN_LOCK))
     {
         Token lock_token = parser->previous;
@@ -117,6 +134,7 @@ Stmt *parser_statement(Parser *parser)
         return ast_create_lock_stmt(parser->arena, lock_expr, body, &lock_token);
     }
 
+parse_expression_stmt:
     return parser_expression_statement(parser);
 }
 

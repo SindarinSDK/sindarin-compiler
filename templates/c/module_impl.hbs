@@ -92,7 +92,11 @@ static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each 
     {{> stmt this}}
 {{/each}}
 {{else}}
+{{#if (eq return_type.kind "void")}}
+    {{> expr body}};
+{{else}}
     return {{> expr body}};
+{{/if}}
 {{/if}}
 }
 {{/each}}

@@ -6,6 +6,12 @@
  * handle-based (promoted) storage for capture-by-reference semantics.
  * ============================================================================ */
 
+/* Scope depth of the symbol table at the point prescan_function_body starts,
+ * before it pushes its own scope.  Variables declared at this depth or below
+ * are module-level globals emitted as C globals — they are always reachable by
+ * name from any function and must never be heap-promoted for ref-capture. */
+int g_prescan_function_entry_depth = 0;
+
 static bool prescan_needs_ref(Type *type)
 {
     if (!type) return false;
@@ -49,6 +55,10 @@ static bool prescan_is_outer_var(SymbolTable *table, Token name, int lambda_scop
     if (lambda_scope_depth < 0) return false;
     Symbol *sym = symbol_table_lookup_symbol(table, name);
     if (!sym) return true; /* not found in any scope — assume outer */
+    /* Variables declared at or before the function entry depth are module-level
+     * globals emitted as C globals — they are reachable by name from any function
+     * and must never be heap-promoted for ref-capture. */
+    if (sym->declaration_scope_depth <= g_prescan_function_entry_depth) return false;
     return sym->declaration_scope_depth <= lambda_scope_depth;
 }
 
@@ -279,6 +289,10 @@ static void prescan_function_body(Arena *arena, Stmt **stmts, int stmt_count,
     g_captured_vars = NULL;
     g_captured_var_count = 0;
     g_closure_var_count = 0;
+    /* Record the scope depth before pushing so prescan_is_outer_var can
+     * distinguish module-level globals (declared at this depth or below)
+     * from true locals that need heap promotion when captured. */
+    g_prescan_function_entry_depth = symbol_table_get_scope_depth(table);
     /* Push a scope so the prescan's symbol additions don't pollute the
      * caller's symbol table state.  Pass -1 for lambda_scope_depth since
      * we're at the function body level, not inside any lambda. */

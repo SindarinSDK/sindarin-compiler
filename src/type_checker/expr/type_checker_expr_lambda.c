@@ -406,8 +406,10 @@ Type *type_check_lambda(Expr *expr, SymbolTable *table)
             return NULL;
         }
 
-        /* Verify return type matches body */
-        if (!ast_type_equals(body_type, lambda->return_type))
+        /* Verify return type matches body.
+         * void lambdas discard the expression result (same as expression statements). */
+        if (lambda->return_type->kind != TYPE_VOID &&
+            !ast_type_equals(body_type, lambda->return_type))
         {
             symbol_table_pop_scope(table);
             type_error(expr->token, "Lambda body type does not match declared return type");

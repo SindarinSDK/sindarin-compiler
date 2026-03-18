@@ -214,12 +214,14 @@ typedef struct
 typedef struct
 {
     Token name;
+    int declaration_scope_depth; /* set by type checker; <= 0 means module-level global */
 } VariableExpr;
 
 typedef struct
 {
     Token name;
     Expr *value;
+    int lhs_scope_depth; /* set by type checker; <= 0 means module-level global */
 } AssignExpr;
 
 typedef struct
