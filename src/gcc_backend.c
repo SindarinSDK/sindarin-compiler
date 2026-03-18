@@ -63,14 +63,16 @@ static bool file_exists(const char *path)
     return access(path, R_OK) == 0;
 }
 
-/* Default values for backend configuration */
+/* Default values for backend configuration (fallback when no platform config is found) */
 #define DEFAULT_STD "c99"
 #ifdef __APPLE__
 #define DEFAULT_DEBUG_CFLAGS_GCC "-fno-omit-frame-pointer -g"
 #define DEFAULT_DEBUG_CFLAGS_CLANG "-fno-omit-frame-pointer -g"
+#define DEFAULT_LDLIBS_UNIX "-lpthread"
 #else
 #define DEFAULT_DEBUG_CFLAGS_GCC "-no-pie -fsanitize=address -fno-omit-frame-pointer -g"
 #define DEFAULT_DEBUG_CFLAGS_CLANG "-fsanitize=address -fno-omit-frame-pointer -g"
+#define DEFAULT_LDLIBS_UNIX "-lpthread -lm"
 #endif
 #define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto"
 #define DEFAULT_RELEASE_CFLAGS_CLANG "-O3 -flto"
@@ -83,7 +85,7 @@ static bool file_exists(const char *path)
 #define DEFAULT_RELEASE_CFLAGS_MSVC "/O2 /DNDEBUG"
 #define DEFAULT_PROFILE_CFLAGS_MSVC "/O2 /Zi"
 #define DEFAULT_CFLAGS_MSVC "/W3 /D_CRT_SECURE_NO_WARNINGS"
-#define DEFAULT_LDLIBS_MSVC "ws2_32.lib bcrypt.lib"
+#define DEFAULT_LDLIBS_WIN "ws2_32.lib bcrypt.lib"
 #define DEFAULT_LDLIBS_CLANG_WIN "-lws2_32 -lbcrypt -lpthread"
 #define DEFAULT_LDLIBS_GCC_WIN "-lws2_32 -lbcrypt -lpthread"
 
@@ -97,6 +99,23 @@ static char cfg_cflags[1024];
 static char cfg_ldflags[1024];
 static char cfg_ldlibs[1024];
 static bool cfg_loaded = false;
+
+/* SN_LDLIBS_<name> table: full link flags for each @link library */
+#define MAX_LDLIBS_ENTRIES 64
+typedef struct { char lib[64]; char flags[1024]; } LdlibsEntry;
+static LdlibsEntry cfg_ldlibs_table[MAX_LDLIBS_ENTRIES];
+static int cfg_ldlibs_count = 0;
+
+/* Return config-driven link flags for a library, or NULL if not in table */
+static const char *get_ldlibs_for_lib(const char *lib)
+{
+    for (int i = 0; i < cfg_ldlibs_count; i++)
+    {
+        if (strcmp(cfg_ldlibs_table[i].lib, lib) == 0)
+            return cfg_ldlibs_table[i].flags;
+    }
+    return NULL;
+}
 
 /* Cached SDK root path (computed once per session) */
 static const char *cached_sdk_root = NULL;
@@ -218,6 +237,35 @@ static void parse_config_line(const char *line)
             cfg_ldlibs[value_len] = '\0';
         }
     }
+    else if (key_len > 10 && strncmp(line, "SN_LDLIBS_", 10) == 0)
+    {
+        if (cfg_ldlibs_count < MAX_LDLIBS_ENTRIES)
+        {
+            size_t lib_len = key_len - 10;
+            if (lib_len < sizeof(cfg_ldlibs_table[0].lib))
+            {
+                LdlibsEntry *e = &cfg_ldlibs_table[cfg_ldlibs_count];
+                strncpy(e->lib, line + 10, lib_len);
+                e->lib[lib_len] = '\0';
+                if (value_len < sizeof(e->flags))
+                {
+                    strncpy(e->flags, value, value_len);
+                    e->flags[value_len] = '\0';
+                }
+                cfg_ldlibs_count++;
+            }
+        }
+    }
+}
+
+static void load_config_file(const char *path)
+{
+    FILE *f = fopen(path, "r");
+    if (!f) return;
+    char line[2048];
+    while (fgets(line, sizeof(line), f))
+        parse_config_line(line);
+    fclose(f);
 }
 
 void cc_backend_load_config(const char *compiler_dir)
@@ -225,19 +273,18 @@ void cc_backend_load_config(const char *compiler_dir)
     if (cfg_loaded) return;
     cfg_loaded = true;
 
+#ifdef _WIN32
+    const char *platform = "windows";
+#elif defined(__APPLE__)
+    const char *platform = "darwin";
+#else
+    const char *platform = "linux";
+#endif
+
     const char *sdk_root = get_sdk_root(compiler_dir);
     char config_path[PATH_MAX];
-    snprintf(config_path, sizeof(config_path), "%s" SN_PATH_SEP_STR "sn.cfg", sdk_root);
-
-    FILE *f = fopen(config_path, "r");
-    if (!f) return;
-
-    char line[2048];
-    while (fgets(line, sizeof(line), f))
-    {
-        parse_config_line(line);
-    }
-    fclose(f);
+    snprintf(config_path, sizeof(config_path), "%s" SN_PATH_SEP_STR "sn.%s.cfg", sdk_root, platform);
+    load_config_file(config_path);
 }
 
 void cc_backend_init_config(CCBackendConfig *config)
@@ -275,6 +322,8 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_profile_cflags = DEFAULT_PROFILE_CFLAGS_CLANG;
 #ifdef _WIN32
             default_ldlibs = DEFAULT_LDLIBS_CLANG_WIN;
+#else
+            default_ldlibs = DEFAULT_LDLIBS_UNIX;
 #endif
             break;
         case BACKEND_TINYCC:
@@ -282,6 +331,7 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_debug_cflags = DEFAULT_DEBUG_CFLAGS_TCC;
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_TCC;
             default_profile_cflags = DEFAULT_PROFILE_CFLAGS_TCC;
+            default_ldlibs = DEFAULT_LDLIBS_UNIX;
             break;
         case BACKEND_MSVC:
             default_cc = "cl";
@@ -289,7 +339,7 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_release_cflags = DEFAULT_RELEASE_CFLAGS_MSVC;
             default_profile_cflags = DEFAULT_PROFILE_CFLAGS_MSVC;
             default_cflags = DEFAULT_CFLAGS_MSVC;
-            default_ldlibs = DEFAULT_LDLIBS_MSVC;
+            default_ldlibs = DEFAULT_LDLIBS_WIN;
             break;
         case BACKEND_GCC:
         default:
@@ -299,6 +349,8 @@ void cc_backend_init_config(CCBackendConfig *config)
             default_profile_cflags = DEFAULT_PROFILE_CFLAGS_GCC;
 #ifdef _WIN32
             default_ldlibs = DEFAULT_LDLIBS_GCC_WIN;
+#else
+            default_ldlibs = DEFAULT_LDLIBS_UNIX;
 #endif
             break;
     }
@@ -767,67 +819,24 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         int offset = 0;
         for (int i = 0; i < link_lib_count && offset < (int)sizeof(extra_libs) - 8; i++)
         {
-#ifdef _WIN32
-            /* Skip -lm on Windows — math functions are in the C runtime */
-            if (strcmp(link_libs[i], "m") == 0) continue;
-#endif
-            const char *lib = translate_lib_name(link_libs[i]);
-            int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", lib);
-            if (written > 0) offset += written;
-        }
-    }
-
-    /* Append transitive dependencies for statically-linked libraries */
-    if (link_libs && link_lib_count > 0)
-    {
-        bool needs_openssl_deps = false;
-        bool needs_ssh_deps = false;
-        bool needs_git2_deps = false;
-
-        for (int i = 0; i < link_lib_count; i++)
-        {
-            if (strcmp(link_libs[i], "ssl") == 0 || strcmp(link_libs[i], "crypto") == 0 ||
-                strcmp(link_libs[i], "ngtcp2") == 0 || strcmp(link_libs[i], "ngtcp2_crypto_ossl") == 0)
-                needs_openssl_deps = true;
-            if (strcmp(link_libs[i], "ssh") == 0)
-                needs_ssh_deps = true;
-            if (strcmp(link_libs[i], "git2") == 0)
-                needs_git2_deps = true;
-        }
-
-        int offset = (int)strlen(extra_libs);
-        if (needs_openssl_deps)
-        {
-#ifdef __APPLE__
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -framework Security -framework CoreFoundation");
-#elif defined(_WIN32)
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lws2_32 -lgdi32 -lcrypt32");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -ldl");
-#endif
-            offset = (int)strlen(extra_libs);
-        }
-        if (needs_ssh_deps)
-        {
-#ifdef _WIN32
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lzlib -lws2_32 -lcrypt32 -liphlpapi -lshell32 -ladvapi32");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -lz -lpthread");
-#endif
-            offset = (int)strlen(extra_libs);
-        }
-        if (needs_git2_deps)
-        {
-#ifdef __APPLE__
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -liconv -framework Security -framework CoreFoundation");
-#elif defined(_WIN32)
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lzlib -lssl -lcrypto -lws2_32 -lsecur32 -lcrypt32");
-#else
-            snprintf(extra_libs + offset, sizeof(extra_libs) - offset,
-                " -lhttp_parser -lssh2 -lpcre2-8 -lz -lssl -lcrypto -lpthread -ldl");
-#endif
+            const char *lib = link_libs[i];
+            const char *override = get_ldlibs_for_lib(lib);
+            if (override)
+            {
+                /* SN_LDLIBS_<name> is a full replacement — empty means suppress */
+                if (override[0])
+                {
+                    int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " %s", override);
+                    if (written > 0) offset += written;
+                }
+            }
+            else
+            {
+                /* No config entry: default to -l<name> with platform lib name translation */
+                const char *translated = translate_lib_name(lib);
+                int written = snprintf(extra_libs + offset, sizeof(extra_libs) - offset, " -l%s", translated);
+                if (written > 0) offset += written;
+            }
         }
     }
 
@@ -845,26 +854,14 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     exe_path[sizeof(exe_path) - 1] = '\0';
     normalize_path_separators(exe_path);
 
-#ifdef _WIN32
-    /* Windows: math functions are in CRT, no separate -lm needed */
     snprintf(command, sizeof(command),
         "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
-        "%s %s -lpthread%s %s %s -o \"%s\" 2>\"%s\"",
+        "%s %s%s %s %s -o \"%s\" 2>\"%s\"",
         cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
         all_objs, runtime_lib,
         deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
         exe_path, error_file);
-#else
-    snprintf(command, sizeof(command),
-        "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
-        "%s \"%s\" "
-        "%s %s -lpthread -lm%s %s %s -o \"%s\" 2>\"%s\"",
-        cc_quote, config->cc, cc_quote, mode_cflags, config->std, config->cflags,
-        all_objs, runtime_lib,
-        deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
-        exe_path, error_file);
-#endif
 
     bool link_ok = run_compile_cmd(command, error_file, verbose);
 
