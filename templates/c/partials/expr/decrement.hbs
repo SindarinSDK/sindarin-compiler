@@ -1,1 +1,1 @@
-{{> expr operand}}--
+{{#if sync_var_name}}({pthread_mutex_lock(&__sn__{{sync_var_name}}_mutex); {{> expr operand}}--; pthread_mutex_unlock(&__sn__{{sync_var_name}}_mutex); __sn__{{sync_var_name}}; }){{else}}{{> expr operand}}--{{/if}}
