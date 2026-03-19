@@ -1,0 +1,9 @@
+native struct Stmt as ref =>
+    _ptr: int
+
+    fn bind(v: int): Stmt =>
+        return self
+
+fn main(): void =>
+    var s: Stmt
+    s.bind(1).bind(2)
