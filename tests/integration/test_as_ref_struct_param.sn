@@ -1,0 +1,82 @@
+// Test 'as ref' struct params for regular (non-native) Sindarin functions
+// Regression test for Bug 2: as ref params must generate (*ptr).field for
+// member access and (*ptr = val) for assignment — not ptr.field or ptr = val.
+
+struct Counter =>
+    count: int
+    name: str
+
+struct Point =>
+    x: int
+    y: int
+
+// Regular Sindarin (non-native) functions with struct as ref params
+fn increment(c: Counter as ref): void =>
+    c.count = c.count + 1
+
+fn resetCounter(c: Counter as ref): void =>
+    c.count = 0
+
+fn addAmount(c: Counter as ref, amount: int): void =>
+    c.count = c.count + amount
+
+fn scale(p: Point as ref, factor: int): void =>
+    p.x = p.x * factor
+    p.y = p.y * factor
+
+fn translate(p: Point as ref, dx: int, dy: int): void =>
+    p.x = p.x + dx
+    p.y = p.y + dy
+
+fn readName(c: Counter as ref): str =>
+    return c.name
+
+fn main(): void =>
+    // Test 1: basic field mutation via as ref
+    var c: Counter = Counter { count: 0, name: "test" }
+    increment(c)
+    print($"Test 1: after increment: {c.count}\n")
+    assert(c.count == 1, "count should be 1 after increment")
+
+    increment(c)
+    increment(c)
+    print($"Test 1: after 2 more increments: {c.count}\n")
+    assert(c.count == 3, "count should be 3")
+
+    // Test 2: mixed regular + as ref params
+    addAmount(c, 10)
+    print($"Test 2: after addAmount(10): {c.count}\n")
+    assert(c.count == 13, "count should be 13")
+
+    // Test 3: reset via as ref
+    resetCounter(c)
+    print($"Test 3: after reset: {c.count}\n")
+    assert(c.count == 0, "count should be 0 after reset")
+
+    // Test 4: reading fields via as ref
+    var name: str = readName(c)
+    print($"Test 4: name = {name}\n")
+    assert(name == "test", "name should be test")
+
+    // Test 5: multiple fields mutated
+    var p: Point = Point { x: 2, y: 3 }
+    scale(p, 4)
+    print($"Test 5: after scale(4): ({p.x},{p.y})\n")
+    assert(p.x == 8, "p.x should be 8")
+    assert(p.y == 12, "p.y should be 12")
+
+    // Test 6: chained as ref calls
+    translate(p, 1, 2)
+    print($"Test 6: after translate(1,2): ({p.x},{p.y})\n")
+    assert(p.x == 9, "p.x should be 9")
+    assert(p.y == 14, "p.y should be 14")
+
+    // Test 7: nested as ref calls
+    var c2: Counter = Counter { count: 5, name: "nested" }
+    increment(c2)
+    addAmount(c2, 3)
+    resetCounter(c2)
+    print($"Test 7: after increment+addAmount+reset: {c2.count}\n")
+    assert(c2.count == 0, "c2.count should be 0")
+
+    print("\nAll as-ref-struct-param tests passed!\n")

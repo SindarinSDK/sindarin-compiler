@@ -541,12 +541,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(type_obj, "pass_self_by_ref",
                         json_object_new_boolean(true));
             }
-            /* Check if this variable is captured (promoted to handle-based storage) */
-            for (int ci = 0; ci < g_captured_var_count; ci++) {
-                if (strcmp(g_captured_vars[ci], stored_name) == 0) {
-                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
-                    break;
+            /* Check if this variable is captured (promoted to handle-based storage)
+             * or is an 'as ref' parameter (a C pointer that must be dereferenced). */
+            {
+                bool mark_captured = false;
+                for (int ci = 0; ci < g_captured_var_count; ci++) {
+                    if (strcmp(g_captured_vars[ci], stored_name) == 0) {
+                        mark_captured = true;
+                        break;
+                    }
                 }
+                if (!mark_captured) {
+                    for (int ri = 0; ri < g_as_ref_param_count; ri++) {
+                        if (strcmp(g_as_ref_param_names[ri], stored_name) == 0) {
+                            mark_captured = true;
+                            break;
+                        }
+                    }
+                }
+                if (mark_captured)
+                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
             }
             break;
         }
@@ -588,12 +602,25 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "target", json_object_new_string(aname));
             json_object_object_add(obj, "value",
                 gen_model_expr(arena, expr->as.assign.value, symbol_table, arithmetic_mode));
-            /* Check if target is captured */
-            for (int ci = 0; ci < g_captured_var_count; ci++) {
-                if (strcmp(g_captured_vars[ci], aname) == 0) {
-                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
-                    break;
+            /* Check if target is captured or is an 'as ref' param (C pointer needing *) */
+            {
+                bool mark_captured = false;
+                for (int ci = 0; ci < g_captured_var_count; ci++) {
+                    if (strcmp(g_captured_vars[ci], aname) == 0) {
+                        mark_captured = true;
+                        break;
+                    }
                 }
+                if (!mark_captured) {
+                    for (int ri = 0; ri < g_as_ref_param_count; ri++) {
+                        if (strcmp(g_as_ref_param_names[ri], aname) == 0) {
+                            mark_captured = true;
+                            break;
+                        }
+                    }
+                }
+                if (mark_captured)
+                    json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
             }
             /* Assignment cleanup annotations for c-min codegen */
             if (expr->expr_type)
@@ -1231,14 +1258,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 for (int p = 0; p < fn_type->as.function.param_count; p++)
                                 {
                                     json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
-                                    /* Mark borrow params: non-native target, MEM_DEFAULT, COMPOSITE type */
+                                    /* Mark borrow params: non-native target, MEM_DEFAULT or MEM_AS_REF, COMPOSITE type */
                                     if (!target_is_native)
                                     {
                                         Type *ptype = fn_type->as.function.param_types[p];
                                         MemoryQualifier pmq_val = MEM_DEFAULT;
                                         if (fn_type->as.function.param_mem_quals)
                                             pmq_val = fn_type->as.function.param_mem_quals[p];
-                                        if (pmq_val == MEM_DEFAULT && ptype &&
+                                        if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
                                             gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
                                         {
                                             json_object_object_add(pt, "is_borrow",
@@ -1866,7 +1893,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                             MemoryQualifier pmq_val = MEM_DEFAULT;
                                             if (fn_type->as.function.param_mem_quals)
                                                 pmq_val = fn_type->as.function.param_mem_quals[p];
-                                            if (pmq_val == MEM_DEFAULT && ptype &&
+                                            if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
                                                 gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
                                             {
                                                 json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
@@ -2051,7 +2078,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 MemoryQualifier pmq_val = MEM_DEFAULT;
                                 if (fn_type->as.function.param_mem_quals)
                                     pmq_val = fn_type->as.function.param_mem_quals[p];
-                                if (pmq_val == MEM_DEFAULT && ptype &&
+                                if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
                                     gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
                                 {
                                     json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));

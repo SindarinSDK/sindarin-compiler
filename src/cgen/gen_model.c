@@ -14,6 +14,10 @@ int g_model_lambda_count = 0;
 char **g_captured_vars = NULL;
 int g_captured_var_count = 0;
 
+/* Global as-ref parameter names (used to emit -> for member access) */
+char **g_as_ref_param_names = NULL;
+int g_as_ref_param_count = 0;
+
 /* Global thread-handle-variable set */
 char **g_thread_handle_vars = NULL;
 int g_thread_handle_var_count = 0;

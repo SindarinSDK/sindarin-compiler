@@ -503,12 +503,23 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
         prescan_thread_handle_vars(arena, func->body, func->body_count);
     }
 
-    /* Add 'as ref' parameters to captured vars — they also need dereference */
+    /* Collect 'as ref' parameter names — member access needs -> in generated C */
+    g_as_ref_param_names = NULL;
+    g_as_ref_param_count = 0;
     for (int i = 0; i < func->param_count; i++)
     {
         if (func->params[i].mem_qualifier == MEM_AS_REF)
         {
-            prescan_add_captured(arena, func->params[i].name.start);
+            int nlen = func->params[i].name.length;
+            char *ncopy = arena_alloc(arena, nlen + 1);
+            memcpy(ncopy, func->params[i].name.start, nlen);
+            ncopy[nlen] = '\0';
+            if (g_as_ref_param_count % 8 == 0) {
+                char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));
+                for (int j = 0; j < g_as_ref_param_count; j++) nv[j] = g_as_ref_param_names[j];
+                g_as_ref_param_names = nv;
+            }
+            g_as_ref_param_names[g_as_ref_param_count++] = ncopy;
         }
     }
 
@@ -565,6 +576,8 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
     /* Clear per-function state after function is done */
     g_captured_vars = NULL;
     g_captured_var_count = 0;
+    g_as_ref_param_names = NULL;
+    g_as_ref_param_count = 0;
     g_closure_var_count = 0;
     g_suppress_local_cleanup = false;
 

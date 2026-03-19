@@ -52,6 +52,12 @@ extern int g_prescan_function_entry_depth;
 extern char **g_captured_vars;
 extern int g_captured_var_count;
 
+/* Global as-ref parameter names — populated when entering a function body.
+ * Variables in this set are passed as pointers (as ref), so member access must
+ * use -> instead of . in generated C. */
+extern char **g_as_ref_param_names;
+extern int g_as_ref_param_count;
+
 /* Global thread-handle-variable set - populated by pre-scanning function bodies.
  * Variables in this set are assigned thread_spawn results outside their var_decl
  * (e.g., conditional spawns) and need a companion SnThread* variable. */

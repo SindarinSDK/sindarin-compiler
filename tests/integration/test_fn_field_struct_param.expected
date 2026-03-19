@@ -1,0 +1,9 @@
+Test 1: scale(3,4) = (6,8)
+Test 1: describe(3,4) = positive
+Test 2: translate(3,4) = (13,14)
+Test 3: describeOrigin(0,0) = origin
+Test 3: describeOrigin(3,4) = nonzero
+Test 4: scale(3,4) = (6,8)
+Test 4: scale(1,1) = (2,2)
+
+All fn-field-struct-param tests passed!
