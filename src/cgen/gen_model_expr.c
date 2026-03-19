@@ -2150,6 +2150,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("increment"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode));
+            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
+            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
+                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
+                if (sym && sym->sync_mod == SYNC_ATOMIC) {
+                    int nlen = expr->as.operand->as.variable.name.length;
+                    char vname[256];
+                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
+                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
+                    vname[nlen] = '\0';
+                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
+                }
+            }
             break;
         }
 
@@ -2158,6 +2170,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "kind", json_object_new_string("decrement"));
             json_object_object_add(obj, "operand",
                 gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode));
+            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
+            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
+                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
+                if (sym && sym->sync_mod == SYNC_ATOMIC) {
+                    int nlen = expr->as.operand->as.variable.name.length;
+                    char vname[256];
+                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
+                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
+                    vname[nlen] = '\0';
+                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
+                }
+            }
             break;
         }
 
