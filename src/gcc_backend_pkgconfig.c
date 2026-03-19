@@ -44,6 +44,11 @@ static const char *get_platform_name(void)
 
 void append_include_path(char *pkg_include_opts, size_t inc_size, const char *path)
 {
+    /* Deduplicate: skip if this exact path is already present */
+    char needle[PATH_MAX + 6];
+    snprintf(needle, sizeof(needle), "-I\"%s\"", path);
+    if (strstr(pkg_include_opts, needle) != NULL) return;
+
     size_t len = strlen(pkg_include_opts);
     if (len > 0) {
         snprintf(pkg_include_opts + len, inc_size - len, " -I\"%s\"", path);

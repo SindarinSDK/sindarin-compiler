@@ -687,8 +687,8 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     else
         deps_lib_opt[0] = '\0';
 
-    char pkg_include_opt[PATH_MAX * 4];
-    char pkg_lib_opt[PATH_MAX * 4];
+    char pkg_include_opt[16384];
+    char pkg_lib_opt[16384];
     build_package_lib_paths(pkg_include_opt, sizeof(pkg_include_opt),
                             pkg_lib_opt, sizeof(pkg_lib_opt));
 
