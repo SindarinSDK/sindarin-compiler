@@ -1,4 +1,4 @@
-{{#if is_void_return}}{{> expr value}};{{else}}{{#if is_return_self}}return {{c_type return_self_type}}_copy(__sn__self);{{else}}{{#if is_ownership_transfer}}{{#if (eq transfer_kind "null_ptr")}}{
+{{#if is_void_return}}{{> expr value}};{{else}}{{#if is_return_self}}{{#if return_self_type.pass_self_by_ref}}return __sn__self;{{else}}return {{c_type return_self_type}}_copy(__sn__self);{{/if}}{{else}}{{#if is_ownership_transfer}}{{#if (eq transfer_kind "null_ptr")}}{
 {{#if has_closure_escape}}    ((__Closure__ *)__sn__{{transfer_var}})->__cleanup__ = (void (*)(void *))__closure_{{closure_escape_lambda_id}}_free__;
 {{/if}}    {{c_type transfer_type}} __ret__ = __sn__{{transfer_var}};
     __sn__{{transfer_var}} = NULL;

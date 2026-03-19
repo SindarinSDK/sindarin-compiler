@@ -1,0 +1,9 @@
+struct Builder as ref =>
+    value: int
+
+    fn setValue(v: int): Builder =>
+        self.value = v
+        return self
+
+fn main(): int =>
+    return 0
