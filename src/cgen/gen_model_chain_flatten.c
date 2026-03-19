@@ -25,6 +25,31 @@ static json_object *g_model_structs = NULL;
  * the authoritative pass_self_by_ref flag. Expression types from unresolved
  * forward references may have pass_self_by_ref=false even when the struct
  * is declared 'as ref'. */
+static bool struct_is_native_ref(const char *struct_name)
+{
+    if (!g_model_structs || !struct_name) return false;
+    int len = json_object_array_length(g_model_structs);
+    for (int i = 0; i < len; i++)
+    {
+        json_object *st = json_object_array_get_idx(g_model_structs, i);
+        json_object *name_obj = NULL;
+        if (json_object_object_get_ex(st, "name", &name_obj))
+        {
+            if (strcmp(json_object_get_string(name_obj), struct_name) == 0)
+            {
+                json_object *pbr = NULL, *nat = NULL;
+                bool is_ref = false, is_native = false;
+                if (json_object_object_get_ex(st, "pass_self_by_ref", &pbr))
+                    is_ref = json_object_get_boolean(pbr);
+                if (json_object_object_get_ex(st, "is_native", &nat))
+                    is_native = json_object_get_boolean(nat);
+                return is_ref && is_native;
+            }
+        }
+    }
+    return false;
+}
+
 static bool struct_is_pass_by_ref(const char *struct_name)
 {
     if (!g_model_structs || !struct_name) return false;
@@ -145,16 +170,23 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
     }
     if (is_by_ref)
     {
-        json_object_object_add(var_decl, "cleanup_kind",
-            json_object_new_string("release"));
-        json_object_object_add(var_decl, "needs_cleanup",
-            json_object_new_boolean(true));
-
         /* Fix the type on the var_decl to have pass_self_by_ref=true,
          * since the expression type may be from an unresolved forward reference */
         json_object_object_del(obj_type, "pass_self_by_ref");
         json_object_object_add(obj_type, "pass_self_by_ref",
             json_object_new_boolean(true));
+
+        /* Native as-ref structs lack reference counting, so 'return self' methods
+         * would cause double-free if chain temps have sn_auto release cleanup.
+         * Use borrow semantics (no cleanup); explicit dispose() manages lifetime. */
+        bool is_native_ref = struct_is_native_ref(struct_name);
+        if (!is_native_ref)
+        {
+            json_object_object_add(var_decl, "cleanup_kind",
+                json_object_new_string("release"));
+            json_object_object_add(var_decl, "needs_cleanup",
+                json_object_new_boolean(true));
+        }
     }
     else
     {
