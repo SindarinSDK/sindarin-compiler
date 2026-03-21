@@ -402,6 +402,7 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     const char **emitted_names = arena_alloc(arena, sizeof(const char *) * emitted_capacity);
     int emitted_count = 0;
 
+    fprintf(stderr, "[DBG] gen_model_build: pre-register generics\n"); fflush(stderr);
     /* Pre-register all monomorphized generic functions in the global symbol table.
      * During type-checking, monomorphized functions (e.g. identity_int) are added to
      * whatever function scope triggered their instantiation (e.g. inside main()).
@@ -428,9 +429,11 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
         }
     }
 
+    fprintf(stderr, "[DBG] gen_model_build: processing %d stmts\n", module->count); fflush(stderr);
     for (int i = 0; i < module->count; i++)
     {
         Stmt *stmt = module->statements[i];
+        fprintf(stderr, "[DBG] stmt %d/%d type=%d\n", i, module->count, stmt->type); fflush(stderr);
 
         switch (stmt->type)
         {
@@ -543,6 +546,7 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
         }
     }
 
+    fprintf(stderr, "[DBG] gen_model_build: stmt loop done, emitting generic instantiations\n"); fflush(stderr);
     /* Emit all monomorphized generic struct instantiations.
      * These are generated on-demand during type checking and not present in the module
      * statement list, so they must be injected here.
