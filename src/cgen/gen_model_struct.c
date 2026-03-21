@@ -262,5 +262,22 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
     if (dispose_alias)
         json_object_object_add(obj, "dispose_alias", json_object_new_string(dispose_alias));
 
+    /* For val-type structs: detect user-defined copy() method to suppress auto-generated _copy */
+    if (!decl->pass_self_by_ref)
+    {
+        bool has_user_copy = false;
+        for (int i = 0; i < decl->method_count; i++)
+        {
+            StructMethod *m = &decl->methods[i];
+            if (strcmp(m->name, "copy") == 0 && !m->is_static && !m->is_native)
+            {
+                has_user_copy = true;
+                break;
+            }
+        }
+        if (has_user_copy)
+            json_object_object_add(obj, "has_user_copy_method", json_object_new_boolean(true));
+    }
+
     return obj;
 }

@@ -1,0 +1,8 @@
+Test 1 passed: Score.compare works correctly
+Test 2 passed: Score satisfies Comparable
+Test 3 passed: UserId.hash and UserId.equals work correctly
+Test 4 passed: UserId satisfies Hashable
+Test 5 passed: Color.toString works correctly
+Test 6 passed: Color satisfies Stringable
+Test 7 passed: Player satisfies Comparable and Stringable
+All interface tests passed!

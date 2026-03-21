@@ -254,6 +254,7 @@ void ast_print_stmt(Arena *arena, Stmt *stmt, int indent_level)
 
     /* Not handled by AST printer */
     case STMT_STRUCT_DECL:
+    case STMT_INTERFACE_DECL:
     case STMT_LOCK:
         break;
     }

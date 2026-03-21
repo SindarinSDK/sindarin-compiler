@@ -90,7 +90,11 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
             case 'm':
                 return lexer_check_keyword(lexer, 2, 4, "port", TOKEN_IMPORT);
             case 'n':
-                // Check for "in" (2 chars) vs "int" (3 chars) vs "int32" (5 chars)
+                // Check for "in" (2 chars) vs "int" (3 chars) vs "int32" (5 chars) vs "interface" (9 chars)
+                if (lexer->current - lexer->start == 9)
+                {
+                    return lexer_check_keyword(lexer, 2, 7, "terface", TOKEN_INTERFACE);
+                }
                 if (lexer->current - lexer->start == 2)
                 {
                     return TOKEN_IN;

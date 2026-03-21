@@ -17,6 +17,7 @@
 #include "type_checker/expr/call/type_checker_expr_call_string.h"
 #include "type_checker/expr/type_checker_expr.h"
 #include "type_checker/util/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt_interface.h"
 #include "debug.h"
 #include <string.h>
 #include <stdio.h>
@@ -245,7 +246,48 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
             type_error(expr->token, "Invalid argument in function call");
             return NULL;
         }
-        if (!ast_type_equals(arg_type, param_type))
+        if (param_type != NULL && param_type->kind == TYPE_INTERFACE)
+        {
+            /* Interface parameter: check structural satisfaction */
+            const char *missing = NULL;
+            const char *reason = NULL;
+            if (arg_type == NULL || arg_type->kind != TYPE_STRUCT ||
+                !struct_satisfies_interface(arg_type, param_type, &missing, &reason))
+            {
+                char msg[512];
+                const char *iface_name = param_type->as.interface_type.name != NULL
+                    ? param_type->as.interface_type.name : "interface";
+                const char *actual_name = "unknown";
+                if (arg_type != NULL)
+                {
+                    if (arg_type->kind == TYPE_STRUCT && arg_type->as.struct_type.name != NULL)
+                        actual_name = arg_type->as.struct_type.name;
+                    else
+                        actual_name = type_name(arg_type);
+                }
+                if (missing != NULL)
+                {
+                    snprintf(msg, sizeof(msg),
+                             "'%s' does not implement interface '%s': missing method '%s'",
+                             actual_name, iface_name, missing);
+                }
+                else if (reason != NULL)
+                {
+                    snprintf(msg, sizeof(msg),
+                             "'%s' does not implement interface '%s': %s",
+                             actual_name, iface_name, reason);
+                }
+                else
+                {
+                    snprintf(msg, sizeof(msg),
+                             "'%s' does not implement interface '%s'",
+                             actual_name, iface_name);
+                }
+                type_error(expr->token, msg);
+                return NULL;
+            }
+        }
+        else if (!ast_type_equals(arg_type, param_type))
         {
             argument_type_error(expr->token, func_name, i, param_type, arg_type);
             return NULL;

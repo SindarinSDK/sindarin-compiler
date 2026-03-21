@@ -3,6 +3,7 @@
 #include "type_checker/stmt/type_checker_stmt_func.h"
 #include "type_checker/stmt/type_checker_stmt_control.h"
 #include "type_checker/stmt/type_checker_stmt_struct.h"
+#include "type_checker/stmt/type_checker_stmt_interface.h"
 #include "type_checker/stmt/type_checker_stmt_import.h"
 #include "type_checker/util/type_checker_util.h"
 #include "type_checker/expr/type_checker_expr.h"
@@ -231,6 +232,10 @@ void type_check_stmt(Stmt *stmt, SymbolTable *table, Type *return_type)
 
     case STMT_STRUCT_DECL:
         type_check_struct_decl(stmt, table);
+        break;
+
+    case STMT_INTERFACE_DECL:
+        type_check_interface_decl(stmt, table);
         break;
 
     case STMT_LOCK:

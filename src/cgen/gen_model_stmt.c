@@ -754,6 +754,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             break;
         }
 
+        case STMT_INTERFACE_DECL:
+            /* Interfaces are compile-time only — no C output */
+            break;
+
         case STMT_FUNCTION:
         {
             json_object_object_add(obj, "kind", json_object_new_string("function"));
