@@ -1,0 +1,14 @@
+# Error test: operators cannot be declared static
+
+struct Point =>
+    x: int
+    y: int
+
+    static operator == (other: Point): bool =>
+        return false
+
+fn main(): void =>
+    var p1: Point = Point { x: 1, y: 2 }
+    var p2: Point = Point { x: 1, y: 2 }
+    var eq: bool = p1 == p2
+    print($"{eq}\n")

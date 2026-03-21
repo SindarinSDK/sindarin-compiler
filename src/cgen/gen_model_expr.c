@@ -723,6 +723,68 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
         case EXPR_BINARY:
         {
+            /* Struct operator overload: emit as method_call instead of binary op */
+            if (expr->as.binary.operator_method != NULL)
+            {
+                StructMethod *op_m = expr->as.binary.operator_method;
+
+                /* Strip leading/trailing double-underscores from the synthetic name,
+                 * e.g. "__op_eq__" → "op_eq", to match the C function suffix. */
+                const char *raw_name = op_m->name;
+                const char *method_name = raw_name;
+                {
+                    size_t rlen = strlen(raw_name);
+                    if (rlen > 4 &&
+                        raw_name[0] == '_' && raw_name[1] == '_' &&
+                        raw_name[rlen - 1] == '_' && raw_name[rlen - 2] == '_')
+                    {
+                        method_name = arena_strndup(arena, raw_name + 2, rlen - 4);
+                    }
+                }
+
+                /* mc_obj is the json object that receives the method_call fields.
+                 * For a derived != operator we emit:
+                 *   obj  = { kind:"unary", op:"!", operand: mc_obj }
+                 * For a direct operator:
+                 *   obj = mc_obj  (same pointer) */
+                json_object *mc_obj;
+                if (expr->as.binary.is_derived_operator)
+                {
+                    json_object_object_add(obj, "kind", json_object_new_string("unary"));
+                    json_object_object_add(obj, "op", json_object_new_string("not"));
+                    mc_obj = json_object_new_object();
+                    if (expr->expr_type)
+                        json_object_object_add(mc_obj, "type",
+                            gen_model_type(arena, expr->expr_type));
+                    json_object_object_add(obj, "operand", mc_obj);
+                }
+                else
+                {
+                    mc_obj = obj;
+                }
+
+                json_object_object_add(mc_obj, "kind", json_object_new_string("method_call"));
+                /* For swapped operators (e.g. > derived from <), the method is called on
+                 * the right operand with the left operand as argument: b.lt(a) */
+                Expr *mc_object_expr = expr->as.binary.is_swapped_operator
+                    ? expr->as.binary.right : expr->as.binary.left;
+                Expr *mc_arg_expr = expr->as.binary.is_swapped_operator
+                    ? expr->as.binary.left : expr->as.binary.right;
+                json_object_object_add(mc_obj, "object",
+                    gen_model_expr(arena, mc_object_expr, symbol_table, arithmetic_mode));
+                json_object_object_add(mc_obj, "method_name",
+                    json_object_new_string(method_name));
+                json_object_object_add(mc_obj, "is_static", json_object_new_boolean(false));
+                if (mc_object_expr && mc_object_expr->expr_type)
+                    json_object_object_add(mc_obj, "struct_type",
+                        gen_model_type(arena, mc_object_expr->expr_type));
+                json_object *op_args = json_object_new_array();
+                json_object_array_add(op_args,
+                    gen_model_expr(arena, mc_arg_expr, symbol_table, arithmetic_mode));
+                json_object_object_add(mc_obj, "args", op_args);
+                break;
+            }
+
             /* Check for chained string concat: a + b + c → str_concat_multi(3, a, b, c) */
             if (expr->as.binary.operator == TOKEN_PLUS &&
                 expr->expr_type && expr->expr_type->kind == TYPE_STRING)

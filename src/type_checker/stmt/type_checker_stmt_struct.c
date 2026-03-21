@@ -108,6 +108,63 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
             }
         }
 
+        /* Validate operator method signatures */
+        if (method->is_operator)
+        {
+            /* Map operator_token to display symbol for error messages */
+            const char *op_sym = "?";
+            switch (method->operator_token)
+            {
+                case TOKEN_EQUAL_EQUAL:   op_sym = "=="; break;
+                case TOKEN_BANG_EQUAL:    op_sym = "!="; break;
+                case TOKEN_LESS:          op_sym = "<";  break;
+                case TOKEN_LESS_EQUAL:    op_sym = "<="; break;
+                case TOKEN_GREATER:       op_sym = ">";  break;
+                case TOKEN_GREATER_EQUAL: op_sym = ">="; break;
+                default: break;
+            }
+
+            Symbol *struct_sym = symbol_table_lookup_type(table, struct_decl->name);
+            Type *struct_type = (struct_sym != NULL) ? struct_sym->type : NULL;
+
+            /* Must have exactly one parameter */
+            if (method->param_count != 1)
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                         "operator '%s' must have exactly one parameter",
+                         op_sym);
+                type_error(&method->name_token, msg);
+            }
+            /* Parameter must be the same struct type */
+            else if (struct_type != NULL && method->params[0].type != NULL)
+            {
+                Type *param_type = method->params[0].type;
+                if (param_type->kind != TYPE_STRUCT ||
+                    param_type->as.struct_type.name == NULL ||
+                    struct_type->as.struct_type.name == NULL ||
+                    strcmp(param_type->as.struct_type.name,
+                           struct_type->as.struct_type.name) != 0)
+                {
+                    char msg[256];
+                    snprintf(msg, sizeof(msg),
+                             "operator '%s' parameter must be the same type as the enclosing struct",
+                             op_sym);
+                    type_error(&method->name_token, msg);
+                }
+            }
+
+            /* Return type must be bool */
+            if (method->return_type == NULL || method->return_type->kind != TYPE_BOOL)
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                         "operator '%s' must return 'bool'",
+                         op_sym);
+                type_error(&method->name_token, msg);
+            }
+        }
+
         /* For non-native methods, type check the body */
         if (!method->is_native && method->body != NULL)
         {

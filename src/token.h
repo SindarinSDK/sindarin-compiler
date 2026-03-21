@@ -63,6 +63,8 @@ typedef enum
     TOKEN_STRUCT,
     // Static keyword (for static methods)
     TOKEN_STATIC,
+    // Operator keyword (for operator overloading)
+    TOKEN_OPERATOR,
     // Sizeof operator
     TOKEN_SIZEOF,
     TOKEN_PLUS,
