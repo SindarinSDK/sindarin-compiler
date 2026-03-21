@@ -508,7 +508,7 @@ class TestRunner:
         else:
             print(f"{Colors.RED}FAIL{Colors.NC} ({reason}){time_str}")
             if details:
-                for line in details[:5]:
+                for line in details[:20]:
                     print(f"    {line}")
 
     def _run_error_test_internal(self, test_file: str, expected_file: str,
