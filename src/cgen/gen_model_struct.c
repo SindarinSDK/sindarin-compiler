@@ -157,7 +157,20 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
     {
         StructMethod *m = &decl->methods[i];
         json_object *method = json_object_new_object();
-        json_object_object_add(method, "name", json_object_new_string(m->name));
+        /* Strip leading/trailing double-underscores from operator method names,
+         * e.g. "__op_eq__" → "op_eq", so the template emits the correct C suffix. */
+        const char *emit_name = m->name;
+        if (m->is_operator && emit_name)
+        {
+            size_t rlen = strlen(emit_name);
+            if (rlen > 4 &&
+                emit_name[0] == '_' && emit_name[1] == '_' &&
+                emit_name[rlen - 1] == '_' && emit_name[rlen - 2] == '_')
+            {
+                emit_name = arena_strndup(arena, emit_name + 2, rlen - 4);
+            }
+        }
+        json_object_object_add(method, "name", json_object_new_string(emit_name));
         json_object_object_add(method, "return_type", gen_model_type(arena, m->return_type));
         json_object_object_add(method, "modifier", json_object_new_string(gen_model_func_mod_str(m->modifier)));
         json_object_object_add(method, "is_static", json_object_new_boolean(m->is_static));

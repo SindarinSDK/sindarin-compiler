@@ -2,6 +2,26 @@
 #include "type_checker/expr/type_checker_expr.h"
 #include "type_checker/util/type_checker_util.h"
 #include "debug.h"
+#include <string.h>
+
+/* Look up an operator method on a struct type by operator token.
+ * Returns the matching StructMethod, or NULL if none exists. */
+static StructMethod *find_operator_method(Type *struct_type, SnTokenType op)
+{
+    if (struct_type == NULL || struct_type->kind != TYPE_STRUCT)
+    {
+        return NULL;
+    }
+    for (int i = 0; i < struct_type->as.struct_type.method_count; i++)
+    {
+        StructMethod *m = &struct_type->as.struct_type.methods[i];
+        if (m->is_operator && m->operator_token == op)
+        {
+            return m;
+        }
+    }
+    return NULL;
+}
 
 Type *type_check_binary(Expr *expr, SymbolTable *table)
 {
@@ -14,6 +34,188 @@ Type *type_check_binary(Expr *expr, SymbolTable *table)
         return NULL;
     }
     SnTokenType op = expr->as.binary.operator;
+
+    /* Struct operator dispatch: if the left operand is a struct, check for an
+     * operator method matching the operator. Both operands must be the same
+     * struct type. */
+    if (left->kind == TYPE_STRUCT)
+    {
+        /* Direct operator method lookup */
+        StructMethod *op_method = find_operator_method(left, op);
+        if (op_method != NULL)
+        {
+            /* Verify the right operand is the same struct type */
+            if (right->kind != TYPE_STRUCT ||
+                right->as.struct_type.name == NULL ||
+                left->as.struct_type.name == NULL ||
+                strcmp(left->as.struct_type.name, right->as.struct_type.name) != 0)
+            {
+                char msg[512];
+                const char *sname = left->as.struct_type.name != NULL
+                                        ? left->as.struct_type.name : "<unknown>";
+                const char *op_sym = (op == TOKEN_EQUAL_EQUAL)   ? "=="
+                                   : (op == TOKEN_BANG_EQUAL)     ? "!="
+                                   : (op == TOKEN_LESS)           ? "<"
+                                   : (op == TOKEN_LESS_EQUAL)     ? "<="
+                                   : (op == TOKEN_GREATER)        ? ">"
+                                   : (op == TOKEN_GREATER_EQUAL)  ? ">="
+                                   : "?";
+                snprintf(msg, sizeof(msg),
+                         "operator '%s': right operand must be of type '%s'",
+                         op_sym, sname);
+                type_error(expr->token, msg);
+                return NULL;
+            }
+            expr->as.binary.operator_method = op_method;
+            expr->as.binary.is_derived_operator = false;
+            expr->as.binary.derived_from = op;
+            DEBUG_VERBOSE("Resolved struct operator method '%s' for operator %d",
+                          op_method->name, op);
+            return ast_create_primitive_type(table->arena, TYPE_BOOL);
+        }
+
+        /* Derived != from ==: if the struct has __op_eq__ but not __op_ne__,
+         * allow != by negating the == result. */
+        if (op == TOKEN_BANG_EQUAL)
+        {
+            StructMethod *eq_method = find_operator_method(left, TOKEN_EQUAL_EQUAL);
+            if (eq_method != NULL)
+            {
+                if (right->kind != TYPE_STRUCT ||
+                    right->as.struct_type.name == NULL ||
+                    left->as.struct_type.name == NULL ||
+                    strcmp(left->as.struct_type.name, right->as.struct_type.name) != 0)
+                {
+                    char msg[512];
+                    const char *sname = left->as.struct_type.name != NULL
+                                            ? left->as.struct_type.name : "<unknown>";
+                    snprintf(msg, sizeof(msg),
+                             "Operator '!=': right operand must be of type '%s'",
+                             sname);
+                    type_error(expr->token, msg);
+                    return NULL;
+                }
+                expr->as.binary.operator_method = eq_method;
+                expr->as.binary.is_derived_operator = true;
+                expr->as.binary.derived_from = TOKEN_EQUAL_EQUAL;
+                DEBUG_VERBOSE("Derived != from struct operator method '%s'", eq_method->name);
+                return ast_create_primitive_type(table->arena, TYPE_BOOL);
+            }
+        }
+
+        /* Derived > from <: a > b → b.lt(a) (swap args) */
+        if (op == TOKEN_GREATER)
+        {
+            StructMethod *lt_method = find_operator_method(left, TOKEN_LESS);
+            if (lt_method != NULL)
+            {
+                if (right->kind != TYPE_STRUCT ||
+                    right->as.struct_type.name == NULL ||
+                    left->as.struct_type.name == NULL ||
+                    strcmp(left->as.struct_type.name, right->as.struct_type.name) != 0)
+                {
+                    char msg[512];
+                    const char *sname = left->as.struct_type.name != NULL
+                                            ? left->as.struct_type.name : "<unknown>";
+                    snprintf(msg, sizeof(msg),
+                             "Operator '>': right operand must be of type '%s'",
+                             sname);
+                    type_error(expr->token, msg);
+                    return NULL;
+                }
+                expr->as.binary.operator_method = lt_method;
+                expr->as.binary.is_derived_operator = false;
+                expr->as.binary.is_swapped_operator = true;
+                DEBUG_VERBOSE("Derived > from struct operator method '%s' (swap args)", lt_method->name);
+                return ast_create_primitive_type(table->arena, TYPE_BOOL);
+            }
+        }
+
+        /* Derived >= from <: a >= b → !(a.lt(b)) (negate, no swap) */
+        if (op == TOKEN_GREATER_EQUAL)
+        {
+            StructMethod *lt_method = find_operator_method(left, TOKEN_LESS);
+            if (lt_method != NULL)
+            {
+                if (right->kind != TYPE_STRUCT ||
+                    right->as.struct_type.name == NULL ||
+                    left->as.struct_type.name == NULL ||
+                    strcmp(left->as.struct_type.name, right->as.struct_type.name) != 0)
+                {
+                    char msg[512];
+                    const char *sname = left->as.struct_type.name != NULL
+                                            ? left->as.struct_type.name : "<unknown>";
+                    snprintf(msg, sizeof(msg),
+                             "Operator '>=': right operand must be of type '%s'",
+                             sname);
+                    type_error(expr->token, msg);
+                    return NULL;
+                }
+                expr->as.binary.operator_method = lt_method;
+                expr->as.binary.is_derived_operator = true;
+                expr->as.binary.is_swapped_operator = false;
+                DEBUG_VERBOSE("Derived >= from struct operator method '%s' (negate)", lt_method->name);
+                return ast_create_primitive_type(table->arena, TYPE_BOOL);
+            }
+        }
+
+        /* Derived <= from <: a <= b → !(b.lt(a)) (swap AND negate) */
+        if (op == TOKEN_LESS_EQUAL)
+        {
+            StructMethod *lt_method = find_operator_method(left, TOKEN_LESS);
+            if (lt_method != NULL)
+            {
+                if (right->kind != TYPE_STRUCT ||
+                    right->as.struct_type.name == NULL ||
+                    left->as.struct_type.name == NULL ||
+                    strcmp(left->as.struct_type.name, right->as.struct_type.name) != 0)
+                {
+                    char msg[512];
+                    const char *sname = left->as.struct_type.name != NULL
+                                            ? left->as.struct_type.name : "<unknown>";
+                    snprintf(msg, sizeof(msg),
+                             "Operator '<=': right operand must be of type '%s'",
+                             sname);
+                    type_error(expr->token, msg);
+                    return NULL;
+                }
+                expr->as.binary.operator_method = lt_method;
+                expr->as.binary.is_derived_operator = true;
+                expr->as.binary.is_swapped_operator = true;
+                DEBUG_VERBOSE("Derived <= from struct operator method '%s' (swap+negate)", lt_method->name);
+                return ast_create_primitive_type(table->arena, TYPE_BOOL);
+            }
+        }
+
+        /* Left is a struct but no operator method found — this is always an
+         * error: structs do not support built-in operators. */
+        {
+            const char *op_sym = "?";
+            switch (op)
+            {
+                case TOKEN_EQUAL_EQUAL:   op_sym = "=="; break;
+                case TOKEN_BANG_EQUAL:    op_sym = "!="; break;
+                case TOKEN_LESS:          op_sym = "<";  break;
+                case TOKEN_LESS_EQUAL:    op_sym = "<="; break;
+                case TOKEN_GREATER:       op_sym = ">";  break;
+                case TOKEN_GREATER_EQUAL: op_sym = ">="; break;
+                case TOKEN_PLUS:          op_sym = "+";  break;
+                case TOKEN_MINUS:         op_sym = "-";  break;
+                case TOKEN_STAR:          op_sym = "*";  break;
+                case TOKEN_SLASH:         op_sym = "/";  break;
+                case TOKEN_MODULO:        op_sym = "%";  break;
+                default: break;
+            }
+            char msg[512];
+            const char *sname = left->as.struct_type.name != NULL
+                                    ? left->as.struct_type.name : "<unknown>";
+            snprintf(msg, sizeof(msg),
+                     "operator '%s' is not defined for type '%s'",
+                     op_sym, sname);
+            type_error(expr->token, msg);
+            return NULL;
+        }
+    }
 
     /* Reject pointer arithmetic - pointers cannot be used with arithmetic operators.
      * This includes +, -, *, /, %. Pointer comparison (==, !=) with nil is still allowed. */

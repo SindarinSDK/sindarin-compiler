@@ -112,6 +112,8 @@ Type *ast_clone_type(Arena *arena, Type *type)
                 dst->has_arena_param = src->has_arena_param;
                 dst->name_token = src->name_token;
                 dst->c_alias = src->c_alias ? arena_strdup(arena, src->c_alias) : NULL;
+                dst->is_operator = src->is_operator;
+                dst->operator_token = src->operator_token;
 
                 /* Clone parameters */
                 if (src->param_count > 0 && src->params != NULL)
@@ -610,6 +612,8 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
             type->as.struct_type.methods[i].name_token = methods[i].name_token;
             type->as.struct_type.methods[i].c_alias = methods[i].c_alias
                 ? arena_strdup(arena, methods[i].c_alias) : NULL;
+            type->as.struct_type.methods[i].is_operator = methods[i].is_operator;
+            type->as.struct_type.methods[i].operator_token = methods[i].operator_token;
 
             /* Copy parameters if any */
             if (methods[i].param_count > 0 && methods[i].params != NULL)

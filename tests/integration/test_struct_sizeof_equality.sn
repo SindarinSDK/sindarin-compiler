@@ -4,10 +4,16 @@ struct Point =>
     x: double
     y: double
 
+    operator == (other: Point): bool =>
+        return self.x == other.x && self.y == other.y
+
 struct Rectangle =>
     origin: Point
     width: double
     height: double
+
+    operator == (other: Rectangle): bool =>
+        return self.origin.x == other.origin.x && self.origin.y == other.origin.y && self.width == other.width && self.height == other.height
 
 struct SmallStruct =>
     a: int32
