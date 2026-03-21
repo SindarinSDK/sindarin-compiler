@@ -12,6 +12,7 @@ Type *ast_create_function_type(Arena *arena, Type *return_type, Type **param_typ
 Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields, int field_count,
                              StructMethod *methods, int method_count, bool is_native, bool is_packed,
                              bool pass_self_by_ref, const char *c_alias);
+Type *ast_create_interface_type(Arena *arena, const char *name, StructMethod *methods, int method_count);
 StructMethod *ast_struct_get_method(Type *struct_type, const char *method_name);
 
 /* Type utilities */

@@ -409,6 +409,37 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
 }
 
 
+Stmt *ast_create_interface_decl_stmt(Arena *arena, Token name, StructMethod *methods, int method_count,
+                                      const Token *loc_token)
+{
+    Stmt *stmt = arena_alloc(arena, sizeof(Stmt));
+    if (stmt == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(stmt, 0, sizeof(Stmt));
+    stmt->type = STMT_INTERFACE_DECL;
+
+    char *new_start = arena_strndup(arena, name.start, name.length);
+    if (new_start == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    stmt->as.interface_decl.name.start = new_start;
+    stmt->as.interface_decl.name.length = name.length;
+    stmt->as.interface_decl.name.line = name.line;
+    stmt->as.interface_decl.name.type = name.type;
+    stmt->as.interface_decl.name.filename = name.filename;
+
+    stmt->as.interface_decl.method_count = method_count;
+    stmt->as.interface_decl.methods = methods;
+
+    stmt->token = ast_dup_token(arena, loc_token);
+    return stmt;
+}
+
 Stmt *ast_create_lock_stmt(Arena *arena, Expr *lock_expr, Stmt *body, const Token *loc_token)
 {
     if (lock_expr == NULL || body == NULL)

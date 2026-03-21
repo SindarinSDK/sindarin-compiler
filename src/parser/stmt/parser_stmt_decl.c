@@ -10,3 +10,4 @@
 #include "parser_stmt_decl_native.c"
 #include "parser_stmt_decl_struct.c"
 #include "parser_stmt_decl_type.c"
+#include "parser_stmt_decl_interface.c"

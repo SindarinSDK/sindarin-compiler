@@ -44,7 +44,8 @@ typedef enum
     TYPE_NIL,
     TYPE_POINTER,
     TYPE_OPAQUE,
-    TYPE_STRUCT
+    TYPE_STRUCT,
+    TYPE_INTERFACE
 } TypeKind;
 
 /* Memory qualifier for variables and parameters */
@@ -144,6 +145,13 @@ struct Type
             bool is_serializable;   /* True if preceded by @serializable */
             const char *c_alias;    /* C type name alias (from #pragma alias), NULL if none */
         } struct_type;
+
+        struct
+        {
+            const char *name;       /* Interface name */
+            StructMethod *methods;  /* Required method signatures, no bodies */
+            int method_count;       /* Number of required methods */
+        } interface_type;
     } as;
 };
 
@@ -513,6 +521,7 @@ typedef enum
     STMT_PRAGMA,
     STMT_TYPE_DECL,
     STMT_STRUCT_DECL,
+    STMT_INTERFACE_DECL,
     STMT_LOCK,
     STMT_USING
 } StmtType;
@@ -641,6 +650,13 @@ struct FieldInitializer
 
 typedef struct
 {
+    Token name;                /* Interface name */
+    StructMethod *methods;     /* Array of required method signatures (no bodies) */
+    int method_count;          /* Number of required methods */
+} InterfaceDeclStmt;
+
+typedef struct
+{
     Token name;                /* Struct name */
     StructField *fields;       /* Array of field definitions */
     int field_count;           /* Number of fields */
@@ -693,6 +709,7 @@ struct Stmt
         PragmaStmt pragma;
         TypeDeclStmt type_decl;
         StructDeclStmt struct_decl;
+        InterfaceDeclStmt interface_decl;
         LockStmt lock_stmt;
         UsingStmt using_stmt;
     } as;
@@ -727,6 +744,7 @@ Type *ast_create_function_type(Arena *arena, Type *return_type, Type **param_typ
 Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields, int field_count,
                              StructMethod *methods, int method_count, bool is_native, bool is_packed,
                              bool pass_self_by_ref, const char *c_alias);
+Type *ast_create_interface_type(Arena *arena, const char *name, StructMethod *methods, int method_count);
 StructMethod *ast_struct_get_method(Type *struct_type, const char *method_name);
 int ast_type_equals(Type *a, Type *b);
 int ast_type_is_pointer(Type *type);
@@ -798,6 +816,8 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
                                    StructMethod *methods, int method_count,
                                    bool is_native, bool is_packed, bool pass_self_by_ref,
                                    const char *c_alias, const Token *loc_token);
+Stmt *ast_create_interface_decl_stmt(Arena *arena, Token name, StructMethod *methods, int method_count,
+                                      const Token *loc_token);
 Stmt *ast_create_lock_stmt(Arena *arena, Expr *lock_expr, Stmt *body, const Token *loc_token);
 Stmt *ast_create_using_stmt(Arena *arena, Token name, Expr *initializer, Stmt *body, const Token *loc_token);
 

@@ -208,6 +208,25 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
         stmts[0] = return_stmt;
         stmt_count = 1;
     }
+    else if (parser->current.line == arrow_token.line &&
+             (parser->current.type == TOKEN_RETURN ||
+              parser->current.type == TOKEN_BREAK ||
+              parser->current.type == TOKEN_CONTINUE))
+    {
+        /* Statement-bodied inline function: fn foo(): void => return */
+        Stmt *inline_stmt = parser_statement(parser);
+        if (inline_stmt != NULL)
+        {
+            stmts = arena_alloc(parser->arena, sizeof(Stmt *));
+            if (stmts == NULL)
+            {
+                parser_error(parser, "Out of memory");
+                return NULL;
+            }
+            stmts[0] = inline_stmt;
+            stmt_count = 1;
+        }
+    }
     else
     {
         /* Block-bodied function */

@@ -1,0 +1,1 @@
+'Score' does not implement interface 'Comparable': method 'compare' has wrong return type (expected 'int', got 'bool')

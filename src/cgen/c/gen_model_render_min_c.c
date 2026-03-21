@@ -55,6 +55,10 @@ static char *resolve_c_type_min(json_object *type_obj)
         return strdup("void *");
     }
 
+    if (strcmp(kind, "interface") == 0) {
+        return strdup("void *");
+    }
+
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;
         json_object *ref_obj = NULL;
@@ -116,6 +120,7 @@ static char *helper_default_value_min(json_object **params, int param_count, hbs
     if (strcmp(kind, "function") == 0) return strdup("NULL");
     if (strcmp(kind, "pointer") == 0) return strdup("NULL");
     if (strcmp(kind, "opaque") == 0) return strdup("NULL");
+    if (strcmp(kind, "interface") == 0) return strdup("NULL");
     if (strcmp(kind, "void") == 0) return strdup("");
     if (strcmp(kind, "any") == 0) return strdup("0");
 
@@ -178,6 +183,7 @@ static char *helper_c_sizeof_min(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "array") == 0) return strdup("sizeof(SnArray *)");
     if (strcmp(kind, "pointer") == 0) return strdup("sizeof(void *)");
     if (strcmp(kind, "opaque") == 0) return strdup("sizeof(void *)");
+    if (strcmp(kind, "interface") == 0) return strdup("sizeof(void *)");
 
     if (strcmp(kind, "struct") == 0) {
         json_object *name_obj = NULL;

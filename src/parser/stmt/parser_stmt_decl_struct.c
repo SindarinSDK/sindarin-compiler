@@ -193,6 +193,25 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
             body_stmts[0] = return_stmt;
             body_count = 1;
         }
+        else if (parser->current.line == arrow_token.line &&
+                 (parser->current.type == TOKEN_RETURN ||
+                  parser->current.type == TOKEN_BREAK ||
+                  parser->current.type == TOKEN_CONTINUE))
+        {
+            /* Statement-bodied inline method: fn foo(): void => return */
+            Stmt *inline_stmt = parser_statement(parser);
+            if (inline_stmt != NULL)
+            {
+                body_stmts = arena_alloc(parser->arena, sizeof(Stmt *));
+                if (body_stmts == NULL)
+                {
+                    parser_error(parser, "Out of memory");
+                    return NULL;
+                }
+                body_stmts[0] = inline_stmt;
+                body_count = 1;
+            }
+        }
         else
         {
             /* Block-bodied method */

@@ -457,6 +457,10 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                 break;
             }
 
+            case STMT_INTERFACE_DECL:
+                /* Interfaces are compile-time only — no C output */
+                break;
+
             case STMT_VAR_DECL:
             {
                 json_object *gvar = gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode);
