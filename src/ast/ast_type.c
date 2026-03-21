@@ -146,6 +146,13 @@ Type *ast_clone_type(Arena *arena, Type *type)
         }
         break;
 
+    case TYPE_INTERFACE:
+        clone->as.interface_type.name = type->as.interface_type.name
+            ? arena_strdup(arena, type->as.interface_type.name) : NULL;
+        clone->as.interface_type.method_count = type->as.interface_type.method_count;
+        clone->as.interface_type.methods = type->as.interface_type.methods; /* shared — belongs to arena */
+        break;
+
     case TYPE_ARRAY:
         clone->as.array.element_type = ast_clone_type(arena, type->as.array.element_type);
         break;
@@ -384,6 +391,13 @@ int ast_type_equals(Type *a, Type *b)
         if (a->as.struct_type.name == NULL || b->as.struct_type.name == NULL)
             return 0;
         return strcmp(a->as.struct_type.name, b->as.struct_type.name) == 0;
+    case TYPE_INTERFACE:
+        /* Interface types are equal if their names match */
+        if (a->as.interface_type.name == NULL && b->as.interface_type.name == NULL)
+            return 1;
+        if (a->as.interface_type.name == NULL || b->as.interface_type.name == NULL)
+            return 0;
+        return strcmp(a->as.interface_type.name, b->as.interface_type.name) == 0;
     default:
         return 1;
     }
@@ -522,6 +536,15 @@ const char *ast_type_to_string(Arena *arena, Type *type)
         return arena_strdup(arena, "struct");
     }
 
+    case TYPE_INTERFACE:
+    {
+        if (type->as.interface_type.name != NULL)
+        {
+            return arena_strdup(arena, type->as.interface_type.name);
+        }
+        return arena_strdup(arena, "interface");
+    }
+
     default:
         return arena_strdup(arena, "unknown");
     }
@@ -646,6 +669,22 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
         type->as.struct_type.methods = NULL;
     }
 
+    return type;
+}
+
+Type *ast_create_interface_type(Arena *arena, const char *name, StructMethod *methods, int method_count)
+{
+    Type *type = arena_alloc(arena, sizeof(Type));
+    if (type == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(type, 0, sizeof(Type));
+    type->kind = TYPE_INTERFACE;
+    type->as.interface_type.name = name ? arena_strdup(arena, name) : NULL;
+    type->as.interface_type.methods = methods;
+    type->as.interface_type.method_count = method_count;
     return type;
 }
 

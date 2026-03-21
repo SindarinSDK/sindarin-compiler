@@ -1,0 +1,155 @@
+# Test: Interfaces — structural contracts (compile-time satisfaction checks)
+
+interface Comparable =>
+    fn compare(other: Self): int
+
+interface Hashable =>
+    fn hash(): int
+    fn equals(other: Self): bool
+
+interface Stringable =>
+    fn toString(): str
+
+interface Copyable =>
+    fn copy(): Self
+
+# Helper functions that accept interface-typed parameters (compile-time check only)
+fn acceptComparable(x: Comparable): void => return
+fn acceptHashable(x: Hashable): void => return
+fn acceptStringable(x: Stringable): void => return
+
+# --- Score: satisfies Comparable ---
+
+struct Score =>
+    value: int
+
+    fn compare(other: Score): int =>
+        if self.value < other.value =>
+            return -1
+        if self.value > other.value =>
+            return 1
+        return 0
+
+# --- UserId: satisfies Hashable ---
+
+struct UserId =>
+    id: int
+
+    fn hash(): int =>
+        return self.id * 31
+
+    fn equals(other: UserId): bool =>
+        return self.id == other.id
+
+# --- Color: satisfies Stringable ---
+
+struct Color =>
+    r: int
+    g: int
+    b: int
+
+    fn toString(): str =>
+        return $"rgb({self.r},{self.g},{self.b})"
+
+# --- Player: satisfies both Comparable and Stringable ---
+
+struct Player =>
+    name: str
+    score: int
+
+    fn compare(other: Player): int =>
+        if self.score < other.score =>
+            return -1
+        if self.score > other.score =>
+            return 1
+        return 0
+
+    fn toString(): str =>
+        return $"Player({self.name},{self.score})"
+
+fn main(): int =>
+    # Test 1: Direct method calls on Score (Comparable)
+    var s1: Score = Score { value: 10 }
+    var s2: Score = Score { value: 20 }
+
+    var cmp1: int = s1.compare(s2)
+    if cmp1 != -1 =>
+        print("FAIL: s1.compare(s2) should be -1\n")
+        return 1
+
+    var cmp2: int = s2.compare(s1)
+    if cmp2 != 1 =>
+        print("FAIL: s2.compare(s1) should be 1\n")
+        return 1
+
+    var s3: Score = Score { value: 10 }
+    var cmp3: int = s1.compare(s3)
+    if cmp3 != 0 =>
+        print("FAIL: s1.compare(s3) should be 0\n")
+        return 1
+
+    print("Test 1 passed: Score.compare works correctly\n")
+
+    # Test 2: Score satisfies Comparable interface at call site
+    acceptComparable(s1)
+    print("Test 2 passed: Score satisfies Comparable\n")
+
+    # Test 3: Direct method calls on UserId (Hashable)
+    var u1: UserId = UserId { id: 7 }
+    var u2: UserId = UserId { id: 7 }
+    var u3: UserId = UserId { id: 9 }
+
+    var hashVal: int = u1.hash()
+    if hashVal != 217 =>
+        print("FAIL: hash(id=7) should be 217\n")
+        return 1
+
+    var eq1: bool = u1.equals(u2)
+    if !eq1 =>
+        print("FAIL: u1.equals(u2) should be true\n")
+        return 1
+
+    var eq2: bool = u1.equals(u3)
+    if eq2 =>
+        print("FAIL: u1.equals(u3) should be false\n")
+        return 1
+
+    print("Test 3 passed: UserId.hash and UserId.equals work correctly\n")
+
+    # Test 4: UserId satisfies Hashable at call site
+    acceptHashable(u1)
+    print("Test 4 passed: UserId satisfies Hashable\n")
+
+    # Test 5: Direct method call on Color (Stringable)
+    var red: Color = Color { r: 255, g: 0, b: 0 }
+    var redStr: str = red.toString()
+    if redStr != "rgb(255,0,0)" =>
+        print("FAIL: red.toString() should be rgb(255,0,0)\n")
+        return 1
+
+    print("Test 5 passed: Color.toString works correctly\n")
+
+    # Test 6: Color satisfies Stringable at call site
+    acceptStringable(red)
+    print("Test 6 passed: Color satisfies Stringable\n")
+
+    # Test 7: Player satisfies both Comparable and Stringable
+    var alice: Player = Player { name: "Alice", score: 100 }
+    var bob: Player = Player { name: "Bob", score: 200 }
+
+    var rankResult: int = alice.compare(bob)
+    if rankResult != -1 =>
+        print("FAIL: alice.compare(bob) should be -1\n")
+        return 1
+
+    var aliceStr: str = alice.toString()
+    if aliceStr != "Player(Alice,100)" =>
+        print("FAIL: alice.toString() should be Player(Alice,100)\n")
+        return 1
+
+    acceptComparable(alice)
+    acceptStringable(alice)
+    print("Test 7 passed: Player satisfies Comparable and Stringable\n")
+
+    print("All interface tests passed!\n")
+    return 0

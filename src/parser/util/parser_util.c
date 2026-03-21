@@ -461,11 +461,22 @@ Type *parser_type(Parser *parser)
             }
             else
             {
-                /* Treat unknown identifier as potential struct type reference.
-                 * Create a forward reference TYPE_STRUCT with just the name.
-                 * The type checker will resolve this to the actual struct definition. */
-                char *type_name = arena_strndup(parser->arena, id.start, id.length);
-                type = ast_create_struct_type(parser->arena, type_name, NULL, 0, NULL, 0, false, false, false, NULL);
+                /* 'Self' in an interface method signature is a placeholder meaning
+                 * "the concrete struct type that implements this interface".
+                 * Represent it as an opaque type so iface_type_matches can substitute it. */
+                if (id.length == 4 && memcmp(id.start, "Self", 4) == 0)
+                {
+                    char *self_name = arena_strndup(parser->arena, id.start, id.length);
+                    type = ast_create_opaque_type(parser->arena, self_name);
+                }
+                else
+                {
+                    /* Treat unknown identifier as potential struct type reference.
+                     * Create a forward reference TYPE_STRUCT with just the name.
+                     * The type checker will resolve this to the actual struct definition. */
+                    char *type_name = arena_strndup(parser->arena, id.start, id.length);
+                    type = ast_create_struct_type(parser->arena, type_name, NULL, 0, NULL, 0, false, false, false, NULL);
+                }
             }
         }
     }

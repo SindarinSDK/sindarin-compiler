@@ -104,6 +104,11 @@ Stmt *parser_declaration(Parser *parser)
         result = parser_struct_declaration(parser, false);
         goto attach_comments;
     }
+    if (parser_match(parser, TOKEN_INTERFACE))
+    {
+        result = parser_interface_declaration(parser);
+        goto attach_comments;
+    }
     if (parser_match(parser, TOKEN_IMPORT))
     {
         result = parser_import_statement(parser);

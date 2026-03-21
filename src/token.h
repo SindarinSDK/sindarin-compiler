@@ -61,6 +61,8 @@ typedef enum
     TOKEN_OPAQUE,
     // Struct keyword
     TOKEN_STRUCT,
+    // Interface keyword
+    TOKEN_INTERFACE,
     // Static keyword (for static methods)
     TOKEN_STATIC,
     // Operator keyword (for operator overloading)

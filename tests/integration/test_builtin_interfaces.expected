@@ -1,0 +1,6 @@
+Test 1 passed: Comparable
+Test 2 passed: Hashable hash()
+Test 3 passed: Hashable equals()
+Test 4 passed: Stringable
+Test 5 passed: Copyable
+All builtin interface tests passed!
