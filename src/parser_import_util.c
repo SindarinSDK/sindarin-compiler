@@ -78,3 +78,42 @@ static bool import_file_exists(const char *path)
     }
     return false;
 }
+
+/* Walk up the directory hierarchy from current_file, looking for .sn/<module_name>.sn.
+ * This enables package-scoped imports: import "sindarin-pkg-sdk/src/net/tcp" resolves
+ * to the nearest ancestor's .sn/sindarin-pkg-sdk/src/net/tcp.sn. */
+static char *resolve_package_import(Arena *arena, const char *current_file, const char *module_name)
+{
+    size_t mod_name_len = strlen(module_name);
+    size_t pos = strlen(current_file);
+
+    /* Find end of directory portion (last path separator) */
+    while (pos > 0 && current_file[pos - 1] != '/' && current_file[pos - 1] != '\\') {
+        pos--;
+    }
+
+    for (;;) {
+        /* Try: current_file[0..pos] + ".sn/" + module_name + ".sn" */
+        size_t candidate_len = pos + mod_name_len + 8 + 1; /* ".sn/" + ".sn" + '\0' */
+        char *candidate = arena_alloc(arena, candidate_len);
+        if (!candidate) return NULL;
+        strncpy(candidate, current_file, pos);
+        candidate[pos] = '\0';
+        strcat(candidate, ".sn/");
+        strcat(candidate, module_name);
+        strcat(candidate, ".sn");
+        if (import_file_exists(candidate)) {
+            return candidate;
+        }
+
+        if (pos == 0) break; /* Tried empty prefix (CWD), nothing more to walk up */
+
+        /* Walk up one directory level (skip trailing separator, then skip dir name) */
+        pos--;
+        while (pos > 0 && current_file[pos - 1] != '/' && current_file[pos - 1] != '\\') {
+            pos--;
+        }
+    }
+
+    return NULL;
+}

@@ -22,7 +22,15 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
         return NULL;
     }
 
-    /* If relative path doesn't exist, try SDK path */
+    /* If relative path doesn't exist, try package-scoped import (.sn/<module_name>) */
+    if (!import_file_exists(import_path)) {
+        char *pkg_path = resolve_package_import(parser->arena, ctx->current_file, module_name);
+        if (pkg_path) {
+            import_path = pkg_path;
+        }
+    }
+
+    /* If still not found, try SDK path */
     if (!import_file_exists(import_path) && ctx->compiler_dir) {
         const char *sdk_path = gcc_resolve_sdk_import(ctx->compiler_dir, module_name);
         if (sdk_path) {
