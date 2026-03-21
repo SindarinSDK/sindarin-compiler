@@ -115,6 +115,7 @@ static void emit_ns_import_recursive(
     SymbolTable *symbol_table, ArithmeticMode arithmetic_mode,
     const char **emitted_names, int *emitted_count, int emitted_capacity)
 {
+    fprintf(stderr, "[DBG] emit_ns ns=%s count=%d\n", ns_prefix, count); fflush(stderr);
     const char *old_prefix = g_model_namespace_prefix;
     const char *old_canonical = g_model_canonical_prefix;
     g_model_namespace_prefix = ns_prefix;
@@ -217,6 +218,7 @@ static void emit_ns_import_recursive(
         }
     }
 
+    fprintf(stderr, "[DBG] emit_ns vars done, emitting structs\n"); fflush(stderr);
     /* Emit structs (once per struct name, regardless of import path) */
     for (int i = 0; i < count; i++)
     {
@@ -239,6 +241,7 @@ static void emit_ns_import_recursive(
         }
     }
 
+    fprintf(stderr, "[DBG] emit_ns structs done, emitting fns\n"); fflush(stderr);
     /* Emit functions with namespace variable/function name lists active.
      * Functions are emitted per alias (ns_prefix) because they reference
      * instance vars with alias-specific prefixes. */
@@ -261,6 +264,7 @@ static void emit_ns_import_recursive(
             continue;
         track_emitted(arena, fqn, emitted_names, emitted_count, emitted_capacity);
 
+        fprintf(stderr, "[DBG] emit fn %.*s\n", s->as.function.name.length, s->as.function.name.start); fflush(stderr);
         g_model_ns_static_var_names = static_var_names;
         g_model_ns_static_var_count = static_var_count;
         g_model_ns_instance_var_names = instance_var_names;
@@ -271,6 +275,7 @@ static void emit_ns_import_recursive(
         json_object_array_add(functions,
             gen_model_function(arena, &s->as.function,
                                symbol_table, arithmetic_mode));
+        fprintf(stderr, "[DBG] emit fn done\n"); fflush(stderr);
         g_model_ns_static_var_names = NULL;
         g_model_ns_static_var_count = 0;
         g_model_ns_instance_var_names = NULL;
@@ -280,6 +285,7 @@ static void emit_ns_import_recursive(
         g_model_ns_fn_count = 0;
     }
 
+    fprintf(stderr, "[DBG] emit_ns fns done, recursing nested\n"); fflush(stderr);
     /* Recurse into nested namespace imports */
     for (int i = 0; i < count; i++)
     {
