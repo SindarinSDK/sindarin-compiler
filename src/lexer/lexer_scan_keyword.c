@@ -189,7 +189,20 @@ SnTokenType lexer_identifier_type(Lexer *lexer)
         }
         break;
     case 'o':
-        return lexer_check_keyword(lexer, 1, 5, "paque", TOKEN_OPAQUE);
+        if (lexer->current - lexer->start > 1)
+        {
+            switch (lexer->start[1])
+            {
+            case 'p':
+                // Check for "opaque" (6 chars) vs "operator" (8 chars)
+                if (lexer->current - lexer->start == 8)
+                {
+                    return lexer_check_keyword(lexer, 1, 7, "perator", TOKEN_OPERATOR);
+                }
+                return lexer_check_keyword(lexer, 1, 5, "paque", TOKEN_OPAQUE);
+            }
+        }
+        break;
     case 'u':
         if (lexer->current - lexer->start > 1)
         {

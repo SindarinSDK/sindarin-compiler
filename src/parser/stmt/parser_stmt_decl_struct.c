@@ -14,12 +14,27 @@
 #include <stdlib.h>
 #include <string.h>
 
-/* Helper function to parse a struct method declaration */
-static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool is_native_method, FunctionModifier modifier)
+/* Helper function to parse a struct method declaration.
+ * If pre_name is non-NULL it is used as the already-consumed method name token
+ * (the caller has already advanced past it); otherwise the name is parsed from
+ * the current token stream. */
+static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool is_native_method, FunctionModifier modifier,
+                                          Token *pre_name)
 {
     Token method_name;
 
-    if (parser_check_method_name(parser))
+    if (pre_name != NULL)
+    {
+        /* Name was pre-parsed by the caller (operator overload path) */
+        method_name = *pre_name;
+        method_name.start = arena_strndup(parser->arena, method_name.start, method_name.length);
+        if (method_name.start == NULL)
+        {
+            parser_error_at_current(parser, "Out of memory");
+            return NULL;
+        }
+    }
+    else if (parser_check_method_name(parser))
     {
         method_name = parser->current;
         parser_advance(parser);
@@ -220,6 +235,8 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
     method->has_arena_param = has_arena_param;
     method->name_token = method_name;
     method->c_alias = NULL;  /* Set via #pragma alias if needed */
+    method->is_operator = false;
+    method->operator_token = TOKEN_EOF;
 
     return method;
 }
@@ -227,7 +244,7 @@ static StructMethod *parser_struct_method(Parser *parser, bool is_static, bool i
 /* Helper function to check if the current tokens indicate a method declaration */
 static bool parser_is_method_start(Parser *parser)
 {
-    /* Methods can start with any combination of: static, native, fn */
+    /* Methods can start with any combination of: static, native, fn, operator */
     if (parser_check(parser, TOKEN_FN))
     {
         return true;
@@ -240,7 +257,26 @@ static bool parser_is_method_start(Parser *parser)
     {
         return true;
     }
+    if (parser_check(parser, TOKEN_OPERATOR))
+    {
+        return true;
+    }
     return false;
+}
+
+/* Map an operator token to its synthetic method name */
+static const char *operator_token_to_name(SnTokenType op)
+{
+    switch (op)
+    {
+    case TOKEN_EQUAL_EQUAL:   return "__op_eq__";
+    case TOKEN_BANG_EQUAL:    return "__op_ne__";
+    case TOKEN_LESS:          return "__op_lt__";
+    case TOKEN_LESS_EQUAL:    return "__op_le__";
+    case TOKEN_GREATER:       return "__op_gt__";
+    case TOKEN_GREATER_EQUAL: return "__op_ge__";
+    default:                  return NULL;
+    }
 }
 
 Stmt *parser_struct_declaration(Parser *parser, bool is_native)
@@ -347,6 +383,84 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             /* Check if this is a method declaration */
             if (parser_is_method_start(parser))
             {
+                /* Check for operator method: operator <op> (...): type => body */
+                bool is_operator_method = false;
+                SnTokenType operator_tok = TOKEN_EOF;
+
+                if (parser_check(parser, TOKEN_OPERATOR))
+                {
+                    parser_advance(parser);  /* consume 'operator' */
+
+                    /* Next token must be a supported comparison operator */
+                    SnTokenType cur = parser->current.type;
+                    if (cur == TOKEN_EQUAL_EQUAL || cur == TOKEN_BANG_EQUAL ||
+                        cur == TOKEN_LESS       || cur == TOKEN_LESS_EQUAL  ||
+                        cur == TOKEN_GREATER    || cur == TOKEN_GREATER_EQUAL)
+                    {
+                        operator_tok = cur;
+                        parser_advance(parser);  /* consume the operator token */
+                    }
+                    else
+                    {
+                        parser_error_at_current(parser, "Expected comparison operator after 'operator' (==, !=, <, <=, >, >=)");
+                        continue;
+                    }
+
+                    is_operator_method = true;
+
+                    /* The synthetic method name is derived from the operator */
+                    const char *op_name = operator_token_to_name(operator_tok);
+
+                    /* Parse the rest as a normal (non-static, non-native) method.
+                     * We temporarily use a fake token with the synthetic name. */
+                    Token fake_name_token;
+                    fake_name_token.type = TOKEN_IDENTIFIER;
+                    fake_name_token.start = arena_strdup(parser->arena, op_name);
+                    fake_name_token.length = (int)strlen(op_name);
+                    fake_name_token.line = parser->current.line;
+                    fake_name_token.filename = parser->current.filename;
+
+                    /* Pass the fake name token directly as the pre-parsed method name.
+                     * parser->current already holds the '(' token (the next real token
+                     * after the operator symbol), so parser_struct_method will see it
+                     * correctly without any advance. */
+                    StructMethod *method = parser_struct_method(parser, false, false, FUNC_DEFAULT, &fake_name_token);
+
+                    if (method == NULL)
+                    {
+                        continue;
+                    }
+
+                    method->is_operator = true;
+                    method->operator_token = operator_tok;
+
+                    /* Grow methods array if needed */
+                    if (method_count >= method_capacity)
+                    {
+                        method_capacity = method_capacity == 0 ? 4 : method_capacity * 2;
+                        StructMethod *new_methods = arena_alloc(parser->arena, sizeof(StructMethod) * method_capacity);
+                        if (new_methods == NULL)
+                        {
+                            parser_error_at_current(parser, "Out of memory");
+                            return NULL;
+                        }
+                        if (methods != NULL && method_count > 0)
+                        {
+                            memcpy(new_methods, methods, sizeof(StructMethod) * method_count);
+                        }
+                        methods = new_methods;
+                    }
+
+                    methods[method_count] = *method;
+                    if (member_alias != NULL)
+                    {
+                        methods[method_count].c_alias = member_alias;
+                        member_alias = NULL;
+                    }
+                    method_count++;
+                    continue;
+                }
+
                 /* Parse method modifiers (static/native in any order before fn) */
                 bool is_method_static = false;
                 bool is_method_native = false;
@@ -363,6 +477,40 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                         }
                         is_method_static = true;
                         parser_advance(parser);
+                        /* Operator methods cannot be declared static */
+                        if (parser_check(parser, TOKEN_OPERATOR))
+                        {
+                            parser_error_at_current(parser, "operator methods cannot be declared 'static'");
+                            /* Skip the rest of this line to avoid cascading errors */
+                            while (!parser_is_at_end(parser) &&
+                                   !parser_check(parser, TOKEN_NEWLINE) &&
+                                   !parser_check(parser, TOKEN_DEDENT))
+                            {
+                                parser_advance(parser);
+                            }
+                            /* If followed by an indented body, consume it entirely */
+                            if (parser_check(parser, TOKEN_NEWLINE))
+                            {
+                                parser_advance(parser);  /* consume newline */
+                                if (parser_check(parser, TOKEN_INDENT))
+                                {
+                                    parser_advance(parser);  /* consume INDENT */
+                                    int depth = 1;
+                                    while (!parser_is_at_end(parser) && depth > 0)
+                                    {
+                                        if (parser_check(parser, TOKEN_INDENT))
+                                            depth++;
+                                        else if (parser_check(parser, TOKEN_DEDENT))
+                                            depth--;
+                                        if (depth > 0)
+                                            parser_advance(parser);
+                                    }
+                                    if (parser_check(parser, TOKEN_DEDENT))
+                                        parser_advance(parser);  /* consume final DEDENT */
+                                }
+                            }
+                            goto next_member;
+                        }
                     }
                     else if (parser_check(parser, TOKEN_NATIVE))
                     {
@@ -387,7 +535,8 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                 }
 
                 /* Parse method */
-                StructMethod *method = parser_struct_method(parser, is_method_static, is_method_native, method_modifier);
+                StructMethod *method = parser_struct_method(parser, is_method_static, is_method_native, method_modifier, NULL);
+                (void)is_operator_method;
                 if (method == NULL)
                 {
                     /* Error already reported */
@@ -535,6 +684,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                     parser_consume(parser, TOKEN_NEWLINE, "Expected newline after field definition");
                 }
             }
+            next_member: ;
         }
 
         /* Consume dedent */
