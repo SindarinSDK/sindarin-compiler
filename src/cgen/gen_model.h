@@ -58,6 +58,12 @@ extern int g_captured_var_count;
 extern char **g_as_ref_param_names;
 extern int g_as_ref_param_count;
 
+/* All parameter names of the current function — populated when entering a function body.
+ * Used by the return-statement emitter to detect when a returned variable is a
+ * parameter (borrowed, not owned) so it can avoid incorrect ownership transfer. */
+extern char **g_all_param_names;
+extern int g_all_param_count;
+
 /* Global thread-handle-variable set - populated by pre-scanning function bodies.
  * Variables in this set are assigned thread_spawn results outside their var_decl
  * (e.g., conditional spawns) and need a companion SnThread* variable. */

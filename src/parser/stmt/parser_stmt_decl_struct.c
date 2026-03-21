@@ -321,6 +321,52 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
         return NULL;
     }
 
+    /* Parse optional type parameters: struct Stack<T> or struct Map<K, V> */
+    const char **type_params = NULL;
+    int type_param_count = 0;
+
+    if (parser_check(parser, TOKEN_LESS))
+    {
+        parser_advance(parser);  /* consume '<' */
+
+        if (!parser_check(parser, TOKEN_GREATER))
+        {
+            int capacity = 4;
+            type_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
+            if (type_params == NULL)
+            {
+                parser_error_at_current(parser, "Out of memory");
+                return NULL;
+            }
+
+            do
+            {
+                if (!parser_check(parser, TOKEN_IDENTIFIER))
+                {
+                    parser_error_at_current(parser, "Expected type parameter name");
+                    return NULL;
+                }
+                if (type_param_count >= capacity)
+                {
+                    capacity *= 2;
+                    const char **new_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
+                    if (new_params == NULL)
+                    {
+                        parser_error_at_current(parser, "Out of memory");
+                        return NULL;
+                    }
+                    memcpy(new_params, type_params, sizeof(char *) * type_param_count);
+                    type_params = new_params;
+                }
+                type_params[type_param_count++] = arena_strndup(parser->arena,
+                    parser->current.start, parser->current.length);
+                parser_advance(parser);
+            } while (parser_match(parser, TOKEN_COMMA));
+        }
+
+        parser_consume(parser, TOKEN_GREATER, "Expected '>' after type parameters");
+    }
+
     /* Parse optional 'as ref' or 'as val' for structs */
     bool pass_self_by_ref = false;
     if (parser_match(parser, TOKEN_AS))
@@ -913,6 +959,8 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                                               is_native, is_packed,
                                               pass_self_by_ref, c_alias, &struct_token);
     stmt->as.struct_decl.is_serializable = is_serializable;
+    stmt->as.struct_decl.type_params = type_params;
+    stmt->as.struct_decl.type_param_count = type_param_count;
 
     return stmt;
 }

@@ -1,0 +1,75 @@
+# Test: Generic functions — type inference at call sites
+
+fn identity<T>(x: T): T =>
+    return x
+
+fn first<T>(arr: T[]): T =>
+    return arr[0]
+
+fn map<T, U>(arr: T[], f: fn(T): U): U[] =>
+    var result: U[] = {}
+    for x in arr =>
+        result.push(f(x))
+    return result
+
+fn filter<T>(arr: T[], pred: fn(T): bool): T[] =>
+    var result: T[] = {}
+    for x in arr =>
+        if pred(x) =>
+            result.push(x)
+    return result
+
+fn main(): int =>
+    # Test 1: identity<int> — infer T=int from argument
+    var i: int = identity(99)
+    if i != 99 =>
+        print("FAIL: identity(99) should return 99\n")
+        return 1
+    print("Test 1 passed: identity<int>\n")
+
+    # Test 2: identity<str> — infer T=str from argument
+    var s: str = identity("sindarin")
+    if s != "sindarin" =>
+        print("FAIL: identity('sindarin') should return 'sindarin'\n")
+        return 1
+    print("Test 2 passed: identity<str>\n")
+
+    # Test 3: first<int> — infer T=int from array
+    var nums: int[] = {10, 20, 30}
+    var f: int = first(nums)
+    if f != 10 =>
+        print("FAIL: first(nums) should return 10\n")
+        return 1
+    print("Test 3 passed: first<int>\n")
+
+    # Test 4: first<str> — infer T=str from array
+    var words: str[] = {"alpha", "beta", "gamma"}
+    var fw: str = first(words)
+    if fw != "alpha" =>
+        print("FAIL: first(words) should return 'alpha'\n")
+        return 1
+    print("Test 4 passed: first<str>\n")
+
+    # Test 5: map<int, int> — infer T=int, U=int from args
+    var doubled: int[] = map({1, 2, 3}, fn(x: int): int => x * 2)
+    if doubled[0] != 2 || doubled[1] != 4 || doubled[2] != 6 =>
+        print("FAIL: map double should produce [2, 4, 6]\n")
+        return 1
+    print("Test 5 passed: map<int, int>\n")
+
+    # Test 6: map<str, str> — infer T=str, U=str
+    var uppers: str[] = map({"hello", "world"}, fn(x: str): str => x.toUpper())
+    if uppers[0] != "HELLO" || uppers[1] != "WORLD" =>
+        print("FAIL: map toUpper should produce ['HELLO', 'WORLD']\n")
+        return 1
+    print("Test 6 passed: map<str, str>\n")
+
+    # Test 7: filter<int> — infer T=int from array
+    var evens: int[] = filter({1, 2, 3, 4, 5}, fn(x: int): bool => x % 2 == 0)
+    if evens.length != 2 || evens[0] != 2 || evens[1] != 4 =>
+        print("FAIL: filter even should produce [2, 4]\n")
+        return 1
+    print("Test 7 passed: filter<int>\n")
+
+    print("All generic function tests passed!\n")
+    return 0

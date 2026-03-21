@@ -17,7 +17,10 @@
 #include "type_checker/expr/call/type_checker_expr_call_string.h"
 #include "type_checker/expr/type_checker_expr.h"
 #include "type_checker/util/type_checker_util.h"
+#include "type_checker/stmt/type_checker_stmt_func.h"
 #include "type_checker/stmt/type_checker_stmt_interface.h"
+#include "type_checker/type_checker_generics.h"
+#include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>
 #include <stdio.h>
@@ -102,6 +105,155 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
     // Note: Other array operations are method-style only:
     //   arr.push(elem), arr.pop(), arr.reverse(), arr.remove(idx), arr.insert(elem, idx)
 
+    /* Generic function call: if the callee is a plain variable name that matches a
+     * registered generic function template, perform type inference and monomorphize. */
+    if (callee->type == EXPR_VARIABLE)
+    {
+        Token call_name_tok = callee->as.variable.name;
+        char call_name[256];
+        int call_name_len = call_name_tok.length < 255 ? call_name_tok.length : 255;
+        memcpy(call_name, call_name_tok.start, call_name_len);
+        call_name[call_name_len] = '\0';
+
+        GenericFunctionTemplate *fn_tmpl = generic_registry_find_function_template(call_name);
+        if (fn_tmpl != NULL)
+        {
+            /* Type-check all arguments first to get their concrete types */
+            int arg_count = expr->as.call.arg_count;
+            Type **arg_types = arena_alloc(table->arena, sizeof(Type *) * (arg_count + 1));
+            for (int i = 0; i < arg_count; i++)
+            {
+                arg_types[i] = type_check_expr(expr->as.call.arguments[i], table);
+                if (arg_types[i] == NULL)
+                {
+                    type_error(expr->token, "Invalid argument in generic function call");
+                    return NULL;
+                }
+            }
+
+            /* Infer type parameters */
+            int tp_count = fn_tmpl->decl->type_param_count;
+            Type **inferred = arena_alloc(table->arena, sizeof(Type *) * tp_count);
+            if (!infer_type_params_from_args(fn_tmpl->decl, arg_types, arg_count, inferred))
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                         "Cannot infer type parameters for generic function '%s'", call_name);
+                type_error(expr->token, msg);
+                return NULL;
+            }
+
+            /* Check instantiation cache */
+            GenericFunctionInstantiation *fn_cached =
+                generic_registry_find_function_instantiation(call_name, inferred, tp_count);
+
+            FunctionStmt *mono_fn;
+            if (fn_cached != NULL)
+            {
+                mono_fn = fn_cached->instantiated_decl;
+            }
+            else
+            {
+                /* Monomorphize */
+                mono_fn = monomorphize_function(table->arena, fn_tmpl, inferred, tp_count);
+                if (mono_fn == NULL)
+                {
+                    type_error(expr->token, "Failed to monomorphize generic function");
+                    return NULL;
+                }
+
+                /* Cache — use an arena-duped name so the pointer remains valid.
+                 * call_name is a stack buffer; storing a raw pointer to it would
+                 * leave a dangling pointer once this stack frame is reused. */
+                const char *call_name_dup = arena_strdup(table->arena, call_name);
+                Type **inferred_copy = arena_alloc(table->arena, sizeof(Type *) * tp_count);
+                for (int i = 0; i < tp_count; i++)
+                    inferred_copy[i] = inferred[i];
+                generic_registry_add_function_instantiation(call_name_dup, inferred_copy,
+                                                             tp_count, mono_fn);
+
+                /* Clear cached expr_type on all shared body expression nodes.
+                 * The body Stmt/Expr nodes are shared across all instantiations of this
+                 * template.  type_check_expr() caches results in expr->expr_type, so
+                 * without clearing, the second instantiation (e.g., identity<str>) would
+                 * see the cached type from the first (identity<int>) and emit false errors. */
+                clear_expr_types_in_stmts(mono_fn->body, mono_fn->body_count);
+
+                /* Type-check the monomorphized function body.
+                 * Register type params as type aliases so that body statements that
+                 * explicitly reference T (e.g. var x: T = ...) resolve correctly. */
+                for (int t = 0; t < tp_count; t++)
+                {
+                    Token tp_tok;
+                    tp_tok.start    = fn_tmpl->decl->type_params[t];
+                    tp_tok.length   = (int)strlen(fn_tmpl->decl->type_params[t]);
+                    tp_tok.type     = TOKEN_IDENTIFIER;
+                    tp_tok.line     = 0;
+                    tp_tok.filename = NULL;
+                    symbol_table_add_type(table, tp_tok, inferred[t]);
+                }
+
+                Stmt wrapper;
+                memset(&wrapper, 0, sizeof(Stmt));
+                wrapper.type         = STMT_FUNCTION;
+                wrapper.token        = &mono_fn->name;
+                wrapper.as.function  = *mono_fn;
+                type_check_function(&wrapper, table);
+            }
+
+            /* Return the concrete return type (with substitution applied) */
+            Type *ret = mono_fn->return_type;
+
+            /* Validate argument count vs monomorphized param count */
+            if (arg_count != mono_fn->param_count)
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg),
+                         "Generic function '%s' expects %d arguments, got %d",
+                         call_name, mono_fn->param_count, arg_count);
+                type_error(expr->token, msg);
+                return NULL;
+            }
+
+            /* Validate argument types against substituted param types */
+            for (int i = 0; i < arg_count; i++)
+            {
+                Type *param_type = mono_fn->params[i].type;
+                if (param_type != NULL && !ast_type_equals(arg_types[i], param_type))
+                {
+                    char msg[256];
+                    snprintf(msg, sizeof(msg),
+                             "Argument %d type mismatch in generic function call '%s'",
+                             i + 1, call_name);
+                    type_error(expr->token, msg);
+                    return NULL;
+                }
+            }
+
+            /* Rewrite the callee variable name to the monomorphized name so codegen
+             * emits the correct C function name (e.g., "identity_int" instead of "identity"). */
+            {
+                const char *mono_fn_name = mono_fn->name.start;
+                char *name_copy = arena_strdup(table->arena, mono_fn_name);
+                callee->as.variable.name.start  = name_copy;
+                callee->as.variable.name.length = (int)strlen(name_copy);
+            }
+
+            /* Set the callee expression type to the monomorphized function type so codegen
+             * can emit correct type information. */
+            {
+                Type **param_types_copy = arena_alloc(table->arena,
+                    sizeof(Type *) * mono_fn->param_count);
+                for (int i = 0; i < mono_fn->param_count; i++)
+                    param_types_copy[i] = mono_fn->params[i].type;
+                Type *fn_type = ast_create_function_type(table->arena, ret,
+                    param_types_copy, mono_fn->param_count);
+                callee->expr_type = fn_type;
+            }
+
+            return ret;
+        }
+    }
 
     // Standard function call handling
     Type *callee_type = type_check_expr(expr->as.call.callee, table);

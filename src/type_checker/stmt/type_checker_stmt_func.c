@@ -2,6 +2,7 @@
 #include "type_checker/stmt/type_checker_stmt.h"
 #include "type_checker/util/type_checker_util.h"
 #include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/type_checker_generics.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>
@@ -92,6 +93,18 @@ void type_check_function_body_only(Stmt *stmt, SymbolTable *table)
 void type_check_function(Stmt *stmt, SymbolTable *table)
 {
     DEBUG_VERBOSE("Type checking function with %d parameters", stmt->as.function.param_count);
+
+    /* If this is a generic function template, register it and skip type-checking the body.
+     * The body will be type-checked once per concrete instantiation (call-site triggered). */
+    if (stmt->as.function.type_param_count > 0)
+    {
+        const char *reg_name = arena_strndup(table->arena, stmt->as.function.name.start,
+                                              stmt->as.function.name.length);
+        generic_registry_register_function(reg_name, &stmt->as.function);
+        DEBUG_VERBOSE("Registered generic function template '%s' — skipping body type-check",
+                      reg_name);
+        return;
+    }
 
     /* Enforce that pointer types in function signatures require native keyword */
     if (!stmt->as.function.is_native)

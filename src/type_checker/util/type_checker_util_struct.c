@@ -1,4 +1,5 @@
 #include "type_checker_util_struct.h"
+#include "type_checker/type_checker_generics.h"
 #include "debug.h"
 #include <stdio.h>
 #include <string.h>
@@ -111,6 +112,12 @@ bool is_valid_field_type(Type *type, SymbolTable *table)
 
         /* Function types (closures) - valid as fields */
         case TYPE_FUNCTION:
+            return true;
+
+        /* Generic instantiation types — valid if resolvable.
+         * By the time field validation runs, these should already have been resolved
+         * via resolve_struct_forward_reference, but handle them gracefully here. */
+        case TYPE_GENERIC_INST:
             return true;
 
         /* TYPE_NIL is not a valid field type */
@@ -302,6 +309,13 @@ Type *resolve_struct_forward_reference(Type *type, SymbolTable *table)
         type->as.array.element_type =
             resolve_struct_forward_reference(type->as.array.element_type, table);
         return type;
+    }
+
+    /* Resolve generic instantiation types (e.g. Stack<int> in method signatures) */
+    if (type->kind == TYPE_GENERIC_INST)
+    {
+        Type *resolved = resolve_generic_instantiation(table->arena, type, table);
+        return resolved != NULL ? resolved : type;
     }
 
     if (type->kind != TYPE_STRUCT)

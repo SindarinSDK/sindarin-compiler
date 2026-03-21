@@ -1,13 +1,116 @@
 #include "type_checker/expr/type_checker_expr_struct.h"
 #include "type_checker/expr/type_checker_expr.h"
 #include "type_checker/util/type_checker_util.h"
+#include "type_checker/type_checker_generics.h"
 #include "debug.h"
 #include <string.h>
 
 /* Struct literal: StructName { field1: value1, field2: value2, ... } */
+/* Also handles generic instantiation literals: Stack<int> { data: [], size: 0 } */
 Type *type_check_struct_literal(Expr *expr, SymbolTable *table)
 {
     Token struct_name = expr->as.struct_literal.struct_name;
+
+    /* If the parser attached a TYPE_GENERIC_INST annotation (e.g. Stack<int> { }),
+     * resolve it first and use the concrete struct type directly. */
+    if (expr->as.struct_literal.type_annotation != NULL &&
+        expr->as.struct_literal.type_annotation->kind == TYPE_GENERIC_INST)
+    {
+        Type *concrete = resolve_generic_instantiation(table->arena,
+                                                        expr->as.struct_literal.type_annotation,
+                                                        table);
+        if (concrete == NULL)
+            return NULL;
+
+        /* Now proceed as if the user wrote a plain struct literal with this concrete type */
+        /* Store resolved struct type for code generation */
+        expr->as.struct_literal.struct_type = concrete;
+
+        /* Allocate and initialize the fields_initialized tracking array */
+        int total_fields = concrete->as.struct_type.field_count;
+        expr->as.struct_literal.total_field_count = total_fields;
+        if (total_fields > 0)
+        {
+            expr->as.struct_literal.fields_initialized = arena_alloc(table->arena,
+                                                                       sizeof(bool) * total_fields);
+            if (expr->as.struct_literal.fields_initialized == NULL)
+            {
+                type_error(&struct_name, "Out of memory allocating field initialization tracking");
+                return NULL;
+            }
+            for (int i = 0; i < total_fields; i++)
+                expr->as.struct_literal.fields_initialized[i] = false;
+        }
+
+        /* Type check each field initializer */
+        for (int i = 0; i < expr->as.struct_literal.field_count; i++)
+        {
+            FieldInitializer *init = &expr->as.struct_literal.fields[i];
+            Type *init_type_val = type_check_expr(init->value, table);
+
+            bool found = false;
+            for (int j = 0; j < concrete->as.struct_type.field_count; j++)
+            {
+                StructField *field = &concrete->as.struct_type.fields[j];
+                if ((size_t)init->name.length == strlen(field->name) &&
+                    strncmp(init->name.start, field->name, init->name.length) == 0)
+                {
+                    found = true;
+                    if (expr->as.struct_literal.fields_initialized != NULL)
+                        expr->as.struct_literal.fields_initialized[j] = true;
+                    if (init_type_val != NULL && field->type != NULL &&
+                        !ast_type_equals(init_type_val, field->type))
+                    {
+                        char msg[256];
+                        snprintf(msg, sizeof(msg),
+                                 "Type mismatch for field '%s' in struct literal", field->name);
+                        type_error(&init->name, msg);
+                    }
+                    break;
+                }
+            }
+            if (!found)
+            {
+                char msg[256];
+                snprintf(msg, sizeof(msg), "Unknown field '%.*s' in struct literal",
+                         init->name.length, init->name.start);
+                type_error(&init->name, msg);
+            }
+        }
+
+        /* Check for uninitialized required fields */
+        int missing_count = 0;
+        char missing_fields[512] = "";
+        int missing_pos = 0;
+        for (int i = 0; i < total_fields; i++)
+        {
+            if (!expr->as.struct_literal.fields_initialized[i] &&
+                concrete->as.struct_type.fields[i].default_value == NULL)
+            {
+                StructField *field = &concrete->as.struct_type.fields[i];
+                if (missing_count > 0 && missing_pos < (int)sizeof(missing_fields) - 3)
+                    missing_pos += snprintf(missing_fields + missing_pos,
+                                            sizeof(missing_fields) - missing_pos, ", ");
+                if (missing_pos < (int)sizeof(missing_fields) - 1)
+                    missing_pos += snprintf(missing_fields + missing_pos,
+                                            sizeof(missing_fields) - missing_pos, "'%s'",
+                                            field->name);
+                missing_count++;
+            }
+        }
+        if (missing_count > 0)
+        {
+            char msg[768];
+            snprintf(msg, sizeof(msg),
+                     "Missing %d required field(s) in struct literal '%s': %s",
+                     missing_count, concrete->as.struct_type.name, missing_fields);
+            type_error(&struct_name, msg);
+            return NULL;
+        }
+
+        return concrete;
+    }
+
     Symbol *struct_sym = symbol_table_lookup_type(table, struct_name);
     if (struct_sym == NULL || struct_sym->type == NULL)
     {

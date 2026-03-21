@@ -1,12 +1,14 @@
 #include "type_checker.h"
 #include "type_checker/util/type_checker_util.h"
 #include "type_checker/stmt/type_checker_stmt.h"
+#include "type_checker/type_checker_generics.h"
 #include "debug.h"
 
 int type_check_module(Module *module, SymbolTable *table)
 {
     DEBUG_VERBOSE("Starting type checking for module with %d statements", module->count);
     type_checker_reset_error();
+    generic_registry_clear();
     for (int i = 0; i < module->count; i++)
     {
         type_check_stmt(module->statements[i], table, NULL);
