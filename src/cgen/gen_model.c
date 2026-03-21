@@ -248,6 +248,8 @@ static void emit_ns_import_recursive(
     for (int i = 0; i < count; i++)
     {
         Stmt *s = stmts[i];
+        if (strcmp(ns_prefix, "MyL11") == 0)
+        { fprintf(stderr, "[DBG] fn-loop i=%d s=%p type=%d\n", i, (void*)s, s ? s->type : -1); fflush(stderr); }
         if (!s || s->type != STMT_FUNCTION) continue;
 
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
