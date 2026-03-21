@@ -3,6 +3,7 @@
 #include "type_checker/stmt/type_checker_stmt.h"
 #include "type_checker/util/type_checker_util.h"
 #include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/type_checker_generics.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>
@@ -15,6 +16,25 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
     DEBUG_VERBOSE("Type checking struct declaration: %.*s with %d fields",
                   struct_decl->name.length, struct_decl->name.start,
                   struct_decl->field_count);
+
+    /* If this is a generic template, register it and skip body type-checking.
+     * The body will be type-checked once per concrete instantiation. */
+    if (struct_decl->type_param_count > 0)
+    {
+        /* Build a NUL-terminated name string for the registry */
+        char name_buf[256];
+        int name_len = struct_decl->name.length < 255 ? struct_decl->name.length : 255;
+        memcpy(name_buf, struct_decl->name.start, name_len);
+        name_buf[name_len] = '\0';
+        /* Duplicate into a persistent string (the struct_decl->name.start points into the
+         * source buffer which is stable for the lifetime of the compilation, but we use
+         * arena_strndup for safety). */
+        const char *reg_name = arena_strndup(table->arena, struct_decl->name.start,
+                                              struct_decl->name.length);
+        generic_registry_register_template(reg_name, struct_decl);
+        DEBUG_VERBOSE("Registered generic template '%s' — skipping body type-check", name_buf);
+        return;
+    }
 
     /* Check each field */
     for (int i = 0; i < struct_decl->field_count; i++)

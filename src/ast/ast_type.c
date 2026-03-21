@@ -153,6 +153,33 @@ Type *ast_clone_type(Arena *arena, Type *type)
         clone->as.interface_type.methods = type->as.interface_type.methods; /* shared — belongs to arena */
         break;
 
+    case TYPE_GENERIC_INST:
+        clone->as.generic_inst.template_name = type->as.generic_inst.template_name
+            ? arena_strdup(arena, type->as.generic_inst.template_name) : NULL;
+        clone->as.generic_inst.type_arg_count = type->as.generic_inst.type_arg_count;
+        clone->as.generic_inst.resolved = type->as.generic_inst.resolved; /* shallow — type checker owns it */
+        clone->as.generic_inst.type_param_names = type->as.generic_inst.type_param_names; /* shallow — type checker owns it */
+        if (type->as.generic_inst.type_arg_count > 0 && type->as.generic_inst.type_args != NULL)
+        {
+            clone->as.generic_inst.type_args = arena_alloc(arena,
+                sizeof(Type *) * type->as.generic_inst.type_arg_count);
+            if (clone->as.generic_inst.type_args == NULL)
+            {
+                DEBUG_ERROR("Out of memory when cloning generic_inst type args");
+                exit(1);
+            }
+            for (int i = 0; i < type->as.generic_inst.type_arg_count; i++)
+            {
+                clone->as.generic_inst.type_args[i] =
+                    ast_clone_type(arena, type->as.generic_inst.type_args[i]);
+            }
+        }
+        else
+        {
+            clone->as.generic_inst.type_args = NULL;
+        }
+        break;
+
     case TYPE_ARRAY:
         clone->as.array.element_type = ast_clone_type(arena, type->as.array.element_type);
         break;
@@ -398,6 +425,21 @@ int ast_type_equals(Type *a, Type *b)
         if (a->as.interface_type.name == NULL || b->as.interface_type.name == NULL)
             return 0;
         return strcmp(a->as.interface_type.name, b->as.interface_type.name) == 0;
+    case TYPE_GENERIC_INST:
+        /* Generic instantiations are equal if template name and all type args match */
+        if (a->as.generic_inst.template_name == NULL || b->as.generic_inst.template_name == NULL)
+            return (a->as.generic_inst.template_name == b->as.generic_inst.template_name);
+        if (strcmp(a->as.generic_inst.template_name, b->as.generic_inst.template_name) != 0)
+            return 0;
+        if (a->as.generic_inst.type_arg_count != b->as.generic_inst.type_arg_count)
+            return 0;
+        for (int i = 0; i < a->as.generic_inst.type_arg_count; i++)
+        {
+            if (!ast_type_equals(a->as.generic_inst.type_args[i],
+                                 b->as.generic_inst.type_args[i]))
+                return 0;
+        }
+        return 1;
     default:
         return 1;
     }
@@ -545,6 +587,46 @@ const char *ast_type_to_string(Arena *arena, Type *type)
         return arena_strdup(arena, "interface");
     }
 
+    case TYPE_GENERIC_INST:
+    {
+        const char *tname = type->as.generic_inst.template_name
+            ? type->as.generic_inst.template_name : "?";
+
+        /* Build "Template<arg1, arg2, ...>" */
+        size_t total = strlen(tname) + 2; /* '<' + '>' */
+        for (int i = 0; i < type->as.generic_inst.type_arg_count; i++)
+        {
+            const char *arg_str = ast_type_to_string(arena, type->as.generic_inst.type_args[i]);
+            total += strlen(arg_str);
+            if (i < type->as.generic_inst.type_arg_count - 1)
+                total += 2; /* ", " */
+        }
+        total += 1; /* '\0' */
+
+        char *str = arena_alloc(arena, total);
+        if (str == NULL)
+        {
+            DEBUG_ERROR("Out of memory");
+            exit(1);
+        }
+        char *p = str;
+        p += (size_t)(snprintf(p, total, "%s<", tname));
+        for (int i = 0; i < type->as.generic_inst.type_arg_count; i++)
+        {
+            const char *arg_str = ast_type_to_string(arena, type->as.generic_inst.type_args[i]);
+            size_t rem = total - (size_t)(p - str);
+            p += (size_t)(snprintf(p, rem, "%s", arg_str));
+            if (i < type->as.generic_inst.type_arg_count - 1)
+            {
+                rem = total - (size_t)(p - str);
+                p += (size_t)(snprintf(p, rem, ", "));
+            }
+        }
+        size_t rem = total - (size_t)(p - str);
+        snprintf(p, rem, ">");
+        return str;
+    }
+
     default:
         return arena_strdup(arena, "unknown");
     }
@@ -670,6 +752,41 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
     }
 
     return type;
+}
+
+Type *ast_create_generic_inst_type(Arena *arena, const char *template_name,
+                                    Type **type_args, int type_arg_count)
+{
+    Type *t = arena_alloc(arena, sizeof(Type));
+    if (!t)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(t, 0, sizeof(Type));
+    t->kind = TYPE_GENERIC_INST;
+    t->as.generic_inst.template_name = template_name ? arena_strdup(arena, template_name) : NULL;
+    t->as.generic_inst.type_arg_count = type_arg_count;
+    t->as.generic_inst.resolved = NULL;
+    t->as.generic_inst.type_param_names = NULL;
+    if (type_arg_count > 0 && type_args != NULL)
+    {
+        t->as.generic_inst.type_args = arena_alloc(arena, sizeof(Type *) * type_arg_count);
+        if (!t->as.generic_inst.type_args)
+        {
+            DEBUG_ERROR("Out of memory");
+            exit(1);
+        }
+        for (int i = 0; i < type_arg_count; i++)
+        {
+            t->as.generic_inst.type_args[i] = type_args[i];
+        }
+    }
+    else
+    {
+        t->as.generic_inst.type_args = NULL;
+    }
+    return t;
 }
 
 Type *ast_create_interface_type(Arena *arena, const char *name, StructMethod *methods, int method_count)

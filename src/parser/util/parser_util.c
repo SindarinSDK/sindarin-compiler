@@ -486,6 +486,62 @@ Type *parser_type(Parser *parser)
         return ast_create_primitive_type(parser->arena, TYPE_NIL);
     }
 
+    /* Check for generic type arguments: Stack<int>, Map<str, int> etc.
+     * This is only reached when parsing a type (never in expression context),
+     * so '<' is unambiguously the start of a type argument list. */
+    if (type != NULL && parser_check(parser, TOKEN_LESS) &&
+        (type->kind == TYPE_STRUCT || type->kind == TYPE_OPAQUE))
+    {
+        parser_advance(parser);  /* consume '<' */
+
+        Type **type_args = NULL;
+        int type_arg_count = 0;
+        int capacity = 4;
+        type_args = arena_alloc(parser->arena, sizeof(Type *) * capacity);
+        if (type_args == NULL)
+        {
+            parser_error(parser, "Out of memory");
+            return ast_create_primitive_type(parser->arena, TYPE_NIL);
+        }
+
+        if (!parser_check(parser, TOKEN_GREATER))
+        {
+            do
+            {
+                if (type_arg_count >= capacity)
+                {
+                    capacity *= 2;
+                    Type **new_args = arena_alloc(parser->arena, sizeof(Type *) * capacity);
+                    if (new_args == NULL)
+                    {
+                        parser_error(parser, "Out of memory");
+                        return ast_create_primitive_type(parser->arena, TYPE_NIL);
+                    }
+                    memcpy(new_args, type_args, sizeof(Type *) * type_arg_count);
+                    type_args = new_args;
+                }
+                type_args[type_arg_count++] = parser_type(parser);
+            } while (parser_match(parser, TOKEN_COMMA));
+        }
+
+        parser_consume(parser, TOKEN_GREATER, "Expected '>' after type arguments");
+
+        /* Extract the template name from the type we just parsed */
+        const char *template_name = NULL;
+        if (type->kind == TYPE_OPAQUE)
+            template_name = type->as.opaque.name;
+        else if (type->kind == TYPE_STRUCT)
+            template_name = type->as.struct_type.name;
+
+        if (template_name == NULL)
+        {
+            parser_error_at_current(parser, "Expected a type name before '<'");
+            return ast_create_primitive_type(parser->arena, TYPE_NIL);
+        }
+
+        type = ast_create_generic_inst_type(parser->arena, template_name, type_args, type_arg_count);
+    }
+
     while (parser_check(parser, TOKEN_LEFT_BRACKET))
     {
         parser_advance(parser); /* consume '[' */

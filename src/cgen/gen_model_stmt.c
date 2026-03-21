@@ -425,6 +425,40 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             }
                         }
                     }
+                    /* When returning a function parameter (not a local variable) of an
+                     * owned type (str, array), the parameter is BORROWED — the callee
+                     * must not transfer ownership.  Return an independent copy instead.
+                     * This arises in generic passthrough functions like identity<str>
+                     * where the body is literally "return x" with x being the str param.
+                     *
+                     * Exception: struct as-val parameters are compiled as owned locals in C
+                     * (e.g., sn_auto_Counter __sn__s = __p__s), so they DO need ownership
+                     * transfer (memset) when returned.  Only truly borrowed params (str, array,
+                     * as-ref struct) skip the transfer. */
+                    bool is_as_val_struct =
+                        (rt->kind == TYPE_STRUCT && !rt->as.struct_type.pass_self_by_ref &&
+                         transfer_kind && strcmp(transfer_kind, "memset") == 0);
+                    if (is_owned && !is_as_val_struct && rv->type == EXPR_VARIABLE)
+                    {
+                        const char *vname = rv->as.variable.name.start;
+                        int vlen = rv->as.variable.name.length;
+                        for (int pi = 0; pi < g_all_param_count; pi++)
+                        {
+                            if ((int)strlen(g_all_param_names[pi]) == vlen &&
+                                strncmp(g_all_param_names[pi], vname, vlen) == 0)
+                            {
+                                is_owned = false;
+                                /* For str params: return strdup so the caller gets an owned copy. */
+                                if (rt->kind == TYPE_STRING)
+                                    json_object_object_add(obj, "needs_strdup",
+                                                           json_object_new_boolean(true));
+                                /* For arrays/functions: just return directly — the callee doesn't
+                                 * own the param's array; the caller retains ownership. */
+                                break;
+                            }
+                        }
+                    }
+
                     if (is_owned)
                     {
                         json_object_object_add(obj, "is_ownership_transfer",

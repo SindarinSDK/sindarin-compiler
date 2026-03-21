@@ -2,6 +2,7 @@
 #include "type_checker/stmt/type_checker_stmt_var_util.h"
 #include "type_checker/util/type_checker_util.h"
 #include "type_checker/expr/type_checker_expr.h"
+#include "type_checker/type_checker_generics.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
 #include <string.h>
@@ -92,6 +93,68 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
     Type *decl_type = stmt->as.var_decl.type;
     Type *init_type = NULL;
     bool added_for_recursion = false;
+
+    /* Resolve generic instantiation in declared type (e.g. var s: Stack<int> = ...) */
+    if (decl_type != NULL && decl_type->kind == TYPE_GENERIC_INST)
+    {
+        decl_type = resolve_generic_instantiation(table->arena, decl_type, table);
+        if (decl_type == NULL)
+        {
+            /* Error already reported by resolver */
+            symbol_table_add_symbol_with_kind(table, stmt->as.var_decl.name,
+                                              ast_create_primitive_type(table->arena, TYPE_NIL),
+                                              SYMBOL_LOCAL);
+            return;
+        }
+        stmt->as.var_decl.type = decl_type;
+    }
+
+    /* Resolve type-parameter placeholders in generic function bodies.
+     * The parser creates zero-field TYPE_STRUCT nodes for unrecognised type
+     * identifiers (e.g. T, U). Monomorphisation registers T → concrete type
+     * in the symbol table before type-checking the body, so look it up here. */
+    if (decl_type != NULL &&
+        decl_type->kind == TYPE_STRUCT &&
+        decl_type->as.struct_type.field_count == 0 &&
+        decl_type->as.struct_type.name != NULL)
+    {
+        Token name_tok;
+        name_tok.start    = decl_type->as.struct_type.name;
+        name_tok.length   = (int)strlen(decl_type->as.struct_type.name);
+        name_tok.type     = TOKEN_IDENTIFIER;
+        name_tok.line     = 0;
+        name_tok.filename = NULL;
+        Symbol *tsym = symbol_table_lookup_type(table, name_tok);
+        if (tsym != NULL && tsym->type != NULL)
+            decl_type = tsym->type;
+    }
+    else if (decl_type != NULL &&
+             decl_type->kind == TYPE_ARRAY &&
+             decl_type->as.array.element_type != NULL &&
+             decl_type->as.array.element_type->kind == TYPE_STRUCT &&
+             decl_type->as.array.element_type->as.struct_type.field_count == 0 &&
+             decl_type->as.array.element_type->as.struct_type.name != NULL)
+    {
+        const char *elem_name = decl_type->as.array.element_type->as.struct_type.name;
+        Token name_tok;
+        name_tok.start    = elem_name;
+        name_tok.length   = (int)strlen(elem_name);
+        name_tok.type     = TOKEN_IDENTIFIER;
+        name_tok.line     = 0;
+        name_tok.filename = NULL;
+        Symbol *tsym = symbol_table_lookup_type(table, name_tok);
+        if (tsym != NULL && tsym->type != NULL)
+        {
+            /* Build a new TYPE_ARRAY without mutating the shared AST node */
+            Type *resolved_arr = arena_alloc(table->arena, sizeof(Type));
+            if (resolved_arr != NULL)
+            {
+                *resolved_arr = *decl_type;
+                resolved_arr->as.array.element_type = tsym->type;
+                decl_type = resolved_arr;
+            }
+        }
+    }
 
     if (stmt->as.var_decl.initializer)
     {

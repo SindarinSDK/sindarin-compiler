@@ -72,6 +72,12 @@ TypeCategory gen_model_type_category(Type *type)
                 return TYPE_CAT_COMPOSITE;
             return TYPE_CAT_INERT;
 
+        case TYPE_GENERIC_INST:
+            /* Before type-checking resolution, treat as scalar placeholder */
+            if (type->as.generic_inst.resolved != NULL)
+                return gen_model_type_category(type->as.generic_inst.resolved);
+            return TYPE_CAT_SCALAR;
+
         default:
             return TYPE_CAT_SCALAR;
     }
@@ -209,7 +215,8 @@ const char *gen_model_type_kind_str(TypeKind kind)
         case TYPE_POINTER:  return "pointer";
         case TYPE_OPAQUE:     return "opaque";
         case TYPE_STRUCT:     return "struct";
-        case TYPE_INTERFACE:  return "interface";
+        case TYPE_INTERFACE:     return "interface";
+        case TYPE_GENERIC_INST:  return "generic_inst";
         default:          return "unknown";
     }
 }
@@ -349,6 +356,26 @@ json_object *gen_model_type(Arena *arena, Type *type)
         case TYPE_CHAR:
             json_object_object_add(obj, "name", json_object_new_string("char"));
             break;
+
+        case TYPE_GENERIC_INST:
+        {
+            /* If the type checker has resolved this instantiation, emit the resolved type. */
+            if (type->as.generic_inst.resolved != NULL)
+            {
+                /* Replace kind and delegate to resolved type's model */
+                json_object_put(obj);
+                return gen_model_type(arena, type->as.generic_inst.resolved);
+            }
+            /* Otherwise emit a placeholder (type checker will always resolve before codegen) */
+            if (type->as.generic_inst.template_name)
+            {
+                json_object_object_add(obj, "template_name",
+                    json_object_new_string(type->as.generic_inst.template_name));
+            }
+            json_object_object_add(obj, "type_arg_count",
+                json_object_new_int(type->as.generic_inst.type_arg_count));
+            break;
+        }
 
         default:
             /* Primitive types - kind is sufficient */

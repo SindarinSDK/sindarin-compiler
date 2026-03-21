@@ -6,6 +6,7 @@
 #include "parser/expr/parser_expr_struct.h"
 #include "parser/expr/parser_expr_lambda.h"
 #include "ast/ast_expr.h"
+#include "ast/ast_type.h"
 #include "debug.h"
 #include <stdlib.h>
 #include <string.h>
@@ -545,6 +546,78 @@ Expr *parser_primary(Parser *parser)
                 Expr *operand = parser_expression(parser);
                 parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after typeOf argument");
                 return ast_create_typeof_expr(parser->arena, operand, &var_token);
+            }
+        }
+
+        /* Check for generic struct literal: Stack<int> { ... } */
+        if (parser_check(parser, TOKEN_LESS))
+        {
+            /* Only treat as generic instantiation if the identifier is a known struct type */
+            Symbol *type_symbol = symbol_table_lookup_type(parser->symbol_table, var_token);
+            if (type_symbol != NULL && type_symbol->type != NULL &&
+                type_symbol->type->kind == TYPE_STRUCT)
+            {
+                /* Peek ahead: consume '<', parse type args, consume '>',
+                 * then expect '{' for a struct literal */
+                Token saved_current = parser->current;
+                Token saved_previous = parser->previous;
+
+                parser_advance(parser);  /* consume '<' */
+
+                Type **type_args = NULL;
+                int type_arg_count = 0;
+                int capacity = 4;
+                type_args = arena_alloc(parser->arena, sizeof(Type *) * capacity);
+
+                bool parse_ok = true;
+                if (!parser_check(parser, TOKEN_GREATER))
+                {
+                    do
+                    {
+                        if (type_arg_count >= capacity)
+                        {
+                            capacity *= 2;
+                            Type **new_args = arena_alloc(parser->arena, sizeof(Type *) * capacity);
+                            if (new_args == NULL) { parse_ok = false; break; }
+                            memcpy(new_args, type_args, sizeof(Type *) * type_arg_count);
+                            type_args = new_args;
+                        }
+                        Type *arg = parser_type(parser);
+                        if (arg == NULL) { parse_ok = false; break; }
+                        type_args[type_arg_count++] = arg;
+                    } while (parser_match(parser, TOKEN_COMMA));
+                }
+
+                if (parse_ok && parser_check(parser, TOKEN_GREATER))
+                {
+                    parser_advance(parser);  /* consume '>' */
+
+                    if (parser_check(parser, TOKEN_LEFT_BRACE))
+                    {
+                        /* This is a generic struct literal */
+                        const char *template_name = arena_strndup(parser->arena,
+                            var_token.start, var_token.length);
+                        Type *generic_type = ast_create_generic_inst_type(parser->arena,
+                            template_name, type_args, type_arg_count);
+
+                        Expr *lit = parse_struct_literal(parser, &var_token);
+                        if (lit != NULL)
+                        {
+                            lit->as.struct_literal.type_annotation = generic_type;
+                        }
+                        return lit;
+                    }
+                    /* Not followed by '{' — not a struct literal.
+                     * This would be an error in expression context; fall through to let
+                     * regular parsing handle it or report an error. */
+                }
+
+                /* Unable to parse as generic struct literal — restore token state is not
+                 * possible since we've advanced the lexer.  Report an error. */
+                (void)saved_current;
+                (void)saved_previous;
+                parser_error_at_current(parser, "Expected '{' after generic type arguments in struct literal");
+                return NULL;
             }
         }
 
