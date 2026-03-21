@@ -128,7 +128,15 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 return NULL;
             }
 
-            /* If relative path doesn't exist, try SDK path */
+            /* If relative path doesn't exist, try package-scoped import (.sn/<module>) */
+            if (!import_file_exists(import_path)) {
+                char *pkg_path = resolve_package_import(arena, filename, mod_name.start);
+                if (pkg_path) {
+                    import_path = pkg_path;
+                }
+            }
+
+            /* If still not found, try SDK path */
             if (!import_file_exists(import_path) && compiler_dir) {
                 const char *sdk_path = gcc_resolve_sdk_import(compiler_dir, mod_name.start);
                 if (sdk_path) {
