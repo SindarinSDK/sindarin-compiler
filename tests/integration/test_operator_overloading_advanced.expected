@@ -1,0 +1,20 @@
+w1 == w3 (direct if): true
+w1 < w2 (direct if): true
+w2 > w1 (auto-derived, direct if): true
+w1 != w2 (auto-derived, direct if): true
+w1 == w3 && w1 < w2: true
+w2 > w1 && w2 != w3: true
+w1 > w2 || w1 < w2 (one true): true
+while cur < limit count: 4
+t1 == t2 (explicit ==): true
+t1 != t3 (explicit !=): true
+t1 != t2 (explicit !=, equal tags): false
+v1(1.2) < v2(1.5): true
+v2(1.5) < v3(2.0): true
+v1(1.2) == v4(1.2): true
+v3(2.0) > v2(1.5): true
+v1(1.2) <= v4(1.2) (equal, auto-derived <=): true
+v1(1.2) >= v4(1.2) (equal, auto-derived >=): true
+v3(2.0) >= v1(1.2) (auto-derived >=): true
+min weight kg: 2
+All advanced operator overloading tests passed!

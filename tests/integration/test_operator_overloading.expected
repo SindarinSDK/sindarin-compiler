@@ -1,0 +1,18 @@
+p1 == p2 (equal points): true
+p1 == p3 (unequal points): false
+p1 != p3 (unequal): true
+p1 != p2 (equal): false
+p3 < p1 (x:1 < x:3): true
+p1 < p3 (x:3 < x:1): false
+p1 > p3 (x:3 > x:1): true
+p3 > p1 (x:1 > x:3): false
+p3 <= p1 (x:1 <= x:3): true
+p1 <= p2 (equal): true
+p1 <= p3 (x:3 <= x:1): false
+p1 >= p3 (x:3 >= x:1): true
+p1 >= p2 (equal): true
+p3 >= p1 (x:1 >= x:3): false
+s1 == s2 (equal scores): true
+s1 != s3 (unequal scores, auto-derived !=): true
+hash(id=7): 217
+All operator overloading tests passed!

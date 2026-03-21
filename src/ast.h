@@ -90,6 +90,8 @@ struct StructMethod
     bool has_arena_param;       /* True if first param is implicit arena (for native functions) */
     Token name_token;           /* Token for error reporting */
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
+    bool is_operator;           /* True if declared with 'operator' keyword */
+    SnTokenType operator_token; /* Which operator token (only meaningful when is_operator is true) */
 };
 
 struct Type
@@ -196,6 +198,11 @@ typedef struct
     Expr *left;
     Expr *right;
     SnTokenType operator;
+    /* Set by type checker when left operand is a struct with an operator method */
+    StructMethod *operator_method; /* Resolved operator method (NULL if not a struct op) */
+    bool is_derived_operator;             /* True if this op is derived from another (e.g. != from ==) */
+    SnTokenType derived_from;             /* The base operator this was derived from (e.g. == for !=) */
+    bool is_swapped_operator;             /* True if args must be swapped (e.g. > derived from <) */
 } BinaryExpr;
 
 typedef struct
