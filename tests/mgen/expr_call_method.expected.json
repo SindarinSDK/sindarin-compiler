@@ -270,7 +270,9 @@
                 "kind": "variable",
                 "name": "c"
               },
-              "member_name": "increment"
+              "member_name": "increment",
+              "has_c_alias": true,
+              "c_alias": "__sn__Counter_increment"
             },
             "args": [],
             "is_tail_call": false,
@@ -331,7 +333,9 @@
                       "kind": "variable",
                       "name": "c"
                     },
-                    "member_name": "getValue"
+                    "member_name": "getValue",
+                    "has_c_alias": true,
+                    "c_alias": "__sn__Counter_getValue"
                   },
                   "args": [],
                   "is_tail_call": false,

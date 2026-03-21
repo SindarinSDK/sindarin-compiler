@@ -1,0 +1,6 @@
+Test 1 passed: Stack<int>
+Test 2 passed: Stack<str>
+Test 3 passed: Two Stack<int> instances are independent
+Test 4 passed: Pair<int, str>
+Test 5 passed: Pair<str, bool>
+All generic struct tests passed!

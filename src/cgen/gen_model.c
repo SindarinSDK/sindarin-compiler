@@ -1,4 +1,6 @@
 #include "cgen/gen_model.h"
+#include "type_checker/type_checker_generics.h"
+#include "type_checker/stmt/type_checker_stmt_func.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -17,6 +19,10 @@ int g_captured_var_count = 0;
 /* Global as-ref parameter names (used to emit -> for member access) */
 char **g_as_ref_param_names = NULL;
 int g_as_ref_param_count = 0;
+
+/* All parameter names of the current function (used to detect borrowed returns) */
+char **g_all_param_names = NULL;
+int g_all_param_count = 0;
 
 /* Global thread-handle-variable set */
 char **g_thread_handle_vars = NULL;
@@ -396,6 +402,32 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     const char **emitted_names = arena_alloc(arena, sizeof(const char *) * emitted_capacity);
     int emitted_count = 0;
 
+    /* Pre-register all monomorphized generic functions in the global symbol table.
+     * During type-checking, monomorphized functions (e.g. identity_int) are added to
+     * whatever function scope triggered their instantiation (e.g. inside main()).
+     * That scope is popped after type-checking completes, so by codegen time the
+     * symbols are gone.  The closure-call detector in gen_model_expr looks them up:
+     * if not found → is_closure=true → crash.  Re-registering here, before any
+     * module body is emitted, ensures every generic function instantiation is found
+     * as a regular (non-closure) function. */
+    {
+        int fn_inst_count = generic_registry_function_instantiation_count();
+        for (int i = 0; i < fn_inst_count; i++)
+        {
+            GenericFunctionInstantiation *inst = generic_registry_get_function_instantiation(i);
+            if (inst == NULL || inst->instantiated_decl == NULL)
+                continue;
+            FunctionStmt *mono_fn = inst->instantiated_decl;
+            Type **ptypes = arena_alloc(arena, sizeof(Type *) * (mono_fn->param_count + 1));
+            for (int j = 0; j < mono_fn->param_count; j++)
+                ptypes[j] = mono_fn->params[j].type;
+            Type *fn_type = ast_create_function_type(arena, mono_fn->return_type,
+                                                      ptypes, mono_fn->param_count);
+            symbol_table_add_function(symbol_table, mono_fn->name, fn_type,
+                                      FUNC_DEFAULT, FUNC_DEFAULT);
+        }
+    }
+
     for (int i = 0; i < module->count; i++)
     {
         Stmt *stmt = module->statements[i];
@@ -452,6 +484,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 
             case STMT_STRUCT_DECL:
             {
+                /* Skip generic templates — only emit monomorphized instantiations */
+                if (stmt->as.struct_decl.type_param_count > 0)
+                    break;
                 json_object_array_add(structs,
                     gen_model_struct(arena, &stmt->as.struct_decl, symbol_table, arithmetic_mode));
                 break;
@@ -490,6 +525,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
 
             case STMT_FUNCTION:
             {
+                /* Skip generic function templates — only emit monomorphized instantiations */
+                if (stmt->as.function.type_param_count > 0)
+                    break;
                 json_object_array_add(functions,
                     gen_model_function(arena, &stmt->as.function, symbol_table, arithmetic_mode));
                 break;
@@ -502,6 +540,111 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                     gen_model_stmt(arena, stmt, symbol_table, arithmetic_mode));
                 break;
             }
+        }
+    }
+
+    /* Emit all monomorphized generic struct instantiations.
+     * These are generated on-demand during type checking and not present in the module
+     * statement list, so they must be injected here.
+     *
+     * Before emitting each instantiation, re-type-check its method bodies with the
+     * correct concrete type parameters.  Generic struct method bodies are SHARED between
+     * all instantiations.  Cached expr_type values from the last type-check pass (which
+     * may correspond to a different instantiation) would cause the codegen to emit
+     * incorrect types (e.g. push/pop emitting strdup for a Stack<int> int field).
+     * Re-running the body type-check immediately before codegen refreshes expr_type. */
+    {
+        int inst_count = generic_registry_instantiation_count();
+        for (int i = 0; i < inst_count; i++)
+        {
+            GenericInstantiation *inst = generic_registry_get_instantiation(i);
+            if (inst == NULL || inst->instantiated_decl == NULL)
+                continue;
+
+            /* Find the corresponding template so we can set up type-param aliases. */
+            GenericTemplate *tmpl = generic_registry_find_template(inst->template_name);
+            if (tmpl != NULL && tmpl->decl->type_param_count == inst->type_arg_count)
+            {
+                /* Register type param → concrete type mappings as aliases. */
+                for (int t = 0; t < inst->type_arg_count; t++)
+                {
+                    if (tmpl->decl->type_params[t] == NULL || inst->type_args[t] == NULL)
+                        continue;
+                    Token tp_tok;
+                    tp_tok.start    = tmpl->decl->type_params[t];
+                    tp_tok.length   = (int)strlen(tmpl->decl->type_params[t]);
+                    tp_tok.type     = TOKEN_IDENTIFIER;
+                    tp_tok.line     = 0;
+                    tp_tok.filename = NULL;
+                    symbol_table_add_type(symbol_table, tp_tok, inst->type_args[t]);
+                }
+
+                /* Clear and re-type-check shared method bodies. */
+                type_check_generic_instantiation_decl(arena, inst->instantiated_decl,
+                                                       symbol_table);
+            }
+
+            json_object_array_add(structs,
+                gen_model_struct(arena, inst->instantiated_decl,
+                                 symbol_table, arithmetic_mode));
+        }
+    }
+
+    /* Emit all monomorphized generic function instantiations.
+     *
+     * Before emitting each instantiation, re-type-check its body with the
+     * correct concrete type parameters.  Generic function bodies are SHARED
+     * between all instantiations.  type_check_expr() caches its result in
+     * expr->expr_type, so after type-checking identity<int> and then
+     * identity<str>, the shared body nodes carry TYPE_STRING from the second
+     * pass.  When codegen emits identity_int it would see the stale str types
+     * and emit e.g. "char * __ret__ = __sn__x" for a long long variable.
+     * Re-running the body type-check immediately before codegen refreshes
+     * expr_type with the correct concrete types for this instantiation. */
+    {
+        int fn_inst_count = generic_registry_function_instantiation_count();
+        for (int i = 0; i < fn_inst_count; i++)
+        {
+            GenericFunctionInstantiation *inst = generic_registry_get_function_instantiation(i);
+            if (inst == NULL || inst->instantiated_decl == NULL)
+                continue;
+
+            /* Re-type-check the shared body with correct concrete type params. */
+            GenericFunctionTemplate *fn_tmpl =
+                generic_registry_find_function_template(inst->template_name);
+            if (fn_tmpl != NULL &&
+                fn_tmpl->decl->type_param_count == inst->type_arg_count)
+            {
+                /* Clear stale expr_type cache from shared body AST nodes. */
+                clear_expr_types_in_stmts(inst->instantiated_decl->body,
+                                          inst->instantiated_decl->body_count);
+
+                /* Register type param → concrete type mappings as aliases. */
+                for (int t = 0; t < inst->type_arg_count; t++)
+                {
+                    if (fn_tmpl->decl->type_params[t] == NULL || inst->type_args[t] == NULL)
+                        continue;
+                    Token tp_tok;
+                    tp_tok.start    = fn_tmpl->decl->type_params[t];
+                    tp_tok.length   = (int)strlen(fn_tmpl->decl->type_params[t]);
+                    tp_tok.type     = TOKEN_IDENTIFIER;
+                    tp_tok.line     = 0;
+                    tp_tok.filename = NULL;
+                    symbol_table_add_type(symbol_table, tp_tok, inst->type_args[t]);
+                }
+
+                /* Re-type-check using a stack wrapper (avoids duplicate global registration). */
+                Stmt wrapper;
+                memset(&wrapper, 0, sizeof(Stmt));
+                wrapper.type        = STMT_FUNCTION;
+                wrapper.token       = &inst->instantiated_decl->name;
+                wrapper.as.function = *inst->instantiated_decl;
+                type_check_function_body_only(&wrapper, symbol_table);
+            }
+
+            json_object_array_add(functions,
+                gen_model_function(arena, inst->instantiated_decl,
+                                   symbol_table, arithmetic_mode));
         }
     }
 

@@ -1049,15 +1049,41 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     }
 
                     /* Propagate c_alias from resolved method for member-style method calls.
-                     * When callee is a member access (f.writeLine), the template generates
-                     * __sn__StructName_methodName. If the method has @alias, use that instead. */
+                     * When callee is a member access (obj.method()), the template normally
+                     * generates __sn__StructName_methodName.  If the method has @alias, use
+                     * that instead.  If the method has no alias (common case) but IS a struct
+                     * method (resolved_method != NULL), synthesize the canonical C name so the
+                     * template uses the has_c_alias path, which correctly passes &obj as self.
+                     * This also bypasses the array built-in shortcut (e.g. __sn___pop) which
+                     * fires incorrectly when the object is a struct with a method named "pop". */
                     if (expr->as.call.callee->type == EXPR_MEMBER &&
-                        expr->as.call.callee->as.member.resolved_method &&
-                        expr->as.call.callee->as.member.resolved_method->c_alias)
+                        expr->as.call.callee->as.member.resolved_method)
                     {
-                        json_object_object_add(callee_model, "has_c_alias", json_object_new_boolean(true));
-                        json_object_object_add(callee_model, "c_alias",
-                            json_object_new_string(expr->as.call.callee->as.member.resolved_method->c_alias));
+                        StructMethod *rsm = expr->as.call.callee->as.member.resolved_method;
+                        if (rsm->c_alias)
+                        {
+                            json_object_object_add(callee_model, "has_c_alias", json_object_new_boolean(true));
+                            json_object_object_add(callee_model, "c_alias",
+                                json_object_new_string(rsm->c_alias));
+                        }
+                        else
+                        {
+                            /* Synthesize __sn__StructName_methodName as the c_alias so the
+                             * template's has_c_alias path is taken (not the array shortcut). */
+                            Type *rstype = expr->as.call.callee->as.member.resolved_struct_type;
+                            if (rstype && rstype->kind == TYPE_STRUCT &&
+                                rstype->as.struct_type.name)
+                            {
+                                Token mn = expr->as.call.callee->as.member.member_name;
+                                char alias_buf[512];
+                                snprintf(alias_buf, sizeof(alias_buf), "__sn__%s_%.*s",
+                                         rstype->as.struct_type.name, mn.length, mn.start);
+                                json_object_object_add(callee_model, "has_c_alias",
+                                                       json_object_new_boolean(true));
+                                json_object_object_add(callee_model, "c_alias",
+                                                       json_object_new_string(arena_strdup(arena, alias_buf)));
+                            }
+                        }
                     }
 
                     /* For primitive type conversion methods (e.g., 27.toChar(), str.toInt()),
@@ -2018,8 +2044,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_STRUCT_LITERAL:
         {
             json_object_object_add(obj, "kind", json_object_new_string("struct_literal"));
-            json_object_object_add(obj, "struct_name",
-                json_object_new_string(expr->as.struct_literal.struct_name.start));
+            /* Use the resolved type name (from expr_type) when available — this gives the
+             * monomorphized name (e.g. "Stack_int") rather than the template name ("Stack")
+             * that the parser stored in struct_literal.struct_name. */
+            const char *sl_name = expr->as.struct_literal.struct_name.start;
+            if (expr->expr_type && expr->expr_type->kind == TYPE_STRUCT &&
+                expr->expr_type->as.struct_type.name != NULL)
+            {
+                sl_name = expr->expr_type->as.struct_type.name;
+            }
+            json_object_object_add(obj, "struct_name", json_object_new_string(sl_name));
             /* Add struct type info for c-min memory management */
             if (expr->expr_type)
             {
