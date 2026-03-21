@@ -101,13 +101,17 @@ static void ensure_build_dir(const char *build_dir)
 static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_config, Module *module)
 {
     /* Build JSON model from typed AST */
+    fprintf(stderr, "[DBG] gen_model_build start\n"); fflush(stderr);
     json_object *model = gen_model_build(&options->arena, module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
+    fprintf(stderr, "[DBG] gen_model_build done\n"); fflush(stderr);
     gen_model_flatten_chains(model);
+    fprintf(stderr, "[DBG] flatten_chains done\n"); fflush(stderr);
 
     /* Split model into per-source-file modules */
     ModularModel *split = gen_model_split(model, options->source_file);
+    fprintf(stderr, "[DBG] gen_model_split done\n"); fflush(stderr);
     json_object_put(model);
     if (!split)
     {
@@ -120,7 +124,9 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
     snprintf(template_dir, sizeof(template_dir), "%s/templates/c", options->compiler_dir);
 
     register_helpers_fn reg_fn = gen_model_get_min_c_register_fn();
+    fprintf(stderr, "[DBG] render start\n"); fflush(stderr);
     ModularRenderResult *rendered = gen_model_render_modular_min_c(split, template_dir, reg_fn);
+    fprintf(stderr, "[DBG] render done\n"); fflush(stderr);
     if (!rendered)
     {
         fprintf(stderr, "Error: modular rendering failed\n");
