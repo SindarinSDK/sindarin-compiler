@@ -1,0 +1,8 @@
+Test 1 passed: identity<int>
+Test 2 passed: identity<str>
+Test 3 passed: first<int>
+Test 4 passed: first<str>
+Test 5 passed: map<int, int>
+Test 6 passed: map<str, str>
+Test 7 passed: filter<int>
+All generic function tests passed!

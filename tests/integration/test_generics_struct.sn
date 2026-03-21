@@ -1,0 +1,101 @@
+# Test: Generic structs — Stack<T> and Pair<T, U>
+
+struct Stack<T> =>
+    items: T[]
+    size: int
+
+    fn push(item: T): void =>
+        self.items.push(item)
+        self.size = self.size + 1
+
+    fn pop(): T =>
+        self.size = self.size - 1
+        return self.items.pop()
+
+    fn isEmpty(): bool =>
+        return self.size == 0
+
+struct Pair<T, U> =>
+    first: T
+    second: U
+
+fn main(): int =>
+    # Test 1: Stack<int>
+    var si: Stack<int> = Stack<int> { items: {}, size: 0 }
+    si.push(10)
+    si.push(20)
+    si.push(30)
+    if si.size != 3 =>
+        print("FAIL: Stack<int> size should be 3\n")
+        return 1
+    var top1: int = si.pop()
+    if top1 != 30 =>
+        print("FAIL: Stack<int> pop should return 30\n")
+        return 1
+    var top2: int = si.pop()
+    if top2 != 20 =>
+        print("FAIL: Stack<int> pop should return 20\n")
+        return 1
+    if si.isEmpty() =>
+        print("FAIL: Stack<int> should not be empty (1 item left)\n")
+        return 1
+    si.pop()
+    if !si.isEmpty() =>
+        print("FAIL: Stack<int> should be empty after popping all items\n")
+        return 1
+    print("Test 1 passed: Stack<int>\n")
+
+    # Test 2: Stack<str>
+    var ss: Stack<str> = Stack<str> { items: {}, size: 0 }
+    ss.push("hello")
+    ss.push("world")
+    if ss.size != 2 =>
+        print("FAIL: Stack<str> size should be 2\n")
+        return 1
+    var tops: str = ss.pop()
+    if tops != "world" =>
+        print("FAIL: Stack<str> pop should return 'world'\n")
+        return 1
+    if ss.isEmpty() =>
+        print("FAIL: Stack<str> should not be empty (1 item left)\n")
+        return 1
+    print("Test 2 passed: Stack<str>\n")
+
+    # Test 3: Two Stack<int> instances are independent
+    var a: Stack<int> = Stack<int> { items: {}, size: 0 }
+    var b: Stack<int> = Stack<int> { items: {}, size: 0 }
+    a.push(1)
+    a.push(2)
+    b.push(99)
+    var aTop: int = a.pop()
+    var bTop: int = b.pop()
+    if aTop != 2 =>
+        print("FAIL: a.pop() should return 2\n")
+        return 1
+    if bTop != 99 =>
+        print("FAIL: b.pop() should return 99\n")
+        return 1
+    print("Test 3 passed: Two Stack<int> instances are independent\n")
+
+    # Test 4: Pair<int, str>
+    var p1: Pair<int, str> = Pair<int, str> { first: 42, second: "answer" }
+    if p1.first != 42 =>
+        print("FAIL: Pair<int,str>.first should be 42\n")
+        return 1
+    if p1.second != "answer" =>
+        print("FAIL: Pair<int,str>.second should be 'answer'\n")
+        return 1
+    print("Test 4 passed: Pair<int, str>\n")
+
+    # Test 5: Pair<str, bool>
+    var p2: Pair<str, bool> = Pair<str, bool> { first: "active", second: true }
+    if p2.first != "active" =>
+        print("FAIL: Pair<str,bool>.first should be 'active'\n")
+        return 1
+    if !p2.second =>
+        print("FAIL: Pair<str,bool>.second should be true\n")
+        return 1
+    print("Test 5 passed: Pair<str, bool>\n")
+
+    print("All generic struct tests passed!\n")
+    return 0

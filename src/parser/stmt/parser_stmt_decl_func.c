@@ -81,6 +81,52 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
         }
     }
 
+    /* Parse optional type parameters: fn map<T, U>(...) */
+    const char **type_params = NULL;
+    int type_param_count = 0;
+
+    if (parser_check(parser, TOKEN_LESS))
+    {
+        parser_advance(parser);  /* consume '<' */
+
+        if (!parser_check(parser, TOKEN_GREATER))
+        {
+            int capacity = 4;
+            type_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
+            if (type_params == NULL)
+            {
+                parser_error_at_current(parser, "Out of memory");
+                return NULL;
+            }
+
+            do
+            {
+                if (!parser_check(parser, TOKEN_IDENTIFIER))
+                {
+                    parser_error_at_current(parser, "Expected type parameter name");
+                    return NULL;
+                }
+                if (type_param_count >= capacity)
+                {
+                    capacity *= 2;
+                    const char **new_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
+                    if (new_params == NULL)
+                    {
+                        parser_error_at_current(parser, "Out of memory");
+                        return NULL;
+                    }
+                    memcpy(new_params, type_params, sizeof(char *) * type_param_count);
+                    type_params = new_params;
+                }
+                type_params[type_param_count++] = arena_strndup(parser->arena,
+                    parser->current.start, parser->current.length);
+                parser_advance(parser);
+            } while (parser_match(parser, TOKEN_COMMA));
+        }
+
+        parser_consume(parser, TOKEN_GREATER, "Expected '>' after type parameters");
+    }
+
     Parameter *params = NULL;
     int param_count = 0;
     int param_capacity = 0;
@@ -264,6 +310,8 @@ Stmt *parser_function_declaration(Parser *parser, FunctionModifier modifier)
     {
         func_stmt->as.function.modifier = func_modifier;
         func_stmt->as.function.return_mem_qualifier = return_mem_qual;
+        func_stmt->as.function.type_params = type_params;
+        func_stmt->as.function.type_param_count = type_param_count;
     }
     return func_stmt;
 }

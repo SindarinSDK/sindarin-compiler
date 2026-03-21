@@ -123,6 +123,7 @@ set(SN_SYMBOL_TABLE_SOURCES
 
 set(SN_TYPE_CHECKER_SOURCES
     src/type_checker.c
+    src/type_checker/type_checker_generics.c
     # util/
     src/type_checker/util/type_checker_util.c
     src/type_checker/util/type_checker_util_escape.c

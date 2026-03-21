@@ -45,7 +45,8 @@ typedef enum
     TYPE_POINTER,
     TYPE_OPAQUE,
     TYPE_STRUCT,
-    TYPE_INTERFACE
+    TYPE_INTERFACE,
+    TYPE_GENERIC_INST    /* Generic type instantiation, e.g. Stack<int> */
 } TypeKind;
 
 /* Memory qualifier for variables and parameters */
@@ -152,6 +153,15 @@ struct Type
             StructMethod *methods;  /* Required method signatures, no bodies */
             int method_count;       /* Number of required methods */
         } interface_type;
+
+        struct
+        {
+            const char *template_name;      /* "Stack" */
+            const char **type_param_names;  /* type parameter names from the template def ["T"] — set during type checking */
+            Type **type_args;               /* concrete type arguments [TYPE_INT] */
+            int type_arg_count;
+            Type *resolved;                 /* set by type checker: the concrete monomorphized Type* */
+        } generic_inst;
     } as;
 };
 
@@ -375,7 +385,7 @@ typedef struct
     Expr *operand;          // The expression to deep copy
 } CopyOfExpr;
 
-/* Struct literal expression: Point { x: 1.0, y: 2.0 } */
+/* Struct literal expression: Point { x: 1.0, y: 2.0 } or Stack<int> { data: [], size: 0 } */
 typedef struct
 {
     Token struct_name;           /* Name of the struct type */
@@ -386,6 +396,8 @@ typedef struct
                                   * (indexed by struct field index, allocated during type checking,
                                   * size matches struct_type->as.struct_type.field_count) */
     int total_field_count;       /* Total number of fields in the struct type (set during type checking) */
+    Type *type_annotation;       /* Parsed generic instantiation type (e.g. TYPE_GENERIC_INST for Stack<int> { });
+                                  * NULL for non-generic struct literals.  Set by parser, used by type checker. */
 } StructLiteralExpr;
 
 /* Member access expression for struct fields: point.x */
@@ -577,6 +589,8 @@ typedef struct
     const char *c_alias;        /* C function name alias (from #pragma alias), NULL if none */
     bool body_type_checked;     /* true if body has already been type-checked (prevents re-type-checking in diamond imports) */
     bool code_emitted;          /* true if code has already been generated (prevents double emission in diamond imports) */
+    const char **type_params;   /* type parameter names: ["T", "U"] — NULL if not generic */
+    int type_param_count;       /* number of type parameters */
 } FunctionStmt;
 
 typedef struct
@@ -667,6 +681,8 @@ typedef struct
     bool pass_self_by_ref;     /* True if 'as ref' - native methods receive self by pointer */
     bool is_serializable;      /* True if preceded by @serializable */
     const char *c_alias;       /* C type name alias (from #pragma alias), NULL if none */
+    const char **type_params;  /* type parameter names: ["T", "U"] — NULL if not generic */
+    int type_param_count;      /* number of type parameters */
 } StructDeclStmt;
 
 /* Lock statement for synchronized blocks: lock(expr) => body */
@@ -745,6 +761,8 @@ Type *ast_create_struct_type(Arena *arena, const char *name, StructField *fields
                              StructMethod *methods, int method_count, bool is_native, bool is_packed,
                              bool pass_self_by_ref, const char *c_alias);
 Type *ast_create_interface_type(Arena *arena, const char *name, StructMethod *methods, int method_count);
+Type *ast_create_generic_inst_type(Arena *arena, const char *template_name,
+                                    Type **type_args, int type_arg_count);
 StructMethod *ast_struct_get_method(Type *struct_type, const char *method_name);
 int ast_type_equals(Type *a, Type *b);
 int ast_type_is_pointer(Type *type);
