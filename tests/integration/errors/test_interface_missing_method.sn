@@ -1,0 +1,14 @@
+# Error test: struct passed as interface parameter but missing required method
+
+interface Comparable =>
+    fn compare(other: Self): int
+
+fn check(a: Comparable): void => return
+
+struct Box =>
+    size: int
+
+fn main(): int =>
+    var a: Box = Box { size: 1 }
+    check(a)
+    return 0

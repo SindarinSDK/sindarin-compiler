@@ -403,6 +403,56 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         symbol_table_add_type(parser->symbol_table, dec_tok, decoder_type);
     }
 
+    // ---- Built-in standard interfaces ----
+
+    // Comparable — for types that can be compared with <, >, etc.
+    {
+        Token comparable_tok;
+        comparable_tok.start = arena_strdup(arena, "Comparable");
+        comparable_tok.length = 10;
+        comparable_tok.type = TOKEN_IDENTIFIER;
+        comparable_tok.line = 0;
+        comparable_tok.filename = arena_strdup(arena, "<built-in>");
+        Type *comparable_type = ast_create_interface_type(arena, "Comparable", NULL, 0);
+        symbol_table_add_type(parser->symbol_table, comparable_tok, comparable_type);
+    }
+
+    // Hashable — for types that can be hashed
+    {
+        Token hashable_tok;
+        hashable_tok.start = arena_strdup(arena, "Hashable");
+        hashable_tok.length = 8;
+        hashable_tok.type = TOKEN_IDENTIFIER;
+        hashable_tok.line = 0;
+        hashable_tok.filename = arena_strdup(arena, "<built-in>");
+        Type *hashable_type = ast_create_interface_type(arena, "Hashable", NULL, 0);
+        symbol_table_add_type(parser->symbol_table, hashable_tok, hashable_type);
+    }
+
+    // Stringable — for types that have a string representation
+    {
+        Token stringable_tok;
+        stringable_tok.start = arena_strdup(arena, "Stringable");
+        stringable_tok.length = 10;
+        stringable_tok.type = TOKEN_IDENTIFIER;
+        stringable_tok.line = 0;
+        stringable_tok.filename = arena_strdup(arena, "<built-in>");
+        Type *stringable_type = ast_create_interface_type(arena, "Stringable", NULL, 0);
+        symbol_table_add_type(parser->symbol_table, stringable_tok, stringable_type);
+    }
+
+    // Copyable — for types that can be deep-copied
+    {
+        Token copyable_tok;
+        copyable_tok.start = arena_strdup(arena, "Copyable");
+        copyable_tok.length = 8;
+        copyable_tok.type = TOKEN_IDENTIFIER;
+        copyable_tok.line = 0;
+        copyable_tok.filename = arena_strdup(arena, "<built-in>");
+        Type *copyable_type = ast_create_interface_type(arena, "Copyable", NULL, 0);
+        symbol_table_add_type(parser->symbol_table, copyable_tok, copyable_type);
+    }
+
     // Note: Other array operations (push, pop, rev, rem, ins) are now method-style only:
     //   arr.push(elem), arr.pop(), arr.reverse(), arr.remove(idx), arr.insert(elem, idx)
 

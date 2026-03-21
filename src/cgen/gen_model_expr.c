@@ -1189,6 +1189,20 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(arg_type->as.struct_type.name));
                         }
                     }
+                    /* Interface-typed params accept void *: pass &arg for val-type struct args */
+                    if (callee_param_types && i < callee_param_count &&
+                        callee_param_types[i] && callee_param_types[i]->kind == TYPE_INTERFACE)
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        if (arg_type && arg_type->kind == TYPE_STRUCT &&
+                            !arg_type->as.struct_type.pass_self_by_ref)
+                        {
+                            json_object *existing_ref;
+                            if (!json_object_object_get_ex(arg, "is_ref_arg", &existing_ref))
+                                json_object_object_add(arg, "is_ref_arg", json_object_new_boolean(true));
+                        }
+                    }
                     /* For composite val-type struct args (heap fields, MEM_DEFAULT):
                      * borrow by pointer for non-native callees.
                      * Lvalue args pass &arg; non-lvalue args use a statement-expression temp. */

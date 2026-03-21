@@ -161,6 +161,7 @@ set(SN_TYPE_CHECKER_SOURCES
     src/type_checker/stmt/type_checker_stmt_func.c
     src/type_checker/stmt/type_checker_stmt_control.c
     src/type_checker/stmt/type_checker_stmt_struct.c
+    src/type_checker/stmt/type_checker_stmt_interface.c
     src/type_checker/stmt/type_checker_stmt_import.c
     src/type_checker/stmt/type_checker_stmt_import_ns.c
     src/type_checker/stmt/type_checker_stmt_import_ns_util.c

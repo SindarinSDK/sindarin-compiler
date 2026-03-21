@@ -207,8 +207,9 @@ const char *gen_model_type_kind_str(TypeKind kind)
         case TYPE_ARRAY:  return "array";
         case TYPE_FUNCTION: return "function";
         case TYPE_POINTER:  return "pointer";
-        case TYPE_OPAQUE:   return "opaque";
-        case TYPE_STRUCT:   return "struct";
+        case TYPE_OPAQUE:     return "opaque";
+        case TYPE_STRUCT:     return "struct";
+        case TYPE_INTERFACE:  return "interface";
         default:          return "unknown";
     }
 }
@@ -246,6 +247,14 @@ json_object *gen_model_type(Arena *arena, Type *type)
             {
                 json_object_object_add(obj, "name",
                     json_object_new_string(type->as.opaque.name));
+            }
+            break;
+
+        case TYPE_INTERFACE:
+            if (type->as.interface_type.name)
+            {
+                json_object_object_add(obj, "name",
+                    json_object_new_string(type->as.interface_type.name));
             }
             break;
 

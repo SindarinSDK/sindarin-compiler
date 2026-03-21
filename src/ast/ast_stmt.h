@@ -21,5 +21,7 @@ Stmt *ast_create_struct_decl_stmt(Arena *arena, Token name, StructField *fields,
                                    StructMethod *methods, int method_count,
                                    bool is_native, bool is_packed, bool pass_self_by_ref,
                                    const char *c_alias, const Token *loc_token);
+Stmt *ast_create_interface_decl_stmt(Arena *arena, Token name, StructMethod *methods, int method_count,
+                                      const Token *loc_token);
 
 #endif /* AST_STMT_H */
