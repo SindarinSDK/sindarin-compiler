@@ -802,16 +802,57 @@ Type *resolve_generic_instantiation(Arena *arena, Type *generic_inst, SymbolTabl
     Type      **type_args      = generic_inst->as.generic_inst.type_args;
     int         type_arg_count = generic_inst->as.generic_inst.type_arg_count;
 
-    /* Recursively resolve any TYPE_GENERIC_INST within the type arguments first */
+
+    /* Resolve type arguments into a LOCAL copy to avoid mutating shared AST nodes.
+     * Handles TYPE_GENERIC_INST (recursive), TYPE_OPAQUE (symbol table aliases),
+     * and TYPE_STRUCT forward references (parser creates T as TYPE_STRUCT{name="T"}). */
+    Type **resolved_args = type_args;
     for (int i = 0; i < type_arg_count; i++)
     {
-        if (type_args[i] != NULL && type_args[i]->kind == TYPE_GENERIC_INST)
+        Type *resolved = type_args[i];
+        if (resolved == NULL) continue;
+
+        if (resolved->kind == TYPE_GENERIC_INST)
         {
-            type_args[i] = resolve_generic_instantiation(arena, type_args[i], table);
-            if (type_args[i] == NULL)
+            resolved = resolve_generic_instantiation(arena, resolved, table);
+            if (resolved == NULL)
                 return NULL; /* error already reported */
         }
+        else if (resolved->kind == TYPE_OPAQUE && resolved->as.opaque.name != NULL)
+        {
+            Token tok = { .start = resolved->as.opaque.name,
+                          .length = (int)strlen(resolved->as.opaque.name),
+                          .type = TOKEN_IDENTIFIER, .line = 0, .filename = NULL };
+            Symbol *alias = symbol_table_lookup_type(table, tok);
+            if (alias != NULL && alias->type != NULL && alias->type->kind != TYPE_OPAQUE)
+                resolved = alias->type;
+        }
+        else if (resolved->kind == TYPE_STRUCT &&
+                 resolved->as.struct_type.field_count == 0 &&
+                 resolved->as.struct_type.fields == NULL &&
+                 resolved->as.struct_type.name != NULL)
+        {
+            Token tok = { .start = resolved->as.struct_type.name,
+                          .length = (int)strlen(resolved->as.struct_type.name),
+                          .type = TOKEN_IDENTIFIER, .line = 0, .filename = NULL };
+            Symbol *alias = symbol_table_lookup_type(table, tok);
+            if (alias != NULL && alias->type != NULL && alias->type != resolved)
+                resolved = alias->type;
+        }
+
+        if (resolved != type_args[i])
+        {
+            if (resolved_args == type_args)
+            {
+                /* First modification — copy the array */
+                resolved_args = arena_alloc(arena, sizeof(Type *) * type_arg_count);
+                for (int j = 0; j < type_arg_count; j++)
+                    resolved_args[j] = type_args[j];
+            }
+            resolved_args[i] = resolved;
+        }
     }
+    type_args = resolved_args;
 
     /* Check instantiation cache */
     GenericInstantiation *cached = generic_registry_find_instantiation(template_name,
@@ -962,6 +1003,19 @@ Type *monomorphize_struct_type(Arena *arena, GenericTemplate *tmpl,
 
     /* Type-check the monomorphized struct (validates method bodies + field types) */
     type_check_generic_instantiation_decl(arena, mono_decl, table);
+
+    /* Sync resolved method signatures from mono_decl back to mono_type.
+     * type_check_struct_decl resolves forward references in method return types
+     * and parameter types, but mono_type's methods were copied before type-checking. */
+    for (int i = 0; i < mono_type->as.struct_type.method_count && i < mono_decl->method_count; i++)
+    {
+        mono_type->as.struct_type.methods[i].return_type = mono_decl->methods[i].return_type;
+        for (int j = 0; j < mono_decl->methods[i].param_count; j++)
+        {
+            mono_type->as.struct_type.methods[i].params[j].type =
+                mono_decl->methods[i].params[j].type;
+        }
+    }
 
     DEBUG_VERBOSE("Completed monomorphization: '%s'", mono_name);
     return mono_type;
@@ -1420,6 +1474,11 @@ static void clear_expr_types_in_expr(Expr *e)
         for (int i = 0; i < e->as.struct_literal.field_count; i++)
             clear_expr_types_in_expr(e->as.struct_literal.fields[i].value);
         e->as.struct_literal.struct_type = NULL;
+        /* Clear resolved generic instantiation so re-resolution uses the current
+         * type param aliases (shared bodies are re-checked per instantiation) */
+        if (e->as.struct_literal.type_annotation != NULL &&
+            e->as.struct_literal.type_annotation->kind == TYPE_GENERIC_INST)
+            e->as.struct_literal.type_annotation->as.generic_inst.resolved = NULL;
         break;
     case EXPR_MEMBER_ACCESS:
         clear_expr_types_in_expr(e->as.member_access.object);
