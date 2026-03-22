@@ -1335,8 +1335,8 @@ static void clear_expr_types_in_stmts_impl(Stmt **stmts, int count)
             break;
         case STMT_VAR_DECL:
             clear_expr_types_in_expr(s->as.var_decl.initializer);
-            /* Reset inferred type so var type-checker re-infers */
-            /* Note: we don't clear s->as.var_decl.type because it's the declared type */
+            /* Reset resolved type for generic bodies (T -> concrete mapping) */
+            s->as.var_decl.resolved_type = NULL;
             break;
         case STMT_RETURN:
             clear_expr_types_in_expr(s->as.return_stmt.value);

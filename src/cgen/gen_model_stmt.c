@@ -125,7 +125,9 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             json_object_object_add(obj, "name",
                 json_object_new_string(stmt->as.var_decl.name.start));
             json_object_object_add(obj, "type",
-                gen_model_type(arena, stmt->as.var_decl.type));
+                gen_model_type(arena, stmt->as.var_decl.resolved_type
+                                      ? stmt->as.var_decl.resolved_type
+                                      : stmt->as.var_decl.type));
             json_object_object_add(obj, "mem_qual",
                 json_object_new_string(gen_model_mem_qual_str(stmt->as.var_decl.mem_qualifier)));
             json_object_object_add(obj, "sync_mod",

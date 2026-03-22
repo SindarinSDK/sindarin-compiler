@@ -126,7 +126,10 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         name_tok.filename = NULL;
         Symbol *tsym = symbol_table_lookup_type(table, name_tok);
         if (tsym != NULL && tsym->type != NULL)
+        {
             decl_type = tsym->type;
+            stmt->as.var_decl.resolved_type = decl_type;
+        }
     }
     else if (decl_type != NULL &&
              decl_type->kind == TYPE_ARRAY &&
@@ -152,6 +155,7 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
                 *resolved_arr = *decl_type;
                 resolved_arr->as.array.element_type = tsym->type;
                 decl_type = resolved_arr;
+                stmt->as.var_decl.resolved_type = decl_type;
             }
         }
     }

@@ -1,7 +1,7 @@
 {
     {{c_type iter_type}} __sn_iter__ = __sn__{{iterable_type_name}}_iter({{#if iterable_pass_by_ref}}{{> expr iterable}}{{else}}&({{> expr iterable}}){{/if}});
     while (__sn__{{iter_type_name}}_hasNext({{#if iter_pass_by_ref}}__sn_iter__{{else}}&__sn_iter__{{/if}})) {
-        {{#if (eq element_type.kind "string")}}sn_auto_str {{/if}}{{c_type element_type}} __sn__{{iterator_name}} = __sn__{{iter_type_name}}_next({{#if iter_pass_by_ref}}__sn_iter__{{else}}&__sn_iter__{{/if}});
+        {{c_type element_type}} __sn__{{iterator_name}} = __sn__{{iter_type_name}}_next({{#if iter_pass_by_ref}}__sn_iter__{{else}}&__sn_iter__{{/if}});
         {
 {{#each body.statements}}
             {{> stmt this}}
