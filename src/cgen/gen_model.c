@@ -245,7 +245,6 @@ static void emit_ns_import_recursive(
     for (int i = 0; i < count; i++)
     {
         Stmt *s = stmts[i];
-        if (strncmp(ns_prefix, "MyL11", 5) == 0)
         if (!s || s->type != STMT_FUNCTION) continue;
 
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
@@ -262,7 +261,6 @@ static void emit_ns_import_recursive(
             continue;
         track_emitted(arena, fqn, emitted_names, emitted_count, emitted_capacity);
 
-        if (strncmp(ns_prefix, "MyL11", 5) == 0)
         g_model_ns_static_var_names = static_var_names;
         g_model_ns_static_var_count = static_var_count;
         g_model_ns_instance_var_names = instance_var_names;
