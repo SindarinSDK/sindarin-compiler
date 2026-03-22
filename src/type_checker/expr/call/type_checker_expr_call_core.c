@@ -143,6 +143,16 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
                 return NULL;
             }
 
+            /* Check type parameter constraints */
+            if (!check_type_param_constraints(call_name,
+                                               (const char **)fn_tmpl->decl->type_params,
+                                               fn_tmpl->decl->type_param_constraints,
+                                               fn_tmpl->decl->type_param_constraint_counts,
+                                               inferred, tp_count))
+            {
+                return NULL; /* error already reported */
+            }
+
             /* Check instantiation cache */
             GenericFunctionInstantiation *fn_cached =
                 generic_registry_find_function_instantiation(call_name, inferred, tp_count);

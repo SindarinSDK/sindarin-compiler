@@ -10,6 +10,7 @@
 
 #include "type_checker/type_checker_generics.h"
 #include "type_checker/stmt/type_checker_stmt_struct.h"
+#include "type_checker/stmt/type_checker_stmt_interface.h"
 #include "type_checker/util/type_checker_util.h"
 #include "ast/ast_type.h"
 #include "symbol_table.h"
@@ -624,6 +625,167 @@ StructDeclStmt *monomorphize_struct(Arena *arena, GenericTemplate *tmpl,
 }
 
 /* ============================================================================
+ * Constraint checking — primitives auto-satisfy standard interfaces
+ * ============================================================================ */
+
+/* Check whether a primitive type auto-satisfies a built-in interface.
+ * Primitives don't have method declarations, but the compiler treats them
+ * as satisfying Comparable, Hashable, and Stringable. */
+static bool primitive_satisfies_interface(Type *type, Type *iface)
+{
+    if (type == NULL || iface == NULL || iface->kind != TYPE_INTERFACE)
+        return false;
+    if (iface->as.interface_type.name == NULL)
+        return false;
+
+    const char *iface_name = iface->as.interface_type.name;
+    TypeKind k = type->kind;
+
+    /* Numeric types: int, int32, uint, uint32, long, double, float, char, byte */
+    bool is_numeric = (k == TYPE_INT || k == TYPE_INT32 || k == TYPE_UINT ||
+                       k == TYPE_UINT32 || k == TYPE_LONG || k == TYPE_DOUBLE ||
+                       k == TYPE_FLOAT || k == TYPE_CHAR || k == TYPE_BYTE);
+
+    if (is_numeric)
+    {
+        if (strcmp(iface_name, "Comparable") == 0) return true;
+        if (strcmp(iface_name, "Hashable") == 0)   return true;
+        if (strcmp(iface_name, "Stringable") == 0) return true;
+    }
+
+    /* str: Comparable, Hashable, Stringable */
+    if (k == TYPE_STRING)
+    {
+        if (strcmp(iface_name, "Comparable") == 0) return true;
+        if (strcmp(iface_name, "Hashable") == 0)   return true;
+        if (strcmp(iface_name, "Stringable") == 0) return true;
+    }
+
+    /* bool: Hashable, Stringable */
+    if (k == TYPE_BOOL)
+    {
+        if (strcmp(iface_name, "Hashable") == 0)   return true;
+        if (strcmp(iface_name, "Stringable") == 0) return true;
+    }
+
+    return false;
+}
+
+/* Check whether a concrete type satisfies an interface constraint.
+ * For struct types, uses the structural satisfaction check.
+ * For primitive types, checks the auto-derivable set. */
+static bool type_satisfies_constraint(Type *concrete_type, Type *constraint,
+                                       const char **missing_method,
+                                       const char **mismatch_reason)
+{
+    if (concrete_type == NULL || constraint == NULL)
+        return false;
+
+    /* Primitives auto-satisfy built-in interfaces */
+    if (concrete_type->kind != TYPE_STRUCT && concrete_type->kind != TYPE_INTERFACE)
+        return primitive_satisfies_interface(concrete_type, constraint);
+
+    /* Struct: structural satisfaction check */
+    if (concrete_type->kind == TYPE_STRUCT)
+        return struct_satisfies_interface(concrete_type, constraint, missing_method, mismatch_reason);
+
+    return false;
+}
+
+/* Validate that all type arguments satisfy their declared constraints.
+ * Returns true if all constraints are satisfied, false otherwise (with error reported).
+ * template_name: used for error messages.
+ * type_params: parameter names array.
+ * type_param_constraints: constraint arrays per type param (may be NULL).
+ * type_param_constraint_counts: count array (may be NULL).
+ * type_args: concrete type arguments.
+ * type_arg_count: number of type arguments. */
+bool check_type_param_constraints(const char *template_name,
+                                          const char **type_params,
+                                          Type ***type_param_constraints,
+                                          int *type_param_constraint_counts,
+                                          Type **type_args, int type_arg_count)
+{
+    if (type_param_constraints == NULL || type_param_constraint_counts == NULL)
+        return true; /* no constraints declared */
+
+    for (int i = 0; i < type_arg_count; i++)
+    {
+        int con_count = type_param_constraint_counts[i];
+        if (con_count == 0 || type_param_constraints[i] == NULL)
+            continue;
+
+        for (int c = 0; c < con_count; c++)
+        {
+            Type *constraint = type_param_constraints[i][c];
+            if (constraint == NULL) continue;
+
+            const char *missing_method = NULL;
+            const char *mismatch_reason = NULL;
+
+            if (!type_satisfies_constraint(type_args[i], constraint,
+                                            &missing_method, &mismatch_reason))
+            {
+                Token err_tok;
+                err_tok.start    = template_name;
+                err_tok.length   = (int)strlen(template_name);
+                err_tok.type     = TOKEN_IDENTIFIER;
+                err_tok.line     = 0;
+                err_tok.filename = NULL;
+
+                const char *type_name = "unknown";
+                if (type_args[i] != NULL)
+                {
+                    switch (type_args[i]->kind)
+                    {
+                    case TYPE_STRUCT:  type_name = type_args[i]->as.struct_type.name ? type_args[i]->as.struct_type.name : "struct"; break;
+                    case TYPE_INT:     type_name = "int"; break;
+                    case TYPE_INT32:   type_name = "int32"; break;
+                    case TYPE_UINT:    type_name = "uint"; break;
+                    case TYPE_UINT32:  type_name = "uint32"; break;
+                    case TYPE_LONG:    type_name = "long"; break;
+                    case TYPE_DOUBLE:  type_name = "double"; break;
+                    case TYPE_FLOAT:   type_name = "float"; break;
+                    case TYPE_CHAR:    type_name = "char"; break;
+                    case TYPE_STRING:  type_name = "str"; break;
+                    case TYPE_BOOL:    type_name = "bool"; break;
+                    case TYPE_BYTE:    type_name = "byte"; break;
+                    default:           break;
+                    }
+                }
+
+                const char *iface_name = constraint->as.interface_type.name
+                    ? constraint->as.interface_type.name : "interface";
+
+                char msg[512];
+                if (missing_method != NULL)
+                {
+                    snprintf(msg, sizeof(msg),
+                             "type '%s' does not satisfy interface '%s' required by type parameter '%s' of '%s': missing method '%s'",
+                             type_name, iface_name, type_params[i], template_name, missing_method);
+                }
+                else if (mismatch_reason != NULL)
+                {
+                    snprintf(msg, sizeof(msg),
+                             "type '%s' does not satisfy interface '%s' required by type parameter '%s' of '%s': %s",
+                             type_name, iface_name, type_params[i], template_name, mismatch_reason);
+                }
+                else
+                {
+                    snprintf(msg, sizeof(msg),
+                             "type '%s' does not satisfy interface '%s' required by type parameter '%s' of '%s'",
+                             type_name, iface_name, type_params[i], template_name);
+                }
+                type_error(&err_tok, msg);
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
+/* ============================================================================
  * TYPE_GENERIC_INST resolution
  * ============================================================================ */
 
@@ -706,6 +868,16 @@ Type *resolve_generic_instantiation(Arena *arena, Type *generic_inst, SymbolTabl
                  template_name, tmpl->decl->type_param_count, type_arg_count);
         type_error(&name_tok, msg);
         return NULL;
+    }
+
+    /* Check type parameter constraints */
+    if (!check_type_param_constraints(template_name,
+                                       (const char **)tmpl->decl->type_params,
+                                       tmpl->decl->type_param_constraints,
+                                       tmpl->decl->type_param_constraint_counts,
+                                       type_args, type_arg_count))
+    {
+        return NULL; /* error already reported */
     }
 
     /* Monomorphize */

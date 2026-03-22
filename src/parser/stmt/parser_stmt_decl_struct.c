@@ -321,9 +321,14 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
         return NULL;
     }
 
-    /* Parse optional type parameters: struct Stack<T> or struct Map<K, V> */
+    /* Parse optional type parameters: struct Stack<T> or struct Map<K, V>
+     * With optional constraints: struct SortedList<T: Comparable>
+     *                            struct HashMap<K: Hashable, V>
+     *                            struct SortedSet<T: Comparable & Hashable> */
     const char **type_params = NULL;
     int type_param_count = 0;
+    Type ***type_param_constraints = NULL;
+    int *type_param_constraint_counts = NULL;
 
     if (parser_check(parser, TOKEN_LESS))
     {
@@ -333,7 +338,9 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
         {
             int capacity = 4;
             type_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
-            if (type_params == NULL)
+            type_param_constraints = arena_alloc(parser->arena, sizeof(Type **) * capacity);
+            type_param_constraint_counts = arena_alloc(parser->arena, sizeof(int) * capacity);
+            if (type_params == NULL || type_param_constraints == NULL || type_param_constraint_counts == NULL)
             {
                 parser_error_at_current(parser, "Out of memory");
                 return NULL;
@@ -350,17 +357,75 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
                 {
                     capacity *= 2;
                     const char **new_params = arena_alloc(parser->arena, sizeof(char *) * capacity);
-                    if (new_params == NULL)
+                    Type ***new_constraints = arena_alloc(parser->arena, sizeof(Type **) * capacity);
+                    int *new_counts = arena_alloc(parser->arena, sizeof(int) * capacity);
+                    if (new_params == NULL || new_constraints == NULL || new_counts == NULL)
                     {
                         parser_error_at_current(parser, "Out of memory");
                         return NULL;
                     }
                     memcpy(new_params, type_params, sizeof(char *) * type_param_count);
+                    memcpy(new_constraints, type_param_constraints, sizeof(Type **) * type_param_count);
+                    memcpy(new_counts, type_param_constraint_counts, sizeof(int) * type_param_count);
                     type_params = new_params;
+                    type_param_constraints = new_constraints;
+                    type_param_constraint_counts = new_counts;
                 }
-                type_params[type_param_count++] = arena_strndup(parser->arena,
+                type_params[type_param_count] = arena_strndup(parser->arena,
                     parser->current.start, parser->current.length);
                 parser_advance(parser);
+
+                /* Parse optional constraints: T: InterfaceName or T: A & B */
+                type_param_constraints[type_param_count] = NULL;
+                type_param_constraint_counts[type_param_count] = 0;
+                if (parser_match(parser, TOKEN_COLON))
+                {
+                    int con_capacity = 4;
+                    int con_count = 0;
+                    Type **constraints = arena_alloc(parser->arena, sizeof(Type *) * con_capacity);
+                    if (constraints == NULL)
+                    {
+                        parser_error_at_current(parser, "Out of memory");
+                        return NULL;
+                    }
+
+                    do
+                    {
+                        if (!parser_check(parser, TOKEN_IDENTIFIER))
+                        {
+                            parser_error_at_current(parser, "Expected interface name after ':'");
+                            return NULL;
+                        }
+                        Token iface_name = parser->current;
+                        parser_advance(parser);
+
+                        /* Look up the interface type */
+                        Symbol *sym = symbol_table_lookup_type(parser->symbol_table, iface_name);
+                        if (sym == NULL || sym->type == NULL || sym->type->kind != TYPE_INTERFACE)
+                        {
+                            char msg[256];
+                            snprintf(msg, sizeof(msg), "'%.*s' is not an interface",
+                                     iface_name.length, iface_name.start);
+                            parser_error_at(parser, &iface_name, msg);
+                            return NULL;
+                        }
+
+                        if (con_count >= con_capacity)
+                        {
+                            con_capacity *= 2;
+                            Type **new_con = arena_alloc(parser->arena, sizeof(Type *) * con_capacity);
+                            if (new_con == NULL) { parser_error_at_current(parser, "Out of memory"); return NULL; }
+                            memcpy(new_con, constraints, sizeof(Type *) * con_count);
+                            constraints = new_con;
+                        }
+                        constraints[con_count++] = sym->type;
+                    } while (parser_match(parser, TOKEN_AMPERSAND));
+
+                    type_param_constraints[type_param_count] = constraints;
+                    type_param_constraint_counts[type_param_count] = con_count;
+                }
+
+                type_param_count++;
             } while (parser_match(parser, TOKEN_COMMA));
         }
 
@@ -961,6 +1026,8 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
     stmt->as.struct_decl.is_serializable = is_serializable;
     stmt->as.struct_decl.type_params = type_params;
     stmt->as.struct_decl.type_param_count = type_param_count;
+    stmt->as.struct_decl.type_param_constraints = type_param_constraints;
+    stmt->as.struct_decl.type_param_constraint_counts = type_param_constraint_counts;
 
     return stmt;
 }

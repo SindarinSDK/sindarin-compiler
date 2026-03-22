@@ -591,6 +591,8 @@ typedef struct
     bool code_emitted;          /* true if code has already been generated (prevents double emission in diamond imports) */
     const char **type_params;   /* type parameter names: ["T", "U"] — NULL if not generic */
     int type_param_count;       /* number of type parameters */
+    Type ***type_param_constraints;    /* constraints per type param: type_param_constraints[i] = array of interface Types for param i — NULL if unconstrained */
+    int *type_param_constraint_counts; /* number of constraints per type param — NULL if no constraints */
 } FunctionStmt;
 
 typedef struct
@@ -683,6 +685,8 @@ typedef struct
     const char *c_alias;       /* C type name alias (from #pragma alias), NULL if none */
     const char **type_params;  /* type parameter names: ["T", "U"] — NULL if not generic */
     int type_param_count;      /* number of type parameters */
+    Type ***type_param_constraints;    /* constraints per type param — NULL if unconstrained */
+    int *type_param_constraint_counts; /* number of constraints per type param — NULL if no constraints */
 } StructDeclStmt;
 
 /* Lock statement for synchronized blocks: lock(expr) => body */
