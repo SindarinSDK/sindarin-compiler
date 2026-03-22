@@ -563,6 +563,7 @@ typedef struct
     bool is_static;                 /* True if declared with 'static var' at module level */
     bool code_emitted;              /* True if code has already been generated (prevents double emission in diamond imports) */
     bool has_pending_elements;      /* True if array has thread spawn elements via push (set by type checker) */
+    Type *resolved_type;            /* Resolved type for generic bodies (set by type checker, cleared between instantiations) */
 } VarDeclStmt;
 
 struct Parameter

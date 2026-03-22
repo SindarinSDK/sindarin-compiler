@@ -55,8 +55,9 @@ struct ArrayIter<T> =>
         return self.index < len(self.items)
 
     fn next(): T =>
+        var v: T = self.items[self.index]
         self.index = self.index + 1
-        return self.items[self.index - 1]
+        return v
 
 struct Sequence<T> =>
     items: T[]
