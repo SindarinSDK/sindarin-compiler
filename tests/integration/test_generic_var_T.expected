@@ -1,0 +1,6 @@
+Test 1 passed: var T with int
+Test 2 passed: var T with str
+Test 3 passed: var T arithmetic
+Test 4 passed: Multi-param var A, var B
+Test 5 passed: Reversed type args (shared body clearing)
+All generic var T tests passed!

@@ -1,0 +1,5 @@
+Test 1 passed: Factory<int>.wrap(42)
+Test 2 passed: Factory<str>.wrap(hello)
+Test 3 passed: Factory<int>.wrapDefault()
+Test 4 passed: Multiple same-type instantiations
+All nested generic return tests passed!

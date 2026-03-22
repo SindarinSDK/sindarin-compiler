@@ -1,0 +1,72 @@
+# Test: Multi-param generic struct with iterator returning another multi-param generic
+# Exercises: resolve_generic_instantiation with multiple TYPE_STRUCT forward-ref args
+
+struct Entry<K, V> =>
+    key: K
+    value: V
+
+struct EntryIter<K, V> =>
+    keys: K[]
+    values: V[]
+    index: int
+
+    fn hasNext(): bool =>
+        return self.index < len(self.keys)
+
+    fn next(): Entry<K, V> =>
+        var k: K = self.keys[self.index]
+        var v: V = self.values[self.index]
+        self.index = self.index + 1
+        return Entry<K, V> { key: k, value: v }
+
+struct SimpleMap<K, V> =>
+    keys: K[]
+    values: V[]
+
+    fn put(key: K, value: V): void =>
+        self.keys.push(key)
+        self.values.push(value)
+
+    fn size(): int =>
+        return len(self.keys)
+
+    fn iter(): EntryIter<K, V> =>
+        return EntryIter<K, V> { keys: self.keys, values: self.values, index: 0 }
+
+fn main(): int =>
+    # Test 1: SimpleMap<int, int> with iteration
+    var m: SimpleMap<int, int> = SimpleMap<int, int> { keys: {}, values: {} }
+    m.put(1, 100)
+    m.put(2, 200)
+    m.put(3, 300)
+    if m.size() != 3 =>
+        print("FAIL: map size should be 3\n")
+        return 1
+
+    var ksum: int = 0
+    var vsum: int = 0
+    for entry in m =>
+        ksum = ksum + entry.key
+        vsum = vsum + entry.value
+    if ksum != 6 =>
+        print("FAIL: key sum should be 6\n")
+        return 1
+    if vsum != 600 =>
+        print("FAIL: value sum should be 600\n")
+        return 1
+    print("Test 1 passed: SimpleMap<int, int> iteration\n")
+
+    # Test 2: Different instantiation SimpleMap<int, int> (shared body reuse)
+    var m2: SimpleMap<int, int> = SimpleMap<int, int> { keys: {}, values: {} }
+    m2.put(10, 1)
+    m2.put(20, 2)
+    var count: int = 0
+    for entry in m2 =>
+        count = count + 1
+    if count != 2 =>
+        print("FAIL: count should be 2\n")
+        return 1
+    print("Test 2 passed: Second SimpleMap<int, int>\n")
+
+    print("All multi-param generic iterator tests passed!\n")
+    return 0

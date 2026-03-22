@@ -1,0 +1,82 @@
+# Test: var v: T in generic method bodies
+# Exercises: VarDeclStmt.resolved_type for correct codegen per instantiation
+
+struct Container<T> =>
+    items: T[]
+
+    fn first(): T =>
+        var result: T = self.items[0]
+        return result
+
+    fn last(): T =>
+        var idx: int = len(self.items) - 1
+        var result: T = self.items[idx]
+        return result
+
+    fn sum_first_two(): T =>
+        var a: T = self.items[0]
+        var b: T = self.items[1]
+        return a + b
+
+struct Pair<A, B> =>
+    first: A
+    second: B
+
+    fn getFirst(): A =>
+        var v: A = self.first
+        return v
+
+    fn getSecond(): B =>
+        var v: B = self.second
+        return v
+
+fn main(): int =>
+    # Test 1: var v: T with int
+    var ci: Container<int> = Container<int> { items: {10, 20, 30} }
+    if ci.first() != 10 =>
+        print("FAIL: Container<int>.first() should be 10\n")
+        return 1
+    if ci.last() != 30 =>
+        print("FAIL: Container<int>.last() should be 30\n")
+        return 1
+    print("Test 1 passed: var T with int\n")
+
+    # Test 2: var v: T with str
+    var cs: Container<str> = Container<str> { items: {"alpha", "beta", "gamma"} }
+    if cs.first() != "alpha" =>
+        print("FAIL: Container<str>.first() should be alpha\n")
+        return 1
+    if cs.last() != "gamma" =>
+        print("FAIL: Container<str>.last() should be gamma\n")
+        return 1
+    print("Test 2 passed: var T with str\n")
+
+    # Test 3: var v: T arithmetic (int instantiation)
+    var cn: Container<int> = Container<int> { items: {3, 7, 11} }
+    if cn.sum_first_two() != 10 =>
+        print("FAIL: sum_first_two should be 10\n")
+        return 1
+    print("Test 3 passed: var T arithmetic\n")
+
+    # Test 4: Multi-param generic with var v: A, var v: B
+    var p: Pair<int, str> = Pair<int, str> { first: 42, second: "answer" }
+    if p.getFirst() != 42 =>
+        print("FAIL: Pair.getFirst() should be 42\n")
+        return 1
+    if p.getSecond() != "answer" =>
+        print("FAIL: Pair.getSecond() should be answer\n")
+        return 1
+    print("Test 4 passed: Multi-param var A, var B\n")
+
+    # Test 5: Same generic with different type args (tests shared body clearing)
+    var p2: Pair<str, int> = Pair<str, int> { first: "key", second: 99 }
+    if p2.getFirst() != "key" =>
+        print("FAIL: Pair<str,int>.getFirst() should be key\n")
+        return 1
+    if p2.getSecond() != 99 =>
+        print("FAIL: Pair<str,int>.getSecond() should be 99\n")
+        return 1
+    print("Test 5 passed: Reversed type args (shared body clearing)\n")
+
+    print("All generic var T tests passed!\n")
+    return 0
