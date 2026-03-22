@@ -1,5 +1,6 @@
 # Test: Multi-param generic struct with iterator returning another multi-param generic
 # Exercises: resolve_generic_instantiation with multiple TYPE_STRUCT forward-ref args
+# Also tests proper cleanup of returned structs with heap fields from next()
 
 struct Entry<K, V> =>
     key: K
@@ -42,7 +43,6 @@ fn main(): int =>
     if m.size() != 3 =>
         print("FAIL: map size should be 3\n")
         return 1
-
     var ksum: int = 0
     var vsum: int = 0
     for entry in m =>
@@ -56,17 +56,30 @@ fn main(): int =>
         return 1
     print("Test 1 passed: SimpleMap<int, int> iteration\n")
 
-    # Test 2: Different instantiation SimpleMap<int, int> (shared body reuse)
-    var m2: SimpleMap<int, int> = SimpleMap<int, int> { keys: {}, values: {} }
-    m2.put(10, 1)
-    m2.put(20, 2)
-    var count: int = 0
+    # Test 2: SimpleMap<str, int> with string keys (tests cleanup of Entry with str field)
+    var m2: SimpleMap<str, int> = SimpleMap<str, int> { keys: {}, values: {} }
+    m2.put("alice", 95)
+    m2.put("bob", 82)
+    m2.put("carol", 91)
+    var total: int = 0
     for entry in m2 =>
-        count = count + 1
-    if count != 2 =>
-        print("FAIL: count should be 2\n")
+        total = total + entry.value
+    if total != 268 =>
+        print("FAIL: total should be 268\n")
         return 1
-    print("Test 2 passed: Second SimpleMap<int, int>\n")
+    print("Test 2 passed: SimpleMap<str, int> iteration\n")
+
+    # Test 3: SimpleMap<int, str> with string values
+    var m3: SimpleMap<int, str> = SimpleMap<int, str> { keys: {}, values: {} }
+    m3.put(1, "one")
+    m3.put(2, "two")
+    var ksum3: int = 0
+    for entry in m3 =>
+        ksum3 = ksum3 + entry.key
+    if ksum3 != 3 =>
+        print("FAIL: key sum should be 3\n")
+        return 1
+    print("Test 3 passed: SimpleMap<int, str> iteration\n")
 
     print("All multi-param generic iterator tests passed!\n")
     return 0

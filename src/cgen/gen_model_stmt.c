@@ -520,7 +520,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         if (fv && fv->type == EXPR_VARIABLE && fv->expr_type)
                         {
                             Type *ft = fv->expr_type;
-                            if (ft->kind == TYPE_ARRAY || ft->kind == TYPE_STRING)
+                            /* Only null-out arrays (no copy in struct literal).
+                             * Strings are NOT nulled: struct literal strdup's string fields,
+                             * creating an independent copy — let sn_auto_str free the original. */
+                            if (ft->kind == TYPE_ARRAY)
                             {
                                 if (!transfer_vars) transfer_vars = json_object_new_array();
                                 json_object_array_add(transfer_vars,
@@ -676,8 +679,17 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     json_object_new_boolean(iter_type->as.struct_type.pass_self_by_ref));
 
                 /* Element type (return type of next()) */
+                Type *elem_type = stmt->as.for_each_stmt.element_type;
                 json_object_object_add(obj, "element_type",
-                    gen_model_type(arena, stmt->as.for_each_stmt.element_type));
+                    gen_model_type(arena, elem_type));
+
+                /* Element cleanup kind for loop variable (next() returns owned values) */
+                if (elem_type)
+                {
+                    const char *elem_ck = gen_model_var_cleanup_kind(elem_type, false);
+                    json_object_object_add(obj, "element_cleanup_kind",
+                        json_object_new_string(elem_ck));
+                }
             }
             else
             {

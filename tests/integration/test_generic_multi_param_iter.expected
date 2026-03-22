@@ -1,3 +1,4 @@
 Test 1 passed: SimpleMap<int, int> iteration
-Test 2 passed: Second SimpleMap<int, int>
+Test 2 passed: SimpleMap<str, int> iteration
+Test 3 passed: SimpleMap<int, str> iteration
 All multi-param generic iterator tests passed!
