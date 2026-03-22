@@ -115,7 +115,6 @@ static void emit_ns_import_recursive(
     SymbolTable *symbol_table, ArithmeticMode arithmetic_mode,
     const char **emitted_names, int *emitted_count, int emitted_capacity)
 {
-    fprintf(stderr, "[DBG] emit_ns ns=%s count=%d\n", ns_prefix, count); fflush(stderr);
     const char *old_prefix = g_model_namespace_prefix;
     const char *old_canonical = g_model_canonical_prefix;
     g_model_namespace_prefix = ns_prefix;
@@ -218,7 +217,6 @@ static void emit_ns_import_recursive(
         }
     }
 
-    fprintf(stderr, "[DBG] emit_ns vars done, emitting structs\n"); fflush(stderr);
     /* Emit structs (once per struct name, regardless of import path) */
     for (int i = 0; i < count; i++)
     {
@@ -241,7 +239,6 @@ static void emit_ns_import_recursive(
         }
     }
 
-    fprintf(stderr, "[DBG] emit_ns structs done, emitting fns\n"); fflush(stderr);
     /* Emit functions with namespace variable/function name lists active.
      * Functions are emitted per alias (ns_prefix) because they reference
      * instance vars with alias-specific prefixes. */
@@ -249,7 +246,6 @@ static void emit_ns_import_recursive(
     {
         Stmt *s = stmts[i];
         if (strncmp(ns_prefix, "MyL11", 5) == 0)
-        { fprintf(stderr, "[DBG] fn-loop ns=%s i=%d type=%d\n", ns_prefix, i, s ? s->type : -1); fflush(stderr); }
         if (!s || s->type != STMT_FUNCTION) continue;
 
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
@@ -267,7 +263,6 @@ static void emit_ns_import_recursive(
         track_emitted(arena, fqn, emitted_names, emitted_count, emitted_capacity);
 
         if (strncmp(ns_prefix, "MyL11", 5) == 0)
-        { fprintf(stderr, "[DBG] emit fn ns=%s %.*s\n", ns_prefix, s->as.function.name.length, s->as.function.name.start); fflush(stderr); }
         g_model_ns_static_var_names = static_var_names;
         g_model_ns_static_var_count = static_var_count;
         g_model_ns_instance_var_names = instance_var_names;
@@ -278,7 +273,6 @@ static void emit_ns_import_recursive(
         json_object_array_add(functions,
             gen_model_function(arena, &s->as.function,
                                symbol_table, arithmetic_mode));
-        fprintf(stderr, "[DBG] emit fn done\n"); fflush(stderr);
         g_model_ns_static_var_names = NULL;
         g_model_ns_static_var_count = 0;
         g_model_ns_instance_var_names = NULL;
@@ -288,7 +282,6 @@ static void emit_ns_import_recursive(
         g_model_ns_fn_count = 0;
     }
 
-    fprintf(stderr, "[DBG] emit_ns fns done, recursing nested\n"); fflush(stderr);
     /* Recurse into nested namespace imports */
     for (int i = 0; i < count; i++)
     {
@@ -411,7 +404,6 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     const char **emitted_names = arena_alloc(arena, sizeof(const char *) * emitted_capacity);
     int emitted_count = 0;
 
-    fprintf(stderr, "[DBG] gen_model_build: pre-register generics\n"); fflush(stderr);
     /* Pre-register all monomorphized generic functions in the global symbol table.
      * During type-checking, monomorphized functions (e.g. identity_int) are added to
      * whatever function scope triggered their instantiation (e.g. inside main()).
@@ -438,11 +430,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
         }
     }
 
-    fprintf(stderr, "[DBG] gen_model_build: processing %d stmts\n", module->count); fflush(stderr);
     for (int i = 0; i < module->count; i++)
     {
         Stmt *stmt = module->statements[i];
-        fprintf(stderr, "[DBG] stmt %d/%d type=%d\n", i, module->count, stmt->type); fflush(stderr);
 
         switch (stmt->type)
         {
@@ -555,7 +545,6 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
         }
     }
 
-    fprintf(stderr, "[DBG] gen_model_build: stmt loop done, emitting generic instantiations\n"); fflush(stderr);
     /* Emit all monomorphized generic struct instantiations.
      * These are generated on-demand during type checking and not present in the module
      * statement list, so they must be injected here.
