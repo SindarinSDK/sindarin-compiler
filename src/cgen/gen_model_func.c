@@ -260,8 +260,12 @@ static void prescan_stmt(Arena *arena, Stmt *stmt, SymbolTable *table, int lambd
         symbol_table_push_scope(table);
         prescan_expr(arena, stmt->as.for_each_stmt.iterable, table, lambda_scope_depth);
         /* Add loop variable to scope */
-        if (stmt->as.for_each_stmt.iterable->expr_type &&
-            stmt->as.for_each_stmt.iterable->expr_type->kind == TYPE_ARRAY) {
+        if (stmt->as.for_each_stmt.element_type) {
+            /* Iterator protocol: element_type set by type checker */
+            symbol_table_add_symbol(table, stmt->as.for_each_stmt.var_name,
+                                    stmt->as.for_each_stmt.element_type);
+        } else if (stmt->as.for_each_stmt.iterable->expr_type &&
+                   stmt->as.for_each_stmt.iterable->expr_type->kind == TYPE_ARRAY) {
             Type *elem_type = stmt->as.for_each_stmt.iterable->expr_type->as.array.element_type;
             symbol_table_add_symbol(table, stmt->as.for_each_stmt.var_name, elem_type);
         } else {

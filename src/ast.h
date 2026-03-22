@@ -634,6 +634,8 @@ typedef struct
     Token var_name;
     Expr *iterable;
     Stmt *body;
+    Type *iterator_type;  /* Non-NULL when iterable satisfies iterator protocol (set by type checker) */
+    Type *element_type;   /* Element type of the iteration (set by type checker) */
 } ForEachStmt;
 
 typedef struct
