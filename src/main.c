@@ -155,7 +155,6 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
         }
     }
 
-    fprintf(stderr, "[DBG] files written, phase done\n"); fflush(stderr);
     diagnostic_phase_done(PHASE_CODE_GEN, 0);
 
     /* Compile each .c → .o, then link all .o → executable */
