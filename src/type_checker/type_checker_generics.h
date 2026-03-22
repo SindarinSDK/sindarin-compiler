@@ -183,4 +183,17 @@ bool infer_type_params_from_args(FunctionStmt *tmpl_func,
  */
 void clear_expr_types_in_stmts(Stmt **stmts, int count);
 
+/* ============================================================================
+ * Constraint checking
+ * ============================================================================ */
+
+/* Validate that all type arguments satisfy their declared interface constraints.
+ * Returns true if all constraints are satisfied, false on failure (error reported).
+ * type_param_constraints / type_param_constraint_counts may be NULL (unconstrained). */
+bool check_type_param_constraints(const char *template_name,
+                                   const char **type_params,
+                                   Type ***type_param_constraints,
+                                   int *type_param_constraint_counts,
+                                   Type **type_args, int type_arg_count);
+
 #endif /* TYPE_CHECKER_GENERICS_H */

@@ -403,9 +403,14 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         symbol_table_add_type(parser->symbol_table, dec_tok, decoder_type);
     }
 
-    // ---- Built-in standard interfaces ----
+    // ---- Built-in standard interfaces (with method signatures for constraint checking) ----
 
-    // Comparable — for types that can be compared with <, >, etc.
+    Type *iface_int = ast_create_primitive_type(arena, TYPE_INT);
+    Type *iface_str = ast_create_primitive_type(arena, TYPE_STRING);
+    Type *iface_bool = ast_create_primitive_type(arena, TYPE_BOOL);
+    Type *t_self = ast_create_opaque_type(arena, "Self");
+
+    // Comparable — compare(other: Self): int
     {
         Token comparable_tok;
         comparable_tok.start = arena_strdup(arena, "Comparable");
@@ -413,11 +418,19 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         comparable_tok.type = TOKEN_IDENTIFIER;
         comparable_tok.line = 0;
         comparable_tok.filename = arena_strdup(arena, "<built-in>");
-        Type *comparable_type = ast_create_interface_type(arena, "Comparable", NULL, 0);
+
+        StructMethod *methods = arena_alloc(arena, sizeof(StructMethod) * 1);
+        memset(methods, 0, sizeof(StructMethod) * 1);
+        Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+        p[0] = (Parameter){ .name = { .start = "other", .length = 5 }, .type = t_self, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+        methods[0] = (StructMethod){ .name = "compare", .params = p, .param_count = 1,
+            .return_type = iface_int, .name_token = { .start = "compare", .length = 7 } };
+
+        Type *comparable_type = ast_create_interface_type(arena, "Comparable", methods, 1);
         symbol_table_add_type(parser->symbol_table, comparable_tok, comparable_type);
     }
 
-    // Hashable — for types that can be hashed
+    // Hashable — hash(): int, equals(other: Self): bool
     {
         Token hashable_tok;
         hashable_tok.start = arena_strdup(arena, "Hashable");
@@ -425,11 +438,21 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         hashable_tok.type = TOKEN_IDENTIFIER;
         hashable_tok.line = 0;
         hashable_tok.filename = arena_strdup(arena, "<built-in>");
-        Type *hashable_type = ast_create_interface_type(arena, "Hashable", NULL, 0);
+
+        StructMethod *methods = arena_alloc(arena, sizeof(StructMethod) * 2);
+        memset(methods, 0, sizeof(StructMethod) * 2);
+        methods[0] = (StructMethod){ .name = "hash", .params = NULL, .param_count = 0,
+            .return_type = iface_int, .name_token = { .start = "hash", .length = 4 } };
+        Parameter *p = arena_alloc(arena, sizeof(Parameter) * 1);
+        p[0] = (Parameter){ .name = { .start = "other", .length = 5 }, .type = t_self, .mem_qualifier = MEM_DEFAULT, .sync_modifier = SYNC_NONE };
+        methods[1] = (StructMethod){ .name = "equals", .params = p, .param_count = 1,
+            .return_type = iface_bool, .name_token = { .start = "equals", .length = 6 } };
+
+        Type *hashable_type = ast_create_interface_type(arena, "Hashable", methods, 2);
         symbol_table_add_type(parser->symbol_table, hashable_tok, hashable_type);
     }
 
-    // Stringable — for types that have a string representation
+    // Stringable — toString(): str
     {
         Token stringable_tok;
         stringable_tok.start = arena_strdup(arena, "Stringable");
@@ -437,11 +460,17 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         stringable_tok.type = TOKEN_IDENTIFIER;
         stringable_tok.line = 0;
         stringable_tok.filename = arena_strdup(arena, "<built-in>");
-        Type *stringable_type = ast_create_interface_type(arena, "Stringable", NULL, 0);
+
+        StructMethod *methods = arena_alloc(arena, sizeof(StructMethod) * 1);
+        memset(methods, 0, sizeof(StructMethod) * 1);
+        methods[0] = (StructMethod){ .name = "toString", .params = NULL, .param_count = 0,
+            .return_type = iface_str, .name_token = { .start = "toString", .length = 8 } };
+
+        Type *stringable_type = ast_create_interface_type(arena, "Stringable", methods, 1);
         symbol_table_add_type(parser->symbol_table, stringable_tok, stringable_type);
     }
 
-    // Copyable — for types that can be deep-copied
+    // Copyable — copy(): Self
     {
         Token copyable_tok;
         copyable_tok.start = arena_strdup(arena, "Copyable");
@@ -449,7 +478,13 @@ void parser_init(Arena *arena, Parser *parser, Lexer *lexer, SymbolTable *symbol
         copyable_tok.type = TOKEN_IDENTIFIER;
         copyable_tok.line = 0;
         copyable_tok.filename = arena_strdup(arena, "<built-in>");
-        Type *copyable_type = ast_create_interface_type(arena, "Copyable", NULL, 0);
+
+        StructMethod *methods = arena_alloc(arena, sizeof(StructMethod) * 1);
+        memset(methods, 0, sizeof(StructMethod) * 1);
+        methods[0] = (StructMethod){ .name = "copy", .params = NULL, .param_count = 0,
+            .return_type = t_self, .name_token = { .start = "copy", .length = 4 } };
+
+        Type *copyable_type = ast_create_interface_type(arena, "Copyable", methods, 1);
         symbol_table_add_type(parser->symbol_table, copyable_tok, copyable_type);
     }
 

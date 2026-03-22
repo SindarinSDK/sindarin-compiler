@@ -1,0 +1,15 @@
+# Error test: type parameter constraint violation — struct missing required method
+
+interface Comparable =>
+    fn compare(other: Self): int
+
+struct SortedList<T: Comparable> =>
+    items: T[]
+
+struct Point =>
+    x: int
+    y: int
+
+fn main(): int =>
+    var sl: SortedList<Point> = SortedList<Point> { items: {} }
+    return 0

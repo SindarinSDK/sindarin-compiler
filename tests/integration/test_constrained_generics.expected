@@ -1,0 +1,8 @@
+Test 1 passed: SortedList<Score>
+Test 2 passed: SortedList<int> (primitive auto-satisfies)
+Test 3 passed: SortedList<str> (primitive auto-satisfies)
+Test 4 passed: IndexedSet<Player> (multi-constraint)
+Test 5 passed: KeyValue<UserId, str> (mixed constraints)
+Test 6 passed: KeyValue<str, int> (primitive auto-satisfies)
+Test 7 passed: maxOf<Score> (constrained generic function)
+All constrained generics tests passed!
