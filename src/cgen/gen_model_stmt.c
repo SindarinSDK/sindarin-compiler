@@ -145,8 +145,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     json_object_object_add(obj, "is_captured", json_object_new_boolean(true));
             }
             /* Compute cleanup annotations for c-min codegen */
+            Type *vtype = stmt->as.var_decl.resolved_type
+                          ? stmt->as.var_decl.resolved_type
+                          : stmt->as.var_decl.type;
             {
-                Type *vtype = stmt->as.var_decl.type;
                 if (vtype)
                 {
                     const char *cleanup_kind = gen_model_var_cleanup_kind(vtype, g_suppress_local_cleanup);
@@ -188,7 +190,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                  * Literals and variable refs are borrowed — need strdup.
                  * Function calls, interpolation, concat return owned strings — no strdup.
                  * nil literals must NOT be strdup'd (strdup(NULL) crashes). */
-                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_STRING)
+                if (vtype && vtype->kind == TYPE_STRING)
                 {
                     Expr *init = stmt->as.var_decl.initializer;
                     ExprType itype = init->type;
@@ -202,7 +204,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 }
                 /* For array vars: variable/member initializer needs sn_array_copy to avoid double-free.
                  * Array literals and function calls return owned arrays — no copy needed. */
-                if (stmt->as.var_decl.type && stmt->as.var_decl.type->kind == TYPE_ARRAY)
+                if (vtype && vtype->kind == TYPE_ARRAY)
                 {
                     Expr *init = stmt->as.var_decl.initializer;
                     ExprType itype = init->type;
@@ -215,7 +217,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     }
                 }
                 /* For composite val struct vars: variable/array_access initializer needs deep copy */
-                if (gen_model_type_category(stmt->as.var_decl.type) == TYPE_CAT_COMPOSITE &&
+                if (gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE &&
                     (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
                      stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
                      stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS))
