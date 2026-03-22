@@ -586,7 +586,8 @@ static void flatten_stmt_list(json_object *stmts)
                     }
                 }
                 else if (strcmp(kind, "while") == 0 || strcmp(kind, "for") == 0 ||
-                         strcmp(kind, "for_each") == 0 || strcmp(kind, "lock") == 0)
+                         strcmp(kind, "for_each") == 0 || strcmp(kind, "for_each_iter") == 0 ||
+                         strcmp(kind, "lock") == 0)
                 {
                     if (json_object_object_get_ex(stmt, "body", &body))
                         flatten_body(body);
@@ -635,7 +636,8 @@ static void flatten_stmt_list(json_object *stmts)
                 if (json_object_object_get_ex(stmt, "increment", &inc))
                     flatten_expr(inc, inserts);
             }
-            else if (skind && (strcmp(skind, "for_each") == 0))
+            else if (skind && (strcmp(skind, "for_each") == 0 ||
+                              strcmp(skind, "for_each_iter") == 0))
             {
                 /* Scan iterable, not body */
                 json_object *iter = NULL;

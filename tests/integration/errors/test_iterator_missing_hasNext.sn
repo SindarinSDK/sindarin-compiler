@@ -1,0 +1,19 @@
+# Error test: iterator struct missing hasNext() method
+
+struct BadIter =>
+    value: int
+
+    fn next(): int =>
+        return self.value
+
+struct BadCollection =>
+    value: int
+
+    fn iter(): BadIter =>
+        return BadIter { value: self.value }
+
+fn main(): int =>
+    var c: BadCollection = BadCollection { value: 1 }
+    for x in c =>
+        print(x)
+    return 0

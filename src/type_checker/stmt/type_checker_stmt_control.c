@@ -4,6 +4,8 @@
 #include "type_checker/expr/type_checker_expr.h"
 #include "symbol_table/symbol_table_core.h"
 #include "debug.h"
+#include <stdio.h>
+#include <string.h>
 
 void type_check_return(Stmt *stmt, SymbolTable *table, Type *return_type)
 {
@@ -150,18 +152,116 @@ void type_check_for_each(Stmt *stmt, SymbolTable *table, Type *return_type)
         return;
     }
 
-    /* Verify the iterable is an array type */
-    if (iterable_type->kind != TYPE_ARRAY)
+    Type *element_type = NULL;
+
+    if (iterable_type->kind == TYPE_ARRAY)
     {
-        type_error(stmt->as.for_each_stmt.iterable->token, "For-each iterable must be an array");
+        /* Array iteration — existing path */
+        element_type = iterable_type->as.array.element_type;
+    }
+    else if (iterable_type->kind == TYPE_STRUCT)
+    {
+        /* Iterator protocol: check for iter() -> IterType with hasNext(): bool, next(): T */
+        char msg[512];
+
+        /* 1. Look for iter() method on the iterable struct */
+        StructMethod *iter_method = ast_struct_get_method(iterable_type, "iter");
+        if (iter_method == NULL)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Type '%s' is not iterable: missing method 'iter()'",
+                     iterable_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+        if (iter_method->param_count != 0)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'iter()' on '%s' must take no parameters",
+                     iterable_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+
+        Type *iter_type = iter_method->return_type;
+        if (iter_type == NULL || iter_type->kind != TYPE_STRUCT)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'iter()' on '%s' must return a struct type",
+                     iterable_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+
+        /* 2. Check for hasNext(): bool on the iterator struct */
+        StructMethod *has_next = ast_struct_get_method(iter_type, "hasNext");
+        if (has_next == NULL)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Iterator type '%s' is missing method 'hasNext()'",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+        if (has_next->param_count != 0)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'hasNext()' on '%s' must take no parameters",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+        if (has_next->return_type == NULL || has_next->return_type->kind != TYPE_BOOL)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'hasNext()' on '%s' must return bool",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+
+        /* 3. Check for next(): T on the iterator struct */
+        StructMethod *next_method = ast_struct_get_method(iter_type, "next");
+        if (next_method == NULL)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Iterator type '%s' is missing method 'next()'",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+        if (next_method->param_count != 0)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'next()' on '%s' must take no parameters",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+        if (next_method->return_type == NULL || next_method->return_type->kind == TYPE_VOID)
+        {
+            snprintf(msg, sizeof(msg),
+                     "Method 'next()' on '%s' must return a value",
+                     iter_type->as.struct_type.name);
+            type_error(stmt->as.for_each_stmt.iterable->token, msg);
+            return;
+        }
+
+        element_type = next_method->return_type;
+
+        /* Store iterator info on the AST for code generation */
+        stmt->as.for_each_stmt.iterator_type = iter_type;
+        stmt->as.for_each_stmt.element_type = element_type;
+    }
+    else
+    {
+        type_error(stmt->as.for_each_stmt.iterable->token,
+                   "For-each requires an array or iterable struct type");
         return;
     }
 
-    /* Get the element type from the array */
-    Type *element_type = iterable_type->as.array.element_type;
-
     /* Create a new scope and add the loop variable.
-     * Use SYMBOL_PARAM so it's not freed - loop var is a reference to array element. */
+     * Use SYMBOL_PARAM so it's not freed - loop var is a reference to element. */
     symbol_table_push_scope(table);
     symbol_table_add_symbol_with_kind(table, stmt->as.for_each_stmt.var_name, element_type, SYMBOL_PARAM);
 

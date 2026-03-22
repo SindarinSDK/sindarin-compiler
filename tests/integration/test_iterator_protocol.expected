@@ -1,0 +1,8 @@
+Test 1 passed: Range iteration (0+1+2+3+4 = 10)
+Test 2 passed: Range(3,6) iteration (3+4+5 = 12)
+Test 3 passed: Empty range (no iterations)
+Test 4 passed: PointList iteration (struct elements)
+Test 5 passed: Nested iterator loops
+Test 6 passed: Mixed array and iterator for-each
+Test 7 passed: break inside iterator loop
+All iterator protocol tests passed!

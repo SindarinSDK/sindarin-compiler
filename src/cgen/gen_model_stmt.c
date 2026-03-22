@@ -644,20 +644,55 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
 
         case STMT_FOR_EACH:
         {
-            json_object_object_add(obj, "kind", json_object_new_string("for_each"));
-            json_object_object_add(obj, "iterator_name",
-                json_object_new_string(stmt->as.for_each_stmt.var_name.start));
-            json_object_object_add(obj, "iterable",
-                gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
-            json_object_object_add(obj, "body",
-                gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
-            /* iterable needs cleanup if it's a temporary (not a variable/member reference) */
-            Expr *iter_expr = stmt->as.for_each_stmt.iterable;
-            bool iter_is_temp = (iter_expr->type != EXPR_VARIABLE &&
-                                 iter_expr->type != EXPR_MEMBER &&
-                                 iter_expr->type != EXPR_ARRAY_ACCESS);
-            json_object_object_add(obj, "needs_iterable_cleanup",
-                json_object_new_boolean(iter_is_temp));
+            Type *iter_type = stmt->as.for_each_stmt.iterator_type;
+            if (iter_type != NULL)
+            {
+                /* Iterator protocol: emit for_each_iter model */
+                json_object_object_add(obj, "kind", json_object_new_string("for_each_iter"));
+                json_object_object_add(obj, "iterator_name",
+                    json_object_new_string(stmt->as.for_each_stmt.var_name.start));
+                json_object_object_add(obj, "iterable",
+                    gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
+                json_object_object_add(obj, "body",
+                    gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
+
+                /* Iterable struct type name (for __sn__<Name>_iter call) */
+                Type *iterable_type = stmt->as.for_each_stmt.iterable->expr_type;
+                json_object_object_add(obj, "iterable_type_name",
+                    json_object_new_string(iterable_type->as.struct_type.name));
+                json_object_object_add(obj, "iterable_pass_by_ref",
+                    json_object_new_boolean(iterable_type->as.struct_type.pass_self_by_ref));
+
+                /* Iterator struct type name (for __sn__<Name>_hasNext / _next calls) */
+                json_object_object_add(obj, "iter_type_name",
+                    json_object_new_string(iter_type->as.struct_type.name));
+                json_object_object_add(obj, "iter_type",
+                    gen_model_type(arena, iter_type));
+                json_object_object_add(obj, "iter_pass_by_ref",
+                    json_object_new_boolean(iter_type->as.struct_type.pass_self_by_ref));
+
+                /* Element type (return type of next()) */
+                json_object_object_add(obj, "element_type",
+                    gen_model_type(arena, stmt->as.for_each_stmt.element_type));
+            }
+            else
+            {
+                /* Array iteration: existing path */
+                json_object_object_add(obj, "kind", json_object_new_string("for_each"));
+                json_object_object_add(obj, "iterator_name",
+                    json_object_new_string(stmt->as.for_each_stmt.var_name.start));
+                json_object_object_add(obj, "iterable",
+                    gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
+                json_object_object_add(obj, "body",
+                    gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
+                /* iterable needs cleanup if it's a temporary (not a variable/member reference) */
+                Expr *iter_expr = stmt->as.for_each_stmt.iterable;
+                bool iter_is_temp = (iter_expr->type != EXPR_VARIABLE &&
+                                     iter_expr->type != EXPR_MEMBER &&
+                                     iter_expr->type != EXPR_ARRAY_ACCESS);
+                json_object_object_add(obj, "needs_iterable_cleanup",
+                    json_object_new_boolean(iter_is_temp));
+            }
             break;
         }
 

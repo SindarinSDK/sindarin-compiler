@@ -1,0 +1,136 @@
+# Test: Iterator protocol — for x in collection using iter()/hasNext()/next()
+
+# --- Simple non-generic iterator: Range ---
+
+struct RangeIter =>
+    current: int
+    end: int
+
+    fn hasNext(): bool =>
+        return self.current < self.end
+
+    fn next(): int =>
+        var v: int = self.current
+        self.current = self.current + 1
+        return v
+
+struct Range =>
+    start: int
+    end: int
+
+    fn iter(): RangeIter =>
+        return RangeIter { current: self.start, end: self.end }
+
+# --- Struct-element iterator ---
+
+struct Point =>
+    x: int
+    y: int
+
+struct PointListIter =>
+    items: Point[]
+    index: int
+
+    fn hasNext(): bool =>
+        return self.index < len(self.items)
+
+    fn next(): Point =>
+        var p: Point = self.items[self.index]
+        self.index = self.index + 1
+        return p
+
+struct PointList =>
+    items: Point[]
+
+    fn iter(): PointListIter =>
+        return PointListIter { items: self.items, index: 0 }
+
+fn main(): int =>
+    # Test 1: Basic Range iteration
+    var r: Range = Range { start: 0, end: 5 }
+    var sum: int = 0
+    for x in r =>
+        sum = sum + x
+    if sum != 10 =>
+        print("FAIL: Range sum should be 10, got ")
+        print(sum)
+        print("\n")
+        return 1
+    print("Test 1 passed: Range iteration (0+1+2+3+4 = 10)\n")
+
+    # Test 2: Range with non-zero start
+    var r2: Range = Range { start: 3, end: 6 }
+    var sum2: int = 0
+    for x in r2 =>
+        sum2 = sum2 + x
+    if sum2 != 12 =>
+        print("FAIL: Range(3,6) sum should be 12\n")
+        return 1
+    print("Test 2 passed: Range(3,6) iteration (3+4+5 = 12)\n")
+
+    # Test 3: Empty range (start == end)
+    var r3: Range = Range { start: 5, end: 5 }
+    var count: int = 0
+    for x in r3 =>
+        count = count + 1
+    if count != 0 =>
+        print("FAIL: Empty range should iterate 0 times\n")
+        return 1
+    print("Test 3 passed: Empty range (no iterations)\n")
+
+    # Test 4: Struct-element iteration (PointList)
+    var pts: PointList = PointList { items: {Point { x: 1, y: 2 }, Point { x: 3, y: 4 }} }
+    var xsum: int = 0
+    for p in pts =>
+        xsum = xsum + p.x
+    if xsum != 4 =>
+        print("FAIL: PointList x-sum should be 4\n")
+        return 1
+    print("Test 4 passed: PointList iteration (struct elements)\n")
+
+    # Test 5: Nested iteration (Range inside Range)
+    var outer: Range = Range { start: 0, end: 3 }
+    var inner_sum: int = 0
+    for i in outer =>
+        var inner: Range = Range { start: 0, end: 3 }
+        for j in inner =>
+            inner_sum = inner_sum + i * 10 + j
+    # i=0: 0+1+2=3, i=1: 10+11+12=33, i=2: 20+21+22=63 => total=99
+    if inner_sum != 99 =>
+        print("FAIL: Nested iteration sum should be 99, got ")
+        print(inner_sum)
+        print("\n")
+        return 1
+    print("Test 5 passed: Nested iterator loops\n")
+
+    # Test 6: Mixed array and iterator for-each
+    var arr: int[] = {10, 20, 30}
+    var arr_sum: int = 0
+    for a in arr =>
+        arr_sum = arr_sum + a
+    var r6: Range = Range { start: 1, end: 4 }
+    var range_sum: int = 0
+    for b in r6 =>
+        range_sum = range_sum + b
+    if arr_sum != 60 =>
+        print("FAIL: Array sum should be 60\n")
+        return 1
+    if range_sum != 6 =>
+        print("FAIL: Range sum should be 6\n")
+        return 1
+    print("Test 6 passed: Mixed array and iterator for-each\n")
+
+    # Test 7: break inside iterator loop
+    var r7: Range = Range { start: 0, end: 100 }
+    var sum7: int = 0
+    for x in r7 =>
+        if x >= 5 =>
+            break
+        sum7 = sum7 + x
+    if sum7 != 10 =>
+        print("FAIL: Break sum should be 10\n")
+        return 1
+    print("Test 7 passed: break inside iterator loop\n")
+
+    print("All iterator protocol tests passed!\n")
+    return 0
