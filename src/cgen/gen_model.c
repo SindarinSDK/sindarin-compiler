@@ -248,8 +248,8 @@ static void emit_ns_import_recursive(
     for (int i = 0; i < count; i++)
     {
         Stmt *s = stmts[i];
-        if (strcmp(ns_prefix, "MyL11") == 0)
-        { fprintf(stderr, "[DBG] fn-loop i=%d s=%p type=%d\n", i, (void*)s, s ? s->type : -1); fflush(stderr); }
+        if (strncmp(ns_prefix, "MyL11", 5) == 0)
+        { fprintf(stderr, "[DBG] fn-loop ns=%s i=%d type=%d\n", ns_prefix, i, s ? s->type : -1); fflush(stderr); }
         if (!s || s->type != STMT_FUNCTION) continue;
 
         if (strncmp(s->as.function.name.start, "main", 4) == 0 &&
@@ -266,7 +266,8 @@ static void emit_ns_import_recursive(
             continue;
         track_emitted(arena, fqn, emitted_names, emitted_count, emitted_capacity);
 
-        fprintf(stderr, "[DBG] emit fn %.*s\n", s->as.function.name.length, s->as.function.name.start); fflush(stderr);
+        if (strncmp(ns_prefix, "MyL11", 5) == 0)
+        { fprintf(stderr, "[DBG] emit fn ns=%s %.*s\n", ns_prefix, s->as.function.name.length, s->as.function.name.start); fflush(stderr); }
         g_model_ns_static_var_names = static_var_names;
         g_model_ns_static_var_count = static_var_count;
         g_model_ns_instance_var_names = instance_var_names;
