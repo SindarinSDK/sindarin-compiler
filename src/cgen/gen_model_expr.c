@@ -1028,6 +1028,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     }
                 }
 
+                if (!is_namespace_call && expr->as.call.callee->type == EXPR_MEMBER)
+                {
+                    Expr *dbg_root = expr->as.call.callee->as.member.object;
+                    while (dbg_root && dbg_root->type == EXPR_MEMBER)
+                        dbg_root = dbg_root->as.member.object;
+                    fprintf(stderr, "[DBG] non-ns member call: root_type=%d root_expr_type=%p resolved_method=%p\n",
+                            dbg_root ? dbg_root->type : -1,
+                            dbg_root ? (void*)dbg_root->expr_type : NULL,
+                            (void*)expr->as.call.callee->as.member.resolved_method);
+                    fflush(stderr);
+                }
                 if (!is_namespace_call)
                 {
                     json_object *callee_model = gen_model_expr(arena, expr->as.call.callee, symbol_table, arithmetic_mode);
