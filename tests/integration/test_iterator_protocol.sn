@@ -45,6 +45,25 @@ struct PointList =>
     fn iter(): PointListIter =>
         return PointListIter { items: self.items, index: 0 }
 
+# --- Generic iterator: Sequence<T> with ArrayIter<T> ---
+
+struct ArrayIter<T> =>
+    items: T[]
+    index: int
+
+    fn hasNext(): bool =>
+        return self.index < len(self.items)
+
+    fn next(): T =>
+        self.index = self.index + 1
+        return self.items[self.index - 1]
+
+struct Sequence<T> =>
+    items: T[]
+
+    fn iter(): ArrayIter<T> =>
+        return ArrayIter<T> { items: self.items, index: 0 }
+
 fn main(): int =>
     # Test 1: Basic Range iteration
     var r: Range = Range { start: 0, end: 5 }
@@ -131,6 +150,26 @@ fn main(): int =>
         print("FAIL: Break sum should be 10\n")
         return 1
     print("Test 7 passed: break inside iterator loop\n")
+
+    # Test 8: Generic Sequence<int> iteration
+    var seq: Sequence<int> = Sequence<int> { items: {10, 20, 30} }
+    var sum8: int = 0
+    for item in seq =>
+        sum8 = sum8 + item
+    if sum8 != 60 =>
+        print("FAIL: Sequence<int> sum should be 60\n")
+        return 1
+    print("Test 8 passed: Sequence<int> (generic iterator)\n")
+
+    # Test 9: Generic Sequence<str> iteration
+    var words: Sequence<str> = Sequence<str> { items: {"hello", "world", "!"} }
+    var wcount: int = 0
+    for w in words =>
+        wcount = wcount + 1
+    if wcount != 3 =>
+        print("FAIL: Sequence<str> should have 3 items\n")
+        return 1
+    print("Test 9 passed: Sequence<str> (generic iterator)\n")
 
     print("All iterator protocol tests passed!\n")
     return 0

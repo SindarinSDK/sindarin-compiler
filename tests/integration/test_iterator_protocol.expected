@@ -5,4 +5,6 @@ Test 4 passed: PointList iteration (struct elements)
 Test 5 passed: Nested iterator loops
 Test 6 passed: Mixed array and iterator for-each
 Test 7 passed: break inside iterator loop
+Test 8 passed: Sequence<int> (generic iterator)
+Test 9 passed: Sequence<str> (generic iterator)
 All iterator protocol tests passed!
