@@ -1028,17 +1028,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     }
                 }
 
-                if (!is_namespace_call && expr->as.call.callee->type == EXPR_MEMBER)
-                {
-                    Expr *dbg_root = expr->as.call.callee->as.member.object;
-                    while (dbg_root && dbg_root->type == EXPR_MEMBER)
-                        dbg_root = dbg_root->as.member.object;
-                    fprintf(stderr, "[DBG] non-ns member call: root_type=%d root_expr_type=%p resolved_method=%p\n",
-                            dbg_root ? dbg_root->type : -1,
-                            dbg_root ? (void*)dbg_root->expr_type : NULL,
-                            (void*)expr->as.call.callee->as.member.resolved_method);
-                    fflush(stderr);
-                }
                 if (!is_namespace_call)
                 {
                     json_object *callee_model = gen_model_expr(arena, expr->as.call.callee, symbol_table, arithmetic_mode);
@@ -1147,7 +1136,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     }
                 }
 
-                if (is_namespace_call) { fprintf(stderr, "[DBG] CALL callee done ns=%d\n", is_namespace_call); fflush(stderr); }
                 /* Get param mem quals from callee's function type */
                 MemoryQualifier *pmq = NULL;
                 int pmq_count = 0;
@@ -1207,12 +1195,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     callee_param_count = expr->as.call.callee->expr_type->as.function.param_count;
                 }
 
-                if (is_namespace_call) { fprintf(stderr, "[DBG] CALL args start count=%d\n", expr->as.call.arg_count); fflush(stderr); }
                 json_object *args = json_object_new_array();
                 for (int i = 0; i < expr->as.call.arg_count; i++)
                 {
                     json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
-                    if (is_namespace_call) { fprintf(stderr, "[DBG] CALL arg %d done\n", i); fflush(stderr); }
                     /* Override matrix: param annotation vs arg type */
                     if (pmq && i < pmq_count)
                     {
@@ -1450,7 +1436,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     args = swapped;
                 }
                 json_object_object_add(obj, "args", args);
-                if (is_namespace_call) { fprintf(stderr, "[DBG] CALL args all done, tail=%d\n", expr->as.call.is_tail_call); fflush(stderr); }
                 json_object_object_add(obj, "is_tail_call",
                     json_object_new_boolean(expr->as.call.is_tail_call));
 

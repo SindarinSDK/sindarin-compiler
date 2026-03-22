@@ -577,15 +577,8 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
     {
         for (int i = 0; i < func->body_count; i++)
         {
-            if (func->name.length >= 5 && strncmp(func->name.start, "compu", 5) == 0)
-            { fprintf(stderr, "[DBG] body stmt %d/%d type=%d\n", i, func->body_count,
-                    func->body[i] ? func->body[i]->type : -1); fflush(stderr); }
-            json_object *body_result = gen_model_stmt(arena, func->body[i], symbol_table, arithmetic_mode);
-            if (func->name.length >= 5 && strncmp(func->name.start, "compu", 5) == 0)
-            { fprintf(stderr, "[DBG] gen_model_stmt returned %p\n", (void*)body_result); fflush(stderr); }
-            json_object_array_add(body, body_result);
-            if (func->name.length >= 5 && strncmp(func->name.start, "compu", 5) == 0)
-            { fprintf(stderr, "[DBG] body stmt %d done\n", i); fflush(stderr); }
+            json_object_array_add(body,
+                gen_model_stmt(arena, func->body[i], symbol_table, arithmetic_mode));
         }
     }
     json_object_object_add(obj, "body", body);
