@@ -508,7 +508,7 @@ class TestRunner:
         else:
             print(f"{Colors.RED}FAIL{Colors.NC} ({reason}){time_str}")
             if details:
-                for line in details[:500]:
+                for line in details[:50]:
                     print(f"    {line}")
 
     def _run_error_test_internal(self, test_file: str, expected_file: str,
@@ -556,7 +556,7 @@ class TestRunner:
         )
 
         if exit_code != 0:
-            details = stderr.split('\n')[:500] if stderr else None
+            details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'compile error', details)
 
         # Read generated JSON
@@ -629,7 +629,7 @@ class TestRunner:
         )
 
         if exit_code != 0:
-            details = stderr.split('\n')[:500] if stderr else None
+            details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'compile error', details)
 
         # Read generated C code
@@ -690,7 +690,7 @@ class TestRunner:
         )
 
         if exit_code != 0:
-            details = stderr.split('\n')[:500] if stderr else None
+            details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'binary compile error', details)
 
         # Run the binary
@@ -728,7 +728,7 @@ class TestRunner:
                         details.append(f"    got:      {act}")
                 if not details:
                     details = ["Output differs (trailing whitespace/newlines)"]
-                return ('fail', 'output mismatch', details[:500])
+                return ('fail', 'output mismatch', details[:50])
 
         return ('pass', '', None)
 
@@ -752,7 +752,7 @@ class TestRunner:
         )
 
         if exit_code != 0:
-            details = stderr.split('\n')[:500] if stderr else None
+            details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'compile error', details)
 
         # Run with merged stdout/stderr (like bash's 2>&1)
@@ -799,7 +799,7 @@ class TestRunner:
                         details.append(f"    got:      {act}")
                 if not details:
                     details = ["Output differs (trailing whitespace/newlines)"]
-                return ('fail', 'output mismatch', details[:500])
+                return ('fail', 'output mismatch', details[:50])
 
         return ('pass', '', None)
 

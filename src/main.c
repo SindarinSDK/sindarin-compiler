@@ -104,9 +104,7 @@ static int compile_to_executable(CompilerOptions *options, CCBackendConfig *cc_c
     json_object *model = gen_model_build(&options->arena, module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
-    fprintf(stderr, "[DBG] model_build done\n"); fflush(stderr);
     gen_model_flatten_chains(model);
-    fprintf(stderr, "[DBG] flatten done\n"); fflush(stderr);
 
     /* Split model into per-source-file modules */
     ModularModel *split = gen_model_split(model, options->source_file);
