@@ -35,7 +35,6 @@ static char *resolve_c_type_min(json_object *type_obj)
     if (strcmp(kind, "byte") == 0) return strdup("unsigned char");
     if (strcmp(kind, "string") == 0) return strdup("char *");
     if (strcmp(kind, "void") == 0) return strdup("void");
-    if (strcmp(kind, "any") == 0) return strdup("long long");  /* fallback */
     if (strcmp(kind, "array") == 0) return strdup("SnArray *");
     if (strcmp(kind, "function") == 0) return strdup("void *");
 
@@ -122,7 +121,6 @@ static char *helper_default_value_min(json_object **params, int param_count, hbs
     if (strcmp(kind, "opaque") == 0) return strdup("NULL");
     if (strcmp(kind, "interface") == 0) return strdup("NULL");
     if (strcmp(kind, "void") == 0) return strdup("");
-    if (strcmp(kind, "any") == 0) return strdup("0");
 
     /* Struct types: use {0} for aggregate initialization */
     return strdup("{0}");
@@ -178,7 +176,6 @@ static char *helper_c_sizeof_min(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "char") == 0) return strdup("sizeof(char)");
     if (strcmp(kind, "bool") == 0) return strdup("sizeof(bool)");
     if (strcmp(kind, "byte") == 0) return strdup("sizeof(unsigned char)");
-    if (strcmp(kind, "any") == 0) return strdup("sizeof(long long)");
     if (strcmp(kind, "string") == 0) return strdup("sizeof(char *)");
     if (strcmp(kind, "array") == 0) return strdup("sizeof(SnArray *)");
     if (strcmp(kind, "pointer") == 0) return strdup("sizeof(void *)");
@@ -263,7 +260,7 @@ static char *helper_printf_format(json_object **params, int param_count, hbs_opt
     int len = (int)strlen(spec);
     char conv = spec[len - 1];  /* last char is conversion specifier */
 
-    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 || strcmp(kind, "any") == 0 ||
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
         strcmp(kind, "uint") == 0)
     {
         /* 64-bit integer types: insert 'll' before conversion character */

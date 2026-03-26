@@ -54,36 +54,6 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     }
                     json_object_object_add(obj, "is_fire_and_forget_thread",
                         json_object_new_boolean(true));
-
-                    /* Fire-and-forget: transfer ownership of as-ref struct args
-                     * to the detached thread by nullifying the local after spawn.
-                     * Without this, sn_auto cleanup frees the struct while the
-                     * detached thread is still using it (use-after-free). */
-                    json_object *call_obj = NULL;
-                    if (json_object_object_get_ex(expr_obj, "call", &call_obj))
-                    {
-                        json_object *call_args = NULL;
-                        if (json_object_object_get_ex(call_obj, "args", &call_args))
-                        {
-                            int alen = json_object_array_length(call_args);
-                            for (int ai = 0; ai < alen; ai++)
-                            {
-                                json_object *carg = json_object_array_get_idx(call_args, ai);
-                                if (!carg) continue;
-                                json_object *carg_type = NULL;
-                                if (!json_object_object_get_ex(carg, "type", &carg_type)) continue;
-                                json_object *tk = NULL, *pbr = NULL;
-                                if (json_object_object_get_ex(carg_type, "kind", &tk) &&
-                                    strcmp(json_object_get_string(tk), "struct") == 0 &&
-                                    json_object_object_get_ex(carg_type, "pass_self_by_ref", &pbr) &&
-                                    json_object_get_boolean(pbr))
-                                {
-                                    json_object_object_add(carg, "needs_move",
-                                        json_object_new_boolean(true));
-                                }
-                            }
-                        }
-                    }
                 }
             }
             /* Discarded expression cleanup: when a STMT_EXPR produces a value of

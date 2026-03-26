@@ -12,7 +12,9 @@ typedef struct {
     long long __sn__value;
 } __sn__Inner;
 
-static inline __sn__Inner *__sn__Inner_create(void) {
+
+
+static inline __sn__Inner *__sn__Inner__new(void) {
     __sn__Inner *p = calloc(1, sizeof(__sn__Inner));
     p->__rc__ = 1;
     return p;
@@ -38,6 +40,7 @@ static inline __sn__Inner *__sn__Inner_copy(const __sn__Inner *src) {
 }
 
 #define sn_auto_Inner __attribute__((cleanup(__sn__Inner_release)))
+#define sn_auto_ref_Inner __attribute__((cleanup(__sn__Inner_release)))
 
 static inline void __sn__Inner_release_elem(void *p) { __sn__Inner_release((__sn__Inner **)p); }
 static inline void __sn__Inner_retain_into(const void *src, void *dst) { *(__sn__Inner **)dst = __sn__Inner_retain(*(__sn__Inner *const *)src); }
@@ -53,15 +56,15 @@ static inline char *__sn__Inner_to_string(const __sn__Inner *p) {
     return strdup(buf);
 }
 
-
-
 /* Struct: Outer (as ref — refcounted) */
 typedef struct {
     int __rc__;
     __sn__Inner * __sn__child;
 } __sn__Outer;
 
-static inline __sn__Outer *__sn__Outer_create(void) {
+
+
+static inline __sn__Outer *__sn__Outer__new(void) {
     __sn__Outer *p = calloc(1, sizeof(__sn__Outer));
     p->__rc__ = 1;
     return p;
@@ -88,6 +91,7 @@ static inline __sn__Outer *__sn__Outer_copy(const __sn__Outer *src) {
 }
 
 #define sn_auto_Outer __attribute__((cleanup(__sn__Outer_release)))
+#define sn_auto_ref_Outer __attribute__((cleanup(__sn__Outer_release)))
 
 static inline void __sn__Outer_release_elem(void *p) { __sn__Outer_release((__sn__Outer **)p); }
 static inline void __sn__Outer_retain_into(const void *src, void *dst) { *(__sn__Outer **)dst = __sn__Outer_retain(*(__sn__Outer *const *)src); }
@@ -103,8 +107,6 @@ static inline char *__sn__Outer_to_string(const __sn__Outer *p) {
     return strdup(buf);
 }
 
-
-
 typedef struct __Closure__ {
     void *fn;
     size_t size;
@@ -115,17 +117,17 @@ typedef struct __Closure__ {
 
 int main() {
     sn_auto_Inner __sn__Inner * __sn__a = ({
-        __sn__Inner *__tmp__ = __sn__Inner_create();
+        __sn__Inner *__tmp__ = __sn__Inner__new();
         __tmp__->__sn__value = 1LL;
         __tmp__;
     });
     sn_auto_Inner __sn__Inner * __sn__b = ({
-        __sn__Inner *__tmp__ = __sn__Inner_create();
+        __sn__Inner *__tmp__ = __sn__Inner__new();
         __tmp__->__sn__value = 2LL;
         __tmp__;
     });
     sn_auto_Outer __sn__Outer * __sn__o = ({
-        __sn__Outer *__tmp__ = __sn__Outer_create();
+        __sn__Outer *__tmp__ = __sn__Outer__new();
         __tmp__->__sn__child = __sn__Inner_retain(__sn__a);
         __tmp__;
     });

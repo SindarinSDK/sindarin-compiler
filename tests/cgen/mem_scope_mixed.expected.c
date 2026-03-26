@@ -12,7 +12,9 @@ typedef struct {
     char * __sn__label;
 } __sn__Tag;
 
-static inline __sn__Tag *__sn__Tag_create(void) {
+
+
+static inline __sn__Tag *__sn__Tag__new(void) {
     __sn__Tag *p = calloc(1, sizeof(__sn__Tag));
     p->__rc__ = 1;
     return p;
@@ -39,6 +41,7 @@ static inline __sn__Tag *__sn__Tag_copy(const __sn__Tag *src) {
 }
 
 #define sn_auto_Tag __attribute__((cleanup(__sn__Tag_release)))
+#define sn_auto_ref_Tag __attribute__((cleanup(__sn__Tag_release)))
 
 static inline void __sn__Tag_release_elem(void *p) { __sn__Tag_release((__sn__Tag **)p); }
 static inline void __sn__Tag_retain_into(const void *src, void *dst) { *(__sn__Tag **)dst = __sn__Tag_retain(*(__sn__Tag *const *)src); }
@@ -54,8 +57,6 @@ static inline char *__sn__Tag_to_string(const __sn__Tag *p) {
     return strdup(buf);
 }
 
-
-
 typedef struct __Closure__ {
     void *fn;
     size_t size;
@@ -66,7 +67,7 @@ typedef struct __Closure__ {
 int main() {
     sn_auto_str char * __sn__s = strdup("hello");
     sn_auto_Tag __sn__Tag * __sn__t = ({
-        __sn__Tag *__tmp__ = __sn__Tag_create();
+        __sn__Tag *__tmp__ = __sn__Tag__new();
         __tmp__->__sn__label = strdup("tag1");
         __tmp__;
     });
