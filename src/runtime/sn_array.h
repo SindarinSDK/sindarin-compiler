@@ -81,6 +81,14 @@ SnArray *sn_array_slice(const SnArray *arr, long long start, long long end);
 SnArray *sn_array_concat(const SnArray *a, const SnArray *b);
 void sn_array_extend(SnArray *dst, const SnArray *src);
 
+/* ---- Array copy helper (for nested array elem_copy) ---- */
+
+static inline void sn_copy_array(const void *src, void *dst)
+{
+    const SnArray *s = *(const SnArray **)src;
+    *(SnArray **)dst = s ? sn_array_copy(s) : NULL;
+}
+
 /* ---- Byte array to string (needed by __sn___toString) ---- */
 
 static inline char *sn_byte_array_to_string(const SnArray *arr) {

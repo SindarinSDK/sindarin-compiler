@@ -1,0 +1,21 @@
+# Test: copying an array of arrays via .clone()
+# When elem_copy is NULL, sn_array_copy does memcpy of pointers,
+# causing both arrays to share inner arrays — double-free on cleanup.
+
+fn main(): void =>
+    var grid: int[][] = {{1, 2, 3}, {4, 5, 6}}
+
+    # Clone the outer array — this calls sn_array_copy on grid
+    # which needs elem_copy to deep-copy each inner SnArray*
+    var copy: int[][] = grid.clone()
+
+    # Modify the copy — should not affect original
+    copy[0][0] = 999
+
+    # Original should be unaffected
+    println($"{grid[0][0]} {grid[0][1]} {grid[0][2]}")
+    println($"{grid[1][0]} {grid[1][1]} {grid[1][2]}")
+
+    # Copy should have the modification
+    println($"{copy[0][0]} {copy[0][1]} {copy[0][2]}")
+    println($"{copy[1][0]} {copy[1][1]} {copy[1][2]}")
