@@ -83,7 +83,7 @@ Type *type_check_array(Expr *expr, SymbolTable *table)
             }
             if (!equal)
             {
-                // Mixed types detected - array will be typed as any[]
+                // Mixed types detected - will be rejected below
                 has_mixed_types = true;
                 DEBUG_VERBOSE("Mixed types detected in array literal");
             }

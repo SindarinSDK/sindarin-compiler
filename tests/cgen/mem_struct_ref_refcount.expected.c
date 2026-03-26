@@ -13,7 +13,9 @@ typedef struct {
     char * __sn__label;
 } __sn__Node;
 
-static inline __sn__Node *__sn__Node_create(void) {
+
+
+static inline __sn__Node *__sn__Node__new(void) {
     __sn__Node *p = calloc(1, sizeof(__sn__Node));
     p->__rc__ = 1;
     return p;
@@ -41,6 +43,7 @@ static inline __sn__Node *__sn__Node_copy(const __sn__Node *src) {
 }
 
 #define sn_auto_Node __attribute__((cleanup(__sn__Node_release)))
+#define sn_auto_ref_Node __attribute__((cleanup(__sn__Node_release)))
 
 static inline void __sn__Node_release_elem(void *p) { __sn__Node_release((__sn__Node **)p); }
 static inline void __sn__Node_retain_into(const void *src, void *dst) { *(__sn__Node **)dst = __sn__Node_retain(*(__sn__Node *const *)src); }
@@ -59,8 +62,6 @@ static inline char *__sn__Node_to_string(const __sn__Node *p) {
     return strdup(buf);
 }
 
-
-
 typedef struct __Closure__ {
     void *fn;
     size_t size;
@@ -70,7 +71,7 @@ typedef struct __Closure__ {
 
 int main() {
     sn_auto_Node __sn__Node * __sn__n = ({
-        __sn__Node *__tmp__ = __sn__Node_create();
+        __sn__Node *__tmp__ = __sn__Node__new();
         __tmp__->__sn__value = 42LL;
         __tmp__->__sn__label = strdup("root");
         __tmp__;

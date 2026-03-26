@@ -12,7 +12,9 @@ typedef struct {
     long long __sn__value;
 } __sn__Builder;
 
-static inline __sn__Builder *__sn__Builder_create(void) {
+
+
+static inline __sn__Builder *__sn__Builder__new(void) {
     __sn__Builder *p = calloc(1, sizeof(__sn__Builder));
     p->__rc__ = 1;
     return p;
@@ -38,6 +40,7 @@ static inline __sn__Builder *__sn__Builder_copy(const __sn__Builder *src) {
 }
 
 #define sn_auto_Builder __attribute__((cleanup(__sn__Builder_release)))
+#define sn_auto_ref_Builder __attribute__((cleanup(__sn__Builder_release)))
 
 static inline void __sn__Builder_release_elem(void *p) { __sn__Builder_release((__sn__Builder **)p); }
 static inline void __sn__Builder_retain_into(const void *src, void *dst) { *(__sn__Builder **)dst = __sn__Builder_retain(*(__sn__Builder *const *)src); }
@@ -52,8 +55,6 @@ static inline char *__sn__Builder_to_string(const __sn__Builder *p) {
     off += snprintf(buf + off, sizeof(buf) - off, " }");
     return strdup(buf);
 }
-
-
 
 __sn__Builder * __sn__Builder_setValue(__sn__Builder *, long long);
 typedef struct __Closure__ {

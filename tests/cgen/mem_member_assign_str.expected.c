@@ -13,7 +13,9 @@ typedef struct {
     long long __sn__age;
 } __sn__Person;
 
-static inline __sn__Person *__sn__Person_create(void) {
+
+
+static inline __sn__Person *__sn__Person__new(void) {
     __sn__Person *p = calloc(1, sizeof(__sn__Person));
     p->__rc__ = 1;
     return p;
@@ -41,6 +43,7 @@ static inline __sn__Person *__sn__Person_copy(const __sn__Person *src) {
 }
 
 #define sn_auto_Person __attribute__((cleanup(__sn__Person_release)))
+#define sn_auto_ref_Person __attribute__((cleanup(__sn__Person_release)))
 
 static inline void __sn__Person_release_elem(void *p) { __sn__Person_release((__sn__Person **)p); }
 static inline void __sn__Person_retain_into(const void *src, void *dst) { *(__sn__Person **)dst = __sn__Person_retain(*(__sn__Person *const *)src); }
@@ -59,8 +62,6 @@ static inline char *__sn__Person_to_string(const __sn__Person *p) {
     return strdup(buf);
 }
 
-
-
 typedef struct __Closure__ {
     void *fn;
     size_t size;
@@ -70,7 +71,7 @@ typedef struct __Closure__ {
 
 int main() {
     sn_auto_Person __sn__Person * __sn__p = ({
-        __sn__Person *__tmp__ = __sn__Person_create();
+        __sn__Person *__tmp__ = __sn__Person__new();
         __tmp__->__sn__name = strdup("Alice");
         __tmp__->__sn__age = 30LL;
         __tmp__;

@@ -2546,14 +2546,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object_object_add(obj, "modifier",
                 json_object_new_string(func_mod_str(expr->as.thread_spawn.modifier)));
 
-            /* Joinable spawns: borrow as-ref struct args — no nullification.
-             * The local retains ownership and its sn_auto cleanup runs after
-             * all threads are joined.  Nullifying here breaks multi-spawn
-             * sharing (second spawn receives NULL).
-             *
-             * Fire-and-forget spawns: ownership is transferred to the detached
-             * thread via needs_move (set in gen_model_stmt.c), which nullifies
-             * the local after spawn so sn_auto cleanup becomes a no-op. */
+            /* As-ref struct args are retained by the thread spawn template
+             * (thread_spawn.hbs) and released by the thread wrapper after
+             * the call completes. No nullification needed here — refcounting
+             * handles both joinable and fire-and-forget ownership. */
 
             /* Determine if return type is void */
             Type *ret_type = call_expr->expr_type;
