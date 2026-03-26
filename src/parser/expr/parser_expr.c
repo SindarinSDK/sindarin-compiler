@@ -607,16 +607,29 @@ Expr *parser_primary(Parser *parser)
                         }
                         return lit;
                     }
-                    /* Not followed by '{' — not a struct literal.
-                     * This would be an error in expression context; fall through to let
-                     * regular parsing handle it or report an error. */
+                    /* Not followed by '{' — check for generic static method call:
+                     * Name<Args>.method(...) */
+                    if (parser_check(parser, TOKEN_DOT))
+                    {
+                        const char *template_name = arena_strndup(parser->arena,
+                            var_token.start, var_token.length);
+                        Type *generic_type = ast_create_generic_inst_type(parser->arena,
+                            template_name, type_args, type_arg_count);
+
+                        Expr *call = parse_static_call(parser, &var_token);
+                        if (call != NULL)
+                        {
+                            call->as.static_call.generic_type = generic_type;
+                        }
+                        return call;
+                    }
                 }
 
-                /* Unable to parse as generic struct literal — restore token state is not
-                 * possible since we've advanced the lexer.  Report an error. */
+                /* Unable to parse as generic struct literal or static call —
+                 * restore token state is not possible since we've advanced the lexer. */
                 (void)saved_current;
                 (void)saved_previous;
-                parser_error_at_current(parser, "Expected '{' after generic type arguments in struct literal");
+                parser_error_at_current(parser, "Expected '{' or '.' after generic type arguments");
                 return NULL;
             }
         }
