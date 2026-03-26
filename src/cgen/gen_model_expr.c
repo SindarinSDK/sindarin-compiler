@@ -1719,7 +1719,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         break;
                     case TYPE_ARRAY:
                         elem_release_fn = "(void (*)(void *))sn_cleanup_array";
-                        elem_copy_fn = NULL;  /* TODO: nested array copy */
+                        elem_copy_fn = "sn_copy_array";
                         break;
                     case TYPE_STRUCT:
                         if (et->as.struct_type.pass_self_by_ref)
