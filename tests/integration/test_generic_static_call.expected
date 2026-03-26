@@ -1,0 +1,6 @@
+Test 1 passed: Wrapper<int>.create(42)
+Test 2 passed: Wrapper<str>.create("hello")
+Test 3 passed: Wrapper<int>.createWithCount(99, 5)
+Test 4 passed: Container<Tag>.of(Tag{name:"alpha"})
+Test 5 passed: Wrapper<Tag>.create(inner)
+All generic static call tests passed!

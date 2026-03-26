@@ -1595,8 +1595,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_STATIC_CALL:
         {
             json_object_object_add(obj, "kind", json_object_new_string("static_call"));
-            json_object_object_add(obj, "type_name",
-                json_object_new_string(expr->as.static_call.type_name.start));
+            /* Use resolved struct type name for generics (monomorphized name) */
+            {
+                const char *effective_type_name = expr->as.static_call.type_name.start;
+                if (expr->as.static_call.resolved_struct_type != NULL &&
+                    expr->as.static_call.resolved_struct_type->kind == TYPE_STRUCT &&
+                    expr->as.static_call.resolved_struct_type->as.struct_type.name != NULL)
+                {
+                    effective_type_name = expr->as.static_call.resolved_struct_type->as.struct_type.name;
+                }
+                json_object_object_add(obj, "type_name",
+                    json_object_new_string(effective_type_name));
+            }
             json_object_object_add(obj, "method_name",
                 json_object_new_string(expr->as.static_call.method_name.start));
             /* Propagate c_alias from resolved method for native static calls */

@@ -338,6 +338,7 @@ typedef struct
     int arg_count;
     StructMethod *resolved_method;    // Resolved method for user-defined struct static methods
     Type *resolved_struct_type;       // Struct type containing the method
+    Type *generic_type;               // Generic instantiation type (e.g., Stack<int>) — NULL for non-generic
 } StaticCallExpr;
 
 typedef struct

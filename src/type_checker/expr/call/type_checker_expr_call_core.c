@@ -573,19 +573,41 @@ Type *type_check_static_method_call(Expr *expr, SymbolTable *table)
 
     /* Check for user-defined struct static methods */
     {
-        /* Create a token for looking up the struct type */
-        Token lookup_tok;
-        lookup_tok.start = type_name.start;
-        lookup_tok.length = type_name.length;
-        lookup_tok.line = type_name.line;
-        lookup_tok.filename = type_name.filename;
-        lookup_tok.type = TOKEN_IDENTIFIER;
+        Type *struct_type = NULL;
 
-        Symbol *struct_sym = symbol_table_lookup_type(table, lookup_tok);
-        if (struct_sym != NULL && struct_sym->type != NULL &&
-            struct_sym->type->kind == TYPE_STRUCT)
+        /* If this is a generic static call (e.g., Stack<int>.new()),
+         * resolve the generic instantiation to get the monomorphized type. */
+        if (call->generic_type != NULL &&
+            call->generic_type->kind == TYPE_GENERIC_INST)
         {
-            Type *struct_type = struct_sym->type;
+            Type *concrete = resolve_generic_instantiation(table->arena,
+                                                            call->generic_type, table);
+            if (concrete != NULL && concrete->kind == TYPE_STRUCT)
+            {
+                struct_type = concrete;
+            }
+        }
+
+        /* Non-generic path: look up struct type by name */
+        if (struct_type == NULL)
+        {
+            Token lookup_tok;
+            lookup_tok.start = type_name.start;
+            lookup_tok.length = type_name.length;
+            lookup_tok.line = type_name.line;
+            lookup_tok.filename = type_name.filename;
+            lookup_tok.type = TOKEN_IDENTIFIER;
+
+            Symbol *struct_sym = symbol_table_lookup_type(table, lookup_tok);
+            if (struct_sym != NULL && struct_sym->type != NULL &&
+                struct_sym->type->kind == TYPE_STRUCT)
+            {
+                struct_type = struct_sym->type;
+            }
+        }
+
+        if (struct_type != NULL)
+        {
 
             /* Look for a static method with matching name */
             for (int i = 0; i < struct_type->as.struct_type.method_count; i++)
