@@ -26,7 +26,7 @@ Sindarin is a statically-typed procedural programming language that compiles to 
 
 2. **Safety First** - Panic on errors rather than returning null or error codes. This keeps code clean and avoids pervasive null checks.
 
-3. **Simple Memory Model** - Arena-based memory management with clear ownership semantics. No manual malloc/free, no garbage collector pauses.
+3. **Simple Memory Model** - Explicit ownership with `as ref`/`as val` semantics. No manual malloc/free, no garbage collector pauses.
 
 4. **Clean Syntax** - Arrow-based blocks (`=>`) provide consistent, readable structure. No curly braces for blocks.
 
@@ -79,6 +79,7 @@ var p: str = nil
 | `int`  | 64-bit signed integer |
 | `long` | 64-bit signed integer (alias) |
 | `double` | 64-bit floating point |
+| `float` | 32-bit floating point (IEEE 754 single precision) |
 | `bool` | `true` or `false` |
 | `str`  | String (pointer type, can be `nil`) |
 | `char` | Single character, written with single quotes: `'A'` |
@@ -287,6 +288,39 @@ x -= 3   // x = x - 3
 x *= 2   // x = x * 2
 x /= 4   // x = x / 4
 x %= 3   // x = x % 3
+```
+
+#### Bitwise Operators
+
+```sindarin
+var a: int = 0xFF
+var b: int = 0x0F
+
+var andResult: int = a & b    // AND  → 0x0F
+var orResult: int = a | b     // OR   → 0xFF
+var xorResult: int = a ^ b    // XOR  → 0xF0
+var notResult: int = ~b       // NOT  → inverts all bits
+var shl: int = b << 4         // Left shift  → 0xF0
+var shr: int = a >> 4         // Right shift → 0x0F
+```
+
+| Operator | Description |
+|----------|-------------|
+| `&` | Bitwise AND |
+| `\|` | Bitwise OR |
+| `^` | Bitwise XOR |
+| `~` | Bitwise NOT (unary) |
+| `<<` | Left shift |
+| `>>` | Right shift |
+
+Compound assignment forms are also available:
+
+```sindarin
+x &= 0xFF   // x = x & 0xFF
+x |= 0x01   // x = x | 0x01
+x ^= 0xFF   // x = x ^ 0xFF
+x <<= 2     // x = x << 2
+x >>= 4     // x = x >> 4
 ```
 
 #### sizeof

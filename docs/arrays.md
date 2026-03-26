@@ -163,6 +163,42 @@ var arr: int[] = {1, 2, 3}
 arr.clear()  // arr is now {}
 ```
 
+## Byte Array Methods
+
+Byte arrays (`byte[]`) have additional methods for converting to strings and encoded representations.
+
+### toString()
+Converts a byte array to a UTF-8 string.
+
+```sindarin
+var bytes: byte[] = {72, 101, 108, 108, 111}
+var s: str = bytes.toString()  // "Hello"
+```
+
+### toStringLatin1()
+Converts a byte array to a Latin-1 (ISO 8859-1) encoded string.
+
+```sindarin
+var bytes: byte[] = {72, 101, 108, 108, 111}
+var s: str = bytes.toStringLatin1()  // "Hello"
+```
+
+### toHex()
+Converts a byte array to a hexadecimal string representation.
+
+```sindarin
+var bytes: byte[] = {0xDE, 0xAD, 0xBE, 0xEF}
+var hex: str = bytes.toHex()  // "deadbeef"
+```
+
+### toBase64()
+Converts a byte array to a base64-encoded string.
+
+```sindarin
+var bytes: byte[] = {72, 101, 108, 108, 111}
+var b64: str = bytes.toBase64()  // "SGVsbG8="
+```
+
 ## Indexing
 
 ### Positive Indexing

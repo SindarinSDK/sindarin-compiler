@@ -376,6 +376,99 @@ if p1 != p3 =>
     print("Points are different\n")  // This prints
 ```
 
+### Operator Overloading
+
+Structs can define custom `==` and `<` operators using the `operator` keyword inside the struct body. Each operator takes a single parameter of the same struct type and returns `bool`:
+
+```sindarin
+struct Weight =>
+    kg: int
+
+    operator == (other: Weight): bool =>
+        return self.kg == other.kg
+
+    operator < (other: Weight): bool =>
+        return self.kg < other.kg
+```
+
+#### Auto-derived operators
+
+When you define `==`, the compiler automatically derives `!=` (its negation). When you define `<`, the compiler automatically derives `>`, `<=`, and `>=`:
+
+| You define | Compiler derives |
+|------------|-----------------|
+| `==` | `!=` |
+| `<` | `>`, `<=`, `>=` |
+
+You only need to implement two operators to get the full set of six comparison operators.
+
+If you need custom behavior for a derived operator, you can define it explicitly and the compiler will use your implementation instead:
+
+```sindarin
+struct Tag =>
+    code: int
+
+    operator == (other: Tag): bool =>
+        return self.code == other.code
+
+    operator != (other: Tag): bool =>
+        return self.code != other.code  // explicit, not auto-derived
+```
+
+#### Using overloaded operators
+
+Overloaded operators work everywhere normal comparison operators do — in `if` conditions, `while` loops, boolean expressions with `&&` and `||`, and variable assignments:
+
+```sindarin
+var w1: Weight = Weight { kg: 10 }
+var w2: Weight = Weight { kg: 20 }
+var w3: Weight = Weight { kg: 10 }
+
+// Direct use in conditions
+if w1 == w3 =>
+    print("Equal\n")
+
+if w1 < w2 =>
+    print("Lighter\n")
+
+// Auto-derived operators
+if w2 > w1 =>
+    print("Heavier\n")
+
+if w1 <= w3 =>
+    print("Less or equal\n")
+
+// Combined with boolean operators
+if w1 == w3 && w1 < w2 =>
+    print("Same as w3, lighter than w2\n")
+
+// In while loops
+var cur: Weight = Weight { kg: 1 }
+var limit: Weight = Weight { kg: 5 }
+while cur < limit =>
+    cur = Weight { kg: cur.kg + 1 }
+```
+
+#### Multi-field comparison
+
+For structs with multiple fields, implement lexicographic ordering in `<`:
+
+```sindarin
+struct Version =>
+    major: int
+    minor: int
+
+    operator == (other: Version): bool =>
+        return self.major == other.major && self.minor == other.minor
+
+    operator < (other: Version): bool =>
+        if self.major < other.major =>
+            return true
+        if self.major > other.major =>
+            return false
+        return self.minor < other.minor
+```
+
 ## Packed Structs
 
 For binary formats requiring exact layouts, use `#pragma pack`:

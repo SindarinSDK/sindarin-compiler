@@ -108,6 +108,8 @@ fn example(): void =>
 
 This syntax is retained for source compatibility but the minimal runtime does not use arena allocation. SDK C implementations use `calloc`/`malloc` directly and do not expect an arena argument.
 
+> **Note:** Arena allocation has been removed from the runtime. The `arena` parameter is a legacy no-op that may be removed in a future version.
+
 ---
 
 ## Compiler Directives
@@ -209,7 +211,6 @@ Sindarin types naturally map to C types.
 | `void` | `void` | - | No value |
 | `nil` | `NULL` | pointer | Null pointer constant |
 | `str` | `char *` | pointer | Null-terminated UTF-8 string |
-| `any` | `RtAny` | 16 bytes | Tagged union for dynamic typing |
 
 ### Composite Types
 

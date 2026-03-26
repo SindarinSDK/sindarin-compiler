@@ -15,14 +15,14 @@ Minimum requirements:
 - **Ninja** build system (recommended, falls back to Unix Makefiles)
 - A C99-compatible compiler (**GCC** on Linux, **Clang** on macOS/Windows)
 
-Dependencies (zlib, yyjson, libgit2, etc.) are provided via the `libs` submodule containing pre-built libraries.
+Dependencies (zlib, yyjson, libgit2, etc.) are provided as pre-built libraries downloaded by `make setup`.
 
 ## Quick Start
 
 The simplest way to build is using the Makefile wrapper:
 
 ```bash
-# Initialize libs submodule (pre-built dependencies)
+# Download pre-built native libraries
 make setup
 
 # Build
@@ -87,11 +87,11 @@ sudo pacman -S base-devel python
 **Build:**
 
 ```bash
-make setup   # Initialize libs submodule with pre-built dependencies
+make setup   # Download pre-built native libraries
 make build
 ```
 
-Or using CMake directly (if libs submodule is already initialized):
+Or using CMake directly (if pre-built libraries are already downloaded):
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=gcc -DCMAKE_BUILD_TYPE=Release
@@ -122,11 +122,11 @@ brew install cmake ninja
 **Build:**
 
 ```bash
-make setup   # Initialize libs submodule with pre-built dependencies
+make setup   # Download pre-built native libraries
 make build
 ```
 
-Or using CMake directly (if libs submodule is already initialized):
+Or using CMake directly (if pre-built libraries are already downloaded):
 
 ```bash
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release
@@ -162,11 +162,11 @@ winget install Ninja-build.Ninja
 **Build:**
 
 ```bash
-make setup   # Initialize libs submodule with pre-built dependencies
+make setup   # Download pre-built native libraries
 make build
 ```
 
-Or using CMake directly (if dependencies are already installed):
+Or using CMake directly (if pre-built libraries are already downloaded):
 
 ```powershell
 cmake -S . -B build -G Ninja -DCMAKE_C_COMPILER=clang -DCMAKE_BUILD_TYPE=Release
@@ -192,7 +192,7 @@ After a successful build:
 | `bin/lib/clang/libsn_runtime.a` | Runtime library (Windows) |
 | `bin/include/` | Runtime headers |
 | `bin/deps/` | Bundled dependencies (zlib, yyjson headers + libs) |
-| `bin/sn.cfg` | Compiler configuration file |
+| `bin/sn.<platform>.cfg` | Platform-specific compiler configuration file (`sn.linux.cfg`, `sn.darwin.cfg`, `sn.windows.cfg`) |
 
 ## CMake Options
 
@@ -301,7 +301,7 @@ bin/sn myprogram.sn -p -o myprogram
 |------|--------|
 | `-O0` | No Sn optimizer passes (useful for debugging codegen) |
 | `-O1` | Basic optimizations: dead code elimination, string merging |
-| `-O2` | Full optimizations (default): all `-O1` passes plus unchecked arithmetic |
+| `-O2` | Full optimizations (default): all `-O1` passes plus tail call optimization and unchecked arithmetic |
 | `--unchecked` | Disable integer overflow checking regardless of optimization level |
 | `--checked` | Force integer overflow checking even when `-O2` is active |
 
@@ -309,17 +309,17 @@ Integer arithmetic is overflow-checked by default. `-O2` implies `--unchecked` f
 
 ## C Compiler Configuration
 
-The Sindarin compiler uses a C backend. It reads configuration from `sn.cfg` and can be overridden via environment variables.
+The Sindarin compiler uses a C backend. It reads configuration from a platform-specific config file (`sn.linux.cfg`, `sn.darwin.cfg`, or `sn.windows.cfg`) and can be overridden via environment variables.
 
 ### Configuration File Search Order
 
-The compiler searches for `sn.cfg` in these locations (first found wins):
+The compiler searches for `sn.<platform>.cfg` in these locations (first found wins):
 
 1. Next to the compiler executable (portable/development mode)
 2. Platform-specific system paths:
-   - **Linux**: `/etc/sindarin/sn.cfg`, `/usr/local/etc/sindarin/sn.cfg`
-   - **macOS**: `/usr/local/etc/sindarin/sn.cfg`, `/opt/homebrew/etc/sindarin/sn.cfg`
-   - **Windows**: `%LOCALAPPDATA%\Sindarin\sn.cfg`, `%ProgramFiles%\Sindarin\sn.cfg`
+   - **Linux**: `/etc/sindarin/sn.linux.cfg`, `/usr/local/etc/sindarin/sn.linux.cfg`
+   - **macOS**: `/usr/local/etc/sindarin/sn.darwin.cfg`, `/opt/homebrew/etc/sindarin/sn.darwin.cfg`
+   - **Windows**: `%LOCALAPPDATA%\Sindarin\sn.windows.cfg`, `%ProgramFiles%\Sindarin\sn.windows.cfg`
 3. Built-in defaults
 
 ### Runtime Library Search Order
@@ -341,6 +341,7 @@ The compiler searches for the runtime library archive (`libsn_runtime.a`) in:
 | `SN_STD` | `c99` | C standard |
 | `SN_DEBUG_CFLAGS` | Platform-specific | Debug mode flags |
 | `SN_RELEASE_CFLAGS` | `-O3 -flto` | Release mode flags |
+| `SN_PROFILE_CFLAGS` | Platform-specific | Profile mode flags (optimized with frame pointers) |
 | `SN_CFLAGS` | (empty) | Additional compiler flags |
 | `SN_LDFLAGS` | (empty) | Additional linker flags |
 | `SN_LDLIBS` | (empty) | Additional libraries |
@@ -357,12 +358,6 @@ SN_CC=clang bin/sn myprogram.sn -o myprogram
 SN_LDLIBS="-lssl -lcrypto" bin/sn myprogram.sn -o myprogram
 ```
 
-**Example: Custom runtime location:**
-
-```bash
-SINDARIN_LIB=/opt/sindarin/lib/gcc bin/sn myprogram.sn -o myprogram
-```
-
 ## Troubleshooting
 
 ### "Runtime object not found"
@@ -372,11 +367,6 @@ The compiler can't find the pre-built runtime library. This can happen if:
 1. **Development mode**: Ensure CMake completed successfully and check that `bin/lib/gcc/` (Linux/macOS) or `bin/lib/clang/` (Windows) contains `libsn_runtime.a`.
 
 2. **Installed package**: The compiler searches system paths like `/usr/lib/sindarin/gcc/`. Ensure the package was installed correctly.
-
-3. **Custom location**: Set `SINDARIN_LIB` to your runtime directory:
-   ```bash
-   SINDARIN_LIB=/path/to/lib bin/sn myprogram.sn
-   ```
 
 ### "C compiler not found"
 
@@ -422,7 +412,7 @@ winget install Ninja-build.Ninja
 The project uses GitHub Actions for continuous integration. CI uses the same `make` targets as local development:
 
 ```bash
-make setup                   # Initialize libs submodule with pre-built dependencies
+make setup                   # Download pre-built native libraries
 make build                   # Configure and build via cmake
 make test-unit               # Run unit tests
 make test-cgen               # Run code generation tests

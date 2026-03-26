@@ -166,11 +166,23 @@ All paths are relative to the `sindarin-compiler` repository root.
 ### Repository Structure
 
 ```
-../                            # Parent directory
-├── sindarin-compiler/         # This repo - the Sindarin compiler (sn)
+sindarin/                      # Parent directory
+├── sindarin-compiler/         # The Sindarin compiler (sn)
 ├── sindarin-pkg-sdk/          # Standard library SDK package
-├── sindarin-pkg-http/         # HTTP server package (depends on SDK)
-└── sindarin-pkg-libs/         # Pre-built native libraries (yyjson, libxml2, etc.)
+├── sindarin-pkg-http/         # HTTP server package
+├── sindarin-pkg-test/         # Test framework package
+├── sindarin-pkg-libs/         # Pre-built native libraries (yyjson, libxml2, etc.)
+├── sindarin-pkg-json/         # JSON parsing package
+├── sindarin-pkg-threads/      # Threading utilities package
+├── sindarin-pkg-collections/  # Collections package
+├── sindarin-pkg-curl/         # HTTP client (cURL) package
+├── sindarin-pkg-sqlite/       # SQLite database package
+├── sindarin-pkg-postgres/     # PostgreSQL database package
+├── sindarin-pkg-mysql/        # MySQL database package
+├── sindarin-pkg-mongo/        # MongoDB database package
+├── sindarin-pkg-sqlserver/    # SQL Server database package
+├── sindarin-pipelines/        # CI/CD pipelines
+└── sindarin-template/         # Project template
 ```
 
 #### Cloning Sibling Repositories
@@ -181,6 +193,7 @@ If the sibling repositories don't exist, clone them into the parent directory:
 cd ..
 git clone git@github.com:SindarinSDK/sindarin-pkg-sdk.git
 git clone git@github.com:SindarinSDK/sindarin-pkg-http.git
+git clone git@github.com:SindarinSDK/sindarin-pkg-test.git
 git clone git@github.com:SindarinSDK/sindarin-pkg-libs.git
 cd sindarin-compiler
 ```
@@ -199,7 +212,7 @@ Packages declare dependencies in `sn.yaml`:
 ```yaml
 dependencies:
 - name: sindarin-pkg-sdk
-  git: git@github.com:SindarinSDK/sindarin-pkg-sdk.git
+  git: https://github.com/SindarinSDK/sindarin-pkg-sdk.git
   branch: main
 ```
 
@@ -257,7 +270,7 @@ When calling native functions (marked with `native` keyword and `@alias`):
 The compiler discovers package libraries by:
 1. Reading `sn.yaml` in the current directory
 2. For each dependency, checking `.sn/<pkg>/libs/<platform>/include/` and `/lib/`
-3. Recursively checking transitive deps in `.sn/<pkg>/.sn/<transitive>/...`
+3. Checking flattened transitive deps in `.sn/<transitive-pkg>/libs/<platform>/...`
 4. Parsing `.pc` files in `lib/pkgconfig/` for additional flags
 
 Platform is one of: `windows`, `darwin`, `linux`
