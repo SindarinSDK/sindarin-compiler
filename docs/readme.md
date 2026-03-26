@@ -237,6 +237,8 @@ fn main(): void =>
 ### File Processing
 
 ```sindarin
+import "sdk/io/textfile"
+
 fn main(): void =>
   // Read file and count lines
   var content: str = TextFile.readAll("data.txt")
