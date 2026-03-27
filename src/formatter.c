@@ -1007,7 +1007,23 @@ int formatter_format_file(const char *path, int check_only)
         return -1;
     }
 
-    int changed = strcmp(source, formatted) != 0;
+    /* Compare ignoring \r so that --check tolerates CRLF line endings.
+     * The formatter always outputs LF, but on Windows the source may have CRLF. */
+    int changed = 0;
+    {
+        const char *s = source;
+        const char *f = formatted;
+        while (*s && *f)
+        {
+            if (*s == '\r') { s++; continue; }
+            if (*s != *f) { changed = 1; break; }
+            s++;
+            f++;
+        }
+        /* Skip any trailing \r in source */
+        while (*s == '\r') s++;
+        if (!changed && (*s || *f)) changed = 1;
+    }
 
     if (changed)
     {
