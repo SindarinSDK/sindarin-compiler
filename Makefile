@@ -13,7 +13,7 @@
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-mgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
-.PHONY: configure install package setup
+.PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
 # Platform Detection
@@ -120,7 +120,7 @@ all: build
 # Select compiler based on platform
 CMAKE_C_COMPILER := $(if $(filter windows,$(PLATFORM)),clang,$(if $(filter darwin,$(PLATFORM)),clang,gcc))
 
-build:
+build: hooks
 	@echo "Building Sindarin compiler..."
 	@echo "Platform: $(PLATFORM)"
 	@echo "Generator: $(CMAKE_GENERATOR)"
@@ -263,6 +263,12 @@ setup:
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 endif
+
+#------------------------------------------------------------------------------
+# hooks - Configure git to use tracked pre-commit hooks
+#------------------------------------------------------------------------------
+hooks:
+	@git config core.hooksPath .githooks 2>/dev/null || true
 
 #------------------------------------------------------------------------------
 # help - Show available targets
