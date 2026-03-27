@@ -2,7 +2,7 @@
 # Builds and tests on Linux, Windows, and macOS using the same Make targets
 # developers use locally (make setup, make build, make test-*).
 
-name: CI
+name: Compiler
 
 on:
   push:
