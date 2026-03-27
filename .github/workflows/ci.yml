@@ -143,6 +143,14 @@ jobs:
           echo "Build outputs verified successfully!"
 
       #------------------------------------------------------------------------
+      # Format Check (Linux only — formatting is platform-independent)
+      #------------------------------------------------------------------------
+      - name: Check formatting
+        if: runner.os == 'Linux'
+        shell: bash
+        run: bin/sn --format --check
+
+      #------------------------------------------------------------------------
       # Run Tests
       #------------------------------------------------------------------------
       - name: Run all tests
