@@ -1,4 +1,4 @@
 fn main(): void =>
-    var name: str = "world"
-    var age: int = 42
-    print($"Hello {name}, age {age}\n")
+  var name: str = "world"
+  var age: int = 42
+  print($"Hello {name}, age {age}\n")

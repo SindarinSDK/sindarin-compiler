@@ -2,68 +2,68 @@
 // Verifies that an array can be shared by multiple threads
 
 fn sum_array(arr: int[]): int =>
-    var total: int = 0
-    for n in arr =>
-        total = total + n
-    return total
+  var total: int = 0
+  for n in arr =>
+    total = total + n
+  return total
 
 fn get_first(arr: int[]): int =>
-    return arr[0]
+  return arr[0]
 
 fn get_last(arr: int[]): int =>
-    return arr[arr.length - 1]
+  return arr[arr.length - 1]
 
 fn main(): void =>
-    var data: int[] = {10, 20, 30, 40, 50}
+  var data: int[] = {10, 20, 30, 40, 50}
 
-    print($"Initial data: length = {data.length}\n")
+  print($"Initial data: length = {data.length}\n")
 
-    // Spawn THREE threads all capturing the same array
-    var r1: int = &sum_array(data)
-    var r2: int = &get_first(data)
-    var r3: int = &get_last(data)
+  // Spawn THREE threads all capturing the same array
+  var r1: int = & sum_array(data)
+  var r2: int = & get_first(data)
+  var r3: int = & get_last(data)
 
-    print("Spawned 3 threads capturing same array\n")
+  print("Spawned 3 threads capturing same array\n")
 
-    // While threads are pending, reads are allowed
-    var len: int = data.length
-    print($"Read while pending: length = {len}\n")
+  // While threads are pending, reads are allowed
+  var len: int = data.length
+  print($"Read while pending: length = {len}\n")
 
-    // Sync first thread
-    var sum: int = r1!
-    print($"After first sync: sum = {sum}\n")
+  // Sync first thread
+  var sum: int = r1 !
+  print($"After first sync: sum = {sum}\n")
 
-    // Reads work
-    var first_check: int = data[0]
-    print($"Read after first sync: data[0] = {first_check}\n")
+  // Reads work
+  var first_check: int = data[0]
+  print($"Read after first sync: data[0] = {first_check}\n")
 
-    // Sync second thread
-    var first: int = r2!
-    print($"After second sync: first = {first}\n")
+  // Sync second thread
+  var first: int = r2 !
+  print($"After second sync: first = {first}\n")
 
-    // Sync third thread
-    var last: int = r3!
-    print($"After third sync: last = {last}\n")
+  // Sync third thread
+  var last: int = r3 !
+  print($"After third sync: last = {last}\n")
 
-    // After all syncs, writes work
-    data[0] = 100
-    data.push(60)
-    print($"After writes: data[0] = {data[0]}, length = {data.length}\n")
+  // After all syncs, writes work
+  data[0] = 100
+  data.push(60)
+  print($"After writes: data[0] = {data[0]}, length = {data.length}\n")
 
-    // Validate all results
-    if sum == 150 =>
-        if first == 10 =>
-            if last == 50 =>
-                if data[0] == 100 =>
-                    if data.length == 6 =>
-                        print("SUCCESS: Multiple thread spawn works correctly\n")
-                    else =>
-                        print("FAILURE: push didn't work after sync\n")
-                else =>
-                    print("FAILURE: write didn't work after sync\n")
-            else =>
-                print($"FAILURE: last expected 50, got {last}\n")
+  // Validate all results
+  if sum == 150 =>
+    if first == 10 =>
+      if last == 50 =>
+        if data[0] == 100 =>
+          if data.length == 6 =>
+            print("SUCCESS: Multiple thread spawn works correctly\n")
+          else =>
+            print("FAILURE: push didn't work after sync\n")
         else =>
-            print($"FAILURE: first expected 10, got {first}\n")
+          print("FAILURE: write didn't work after sync\n")
+      else =>
+        print($"FAILURE: last expected 50, got {last}\n")
     else =>
-        print($"FAILURE: sum expected 150, got {sum}\n")
+      print($"FAILURE: first expected 10, got {first}\n")
+  else =>
+    print($"FAILURE: sum expected 150, got {sum}\n")

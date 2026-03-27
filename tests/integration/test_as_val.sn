@@ -2,16 +2,16 @@
 // Variables declared with 'as val' get a copy of the value
 
 fn main(): void =>
-    // Basic variable with as val (on array)
-    var original: int[] = {1, 2, 3}
-    var copy: int[] as val = original
+  // Basic variable with as val (on array)
+  var original: int[] = {1, 2, 3}
+  var copy: int[] as val = original
 
-    // Modify original
-    original.push(4)
+  // Modify original
+  original.push(4)
 
-    print($"Original length: {original.length}\n")
-    print($"Copy length: {copy.length}\n")
+  print($"Original length: {original.length}\n")
+  print($"Copy length: {copy.length}\n")
 
-    // The copy should be independent
-    print($"Original[0]: {original[0]}\n")
-    print($"Copy[0]: {copy[0]}\n")
+  // The copy should be independent
+  print($"Original[0]: {original[0]}\n")
+  print($"Copy[0]: {copy[0]}\n")

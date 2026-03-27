@@ -6,7 +6,7 @@
 native fn printf(format: str, ...): int
 
 fn main(): int =>
-    var arr: int[] = [1, 2, 3]
-    # This should be a compile error - arrays not allowed as variadic args
-    printf("Array: %p\n", arr)
-    return 0
+  var arr: int[] = [1, 2, 3]
+  # This should be a compile error - arrays not allowed as variadic args
+  printf("Array: %p\n", arr)
+  return 0

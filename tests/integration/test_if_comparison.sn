@@ -1,6 +1,6 @@
 fn main(): void =>
-    var x: int = 10
-    if x > 5 =>
-        print("big\n")
-    else =>
-        print("small\n")
+  var x: int = 10
+  if x > 5 =>
+    print("big\n")
+  else =>
+    print("small\n")

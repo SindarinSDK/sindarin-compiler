@@ -2,7 +2,7 @@
 // strings.sn - String Features in Sindarin
 // ============================================================================
 // Demonstrates: string literals, length, concatenation, interpolation,
-//               escape sequences, comparisons, and string methods
+// escape sequences, comparisons, and string methods
 // ============================================================================
 
 // Entry point for string demos
@@ -232,4 +232,3 @@ fn demo_strings(): void =>
   print($"\"\\t\\t\" isBlank: {blankTabs.isBlank()}\n")
   print($"\"hello\" isBlank: {notBlank.isBlank()}\n")
   print($"\"  hi  \" isBlank: {notBlank2.isBlank()}\n")
-

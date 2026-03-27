@@ -1,6 +1,6 @@
 fn sideEffect(): int =>
-    return 42
+  return 42
 
 fn main(): int =>
-    sideEffect()
-    return 0
+  sideEffect()
+  return 0

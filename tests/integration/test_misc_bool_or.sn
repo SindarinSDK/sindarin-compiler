@@ -1,4 +1,4 @@
 fn main(): void =>
-    print($"{false || false}\n")
-    print($"{true || false}\n")
-    print($"{false || true}\n")
+  print($"{false || false}\n")
+  print($"{true || false}\n")
+  print($"{false || true}\n")

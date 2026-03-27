@@ -1,4 +1,4 @@
 # Error test: main with multiple parameters (only one str[] allowed)
 
 fn main(a: str[], b: str[]): void =>
-    print("Should not compile\n")
+  print("Should not compile\n")

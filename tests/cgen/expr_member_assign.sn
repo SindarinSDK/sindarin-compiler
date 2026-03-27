@@ -1,8 +1,11 @@
 struct Point =>
-    x: double
-    y: double
+  x: double
+  y: double
 
 fn main(): int =>
-    var p: Point = Point { x: 1.0, y: 2.0 }
-    p.x = 5.0
-    return 0
+  var p: Point = Point {
+    x: 1.0,
+    y: 2.0
+  }
+  p.x = 5.0
+  return 0

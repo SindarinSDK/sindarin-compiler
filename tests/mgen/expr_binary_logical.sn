@@ -1,4 +1,4 @@
 fn main(): int =>
-    var a: bool = true && false
-    var b: bool = true || false
-    return 0
+  var a: bool = true && false
+  var b: bool = true || false
+  return 0

@@ -1,5 +1,5 @@
 fn main(): void =>
-    var x: int = 10
-    var y: int = 20
-    var msg: str = $"{x} and {y} sum to {x + y}"
-    print($"{msg}\n")
+  var x: int = 10
+  var y: int = 20
+  var msg: str = $"{x} and {y} sum to {x + y}"
+  print($"{msg}\n")

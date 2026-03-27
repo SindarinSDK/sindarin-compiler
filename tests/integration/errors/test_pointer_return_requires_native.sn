@@ -4,7 +4,7 @@
 
 # Regular function with pointer return type - should be a compile error
 fn bad_function(): *int =>
-    return nil
+  return nil
 
 fn main(): int =>
-    return 0
+  return 0

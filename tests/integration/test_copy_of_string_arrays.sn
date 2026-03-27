@@ -2,77 +2,87 @@
 # Tests deep copy independence for structs with string array fields
 
 struct UserProfile =>
-    name: str
-    tags: str[]
+  name: str
+  tags: str[]
 
 struct Matrix =>
-    label: str
-    rows: int[]
-    cols: int[]
+  label: str
+  rows: int[]
+  cols: int[]
 
 fn test_string_array_deep_copy(): void =>
-    print("Test 1: Deep copy struct with string array\n")
-    var p1 = UserProfile{ name: "Alice", tags: {"admin", "user", "editor"} }
-    var p2: UserProfile = copyOf(p1)
+  print("Test 1: Deep copy struct with string array\n")
+  var p1 = UserProfile {
+    name: "Alice",
+    tags: {"admin", "user", "editor"}
+  }
+  var p2: UserProfile = copyOf(p1)
 
-    # Modify the copy's array
-    p2.tags[0] = "guest"
-    print($"  p1.tags[0]: {p1.tags[0]}\n")
-    print($"  p2.tags[0]: {p2.tags[0]}\n")
+  # Modify the copy's array
+  p2.tags[0] = "guest"
+  print($"  p1.tags[0]: {p1.tags[0]}\n")
+  print($"  p2.tags[0]: {p2.tags[0]}\n")
 
-    if p1.tags[0] != "admin" =>
-        print("FAIL: p1.tags[0] should be unchanged\n")
-        return
-    if p2.tags[0] != "guest" =>
-        print("FAIL: p2.tags[0] should be 'guest'\n")
-        return
-    print("  OK\n")
+  if p1.tags[0] != "admin" =>
+    print("FAIL: p1.tags[0] should be unchanged\n")
+    return
+  if p2.tags[0] != "guest" =>
+    print("FAIL: p2.tags[0] should be 'guest'\n")
+    return
+  print("  OK\n")
 
 fn test_multi_array_deep_copy(): void =>
-    print("Test 2: Deep copy struct with multiple arrays\n")
-    var m1 = Matrix{ label: "identity", rows: {1, 0, 0}, cols: {0, 1, 0} }
-    var m2: Matrix = copyOf(m1)
+  print("Test 2: Deep copy struct with multiple arrays\n")
+  var m1 = Matrix {
+    label: "identity",
+    rows: {1, 0, 0},
+    cols: {0, 1, 0}
+  }
+  var m2: Matrix = copyOf(m1)
 
-    # Modify both arrays in the copy
-    m2.rows[0] = 99
-    m2.cols[1] = 88
+  # Modify both arrays in the copy
+  m2.rows[0] = 99
+  m2.cols[1] = 88
 
-    print($"  m1.rows[0]: {m1.rows[0]}, m1.cols[1]: {m1.cols[1]}\n")
-    print($"  m2.rows[0]: {m2.rows[0]}, m2.cols[1]: {m2.cols[1]}\n")
+  print($"  m1.rows[0]: {m1.rows[0]}, m1.cols[1]: {m1.cols[1]}\n")
+  print($"  m2.rows[0]: {m2.rows[0]}, m2.cols[1]: {m2.cols[1]}\n")
 
-    if m1.rows[0] != 1 =>
-        print("FAIL: m1.rows should be unchanged\n")
-        return
-    if m1.cols[1] != 1 =>
-        print("FAIL: m1.cols should be unchanged\n")
-        return
-    if m2.rows[0] != 99 =>
-        print("FAIL: m2.rows[0] should be 99\n")
-        return
-    if m2.cols[1] != 88 =>
-        print("FAIL: m2.cols[1] should be 88\n")
-        return
-    print("  OK\n")
+  if m1.rows[0] != 1 =>
+    print("FAIL: m1.rows should be unchanged\n")
+    return
+  if m1.cols[1] != 1 =>
+    print("FAIL: m1.cols should be unchanged\n")
+    return
+  if m2.rows[0] != 99 =>
+    print("FAIL: m2.rows[0] should be 99\n")
+    return
+  if m2.cols[1] != 88 =>
+    print("FAIL: m2.cols[1] should be 88\n")
+    return
+  print("  OK\n")
 
 fn test_string_field_independence(): void =>
-    print("Test 3: Deep copy string field independence\n")
-    var p1 = UserProfile{ name: "Bob", tags: {"reader"} }
-    var p2: UserProfile = copyOf(p1)
+  print("Test 3: Deep copy string field independence\n")
+  var p1 = UserProfile {
+    name: "Bob",
+    tags: {"reader"}
+  }
+  var p2: UserProfile = copyOf(p1)
 
-    p2.name = "Charlie"
-    print($"  p1.name: {p1.name}\n")
-    print($"  p2.name: {p2.name}\n")
+  p2.name = "Charlie"
+  print($"  p1.name: {p1.name}\n")
+  print($"  p2.name: {p2.name}\n")
 
-    if p1.name != "Bob" =>
-        print("FAIL: p1.name should be unchanged\n")
-        return
-    print("  OK\n")
+  if p1.name != "Bob" =>
+    print("FAIL: p1.name should be unchanged\n")
+    return
+  print("  OK\n")
 
 fn main(): void =>
-    print("=== copyOf() String Array Tests ===\n\n")
-    test_string_array_deep_copy()
-    print("\n")
-    test_multi_array_deep_copy()
-    print("\n")
-    test_string_field_independence()
-    print("\nPASS\n")
+  print("=== copyOf() String Array Tests ===\n\n")
+  test_string_array_deep_copy()
+  print("\n")
+  test_multi_array_deep_copy()
+  print("\n")
+  test_string_field_independence()
+  print("\nPASS\n")

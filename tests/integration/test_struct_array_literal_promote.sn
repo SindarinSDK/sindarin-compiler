@@ -3,23 +3,29 @@
 # all string fields must remain valid in the caller.
 
 struct Pair =>
-    left: str
-    right: str
+  left: str
+  right: str
 
 fn makePairs(): Pair[] =>
-    return { Pair { left: "a", right: "b" }, Pair { left: "c", right: "d" } }
+  return { Pair {
+    left: "a",
+    right: "b"
+  }, Pair {
+    left: "c",
+    right: "d"
+  } }
 
 fn main(): void =>
-    var pairs: Pair[] = makePairs()
+  var pairs: Pair[] = makePairs()
 
-    # Access after return - string fields must be valid
-    print($"Count: {pairs.length}\n")
-    for var i: int = 0; i < pairs.length; i++ =>
-        print($"  {pairs[i].left},{pairs[i].right}\n")
+  # Access after return - string fields must be valid
+  print($"Count: {pairs.length}\n")
+  for var i: int = 0; i < pairs.length; i++ =>
+    print($"  {pairs[i].left},{pairs[i].right}\n")
 
-    if pairs.length == 2 =>
-        if pairs[0].left == "a" && pairs[0].right == "b" =>
-            if pairs[1].left == "c" && pairs[1].right == "d" =>
-                print("PASS\n")
-                return
-    print("FAIL\n")
+  if pairs.length == 2 =>
+    if pairs[0].left == "a" && pairs[0].right == "b" =>
+      if pairs[1].left == "c" && pairs[1].right == "d" =>
+        print("PASS\n")
+        return
+  print("FAIL\n")

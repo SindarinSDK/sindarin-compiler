@@ -1,5 +1,5 @@
 fn main(): void =>
-    var s: str = "hello"
-    print($"{s.length}\n")
-    var empty: str = ""
-    print($"{empty.length}\n")
+  var s: str = "hello"
+  print($"{s.length}\n")
+  var empty: str = ""
+  print($"{empty.length}\n")

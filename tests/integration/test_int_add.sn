@@ -1,4 +1,4 @@
 fn main(): void =>
-    var a: int = 10
-    var b: int = 20
-    print($"{a + b}\n")
+  var a: int = 10
+  var b: int = 20
+  print($"{a + b}\n")

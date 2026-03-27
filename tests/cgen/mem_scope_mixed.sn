@@ -1,10 +1,10 @@
 struct Tag as ref =>
-    label: str
+  label: str
 
 fn main(): void =>
-    var s: str = "hello"
-    var t: Tag = Tag { label: "tag1" }
-    var n: int = 42
-    assert(s.length == 5, "string ok")
-    assert(t.label.length == 4, "tag ok")
-    assert(n == 42, "int ok")
+  var s: str = "hello"
+  var t: Tag = Tag { label: "tag1" }
+  var n: int = 42
+  assert(s.length == 5, "string ok")
+  assert(t.label.length == 4, "tag ok")
+  assert(n == 42, "int ok")

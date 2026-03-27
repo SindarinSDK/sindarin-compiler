@@ -1,11 +1,14 @@
 struct Point as val =>
-    x: int
-    y: int
+  x: int
+  y: int
 
 fn mutate(p: Point as ref): void =>
-    p.x = 99
+  p.x = 99
 
 fn main(): void =>
-    var p: Point = Point { x: 1, y: 2 }
-    mutate(p)
-    assert(p.x == 99, "should be mutated via ref")
+  var p: Point = Point {
+    x: 1,
+    y: 2
+  }
+  mutate(p)
+  assert(p.x == 99, "should be mutated via ref")

@@ -1,5 +1,5 @@
 fn main(): int =>
-    var x: int = 10
-    x += 5
-    x -= 3
-    return 0
+  var x: int = 10
+  x += 5
+  x -= 3
+  return 0

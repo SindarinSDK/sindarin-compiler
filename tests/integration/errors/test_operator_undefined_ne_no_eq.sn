@@ -1,11 +1,17 @@
 # Error test: using != on a struct with no == or != defined is a type error
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
 fn main(): void =>
-    var p1: Point = Point { x: 1, y: 2 }
-    var p2: Point = Point { x: 3, y: 4 }
-    var result: bool = p1 != p2
-    print($"{result}\n")
+  var p1: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var p2: Point = Point {
+    x: 3,
+    y: 4
+  }
+  var result: bool = p1 != p2
+  print($"{result}\n")

@@ -7,28 +7,28 @@ static var staticCounter: int = 700
 var instanceCounter: int = 7
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn getDeepStatic(): int =>
-    return level_08.getStaticCounter()
+  return level_08.getStaticCounter()
 
 fn getJumpStatic(): int =>
-    return JumpL12.getStaticCounter()
+  return JumpL12.getStaticCounter()
 
 fn getLevelId(): int =>
-    return 7
+  return 7
 
 fn computeChainValue(base: int): int =>
-    return level_08.computeChainValue(base + 7)
+  return level_08.computeChainValue(base + 7)
 
 fn incrementSharedViaChain(): void =>
-    level_08.incrementSharedCounter()
+  level_08.incrementSharedCounter()
 
 fn getSharedViaChain(): int =>
-    return level_08.getSharedCounterValue()
+  return level_08.getSharedCounterValue()

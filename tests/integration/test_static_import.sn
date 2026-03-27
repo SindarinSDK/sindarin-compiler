@@ -1,14 +1,14 @@
 import "imports/simple_static"
 
-var myValue_1:str = "Testing" 
+var myValue_1: str = "Testing"
 
-fn otherValueTest():void => 
-    var myValue:str = "other value <-"
-    println($"otherValueTest::{myValue}")
+fn otherValueTest(): void =>
+  var myValue: str = "other value <-"
+  println($"otherValueTest::{myValue}")
 
-fn main():void =>
-    otherValueTest()
-    println($"main::{myValue}")
-    mutateValue()
-    println($"main::{myValue}")
-    exit(0)
+fn main(): void =>
+  otherValueTest()
+  println($"main::{myValue}")
+  mutateValue()
+  println($"main::{myValue}")
+  exit(0)

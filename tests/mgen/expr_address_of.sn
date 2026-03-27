@@ -1,6 +1,6 @@
 @alias "test_addr"
 native fn test_addr(x: int): *int =>
-    return addressOf(x)
+  return addressOf(x)
 
 fn main(): int =>
-    return 0
+  return 0

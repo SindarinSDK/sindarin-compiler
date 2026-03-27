@@ -8,30 +8,30 @@ native fn c_double_value(ptr: *int): void
 
 # Test 1: addressOf on a primitive variable
 native fn test_address_of_primitive(): void =>
-    print("Test 1: addressOf(int)\n")
-    var x: int = 42
-    var ptr: *int = addressOf(x)
-    c_mutate_int(ptr)
-    print($"  x after c_mutate_int: {x}\n")
+  print("Test 1: addressOf(int)\n")
+  var x: int = 42
+  var ptr: *int = addressOf(x)
+  c_mutate_int(ptr)
+  print($"  x after c_mutate_int: {x}\n")
 
-    var y: int = 10
-    var ptr2: *int = addressOf(y)
-    c_double_value(ptr2)
-    print($"  y after c_double_value: {y}\n")
+  var y: int = 10
+  var ptr2: *int = addressOf(y)
+  c_double_value(ptr2)
+  print($"  y after c_double_value: {y}\n")
 
 # Test 2: addressOf on an array (returns pointer to data)
 native fn test_address_of_array(): void =>
-    print("Test 2: addressOf(array)\n")
-    var arr: int[] = {10, 20, 30}
-    var ptr: *int = addressOf(arr)
-    c_mutate_int(ptr)
-    print($"  arr[0] after c_mutate_int: {arr[0]}\n")
-    print($"  arr[1] unchanged: {arr[1]}\n")
-    print($"  arr[2] unchanged: {arr[2]}\n")
+  print("Test 2: addressOf(array)\n")
+  var arr: int[] = {10, 20, 30}
+  var ptr: *int = addressOf(arr)
+  c_mutate_int(ptr)
+  print($"  arr[0] after c_mutate_int: {arr[0]}\n")
+  print($"  arr[1] unchanged: {arr[1]}\n")
+  print($"  arr[2] unchanged: {arr[2]}\n")
 
 fn main(): void =>
-    print("=== addressOf() Integration Tests ===\n\n")
-    test_address_of_primitive()
-    print("\n")
-    test_address_of_array()
-    print("\nPASS\n")
+  print("=== addressOf() Integration Tests ===\n\n")
+  test_address_of_primitive()
+  print("\n")
+  test_address_of_array()
+  print("\nPASS\n")

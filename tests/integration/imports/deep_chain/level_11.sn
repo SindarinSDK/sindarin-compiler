@@ -6,26 +6,29 @@ static var staticCounter: int = 1100
 var instanceCounter: int = 11
 
 struct DataBundle =>
-    id: int
-    sum: int
+  id: int
+  sum: int
 
 fn createBundle(): DataBundle =>
-    return DataBundle { id: 11, sum: level_12.getAllStaticSum() }
+  return DataBundle {
+    id: 11,
+    sum: level_12.getAllStaticSum()
+  }
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn getDeepStatic(): int =>
-    return level_12.getStaticCounter()
+  return level_12.getStaticCounter()
 
 fn getLevelId(): int =>
-    return 11
+  return 11
 
 fn computeChainValue(base: int): int =>
-    return level_12.computeChainValue(base + 11)
+  return level_12.computeChainValue(base + 11)

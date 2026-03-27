@@ -1,5 +1,5 @@
 
-var myValue:str = "This is my value"
+var myValue: str = "This is my value"
 
-fn mutateValue():void => 
-    myValue = "mutated"
+fn mutateValue(): void =>
+  myValue = "mutated"

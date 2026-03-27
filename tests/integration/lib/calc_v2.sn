@@ -2,7 +2,7 @@
 // Has same function names as calc_v1 but different implementations
 
 fn compute(x: int): int =>
-    return x * 10
+  return x * 10
 
 fn process(a: int, b: int): int =>
-    return a * b
+  return a * b

@@ -1,161 +1,167 @@
 # Test: Constrained generics — type parameter constraints with interfaces
 
 interface Comparable =>
-    fn compare(other: Self): int
+  fn compare(other: Self): int
 
 interface Hashable =>
-    fn hash(): int
-    fn equals(other: Self): bool
+  fn hash(): int
+  fn equals(other: Self): bool
 
 # --- Struct satisfying Comparable ---
 
 struct Score =>
-    value: int
+  value: int
 
-    fn compare(other: Score): int =>
-        if self.value < other.value =>
-            return -1
-        if self.value > other.value =>
-            return 1
-        return 0
+  fn compare(other: Score): int =>
+    if self.value < other.value =>
+      return - 1
+    if self.value > other.value =>
+      return 1
+    return 0
 
 # --- Struct satisfying Hashable ---
 
 struct UserId =>
-    id: int
+  id: int
 
-    fn hash(): int =>
-        return self.id * 31
+  fn hash(): int =>
+    return self.id * 31
 
-    fn equals(other: UserId): bool =>
-        return self.id == other.id
+  fn equals(other: UserId): bool =>
+    return self.id == other.id
 
 # --- Struct satisfying both Comparable and Hashable ---
 
 struct Player =>
-    name: str
-    score: int
+  name: str
+  score: int
 
-    fn compare(other: Player): int =>
-        if self.score < other.score =>
-            return -1
-        if self.score > other.score =>
-            return 1
-        return 0
+  fn compare(other: Player): int =>
+    if self.score < other.score =>
+      return - 1
+    if self.score > other.score =>
+      return 1
+    return 0
 
-    fn hash(): int =>
-        return self.score * 31
+  fn hash(): int =>
+    return self.score * 31
 
-    fn equals(other: Player): bool =>
-        return self.score == other.score
+  fn equals(other: Player): bool =>
+    return self.score == other.score
 
 # --- Generic struct with single constraint ---
 
-struct SortedList<T: Comparable> =>
-    items: T[]
-    size: int
+struct SortedList < T: Comparable > =>
+  items: T[]
+  size: int
 
-    fn add(item: T): void =>
-        self.items.push(item)
-        self.size = self.size + 1
+  fn add(item: T): void =>
+    self.items.push(item)
+    self.size = self.size + 1
 
-    fn getSize(): int =>
-        return self.size
+  fn getSize(): int =>
+    return self.size
 
 # --- Generic struct with multi-constraint ---
 
-struct IndexedSet<T: Comparable & Hashable> =>
-    items: T[]
+struct IndexedSet < T: Comparable & Hashable > =>
+  items: T[]
 
-    fn add(item: T): void =>
-        self.items.push(item)
+  fn add(item: T): void =>
+    self.items.push(item)
 
-    fn getCount(): int =>
-        return len(self.items)
+  fn getCount(): int =>
+    return len(self.items)
 
 # --- Generic struct with mixed constrained/unconstrained params ---
 
-struct KeyValue<K: Hashable, V> =>
-    key: K
-    value: V
+struct KeyValue < K: Hashable, V > =>
+  key: K
+  value: V
 
 # --- Generic function with constraint ---
 
-fn maxOf<T: Comparable>(a: T, b: T): T =>
-    if a.compare(b) > 0 =>
-        return a
-    return b
+fn maxOf < T: Comparable > (a: T, b: T): T =>
+  if a.compare(b) > 0 =>
+    return a
+  return b
 
 fn main(): int =>
-    # Test 1: SortedList<Score> — single constraint, struct type
-    var sl: SortedList<Score> = SortedList<Score> { items: {}, size: 0 }
-    sl.add(Score { value: 30 })
-    sl.add(Score { value: 10 })
-    sl.add(Score { value: 20 })
-    if sl.getSize() != 3 =>
-        print("FAIL: SortedList<Score> size should be 3\n")
-        return 1
-    print("Test 1 passed: SortedList<Score>\n")
+  # Test 1: SortedList<Score> — single constraint, struct type
+  var sl: SortedList < Score > = SortedList < Score > {items: {}, size: 0}
+  sl.add(Score { value: 30 })
+  sl.add(Score { value: 10 })
+  sl.add(Score { value: 20 })
+  if sl.getSize() != 3 =>
+    print("FAIL: SortedList<Score> size should be 3\n")
+    return 1
+  print("Test 1 passed: SortedList<Score>\n")
 
-    # Test 2: SortedList<int> — primitive auto-satisfies Comparable
-    var si: SortedList<int> = SortedList<int> { items: {}, size: 0 }
-    si.add(5)
-    si.add(3)
-    si.add(1)
-    if si.getSize() != 3 =>
-        print("FAIL: SortedList<int> size should be 3\n")
-        return 1
-    print("Test 2 passed: SortedList<int> (primitive auto-satisfies)\n")
+  # Test 2: SortedList<int> — primitive auto-satisfies Comparable
+  var si: SortedList < int > = SortedList < int > {items: {}, size: 0}
+  si.add(5)
+  si.add(3)
+  si.add(1)
+  if si.getSize() != 3 =>
+    print("FAIL: SortedList<int> size should be 3\n")
+    return 1
+  print("Test 2 passed: SortedList<int> (primitive auto-satisfies)\n")
 
-    # Test 3: SortedList<str> — str auto-satisfies Comparable
-    var ss: SortedList<str> = SortedList<str> { items: {}, size: 0 }
-    ss.add("charlie")
-    ss.add("alice")
-    ss.add("bob")
-    if ss.getSize() != 3 =>
-        print("FAIL: SortedList<str> size should be 3\n")
-        return 1
-    print("Test 3 passed: SortedList<str> (primitive auto-satisfies)\n")
+  # Test 3: SortedList<str> — str auto-satisfies Comparable
+  var ss: SortedList < str > = SortedList < str > {items: {}, size: 0}
+  ss.add("charlie")
+  ss.add("alice")
+  ss.add("bob")
+  if ss.getSize() != 3 =>
+    print("FAIL: SortedList<str> size should be 3\n")
+    return 1
+  print("Test 3 passed: SortedList<str> (primitive auto-satisfies)\n")
 
-    # Test 4: IndexedSet<Player> — multi-constraint (Comparable & Hashable)
-    var iset: IndexedSet<Player> = IndexedSet<Player> { items: {} }
-    var p1: Player = Player { name: "Alice", score: 100 }
-    var p2: Player = Player { name: "Bob", score: 200 }
-    iset.add(p1)
-    iset.add(p2)
-    if iset.getCount() != 2 =>
-        print("FAIL: IndexedSet<Player> count should be 2\n")
-        return 1
-    print("Test 4 passed: IndexedSet<Player> (multi-constraint)\n")
+  # Test 4: IndexedSet<Player> — multi-constraint (Comparable & Hashable)
+  var iset: IndexedSet < Player > = IndexedSet < Player > {items: {}}
+  var p1: Player = Player {
+    name: "Alice",
+    score: 100
+  }
+  var p2: Player = Player {
+    name: "Bob",
+    score: 200
+  }
+  iset.add(p1)
+  iset.add(p2)
+  if iset.getCount() != 2 =>
+    print("FAIL: IndexedSet<Player> count should be 2\n")
+    return 1
+  print("Test 4 passed: IndexedSet<Player> (multi-constraint)\n")
 
-    # Test 5: KeyValue<UserId, str> — mixed constrained/unconstrained
-    var kv: KeyValue<UserId, str> = KeyValue<UserId, str> { key: UserId { id: 42 }, value: "hello" }
-    if kv.key.id != 42 =>
-        print("FAIL: KeyValue key.id should be 42\n")
-        return 1
-    if kv.value != "hello" =>
-        print("FAIL: KeyValue value should be hello\n")
-        return 1
-    print("Test 5 passed: KeyValue<UserId, str> (mixed constraints)\n")
+  # Test 5: KeyValue<UserId, str> — mixed constrained/unconstrained
+  var kv: KeyValue < UserId, str > = KeyValue < UserId, str > {key: UserId { id: 42 }, value: "hello"}
+  if kv.key.id != 42 =>
+    print("FAIL: KeyValue key.id should be 42\n")
+    return 1
+  if kv.value != "hello" =>
+    print("FAIL: KeyValue value should be hello\n")
+    return 1
+  print("Test 5 passed: KeyValue<UserId, str> (mixed constraints)\n")
 
-    # Test 6: KeyValue<str, int> — primitive key auto-satisfies Hashable
-    var kv2: KeyValue<str, int> = KeyValue<str, int> { key: "answer", value: 42 }
-    if kv2.key != "answer" =>
-        print("FAIL: KeyValue key should be answer\n")
-        return 1
-    if kv2.value != 42 =>
-        print("FAIL: KeyValue value should be 42\n")
-        return 1
-    print("Test 6 passed: KeyValue<str, int> (primitive auto-satisfies)\n")
+  # Test 6: KeyValue<str, int> — primitive key auto-satisfies Hashable
+  var kv2: KeyValue < str, int > = KeyValue < str, int > {key: "answer", value: 42}
+  if kv2.key != "answer" =>
+    print("FAIL: KeyValue key should be answer\n")
+    return 1
+  if kv2.value != 42 =>
+    print("FAIL: KeyValue value should be 42\n")
+    return 1
+  print("Test 6 passed: KeyValue<str, int> (primitive auto-satisfies)\n")
 
-    # Test 7: Generic function with constraint — maxOf<Score>
-    var s1: Score = Score { value: 10 }
-    var s2: Score = Score { value: 20 }
-    var bigger: Score = maxOf(s1, s2)
-    if bigger.value != 20 =>
-        print("FAIL: maxOf should return score 20\n")
-        return 1
-    print("Test 7 passed: maxOf<Score> (constrained generic function)\n")
+  # Test 7: Generic function with constraint — maxOf<Score>
+  var s1: Score = Score { value: 10 }
+  var s2: Score = Score { value: 20 }
+  var bigger: Score = maxOf(s1, s2)
+  if bigger.value != 20 =>
+    print("FAIL: maxOf should return score 20\n")
+    return 1
+  print("Test 7 passed: maxOf<Score> (constrained generic function)\n")
 
-    print("All constrained generics tests passed!\n")
-    return 0
+  print("All constrained generics tests passed!\n")
+  return 0

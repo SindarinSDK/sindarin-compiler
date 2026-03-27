@@ -43,6 +43,8 @@ typedef struct
     int clear_cache;                 /* --clear-cache: Clear package cache */
     int do_clean;                    /* --clean: Remove build cache (.sn/build/) and exit */
     int no_install;                  /* --no-install: Skip auto-install of dependencies */
+    int do_format;                   /* --format: Format all .sn files recursively */
+    int format_check;                /* --check: Check formatting only (don't modify files) */
 } CompilerOptions;
 
 void compiler_init(CompilerOptions *options, int argc, char **argv);

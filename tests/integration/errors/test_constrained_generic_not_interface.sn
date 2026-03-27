@@ -1,10 +1,10 @@
 # Error test: constraint names a struct, not an interface
 
 struct Point =>
-    x: int
+  x: int
 
-struct Box<T: Point> =>
-    item: T
+struct Box < T: Point > =>
+  item: T
 
 fn main(): int =>
-    return 0
+  return 0

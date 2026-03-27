@@ -3,4 +3,4 @@
 import "../lib/math_basic" as 123math
 
 fn main(): void =>
-    print("should not compile\n")
+  print("should not compile\n")

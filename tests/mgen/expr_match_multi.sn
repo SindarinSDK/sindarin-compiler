@@ -1,7 +1,7 @@
 fn main(): int =>
-    var x: int = 3
-    var result: int = match x =>
-        1, 2 => 10
-        3, 4 => 20
-        else => 0
-    return result
+  var x: int = 3
+  var result: int = match x =>
+    1, 2 => 10
+    3, 4 => 20
+    else => 0
+  return result

@@ -2,40 +2,52 @@
 // This was the original failing case from the issues document
 
 struct TestResult =>
-    value: int
-    ok: bool
+  value: int
+  ok: bool
 
 fn runTest(x: int): TestResult =>
-    return TestResult { value: x * 2, ok: true }
+  return TestResult {
+    value: x * 2,
+    ok: true
+  }
 
 fn main(): void =>
-    // Test 1: Conditional spawn that executes
-    var h1: TestResult = TestResult { value: 0, ok: false }
-    var condition1: bool = true
+  // Test 1: Conditional spawn that executes
+  var h1: TestResult = TestResult {
+    value: 0,
+    ok: false
+  }
+  var condition1: bool = true
 
-    if condition1 =>
-        h1 = &runTest(21)
+  if condition1 =>
+    h1 = & runTest(21)
 
-    h1!
-    println($"Test 1: value={h1.value}, ok={h1.ok}")
+  h1 !
+  println($"Test 1: value={h1.value}, ok={h1.ok}")
 
-    // Test 2: Conditional spawn that does NOT execute
-    var h2: TestResult = TestResult { value: 99, ok: true }
-    var condition2: bool = false
+  // Test 2: Conditional spawn that does NOT execute
+  var h2: TestResult = TestResult {
+    value: 99,
+    ok: true
+  }
+  var condition2: bool = false
 
-    if condition2 =>
-        h2 = &runTest(50)
+  if condition2 =>
+    h2 = & runTest(50)
 
-    h2!
-    println($"Test 2: value={h2.value}, ok={h2.ok}")
+  h2 !
+  println($"Test 2: value={h2.value}, ok={h2.ok}")
 
-    // Test 3: Spawn based on runtime value
-    var items: int[] = {1, 2, 3}
-    var h3: TestResult = TestResult { value: -1, ok: false }
+  // Test 3: Spawn based on runtime value
+  var items: int[] = {1, 2, 3}
+  var h3: TestResult = TestResult {
+    value: -1,
+    ok: false
+  }
 
-    for item in items =>
-        if item == 2 =>
-            h3 = &runTest(item * 10)
+  for item in items =>
+    if item == 2 =>
+      h3 = & runTest(item * 10)
 
-    h3!
-    println($"Test 3: value={h3.value}, ok={h3.ok}")
+  h3 !
+  println($"Test 3: value={h3.value}, ok={h3.ok}")

@@ -1,5 +1,5 @@
 fn main(): void =>
-    var a: str = "hello"
-    var b: str = a
-    var c: str = $"value: {a}"
-    assert(a.length == 5, "a should be 5 chars")
+  var a: str = "hello"
+  var b: str = a
+  var c: str = $"value: {a}"
+  assert(a.length == 5, "a should be 5 chars")

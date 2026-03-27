@@ -7,28 +7,28 @@ static var staticArray: int[] = {30, 31, 32}
 var instanceCounter: int = 3
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn getStaticArraySum(): int =>
-    return staticArray[0] + staticArray[1] + staticArray[2]
+  return staticArray[0] + staticArray[1] + staticArray[2]
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn getDeepStatic(): int =>
-    return level_04.getStaticCounter()
+  return level_04.getStaticCounter()
 
 fn getLevelId(): int =>
-    return 3
+  return 3
 
 fn computeChainValue(base: int): int =>
-    return level_04.computeChainValue(base + 3)
+  return level_04.computeChainValue(base + 3)
 
 fn getDirectL14ViaL4(): int =>
-    return level_04.getDirectL14Static()
+  return level_04.getDirectL14Static()
 
 fn getHolderLevelViaL4(n: int): int =>
-    return level_04.createDirectHolder(n)
+  return level_04.createDirectHolder(n)

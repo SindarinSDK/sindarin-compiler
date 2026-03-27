@@ -7,25 +7,25 @@ var instanceCounter: int = 12
 var holderLevel: int = L13.createDeepHolder(120)
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn getDeepStatic(): int =>
-    return L13.getStaticCounter()
+  return L13.getStaticCounter()
 
 fn getAllStaticSum(): int =>
-    return staticCounter + L13.getStaticCounter() + L13.getDeepStatic() + L13.getDeepDeepStatic()
+  return staticCounter + L13.getStaticCounter() + L13.getDeepStatic() + L13.getDeepDeepStatic()
 
 fn getLevelId(): int =>
-    return 12
+  return 12
 
 fn computeChainValue(base: int): int =>
-    return L13.computeChainValue(base + 12)
+  return L13.computeChainValue(base + 12)
 
 fn getHolderLevel(): int =>
-    return holderLevel
+  return holderLevel

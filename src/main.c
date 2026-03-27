@@ -5,6 +5,7 @@
 #include "gcc_backend.h"
 #include "version.h"
 #include "package.h"
+#include "formatter.h"
 #include "cgen/gen_model.h"
 #include "cgen/gen_model_render.h"
 #include "cgen/gen_model_split.h"
@@ -239,6 +240,22 @@ int main(int argc, char **argv)
         bool ok = package_clear_cache();
         compiler_cleanup(&options);
         return ok ? 0 : 1;
+    }
+    if (options.do_format)
+    {
+        int result = formatter_format_directory(".", options.format_check);
+        compiler_cleanup(&options);
+        if (result < 0) return 1;
+        if (options.format_check && result > 0)
+        {
+            printf("\n%d file(s) would be reformatted.\n", result);
+            return 1;
+        }
+        if (result == 0)
+            printf("All files already formatted.\n");
+        else
+            printf("\n%d file(s) reformatted.\n", result);
+        return 0;
     }
     if (options.do_clean)
     {

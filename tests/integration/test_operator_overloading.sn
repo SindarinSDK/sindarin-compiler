@@ -1,146 +1,155 @@
 # Test operator overloading on structs
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
-    operator == (other: Point): bool =>
-        return self.x == other.x && self.y == other.y
+  operator == (other: Point): bool =>
+    return self.x == other.x && self.y == other.y
 
-    operator < (other: Point): bool =>
-        return self.x < other.x
+  operator < (other: Point): bool =>
+    return self.x < other.x
 
 struct Score =>
-    value: int
+  value: int
 
-    operator == (other: Score): bool =>
-        return self.value == other.value
+  operator == (other: Score): bool =>
+    return self.value == other.value
 
 struct HashItem =>
-    id: int
+  id: int
 
-    fn hash(): int =>
-        return self.id * 31
+  fn hash(): int =>
+    return self.id * 31
 
 fn main(): int =>
-    # Test == operator: equal points
-    var p1: Point = Point { x: 3, y: 4 }
-    var p2: Point = Point { x: 3, y: 4 }
-    var eq: bool = p1 == p2
-    print($"p1 == p2 (equal points): {eq}\n")
-    if !eq =>
-        print("FAIL: equal points should be ==\n")
-        return 1
+  # Test == operator: equal points
+  var p1: Point = Point {
+    x: 3,
+    y: 4
+  }
+  var p2: Point = Point {
+    x: 3,
+    y: 4
+  }
+  var eq: bool = p1 == p2
+  print($"p1 == p2 (equal points): {eq}\n")
+  if !eq =>
+    print("FAIL: equal points should be ==\n")
+    return 1
 
-    # Test == operator: unequal points
-    var p3: Point = Point { x: 1, y: 2 }
-    var neq: bool = p1 == p3
-    print($"p1 == p3 (unequal points): {neq}\n")
-    if neq =>
-        print("FAIL: unequal points should not be ==\n")
-        return 1
+  # Test == operator: unequal points
+  var p3: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var neq: bool = p1 == p3
+  print($"p1 == p3 (unequal points): {neq}\n")
+  if neq =>
+    print("FAIL: unequal points should not be ==\n")
+    return 1
 
-    # Test != (auto-derived from ==)
-    var ne1: bool = p1 != p3
-    print($"p1 != p3 (unequal): {ne1}\n")
-    if !ne1 =>
-        print("FAIL: unequal points should be !=\n")
-        return 1
+  # Test != (auto-derived from ==)
+  var ne1: bool = p1 != p3
+  print($"p1 != p3 (unequal): {ne1}\n")
+  if !ne1 =>
+    print("FAIL: unequal points should be !=\n")
+    return 1
 
-    var ne2: bool = p1 != p2
-    print($"p1 != p2 (equal): {ne2}\n")
-    if ne2 =>
-        print("FAIL: equal points should not be !=\n")
-        return 1
+  var ne2: bool = p1 != p2
+  print($"p1 != p2 (equal): {ne2}\n")
+  if ne2 =>
+    print("FAIL: equal points should not be !=\n")
+    return 1
 
-    # Test < operator
-    var lt1: bool = p3 < p1
-    print($"p3 < p1 (x:1 < x:3): {lt1}\n")
-    if !lt1 =>
-        print("FAIL: p3 should be < p1\n")
-        return 1
+  # Test < operator
+  var lt1: bool = p3 < p1
+  print($"p3 < p1 (x:1 < x:3): {lt1}\n")
+  if !lt1 =>
+    print("FAIL: p3 should be < p1\n")
+    return 1
 
-    var lt2: bool = p1 < p3
-    print($"p1 < p3 (x:3 < x:1): {lt2}\n")
-    if lt2 =>
-        print("FAIL: p1 should not be < p3\n")
-        return 1
+  var lt2: bool = p1 < p3
+  print($"p1 < p3 (x:3 < x:1): {lt2}\n")
+  if lt2 =>
+    print("FAIL: p1 should not be < p3\n")
+    return 1
 
-    # Test > (auto-derived from <)
-    var gt1: bool = p1 > p3
-    print($"p1 > p3 (x:3 > x:1): {gt1}\n")
-    if !gt1 =>
-        print("FAIL: p1 should be > p3\n")
-        return 1
+  # Test > (auto-derived from <)
+  var gt1: bool = p1 > p3
+  print($"p1 > p3 (x:3 > x:1): {gt1}\n")
+  if !gt1 =>
+    print("FAIL: p1 should be > p3\n")
+    return 1
 
-    var gt2: bool = p3 > p1
-    print($"p3 > p1 (x:1 > x:3): {gt2}\n")
-    if gt2 =>
-        print("FAIL: p3 should not be > p1\n")
-        return 1
+  var gt2: bool = p3 > p1
+  print($"p3 > p1 (x:1 > x:3): {gt2}\n")
+  if gt2 =>
+    print("FAIL: p3 should not be > p1\n")
+    return 1
 
-    # Test <= (auto-derived from < and ==)
-    var le1: bool = p3 <= p1
-    print($"p3 <= p1 (x:1 <= x:3): {le1}\n")
-    if !le1 =>
-        print("FAIL: p3 should be <= p1\n")
-        return 1
+  # Test <= (auto-derived from < and ==)
+  var le1: bool = p3 <= p1
+  print($"p3 <= p1 (x:1 <= x:3): {le1}\n")
+  if !le1 =>
+    print("FAIL: p3 should be <= p1\n")
+    return 1
 
-    var le2: bool = p1 <= p2
-    print($"p1 <= p2 (equal): {le2}\n")
-    if !le2 =>
-        print("FAIL: equal points should be <=\n")
-        return 1
+  var le2: bool = p1 <= p2
+  print($"p1 <= p2 (equal): {le2}\n")
+  if !le2 =>
+    print("FAIL: equal points should be <=\n")
+    return 1
 
-    var le3: bool = p1 <= p3
-    print($"p1 <= p3 (x:3 <= x:1): {le3}\n")
-    if le3 =>
-        print("FAIL: p1 should not be <= p3\n")
-        return 1
+  var le3: bool = p1 <= p3
+  print($"p1 <= p3 (x:3 <= x:1): {le3}\n")
+  if le3 =>
+    print("FAIL: p1 should not be <= p3\n")
+    return 1
 
-    # Test >= (auto-derived from < and ==)
-    var ge1: bool = p1 >= p3
-    print($"p1 >= p3 (x:3 >= x:1): {ge1}\n")
-    if !ge1 =>
-        print("FAIL: p1 should be >= p3\n")
-        return 1
+  # Test >= (auto-derived from < and ==)
+  var ge1: bool = p1 >= p3
+  print($"p1 >= p3 (x:3 >= x:1): {ge1}\n")
+  if !ge1 =>
+    print("FAIL: p1 should be >= p3\n")
+    return 1
 
-    var ge2: bool = p1 >= p2
-    print($"p1 >= p2 (equal): {ge2}\n")
-    if !ge2 =>
-        print("FAIL: equal points should be >=\n")
-        return 1
+  var ge2: bool = p1 >= p2
+  print($"p1 >= p2 (equal): {ge2}\n")
+  if !ge2 =>
+    print("FAIL: equal points should be >=\n")
+    return 1
 
-    var ge3: bool = p3 >= p1
-    print($"p3 >= p1 (x:1 >= x:3): {ge3}\n")
-    if ge3 =>
-        print("FAIL: p3 should not be >= p1\n")
-        return 1
+  var ge3: bool = p3 >= p1
+  print($"p3 >= p1 (x:1 >= x:3): {ge3}\n")
+  if ge3 =>
+    print("FAIL: p3 should not be >= p1\n")
+    return 1
 
-    # Test != auto-derived for Score (only == defined)
-    var s1: Score = Score { value: 10 }
-    var s2: Score = Score { value: 10 }
-    var s3: Score = Score { value: 20 }
+  # Test != auto-derived for Score (only == defined)
+  var s1: Score = Score { value: 10 }
+  var s2: Score = Score { value: 10 }
+  var s3: Score = Score { value: 20 }
 
-    var seq: bool = s1 == s2
-    print($"s1 == s2 (equal scores): {seq}\n")
-    if !seq =>
-        print("FAIL: equal scores should be ==\n")
-        return 1
+  var seq: bool = s1 == s2
+  print($"s1 == s2 (equal scores): {seq}\n")
+  if !seq =>
+    print("FAIL: equal scores should be ==\n")
+    return 1
 
-    var sne: bool = s1 != s3
-    print($"s1 != s3 (unequal scores, auto-derived !=): {sne}\n")
-    if !sne =>
-        print("FAIL: unequal scores should be !=\n")
-        return 1
+  var sne: bool = s1 != s3
+  print($"s1 != s3 (unequal scores, auto-derived !=): {sne}\n")
+  if !sne =>
+    print("FAIL: unequal scores should be !=\n")
+    return 1
 
-    # Test hash method
-    var h: HashItem = HashItem { id: 7 }
-    var hashVal: int = h.hash()
-    print($"hash(id=7): {hashVal}\n")
-    if hashVal != 217 =>
-        print("FAIL: hash should be 7 * 31 = 217\n")
-        return 1
+  # Test hash method
+  var h: HashItem = HashItem { id: 7 }
+  var hashVal: int = h.hash()
+  print($"hash(id=7): {hashVal}\n")
+  if hashVal != 217 =>
+    print("FAIL: hash should be 7 * 31 = 217\n")
+    return 1
 
-    print("All operator overloading tests passed!\n")
-    return 0
+  print("All operator overloading tests passed!\n")
+  return 0

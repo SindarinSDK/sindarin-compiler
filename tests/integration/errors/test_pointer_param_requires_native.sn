@@ -4,7 +4,7 @@
 
 # Regular function with pointer parameter - should be a compile error
 fn bad_function(ptr: *int): void =>
-    return
+  return
 
 fn main(): int =>
-    return 0
+  return 0

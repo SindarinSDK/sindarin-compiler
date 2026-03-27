@@ -1,7 +1,10 @@
 struct Node as ref =>
-    value: int
-    label: str
+  value: int
+  label: str
 
 fn main(): void =>
-    var n: Node = Node { value: 42, label: "root" }
-    assert(n.value == 42, "value should be 42")
+  var n: Node = Node {
+    value: 42,
+    label: "root"
+  }
+  assert(n.value == 42, "value should be 42")

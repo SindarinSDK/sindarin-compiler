@@ -7,32 +7,32 @@ static var staticName: str = "level13_static"
 var instanceCounter: int = 13
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn getStaticName(): str =>
-    return staticName
+  return staticName
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn setInstanceCounter(v: int): void =>
-    instanceCounter = v
+  instanceCounter = v
 
 fn getDeepStatic(): int =>
-    return level_14.getStaticCounter()
+  return level_14.getStaticCounter()
 
 fn getDeepDeepStatic(): int =>
-    return level_14.getDeepStatic()
+  return level_14.getDeepStatic()
 
 fn getLevelId(): int =>
-    return 13
+  return 13
 
 fn computeChainValue(base: int): int =>
-    return level_14.computeChainValue(base + 13)
+  return level_14.computeChainValue(base + 13)
 
 // Return int instead of namespace-qualified struct type
 fn createDeepHolder(n: int): int =>
-    return level_14.createHolder(n).level
+  return level_14.createHolder(n).level

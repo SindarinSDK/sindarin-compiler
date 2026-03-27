@@ -1,6 +1,6 @@
 native struct Buffer =>
-    data: int
-    size: int
+  data: int
+  size: int
 
 fn main(): int =>
-    return 0
+  return 0

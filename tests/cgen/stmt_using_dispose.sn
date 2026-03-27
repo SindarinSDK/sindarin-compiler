@@ -1,12 +1,12 @@
 var disposed: bool = false
 
 struct Resource =>
-    name: str
+  name: str
 
-    fn dispose(): void =>
-        disposed = true
+  fn dispose(): void =>
+    disposed = true
 
 fn main(): void =>
-    using r = Resource{ name: "test" } =>
-        assert(r.name == "test", "expected resource name to be test")
-    assert(disposed, "expected dispose to be called after using block")
+  using r = Resource { name: "test" } =>
+    assert(r.name == "test", "expected resource name to be test")
+  assert(disposed, "expected dispose to be called after using block")

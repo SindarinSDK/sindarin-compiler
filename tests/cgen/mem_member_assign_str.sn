@@ -1,8 +1,11 @@
 struct Person as ref =>
-    name: str
-    age: int
+  name: str
+  age: int
 
 fn main(): void =>
-    var p: Person = Person { name: "Alice", age: 30 }
-    p.name = "Bob"
-    assert(p.name.length == 3, "name should be Bob")
+  var p: Person = Person {
+    name: "Alice",
+    age: 30
+  }
+  p.name = "Bob"
+  assert(p.name.length == 3, "name should be Bob")

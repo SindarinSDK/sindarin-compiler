@@ -2,21 +2,21 @@
 # This tests the pattern of struct fields that hold function references
 
 fn defaultHandler(x: int): int =>
-    return x * 2
+  return x * 2
 
 fn alternateHandler(x: int): int =>
-    return x + 10
+  return x + 10
 
 struct Processor =>
-    handler: fn(int): int
+  handler: fn(int): int
 
-    static fn new(): Processor =>
-        return Processor {
-            handler: defaultHandler
-        }
+  static fn new(): Processor =>
+    return Processor {
+      handler: defaultHandler
+    }
 
-    fn process(value: int): int =>
-        return self.handler(value)
+  fn process(value: int): int =>
+    return self.handler(value)
 
 fn createWithHandler(h: fn(int): int): Processor =>
-    return Processor { handler: h }
+  return Processor { handler: h }

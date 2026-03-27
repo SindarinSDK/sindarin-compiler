@@ -1,7 +1,7 @@
 # Error test: pointer field in non-native struct
 
 struct Data =>
-    ptr: *int
+  ptr: *int
 
 fn main(): void =>
-    print("Should not compile\n")
+  print("Should not compile\n")

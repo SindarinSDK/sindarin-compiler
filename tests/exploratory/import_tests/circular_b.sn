@@ -4,6 +4,6 @@
 import "circular_a"
 
 fn func_b(n: int): int =>
-    if n <= 0 =>
-        return 0
-    return n + func_a(n - 1)
+  if n <= 0 =>
+    return 0
+  return n + func_a(n - 1)

@@ -1,2 +1,2 @@
 fn main(): void =>
-    print("  hello  \n")
+  print("  hello  \n")

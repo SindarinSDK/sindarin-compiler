@@ -1,14 +1,20 @@
 # Error test: operator == must return bool, not int
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
-    operator == (other: Point): int =>
-        return 1
+  operator == (other: Point): int =>
+    return 1
 
 fn main(): void =>
-    var p1: Point = Point { x: 1, y: 2 }
-    var p2: Point = Point { x: 1, y: 2 }
-    var eq: bool = p1 == p2
-    print($"{eq}\n")
+  var p1: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var p2: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var eq: bool = p1 == p2
+  print($"{eq}\n")

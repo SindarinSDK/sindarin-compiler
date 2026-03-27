@@ -1,4 +1,4 @@
 fn main(): void =>
-    var names: str[] = {"Alice", "Bob"}
-    names[0] = "Charlie"
-    assert(names.length == 2, "should still have 2 names")
+  var names: str[] = {"Alice", "Bob"}
+  names[0] = "Charlie"
+  assert(names.length == 2, "should still have 2 names")

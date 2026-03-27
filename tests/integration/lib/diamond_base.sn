@@ -4,10 +4,10 @@
 var DIAMOND_BASE_VALUE: int = 42
 
 fn diamondBaseFunc(x: int): int =>
-    return x + DIAMOND_BASE_VALUE
+  return x + DIAMOND_BASE_VALUE
 
 struct DiamondBase =>
-    value: int
+  value: int
 
-    static fn new(): DiamondBase =>
-        return DiamondBase { value: DIAMOND_BASE_VALUE }
+  static fn new(): DiamondBase =>
+    return DiamondBase { value: DIAMOND_BASE_VALUE }

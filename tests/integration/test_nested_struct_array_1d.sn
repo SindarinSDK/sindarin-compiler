@@ -1,35 +1,47 @@
 # Test: 1D array of nested structs (struct with struct field containing strings)
 
 struct Address =>
-    street: str
-    city: str
+  street: str
+  city: str
 
 struct Person =>
-    name: str
-    addr: Address
+  name: str
+  addr: Address
 
 fn buildPeople(): Person[] =>
-    var people: Person[] = {}
-    people.push(Person { name: "Alice", addr: Address { street: "123 Main", city: "Springfield" } })
-    people.push(Person { name: "Bob", addr: Address { street: "456 Oak", city: "Shelbyville" } })
-    return people
+  var people: Person[] = {}
+  people.push(Person {
+    name: "Alice",
+    addr: Address {
+      street: "123 Main",
+      city: "Springfield"
+    }
+  })
+  people.push(Person {
+    name: "Bob",
+    addr: Address {
+      street: "456 Oak",
+      city: "Shelbyville"
+    }
+  })
+  return people
 
 fn main(): void =>
-    var people: Person[] = buildPeople()
+  var people: Person[] = buildPeople()
 
-    if people.length != 2 =>
-        print("FAIL: length\n")
-        return
-    if people[0].name != "Alice" =>
-        print("FAIL: name 0\n")
-        return
-    if people[0].addr.street != "123 Main" || people[0].addr.city != "Springfield" =>
-        print("FAIL: addr 0\n")
-        return
-    if people[1].name != "Bob" =>
-        print("FAIL: name 1\n")
-        return
-    if people[1].addr.street != "456 Oak" || people[1].addr.city != "Shelbyville" =>
-        print("FAIL: addr 1\n")
-        return
-    print("PASS\n")
+  if people.length != 2 =>
+    print("FAIL: length\n")
+    return
+  if people[0].name != "Alice" =>
+    print("FAIL: name 0\n")
+    return
+  if people[0].addr.street != "123 Main" || people[0].addr.city != "Springfield" =>
+    print("FAIL: addr 0\n")
+    return
+  if people[1].name != "Bob" =>
+    print("FAIL: name 1\n")
+    return
+  if people[1].addr.street != "456 Oak" || people[1].addr.city != "Shelbyville" =>
+    print("FAIL: addr 1\n")
+    return
+  print("PASS\n")

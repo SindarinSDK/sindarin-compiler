@@ -82,6 +82,7 @@ set(SN_CORE_SOURCES
     src/debug.c
     src/diagnostic.c
     src/compiler.c
+    src/formatter.c
 )
 
 set(SN_LEXER_SOURCES

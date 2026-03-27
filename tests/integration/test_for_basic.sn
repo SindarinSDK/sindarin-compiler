@@ -1,4 +1,4 @@
 fn main(): void =>
-    for var i: int = 0; i < 5; i++ =>
-        print($"{i} ")
-    print("\n")
+  for var i: int = 0; i < 5; i++ =>
+    print($"{i} ")
+  print("\n")

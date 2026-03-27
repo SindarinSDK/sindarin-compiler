@@ -1,4 +1,4 @@
 fn main(): void =>
-    var s: str = "hello"
-    s = s.append(" world")
-    print($"{s}\n")
+  var s: str = "hello"
+  s = s.append(" world")
+  print($"{s}\n")

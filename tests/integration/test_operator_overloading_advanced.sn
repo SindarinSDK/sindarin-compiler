@@ -2,183 +2,195 @@
 
 # Struct with == and < only (auto-derives !=, >, >=, <=)
 struct Weight =>
-    kg: int
+  kg: int
 
-    operator == (other: Weight): bool =>
-        return self.kg == other.kg
+  operator == (other: Weight): bool =>
+    return self.kg == other.kg
 
-    operator < (other: Weight): bool =>
-        return self.kg < other.kg
+  operator < (other: Weight): bool =>
+    return self.kg < other.kg
 
 # Struct with explicit != defined (no auto-derivation needed)
 struct Tag =>
-    code: int
+  code: int
 
-    operator == (other: Tag): bool =>
-        return self.code == other.code
+  operator == (other: Tag): bool =>
+    return self.code == other.code
 
-    operator != (other: Tag): bool =>
-        return self.code != other.code
+  operator != (other: Tag): bool =>
+    return self.code != other.code
 
 # Struct with lexicographic (multi-field) comparison
 struct Version =>
-    major: int
-    minor: int
+  major: int
+  minor: int
 
-    operator == (other: Version): bool =>
-        return self.major == other.major && self.minor == other.minor
+  operator == (other: Version): bool =>
+    return self.major == other.major && self.minor == other.minor
 
-    operator < (other: Version): bool =>
-        if self.major < other.major =>
-            return true
-        if self.major > other.major =>
-            return false
-        return self.minor < other.minor
+  operator < (other: Version): bool =>
+    if self.major < other.major =>
+      return true
+    if self.major > other.major =>
+      return false
+    return self.minor < other.minor
 
 fn main(): int =>
-    # --- Section 1: operators directly in if conditions (no intermediate bool var) ---
-    var w1: Weight = Weight { kg: 10 }
-    var w2: Weight = Weight { kg: 20 }
-    var w3: Weight = Weight { kg: 10 }
+  # --- Section 1: operators directly in if conditions (no intermediate bool var) ---
+  var w1: Weight = Weight { kg: 10 }
+  var w2: Weight = Weight { kg: 20 }
+  var w3: Weight = Weight { kg: 10 }
 
-    if w1 == w3 =>
-        print("w1 == w3 (direct if): true\n")
-    else =>
-        print("FAIL: w1 == w3 should be true\n")
-        return 1
+  if w1 == w3 =>
+    print("w1 == w3 (direct if): true\n")
+  else =>
+    print("FAIL: w1 == w3 should be true\n")
+    return 1
 
-    if w1 < w2 =>
-        print("w1 < w2 (direct if): true\n")
-    else =>
-        print("FAIL: w1 < w2 should be true\n")
-        return 1
+  if w1 < w2 =>
+    print("w1 < w2 (direct if): true\n")
+  else =>
+    print("FAIL: w1 < w2 should be true\n")
+    return 1
 
-    if w2 > w1 =>
-        print("w2 > w1 (auto-derived, direct if): true\n")
-    else =>
-        print("FAIL: w2 > w1 should be true\n")
-        return 1
+  if w2 > w1 =>
+    print("w2 > w1 (auto-derived, direct if): true\n")
+  else =>
+    print("FAIL: w2 > w1 should be true\n")
+    return 1
 
-    if w1 != w2 =>
-        print("w1 != w2 (auto-derived, direct if): true\n")
-    else =>
-        print("FAIL: w1 != w2 should be true\n")
-        return 1
+  if w1 != w2 =>
+    print("w1 != w2 (auto-derived, direct if): true\n")
+  else =>
+    print("FAIL: w1 != w2 should be true\n")
+    return 1
 
-    # --- Section 2: operators combined with && and || ---
-    if w1 == w3 && w1 < w2 =>
-        print("w1 == w3 && w1 < w2: true\n")
-    else =>
-        print("FAIL: combined && condition failed\n")
-        return 1
+  # --- Section 2: operators combined with && and || ---
+  if w1 == w3 && w1 < w2 =>
+    print("w1 == w3 && w1 < w2: true\n")
+  else =>
+    print("FAIL: combined && condition failed\n")
+    return 1
 
-    if w2 > w1 && w2 != w3 =>
-        print("w2 > w1 && w2 != w3: true\n")
-    else =>
-        print("FAIL: combined && condition 2 failed\n")
-        return 1
+  if w2 > w1 && w2 != w3 =>
+    print("w2 > w1 && w2 != w3: true\n")
+  else =>
+    print("FAIL: combined && condition 2 failed\n")
+    return 1
 
-    if w1 > w2 || w1 < w2 =>
-        print("w1 > w2 || w1 < w2 (one true): true\n")
-    else =>
-        print("FAIL: || condition failed\n")
-        return 1
+  if w1 > w2 || w1 < w2 =>
+    print("w1 > w2 || w1 < w2 (one true): true\n")
+  else =>
+    print("FAIL: || condition failed\n")
+    return 1
 
-    # --- Section 3: while loop using operator in condition ---
-    var cur: Weight = Weight { kg: 1 }
-    var limit: Weight = Weight { kg: 5 }
-    var count: int = 0
-    while cur < limit =>
-        count = count + 1
-        cur = Weight { kg: cur.kg + 1 }
-    print($"while cur < limit count: {count}\n")
-    if count != 4 =>
-        print("FAIL: while loop count should be 4\n")
-        return 1
+  # --- Section 3: while loop using operator in condition ---
+  var cur: Weight = Weight { kg: 1 }
+  var limit: Weight = Weight { kg: 5 }
+  var count: int = 0
+  while cur < limit =>
+    count = count + 1
+    cur = Weight { kg: cur.kg + 1 }
+  print($"while cur < limit count: {count}\n")
+  if count != 4 =>
+    print("FAIL: while loop count should be 4\n")
+    return 1
 
-    # --- Section 4: explicit != operator (not auto-derived) ---
-    var t1: Tag = Tag { code: 42 }
-    var t2: Tag = Tag { code: 42 }
-    var t3: Tag = Tag { code: 99 }
+  # --- Section 4: explicit != operator (not auto-derived) ---
+  var t1: Tag = Tag { code: 42 }
+  var t2: Tag = Tag { code: 42 }
+  var t3: Tag = Tag { code: 99 }
 
-    if t1 == t2 =>
-        print("t1 == t2 (explicit ==): true\n")
-    else =>
-        print("FAIL: t1 == t2 should be true\n")
-        return 1
+  if t1 == t2 =>
+    print("t1 == t2 (explicit ==): true\n")
+  else =>
+    print("FAIL: t1 == t2 should be true\n")
+    return 1
 
-    if t1 != t3 =>
-        print("t1 != t3 (explicit !=): true\n")
-    else =>
-        print("FAIL: t1 != t3 should be true\n")
-        return 1
+  if t1 != t3 =>
+    print("t1 != t3 (explicit !=): true\n")
+  else =>
+    print("FAIL: t1 != t3 should be true\n")
+    return 1
 
-    var sameTag: bool = t1 != t2
-    if sameTag =>
-        print("FAIL: t1 != t2 should be false\n")
-        return 1
-    print("t1 != t2 (explicit !=, equal tags): false\n")
+  var sameTag: bool = t1 != t2
+  if sameTag =>
+    print("FAIL: t1 != t2 should be false\n")
+    return 1
+  print("t1 != t2 (explicit !=, equal tags): false\n")
 
-    # --- Section 5: lexicographic multi-field comparison ---
-    var v1: Version = Version { major: 1, minor: 2 }
-    var v2: Version = Version { major: 1, minor: 5 }
-    var v3: Version = Version { major: 2, minor: 0 }
-    var v4: Version = Version { major: 1, minor: 2 }
+  # --- Section 5: lexicographic multi-field comparison ---
+  var v1: Version = Version {
+    major: 1,
+    minor: 2
+  }
+  var v2: Version = Version {
+    major: 1,
+    minor: 5
+  }
+  var v3: Version = Version {
+    major: 2,
+    minor: 0
+  }
+  var v4: Version = Version {
+    major: 1,
+    minor: 2
+  }
 
-    if v1 < v2 =>
-        print("v1(1.2) < v2(1.5): true\n")
-    else =>
-        print("FAIL: 1.2 should be < 1.5\n")
-        return 1
+  if v1 < v2 =>
+    print("v1(1.2) < v2(1.5): true\n")
+  else =>
+    print("FAIL: 1.2 should be < 1.5\n")
+    return 1
 
-    if v2 < v3 =>
-        print("v2(1.5) < v3(2.0): true\n")
-    else =>
-        print("FAIL: 1.5 should be < 2.0\n")
-        return 1
+  if v2 < v3 =>
+    print("v2(1.5) < v3(2.0): true\n")
+  else =>
+    print("FAIL: 1.5 should be < 2.0\n")
+    return 1
 
-    if v1 == v4 =>
-        print("v1(1.2) == v4(1.2): true\n")
-    else =>
-        print("FAIL: 1.2 should == 1.2\n")
-        return 1
+  if v1 == v4 =>
+    print("v1(1.2) == v4(1.2): true\n")
+  else =>
+    print("FAIL: 1.2 should == 1.2\n")
+    return 1
 
-    if v3 > v2 =>
-        print("v3(2.0) > v2(1.5): true\n")
-    else =>
-        print("FAIL: 2.0 should be > 1.5\n")
-        return 1
+  if v3 > v2 =>
+    print("v3(2.0) > v2(1.5): true\n")
+  else =>
+    print("FAIL: 2.0 should be > 1.5\n")
+    return 1
 
-    if v1 <= v4 =>
-        print("v1(1.2) <= v4(1.2) (equal, auto-derived <=): true\n")
-    else =>
-        print("FAIL: equal versions should be <=\n")
-        return 1
+  if v1 <= v4 =>
+    print("v1(1.2) <= v4(1.2) (equal, auto-derived <=): true\n")
+  else =>
+    print("FAIL: equal versions should be <=\n")
+    return 1
 
-    if v1 >= v4 =>
-        print("v1(1.2) >= v4(1.2) (equal, auto-derived >=): true\n")
-    else =>
-        print("FAIL: equal versions should be >=\n")
-        return 1
+  if v1 >= v4 =>
+    print("v1(1.2) >= v4(1.2) (equal, auto-derived >=): true\n")
+  else =>
+    print("FAIL: equal versions should be >=\n")
+    return 1
 
-    if v3 >= v1 =>
-        print("v3(2.0) >= v1(1.2) (auto-derived >=): true\n")
-    else =>
-        print("FAIL: 2.0 should be >= 1.2\n")
-        return 1
+  if v3 >= v1 =>
+    print("v3(2.0) >= v1(1.2) (auto-derived >=): true\n")
+  else =>
+    print("FAIL: 2.0 should be >= 1.2\n")
+    return 1
 
-    # --- Section 6: find min using < operator in array walk ---
-    var weights: Weight[] = { Weight { kg: 7 }, Weight { kg: 2 }, Weight { kg: 9 }, Weight { kg: 4 } }
-    var minW: Weight = weights[0]
-    var i: int = 1
-    while i < weights.length =>
-        if weights[i] < minW =>
-            minW = weights[i]
-        i = i + 1
-    print($"min weight kg: {minW.kg}\n")
-    if minW.kg != 2 =>
-        print("FAIL: min weight should be 2\n")
-        return 1
+  # --- Section 6: find min using < operator in array walk ---
+  var weights: Weight[] = { Weight { kg: 7 }, Weight { kg: 2 }, Weight { kg: 9 }, Weight { kg: 4 } }
+  var minW: Weight = weights[0]
+  var i: int = 1
+  while i < weights.length =>
+    if weights[i] < minW =>
+      minW = weights[i]
+    i = i + 1
+  print($"min weight kg: {minW.kg}\n")
+  if minW.kg != 2 =>
+    print("FAIL: min weight should be 2\n")
+    return 1
 
-    print("All advanced operator overloading tests passed!\n")
-    return 0
+  print("All advanced operator overloading tests passed!\n")
+  return 0

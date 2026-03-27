@@ -3,33 +3,39 @@
 # of nested structs.
 
 struct Inner =>
-    value: str
+  value: str
 
 struct Middle =>
-    label: str
-    inner: Inner
+  label: str
+  inner: Inner
 
 struct Outer =>
-    title: str
-    middle: Middle
+  title: str
+  middle: Middle
 
 fn buildOuter(): Outer =>
-    var i: Inner = Inner { value: "deep-value" }
-    var m: Middle = Middle { label: "mid-label", inner: i }
-    var o: Outer = Outer { title: "top-title", middle: m }
-    return o
+  var i: Inner = Inner { value: "deep-value" }
+  var m: Middle = Middle {
+    label: "mid-label",
+    inner: i
+  }
+  var o: Outer = Outer {
+    title: "top-title",
+    middle: m
+  }
+  return o
 
 fn main(): void =>
-    var o: Outer = buildOuter()
+  var o: Outer = buildOuter()
 
-    # All three levels of string fields must be valid
-    print($"Title: {o.title}\n")
-    print($"Label: {o.middle.label}\n")
-    print($"Value: {o.middle.inner.value}\n")
+  # All three levels of string fields must be valid
+  print($"Title: {o.title}\n")
+  print($"Label: {o.middle.label}\n")
+  print($"Value: {o.middle.inner.value}\n")
 
-    if o.title == "top-title" =>
-        if o.middle.label == "mid-label" =>
-            if o.middle.inner.value == "deep-value" =>
-                print("PASS\n")
-                return
-    print("FAIL\n")
+  if o.title == "top-title" =>
+    if o.middle.label == "mid-label" =>
+      if o.middle.inner.value == "deep-value" =>
+        print("PASS\n")
+        return
+  print("FAIL\n")
