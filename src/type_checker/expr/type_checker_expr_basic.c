@@ -71,6 +71,7 @@ Type *type_check_variable(Expr *expr, SymbolTable *table)
     /* Annotate the AST node with scope depth so codegen capture analysis
      * can distinguish module-level globals from true locals. */
     expr->as.variable.declaration_scope_depth = sym->declaration_scope_depth;
+    expr->as.variable.is_param_ref = (sym->kind == SYMBOL_PARAM);
 
     DEBUG_VERBOSE("Variable type found: %d", result_type->kind);
     return result_type;
