@@ -143,12 +143,11 @@ jobs:
           echo "Build outputs verified successfully!"
 
       #------------------------------------------------------------------------
-      # Format Check (Linux only — formatting is platform-independent)
+      # Format Check
       #------------------------------------------------------------------------
       - name: Check formatting
-        if: runner.os == 'Linux'
         shell: bash
-        run: bin/sn --format --check
+        run: bin/sn${{ matrix.exe_ext }} --format --check
 
       #------------------------------------------------------------------------
       # Run Tests
