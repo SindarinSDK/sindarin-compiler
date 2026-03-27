@@ -1,6 +1,6 @@
 fn compute(): void =>
-    return
+  return
 
 fn main(): int =>
-    &compute()
-    return 0
+  & compute()
+  return 0

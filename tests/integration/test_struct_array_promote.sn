@@ -3,31 +3,40 @@
 # the string fields inside the array elements must remain valid in the caller.
 
 struct Header =>
-    name: str
-    value: str
+  name: str
+  value: str
 
 struct Response =>
-    code: int
-    headers: Header[]
+  code: int
+  headers: Header[]
 
 fn createResponse(): Response =>
-    var res: Response = Response { code: 200, headers: {} }
-    res.headers.push(Header { name: "Content-Type", value: "text/plain" })
-    res.headers.push(Header { name: "X-Custom", value: "test-value" })
-    return res
+  var res: Response = Response {
+    code: 200,
+    headers: {}
+  }
+  res.headers.push(Header {
+    name: "Content-Type",
+    value: "text/plain"
+  })
+  res.headers.push(Header {
+    name: "X-Custom",
+    value: "test-value"
+  })
+  return res
 
 fn main(): void =>
-    var res: Response = createResponse()
+  var res: Response = createResponse()
 
-    # Access the returned values
-    print($"Code: {res.code}\n")
-    print($"Headers: {res.headers.length}\n")
-    for var i: int = 0; i < res.headers.length; i++ =>
-        print($"  {res.headers[i].name}: {res.headers[i].value}\n")
+  # Access the returned values
+  print($"Code: {res.code}\n")
+  print($"Headers: {res.headers.length}\n")
+  for var i: int = 0; i < res.headers.length; i++ =>
+    print($"  {res.headers[i].name}: {res.headers[i].value}\n")
 
-    if res.headers.length == 2 =>
-        if res.headers[0].name == "Content-Type" && res.headers[0].value == "text/plain" =>
-            if res.headers[1].name == "X-Custom" && res.headers[1].value == "test-value" =>
-                print("PASS\n")
-                return
-    print("FAIL\n")
+  if res.headers.length == 2 =>
+    if res.headers[0].name == "Content-Type" && res.headers[0].value == "text/plain" =>
+      if res.headers[1].name == "X-Custom" && res.headers[1].value == "test-value" =>
+        print("PASS\n")
+        return
+  print("FAIL\n")

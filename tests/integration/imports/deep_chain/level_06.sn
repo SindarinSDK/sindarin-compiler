@@ -7,28 +7,28 @@ static var staticMessage: str = "level6"
 var instanceCounter: int = 6
 
 fn getStaticCounter(): int =>
-    return staticCounter
+  return staticCounter
 
 fn getStaticMessage(): str =>
-    return staticMessage
+  return staticMessage
 
 fn setStaticMessage(msg: str): void =>
-    staticMessage = msg
+  staticMessage = msg
 
 fn incrementStatic(): void =>
-    staticCounter = staticCounter + 1
+  staticCounter = staticCounter + 1
 
 fn getInstanceCounter(): int =>
-    return instanceCounter
+  return instanceCounter
 
 fn getDeepStatic(): int =>
-    return L7.getStaticCounter()
+  return L7.getStaticCounter()
 
 fn getLevelId(): int =>
-    return 6
+  return 6
 
 fn computeChainValue(base: int): int =>
-    return L7.computeChainValue(base + 6)
+  return L7.computeChainValue(base + 6)
 
 fn getJumpStaticViaL7(): int =>
-    return L7.getJumpStatic()
+  return L7.getJumpStatic()

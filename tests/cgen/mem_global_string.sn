@@ -1,4 +1,4 @@
 var greeting: str = "hello"
 
 fn main(): void =>
-    assert(greeting.length == 5, "greeting should be 5 chars")
+  assert(greeting.length == 5, "greeting should be 5 chars")

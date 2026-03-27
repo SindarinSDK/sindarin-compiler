@@ -1,11 +1,11 @@
 struct Node as ref =>
-    value: int
+  value: int
 
 fn make_node(v: int): Node =>
-    var n: Node = Node { value: v }
-    return n
+  var n: Node = Node { value: v }
+  return n
 
 fn main(): void =>
-    var n: Node = make_node(1)
-    n = make_node(2)
-    assert(n.value == 2, "value should be 2 after reassign")
+  var n: Node = make_node(1)
+  n = make_node(2)
+  assert(n.value == 2, "value should be 2 after reassign")

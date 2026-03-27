@@ -1,4 +1,4 @@
 fn main(): int =>
-    var x: int = 0
-    x++
-    return 0
+  var x: int = 0
+  x++
+  return 0

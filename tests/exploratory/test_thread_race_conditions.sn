@@ -6,14 +6,14 @@
 // Sindarin's threading model prevents data races through compile-time enforcement:
 //
 // 1. PENDING STATE: Thread result variables are in "pending" state until synced.
-//    Accessing a pending variable is a compile error, preventing use-before-ready
-//    bugs.
+// Accessing a pending variable is a compile error, preventing use-before-ready
+// bugs.
 //
 // 2. EXPLICIT SYNC REQUIRED: All thread results must be synced before use,
-//    ensuring proper synchronization points.
+// ensuring proper synchronization points.
 //
 // 3. ATOMIC VARIABLES: Use 'sync' type modifier for thread-safe counters and
-//    accumulators. Operations like ++, --, +=, -= are atomic on sync variables.
+// accumulators. Operations like ++, --, +=, -= are atomic on sync variables.
 //
 // RACE CONDITIONS PREVENTED:
 // - Use-before-ready on thread results (compile error)
@@ -26,41 +26,41 @@
 // This test demonstrates safe concurrent access patterns.
 
 fn compute_square(x: int): int =>
-    return x * x
+  return x * x
 
 fn process_data(values: int[]): int =>
-    var sum: int = 0
-    for v in values =>
-        sum = sum + v
-    return sum
+  var sum: int = 0
+  for v in values =>
+    sum = sum + v
+  return sum
 
 fn main(): void =>
-    print("=== Race Condition Safety Documentation ===\n\n")
+  print("=== Race Condition Safety Documentation ===\n\n")
 
-    // Safe pattern: Independent computations
-    print("1. Independent computations (safe):\n")
-    var r1: int = &compute_square(5)
-    var r2: int = &compute_square(10)
-    r1!
-    r2!
-    print($"   Squared values: {r1}, {r2}\n")
-    print("   -> No shared state, completely safe\n\n")
+  // Safe pattern: Independent computations
+  print("1. Independent computations (safe):\n")
+  var r1: int = & compute_square(5)
+  var r2: int = & compute_square(10)
+  r1 !
+  r2 !
+  print($"   Squared values: {r1}, {r2}\n")
+  print("   -> No shared state, completely safe\n\n")
 
-    // Safe pattern: Array access with thread
-    print("2. Array processing with thread:\n")
-    var data: int[] = {1, 2, 3, 4, 5}
-    var total: int = &process_data(data)
-    // Reading array is safe
-    var first: int = data[0]
-    print($"   First element while processing: {first}\n")
-    total!
-    print($"   Total: {total}\n")
-    print("   -> Array passed by reference to thread\n\n")
+  // Safe pattern: Array access with thread
+  print("2. Array processing with thread:\n")
+  var data: int[] = {1, 2, 3, 4, 5}
+  var total: int = & process_data(data)
+  // Reading array is safe
+  var first: int = data[0]
+  print($"   First element while processing: {first}\n")
+  total !
+  print($"   Total: {total}\n")
+  print("   -> Array passed by reference to thread\n\n")
 
-    // Safe pattern: Sequential modification after sync
-    print("3. Sequential modification after sync (safe):\n")
-    data[0] = 100  // Safe after sync
-    print($"   Modified first element: {data[0]}\n")
-    print("   -> Modifications safe after sync\n\n")
+  // Safe pattern: Sequential modification after sync
+  print("3. Sequential modification after sync (safe):\n")
+  data[0] = 100  // Safe after sync
+  print($"   Modified first element: {data[0]}\n")
+  print("   -> Modifications safe after sync\n\n")
 
-    print("=== All patterns demonstrated successfully ===\n")
+  print("=== All patterns demonstrated successfully ===\n")

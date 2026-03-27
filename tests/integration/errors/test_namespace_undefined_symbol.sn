@@ -3,5 +3,5 @@
 import "../lib/math_basic" as math
 
 fn main(): void =>
-    var x: int = math.nonexistent(1, 2)
-    print($"{x}\n")
+  var x: int = math.nonexistent(1, 2)
+  print($"{x}\n")

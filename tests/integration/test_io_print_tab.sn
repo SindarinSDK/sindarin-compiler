@@ -1,2 +1,2 @@
 fn main(): void =>
-    print("a\tb\tc\n")
+  print("a\tb\tc\n")

@@ -1,5 +1,5 @@
 fn main(): void =>
-    greet()
+  greet()
 
 fn greet(): void =>
-    print("hello\n")
+  print("hello\n")

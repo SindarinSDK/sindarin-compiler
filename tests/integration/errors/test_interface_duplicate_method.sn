@@ -1,7 +1,7 @@
 # Error test: interface declares the same method name twice
 
 interface Bad =>
-    fn process(): int
-    fn process(): str
+  fn process(): int
+  fn process(): str
 
 fn main(): int => return 0

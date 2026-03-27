@@ -3,5 +3,5 @@
 import "../lib/math_basic" as for
 
 fn main(): void =>
-    var x: int = for.add(1, 2)
-    print($"{x}\n")
+  var x: int = for.add(1, 2)
+  print($"{x}\n")

@@ -36,7 +36,6 @@ fn demo_functions(): void =>
   print("factorial(5) = 120\n")
   print("fibonacci sequence: 0, 1, 1, 2, 3, 5, 8...\n")
 
-
 fn greet(): void =>
   print("Hello from greet()!\n")
 

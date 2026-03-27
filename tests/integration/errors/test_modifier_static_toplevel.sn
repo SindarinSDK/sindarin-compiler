@@ -1,8 +1,8 @@
 # Test: Compile error - 'static fn' at top-level (static at module level is only for var)
 
 static fn helper(): int =>
-    return 42
+  return 42
 
 fn main(): void =>
-    var x: int = helper()
-    print($"{x}\n")
+  var x: int = helper()
+  print($"{x}\n")

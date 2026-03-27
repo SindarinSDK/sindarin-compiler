@@ -3,9 +3,9 @@
 // Verifies result promotion for strings in default mode
 
 fn get_greeting(): str =>
-    return "Hello from thread!"
+  return "Hello from thread!"
 
 fn main(): void =>
-    var r: str = &get_greeting()  // Spawns default mode
-    var result: str = r!           // Result promoted to caller arena
-    print($"Result: {result}\n")   // Should print "Result: Hello from thread!"
+  var r: str = & get_greeting()  // Spawns default mode
+  var result: str = r !  // Result promoted to caller arena
+  print($"Result: {result}\n")  // Should print "Result: Hello from thread!"

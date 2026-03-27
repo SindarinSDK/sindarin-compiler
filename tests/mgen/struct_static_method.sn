@@ -1,9 +1,9 @@
 struct Counter =>
-    value: int
+  value: int
 
-    static fn zero(): int =>
-        return 0
+  static fn zero(): int =>
+    return 0
 
 fn main(): int =>
-    var z: int = Counter.zero()
-    return z
+  var z: int = Counter.zero()
+  return z

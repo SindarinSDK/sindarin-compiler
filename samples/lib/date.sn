@@ -2,7 +2,7 @@
 // date.sn - Date Features in Sindarin
 // ============================================================================
 // Demonstrates: Date creation, formatting, arithmetic, comparisons,
-//               and common date patterns
+// and common date patterns
 // ============================================================================
 
 import "../../sdk/time/date"
@@ -121,4 +121,3 @@ fn demo_date(): void =>
   print($"Feb 2024 daysInMonth: {feb2024.daysInMonth()}\n")
 
   print("\n--- Date Demo Complete ---\n")
-

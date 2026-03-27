@@ -1,10 +1,10 @@
 // string_utils.sn - Utility string functions for import testing
 
 fn greet(name: str): str =>
-    return "Hello, " + name + "!"
+  return "Hello, " + name + "!"
 
 fn shout(text: str): str =>
-    return text.toUpper() + "!"
+  return text.toUpper() + "!"
 
 fn format_number(n: int): str =>
-    return $"Number: {n}"
+  return $"Number: {n}"

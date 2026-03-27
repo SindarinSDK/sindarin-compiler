@@ -6,8 +6,8 @@ native fn get_pointer(): *int
 
 # Regular function trying to store a pointer - should be a compile error
 fn bad_function(): void =>
-    var p: *int = get_pointer()
-    return
+  var p: *int = get_pointer()
+  return
 
 fn main(): int =>
-    return 0
+  return 0

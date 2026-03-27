@@ -1,8 +1,8 @@
 fn main(): void =>
-    var count: int = 0
-    var inc: fn(): int = fn(): int =>
-        count++
-        return count
-    print($"{inc()}\n")
-    print($"{inc()}\n")
-    print($"{inc()}\n")
+  var count: int = 0
+  var inc: fn(): int = fn(): int =>
+    count++
+    return count
+  print($"{inc()}\n")
+  print($"{inc()}\n")
+  print($"{inc()}\n")

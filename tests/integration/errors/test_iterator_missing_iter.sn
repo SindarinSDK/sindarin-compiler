@@ -1,10 +1,10 @@
 # Error test: struct used in for-each without iter() method
 
 struct Bag =>
-    count: int
+  count: int
 
 fn main(): int =>
-    var b: Bag = Bag { count: 3 }
-    for x in b =>
-        print(x)
-    return 0
+  var b: Bag = Bag { count: 3 }
+  for x in b =>
+    print(x)
+  return 0

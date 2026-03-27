@@ -2,13 +2,13 @@
 # Passing function types as arguments to thread-spawned functions
 
 fn apply(f: fn(int): int, x: int): int =>
-    return f(x)
+  return f(x)
 
 fn times_two(x: int): int =>
-    return x * 2
+  return x * 2
 
 fn main(): void =>
-    # Try to spawn a thread that takes a function parameter
-    var result: int = &apply(times_two, 21)
-    var value = result!
-    print($"Result: {value}\n")
+  # Try to spawn a thread that takes a function parameter
+  var result: int = & apply(times_two, 21)
+  var value = result !
+  print($"Result: {value}\n")

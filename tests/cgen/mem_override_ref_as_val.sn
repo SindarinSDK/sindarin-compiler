@@ -1,10 +1,10 @@
 struct Node as ref =>
-    value: int
+  value: int
 
 fn consume(n: Node as val): int =>
-    return n.value
+  return n.value
 
 fn main(): void =>
-    var n: Node = Node { value: 42 }
-    var v: int = consume(n)
-    assert(v == 42, "should get value from copy")
+  var n: Node = Node { value: 42 }
+  var v: int = consume(n)
+  assert(v == 42, "should get value from copy")

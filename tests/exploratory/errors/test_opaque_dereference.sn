@@ -5,7 +5,7 @@ type OpaqueHandle = opaque
 
 # This should fail: trying to dereference opaque type
 native fn bad_deref(h: *OpaqueHandle): OpaqueHandle =>
-    return valueOf(h)
+  return valueOf(h)
 
 fn main(): int =>
-    return 0
+  return 0

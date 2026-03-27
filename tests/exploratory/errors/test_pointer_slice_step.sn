@@ -5,15 +5,15 @@
 
 native fn get_buffer(): *byte
 native fn get_length(): int =>
-    return 10
+  return 10
 
 fn test_pointer_slice_with_step(): void =>
-    var len: int = get_length()
-    # Attempt to use step parameter with pointer slice
-    # This should be rejected at compile time
-    var data: byte[] = valueOf(get_buffer()[0..len:2])
-    print($"Data: {data}\n")
+  var len: int = get_length()
+  # Attempt to use step parameter with pointer slice
+  # This should be rejected at compile time
+  var data: byte[] = valueOf(get_buffer()[0..len: 2])
+  print($"Data: {data}\n")
 
 fn main(): int =>
-    test_pointer_slice_with_step()
-    return 0
+  test_pointer_slice_with_step()
+  return 0

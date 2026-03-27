@@ -2,7 +2,7 @@
 // memory.sn - Memory Management Features in Sindarin
 // ============================================================================
 // Demonstrates: functions, shared/private blocks, shared loops,
-//               as val (copy semantics), as ref (reference semantics)
+// as val (copy semantics), as ref (reference semantics)
 // ============================================================================
 
 // --- Function ---
@@ -92,4 +92,3 @@ fn demo_memory(): void =>
   print($"value (as ref) = {value}\n")
   value = 100
   print($"modified value = {value}\n")
-

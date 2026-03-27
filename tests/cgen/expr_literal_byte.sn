@@ -1,3 +1,3 @@
 fn main(): int =>
-    var b: byte = 255
-    return 0
+  var b: byte = 255
+  return 0

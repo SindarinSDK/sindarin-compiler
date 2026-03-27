@@ -2,7 +2,7 @@
 // time.sn - Time Features in Sindarin
 // ============================================================================
 // Demonstrates: Time creation, formatting, arithmetic, comparisons,
-//               benchmarking, and common time patterns
+// benchmarking, and common time patterns
 // ============================================================================
 
 import "../../sdk/time/time"
@@ -126,4 +126,3 @@ fn demo_time(): void =>
   print($"Event scheduled for: {eventTime.format("h:mm A")}\n")
   var waitMs: long = eventTime.diff(eventNow)
   print($"Time until event: {waitMs / 1000l / 60l} minutes\n")
-

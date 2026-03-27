@@ -1,5 +1,5 @@
 fn main(): void =>
-    var x: int = 100
-    while x > 1 =>
-        x /= 2
-    print($"{x}\n")
+  var x: int = 100
+  while x > 1 =>
+    x /= 2
+  print($"{x}\n")

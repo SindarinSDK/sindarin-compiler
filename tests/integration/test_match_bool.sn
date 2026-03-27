@@ -1,5 +1,5 @@
 fn main(): void =>
-    var b: bool = true
-    match b =>
-        true => print("yes\n")
-        false => print("no\n")
+  var b: bool = true
+  match b =>
+    true => print("yes\n")
+    false => print("no\n")

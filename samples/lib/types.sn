@@ -4,12 +4,12 @@
 // This file demonstrates all primitive types available in Sindarin.
 //
 // Types covered:
-//   1. int - Integer numbers
-//   2. double - Floating-point numbers
-//   3. str - String text
-//   4. char - Single characters
-//   5. bool - Boolean true/false
-//   6. void - No return value
+// 1. int - Integer numbers
+// 2. double - Floating-point numbers
+// 3. str - String text
+// 4. char - Single characters
+// 5. bool - Boolean true/false
+// 6. void - No return value
 // ============================================================================
 
 // Entry point for type demos
@@ -24,7 +24,6 @@ fn demo_types(): void =>
   show_chars()
   show_booleans()
   show_type_conversion()
-
 
 // ----------------------------------------------------------------------------
 // 1. Integers (int)

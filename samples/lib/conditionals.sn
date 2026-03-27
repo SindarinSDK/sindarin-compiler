@@ -102,4 +102,3 @@ fn demo_conditionals(): void =>
   if q > p =>
     m = q
   print($"max({p}, {q}) = {m}\n")
-

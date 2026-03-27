@@ -2,13 +2,13 @@
 # This should fail to compile because the method doesn't exist.
 
 struct Counter =>
-    value: int
+  value: int
 
-    fn getValue(): int =>
-        return self.value
+  fn getValue(): int =>
+    return self.value
 
 fn main(): int =>
-    var c: Counter = Counter { value: 42 }
-    # Try to call a method that doesn't exist
-    var x: int = c.nonExistentMethod()
-    return 0
+  var c: Counter = Counter { value: 42 }
+  # Try to call a method that doesn't exist
+  var x: int = c.nonExistentMethod()
+  return 0

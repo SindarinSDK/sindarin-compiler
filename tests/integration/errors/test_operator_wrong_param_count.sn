@@ -1,14 +1,20 @@
 # Error test: operator == must have exactly one parameter
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
-    operator == (): bool =>
-        return true
+  operator == (): bool =>
+    return true
 
 fn main(): void =>
-    var p1: Point = Point { x: 1, y: 2 }
-    var p2: Point = Point { x: 1, y: 2 }
-    var eq: bool = p1 == p2
-    print($"{eq}\n")
+  var p1: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var p2: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var eq: bool = p1 == p2
+  print($"{eq}\n")

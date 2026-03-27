@@ -3,72 +3,72 @@
 # Covers: string methods, struct instance methods, struct static methods
 
 struct Counter =>
-    value: int
+  value: int
 
-    static fn create(start: int): Counter =>
-        return Counter { value: start }
+  static fn create(start: int): Counter =>
+    return Counter { value: start }
 
-    fn add(n: int): Counter =>
-        return Counter { value: self.value + n }
+  fn add(n: int): Counter =>
+    return Counter { value: self.value + n }
 
-    fn multiply(n: int): Counter =>
-        return Counter { value: self.value * n }
+  fn multiply(n: int): Counter =>
+    return Counter { value: self.value * n }
 
-    fn get(): int =>
-        return self.value
+  fn get(): int =>
+    return self.value
 
 fn main(): int =>
-    # === String method chaining ===
-    var s: str = "  hello world  "
+  # === String method chaining ===
+  var s: str = "  hello world  "
 
-    # Single line chaining (baseline)
-    var r1: str = s.trim().toUpper()
-    print($"str single line: {r1}\n")
+  # Single line chaining (baseline)
+  var r1: str = s.trim().toUpper()
+  print($"str single line: {r1}\n")
 
-    # Multi-line chaining at same indent level
-    var r2: str = s.trim()
+  # Multi-line chaining at same indent level
+  var r2: str = s.trim()
+  .toUpper()
+  print($"str same indent: {r2}\n")
+
+  # Indented continuation (natural style)
+  var r3: str = s.trim()
     .toUpper()
-    print($"str same indent: {r2}\n")
+  print($"str indented: {r3}\n")
 
-    # Indented continuation (natural style)
-    var r3: str = s.trim()
-        .toUpper()
-    print($"str indented: {r3}\n")
+  # Multiple indented continuations
+  var r4: str = "  TEST STRING  "
+    .trim()
+    .toLower()
+    .toUpper()
+  print($"str multiple: {r4}\n")
 
-    # Multiple indented continuations
-    var r4: str = "  TEST STRING  "
-        .trim()
-        .toLower()
-        .toUpper()
-    print($"str multiple: {r4}\n")
+  # === Struct static method chaining ===
 
-    # === Struct static method chaining ===
-
-    # Static method with indented instance method chain
-    var c1: Counter = Counter.create(10)
-        .add(5)
-        .multiply(2)
-    print($"struct static+instance: {c1.get()}\n")
-
-    # === Struct instance method chaining ===
-
-    var base: Counter = Counter { value: 5 }
-
-    # Instance method chain - same indent
-    var c2: Counter = base.add(3)
+  # Static method with indented instance method chain
+  var c1: Counter = Counter.create(10)
+    .add(5)
     .multiply(2)
-    print($"struct same indent: {c2.get()}\n")
+  print($"struct static+instance: {c1.get()}\n")
 
-    # Instance method chain - indented
-    var c3: Counter = base.add(10)
-        .multiply(3)
-    print($"struct indented: {c3.get()}\n")
+  # === Struct instance method chaining ===
 
-    # Multiple indented instance methods
-    var c4: Counter = base
-        .add(1)
-        .add(2)
-        .multiply(2)
-    print($"struct multiple: {c4.get()}\n")
+  var base: Counter = Counter { value: 5 }
 
-    return 0
+  # Instance method chain - same indent
+  var c2: Counter = base.add(3)
+  .multiply(2)
+  print($"struct same indent: {c2.get()}\n")
+
+  # Instance method chain - indented
+  var c3: Counter = base.add(10)
+    .multiply(3)
+  print($"struct indented: {c3.get()}\n")
+
+  # Multiple indented instance methods
+  var c4: Counter = base
+    .add(1)
+    .add(2)
+    .multiply(2)
+  print($"struct multiple: {c4.get()}\n")
+
+  return 0

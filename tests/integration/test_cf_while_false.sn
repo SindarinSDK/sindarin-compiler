@@ -1,4 +1,4 @@
 fn main(): void =>
-    while false =>
-        print("nope")
-    print("done\n")
+  while false =>
+    print("nope")
+  print("done\n")

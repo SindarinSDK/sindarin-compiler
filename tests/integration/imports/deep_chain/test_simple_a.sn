@@ -4,4 +4,4 @@ import "./level_15" as InnerL15
 static var counterA: int = 10
 
 fn getCounterA(): int =>
-    return counterA
+  return counterA

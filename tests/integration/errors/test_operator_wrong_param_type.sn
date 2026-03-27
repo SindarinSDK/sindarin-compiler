@@ -1,14 +1,20 @@
 # Error test: operator == parameter must be the same type as Self
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
-    operator == (other: int): bool =>
-        return self.x == other
+  operator == (other: int): bool =>
+    return self.x == other
 
 fn main(): void =>
-    var p1: Point = Point { x: 1, y: 2 }
-    var p2: Point = Point { x: 1, y: 2 }
-    var eq: bool = p1 == p2
-    print($"{eq}\n")
+  var p1: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var p2: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var eq: bool = p1 == p2
+  print($"{eq}\n")

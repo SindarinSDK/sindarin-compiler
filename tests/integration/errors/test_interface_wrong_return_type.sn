@@ -1,17 +1,17 @@
 # Error test: struct implements compare but returns bool instead of int
 
 interface Comparable =>
-    fn compare(other: Self): int
+  fn compare(other: Self): int
 
 struct Score =>
-    value: int
+  value: int
 
-    fn compare(other: Score): bool =>
-        return self.value < other.value
+  fn compare(other: Score): bool =>
+    return self.value < other.value
 
 fn check(a: Comparable): void => return
 
 fn main(): int =>
-    var s: Score = Score { value: 5 }
-    check(s)
-    return 0
+  var s: Score = Score { value: 5 }
+  check(s)
+  return 0

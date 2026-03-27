@@ -2,7 +2,7 @@
 // arrays.sn - Array Features in Sindarin
 // ============================================================================
 // Demonstrates: declaration, methods, slicing, negative indexing, for-each,
-//               range literals, spread operator
+// range literals, spread operator
 // ============================================================================
 
 // Entry point for array demos
@@ -180,17 +180,17 @@ fn demo_arrays(): void =>
   print(steptest)
   print("\n")
 
-  var evens: int[] = steptest[..:2]
+  var evens: int[] = steptest[..: 2]
   print("arr[..:2] (every 2nd) = ")
   print(evens)
   print("\n")
 
-  var odds: int[] = steptest[1..:2]
+  var odds: int[] = steptest[1..: 2]
   print("arr[1..:2] (odds) = ")
   print(odds)
   print("\n")
 
-  var thirds: int[] = steptest[..:3]
+  var thirds: int[] = steptest[..: 3]
   print("arr[..:3] (every 3rd) = ")
   print(thirds)
   print("\n")
@@ -210,7 +210,7 @@ fn demo_arrays(): void =>
   print(lasttwo)
   print("\n")
 
-  var notlast: int[] = negtest[..-1]
+  var notlast: int[] = negtest[..- 1]
   print("arr[..-1] = ")
   print(notlast)
   print("\n")
@@ -319,4 +319,3 @@ fn demo_arrays(): void =>
   print("str[]: ")
   print(strings)
   print("\n")
-

@@ -5,26 +5,26 @@
 // ============================================================================
 
 fn main(): void =>
-    var start: Time = Time.now()
+  var start: Time = Time.now()
 
-    // Build a string by concatenating "Hello" 100,000 times
-    // Use .append() for O(1) amortized concatenation
-    var result: str = ""
-    var count: int = 100000
-    shared for var i: int = 0; i < count; i++ =>
-        result.append("Hello")
-    var length: int = len(result)
-    print($"String length: {length}\n")
+  // Build a string by concatenating "Hello" 100,000 times
+  // Use .append() for O(1) amortized concatenation
+  var result: str = ""
+  var count: int = 100000
+  shared for var i: int = 0; i < count; i++ =>
+    result.append("Hello")
+  var length: int = len(result)
+  print($"String length: {length}\n")
 
-    // Count occurrences of 'llo'
-    // Use regionEquals for non-allocating comparison (no substring allocation)
-    var occurrences: int = 0
-    var pos: int = 2
-    shared while pos + 3 <= length =>
-        if result.regionEquals(pos, pos + 3, "llo") =>
-            occurrences = occurrences + 1
-        pos = pos + 5
+  // Count occurrences of 'llo'
+  // Use regionEquals for non-allocating comparison (no substring allocation)
+  var occurrences: int = 0
+  var pos: int = 2
+  shared while pos + 3 <= length =>
+    if result.regionEquals(pos, pos + 3, "llo") =>
+      occurrences = occurrences + 1
+    pos = pos + 5
 
-    var elapsed: int = Time.now().diff(start)
-    print($"Occurrences of 'llo': {occurrences}\n")
-    print($"String time: {elapsed}ms\n")
+  var elapsed: int = Time.now().diff(start)
+  print($"Occurrences of 'llo': {occurrences}\n")
+  print($"String time: {elapsed}ms\n")

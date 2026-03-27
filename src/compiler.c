@@ -37,6 +37,8 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->clear_cache = 0;
     options->do_clean = 0;
     options->no_install = 0;
+    options->do_format = 0;
+    options->format_check = 0;
 
     options->compiler_dir = (char *)gcc_get_compiler_dir(argv[0]);
     gcc_resolve_compiler_dir(options->compiler_dir, PATH_MAX);
@@ -96,6 +98,20 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             options->do_clean = 1;
             return 1;
         }
+        if (strcmp(argv[i], "--format") == 0)
+        {
+            options->do_format = 1;
+            /* Check for --check modifier */
+            for (int j = i + 1; j < argc; j++)
+            {
+                if (strcmp(argv[j], "--check") == 0)
+                {
+                    options->format_check = 1;
+                    break;
+                }
+            }
+            return 1;
+        }
         if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0)
         {
             printf(
@@ -133,6 +149,10 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "  --clear-cache      Clear the package cache (~/.sn-cache)\n"
                 "  --clean            Remove build cache (.sn/build/)\n"
                 "  --no-install       Skip automatic dependency installation\n"
+                "\n"
+                "Formatting:\n"
+                "  --format           Format all .sn files recursively (in place)\n"
+                "  --format --check   Check formatting without modifying files\n"
                 "\n"
                 "By default, compiles to an executable and removes the intermediate C files.\n",
                 argv[0]);

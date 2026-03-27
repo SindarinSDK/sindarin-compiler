@@ -2,26 +2,26 @@
 # available without any declaration — they are pre-registered by the compiler.
 
 struct Score =>
-    value: int
+  value: int
 
-    fn compare(other: Score): int =>
-        if self.value < other.value =>
-            return -1
-        if self.value > other.value =>
-            return 1
-        return 0
+  fn compare(other: Score): int =>
+    if self.value < other.value =>
+      return - 1
+    if self.value > other.value =>
+      return 1
+    return 0
 
-    fn hash(): int =>
-        return self.value * 31
+  fn hash(): int =>
+    return self.value * 31
 
-    fn equals(other: Score): bool =>
-        return self.value == other.value
+  fn equals(other: Score): bool =>
+    return self.value == other.value
 
-    fn toString(): str =>
-        return $"Score({self.value})"
+  fn toString(): str =>
+    return $"Score({self.value})"
 
-    fn copy(): Score =>
-        return Score { value: self.value }
+  fn copy(): Score =>
+    return Score { value: self.value }
 
 # Accepting functions — compile-time satisfaction checks only
 fn acceptComparable(a: Comparable): void => return
@@ -30,84 +30,84 @@ fn acceptStringable(x: Stringable): void => return
 fn acceptCopyable(x: Copyable): void => return
 
 fn main(): int =>
-    var s1: Score = Score { value: 10 }
-    var s2: Score = Score { value: 20 }
-    var s3: Score = Score { value: 10 }
+  var s1: Score = Score { value: 10 }
+  var s2: Score = Score { value: 20 }
+  var s3: Score = Score { value: 10 }
 
-    # --- Test 1: Comparable ---
-    var cmp1: int = s1.compare(s2)
-    if cmp1 != -1 =>
-        print("FAIL: s1.compare(s2) should be -1\n")
-        return 1
+  # --- Test 1: Comparable ---
+  var cmp1: int = s1.compare(s2)
+  if cmp1 != -1 =>
+    print("FAIL: s1.compare(s2) should be -1\n")
+    return 1
 
-    var cmp2: int = s2.compare(s1)
-    if cmp2 != 1 =>
-        print("FAIL: s2.compare(s1) should be 1\n")
-        return 1
+  var cmp2: int = s2.compare(s1)
+  if cmp2 != 1 =>
+    print("FAIL: s2.compare(s1) should be 1\n")
+    return 1
 
-    var cmp3: int = s1.compare(s3)
-    if cmp3 != 0 =>
-        print("FAIL: s1.compare(s3) should be 0\n")
-        return 1
+  var cmp3: int = s1.compare(s3)
+  if cmp3 != 0 =>
+    print("FAIL: s1.compare(s3) should be 0\n")
+    return 1
 
-    acceptComparable(s1)
-    print("Test 1 passed: Comparable\n")
+  acceptComparable(s1)
+  print("Test 1 passed: Comparable\n")
 
-    # --- Test 2: Hashable hash() ---
-    var h1: int = s1.hash()
-    if h1 != 310 =>
-        print("FAIL: s1.hash() should be 310\n")
-        return 1
+  # --- Test 2: Hashable hash() ---
+  var h1: int = s1.hash()
+  if h1 != 310 =>
+    print("FAIL: s1.hash() should be 310\n")
+    return 1
 
-    var h2: int = s2.hash()
-    if h2 != 620 =>
-        print("FAIL: s2.hash() should be 620\n")
-        return 1
+  var h2: int = s2.hash()
+  if h2 != 620 =>
+    print("FAIL: s2.hash() should be 620\n")
+    return 1
 
-    acceptHashable(s1)
-    print("Test 2 passed: Hashable hash()\n")
+  acceptHashable(s1)
+  print("Test 2 passed: Hashable hash()\n")
 
-    # --- Test 3: Hashable equals() ---
-    var eq1: bool = s1.equals(s3)
-    if !eq1 =>
-        print("FAIL: s1.equals(s3) should be true\n")
-        return 1
+  # --- Test 3: Hashable equals() ---
+  var eq1: bool = s1.equals(s3)
+  if !eq1 =>
+    print("FAIL: s1.equals(s3) should be true\n")
+    return 1
 
-    var eq2: bool = s1.equals(s2)
-    if eq2 =>
-        print("FAIL: s1.equals(s2) should be false\n")
-        return 1
+  var eq2: bool = s1.equals(s2)
+  if eq2 =>
+    print("FAIL: s1.equals(s2) should be false\n")
+    return 1
 
-    print("Test 3 passed: Hashable equals()\n")
+  print("Test 3 passed: Hashable equals()\n")
 
-    # --- Test 4: Stringable ---
-    var str1: str = s1.toString()
-    if str1 != "Score(10)" =>
-        print("FAIL: s1.toString() should be Score(10)\n")
-        return 1
+  # --- Test 4: Stringable ---
+  var str1: str = s1.toString()
+  if str1 != "Score(10)" =>
+    print("FAIL: s1.toString() should be Score(10)\n")
+    return 1
 
-    var str2: str = s2.toString()
-    if str2 != "Score(20)" =>
-        print("FAIL: s2.toString() should be Score(20)\n")
-        return 1
+  var str2: str = s2.toString()
+  if str2 != "Score(20)" =>
+    print("FAIL: s2.toString() should be Score(20)\n")
+    return 1
 
-    acceptStringable(s1)
-    print("Test 4 passed: Stringable\n")
+  acceptStringable(s1)
+  print("Test 4 passed: Stringable\n")
 
-    # --- Test 5: Copyable ---
-    var copied: Score = s1.copy()
-    if copied.value != 10 =>
-        print("FAIL: copied.value should be 10\n")
-        return 1
+  # --- Test 5: Copyable ---
+  var copied: Score = s1.copy()
+  if copied.value != 10 =>
+    print("FAIL: copied.value should be 10\n")
+    return 1
 
-    var s1b: Score = Score { value: 99 }
-    var copiedB: Score = s1b.copy()
-    if copiedB.value != 99 =>
-        print("FAIL: copiedB.value should be 99\n")
-        return 1
+  var s1b: Score = Score { value: 99 }
+  var copiedB: Score = s1b.copy()
+  if copiedB.value != 99 =>
+    print("FAIL: copiedB.value should be 99\n")
+    return 1
 
-    acceptCopyable(s1)
-    print("Test 5 passed: Copyable\n")
+  acceptCopyable(s1)
+  print("Test 5 passed: Copyable\n")
 
-    print("All builtin interface tests passed!\n")
-    return 0
+  print("All builtin interface tests passed!\n")
+  return 0

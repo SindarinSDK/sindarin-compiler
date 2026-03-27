@@ -2,6 +2,6 @@
 // Verifies that exit() terminates the program with the specified exit code
 
 fn main(): void =>
-    println("Before exit")
-    exit(1)
-    println("This should not be printed")
+  println("Before exit")
+  exit(1)
+  println("This should not be printed")

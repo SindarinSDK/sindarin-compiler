@@ -1,5 +1,5 @@
 fn main(): void =>
-    var arr: int[] = {1, 2, 3, 4}
-    arr.reverse()
-    var result: str = arr.join(" ")
-    print($"{result}\n")
+  var arr: int[] = {1, 2, 3, 4}
+  arr.reverse()
+  var result: str = arr.join(" ")
+  print($"{result}\n")

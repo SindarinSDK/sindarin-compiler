@@ -4,5 +4,5 @@ import "../lib/calc_v1"
 import "../lib/calc_v2"
 
 fn main(): void =>
-    var x: int = compute(5)
-    print($"{x}\n")
+  var x: int = compute(5)
+  print($"{x}\n")

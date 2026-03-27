@@ -1,9 +1,9 @@
 fn main(): int =>
-    var x: int = 2
-    var result: int = match x =>
-        1 => 10
-        2 => 20
-        3 => 30
-        else => 0
-    assert(result == 20, "expected match to return 20")
-    return 0
+  var x: int = 2
+  var result: int = match x =>
+    1 => 10
+    2 => 20
+    3 => 30
+    else => 0
+  assert(result == 20, "expected match to return 20")
+  return 0

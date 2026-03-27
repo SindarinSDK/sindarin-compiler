@@ -3,33 +3,45 @@
 # pushing elements and returning the struct must preserve all string fields.
 
 struct Tag =>
-    key: str
-    value: str
+  key: str
+  value: str
 
 struct Item =>
-    name: str
-    tags: Tag[]
+  name: str
+  tags: Tag[]
 
 fn buildItem(): Item =>
-    var item: Item = Item { name: "widget", tags: {} }
-    item.tags.push(Tag { key: "color", value: "red" })
-    item.tags.push(Tag { key: "size", value: "large" })
-    item.tags.push(Tag { key: "material", value: "steel" })
-    return item
+  var item: Item = Item {
+    name: "widget",
+    tags: {}
+  }
+  item.tags.push(Tag {
+    key: "color",
+    value: "red"
+  })
+  item.tags.push(Tag {
+    key: "size",
+    value: "large"
+  })
+  item.tags.push(Tag {
+    key: "material",
+    value: "steel"
+  })
+  return item
 
 fn main(): void =>
-    var item: Item = buildItem()
+  var item: Item = buildItem()
 
-    # All tag strings must be valid
-    print($"Item: {item.name}\n")
-    print($"Tags: {item.tags.length}\n")
-    for var i: int = 0; i < item.tags.length; i++ =>
-        print($"  {item.tags[i].key}={item.tags[i].value}\n")
+  # All tag strings must be valid
+  print($"Item: {item.name}\n")
+  print($"Tags: {item.tags.length}\n")
+  for var i: int = 0; i < item.tags.length; i++ =>
+    print($"  {item.tags[i].key}={item.tags[i].value}\n")
 
-    if item.tags.length == 3 =>
-        if item.tags[0].key == "color" && item.tags[0].value == "red" =>
-            if item.tags[1].key == "size" && item.tags[1].value == "large" =>
-                if item.tags[2].key == "material" && item.tags[2].value == "steel" =>
-                    print("PASS\n")
-                    return
-    print("FAIL\n")
+  if item.tags.length == 3 =>
+    if item.tags[0].key == "color" && item.tags[0].value == "red" =>
+      if item.tags[1].key == "size" && item.tags[1].value == "large" =>
+        if item.tags[2].key == "material" && item.tags[2].value == "steel" =>
+          print("PASS\n")
+          return
+  print("FAIL\n")

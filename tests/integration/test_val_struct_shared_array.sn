@@ -3,24 +3,27 @@
 # causing double-free when both the struct and local variable are cleaned up.
 
 struct Config =>
-    name: str
-    items: str[]
+  name: str
+  items: str[]
 
 fn processConfig(c: Config): void =>
-    print($"name: {c.name}\n")
-    print($"items: {c.items.length}\n")
+  print($"name: {c.name}\n")
+  print($"items: {c.items.length}\n")
 
 fn main(): void =>
-    var items: str[] = {"alpha", "beta", "gamma"}
-    var config: Config = Config { name: "test", items: copyOf(items) }
-    processConfig(config)
+  var items: str[] = {"alpha", "beta", "gamma"}
+  var config: Config = Config {
+    name: "test",
+    items: copyOf(items)
+  }
+  processConfig(config)
 
-    # Verify the original array is still intact (independent copy)
-    print($"original: {items.length}\n")
+  # Verify the original array is still intact (independent copy)
+  print($"original: {items.length}\n")
 
-    # Test copyOf on string
-    var s: str = "hello"
-    var s2: str = copyOf(s)
-    print($"copy: {s2}\n")
+  # Test copyOf on string
+  var s: str = "hello"
+  var s2: str = copyOf(s)
+  print($"copy: {s2}\n")
 
-    print("done\n")
+  print("done\n")

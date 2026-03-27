@@ -1,5 +1,5 @@
 fn main(): void =>
-    var sum: int = 0
-    for var i: int = 0; i < 10; i++ =>
-        sum += i
-    assert(sum == 45, "expected sum of 0..9 to be 45")
+  var sum: int = 0
+  for var i: int = 0; i < 10; i++ =>
+    sum += i
+  assert(sum == 45, "expected sum of 0..9 to be 45")

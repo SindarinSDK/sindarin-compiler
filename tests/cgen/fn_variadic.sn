@@ -1,4 +1,4 @@
 native fn my_variadic_fn(fmt: str, ...): int
 
 fn main(): int =>
-    return 0
+  return 0

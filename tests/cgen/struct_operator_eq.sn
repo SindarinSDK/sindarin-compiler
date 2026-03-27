@@ -1,11 +1,17 @@
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
-    operator == (other: Point): bool =>
-        return self.x == other.x && self.y == other.y
+  operator == (other: Point): bool =>
+    return self.x == other.x && self.y == other.y
 
 fn main(): void =>
-    var p1: Point = Point { x: 1, y: 2 }
-    var p2: Point = Point { x: 1, y: 2 }
-    assert(p1 == p2, "equal points should be ==")
+  var p1: Point = Point {
+    x: 1,
+    y: 2
+  }
+  var p2: Point = Point {
+    x: 1,
+    y: 2
+  }
+  assert(p1 == p2, "equal points should be ==")

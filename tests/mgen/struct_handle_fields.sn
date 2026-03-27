@@ -1,7 +1,10 @@
 struct Person =>
-    name: str
-    age: int
+  name: str
+  age: int
 
 fn main(): int =>
-    var p: Person = Person { name: "Alice", age: 30 }
-    return 0
+  var p: Person = Person {
+    name: "Alice",
+    age: 30
+  }
+  return 0

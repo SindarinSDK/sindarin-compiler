@@ -2,6 +2,6 @@
 # This should fail to compile because nil is not valid for primitives.
 
 fn main(): int =>
-    # ERROR: nil can only be used with pointer types
-    var x: int = nil
-    return 0
+  # ERROR: nil can only be used with pointer types
+  var x: int = nil
+  return 0

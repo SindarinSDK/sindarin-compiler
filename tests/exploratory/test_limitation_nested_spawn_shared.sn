@@ -2,15 +2,15 @@
 # Try to trigger arena issues with shared functions
 
 fn inner_work(): str =>
-    return "inner-shared"
+  return "inner-shared"
 
 fn outer_work(): str =>
-    # Spawn a thread from within a shared thread
-    var inner: str = &inner_work()
-    var inner_result = inner!
-    return $"outer-shared({inner_result})"
+  # Spawn a thread from within a shared thread
+  var inner: str = & inner_work()
+  var inner_result = inner !
+  return $"outer-shared({inner_result})"
 
 fn main(): void =>
-    var outer: str = &outer_work()
-    var result = outer!
-    print($"Result: {result}\n")
+  var outer: str = & outer_work()
+  var result = outer !
+  print($"Result: {result}\n")

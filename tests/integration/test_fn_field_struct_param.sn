@@ -3,72 +3,87 @@
 // so the target function receives the struct correctly via the borrow pointer.
 
 struct Point =>
-    x: int
-    y: int
+  x: int
+  y: int
 
 struct Processor =>
-    transform: fn(Point): Point
-    describe: fn(Point): str
+  transform: fn(Point): Point
+  describe: fn(Point): str
 
 fn scale(p: Point): Point =>
-    return Point { x: p.x * 2, y: p.y * 2 }
+  return Point {
+    x: p.x * 2,
+    y: p.y * 2
+  }
 
 fn translate(p: Point): Point =>
-    return Point { x: p.x + 10, y: p.y + 10 }
+  return Point {
+    x: p.x + 10,
+    y: p.y + 10
+  }
 
 fn describePositive(p: Point): str =>
-    if p.x > 0 && p.y > 0 =>
-        return "positive"
-    return "other"
+  if p.x > 0 && p.y > 0 =>
+    return "positive"
+  return "other"
 
 fn describeOrigin(p: Point): str =>
-    if p.x == 0 && p.y == 0 =>
-        return "origin"
-    return "nonzero"
+  if p.x == 0 && p.y == 0 =>
+    return "origin"
+  return "nonzero"
 
 fn main(): void =>
-    // Test 1: function field with composite struct param stored in struct literal
-    var proc: Processor = Processor {
-        transform: scale,
-        describe: describePositive
-    }
+  // Test 1: function field with composite struct param stored in struct literal
+  var proc: Processor = Processor {
+    transform: scale,
+    describe: describePositive
+  }
 
-    var p: Point = Point { x: 3, y: 4 }
-    var scaled: Point = proc.transform(p)
-    print($"Test 1: scale({p.x},{p.y}) = ({scaled.x},{scaled.y})\n")
-    assert(scaled.x == 6, "scaled.x should be 6")
-    assert(scaled.y == 8, "scaled.y should be 8")
+  var p: Point = Point {
+    x: 3,
+    y: 4
+  }
+  var scaled: Point = proc.transform(p)
+  print($"Test 1: scale({p.x},{p.y}) = ({scaled.x},{scaled.y})\n")
+  assert(scaled.x == 6, "scaled.x should be 6")
+  assert(scaled.y == 8, "scaled.y should be 8")
 
-    var desc: str = proc.describe(p)
-    print($"Test 1: describe({p.x},{p.y}) = {desc}\n")
-    assert(desc == "positive", "desc should be positive")
+  var desc: str = proc.describe(p)
+  print($"Test 1: describe({p.x},{p.y}) = {desc}\n")
+  assert(desc == "positive", "desc should be positive")
 
-    // Test 2: reassign function field and call again
-    proc.transform = translate
-    var translated: Point = proc.transform(p)
-    print($"Test 2: translate({p.x},{p.y}) = ({translated.x},{translated.y})\n")
-    assert(translated.x == 13, "translated.x should be 13")
-    assert(translated.y == 14, "translated.y should be 14")
+  // Test 2: reassign function field and call again
+  proc.transform = translate
+  var translated: Point = proc.transform(p)
+  print($"Test 2: translate({p.x},{p.y}) = ({translated.x},{translated.y})\n")
+  assert(translated.x == 13, "translated.x should be 13")
+  assert(translated.y == 14, "translated.y should be 14")
 
-    // Test 3: reassign describe field
-    proc.describe = describeOrigin
-    var origin: Point = Point { x: 0, y: 0 }
-    var originDesc: str = proc.describe(origin)
-    print($"Test 3: describeOrigin(0,0) = {originDesc}\n")
-    assert(originDesc == "origin", "should be origin")
+  // Test 3: reassign describe field
+  proc.describe = describeOrigin
+  var origin: Point = Point {
+    x: 0,
+    y: 0
+  }
+  var originDesc: str = proc.describe(origin)
+  print($"Test 3: describeOrigin(0,0) = {originDesc}\n")
+  assert(originDesc == "origin", "should be origin")
 
-    var nonzeroDesc: str = proc.describe(p)
-    print($"Test 3: describeOrigin({p.x},{p.y}) = {nonzeroDesc}\n")
-    assert(nonzeroDesc == "nonzero", "should be nonzero")
+  var nonzeroDesc: str = proc.describe(p)
+  print($"Test 3: describeOrigin({p.x},{p.y}) = {nonzeroDesc}\n")
+  assert(nonzeroDesc == "nonzero", "should be nonzero")
 
-    // Test 4: chained field calls passing different structs
-    var p2: Point = Point { x: 1, y: 1 }
-    proc.transform = scale
-    var s1: Point = proc.transform(p)
-    var s2: Point = proc.transform(p2)
-    print($"Test 4: scale({p.x},{p.y}) = ({s1.x},{s1.y})\n")
-    print($"Test 4: scale({p2.x},{p2.y}) = ({s2.x},{s2.y})\n")
-    assert(s1.x == 6, "s1.x should be 6")
-    assert(s2.x == 2, "s2.x should be 2")
+  // Test 4: chained field calls passing different structs
+  var p2: Point = Point {
+    x: 1,
+    y: 1
+  }
+  proc.transform = scale
+  var s1: Point = proc.transform(p)
+  var s2: Point = proc.transform(p2)
+  print($"Test 4: scale({p.x},{p.y}) = ({s1.x},{s1.y})\n")
+  print($"Test 4: scale({p2.x},{p2.y}) = ({s2.x},{s2.y})\n")
+  assert(s1.x == 6, "s1.x should be 6")
+  assert(s2.x == 2, "s2.x should be 2")
 
-    print("\nAll fn-field-struct-param tests passed!\n")
+  print("\nAll fn-field-struct-param tests passed!\n")

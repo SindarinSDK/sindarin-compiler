@@ -4,8 +4,8 @@
 import "diamond_base"
 
 fn midAFunc(x: int): int =>
-    return diamondBaseFunc(x) * 2
+  return diamondBaseFunc(x) * 2
 
 fn getMidAValue(): int =>
-    var base: DiamondBase = DiamondBase.new()
-    return base.value + 100
+  var base: DiamondBase = DiamondBase.new()
+  return base.value + 100

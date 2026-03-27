@@ -1,4 +1,4 @@
 fn main(): void =>
-    var x: double = 1.0
-    x += 2.5
-    print($"{x}\n")
+  var x: double = 1.0
+  x += 2.5
+  print($"{x}\n")
