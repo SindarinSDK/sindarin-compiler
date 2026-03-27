@@ -240,6 +240,7 @@ typedef struct
 {
     Token name;
     int declaration_scope_depth; /* set by type checker; <= 0 means module-level global */
+    bool is_param_ref;           /* set by type checker; true if resolved to a function parameter */
 } VariableExpr;
 
 typedef struct

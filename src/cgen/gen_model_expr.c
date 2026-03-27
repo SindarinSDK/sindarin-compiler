@@ -1335,10 +1335,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             Symbol *arg_sym = symbol_table_lookup_symbol(symbol_table,
                                 arg_expr->as.variable.name);
-                            if (arg_sym && arg_sym->is_function)
+                            if (arg_sym && arg_sym->is_function &&
+                                arg_sym->kind != SYMBOL_PARAM &&
+                                !arg_expr->as.variable.is_param_ref)
                             {
-                                /* All function references must be wrapped in closures
-                                 * for uniform calling convention. */
+                                /* Bare function references must be wrapped in closures
+                                 * for uniform calling convention.  Parameter references
+                                 * (is_param_ref) are already closures — re-wrapping
+                                 * leaks the intermediate closure. */
                                 {
                                 /* Generate a wrapper function that adapts the calling convention.
                                  * The wrapper accepts (void *__closure__, params...) and forwards
@@ -1982,7 +1986,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             if (val && val->type == EXPR_VARIABLE)
                             {
                                 Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, val->as.variable.name) : NULL;
-                                if (sym && sym->is_function && sym->kind != SYMBOL_PARAM)
+                                if (sym && sym->is_function && sym->kind != SYMBOL_PARAM &&
+                                    !val->as.variable.is_param_ref)
                                 {
                                     /* Create a wrapper function for the bare function reference */
                                     Type *fn_type = ftype;
@@ -2175,7 +2180,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_FUNCTION && fv->type == EXPR_VARIABLE)
                 {
                     Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, fv->as.variable.name) : NULL;
-                    if (sym && sym->is_function && sym->kind != SYMBOL_PARAM)
+                    if (sym && sym->is_function && sym->kind != SYMBOL_PARAM &&
+                        !fv->as.variable.is_param_ref)
                     {
                         /* Create a wrapper function (same as is_fn_ref_arg) */
                         Type *fn_type = fv->expr_type;
