@@ -7,6 +7,34 @@
 #include <stdio.h>
 #include <string.h>
 
+/* Check if a statement block ends with a return statement */
+static bool block_has_return(Stmt *body)
+{
+    if (body == NULL) return false;
+    if (body->type == STMT_RETURN) return true;
+    if (body->type == STMT_BLOCK && body->as.block.count > 0)
+    {
+        Stmt *last = body->as.block.statements[body->as.block.count - 1];
+        return last->type == STMT_RETURN;
+    }
+    return false;
+}
+
+/* Check if a match expression has explicit return statements in all arms */
+static bool match_arms_all_return(Expr *expr)
+{
+    if (expr == NULL || expr->type != EXPR_MATCH) return false;
+    MatchExpr *match = &expr->as.match_expr;
+    if (match->arm_count == 0) return false;
+    bool has_else = false;
+    for (int i = 0; i < match->arm_count; i++)
+    {
+        if (match->arms[i].is_else) has_else = true;
+        if (!block_has_return(match->arms[i].body)) return false;
+    }
+    return has_else; /* All arms return AND there's an else branch */
+}
+
 void type_check_return(Stmt *stmt, SymbolTable *table, Type *return_type)
 {
     DEBUG_VERBOSE("Type checking return statement");
@@ -62,7 +90,13 @@ void type_check_return(Stmt *stmt, SymbolTable *table, Type *return_type)
             }
         }
 
-        if (!is_self_return_as_struct)
+        /* Special case: implicit return wrapping a match expression where all arms
+         * have explicit return statements. The outer return is dead code. */
+        bool is_match_with_returns = (stmt->as.return_stmt.value != NULL &&
+            value_type != NULL && value_type->kind == TYPE_VOID &&
+            match_arms_all_return(stmt->as.return_stmt.value));
+
+        if (!is_self_return_as_struct && !is_match_with_returns)
         {
             type_error(stmt->token, "Return type does not match function return type");
         }

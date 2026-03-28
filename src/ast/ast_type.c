@@ -366,6 +366,10 @@ int ast_type_equals(Type *a, Type *b)
     // "nil can only be assigned to pointer types" is done in type_checker_stmt.c
     if (a->kind == TYPE_NIL || b->kind == TYPE_NIL)
         return 1;
+    // Allow implicit conversion between int and long (both are long long in C)
+    if ((a->kind == TYPE_INT && b->kind == TYPE_LONG) ||
+        (a->kind == TYPE_LONG && b->kind == TYPE_INT))
+        return 1;
     // Allow int literals to be assigned to byte variables (implicit narrowing)
     if ((a->kind == TYPE_BYTE && b->kind == TYPE_INT) ||
         (a->kind == TYPE_INT && b->kind == TYPE_BYTE))

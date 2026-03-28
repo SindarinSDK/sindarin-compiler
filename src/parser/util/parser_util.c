@@ -193,6 +193,7 @@ Token parser_peek_token(Parser *parser)
     int saved_indent_size = parser->lexer->indent_size;
     int saved_pending_indent = parser->lexer->pending_indent;
     const char *saved_pending_current = parser->lexer->pending_current;
+    int saved_bracket_depth = parser->lexer->bracket_depth;
 
     /* Save a copy of the indent stack */
     int saved_indent_stack[64]; /* Should be large enough for any reasonable nesting */
@@ -213,6 +214,7 @@ Token parser_peek_token(Parser *parser)
     parser->lexer->indent_size = saved_indent_size;
     parser->lexer->pending_indent = saved_pending_indent;
     parser->lexer->pending_current = saved_pending_current;
+    parser->lexer->bracket_depth = saved_bracket_depth;
 
     /* Restore indent stack */
     if (copy_size > 0)
@@ -233,6 +235,7 @@ Token parser_peek_token2(Parser *parser)
     int saved_indent_size = parser->lexer->indent_size;
     int saved_pending_indent = parser->lexer->pending_indent;
     const char *saved_pending_current = parser->lexer->pending_current;
+    int saved_bracket_depth = parser->lexer->bracket_depth;
 
     /* Save a copy of the indent stack */
     int saved_indent_stack[64];
@@ -254,6 +257,7 @@ Token parser_peek_token2(Parser *parser)
     parser->lexer->indent_size = saved_indent_size;
     parser->lexer->pending_indent = saved_pending_indent;
     parser->lexer->pending_current = saved_pending_current;
+    parser->lexer->bracket_depth = saved_bracket_depth;
 
     /* Restore indent stack */
     if (copy_size > 0)

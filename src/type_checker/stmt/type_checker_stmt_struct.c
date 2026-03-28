@@ -247,6 +247,10 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
             /* Enter method context to allow pointer-to-struct access for 'self' */
             method_context_enter();
 
+            /* Set current_return_type so match arms can validate return statements */
+            Type *prev_return_type = table->current_return_type;
+            table->current_return_type = method->return_type;
+
             /* Type check the method body */
             for (int j = 0; j < method->body_count; j++)
             {
@@ -255,6 +259,8 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
                     type_check_stmt(method->body[j], table, method->return_type);
                 }
             }
+
+            table->current_return_type = prev_return_type;
 
             method_context_exit();
             symbol_table_pop_scope(table);
@@ -275,6 +281,7 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
             {
                 case TYPE_STRING:
                 case TYPE_INT:
+                case TYPE_LONG:
                 case TYPE_DOUBLE:
                 case TYPE_BOOL:
                     is_valid_serial = true;
@@ -292,6 +299,7 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
                     {
                         Type *elem = ft->as.array.element_type;
                         if (elem->kind == TYPE_STRING || elem->kind == TYPE_INT ||
+                            elem->kind == TYPE_LONG ||
                             elem->kind == TYPE_DOUBLE || elem->kind == TYPE_BOOL)
                         {
                             is_valid_serial = true;

@@ -511,6 +511,12 @@ Expr *parser_primary(Parser *parser)
         parser->current.type = TOKEN_IDENTIFIER;
     }
 
+    /* Allow 'val' as an identifier in expression context (e.g. variable named val) */
+    if (parser_check(parser, TOKEN_VAL))
+    {
+        parser->current.type = TOKEN_IDENTIFIER;
+    }
+
     /* Identifier - could be intrinsic, variable, struct literal, or static call */
     if (parser_match(parser, TOKEN_IDENTIFIER))
     {

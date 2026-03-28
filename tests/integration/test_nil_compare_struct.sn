@@ -1,0 +1,33 @@
+// Test: as ref structs should support == nil and != nil comparisons
+
+struct Connection as ref =>
+  host: str
+  port: int
+
+fn tryConnect(host: str): Connection =>
+  if host == "bad" =>
+    return nil
+  return Connection {
+    host: host,
+    port: 8080
+  }
+
+fn main(): void =>
+  var good: Connection = tryConnect("localhost")
+  var bad: Connection = tryConnect("bad")
+
+  if good != nil =>
+    println("good: connected")
+  else =>
+    println("good: nil")
+
+  if bad == nil =>
+    println("bad: nil")
+  else =>
+    println("bad: connected")
+
+  // Also test nil on the left side
+  if nil == bad =>
+    println("nil == bad: true")
+  else =>
+    println("nil == bad: false")

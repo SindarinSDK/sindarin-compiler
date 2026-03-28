@@ -1,0 +1,9 @@
+// Test: val should be usable as a variable name and parameter name
+
+fn twice(val: int): int => val * 2
+
+fn main(): void =>
+  var val: int = 21
+  println($"var val: {val}")
+  println($"twice(val): {twice(val)}")
+  println($"twice(5): {twice(5)}")

@@ -102,6 +102,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 {
                     case TYPE_STRING: serial_action = "str"; break;
                     case TYPE_INT:    serial_action = "int"; break;
+                    case TYPE_LONG:   serial_action = "int"; break;
                     case TYPE_DOUBLE: serial_action = "double"; break;
                     case TYPE_BOOL:   serial_action = "bool"; break;
                     case TYPE_STRUCT:
@@ -116,6 +117,7 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                             {
                                 case TYPE_STRING: serial_action = "array_str"; break;
                                 case TYPE_INT:    serial_action = "array_int"; break;
+                                case TYPE_LONG:   serial_action = "array_int"; break;
                                 case TYPE_DOUBLE: serial_action = "array_double"; break;
                                 case TYPE_BOOL:   serial_action = "array_bool"; break;
                                 case TYPE_STRUCT:

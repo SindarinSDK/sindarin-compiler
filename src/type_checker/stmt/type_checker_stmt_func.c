@@ -74,10 +74,16 @@ void type_check_function_body_only(Stmt *stmt, SymbolTable *table)
         native_context_enter();
     }
 
+    /* Set current_return_type so match arms can validate return statements */
+    Type *prev_return_type = table->current_return_type;
+    table->current_return_type = stmt->as.function.return_type;
+
     for (int i = 0; i < stmt->as.function.body_count; i++)
     {
         type_check_stmt(stmt->as.function.body[i], table, stmt->as.function.return_type);
     }
+
+    table->current_return_type = prev_return_type;
 
     if (stmt->as.function.is_native)
     {
@@ -295,10 +301,16 @@ void type_check_function(Stmt *stmt, SymbolTable *table)
         native_context_enter();
     }
 
+    /* Set current_return_type so match arms can validate return statements */
+    Type *prev_return_type = table->current_return_type;
+    table->current_return_type = stmt->as.function.return_type;
+
     for (int i = 0; i < stmt->as.function.body_count; i++)
     {
         type_check_stmt(stmt->as.function.body[i], table, stmt->as.function.return_type);
     }
+
+    table->current_return_type = prev_return_type;
 
     if (stmt->as.function.is_native)
     {

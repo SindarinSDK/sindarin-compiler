@@ -96,7 +96,16 @@ Token lexer_scan_string(Lexer *lexer)
                         break;
                     }
                     default:
-                        snprintf(error_buffer, sizeof(error_buffer), "Invalid escape sequence");
+                        if (escaped == '{' || escaped == '}')
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer),
+                                "Invalid escape sequence '\\%c'. Use '%c%c' for a literal brace in interpolated strings",
+                                escaped, escaped, escaped);
+                        }
+                        else
+                        {
+                            snprintf(error_buffer, sizeof(error_buffer), "Invalid escape sequence");
+                        }
                         return lexer_error_token(lexer, error_buffer);
                     }
                 }

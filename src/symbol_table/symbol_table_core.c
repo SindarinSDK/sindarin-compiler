@@ -263,6 +263,7 @@ void symbol_table_init(Arena *arena, SymbolTable *table)
     table->current_private_depth = 0;
     table->scope_depth = 0;
     table->loop_depth = 0;
+    table->current_return_type = NULL;
 
     DEBUG_VERBOSE("Calling symbol_table_push_scope for initial scope");
     symbol_table_push_scope(table);

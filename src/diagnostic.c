@@ -18,6 +18,14 @@ static int g_error_count = 0;
 static int g_warning_count = 0;
 static int g_verbose = 0;
 
+/* Per-file source registry for imported files */
+#define MAX_REGISTERED_SOURCES 256
+static struct {
+    const char *filename;
+    const char *source;
+} g_sources[MAX_REGISTERED_SOURCES];
+static int g_source_count = 0;
+
 /* ============================================================
  * Initialization and state management
  * ============================================================ */
@@ -28,6 +36,31 @@ void diagnostic_init(const char *filename, const char *source)
     g_source = source;
     g_error_count = 0;
     g_warning_count = 0;
+}
+
+void diagnostic_register_source(const char *filename, const char *source)
+{
+    if (g_source_count < MAX_REGISTERED_SOURCES && filename && source)
+    {
+        g_sources[g_source_count].filename = filename;
+        g_sources[g_source_count].source = source;
+        g_source_count++;
+    }
+}
+
+/* Look up the source content for a given filename */
+static const char *lookup_source(const char *filename)
+{
+    if (filename == NULL) return g_source;
+    /* Check if it's the main file */
+    if (g_filename && strcmp(filename, g_filename) == 0) return g_source;
+    /* Search registered sources */
+    for (int i = 0; i < g_source_count; i++)
+    {
+        if (g_sources[i].filename && strcmp(g_sources[i].filename, filename) == 0)
+            return g_sources[i].source;
+    }
+    return g_source; /* fallback to main source */
 }
 
 void diagnostic_reset(void)
@@ -64,16 +97,16 @@ void diagnostic_set_verbose(int verbose)
  * Extract a specific line from the source.
  * Returns a pointer to a static buffer (not thread-safe).
  */
-static const char *get_source_line(int line_num)
+static const char *get_source_line_from(const char *source, int line_num)
 {
     static char line_buffer[1024];
 
-    if (g_source == NULL || line_num < 1)
+    if (source == NULL || line_num < 1)
     {
         return NULL;
     }
 
-    const char *p = g_source;
+    const char *p = source;
     int current_line = 1;
 
     /* Find the start of the requested line */
@@ -158,9 +191,10 @@ void diagnostic_report(DiagnosticLevel level, DiagnosticLoc loc,
         fprintf(stderr, "\n");
 
         /* Print source context if we have it */
-        if (loc.line > 0 && g_source)
+        if (loc.line > 0)
         {
-            const char *source_line = get_source_line(loc.line);
+            const char *file_source = lookup_source(loc.filename);
+            const char *source_line = file_source ? get_source_line_from(file_source, loc.line) : NULL;
             if (source_line)
             {
                 /* Print source line with consistent indentation */

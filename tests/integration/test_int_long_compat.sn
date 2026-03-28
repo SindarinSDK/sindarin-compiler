@@ -1,0 +1,29 @@
+// Test: int and long types should be assignment-compatible
+// Both map to long long in C, so implicit conversion should work
+
+fn main(): void =>
+  // long to int assignment
+  var x: long = 42L
+  var y: int = x
+  println($"long to int: {y}")
+
+  // int to long assignment
+  var a: int = 100
+  var b: long = a
+  println($"int to long: {b}")
+
+  // int literal to long variable
+  var c: long = 500
+  println($"literal to long: {c}")
+
+  // function returning long assigned to int
+  var d: int = getLong()
+  println($"fn long to int: {d}")
+
+  // function returning int assigned to long
+  var e: long = getInt()
+  println($"fn int to long: {e}")
+
+fn getLong(): long => 999L
+
+fn getInt(): int => 777

@@ -1,0 +1,5 @@
+// Test: import with ../ paths should work correctly
+import "./imports/dotdot_test/app/../common/util"
+
+fn main(): void =>
+  println(greet("World"))
