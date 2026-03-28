@@ -2583,6 +2583,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
                 /* Extract function name from callee */
                 bool is_method_spawn = false;
+                bool is_closure_spawn = false;
                 MemoryQualifier *param_mem_quals = NULL;
                 int param_count = 0;
                 if (call_expr->type == EXPR_CALL && call_expr->as.call.callee)
@@ -2590,8 +2591,28 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     Expr *callee = call_expr->as.call.callee;
                     if (callee->type == EXPR_VARIABLE)
                     {
-                        json_object_object_add(tdef, "func_name",
-                            json_object_new_string(callee->as.variable.name.start));
+                        /* Check if this is a closure variable (same logic as
+                         * is_closure_call detection for regular calls). */
+                        Type *ct = callee->expr_type;
+                        if (ct && ct->kind == TYPE_FUNCTION)
+                        {
+                            Symbol *sym = symbol_table_lookup_symbol(symbol_table,
+                                callee->as.variable.name);
+                            if (sym == NULL || !sym->is_function)
+                                is_closure_spawn = true;
+                        }
+                        if (is_closure_spawn)
+                        {
+                            json_object_object_add(tdef, "is_closure_spawn",
+                                json_object_new_boolean(true));
+                            json_object_object_add(tdef, "closure_var_name",
+                                json_object_new_string(callee->as.variable.name.start));
+                        }
+                        else
+                        {
+                            json_object_object_add(tdef, "func_name",
+                                json_object_new_string(callee->as.variable.name.start));
+                        }
                     }
                     else if (callee->type == EXPR_MEMBER && callee->as.member.resolved_struct_type)
                     {
@@ -2690,7 +2711,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(tdef, "has_args",
                     json_object_new_boolean(
                         (call_expr->type == EXPR_CALL && call_expr->as.call.arg_count > 0) ||
-                        is_method_spawn));
+                        is_method_spawn || is_closure_spawn));
 
                 json_object_array_add(g_model_threads, tdef);
             }

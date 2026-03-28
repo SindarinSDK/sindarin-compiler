@@ -1,5 +1,13 @@
 ({
     SnThread *__th__ = sn_thread_create();
+{{#if call.is_closure_call}}
+    __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
+    __args__->__closure_fn = (__Closure__ *){{> expr call.callee}};
+{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __args__->arg{{@index}} = __fc__; }
+{{else}}    __args__->arg{{@index}} = {{#if type.pass_self_by_ref}}__sn__{{type.name}}_retain({{> expr this}}){{else}}{{#if is_ref_arg}}&{{/if}}{{> expr this}}{{/if}};
+{{/if}}{{/each}}    __th__->result = __args__;
+{{/if}}
+{{#unless call.is_closure_call}}
 {{#if call.args}}
     __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
 {{#if (eq call.callee.kind "member")}}    __args__->self_arg = {{> expr call.callee.object}};
@@ -7,6 +15,7 @@
 {{else}}    __args__->arg{{@index}} = {{#if type.pass_self_by_ref}}__sn__{{type.name}}_retain({{> expr this}}){{else}}{{#if is_ref_arg}}&{{/if}}{{> expr this}}{{/if}};
 {{/if}}{{/each}}    __th__->result = __args__;
 {{/if}}
+{{/unless}}
     __th__->result_size = sizeof({{c_type call.type}});
     pthread_create(&__th__->thread, NULL, __thread_wrapper_{{thread_id}}__, __th__);
     __th__;

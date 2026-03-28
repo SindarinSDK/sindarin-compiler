@@ -1,0 +1,12 @@
+fn compute(name: str, value: int): int =>
+  var task: fn(): int = fn(): int =>
+    println($"Hello from {name}")
+    return value * 2
+
+  var handle: int = & task()
+  var result: int = handle !
+  return result
+
+fn main(): void =>
+  var r: int = compute("worker", 21)
+  println($"Result: {r}")
