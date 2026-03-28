@@ -33,6 +33,7 @@ void __sn__compute() {
 int main() {
     { SnThread *__ff__ = ({
         SnThread *__th__ = sn_thread_create();
+    
         __th__->result_size = sizeof(void);
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;

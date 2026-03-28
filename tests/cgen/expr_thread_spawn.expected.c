@@ -34,6 +34,7 @@ long long __sn__compute() {
 int main() {
     long long __sn__handle = 0; sn_auto_thread SnThread * __sn__handle__th__ = ({
         SnThread *__th__ = sn_thread_create();
+    
         __th__->result_size = sizeof(long long);
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;

@@ -30,6 +30,9 @@ extern {{#if is_static}}/* static */ {{/if}}{{c_type type}} __sn__{{name}};
 {{#each structs}}{{#each methods}}{{#unless is_serializable_method}}{{> method_forward_decl this struct_name=../name}}{{/unless}}{{/each}}{{/each}}
 {{#each threads}}
 typedef struct {
+{{#if is_closure_spawn}}
+    __Closure__ *__closure_fn;
+{{/if}}
 {{#each args}}
     {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
 {{/each}}
