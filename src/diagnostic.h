@@ -35,6 +35,12 @@ typedef struct {
 void diagnostic_init(const char *filename, const char *source);
 
 /*
+ * Register an imported file's source for error reporting.
+ * Allows diagnostic_report to show correct source lines for imported files.
+ */
+void diagnostic_register_source(const char *filename, const char *source);
+
+/*
  * Reset diagnostic state (clear error count, etc.)
  */
 void diagnostic_reset(void);

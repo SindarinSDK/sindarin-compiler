@@ -14,6 +14,13 @@ Token lexer_scan_token(Lexer *lexer)
                   lexer->line, lexer->at_line_start, lexer->pending_indent);
     if (lexer->at_line_start)
     {
+        /* Inside balanced delimiters, skip indentation processing entirely */
+        if (lexer->bracket_depth > 0)
+        {
+            lexer->at_line_start = 0;
+            goto skip_indent_processing;
+        }
+
         int current_indent;
         const char *temp;
         int top;  /* Declare top here so it's in scope for process_dedent */
@@ -206,6 +213,11 @@ skip_indent_processing:
     if (!lexer_is_at_end(lexer) && lexer_peek(lexer) == '\n') {
         lexer_advance(lexer);
         lexer->line++;
+        if (lexer->bracket_depth > 0) {
+            /* Inside balanced delimiters: suppress NEWLINE, continue scanning */
+            lexer->at_line_start = 0;
+            goto skip_indent_processing;
+        }
         lexer->at_line_start = 1;
         DEBUG_VERBOSE("Line %d: Emitting NEWLINE after skip", lexer->line - 1);
         return lexer_make_token(lexer, TOKEN_NEWLINE);
@@ -221,6 +233,11 @@ skip_indent_processing:
     if (c == '\n')
     {
         lexer->line++;
+        if (lexer->bracket_depth > 0) {
+            /* Inside balanced delimiters: suppress NEWLINE, continue scanning */
+            lexer->at_line_start = 0;
+            goto skip_indent_processing;
+        }
         lexer->at_line_start = 1;
         DEBUG_VERBOSE("Line %d: Emitting NEWLINE", lexer->line - 1);
         return lexer_make_token(lexer, TOKEN_NEWLINE);
@@ -333,10 +350,12 @@ skip_indent_processing:
         DEBUG_VERBOSE("Line %d: Emitting PLUS", lexer->line);
         return lexer_make_token(lexer, TOKEN_PLUS);
     case '(':
-        DEBUG_VERBOSE("Line %d: Emitting LEFT_PAREN", lexer->line);
+        lexer->bracket_depth++;
+        DEBUG_VERBOSE("Line %d: Emitting LEFT_PAREN (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_LEFT_PAREN);
     case ')':
-        DEBUG_VERBOSE("Line %d: Emitting RIGHT_PAREN", lexer->line);
+        if (lexer->bracket_depth > 0) lexer->bracket_depth--;
+        DEBUG_VERBOSE("Line %d: Emitting RIGHT_PAREN (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_RIGHT_PAREN);
     case ':':
         DEBUG_VERBOSE("Line %d: Emitting COLON", lexer->line);
@@ -429,16 +448,20 @@ skip_indent_processing:
         DEBUG_VERBOSE("Line %d: Emitting DOT", lexer->line);
         return lexer_make_token(lexer, TOKEN_DOT);
     case '[':
-        DEBUG_VERBOSE("Line %d: Emitting LEFT_BRACKET", lexer->line);
+        lexer->bracket_depth++;
+        DEBUG_VERBOSE("Line %d: Emitting LEFT_BRACKET (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_LEFT_BRACKET);
     case ']':
-        DEBUG_VERBOSE("Line %d: Emitting RIGHT_BRACKET", lexer->line);
+        if (lexer->bracket_depth > 0) lexer->bracket_depth--;
+        DEBUG_VERBOSE("Line %d: Emitting RIGHT_BRACKET (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_RIGHT_BRACKET);
     case '{':
-        DEBUG_VERBOSE("Line %d: Emitting LEFT_BRACE", lexer->line);
+        lexer->bracket_depth++;
+        DEBUG_VERBOSE("Line %d: Emitting LEFT_BRACE (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_LEFT_BRACE);
     case '}':
-        DEBUG_VERBOSE("Line %d: Emitting RIGHT_BRACE", lexer->line);
+        if (lexer->bracket_depth > 0) lexer->bracket_depth--;
+        DEBUG_VERBOSE("Line %d: Emitting RIGHT_BRACE (depth=%d)", lexer->line, lexer->bracket_depth);
         return lexer_make_token(lexer, TOKEN_RIGHT_BRACE);
     case '"':
     {

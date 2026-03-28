@@ -1,0 +1,15 @@
+// Test: return statements inside match arms should work
+// Each match arm uses return to exit the enclosing function
+
+fn describe(code: int): str =>
+  match code =>
+    1 => return "one"
+    2 => return "two"
+    3 => return "three"
+    else => return "other"
+
+fn main(): void =>
+  println(describe(1))
+  println(describe(2))
+  println(describe(3))
+  println(describe(99))

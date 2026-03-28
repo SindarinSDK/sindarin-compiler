@@ -1,0 +1,5 @@
+long to int: 42
+int to long: 100
+literal to long: 500
+fn long to int: 999
+fn int to long: 777

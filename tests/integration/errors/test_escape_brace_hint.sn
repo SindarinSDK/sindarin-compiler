@@ -1,0 +1,5 @@
+# Error test: \{ in interpolated string should suggest {{ instead
+
+fn main(): void =>
+  var x: int = 42
+  println($"\{x\}")

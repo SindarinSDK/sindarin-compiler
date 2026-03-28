@@ -297,24 +297,13 @@ void type_check_var_decl(Stmt *stmt, SymbolTable *table, Type *return_type)
         }
     }
 
-    /* Handle sync modifier */
+    /* Handle sync modifier — creates a mutex for the variable */
     if (stmt->as.var_decl.sync_modifier == SYNC_ATOMIC)
     {
-        if (decl_type->kind != TYPE_INT && decl_type->kind != TYPE_LONG &&
-            decl_type->kind != TYPE_INT32 && decl_type->kind != TYPE_UINT &&
-            decl_type->kind != TYPE_UINT32 && decl_type->kind != TYPE_BYTE &&
-            decl_type->kind != TYPE_CHAR)
+        Symbol *symbol = symbol_table_lookup_symbol_current(table, stmt->as.var_decl.name);
+        if (symbol != NULL)
         {
-            type_error(&stmt->as.var_decl.name,
-                       "sync modifier is only allowed on integer types (int, long, int32, uint, uint32, byte, char)");
-        }
-        else
-        {
-            Symbol *symbol = symbol_table_lookup_symbol_current(table, stmt->as.var_decl.name);
-            if (symbol != NULL)
-            {
-                symbol->sync_mod = SYNC_ATOMIC;
-            }
+            symbol->sync_mod = SYNC_ATOMIC;
         }
     }
 

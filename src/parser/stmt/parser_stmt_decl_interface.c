@@ -109,7 +109,9 @@ Stmt *parser_interface_declaration(Parser *parser)
                         parser_error_at_current(parser, "Cannot have more than 255 parameters");
                     }
 
-                    /* Parameter name */
+                    /* Parameter name — allow 'val' as a parameter name */
+                    if (parser_check(parser, TOKEN_VAL))
+                        parser->current.type = TOKEN_IDENTIFIER;
                     if (!parser_check(parser, TOKEN_IDENTIFIER))
                     {
                         parser_error_at_current(parser, "Expected parameter name");

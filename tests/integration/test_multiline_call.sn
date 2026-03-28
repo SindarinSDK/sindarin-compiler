@@ -1,0 +1,11 @@
+// Test: multi-line function calls should parse correctly
+
+fn add(a: int, b: int, c: int): int => a + b + c
+
+fn main(): void =>
+  var result: int = add(
+    10,
+    20,
+    30
+  )
+  println($"result: {result}")

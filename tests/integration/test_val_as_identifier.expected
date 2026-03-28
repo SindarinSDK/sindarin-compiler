@@ -1,0 +1,3 @@
+var val: 21
+twice(val): 42
+twice(5): 10

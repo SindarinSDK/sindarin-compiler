@@ -162,7 +162,7 @@ Type *type_check_match(Expr *expr, SymbolTable *table)
         /* Type check the arm body */
         if (arm->body != NULL)
         {
-            type_check_stmt(arm->body, table, NULL);
+            type_check_stmt(arm->body, table, table->current_return_type);
 
             /* Determine arm result type from last expression in body */
             if (arm->body->type == STMT_BLOCK && arm->body->as.block.count > 0)

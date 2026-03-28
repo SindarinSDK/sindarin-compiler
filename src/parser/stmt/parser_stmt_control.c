@@ -275,6 +275,9 @@ Stmt *parser_for_statement(Parser *parser)
     {
         Token var_token = parser->previous;
         Token name;
+        /* Allow 'val' as a variable name */
+        if (parser_check(parser, TOKEN_VAL))
+            parser->current.type = TOKEN_IDENTIFIER;
         if (parser_check(parser, TOKEN_IDENTIFIER))
         {
             name = parser->current;

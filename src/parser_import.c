@@ -126,6 +126,9 @@ static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, 
         return NULL;
     }
 
+    /* Register this file's source so diagnostics can show correct lines */
+    diagnostic_register_source(import_path, source);
+
     Lexer lexer;
     lexer_init(arena, &lexer, source, import_path);
 

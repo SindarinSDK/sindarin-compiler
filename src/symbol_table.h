@@ -92,6 +92,7 @@ typedef struct {
     int current_private_depth;  /* Current private block nesting depth (strict escape) */
     int scope_depth;            /* Current scope nesting depth (blocks, functions) */
     int loop_depth;             /* Current loop nesting depth (for break/continue validation) */
+    Type *current_return_type;  /* Return type of the enclosing function (for match arm return validation) */
 } SymbolTable;
 
 /* Type declaration support (opaque types) - implemented in symbol_table.c */

@@ -1,0 +1,35 @@
+// Test: @serializable structs should support long fields
+
+@source "test_serializable_long.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Event =>
+  name: str
+  timestamp: long
+  count: int
+
+fn main(): void =>
+  var e: Event = Event {
+    name: "click",
+    timestamp: 1711641600000L,
+    count: 42
+  }
+
+  // Encode
+  var enc: Encoder = sn_test_json_encoder()
+  e.encode(enc)
+  var json: str = enc.result()
+  println($"encoded: {json}")
+
+  // Decode
+  var dec: Decoder = sn_test_json_decoder("{\"name\":\"ping\",\"timestamp\":9999999999,\"count\":7}")
+  var e2: Event = Event.decode(dec)
+  assert(e2.name == "ping", "decode name")
+  assert(e2.timestamp == 9999999999L, "decode timestamp")
+  assert(e2.count == 7, "decode count")
+  println("decode: PASS")
+
+  println("All @serializable long tests passed!")

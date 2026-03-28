@@ -1,0 +1,22 @@
+// Test: sync var should work on non-integer types (arrays, strings)
+
+sync var items: str[] = {}
+sync var message: str = "hello"
+
+fn addItem(): int =>
+  lock (items) =>
+    items.push("a")
+    items.push("b")
+  lock (message) =>
+    message = "done"
+  return 1
+
+fn main(): void =>
+  var t1: int = & addItem()
+  var t2: int = & addItem()
+  var r1 = t1 !
+  var r2 = t2 !
+  lock (items) =>
+    println($"items: {items.length}")
+  lock (message) =>
+    println($"message: {message}")

@@ -1,37 +1,59 @@
 // parser_import_util.c
 // Import path helper functions
 
-/* Helper function to normalize a path by removing redundant ./ and resolving ..
- * This ensures paths like "a/./b/./c.sn" and "a/b/c.sn" are treated as the same. */
+/* Helper function to normalize a path by removing redundant ./ and resolving ../
+ * This ensures paths like "a/./b/./c.sn" and "a/b/c.sn" are treated as the same,
+ * and "a/b/../c.sn" resolves to "a/c.sn". */
 static char *normalize_path(Arena *arena, const char *path)
 {
     size_t len = strlen(path);
+    /* Split path into components, then rebuild without . and resolving .. */
+    /* Max components = len (one char per component in worst case) */
+    const char **components = arena_alloc(arena, sizeof(const char *) * (len + 1));
+    int *comp_lens = arena_alloc(arena, sizeof(int) * (len + 1));
+    if (!components || !comp_lens) return NULL;
+    int comp_count = 0;
+
+    const char *p = path;
+    while (*p) {
+        /* Skip separators */
+        if (*p == '/' || *p == '\\') { p++; continue; }
+        /* Find end of component */
+        const char *start = p;
+        while (*p && *p != '/' && *p != '\\') p++;
+        int clen = (int)(p - start);
+
+        if (clen == 1 && start[0] == '.') {
+            /* Skip "." component */
+            continue;
+        } else if (clen == 2 && start[0] == '.' && start[1] == '.') {
+            /* ".." — pop the last component if possible */
+            if (comp_count > 0 &&
+                !(comp_lens[comp_count-1] == 2 && components[comp_count-1][0] == '.' && components[comp_count-1][1] == '.')) {
+                comp_count--;
+            } else {
+                /* Can't pop (at root or previous is also ..) — keep it */
+                components[comp_count] = start;
+                comp_lens[comp_count] = clen;
+                comp_count++;
+            }
+        } else {
+            components[comp_count] = start;
+            comp_lens[comp_count] = clen;
+            comp_count++;
+        }
+    }
+
+    /* Rebuild path */
     char *result = arena_alloc(arena, len + 1);
     if (!result) return NULL;
-
     size_t j = 0;
-    for (size_t i = 0; i < len; ) {
-        /* Check for "./" at start or after a separator */
-        if ((i == 0 || path[i-1] == '/' || path[i-1] == '\\') &&
-            path[i] == '.' && (path[i+1] == '/' || path[i+1] == '\\')) {
-            /* Skip the "./" */
-            i += 2;
-            continue;
-        }
-        /* Check for "./" at end (just ".") - shouldn't happen but handle it */
-        if ((i == 0 || path[i-1] == '/' || path[i-1] == '\\') &&
-            path[i] == '.' && path[i+1] == '\0') {
-            i++;
-            continue;
-        }
-        result[j++] = path[i++];
+    for (int i = 0; i < comp_count; i++) {
+        if (i > 0) result[j++] = '/';
+        memcpy(result + j, components[i], comp_lens[i]);
+        j += comp_lens[i];
     }
     result[j] = '\0';
-
-    /* Remove trailing slash if present (unless it's the root) */
-    if (j > 1 && (result[j-1] == '/' || result[j-1] == '\\')) {
-        result[j-1] = '\0';
-    }
 
     return result;
 }

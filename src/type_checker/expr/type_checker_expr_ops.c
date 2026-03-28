@@ -187,6 +187,15 @@ Type *type_check_binary(Expr *expr, SymbolTable *table)
             }
         }
 
+        /* Allow == nil and != nil for as-ref structs (pointer null check) */
+        if ((op == TOKEN_EQUAL_EQUAL || op == TOKEN_BANG_EQUAL) &&
+            right->kind == TYPE_NIL && left->as.struct_type.pass_self_by_ref)
+        {
+            DEBUG_VERBOSE("Nil comparison allowed for as-ref struct '%s'",
+                          left->as.struct_type.name ? left->as.struct_type.name : "<unknown>");
+            return ast_create_primitive_type(table->arena, TYPE_BOOL);
+        }
+
         /* Left is a struct but no operator method found — this is always an
          * error: structs do not support built-in operators. */
         {

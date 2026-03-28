@@ -1,0 +1,14 @@
+// Test: multi-line struct literals should parse correctly
+
+struct Point =>
+  x: int
+  y: int
+  z: int
+
+fn main(): void =>
+  var p: Point = Point {
+    x: 1,
+    y: 2,
+    z: 3
+  }
+  println($"x={p.x} y={p.y} z={p.z}")

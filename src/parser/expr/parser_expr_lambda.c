@@ -18,6 +18,9 @@ Expr *parse_lambda_expr(Parser *parser, Token *fn_token)
         do
         {
             /* Parse: name [: type] [as val|ref] */
+            /* Allow 'val' as a parameter name */
+            if (parser_check(parser, TOKEN_VAL))
+                parser->current.type = TOKEN_IDENTIFIER;
             Token param_name = parser->current;
             parser_consume(parser, TOKEN_IDENTIFIER, "Expected parameter name");
             param_name.start = arena_strndup(parser->arena, param_name.start, param_name.length);

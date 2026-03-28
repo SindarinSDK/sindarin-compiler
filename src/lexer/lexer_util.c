@@ -19,6 +19,7 @@ void lexer_init(Arena *arena, Lexer *lexer, const char *source, const char *file
     lexer->pending_indent = -1;
     lexer->pending_current = NULL;
     lexer->pending_standalone_comment = 0;
+    lexer->bracket_depth = 0;
     lexer->arena = arena;
 }
 

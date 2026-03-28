@@ -17,6 +17,7 @@ typedef struct
     int pending_indent;           // Stored indentation level during multi-dedent
     const char *pending_current;  // Stored position after whitespace during multi-dedent
     int pending_standalone_comment; // Next // should be emitted as standalone comment
+    int bracket_depth;             // Depth of balanced delimiters: () [] {}
     Arena *arena;
 } Lexer;
 

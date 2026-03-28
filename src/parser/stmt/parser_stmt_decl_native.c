@@ -88,6 +88,9 @@ Stmt *parser_native_function_declaration(Parser *parser, FunctionModifier modifi
                     parser_error_at_current(parser, "Cannot have more than 255 parameters");
                 }
                 Token param_name;
+                /* Allow 'val' as a parameter name */
+                if (parser_check(parser, TOKEN_VAL))
+                    parser->current.type = TOKEN_IDENTIFIER;
                 if (parser_check(parser, TOKEN_IDENTIFIER))
                 {
                     param_name = parser->current;
