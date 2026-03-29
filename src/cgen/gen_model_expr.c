@@ -2144,6 +2144,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_object_add(fval_obj, "elem_copy_fn",
                                         json_object_new_string("sn_copy_str"));
                                 }
+                                else if (expected_et->kind == TYPE_ARRAY)
+                                {
+                                    json_object_object_add(fval_obj, "elem_release_fn",
+                                        json_object_new_string("(void (*)(void *))sn_cleanup_array"));
+                                    json_object_object_add(fval_obj, "elem_copy_fn",
+                                        json_object_new_string("sn_copy_array"));
+                                }
                                 else if (expected_et->kind == TYPE_STRUCT)
                                 {
                                     TypeCategory et_cat = gen_model_type_category(expected_et);
