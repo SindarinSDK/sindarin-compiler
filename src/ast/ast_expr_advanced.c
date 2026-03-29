@@ -115,6 +115,27 @@ Expr *ast_create_thread_sync_expr(Arena *arena, Expr *handle, bool is_array, con
     return expr;
 }
 
+Expr *ast_create_thread_detach_expr(Arena *arena, Expr *handle, const Token *loc_token)
+{
+    if (handle == NULL)
+    {
+        DEBUG_ERROR("Cannot create thread detach with NULL handle expression");
+        return NULL;
+    }
+    Expr *expr = arena_alloc(arena, sizeof(Expr));
+    if (expr == NULL)
+    {
+        DEBUG_ERROR("Out of memory");
+        exit(1);
+    }
+    memset(expr, 0, sizeof(Expr));
+    expr->type = EXPR_THREAD_DETACH;
+    expr->as.thread_detach.handle = handle;
+    expr->expr_type = NULL;
+    expr->token = ast_clone_token(arena, loc_token);
+    return expr;
+}
+
 Expr *ast_create_sync_list_expr(Arena *arena, Expr **elements, int element_count, const Token *loc_token)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));

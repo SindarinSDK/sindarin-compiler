@@ -1,0 +1,16 @@
+// Test thread spawn with struct parameter generates correct &args->arg0
+struct Config =>
+  name: str
+  value: int
+
+fn processConfig(config: Config): int =>
+  return config.value
+
+fn main(): void =>
+  var c: Config = Config {
+    name: "test",
+    value: 42
+  }
+  var handle: int = & processConfig(c)
+  var result: int = handle !
+  assert(result == 42, "expected 42")

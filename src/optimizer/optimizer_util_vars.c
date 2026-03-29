@@ -162,6 +162,10 @@ void collect_used_variables(Expr *expr, Token **used_vars, int *used_count,
         collect_used_variables(expr->as.thread_sync.handle, used_vars, used_count, used_capacity, arena);
         break;
 
+    case EXPR_THREAD_DETACH:
+        collect_used_variables(expr->as.thread_detach.handle, used_vars, used_count, used_capacity, arena);
+        break;
+
     case EXPR_ADDRESS_OF:
         collect_used_variables(expr->as.address_of.operand, used_vars, used_count, used_capacity, arena);
         break;

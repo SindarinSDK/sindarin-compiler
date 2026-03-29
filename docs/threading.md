@@ -110,6 +110,58 @@ r3!
 
 ---
 
+## Detaching Threads (`~`)
+
+The `~` operator detaches a pending thread, releasing scope ownership. The thread continues running independently — it is not joined when the variable goes out of scope.
+
+### Basic Detach
+
+```sindarin
+var handle: int = &startServer(config)
+handle~                         // detach: thread runs independently
+// handle's scope exits without blocking
+```
+
+### Detach in Loops
+
+Without `~`, threads spawned in loops are auto-joined at the end of each iteration, serializing execution. Detach solves this:
+
+```sindarin
+fn handleClient(conn: Connection): int =>
+    // long-running connection handler
+    return 0
+
+fn serve(listener: Listener): void =>
+    while true =>
+        var conn: Connection = listener.accept()
+        var handler: int = &handleClient(conn)
+        handler~    // detach: loop continues immediately
+        // without ~, auto-join would block until handleClient returns
+```
+
+### Detach vs Fire-and-Forget
+
+| Pattern | Syntax | Use Case |
+|---------|--------|----------|
+| Fire-and-forget | `&fn()` | Void functions, no handle needed |
+| Detach | `var h = &fn(); h~` | Need handle temporarily, then release |
+
+Fire-and-forget is shorthand for spawn + immediate detach. Use `~` when you need the handle before detaching (e.g., logging, conditional detach).
+
+### After Detach
+
+A detached variable cannot be synchronized:
+
+```sindarin
+var r: int = &compute()
+r~
+r!              // COMPILE ERROR: cannot sync detached thread
+```
+
+The thread's return value is discarded. If you need the result, use `!` (sync) instead of `~` (detach).
+
+---
+
 ## Compiler Enforcement
 
 The compiler tracks pending state and enforces synchronization before use.
@@ -677,6 +729,7 @@ The following scenarios require user attention:
 | `x! + y!` | Sync in expressions |
 | `[r1, r2, ...]!` | Block until all are synchronized |
 | `var r: T = &fn()!` | Spawn and wait immediately |
+| `r~` | Detach thread, runs independently |
 | `&fn()` | Fire and forget (void only) |
 | `&fn()!` | Spawn and wait (void) |
 | `sync var x: int = 0` | Atomic integer variable |
@@ -692,6 +745,9 @@ The following scenarios require user attention:
 | Access pending variable | Compile error |
 | Reassign pending variable | Compile error |
 | After `!` | Variable is synchronized, can access/reassign |
+| After `~` | Variable is detached, cannot sync |
+| Sync detached variable | Compile error |
+| Detach non-pending variable | Compile error |
 | `sync` on non-integer type | Compile error |
 | `lock` on non-sync variable | Compile error |
 
@@ -753,6 +809,7 @@ typedef struct {
     void *result;
     size_t result_size;
     int joined;
+    int detached;
 } SnThread;
 
 // Cleanup attribute — automatically joins and frees when the variable goes out of scope
@@ -762,6 +819,16 @@ typedef struct {
 ### Thread Cleanup
 
 Thread wrappers use standard C cleanup via the `sn_auto_thread` attribute macro from the minimal runtime. For fire-and-forget threads, the wrapper calls `free()` directly on the `SnThread` struct after the function returns. For joinable threads, the joining side handles cleanup. No arena-level teardown is needed — only `free()` and the `sn_auto_*` cleanup macros from `sn_minimal.h`.
+
+### Detach Implementation
+
+The `~` operator generates code that:
+1. Moves the `SnThread*` from the companion variable to a local
+2. NULLs the companion variable (prevents `sn_auto_thread` cleanup from joining)
+3. Sets `__th__->detached = 1` on the thread struct
+4. Calls `pthread_detach()` to allow OS cleanup when the thread exits
+
+All thread wrappers include a self-cleanup check at the end: `if (__th__->detached) { free(__th__->result); free(__th__); }`. This ensures the `SnThread` struct is freed by the worker thread itself when nobody else will join it.
 
 ---
 

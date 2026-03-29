@@ -197,6 +197,7 @@ typedef enum
     EXPR_SIZED_ARRAY_ALLOC,
     EXPR_THREAD_SPAWN,
     EXPR_THREAD_SYNC,
+    EXPR_THREAD_DETACH,
     EXPR_SYNC_LIST,
     EXPR_ADDRESS_OF,
     EXPR_VALUE_OF,
@@ -363,6 +364,11 @@ typedef struct
 
 typedef struct
 {
+    Expr *handle;        // Thread handle variable to detach
+} ThreadDetachExpr;
+
+typedef struct
+{
     Expr **elements;     // Variables to sync: [r1, r2, r3]
     int element_count;
 } SyncListExpr;
@@ -500,6 +506,7 @@ struct Expr
         SizedArrayAllocExpr sized_array_alloc;
         ThreadSpawnExpr thread_spawn;
         ThreadSyncExpr thread_sync;
+        ThreadDetachExpr thread_detach;
         SyncListExpr sync_list;
         AddressOfExpr address_of;
         ValueOfExpr value_of;
@@ -813,6 +820,7 @@ Expr *ast_create_lambda_stmt_expr(Arena *arena, Parameter *params, int param_cou
                                   FunctionModifier modifier, bool is_native, const Token *loc_token);
 Expr *ast_create_thread_spawn_expr(Arena *arena, Expr *call, FunctionModifier modifier, const Token *loc_token);
 Expr *ast_create_thread_sync_expr(Arena *arena, Expr *handle, bool is_array, const Token *loc_token);
+Expr *ast_create_thread_detach_expr(Arena *arena, Expr *handle, const Token *loc_token);
 Expr *ast_create_sync_list_expr(Arena *arena, Expr **elements, int element_count, const Token *loc_token);
 Expr *ast_create_address_of_expr(Arena *arena, Expr *operand, const Token *loc_token);
 Expr *ast_create_value_of_expr(Arena *arena, Expr *operand, const Token *loc_token);

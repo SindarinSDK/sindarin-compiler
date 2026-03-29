@@ -104,6 +104,9 @@ Type *type_check_expr(Expr *expr, SymbolTable *table)
     case EXPR_THREAD_SYNC:
         t = type_check_thread_sync(expr, table);
         break;
+    case EXPR_THREAD_DETACH:
+        t = type_check_thread_detach(expr, table);
+        break;
     case EXPR_SYNC_LIST:
         /* Sync lists are only valid as part of thread sync: [r1, r2]!
          * A standalone sync list is a type error */

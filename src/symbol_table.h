@@ -19,7 +19,8 @@ typedef enum
 {
     THREAD_STATE_NORMAL,       /* Not a thread handle, or already synchronized */
     THREAD_STATE_PENDING,      /* Thread spawned but not yet synchronized */
-    THREAD_STATE_SYNCHRONIZED  /* Thread has been synchronized (joined) */
+    THREAD_STATE_SYNCHRONIZED, /* Thread has been synchronized (joined) */
+    THREAD_STATE_DETACHED      /* Thread has been detached (runs independently) */
 } ThreadState;
 
 typedef enum

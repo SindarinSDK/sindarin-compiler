@@ -391,6 +391,11 @@ Expr *parser_postfix(Parser *parser)
             bool is_sync_list = (expr->type == EXPR_SYNC_LIST);
             expr = ast_create_thread_sync_expr(parser->arena, expr, is_sync_list, &bang);
         }
+        else if (parser_match(parser, TOKEN_TILDE))
+        {
+            Token tilde = parser->previous;
+            expr = ast_create_thread_detach_expr(parser->arena, expr, &tilde);
+        }
         else if (skip_whitespace_for_continuation(parser))
         {
             continue;

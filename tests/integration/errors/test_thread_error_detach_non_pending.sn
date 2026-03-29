@@ -1,0 +1,6 @@
+// Test: Compile error - detach a non-pending variable
+// Expected error: Cannot detach variable that is not a pending thread
+
+fn main(): void =>
+  var x: int = 42
+  x ~  // ERROR: x is not a pending thread

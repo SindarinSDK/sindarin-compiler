@@ -1,0 +1,10 @@
+// Test: Compile error - sync a detached thread handle
+// Expected error: Cannot sync detached thread variable
+
+fn compute(): int =>
+  return 42
+
+fn main(): void =>
+  var r: int = & compute()
+  r ~
+  var result: int = r !  // ERROR: r is detached, cannot sync
