@@ -1,11 +1,11 @@
 {{#if (eq elem_cleanup "free_str")}}({
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
+    {{c_type type}} __new__ = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
     free((({{c_type type}} *){{> expr array}}->data)[__ai__]);
-    (({{c_type type}} *){{> expr array}}->data)[__ai__] = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    (({{c_type type}} *){{> expr array}}->data)[__ai__] = __new__;
 }){{else}}{{#if (eq elem_cleanup "struct_composite")}}({
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
-    __sn__{{elem_struct_name}}_cleanup(&((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]);
-    {{#if needs_deep_copy}}__sn__{{elem_struct_name}}_copy_into(&({{> expr value}}), &((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]);{{else}}((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__] = {{> expr value}};{{/if}}
+    {{#if needs_deep_copy}}__sn__{{elem_struct_name}} __new__; __sn__{{elem_struct_name}}_copy_into(&({{> expr value}}), &__new__); __sn__{{elem_struct_name}}_cleanup(&((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]); ((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__] = __new__;{{else}}__sn__{{elem_struct_name}} __new__ = {{> expr value}}; __sn__{{elem_struct_name}}_cleanup(&((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__]); ((__sn__{{elem_struct_name}} *){{> expr array}}->data)[__ai__] = __new__;{{/if}}
 }){{else}}{{#if (eq elem_cleanup "struct_ref")}}({
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
     __sn__{{elem_struct_name}}_release(&((__sn__{{elem_struct_name}} **){{> expr array}}->data)[__ai__]);

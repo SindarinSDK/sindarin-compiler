@@ -1,0 +1,8 @@
+// Test array index assignment where RHS reads the same element being assigned
+// e.g. arr[i] = arr[i].trim() — must evaluate RHS before freeing old value
+
+fn main(): void =>
+  var headers: str[] = {"  name  ", "  age  ", "  city  "}
+  for var i: int = 0; i < len(headers); i++ =>
+    headers[i] = headers[i].trim()
+  println($"{headers[0]},{headers[1]},{headers[2]}")
