@@ -1,0 +1,30 @@
+// Test struct literal where a field is assigned from a local array variable
+// Both the local and the struct field must have independent ownership
+
+struct Item =>
+  key: str
+  value: double
+
+struct Record =>
+  name: str
+  items: Item[]
+
+fn main(): void =>
+  var items: Item[] = {}
+  items.push(Item {
+    key: "a",
+    value: 1.0
+  })
+  items.push(Item {
+    key: "b",
+    value: 2.0
+  })
+
+  var rec: Record = Record {
+    name: "test",
+    items: items
+  }
+
+  println($"name={rec.name} items={len(rec.items)}")
+  println($"item0={rec.items[0].key}")
+  println("SUCCESS")
