@@ -1,0 +1,7 @@
+test_push_lvalue: PASS
+test_push_rvalue: PASS
+test_re_encode: PASS
+test_roundtrip: PASS
+test_insert: PASS
+
+All push-ownership tests passed!
