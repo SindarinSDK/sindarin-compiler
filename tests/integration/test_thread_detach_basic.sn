@@ -1,0 +1,19 @@
+// Test basic thread detach with ~ operator
+
+fn worker(id: int): int =>
+  return id * 10
+
+fn main(): void =>
+  // Test 1: Detach a non-void thread
+  var r1: int = & worker(1)
+  r1 ~
+  println("detached r1")
+
+  // Test 2: Detach in sequence
+  var r2: int = & worker(2)
+  var r3: int = & worker(3)
+  r2 ~
+  r3 ~
+  println("detached r2 and r3")
+
+  println("done")

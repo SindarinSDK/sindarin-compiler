@@ -1,0 +1,9 @@
+({
+    SnThread *__dt__ = __sn__{{handle.name}}__th__;
+    __sn__{{handle.name}}__th__ = NULL;
+    if (__dt__) {
+        __dt__->detached = 1;
+        pthread_detach(__dt__->thread);
+    }
+    (void)0;
+})

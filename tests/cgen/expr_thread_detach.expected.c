@@ -40,12 +40,15 @@ int main() {
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;
     });
-    long long __sn__result = ({
-        sn_auto_thread SnThread *__sync_th__ = __sn__handle__th__; __sn__handle__th__ = NULL;
-        if (__sync_th__) { sn_thread_join(__sync_th__); __sn__handle = *(long long *)__sync_th__->result; }
-        __sn__handle; })
-    ;
-    sn_assert((__sn__result == 42LL), "expected result to be 42");
+    ({
+        SnThread *__dt__ = __sn__handle__th__;
+        __sn__handle__th__ = NULL;
+        if (__dt__) {
+            __dt__->detached = 1;
+            pthread_detach(__dt__->thread);
+        }
+        (void)0;
+    });
     
     fflush(stdout);
     return 0;

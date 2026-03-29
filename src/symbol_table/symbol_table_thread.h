@@ -13,13 +13,16 @@
  * State transitions:
  *   THREAD_STATE_NORMAL -> THREAD_STATE_PENDING (via mark_pending)
  *   THREAD_STATE_PENDING -> THREAD_STATE_SYNCHRONIZED (via mark_synchronized)
+ *   THREAD_STATE_PENDING -> THREAD_STATE_DETACHED (via mark_detached)
  */
 
 /* Thread state transitions (operate on Symbol directly) */
 bool symbol_table_mark_pending(Symbol *symbol);
 bool symbol_table_mark_synchronized(Symbol *symbol);
+bool symbol_table_mark_detached(Symbol *symbol);
 bool symbol_table_is_pending(Symbol *symbol);
 bool symbol_table_is_synchronized(Symbol *symbol);
+bool symbol_table_is_detached(Symbol *symbol);
 
 /* Token-based thread state queries (lookup symbol first, then query state) */
 ThreadState symbol_table_get_thread_state(SymbolTable *table, Token name);

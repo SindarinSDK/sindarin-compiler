@@ -22,6 +22,7 @@ typedef struct {
     void *result;
     size_t result_size;
     int joined;
+    int detached;
 } SnThread;
 
 static inline void sn_cleanup_thread(SnThread **p)

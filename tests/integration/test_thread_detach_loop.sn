@@ -1,0 +1,15 @@
+// Test thread detach in loops - the primary use case for Issue #13
+// Without detach, sn_auto_thread cleanup would block at end of each iteration
+
+fn worker(id: int): int =>
+  return id
+
+fn main(): void =>
+  // Spawn and detach threads in a loop
+  // Without ~ this would auto-join at each iteration
+  for i in 0..5 =>
+    var handle: int = & worker(i)
+    handle ~
+    println($"spawned and detached {i}")
+
+  println("loop completed")

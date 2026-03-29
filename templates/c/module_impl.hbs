@@ -61,7 +61,8 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
     *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL{{else}}__result__{{/if}};
 {{/if}}
 {{/if}}
-    return NULL;
+{{#unless is_fire_and_forget}}    if (__th__->detached) { free(__th__->result); free(__th__); }
+{{/unless}}    return NULL;
 }
 {{/each}}
 {{#each fn_wrappers}}

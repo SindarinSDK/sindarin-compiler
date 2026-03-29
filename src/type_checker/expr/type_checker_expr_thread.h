@@ -22,4 +22,11 @@ Type *type_check_thread_spawn(Expr *expr, SymbolTable *table);
  */
 Type *type_check_thread_sync(Expr *expr, SymbolTable *table);
 
+/* Thread detach expression type checking (handle~)
+ * Verifies the operand is a pending thread variable.
+ * Transitions state from PENDING to DETACHED.
+ * Returns void.
+ */
+Type *type_check_thread_detach(Expr *expr, SymbolTable *table);
+
 #endif /* TYPE_CHECKER_EXPR_THREAD_H */

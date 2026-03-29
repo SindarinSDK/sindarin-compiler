@@ -2767,6 +2767,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             break;
         }
 
+        case EXPR_THREAD_DETACH:
+        {
+            json_object_object_add(obj, "kind", json_object_new_string("thread_detach"));
+            json_object_object_add(obj, "handle",
+                gen_model_expr(arena, expr->as.thread_detach.handle, symbol_table, arithmetic_mode));
+            break;
+        }
+
         case EXPR_SYNC_LIST:
         {
             json_object_object_add(obj, "kind", json_object_new_string("sync_list"));

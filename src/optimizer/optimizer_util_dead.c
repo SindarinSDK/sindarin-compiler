@@ -51,6 +51,7 @@ int remove_unused_variables(Optimizer *opt, Stmt **stmts, int *count)
                     case EXPR_INDEX_ASSIGN:
                     case EXPR_THREAD_SPAWN:
                     case EXPR_THREAD_SYNC:
+                    case EXPR_THREAD_DETACH:
                         has_side_effects = true;
                         break;
                     default:
@@ -205,6 +206,10 @@ Expr *simplify_noop_expr(Optimizer *opt, Expr *expr)
 
     case EXPR_THREAD_SYNC:
         expr->as.thread_sync.handle = simplify_noop_expr(opt, expr->as.thread_sync.handle);
+        break;
+
+    case EXPR_THREAD_DETACH:
+        expr->as.thread_detach.handle = simplify_noop_expr(opt, expr->as.thread_detach.handle);
         break;
 
     case EXPR_SYNC_LIST:

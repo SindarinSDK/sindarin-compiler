@@ -205,6 +205,17 @@ Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
             return NULL;
         }
 
+        /* Cannot sync a detached thread */
+        if (symbol_table_is_detached(sym))
+        {
+            char msg[256];
+            snprintf(msg, sizeof(msg), "Cannot sync detached thread variable '%.*s'",
+                     handle->as.variable.name.length,
+                     handle->as.variable.name.start);
+            type_error(expr->token, msg);
+            return NULL;
+        }
+
         /* Check if the variable's type supports thread spawn.
          * We allow sync on any variable of a thread-compatible type
          * (primitives, structs, strings, arrays) even if it's not currently
@@ -273,4 +284,38 @@ Type *type_check_thread_sync(Expr *expr, SymbolTable *table)
 
     type_error(expr->token, "Sync requires thread handle variable");
     return NULL;
+}
+
+Type *type_check_thread_detach(Expr *expr, SymbolTable *table)
+{
+    Expr *handle = expr->as.thread_detach.handle;
+
+    if (handle == NULL || handle->type != EXPR_VARIABLE)
+    {
+        type_error(expr->token, "Thread detach requires a pending thread variable");
+        return NULL;
+    }
+
+    Symbol *sym = symbol_table_lookup_symbol(table, handle->as.variable.name);
+    if (sym == NULL)
+    {
+        type_error(expr->token, "Thread detach requires a pending thread variable");
+        return NULL;
+    }
+
+    /* Must be in PENDING state to detach */
+    if (!symbol_table_is_pending(sym))
+    {
+        type_error(expr->token, "Thread detach requires a pending thread variable");
+        return NULL;
+    }
+
+    /* Transition to DETACHED */
+    symbol_table_mark_detached(sym);
+
+    DEBUG_VERBOSE("Thread detach type checked for variable '%.*s'",
+                  handle->as.variable.name.length,
+                  handle->as.variable.name.start);
+
+    return ast_create_primitive_type(table->arena, TYPE_VOID);
 }

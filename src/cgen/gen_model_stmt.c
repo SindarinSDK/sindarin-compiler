@@ -69,7 +69,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                      ex->type == EXPR_INCREMENT ||
                                      ex->type == EXPR_DECREMENT ||
                                      ex->type == EXPR_THREAD_SPAWN ||
-                                     ex->type == EXPR_THREAD_SYNC);
+                                     ex->type == EXPR_THREAD_SYNC ||
+                                     ex->type == EXPR_THREAD_DETACH);
                 /* Skip array built-in method calls (push, pop, remove, insert, etc.)
                  * — their C macros may return void even if type checker infers a type */
                 if (!skip_discard && ex->type == EXPR_CALL && ex->as.call.callee &&

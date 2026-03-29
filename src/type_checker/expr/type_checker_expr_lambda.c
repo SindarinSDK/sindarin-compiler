@@ -200,6 +200,8 @@ static bool check_native_lambda_captures_expr(LambdaExpr *lambda, Expr *expr,
         return check_native_lambda_captures_expr(lambda, expr->as.thread_spawn.call, table, first_capture);
     case EXPR_THREAD_SYNC:
         return check_native_lambda_captures_expr(lambda, expr->as.thread_sync.handle, table, first_capture);
+    case EXPR_THREAD_DETACH:
+        return check_native_lambda_captures_expr(lambda, expr->as.thread_detach.handle, table, first_capture);
     case EXPR_SYNC_LIST:
         for (int i = 0; i < expr->as.sync_list.element_count; i++)
         {

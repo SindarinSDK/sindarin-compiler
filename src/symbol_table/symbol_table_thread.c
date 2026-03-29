@@ -111,6 +111,24 @@ bool symbol_table_mark_synchronized(Symbol *symbol)
     return true;
 }
 
+bool symbol_table_mark_detached(Symbol *symbol)
+{
+    if (symbol == NULL)
+    {
+        DEBUG_ERROR("Cannot mark NULL symbol as detached");
+        return false;
+    }
+    /* Only transition from PENDING to DETACHED */
+    if (symbol->thread_state != THREAD_STATE_PENDING)
+    {
+        DEBUG_VERBOSE("Symbol in state %d, cannot mark detached", symbol->thread_state);
+        return false;
+    }
+    symbol->thread_state = THREAD_STATE_DETACHED;
+    DEBUG_VERBOSE("Marked symbol as THREAD_STATE_DETACHED");
+    return true;
+}
+
 bool symbol_table_is_pending(Symbol *symbol)
 {
     if (symbol == NULL)
@@ -127,6 +145,15 @@ bool symbol_table_is_synchronized(Symbol *symbol)
         return false;
     }
     return symbol->thread_state == THREAD_STATE_SYNCHRONIZED;
+}
+
+bool symbol_table_is_detached(Symbol *symbol)
+{
+    if (symbol == NULL)
+    {
+        return false;
+    }
+    return symbol->thread_state == THREAD_STATE_DETACHED;
 }
 
 /* ============================================================================

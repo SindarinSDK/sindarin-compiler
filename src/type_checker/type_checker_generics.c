@@ -1457,6 +1457,9 @@ static void clear_expr_types_in_expr(Expr *e)
     case EXPR_THREAD_SYNC:
         clear_expr_types_in_expr(e->as.thread_sync.handle);
         break;
+    case EXPR_THREAD_DETACH:
+        clear_expr_types_in_expr(e->as.thread_detach.handle);
+        break;
     case EXPR_SYNC_LIST:
         for (int i = 0; i < e->as.sync_list.element_count; i++)
             clear_expr_types_in_expr(e->as.sync_list.elements[i]);

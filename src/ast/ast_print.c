@@ -466,6 +466,12 @@ void ast_print_expr(Arena *arena, Expr *expr, int indent_level)
         ast_print_expr(arena, expr->as.thread_sync.handle, indent_level + 2);
         break;
 
+    case EXPR_THREAD_DETACH:
+        DEBUG_VERBOSE_INDENT(indent_level, "ThreadDetach:");
+        DEBUG_VERBOSE_INDENT(indent_level + 1, "Handle:");
+        ast_print_expr(arena, expr->as.thread_detach.handle, indent_level + 2);
+        break;
+
     case EXPR_SYNC_LIST:
         DEBUG_VERBOSE_INDENT(indent_level, "SyncList (%d elements):",
                              expr->as.sync_list.element_count);
