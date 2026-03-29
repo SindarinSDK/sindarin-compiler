@@ -28,8 +28,9 @@ int main() {
         });
     ({
         long long __ai__ = 0LL; if (__ai__ < 0) __ai__ += __sn__names->len;
+        char * __new__ = strdup("Charlie");
         free(((char * *)__sn__names->data)[__ai__]);
-        ((char * *)__sn__names->data)[__ai__] = strdup("Charlie");
+        ((char * *)__sn__names->data)[__ai__] = __new__;
     });
     
     sn_assert((sn_array_length(__sn__names) == 2LL), "should still have 2 names");
