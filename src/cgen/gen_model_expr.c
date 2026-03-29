@@ -2685,6 +2685,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             {
                                 json_object_object_add(arg, "is_borrow",
                                     json_object_new_boolean(true));
+                                /* Thread args need deep copy + cleanup for val-type
+                                 * structs with heap fields (arrays, strings) to avoid
+                                 * sharing pointers with the parent thread. */
+                                json_object_object_add(arg, "needs_val_copy",
+                                    json_object_new_boolean(true));
+                                json_object_object_add(arg, "val_copy_name",
+                                    json_object_new_string(arg_type->as.struct_type.name));
                             }
                         }
                         /* Check if corresponding call arg is a fn_ref_arg (bare function

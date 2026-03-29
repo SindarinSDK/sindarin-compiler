@@ -1,0 +1,35 @@
+// Test thread spawn with struct containing array fields
+// Verifies deep copy prevents use-after-free (Issue #15)
+
+struct Row =>
+  cells: str[]
+
+struct DataTable =>
+  rows: Row[]
+  cursor: int
+
+  static fn create(): DataTable =>
+    var rows: Row[] = {}
+    rows.push(Row { cells: {"a", "b", "c"} })
+    rows.push(Row { cells: {"d", "e", "f"} })
+    return DataTable {
+      rows: rows,
+      cursor: 0
+    }
+
+fn processTable(table: DataTable): str =>
+  var result: str = ""
+  for i in 0..table.rows.length =>
+    var row: Row = table.rows[i]
+    for j in 0..row.cells.length =>
+      if result.length > 0 =>
+        result = $"{result},{row.cells[j]}"
+      else =>
+        result = row.cells[j]
+  return result
+
+fn main(): void =>
+  var table: DataTable = DataTable.create()
+  var handle: str = & processTable(table)
+  var result: str = handle !
+  println(result)

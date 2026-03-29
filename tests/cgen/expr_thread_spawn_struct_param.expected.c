@@ -76,6 +76,7 @@ static void *__thread_wrapper_0__(void *arg) {
     args = &__args_copy__;
 
     long long __result__ = __sn__processConfig(&args->arg0);
+    __sn__Config_cleanup(&args->arg0);
     free(__th__->result); __th__->result = NULL;
     if (!__th__->result) __th__->result = calloc(1, sizeof(long long));
     *(long long *)__th__->result = __result__;
@@ -101,7 +102,7 @@ int main() {
         SnThread *__th__ = sn_thread_create();
     
         __ThreadArgs_0__ *__args__ = malloc(sizeof(__ThreadArgs_0__));
-        __args__->arg0 = __sn__c;
+        __args__->arg0 = __sn__Config_copy(&(__sn__c));
         __th__->result = __args__;
         __th__->result_size = sizeof(long long);
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
