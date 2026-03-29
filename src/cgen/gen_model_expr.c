@@ -2116,6 +2116,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             json_object_new_string(fv->expr_type->as.struct_type.name));
                     }
                 }
+                /* Array fields from variables/members need deep copy to avoid
+                 * double-free — the local variable and the struct field would
+                 * otherwise share the same SnArray * with both having cleanup. */
+                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_ARRAY &&
+                    (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
+                     fv->type == EXPR_ARRAY_ACCESS))
+                {
+                    json_object_object_add(f, "needs_arr_copy",
+                        json_object_new_boolean(true));
+                }
                 /* Empty array literal with nil element type: fix type from struct field def */
                 if (fv && fv->type == EXPR_ARRAY && fv->as.array.element_count == 0 &&
                     expr->expr_type && expr->expr_type->kind == TYPE_STRUCT)
