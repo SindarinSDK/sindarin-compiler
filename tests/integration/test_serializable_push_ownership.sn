@@ -1,0 +1,93 @@
+// Tests that decoded @serializable structs with heap fields maintain valid
+// ownership when stored in arrays via different patterns.
+//
+// The runtime fix: sn_array_push_safe should use elem_copy when available,
+// making ownership correct regardless of how the compiler wraps push args.
+
+@source "test_serializable_push_ownership.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+native fn sn_test_json_array_encoder(): Encoder
+
+@serializable
+struct NumericField =>
+  key: str
+  value: double
+
+@serializable
+struct Observation =>
+  id: str
+  source: str
+  timestamp: int
+  features: NumericField[]
+
+fn makeObservation(i: int, featureJson: str): Observation =>
+  var dec: Decoder = sn_test_json_decoder(featureJson)
+  return Observation {
+    id: $"obs-{i}",
+    source: "sensor-array",
+    timestamp: 1000 + i,
+    features: NumericField.decodeArray(dec)
+  }
+
+fn main(): void =>
+  var rows: str[] = {
+    "[{\"key\":\"temperature\",\"value\":23.5}]",
+    "[{\"key\":\"humidity\",\"value\":67.2}]",
+    "[{\"key\":\"pressure\",\"value\":1013.25}]",
+    "[{\"key\":\"windSpeed\",\"value\":5.8}]",
+    "[{\"key\":\"visibility\",\"value\":10.0}]"
+  }
+
+  // --- Test 1: Push lvalue (compiler wraps with _copy) ---
+  var observations: Observation[] = {}
+  for var i: int = 0; i < 5; i++ =>
+    var obs: Observation = makeObservation(i, rows[i])
+    observations.push(obs)
+
+  assert(observations.length == 5, "push count")
+  assert(observations[0].id == "obs-0", "push obs[0].id")
+  assert(observations[0].features[0].key == "temperature", "push obs[0].features[0].key")
+  assert(observations[4].features[0].key == "visibility", "push obs[4].features[0].key")
+  println("test_push_lvalue: PASS")
+
+  // --- Test 2: Push rvalue from function call ---
+  var obs2: Observation[] = {}
+  for var i: int = 0; i < 5; i++ =>
+    obs2.push(makeObservation(i, rows[i]))
+
+  assert(obs2[0].id == "obs-0", "rvalue obs[0].id")
+  assert(obs2[0].features[0].key == "temperature", "rvalue obs[0].features[0].key")
+  assert(obs2[4].features[0].key == "visibility", "rvalue obs[4].features[0].key")
+  println("test_push_rvalue: PASS")
+
+  // --- Test 3: Re-encode all observations ---
+  var arrEnc: Encoder = sn_test_json_array_encoder()
+  Observation.encodeArray(observations, arrEnc)
+  var json: str = arrEnc.result()
+  assert(json.length > 100, "re-encoded JSON should be substantial")
+  println("test_re_encode: PASS")
+
+  // --- Test 4: Full roundtrip ---
+  var rtDec: Decoder = sn_test_json_decoder(json)
+  var rtObs: Observation[] = Observation.decodeArray(rtDec)
+  assert(rtObs.length == 5, "roundtrip count")
+  assert(rtObs[0].id == "obs-0", "roundtrip obs[0].id")
+  assert(rtObs[0].features[0].key == "temperature", "roundtrip obs[0].features[0].key")
+  assert(rtObs[3].features[0].key == "windSpeed", "roundtrip obs[3].features[0].key")
+  assert(rtObs[4].features[0].key == "visibility", "roundtrip obs[4].features[0].key")
+  println("test_roundtrip: PASS")
+
+  // --- Test 5: Insert at specific positions ---
+  var obs3: Observation[] = {}
+  for var i: int = 0; i < 5; i++ =>
+    var ob: Observation = makeObservation(i, rows[i])
+    obs3.insert(ob, i)
+
+  assert(obs3[0].id == "obs-0", "insert obs[0].id")
+  assert(obs3[0].features[0].key == "temperature", "insert obs[0].features[0].key")
+  assert(obs3[4].features[0].key == "visibility", "insert obs[4].features[0].key")
+  println("test_insert: PASS")
+
+  println("\nAll push-ownership tests passed!")
