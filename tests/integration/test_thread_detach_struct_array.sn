@@ -1,0 +1,28 @@
+// Test thread detach with struct containing array fields (Issue #15)
+// The detached thread must have its own deep copy of array data
+
+struct Row =>
+  cells: str[]
+
+struct DataTable =>
+  rows: Row[]
+  cursor: int
+
+  static fn create(): DataTable =>
+    var rows: Row[] = {}
+    rows.push(Row { cells: {"a", "b"} })
+    rows.push(Row { cells: {"c", "d"} })
+    return DataTable {
+      rows: rows,
+      cursor: 0
+    }
+
+fn processTable(table: DataTable): int =>
+  return table.rows.length
+
+fn main(): void =>
+  var table: DataTable = DataTable.create()
+  var handle: int = & processTable(table)
+  handle ~
+  println("detached")
+  println($"rows: {table.rows.length}")
