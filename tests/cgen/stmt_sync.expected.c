@@ -13,7 +13,7 @@ typedef struct __Closure__ {
 } __Closure__;
 
 int main() {
-    long long __sn__counter = 0LL;
+    _Atomic long long __sn__counter = 0LL;
     
     pthread_mutex_t __sn__counter_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock(&__sn__counter_mutex);

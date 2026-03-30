@@ -3,7 +3,7 @@
 {{> forward_decl this}}
 {{/unless}}{{/each}}
 {{#each globals}}
-{{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
+{{#if (eq sync_mod "atomic")}}_Atomic {{/if}}{{c_type type}} __sn__{{name}} = {{#if is_deferred}}{{default_value type}}{{else}}{{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}}{{/if}};
 {{#if (eq sync_mod "atomic")}}pthread_mutex_t __sn__{{name}}_mutex = PTHREAD_MUTEX_INITIALIZER;
 {{/if}}{{/each}}
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if is_native}}{{#if has_body}}

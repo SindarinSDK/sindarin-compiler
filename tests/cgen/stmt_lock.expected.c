@@ -13,10 +13,10 @@ typedef struct __Closure__ {
 } __Closure__;
 
 int main() {
-    long long __sn__x = 0LL;
+    _Atomic long long __sn__x = 0LL;
     
     pthread_mutex_t __sn__x_mutex = PTHREAD_MUTEX_INITIALIZER;
-    long long __sn__y = 0LL;
+    _Atomic long long __sn__y = 0LL;
     
     pthread_mutex_t __sn__y_mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock(&__sn__x_mutex);
