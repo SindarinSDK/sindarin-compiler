@@ -66,18 +66,18 @@ static bool file_exists(const char *path)
 /* Default values for backend configuration (fallback when no platform config is found) */
 #define DEFAULT_STD "c99"
 #ifdef __APPLE__
-#define DEFAULT_DEBUG_CFLAGS_GCC "-fno-omit-frame-pointer -g"
-#define DEFAULT_DEBUG_CFLAGS_CLANG "-fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fno-omit-frame-pointer -g"
 #define DEFAULT_LDLIBS_UNIX "-lpthread"
 #else
-#define DEFAULT_DEBUG_CFLAGS_GCC "-no-pie -fsanitize=address -fno-omit-frame-pointer -g"
-#define DEFAULT_DEBUG_CFLAGS_CLANG "-fsanitize=address -fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -no-pie -fsanitize=address -fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fsanitize=address -fno-omit-frame-pointer -g"
 #define DEFAULT_LDLIBS_UNIX "-lpthread -lm"
 #endif
-#define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto"
-#define DEFAULT_RELEASE_CFLAGS_CLANG "-O3 -flto"
-#define DEFAULT_PROFILE_CFLAGS_GCC "-O2 -fno-omit-frame-pointer -g"
-#define DEFAULT_PROFILE_CFLAGS_CLANG "-O2 -fno-omit-frame-pointer -g"
+#define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto -fwrapv"
+#define DEFAULT_RELEASE_CFLAGS_CLANG "-O3 -flto -fwrapv"
+#define DEFAULT_PROFILE_CFLAGS_GCC "-O2 -fno-omit-frame-pointer -g -fwrapv"
+#define DEFAULT_PROFILE_CFLAGS_CLANG "-O2 -fno-omit-frame-pointer -g -fwrapv"
 #define DEFAULT_DEBUG_CFLAGS_TCC "-g"
 #define DEFAULT_RELEASE_CFLAGS_TCC "-O2"
 #define DEFAULT_PROFILE_CFLAGS_TCC "-O2 -g"
