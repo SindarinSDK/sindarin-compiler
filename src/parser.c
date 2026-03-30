@@ -58,6 +58,10 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
 
     parser.import_ctx = &import_ctx;
 
+    /* Ensure this file has an entry in the import map (even if it has no imports).
+     * This prevents files with no imports from having unrestricted symbol access. */
+    symbol_table_record_import(symbol_table, filename, filename);
+
     Module *module = parser_execute(&parser, filename);
 
     /* No need to update caller's pointers - the ImportContext uses pointer-to-pointer
@@ -171,6 +175,9 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
 
             if (already_imported_idx >= 0)
             {
+                /* Record the import relationship even for already-imported modules */
+                symbol_table_record_import(symbol_table, filename, import_path);
+
                 /* Module already imported. Handle different cases:
                  * 1. Import-first processing: statements already in stmt->as.import.imported_stmts
                  * 2. Namespaced import after any import: create namespace, mark if also direct
@@ -438,6 +445,9 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                 }
             }
             (*imported_count)++;
+
+            /* Record direct import relationship for visibility checking */
+            symbol_table_record_import(symbol_table, filename, import_path);
 
             Module *imported_module = parse_module_with_imports(arena, symbol_table, import_path, imported, imported_count, imported_capacity, imported_modules, imported_directly, namespace_code_emitted, compiler_dir);
             if (!imported_module)

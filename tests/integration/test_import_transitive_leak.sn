@@ -1,0 +1,19 @@
+// Issue #27: Transitive imports no longer leak symbols across files.
+//
+// stats.sn now properly imports both calculator and math_basic.
+// This test validates that the fixed stats.sn works correctly.
+
+import "lib/stats"
+
+fn main(): void =>
+  var r1: int = average(10, 20)
+  assert(r1 == 15, $"average(10,20) should be 15, got {r1}")
+  println($"average(10,20) = {r1}")
+
+  var r2: int = calcAndAvg(3, 4)
+  // calculate(3,4) = sum(3, prod(3,4)) = sum(3,12) = 15
+  // calcAndAvg(3,4) = average(15, 3) = sum(15,3)/2 = 9
+  assert(r2 == 9, $"calcAndAvg(3,4) should be 9, got {r2}")
+  println($"calcAndAvg(3,4) = {r2}")
+
+  println("test_import_transitive_leak: PASS")

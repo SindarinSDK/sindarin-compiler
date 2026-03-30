@@ -1,0 +1,58 @@
+// Issue #26: Temporary composite struct corrupted when passed directly
+// as function argument.
+//
+// When a function returns a composite struct (with heap fields) and the
+// result is passed directly as an argument to another function without
+// first assigning to a local variable, the struct's fields may be
+// corrupted (read as zero/null).
+
+struct Tag =>
+  name: str
+  weight: double
+
+struct Item =>
+  id: str
+  label: str
+  score: double
+  tags: Tag[]
+
+fn makeItem(id: str, label: str, score: double): Item =>
+  return Item {
+    id: id,
+    label: label,
+    score: score,
+    tags: { Tag {
+      name: "default",
+      weight: 1.0
+    } }
+  }
+
+fn checkItem(item: Item, minScore: double): str =>
+  if item.score >= minScore =>
+    return $"PASS:{item.id}:{item.label}"
+  return $"FAIL:{item.id}:{item.score}"
+
+fn main(): void =>
+  // Test 1: Pass function result directly as argument (the bug)
+  var r1: str = checkItem(makeItem("i1", "alpha", 0.9), 0.5)
+  assert(r1 == "PASS:i1:alpha", $"direct pass: expected PASS:i1:alpha, got {r1}")
+  println($"test1 direct pass: {r1}")
+
+  // Test 2: Same thing via local variable (the workaround, should always work)
+  var item: Item = makeItem("i2", "beta", 0.3)
+  var r2: str = checkItem(item, 0.5)
+  assert(r2 == "FAIL:i2:0.30000", $"local var: expected FAIL:i2:0.30000, got {r2}")
+  println($"test2 local var: {r2}")
+
+  // Test 3: Direct pass with heap fields accessed in callee
+  var r3: str = checkItem(makeItem("i3", "gamma", 0.7), 0.7)
+  assert(r3 == "PASS:i3:gamma", $"direct pass 2: expected PASS:i3:gamma, got {r3}")
+  println($"test3 direct pass 2: {r3}")
+
+  // Test 4: Verify the tags array survives direct pass
+  var temp: Item = makeItem("i4", "delta", 0.8)
+  assert(temp.tags.length == 1, "tags should have 1 element")
+  assert(temp.tags[0].name == "default", "tag name should be default")
+  println($"test4 tags: {temp.tags[0].name}")
+
+  println("test_composite_temp_arg: PASS")

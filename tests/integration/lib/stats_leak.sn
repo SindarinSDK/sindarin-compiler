@@ -1,0 +1,8 @@
+// lib/stats_leak.sn - Intentionally uses sum() without importing math_basic.
+// This tests that the compiler rejects transitive symbol access.
+import "calculator"
+
+fn leaky_average(a: int, b: int): int =>
+  // sum() comes from math_basic, which this file did NOT import.
+  // This should be a compile error.
+  return sum(a, b) / 2

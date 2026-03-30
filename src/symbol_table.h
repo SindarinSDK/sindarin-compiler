@@ -82,6 +82,21 @@ typedef struct Scope
     int private_depth;          /* Private block depth level for this scope */
 } Scope;
 
+/* Per-file import tracking — maps each source file to its directly imported files.
+ * Used by the type checker to restrict symbol visibility to direct imports only. */
+typedef struct {
+    const char *file;               /* source file path */
+    const char **direct_imports;    /* array of directly imported file paths */
+    int import_count;
+    int import_capacity;
+} FileImportEntry;
+
+typedef struct {
+    FileImportEntry *entries;
+    int count;
+    int capacity;
+} FileImportMap;
+
 typedef struct {
     Scope *current;
     Scope *global_scope;
@@ -94,7 +109,14 @@ typedef struct {
     int scope_depth;            /* Current scope nesting depth (blocks, functions) */
     int loop_depth;             /* Current loop nesting depth (for break/continue validation) */
     Type *current_return_type;  /* Return type of the enclosing function (for match arm return validation) */
+    /* Import visibility tracking */
+    FileImportMap import_map;       /* Per-file direct import tracking */
+    const char *current_file;       /* File currently being type-checked (NULL = no filtering) */
 } SymbolTable;
+
+/* Import map operations */
+void symbol_table_record_import(SymbolTable *table, const char *importer, const char *imported_file);
+bool symbol_table_is_visible(SymbolTable *table, const char *symbol_file);
 
 /* Type declaration support (opaque types) - implemented in symbol_table.c */
 void symbol_table_add_type(SymbolTable *table, Token name, Type *type);

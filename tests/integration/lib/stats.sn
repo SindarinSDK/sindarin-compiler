@@ -1,0 +1,13 @@
+// lib/stats.sn - Imports both calculator and math_basic explicitly.
+import "calculator"
+import "math_basic"
+
+fn average(a: int, b: int): int =>
+  // sum() comes from math_basic, which stats.sn did NOT import.
+  // This should be a compile error but currently succeeds due to
+  // transitive symbol leaking (issue #27).
+  return sum(a, b) / 2
+
+fn calcAndAvg(a: int, b: int): int =>
+  var c: int = calculate(a, b)
+  return average(c, a)

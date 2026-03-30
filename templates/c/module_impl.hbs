@@ -101,9 +101,8 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 }{{/if}}{{/with}}
 {{#each lambdas}}
 
-static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if is_borrow}}*__bp__{{name}}{{else}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/if}}{{/each}}) {
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
 {{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};
-{{/if}}{{#if is_borrow}}    {{c_type type}} __sn__{{name}} = *__bp__{{name}};
 {{/if}}{{/each}}{{#each captures}}
 {{#if is_ref}}
     {{c_type type}} *__sn__{{name}} = ((__closure_{{../lambda_id}}__ *)__closure__)->{{name}};

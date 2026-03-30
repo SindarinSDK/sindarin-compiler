@@ -1,0 +1,5 @@
+test1 direct pass: PASS:i1:alpha
+test2 local var: FAIL:i2:0.30000
+test3 direct pass 2: PASS:i3:gamma
+test4 tags: default
+test_composite_temp_arg: PASS

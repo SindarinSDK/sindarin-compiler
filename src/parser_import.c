@@ -53,6 +53,9 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
     /* Check if already imported */
     for (int j = 0; j < *ctx->imported_count; j++) {
         if (strcmp((*ctx->imported)[j], import_path) == 0) {
+            /* Record the import relationship even for already-imported modules.
+             * This ensures the importing file's visibility set includes this module. */
+            symbol_table_record_import(parser->symbol_table, ctx->current_file, import_path);
             /* Already imported - for non-namespaced imports, return NULL to prevent
              * the caller from storing statements that would be merged again.
              * For namespaced imports, return the cached module so the namespace
@@ -102,6 +105,9 @@ Module *parser_process_import(Parser *parser, const char *module_name, bool is_n
     (*ctx->namespace_code_emitted)[module_idx] = false;
     (*ctx->imported_count)++;
 
+    /* Record direct import relationship for visibility checking */
+    symbol_table_record_import(parser->symbol_table, ctx->current_file, import_path);
+
     /* Process the import via the callback */
     Module *imported_module = ctx->process_import(parser->arena, parser->symbol_table, import_path, ctx);
     if (!imported_module) {
@@ -148,6 +154,9 @@ static Module *process_import_callback(Arena *arena, SymbolTable *symbol_table, 
     import_ctx.process_import = process_import_callback;
 
     parser.import_ctx = &import_ctx;
+
+    /* Ensure this file has an entry in the import map */
+    symbol_table_record_import(symbol_table, import_path, import_path);
 
     Module *module = parser_execute(&parser, import_path);
     if (!module || parser.had_error) {

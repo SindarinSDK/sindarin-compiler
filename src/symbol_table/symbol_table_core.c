@@ -264,6 +264,10 @@ void symbol_table_init(Arena *arena, SymbolTable *table)
     table->scope_depth = 0;
     table->loop_depth = 0;
     table->current_return_type = NULL;
+    table->import_map.entries = NULL;
+    table->import_map.count = 0;
+    table->import_map.capacity = 0;
+    table->current_file = NULL;
 
     DEBUG_VERBOSE("Calling symbol_table_push_scope for initial scope");
     symbol_table_push_scope(table);
@@ -734,4 +738,128 @@ bool symbol_table_in_loop(SymbolTable *table)
 {
     DEBUG_VERBOSE("Checking if in loop, loop_depth: %d", table->loop_depth);
     return table->loop_depth > 0;
+}
+
+/* ============================================================================
+ * Import Visibility Map
+ * ============================================================================ */
+
+void symbol_table_record_import(SymbolTable *table, const char *importer, const char *imported_file)
+{
+    if (!table || !importer || !imported_file) return;
+
+    FileImportMap *map = &table->import_map;
+
+    /* Find or create entry for importer */
+    FileImportEntry *entry = NULL;
+    for (int i = 0; i < map->count; i++)
+    {
+        if (strcmp(map->entries[i].file, importer) == 0)
+        {
+            entry = &map->entries[i];
+            break;
+        }
+    }
+    if (!entry)
+    {
+        if (map->count >= map->capacity)
+        {
+            int new_cap = map->capacity == 0 ? 8 : map->capacity * 2;
+            FileImportEntry *new_entries = arena_alloc(table->arena, new_cap * sizeof(FileImportEntry));
+            for (int i = 0; i < map->count; i++) new_entries[i] = map->entries[i];
+            map->entries = new_entries;
+            map->capacity = new_cap;
+        }
+        entry = &map->entries[map->count++];
+        entry->file = arena_strdup(table->arena, importer);
+        entry->direct_imports = NULL;
+        entry->import_count = 0;
+        entry->import_capacity = 0;
+    }
+
+    /* Check for duplicate */
+    for (int i = 0; i < entry->import_count; i++)
+    {
+        if (strcmp(entry->direct_imports[i], imported_file) == 0)
+            return;
+    }
+
+    /* Add imported file */
+    if (entry->import_count >= entry->import_capacity)
+    {
+        int new_cap = entry->import_capacity == 0 ? 4 : entry->import_capacity * 2;
+        const char **new_imports = arena_alloc(table->arena, new_cap * sizeof(const char *));
+        for (int i = 0; i < entry->import_count; i++) new_imports[i] = entry->direct_imports[i];
+        entry->direct_imports = new_imports;
+        entry->import_capacity = new_cap;
+    }
+    entry->direct_imports[entry->import_count++] = arena_strdup(table->arena, imported_file);
+}
+
+static bool is_visible_recursive(FileImportMap *map, const char *from_file,
+                                  const char *target_file,
+                                  const char **visited, int *visited_count, int visited_cap)
+{
+    /* Check if from_file directly imports target_file */
+    for (int i = 0; i < map->count; i++)
+    {
+        if (strcmp(map->entries[i].file, from_file) != 0) continue;
+        for (int j = 0; j < map->entries[i].import_count; j++)
+        {
+            if (strcmp(map->entries[i].direct_imports[j], target_file) == 0)
+                return true;
+        }
+        /* Recurse into direct imports (transitive chain) */
+        for (int j = 0; j < map->entries[i].import_count; j++)
+        {
+            const char *imp = map->entries[i].direct_imports[j];
+            /* Avoid cycles */
+            bool already_visited = false;
+            for (int v = 0; v < *visited_count; v++)
+            {
+                if (strcmp(visited[v], imp) == 0)
+                {
+                    already_visited = true;
+                    break;
+                }
+            }
+            if (already_visited) continue;
+            if (*visited_count < visited_cap)
+                visited[(*visited_count)++] = imp;
+            if (is_visible_recursive(map, imp, target_file, visited, visited_count, visited_cap))
+                return true;
+        }
+        return false;
+    }
+    /* No import entry for from_file — not found */
+    return false;
+}
+
+bool symbol_table_is_visible(SymbolTable *table, const char *symbol_file)
+{
+    if (!table->current_file || !symbol_file) return true;
+
+    /* Symbols from the current file are always visible */
+    if (strcmp(table->current_file, symbol_file) == 0) return true;
+
+    /* Check if symbol_file is reachable via the current file's transitive import chain */
+    const char *visited[256];
+    int visited_count = 0;
+    visited[visited_count++] = table->current_file;
+    if (is_visible_recursive(&table->import_map, table->current_file, symbol_file,
+                             visited, &visited_count, 256))
+        return true;
+
+    /* Not in the current file's import chain — check if this file has any
+     * import entry at all. Files without entries (e.g., main file, builtins)
+     * get unrestricted access. */
+    FileImportMap *map = &table->import_map;
+    for (int i = 0; i < map->count; i++)
+    {
+        if (strcmp(map->entries[i].file, table->current_file) == 0)
+            return false;  /* Has imports but target not reachable — reject */
+    }
+
+    /* No import entry for current file — allow everything */
+    return true;
 }

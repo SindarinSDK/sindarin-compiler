@@ -78,11 +78,16 @@ void type_check_function_body_only(Stmt *stmt, SymbolTable *table)
     Type *prev_return_type = table->current_return_type;
     table->current_return_type = stmt->as.function.return_type;
 
+    /* Set current_file for import visibility checking */
+    const char *prev_file = table->current_file;
+    table->current_file = stmt->as.function.name.filename;
+
     for (int i = 0; i < stmt->as.function.body_count; i++)
     {
         type_check_stmt(stmt->as.function.body[i], table, stmt->as.function.return_type);
     }
 
+    table->current_file = prev_file;
     table->current_return_type = prev_return_type;
 
     if (stmt->as.function.is_native)
@@ -305,11 +310,16 @@ void type_check_function(Stmt *stmt, SymbolTable *table)
     Type *prev_return_type = table->current_return_type;
     table->current_return_type = stmt->as.function.return_type;
 
+    /* Set current_file for import visibility checking */
+    const char *prev_file = table->current_file;
+    table->current_file = stmt->as.function.name.filename;
+
     for (int i = 0; i < stmt->as.function.body_count; i++)
     {
         type_check_stmt(stmt->as.function.body[i], table, stmt->as.function.return_type);
     }
 
+    table->current_file = prev_file;
     table->current_return_type = prev_return_type;
 
     if (stmt->as.function.is_native)
