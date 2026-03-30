@@ -217,9 +217,10 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             json_object_new_boolean(true));
                     }
                 }
-                /* For composite val struct vars: variable/array_access initializer needs deep copy */
+                /* For composite val struct vars: variable/member/array_access initializer needs deep copy */
                 if (gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE &&
                     (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
+                     stmt->as.var_decl.initializer->type == EXPR_MEMBER ||
                      stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
                      stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS))
                 {

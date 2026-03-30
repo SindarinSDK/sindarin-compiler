@@ -1,0 +1,53 @@
+// Reproducer for double-free: decode struct, use decoded fields in a new
+// struct literal, encode, loop. Crashes on 2nd iteration because the new
+// struct and the decoded struct both think they own the same string/array.
+
+@source "test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Inner =>
+  id: str
+  tags: str[]
+
+@serializable
+struct Wrapper =>
+  inner: Inner
+
+@serializable
+struct Output =>
+  name: str
+  items: str[]
+
+fn main(): void =>
+  for var i: int = 0; i < 3; i++ =>
+    // 1. Encode a Wrapper
+    var w: Wrapper = Wrapper { inner: Inner {
+      id: "test",
+      tags: {"a", "b"}
+    } }
+    var enc: Encoder = sn_test_json_encoder()
+    w.encode(enc)
+    var json: str = enc.result()
+
+    // 2. Decode (fields owned by decoder)
+    var dec: Decoder = sn_test_json_decoder(json)
+    var decoded: Wrapper = Wrapper.decode(dec)
+    var inner: Inner = decoded.inner
+
+    // 3. Build new struct from decoded fields (shared ownership bug)
+    var out: Output = Output {
+      name: inner.id,
+      items: inner.tags
+    }
+
+    // 4. Encode the new struct
+    var enc2: Encoder = sn_test_json_encoder()
+    out.encode(enc2)
+    var json2: str = enc2.result()
+
+    println($"iteration {i}: {json2}")
+
+  println("PASS")
