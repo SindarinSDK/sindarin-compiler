@@ -174,17 +174,17 @@ void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool
         }
     }
 
-    /* Composite val-type struct with MEM_DEFAULT on non-native callee: borrow by pointer.
-     * The callee receives a pointer and shallow-dereferences into a stack local
-     * without cleanup — the caller retains ownership. */
+    /* Composite val-type struct with MEM_DEFAULT on non-native callee: pass by pointer.
+     * Treat as 'as ref' — callee receives pointer, works through it directly.
+     * No copy, no cleanup in callee. Caller retains ownership. */
     if (param->mem_qualifier == MEM_DEFAULT && !callee_is_native &&
         !param->type->as.struct_type.pass_self_by_ref)
     {
         if (gen_model_type_has_heap_fields(param->type))
         {
-            json_object_object_add(param_obj, "is_borrow", json_object_new_boolean(true));
-            json_object_object_add(param_obj, "borrow_type_name",
-                json_object_new_string(param->type->as.struct_type.name));
+            json_object_object_del(param_obj, "mem_qual");
+            json_object_object_add(param_obj, "mem_qual",
+                json_object_new_string("as_ref"));
         }
     }
 }

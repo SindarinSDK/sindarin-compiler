@@ -90,10 +90,9 @@ typedef struct __Closure__ {
 } __Closure__;
 
 
-long long __sn__processConfig(__sn__Config *__bp__config) {
-    __sn__Config __sn__config = *__bp__config;
+long long __sn__processConfig(__sn__Config *__sn__config) {
 
-    return __sn__config.__sn__value;}
+    return (*__sn__config).__sn__value;}
 
 
 int main() {

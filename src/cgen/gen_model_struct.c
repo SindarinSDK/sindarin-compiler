@@ -211,6 +211,12 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
         /* Method body */
         json_object *body = json_object_new_array();
 
+        /* Save outer as-ref param state and set up method-level as-ref params */
+        char **saved_as_ref_names = g_as_ref_param_names;
+        int saved_as_ref_count = g_as_ref_param_count;
+        g_as_ref_param_names = NULL;
+        g_as_ref_param_count = 0;
+
         /* Prepend param guard locals for as-val-on-as-ref-struct override params */
         for (int j = 0; j < m->param_count; j++)
         {
@@ -230,6 +236,22 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 json_object_object_add(guard, "code", json_object_new_string(buf));
                 json_object_array_add(body, guard);
             }
+
+            /* Register as-ref and composite borrow params for body dereference */
+            if (m->params[j].mem_qualifier == MEM_AS_REF ||
+                (m->params[j].mem_qualifier == MEM_DEFAULT && !m->is_native &&
+                 m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
+                 !m->params[j].type->as.struct_type.pass_self_by_ref &&
+                 gen_model_type_has_heap_fields(m->params[j].type)))
+            {
+                if (g_as_ref_param_count % 8 == 0) {
+                    char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));
+                    for (int k = 0; k < g_as_ref_param_count; k++) nv[k] = g_as_ref_param_names[k];
+                    g_as_ref_param_names = nv;
+                }
+                g_as_ref_param_names[g_as_ref_param_count++] =
+                    arena_strndup(arena, m->params[j].name.start, m->params[j].name.length);
+            }
         }
 
         if (m->body)
@@ -241,6 +263,10 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
             }
         }
         json_object_object_add(method, "body", body);
+
+        /* Restore outer as-ref param state */
+        g_as_ref_param_names = saved_as_ref_names;
+        g_as_ref_param_count = saved_as_ref_count;
 
         json_object_array_add(methods, method);
     }

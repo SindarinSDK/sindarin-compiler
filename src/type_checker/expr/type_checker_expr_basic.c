@@ -19,6 +19,13 @@ Type *type_check_variable(Expr *expr, SymbolTable *table)
         undefined_variable_error(&expr->as.variable.name, table);
         return NULL;
     }
+    /* Check import visibility: function symbols from non-directly-imported files are hidden */
+    if (sym->is_function && sym->name.filename &&
+        !symbol_table_is_visible(table, sym->name.filename))
+    {
+        undefined_variable_error(&expr->as.variable.name, table);
+        return NULL;
+    }
     if (sym->type == NULL)
     {
         /* Check if this is 'self' used in a static method (poisoned symbol with NULL type) */

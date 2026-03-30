@@ -1,0 +1,3 @@
+// lib/helper_a.sn - standalone module, no imports
+fn helper_add(a: int, b: int): int =>
+  return a + b

@@ -79,6 +79,33 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
     mc->count++;
 }
 
+/* Hoist borrow-tmp args out of inline statement expressions.
+ * When a composite struct rvalue (e.g. function call result) is passed
+ * as a borrowed arg, the codegen creates a temp inside a ({...}) whose
+ * lifetime ends before the call executes. This hoists those temps into
+ * the call-level scope so the pointer remains valid during the call. */
+static void hoist_borrow_temps(json_object *call_obj, json_object *args)
+{
+    bool has_any = false;
+    for (int i = 0; i < (int)json_object_array_length(args); i++)
+    {
+        json_object *arg = json_object_array_get_idx(args, i);
+        json_object *bt_flag;
+        if (json_object_object_get_ex(arg, "is_borrow_tmp", &bt_flag) &&
+            json_object_get_boolean(bt_flag))
+        {
+            char var_name[64];
+            snprintf(var_name, sizeof(var_name), "__bt_%d__", i);
+            json_object_object_add(arg, "borrow_tmp_var",
+                json_object_new_string(var_name));
+            has_any = true;
+        }
+    }
+    if (has_any)
+        json_object_object_add(call_obj, "has_borrow_temps",
+            json_object_new_boolean(true));
+}
+
 static bool mc_is_param(LambdaExpr *lam, const char *name)
 {
     for (int i = 0; i < lam->param_count; i++) {
@@ -912,6 +939,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args,
                         gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
                 }
+                hoist_borrow_temps(obj, args);
                 json_object_object_add(obj, "args", args);
             }
             else
@@ -1439,6 +1467,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(swapped, val);
                     args = swapped;
                 }
+                hoist_borrow_temps(obj, args);
                 json_object_object_add(obj, "args", args);
                 json_object_object_add(obj, "is_tail_call",
                     json_object_new_boolean(expr->as.call.is_tail_call));
@@ -1677,6 +1706,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args, arg);
                 }
             }
+            hoist_borrow_temps(obj, args);
             json_object_object_add(obj, "args", args);
             break;
         }
@@ -1713,6 +1743,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object_object_add(elem, "needs_struct_copy", json_object_new_boolean(true));
                     json_object_object_add(elem, "copy_struct_name",
+                        json_object_new_string(ae->expr_type->as.struct_type.name));
+                }
+                /* Composite struct arrays: function call elements need a temp variable
+                 * to avoid invalid compound literal wrapping of the return value */
+                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
+                    !ae->expr_type->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
+                    (ae->type == EXPR_CALL || ae->type == EXPR_STATIC_CALL))
+                {
+                    json_object_object_add(elem, "needs_struct_tmp", json_object_new_boolean(true));
+                    json_object_object_add(elem, "tmp_struct_type",
                         json_object_new_string(ae->expr_type->as.struct_type.name));
                 }
                 json_object_array_add(elements, elem);

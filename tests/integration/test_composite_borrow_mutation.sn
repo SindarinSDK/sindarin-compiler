@@ -1,0 +1,61 @@
+// Issue #25: Composite struct mutations lost when struct passed as
+// function argument (borrowing).
+//
+// When a composite struct with heap fields is passed to a function,
+// mutations the callee makes to heap fields (via methods) should be
+// visible to the caller. Currently the compiler warns about borrowing
+// and mutations are silently lost.
+
+struct Entry =>
+  value: int
+  addedAt: int
+
+struct Window =>
+  entries: Entry[]
+  maxSize: int
+  count: int
+
+  fn add(value: int, time: int): void =>
+    self.entries.push(Entry {
+      value: value,
+      addedAt: time
+    })
+    self.count = self.count + 1
+
+  fn contains(value: int): bool =>
+    for var i: int = 0; i < self.entries.length; i++ =>
+      if self.entries[i].value == value =>
+        return true
+    return false
+
+fn addIfNew(window: Window, value: int, time: int): bool =>
+  if window.contains(value) =>
+    return false
+  window.add(value, time)
+  return true
+
+fn main(): void =>
+  var win: Window = Window {
+    entries: {},
+    maxSize: 100,
+    count: 0
+  }
+
+  // First add should succeed
+  var r1: bool = addIfNew(win, 42, 1000)
+  assert(r1 == true, "first add should succeed")
+  assert(win.count == 1, "count should be 1 after first add")
+  assert(win.entries.length == 1, "entries should have 1 element")
+
+  // Second add of same value should be rejected (duplicate)
+  var r2: bool = addIfNew(win, 42, 2000)
+  assert(r2 == false, "duplicate add should be rejected")
+  assert(win.count == 1, "count should still be 1")
+
+  // Third add of different value should succeed
+  var r3: bool = addIfNew(win, 99, 3000)
+  assert(r3 == true, "new value add should succeed")
+  assert(win.count == 2, "count should be 2")
+  assert(win.entries.length == 2, "entries should have 2 elements")
+
+  println("test_composite_borrow_mutation: PASS")

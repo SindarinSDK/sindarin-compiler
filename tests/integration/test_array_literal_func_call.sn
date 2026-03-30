@@ -1,0 +1,42 @@
+// Issue #24: Array literal containing struct-returning function call
+// generates invalid C.
+//
+// When a function returns a composite struct (with heap fields) and the
+// return value is used directly inside an array literal, the codegen
+// wraps it in a compound literal initializer that GCC rejects.
+
+struct Feature =>
+  key: str
+  value: double
+
+struct Record =>
+  id: str
+  source: str
+  timestamp: int
+  features: Feature[]
+
+fn makeRecord(id: str, src: str, ts: int): Record =>
+  return Record {
+    id: id,
+    source: src,
+    timestamp: ts,
+    features: { Feature {
+      key: "temp",
+      value: 23.5
+    } }
+  }
+
+fn main(): void =>
+  // This should compile and work — array literal with function calls
+  var records: Record[] = {makeRecord("r1", "a", 1000), makeRecord("r2", "b", 2000)}
+
+  assert(records.length == 2, "array should have 2 elements")
+  assert(records[0].id == "r1", "records[0].id")
+  assert(records[0].source == "a", "records[0].source")
+  assert(records[0].timestamp == 1000, "records[0].timestamp")
+  assert(records[0].features[0].key == "temp", "records[0].features[0].key")
+  assert(records[1].id == "r2", "records[1].id")
+  assert(records[1].source == "b", "records[1].source")
+  assert(records[1].timestamp == 2000, "records[1].timestamp")
+
+  println("test_array_literal_func_call: PASS")

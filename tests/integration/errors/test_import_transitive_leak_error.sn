@@ -1,0 +1,12 @@
+// Issue #27 error test: Sibling imports must NOT leak symbols.
+//
+// This file imports both helper_a and helper_b_leak.
+// helper_b_leak uses helper_add() from helper_a without importing it.
+// That should be a compile error — helper_b_leak has no import path to helper_a.
+
+import "../lib/helper_a"
+import "../lib/helper_b_leak"
+
+fn main(): void =>
+  var r: int = double_add(3, 4)
+  println($"result: {r}")

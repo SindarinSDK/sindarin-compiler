@@ -1,0 +1,5 @@
+// lib/calculator.sn - Calculator that imports math_basic for sum/prod
+import "math_basic"
+
+fn calculate(a: int, b: int): int =>
+  return sum(a, prod(a, b))

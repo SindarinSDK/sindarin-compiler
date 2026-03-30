@@ -1,0 +1,6 @@
+// lib/helper_b_leak.sn - uses helper_add() WITHOUT importing helper_a.
+// helper_add() is only accessible because the caller imports both helper_a and helper_b_leak.
+// This should be a compile error — sibling symbol leaking.
+
+fn double_add(a: int, b: int): int =>
+  return helper_add(a, b) * 2
