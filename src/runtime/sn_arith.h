@@ -80,9 +80,9 @@ static inline unsigned char sn_mul_byte(unsigned char a, unsigned char b) { retu
 
 /* ---- int32 arithmetic (wrapping) ---- */
 
-static inline int32_t sn_add_int32(int32_t a, int32_t b) { return a + b; }
-static inline int32_t sn_sub_int32(int32_t a, int32_t b) { return a - b; }
-static inline int32_t sn_mul_int32(int32_t a, int32_t b) { return a * b; }
+static inline int32_t sn_add_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a + (uint32_t)b); }
+static inline int32_t sn_sub_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a - (uint32_t)b); }
+static inline int32_t sn_mul_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a * (uint32_t)b); }
 
 /* ---- uint arithmetic (wrapping) ---- */
 
