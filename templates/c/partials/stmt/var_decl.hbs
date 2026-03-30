@@ -7,7 +7,7 @@
 {{else}}{{#if (eq cleanup_kind "ptr")}}sn_auto_ptr void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "release")}}sn_auto_{{type.name}} __sn__{{type.name}} * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "val_cleanup")}}sn_auto_{{type.name}} __sn__{{type.name}} __sn__{{name}} = {{#if initializer}}{{#if needs_val_copy}}__sn__{{type.name}}_copy(&{{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}{{default_value type}}{{/if}};
-{{else}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
+{{else}}{{#if (eq sync_mod "atomic")}}_Atomic {{/if}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{#if has_self_capture}}
     ((__closure_{{self_capture_lambda_id}}__ *)__sn__{{self_capture_name}})->{{self_capture_name}} = __sn__{{self_capture_name}};{{/if}}{{#if needs_thread_handle}}
 sn_auto_thread SnThread * __sn__{{name}}__th__ = NULL;{{/if}}{{#if (eq sync_mod "atomic")}}

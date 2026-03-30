@@ -21,7 +21,7 @@ typedef struct __Closure__ {
 {{> struct_typedef this}}
 {{/each}}
 {{#each globals}}
-extern {{#if is_static}}/* static */ {{/if}}{{c_type type}} __sn__{{name}};
+extern {{#if is_static}}/* static */ {{/if}}{{#if (eq sync_mod "atomic")}}_Atomic {{/if}}{{c_type type}} __sn__{{name}};
 {{#if (eq sync_mod "atomic")}}extern pthread_mutex_t __sn__{{name}}_mutex;
 {{/if}}{{/each}}
 {{#each functions}}{{#if (eq name "main")}}{{else}}{{#if c_alias}}{{#unless has_body}}{{else}}{{> forward_decl this}}

@@ -64,7 +64,7 @@ static bool file_exists(const char *path)
 }
 
 /* Default values for backend configuration (fallback when no platform config is found) */
-#define DEFAULT_STD "c99"
+#define DEFAULT_STD "c11"
 #ifdef __APPLE__
 #define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -fno-omit-frame-pointer -g"
 #define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fno-omit-frame-pointer -g"
