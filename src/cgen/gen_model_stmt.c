@@ -414,20 +414,13 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             is_owned = true;
                             transfer_kind = "null_ptr";
                         }
-                        /* as val with heap fields needs memset */
+                        /* as val with heap fields (recursively) needs memset */
                         else
                         {
-                            for (int fi = 0; fi < rt->as.struct_type.field_count; fi++)
+                            if (gen_model_type_has_heap_fields(rt))
                             {
-                                Type *ft = rt->as.struct_type.fields[fi].type;
-                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                    ft->kind == TYPE_FUNCTION ||
-                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                                {
-                                    is_owned = true;
-                                    transfer_kind = "memset";
-                                    break;
-                                }
+                                is_owned = true;
+                                transfer_kind = "memset";
                             }
                         }
                     }
