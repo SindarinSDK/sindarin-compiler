@@ -1181,6 +1181,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 /* Detect push/insert on composite struct arrays — lvalue args need deep copy */
                 bool member_struct_push = false;
                 const char *member_struct_push_name = NULL;
+                /* Detect push/insert on as-ref struct arrays — lvalue args need retain */
+                bool member_ref_push = false;
+                const char *member_ref_push_name = NULL;
                 /* Detect insert specifically — args need reordering (idx before val) for variadic macro */
                 bool member_is_insert = false;
                 if (expr->as.call.callee->type == EXPR_MEMBER)
@@ -1208,6 +1211,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             {
                                 member_struct_push = true;
                                 member_struct_push_name = et->as.struct_type.name;
+                            }
+                            else if (et->kind == TYPE_STRUCT &&
+                                     et->as.struct_type.pass_self_by_ref)
+                            {
+                                member_ref_push = true;
+                                member_ref_push_name = et->as.struct_type.name;
                             }
                         }
                     }
@@ -1451,6 +1460,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_boolean(true));
                             json_object_object_add(arg, "copy_struct_name",
                                 json_object_new_string(member_struct_push_name));
+                        }
+                    }
+                    /* Ref struct array push/insert: lvalue args need retain for ownership */
+                    if (member_ref_push && i == 0)
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[0];
+                        bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
+                                          arg_expr->type == EXPR_ARRAY_ACCESS ||
+                                          arg_expr->type == EXPR_MEMBER ||
+                                          arg_expr->type == EXPR_MEMBER_ACCESS);
+                        if (is_lvalue)
+                        {
+                            json_object_object_add(arg, "needs_retain",
+                                json_object_new_boolean(true));
+                            json_object_object_add(arg, "retain_type_name",
+                                json_object_new_string(member_ref_push_name));
                         }
                     }
                     json_object_array_add(args, arg);
