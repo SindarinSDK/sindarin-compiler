@@ -1,19 +1,17 @@
 # Integration test for issue #35: Crash when calling model.forward()
 # twice with intervening operations.
 #
-# Root cause: gen_model_expr.c struct literal codegen only emits
-# _retain() for native struct as ref fields when the source expression
-# is EXPR_VARIABLE (line 2149). EXPR_MEMBER (e.g., self.field) is NOT
-# retained, so the returned struct shares a Handle pointer without
-# incrementing the refcount. When the returned struct's cleanup
-# releases the Handle, the original owner's reference becomes dangling.
+# Root cause: gen_model_expr.c struct literal codegen only emitted
+# _retain() for as-ref struct fields when the source expression was
+# EXPR_VARIABLE. EXPR_MEMBER (e.g., self.field) was NOT retained,
+# so the returned struct shared a Handle pointer without incrementing
+# the refcount. When the returned struct's cleanup released the Handle,
+# the original owner's reference became dangling.
 #
-# IMPORTANT: useForward/useForwardSafe must be regular fn (not native fn)
-# so that Model is passed by pointer (borrow), not by value (copy).
-# A value copy would retain the handles, masking the missing retain
-# in the struct literal.
+# Uses non-native 'as ref' struct — the retain bug is in the
+# pass_self_by_ref check which applies to ALL as-ref structs.
 
-native struct Handle as ref =>
+struct Handle as ref =>
   _id: int
 
   fn value(): int =>
@@ -27,7 +25,8 @@ struct Model =>
   w1: Handle
   w2: Handle
 
-  # Bug path: struct literal sources are EXPR_MEMBER — no retain emitted.
+  # Bug path: struct literal sources are EXPR_MEMBER — previously
+  # no retain was emitted for these.
   fn forward(): Output =>
     return Output {
       a: self.w1,
@@ -44,9 +43,6 @@ struct Model =>
     }
 
 # Regular fn — Model is passed by pointer (borrow). No copy, no extra retain.
-# When Output cleanup releases the handles, if forward() didn't retain them,
-# the refcount drops to 0 and the handle is freed — leaving the caller's
-# Model with a dangling pointer.
 fn useForward(model: Model): void =>
   var out: Output = model.forward()
   println($"forward: a={out.a.value()} b={out.b.value()}")
@@ -55,7 +51,7 @@ fn useForwardSafe(model: Model): void =>
   var out: Output = model.forwardSafe()
   println($"safe: a={out.a.value()} b={out.b.value()}")
 
-native fn run(): void =>
+fn main(): void =>
   # Test 1: Control path — forwardSafe uses local variables
   var m1: Model = Model {
     w1: Handle { _id: 10 },
@@ -79,6 +75,3 @@ native fn run(): void =>
   println($"test3 after: w1={m2.w1.value()} w2={m2.w2.value()}")
 
   println("PASS")
-
-fn main(): void =>
-  run()
