@@ -5,7 +5,7 @@
 {{else}}{{#if (eq cleanup_kind "closure")}}sn_auto_closure_{{closure_lambda_id}} void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "fn")}}sn_auto_fn void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "ptr")}}sn_auto_ptr void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
-{{else}}{{#if (eq cleanup_kind "release")}}sn_auto_{{type.name}} __sn__{{type.name}} * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq cleanup_kind "release")}}sn_auto_{{type.name}} __sn__{{type.name}} * __sn__{{name}} = {{#if initializer}}{{#if needs_retain}}__sn__{{type.name}}_retain({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "val_cleanup")}}sn_auto_{{type.name}} __sn__{{type.name}} __sn__{{name}} = {{#if initializer}}{{#if needs_val_copy}}__sn__{{type.name}}_copy(&{{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}{{default_value type}}{{/if}};
 {{else}}{{#if (eq sync_mod "atomic")}}_Atomic {{/if}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{#if has_self_capture}}
