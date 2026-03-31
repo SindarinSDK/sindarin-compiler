@@ -1,0 +1,7 @@
+Direct: tag=1, payload=2
+Local h1: tag=30, payload=300
+Local h2: tag=40, payload=400
+Inside: a.tag=10, a.payload=100
+Inside: b.tag=20, b.payload=200
+Returned h1: tag=10, payload=100
+Returned h2: tag=20, payload=200

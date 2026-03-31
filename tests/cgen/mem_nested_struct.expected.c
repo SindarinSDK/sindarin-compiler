@@ -90,7 +90,7 @@ static inline __sn__Person *__sn__Person_copy(const __sn__Person *src) {
     __sn__Person *dst = calloc(1, sizeof(__sn__Person));
     dst->__rc__ = 1;
     dst->__sn__name = src->__sn__name ? strdup(src->__sn__name) : NULL;
-    dst->__sn__addr = src->__sn__addr;
+    dst->__sn__addr = __sn__Address_retain(src->__sn__addr);
     return dst;
 }
 

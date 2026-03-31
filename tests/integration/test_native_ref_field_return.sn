@@ -1,0 +1,58 @@
+# Test: native struct as ref fields corrupted when parent struct returned from function
+# Reproduces compiler issue #31
+# A regular struct containing native struct as ref fields should preserve
+# field values when returned from a function.
+
+native struct Handle as ref =>
+  tag: int
+  payload: int
+
+struct Container =>
+  h1: Handle
+  h2: Handle
+
+native fn make_container(): Container =>
+  var a: Handle = Handle {
+    tag: 10,
+    payload: 100
+  }
+  var b: Handle = Handle {
+    tag: 20,
+    payload: 200
+  }
+  print($"Inside: a.tag={a.tag}, a.payload={a.payload}\n")
+  print($"Inside: b.tag={b.tag}, b.payload={b.payload}\n")
+  return Container {
+    h1: a,
+    h2: b
+  }
+
+native fn main(): int =>
+  # Baseline: direct native struct use
+  var h: Handle = Handle {
+    tag: 1,
+    payload: 2
+  }
+  print($"Direct: tag={h.tag}, payload={h.payload}\n")
+
+  # Baseline: same-scope struct literal
+  var x: Handle = Handle {
+    tag: 30,
+    payload: 300
+  }
+  var y: Handle = Handle {
+    tag: 40,
+    payload: 400
+  }
+  var local: Container = Container {
+    h1: x,
+    h2: y
+  }
+  print($"Local h1: tag={local.h1.tag}, payload={local.h1.payload}\n")
+  print($"Local h2: tag={local.h2.tag}, payload={local.h2.payload}\n")
+
+  # Returned from function — this should work but may corrupt fields
+  var c: Container = make_container()
+  print($"Returned h1: tag={c.h1.tag}, payload={c.h1.payload}\n")
+  print($"Returned h2: tag={c.h2.tag}, payload={c.h2.payload}\n")
+  return 0
