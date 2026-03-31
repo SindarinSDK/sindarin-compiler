@@ -92,8 +92,10 @@ static inline char *__sn__{{name}}_to_string(const __sn__{{name}} *p) {
 {{else}}{{#if (eq type.kind "float")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
 {{else}}{{#if (eq type.kind "char")}}    off += snprintf(buf + off, sizeof(buf) - off, "'%c'", p->__sn__{{name}});
 {{else}}{{#if (eq type.kind "byte")}}    off += snprintf(buf + off, sizeof(buf) - off, "%u", (unsigned)p->__sn__{{name}});
-{{else}}{{#if (eq type.kind "struct")}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
-{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}{{#if (eq type.kind "struct")}}{{#if type.pass_self_by_ref}}{{#if type.is_native}}    off += snprintf(buf + off, sizeof(buf) - off, "<{{type.name}} %p>", (void *)p->__sn__{{name}});
+{{else}}    { char *__fs__ = __sn__{{type.name}}_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{/if}}{{else}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{/if}}{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
 {{else}}    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__{{name}});
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    off += snprintf(buf + off, sizeof(buf) - off, " }");
     return strdup(buf);
@@ -217,8 +219,10 @@ static inline char *__sn__{{name}}_to_string(const __sn__{{name}} *p) {
 {{else}}{{#if (eq type.kind "float")}}    off += snprintf(buf + off, sizeof(buf) - off, "%.5f", (double)p->__sn__{{name}});
 {{else}}{{#if (eq type.kind "char")}}    off += snprintf(buf + off, sizeof(buf) - off, "'%c'", p->__sn__{{name}});
 {{else}}{{#if (eq type.kind "byte")}}    off += snprintf(buf + off, sizeof(buf) - off, "%u", (unsigned)p->__sn__{{name}});
-{{else}}{{#if (eq type.kind "struct")}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
-{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{else}}{{#if (eq type.kind "struct")}}{{#if type.pass_self_by_ref}}{{#if type.is_native}}    off += snprintf(buf + off, sizeof(buf) - off, "<{{type.name}} %p>", (void *)p->__sn__{{name}});
+{{else}}    { char *__fs__ = __sn__{{type.name}}_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{/if}}{{else}}    { char *__fs__ = __sn__{{type.name}}_to_string(&p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+{{/if}}{{else}}{{#if (eq type.kind "array")}}    { char *__fs__ = sn_array_to_string(p->__sn__{{name}}); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
 {{else}}    off += snprintf(buf + off, sizeof(buf) - off, "%lld", (long long)p->__sn__{{name}});
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    off += snprintf(buf + off, sizeof(buf) - off, " }");
     return strdup(buf);

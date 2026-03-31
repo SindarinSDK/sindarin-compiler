@@ -102,7 +102,7 @@ static inline char *__sn__Outer_to_string(const __sn__Outer *p) {
     int off = 0;
     off += snprintf(buf + off, sizeof(buf) - off, "Outer { ");
     off += snprintf(buf + off, sizeof(buf) - off, "child: ");
-    { char *__fs__ = __sn__Inner_to_string(&p->__sn__child); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+    { char *__fs__ = __sn__Inner_to_string(p->__sn__child); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
     off += snprintf(buf + off, sizeof(buf) - off, " }");
     return strdup(buf);
 }
