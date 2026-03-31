@@ -1,0 +1,65 @@
+# Integration test: return array literal directly from functions.
+#
+# Bug: parser->inferred_type was not initialized to NULL in parser_init(),
+# so parser_primary() dereferenced a garbage pointer when checking for
+# struct literal inference on the '{' token. Crashed in release builds
+# (UB: misaligned access on garbage pointer), worked in debug/ASAN builds.
+
+fn getInts(): int[] =>
+  return {1, 2, 3}
+
+fn getDoubles(): double[] =>
+  return {1.1, 2.2, 3.3}
+
+fn getStrings(): str[] =>
+  return {"alice", "bob", "charlie"}
+
+fn getBools(): bool[] =>
+  return {true, false, true}
+
+fn getEmpty(): int[] =>
+  return {}
+
+fn getFromParams(a: int, b: int, c: int): int[] =>
+  return {a, b, c}
+
+struct Point =>
+  x: int
+  y: int
+
+struct Container =>
+  items: Point[]
+
+  fn getPoints(): Point[] =>
+    return { Point {
+      x: 1,
+      y: 2
+    }, Point {
+      x: 3,
+      y: 4
+    } }
+
+fn main(): void =>
+  var ints: int[] = getInts()
+  println($"{ints[0]} {ints[1]} {ints[2]}")
+
+  var doubles: double[] = getDoubles()
+  println($"{doubles[0]} {doubles[1]} {doubles[2]}")
+
+  var strings: str[] = getStrings()
+  println($"{strings[0]} {strings[1]} {strings[2]}")
+
+  var bools: bool[] = getBools()
+  println($"{bools[0]} {bools[1]} {bools[2]}")
+
+  var empty: int[] = getEmpty()
+  println($"{len(empty)}")
+
+  var params: int[] = getFromParams(10, 20, 30)
+  println($"{params[0]} {params[1]} {params[2]}")
+
+  var c: Container = Container { items: {} }
+  var points: Point[] = c.getPoints()
+  println($"{points[0].x},{points[0].y} {points[1].x},{points[1].y}")
+
+  println("PASS")
