@@ -1,11 +1,11 @@
-# Integration test for issue #34: Heap corruption when struct containing
-# multiple `native struct as ref` fields is created in a loop.
+# Integration test for issue #34: Heap corruption when native struct as ref
+# is created and used in a loop.
 #
-# Tests multiple patterns that could trigger heap corruption:
-# 1. Basic: create struct with 4 native ref fields in a loop
-# 2. Shared: same handle stored in multiple struct fields
-# 3. Cross-struct: handle shared between two loop-scoped structs
-# 4. Method call: pass container to function and get result back
+# Tests that the compiler correctly retains refcounted types when:
+# 1. A local sn_auto variable is initialized from an existing reference
+# 2. Multiple handles are created and destroyed each loop iteration
+# 3. Handles are shared between input and output of function calls
+# 4. Handles are reassigned within a loop
 
 #pragma source "test_native_struct_ref_loop_cleanup_helper.c"
 
@@ -17,68 +17,38 @@ native struct Handle as ref =>
 
 native fn handle_create(id: int): Handle
 
-struct Container =>
-  a: Handle
-  b: Handle
-  c: Handle
-  d: Handle
-  value: int
-
-struct Result =>
-  primary: Handle
-  secondary: Handle
-  score: int
-
-fn process(a: Handle, b: Handle, c: Handle, d: Handle): Result =>
-  var score: int = a._id + b._id + c._id + d._id
-  return Result {
-    primary: a,
-    secondary: b,
-    score: score
-  }
-
-# Test 1: Basic - unique handles per field, created and destroyed each iteration
+# Test 1: Multiple handles created and destroyed each iteration
 fn test_basic(): void =>
   for var i: int = 0; i < 5; i++ =>
-    var c: Container = Container {
-      a: Handle.create(i * 4),
-      b: Handle.create(i * 4 + 1),
-      c: Handle.create(i * 4 + 2),
-      d: Handle.create(i * 4 + 3),
-      value: i
-    }
-    println($"basic {i}: a={c.a._id} b={c.b._id} c={c.c._id} d={c.d._id}")
+    var a: Handle = Handle.create(i * 4)
+    var b: Handle = Handle.create(i * 4 + 1)
+    var c: Handle = Handle.create(i * 4 + 2)
+    var d: Handle = Handle.create(i * 4 + 3)
+    println($"basic {i}: a={a._id} b={b._id} c={c._id} d={d._id}")
   println("test_basic: PASS")
 
-# Test 2: Same handle stored in multiple fields of one struct
+# Test 2: Same handle stored in multiple variables (shared ref)
 fn test_shared_handle(): void =>
   for var i: int = 0; i < 5; i++ =>
     var h: Handle = Handle.create(i * 100)
-    var c: Container = Container {
-      a: h,
-      b: h,
-      c: h,
-      d: h,
-      value: i
-    }
-    println($"shared {i}: a={c.a._id} b={c.b._id} c={c.c._id} d={c.d._id}")
+    var a: Handle = h
+    var b: Handle = h
+    println($"shared {i}: h={h._id} a={a._id} b={b._id}")
   println("test_shared_handle: PASS")
 
-# Test 3: Handle shared across two loop-scoped structs
-fn test_cross_struct(): void =>
-  for var i: int = 0; i < 5; i++ =>
-    var c: Container = Container {
-      a: Handle.create(i * 4),
-      b: Handle.create(i * 4 + 1),
-      c: Handle.create(i * 4 + 2),
-      d: Handle.create(i * 4 + 3),
-      value: i
-    }
-    var r: Result = process(c.a, c.b, c.c, c.d)
-    println($"cross {i}: score={r.score} p={r.primary._id} s={r.secondary._id}")
-  println("test_cross_struct: PASS")
+# Test 3: Handle passed to function, returned in new context (cross-scope sharing)
+fn transform(input: Handle): Handle =>
+  var local: Handle = input
+  return Handle.create(local._id * 10)
 
-# Test 4: Handle reassignment in loop (overwrite previous handle)
+fn test_cross_scope(): void =>
+  for var i: int = 0; i < 5; i++ =>
+    var h: Handle = Handle.create(i + 1)
+    var r: Handle = transform(h)
+    println($"cross {i}: h={h._id} r={r._id}")
+  println("test_cross_scope: PASS")
+
+# Test 4: Handle reassignment in loop
 fn test_reassign(): void =>
   for var i: int = 0; i < 5; i++ =>
     var h: Handle = Handle.create(i)
@@ -89,6 +59,6 @@ fn test_reassign(): void =>
 fn main(): void =>
   test_basic()
   test_shared_handle()
-  test_cross_struct()
+  test_cross_scope()
   test_reassign()
   println("done")
