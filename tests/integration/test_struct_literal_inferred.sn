@@ -24,10 +24,10 @@ fn main(): void =>
   println($"cfg={cfg.name} val={cfg.value} on={cfg.enabled}")
 
   // Nested struct - inner struct still uses explicit type (no inference context)
-  var n: Nested = {label: "origin", point: Point {
+  var n: Nested = { label: "origin", point: Point {
     x: 0.0,
     y: 0.0
-  }}
+  } }
   println($"n={n.label} ({n.point.x}, {n.point.y})")
 
   // Explicit form still works
