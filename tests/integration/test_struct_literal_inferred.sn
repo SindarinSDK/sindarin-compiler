@@ -1,0 +1,44 @@
+// Test struct literal type inference from var declaration annotation
+// var x: MyStruct = { field: value } instead of var x: MyStruct = MyStruct { field: value }
+
+struct Point =>
+  x: double
+  y: double
+
+struct Config =>
+  name: str
+  value: int
+  enabled: bool
+
+struct Nested =>
+  label: str
+  point: Point
+
+fn main(): void =>
+  // Basic inferred struct literal
+  var p: Point = {x: 1.5, y: 2.5}
+  println($"p=({p.x}, {p.y})")
+
+  // Multiple fields with different types
+  var cfg: Config = {name: "test", value: 42, enabled: true}
+  println($"cfg={cfg.name} val={cfg.value} on={cfg.enabled}")
+
+  // Nested struct - inner struct still uses explicit type (no inference context)
+  var n: Nested = {label: "origin", point: Point {
+    x: 0.0,
+    y: 0.0
+  }}
+  println($"n={n.label} ({n.point.x}, {n.point.y})")
+
+  // Explicit form still works
+  var p2: Point = Point {
+    x: 3.0,
+    y: 4.0
+  }
+  println($"p2=({p2.x}, {p2.y})")
+
+  // Array literal still works with type annotation
+  var nums: int[] = {1, 2, 3}
+  println($"nums={len(nums)}")
+
+  println("SUCCESS")

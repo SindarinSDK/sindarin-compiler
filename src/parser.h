@@ -32,6 +32,7 @@ typedef struct
     int pending_comment_count;     /* Number of pending comments */
     int pending_comment_capacity;  /* Capacity of pending_comments array */
     int continuation_indent_depth; /* Number of INDENT tokens consumed for method chain continuation */
+    Type *inferred_type;           /* Expected type from context (e.g. var decl annotation), enables struct literal inference */
 } Parser;
 
 /* Forward declare Parser for function pointer type */
