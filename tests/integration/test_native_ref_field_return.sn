@@ -1,9 +1,9 @@
-# Test: native struct as ref fields corrupted when parent struct returned from function
+# Test: ref-struct fields corrupted when parent struct returned from function
 # Reproduces compiler issue #31
-# A regular struct containing native struct as ref fields should preserve
+# A regular struct containing as-ref struct fields should preserve
 # field values when returned from a function.
 
-native struct Handle as ref =>
+struct Handle as ref =>
   tag: int
   payload: int
 
@@ -11,7 +11,7 @@ struct Container =>
   h1: Handle
   h2: Handle
 
-native fn make_container(): Container =>
+fn make_container(): Container =>
   var a: Handle = Handle {
     tag: 10,
     payload: 100
@@ -27,8 +27,8 @@ native fn make_container(): Container =>
     h2: b
   }
 
-native fn main(): int =>
-  # Baseline: direct native struct use
+fn main(): int =>
+  # Baseline: direct ref struct use
   var h: Handle = Handle {
     tag: 1,
     payload: 2
@@ -51,7 +51,7 @@ native fn main(): int =>
   print($"Local h1: tag={local.h1.tag}, payload={local.h1.payload}\n")
   print($"Local h2: tag={local.h2.tag}, payload={local.h2.payload}\n")
 
-  # Returned from function — this should work but may corrupt fields
+  # Returned from function — this should work but previously corrupted fields
   var c: Container = make_container()
   print($"Returned h1: tag={c.h1.tag}, payload={c.h1.payload}\n")
   print($"Returned h2: tag={c.h2.tag}, payload={c.h2.payload}\n")
