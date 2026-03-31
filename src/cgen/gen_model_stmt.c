@@ -227,6 +227,18 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     json_object_object_add(obj, "needs_val_copy",
                         json_object_new_boolean(true));
                 }
+                /* For refcounted struct (as ref) vars: variable/member/array_access initializer
+                 * needs retain to balance the sn_auto release on scope exit.
+                 * Function calls and constructors return new references (rc=1) — no retain needed. */
+                if (gen_model_type_category(vtype) == TYPE_CAT_REFCOUNTED &&
+                    (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
+                     stmt->as.var_decl.initializer->type == EXPR_MEMBER ||
+                     stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
+                     stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS))
+                {
+                    json_object_object_add(obj, "needs_retain",
+                        json_object_new_boolean(true));
+                }
                 /* Recursive lambda self-capture: when a var_decl initializer is a lambda
                  * that captures the var being declared, mark it for post-init patching. */
                 if (stmt->as.var_decl.initializer->type == EXPR_LAMBDA)
