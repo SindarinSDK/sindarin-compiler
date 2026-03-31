@@ -1,0 +1,8 @@
+sindarin count: 3
+single widget: id=1, value=10
+single pass: 1
+native count: 3
+widget[0]: id=1, value=10
+widget[1]: id=2, value=20
+widget[2]: id=3, value=30
+array pass: 1

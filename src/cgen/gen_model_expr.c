@@ -1756,6 +1756,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(elem, "tmp_struct_type",
                         json_object_new_string(ae->expr_type->as.struct_type.name));
                 }
+                /* Ref struct arrays: lvalue elements need retain to bump refcount */
+                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
+                    ae->expr_type->as.struct_type.pass_self_by_ref &&
+                    (ae->type == EXPR_VARIABLE || ae->type == EXPR_ARRAY_ACCESS ||
+                     ae->type == EXPR_MEMBER || ae->type == EXPR_MEMBER_ACCESS))
+                {
+                    json_object_object_add(elem, "needs_retain", json_object_new_boolean(true));
+                    json_object_object_add(elem, "retain_type_name",
+                        json_object_new_string(ae->expr_type->as.struct_type.name));
+                }
                 json_object_array_add(elements, elem);
             }
             json_object_object_add(obj, "elements", elements);

@@ -63,6 +63,7 @@ tests/integration/io_*
 !tests/integration/test_native_resource_lifecycle.sn.impl.c
 !tests/integration/test_serializable.sn.c
 !tests/integration/test_serializable_push_ownership.sn.c
+!tests/integration/test_native_struct_ref_array_pass_helper.c
 
 tests/exploratory/test_*
 !tests/exploratory/test_*.sn
