@@ -1,0 +1,8 @@
+forward 1: v1=100 v2=200
+forward 2: v1=100 v2=200
+train inner: v1=150 v2=250
+caller direct: w1=150 w2=250
+forward 3: v1=150 v2=250
+train inner: v1=300 v2=400
+forward 4: v1=300 v2=400
+PASS

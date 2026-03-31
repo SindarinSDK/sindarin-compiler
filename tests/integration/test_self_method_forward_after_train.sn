@@ -1,0 +1,93 @@
+# Integration test for issue #36: Method call that accesses self fields
+# via self.parameters() and self.forward() corrupts self for subsequent
+# method calls from the caller.
+#
+# Pattern:
+# model.forward()              → works
+# model.forward() twice        → works
+# model.train() → model.forward() → CRASH (the bug)
+#
+# model.train() internally calls:
+# self.parameters()  — collects native struct as ref fields into array
+# self.forward()     — reads those same fields
+#
+# After train() returns, subsequent model.forward() from the caller
+# should still see the correct (possibly updated) field values.
+
+#pragma source "test_self_method_forward_after_train_helper.c"
+
+native struct Resource as ref =>
+  id: int
+  value: int
+
+native fn resource_create(id: int, value: int): Resource
+native fn resource_get_id(r: Resource): int
+native fn resource_get_value(r: Resource): int
+native fn resource_update(r: Resource, newValue: int): void
+native fn resource_process_array(resources: Resource[], count: int): void
+
+struct Output =>
+  v1: int
+  v2: int
+
+struct Model =>
+  w1: Resource
+  w2: Resource
+
+  # Collect self fields into an array — mirrors Gnn.parameters()
+  fn parameters(): Resource[] =>
+    var arr: Resource[] = {self.w1, self.w2}
+    return arr
+
+  # Read self fields — mirrors Gnn.forward()
+  fn forward(): Output =>
+    var val1: int = resource_get_value(self.w1)
+    var val2: int = resource_get_value(self.w2)
+    return Output {
+      v1: val1,
+      v2: val2
+    }
+
+  # Method that calls self.parameters() + self.forward() — mirrors Gnn.train()
+  fn train(newVal1: int, newVal2: int): void =>
+    var params: Resource[] = self.parameters()
+    resource_update(params[0], newVal1)
+    resource_update(params[1], newVal2)
+    resource_process_array(params, 2)
+    var out: Output = self.forward()
+    println($"train inner: v1={out.v1} v2={out.v2}")
+
+fn main(): void =>
+  var model: Model = Model {
+    w1: resource_create(1, 100),
+    w2: resource_create(2, 200)
+  }
+
+  # Test 1: forward alone
+  var f1: Output = model.forward()
+  println($"forward 1: v1={f1.v1} v2={f1.v2}")
+
+  # Test 2: forward twice (no intervening operations)
+  var f2: Output = model.forward()
+  println($"forward 2: v1={f2.v1} v2={f2.v2}")
+
+  # Test 3: train — internally calls self.parameters() + self.forward()
+  model.train(150, 250)
+
+  # Test 4: caller reads fields directly after train
+  var w1v: int = resource_get_value(model.w1)
+  var w2v: int = resource_get_value(model.w2)
+  println($"caller direct: w1={w1v} w2={w2v}")
+
+  # Test 5: forward after train — THIS IS THE BUG PATTERN
+  # self.w1 and self.w2 inside forward() must resolve to the same
+  # handles as model.w1 and model.w2 in the caller
+  var f3: Output = model.forward()
+  println($"forward 3: v1={f3.v1} v2={f3.v2}")
+
+  # Test 6: train again, then forward again (double cycle)
+  model.train(300, 400)
+  var f4: Output = model.forward()
+  println($"forward 4: v1={f4.v1} v2={f4.v2}")
+
+  println("PASS")
