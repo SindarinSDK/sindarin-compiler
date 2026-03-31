@@ -1,0 +1,42 @@
+# Test: Passing array of native struct as ref to a native function
+# Reproduces issue #32: segfault when native function receives
+# an array of native struct as ref elements via SnArray*.
+
+#pragma source "test_native_struct_ref_array_pass_helper.c"
+
+native struct Widget as ref =>
+  id: int
+  value: int
+
+native fn verify_widget_array(widgets: Widget[], expected_count: int): int
+native fn verify_single_widget(w: Widget, expected_id: int): int
+
+native fn run_test(): int =>
+  var w1: Widget = Widget {
+    id: 1,
+    value: 10
+  }
+  var w2: Widget = Widget {
+    id: 2,
+    value: 20
+  }
+  var w3: Widget = Widget {
+    id: 3,
+    value: 30
+  }
+  var widgets: Widget[] = {w1, w2, w3}
+
+  println($"sindarin count: {len(widgets)}")
+
+  # Control: single native struct as ref passes correctly
+  var single_ok: int = verify_single_widget(w1, 1)
+  println($"single pass: {single_ok}")
+
+  # Bug case: array of native struct as ref to native function
+  var array_ok: int = verify_widget_array(widgets, 3)
+  println($"array pass: {array_ok}")
+
+  return 0
+
+fn main(): int =>
+  return run_test()

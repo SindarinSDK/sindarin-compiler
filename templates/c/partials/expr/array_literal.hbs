@@ -30,8 +30,11 @@
         { {{c_type ../type.element_type}} __st__ = {{> expr this}}; sn_array_push(__al__, &__st__); }
 {{else}}{{#if (eq kind "struct_literal")}}
         sn_array_push(__al__, &({{> expr this}}));
+{{else}}{{#if needs_retain}}
+        sn_array_push(__al__, &({{c_type ../type.element_type}}){ __sn__{{retain_type_name}}_retain({{> expr this}}) });
 {{else}}
         sn_array_push(__al__, &({{c_type ../type.element_type}}){ {{#if needs_strdup}}strdup({{> expr this}}){{else}}{{#if needs_arr_copy}}sn_array_copy({{> expr this}}){{else}}{{> expr this}}{{/if}}{{/if}} });
+{{/if}}
 {{/if}}
 {{/if}}
 {{/if}}
