@@ -4,18 +4,18 @@ basic 2: a=8 b=9 c=10 d=11
 basic 3: a=12 b=13 c=14 d=15
 basic 4: a=16 b=17 c=18 d=19
 test_basic: PASS
-shared 0: a=0 b=0 c=0 d=0
-shared 1: a=100 b=100 c=100 d=100
-shared 2: a=200 b=200 c=200 d=200
-shared 3: a=300 b=300 c=300 d=300
-shared 4: a=400 b=400 c=400 d=400
+shared 0: h=0 a=0 b=0
+shared 1: h=100 a=100 b=100
+shared 2: h=200 a=200 b=200
+shared 3: h=300 a=300 b=300
+shared 4: h=400 a=400 b=400
 test_shared_handle: PASS
-cross 0: score=6 p=0 s=1
-cross 1: score=22 p=4 s=5
-cross 2: score=38 p=8 s=9
-cross 3: score=54 p=12 s=13
-cross 4: score=70 p=16 s=17
-test_cross_struct: PASS
+cross 0: h=1 r=10
+cross 1: h=2 r=20
+cross 2: h=3 r=30
+cross 3: h=4 r=40
+cross 4: h=5 r=50
+test_cross_scope: PASS
 reassign 0: h=100
 reassign 1: h=101
 reassign 2: h=102
