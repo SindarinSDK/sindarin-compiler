@@ -2143,10 +2143,15 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(f, "needs_strdup",
                         json_object_new_boolean(needs_strdup));
                 }
-                /* Ref struct fields from variables need retain */
+                /* Ref struct fields from variables/members/accesses need retain
+                 * to increment the refcount — the struct literal shares the pointer,
+                 * so cleanup of the literal must not drop the refcount to 0 while
+                 * the original owner still holds a reference.
+                 * Function calls and constructors return fresh refs (rc=1) — no retain needed. */
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
                     fv->expr_type->as.struct_type.pass_self_by_ref &&
-                    fv->type == EXPR_VARIABLE)
+                    (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
+                     fv->type == EXPR_ARRAY_ACCESS || fv->type == EXPR_MEMBER_ACCESS))
                 {
                     json_object_object_add(f, "needs_retain",
                         json_object_new_boolean(true));
