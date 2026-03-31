@@ -86,7 +86,7 @@ static inline void __sn__Outer_release(__sn__Outer **p) {
 static inline __sn__Outer *__sn__Outer_copy(const __sn__Outer *src) {
     __sn__Outer *dst = calloc(1, sizeof(__sn__Outer));
     dst->__rc__ = 1;
-    dst->__sn__child = src->__sn__child;
+    dst->__sn__child = __sn__Inner_retain(src->__sn__child);
     return dst;
 }
 
