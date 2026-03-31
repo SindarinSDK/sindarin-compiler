@@ -1,0 +1,5 @@
+same-scope: buy
+same-scope decode: PASS
+fn-return: buy
+fn-return decode: PASS
+All tests passed!

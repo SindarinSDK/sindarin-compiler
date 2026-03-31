@@ -1,0 +1,94 @@
+// Reproducer for issue #33: segfault when returning decoded @serializable
+// struct with nested struct fields that contain arrays.
+// The compiler's return-path ownership check doesn't recurse into nested
+// val-type structs, so it misses the heap fields and skips the memset
+// transfer — leaving dangling pointers after sn_auto cleanup.
+
+@source "test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Item =>
+  action: str
+  probability: double
+
+@serializable
+struct Detail =>
+  id: str
+  modelId: str
+  action: str
+  confidence: double
+  distribution: Item[]
+
+@serializable
+struct Summary =>
+  id: str
+  vector: double[]
+  dimension: int
+
+@serializable
+struct Response =>
+  detail: Detail
+  summary: Summary
+
+fn decodeResponse(payload: str): Response =>
+  var dec: Decoder = sn_test_json_decoder(payload)
+  var resp: Response = Response.decode(dec)
+  return resp
+
+fn main(): void =>
+  // Build a Response with nested structs containing arrays
+  var d: Detail = Detail {
+    id: "p1", modelId: "gnn", action: "buy", confidence: 0.45,
+    distribution: {
+      Item {
+        action: "buy",
+        probability: 0.45
+      },
+      Item {
+        action: "sell",
+        probability: 0.30
+      },
+      Item {
+        action: "hold",
+        probability: 0.25
+      }
+    }
+  }
+  var s: Summary = Summary {
+    id: "e1", vector: {0.1, 0.2, 0.3, 0.4}, dimension: 4
+  }
+  var resp: Response = Response {
+    detail: d,
+    summary: s
+  }
+
+  // Encode to JSON
+  var enc: Encoder = sn_test_json_encoder()
+  resp.encode(enc)
+  var payload: str = enc.result()
+
+  // Decode in same scope works fine
+  var dec: Decoder = sn_test_json_decoder(payload)
+  var local: Response = Response.decode(dec)
+  println($"same-scope: {local.detail.action}")
+  assert(local.detail.action == "buy", "same-scope action")
+  assert(local.detail.distribution.length == 3, "same-scope dist len")
+  assert(local.summary.vector.length == 4, "same-scope vec len")
+  println("same-scope decode: PASS")
+
+  // Decode via function return — this is the bug
+  var returned: Response = decodeResponse(payload)
+  println($"fn-return: {returned.detail.action}")
+  assert(returned.detail.action == "buy", "fn-return action")
+  assert(returned.detail.distribution.length == 3, "fn-return dist len")
+  assert(returned.detail.distribution[0].action == "buy", "fn-return dist[0]")
+  assert(returned.detail.distribution[1].action == "sell", "fn-return dist[1]")
+  assert(returned.detail.distribution[2].action == "hold", "fn-return dist[2]")
+  assert(returned.summary.vector.length == 4, "fn-return vec len")
+  assert(returned.summary.dimension == 4, "fn-return dimension")
+  println("fn-return decode: PASS")
+
+  println("All tests passed!")
