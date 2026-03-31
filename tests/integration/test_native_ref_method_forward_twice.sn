@@ -1,0 +1,84 @@
+# Integration test for issue #35: Crash when calling model.forward()
+# twice with intervening operations.
+#
+# Root cause: gen_model_expr.c struct literal codegen only emits
+# _retain() for native struct as ref fields when the source expression
+# is EXPR_VARIABLE (line 2149). EXPR_MEMBER (e.g., self.field) is NOT
+# retained, so the returned struct shares a Handle pointer without
+# incrementing the refcount. When the returned struct's cleanup
+# releases the Handle, the original owner's reference becomes dangling.
+#
+# IMPORTANT: useForward/useForwardSafe must be regular fn (not native fn)
+# so that Model is passed by pointer (borrow), not by value (copy).
+# A value copy would retain the handles, masking the missing retain
+# in the struct literal.
+
+native struct Handle as ref =>
+  _id: int
+
+  fn value(): int =>
+    return self._id
+
+struct Output =>
+  a: Handle
+  b: Handle
+
+struct Model =>
+  w1: Handle
+  w2: Handle
+
+  # Bug path: struct literal sources are EXPR_MEMBER — no retain emitted.
+  fn forward(): Output =>
+    return Output {
+      a: self.w1,
+      b: self.w2
+    }
+
+  # Control path: local variables are EXPR_VARIABLE — retain is emitted.
+  fn forwardSafe(): Output =>
+    var h1: Handle = self.w1
+    var h2: Handle = self.w2
+    return Output {
+      a: h1,
+      b: h2
+    }
+
+# Regular fn — Model is passed by pointer (borrow). No copy, no extra retain.
+# When Output cleanup releases the handles, if forward() didn't retain them,
+# the refcount drops to 0 and the handle is freed — leaving the caller's
+# Model with a dangling pointer.
+fn useForward(model: Model): void =>
+  var out: Output = model.forward()
+  println($"forward: a={out.a.value()} b={out.b.value()}")
+
+fn useForwardSafe(model: Model): void =>
+  var out: Output = model.forwardSafe()
+  println($"safe: a={out.a.value()} b={out.b.value()}")
+
+native fn run(): void =>
+  # Test 1: Control path — forwardSafe uses local variables
+  var m1: Model = Model {
+    w1: Handle { _id: 10 },
+    w2: Handle { _id: 20 }
+  }
+  println($"test1 model: w1={m1.w1.value()} w2={m1.w2.value()}")
+  useForwardSafe(m1)
+  println($"test1 after: w1={m1.w1.value()} w2={m1.w2.value()}")
+
+  # Test 2: Bug path — forward uses EXPR_MEMBER in struct literal
+  var m2: Model = Model {
+    w1: Handle { _id: 30 },
+    w2: Handle { _id: 40 }
+  }
+  println($"test2 model: w1={m2.w1.value()} w2={m2.w2.value()}")
+  useForward(m2)
+  println($"test2 after: w1={m2.w1.value()} w2={m2.w2.value()}")
+
+  # Test 3: Second forward — reproduces issue #35 pattern
+  useForward(m2)
+  println($"test3 after: w1={m2.w1.value()} w2={m2.w2.value()}")
+
+  println("PASS")
+
+fn main(): void =>
+  run()

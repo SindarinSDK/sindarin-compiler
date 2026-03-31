@@ -1,0 +1,9 @@
+test1 model: w1=10 w2=20
+safe: a=10 b=20
+test1 after: w1=10 w2=20
+test2 model: w1=30 w2=40
+forward: a=30 b=40
+test2 after: w1=30 w2=40
+forward: a=30 b=40
+test3 after: w1=30 w2=40
+PASS
