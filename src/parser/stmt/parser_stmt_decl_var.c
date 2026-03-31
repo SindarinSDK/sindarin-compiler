@@ -65,7 +65,9 @@ Stmt *parser_var_declaration(Parser *parser, SyncModifier sync_modifier)
     Expr *initializer = NULL;
     if (parser_match(parser, TOKEN_EQUAL))
     {
+        parser->inferred_type = type;
         initializer = parser_expression(parser);
+        parser->inferred_type = NULL;
     }
 
     /* If this is a sized array declaration, create the sized array alloc expression */

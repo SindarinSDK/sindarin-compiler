@@ -412,6 +412,11 @@ Expr *parser_postfix(Parser *parser)
 
 Expr *parser_primary(Parser *parser)
 {
+    /* Capture and clear inferred_type — it applies only to this primary expression,
+     * not to any sub-expressions (e.g. field values inside a struct literal). */
+    Type *inferred_type = parser->inferred_type;
+    parser->inferred_type = NULL;
+
     /* Literal tokens */
     if (parser_match(parser, TOKEN_INT_LITERAL))
     {
@@ -683,6 +688,29 @@ Expr *parser_primary(Parser *parser)
         Expr *expr = parser_expression(parser);
         parser_consume(parser, TOKEN_RIGHT_PAREN, "Expected ')' after expression");
         return expr;
+    }
+
+    /* Struct literal inferred from declared type: var x: MyStruct = { field: value } */
+    if (parser_check(parser, TOKEN_LEFT_BRACE) &&
+        inferred_type != NULL &&
+        inferred_type->kind == TYPE_STRUCT &&
+        inferred_type->as.struct_type.name != NULL)
+    {
+        /* Verify the inferred type is a known struct in the symbol table */
+        const char *struct_name = inferred_type->as.struct_type.name;
+        Token name_token;
+        name_token.start = struct_name;
+        name_token.length = (int)strlen(struct_name);
+        name_token.type = TOKEN_IDENTIFIER;
+        name_token.line = parser->current.line;
+        name_token.filename = parser->current.filename;
+
+        Symbol *type_symbol = symbol_table_lookup_type(parser->symbol_table, name_token);
+        if (type_symbol != NULL && type_symbol->type != NULL &&
+            type_symbol->type->kind == TYPE_STRUCT)
+        {
+            return parse_struct_literal(parser, &name_token);
+        }
     }
 
     /* Array literal */
