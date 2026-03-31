@@ -109,7 +109,7 @@ static inline char *__sn__Person_to_string(const __sn__Person *p) {
     off += snprintf(buf + off, sizeof(buf) - off, "\"%s\"", p->__sn__name ? p->__sn__name : "nil");
     off += snprintf(buf + off, sizeof(buf) - off, ", ");
     off += snprintf(buf + off, sizeof(buf) - off, "addr: ");
-    { char *__fs__ = __sn__Address_to_string(&p->__sn__addr); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
+    { char *__fs__ = __sn__Address_to_string(p->__sn__addr); off += snprintf(buf + off, sizeof(buf) - off, "%s", __fs__); free(__fs__); }
     off += snprintf(buf + off, sizeof(buf) - off, " }");
     return strdup(buf);
 }
