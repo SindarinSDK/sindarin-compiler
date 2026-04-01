@@ -1158,6 +1158,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     snprintf(buf, sizeof(buf), "__sn__%s_%.*s", tp, mn.length, mn.start);
                                     json_object_object_add(callee_model, "has_c_alias", json_object_new_boolean(true));
                                     json_object_object_add(callee_model, "c_alias", json_object_new_string(buf));
+                                    /* Primitive conversion macros accept values, not pointers */
+                                    json_object_object_add(callee_model, "alias_pass_by_value", json_object_new_boolean(true));
                                 }
                             }
                         }
