@@ -1,0 +1,109 @@
+// Issue #40: @serializable double[] with integer JSON values
+// When JSON contains [0,0,0] (integers, no decimal point), the decoded
+// double[] should contain correct double values, not garbage bytes.
+
+@source "test_serializable.sn.c"
+
+native fn sn_test_json_encoder(): Encoder
+native fn sn_test_json_decoder(input: str): Decoder
+
+@serializable
+struct Embedding =>
+  id: str
+  vector: double[]
+  dimension: int
+
+@serializable
+struct Stats =>
+  name: str
+  values: int[]
+  weights: double[]
+
+fn main(): void =>
+  // --- Test 1: All-zero integer JSON into double[] ---
+  var dec1: Decoder = sn_test_json_decoder("{\"id\":\"abc\",\"vector\":[0,0,0,0],\"dimension\":4}")
+  var emb1: Embedding = Embedding.decode(dec1)
+  assert(emb1.id == "abc", "zero: id")
+  assert(emb1.dimension == 4, "zero: dimension")
+  assert(emb1.vector.length == 4, "zero: vector length")
+  assert(emb1.vector[0] == 0.0, "zero: vector[0]")
+  assert(emb1.vector[1] == 0.0, "zero: vector[1]")
+  assert(emb1.vector[2] == 0.0, "zero: vector[2]")
+  assert(emb1.vector[3] == 0.0, "zero: vector[3]")
+  // Interpolate individual elements
+  var v0: double = emb1.vector[0]
+  assert($"{v0}" == "0.00000", "zero: interpolate vector[0]")
+  println("test_zero_int_vector: PASS")
+
+  // --- Test 2: Non-zero integer JSON into double[] ---
+  var dec2: Decoder = sn_test_json_decoder("{\"id\":\"def\",\"vector\":[1,2,3],\"dimension\":3}")
+  var emb2: Embedding = Embedding.decode(dec2)
+  assert(emb2.vector.length == 3, "nonzero: vector length")
+  assert(emb2.vector[0] == 1.0, "nonzero: vector[0]")
+  assert(emb2.vector[1] == 2.0, "nonzero: vector[1]")
+  assert(emb2.vector[2] == 3.0, "nonzero: vector[2]")
+  var v1: double = emb2.vector[0]
+  var v2: double = emb2.vector[1]
+  var v3: double = emb2.vector[2]
+  assert($"{v1}" == "1.00000", "nonzero: interpolate vector[0]")
+  assert($"{v2}" == "2.00000", "nonzero: interpolate vector[1]")
+  assert($"{v3}" == "3.00000", "nonzero: interpolate vector[2]")
+  println("test_nonzero_int_vector: PASS")
+
+  // --- Test 3: Mixed integers and doubles in JSON ---
+  var dec3: Decoder = sn_test_json_decoder("{\"id\":\"ghi\",\"vector\":[0,100,0,42],\"dimension\":4}")
+  var emb3: Embedding = Embedding.decode(dec3)
+  assert(emb3.vector[0] == 0.0, "mixed: vector[0]")
+  assert(emb3.vector[1] == 100.0, "mixed: vector[1]")
+  assert(emb3.vector[2] == 0.0, "mixed: vector[2]")
+  assert(emb3.vector[3] == 42.0, "mixed: vector[3]")
+  println("test_mixed_int_vector: PASS")
+
+  // --- Test 4: Double JSON values (baseline — should always work) ---
+  var dec4: Decoder = sn_test_json_decoder("{\"id\":\"jkl\",\"vector\":[0.1,0.2,0.3],\"dimension\":3}")
+  var emb4: Embedding = Embedding.decode(dec4)
+  assert(emb4.vector[0] == 0.1, "double: vector[0]")
+  assert(emb4.vector[1] == 0.2, "double: vector[1]")
+  assert(emb4.vector[2] == 0.3, "double: vector[2]")
+  println("test_double_vector: PASS")
+
+  // --- Test 5: Array-level interpolation of double[] ---
+  var dec5: Decoder = sn_test_json_decoder("{\"id\":\"mno\",\"vector\":[10,20,30],\"dimension\":3}")
+  var emb5: Embedding = Embedding.decode(dec5)
+  var arr_str: str = $"{emb5.vector}"
+  println($"array interpolation: {arr_str}")
+  assert(arr_str == "[10, 20, 30]", "array interpolation")
+  println("test_array_interpolation: PASS")
+
+  // --- Test 6: Roundtrip encode then decode with int[] alongside double[] ---
+  var stats: Stats = Stats {
+    name: "test",
+    values: {1, 2, 3},
+    weights: {0.5, 1.5, 2.5}
+  }
+  var enc: Encoder = sn_test_json_encoder()
+  stats.encode(enc)
+  var json: str = enc.result()
+  var dec6: Decoder = sn_test_json_decoder(json)
+  var rt: Stats = Stats.decode(dec6)
+  assert(rt.name == "test", "roundtrip: name")
+  assert(rt.values.length == 3, "roundtrip: values length")
+  assert(rt.values[0] == 1, "roundtrip: values[0]")
+  assert(rt.values[1] == 2, "roundtrip: values[1]")
+  assert(rt.values[2] == 3, "roundtrip: values[2]")
+  assert(rt.weights.length == 3, "roundtrip: weights length")
+  assert(rt.weights[0] == 0.5, "roundtrip: weights[0]")
+  assert(rt.weights[1] == 1.5, "roundtrip: weights[1]")
+  assert(rt.weights[2] == 2.5, "roundtrip: weights[2]")
+  println("test_roundtrip_mixed_arrays: PASS")
+
+  // --- Test 7: Large integer vector (32 elements, like GNN embeddings) ---
+  var dec7: Decoder = sn_test_json_decoder("{\"id\":\"pqr\",\"vector\":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],\"dimension\":32}")
+  var emb7: Embedding = Embedding.decode(dec7)
+  assert(emb7.vector.length == 32, "large: vector length")
+  assert(emb7.dimension == 32, "large: dimension")
+  for var i: int = 0; i < 32; i++ =>
+    assert(emb7.vector[i] == 0.0, $"large: vector[{i}]")
+  println("test_large_zero_vector: PASS")
+
+  println("\nAll double[] integer JSON tests passed!")

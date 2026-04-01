@@ -1,0 +1,5 @@
+cycle 0: PASS
+cycle 1: PASS
+cycle 2: PASS
+All 6 exchanges across 3 cycles completed!
+test_sync_proxy_double_exchange: PASS

@@ -1,0 +1,69 @@
+// Issue #41: sync var proxy pattern with two consecutive request-response
+// pairs per cycle iteration. Tests that the while-true cycle loop continues
+// iterating after two rapid exchanges through a sync-var-based proxy.
+
+@source "test_sync_proxy_double_exchange.sn.c"
+
+native fn sn_test_sleep_ms(ms: int): void
+
+var request: int = 0
+var response: int = 0
+sync var reqReady: int = 0
+sync var respReady: int = 0
+sync var proxyDone: int = 0
+sync var cycleCount: int = 0
+
+fn proxyWorker(): int =>
+  while proxyDone == 0 =>
+    // Spin-wait for a request
+    while reqReady == 0 =>
+      if proxyDone == 1 =>
+        return 0
+      sn_test_sleep_ms(1)
+    // Process the request: double it
+    response = request * 2
+    reqReady = 0
+    respReady = 1
+  return 0
+
+fn sendRequest(payload: int): int =>
+  request = payload
+  respReady = 0
+  reqReady = 1
+  while respReady == 0 =>
+    sn_test_sleep_ms(1)
+  return response
+
+fn main(): void =>
+  // Start proxy thread
+  var proxy: int = & proxyWorker()
+
+  // Run 3 cycles with 2 requests each
+  var totalExchanges: int = 0
+
+  for var cycle: int = 0; cycle < 3; cycle++ =>
+    // Request 1: store operation
+    var r1: int = sendRequest(cycle * 10 + 1)
+    assert(r1 == (cycle * 10 + 1) * 2, $"cycle {cycle} req1")
+    totalExchanges++
+
+    // Request 2: search operation (second rapid exchange)
+    var r2: int = sendRequest(cycle * 10 + 2)
+    assert(r2 == (cycle * 10 + 2) * 2, $"cycle {cycle} req2")
+    totalExchanges++
+
+    cycleCount++
+    println($"cycle {cycle}: PASS")
+
+    // Brief pause between cycles
+    sn_test_sleep_ms(10)
+
+  // Shut down proxy
+  proxyDone = 1
+  reqReady = 1
+  var ignored: int = proxy !
+
+  assert(totalExchanges == 6, "total exchanges")
+  assert(cycleCount == 3, "cycle count")
+  println($"All {totalExchanges} exchanges across {cycleCount} cycles completed!")
+  println("test_sync_proxy_double_exchange: PASS")
