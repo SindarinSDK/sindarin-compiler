@@ -1,0 +1,10 @@
+test_zero_int_vector: PASS
+test_nonzero_int_vector: PASS
+test_mixed_int_vector: PASS
+test_double_vector: PASS
+array interpolation: [10, 20, 30]
+test_array_interpolation: PASS
+test_roundtrip_mixed_arrays: PASS
+test_large_zero_vector: PASS
+
+All double[] integer JSON tests passed!
