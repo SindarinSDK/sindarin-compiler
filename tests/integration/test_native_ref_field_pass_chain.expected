@@ -1,0 +1,10 @@
+cycle 0: result=300, nf=10, ew=30
+cycle 1: result=600, nf=20, ew=60
+cycle 2: result=900, nf=30, ew=90
+cycle 3: result=1200, nf=40, ew=120
+cycle 4: result=1500, nf=50, ew=150
+cycle 5: result=1800, nf=60, ew=180
+cycle 6: result=2100, nf=70, ew=210
+cycle 7: result=2400, nf=80, ew=240
+cycle 8: result=2700, nf=90, ew=270
+cycle 9: result=3000, nf=100, ew=300

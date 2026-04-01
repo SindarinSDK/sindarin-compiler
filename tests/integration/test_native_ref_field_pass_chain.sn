@@ -1,0 +1,60 @@
+# Test: ref-struct fields survive return + multi-layer pass chain
+# Reproduces compiler-problems.23 / issue #39:
+# graphToTensors() returns struct with ref fields via factory fns,
+# then passed to forward() → gcnForward() → aggregate()
+# Fields must not be freed prematurely at any layer.
+
+struct Tensor as ref =>
+  tag: int
+  data: int
+
+fn makeTensor(t: int, d: int): Tensor =>
+  return Tensor {
+    tag: t,
+    data: d
+  }
+
+struct GraphTensors =>
+  nodeFeatures: Tensor
+  edgeIndex: Tensor
+  edgeWeight: Tensor
+  batchIndex: Tensor
+  numNodes: int
+
+fn graphToTensors(n: int): GraphTensors =>
+  return GraphTensors {
+    nodeFeatures: makeTensor(1, n * 10),
+    edgeIndex: makeTensor(2, n * 20),
+    edgeWeight: makeTensor(3, n * 30),
+    batchIndex: makeTensor(4, n * 40),
+    numNodes: n
+  }
+
+fn aggregate(t: Tensor, scale: int): int =>
+  return t.data * scale
+
+fn gcnForward(tensors: GraphTensors, w: int): int =>
+  var nf: Tensor = tensors.nodeFeatures
+  var ew: Tensor = tensors.edgeWeight
+  var r1: int = aggregate(nf, w)
+  var r2: int = aggregate(ew, w + 1)
+  return r1 + r2
+
+fn forward(tensors: GraphTensors): int =>
+  var r1: int = gcnForward(tensors, 2)
+  var r2: int = gcnForward(tensors, 3)
+  var bi: int = tensors.batchIndex.data
+  return r1 + r2 + bi
+
+fn main(): int =>
+  # Run multiple cycles to stress refcount management
+  var i: int = 0
+  while i < 10 =>
+    var tensors: GraphTensors = graphToTensors(i + 1)
+    var result: int = forward(tensors)
+    # Verify fields still valid after full call chain
+    var nf: int = tensors.nodeFeatures.data
+    var ew: int = tensors.edgeWeight.data
+    print($"cycle {i}: result={result}, nf={nf}, ew={ew}\n")
+    i = i + 1
+  return 0
