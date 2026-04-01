@@ -18,7 +18,7 @@ static inline char *sn_char_to_string(char c)
 #define __sn__char_toString(ptr) sn_char_to_string(*(ptr))
 #define __sn__char_toUpper(ptr) ((char)toupper((unsigned char)(*(ptr))))
 #define __sn__char_toLower(ptr) ((char)tolower((unsigned char)(*(ptr))))
-#define __sn__char_toInt(ptr) ((long long)(*(ptr)))
+#define __sn__char_toInt(val) ((long long)(val))
 #define __sn__char_isDigit(ptr) ((bool)isdigit((unsigned char)(*(ptr))))
 #define __sn__char_isAlpha(ptr) ((bool)isalpha((unsigned char)(*(ptr))))
 #define __sn__char_isWhitespace(ptr) ((bool)isspace((unsigned char)(*(ptr))))
@@ -26,42 +26,42 @@ static inline char *sn_char_to_string(char c)
 
 /* ---- int methods ---- */
 
-#define __sn__int_toDouble(ptr) ((double)(*(ptr)))
-#define __sn__int_toLong(ptr) ((long long)(*(ptr)))
-#define __sn__int_toUint(ptr) ((unsigned long long)(*(ptr)))
-#define __sn__int_toByte(ptr) ((unsigned char)(*(ptr)))
-#define __sn__int_toChar(ptr) ((char)(*(ptr)))
+#define __sn__int_toDouble(val) ((double)(val))
+#define __sn__int_toLong(val) ((long long)(val))
+#define __sn__int_toUint(val) ((unsigned long long)(val))
+#define __sn__int_toByte(val) ((unsigned char)(val))
+#define __sn__int_toChar(val) ((char)(val))
 
 /* ---- long methods ---- */
 
-#define __sn__long_toInt(ptr) ((long long)(*(ptr)))
-#define __sn__long_toDouble(ptr) ((double)(*(ptr)))
+#define __sn__long_toInt(val) ((long long)(val))
+#define __sn__long_toDouble(val) ((double)(val))
 
 /* ---- double methods ---- */
 
-#define __sn__double_toInt(ptr) ((long long)(*(ptr)))
-#define __sn__double_toLong(ptr) ((long long)(*(ptr)))
+#define __sn__double_toInt(val) ((long long)(val))
+#define __sn__double_toLong(val) ((long long)(val))
 
 /* ---- uint methods ---- */
 
-#define __sn__uint_toInt(ptr) ((long long)(*(ptr)))
-#define __sn__uint_toLong(ptr) ((long long)(*(ptr)))
-#define __sn__uint_toDouble(ptr) ((double)(*(ptr)))
+#define __sn__uint_toInt(val) ((long long)(val))
+#define __sn__uint_toLong(val) ((long long)(val))
+#define __sn__uint_toDouble(val) ((double)(val))
 
 /* ---- byte methods ---- */
 
-#define __sn__byte_toInt(ptr) ((long long)(*(ptr)))
-#define __sn__byte_toChar(ptr) ((char)(*(ptr)))
+#define __sn__byte_toInt(val) ((long long)(val))
+#define __sn__byte_toChar(val) ((char)(val))
 
 /* ---- bool methods ---- */
 
-#define __sn__bool_toInt(ptr) ((long long)(*(ptr)))
+#define __sn__bool_toInt(val) ((long long)(val))
 
 /* ---- str methods (type-prefixed conversions) ---- */
 
-#define __sn__str_toInt(ptr) ((long long)strtoll(*(ptr), NULL, 10))
-#define __sn__str_toDouble(ptr) strtod(*(ptr), NULL)
-#define __sn__str_toLong(ptr) ((long long)strtoll(*(ptr), NULL, 10))
+#define __sn__str_toInt(val) ((long long)strtoll((val), NULL, 10))
+#define __sn__str_toDouble(val) strtod((val), NULL)
+#define __sn__str_toLong(val) ((long long)strtoll((val), NULL, 10))
 
 /* ---- Comparison helpers ---- */
 
