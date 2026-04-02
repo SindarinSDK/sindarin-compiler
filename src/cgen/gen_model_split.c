@@ -216,7 +216,17 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
             if (is_native_obj && json_object_get_boolean(is_native_obj) &&
                 has_body_obj && !json_object_get_boolean(has_body_obj))
             {
-                json_object_array_add(native_externs, json_deep_copy(fn));
+                json_object *fn_copy = json_deep_copy(fn);
+                /* Native functions with @alias + @source need forward declarations —
+                 * their definitions are compiled separately and linked. */
+                json_object *ps_obj = NULL;
+                if (json_object_object_get_ex(fn_copy, "has_pragma_source", &ps_obj) &&
+                    json_object_get_boolean(ps_obj))
+                {
+                    json_object_object_add(fn_copy, "needs_forward_decl",
+                        json_object_new_boolean(true));
+                }
+                json_object_array_add(native_externs, fn_copy);
                 continue;
             }
 

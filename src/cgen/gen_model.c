@@ -30,6 +30,7 @@ int g_thread_handle_var_count = 0;
 
 /* Suppress auto-cleanup on local array/string vars (set for functions returning structs with heap fields) */
 bool g_suppress_local_cleanup = false;
+bool g_has_pragma_source = false;
 bool g_in_lambda_body = false;
 bool g_in_main_void = false;
 bool g_in_thread_spawn_call = false;

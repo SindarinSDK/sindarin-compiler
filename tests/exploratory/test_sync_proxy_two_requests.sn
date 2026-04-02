@@ -12,11 +12,14 @@ sync var reqReady: int = 0
 sync var respReady: int = 0
 var request: int = 0
 var response: int = 0
+sync var done: int = 0
 
 fn proxy(): int =>
-  while true =>
-    while reqReady == 0 =>
+  while done == 0 =>
+    while reqReady == 0 && done == 0 =>
       var spin: int = 0
+    if done == 1 =>
+      break
     // Process the request
     response = request * 2
     reqReady = 0
@@ -53,3 +56,4 @@ fn main(): void =>
     cycle = cycle + 1
 
   print("SUCCESS: 5 cycles with 2 requests each completed\n")
+  done = 1
