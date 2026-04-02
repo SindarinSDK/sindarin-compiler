@@ -49,5 +49,7 @@ fn main(): void =>
 
     println($"Cycle {cycle}: {resp1} | {resp2}")
     cycle = cycle + 1
+    // Long sleep between cycles (like skynet's cycleIntervalMs)
+    sleep_ms(100)
 
   println("SUCCESS: 5 cycles with 2 string requests each completed")

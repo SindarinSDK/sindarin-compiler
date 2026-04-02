@@ -8,8 +8,8 @@
     {{c_type transfer_type}} __ret__ = {{#if (eq transfer_var "self")}}*__sn__self{{else}}__sn__{{transfer_var}}{{/if}};
     memset({{#if (eq transfer_var "self")}}__sn__self, 0, sizeof(*__sn__self){{else}}&__sn__{{transfer_var}}, 0, sizeof(__sn__{{transfer_var}}){{/if}});
     return __ret__;
-}{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}{{#if has_struct_transfer}}{
+}{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{else}}{{#if needs_arr_copy}}return sn_array_copy({{> expr value}});{{else}}{{#if needs_strdup}}return strdup({{> expr value}});{{else}}{{#if has_struct_transfer}}{
     {{c_type struct_transfer_type}} __ret__ = {{> expr value}};
 {{#each struct_transfer_vars}}    __sn__{{this}} = NULL;
 {{/each}}    return __ret__;
-}{{else}}{{#if is_main_void_return}}return 0;{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
+}{{else}}{{#if is_main_void_return}}return 0;{{else}}return{{#if value}} {{> expr value}}{{/if}};{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

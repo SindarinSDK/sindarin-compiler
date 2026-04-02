@@ -1,6 +1,0 @@
-Cycle 0: type=1:store-0 | type=2:search-0
-Cycle 1: type=1:store-1 | type=2:search-1
-Cycle 2: type=1:store-2 | type=2:search-2
-Cycle 3: type=1:store-3 | type=2:search-3
-Cycle 4: type=1:store-4 | type=2:search-4
-SUCCESS: 5 cycles with 2 string requests each completed
