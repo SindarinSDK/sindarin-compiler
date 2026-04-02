@@ -514,6 +514,55 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             gen_model_type(arena, rt));
                     }
                 }
+                /* Member access return: if returning a field of a LOCAL struct with
+                 * sn_auto cleanup, the field will be freed by the cleanup before the
+                 * caller can use it.  Copy the value to avoid use-after-free.
+                 * Exclude method self and function parameters — they're borrowed. */
+                else if (rv->type == EXPR_MEMBER && rv->expr_type)
+                {
+                    Type *rt = rv->expr_type;
+                    Expr *obj_expr = rv->as.member.object;
+                    bool source_has_cleanup = false;
+                    if (obj_expr && obj_expr->expr_type &&
+                        obj_expr->expr_type->kind == TYPE_STRUCT &&
+                        !obj_expr->expr_type->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(obj_expr->expr_type))
+                    {
+                        source_has_cleanup = true;
+                        /* Exclude parameters (including self) — they're borrowed */
+                        if (obj_expr->type == EXPR_VARIABLE)
+                        {
+                            const char *vname = obj_expr->as.variable.name.start;
+                            int vlen = obj_expr->as.variable.name.length;
+                            /* Check against function parameters */
+                            for (int pi = 0; pi < g_all_param_count; pi++)
+                            {
+                                if ((int)strlen(g_all_param_names[pi]) == vlen &&
+                                    strncmp(g_all_param_names[pi], vname, vlen) == 0)
+                                {
+                                    source_has_cleanup = false;
+                                    break;
+                                }
+                            }
+                            /* Check for 'self' in methods */
+                            if (vlen == 4 && strncmp(vname, "self", 4) == 0)
+                                source_has_cleanup = false;
+                        }
+                    }
+                    if (source_has_cleanup)
+                    {
+                        if (rt->kind == TYPE_ARRAY)
+                        {
+                            json_object_object_add(obj, "needs_arr_copy",
+                                json_object_new_boolean(true));
+                        }
+                        else if (rt->kind == TYPE_STRING)
+                        {
+                            json_object_object_add(obj, "needs_strdup",
+                                json_object_new_boolean(true));
+                        }
+                    }
+                }
                 /* Struct literal return: fields may reference local variables with cleanup.
                  * Collect those variables so the template can NULL them before returning. */
                 else if (rv->type == EXPR_STRUCT_LITERAL && rv->expr_type &&

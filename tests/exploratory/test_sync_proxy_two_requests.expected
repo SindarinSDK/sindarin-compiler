@@ -1,6 +1,0 @@
-Cycle 0: resp1=2, resp2=4
-Cycle 1: resp1=22, resp2=24
-Cycle 2: resp1=42, resp2=44
-Cycle 3: resp1=62, resp2=64
-Cycle 4: resp1=82, resp2=84
-SUCCESS: 5 cycles with 2 requests each completed

@@ -1,0 +1,37 @@
+// Test: returning an array field of a struct with sn_auto cleanup.
+// The struct's cleanup must not free the returned array.
+
+struct Container =>
+  id: str
+  items: str[]
+  count: int
+
+fn makeContainer(): Container =>
+  var items: str[] = {"alpha", "beta", "gamma"}
+  return Container {
+    id: "test",
+    items: items,
+    count: 3
+  }
+
+fn getItems(): str[] =>
+  var c: Container = makeContainer()
+  return c.items
+
+fn getId(): str =>
+  var c: Container = makeContainer()
+  return c.id
+
+fn main(): void =>
+  var items: str[] = getItems()
+  println($"items: {items[0]}, {items[1]}, {items[2]}")
+  println($"count: {len(items)}")
+
+  var id: str = getId()
+  println($"id: {id}")
+
+  // Do it again to verify no heap corruption
+  var items2: str[] = getItems()
+  println($"items2: {items2[0]}, {items2[1]}, {items2[2]}")
+
+  println("done")

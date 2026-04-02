@@ -1,6 +1,0 @@
-Cycle 0: A:graph-0 | B1:store-0 | B2:search-0
-Cycle 1: A:graph-1 | B1:store-1 | B2:search-1
-Cycle 2: A:graph-2 | B1:store-2 | B2:search-2
-Cycle 3: A:graph-3 | B1:store-3 | B2:search-3
-Cycle 4: A:graph-4 | B1:store-4 | B2:search-4
-SUCCESS: 5 cycles with multi-proxy completed
