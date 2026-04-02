@@ -335,6 +335,16 @@ static void extract_interp_string_args(json_object *args, json_object *inserts)
         json_object_object_add(var_ref, "name", json_object_new_string(tmp_name));
         json_object_object_add(var_ref, "type", json_object_get(str_type));
 
+        /* Preserve any arg annotations (needs_strdup, etc.) */
+        json_object_object_foreach(arg, key, val)
+        {
+            if (strcmp(key, "kind") != 0 && strcmp(key, "type") != 0 &&
+                strcmp(key, "parts") != 0)
+            {
+                json_object_object_add(var_ref, key, json_object_get(val));
+            }
+        }
+
         json_object_array_put_idx(args, i, var_ref);
     }
 }
