@@ -38,18 +38,22 @@ var msgTypeB: int = 0
 sync var allDone: int = 0
 
 fn proxyA(): int =>
-  while true =>
-    while reqReadyA == 0 =>
+  while allDone == 0 =>
+    while reqReadyA == 0 && allDone == 0 =>
       sleep_ms(1)
+    if allDone == 1 =>
+      break
     respA = $"A:{reqA}"
     reqReadyA = 0
     respReadyA = 1
   return 0
 
 fn proxyB(): int =>
-  while true =>
-    while reqReadyB == 0 =>
+  while allDone == 0 =>
+    while reqReadyB == 0 && allDone == 0 =>
       sleep_ms(1)
+    if allDone == 1 =>
+      break
     respB = $"B{msgTypeB}:{reqB}"
     reqReadyB = 0
     respReadyB = 1

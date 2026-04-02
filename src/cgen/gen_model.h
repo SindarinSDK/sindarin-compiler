@@ -73,6 +73,11 @@ extern int g_thread_handle_var_count;
 /* Suppress auto-cleanup on local array/string vars (set for functions returning structs with heap fields) */
 extern bool g_suppress_local_cleanup;
 
+/* Set to true when a @source pragma is encountered during model building.
+ * Native functions with @alias declared after a @source pragma need forward
+ * declarations because their definitions are compiled separately. */
+extern bool g_has_pragma_source;
+
 /* Set to true when generating lambda body statements — prevents return from
  * nulling captured variables (they belong to the outer scope, not the lambda). */
 extern bool g_in_lambda_body;

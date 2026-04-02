@@ -12,11 +12,14 @@ sync var respReady: int = 0
 var request: str = ""
 var response: str = ""
 var msgType: int = 0
+sync var done: int = 0
 
 fn proxy(): int =>
-  while true =>
-    while reqReady == 0 =>
+  while done == 0 =>
+    while reqReady == 0 && done == 0 =>
       sleep_ms(1)
+    if done == 1 =>
+      break
     // Echo back the request with the message type prepended
     response = $"type={msgType}:{request}"
     reqReady = 0
@@ -53,3 +56,4 @@ fn main(): void =>
     sleep_ms(100)
 
   println("SUCCESS: 5 cycles with 2 string requests each completed")
+  done = 1

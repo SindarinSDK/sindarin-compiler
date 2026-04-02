@@ -482,6 +482,17 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
     {
         json_object_object_add(obj, "has_c_alias", json_object_new_boolean(true));
         json_object_object_add(obj, "c_alias", json_object_new_string(func->c_alias));
+        /* Mark native @alias functions that follow a @source pragma —
+         * these need forward declarations since their .sn.c definitions
+         * are compiled separately. System functions (no @source) don't. */
+        if (func->is_native && func->body_count == 0 && g_has_pragma_source)
+            json_object_object_add(obj, "has_pragma_source", json_object_new_boolean(true));
+    }
+    else if (func->is_native || func->body_count > 0)
+    {
+        /* A native function without @alias or any function with a body
+         * breaks the @source pragma association context */
+        g_has_pragma_source = false;
     }
 
     /* Parameters */

@@ -803,6 +803,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 if (stmt->as.pragma.pragma_type == PRAGMA_SOURCE && stmt->token &&
                     stmt->token->filename)
                 {
+                    g_has_pragma_source = true;
                     const char *prag_file = stmt->token->filename;
                     const char *val = stmt->as.pragma.value;
                     size_t vlen = strlen(val);
