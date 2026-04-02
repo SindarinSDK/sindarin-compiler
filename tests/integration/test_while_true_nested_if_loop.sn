@@ -1,0 +1,121 @@
+// Reproducer: while true on a spawned thread with sync var proxy
+// pattern — two proxy calls per cycle, nested if blocks, struct
+// results, string cleanup. Exactly mirrors skynet's cycle loop.
+
+@source "test_while_true_nested_if_loop.sn.c"
+
+@alias "sn_sleep_ms"
+native fn sleep_ms(ms: int): void
+
+struct Result =>
+  id: str
+  value: int
+  items: str[]
+
+fn doWork(cycle: int): Result =>
+  var items: str[] = {}
+  items.push($"item-{cycle}-a")
+  items.push($"item-{cycle}-b")
+  return Result {
+    id: $"result-{cycle}",
+    value: cycle * 10,
+    items: items
+  }
+
+// Proxy A shared state
+var reqA: str = ""
+var respA: str = ""
+sync var reqReadyA: int = 0
+sync var respReadyA: int = 0
+
+// Proxy B shared state (two calls per cycle)
+var reqB: str = ""
+var respB: str = ""
+sync var reqReadyB: int = 0
+sync var respReadyB: int = 0
+var msgTypeB: int = 0
+
+sync var allDone: int = 0
+
+fn proxyA(): int =>
+  while true =>
+    while reqReadyA == 0 =>
+      sleep_ms(1)
+    respA = $"A:{reqA}"
+    reqReadyA = 0
+    respReadyA = 1
+  return 0
+
+fn proxyB(): int =>
+  while true =>
+    while reqReadyB == 0 =>
+      sleep_ms(1)
+    respB = $"B{msgTypeB}:{reqB}"
+    reqReadyB = 0
+    respReadyB = 1
+  return 0
+
+fn callA(payload: str): str =>
+  reqA = payload
+  respReadyA = 0
+  reqReadyA = 1
+  while respReadyA == 0 =>
+    sleep_ms(1)
+  return respA
+
+fn callB(kind: int, payload: str): str =>
+  msgTypeB = kind
+  reqB = payload
+  respReadyB = 0
+  reqReadyB = 1
+  while respReadyB == 0 =>
+    sleep_ms(1)
+  return respB
+
+fn cycleLoop(): int =>
+  var cycle: int = 0
+  var maxCycles: int = 5
+  var doMemory: bool = true
+  var doExecutor: bool = true
+
+  while true =>
+    if cycle >= maxCycles =>
+      break
+
+    // Step 1: work via proxy A (like predict)
+    var result: Result = doWork(cycle)
+    var r1: str = callA($"predict-{cycle}")
+
+    // Step 2-3: TWO calls via proxy B in same cycle (like store + search)
+    if doMemory =>
+      var storeResp: str = callB(1, $"store-{cycle}")
+      var searchResp: str = callB(2, $"search-{cycle}")
+
+    // Step 4: another proxy A call (like execute)
+    if doExecutor =>
+      var execResp: str = callA($"exec-{cycle}")
+
+    // Accumulate
+    if cycle > 0 && cycle % 2 == 0 =>
+      var trainMsg: str = $"training at cycle {cycle}"
+
+    println($"cycle {cycle}: {result.id}")
+    cycle = cycle + 1
+
+    // Trailing if with sleep (like cycleIntervalMs)
+    var elapsed: int = 10
+    var interval: int = 100
+    if elapsed < interval =>
+      sleep_ms(interval - elapsed)
+
+  allDone = 1
+  return 0
+
+fn main(): void =>
+  var hA: int = & proxyA()
+  var hB: int = & proxyB()
+  sleep_ms(50)
+  var hCycle: int = & cycleLoop()
+  while allDone == 0 =>
+    sleep_ms(100)
+  println("done")
