@@ -450,7 +450,10 @@ bool package_git_checkout(const char *repo_path, const char *ref_name)
         /* Try to find existing local branch */
         rc = git_branch_lookup(&branch_ref, repo, ref_name, GIT_BRANCH_LOCAL);
         if (rc == 0) {
-            /* Branch exists, update HEAD to point to it */
+            /* Branch exists — advance it to the target commit, then set HEAD */
+            git_reference *updated_ref = NULL;
+            git_reference_set_target(&updated_ref, branch_ref, git_object_id(target), "package sync");
+            if (updated_ref) git_reference_free(updated_ref);
             char full_ref_name[256];
             snprintf(full_ref_name, sizeof(full_ref_name), "refs/heads/%s", ref_name);
             rc = git_repository_set_head(repo, full_ref_name);
