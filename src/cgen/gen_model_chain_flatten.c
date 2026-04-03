@@ -176,11 +176,18 @@ static void annotate_chain_temp(json_object *var_decl, json_object *obj_type)
         json_object_object_add(obj_type, "pass_self_by_ref",
             json_object_new_boolean(true));
 
-        /* Native as-ref structs lack reference counting, so 'return self' methods
-         * would cause double-free if chain temps have sn_auto release cleanup.
-         * Use borrow semantics (no cleanup); explicit dispose() manages lifetime. */
+        /* Native as-ref structs lack reference counting, so instance method
+         * chains that 'return self' would cause double-free if chain temps
+         * have sn_auto release cleanup.
+         *
+         * However, static factory methods (Time.utc(), UUID.create(), etc.)
+         * return NEW owned allocations that must be freed. We distinguish:
+         *   - static_call initializer → factory, owns the result → needs cleanup
+         *   - call/method_call initializer → instance method, may be borrowing self
+         */
         bool is_native_ref = struct_is_native_ref(struct_name);
-        if (!is_native_ref)
+        bool is_factory = (init_kind && strcmp(init_kind, "static_call") == 0);
+        if (!is_native_ref || is_factory)
         {
             json_object_object_add(var_decl, "cleanup_kind",
                 json_object_new_string("release"));
