@@ -601,6 +601,16 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 json_object_object_add(obj, "is_main_void_return",
                     json_object_new_boolean(true));
             }
+            /* Lock cleanup: emit pthread_mutex_unlock for each enclosing lock scope
+             * (innermost first) so early returns don't leave mutexes held. */
+            if (g_lock_depth > 0)
+            {
+                json_object *cleanups = json_object_new_array();
+                for (int li = g_lock_depth - 1; li >= 0; li--)
+                    json_object_array_add(cleanups,
+                        json_object_new_string(g_lock_var_names[li]));
+                json_object_object_add(obj, "lock_cleanups", cleanups);
+            }
             break;
         }
 
@@ -898,10 +908,23 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
         case STMT_LOCK:
         {
             json_object_object_add(obj, "kind", json_object_new_string("lock"));
-            json_object_object_add(obj, "lock_expr",
-                gen_model_expr(arena, stmt->as.lock_stmt.lock_expr, symbol_table, arithmetic_mode));
+            json_object *lock_expr = gen_model_expr(arena, stmt->as.lock_stmt.lock_expr, symbol_table, arithmetic_mode);
+            json_object_object_add(obj, "lock_expr", lock_expr);
+
+            /* Push lock variable name so return statements can emit unlock */
+            const char *lock_name = NULL;
+            json_object *name_obj;
+            if (json_object_object_get_ex(lock_expr, "name", &name_obj))
+                lock_name = json_object_get_string(name_obj);
+            if (lock_name && g_lock_depth < MAX_LOCK_DEPTH)
+                g_lock_var_names[g_lock_depth++] = lock_name;
+
             json_object_object_add(obj, "body",
                 gen_model_stmt(arena, stmt->as.lock_stmt.body, symbol_table, arithmetic_mode));
+
+            /* Pop lock scope */
+            if (lock_name && g_lock_depth > 0)
+                g_lock_depth--;
             break;
         }
 

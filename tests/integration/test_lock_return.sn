@@ -1,0 +1,31 @@
+// Test: return inside lock block must release the mutex before returning.
+// If the compiler doesn't emit pthread_mutex_unlock before the return,
+// the second lock acquisition will deadlock.
+
+sync var mu: int = 0
+var counter: int = 0
+
+fn earlyReturn(doReturn: bool): void =>
+  lock (mu) =>
+    counter = counter + 1
+    if doReturn =>
+      return
+    counter = counter + 1
+
+fn main(): int =>
+  // Call with early return — should increment counter by 1, then release lock
+  earlyReturn(true)
+  assert(counter == 1, $"After early return: expected 1, got {counter}")
+
+  // If the lock was properly released, this should not deadlock
+  lock (mu) =>
+    counter = counter + 100
+
+  assert(counter == 101, $"After re-lock: expected 101, got {counter}")
+
+  // Call without early return — should increment counter by 2
+  earlyReturn(false)
+  assert(counter == 103, $"After normal return: expected 103, got {counter}")
+
+  print("PASS\n")
+  return 0
