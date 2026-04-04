@@ -39,6 +39,10 @@ char *g_closure_var_names[MAX_CLOSURE_VAR_MAP];
 int g_closure_var_lambda_ids[MAX_CLOSURE_VAR_MAP];
 int g_closure_var_count = 0;
 
+/* Lock scope stack */
+const char *g_lock_var_names[MAX_LOCK_DEPTH];
+int g_lock_depth = 0;
+
 /* Global fn-wrapper collection for function-as-parameter wrapping */
 json_object *g_model_fn_wrappers = NULL;
 int g_model_fn_wrapper_count = 0;

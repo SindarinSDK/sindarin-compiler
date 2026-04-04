@@ -173,4 +173,11 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *symbol_table,
                               ArithmeticMode arithmetic_mode);
 
+/* Lock scope stack — tracks active lock variable names so return statements
+ * can emit pthread_mutex_unlock before returning.  Pushed/popped in STMT_LOCK,
+ * read in STMT_RETURN. */
+#define MAX_LOCK_DEPTH 16
+extern const char *g_lock_var_names[MAX_LOCK_DEPTH];
+extern int g_lock_depth;
+
 #endif
