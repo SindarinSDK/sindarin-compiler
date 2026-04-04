@@ -227,6 +227,17 @@ Type *type_check_member_assign(Expr *expr, SymbolTable *table)
                                   rhs_scope_depth, lhs_scope_depth);
                 }
 
+                /* Propagate field type to empty array literals so codegen
+                 * generates the correct elem_size and callbacks.
+                 * Mirrors the fix in type_check_assign(). */
+                if (t->kind == TYPE_ARRAY && value_type != NULL &&
+                    value_type->kind == TYPE_ARRAY &&
+                    value_type->as.array.element_type != NULL &&
+                    value_type->as.array.element_type->kind == TYPE_NIL)
+                {
+                    value_expr->expr_type = t;
+                }
+
                 return t;
             }
         }
@@ -294,6 +305,17 @@ Type *type_check_member_assign(Expr *expr, SymbolTable *table)
                     ast_expr_mark_escapes(value_expr);
                     DEBUG_VERBOSE("Escape detected in ptr field assign: RHS (scope %d) escaping to LHS field (base scope %d)",
                                   rhs_scope_depth, lhs_scope_depth);
+                }
+
+                /* Propagate field type to empty array literals so codegen
+                 * generates the correct elem_size and callbacks.
+                 * Mirrors the fix in type_check_assign(). */
+                if (t->kind == TYPE_ARRAY && value_type != NULL &&
+                    value_type->kind == TYPE_ARRAY &&
+                    value_type->as.array.element_type != NULL &&
+                    value_type->as.array.element_type->kind == TYPE_NIL)
+                {
+                    value_expr->expr_type = t;
                 }
 
                 return t;

@@ -1,0 +1,50 @@
+// Test: reassigning a struct array field with self.field = {} must preserve
+// the correct element type, elem_release, and elem_copy callbacks.
+// Previously, the empty literal defaulted to sizeof(long long) with no
+// callbacks, corrupting memory on subsequent pushes.
+
+struct Item =>
+  name: str
+  values: int[]
+
+struct Container =>
+  items: Item[]
+
+  fn addItem(name: str, vals: int[]): void =>
+    self.items.push(Item {
+      name: name,
+      values: vals
+    })
+
+  fn reset(): void =>
+    self.items = {}
+
+  fn count(): int => len(self.items)
+
+fn main(): int =>
+  var c: Container = Container { items: {} }
+
+  c.addItem("first", {1, 2, 3})
+  c.addItem("second", {4, 5})
+  assert(c.count() == 2, $"Should have 2 items, got {c.count()}")
+
+  // Reset clears the array — this is where the bug manifests
+  c.reset()
+  assert(c.count() == 0, $"Should have 0 items after reset, got {c.count()}")
+
+  // Push new items into the reset array
+  c.addItem("third", {7, 8, 9})
+  c.addItem("fourth", {10})
+  assert(c.count() == 2, $"Should have 2 items after re-add, got {c.count()}")
+
+  // Verify data integrity — this reads from the replacement array
+  var item: Item = c.items[0]
+  assert(item.name == "third", $"Name should be 'third', got '{item.name}'")
+  assert(len(item.values) == 3, $"Values should have 3 elements, got {len(item.values)}")
+  assert(item.values[0] == 7, $"First value should be 7, got {item.values[0]}")
+
+  var item2: Item = c.items[1]
+  assert(item2.name == "fourth", $"Name should be 'fourth', got '{item2.name}'")
+
+  print("PASS\n")
+  return 0
