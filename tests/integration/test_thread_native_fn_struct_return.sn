@@ -1,0 +1,17 @@
+// Test: Thread spawn of native function returning struct fails C compilation
+// The thread wrapper uses mangled name __sn__<fn> but native forward decl uses unmangled name
+// Related: docs/issues/compiler-problems.28.md (Issue #45)
+
+@source "test_thread_native_fn_struct_return.sn.c"
+
+native struct NativeResult =>
+  count: int
+  total: double
+
+native fn compute_native(n: int): NativeResult
+
+fn main(): void =>
+  var r1: NativeResult = & compute_native(10)
+  var r2: NativeResult = & compute_native(20)
+  [r1, r2] !
+  println($"r1={r1.count}")

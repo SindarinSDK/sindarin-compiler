@@ -1,0 +1,147 @@
+// Test: Thread spawn with different struct return types
+// Verifies that thread wrappers correctly handle all struct categories:
+// A. Primitive-only struct (no heap fields)
+// B. Composite struct with str fields
+// C. @serializable struct with nested composite
+// D. Native struct returned via non-native wrapper
+// Related: docs/issues/compiler-problems.28.md (Issue #45)
+
+@source "test_thread_struct_return_types.sn.c"
+
+// === A. Primitive-only struct ===
+struct Primitive =>
+  value: int
+  ok: bool
+  score: double
+
+fn compute_primitive(x: int): Primitive =>
+  return Primitive {
+    value: x * 10,
+    ok: true,
+    score: x.toDouble() * 1.5
+  }
+
+// === B. Composite struct with str fields ===
+struct Composite =>
+  id: str
+  value: double
+
+fn compute_composite(x: int): Composite =>
+  return Composite {
+    id: $"item_{x}",
+    value: x.toDouble() * 2.0
+  }
+
+// === C. @serializable with nested composite ===
+@serializable
+struct HyperParams =>
+  name: str
+  rate: double
+
+@serializable
+struct TrainResult =>
+  model_id: str
+  accuracy: double
+  params: HyperParams
+
+fn train(stream: str, hp: HyperParams as val): TrainResult =>
+  return TrainResult {
+    model_id: $"model_{stream}",
+    accuracy: hp.rate * 100.0,
+    params: hp
+  }
+
+// === D. Native struct via non-native wrapper ===
+native struct Metrics =>
+  count: int
+  total: double
+
+native fn raw_metrics(n: int): Metrics
+
+fn compute_metrics(n: int): Metrics =>
+  return raw_metrics(n)
+
+fn main(): void =>
+  // --- A: Primitive-only ---
+  var p1: Primitive = & compute_primitive(1)
+  var p2: Primitive = & compute_primitive(2)
+  [p1, p2] !
+
+  println($"p1: value={p1.value}, ok={p1.ok}, score={p1.score}")
+  println($"p2: value={p2.value}, ok={p2.ok}, score={p2.score}")
+
+  if p1.value == 10 && p1.ok && p1.score == 1.5 =>
+    if p2.value == 20 && p2.ok && p2.score == 3.0 =>
+      println("A: PASS")
+    else =>
+      println("A: FAIL")
+  else =>
+    println("A: FAIL")
+
+  // --- B: Composite with str ---
+  var c1: Composite = & compute_composite(1)
+  var c2: Composite = & compute_composite(2)
+  [c1, c2] !
+
+  println($"c1: id={c1.id}, value={c1.value}")
+  println($"c2: id={c2.id}, value={c2.value}")
+
+  if c1.id == "item_1" && c1.value == 2.0 =>
+    if c2.id == "item_2" && c2.value == 4.0 =>
+      println("B: PASS")
+    else =>
+      println("B: FAIL")
+  else =>
+    println("B: FAIL")
+
+  // --- C: @serializable nested ---
+  var hp1: HyperParams = HyperParams {
+    name: "adam",
+    rate: 0.001
+  }
+  var hp2: HyperParams = HyperParams {
+    name: "sgd",
+    rate: 0.01
+  }
+  var hp3: HyperParams = HyperParams {
+    name: "rmsp",
+    rate: 0.005
+  }
+
+  var t1: TrainResult = & train("s1", hp1)
+  var t2: TrainResult = & train("s2", hp2)
+  var t3: TrainResult = & train("s3", hp3)
+  [t1, t2, t3] !
+
+  println($"t1: id={t1.model_id}, acc={t1.accuracy}, cfg={t1.params.name}")
+  println($"t2: id={t2.model_id}, acc={t2.accuracy}, cfg={t2.params.name}")
+  println($"t3: id={t3.model_id}, acc={t3.accuracy}, cfg={t3.params.name}")
+
+  if t1.model_id == "model_s1" && t1.params.name == "adam" =>
+    if t2.model_id == "model_s2" && t2.params.name == "sgd" =>
+      if t3.model_id == "model_s3" && t3.params.name == "rmsp" =>
+        println("C: PASS")
+      else =>
+        println("C: FAIL")
+    else =>
+      println("C: FAIL")
+  else =>
+    println("C: FAIL")
+
+  // --- D: Native struct via wrapper ---
+  var m1: Metrics = & compute_metrics(10)
+  var m2: Metrics = & compute_metrics(20)
+  [m1, m2] !
+
+  println($"m1: count={m1.count}, total={m1.total}")
+  println($"m2: count={m2.count}, total={m2.total}")
+
+  if m1.count == 10 && m1.total == 15.0 =>
+    if m2.count == 20 && m2.total == 30.0 =>
+      println("D: PASS")
+    else =>
+      println("D: FAIL")
+  else =>
+    println("D: FAIL")
+
+  println("All thread struct return type tests completed")

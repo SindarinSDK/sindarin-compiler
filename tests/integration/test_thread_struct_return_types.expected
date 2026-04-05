@@ -1,0 +1,14 @@
+p1: value=10, ok=true, score=1.50000
+p2: value=20, ok=true, score=3.00000
+A: PASS
+c1: id=item_1, value=2.00000
+c2: id=item_2, value=4.00000
+B: PASS
+t1: id=model_s1, acc=0.10000, cfg=adam
+t2: id=model_s2, acc=1.00000, cfg=sgd
+t3: id=model_s3, acc=0.50000, cfg=rmsp
+C: PASS
+m1: count=10, total=15.00000
+m2: count=20, total=30.00000
+D: PASS
+All thread struct return type tests completed

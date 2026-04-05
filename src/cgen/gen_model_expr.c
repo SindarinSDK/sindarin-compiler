@@ -2712,6 +2712,23 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             json_object_object_add(tdef, "func_name",
                                 json_object_new_string(callee->as.variable.name.start));
+                            /* Native functions use unmangled names in C — pass
+                             * is_native + target_name so the thread wrapper
+                             * template calls the correct symbol. */
+                            Type *fn_type = callee->expr_type;
+                            if (fn_type && fn_type->kind == TYPE_FUNCTION &&
+                                fn_type->as.function.is_native)
+                            {
+                                json_object_object_add(tdef, "is_native",
+                                    json_object_new_boolean(true));
+                                Symbol *func_sym = symbol_table_lookup_symbol(
+                                    symbol_table, callee->as.variable.name);
+                                const char *tname = (func_sym && func_sym->c_alias)
+                                    ? func_sym->c_alias
+                                    : callee->as.variable.name.start;
+                                json_object_object_add(tdef, "target_name",
+                                    json_object_new_string(tname));
+                            }
                         }
                     }
                     else if (callee->type == EXPR_MEMBER && callee->as.member.resolved_struct_type)
