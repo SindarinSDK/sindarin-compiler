@@ -1,0 +1,27 @@
+# Test: SEGV in sn_array_slice when slicing struct field arrays in a loop
+# Reproduces issue #43 — self.field = self.field[1..] in a while loop
+
+struct RateLimiter =>
+  timestamps: int[]
+
+  fn record(ts: int): void =>
+    self.timestamps.push(ts)
+
+  fn evict(cutoff: int): void =>
+    while len(self.timestamps) > 0 && self.timestamps[0] < cutoff =>
+      self.timestamps = self.timestamps[1..]
+
+fn main(): void =>
+  var rl: RateLimiter = RateLimiter { timestamps: {} }
+
+  # Push 20 timestamps: 100, 200, ..., 2000
+  for var i: int = 1; i <= 20; i++ =>
+    rl.record(i * 100)
+
+  # Evict everything below 1500 — should leave {1500, 1600, 1700, 1800, 1900, 2000}
+  rl.evict(1500)
+
+  print($"{len(rl.timestamps)}\n")
+  for var i: int = 0; i < len(rl.timestamps); i++ =>
+    print($"{rl.timestamps[i]}\n")
+  print("PASS\n")
