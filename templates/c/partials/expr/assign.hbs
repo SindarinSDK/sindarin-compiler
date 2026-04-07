@@ -5,9 +5,12 @@
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "release_ref")}}({
     __sn__{{target_type.name}} *__old__ = {{#if is_captured}}*{{/if}}__sn__{{target}};
-    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{#if needs_retain}}__sn__{{target_type.name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
+{{#if needs_retain}}    {{#if is_captured}}*{{/if}}__sn__{{target}} = __sn__{{target_type.name}}_retain({{> expr value}});
     __sn__{{target_type.name}}_release(&__old__);
-    {{#if is_captured}}*{{/if}}__sn__{{target}};
+{{else}}    __sn__{{target_type.name}} *__new__ = {{> expr value}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = __new__;
+    if (__new__ != __old__) __sn__{{target_type.name}}_release(&__old__);
+{{/if}}    {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "cleanup_val")}}({
     {{c_type target_type}} __tmp__ = {{#if needs_val_copy}}__sn__{{target_type.name}}_copy(&{{> expr value}}){{else}}{{> expr value}}{{/if}};
     __sn__{{target_type.name}}_cleanup(&{{#if is_captured}}*{{/if}}__sn__{{target}});

@@ -1,0 +1,4 @@
+before: handle=42
+alive: 1
+after: handle=42
+PASS

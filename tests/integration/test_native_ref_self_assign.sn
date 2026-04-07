@@ -1,0 +1,43 @@
+# Integration test for issue #46 (compiler-problems.29.md):
+# Self-assignment of refcounted handle (`x = f(x)`) frees the handle
+# when `f` returns the same pointer.
+#
+# Pattern:
+# var bias: Tensor = tensor_create(42)
+# bias = tensor_register(bias)   # native fn returns the same pointer
+# tensor_get_handle(bias)        # reads freed memory
+#
+# The compiler currently lowers `bias = tensor_register(bias)` to roughly:
+# __tmp = tensor_register(bias);
+# sn_tensor_release(bias);   /* rc 1 -> 0, frees bias */
+# bias = __tmp;              /* dangling */
+# sn_tensor_retain(bias);    /* UAF on freed memory */
+#
+# ASAN catches the UAF, and the pool walk in tensor_check_alive() also
+# detects that the handle is stale even on heap layouts that mask the
+# raw read.
+
+#pragma source "test_native_ref_self_assign_helper.c"
+
+native struct Tensor as ref =>
+  handle: int
+
+native fn tensor_create(handle: int): Tensor
+native fn tensor_register(t: Tensor): Tensor
+native fn tensor_get_handle(t: Tensor): int
+native fn tensor_check_alive(t: Tensor): int
+
+fn main(): void =>
+  var bias: Tensor = tensor_create(42)
+  println($"before: handle={tensor_get_handle(bias)}")
+
+  # Bug pattern: self-assignment via fn that returns the same pointer.
+  bias = tensor_register(bias)
+
+  # If the bug fires, bias is now a dangling pointer. tensor_check_alive
+  # walks the live-pool list to detect a stale handle deterministically;
+  # ASAN will also catch the UAF on the retain emitted by codegen.
+  var alive: int = tensor_check_alive(bias)
+  println($"alive: {alive}")
+  println($"after: handle={tensor_get_handle(bias)}")
+  println("PASS")
