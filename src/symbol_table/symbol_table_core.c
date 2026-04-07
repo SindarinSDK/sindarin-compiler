@@ -422,6 +422,12 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
         DEBUG_ERROR("Out of memory when creating symbol");
         return;
     }
+    /* Zero-init: arena_alloc returns uninitialized memory.  Field-by-field
+     * initialization below has historically missed members (e.g. c_alias),
+     * which manifests as garbage pointer reads on platforms where the
+     * arena pages aren't zero (Windows).  Memset guarantees every Symbol
+     * field starts at NULL/0 regardless of what fields the struct has. */
+    memset(symbol, 0, sizeof(*symbol));
 
     symbol->name = name;
     symbol->type = type;

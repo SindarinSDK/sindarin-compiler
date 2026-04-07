@@ -53,6 +53,7 @@ void symbol_table_add_type(SymbolTable *table, Token name, Type *type)
         DEBUG_ERROR("Out of memory when creating type symbol");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the type name */
     char *dup_name = arena_strndup(table->arena, name.start, name.length);

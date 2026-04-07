@@ -57,6 +57,7 @@ void symbol_table_add_nested_namespace(SymbolTable *table, Token parent_ns_name,
         DEBUG_ERROR("Out of memory when creating nested namespace symbol");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the namespace name */
     char *dup_name = arena_strndup(table->arena, nested_ns_name.start, nested_ns_name.length);
@@ -179,6 +180,7 @@ void symbol_table_add_function_to_nested_namespace(SymbolTable *table, Token par
         DEBUG_ERROR("Out of memory when creating function symbol for nested namespace");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     char *dup_name = arena_strndup(table->arena, symbol_name.start, symbol_name.length);
     if (dup_name == NULL)
@@ -293,6 +295,7 @@ void symbol_table_add_symbol_to_nested_namespace(SymbolTable *table, Token paren
         DEBUG_ERROR("Out of memory when creating symbol for nested namespace");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     char *dup_name = arena_strndup(table->arena, symbol_name.start, symbol_name.length);
     if (dup_name == NULL)

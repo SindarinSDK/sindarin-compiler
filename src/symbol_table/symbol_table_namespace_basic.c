@@ -39,6 +39,7 @@ void symbol_table_add_namespace(SymbolTable *table, Token name)
         DEBUG_ERROR("Out of memory when creating namespace symbol");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the namespace name */
     char *dup_name = arena_strndup(table->arena, name.start, name.length);
@@ -137,6 +138,7 @@ void symbol_table_add_symbol_to_namespace(SymbolTable *table, Token namespace_na
         DEBUG_ERROR("Out of memory when creating symbol for namespace");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the symbol name */
     char *dup_name = arena_strndup(table->arena, symbol_name.start, symbol_name.length);
@@ -233,6 +235,7 @@ void symbol_table_add_function_to_namespace(SymbolTable *table, Token namespace_
         DEBUG_ERROR("Out of memory when creating function symbol for namespace");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the symbol name */
     char *dup_name = arena_strndup(table->arena, symbol_name.start, symbol_name.length);
@@ -327,6 +330,7 @@ void symbol_table_add_struct_to_namespace(SymbolTable *table, Token namespace_na
         DEBUG_ERROR("Out of memory when creating struct symbol for namespace");
         return;
     }
+    memset(symbol, 0, sizeof(*symbol));  /* zero-init: arena memory may be non-zero */
 
     /* Duplicate the symbol name */
     char *dup_name = arena_strndup(table->arena, struct_name.start, struct_name.length);
