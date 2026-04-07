@@ -69,7 +69,7 @@ __sn__Builder * __sn__Builder_setValue(__sn__Builder *__sn__self, long long __sn
     (__sn__self->__sn__value = __sn__v);
     
 
-    return __sn__self;}
+    return __sn__Builder_retain(__sn__self);}
 
 int main() {
     return 0LL;    fflush(stdout);

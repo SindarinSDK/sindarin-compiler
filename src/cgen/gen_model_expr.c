@@ -1563,6 +1563,75 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_boolean(is_closure));
                 json_object_object_add(obj, "is_fn_field_call",
                     json_object_new_boolean(is_fn_field_call));
+
+                /* Borrow-inference wrapping for native fn calls returning a
+                 * ref-struct that aliases at least one ref-struct argument.
+                 *
+                 * Native fns may return one of their inputs unchanged (borrowed)
+                 * or a freshly allocated tensor (owned). The compiler can't tell
+                 * which from the signature alone. We wrap the call in a runtime
+                 * snapshot+check that retains the result iff it matches one of
+                 * the snapshotted ref-struct args AND that arg's __rc__ is
+                 * unchanged across the call. After wrapping, the result is
+                 * guaranteed +1 owned regardless of what the native code did. */
+                if (!is_closure && !is_fn_field_call)
+                {
+                    Type *ctype2 = expr->as.call.callee->expr_type;
+                    bool callee_is_native = (ctype2 && ctype2->kind == TYPE_FUNCTION &&
+                                             ctype2->as.function.is_native);
+                    Type *ret_type = (ctype2 && ctype2->kind == TYPE_FUNCTION)
+                                     ? ctype2->as.function.return_type : NULL;
+                    bool ret_is_ref_struct = (ret_type && ret_type->kind == TYPE_STRUCT &&
+                                              ret_type->as.struct_type.pass_self_by_ref);
+                    if (callee_is_native && ret_is_ref_struct)
+                    {
+                        const char *ret_name = ret_type->as.struct_type.name;
+                        Type **ptypes = ctype2->as.function.param_types;
+                        int pcount = ctype2->as.function.param_count;
+                        json_object *check_args = json_object_new_array();
+                        int n_checks = 0;
+                        for (int pi = 0; pi < pcount && pi < expr->as.call.arg_count; pi++)
+                        {
+                            Type *pt = ptypes[pi];
+                            if (pt && pt->kind == TYPE_STRUCT &&
+                                pt->as.struct_type.pass_self_by_ref &&
+                                pt->as.struct_type.name &&
+                                ret_name &&
+                                strcmp(pt->as.struct_type.name, ret_name) == 0)
+                            {
+                                json_object *check = json_object_new_object();
+                                json_object_object_add(check, "type_name",
+                                    json_object_new_string(ret_name));
+                                json_object_object_add(check, "ptr_expr",
+                                    gen_model_expr(arena, expr->as.call.arguments[pi],
+                                                   symbol_table, arithmetic_mode));
+                                json_object_array_add(check_args, check);
+                                n_checks++;
+                            }
+                        }
+                        if (n_checks > 0)
+                        {
+                            json_object *wrapper = json_object_new_object();
+                            json_object_object_add(wrapper, "kind",
+                                json_object_new_string("borrow_inferred_call"));
+                            json_object_object_add(wrapper, "result_type_name",
+                                json_object_new_string(ret_name));
+                            json_object_object_add(wrapper, "borrow_check_args", check_args);
+                            json_object_object_add(wrapper, "inner_call", obj);
+                            /* Propagate type so downstream consumers see the wrapper
+                             * as the same type as the original call */
+                            json_object *type_copy;
+                            if (json_object_object_get_ex(obj, "type", &type_copy))
+                                json_object_object_add(wrapper, "type",
+                                    json_object_get(type_copy));
+                            obj = wrapper;
+                        }
+                        else
+                        {
+                            json_object_put(check_args);
+                        }
+                    }
+                }
             }
             break;
         }

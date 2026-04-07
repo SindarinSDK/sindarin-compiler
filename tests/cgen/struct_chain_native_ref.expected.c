@@ -50,12 +50,12 @@ typedef struct __Closure__ {
 
 __sn__Stmt * __sn__Stmt_bind(__sn__Stmt *__sn__self, long long __sn__v) {
 
-    return __sn__self;}
+    return __sn__Stmt_retain(__sn__self);}
 
 int main() {
     sn_auto_Stmt __sn__Stmt * __sn__s = NULL;
-    __sn__Stmt * __sn____chain_tmp_0 = __sn__Stmt_bind(__sn__s, 1LL);
-    __sn__Stmt_bind(__sn____chain_tmp_0, 2LL);
+    sn_auto_Stmt __sn__Stmt * __sn____chain_tmp_0 = __sn__Stmt_bind(__sn__s, 1LL);
+    { __sn__Stmt *__discard__ = __sn__Stmt_bind(__sn____chain_tmp_0, 2LL); __sn__Stmt_release(&__discard__); }
     
     fflush(stdout);
     return 0;

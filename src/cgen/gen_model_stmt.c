@@ -99,10 +99,18 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                     json_object_new_string("fn"));
                             break;
                         case TYPE_CAT_REFCOUNTED:
-                            /* Do NOT discard-cleanup refcounted types. Builder methods
-                             * (setX, addY) return self — the discarded return value is
-                             * an alias, not a new reference. Releasing it would free
-                             * the object the caller still holds. */
+                            /* With borrow-inference at native call sites and explicit
+                             * retain on `return self`/`return param` for Sindarin fns,
+                             * every refcounted call result is +1 owned. A discarded
+                             * call result must release that +1, otherwise it leaks.
+                             * Builder-method `return self` chains stay safe because
+                             * the retain inside the callee balances this release. */
+                            json_object_object_add(obj, "needs_discard_cleanup",
+                                json_object_new_boolean(true));
+                            json_object_object_add(obj, "discard_kind",
+                                json_object_new_string("release"));
+                            json_object_object_add(obj, "discard_type_name",
+                                json_object_new_string(ex->expr_type->as.struct_type.name));
                             break;
                         case TYPE_CAT_COMPOSITE:
                             json_object_object_add(obj, "needs_discard_cleanup",
@@ -462,6 +470,15 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                 /* For str params: return strdup so the caller gets an owned copy. */
                                 if (rt->kind == TYPE_STRING)
                                     json_object_object_add(obj, "needs_strdup",
+                                                           json_object_new_boolean(true));
+                                /* For ref-struct params: the caller's var-decl/assign expects a
+                                 * +1 owned reference (no retain on call-result). The param itself
+                                 * is borrowed, so emit an explicit retain at the return so the
+                                 * caller's ref is correctly accounted for. Without this, returning
+                                 * a ref-struct param leaks rc by 1 (caller has uncounted reference)
+                                 * and eventually UAFs at scope exit. */
+                                else if (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref)
+                                    json_object_object_add(obj, "needs_retain_return",
                                                            json_object_new_boolean(true));
                                 /* For arrays/functions: just return directly — the callee doesn't
                                  * own the param's array; the caller retains ownership. */

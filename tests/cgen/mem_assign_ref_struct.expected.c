@@ -83,9 +83,8 @@ int main() {
     sn_auto_Node __sn__Node * __sn__n = __sn__make_node(1LL);
     ({
         __sn__Node *__old__ = __sn__n;
-        __sn__Node *__new__ = __sn__make_node(2LL);
-        __sn__n = __new__;
-        if (__new__ != __old__) __sn__Node_release(&__old__);
+        __sn__n = __sn__make_node(2LL);
+        __sn__Node_release(&__old__);
         __sn__n;
     });
     

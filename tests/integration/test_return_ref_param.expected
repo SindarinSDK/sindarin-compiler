@@ -1,0 +1,4 @@
+a=42 b=42
+c=7 d=7 cache=7
+after restash: a=42 c=7 e=99 cache=99
+PASS

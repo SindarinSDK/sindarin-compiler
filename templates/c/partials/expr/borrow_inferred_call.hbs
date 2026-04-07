@@ -1,0 +1,7 @@
+({
+{{#each borrow_check_args}}    __sn__{{type_name}} *__bi_snap_{{@index}}__ = {{> expr ptr_expr}};
+    int __bi_rc_{{@index}}__ = __bi_snap_{{@index}}__ ? __bi_snap_{{@index}}__->__rc__ : 0;
+{{/each}}    __sn__{{result_type_name}} *__bi_result__ = {{> expr inner_call}};
+    if (__bi_result__ && ({{#each borrow_check_args}}{{#if @index}} || {{/if}}(__bi_result__ == __bi_snap_{{@index}}__ && __bi_result__->__rc__ == __bi_rc_{{@index}}__){{/each}})) __sn__{{result_type_name}}_retain(__bi_result__);
+    __bi_result__;
+})
