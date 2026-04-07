@@ -83,19 +83,31 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
  * When a composite struct rvalue (e.g. function call result) is passed
  * as a borrowed arg, the codegen creates a temp inside a ({...}) whose
  * lifetime ends before the call executes. This hoists those temps into
- * the call-level scope so the pointer remains valid during the call. */
+ * the call-level scope so the pointer remains valid during the call.
+ *
+ * Also hoists array-literal arg temps so the SnArray * (and any
+ * refcounted elements) get released after the call returns. Without
+ * lifting, an array literal at a call site is built inside a bare
+ * statement-expression with no cleanup attribute, leaking the SnArray
+ * and (for ref-bearing element types) every retained element. */
 static void hoist_borrow_temps(json_object *call_obj, json_object *args)
 {
     bool has_any = false;
     for (int i = 0; i < (int)json_object_array_length(args); i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        json_object *bt_flag;
-        if (json_object_object_get_ex(arg, "is_borrow_tmp", &bt_flag) &&
-            json_object_get_boolean(bt_flag))
+        json_object *bt_flag, *al_flag;
+        bool is_bt = json_object_object_get_ex(arg, "is_borrow_tmp", &bt_flag) &&
+                     json_object_get_boolean(bt_flag);
+        bool is_al = json_object_object_get_ex(arg, "is_arr_lit_borrow", &al_flag) &&
+                     json_object_get_boolean(al_flag);
+        if (is_bt || is_al)
         {
             char var_name[64];
-            snprintf(var_name, sizeof(var_name), "__bt_%d__", i);
+            if (is_al)
+                snprintf(var_name, sizeof(var_name), "__al_tmp_%d__", i);
+            else
+                snprintf(var_name, sizeof(var_name), "__bt_%d__", i);
             json_object_object_add(arg, "borrow_tmp_var",
                 json_object_new_string(var_name));
             has_any = true;
@@ -657,6 +669,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 bool assign_needs_strdup = false;
                 bool assign_needs_retain = false;
 
+                /* Issue #49: lifted member RHS already runs the keeper op
+                 * inside the lift block — skip the assign-side ownership op
+                 * or we'd double-strdup / double-copy. */
+                bool assign_rhs_is_lifted_member = false;
+                {
+                    Expr *val = expr->as.assign.value;
+                    if (val && val->type == EXPR_MEMBER && val->as.member.object)
+                    {
+                        Expr *mo = val->as.member.object;
+                        Type *mot = mo->expr_type;
+                        if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
+                            mot && mot->kind == TYPE_STRUCT &&
+                            !mot->as.struct_type.pass_self_by_ref &&
+                            gen_model_type_has_heap_fields(mot))
+                        {
+                            assign_rhs_is_lifted_member = true;
+                        }
+                    }
+                }
+
                 switch (atype->kind)
                 {
                     case TYPE_STRING:
@@ -667,8 +699,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ExprType vt = val->type;
                             bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
                                            val->as.literal.type->kind == TYPE_NIL);
-                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE ||
-                                            vt == EXPR_ARRAY_ACCESS || vt == EXPR_MEMBER))
+                            if (!is_nil && !assign_rhs_is_lifted_member &&
+                                (vt == EXPR_LITERAL || vt == EXPR_VARIABLE ||
+                                 vt == EXPR_ARRAY_ACCESS || vt == EXPR_MEMBER))
                                 assign_needs_strdup = true;
                         }
                         break;
@@ -719,6 +752,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 /* Array from variable/member needs copy to avoid double-free */
                 if (strcmp(assign_cleanup, "cleanup_arr") == 0 &&
+                    !assign_rhs_is_lifted_member &&
                     (expr->as.assign.value->type == EXPR_VARIABLE ||
                      expr->as.assign.value->type == EXPR_MEMBER))
                 {
@@ -1480,6 +1514,20 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(member_ref_push_name));
                         }
                     }
+                    /* Issue #47: Array literal call args have no auto cleanup
+                     * — the SnArray * temp leaks (and pins refcounted elems).
+                     * Lift into a sn_auto_arr local in the call's wrapping
+                     * statement-expression so cleanup runs after the call. */
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        if (arg_expr && arg_expr->type == EXPR_ARRAY &&
+                            arg_type && arg_type->kind == TYPE_ARRAY)
+                        {
+                            json_object_object_add(arg, "is_arr_lit_borrow",
+                                json_object_new_boolean(true));
+                        }
+                    }
                     json_object_array_add(args, arg);
                 }
                 /* For array insert, swap args so idx comes before val.
@@ -1799,6 +1847,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                         }
                     }
+                    /* Issue #47: lift array literal args (see EXPR_CALL above) */
+                    {
+                        Expr *arg_expr = expr->as.static_call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        if (arg_expr && arg_expr->type == EXPR_ARRAY &&
+                            arg_type && arg_type->kind == TYPE_ARRAY)
+                        {
+                            json_object_object_add(arg, "is_arr_lit_borrow",
+                                json_object_new_boolean(true));
+                        }
+                    }
                     json_object_array_add(args, arg);
                 }
             }
@@ -2041,6 +2100,64 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
                 json_object_object_add(obj, "member_name",
                     json_object_new_string(mname));
+
+                /* Issue #49: Member access on a value-struct rvalue with
+                 * non-trivial cleanup (e.g. `build().probs`).  Without
+                 * intervention, the rvalue's other refcounted/heap fields
+                 * leak — there is no variable to attach `sn_auto_<S>` to.
+                 *
+                 * Lift the call result into a local with `sn_auto_<S>` so
+                 * its cleanup runs after the field is read.  An inline
+                 * "keeper" op (retain / strdup / sn_array_copy / val copy)
+                 * preserves the read field past the cleanup, returning an
+                 * owned value the caller can hold.  Consumers (var_decl,
+                 * etc.) detect this pattern and skip their own ownership
+                 * op so we don't double-retain. */
+                Expr *o = expr->as.member.object;
+                if (o && (o->type == EXPR_CALL || o->type == EXPR_STATIC_CALL) &&
+                    obj_type && obj_type->kind == TYPE_STRUCT &&
+                    !obj_type->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_has_heap_fields(obj_type))
+                {
+                    /* Determine the keeper op for the accessed field. */
+                    Type *ft = expr->expr_type;
+                    const char *keeper = "none";  /* plain value: no keeper */
+                    const char *keeper_type_name = NULL;
+                    if (ft)
+                    {
+                        if (ft->kind == TYPE_STRING)
+                            keeper = "strdup";
+                        else if (ft->kind == TYPE_ARRAY)
+                            keeper = "arr_copy";
+                        else if (ft->kind == TYPE_STRUCT &&
+                                 ft->as.struct_type.pass_self_by_ref)
+                        {
+                            keeper = "retain";
+                            keeper_type_name = ft->as.struct_type.name;
+                        }
+                        else if (ft->kind == TYPE_STRUCT &&
+                                 !ft->as.struct_type.pass_self_by_ref &&
+                                 gen_model_type_has_heap_fields(ft))
+                        {
+                            keeper = "val_copy";
+                            keeper_type_name = ft->as.struct_type.name;
+                        }
+                    }
+                    int lift_id = g_model_member_lift_count++;
+                    char tmp_var[64];
+                    snprintf(tmp_var, sizeof(tmp_var), "__mtmp_%d__", lift_id);
+                    json_object_object_add(obj, "needs_struct_tmp_lift",
+                        json_object_new_boolean(true));
+                    json_object_object_add(obj, "lift_struct_name",
+                        json_object_new_string(obj_type->as.struct_type.name));
+                    json_object_object_add(obj, "lift_tmp_var",
+                        json_object_new_string(arena_strdup(arena, tmp_var)));
+                    json_object_object_add(obj, "lift_keeper",
+                        json_object_new_string(keeper));
+                    if (keeper_type_name)
+                        json_object_object_add(obj, "lift_keeper_type",
+                            json_object_new_string(keeper_type_name));
+                }
             }
             break;
         }
@@ -2232,9 +2349,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     gen_model_expr(arena, expr->as.struct_literal.fields[i].value, symbol_table, arithmetic_mode));
                 /* Check if this field's value needs ownership wrapping */
                 Expr *fv = expr->as.struct_literal.fields[i].value;
+                /* Issue #49: lifted member access already runs the keeper op
+                 * (strdup/sn_array_copy/retain/val_copy) inside the lift block,
+                 * so the field must skip its own ownership op. */
+                bool fv_is_lifted_member = false;
+                if (fv && fv->type == EXPR_MEMBER && fv->as.member.object)
+                {
+                    Expr *mo = fv->as.member.object;
+                    Type *mot = mo->expr_type;
+                    if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
+                        mot && mot->kind == TYPE_STRUCT &&
+                        !mot->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(mot))
+                    {
+                        fv_is_lifted_member = true;
+                    }
+                }
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRING)
                 {
-                    bool needs_strdup = (fv->type == EXPR_LITERAL || fv->type == EXPR_VARIABLE ||
+                    bool needs_strdup = !fv_is_lifted_member &&
+                                        (fv->type == EXPR_LITERAL || fv->type == EXPR_VARIABLE ||
                                          fv->type == EXPR_MEMBER || fv->type == EXPR_ARRAY_ACCESS);
                     json_object_object_add(f, "needs_strdup",
                         json_object_new_boolean(needs_strdup));
@@ -2246,6 +2380,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * Function calls and constructors return fresh refs (rc=1) — no retain needed. */
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
                     fv->expr_type->as.struct_type.pass_self_by_ref &&
+                    !fv_is_lifted_member &&
                     (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
                      fv->type == EXPR_ARRAY_ACCESS || fv->type == EXPR_MEMBER_ACCESS))
                 {
@@ -2258,6 +2393,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * to transfer ownership (avoid double-free when source is cleaned up) */
                 if (fv && fv->expr_type &&
                     gen_model_type_category(fv->expr_type) == TYPE_CAT_COMPOSITE &&
+                    !fv_is_lifted_member &&
                     (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
                      fv->type == EXPR_ARRAY_ACCESS))
                 {
@@ -2272,6 +2408,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * double-free — the local variable and the struct field would
                  * otherwise share the same SnArray * with both having cleanup. */
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_ARRAY &&
+                    !fv_is_lifted_member &&
                     (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
                      fv->type == EXPR_ARRAY_ACCESS))
                 {

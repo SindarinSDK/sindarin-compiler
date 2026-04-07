@@ -66,6 +66,10 @@ tests/integration/io_*
 !tests/integration/test_native_struct_ref_array_pass_helper.c
 !tests/integration/test_native_struct_ref_loop_cleanup_helper.c
 !tests/integration/test_native_ref_self_assign_helper.c
+!tests/integration/test_array_literal_arg_leak_helper.c
+!tests/integration/test_struct_return_array_leak_helper.c
+!tests/integration/test_struct_rvalue_member_leak_helper.c
+!tests/integration/test_struct_rvalue_member_leak_contexts_helper.c
 
 tests/exploratory/test_*
 !tests/exploratory/test_*.sn

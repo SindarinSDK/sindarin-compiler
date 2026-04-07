@@ -1,0 +1,2 @@
+takes_trackers: got 3
+test_array_literal_arg_leak: PASS

@@ -74,7 +74,11 @@ static bool struct_is_pass_by_ref(const char *struct_name)
 
 /* Check if an expression is NOT an lvalue (needs extraction into a temp variable).
  * Lvalues are: variable, member (field access), array_access.
- * Everything else (calls, literals, binary ops, etc.) needs a temp. */
+ * Everything else (calls, literals, binary ops, etc.) needs a temp.
+ *
+ * Issue #49: a "member" with `needs_struct_tmp_lift` is NOT an lvalue — it's
+ * a synthetic statement-expression that returns an owned ref. Treat it like
+ * a call result so it gets extracted into a temp with cleanup. */
 static bool needs_temp_extraction(json_object *expr)
 {
     if (!expr) return false;
@@ -85,7 +89,14 @@ static bool needs_temp_extraction(json_object *expr)
 
     /* These are lvalues — their address can be taken directly */
     if (strcmp(kind, "variable") == 0) return false;
-    if (strcmp(kind, "member") == 0) return false;
+    if (strcmp(kind, "member") == 0)
+    {
+        json_object *lift_flag = NULL;
+        if (json_object_object_get_ex(expr, "needs_struct_tmp_lift", &lift_flag) &&
+            json_object_get_boolean(lift_flag))
+            return true;
+        return false;
+    }
     if (strcmp(kind, "array_access") == 0) return false;
 
     /* Everything else needs a temp */
@@ -214,14 +225,27 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
         json_object *arg = json_object_array_get_idx(args, i);
         if (!arg || !json_object_is_type(arg, json_type_object)) continue;
 
-        /* Only extract call results (not literals, variables, etc.) */
+        /* Only extract call results (not literals, variables, etc.).
+         * Issue #49: also extract lifted member accesses — they emit a
+         * statement-expression returning an owned ref that must be released
+         * after the surrounding call returns, just like a fresh call result. */
         json_object *arg_kind = NULL;
         if (!json_object_object_get_ex(arg, "kind", &arg_kind)) continue;
         const char *akind = json_object_get_string(arg_kind);
         bool is_call_result = (strcmp(akind, "call") == 0 ||
                                strcmp(akind, "method_call") == 0 ||
                                strcmp(akind, "static_call") == 0);
-        if (!is_call_result) continue;
+        bool is_lifted_member = false;
+        if (!is_call_result && strcmp(akind, "member") == 0)
+        {
+            json_object *lift_flag = NULL;
+            if (json_object_object_get_ex(arg, "needs_struct_tmp_lift", &lift_flag) &&
+                json_object_get_boolean(lift_flag))
+            {
+                is_lifted_member = true;
+            }
+        }
+        if (!is_call_result && !is_lifted_member) continue;
 
         /* Only extract types that need cleanup: strings, arrays, and native as-ref structs */
         json_object *arg_type = NULL;

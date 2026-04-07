@@ -1,0 +1,2 @@
+inside run: p.id=1 alive=1
+test_struct_rvalue_member_leak: PASS

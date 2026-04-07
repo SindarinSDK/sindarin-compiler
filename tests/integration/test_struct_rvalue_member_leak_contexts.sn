@@ -1,0 +1,87 @@
+# Issue #49 — extended coverage: lifted member access must work in every
+# context where the result is consumed by an owner.
+#
+# The bare bug (var_decl) is covered by test_struct_rvalue_member_leak.sn.
+# This test exercises four additional contexts that the original fix missed:
+#
+# 1. var_decl              — `var p: Tracker = build().primary` (in original test)
+# 2. function call arg     — `takesTracker(build().primary)`
+# 3. return statement      — `return build().primary`
+# 4. struct literal field  — `Wrapper { inner: build().primary }`
+# 5. chained method call   — `build().primary.getId()`
+# 6. reassignment          — `p = build().primary`
+#
+# After every operation, the live tracker count must collapse back to zero
+# once the surrounding scope exits.
+
+#pragma source "test_struct_rvalue_member_leak_contexts_helper.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+  @alias "tracker_get_id"
+  native fn getId(): int
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_alive_count(): int
+native fn takes_tracker(t: Tracker): void
+
+struct Output =>
+  primary: Tracker
+  secondary: Tracker
+
+struct Wrapper =>
+  inner: Tracker
+
+fn build(): Output =>
+  return Output {
+    primary: tracker_create(1),
+    secondary: tracker_create(2)
+  }
+
+# (2) Function call argument context
+fn ctx_arg(): void =>
+  takes_tracker(build().primary)
+
+# (3) Return statement context
+fn ctx_return_helper(): Tracker =>
+  return build().primary
+
+fn ctx_return(): void =>
+  var t: Tracker = ctx_return_helper()
+  assert(t.id == 1, "ctx_return: id mismatch")
+
+# (4) Struct literal field context
+fn ctx_field(): void =>
+  var w: Wrapper = Wrapper { inner: build().primary }
+  assert(w.inner.id == 1, "ctx_field: id mismatch")
+
+# (5) Chained method call context
+fn ctx_chain(): void =>
+  var x: int = build().primary.getId()
+  assert(x == 1, "ctx_chain: id mismatch")
+
+# (6) Reassignment context
+fn ctx_reassign(): void =>
+  var t: Tracker = tracker_create(99)
+  t = build().primary
+  assert(t.id == 1, "ctx_reassign: id mismatch")
+
+fn check(label: str): void =>
+  assert(tracker_alive_count() == 0, $"{label}: leaked, alive={tracker_alive_count()}")
+
+fn main(): void =>
+  ctx_arg()
+  check("ctx_arg")
+  ctx_return()
+  check("ctx_return")
+  ctx_field()
+  check("ctx_field")
+  ctx_chain()
+  check("ctx_chain")
+  ctx_reassign()
+  check("ctx_reassign")
+  println("test_struct_rvalue_member_leak_contexts: PASS")

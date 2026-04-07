@@ -1,0 +1,43 @@
+# Issue #49: Member access on a struct rvalue with refcounted fields
+# leaks every field that wasn't accessed.
+#
+# When a function returns a value struct holding refcounted handles,
+# and the caller writes `build().probs.toDoubles()` (no named binding),
+# the C compiler treats the struct as a temporary rvalue.  There is no
+# variable to attach `sn_auto_<S>` to, so the struct's cleanup is never
+# invoked and every retained field is abandoned.
+#
+# This test calls a builder that returns a struct holding two trackers,
+# reads only one field, and binds it to a local.  After the local goes
+# out of scope (and decrements its retained ref) both trackers must be
+# disposed.
+
+#pragma source "test_struct_rvalue_member_leak_helper.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_alive_count(): int
+
+struct Output =>
+  primary: Tracker
+  secondary: Tracker
+
+fn build(): Output =>
+  return Output {
+    primary: tracker_create(1),
+    secondary: tracker_create(2)
+  }
+
+fn run(): void =>
+  var p: Tracker = build().primary
+  println($"inside run: p.id={p.id} alive={tracker_alive_count()}")
+
+fn main(): void =>
+  run()
+  assert(tracker_alive_count() == 0, $"leaked rvalue struct fields: alive={tracker_alive_count()}")
+  println("test_struct_rvalue_member_leak: PASS")

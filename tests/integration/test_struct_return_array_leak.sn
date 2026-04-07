@@ -1,0 +1,61 @@
+# Issue #48: Returning a struct whose array field references a local
+# leaks every refcounted element of that array.
+#
+# Generated C for `return Network { layers: layers }` currently emits:
+#
+# {
+# __sn__Network __ret__ = (__sn__Network){
+# .__sn__layers = sn_array_copy(__sn__layers)   /* retains all elements */
+# };
+# __sn__layers = NULL;                              /* sn_auto_arr cleanup neutered */
+# return __ret__;
+# }
+#
+# `sn_array_copy` walks the elements via the type's `elem_copy` callback,
+# which retains every refcounted field.  But the immediately-following
+# `__sn__layers = NULL` prevents the source's auto-cleanup from running,
+# so the original element refs are abandoned.  Net: every refcounted
+# element field is permanently +1.
+#
+# This test creates a Network with two Layers, each holding two Tracker
+# refs.  After the network is destroyed, all four trackers must be
+# disposed.
+
+#pragma source "test_struct_return_array_leak_helper.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_alive_count(): int
+
+struct Layer =>
+  weight: Tracker
+  bias: Tracker
+
+struct Network =>
+  layers: Layer[]
+
+fn createLayer(id: int): Layer =>
+  return Layer {
+    weight: tracker_create(id),
+    bias: tracker_create(id + 100)
+  }
+
+fn createNetwork(): Network =>
+  var layers: Layer[] = {}
+  layers.push(createLayer(1))
+  layers.push(createLayer(2))
+  return Network { layers: layers }
+
+fn run(): void =>
+  var net: Network = createNetwork()
+  println($"inside run: layers={len(net.layers)} alive={tracker_alive_count()}")
+
+fn main(): void =>
+  run()
+  assert(tracker_alive_count() == 0, $"leaked layer trackers: alive={tracker_alive_count()}")
+  println("test_struct_return_array_leak: PASS")

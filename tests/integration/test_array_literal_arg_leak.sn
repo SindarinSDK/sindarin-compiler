@@ -1,0 +1,29 @@
+# Issue #47: Array literal passed as a function argument leaks the
+# temporary SnArray and (when elements are refcounted) every element ref.
+#
+# When a literal `{a, b, c}` is passed directly as a call arg, the
+# compiler emits a statement-expression-built SnArray with no cleanup
+# attached.  The temporary falls off the end of the expression and the
+# allocation leaks.  With refcount-bearing element types, the leaked
+# array also pins all of its elements (their elem_release never fires).
+#
+# This test uses a Tracker (native ref struct) with a dispose hook
+# that decrements an alive counter.  After a single call passing a
+# literal of three trackers, the alive count must return to zero.
+
+#pragma source "test_array_literal_arg_leak_helper.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_alive_count(): int
+native fn takes_trackers(arr: Tracker[]): void
+
+fn main(): void =>
+  takes_trackers({tracker_create(1), tracker_create(2), tracker_create(3)})
+  assert(tracker_alive_count() == 0, $"leaked array literal: alive={tracker_alive_count()}")
+  println("test_array_literal_arg_leak: PASS")

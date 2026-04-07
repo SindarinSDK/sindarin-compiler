@@ -195,6 +195,27 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 {
                     json_object_object_add(obj, "is_thread_handle", json_object_new_boolean(true));
                 }
+                /* Issue #49: When the initializer is a member access on a value-struct
+                 * rvalue (e.g. `build().probs`), gen_model_expr lifts the call into a
+                 * synthetic temp and runs the keeper op (strdup/sn_array_copy/retain/...)
+                 * inside the lift's statement-expression.  In that case the var_decl
+                 * MUST skip its own ownership op or we double-retain / double-copy. */
+                bool init_is_lifted_member = false;
+                {
+                    Expr *init = stmt->as.var_decl.initializer;
+                    if (init && init->type == EXPR_MEMBER && init->as.member.object)
+                    {
+                        Expr *mo = init->as.member.object;
+                        Type *mot = mo->expr_type;
+                        if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
+                            mot && mot->kind == TYPE_STRUCT &&
+                            !mot->as.struct_type.pass_self_by_ref &&
+                            gen_model_type_has_heap_fields(mot))
+                        {
+                            init_is_lifted_member = true;
+                        }
+                    }
+                }
                 /* For string vars: determine if initializer needs strdup wrapping.
                  * Literals and variable refs are borrowed — need strdup.
                  * Function calls, interpolation, concat return owned strings — no strdup.
@@ -206,6 +227,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     bool is_nil_literal = (itype == EXPR_LITERAL && init->as.literal.type &&
                                            init->as.literal.type->kind == TYPE_NIL);
                     bool needs_strdup = !is_nil_literal &&
+                                        !init_is_lifted_member &&
                                         (itype == EXPR_LITERAL || itype == EXPR_VARIABLE ||
                                          itype == EXPR_ARRAY_ACCESS || itype == EXPR_MEMBER);
                     json_object_object_add(obj, "needs_strdup",
@@ -217,7 +239,8 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 {
                     Expr *init = stmt->as.var_decl.initializer;
                     ExprType itype = init->type;
-                    bool needs_copy = (itype == EXPR_VARIABLE || itype == EXPR_MEMBER ||
+                    bool needs_copy = !init_is_lifted_member &&
+                                      (itype == EXPR_VARIABLE || itype == EXPR_MEMBER ||
                                        itype == EXPR_ARRAY_ACCESS);
                     if (needs_copy)
                     {
@@ -227,6 +250,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 }
                 /* For composite val struct vars: variable/member/array_access initializer needs deep copy */
                 if (gen_model_type_category(vtype) == TYPE_CAT_COMPOSITE &&
+                    !init_is_lifted_member &&
                     (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
                      stmt->as.var_decl.initializer->type == EXPR_MEMBER ||
                      stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
@@ -239,6 +263,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                  * needs retain to balance the sn_auto release on scope exit.
                  * Function calls and constructors return new references (rc=1) — no retain needed. */
                 if (gen_model_type_category(vtype) == TYPE_CAT_REFCOUNTED &&
+                    !init_is_lifted_member &&
                     (stmt->as.var_decl.initializer->type == EXPR_VARIABLE ||
                      stmt->as.var_decl.initializer->type == EXPR_MEMBER ||
                      stmt->as.var_decl.initializer->type == EXPR_ARRAY_ACCESS ||
@@ -539,7 +564,24 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 {
                     Type *rt = rv->expr_type;
                     Expr *obj_expr = rv->as.member.object;
+                    /* Issue #49: When the source is a function-call rvalue, EXPR_MEMBER
+                     * lifts it and runs the keeper op (strdup/sn_array_copy/retain)
+                     * inside the lift block. The return statement must NOT add its own
+                     * needs_strdup/needs_arr_copy or we'd double-copy. Detect the lift
+                     * and skip the source_has_cleanup branch. */
+                    bool obj_is_lifted_call =
+                        obj_expr &&
+                        (obj_expr->type == EXPR_CALL || obj_expr->type == EXPR_STATIC_CALL) &&
+                        obj_expr->expr_type &&
+                        obj_expr->expr_type->kind == TYPE_STRUCT &&
+                        !obj_expr->expr_type->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(obj_expr->expr_type);
                     bool source_has_cleanup = false;
+                    if (obj_is_lifted_call)
+                    {
+                        /* Lift produces an owned value; skip return-side ownership ops */
+                    }
+                    else
                     if (obj_expr && obj_expr->expr_type)
                     {
                         Type *obj_type = obj_expr->expr_type;
@@ -567,39 +609,18 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         }
                     }
                 }
-                /* Struct literal return: fields may reference local variables with cleanup.
-                 * Collect those variables so the template can NULL them before returning. */
-                else if (rv->type == EXPR_STRUCT_LITERAL && rv->expr_type &&
-                         rv->expr_type->kind == TYPE_STRUCT)
-                {
-                    StructLiteralExpr *sl = &rv->as.struct_literal;
-                    json_object *transfer_vars = NULL;
-                    for (int fi = 0; fi < sl->field_count; fi++)
-                    {
-                        Expr *fv = sl->fields[fi].value;
-                        if (fv && fv->type == EXPR_VARIABLE && fv->expr_type)
-                        {
-                            Type *ft = fv->expr_type;
-                            /* Only null-out arrays (no copy in struct literal).
-                             * Strings are NOT nulled: struct literal strdup's string fields,
-                             * creating an independent copy — let sn_auto_str free the original. */
-                            if (ft->kind == TYPE_ARRAY)
-                            {
-                                if (!transfer_vars) transfer_vars = json_object_new_array();
-                                json_object_array_add(transfer_vars,
-                                    json_object_new_string(fv->as.variable.name.start));
-                            }
-                        }
-                    }
-                    if (transfer_vars)
-                    {
-                        json_object_object_add(obj, "has_struct_transfer",
-                            json_object_new_boolean(true));
-                        json_object_object_add(obj, "struct_transfer_vars", transfer_vars);
-                        json_object_object_add(obj, "struct_transfer_type",
-                            gen_model_type(arena, rv->expr_type));
-                    }
-                }
+                /* Struct literal return with array fields sourced from local variables:
+                 * EXPR_STRUCT_LITERAL already sets `needs_arr_copy: true` on the field
+                 * (gen_model_expr.c), so the struct literal emits `sn_array_copy(local)`
+                 * which deep-clones the array (and retains every refcounted element).
+                 *
+                 * Issue #48: previously this branch ALSO emitted `local = NULL` to
+                 * neuter the source's `sn_auto_arr` cleanup. Doing both meant the
+                 * clone retained every element while the source's original retains
+                 * were abandoned — every refcounted element field was permanently +1
+                 * and silently leaked. We now do nothing here: the source's auto
+                 * cleanup runs normally and decrements its element refs back to
+                 * where the clone took over. */
                 /* String return from non-owned source: needs strdup so caller can free.
                  * Literals, member accesses, and array accesses all borrow from their
                  * source — the returned string must be an independent copy. */

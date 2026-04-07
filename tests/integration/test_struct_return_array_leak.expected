@@ -1,0 +1,2 @@
+inside run: layers=2 alive=4
+test_struct_return_array_leak: PASS

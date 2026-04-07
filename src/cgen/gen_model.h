@@ -102,6 +102,10 @@ extern int g_closure_var_count;
 extern json_object *g_model_fn_wrappers;
 extern int g_model_fn_wrapper_count;
 
+/* Counter for synthetic struct-rvalue member-access lift temporaries
+ * (issue #49). Each lifted access gets a unique __mtmp_N__ variable. */
+extern int g_model_member_lift_count;
+
 /* Current namespace prefix for namespaced imports (NULL when not inside a namespace) */
 extern const char *g_model_namespace_prefix;
 

@@ -47,6 +47,9 @@ int g_lock_depth = 0;
 json_object *g_model_fn_wrappers = NULL;
 int g_model_fn_wrapper_count = 0;
 
+/* Counter for synthetic struct-rvalue member-access lift temporaries (issue #49) */
+int g_model_member_lift_count = 0;
+
 /* Current namespace prefix for namespaced imports */
 const char *g_model_namespace_prefix = NULL;
 
@@ -400,6 +403,9 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
     /* Initialize global fn-wrapper collection */
     g_model_fn_wrappers = json_object_new_array();
     g_model_fn_wrapper_count = 0;
+
+    /* Reset member-lift counter */
+    g_model_member_lift_count = 0;
 
     /* Track emitted names (structs, globals, functions) to avoid duplicates
      * from multiple import paths reaching the same module */
