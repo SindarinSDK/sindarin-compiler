@@ -44,7 +44,6 @@ Type *get_promoted_type(Arena *arena, Type *left, Type *right);
 bool is_primitive_type(Type *type);
 bool is_reference_type(Type *type);
 bool can_escape_private(Type *type);
-bool type_has_heap_fields(Type *type);
 
 /* Get a description of why a type cannot escape from a private block.
  * Returns a static string describing the reason, or NULL if the type can escape.
