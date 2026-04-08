@@ -167,6 +167,9 @@ void diagnostic_report(DiagnosticLevel level, DiagnosticLoc loc,
         break;
     }
 
+    /* Leading newline so diagnostics never glue onto prior output */
+    fprintf(stderr, "\n");
+
     /* Print the error header: "error: message" */
     fprintf(stderr, "%s%s%s: ", color, level_str, COLOR_RESET);
 
@@ -289,7 +292,7 @@ void diagnostic_error_simple(const char *fmt, ...)
 {
     g_error_count++;
 
-    fprintf(stderr, "%serror%s: ", COLOR_RED, COLOR_RESET);
+    fprintf(stderr, "\n%serror%s: ", COLOR_RED, COLOR_RESET);
 
     va_list args;
     va_start(args, fmt);
