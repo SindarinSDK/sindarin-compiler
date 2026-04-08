@@ -10,4 +10,8 @@
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
     __sn__{{elem_struct_name}}_release(&((__sn__{{elem_struct_name}} **){{> expr array}}->data)[__ai__]);
     ((__sn__{{elem_struct_name}} **){{> expr array}}->data)[__ai__] = {{> expr value}};
-}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}{{/if}}{{/if}}
+}){{else}}{{#if (eq elem_cleanup "array_ref")}}({
+    long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
+    sn_cleanup_array(&((SnArray **){{> expr array}}->data)[__ai__]);
+    ((SnArray **){{> expr array}}->data)[__ai__] = {{#if needs_deep_copy}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
+}){{else}}(({{c_type type}} *){{> expr array}}->data)[({ long long __ai__ = {{> expr index}}; __ai__ < 0 ? __ai__ + {{> expr array}}->len : __ai__; })] = {{> expr value}}{{/if}}{{/if}}{{/if}}{{/if}}

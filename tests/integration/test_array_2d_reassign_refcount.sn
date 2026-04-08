@@ -1,0 +1,11 @@
+fn main(): void =>
+  println("=== test_array_2d_reassign_refcount ===")
+
+  var arr2d: double[][] = {}
+  arr2d.push({0.0, 0.0, 0.0})
+
+  var curr: double[] = {1.0, 2.0, 3.0}
+  arr2d[0] = curr
+
+  println($"  done, len={len(arr2d)}")
+  println($"  arr2d[0][1]={arr2d[0][1]}")

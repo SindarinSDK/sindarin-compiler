@@ -1,0 +1,3 @@
+=== test_array_2d_reassign_literal ===
+  done, len=1
+  arr2d[0][1]=2.00000

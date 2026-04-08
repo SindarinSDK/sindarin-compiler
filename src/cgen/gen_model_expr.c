@@ -2069,6 +2069,22 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                         break;
                     }
+                    case TYPE_ARRAY:
+                    {
+                        /* Array-of-array element slot owns its SnArray *. Subscript-assign must
+                         * release the old slot and either deep-copy or transfer ownership of the
+                         * new value, mirroring sn_array_push semantics. Without this, both the
+                         * container slot and any local var holding the source pointer claim
+                         * ownership at sn_auto_arr cleanup time → double-free. */
+                        elem_cleanup = "array_ref";
+                        Expr *val = expr->as.index_assign.value;
+                        ExprType vt = val->type;
+                        bool needs_deep_copy = (vt == EXPR_VARIABLE || vt == EXPR_ARRAY_ACCESS ||
+                                                 vt == EXPR_MEMBER || vt == EXPR_MEMBER_ACCESS);
+                        json_object_object_add(obj, "needs_deep_copy",
+                            json_object_new_boolean(needs_deep_copy));
+                        break;
+                    }
                     default:
                         break;
                 }
