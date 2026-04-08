@@ -401,6 +401,52 @@ static const char *func_mod_str(FunctionModifier fm)
     }
 }
 
+/* Set up g_as_ref_param_names for a lambda body emission.  Lambdas share the
+ * same by-pointer ABI rewrite as regular functions for composite val-struct
+ * parameters (heap fields, non-native): the definition signature declares the
+ * param as a pointer, and member/variable references in the body must render
+ * as (*__sn__name).field via the is_captured path.  Without this setup the
+ * body would emit __sn__name.field on a pointer — a C compile error.
+ *
+ * Saves the caller's state into the supplied slots and populates the globals
+ * with the lambda's own composite val-struct parameters. */
+static void push_lambda_as_ref_params(Arena *arena, LambdaExpr *lam,
+                                      char ***saved_names, int *saved_count)
+{
+    *saved_names = g_as_ref_param_names;
+    *saved_count = g_as_ref_param_count;
+    g_as_ref_param_names = NULL;
+    g_as_ref_param_count = 0;
+    for (int i = 0; i < lam->param_count; i++)
+    {
+        Parameter *p = &lam->params[i];
+        bool is_as_ref = (p->mem_qualifier == MEM_AS_REF);
+        bool is_composite_val = (p->mem_qualifier == MEM_DEFAULT && !lam->is_native &&
+                                 p->type && p->type->kind == TYPE_STRUCT &&
+                                 !p->type->as.struct_type.pass_self_by_ref &&
+                                 gen_model_type_has_heap_fields(p->type));
+        if (!is_as_ref && !is_composite_val) continue;
+
+        int nlen = p->name.length;
+        char *ncopy = arena_alloc(arena, nlen + 1);
+        memcpy(ncopy, p->name.start, nlen);
+        ncopy[nlen] = '\0';
+
+        if (g_as_ref_param_count % 8 == 0) {
+            char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));
+            for (int j = 0; j < g_as_ref_param_count; j++) nv[j] = g_as_ref_param_names[j];
+            g_as_ref_param_names = nv;
+        }
+        g_as_ref_param_names[g_as_ref_param_count++] = ncopy;
+    }
+}
+
+static void pop_lambda_as_ref_params(char **saved_names, int saved_count)
+{
+    g_as_ref_param_names = saved_names;
+    g_as_ref_param_count = saved_count;
+}
+
 /* Predicate: does this string-typed expression produce a NEW heap allocation?
  * Uses a whitelist of known heap-producing expression types.
  * Generic EXPR_CALL with variable callee is excluded because closures/native
@@ -1323,8 +1369,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 callee_is_known_fn = true;
                                 callee_native = ctype->as.function.is_native;
                             }
-                            /* Exclude array built-ins and fn-field calls from borrow.
-                             * Struct method calls through EXPR_CALL keep borrow. */
+                            /* Exclude array built-ins from borrow.  Struct method calls
+                             * and fn-field calls keep borrow — the callee ABI expects
+                             * composite val-struct params by pointer (see
+                             * gen_model_type.c TYPE_FUNCTION pass_by_ptr annotation and
+                             * gen_model_func.c g_as_ref_param_names population). */
                             if (expr->as.call.callee->type == EXPR_MEMBER)
                             {
                                 Expr *callee_obj = expr->as.call.callee->as.member.object;
@@ -1333,29 +1382,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     Type *obj_type = callee_obj->expr_type;
                                     if (obj_type->kind == TYPE_ARRAY)
                                         callee_is_known_fn = false;
-                                    else
-                                    {
-                                        /* Resolve through pointer for fn-field check */
-                                        Type *st = obj_type;
-                                        if (st->kind == TYPE_POINTER && st->as.pointer.base_type)
-                                            st = st->as.pointer.base_type;
-                                        if (st->kind == TYPE_STRUCT)
-                                        {
-                                            const char *mname = expr->as.call.callee->as.member.member_name.start;
-                                            int mlen = expr->as.call.callee->as.member.member_name.length;
-                                            for (int fi = 0; fi < st->as.struct_type.field_count; fi++)
-                                            {
-                                                StructField *sf = &st->as.struct_type.fields[fi];
-                                                if (sf->type && sf->type->kind == TYPE_FUNCTION &&
-                                                    (int)strlen(sf->name) == mlen &&
-                                                    strncmp(sf->name, mname, mlen) == 0)
-                                                {
-                                                    callee_is_known_fn = false;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
                                 }
                             }
                             bool param_is_default = true;
@@ -2736,6 +2762,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 bool prev_in_lambda = g_in_lambda_body;
                 g_in_lambda_body = true;
+                char **saved_ref_names;
+                int saved_ref_count;
+                push_lambda_as_ref_params(arena, lam, &saved_ref_names, &saved_ref_count);
                 if (lam->has_stmt_body)
                 {
                     json_object *body = json_object_new_array();
@@ -2751,6 +2780,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(obj, "body",
                         gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
                 }
+                pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                 g_in_lambda_body = prev_in_lambda;
             }
 
@@ -2817,6 +2847,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     bool prev_in_lambda = g_in_lambda_body;
                     g_in_lambda_body = true;
+                    char **saved_ref_names;
+                    int saved_ref_count;
+                    push_lambda_as_ref_params(arena, lam, &saved_ref_names, &saved_ref_count);
                     if (lam->has_stmt_body)
                     {
                         json_object *lbody = json_object_new_array();
@@ -2832,6 +2865,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_object_add(ldef, "body",
                             gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
                     }
+                    pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                     g_in_lambda_body = prev_in_lambda;
                 }
 

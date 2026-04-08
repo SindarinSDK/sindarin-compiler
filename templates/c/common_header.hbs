@@ -66,10 +66,10 @@ static void __closure_{{lambda_id}}_cleanup__(void **p) {
 #define sn_auto_closure_{{lambda_id}} __attribute__((cleanup(__closure_{{lambda_id}}_cleanup__)))
 {{/if}}
 {{/if}}
-static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if is_borrow}}*{{/if}}__sn__{{name}}{{/each}});
+static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if is_borrow}}*{{/if}}__sn__{{name}}{{/each}});
 {{/each}}
 {{#each fn_wrappers}}
-{{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}} __p{{@index}}__{{/each}});
+{{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}}{{#if is_borrow}} *{{/if}} __p{{@index}}__{{/each}});
 {{/each}}
 
 #endif

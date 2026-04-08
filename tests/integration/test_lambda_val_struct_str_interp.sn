@@ -1,0 +1,25 @@
+// Regression: str-interpolation over an int field of a value-struct param
+// that also has a str field — the interpolation machinery routes the int
+// field read through the same codepath as a direct str-field read, triggering
+// the by-value/by-pointer mismatch. Issue: compiler-problems.33.md #52.
+
+struct Subject =>
+  n: int
+  label: str
+
+struct Validator =>
+  message: fn(Subject): str
+
+fn makeValidator(threshold: int): Validator =>
+  return Validator {
+    message: fn(s: Subject): str => $"n={s.n} below minimum {threshold}"
+  }
+
+fn main(): int =>
+  var v: Validator = makeValidator(5)
+  var s: Subject = Subject {
+    n: 3,
+    label: "hello"
+  }
+  print($"message={v.message(s)}\n")
+  return 0

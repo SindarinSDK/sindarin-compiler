@@ -273,8 +273,29 @@ json_object *gen_model_type(Arena *arena, Type *type)
             json_object *params = json_object_new_array();
             for (int i = 0; i < type->as.function.param_count; i++)
             {
-                json_object_array_add(params,
-                    gen_model_type(arena, type->as.function.param_types[i]));
+                Type *pt = type->as.function.param_types[i];
+                json_object *pt_obj = gen_model_type(arena, pt);
+                /* Flag composite val-struct params on non-native functions as
+                 * passed by pointer — mirrors the ABI rewrite in
+                 * gen_model_emit_param_cleanup and gen_model_func.c's
+                 * g_as_ref_param_names population. Closure-call function
+                 * pointer casts must emit '*' here so the cast signature
+                 * agrees with the lambda/function definition. */
+                if (!type->as.function.is_native && pt &&
+                    pt->kind == TYPE_STRUCT &&
+                    !pt->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_has_heap_fields(pt))
+                {
+                    MemoryQualifier pmq = MEM_DEFAULT;
+                    if (type->as.function.param_mem_quals)
+                        pmq = type->as.function.param_mem_quals[i];
+                    if (pmq == MEM_DEFAULT || pmq == MEM_AS_REF)
+                    {
+                        json_object_object_add(pt_obj, "pass_by_ptr",
+                            json_object_new_boolean(true));
+                    }
+                }
+                json_object_array_add(params, pt_obj);
             }
             json_object_object_add(obj, "param_types", params);
 

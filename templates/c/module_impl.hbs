@@ -72,13 +72,10 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 }
 {{/each}}
 {{#each fn_wrappers}}
-{{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}} __p{{@index}}__{{/each}}) {
+{{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#each param_types}}, {{c_type this}}{{#if is_borrow}} *{{/if}} __p{{@index}}__{{/each}}) {
     (void)__closure__;
-{{#if has_borrow_cleanup}}    {{#unless (eq return_type.kind "void")}}{{c_type return_type}} __ret__ = {{/unless}}{{#if is_native}}{{target_name}}{{else}}__sn__{{target_name}}{{/if}}({{#each param_types}}{{#if @index}}, {{/if}}{{#if is_borrow}}&{{/if}}__p{{@index}}__{{/each}});
-    {{#each param_types}}{{#if is_borrow}}__sn__{{name}}_cleanup(&__p{{@index}}__); {{/if}}{{/each}}
-    {{#unless (eq return_type.kind "void")}}return __ret__;{{/unless}}
-{{else}}    {{#unless (eq return_type.kind "void")}}return {{/unless}}{{#if is_native}}{{target_name}}{{else}}__sn__{{target_name}}{{/if}}({{#each param_types}}{{#if @index}}, {{/if}}{{#if is_borrow}}&{{/if}}__p{{@index}}__{{/each}});
-{{/if}} }
+    {{#unless (eq return_type.kind "void")}}return {{/unless}}{{#if is_native}}{{target_name}}{{else}}__sn__{{target_name}}{{/if}}({{#each param_types}}{{#if @index}}, {{/if}}__p{{@index}}__{{/each}});
+ }
 {{/each}}
 {{#with module}}{{#if has_main}}
 {{#if has_main_args}}int main(int argc, char **argv) {

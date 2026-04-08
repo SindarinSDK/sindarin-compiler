@@ -1,0 +1,12 @@
+// Regression: lambda whose parameter is a value-struct with a str field must
+// have consistent by-pointer signatures across forward decl, definition, body,
+// and the closure-call cast. Issue: compiler-problems.33.md #52.
+
+struct Subject =>
+  label: str
+
+fn main(): int =>
+  var f: fn(Subject): str = fn(s: Subject): str => s.label
+  var s: Subject = Subject { label: "hi" }
+  print($"f(s) = {f(s)}\n")
+  return 0
