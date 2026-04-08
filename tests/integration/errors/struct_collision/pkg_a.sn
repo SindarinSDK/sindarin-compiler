@@ -1,0 +1,8 @@
+# Helper for test_struct_name_collision_cross_file.sn
+# Declares a StringField struct — intentionally colliding with pkg_b.sn.
+
+struct StringField =>
+  key: str
+  value: str
+
+fn pkgAGreet(): str => "hello from pkg_a"

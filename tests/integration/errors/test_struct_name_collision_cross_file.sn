@@ -1,0 +1,11 @@
+# Error test: two imported modules declare a struct with the same name.
+#
+# The C codegen mangles struct names to __sn__<Name> without a module
+# qualifier, so two packages with a colliding struct would produce a
+# gcc redefinition error in sn_types.h. The compiler must catch this
+# at the type-check phase instead.
+
+import "./struct_collision/pkg_a"
+import "./struct_collision/pkg_b"
+
+fn main(): int => return 0
