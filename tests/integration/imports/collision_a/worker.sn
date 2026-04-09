@@ -1,0 +1,7 @@
+var sharedCounter: int = 0
+
+fn initCounter(n: int): void =>
+  sharedCounter = n
+
+fn getCounter(): int =>
+  return sharedCounter

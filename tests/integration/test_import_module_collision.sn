@@ -1,0 +1,7 @@
+import "imports/collision_a/worker"
+import "imports/collision_b/worker"
+
+fn main(): void =>
+  initCounter(42)
+  println($"counter = {getCounter()}")
+  println($"doubled = {double_value(21)}")

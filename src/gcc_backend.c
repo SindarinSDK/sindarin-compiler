@@ -840,11 +840,21 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         }
     }
 
-    /* Build the link command with all .o files */
+    /* Build the link command with all .o files, deduplicating any
+     * entries that resolve to the same path (defensive measure against
+     * module name collisions producing duplicate .o references). */
     char all_objs[8192];
     int obj_offset = 0;
     for (int i = 0; i < obj_count && obj_offset < (int)sizeof(all_objs) - PATH_MAX; i++)
     {
+        /* Skip if this .o path was already emitted */
+        bool dup = false;
+        for (int j = 0; j < i; j++)
+        {
+            if (strcmp(obj_files[i], obj_files[j]) == 0) { dup = true; break; }
+        }
+        if (dup) continue;
+
         int written = snprintf(all_objs + obj_offset, sizeof(all_objs) - obj_offset, " \"%s\"", obj_files[i]);
         if (written > 0) obj_offset += written;
     }

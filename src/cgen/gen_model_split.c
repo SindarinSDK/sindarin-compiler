@@ -6,26 +6,63 @@
 
 /* ---- Helpers ---- */
 
-/* Extract basename without extension from a file path.
- * E.g., "/path/to/server.sn" -> "server" */
-static const char *basename_no_ext(const char *path)
+/* Derive a unique module slug from a source file path relative to the entry
+ * file's directory.  Directory separators and dots become underscores, and the
+ * .sn extension is stripped.  This prevents collisions when two modules in
+ * different directories share the same basename.
+ *
+ * E.g., entry_dir="tests/integration/", path="tests/integration/imports/a/worker.sn"
+ *   -> "imports_a_worker"
+ *
+ * If the path does not start with entry_dir we fall back to the full path slug. */
+static char *module_slug_from_path(const char *path, const char *entry_dir)
+{
+    const char *rel = path;
+
+    /* Strip the common entry-file directory prefix */
+    if (entry_dir && entry_dir[0])
+    {
+        size_t elen = strlen(entry_dir);
+        if (strncmp(path, entry_dir, elen) == 0)
+            rel = path + elen;
+    }
+
+    /* Strip .sn extension */
+    size_t len = strlen(rel);
+    if (len > 3 && strcmp(rel + len - 3, ".sn") == 0)
+        len -= 3;
+
+    char *slug = malloc(len + 1);
+    if (!slug) return NULL;
+    memcpy(slug, rel, len);
+    slug[len] = '\0';
+
+    /* Replace path separators and dots with underscores */
+    for (size_t i = 0; i < len; i++)
+    {
+        if (slug[i] == '/' || slug[i] == '\\' || slug[i] == '.')
+            slug[i] = '_';
+    }
+    return slug;
+}
+
+/* Compute the directory portion of a file path (including trailing separator).
+ * Returns a heap-allocated string.  E.g., "a/b/c.sn" -> "a/b/" */
+static char *dir_of(const char *path)
 {
     const char *last_slash = strrchr(path, '/');
 #ifdef _WIN32
     const char *last_bslash = strrchr(path, '\\');
     if (last_bslash && (!last_slash || last_bslash > last_slash)) last_slash = last_bslash;
 #endif
-    const char *base = last_slash ? last_slash + 1 : path;
-
-    /* Strip .sn extension if present */
-    static char buf[256];
-    size_t len = strlen(base);
-    if (len > 3 && strcmp(base + len - 3, ".sn") == 0)
-        len -= 3;
-    if (len >= sizeof(buf)) len = sizeof(buf) - 1;
-    memcpy(buf, base, len);
-    buf[len] = '\0';
-    return buf;
+    if (!last_slash)
+        return strdup("");
+    size_t len = (size_t)(last_slash - path) + 1; /* include the separator */
+    char *dir = malloc(len + 1);
+    if (!dir) return strdup("");
+    memcpy(dir, path, len);
+    dir[len] = '\0';
+    return dir;
 }
 
 /* Find or create a bucket index for a source file.
@@ -64,6 +101,9 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
 
     ModularModel *m = calloc(1, sizeof(ModularModel));
     if (!m) return NULL;
+
+    /* Compute the directory of the entry file for relative path derivation */
+    char *entry_dir = dir_of(entry_file);
 
     /* Get arrays from model */
     json_object *functions = NULL, *globals = NULL, *structs = NULL;
@@ -331,17 +371,19 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
             json_object_object_add(impl, "pragmas", pragmas ? json_deep_copy(pragmas) : json_object_new_array());
         }
 
-        /* Derive impl name from source file path */
-        const char *bname = basename_no_ext(bucket_files[b]);
+        /* Derive impl name from source file path.  Use the full relative
+         * path (slug) so that two modules with the same basename in different
+         * directories get distinct output filenames. */
         if (is_main)
         {
             m->impl_names[b] = strdup("main");
         }
         else
         {
-            /* Prefix with "module_" to avoid name collisions */
-            char namebuf[280];
-            snprintf(namebuf, sizeof(namebuf), "module_%s", bname);
+            char *slug = module_slug_from_path(bucket_files[b], entry_dir);
+            char namebuf[512];
+            snprintf(namebuf, sizeof(namebuf), "module_%s", slug ? slug : "unknown");
+            free(slug);
             m->impl_names[b] = strdup(namebuf);
         }
 
@@ -356,6 +398,7 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
         json_object_put(bucket_globals[i]);
     }
 
+    free(entry_dir);
     return m;
 }
 

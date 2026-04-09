@@ -1,0 +1,4 @@
+import "./worker/impl"
+
+fn double_value(x: int): int =>
+  return multiply(x, 2)
