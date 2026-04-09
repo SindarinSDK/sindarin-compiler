@@ -501,14 +501,13 @@ static bool is_heap_producing_string_expr(Expr *expr)
         /* Interpolated strings allocate */
         case EXPR_INTERPOLATED:
             return true;
-        /* Member method calls (obj.method()) always return owned strings.
-         * This covers string built-ins (s.toLower()), array methods
-         * (arr.toString()), and struct methods returning string.
-         * Closure calls are excluded because lambdas may return borrowed
-         * strings (e.g., returning a struct field without strdup). */
+        /* All calls returning string produce owned heap strings:
+         * member method calls (s.toLower(), arr.toString()),
+         * named function calls, and closure/lambda calls.
+         * Closures always return owned strings because body_needs_strdup
+         * ensures a strdup wrapper when the body is not already heap-producing. */
         case EXPR_CALL:
-            return (expr->as.call.callee &&
-                    expr->as.call.callee->type == EXPR_MEMBER);
+            return true;
         default:
             return false;
     }

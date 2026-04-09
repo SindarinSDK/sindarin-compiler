@@ -473,6 +473,61 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         return;
     }
 
+    /* For array_access expressions where the array is a call result (e.g.
+     * str.split(",")[0]), extract the call into a temp variable so the
+     * temporary SnArray* gets properly cleaned up.  Without this, split()
+     * returns an array that is accessed inline but never freed. */
+    if (strcmp(kind, "array_access") == 0)
+    {
+        json_object *array_expr = NULL;
+        if (json_object_object_get_ex(expr, "array", &array_expr))
+        {
+            /* Recurse into the array expression first */
+            flatten_expr(array_expr, inserts);
+
+            /* Check if the array expression is a call that produces a temp */
+            if (needs_temp_extraction(array_expr))
+            {
+                json_object *arr_type = NULL;
+                if (json_object_object_get_ex(array_expr, "type", &arr_type))
+                {
+                    json_object *type_kind_obj = NULL;
+                    if (json_object_object_get_ex(arr_type, "kind", &type_kind_obj) &&
+                        strcmp(json_object_get_string(type_kind_obj), "array") == 0)
+                    {
+                        char tmp_name[64];
+                        snprintf(tmp_name, sizeof(tmp_name), "__chain_tmp_%d", g_chain_tmp_count++);
+
+                        json_object *var_decl = json_object_new_object();
+                        json_object_object_add(var_decl, "kind", json_object_new_string("var_decl"));
+                        json_object_object_add(var_decl, "name", json_object_new_string(tmp_name));
+                        json_object_object_add(var_decl, "type", json_object_get(arr_type));
+                        json_object_object_add(var_decl, "initializer", json_object_get(array_expr));
+
+                        annotate_chain_temp(var_decl, arr_type);
+
+                        json_object_array_add(inserts, var_decl);
+
+                        json_object *var_ref = json_object_new_object();
+                        json_object_object_add(var_ref, "kind", json_object_new_string("variable"));
+                        json_object_object_add(var_ref, "name", json_object_new_string(tmp_name));
+                        json_object_object_add(var_ref, "type", json_object_get(arr_type));
+
+                        json_object_object_del(expr, "array");
+                        json_object_object_add(expr, "array", var_ref);
+                    }
+                }
+            }
+        }
+
+        /* Also recurse into the index expression */
+        json_object *index_expr = NULL;
+        if (json_object_object_get_ex(expr, "index", &index_expr))
+            flatten_expr(index_expr, inserts);
+
+        return;
+    }
+
     /* For method_call expressions, check the object directly */
     if (strcmp(kind, "method_call") == 0)
     {
