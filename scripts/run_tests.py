@@ -215,7 +215,7 @@ class TestRunner:
         self.env = os.environ.copy()
         # Set ASAN options to avoid leak detection issues
         if 'ASAN_OPTIONS' not in self.env:
-            self.env['ASAN_OPTIONS'] = 'detect_leaks=0'
+            self.env['ASAN_OPTIONS'] = 'detect_leaks=1'
 
         # Add library paths for runtime linking
         if is_windows():
