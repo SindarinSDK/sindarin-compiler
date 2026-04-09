@@ -504,14 +504,28 @@ static bool is_heap_producing_string_expr(Expr *expr)
         /* Member method calls (obj.method()) always return owned strings.
          * This covers string built-ins (s.toLower()), array methods
          * (arr.toString()), and struct methods returning string.
-         * Generic EXPR_CALL with variable callee is excluded because closures
-         * may return borrowed strings (e.g., identity lambda returning param). */
+         * Closure calls are excluded because lambdas may return borrowed
+         * strings (e.g., returning a struct field without strdup). */
         case EXPR_CALL:
             return (expr->as.call.callee &&
                     expr->as.call.callee->type == EXPR_MEMBER);
         default:
             return false;
     }
+}
+
+/* Check if an EXPR_CALL to a named function returns an owned string.
+ * Closures/lambdas are excluded — they may return borrowed strings. */
+static bool is_named_fn_str_call(Expr *expr, SymbolTable *symbol_table)
+{
+    if (!expr || !symbol_table) return false;
+    if (expr->type != EXPR_CALL) return false;
+    if (!expr->expr_type || expr->expr_type->kind != TYPE_STRING) return false;
+    if (!expr->as.call.callee || expr->as.call.callee->type != EXPR_VARIABLE)
+        return false;
+    Symbol *sym = symbol_table_lookup_symbol(symbol_table,
+        expr->as.call.callee->as.variable.name);
+    return (sym && sym->is_function);
 }
 
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
@@ -813,6 +827,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                         }
                         break;
+                    case TYPE_FUNCTION:
+                        assign_cleanup = "free_closure";
+                        break;
                     default:
                         break;
                 }
@@ -992,10 +1009,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
             /* For string binary ops, mark heap-producing operands for temp cleanup */
             {
-                if (is_heap_producing_string_expr(expr->as.binary.left))
+                if (is_heap_producing_string_expr(expr->as.binary.left) ||
+                    is_named_fn_str_call(expr->as.binary.left, symbol_table))
                     json_object_object_add(left_obj, "is_str_temp",
                         json_object_new_boolean(true));
-                if (is_heap_producing_string_expr(expr->as.binary.right))
+                if (is_heap_producing_string_expr(expr->as.binary.right) ||
+                    is_named_fn_str_call(expr->as.binary.right, symbol_table))
                     json_object_object_add(right_obj, "is_str_temp",
                         json_object_new_boolean(true));
             }
@@ -1042,6 +1061,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_object_add(obj, "kind", json_object_new_string("builtin_length"));
                 json_object_object_add(obj, "object",
                     gen_model_expr(arena, expr->as.call.arguments[0], symbol_table, arithmetic_mode));
+                Expr *len_arg = expr->as.call.arguments[0];
+                Type *lat = len_arg ? len_arg->expr_type : NULL;
+                if (lat && lat->kind == TYPE_STRING &&
+                    (len_arg->type == EXPR_CALL || len_arg->type == EXPR_STATIC_CALL ||
+                     len_arg->type == EXPR_METHOD_CALL))
+                    json_object_object_add(obj, "length_owns_str",
+                        json_object_new_boolean(true));
             }
             else if (builtin_name)
             {
@@ -1460,6 +1486,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                             json_object_new_boolean(true));
                                         json_object_object_add(arg, "borrow_type_name",
                                             json_object_new_string(arg_type->as.struct_type.name));
+                                        if (gen_model_type_has_heap_fields(arg_type))
+                                            json_object_object_add(arg, "borrow_needs_cleanup",
+                                                json_object_new_boolean(true));
                                     }
                                 }
                                 else if (is_lvalue)
@@ -1837,6 +1866,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_object_add(arg, "is_borrow_tmp", json_object_new_boolean(true));
                                     json_object_object_add(arg, "borrow_type_name",
                                         json_object_new_string(arg_type->as.struct_type.name));
+                                    if (gen_model_type_has_heap_fields(arg_type))
+                                        json_object_object_add(arg, "borrow_needs_cleanup",
+                                            json_object_new_boolean(true));
                                 }
                             }
                         }
@@ -1922,6 +1954,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_object_add(arg, "is_borrow_tmp", json_object_new_boolean(true));
                                     json_object_object_add(arg, "borrow_type_name",
                                         json_object_new_string(arg_type->as.struct_type.name));
+                                    if (gen_model_type_has_heap_fields(arg_type))
+                                        json_object_object_add(arg, "borrow_needs_cleanup",
+                                            json_object_new_boolean(true));
                                 }
                             }
                         }
@@ -2181,12 +2216,90 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             /* Detect builtin property access: str.length, array.length */
             const char *mname = expr->as.member.member_name.start;
             Type *obj_type = expr->as.member.object ? expr->as.member.object->expr_type : NULL;
+
+            /* Optimise typeOf(x).typeId / .fieldCount / .name — emit the
+             * value as a compile-time literal instead of allocating a full
+             * TypeInfo at runtime (which would leak when used inline). */
+            if (expr->as.member.object &&
+                expr->as.member.object->type == EXPR_TYPEOF)
+            {
+                Expr *typeof_expr = expr->as.member.object;
+                Type *op_type = typeof_expr->as.typeof_expr.operand->expr_type;
+
+                /* Compute canonical type name (same logic as EXPR_TYPEOF below) */
+                const char *type_name = "unknown";
+                if (op_type) {
+                    switch (op_type->kind) {
+                        case TYPE_INT:    type_name = "int"; break;
+                        case TYPE_INT32:  type_name = "int32"; break;
+                        case TYPE_UINT:   type_name = "uint"; break;
+                        case TYPE_UINT32: type_name = "uint32"; break;
+                        case TYPE_LONG:   type_name = "long"; break;
+                        case TYPE_DOUBLE: type_name = "double"; break;
+                        case TYPE_FLOAT:  type_name = "float"; break;
+                        case TYPE_CHAR:   type_name = "char"; break;
+                        case TYPE_STRING: type_name = "str"; break;
+                        case TYPE_BOOL:   type_name = "bool"; break;
+                        case TYPE_BYTE:   type_name = "byte"; break;
+                        case TYPE_VOID:   type_name = "void"; break;
+                        case TYPE_STRUCT: type_name = op_type->as.struct_type.name
+                                                      ? op_type->as.struct_type.name : "struct"; break;
+                        case TYPE_ARRAY:  type_name = "array"; break;
+                        default:          type_name = "unknown"; break;
+                    }
+                }
+
+                /* FNV-1a hash */
+                unsigned long hash = 2166136261u;
+                for (const char *p = type_name; *p; p++) {
+                    hash ^= (unsigned char)*p;
+                    hash *= 16777619u;
+                }
+                int type_id = (int)(hash & 0x7FFFFFFF);
+                int field_count = (op_type && op_type->kind == TYPE_STRUCT)
+                                  ? op_type->as.struct_type.field_count : 0;
+
+                if (strcmp(mname, "typeId") == 0) {
+                    char buf[64];
+                    snprintf(buf, sizeof(buf), "%dLL", type_id);
+                    json_object_object_add(obj, "kind", json_object_new_string("literal"));
+                    json_object_object_add(obj, "c_literal", json_object_new_string(buf));
+                    break;
+                }
+                if (strcmp(mname, "fieldCount") == 0) {
+                    char buf[64];
+                    snprintf(buf, sizeof(buf), "%dLL", field_count);
+                    json_object_object_add(obj, "kind", json_object_new_string("literal"));
+                    json_object_object_add(obj, "c_literal", json_object_new_string(buf));
+                    break;
+                }
+                if (strcmp(mname, "name") == 0) {
+                    char buf[256];
+                    snprintf(buf, sizeof(buf), "(char *)\"%s\"", type_name);
+                    json_object_object_add(obj, "kind", json_object_new_string("literal"));
+                    json_object_object_add(obj, "c_literal", json_object_new_string(buf));
+                    break;
+                }
+                /* Fall through to normal member access for .fields etc. */
+            }
+
             if (obj_type && strcmp(mname, "length") == 0 &&
                 (obj_type->kind == TYPE_STRING || obj_type->kind == TYPE_ARRAY))
             {
                 json_object_object_add(obj, "kind", json_object_new_string("builtin_length"));
                 json_object_object_add(obj, "object",
                     gen_model_expr(arena, expr->as.member.object, symbol_table, arithmetic_mode));
+                /* Detect when .length is called on an owned string rvalue
+                 * (method call / function call returning str) — the temp
+                 * string must be freed after measuring its length. */
+                if (obj_type->kind == TYPE_STRING)
+                {
+                    Expr *o = expr->as.member.object;
+                    if (o && (o->type == EXPR_CALL || o->type == EXPR_STATIC_CALL ||
+                              o->type == EXPR_METHOD_CALL))
+                        json_object_object_add(obj, "length_owns_str",
+                            json_object_new_boolean(true));
+                }
             }
             else
             {
@@ -2667,20 +2780,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_object_add(part, "is_str_temp",
                             json_object_new_boolean(true));
                     }
-                    /* Named function calls returning string always produce owned values
-                     * (codegen adds strdup for borrowed sources in return statements).
-                     * Closure/lambda calls are excluded — they may return borrowed strings. */
-                    else if (p->expr_type && p->expr_type->kind == TYPE_STRING &&
-                             p->type == EXPR_CALL && p->as.call.callee &&
-                             p->as.call.callee->type == EXPR_VARIABLE && symbol_table)
+                    /* Named function calls returning string always produce owned values.
+                     * Closure/lambda calls excluded — may return borrowed strings. */
+                    else if (is_named_fn_str_call(p, symbol_table))
                     {
-                        Symbol *sym = symbol_table_lookup_symbol(symbol_table,
-                            p->as.call.callee->as.variable.name);
-                        if (sym && sym->is_function)
-                        {
-                            json_object_object_add(part, "is_str_temp",
-                                json_object_new_boolean(true));
-                        }
+                        json_object_object_add(part, "is_str_temp",
+                            json_object_new_boolean(true));
                     }
                 }
                 if (expr->as.interpol.format_specs && expr->as.interpol.format_specs[i])

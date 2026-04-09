@@ -1,1 +1,1 @@
-{{#if (eq object.type.kind "array")}}sn_array_length({{> expr object}}){{else}}sn_str_length({{> expr object}}){{/if}}
+{{#if (eq object.type.kind "array")}}sn_array_length({{> expr object}}){{else}}{{#if length_owns_str}}({ char *__len_tmp__ = {{> expr object}}; long long __len_val__ = sn_str_length(__len_tmp__); free(__len_tmp__); __len_val__; }){{else}}sn_str_length({{> expr object}}){{/if}}{{/if}}

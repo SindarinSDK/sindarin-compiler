@@ -18,4 +18,9 @@
     sn_cleanup_array(&{{#if is_captured}}*{{/if}}__sn__{{target}});
     {{#if is_captured}}*{{/if}}__sn__{{target}} = __sn_tmp__;
     {{#if is_captured}}*{{/if}}__sn__{{target}};
-}){{else}}{{#if is_captured}}(*__sn__{{target}} = {{> expr value}}){{else}}(__sn__{{target}} = {{> expr value}}){{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}
+}){{else}}{{#if (eq assign_cleanup "free_closure")}}({
+    void *__old_cl__ = {{#if is_captured}}*{{/if}}__sn__{{target}};
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{> expr value}};
+    free(__old_cl__);
+    {{#if is_captured}}*{{/if}}__sn__{{target}};
+}){{else}}{{#if is_captured}}(*__sn__{{target}} = {{> expr value}}){{else}}(__sn__{{target}} = {{> expr value}}){{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

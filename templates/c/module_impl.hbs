@@ -47,7 +47,7 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
 {{/if}}    if (!__th__->result) __th__->result = calloc(1, sizeof({{c_type return_type}}));
-    *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL{{else}}__result__{{/if}};
+    *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL; free(__result__);{{else}}__result__;{{/if}}
 {{/if}}
 {{else}}
 {{#if is_void}}
@@ -64,7 +64,7 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
 {{/if}}    if (!__th__->result) __th__->result = calloc(1, sizeof({{c_type return_type}}));
-    *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL{{else}}__result__{{/if}};
+    *({{c_type return_type}} *)__th__->result = {{#if (eq return_type.kind "string")}}__result__ ? strdup(__result__) : NULL; free(__result__);{{else}}__result__;{{/if}}
 {{/if}}
 {{/if}}
 {{#unless is_fire_and_forget}}    if (__th__->detached) { free(__th__->result); free(__th__); }

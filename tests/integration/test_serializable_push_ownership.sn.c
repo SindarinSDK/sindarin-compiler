@@ -448,19 +448,53 @@ static __sn__DecoderVTable jd_vt = {
     .atBool = jd_at_bool,
 };
 
+static void jnode_free(JNode *n) {
+    if (!n) return;
+    switch (n->type) {
+        case JN_OBJ:
+            for (int i = 0; i < n->obj.count; i++) {
+                free(n->obj.items[i].key);
+                jnode_free(n->obj.items[i].val);
+            }
+            free(n->obj.items);
+            break;
+        case JN_ARR:
+            for (int i = 0; i < n->arr.count; i++)
+                jnode_free(n->arr.items[i]);
+            free(n->arr.items);
+            break;
+        case JN_STR: free(n->str); break;
+        default: break;
+    }
+    free(n);
+}
+
+static void jd_cleanup(__sn__Decoder *self) {
+    free(self->__sn__ctx);
+}
+
+static void jd_cleanup_root(__sn__Decoder *self) {
+    JDec *d = (JDec *)self->__sn__ctx;
+    if (d) jnode_free(d->node);
+    free(d);
+}
+
 static __sn__Decoder *jd_make(JNode *node) {
     __sn__Decoder *dec = calloc(1, sizeof(__sn__Decoder));
     JDec *d = calloc(1, sizeof(JDec));
     d->node = node;
     dec->__sn__vt = &jd_vt;
     dec->__sn__ctx = d;
+    dec->__sn__cleanup = jd_cleanup;
     return dec;
 }
 
 __sn__Decoder *sn_test_json_decoder(const char *input) {
     const char *p = input;
     JNode *root = jparse(&p);
-    return jd_make(root);
+    __sn__Decoder *dec = jd_make(root);
+    dec->__sn__cleanup = jd_cleanup_root;
+    return dec;
 }
 
 __sn__Encoder *sn_test_json_array_encoder(void) {
