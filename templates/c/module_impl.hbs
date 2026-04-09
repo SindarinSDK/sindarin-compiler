@@ -81,6 +81,8 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{#if has_main_args}}int main(int argc, char **argv) {
     SnArray *__sn__args = sn_array_new(sizeof(char *), argc);
     __sn__args->elem_tag = SN_TAG_STRING;
+    __sn__args->elem_release = (void (*)(void *))sn_cleanup_str;
+    __sn__args->elem_copy = sn_copy_str;
     for (int __i__ = 0; __i__ < argc; __i__++) {
         char *__s__ = strdup(argv[__i__]);
         sn_array_push(__sn__args, &__s__);

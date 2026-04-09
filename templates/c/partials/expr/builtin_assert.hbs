@@ -1,1 +1,1 @@
-sn_assert({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{/each}})
+{{#if has_heap_message}}({ char *__assert_msg__ = {{> expr message_arg}}; sn_assert({{> expr cond_arg}}, __assert_msg__); free(__assert_msg__); (void)0; }){{else}}sn_assert({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{/each}}){{/if}}

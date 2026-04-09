@@ -188,8 +188,15 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
             }
             if (stmt->as.var_decl.initializer)
             {
-                json_object_object_add(obj, "initializer",
-                    gen_model_expr(arena, stmt->as.var_decl.initializer, symbol_table, arithmetic_mode));
+                json_object *init_expr = gen_model_expr(arena, stmt->as.var_decl.initializer, symbol_table, arithmetic_mode);
+                json_object_object_add(obj, "initializer", init_expr);
+                /* Mark typeOf initializers as assigned so the template skips
+                 * self-cleaning (the variable's sn_auto_TypeInfo handles it). */
+                if (stmt->as.var_decl.initializer->type == EXPR_TYPEOF)
+                {
+                    json_object_object_add(init_expr, "is_assigned",
+                        json_object_new_boolean(true));
+                }
                 /* Thread spawn results are RtHandleV2* at the C level */
                 if (stmt->as.var_decl.initializer->type == EXPR_THREAD_SPAWN)
                 {

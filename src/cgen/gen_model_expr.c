@@ -90,17 +90,20 @@ static void mc_add(ModelCaptures *mc, Arena *arena, const char *name, Type *type
  * lifting, an array literal at a call site is built inside a bare
  * statement-expression with no cleanup attribute, leaking the SnArray
  * and (for ref-bearing element types) every retained element. */
-static void hoist_borrow_temps(json_object *call_obj, json_object *args)
+static void hoist_borrow_temps(json_object *call_obj, json_object *args, Expr *call_expr)
 {
     bool has_any = false;
+    bool has_fn_ref = false;
     for (int i = 0; i < (int)json_object_array_length(args); i++)
     {
         json_object *arg = json_object_array_get_idx(args, i);
-        json_object *bt_flag, *al_flag;
+        json_object *bt_flag, *al_flag, *fn_flag;
         bool is_bt = json_object_object_get_ex(arg, "is_borrow_tmp", &bt_flag) &&
                      json_object_get_boolean(bt_flag);
         bool is_al = json_object_object_get_ex(arg, "is_arr_lit_borrow", &al_flag) &&
                      json_object_get_boolean(al_flag);
+        bool is_fn = json_object_object_get_ex(arg, "is_fn_ref_arg", &fn_flag) &&
+                     json_object_get_boolean(fn_flag);
         if (is_bt || is_al)
         {
             char var_name[64];
@@ -112,8 +115,38 @@ static void hoist_borrow_temps(json_object *call_obj, json_object *args)
                 json_object_new_string(var_name));
             has_any = true;
         }
+        /* Also detect lambda expressions used as call args — these
+         * malloc a __Closure__ that needs to be freed after the call.
+         *
+         * CAVEAT: if the callee returns a struct, the closure may be
+         * stored in a struct field (ownership transfer).  In that case,
+         * sn_auto_fn would free the closure while the struct still
+         * references it.  Only hoist when the callee returns a
+         * non-struct type (it only borrows the closure). */
+        json_object *kind_obj = NULL;
+        bool is_lambda = false;
+        if (json_object_object_get_ex(arg, "kind", &kind_obj))
+            is_lambda = strcmp(json_object_get_string(kind_obj), "lambda") == 0;
+
+        bool callee_may_store = false;
+        if (call_expr && call_expr->type == EXPR_CALL &&
+            call_expr->as.call.callee && call_expr->as.call.callee->expr_type &&
+            call_expr->as.call.callee->expr_type->kind == TYPE_FUNCTION)
+        {
+            Type *ret = call_expr->as.call.callee->expr_type->as.function.return_type;
+            if (ret && ret->kind == TYPE_STRUCT)
+                callee_may_store = true;
+        }
+        if ((is_fn || is_lambda) && !callee_may_store)
+        {
+            char var_name[64];
+            snprintf(var_name, sizeof(var_name), "__fn_tmp_%d__", i);
+            json_object_object_add(arg, "fn_ref_tmp_var",
+                json_object_new_string(var_name));
+            has_fn_ref = true;
+        }
     }
-    if (has_any)
+    if (has_any || has_fn_ref)
         json_object_object_add(call_obj, "has_borrow_temps",
             json_object_new_boolean(true));
 }
@@ -1021,8 +1054,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args,
                         gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode));
                 }
-                hoist_borrow_temps(obj, args);
+                hoist_borrow_temps(obj, args, expr);
                 json_object_object_add(obj, "args", args);
+
+                /* assert(cond, message): if the message arg is a heap-producing
+                 * string (e.g. interpolated string), flag it so the template
+                 * can wrap the call to free the message after. */
+                if (strcmp(builtin_name, "assert") == 0 && expr->as.call.arg_count >= 2)
+                {
+                    Expr *msg = expr->as.call.arguments[1];
+                    if (msg && msg->expr_type && msg->expr_type->kind == TYPE_STRING &&
+                        (is_heap_producing_string_expr(msg) || msg->type == EXPR_INTERPOLATED))
+                    {
+                        json_object_object_add(obj, "has_heap_message",
+                            json_object_new_boolean(true));
+                        json_object_object_add(obj, "cond_arg",
+                            json_object_get(json_object_array_get_idx(args, 0)));
+                        json_object_object_add(obj, "message_arg",
+                            json_object_get(json_object_array_get_idx(args, 1)));
+                    }
+                }
             }
             else
             {
@@ -1570,7 +1621,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(swapped, val);
                     args = swapped;
                 }
-                hoist_borrow_temps(obj, args);
+                hoist_borrow_temps(obj, args, expr);
                 json_object_object_add(obj, "args", args);
                 json_object_object_add(obj, "is_tail_call",
                     json_object_new_boolean(expr->as.call.is_tail_call));
@@ -1889,7 +1940,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_array_add(args, arg);
                 }
             }
-            hoist_borrow_temps(obj, args);
+            hoist_borrow_temps(obj, args, expr);
             json_object_object_add(obj, "args", args);
             break;
         }

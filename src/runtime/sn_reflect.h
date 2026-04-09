@@ -94,7 +94,7 @@ static inline __sn__TypeInfo sn_typeinfo_create(const char *name, long long type
     }
     else
     {
-        info.__sn__fields = sn_array_new(sizeof(__sn__FieldInfo), 0);
+        info.__sn__fields = NULL;
     }
     return info;
 }
