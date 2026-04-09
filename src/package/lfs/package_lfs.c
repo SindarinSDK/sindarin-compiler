@@ -54,10 +54,7 @@
     #include <libssh2.h>
 #endif
 
-/* ANSI color codes */
-#define COLOR_RESET   "\033[0m"
-#define COLOR_RED     "\033[1;31m"
-#define COLOR_YELLOW  "\033[1;33m"
+#include "colors.h"
 
 /* LFS pointer file constants */
 #define LFS_POINTER_VERSION "version https://git-lfs.github.com/spec/v1"

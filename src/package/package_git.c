@@ -26,9 +26,7 @@
 #include <wincrypt.h>
 #endif
 
-/* ANSI color codes for terminal output (matching diagnostic.c) */
-#define COLOR_RESET   "\033[0m"
-#define COLOR_RED     "\033[1;31m"
+#include "colors.h"
 
 /* ============================================================================
  * SSL Certificate Verification

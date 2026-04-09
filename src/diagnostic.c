@@ -3,13 +3,7 @@
 #include <string.h>
 #include <stdarg.h>
 
-/* ANSI color codes for terminal output */
-#define COLOR_RESET   "\033[0m"
-#define COLOR_RED     "\033[1;31m"
-#define COLOR_YELLOW  "\033[1;33m"
-#define COLOR_BLUE    "\033[1;34m"
-#define COLOR_CYAN    "\033[1;36m"
-#define COLOR_BOLD    "\033[1m"
+#include "colors.h"
 
 /* Global diagnostic state */
 static const char *g_filename = NULL;
@@ -17,6 +11,11 @@ static const char *g_source = NULL;
 static int g_error_count = 0;
 static int g_warning_count = 0;
 static int g_verbose = 0;
+
+/* Phase tracking — detects when diagnostics interrupt a status line */
+static int g_phase_in_progress = 0;
+static int g_diagnostics_during_phase = 0;
+static int g_current_phase = 0;
 
 /* Per-file source registry for imported files */
 #define MAX_REGISTERED_SOURCES 256
@@ -36,6 +35,8 @@ void diagnostic_init(const char *filename, const char *source)
     g_source = source;
     g_error_count = 0;
     g_warning_count = 0;
+    g_phase_in_progress = 0;
+    g_diagnostics_during_phase = 0;
 }
 
 void diagnostic_register_source(const char *filename, const char *source)
@@ -167,11 +168,16 @@ void diagnostic_report(DiagnosticLevel level, DiagnosticLoc loc,
         break;
     }
 
+    /* Indent diagnostics that fire during a phase so they nest visually */
+    const char *indent = g_phase_in_progress ? "  " : "";
+    if (g_phase_in_progress)
+        g_diagnostics_during_phase++;
+
     /* Leading newline so diagnostics never glue onto prior output */
     fprintf(stderr, "\n");
 
     /* Print the error header: "error: message" */
-    fprintf(stderr, "%s%s%s: ", color, level_str, COLOR_RESET);
+    fprintf(stderr, "%s%s%s%s: ", indent, color, level_str, COLOR_RESET);
 
     va_list args;
     va_start(args, fmt);
@@ -182,7 +188,7 @@ void diagnostic_report(DiagnosticLevel level, DiagnosticLoc loc,
     /* Print location: "  --> file:line:column" */
     if (loc.filename)
     {
-        fprintf(stderr, "  %s-->%s %s", COLOR_BLUE, COLOR_RESET, loc.filename);
+        fprintf(stderr, "%s  %s-->%s %s", indent, COLOR_BLUE, COLOR_RESET, loc.filename);
         if (loc.line > 0)
         {
             fprintf(stderr, ":%d", loc.line);
@@ -201,10 +207,10 @@ void diagnostic_report(DiagnosticLevel level, DiagnosticLoc loc,
             if (source_line)
             {
                 /* Print source line with consistent indentation */
-                fprintf(stderr, "      %s\n", source_line);
+                fprintf(stderr, "%s      %s\n", indent, source_line);
 
                 /* Print the underline/caret line */
-                fprintf(stderr, "      ");
+                fprintf(stderr, "%s      ", indent);
 
                 /* Spaces to reach the column */
                 int col = loc.column > 0 ? loc.column : 1;
@@ -292,7 +298,11 @@ void diagnostic_error_simple(const char *fmt, ...)
 {
     g_error_count++;
 
-    fprintf(stderr, "\n%serror%s: ", COLOR_RED, COLOR_RESET);
+    const char *indent = g_phase_in_progress ? "  " : "";
+    if (g_phase_in_progress)
+        g_diagnostics_during_phase++;
+
+    fprintf(stderr, "\n%s%serror%s: ", indent, COLOR_RED, COLOR_RESET);
 
     va_list args;
     va_start(args, fmt);
@@ -385,28 +395,50 @@ void diagnostic_compile_start(const char *filename)
 
 void diagnostic_phase_start(CompilationPhase phase)
 {
+    g_phase_in_progress = 1;
+    g_diagnostics_during_phase = 0;
+    g_current_phase = phase;
     fprintf(stderr, "  %s...", phase_names[phase]);
     fflush(stderr);
 }
 
 void diagnostic_phase_done(CompilationPhase phase, double elapsed_secs)
 {
-    (void)phase;  /* Unused when not verbose */
+    g_phase_in_progress = 0;
 
-    if (g_verbose && elapsed_secs > 0)
+    if (g_diagnostics_during_phase > 0)
     {
-        fprintf(stderr, " %sdone%s (%.2fs)\n", COLOR_CYAN, COLOR_RESET, elapsed_secs);
+        /* Diagnostics were emitted — the original "Phase..." line is broken.
+         * Reprint as a complete line so the user sees clean status. */
+        if (g_verbose && elapsed_secs > 0)
+            fprintf(stderr, "  %s %sdone%s (%.2fs)\n", phase_names[phase], COLOR_CYAN, COLOR_RESET, elapsed_secs);
+        else
+            fprintf(stderr, "  %s %sdone%s\n", phase_names[phase], COLOR_CYAN, COLOR_RESET);
     }
     else
     {
-        fprintf(stderr, " %sdone%s\n", COLOR_CYAN, COLOR_RESET);
+        /* No interruptions — append to the existing "Phase..." line */
+        if (g_verbose && elapsed_secs > 0)
+            fprintf(stderr, " %sdone%s (%.2fs)\n", COLOR_CYAN, COLOR_RESET, elapsed_secs);
+        else
+            fprintf(stderr, " %sdone%s\n", COLOR_CYAN, COLOR_RESET);
     }
 }
 
 void diagnostic_phase_failed(CompilationPhase phase)
 {
-    (void)phase;
-    fprintf(stderr, " %sfailed%s\n\n", COLOR_RED, COLOR_RESET);
+    g_phase_in_progress = 0;
+
+    if (g_diagnostics_during_phase > 0)
+    {
+        /* Diagnostics were emitted — reprint as a complete line */
+        fprintf(stderr, "  %s %sfailed%s\n\n", phase_names[phase], COLOR_RED, COLOR_RESET);
+    }
+    else
+    {
+        /* No interruptions — append to the existing "Phase..." line */
+        fprintf(stderr, " %sfailed%s\n\n", COLOR_RED, COLOR_RESET);
+    }
 }
 
 void diagnostic_compile_success(const char *output_file, long file_size,
@@ -431,13 +463,23 @@ void diagnostic_compile_success(const char *output_file, long file_size,
 
     if (g_verbose)
     {
-        fprintf(stderr, "\n%sDone%s: %s (%s) in %.2fs\n",
-                COLOR_CYAN, COLOR_RESET, output_file, size_str, total_secs);
+        if (g_warning_count > 0)
+            fprintf(stderr, "\n%sDone%s: %s (%s) in %.2fs [%d warning%s]\n",
+                    COLOR_CYAN, COLOR_RESET, output_file, size_str, total_secs,
+                    g_warning_count, g_warning_count == 1 ? "" : "s");
+        else
+            fprintf(stderr, "\n%sDone%s: %s (%s) in %.2fs\n",
+                    COLOR_CYAN, COLOR_RESET, output_file, size_str, total_secs);
     }
     else
     {
-        fprintf(stderr, "%sDone%s: %s (%s)\n",
-                COLOR_CYAN, COLOR_RESET, output_file, size_str);
+        if (g_warning_count > 0)
+            fprintf(stderr, "%sDone%s: %s (%s) [%d warning%s]\n",
+                    COLOR_CYAN, COLOR_RESET, output_file, size_str,
+                    g_warning_count, g_warning_count == 1 ? "" : "s");
+        else
+            fprintf(stderr, "%sDone%s: %s (%s)\n",
+                    COLOR_CYAN, COLOR_RESET, output_file, size_str);
     }
 }
 
@@ -445,9 +487,15 @@ void diagnostic_compile_failed(void)
 {
     if (g_error_count > 0)
     {
-        fprintf(stderr, "%sCompilation failed%s: %d error%s\n",
-                COLOR_RED, COLOR_RESET,
-                g_error_count, g_error_count == 1 ? "" : "s");
+        if (g_warning_count > 0)
+            fprintf(stderr, "%sCompilation failed%s: %d error%s, %d warning%s\n",
+                    COLOR_RED, COLOR_RESET,
+                    g_error_count, g_error_count == 1 ? "" : "s",
+                    g_warning_count, g_warning_count == 1 ? "" : "s");
+        else
+            fprintf(stderr, "%sCompilation failed%s: %d error%s\n",
+                    COLOR_RED, COLOR_RESET,
+                    g_error_count, g_error_count == 1 ? "" : "s");
     }
     else
     {
