@@ -2789,6 +2789,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 json_object *ldef = json_object_new_object();
                 json_object_object_add(ldef, "lambda_id", json_object_new_int(lam->lambda_id));
+                /* Record the source file so gen_model_split can route the
+                 * lambda body to the same TU as the function that references
+                 * it. Without this, lambdas inside imported modules end up
+                 * emitted as static in main.c and fail to link. */
+                if (expr->token && expr->token->filename)
+                    gen_model_add_source_file(ldef, expr->token->filename);
                 json_object_object_add(ldef, "return_type", gen_model_type(arena, lam->return_type));
 
                 json_object *lparams = json_object_new_array();

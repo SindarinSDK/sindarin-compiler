@@ -1,0 +1,9 @@
+# Module that exports a factory returning a lambda with no captures.
+# Regression test for compiler-problems.34 #53 — lambdas inside imported
+# modules were emitted in main.c as static, causing undefined references.
+
+fn alwaysTrue(): fn(int): bool =>
+  return fn(x: int): bool => true
+
+fn alwaysFalse(): fn(int): bool =>
+  return fn(x: int): bool => false

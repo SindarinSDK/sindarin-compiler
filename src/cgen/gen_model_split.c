@@ -294,10 +294,32 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
         json_object_object_add(impl, "native_externs",
             native_externs ? json_deep_copy(native_externs) : json_object_new_array());
 
+        /* Distribute lambdas: each lambda ends up in the TU matching its
+         * source_file so the body and its references live in the same
+         * translation unit. Lambdas without a source_file (shouldn't happen
+         * in practice) fall through to the main module. */
+        json_object *bucket_lambdas = json_object_new_array();
+        if (lambdas)
+        {
+            int lcount = (int)json_object_array_length(lambdas);
+            for (int li = 0; li < lcount; li++)
+            {
+                json_object *ld = json_object_array_get_idx(lambdas, li);
+                json_object *sf = NULL;
+                json_object_object_get_ex(ld, "source_file", &sf);
+                const char *sfile = sf ? json_object_get_string(sf) : entry_file;
+                bool match = (strcmp(sfile, bucket_files[b]) == 0);
+                if (!match && is_main && !sf)
+                    match = true; /* fallback for lambdas with no source_file */
+                if (match)
+                    json_object_array_add(bucket_lambdas, json_deep_copy(ld));
+            }
+        }
+        json_object_object_add(impl, "lambdas", bucket_lambdas);
+
         if (is_main)
         {
-            /* Main module gets lambdas, threads, fn_wrappers, module metadata, and ALL globals for deferred init */
-            json_object_object_add(impl, "lambdas", lambdas ? json_deep_copy(lambdas) : json_object_new_array());
+            /* Main module gets threads, fn_wrappers, module metadata, and ALL globals for deferred init */
             json_object_object_add(impl, "threads", threads ? json_deep_copy(threads) : json_object_new_array());
             json_object_object_add(impl, "fn_wrappers", fn_wrappers ? json_deep_copy(fn_wrappers) : json_object_new_array());
             json_object_object_add(impl, "module", module_obj ? json_deep_copy(module_obj) : json_object_new_object());

@@ -1,0 +1,16 @@
+# Validator struct with a fn-typed field, initialized via a lambda.
+# Regression test for compiler-problems.34 #53 — matches the sindarin-pkg-tensor
+# refactor pattern that surfaced the bug.
+
+struct Validator =>
+  check: fn(int): bool
+
+fn positiveValidator(): Validator =>
+  return Validator {
+    check: fn(x: int): bool => x > 0
+  }
+
+fn thresholdValidator(threshold: int): Validator =>
+  return Validator {
+    check: fn(x: int): bool => x >= threshold
+  }

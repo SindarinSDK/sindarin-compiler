@@ -1,0 +1,8 @@
+# Module that exports a factory returning a lambda with a captured int.
+# Regression test for compiler-problems.34 #53 — cross-module lambda with capture.
+
+fn makeChecker(threshold: int): fn(int): bool =>
+  return fn(x: int): bool => x > threshold
+
+fn makeAdder(delta: int): fn(int): int =>
+  return fn(x: int): int => x + delta

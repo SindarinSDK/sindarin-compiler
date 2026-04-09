@@ -1,0 +1,27 @@
+# Regression test for compiler-problems.34 #53.
+# Validator struct with fn-typed field populated by a lambda inside an
+# imported module. Matches the sindarin-pkg-tensor refactor pattern.
+
+import "lib/lambda_validator"
+
+fn main(): int =>
+  var pos: Validator = positiveValidator()
+  if pos.check(5) =>
+    print("pos.check(5)=true\n")
+  else =>
+    print("pos.check(5)=false\n")
+  if pos.check(0) =>
+    print("pos.check(0)=true\n")
+  else =>
+    print("pos.check(0)=false\n")
+
+  var tv: Validator = thresholdValidator(10)
+  if tv.check(10) =>
+    print("tv.check(10)=true\n")
+  else =>
+    print("tv.check(10)=false\n")
+  if tv.check(9) =>
+    print("tv.check(9)=true\n")
+  else =>
+    print("tv.check(9)=false\n")
+  return 0

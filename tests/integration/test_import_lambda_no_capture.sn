@@ -1,0 +1,19 @@
+# Regression test for compiler-problems.34 #53.
+# Lambda factory lives in an imported module with no captures.
+# Before the fix: link error "undefined reference to __lambda_N__".
+
+import "lib/lambda_no_capture"
+
+fn main(): int =>
+  var t: fn(int): bool = alwaysTrue()
+  var f: fn(int): bool = alwaysFalse()
+  if t(42) =>
+    print("t(42)=true\n")
+  else =>
+    print("t(42)=false\n")
+  if f(42) =>
+    print("f(42)=true\n")
+  else =>
+    print("f(42)=false\n")
+  print("ok\n")
+  return 0

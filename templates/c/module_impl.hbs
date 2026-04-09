@@ -98,6 +98,7 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{#unless main_returns}}    return 0;
 {{/unless}}
 }{{/if}}{{/with}}
+{{/if}}
 {{#each lambdas}}
 
 static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
@@ -122,4 +123,3 @@ static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each 
 {{/if}}
 }
 {{/each}}
-{{/if}}

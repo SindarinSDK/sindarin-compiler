@@ -1,0 +1,4 @@
+pos.check(5)=true
+pos.check(0)=false
+tv.check(10)=true
+tv.check(9)=false

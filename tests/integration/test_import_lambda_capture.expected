@@ -1,0 +1,3 @@
+over10(42)=true
+over50(42)=false
+add5(10)=15

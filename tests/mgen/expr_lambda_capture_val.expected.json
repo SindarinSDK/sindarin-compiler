@@ -213,6 +213,7 @@
   "lambdas": [
     {
       "lambda_id": 0,
+      "source_file": "tests\/mgen\/expr_lambda_capture_val.sn",
       "return_type": {
         "kind": "int"
       },

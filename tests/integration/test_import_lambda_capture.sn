@@ -1,0 +1,21 @@
+# Regression test for compiler-problems.34 #53.
+# Lambda factory lives in an imported module and captures an int parameter.
+
+import "lib/lambda_capture"
+
+fn main(): int =>
+  var over10: fn(int): bool = makeChecker(10)
+  var over50: fn(int): bool = makeChecker(50)
+  if over10(42) =>
+    print("over10(42)=true\n")
+  else =>
+    print("over10(42)=false\n")
+  if over50(42) =>
+    print("over50(42)=true\n")
+  else =>
+    print("over50(42)=false\n")
+
+  var add5: fn(int): int = makeAdder(5)
+  var r: int = add5(10)
+  print($"add5(10)={r}\n")
+  return 0
