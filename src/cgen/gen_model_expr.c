@@ -1018,6 +1018,23 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(right_obj, "is_str_temp",
                         json_object_new_boolean(true));
             }
+            /* For array binary ops (== / !=), mark array literal operands
+             * for temp cleanup so the inline array is freed after comparison */
+            {
+                Expr *lhs = expr->as.binary.left;
+                Expr *rhs = expr->as.binary.right;
+                if (lhs && lhs->expr_type && lhs->expr_type->kind == TYPE_ARRAY &&
+                    (expr->as.binary.operator == TOKEN_EQUAL_EQUAL ||
+                     expr->as.binary.operator == TOKEN_BANG_EQUAL))
+                {
+                    if (lhs->type == EXPR_ARRAY || lhs->type == EXPR_RANGE)
+                        json_object_object_add(left_obj, "is_arr_temp",
+                            json_object_new_boolean(true));
+                    if (rhs->type == EXPR_ARRAY || rhs->type == EXPR_RANGE)
+                        json_object_object_add(right_obj, "is_arr_temp",
+                            json_object_new_boolean(true));
+                }
+            }
 
             json_object_object_add(obj, "left", left_obj);
             json_object_object_add(obj, "right", right_obj);
@@ -1622,15 +1639,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(member_ref_push_name));
                         }
                     }
-                    /* Issue #47: Array literal call args have no auto cleanup
-                     * — the SnArray * temp leaks (and pins refcounted elems).
-                     * Lift into a sn_auto_arr local in the call's wrapping
+                    /* Issue #47: Array literal / range call args have no auto
+                     * cleanup — the SnArray * temp leaks.  Lift into a
+                     * sn_auto_arr local in the call's wrapping
                      * statement-expression so cleanup runs after the call. */
                     {
                         Expr *arg_expr = expr->as.call.arguments[i];
                         Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
-                        if (arg_expr && arg_expr->type == EXPR_ARRAY &&
-                            arg_type && arg_type->kind == TYPE_ARRAY)
+                        if (arg_expr && arg_type && arg_type->kind == TYPE_ARRAY &&
+                            (arg_expr->type == EXPR_ARRAY ||
+                             arg_expr->type == EXPR_RANGE))
                         {
                             json_object_object_add(arg, "is_arr_lit_borrow",
                                 json_object_new_boolean(true));
@@ -1961,12 +1979,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                         }
                     }
-                    /* Issue #47: lift array literal args (see EXPR_CALL above) */
+                    /* Issue #47: lift array literal / range args (see EXPR_CALL above) */
                     {
                         Expr *arg_expr = expr->as.static_call.arguments[i];
                         Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
-                        if (arg_expr && arg_expr->type == EXPR_ARRAY &&
-                            arg_type && arg_type->kind == TYPE_ARRAY)
+                        if (arg_expr && arg_type && arg_type->kind == TYPE_ARRAY &&
+                            (arg_expr->type == EXPR_ARRAY ||
+                             arg_expr->type == EXPR_RANGE))
                         {
                             json_object_object_add(arg, "is_arr_lit_borrow",
                                 json_object_new_boolean(true));
@@ -3326,6 +3345,15 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                     json_object_new_string(arg_type->as.struct_type.name));
                             }
                         }
+                        /* Thread string args from heap-producing expressions (interpolations,
+                         * concatenations, method calls) must be freed in the wrapper after
+                         * the function call, since the shallow args_copy keeps the pointer. */
+                        if (is_heap_producing_string_expr(arg_expr) ||
+                            is_named_fn_str_call(arg_expr, symbol_table))
+                        {
+                            json_object_object_add(arg, "needs_str_cleanup",
+                                json_object_new_boolean(true));
+                        }
                         /* Check if corresponding call arg is a fn_ref_arg (bare function
                          * reference wrapped in a heap-allocated __Closure__).  The thread
                          * wrapper needs this flag to free the closure after the call. */
@@ -3370,6 +3398,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 gen_model_type(arena, expr->expr_type));
             json_object_object_add(obj, "is_void",
                 json_object_new_boolean(expr->expr_type->kind == TYPE_VOID));
+            /* Struct results with heap fields need cleanup before overwrite */
+            if (expr->expr_type->kind == TYPE_STRUCT &&
+                gen_model_type_category(expr->expr_type) == TYPE_CAT_COMPOSITE)
+            {
+                json_object_object_add(obj, "needs_val_cleanup",
+                    json_object_new_boolean(true));
+            }
 
             /* Detect array sync patterns */
             Expr *sync_handle = expr->as.thread_sync.handle;

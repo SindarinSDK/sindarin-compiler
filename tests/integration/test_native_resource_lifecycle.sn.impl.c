@@ -28,6 +28,7 @@ typedef __sn__MockListener MockListener;
 MockStream *mock_stream_create(char *remote_addr) {
     MockStream *s = calloc(1, sizeof(MockStream));
     if (!s) { fprintf(stderr, "MockStream: alloc failed\n"); exit(1); }
+    s->__rc__ = 1;
     s->remote_addr = remote_addr ? strdup(remote_addr) : NULL;
     s->buffer = (unsigned char *)calloc(1, MOCK_BUF_SIZE);
     s->capacity = MOCK_BUF_SIZE;
@@ -96,6 +97,7 @@ static int mock_port_counter = 8080;
 MockListener *mock_listener_bind(char *address) {
     MockListener *l = calloc(1, sizeof(MockListener));
     if (!l) { fprintf(stderr, "MockListener: alloc failed\n"); exit(1); }
+    l->__rc__ = 1;
     l->address = address ? strdup(address) : strdup("0.0.0.0:0");
     l->port = mock_port_counter++;
     l->is_bound = 1;

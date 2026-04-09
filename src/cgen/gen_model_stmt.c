@@ -233,10 +233,18 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     ExprType itype = init->type;
                     bool is_nil_literal = (itype == EXPR_LITERAL && init->as.literal.type &&
                                            init->as.literal.type->kind == TYPE_NIL);
+                    /* Handle-based thread sync (e.g., var x = handle!) returns
+                     * a pointer shared with the thread handle var — needs strdup
+                     * so both variables own independent copies. Inline sync
+                     * (spawn fn()!) returns a unique owned pointer — no strdup. */
+                    bool is_handle_sync = (itype == EXPR_THREAD_SYNC &&
+                                           init->as.thread_sync.handle &&
+                                           init->as.thread_sync.handle->type == EXPR_VARIABLE);
                     bool needs_strdup = !is_nil_literal &&
                                         !init_is_lifted_member &&
                                         (itype == EXPR_LITERAL || itype == EXPR_VARIABLE ||
-                                         itype == EXPR_ARRAY_ACCESS || itype == EXPR_MEMBER);
+                                         itype == EXPR_ARRAY_ACCESS || itype == EXPR_MEMBER ||
+                                         is_handle_sync);
                     json_object_object_add(obj, "needs_strdup",
                         json_object_new_boolean(needs_strdup));
                 }
@@ -246,9 +254,12 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 {
                     Expr *init = stmt->as.var_decl.initializer;
                     ExprType itype = init->type;
+                    bool is_handle_arr_sync = (itype == EXPR_THREAD_SYNC &&
+                                               init->as.thread_sync.handle &&
+                                               init->as.thread_sync.handle->type == EXPR_VARIABLE);
                     bool needs_copy = !init_is_lifted_member &&
                                       (itype == EXPR_VARIABLE || itype == EXPR_MEMBER ||
-                                       itype == EXPR_ARRAY_ACCESS);
+                                       itype == EXPR_ARRAY_ACCESS || is_handle_arr_sync);
                     if (needs_copy)
                     {
                         json_object_object_add(obj, "needs_arr_copy",

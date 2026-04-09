@@ -35,6 +35,7 @@ static void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{#if is_void}}
     __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}{{#if is_borrow}}&{{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
+{{/if}}{{#if needs_str_cleanup}}    free(args->{{name}});
 {{/if}}{{#if type.pass_self_by_ref}}    __sn__{{type.name}}_release(&args->{{name}});
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
@@ -42,6 +43,7 @@ static void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{else}}
     {{c_type return_type}} __result__ = __sn__{{func_name}}({{#each args}}{{#if @index}}, {{/if}}{{#if is_borrow}}&{{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
+{{/if}}{{#if needs_str_cleanup}}    free(args->{{name}});
 {{/if}}{{#if type.pass_self_by_ref}}    __sn__{{type.name}}_release(&args->{{name}});
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;

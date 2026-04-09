@@ -15,7 +15,7 @@
     __sync_val__; })
 {{else}}{{#if (eq handle.kind "sync_list")}}({
 {{#each handle.elements}}    { sn_auto_thread SnThread *__sync_th__ = __sn__{{name}}__th__; __sn__{{name}}__th__ = NULL;
-    if (__sync_th__) { sn_thread_join(__sync_th__); {{#if (eq type.kind "string")}}free(__sn__{{name}}); {{/if}}{{#if (eq type.kind "array")}}sn_cleanup_array(&__sn__{{name}}); {{/if}}__sn__{{name}} = *({{c_type type}} *)__sync_th__->result; } }
+    if (__sync_th__) { sn_thread_join(__sync_th__); {{#if (eq type.kind "string")}}free(__sn__{{name}}); {{/if}}{{#if (eq type.kind "array")}}sn_cleanup_array(&__sn__{{name}}); {{/if}}{{#if needs_val_cleanup}}__sn__{{type.name}}_cleanup(&__sn__{{name}}); {{/if}}__sn__{{name}} = *({{c_type type}} *)__sync_th__->result; } }
 {{/each}}    (void)0; })
 {{else}}{{#if is_void}}({
 {{#if (eq handle.kind "variable")}}    sn_auto_thread SnThread *__sync_th__ = __sn__{{handle.name}}__th__; __sn__{{handle.name}}__th__ = NULL;
@@ -26,7 +26,7 @@
     (void)0; })
 {{/if}}{{else}}({
 {{#if (eq handle.kind "variable")}}    sn_auto_thread SnThread *__sync_th__ = __sn__{{handle.name}}__th__; __sn__{{handle.name}}__th__ = NULL;
-    if (__sync_th__) { sn_thread_join(__sync_th__); {{#if (eq result_type.kind "string")}}free(__sn__{{handle.name}}); {{/if}}{{#if (eq result_type.kind "array")}}sn_cleanup_array(&__sn__{{handle.name}}); {{/if}}__sn__{{handle.name}} = *({{c_type result_type}} *)__sync_th__->result; }
+    if (__sync_th__) { sn_thread_join(__sync_th__); {{#if (eq result_type.kind "string")}}free(__sn__{{handle.name}}); {{/if}}{{#if (eq result_type.kind "array")}}sn_cleanup_array(&__sn__{{handle.name}}); {{/if}}{{#if needs_val_cleanup}}__sn__{{result_type.name}}_cleanup(&__sn__{{handle.name}}); {{/if}}__sn__{{handle.name}} = *({{c_type result_type}} *)__sync_th__->result; }
     __sn__{{handle.name}}; })
 {{else}}    sn_auto_thread SnThread *__sync_th__ = {{> expr handle}};
     sn_thread_join(__sync_th__);
