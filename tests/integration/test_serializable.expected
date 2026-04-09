@@ -7,5 +7,8 @@ test_roundtrip: PASS
 test_encodeArray: PASS
 test_decodeArray: PASS
 test_array_roundtrip: PASS
+test_alias_encode: PASS
+test_alias_decode: PASS
+test_alias_roundtrip: PASS
 
 All @serializable tests passed!

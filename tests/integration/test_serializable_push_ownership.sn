@@ -63,9 +63,7 @@ fn main(): void =>
   println("test_push_rvalue: PASS")
 
   // --- Test 3: Re-encode all observations ---
-  var arrEnc: Encoder = sn_test_json_array_encoder()
-  Observation.encodeArray(observations, arrEnc)
-  var json: str = arrEnc.result()
+  var json: str = Observation.encodeArray(observations, sn_test_json_array_encoder())
   assert(json.length > 100, "re-encoded JSON should be substantial")
   println("test_re_encode: PASS")
 

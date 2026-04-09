@@ -20,19 +20,26 @@ struct Person =>
   address: Address
   tags: str[]
 
+@serializable
+struct ApiResponse =>
+  @alias "status_code"
+  statusCode: int
+  @alias "error_message"
+  errorMessage: str
+  @alias "is_success"
+  isSuccess: bool
+
 fn main(): void =>
-  // --- Test 1: Encode primitives ---
+  // --- Test 1: Encode primitives (one-liner) ---
   var a: Address = Address {
     street: "123 Main St",
     city: "NYC"
   }
-  var enc: Encoder = sn_test_json_encoder()
-  a.encode(enc)
-  var json: str = enc.result()
+  var json: str = a.encode(sn_test_json_encoder())
   assert(json == "{\"street\":\"123 Main St\",\"city\":\"NYC\"}", "Address encode")
   println("test_encode_address: PASS")
 
-  // --- Test 2: Encode nested struct + array ---
+  // --- Test 2: Encode nested struct + array (one-liner) ---
   var p: Person = Person {
     name: "Alice",
     age: 30,
@@ -44,11 +51,8 @@ fn main(): void =>
     },
     tags: {"dev", "lead"}
   }
-  var enc2: Encoder = sn_test_json_encoder()
-  p.encode(enc2)
-  var json2: str = enc2.result()
+  var json2: str = p.encode(sn_test_json_encoder())
   println($"encoded: {json2}")
-  // Verify key parts of the JSON
   assert(json2 == "{\"name\":\"Alice\",\"age\":30,\"score\":9.5,\"active\":true,\"address\":{\"street\":\"456 Oak Ave\",\"city\":\"LA\"},\"tags\":[\"dev\",\"lead\"]}", "Person encode")
   println("test_encode_person: PASS")
 
@@ -74,7 +78,7 @@ fn main(): void =>
   assert(p2.tags[2] == "infra", "Person decode tags[2]")
   println("test_decode_person: PASS")
 
-  // --- Test 5: Roundtrip ---
+  // --- Test 5: Roundtrip (one-liner encode) ---
   var original: Person = Person {
     name: "Charlie",
     age: 40,
@@ -86,11 +90,8 @@ fn main(): void =>
     },
     tags: {"mgr"}
   }
-  var rtEnc: Encoder = sn_test_json_encoder()
-  original.encode(rtEnc)
-  var rtJson: str = rtEnc.result()
-  var rtDec: Decoder = sn_test_json_decoder(rtJson)
-  var roundtrip: Person = Person.decode(rtDec)
+  var rtJson: str = original.encode(sn_test_json_encoder())
+  var roundtrip: Person = Person.decode(sn_test_json_decoder(rtJson))
   assert(roundtrip.name == "Charlie", "roundtrip name")
   assert(roundtrip.age == 40, "roundtrip age")
   assert(roundtrip.score == 7.7, "roundtrip score")
@@ -101,7 +102,7 @@ fn main(): void =>
   assert(roundtrip.tags[0] == "mgr", "roundtrip tags[0]")
   println("test_roundtrip: PASS")
 
-  // --- Test 6: encodeArray ---
+  // --- Test 6: encodeArray (one-liner) ---
   var addrs: Address[] = {
     Address {
       street: "1 Main",
@@ -112,9 +113,7 @@ fn main(): void =>
       city: "LA"
     }
   }
-  var arrEnc: Encoder = sn_test_json_array_encoder()
-  Address.encodeArray(addrs, arrEnc)
-  var arrJson: str = arrEnc.result()
+  var arrJson: str = Address.encodeArray(addrs, sn_test_json_array_encoder())
   assert(arrJson == "[{\"street\":\"1 Main\",\"city\":\"NYC\"},{\"street\":\"2 Oak\",\"city\":\"LA\"}]", "encodeArray")
   println("test_encodeArray: PASS")
 
@@ -128,7 +127,7 @@ fn main(): void =>
   assert(decoded[1].city == "CHI", "decodeArray[1].city")
   println("test_decodeArray: PASS")
 
-  // --- Test 8: encodeArray + decodeArray roundtrip ---
+  // --- Test 8: encodeArray + decodeArray roundtrip (one-liner encode) ---
   var people: Person[] = {
     Person {
       name: "Alice",
@@ -153,11 +152,8 @@ fn main(): void =>
       tags: {"c"}
     }
   }
-  var rtArrEnc: Encoder = sn_test_json_array_encoder()
-  Person.encodeArray(people, rtArrEnc)
-  var rtArrJson: str = rtArrEnc.result()
-  var rtArrDec: Decoder = sn_test_json_decoder(rtArrJson)
-  var rtPeople: Person[] = Person.decodeArray(rtArrDec)
+  var rtArrJson: str = Person.encodeArray(people, sn_test_json_array_encoder())
+  var rtPeople: Person[] = Person.decodeArray(sn_test_json_decoder(rtArrJson))
   assert(rtPeople.length == 2, "array roundtrip length")
   assert(rtPeople[0].name == "Alice", "array roundtrip [0].name")
   assert(rtPeople[0].age == 30, "array roundtrip [0].age")
@@ -168,5 +164,35 @@ fn main(): void =>
   assert(rtPeople[1].active == false, "array roundtrip [1].active")
   assert(rtPeople[1].tags[0] == "c", "array roundtrip [1].tags[0]")
   println("test_array_roundtrip: PASS")
+
+  // --- Test 9: @alias on @serializable fields ---
+  var resp: ApiResponse = ApiResponse {
+    statusCode: 200,
+    errorMessage: "none",
+    isSuccess: true
+  }
+  var respJson: str = resp.encode(sn_test_json_encoder())
+  assert(respJson == "{\"status_code\":200,\"error_message\":\"none\",\"is_success\":true}", "alias encode")
+  println("test_alias_encode: PASS")
+
+  // --- Test 10: @alias decode ---
+  var resp2: ApiResponse = ApiResponse.decode(sn_test_json_decoder("{\"status_code\":404,\"error_message\":\"not found\",\"is_success\":false}"))
+  assert(resp2.statusCode == 404, "alias decode statusCode")
+  assert(resp2.errorMessage == "not found", "alias decode errorMessage")
+  assert(resp2.isSuccess == false, "alias decode isSuccess")
+  println("test_alias_decode: PASS")
+
+  // --- Test 11: @alias roundtrip ---
+  var resp3: ApiResponse = ApiResponse {
+    statusCode: 500,
+    errorMessage: "internal error",
+    isSuccess: false
+  }
+  var rtRespJson: str = resp3.encode(sn_test_json_encoder())
+  var resp4: ApiResponse = ApiResponse.decode(sn_test_json_decoder(rtRespJson))
+  assert(resp4.statusCode == 500, "alias roundtrip statusCode")
+  assert(resp4.errorMessage == "internal error", "alias roundtrip errorMessage")
+  assert(resp4.isSuccess == false, "alias roundtrip isSuccess")
+  println("test_alias_roundtrip: PASS")
 
   println("\nAll @serializable tests passed!")

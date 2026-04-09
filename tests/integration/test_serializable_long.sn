@@ -19,9 +19,7 @@ fn main(): void =>
   }
 
   // Encode
-  var enc: Encoder = sn_test_json_encoder()
-  e.encode(enc)
-  var json: str = enc.result()
+  var json: str = e.encode(sn_test_json_encoder())
   println($"encoded: {json}")
 
   // Decode

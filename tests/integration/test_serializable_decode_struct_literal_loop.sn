@@ -28,9 +28,7 @@ fn main(): void =>
       id: "test",
       tags: {"a", "b"}
     } }
-    var enc: Encoder = sn_test_json_encoder()
-    w.encode(enc)
-    var json: str = enc.result()
+    var json: str = w.encode(sn_test_json_encoder())
 
     // 2. Decode (fields owned by decoder)
     var dec: Decoder = sn_test_json_decoder(json)
@@ -44,9 +42,7 @@ fn main(): void =>
     }
 
     // 4. Encode the new struct
-    var enc2: Encoder = sn_test_json_encoder()
-    out.encode(enc2)
-    var json2: str = enc2.result()
+    var json2: str = out.encode(sn_test_json_encoder())
 
     println($"iteration {i}: {json2}")
 

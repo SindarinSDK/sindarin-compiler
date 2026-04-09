@@ -66,9 +66,7 @@ fn main(): void =>
   }
 
   // Encode to JSON
-  var enc: Encoder = sn_test_json_encoder()
-  resp.encode(enc)
-  var payload: str = enc.result()
+  var payload: str = resp.encode(sn_test_json_encoder())
 
   // Decode in same scope works fine
   var dec: Decoder = sn_test_json_decoder(payload)

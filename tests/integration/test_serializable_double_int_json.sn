@@ -81,9 +81,7 @@ fn main(): void =>
     values: {1, 2, 3},
     weights: {0.5, 1.5, 2.5}
   }
-  var enc: Encoder = sn_test_json_encoder()
-  stats.encode(enc)
-  var json: str = enc.result()
+  var json: str = stats.encode(sn_test_json_encoder())
   var dec6: Decoder = sn_test_json_decoder(json)
   var rt: Stats = Stats.decode(dec6)
   assert(rt.name == "test", "roundtrip: name")

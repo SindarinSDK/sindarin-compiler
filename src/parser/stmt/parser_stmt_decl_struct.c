@@ -884,7 +884,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             m->name = arena_strdup(parser->arena, "encode");
             m->params = enc_params;
             m->param_count = 1;
-            m->return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+            m->return_type = ast_create_primitive_type(parser->arena, TYPE_STRING);
             m->return_mem_qualifier = MEM_DEFAULT;
             m->body = NULL;
             m->body_count = 0;
@@ -951,7 +951,7 @@ Stmt *parser_struct_declaration(Parser *parser, bool is_native)
             m->name = arena_strdup(parser->arena, "encodeArray");
             m->params = ea_params;
             m->param_count = 2;
-            m->return_type = ast_create_primitive_type(parser->arena, TYPE_VOID);
+            m->return_type = ast_create_primitive_type(parser->arena, TYPE_STRING);
             m->return_mem_qualifier = MEM_DEFAULT;
             m->body = NULL;
             m->body_count = 0;
