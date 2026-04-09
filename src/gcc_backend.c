@@ -66,12 +66,12 @@ static bool file_exists(const char *path)
 /* Default values for backend configuration (fallback when no platform config is found) */
 #define DEFAULT_STD "c11"
 #ifdef __APPLE__
-#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -fno-omit-frame-pointer -g"
-#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -fsanitize=address,undefined -fno-omit-frame-pointer -fstack-protector-strong -g"
+#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fsanitize=address,undefined -fno-omit-frame-pointer -fstack-protector-strong -g"
 #define DEFAULT_LDLIBS_UNIX "-lpthread"
 #else
-#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -no-pie -fsanitize=address -fno-omit-frame-pointer -g"
-#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fsanitize=address -fno-omit-frame-pointer -g"
+#define DEFAULT_DEBUG_CFLAGS_GCC "-fwrapv -no-pie -fsanitize=address,undefined -fno-omit-frame-pointer -fstack-protector-strong -g"
+#define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fsanitize=address,undefined -fno-omit-frame-pointer -fstack-protector-strong -g"
 #define DEFAULT_LDLIBS_UNIX "-lpthread -lm"
 #endif
 #define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto -fwrapv"

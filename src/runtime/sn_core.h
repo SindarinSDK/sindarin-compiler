@@ -9,6 +9,36 @@
 #include <limits.h>
 #include <ctype.h>
 
+/* ---- Sanitizer defaults (active only when compiled with -g) ---- */
+
+#if defined(__SANITIZE_ADDRESS__)
+#define SN_ASAN_ACTIVE 1
+#elif defined(__has_feature)
+#if __has_feature(address_sanitizer)
+#define SN_ASAN_ACTIVE 1
+#endif
+#endif
+
+#ifdef SN_ASAN_ACTIVE
+__attribute__((weak)) const char *__asan_default_options(void) {
+    return "detect_leaks=1:halt_on_error=1:abort_on_error=0";
+}
+#endif
+
+#if defined(__SANITIZE_UNDEFINED__)
+#define SN_UBSAN_ACTIVE 1
+#elif defined(__has_feature)
+#if __has_feature(undefined_behavior_sanitizer)
+#define SN_UBSAN_ACTIVE 1
+#endif
+#endif
+
+#ifdef SN_UBSAN_ACTIVE
+__attribute__((weak)) const char *__ubsan_default_options(void) {
+    return "halt_on_error=1:print_stacktrace=1";
+}
+#endif
+
 /* ---- OOM-safe allocation ---- */
 
 static inline void *sn_malloc(size_t size)
