@@ -2780,9 +2780,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_object_add(part, "is_str_temp",
                             json_object_new_boolean(true));
                     }
-                    /* Named function calls returning string always produce owned values.
-                     * Closure/lambda calls excluded — may return borrowed strings. */
+                    /* Named function calls returning string always produce owned values. */
                     else if (is_named_fn_str_call(p, symbol_table))
+                    {
+                        json_object_object_add(part, "is_str_temp",
+                            json_object_new_boolean(true));
+                    }
+                    /* Closure/lambda calls returning string: lambdas now always return
+                     * owned strings (body_needs_strdup ensures this), so mark for cleanup. */
+                    else if (p->type == EXPR_CALL &&
+                             p->expr_type && p->expr_type->kind == TYPE_STRING &&
+                             p->as.call.callee &&
+                             p->as.call.callee->type == EXPR_VARIABLE)
                     {
                         json_object_object_add(part, "is_str_temp",
                             json_object_new_boolean(true));
@@ -2959,6 +2968,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object_object_add(obj, "body",
                         gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+
+                    /* If the lambda returns a string and the body expression is NOT
+                     * already heap-producing, wrap the return in strdup() so that ALL
+                     * string-returning lambdas have a uniform ownership model (caller
+                     * always owns the returned string and must free it). */
+                    if (lam->return_type && lam->return_type->kind == TYPE_STRING &&
+                        !is_heap_producing_string_expr(lam->body) &&
+                        !is_named_fn_str_call(lam->body, symbol_table))
+                    {
+                        json_object_object_add(obj, "body_needs_strdup",
+                            json_object_new_boolean(true));
+                    }
                 }
                 pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                 g_in_lambda_body = prev_in_lambda;
@@ -3050,6 +3071,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     {
                         json_object_object_add(ldef, "body",
                             gen_model_expr(arena, lam->body, symbol_table, arithmetic_mode));
+
+                        /* If the lambda returns a string and the body expression is NOT
+                         * already heap-producing, wrap the return in strdup() so that ALL
+                         * string-returning lambdas have a uniform ownership model (caller
+                         * always owns the returned string and must free it). */
+                        if (lam->return_type && lam->return_type->kind == TYPE_STRING &&
+                            !is_heap_producing_string_expr(lam->body) &&
+                            !is_named_fn_str_call(lam->body, symbol_table))
+                        {
+                            json_object_object_add(ldef, "body_needs_strdup",
+                                json_object_new_boolean(true));
+                        }
                     }
                     pop_lambda_as_ref_params(saved_ref_names, saved_ref_count);
                     g_in_lambda_body = prev_in_lambda;
@@ -3063,8 +3096,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
         case EXPR_MATCH:
         {
             json_object_object_add(obj, "kind", json_object_new_string("match"));
+            Expr *match_subj = expr->as.match_expr.subject;
             json_object_object_add(obj, "subject",
-                gen_model_expr(arena, expr->as.match_expr.subject, symbol_table, arithmetic_mode));
+                gen_model_expr(arena, match_subj, symbol_table, arithmetic_mode));
+
+            /* If the match subject is a string-returning function/closure call,
+             * flag it so the template can free __match_subject__ after the match. */
+            if (match_subj && match_subj->expr_type &&
+                match_subj->expr_type->kind == TYPE_STRING &&
+                (is_heap_producing_string_expr(match_subj) ||
+                 is_named_fn_str_call(match_subj, symbol_table) ||
+                 (match_subj->type == EXPR_CALL &&
+                  match_subj->as.call.callee &&
+                  match_subj->as.call.callee->type == EXPR_VARIABLE)))
+            {
+                json_object_object_add(obj, "subject_is_str_temp",
+                    json_object_new_boolean(true));
+            }
+
             json_object *arms = json_object_new_array();
             for (int i = 0; i < expr->as.match_expr.arm_count; i++)
             {
@@ -3082,6 +3131,30 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object_object_add(a, "body",
                         gen_model_stmt(arena, arm->body, symbol_table, arithmetic_mode));
+
+                    /* For string-returning match expressions: check if the arm's
+                     * last expression already produces an owned string (e.g. a
+                     * nested match, interpolation, concat, or function call).
+                     * If so, the template should NOT wrap it in an extra strdup. */
+                    if (expr->expr_type && expr->expr_type->kind == TYPE_STRING &&
+                        arm->body->type == STMT_BLOCK && arm->body->as.block.count > 0)
+                    {
+                        Stmt *last = arm->body->as.block.statements[arm->body->as.block.count - 1];
+                        if (last->type == STMT_EXPR && last->as.expression.expression)
+                        {
+                            Expr *arm_e = last->as.expression.expression;
+                            if (arm_e->type == EXPR_MATCH ||
+                                arm_e->type == EXPR_INTERPOLATED ||
+                                is_heap_producing_string_expr(arm_e) ||
+                                is_named_fn_str_call(arm_e, symbol_table) ||
+                                (arm_e->type == EXPR_CALL &&
+                                 arm_e->expr_type && arm_e->expr_type->kind == TYPE_STRING))
+                            {
+                                json_object_object_add(a, "arm_expr_is_owned",
+                                    json_object_new_boolean(true));
+                            }
+                        }
+                    }
                 }
                 json_object_array_add(arms, a);
             }

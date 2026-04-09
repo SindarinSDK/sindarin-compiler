@@ -5,13 +5,15 @@
         }{{else}}{{#if @first}}if{{else}} else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{#if (eq ../../../subject.type.kind "string")}}strcmp(__match_subject__, {{> expr this}}) == 0{{else}}__match_subject__ == {{> expr this}}{{/if}}{{/each}}) {
             {{#each body.statements}}{{> stmt this}}{{/each}}
         }{{/if}}{{/each}}
-    }){{else}}({
+{{#if subject_is_str_temp}}        free(__match_subject__);
+{{/if}}    }){{else}}({
         {{c_type type}} __match_result__;
         {{c_type subject.type}} __match_subject__ = {{> expr subject}};
         {{#each arms}}{{#if is_else}} else {
-            {{#each body.statements}}{{#if @last}}__match_result__ = {{#if (eq ../../type.kind "string")}}strdup({{/if}}{{> expr this.expr}}{{#if (eq ../../type.kind "string")}}){{/if}};{{else}}{{> stmt this}}{{/if}}{{/each}}
+            {{#each body.statements}}{{#if @last}}__match_result__ = {{#if (eq ../../type.kind "string")}}{{#unless ../arm_expr_is_owned}}strdup({{/unless}}{{/if}}{{> expr this.expr}}{{#if (eq ../../type.kind "string")}}{{#unless ../arm_expr_is_owned}}){{/unless}}{{/if}};{{else}}{{> stmt this}}{{/if}}{{/each}}
         }{{else}}{{#if @first}}if{{else}} else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}{{#if (eq ../../../subject.type.kind "string")}}strcmp(__match_subject__, {{> expr this}}) == 0{{else}}__match_subject__ == {{> expr this}}{{/if}}{{/each}}) {
-            {{#each body.statements}}{{#if @last}}__match_result__ = {{#if (eq ../../../type.kind "string")}}strdup({{/if}}{{> expr this.expr}}{{#if (eq ../../../type.kind "string")}}){{/if}};{{else}}{{> stmt this}}{{/if}}{{/each}}
+            {{#each body.statements}}{{#if @last}}__match_result__ = {{#if (eq ../../../type.kind "string")}}{{#unless ../arm_expr_is_owned}}strdup({{/unless}}{{/if}}{{> expr this.expr}}{{#if (eq ../../../type.kind "string")}}{{#unless ../arm_expr_is_owned}}){{/unless}}{{/if}};{{else}}{{> stmt this}}{{/if}}{{/each}}
         }{{/if}}{{/each}}
-        __match_result__;
+{{#if subject_is_str_temp}}        free(__match_subject__);
+{{/if}}        __match_result__;
     }){{/if}}

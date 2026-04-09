@@ -788,6 +788,12 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     json_object_object_add(obj, "element_cleanup_kind",
                         json_object_new_string(elem_ck));
                 }
+
+                /* Iterator cleanup kind: if the iterator struct has heap fields
+                 * (arrays, strings), it needs cleanup when the loop ends. */
+                const char *iter_ck = gen_model_var_cleanup_kind(iter_type, false);
+                json_object_object_add(obj, "iter_cleanup_kind",
+                    json_object_new_string(iter_ck));
             }
             else
             {
