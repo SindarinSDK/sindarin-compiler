@@ -470,7 +470,9 @@ static bool is_heap_producing_string_expr(Expr *expr)
             return true;
         /* Member method calls (obj.method()) always return owned strings.
          * This covers string built-ins (s.toLower()), array methods
-         * (arr.toString()), and struct methods returning string. */
+         * (arr.toString()), and struct methods returning string.
+         * Generic EXPR_CALL with variable callee is excluded because closures
+         * may return borrowed strings (e.g., identity lambda returning param). */
         case EXPR_CALL:
             return (expr->as.call.callee &&
                     expr->as.call.callee->type == EXPR_MEMBER);
@@ -2606,6 +2608,28 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         StructMethod *ts = ast_struct_get_method(p->expr_type, "toString");
                         json_object_object_add(part, "has_toString",
                             json_object_new_boolean(ts != NULL));
+                    }
+
+                    /* Flag heap-producing string expressions so the template can free them */
+                    if (is_heap_producing_string_expr(p))
+                    {
+                        json_object_object_add(part, "is_str_temp",
+                            json_object_new_boolean(true));
+                    }
+                    /* Named function calls returning string always produce owned values
+                     * (codegen adds strdup for borrowed sources in return statements).
+                     * Closure/lambda calls are excluded — they may return borrowed strings. */
+                    else if (p->expr_type && p->expr_type->kind == TYPE_STRING &&
+                             p->type == EXPR_CALL && p->as.call.callee &&
+                             p->as.call.callee->type == EXPR_VARIABLE && symbol_table)
+                    {
+                        Symbol *sym = symbol_table_lookup_symbol(symbol_table,
+                            p->as.call.callee->as.variable.name);
+                        if (sym && sym->is_function)
+                        {
+                            json_object_object_add(part, "is_str_temp",
+                                json_object_new_boolean(true));
+                        }
                     }
                 }
                 if (expr->as.interpol.format_specs && expr->as.interpol.format_specs[i])

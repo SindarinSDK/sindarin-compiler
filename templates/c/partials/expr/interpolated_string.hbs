@@ -8,7 +8,9 @@
 {{else}}
 {{#if format_spec}}
 {{#if (eq expr.type.kind "string")}}
-        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "{{printf_format format_spec expr.type}}", {{> expr expr}});
+{{#if is_str_temp}}        { char *__is_tmp__ = {{> expr expr}}; __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "{{printf_format format_spec expr.type}}", __is_tmp__); free(__is_tmp__); }
+{{else}}        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "{{printf_format format_spec expr.type}}", {{> expr expr}});
+{{/if}}
 {{else}}
 {{#if (eq expr.type.kind "double")}}
         __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "{{printf_format format_spec expr.type}}", (double)({{> expr expr}}));
@@ -22,7 +24,9 @@
 {{/if}}
 {{else}}
 {{#if (eq expr.type.kind "string")}}
-        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", {{> expr expr}});
+{{#if is_str_temp}}        { char *__is_tmp__ = {{> expr expr}}; __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __is_tmp__); free(__is_tmp__); }
+{{else}}        __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", {{> expr expr}});
+{{/if}}
 {{else}}
 {{#if (eq expr.type.kind "bool")}}
         __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", ({{> expr expr}}) ? "true" : "false");
