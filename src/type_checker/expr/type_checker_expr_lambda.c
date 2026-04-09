@@ -37,8 +37,8 @@ static bool is_lambda_parameter(LambdaExpr *lambda, const char *name, int name_l
 static bool is_builtin_function(const char *name, int name_len)
 {
     static const char *builtins[] = {
-        "print", "len", "panic", "assert", "readln", "sleep", "toInt",
-        "toDouble", "toStr", "type", "exit", NULL
+        "print", "println", "printErr", "printErrLn",
+        "len", "assert", "readLine", "exit", "to_string", NULL
     };
 
     for (int i = 0; builtins[i] != NULL; i++)
