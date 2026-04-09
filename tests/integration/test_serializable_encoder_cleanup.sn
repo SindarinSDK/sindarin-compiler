@@ -1,0 +1,76 @@
+// Tests that @serializable encode/encodeArray don't crash when the Encoder
+// has a __sn__cleanup callback set.  Before the fix, Encoder.result() would
+// finalize the encoder (setting ctx=NULL), and then sn_auto_Encoder cleanup
+// would call __sn__cleanup which dereferences the now-NULL ctx — SEGV.
+
+@source "test_serializable_encoder_cleanup.sn.c"
+
+native fn cleanup_json_encoder(): Encoder
+native fn cleanup_json_array_encoder(): Encoder
+native fn cleanup_json_decoder(input: str): Decoder
+
+@serializable
+struct Item =>
+  name: str
+  qty: int
+
+@serializable
+struct Order =>
+  id: str
+  item: Item
+
+fn main(): void =>
+  // --- Test 1: encode with cleanup-enabled encoder ---
+  var item: Item = Item {
+    name: "widget",
+    qty: 5
+  }
+  var json: str = item.encode(cleanup_json_encoder())
+  assert(json == "{\"name\":\"widget\",\"qty\":5}", "encode with cleanup")
+  println("test_encode_cleanup: PASS")
+
+  // --- Test 2: nested struct encode with cleanup ---
+  var order: Order = Order {
+    id: "ord-1",
+    item: Item {
+      name: "gear",
+      qty: 3
+    }
+  }
+  var json2: str = order.encode(cleanup_json_encoder())
+  assert(json2 == "{\"id\":\"ord-1\",\"item\":{\"name\":\"gear\",\"qty\":3}}", "nested encode with cleanup")
+  println("test_nested_encode_cleanup: PASS")
+
+  // --- Test 3: encodeArray with cleanup-enabled encoder ---
+  var items: Item[] = {
+    Item {
+      name: "bolt",
+      qty: 10
+    },
+    Item {
+      name: "nut",
+      qty: 20
+    }
+  }
+  var json3: str = Item.encodeArray(items, cleanup_json_array_encoder())
+  assert(json3 == "[{\"name\":\"bolt\",\"qty\":10},{\"name\":\"nut\",\"qty\":20}]", "encodeArray with cleanup")
+  println("test_encodeArray_cleanup: PASS")
+
+  // --- Test 4: roundtrip with cleanup-enabled encoder ---
+  var dec: Decoder = cleanup_json_decoder("{\"name\":\"spring\",\"qty\":7}")
+  var item2: Item = Item.decode(dec)
+  var rtJson: str = item2.encode(cleanup_json_encoder())
+  assert(rtJson == "{\"name\":\"spring\",\"qty\":7}", "roundtrip with cleanup")
+  println("test_roundtrip_cleanup: PASS")
+
+  // --- Test 5: multiple sequential encodes (verifies no state leakage) ---
+  for var i: int = 0; i < 3; i++ =>
+    var tmp: Item = Item {
+      name: "item",
+      qty: i
+    }
+    var j: str = tmp.encode(cleanup_json_encoder())
+    assert(j.length > 0, "sequential encode")
+  println("test_sequential_cleanup: PASS")
+
+  println("\nAll encoder-cleanup tests passed!")

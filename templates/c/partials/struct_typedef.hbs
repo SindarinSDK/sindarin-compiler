@@ -120,7 +120,9 @@ static inline void __sn__{{name}}_encode_impl(__sn__{{name}} *__sn__self, __sn__
 /* @serializable: encode (public — returns result string) */
 static inline char *__sn__{{name}}_encode(__sn__{{name}} *__sn__self, __sn__Encoder *__sn__e) {
     __sn__{{name}}_encode_impl(__sn__self, __sn__e);
-    return __sn__Encoder_result(__sn__e);
+    char *__res__ = __sn__Encoder_result(__sn__e);
+    __sn__e->__sn__cleanup = NULL;
+    return __res__;
 }
 
 /* @serializable: decode */
@@ -147,7 +149,9 @@ static inline char *__sn__{{name}}_encodeArray(SnArray *__sn__items, __sn__Encod
         __sn__{{name}}_encode_impl(&((__sn__{{name}} *)__sn__items->data)[__i__], __obj__);
         __sn__Encoder_end(__obj__);
     }
-    return __sn__Encoder_result(__sn__e);
+    char *__res__ = __sn__Encoder_result(__sn__e);
+    __sn__e->__sn__cleanup = NULL;
+    return __res__;
 }
 
 /* @serializable: decodeArray */

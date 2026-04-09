@@ -1,0 +1,7 @@
+test_encode_cleanup: PASS
+test_nested_encode_cleanup: PASS
+test_encodeArray_cleanup: PASS
+test_roundtrip_cleanup: PASS
+test_sequential_cleanup: PASS
+
+All encoder-cleanup tests passed!
