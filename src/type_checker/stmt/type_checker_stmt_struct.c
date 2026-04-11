@@ -40,6 +40,18 @@ void type_check_struct_decl(Stmt *stmt, SymbolTable *table)
     for (int i = 0; i < struct_decl->field_count; i++)
     {
         StructField *field = &struct_decl->fields[i];
+
+        /* Resolve generic-instantiation field types to their concrete
+         * monomorphized struct (e.g. Worker<Sim> → Worker_Sim). Without this
+         * the field keeps a TYPE_GENERIC_INST that never compares equal to
+         * the concrete struct produced at var-decl / struct-literal sites. */
+        if (field->type != NULL && field->type->kind == TYPE_GENERIC_INST)
+        {
+            Type *resolved = resolve_generic_instantiation(table->arena, field->type, table);
+            if (resolved != NULL)
+                field->type = resolved;
+        }
+
         Type *field_type = field->type;
 
         if (field_type == NULL)

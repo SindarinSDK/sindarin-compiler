@@ -5,4 +5,7 @@ Case 2b passed: runOne<WidgetAdapter>
 Case 3 passed: firstOf/secondOf<int, str>
 Case 4 passed: innerFirst<int, str> (doubly nested)
 Case 5 passed: takeBoth<int>
+Case 6 passed: Engine literal with nested Worker<CrusherAdapter>
+Case 7 passed: copy from Engine.worker into Worker<CrusherAdapter>
+Case 8 passed: Engine field init from buildWorker<CrusherAdapter>
 All nested-inference tests passed!

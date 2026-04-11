@@ -3,6 +3,120 @@
 #include "type_checker/stmt/type_checker_stmt_func.h"
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
+
+/* Return the struct name a field's type directly depends on for its full
+ * layout, or NULL if the field type needs no complete struct definition
+ * (primitives, arrays / pointers — SnArray * and T * don't require the
+ * element type to be complete at typedef time). */
+static const char *field_direct_struct_dep(json_object *field)
+{
+    json_object *ftype = NULL;
+    if (!json_object_object_get_ex(field, "type", &ftype) || ftype == NULL)
+        return NULL;
+    json_object *kind_obj = NULL;
+    if (!json_object_object_get_ex(ftype, "kind", &kind_obj))
+        return NULL;
+    const char *kind = json_object_get_string(kind_obj);
+    if (kind == NULL || strcmp(kind, "struct") != 0)
+        return NULL;
+    json_object *name_obj = NULL;
+    if (!json_object_object_get_ex(ftype, "name", &name_obj))
+        return NULL;
+    return json_object_get_string(name_obj);
+}
+
+/* Topologically sort the structs JSON array so that every struct is emitted
+ * after the structs it directly embeds as non-pointer fields. Source-order
+ * non-template structs and monomorphized generic instantiations are filled
+ * into the same array by two separate loops; without this sort a non-generic
+ * struct with a Worker<Sim> field ends up before Worker_Sim's typedef, and
+ * gcc treats the field as implicit int. Uses Kahn's algorithm; falls back to
+ * the input order on cycles. */
+static json_object *topo_sort_structs(json_object *structs)
+{
+    int n = (int)json_object_array_length(structs);
+    if (n <= 1)
+        return structs;
+
+    bool *emitted = (bool *)calloc((size_t)n, sizeof(bool));
+    int  *order   = (int  *)calloc((size_t)n, sizeof(int));
+    if (emitted == NULL || order == NULL)
+    {
+        free(emitted);
+        free(order);
+        return structs;
+    }
+
+    int emitted_count = 0;
+    for (int step = 0; step < n; step++)
+    {
+        int chosen = -1;
+        for (int i = 0; i < n; i++)
+        {
+            if (emitted[i])
+                continue;
+            json_object *st = json_object_array_get_idx(structs, i);
+            json_object *fields = NULL;
+            bool all_deps_met = true;
+            if (st != NULL && json_object_object_get_ex(st, "fields", &fields) && fields != NULL)
+            {
+                int fc = (int)json_object_array_length(fields);
+                for (int f = 0; f < fc && all_deps_met; f++)
+                {
+                    json_object *fld = json_object_array_get_idx(fields, f);
+                    const char *dep = field_direct_struct_dep(fld);
+                    if (dep == NULL)
+                        continue;
+                    for (int j = 0; j < n; j++)
+                    {
+                        if (j == i || emitted[j])
+                            continue;
+                        json_object *other = json_object_array_get_idx(structs, j);
+                        json_object *other_name_obj = NULL;
+                        if (other != NULL &&
+                            json_object_object_get_ex(other, "name", &other_name_obj))
+                        {
+                            const char *other_name = json_object_get_string(other_name_obj);
+                            if (other_name != NULL && strcmp(other_name, dep) == 0)
+                            {
+                                all_deps_met = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (all_deps_met)
+            {
+                chosen = i;
+                break;
+            }
+        }
+        if (chosen < 0)
+            break; /* cycle — fall back to original order */
+        order[emitted_count++] = chosen;
+        emitted[chosen] = true;
+    }
+
+    if (emitted_count != n)
+    {
+        free(emitted);
+        free(order);
+        return structs;
+    }
+
+    json_object *sorted = json_object_new_array();
+    for (int i = 0; i < n; i++)
+    {
+        json_object *item = json_object_array_get_idx(structs, order[i]);
+        json_object_array_add(sorted, json_object_get(item));
+    }
+    json_object_put(structs);
+    free(emitted);
+    free(order);
+    return sorted;
+}
 
 /* Global lambda collection */
 json_object *g_model_lambdas = NULL;
@@ -600,6 +714,14 @@ json_object *gen_model_build(Arena *arena, Module *module, SymbolTable *symbol_t
                                  symbol_table, arithmetic_mode));
         }
     }
+
+    /* Topologically sort structs so that every struct definition comes after
+     * the structs it directly embeds. Source-order non-template structs and
+     * monomorphized instantiations are appended by two separate passes; a
+     * concrete struct whose field type is a generic instantiation (e.g.
+     * Engine.worker: Worker<Sim>) otherwise lands before the monomorphized
+     * Worker_Sim typedef and gcc silently demotes the field to implicit int. */
+    structs = topo_sort_structs(structs);
 
     /* Emit all monomorphized generic function instantiations.
      *

@@ -29,6 +29,13 @@ struct Worker < S: Sim > =>
   sim: S
   steps: int
 
+# Non-generic struct whose field is a generic instantiation.
+# Its field type must be resolved to a concrete monomorphized struct so that
+# assigning / reading e.worker round-trips against a var of the same type.
+struct Engine =>
+  worker: Worker<CrusherAdapter>
+  iterations: int
+
 # Case 1: single type param, nested in Box<T>
 fn unwrap<T>(b: Box<T>): T =>
   return b.value
@@ -53,6 +60,15 @@ fn takeBoth<T>(x: T, b: Box<T>): T =>
   if x == b.value =>
     return x
   return b.value
+
+# Case 8 helper: function returns a generic-instantiated struct type; the
+# return type must be resolved against the registered template before it is
+# stored into a concrete struct field.
+fn buildWorker < S: Sim > (s: S): Worker<S> =>
+  return Worker<S> {
+    sim: s,
+    steps: 0
+  }
 
 fn main(): int =>
   # Case 1a: unwrap(Box<int>) — infer T=int from a literal
@@ -127,6 +143,40 @@ fn main(): int =>
     print("FAIL: takeBoth(5, Box<int>{5}) should return 5\n")
     return 1
   print("Case 5 passed: takeBoth<int>\n")
+
+  # Case 6: struct literal with an explicit generic-inst annotation as a
+  # nested field value inside a non-generic struct.
+  var e1: Engine = {
+    worker: Worker<CrusherAdapter> {
+      sim: CrusherAdapter { counter: 3 },
+      steps: 0
+    },
+    iterations: 0
+  }
+  if e1.worker.sim.counter != 3 =>
+    print("FAIL: Engine.worker.sim.counter should be 3\n")
+    return 1
+  print("Case 6 passed: Engine literal with nested Worker<CrusherAdapter>\n")
+
+  # Case 7: copy from a generic-inst-typed struct field back into a var of
+  # the same declared type.
+  var w7: Worker<CrusherAdapter> = e1.worker
+  if w7.sim.counter != 3 =>
+    print("FAIL: w7.sim.counter should be 3\n")
+    return 1
+  print("Case 7 passed: copy from Engine.worker into Worker<CrusherAdapter>\n")
+
+  # Case 8: field init from a generic-returning function — the function's
+  # return type is Worker<S>, which after inference must resolve to the same
+  # concrete struct the outer field expects.
+  var e2: Engine = {
+    worker: buildWorker(CrusherAdapter { counter: 11 }),
+    iterations: 1
+  }
+  if e2.worker.sim.counter != 11 =>
+    print("FAIL: e2.worker.sim.counter should be 11\n")
+    return 1
+  print("Case 8 passed: Engine field init from buildWorker<CrusherAdapter>\n")
 
   print("All nested-inference tests passed!\n")
   return 0
