@@ -2,11 +2,11 @@
 # Exercises: resolve_generic_instantiation with multiple TYPE_STRUCT forward-ref args
 # Also tests proper cleanup of returned structs with heap fields from next()
 
-struct Entry < K, V > =>
+struct Entry<K, V> =>
   key: K
   value: V
 
-struct EntryIter < K, V > =>
+struct EntryIter<K, V> =>
   keys: K[]
   values: V[]
   index: int
@@ -14,13 +14,16 @@ struct EntryIter < K, V > =>
   fn hasNext(): bool =>
     return self.index < len(self.keys)
 
-  fn next(): Entry < K, V > =>
+  fn next(): Entry<K, V> =>
     var k: K = self.keys[self.index]
     var v: V = self.values[self.index]
     self.index = self.index + 1
-    return Entry < K, V > {key: k, value: v}
+    return Entry<K, V> {
+      key: k,
+      value: v
+    }
 
-struct SimpleMap < K, V > =>
+struct SimpleMap<K, V> =>
   keys: K[]
   values: V[]
 
@@ -31,12 +34,19 @@ struct SimpleMap < K, V > =>
   fn size(): int =>
     return len(self.keys)
 
-  fn iter(): EntryIter < K, V > =>
-    return EntryIter < K, V > {keys: self.keys, values: self.values, index: 0}
+  fn iter(): EntryIter<K, V> =>
+    return EntryIter<K, V> {
+      keys: self.keys,
+      values: self.values,
+      index: 0
+    }
 
 fn main(): int =>
   # Test 1: SimpleMap<int, int> with iteration
-  var m: SimpleMap < int, int > = SimpleMap < int, int > {keys: {}, values: {}}
+  var m: SimpleMap<int, int> = {
+    keys: {},
+    values: {}
+  }
   m.put(1, 100)
   m.put(2, 200)
   m.put(3, 300)
@@ -57,7 +67,10 @@ fn main(): int =>
   print("Test 1 passed: SimpleMap<int, int> iteration\n")
 
   # Test 2: SimpleMap<str, int> with string keys (tests cleanup of Entry with str field)
-  var m2: SimpleMap < str, int > = SimpleMap < str, int > {keys: {}, values: {}}
+  var m2: SimpleMap<str, int> = {
+    keys: {},
+    values: {}
+  }
   m2.put("alice", 95)
   m2.put("bob", 82)
   m2.put("carol", 91)
@@ -70,7 +83,10 @@ fn main(): int =>
   print("Test 2 passed: SimpleMap<str, int> iteration\n")
 
   # Test 3: SimpleMap<int, str> with string values
-  var m3: SimpleMap < int, str > = SimpleMap < int, str > {keys: {}, values: {}}
+  var m3: SimpleMap<int, str> = {
+    keys: {},
+    values: {}
+  }
   m3.put(1, "one")
   m3.put(2, "two")
   var ksum3: int = 0

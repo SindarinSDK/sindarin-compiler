@@ -12,11 +12,11 @@ struct Container =>
   h2: Handle
 
 fn make_container(): Container =>
-  var a: Handle = Handle {
+  var a: Handle = {
     tag: 10,
     payload: 100
   }
-  var b: Handle = Handle {
+  var b: Handle = {
     tag: 20,
     payload: 200
   }
@@ -29,22 +29,22 @@ fn make_container(): Container =>
 
 fn main(): int =>
   # Baseline: direct ref struct use
-  var h: Handle = Handle {
+  var h: Handle = {
     tag: 1,
     payload: 2
   }
   print($"Direct: tag={h.tag}, payload={h.payload}\n")
 
   # Baseline: same-scope struct literal
-  var x: Handle = Handle {
+  var x: Handle = {
     tag: 30,
     payload: 300
   }
-  var y: Handle = Handle {
+  var y: Handle = {
     tag: 40,
     payload: 400
   }
-  var local: Container = Container {
+  var local: Container = {
     h1: x,
     h2: y
   }

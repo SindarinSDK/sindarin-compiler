@@ -14,18 +14,18 @@ struct Config =>
 
 fn main(): void =>
   # 2. INSTANTIATION - Create struct instances
-  var p1: Point = Point {
+  var p1: Point = {
     x: 10.0,
     y: 20.0
   }
-  var p2: Point = Point {
+  var p2: Point = {
     x: 0.0,
     y: 0.0
   }
 
   # Instantiation with defaults
-  var cfg: Config = Config {}
-  var cfg2: Config = Config { timeout: 60 }
+  var cfg: Config = {}
+  var cfg2: Config = {timeout: 60}
 
   # 3. FIELD ACCESS - Read field values
   print($"p1.x = {p1.x}\n")

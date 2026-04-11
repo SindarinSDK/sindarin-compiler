@@ -1,6 +1,6 @@
 # Test: Generic structs — Stack<T> and Pair<T, U>
 
-struct Stack < T > =>
+struct Stack<T> =>
   items: T[]
   size: int
 
@@ -15,13 +15,16 @@ struct Stack < T > =>
   fn isEmpty(): bool =>
     return self.size == 0
 
-struct Pair < T, U > =>
+struct Pair<T, U> =>
   first: T
   second: U
 
 fn main(): int =>
   # Test 1: Stack<int>
-  var si: Stack < int > = Stack < int > {items: {}, size: 0}
+  var si: Stack<int> = {
+    items: {},
+    size: 0
+  }
   si.push(10)
   si.push(20)
   si.push(30)
@@ -46,7 +49,10 @@ fn main(): int =>
   print("Test 1 passed: Stack<int>\n")
 
   # Test 2: Stack<str>
-  var ss: Stack < str > = Stack < str > {items: {}, size: 0}
+  var ss: Stack<str> = {
+    items: {},
+    size: 0
+  }
   ss.push("hello")
   ss.push("world")
   if ss.size != 2 =>
@@ -62,8 +68,14 @@ fn main(): int =>
   print("Test 2 passed: Stack<str>\n")
 
   # Test 3: Two Stack<int> instances are independent
-  var a: Stack < int > = Stack < int > {items: {}, size: 0}
-  var b: Stack < int > = Stack < int > {items: {}, size: 0}
+  var a: Stack<int> = {
+    items: {},
+    size: 0
+  }
+  var b: Stack<int> = {
+    items: {},
+    size: 0
+  }
   a.push(1)
   a.push(2)
   b.push(99)
@@ -78,7 +90,10 @@ fn main(): int =>
   print("Test 3 passed: Two Stack<int> instances are independent\n")
 
   # Test 4: Pair<int, str>
-  var p1: Pair < int, str > = Pair < int, str > {first: 42, second: "answer"}
+  var p1: Pair<int, str> = {
+    first: 42,
+    second: "answer"
+  }
   if p1.first != 42 =>
     print("FAIL: Pair<int,str>.first should be 42\n")
     return 1
@@ -88,7 +103,10 @@ fn main(): int =>
   print("Test 4 passed: Pair<int, str>\n")
 
   # Test 5: Pair<str, bool>
-  var p2: Pair < str, bool > = Pair < str, bool > {first: "active", second: true}
+  var p2: Pair<str, bool> = {
+    first: "active",
+    second: true
+  }
   if p2.first != "active" =>
     print("FAIL: Pair<str,bool>.first should be 'active'\n")
     return 1

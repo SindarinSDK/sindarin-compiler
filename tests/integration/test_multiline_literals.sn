@@ -82,7 +82,7 @@ fn main(): void =>
   print("test_nested_multiline_arrays: PASS\n")
 
   // Test multi-line struct literal
-  var config: Config = Config {
+  var config: Config = {
     name: "myapp",
     port: 8080,
     debug: true
@@ -93,7 +93,7 @@ fn main(): void =>
   print("test_multiline_struct: PASS\n")
 
   // Test multi-line Point struct
-  var point: Point = Point {
+  var point: Point = {
     x: 100,
     y: 200
   }
@@ -102,11 +102,11 @@ fn main(): void =>
   print("test_multiline_point: PASS\n")
 
   // Test array of structs (single line due to nested struct complexity)
-  var p1: Person = Person {
+  var p1: Person = {
     name: "Alice",
     age: 30
   }
-  var p2: Person = Person {
+  var p2: Person = {
     name: "Bob",
     age: 25
   }

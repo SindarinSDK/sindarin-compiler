@@ -92,7 +92,7 @@ native struct MathResult =>
   valid: int
 
 native fn compute_result(x: double): MathResult =>
-  var r: MathResult = MathResult {
+  var r: MathResult = {
     value: sqrt(x),
     valid: 1
   }

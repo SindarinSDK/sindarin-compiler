@@ -1,18 +1,18 @@
 # Test: Generic functions — type inference at call sites
 
-fn identity < T > (x: T): T =>
+fn identity<T>(x: T): T =>
   return x
 
-fn first < T > (arr: T[]): T =>
+fn first<T>(arr: T[]): T =>
   return arr[0]
 
-fn map < T, U > (arr: T[], f: fn(T): U): U[] =>
+fn map<T, U>(arr: T[], f: fn(T): U): U[] =>
   var result: U[] = {}
   for x in arr =>
     result.push(f(x))
   return result
 
-fn filter < T > (arr: T[], pred: fn(T): bool): T[] =>
+fn filter<T>(arr: T[], pred: fn(T): bool): T[] =>
   var result: T[] = {}
   for x in arr =>
     if pred(x) =>

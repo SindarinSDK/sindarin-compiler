@@ -13,11 +13,11 @@ struct Color =>
   b: int
 
 fn main(): void =>
-  var p: Point = Point {
+  var p: Point = {
     x: 1,
     y: 2
   }
-  var c: Color = Color {
+  var c: Color = {
     r: 1,
     g: 2,
     b: 3

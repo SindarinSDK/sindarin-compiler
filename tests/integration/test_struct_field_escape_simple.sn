@@ -12,7 +12,7 @@ struct Holder =>
 
 fn test_simple_escape(): void =>
   # outer is declared in function scope
-  var outer: Container = Container { value: 0 }
+  var outer: Container = {value: 0}
 
   # Create an inner block (simulating deeper scope)
   # and assign from that scope to outer.value
@@ -26,7 +26,7 @@ fn test_simple_escape(): void =>
   print("Simple escape test: PASS\n")
 
 fn test_escape_with_defaults(): void =>
-  var holder: Holder = Holder { data: 100 }
+  var holder: Holder = {data: 100}
 
   # Verify default was applied
   if holder.flag != false =>
@@ -44,7 +44,7 @@ fn test_escape_with_defaults(): void =>
   print("Escape with defaults test: PASS\n")
 
 fn test_multiple_field_escapes(): void =>
-  var c: Container = Container { value: 0 }
+  var c: Container = {value: 0}
 
   # Multiple assignments from local scope
   var v1: int = 10
@@ -63,7 +63,7 @@ fn test_multiple_field_escapes(): void =>
   print("Multiple field escapes test: PASS\n")
 
 fn test_escape_with_computation(): void =>
-  var container: Container = Container { value: 0 }
+  var container: Container = {value: 0}
 
   var a: int = 5
   var b: int = 7

@@ -6,7 +6,7 @@ struct Point =>
 
 fn main(): void =>
   # This should fail - string value for double field
-  var p: Point = Point {
+  var p: Point = {
     x: "wrong",
     y: 1.0
   }

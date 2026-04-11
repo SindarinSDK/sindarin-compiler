@@ -95,15 +95,15 @@ fn main(): void =>
     println("B: FAIL")
 
   // --- C: @serializable nested ---
-  var hp1: HyperParams = HyperParams {
+  var hp1: HyperParams = {
     name: "adam",
     rate: 0.001
   }
-  var hp2: HyperParams = HyperParams {
+  var hp2: HyperParams = {
     name: "sgd",
     rate: 0.01
   }
-  var hp3: HyperParams = HyperParams {
+  var hp3: HyperParams = {
     name: "rmsp",
     rate: 0.005
   }

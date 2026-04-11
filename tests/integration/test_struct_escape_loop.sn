@@ -29,7 +29,7 @@ fn test_struct_within_while_loop(): void =>
 
   while i < 3 =>
     # Create struct in loop body
-    var p: Point = Point {
+    var p: Point = {
       x: i * 10,
       y: i * 20
     }
@@ -54,7 +54,7 @@ fn test_struct_within_for_loop(): void =>
   var total: int = 0
 
   for var i: int = 0; i < 5; i++ =>
-    var p: Point = Point {
+    var p: Point = {
       x: i + 1,
       y: (i + 1) * 2
     }
@@ -72,7 +72,7 @@ fn test_struct_with_string_in_loop(): void =>
   var last_age: int = 0
 
   for var i: int = 0; i < 3; i++ =>
-    var person: Person = Person {
+    var person: Person = {
       name: "Alice",
       age: 25 + i
     }
@@ -90,7 +90,7 @@ fn test_struct_defaults_in_loop(): void =>
   var sum_values: int = 0
 
   for var i: int = 0; i < 4; i++ =>
-    var c: Counter = Counter { value: i * 100 }
+    var c: Counter = {value: i * 100}
     # c.label should be "count" by default
     sum_values = sum_values + c.value
 
@@ -107,7 +107,7 @@ fn test_nested_loops_with_struct(): void =>
 
   for var i: int = 0; i < 2; i++ =>
     for var j: int = 0; j < 3; j++ =>
-      var p: Point = Point {
+      var p: Point = {
         x: i * 10 + j,
         y: i * 100 + j * 10
       }
@@ -128,7 +128,7 @@ fn test_conditional_struct_in_loop(): void =>
 
   for var i: int = 0; i < 10; i++ =>
     if i == 7 =>
-      var special: Point = Point {
+      var special: Point = {
         x: 777,
         y: 888
       }
@@ -146,7 +146,7 @@ fn test_struct_field_accumulation(): void =>
   var max_y: int = 0
 
   for var i: int = 0; i < 5; i++ =>
-    var p: Point = Point {
+    var p: Point = {
       x: i * 3,
       y: i * 5
     }

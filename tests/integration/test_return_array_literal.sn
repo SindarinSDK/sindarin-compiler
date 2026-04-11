@@ -58,7 +58,7 @@ fn main(): void =>
   var params: int[] = getFromParams(10, 20, 30)
   println($"{params[0]} {params[1]} {params[2]}")
 
-  var c: Container = Container { items: {} }
+  var c: Container = {items: {}}
   var points: Point[] = c.getPoints()
   println($"{points[0].x},{points[0].y} {points[1].x},{points[1].y}")
 

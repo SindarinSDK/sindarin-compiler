@@ -14,13 +14,28 @@ struct Nested =>
   label: str
   point: Point
 
+struct Box<T> =>
+  value: T
+  tag: int
+
+struct Pair<A, B> =>
+  first: A
+  second: B
+
 fn main(): void =>
   // Basic inferred struct literal
-  var p: Point = {x: 1.5, y: 2.5}
+  var p: Point = {
+    x: 1.5,
+    y: 2.5
+  }
   println($"p=({p.x}, {p.y})")
 
   // Multiple fields with different types
-  var cfg: Config = {name: "test", value: 42, enabled: true}
+  var cfg: Config = {
+    name: "test",
+    value: 42,
+    enabled: true
+  }
   println($"cfg={cfg.name} val={cfg.value} on={cfg.enabled}")
 
   // Nested struct - inner struct still uses explicit type (no inference context)
@@ -30,12 +45,29 @@ fn main(): void =>
   } }
   println($"n={n.label} ({n.point.x}, {n.point.y})")
 
-  // Explicit form still works
-  var p2: Point = Point {
-    x: 3.0,
-    y: 4.0
+  // Inferred generic struct literal (single type param)
+  var bi: Box<int> = {
+    value: 7,
+    tag: 1
   }
-  println($"p2=({p2.x}, {p2.y})")
+  println($"bi={bi.value} tag={bi.tag}")
+
+  // Inferred generic struct literal (multi-param)
+  var pr: Pair<int, str> = {
+    first: 42,
+    second: "answer"
+  }
+  println($"pr=({pr.first}, {pr.second})")
+
+  // Inferred nested generic struct literal
+  var nested: Pair<Box<int>, str> = {
+    first: Box<int> {
+      value: 9,
+      tag: 2
+    },
+    second: "nine"
+  }
+  println($"nested=({nested.first.value}, {nested.second})")
 
   // Array literal still works with type annotation
   var nums: int[] = {1, 2, 3}

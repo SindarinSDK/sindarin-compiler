@@ -29,7 +29,7 @@ fn main(): void =>
 
   # Test 3: Struct from direct import that contains imported type field
   print("\nTest 3: Particle struct (uses Vector2D fields)\n")
-  var pos: Vector2D = Vector2D {
+  var pos: Vector2D = {
     x: 10,
     y: 20
   }
@@ -41,7 +41,7 @@ fn main(): void =>
   # Test 4: Give the particle a velocity and test physics
   print("\nTest 4: Particle with velocity\n")
   var vel: Vector2D = make_velocity(3, 4)
-  var moving: Particle = Particle {
+  var moving: Particle = {
     position: pos,
     velocity: vel,
     mass: 2

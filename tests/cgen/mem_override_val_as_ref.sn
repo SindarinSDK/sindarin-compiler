@@ -6,7 +6,7 @@ fn mutate(p: Point as ref): void =>
   p.x = 99
 
 fn main(): void =>
-  var p: Point = Point {
+  var p: Point = {
     x: 1,
     y: 2
   }

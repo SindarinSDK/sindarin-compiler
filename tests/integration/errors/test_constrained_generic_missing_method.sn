@@ -11,5 +11,5 @@ struct Point =>
   y: int
 
 fn main(): int =>
-  var sl: SortedList < Point > = SortedList < Point > {items: {}}
+  var sl: SortedList<Point> = {items: {}}
   return 0

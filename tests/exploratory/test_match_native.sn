@@ -109,7 +109,7 @@ fn test_match_native_struct_sizes(): void =>
 
 fn test_match_in_struct_with_native(): void =>
   print("test_match_in_struct_with_native: ")
-  var ev: Evaluator = Evaluator { base: 5 }
+  var ev: Evaluator = {base: 5}
   assert(ev.evaluate(1) == 15, "op 1: base + 10")
   assert(ev.evaluate(2) == 25, "op 2: base + 20")
   assert(ev.evaluate(99) == 0, "op 99: default 0")

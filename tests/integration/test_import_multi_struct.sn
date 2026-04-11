@@ -24,7 +24,7 @@ fn main(): void =>
 
   # Test 3: Triangle type and methods
   print("\nTest 3: Triangle struct\n")
-  var t: Triangle = Triangle {
+  var t: Triangle = {
     base: 6,
     height: 4
   }

@@ -88,7 +88,10 @@ fn maxOf < T: Comparable > (a: T, b: T): T =>
 
 fn main(): int =>
   # Test 1: SortedList<Score> — single constraint, struct type
-  var sl: SortedList < Score > = SortedList < Score > {items: {}, size: 0}
+  var sl: SortedList<Score> = {
+    items: {},
+    size: 0
+  }
   sl.add(Score { value: 30 })
   sl.add(Score { value: 10 })
   sl.add(Score { value: 20 })
@@ -98,7 +101,10 @@ fn main(): int =>
   print("Test 1 passed: SortedList<Score>\n")
 
   # Test 2: SortedList<int> — primitive auto-satisfies Comparable
-  var si: SortedList < int > = SortedList < int > {items: {}, size: 0}
+  var si: SortedList<int> = {
+    items: {},
+    size: 0
+  }
   si.add(5)
   si.add(3)
   si.add(1)
@@ -108,7 +114,10 @@ fn main(): int =>
   print("Test 2 passed: SortedList<int> (primitive auto-satisfies)\n")
 
   # Test 3: SortedList<str> — str auto-satisfies Comparable
-  var ss: SortedList < str > = SortedList < str > {items: {}, size: 0}
+  var ss: SortedList<str> = {
+    items: {},
+    size: 0
+  }
   ss.add("charlie")
   ss.add("alice")
   ss.add("bob")
@@ -118,12 +127,12 @@ fn main(): int =>
   print("Test 3 passed: SortedList<str> (primitive auto-satisfies)\n")
 
   # Test 4: IndexedSet<Player> — multi-constraint (Comparable & Hashable)
-  var iset: IndexedSet < Player > = IndexedSet < Player > {items: {}}
-  var p1: Player = Player {
+  var iset: IndexedSet<Player> = {items: {}}
+  var p1: Player = {
     name: "Alice",
     score: 100
   }
-  var p2: Player = Player {
+  var p2: Player = {
     name: "Bob",
     score: 200
   }
@@ -135,7 +144,10 @@ fn main(): int =>
   print("Test 4 passed: IndexedSet<Player> (multi-constraint)\n")
 
   # Test 5: KeyValue<UserId, str> — mixed constrained/unconstrained
-  var kv: KeyValue < UserId, str > = KeyValue < UserId, str > {key: UserId { id: 42 }, value: "hello"}
+  var kv: KeyValue<UserId, str> = {
+    key: UserId { id: 42 },
+    value: "hello"
+  }
   if kv.key.id != 42 =>
     print("FAIL: KeyValue key.id should be 42\n")
     return 1
@@ -145,7 +157,10 @@ fn main(): int =>
   print("Test 5 passed: KeyValue<UserId, str> (mixed constraints)\n")
 
   # Test 6: KeyValue<str, int> — primitive key auto-satisfies Hashable
-  var kv2: KeyValue < str, int > = KeyValue < str, int > {key: "answer", value: 42}
+  var kv2: KeyValue<str, int> = {
+    key: "answer",
+    value: 42
+  }
   if kv2.key != "answer" =>
     print("FAIL: KeyValue key should be answer\n")
     return 1
@@ -155,8 +170,8 @@ fn main(): int =>
   print("Test 6 passed: KeyValue<str, int> (primitive auto-satisfies)\n")
 
   # Test 7: Generic function with constraint — maxOf<Score>
-  var s1: Score = Score { value: 10 }
-  var s2: Score = Score { value: 20 }
+  var s1: Score = {value: 10}
+  var s2: Score = {value: 20}
   var bigger: Score = maxOf(s1, s2)
   if bigger.value != 20 =>
     print("FAIL: maxOf should return score 20\n")

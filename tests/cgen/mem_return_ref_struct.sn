@@ -2,7 +2,7 @@ struct Box as ref =>
   value: int
 
 fn make_box(v: int): Box =>
-  var b: Box = Box { value: v }
+  var b: Box = {value: v}
   return b
 
 fn main(): void =>

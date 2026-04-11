@@ -83,7 +83,7 @@ struct Point3D =>
     return self.getX() * other.getX() + self.getY() * other.getY() + self.getZ() * other.getZ()
 
   fn add(other: Point3D): Point3D =>
-    var result: Point3D = Point3D {
+    var result: Point3D = {
       x: self.getX() + other.getX(),
       y: self.getY() + other.getY(),
       z: self.getZ() + other.getZ(),
@@ -92,7 +92,7 @@ struct Point3D =>
     return result
 
   fn scale(factor: int): Point3D =>
-    var result: Point3D = Point3D {
+    var result: Point3D = {
       x: self.getX() * factor,
       y: self.getY() * factor,
       z: self.getZ() * factor,
@@ -153,17 +153,17 @@ fn main(): int =>
 
   # --- Range with self-method-calls for containment/overlap ---
   print("--- Range ---\n")
-  var r1: Range = Range {
+  var r1: Range = {
     min: 0,
     max: 10,
     label: "first"
   }
-  var r2: Range = Range {
+  var r2: Range = {
     min: 5,
     max: 15,
     label: "second"
   }
-  var r3: Range = Range {
+  var r3: Range = {
     min: 20,
     max: 30,
     label: ""
@@ -204,7 +204,7 @@ fn main(): int =>
 
   # --- Deep chain (5 levels of self.method() calls) ---
   print("\n--- Chain ---\n")
-  var chain: ChainTest = ChainTest {
+  var chain: ChainTest = {
     value: 10,
     name: "chain"
   }
@@ -219,13 +219,13 @@ fn main(): int =>
 
   # --- Point3D: struct return from methods, dot product via self-calls ---
   print("\n--- Point3D ---\n")
-  var p1: Point3D = Point3D {
+  var p1: Point3D = {
     x: 1,
     y: 2,
     z: 3,
     tag: "p1"
   }
-  var p2: Point3D = Point3D {
+  var p2: Point3D = {
     x: 4,
     y: 5,
     z: 6,
@@ -270,7 +270,7 @@ fn main(): int =>
     print("FAIL: scale z\n")
     failures = failures + 1
 
-  var origin: Point3D = Point3D {
+  var origin: Point3D = {
     x: 0,
     y: 0,
     z: 0,
@@ -295,7 +295,7 @@ fn main(): int =>
 
   # --- StringOps: string methods on self fields ---
   print("\n--- StringOps ---\n")
-  var s: StringOps = StringOps {
+  var s: StringOps = {
     value: "  Hello World  ",
     prefix: "[",
     suffix: "]"
@@ -322,7 +322,7 @@ fn main(): int =>
     print("FAIL: describe\n")
     failures = failures + 1
 
-  var emptyS: StringOps = StringOps {
+  var emptyS: StringOps = {
     value: "",
     prefix: "<",
     suffix: ">"

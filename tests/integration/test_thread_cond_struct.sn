@@ -86,7 +86,7 @@ fn main(): void =>
   var doSpawn: bool = true
 
   // Test 1: Point struct (primitives only)
-  var pt: Point = Point {
+  var pt: Point = {
     x: 0,
     y: 0
   }
@@ -96,7 +96,7 @@ fn main(): void =>
   println($"Point: ({pt.x}, {pt.y})")
 
   // Test 2: Person struct with string field
-  var p: Person = Person {
+  var p: Person = {
     name: "",
     age: 0
   }
@@ -127,7 +127,7 @@ fn main(): void =>
   println($"Nested: {n.name}, inner=({n.inner.x}, {n.inner.y})")
 
   // Test 6: non-spawn path
-  var noSpawn: Point = Point {
+  var noSpawn: Point = {
     x: 99,
     y: 98
   }

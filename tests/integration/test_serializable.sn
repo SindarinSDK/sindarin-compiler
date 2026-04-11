@@ -31,7 +31,7 @@ struct ApiResponse =>
 
 fn main(): void =>
   // --- Test 1: Encode primitives (one-liner) ---
-  var a: Address = Address {
+  var a: Address = {
     street: "123 Main St",
     city: "NYC"
   }
@@ -40,7 +40,7 @@ fn main(): void =>
   println("test_encode_address: PASS")
 
   // --- Test 2: Encode nested struct + array (one-liner) ---
-  var p: Person = Person {
+  var p: Person = {
     name: "Alice",
     age: 30,
     score: 9.5,
@@ -79,7 +79,7 @@ fn main(): void =>
   println("test_decode_person: PASS")
 
   // --- Test 5: Roundtrip (one-liner encode) ---
-  var original: Person = Person {
+  var original: Person = {
     name: "Charlie",
     age: 40,
     score: 7.7,
@@ -166,7 +166,7 @@ fn main(): void =>
   println("test_array_roundtrip: PASS")
 
   // --- Test 9: @alias on @serializable fields ---
-  var resp: ApiResponse = ApiResponse {
+  var resp: ApiResponse = {
     statusCode: 200,
     errorMessage: "none",
     isSuccess: true
@@ -183,7 +183,7 @@ fn main(): void =>
   println("test_alias_decode: PASS")
 
   // --- Test 11: @alias roundtrip ---
-  var resp3: ApiResponse = ApiResponse {
+  var resp3: ApiResponse = {
     statusCode: 500,
     errorMessage: "internal error",
     isSuccess: false

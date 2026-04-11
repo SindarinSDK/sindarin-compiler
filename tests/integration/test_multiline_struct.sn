@@ -6,7 +6,7 @@ struct Point =>
   z: int
 
 fn main(): void =>
-  var p: Point = Point {
+  var p: Point = {
     x: 1,
     y: 2,
     z: 3

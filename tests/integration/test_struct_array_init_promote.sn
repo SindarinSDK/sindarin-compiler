@@ -11,7 +11,7 @@ struct Item =>
   tags: Tag[]
 
 fn buildItem(): Item =>
-  var item: Item = Item {
+  var item: Item = {
     name: "widget",
     tags: {}
   }

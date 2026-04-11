@@ -17,7 +17,7 @@ fn makeValidator(threshold: int): Validator =>
 
 fn main(): int =>
   var v: Validator = makeValidator(5)
-  var s: Subject = Subject {
+  var s: Subject = {
     n: 3,
     label: "hello"
   }

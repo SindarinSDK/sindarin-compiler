@@ -118,7 +118,7 @@ struct Point =>
   y: int = 0
 
 fn test_struct_capture(): void =>
-  var p: Point = Point {
+  var p: Point = {
     x: 10,
     y: 20
   }

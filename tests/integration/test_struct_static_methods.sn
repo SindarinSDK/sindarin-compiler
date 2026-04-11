@@ -71,7 +71,7 @@ fn main(): int =>
     return 1
 
   # Test instance methods work alongside static methods
-  var c: Counter = Counter { value: 42 }
+  var c: Counter = {value: 42}
   var v: int = c.getValue()
   print($"Initial value: {v}\n")
   if v != 42 =>
@@ -86,7 +86,7 @@ fn main(): int =>
     return 1
 
   # Test Point instance methods
-  var p: Point = Point {
+  var p: Point = {
     x: 3.0,
     y: 4.0
   }

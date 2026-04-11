@@ -34,19 +34,19 @@ struct Mixed =>
 
 fn main(): void =>
   # Test 1: Zero initialization - empty literal with all defaults
-  var cfg1: Config = Config {}
+  var cfg1: Config = {}
   print("Test 1 - Zero init passed\n")
 
   # Test 2: Partial initialization - some fields specified, rest use defaults
-  var cfg2: Config = Config { timeout: 60 }
+  var cfg2: Config = {timeout: 60}
   print("Test 2 - Partial init (timeout only) passed\n")
 
   # Test 3: Partial initialization - different field
-  var cfg3: Config = Config { verbose: true }
+  var cfg3: Config = {verbose: true}
   print("Test 3 - Partial init (verbose only) passed\n")
 
   # Test 4: Override all defaults with explicit values
-  var cfg4: Config = Config {
+  var cfg4: Config = {
     timeout: 120,
     retries: 5,
     verbose: true
@@ -54,15 +54,15 @@ fn main(): void =>
   print("Test 4 - Full override passed\n")
 
   # Test 5: Connection with string defaults
-  var conn1: Connection = Connection {}
+  var conn1: Connection = {}
   print("Test 5 - Connection defaults passed\n")
 
   # Test 6: Connection with partial override
-  var conn2: Connection = Connection { port: 443 }
+  var conn2: Connection = {port: 443}
   print("Test 6 - Connection partial passed\n")
 
   # Test 7: Connection with all overrides
-  var conn3: Connection = Connection {
+  var conn3: Connection = {
     host: "example.com",
     port: 9000,
     maxConn: 500
@@ -70,21 +70,21 @@ fn main(): void =>
   print("Test 7 - Connection full override passed\n")
 
   # Test 8: Point struct with all required fields (no defaults)
-  var p1: Point = Point {
+  var p1: Point = {
     x: 10.5,
     y: 20.5
   }
   print("Test 8 - Point (all required) passed\n")
 
   # Test 9: Mixed struct - required fields with some defaults
-  var mix1: Mixed = Mixed {
+  var mix1: Mixed = {
     required_field: 100,
     another_required: "hello"
   }
   print("Test 9 - Mixed (required only) passed\n")
 
   # Test 10: Mixed struct - override one default
-  var mix2: Mixed = Mixed {
+  var mix2: Mixed = {
     required_field: 200,
     another_required: "world",
     optional_field: 99
@@ -92,7 +92,7 @@ fn main(): void =>
   print("Test 10 - Mixed (one override) passed\n")
 
   # Test 11: Mixed struct - override all defaults
-  var mix3: Mixed = Mixed {
+  var mix3: Mixed = {
     required_field: 300,
     optional_field: 0,
     another_required: "test",
@@ -101,14 +101,14 @@ fn main(): void =>
   print("Test 11 - Mixed (all override) passed\n")
 
   # Test 12: Nested struct with inner defaults
-  var outer1: Outer = Outer {
+  var outer1: Outer = {
     name: "test",
     cfg: Config {}
   }
   print("Test 12 - Nested with inner defaults passed\n")
 
   # Test 13: Nested struct with inner partial override
-  var outer2: Outer = Outer {
+  var outer2: Outer = {
     name: "partial",
     cfg: Config { timeout: 90 }
   }

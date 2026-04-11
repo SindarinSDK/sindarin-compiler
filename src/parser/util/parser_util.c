@@ -183,6 +183,35 @@ int parser_match(Parser *parser, SnTokenType type)
     return 1;
 }
 
+int parser_check_generic_close(Parser *parser)
+{
+    return parser->current.type == TOKEN_GREATER ||
+           parser->current.type == TOKEN_RSHIFT;
+}
+
+void parser_consume_generic_close(Parser *parser, const char *message)
+{
+    if (parser->current.type == TOKEN_GREATER)
+    {
+        parser_advance(parser);
+        return;
+    }
+    if (parser->current.type == TOKEN_RSHIFT)
+    {
+        /* Split `>>` into two `>` closes without advancing the lexer. The
+         * first half becomes `previous`, the second half stays in `current`
+         * so the next outer consume can claim it. */
+        parser->previous = parser->current;
+        parser->previous.type = TOKEN_GREATER;
+        parser->previous.length = 1;
+        parser->current.type = TOKEN_GREATER;
+        parser->current.start += 1;
+        parser->current.length = 1;
+        return;
+    }
+    parser_error_at_current(parser, message);
+}
+
 Token parser_peek_token(Parser *parser)
 {
     /* Save lexer state - must include all fields that lexer_scan_token might modify */
@@ -508,7 +537,7 @@ Type *parser_type(Parser *parser)
             return ast_create_primitive_type(parser->arena, TYPE_NIL);
         }
 
-        if (!parser_check(parser, TOKEN_GREATER))
+        if (!parser_check_generic_close(parser))
         {
             do
             {
@@ -528,7 +557,7 @@ Type *parser_type(Parser *parser)
             } while (parser_match(parser, TOKEN_COMMA));
         }
 
-        parser_consume(parser, TOKEN_GREATER, "Expected '>' after type arguments");
+        parser_consume_generic_close(parser, "Expected '>' after type arguments");
 
         /* Extract the template name from the type we just parsed */
         const char *template_name = NULL;

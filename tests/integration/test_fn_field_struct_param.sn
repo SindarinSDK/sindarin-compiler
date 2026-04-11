@@ -34,12 +34,12 @@ fn describeOrigin(p: Point): str =>
 
 fn main(): void =>
   // Test 1: function field with composite struct param stored in struct literal
-  var proc: Processor = Processor {
+  var proc: Processor = {
     transform: scale,
     describe: describePositive
   }
 
-  var p: Point = Point {
+  var p: Point = {
     x: 3,
     y: 4
   }
@@ -61,7 +61,7 @@ fn main(): void =>
 
   // Test 3: reassign describe field
   proc.describe = describeOrigin
-  var origin: Point = Point {
+  var origin: Point = {
     x: 0,
     y: 0
   }
@@ -74,7 +74,7 @@ fn main(): void =>
   assert(nonzeroDesc == "nonzero", "should be nonzero")
 
   // Test 4: chained field calls passing different structs
-  var p2: Point = Point {
+  var p2: Point = {
     x: 1,
     y: 1
   }

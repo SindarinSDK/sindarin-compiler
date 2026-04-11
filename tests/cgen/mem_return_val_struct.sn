@@ -3,7 +3,7 @@ struct Point as val =>
   y: int
 
 fn make_point(x: int, y: int): Point =>
-  var p: Point = Point {
+  var p: Point = {
     x: x,
     y: y
   }

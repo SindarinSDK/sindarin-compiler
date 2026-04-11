@@ -3,7 +3,7 @@ struct Node as ref =>
   label: str
 
 fn main(): void =>
-  var n: Node = Node {
+  var n: Node = {
     value: 42,
     label: "root"
   }

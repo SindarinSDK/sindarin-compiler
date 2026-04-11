@@ -12,7 +12,7 @@ struct Event =>
   count: int
 
 fn main(): void =>
-  var e: Event = Event {
+  var e: Event = {
     name: "click",
     timestamp: 1711641600000L,
     count: 42

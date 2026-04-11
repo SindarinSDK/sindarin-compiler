@@ -7,7 +7,7 @@ fn processConfig(config: Config): int =>
   return config.value
 
 fn main(): void =>
-  var c: Config = Config {
+  var c: Config = {
     name: "test",
     value: 42
   }

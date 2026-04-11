@@ -12,15 +12,15 @@ native fn verify_widget_array(widgets: Widget[], expected_count: int): int
 native fn verify_single_widget(w: Widget, expected_id: int): int
 
 native fn run_test(): int =>
-  var w1: Widget = Widget {
+  var w1: Widget = {
     id: 1,
     value: 10
   }
-  var w2: Widget = Widget {
+  var w2: Widget = {
     id: 2,
     value: 20
   }
-  var w3: Widget = Widget {
+  var w3: Widget = {
     id: 3,
     value: 30
   }

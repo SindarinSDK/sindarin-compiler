@@ -33,7 +33,7 @@ fn readName(c: Counter as ref): str =>
 
 fn main(): void =>
   // Test 1: basic field mutation via as ref
-  var c: Counter = Counter {
+  var c: Counter = {
     count: 0,
     name: "test"
   }
@@ -62,7 +62,7 @@ fn main(): void =>
   assert(name == "test", "name should be test")
 
   // Test 5: multiple fields mutated
-  var p: Point = Point {
+  var p: Point = {
     x: 2,
     y: 3
   }
@@ -78,7 +78,7 @@ fn main(): void =>
   assert(p.y == 14, "p.y should be 14")
 
   // Test 7: nested as ref calls
-  var c2: Counter = Counter {
+  var c2: Counter = {
     count: 5,
     name: "nested"
   }

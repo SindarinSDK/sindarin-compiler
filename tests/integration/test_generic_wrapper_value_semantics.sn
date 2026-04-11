@@ -23,7 +23,7 @@ struct Box =>
     self.count = self.count + 1
     self.data = {v, v + 1.0, v + 2.0}
 
-struct Wrap < T > =>
+struct Wrap<T> =>
   inner: T
   ranInsideFlag: bool
   ranInsideData0: double
@@ -42,12 +42,12 @@ struct Wrap < T > =>
 fn main(): int =>
   # --- Test 1: direct dispatch mutates the wrapper's copy -----------------
   var d0: double[] = {0.0, 0.0, 0.0}
-  var b: Box = Box {
+  var b: Box = {
     flag: false,
     count: 0,
     data: d0
   }
-  var w: Wrap < Box > = Wrap < Box > {
+  var w: Wrap<Box> = {
     inner: b,
     ranInsideFlag: false,
     ranInsideData0: -1.0
@@ -99,12 +99,12 @@ fn main(): int =>
   print("Test 3 passed: pre-construction caller variable unaffected (value semantics)\n")
 
   # --- Test 4: local-copy-then-mutate does not propagate -----------------
-  var b2: Box = Box {
+  var b2: Box = {
     flag: false,
     count: 0,
     data: {0.0}
   }
-  var w2: Wrap < Box > = Wrap < Box > {
+  var w2: Wrap<Box> = {
     inner: b2,
     ranInsideFlag: false,
     ranInsideData0: -1.0

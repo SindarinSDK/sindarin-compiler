@@ -7,7 +7,7 @@ struct Point =>
 
   # Static factory method - creates and configures a struct instance
   static fn create(a: int, b: int): Point =>
-    var p: Point = Point {
+    var p: Point = {
       x: 0,
       y: 0
     }
@@ -17,7 +17,7 @@ struct Point =>
 
   # Static method with conditional field modification
   static fn createClamped(a: int, b: int, maxVal: int): Point =>
-    var p: Point = Point {
+    var p: Point = {
       x: 0,
       y: 0
     }
@@ -43,7 +43,7 @@ struct Point =>
     return dx + dy
 
   fn add(other: Point): Point =>
-    var result: Point = Point {
+    var result: Point = {
       x: 0,
       y: 0
     }
@@ -56,7 +56,7 @@ struct Rectangle =>
   bottomRight: Point
 
   static fn create(x1: int, y1: int, x2: int, y2: int): Rectangle =>
-    var r: Rectangle = Rectangle {
+    var r: Rectangle = {
       topLeft: Point {
         x: 0,
         y: 0

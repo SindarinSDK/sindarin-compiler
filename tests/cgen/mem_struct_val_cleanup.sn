@@ -3,7 +3,7 @@ struct Person as val =>
   age: int
 
 fn main(): void =>
-  var p: Person = Person {
+  var p: Person = {
     name: "Alice",
     age: 30
   }

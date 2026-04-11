@@ -114,7 +114,7 @@ struct MediumStruct =>
   field99: int = 0
 
 fn test_small_point(): void =>
-  var p: SmallPoint = SmallPoint {
+  var p: SmallPoint = {
     x: 1.5,
     y: 2.5
   }
@@ -132,7 +132,7 @@ fn test_small_point(): void =>
   print("SmallPoint test: PASS\n")
 
 fn test_config_with_defaults(): void =>
-  var c: SmallConfig = SmallConfig { timeout: 30 }
+  var c: SmallConfig = {timeout: 30}
   # Verify defaults are applied
   if c.timeout != 30 =>
     print($"FAIL: c.timeout = {c.timeout}, expected 30\n")
@@ -151,7 +151,7 @@ fn test_medium_struct(): void =>
     print($"FAIL: sizeof(MediumStruct) = {sizeof(MediumStruct)}, expected 800\n")
     return
 
-  var m: MediumStruct = MediumStruct {
+  var m: MediumStruct = {
     field0: 42,
     field99: 99
   }

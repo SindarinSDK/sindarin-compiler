@@ -22,7 +22,7 @@ struct Container =>
   fn count(): int => len(self.items)
 
 fn main(): int =>
-  var c: Container = Container { items: {} }
+  var c: Container = {items: {}}
 
   c.addItem("first", {1, 2, 3})
   c.addItem("second", {4, 5})

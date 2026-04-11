@@ -105,7 +105,7 @@ fn transform_point(p: NativePoint as ref, op: int): void =>
 
 fn test_match_as_val_basic(): void =>
   print("test_match_as_val_basic: ")
-  var cfg: Config = Config {
+  var cfg: Config = {
     mode: 0,
     name: "test",
     values: {1, 2, 3}
@@ -119,22 +119,22 @@ fn test_match_as_val_basic(): void =>
 
 fn test_match_as_val_all_modes(): void =>
   print("test_match_as_val_all_modes: ")
-  var c0: Config = Config {
+  var c0: Config = {
     mode: 0,
     name: "",
     values: {}
   }
-  var c1: Config = Config {
+  var c1: Config = {
     mode: 1,
     name: "",
     values: {}
   }
-  var c2: Config = Config {
+  var c2: Config = {
     mode: 2,
     name: "",
     values: {}
   }
-  var c3: Config = Config {
+  var c3: Config = {
     mode: 99,
     name: "",
     values: {}
@@ -147,7 +147,7 @@ fn test_match_as_val_all_modes(): void =>
 
 fn test_match_as_ref_modify(): void =>
   print("test_match_as_ref_modify: ")
-  var cfg: Config = Config {
+  var cfg: Config = {
     mode: 1,
     name: "original",
     values: {}
@@ -160,7 +160,7 @@ fn test_match_as_ref_modify(): void =>
 
 fn test_match_as_ref_all_modes(): void =>
   print("test_match_as_ref_all_modes: ")
-  var c0: Config = Config {
+  var c0: Config = {
     mode: 0,
     name: "",
     values: {}
@@ -168,7 +168,7 @@ fn test_match_as_ref_all_modes(): void =>
   match_and_modify_ref(c0)
   assert(c0.name == "disabled", "mode 0 name")
 
-  var c2: Config = Config {
+  var c2: Config = {
     mode: 2,
     name: "",
     values: {}
@@ -176,7 +176,7 @@ fn test_match_as_ref_all_modes(): void =>
   match_and_modify_ref(c2)
   assert(c2.name == "automatic", "mode 2 name")
 
-  var c9: Config = Config {
+  var c9: Config = {
     mode: 9,
     name: "",
     values: {}
@@ -187,7 +187,7 @@ fn test_match_as_ref_all_modes(): void =>
 
 fn test_match_selector_ref(): void =>
   print("test_match_selector_ref: ")
-  var sel: Selector = Selector { choice: 5 }
+  var sel: Selector = {choice: 5}
   assert(categorize_by_ref(sel) == "medium", "5 should be medium")
 
   sel.choice = 1
@@ -202,7 +202,7 @@ fn test_match_selector_ref(): void =>
 
 native fn test_match_native_as_ref(): void =>
   print("test_match_native_as_ref: ")
-  var p: NativePoint = NativePoint {
+  var p: NativePoint = {
     x: 0,
     y: 0
   }
@@ -221,7 +221,7 @@ native fn test_match_native_as_ref(): void =>
 
 native fn test_match_transform_native_ref(): void =>
   print("test_match_transform_native_ref: ")
-  var p: NativePoint = NativePoint {
+  var p: NativePoint = {
     x: 0,
     y: 0
   }
@@ -245,7 +245,7 @@ native fn test_match_transform_native_ref(): void =>
 
 fn test_match_val_preserves_array(): void =>
   print("test_match_val_preserves_array: ")
-  var cfg: Config = Config {
+  var cfg: Config = {
     mode: 1,
     name: "test",
     values: {10, 20, 30}
@@ -260,7 +260,7 @@ fn test_match_val_preserves_array(): void =>
 
 fn test_match_on_struct_method_result(): void =>
   print("test_match_on_struct_method_result: ")
-  var cfg: Config = Config {
+  var cfg: Config = {
     mode: 2,
     name: "",
     values: {}

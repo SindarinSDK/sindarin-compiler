@@ -15,7 +15,7 @@ struct Server =>
     return result !
 
 fn main(): void =>
-  var server: Server = Server { value: 10 }
+  var server: Server = {value: 10}
   var result: int = server.run()
   print($"Result: {result}\n")
 

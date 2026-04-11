@@ -13,7 +13,7 @@ fn runTest(x: int): TestResult =>
 
 fn main(): void =>
   // Test 1: Conditional spawn that executes
-  var h1: TestResult = TestResult {
+  var h1: TestResult = {
     value: 0,
     ok: false
   }
@@ -26,7 +26,7 @@ fn main(): void =>
   println($"Test 1: value={h1.value}, ok={h1.ok}")
 
   // Test 2: Conditional spawn that does NOT execute
-  var h2: TestResult = TestResult {
+  var h2: TestResult = {
     value: 99,
     ok: true
   }
@@ -40,7 +40,7 @@ fn main(): void =>
 
   // Test 3: Spawn based on runtime value
   var items: int[] = {1, 2, 3}
-  var h3: TestResult = TestResult {
+  var h3: TestResult = {
     value: -1,
     ok: false
   }

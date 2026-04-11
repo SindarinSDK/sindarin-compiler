@@ -57,7 +57,7 @@ native fn c_point_magnitude_squared(p: Point3D): double =>
 native fn test_struct_as_ref(): bool =>
   print("Test 1: Native struct passed via 'as ref'\n")
 
-  var buf: CBuffer = CBuffer {
+  var buf: CBuffer = {
     data: nil,
     size: 0,
     capacity: 0
@@ -81,7 +81,7 @@ native fn test_struct_as_ref(): bool =>
 native fn test_multiple_modifications(): bool =>
   print("Test 2: Multiple C function calls modifying struct\n")
 
-  var buf: CBuffer = CBuffer {
+  var buf: CBuffer = {
     data: nil,
     size: 0,
     capacity: 0
@@ -126,7 +126,7 @@ native fn test_multiple_modifications(): bool =>
 native fn test_read_via_c_function(): bool =>
   print("Test 3: Reading struct field via C function\n")
 
-  var buf: CBuffer = CBuffer {
+  var buf: CBuffer = {
     data: nil,
     size: 50,
     capacity: 2048
@@ -144,7 +144,7 @@ native fn test_read_via_c_function(): bool =>
 native fn test_computed_field(): bool =>
   print("Test 4: C function computing struct field\n")
 
-  var box: BoundingBox = BoundingBox {
+  var box: BoundingBox = {
     min_x: 0.0,
     min_y: 0.0,
     max_x: 10.0,
@@ -169,7 +169,7 @@ native fn test_computed_field(): bool =>
 native fn test_struct_by_value(): bool =>
   print("Test 5: Struct passed by value to C function\n")
 
-  var p: Point3D = Point3D {
+  var p: Point3D = {
     x: 3.0,
     y: 4.0,
     z: 0.0
@@ -192,7 +192,7 @@ native fn test_struct_by_value(): bool =>
 native fn test_value_semantics_preserved(): bool =>
   print("Test 6: Original struct unchanged after pass-by-value\n")
 
-  var p: Point3D = Point3D {
+  var p: Point3D = {
     x: 1.0,
     y: 2.0,
     z: 3.0

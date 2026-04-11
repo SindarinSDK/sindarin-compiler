@@ -58,7 +58,7 @@ struct Model =>
     println($"train inner: v1={out.v1} v2={out.v2}")
 
 fn main(): void =>
-  var model: Model = Model {
+  var model: Model = {
     w1: resource_create(1, 100),
     w2: resource_create(2, 200)
   }

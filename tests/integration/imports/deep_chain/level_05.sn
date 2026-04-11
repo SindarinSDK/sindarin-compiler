@@ -9,7 +9,7 @@ struct TreeNode =>
   value: int
   depth: int
 
-var rootNode: TreeNode = TreeNode {
+var rootNode: TreeNode = {
   value: 50,
   depth: 5
 }

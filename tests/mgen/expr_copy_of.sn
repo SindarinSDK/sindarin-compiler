@@ -3,7 +3,7 @@ struct Point =>
   y: double
 
 fn main(): int =>
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0
   }

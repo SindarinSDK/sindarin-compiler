@@ -1038,7 +1038,7 @@ fn test_large_struct_size(): void =>
 
 fn test_large_struct_allocation(): void =>
   # This struct should be heap-allocated since it's >= 8KB
-  var data: LargeStruct = LargeStruct {
+  var data: LargeStruct = {
     field0: 42,
     field1023: 99
   }
@@ -1059,7 +1059,7 @@ fn test_large_struct_allocation(): void =>
   print("Allocation test: PASS\n")
 
 fn test_large_struct_field_access(): void =>
-  var data: LargeStruct = LargeStruct {
+  var data: LargeStruct = {
     field100: 100,
     field500: 500,
     field900: 900
@@ -1079,7 +1079,7 @@ fn test_large_struct_field_access(): void =>
   print("Field access test: PASS\n")
 
 fn test_large_struct_modification(): void =>
-  var data: LargeStruct = LargeStruct {}
+  var data: LargeStruct = {}
 
   # Modify fields
   data.field0 = 1

@@ -11,14 +11,14 @@ struct Person =>
 
 fn main(): int =>
   // Test simple struct with numeric fields
-  var p: Point = Point {
+  var p: Point = {
     x: 10,
     y: 20
   }
   print($"Point: {p}\n")
 
   // Test struct with string and bool fields
-  var person: Person = Person {
+  var person: Person = {
     name: "Alice",
     age: 30,
     active: true

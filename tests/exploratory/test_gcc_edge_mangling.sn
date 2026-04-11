@@ -84,7 +84,7 @@ struct InternalNames =>
   __Closure__: int = 0
 
 fn test_struct_internal_names(): void =>
-  var s: InternalNames = InternalNames {
+  var s: InternalNames = {
     _return_value: 10,
     __local_arena__: 20,
     __caller_arena__: 30,

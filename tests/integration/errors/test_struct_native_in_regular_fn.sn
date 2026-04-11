@@ -5,5 +5,5 @@ native struct Buffer =>
   length: int
 
 fn main(): void =>
-  var buf: Buffer = Buffer {}
+  var buf: Buffer = {}
   print("Should not compile\n")

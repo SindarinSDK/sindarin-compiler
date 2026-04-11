@@ -69,8 +69,8 @@ struct Player =>
 
 fn main(): int =>
   # Test 1: Direct method calls on Score (Comparable)
-  var s1: Score = Score { value: 10 }
-  var s2: Score = Score { value: 20 }
+  var s1: Score = {value: 10}
+  var s2: Score = {value: 20}
 
   var cmp1: int = s1.compare(s2)
   if cmp1 != -1 =>
@@ -82,7 +82,7 @@ fn main(): int =>
     print("FAIL: s2.compare(s1) should be 1\n")
     return 1
 
-  var s3: Score = Score { value: 10 }
+  var s3: Score = {value: 10}
   var cmp3: int = s1.compare(s3)
   if cmp3 != 0 =>
     print("FAIL: s1.compare(s3) should be 0\n")
@@ -95,9 +95,9 @@ fn main(): int =>
   print("Test 2 passed: Score satisfies Comparable\n")
 
   # Test 3: Direct method calls on UserId (Hashable)
-  var u1: UserId = UserId { id: 7 }
-  var u2: UserId = UserId { id: 7 }
-  var u3: UserId = UserId { id: 9 }
+  var u1: UserId = {id: 7}
+  var u2: UserId = {id: 7}
+  var u3: UserId = {id: 9}
 
   var hashVal: int = u1.hash()
   if hashVal != 217 =>
@@ -121,7 +121,7 @@ fn main(): int =>
   print("Test 4 passed: UserId satisfies Hashable\n")
 
   # Test 5: Direct method call on Color (Stringable)
-  var red: Color = Color {
+  var red: Color = {
     r: 255,
     g: 0,
     b: 0
@@ -138,11 +138,11 @@ fn main(): int =>
   print("Test 6 passed: Color satisfies Stringable\n")
 
   # Test 7: Player satisfies both Comparable and Stringable
-  var alice: Player = Player {
+  var alice: Player = {
     name: "Alice",
     score: 100
   }
-  var bob: Player = Player {
+  var bob: Player = {
     name: "Bob",
     score: 200
   }

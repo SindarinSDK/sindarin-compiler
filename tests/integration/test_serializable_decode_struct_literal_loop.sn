@@ -24,7 +24,7 @@ struct Output =>
 fn main(): void =>
   for var i: int = 0; i < 3; i++ =>
     // 1. Encode a Wrapper
-    var w: Wrapper = Wrapper { inner: Inner {
+    var w: Wrapper = { inner: Inner {
       id: "test",
       tags: {"a", "b"}
     } }
@@ -36,7 +36,7 @@ fn main(): void =>
     var inner: Inner = decoded.inner
 
     // 3. Build new struct from decoded fields (shared ownership bug)
-    var out: Output = Output {
+    var out: Output = {
       name: inner.id,
       items: inner.tags
     }

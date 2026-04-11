@@ -9,7 +9,7 @@ struct Counter =>
   current: int
   max: int
 
-var sharedCounter: Counter = Counter {
+var sharedCounter: Counter = {
   current: 0,
   max: 100
 }

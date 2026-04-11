@@ -6,7 +6,7 @@ struct Point =>
 
 fn main(): void =>
   # This should fail - 'z' is not a field of Point
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0,
     z: 3.0

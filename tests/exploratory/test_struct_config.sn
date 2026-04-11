@@ -36,7 +36,7 @@ struct CacheConfig =>
 fn test_all_defaults(): bool =>
   print("Test 1: Configuration with all defaults\n")
 
-  var cfg: ServerConfig = ServerConfig {}
+  var cfg: ServerConfig = {}
 
   if cfg.host != "localhost" =>
     print($"  FAIL: Expected host='localhost', got '{cfg.host}'\n")
@@ -65,7 +65,7 @@ fn test_all_defaults(): bool =>
 fn test_partial_override(): bool =>
   print("Test 2: Partial configuration override\n")
 
-  var cfg: ServerConfig = ServerConfig {
+  var cfg: ServerConfig = {
     port: 443,
     enableLogging: false
   }
@@ -95,7 +95,7 @@ fn test_partial_override(): bool =>
 fn test_full_custom(): bool =>
   print("Test 3: Full custom configuration\n")
 
-  var cfg: ServerConfig = ServerConfig {
+  var cfg: ServerConfig = {
     host: "0.0.0.0",
     port: 9000,
     maxConnections: 500,
@@ -131,10 +131,10 @@ fn test_database_config(): bool =>
   print("Test 4: Database configuration pattern\n")
 
   // Development config
-  var devDb: DatabaseConfig = DatabaseConfig {}
+  var devDb: DatabaseConfig = {}
 
   // Production config - override connection and security settings
-  var prodDb: DatabaseConfig = DatabaseConfig {
+  var prodDb: DatabaseConfig = {
     host: "db.production.example.com",
     database: "production_db",
     username: "prod_user",
@@ -169,7 +169,7 @@ fn test_database_config(): bool =>
 fn test_runtime_modification(): bool =>
   print("Test 5: Runtime configuration modification\n")
 
-  var cfg: CacheConfig = CacheConfig {}
+  var cfg: CacheConfig = {}
 
   // Modify at runtime
   cfg.enabled = false
@@ -200,7 +200,7 @@ fn test_runtime_modification(): bool =>
 fn test_config_copy(): bool =>
   print("Test 6: Configuration copy independence\n")
 
-  var original: ServerConfig = ServerConfig { port: 8000 }
+  var original: ServerConfig = {port: 8000}
   var copy: ServerConfig = original
 
   // Modify copy
@@ -229,7 +229,7 @@ fn apply_server_config(cfg: ServerConfig): void =>
 fn test_config_in_function(): bool =>
   print("Test 7: Configuration passed to function\n")
 
-  var cfg: ServerConfig = ServerConfig {
+  var cfg: ServerConfig = {
     port: 3000,
     timeout: 120
   }

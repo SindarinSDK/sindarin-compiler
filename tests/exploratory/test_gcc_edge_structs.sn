@@ -15,7 +15,7 @@ struct KeywordFields =>
   typedef: int = 0
 
 fn test_keyword_fields(): void =>
-  var s: KeywordFields = KeywordFields {
+  var s: KeywordFields = {
     register: 1,
     volatile: 2,
     auto: 3,
@@ -51,20 +51,20 @@ struct Level5 =>
   value: int = 5
 
 fn test_deep_nesting(): void =>
-  var l1: Level1 = Level1 { value: 10 }
-  var l2: Level2 = Level2 {
+  var l1: Level1 = {value: 10}
+  var l2: Level2 = {
     inner: l1,
     value: 20
   }
-  var l3: Level3 = Level3 {
+  var l3: Level3 = {
     inner: l2,
     value: 30
   }
-  var l4: Level4 = Level4 {
+  var l4: Level4 = {
     inner: l3,
     value: 40
   }
-  var l5: Level5 = Level5 {
+  var l5: Level5 = {
     inner: l4,
     value: 50
   }
@@ -109,7 +109,7 @@ struct LargeStruct =>
   f30: int = 30
 
 fn test_large_struct(): void =>
-  var s: LargeStruct = LargeStruct {}
+  var s: LargeStruct = {}
   var sum: int = s.f01 + s.f02 + s.f03 + s.f04 + s.f05
   sum = sum + s.f06 + s.f07 + s.f08 + s.f09 + s.f10
   sum = sum + s.f11 + s.f12 + s.f13 + s.f14 + s.f15
@@ -125,7 +125,7 @@ struct WithArrays =>
   name: str = "default"
 
 fn test_struct_arrays(): void =>
-  var s: WithArrays = WithArrays {
+  var s: WithArrays = {
     ints: {1, 2, 3, 4, 5},
     strs: {"hello", "world"},
     name: "test"
@@ -159,7 +159,7 @@ struct Counter =>
     print($"Counter '{self.name}': {self.count}\n")
 
 fn test_struct_methods(): void =>
-  var c: Counter = Counter { name: "test" }
+  var c: Counter = {name: "test"}
   c.increment()
   c.increment()
   c.increment()
@@ -181,7 +181,7 @@ fn modify_struct(s: Counter as val): Counter =>
   return s
 
 fn test_struct_passing(): void =>
-  var original: Counter = Counter {
+  var original: Counter = {
     count: 5,
     name: "original"
   }

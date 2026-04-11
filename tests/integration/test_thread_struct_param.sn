@@ -9,7 +9,7 @@ fn processConfig(config: TestConfig): str =>
   return $"Processed {config.name} with value {config.value}"
 
 fn main(): void =>
-  var config: TestConfig = TestConfig {
+  var config: TestConfig = {
     name: "test",
     value: 42
   }

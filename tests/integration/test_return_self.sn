@@ -14,7 +14,7 @@ struct Builder =>
 
 fn main(): int =>
   # Test basic return self
-  var b: Builder = Builder {
+  var b: Builder = {
     value: 0,
     name: ""
   }
@@ -26,7 +26,7 @@ fn main(): int =>
   print("setValue return self: PASS\n")
 
   # Test method chaining
-  var b2: Builder = Builder {
+  var b2: Builder = {
     value: 0,
     name: ""
   }

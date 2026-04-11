@@ -14,11 +14,11 @@ native struct Vec2 as ref =>
   native fn negate(): Vec2
 
 native fn test_chaining(): int =>
-  var v1: Vec2 = Vec2 {
+  var v1: Vec2 = {
     x: 1,
     y: 2
   }
-  var v2: Vec2 = Vec2 {
+  var v2: Vec2 = {
     x: 3,
     y: 4
   }

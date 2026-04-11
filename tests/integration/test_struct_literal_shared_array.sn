@@ -20,7 +20,7 @@ fn main(): void =>
     value: 2.0
   })
 
-  var rec: Record = Record {
+  var rec: Record = {
     name: "test",
     items: items
   }

@@ -12,11 +12,11 @@ struct Person =>
   address: Address
 
 fn createPerson(): Person =>
-  var addr: Address = Address {
+  var addr: Address = {
     street: "123 Main St",
     city: "Springfield"
   }
-  var p: Person = Person {
+  var p: Person = {
     name: "Alice",
     age: 30,
     address: addr

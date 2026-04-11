@@ -35,7 +35,7 @@ fn addIfNew(window: Window, value: int, time: int): bool =>
   return true
 
 fn main(): void =>
-  var win: Window = Window {
+  var win: Window = {
     entries: {},
     maxSize: 100,
     count: 0

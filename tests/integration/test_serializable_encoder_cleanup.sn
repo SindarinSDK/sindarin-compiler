@@ -21,7 +21,7 @@ struct Order =>
 
 fn main(): void =>
   // --- Test 1: encode with cleanup-enabled encoder ---
-  var item: Item = Item {
+  var item: Item = {
     name: "widget",
     qty: 5
   }
@@ -30,7 +30,7 @@ fn main(): void =>
   println("test_encode_cleanup: PASS")
 
   // --- Test 2: nested struct encode with cleanup ---
-  var order: Order = Order {
+  var order: Order = {
     id: "ord-1",
     item: Item {
       name: "gear",
@@ -65,7 +65,7 @@ fn main(): void =>
 
   // --- Test 5: multiple sequential encodes (verifies no state leakage) ---
   for var i: int = 0; i < 3; i++ =>
-    var tmp: Item = Item {
+    var tmp: Item = {
       name: "item",
       qty: i
     }

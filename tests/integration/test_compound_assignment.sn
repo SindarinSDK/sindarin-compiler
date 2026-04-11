@@ -48,7 +48,7 @@ fn main(): void =>
   print($"arr[0] after *= 5: {arr[0]}\n")
 
   // Test compound assignment with struct fields
-  var p: Point = Point {
+  var p: Point = {
     x: 10,
     y: 20
   }

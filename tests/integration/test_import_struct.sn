@@ -14,7 +14,7 @@ fn main(): void =>
   print($"Created: ({p2.getX()}, {p2.getY()})\n")
 
   # Test struct literal syntax
-  var p3: Point = Point {
+  var p3: Point = {
     x: 10,
     y: 20
   }

@@ -3,7 +3,7 @@ struct Person =>
   age: int
 
 fn main(): int =>
-  var p: Person = Person {
+  var p: Person = {
     name: "Alice",
     age: 30
   }

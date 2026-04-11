@@ -83,19 +83,19 @@ struct Calculator =>
 
 fn test_http_status(): void =>
   print("test_http_status: ")
-  var r200: HttpResponse = HttpResponse {
+  var r200: HttpResponse = {
     code: 200,
     message: ""
   }
-  var r404: HttpResponse = HttpResponse {
+  var r404: HttpResponse = {
     code: 404,
     message: ""
   }
-  var r500: HttpResponse = HttpResponse {
+  var r500: HttpResponse = {
     code: 500,
     message: ""
   }
-  var r999: HttpResponse = HttpResponse {
+  var r999: HttpResponse = {
     code: 999,
     message: ""
   }
@@ -108,13 +108,13 @@ fn test_http_status(): void =>
 
 fn test_http_category(): void =>
   print("test_http_category: ")
-  var r: HttpResponse = HttpResponse {
+  var r: HttpResponse = {
     code: 201,
     message: ""
   }
   assert(r.category() == "Success", "2xx should be Success")
 
-  var r4: HttpResponse = HttpResponse {
+  var r4: HttpResponse = {
     code: 403,
     message: ""
   }
@@ -123,15 +123,15 @@ fn test_http_category(): void =>
 
 fn test_http_is_success(): void =>
   print("test_http_is_success: ")
-  var r200: HttpResponse = HttpResponse {
+  var r200: HttpResponse = {
     code: 200,
     message: ""
   }
-  var r201: HttpResponse = HttpResponse {
+  var r201: HttpResponse = {
     code: 201,
     message: ""
   }
-  var r404: HttpResponse = HttpResponse {
+  var r404: HttpResponse = {
     code: 404,
     message: ""
   }
@@ -142,34 +142,34 @@ fn test_http_is_success(): void =>
 
 fn test_direction(): void =>
   print("test_direction: ")
-  var d: Direction = Direction { name: "north" }
+  var d: Direction = {name: "north"}
   assert(d.opposite() == "south", "north opposite should be south")
   assert(d.degrees() == 0, "north should be 0 degrees")
 
-  var d2: Direction = Direction { name: "west" }
+  var d2: Direction = {name: "west"}
   assert(d2.opposite() == "east", "west opposite should be east")
   assert(d2.degrees() == 270, "west should be 270 degrees")
 
-  var d3: Direction = Direction { name: "diagonal" }
+  var d3: Direction = {name: "diagonal"}
   assert(d3.opposite() == "unknown", "unknown direction")
   assert(d3.degrees() == -1, "unknown degrees")
   print("PASS\n")
 
 fn test_token_describe(): void =>
   print("test_token_describe: ")
-  var t1: Token = Token {
+  var t1: Token = {
     kind: 1,
     value: "42"
   }
-  var t2: Token = Token {
+  var t2: Token = {
     kind: 2,
     value: "hello"
   }
-  var t3: Token = Token {
+  var t3: Token = {
     kind: 3,
     value: "foo"
   }
-  var t4: Token = Token {
+  var t4: Token = {
     kind: 99,
     value: "?"
   }
@@ -181,7 +181,7 @@ fn test_token_describe(): void =>
 
 fn test_calculator(): void =>
   print("test_calculator: ")
-  var calc: Calculator = Calculator { result: 0 }
+  var calc: Calculator = {result: 0}
   calc.apply("add", 10)
   assert(calc.result == 10, "after add 10")
   calc.apply("mul", 3)
@@ -194,7 +194,7 @@ fn test_calculator(): void =>
 
 fn test_match_with_field_subject(): void =>
   print("test_match_with_field_subject: ")
-  var resp: HttpResponse = HttpResponse {
+  var resp: HttpResponse = {
     code: 204,
     message: "No Content"
   }

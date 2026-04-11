@@ -3,7 +3,7 @@ struct Entry =>
   value: str
 
 fn main(): int =>
-  var e: Entry = Entry {
+  var e: Entry = {
     key: "name",
     value: "Alice"
   }

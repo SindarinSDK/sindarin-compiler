@@ -29,7 +29,7 @@ native struct DataBuffer =>
 # Native function to test native struct with pointer fields
 native fn test_native_ptr_struct(): void =>
   # Create native struct with pointer field set to nil
-  var buf: DataBuffer = DataBuffer {
+  var buf: DataBuffer = {
     data: nil,
     size: 0,
     capacity: 1024

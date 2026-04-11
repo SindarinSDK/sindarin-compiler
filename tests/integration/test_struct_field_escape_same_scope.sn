@@ -17,7 +17,7 @@ struct Pair =>
 
 fn test_same_scope_simple(): void =>
   # Both declared at same scope - no escape
-  var p: Point = Point {
+  var p: Point = {
     x: 0,
     y: 0
   }
@@ -38,7 +38,7 @@ fn test_same_scope_simple(): void =>
   print("Same scope simple test: PASS\n")
 
 fn test_same_scope_with_computation(): void =>
-  var rect: Rectangle = Rectangle {
+  var rect: Rectangle = {
     width: 5,
     height: 10
   }
@@ -56,11 +56,11 @@ fn test_same_scope_with_computation(): void =>
 
 fn test_same_scope_struct_field_copy(): void =>
   # Copy field values between structs at same scope
-  var p1: Point = Point {
+  var p1: Point = {
     x: 100,
     y: 200
   }
-  var p2: Point = Point {
+  var p2: Point = {
     x: 0,
     y: 0
   }
@@ -80,7 +80,7 @@ fn test_same_scope_struct_field_copy(): void =>
 
 fn test_same_scope_nested(): void =>
   # Nested structs at same scope
-  var pair: Pair = Pair {
+  var pair: Pair = {
     first: Point {
       x: 1,
       y: 2
@@ -102,7 +102,7 @@ fn test_same_scope_nested(): void =>
   print("Same scope nested test: PASS\n")
 
 fn test_same_scope_multiple_assigns(): void =>
-  var p: Point = Point {
+  var p: Point = {
     x: 0,
     y: 0
   }
@@ -123,7 +123,7 @@ fn test_same_scope_multiple_assigns(): void =>
   print("Same scope multiple assigns test: PASS\n")
 
 fn test_same_scope_self_assign(): void =>
-  var rect: Rectangle = Rectangle {
+  var rect: Rectangle = {
     width: 8,
     height: 4
   }

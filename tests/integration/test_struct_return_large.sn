@@ -152,7 +152,7 @@ fn createLargeData(v: int): LargeData =>
 
 # Function that modifies and returns large struct
 fn modifyLargeData(data: LargeData, off: int): LargeData =>
-  var result: LargeData = LargeData {
+  var result: LargeData = {
     a1: data.a1 + off,
     b1: data.b1 + off,
     c1: data.c1 + off,

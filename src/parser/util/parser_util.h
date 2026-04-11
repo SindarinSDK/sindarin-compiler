@@ -24,6 +24,12 @@ int parser_match(Parser *parser, SnTokenType type);
 Token parser_peek_token(Parser *parser);
 Token parser_peek_token2(Parser *parser);
 
+/* Generic-close helpers — treat a fused `>>` (TOKEN_RSHIFT) as two `>` closes
+ * when the parser is inside a generic type argument list. Required for
+ * nested generics like `Stack<Pair<int, str>>`. */
+int parser_check_generic_close(Parser *parser);
+void parser_consume_generic_close(Parser *parser, const char *message);
+
 /* Error recovery */
 void synchronize(Parser *parser);
 

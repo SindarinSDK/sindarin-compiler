@@ -3,15 +3,21 @@
 interface Printable =>
   fn label(): str
 
-struct Wrapper < T > =>
+struct Wrapper<T> =>
   value: T
   count: int
 
-  static fn create(v: T): Wrapper < T > =>
-    return Wrapper < T > {value: v, count: 1}
+  static fn create(v: T): Wrapper<T> =>
+    return Wrapper<T> {
+      value: v,
+      count: 1
+    }
 
-  static fn createWithCount(v: T, n: int): Wrapper < T > =>
-    return Wrapper < T > {value: v, count: n}
+  static fn createWithCount(v: T, n: int): Wrapper<T> =>
+    return Wrapper<T> {
+      value: v,
+      count: n
+    }
 
   fn getCount(): int =>
     return self.count
@@ -20,8 +26,11 @@ struct Container < T: Printable > =>
   item: T
   size: int
 
-  static fn of(item: T): Container < T > =>
-    return Container < T > {item: item, size: 1}
+  static fn of(item: T): Container<T> =>
+    return Container<T> {
+      item: item,
+      size: 1
+    }
 
   fn getSize(): int =>
     return self.size
@@ -37,7 +46,7 @@ struct Tag =>
 
 fn main(): int =>
   # Test 1: Generic static call with int
-  var w1: Wrapper < int > = Wrapper < int >.create(42)
+  var w1: Wrapper<int> = Wrapper < int >.create(42)
   if w1.value != 42 =>
     print("FAIL: Wrapper<int>.create value should be 42\n")
     return 1
@@ -47,14 +56,14 @@ fn main(): int =>
   print("Test 1 passed: Wrapper<int>.create(42)\n")
 
   # Test 2: Generic static call with str
-  var w2: Wrapper < str > = Wrapper < str >.create("hello")
+  var w2: Wrapper<str> = Wrapper < str >.create("hello")
   if w2.value != "hello" =>
     print("FAIL: Wrapper<str>.create value should be hello\n")
     return 1
   print("Test 2 passed: Wrapper<str>.create(\"hello\")\n")
 
   # Test 3: Generic static call with multiple args
-  var w3: Wrapper < int > = Wrapper < int >.createWithCount(99, 5)
+  var w3: Wrapper<int> = Wrapper < int >.createWithCount(99, 5)
   if w3.value != 99 =>
     print("FAIL: value should be 99\n")
     return 1
@@ -64,8 +73,8 @@ fn main(): int =>
   print("Test 3 passed: Wrapper<int>.createWithCount(99, 5)\n")
 
   # Test 4: Constrained generic static call
-  var tag1: Tag = Tag { name: "alpha" }
-  var c1: Container < Tag > = Container < Tag >.of(tag1)
+  var tag1: Tag = {name: "alpha"}
+  var c1: Container<Tag> = Container < Tag >.of(tag1)
   if c1.getSize() != 1 =>
     print("FAIL: Container size should be 1\n")
     return 1
@@ -75,8 +84,8 @@ fn main(): int =>
   print("Test 4 passed: Container<Tag>.of(Tag{name:\"alpha\"})\n")
 
   # Test 5: Generic static call with struct type arg
-  var inner: Tag = Tag { name: "beta" }
-  var w4: Wrapper < Tag > = Wrapper < Tag >.create(inner)
+  var inner: Tag = {name: "beta"}
+  var w4: Wrapper<Tag> = Wrapper < Tag >.create(inner)
   if w4.value.name != "beta" =>
     print("FAIL: Wrapper<Tag> value.name should be beta\n")
     return 1

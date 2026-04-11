@@ -12,7 +12,7 @@ fn processConfig(c: Config): void =>
 
 fn main(): void =>
   var items: str[] = {"alpha", "beta", "gamma"}
-  var config: Config = Config {
+  var config: Config = {
     name: "test",
     items: copyOf(items)
   }

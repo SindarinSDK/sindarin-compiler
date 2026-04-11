@@ -81,16 +81,16 @@ fn main(): void =>
   print("test_primitive_variables: PASS\n")
 
   // --- Struct variables ---
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0
   }
-  var s: SmallStruct = SmallStruct {
+  var s: SmallStruct = {
     a: 1,
     b: 2,
     c: true
   }
-  var n: NestedStruct = NestedStruct {
+  var n: NestedStruct = {
     point: Point {
       x: 0.0,
       y: 0.0
@@ -191,7 +191,7 @@ fn test_sizeof_in_normal_function(): void =>
 
   // Variables
   var x: int = 42
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0
   }
@@ -234,7 +234,7 @@ native fn test_sizeof_in_native(): void =>
 
   // Variables
   var x: int = 42
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0
   }

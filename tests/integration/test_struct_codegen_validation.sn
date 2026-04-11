@@ -47,7 +47,7 @@ native struct NativeBuffer =>
   capacity: int
 
 fn test_basic_types(): void =>
-  var s: BasicTypes = BasicTypes {
+  var s: BasicTypes = {
     field_int: 1,
     field_int32: 2,
     field_double: 6.0,
@@ -89,7 +89,7 @@ fn test_basic_types(): void =>
     print("field_byte: FAIL\n")
 
 fn test_nested_struct(): void =>
-  var n: NestedStruct = NestedStruct {
+  var n: NestedStruct = {
     point: Point {
       x: 3.14,
       y: 2.71

@@ -385,6 +385,13 @@ static int is_single_gt(FT *t)
     return t->type == FT_BINOP && t->len == 1 && t->text[0] == '>';
 }
 
+/* Is this FT_BINOP token the fused `>>`? (right-shift or nested generic close) */
+static int is_fused_gt_gt(FT *t)
+{
+    return t->type == FT_BINOP && t->len == 2 &&
+           t->text[0] == '>' && t->text[1] == '>';
+}
+
 /* Inside a generic argument list, only these token types are permitted. */
 static int allowed_inside_generic(FTType t)
 {
@@ -420,28 +427,33 @@ static int allowed_after_generic_close(FTType t)
 }
 
 /* Reclassify single-char `<` `>` tokens that form a generic parameter list
- * from FT_BINOP to FT_ANGLE_OPEN / FT_ANGLE_CLOSE. See the comments on the
- * helpers above for the detection rules. Handles nested generics via a stack. */
-static void classify_generics(FT *tokens, int count)
+ * from FT_BINOP to FT_ANGLE_OPEN / FT_ANGLE_CLOSE. Handles nested generics
+ * via a stack, and splits fused `>>` tokens (lexer output for right-shift)
+ * into two single-`>` tokens when they appear as nested generic closes. */
+static void classify_generics(FT *tokens, int *count)
 {
-    for (int i = 0; i < count; i++)
+    for (int i = 0; i < *count; i++)
     {
         if (!is_single_lt(&tokens[i])) continue;
         if (i == 0 || tokens[i - 1].type != FT_WORD) continue;
 
         /* Walk forward, tracking nested angle depth. Record every pair so we
-         * can reclassify them all atomically once the outer match closes. */
+         * can reclassify them all atomically once the outer match closes.
+         * `pair_close_half` is 1 for the second `>` of a fused `>>`, 0 otherwise.
+         * Fused-close token positions get split in place after classification. */
         int open_stack[64];
         int sp = 0;
         int pair_open[64];
         int pair_close[64];
+        int pair_close_half[64];
         int num_pairs = 0;
         int outer_close = -1;
+        int outer_fused_half = 0;
         int ok = 1;
 
         open_stack[sp++] = i;
         int j = i + 1;
-        while (j < count && sp > 0)
+        while (j < *count && sp > 0)
         {
             FT *t = &tokens[j];
             if (is_single_lt(t))
@@ -451,12 +463,31 @@ static void classify_generics(FT *tokens, int count)
             }
             else if (is_single_gt(t))
             {
-                sp--;
                 if (num_pairs >= 64) { ok = 0; break; }
+                sp--;
                 pair_open[num_pairs] = open_stack[sp];
                 pair_close[num_pairs] = j;
+                pair_close_half[num_pairs] = 0;
                 num_pairs++;
-                if (sp == 0) { outer_close = j; break; }
+                if (sp == 0) { outer_close = j; outer_fused_half = 0; break; }
+            }
+            else if (is_fused_gt_gt(t))
+            {
+                /* `>>` closes two generic levels at once. */
+                if (sp < 2 || num_pairs + 2 > 64) { ok = 0; break; }
+                sp--;
+                pair_open[num_pairs] = open_stack[sp];
+                pair_close[num_pairs] = j;
+                pair_close_half[num_pairs] = 0;
+                num_pairs++;
+
+                sp--;
+                pair_open[num_pairs] = open_stack[sp];
+                pair_close[num_pairs] = j;
+                pair_close_half[num_pairs] = 1;
+                num_pairs++;
+
+                if (sp == 0) { outer_close = j; outer_fused_half = 1; break; }
             }
             else if (!allowed_inside_generic(t->type))
             {
@@ -468,9 +499,84 @@ static void classify_generics(FT *tokens, int count)
 
         if (!ok || outer_close < 0) continue;
 
-        /* Check what follows the outer `>`. */
+        /* Check the token that follows the entire classified region. If the
+         * outer close sits in a fused `>>`, the following token is still the
+         * one originally at outer_close + 1 — splitting doesn't change what's
+         * beyond the fused position. */
         FTType next = tokens[outer_close + 1].type;  /* FT_END sentinel is safe */
         if (!allowed_after_generic_close(next)) continue;
+
+        /* Collect the unique fused-close positions, process them right-to-left,
+         * and split each `>>` into two single-`>` BINOP tokens. Processing
+         * right-to-left keeps earlier indices valid; we still patch the
+         * recorded pair_open / pair_close entries that live to the right of
+         * each split so they remain accurate. */
+        int fused_positions[64];
+        int num_fused = 0;
+        for (int k = 0; k < num_pairs; k++)
+        {
+            if (pair_close_half[k] != 1) continue;
+            int dup = 0;
+            for (int m = 0; m < num_fused; m++)
+                if (fused_positions[m] == pair_close[k]) { dup = 1; break; }
+            if (!dup) fused_positions[num_fused++] = pair_close[k];
+        }
+        /* Insertion sort descending. */
+        for (int a = 1; a < num_fused; a++)
+        {
+            int key = fused_positions[a];
+            int b = a - 1;
+            while (b >= 0 && fused_positions[b] < key)
+            {
+                fused_positions[b + 1] = fused_positions[b];
+                b--;
+            }
+            fused_positions[b + 1] = key;
+        }
+
+        int split_outer = 0;
+        for (int a = 0; a < num_fused; a++)
+        {
+            int fp = fused_positions[a];
+            if (*count + 1 > MAX_LINE_TOKENS) { ok = 0; break; }
+            /* Shift tokens[fp+1 .. *count-1] right by one slot (and carry the
+             * FT_END sentinel if it sits just past *count). */
+            int last = *count;
+            for (int k = last; k > fp; k--)
+                tokens[k + 1] = tokens[k];
+            /* Split the `>>` at fp. tokens[fp+1] is a fresh copy after the
+             * shift — retarget it at the second `>` character. */
+            tokens[fp].len = 1;
+            tokens[fp + 1] = tokens[fp];
+            tokens[fp + 1].text = tokens[fp].text + 1;
+            (*count)++;
+
+            /* Fix up recorded indices for everything strictly to the right
+             * of fp (opens and closes of other pairs). */
+            for (int k = 0; k < num_pairs; k++)
+            {
+                if (pair_open[k] > fp) pair_open[k]++;
+                if (pair_close[k] > fp) pair_close[k]++;
+            }
+            /* Any second-half close that sat at fp now lives at fp+1. */
+            for (int k = 0; k < num_pairs; k++)
+            {
+                if (pair_close[k] == fp && pair_close_half[k] == 1)
+                    pair_close[k] = fp + 1;
+            }
+            if (outer_close == fp && outer_fused_half == 1)
+            {
+                outer_close = fp + 1;
+                split_outer = 1;
+            }
+            else if (outer_close > fp)
+            {
+                outer_close++;
+            }
+        }
+        (void)split_outer;
+
+        if (!ok) continue;
 
         /* All checks passed — reclassify every recorded pair. */
         for (int k = 0; k < num_pairs; k++)
@@ -514,10 +620,6 @@ static int needs_space(FT *prev, FT *cur)
 {
     FTType p = prev->type;
     FTType c = cur->type;
-
-    /* Two adjacent generic closes must stay separated so they do not fuse
-     * into a `>>` right-shift token when the output is re-lexed. */
-    if (p == FT_ANGLE_CLOSE && c == FT_ANGLE_CLOSE) return 1;
 
     /* No space after opening delimiters */
     if (p == FT_OPEN_PAREN || p == FT_OPEN_BRACKET || p == FT_ANGLE_OPEN) return 0;
@@ -613,13 +715,17 @@ static int find_close_brace(FT *tokens, int count, int open_idx)
 }
 
 /* Is the { at brace_idx the start of a struct initializer?
- * Heuristic: preceded by WORD, and first content is WORD COLON or empty. */
+ * Keyed on content: non-empty braces whose first tokens are WORD COLON are
+ * always a struct init, whether the brace is preceded by a type name (named
+ * form `Name { ... }`) or by `=` / `,` / `:` (inferred form `var x: T = { ... }`,
+ * nested field, etc.). Empty braces `{}` only count when preceded by a type
+ * name so we don't misclassify empty array literals. */
 static int is_struct_init_at(FT *tokens, int count, int brace_idx)
 {
-    if (brace_idx <= 0 || tokens[brace_idx - 1].type != FT_WORD) return 0;
     int j = brace_idx + 1;
     if (j >= count) return 0;
-    if (tokens[j].type == FT_CLOSE_BRACE) return 1; /* empty: Name {} */
+    if (tokens[j].type == FT_CLOSE_BRACE)
+        return brace_idx > 0 && tokens[brace_idx - 1].type == FT_WORD;
     if (j + 1 < count && tokens[j].type == FT_WORD && tokens[j + 1].type == FT_COLON)
         return 1;
     return 0;
@@ -646,6 +752,94 @@ static int count_fields_at(FT *tokens, int count, int brace_idx)
             fields++;
     }
     return fields;
+}
+
+/* Length in tokens of a type reference starting at `start`, or 0 if the
+ * tokens there don't form one. Recognizes a bare `WORD` and a generic
+ * `WORD ANGLE_OPEN ... ANGLE_CLOSE` (with arbitrary nesting). Array suffixes
+ * like `T[]` are intentionally not supported — array literals don't use a
+ * leading type name, so they never appear in the pattern we rewrite. */
+static int type_seq_len(FT *tokens, int count, int start)
+{
+    if (start >= count || tokens[start].type != FT_WORD) return 0;
+    int i = start + 1;
+    if (i < count && tokens[i].type == FT_ANGLE_OPEN)
+    {
+        int depth = 1;
+        i++;
+        while (i < count && depth > 0)
+        {
+            if (tokens[i].type == FT_ANGLE_OPEN) depth++;
+            else if (tokens[i].type == FT_ANGLE_CLOSE) depth--;
+            i++;
+        }
+        if (depth != 0) return 0;
+    }
+    return i - start;
+}
+
+static int type_seqs_equal(FT *a, FT *b, int len)
+{
+    for (int k = 0; k < len; k++)
+    {
+        if (a[k].type != b[k].type) return 0;
+        if (a[k].len != b[k].len) return 0;
+        if (memcmp(a[k].text, b[k].text, a[k].len) != 0) return 0;
+    }
+    return 1;
+}
+
+/* Strip a redundant type name on the RHS of a declaration:
+ * `var x: T = T { ... }` becomes `var x: T = { ... }`, and similarly for
+ * generic types like `Stack<int> = Stack<int> { ... }`.
+ *
+ * Matches `COLON <type-seq> EQUAL <type-seq> OPEN_BRACE ...` where the two
+ * type sequences are byte-identical. The brace must be empty or start with
+ * a `WORD COLON` field so we don't rewrite an array literal like `{1, 2, 3}`. */
+static void strip_redundant_struct_type(FT *tokens, int *count)
+{
+    int n = *count;
+    int i = 0;
+    while (i < n)
+    {
+        if (tokens[i].type != FT_COLON) { i++; continue; }
+        int lhs_len = type_seq_len(tokens, n, i + 1);
+        if (lhs_len == 0) { i++; continue; }
+        int eq = i + 1 + lhs_len;
+        if (eq >= n || tokens[eq].type != FT_EQUAL) { i++; continue; }
+        int rhs_start = eq + 1;
+        int rhs_len = type_seq_len(tokens, n, rhs_start);
+        if (rhs_len == 0) { i++; continue; }
+        int brace = rhs_start + rhs_len;
+        if (brace >= n || tokens[brace].type != FT_OPEN_BRACE) { i++; continue; }
+        /* Brace body must be empty `{}`, start with `WORD COLON`, or continue
+         * on subsequent lines (brace is the last token on this line). The
+         * third case covers multi-line struct literals where the body sits
+         * on the following lines — the LHS/RHS type-sequence match already
+         * makes the intent unambiguous. */
+        int body = brace + 1;
+        int ok = 0;
+        if (body >= n)
+            ok = 1;
+        else if (tokens[body].type == FT_CLOSE_BRACE)
+            ok = 1;
+        else if (body + 1 < n && tokens[body].type == FT_WORD &&
+                 tokens[body + 1].type == FT_COLON)
+            ok = 1;
+        if (!ok) { i++; continue; }
+        if (lhs_len != rhs_len) { i++; continue; }
+        if (!type_seqs_equal(&tokens[i + 1], &tokens[rhs_start], lhs_len))
+        {
+            i++;
+            continue;
+        }
+        /* Drop the RHS type sequence. */
+        for (int j = rhs_start; j + rhs_len < n; j++)
+            tokens[j] = tokens[j + rhs_len];
+        n -= rhs_len;
+        i++;
+    }
+    *count = n;
 }
 
 /* Find the end of a struct init field starting at 'start'.
@@ -1068,7 +1262,8 @@ static char *format_source(const char *source)
         /* ---- Code line ---- */
         FT tokens[MAX_LINE_TOKENS];
         int count = tokenize_line(content, line_end, tokens);
-        classify_generics(tokens, count);
+        classify_generics(tokens, &count);
+        strip_redundant_struct_type(tokens, &count);
 
         if (count > 0)
         {

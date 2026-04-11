@@ -7,5 +7,5 @@ struct Foo =>
     return 0
 
 fn main(): void =>
-  var f: Foo = Foo { value: 1 }
+  var f: Foo = {value: 1}
   print($"{f.value}\n")

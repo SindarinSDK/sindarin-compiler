@@ -12,6 +12,6 @@ struct Score =>
 fn check(a: Comparable): void => return
 
 fn main(): int =>
-  var s: Score = Score { value: 5 }
+  var s: Score = {value: 5}
   check(s)
   return 0

@@ -1,51 +1,51 @@
 # Test: Generic struct method returning another generic struct
 # Exercises: resolve_generic_instantiation resolving TYPE_STRUCT forward-ref type args
 
-struct Wrapper < T > =>
+struct Wrapper<T> =>
   value: T
 
   fn get(): T =>
     return self.value
 
-struct Factory < T > =>
+struct Factory<T> =>
   default_val: T
 
-  fn wrap(item: T): Wrapper < T > =>
-    return Wrapper < T > {value: item}
+  fn wrap(item: T): Wrapper<T> =>
+    return Wrapper<T> {value: item}
 
-  fn wrapDefault(): Wrapper < T > =>
-    return Wrapper < T > {value: self.default_val}
+  fn wrapDefault(): Wrapper<T> =>
+    return Wrapper<T> {value: self.default_val}
 
 fn main(): int =>
   # Test 1: Factory<int>.wrap() returns Wrapper<int>
-  var fi: Factory < int > = Factory < int > {default_val: 0}
-  var wi: Wrapper < int > = fi.wrap(42)
+  var fi: Factory<int> = {default_val: 0}
+  var wi: Wrapper<int> = fi.wrap(42)
   if wi.get() != 42 =>
     print("FAIL: Wrapper<int> value should be 42\n")
     return 1
   print("Test 1 passed: Factory<int>.wrap(42)\n")
 
   # Test 2: Factory<str>.wrap() returns Wrapper<str>
-  var fs: Factory < str > = Factory < str > {default_val: ""}
-  var ws: Wrapper < str > = fs.wrap("hello")
+  var fs: Factory<str> = {default_val: ""}
+  var ws: Wrapper<str> = fs.wrap("hello")
   if ws.get() != "hello" =>
     print("FAIL: Wrapper<str> value should be hello\n")
     return 1
   print("Test 2 passed: Factory<str>.wrap(hello)\n")
 
   # Test 3: Factory<int>.wrapDefault()
-  var fi2: Factory < int > = Factory < int > {default_val: 99}
-  var wd: Wrapper < int > = fi2.wrapDefault()
+  var fi2: Factory<int> = {default_val: 99}
+  var wd: Wrapper<int> = fi2.wrapDefault()
   if wd.get() != 99 =>
     print("FAIL: Wrapper<int> default should be 99\n")
     return 1
   print("Test 3 passed: Factory<int>.wrapDefault()\n")
 
   # Test 4: Multiple instantiations of same nested pattern
-  var fa: Factory < int > = Factory < int > {default_val: 1}
-  var fb: Factory < int > = Factory < int > {default_val: 2}
-  var wa: Wrapper < int > = fa.wrap(10)
-  var wb: Wrapper < int > = fb.wrap(20)
+  var fa: Factory<int> = {default_val: 1}
+  var fb: Factory<int> = {default_val: 2}
+  var wa: Wrapper<int> = fa.wrap(10)
+  var wb: Wrapper<int> = fb.wrap(20)
   if wa.get() != 10 =>
     print("FAIL: wa should be 10\n")
     return 1

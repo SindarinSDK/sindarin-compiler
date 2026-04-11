@@ -1,7 +1,10 @@
-struct Pair < T, U > =>
+struct Pair<T, U> =>
   first: T
   second: U
 
 fn main(): int =>
-  var p: Pair < int > = Pair < int > {first: 1, second: 2}
+  var p: Pair<int> = {
+    first: 1,
+    second: 2
+  }
   return 0

@@ -17,14 +17,14 @@ struct Rectangle =>
 
 fn test_simple_struct_escape(): void =>
   # Outer variable declared before if-block
-  var outer: Point = Point {
+  var outer: Point = {
     x: 0,
     y: 0
   }
 
   if true =>
     # Inner struct created in if-block scope
-    var inner: Point = Point {
+    var inner: Point = {
       x: 42,
       y: 99
     }
@@ -43,13 +43,13 @@ fn test_simple_struct_escape(): void =>
 
 fn test_struct_with_string_escape(): void =>
   # Test struct containing string field
-  var outer: Person = Person {
+  var outer: Person = {
     name: "default",
     age: 0
   }
 
   if true =>
-    var inner: Person = Person {
+    var inner: Person = {
       name: "Alice",
       age: 30
     }
@@ -66,14 +66,14 @@ fn test_struct_with_string_escape(): void =>
 
 fn test_conditional_struct_escape(): void =>
   # Test struct escape with actual condition
-  var result: Point = Point {
+  var result: Point = {
     x: 0,
     y: 0
   }
   var condition: bool = true
 
   if condition =>
-    var p: Point = Point {
+    var p: Point = {
       x: 100,
       y: 200
     }
@@ -90,13 +90,13 @@ fn test_conditional_struct_escape(): void =>
 
 fn test_struct_escape_with_defaults(): void =>
   # Test that default values are preserved during escape
-  var outer: Rectangle = Rectangle {
+  var outer: Rectangle = {
     width: 0,
     height: 0
   }
 
   if true =>
-    var inner: Rectangle = Rectangle {
+    var inner: Rectangle = {
       width: 50,
       height: 75
     }
@@ -117,14 +117,14 @@ fn test_struct_escape_with_defaults(): void =>
 
 fn test_nested_if_struct_escape(): void =>
   # Test struct escape from nested if-blocks
-  var outer: Point = Point {
+  var outer: Point = {
     x: 0,
     y: 0
   }
 
   if true =>
     if true =>
-      var deep: Point = Point {
+      var deep: Point = {
         x: 111,
         y: 222
       }
@@ -141,13 +141,13 @@ fn test_nested_if_struct_escape(): void =>
 
 fn test_multiple_struct_escapes(): void =>
   # Test multiple assignments from different if-blocks
-  var result: Point = Point {
+  var result: Point = {
     x: 0,
     y: 0
   }
 
   if true =>
-    var first: Point = Point {
+    var first: Point = {
       x: 10,
       y: 20
     }
@@ -158,7 +158,7 @@ fn test_multiple_struct_escapes(): void =>
     return
 
   if true =>
-    var second: Point = Point {
+    var second: Point = {
       x: 30,
       y: 40
     }

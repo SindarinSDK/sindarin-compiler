@@ -16,7 +16,7 @@ struct App =>
   config: Config
 
 fn buildApp(): App =>
-  var cfg: Config = Config {
+  var cfg: Config = {
     name: "myapp",
     entries: {}
   }
@@ -28,7 +28,7 @@ fn buildApp(): App =>
     key: "port",
     value: "8080"
   })
-  var app: App = App {
+  var app: App = {
     version: "1.0",
     config: cfg
   }

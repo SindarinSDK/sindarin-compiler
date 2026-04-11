@@ -15,7 +15,7 @@ struct Request =>
   static fn parse(raw: str): Request =>
     var normalized: str = raw.replace("\r\n", "\n")
     var lines: str[] = normalized.split("\n")
-    var req: Request = Request {
+    var req: Request = {
       method: "",
       path: "",
       headers: {},
@@ -90,7 +90,7 @@ fn main(): void =>
     print($"FAIL: host={host}\n")
     return
 
-  var resp: Response = Response {
+  var resp: Response = {
     status: 200,
     body: "Hello"
   }

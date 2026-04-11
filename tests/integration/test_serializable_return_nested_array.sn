@@ -40,7 +40,7 @@ fn decodeResponse(payload: str): Response =>
 
 fn main(): void =>
   // Build a Response with nested structs containing arrays
-  var d: Detail = Detail {
+  var d: Detail = {
     id: "p1", modelId: "gnn", action: "buy", confidence: 0.45,
     distribution: {
       Item {
@@ -57,10 +57,10 @@ fn main(): void =>
       }
     }
   }
-  var s: Summary = Summary {
+  var s: Summary = {
     id: "e1", vector: {0.1, 0.2, 0.3, 0.4}, dimension: 4
   }
-  var resp: Response = Response {
+  var resp: Response = {
     detail: d,
     summary: s
   }

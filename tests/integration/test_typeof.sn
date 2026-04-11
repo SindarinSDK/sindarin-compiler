@@ -36,7 +36,7 @@ fn main(): void =>
   println("test_primitive_bool: PASS")
 
   // --- typeOf on struct types ---
-  var p: Point = Point {
+  var p: Point = {
     x: 1.0,
     y: 2.0
   }
@@ -55,7 +55,7 @@ fn main(): void =>
   println("test_field_iteration: PASS")
 
   // --- Person struct ---
-  var person: Person = Person {
+  var person: Person = {
     name: "Alice",
     age: 30
   }
@@ -69,7 +69,7 @@ fn main(): void =>
   println("test_struct_person: PASS")
 
   // --- Type ID comparison ---
-  var p2: Point = Point {
+  var p2: Point = {
     x: 3.0,
     y: 4.0
   }

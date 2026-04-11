@@ -11,7 +11,7 @@ struct Response =>
   headers: Header[]
 
 fn createResponse(): Response =>
-  var res: Response = Response {
+  var res: Response = {
     code: 200,
     headers: {}
   }

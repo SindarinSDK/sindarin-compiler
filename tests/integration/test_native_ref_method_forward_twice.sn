@@ -53,7 +53,7 @@ fn useForwardSafe(model: Model): void =>
 
 fn main(): void =>
   # Test 1: Control path — forwardSafe uses local variables
-  var m1: Model = Model {
+  var m1: Model = {
     w1: Handle { _id: 10 },
     w2: Handle { _id: 20 }
   }
@@ -62,7 +62,7 @@ fn main(): void =>
   println($"test1 after: w1={m1.w1.value()} w2={m1.w2.value()}")
 
   # Test 2: Bug path — forward uses EXPR_MEMBER in struct literal
-  var m2: Model = Model {
+  var m2: Model = {
     w1: Handle { _id: 30 },
     w2: Handle { _id: 40 }
   }

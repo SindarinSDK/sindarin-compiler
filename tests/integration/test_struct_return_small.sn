@@ -32,15 +32,15 @@ fn createColor(r: byte, g: byte, b: byte): Color =>
 
 # Function returning nested struct
 fn createRectangle(x1: int, y1: int, x2: int, y2: int): Rectangle =>
-  var tl: Point = Point {
+  var tl: Point = {
     x: x1,
     y: y1
   }
-  var br: Point = Point {
+  var br: Point = {
     x: x2,
     y: y2
   }
-  var c: Color = Color {
+  var c: Color = {
     r: 255,
     g: 0,
     b: 0

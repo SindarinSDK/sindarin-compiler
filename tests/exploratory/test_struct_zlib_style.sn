@@ -52,7 +52,7 @@ native fn stream_end(strm: StreamState as ref): void =>
 native fn test_basic_streaming(): bool =>
   print("Test 1: Basic streaming pattern (zlib-style)\n")
 
-  var strm: StreamState = StreamState {}
+  var strm: StreamState = {}
 
   if !stream_init(strm) =>
     print("  FAIL: stream_init failed\n")
@@ -93,7 +93,7 @@ native fn test_basic_streaming(): bool =>
 native fn test_multi_chunk(): bool =>
   print("Test 2: Multi-chunk streaming\n")
 
-  var strm: StreamState = StreamState {}
+  var strm: StreamState = {}
   stream_init(strm)
 
   // Set large output buffer
@@ -127,7 +127,7 @@ native fn test_multi_chunk(): bool =>
 native fn test_output_exhaustion(): bool =>
   print("Test 3: Output buffer exhaustion handling\n")
 
-  var strm: StreamState = StreamState {}
+  var strm: StreamState = {}
   stream_init(strm)
 
   // Large input (10 bytes)
@@ -161,7 +161,7 @@ native fn test_output_exhaustion(): bool =>
 native fn test_resume_streaming(): bool =>
   print("Test 4: Resume streaming after buffer refill\n")
 
-  var strm: StreamState = StreamState {}
+  var strm: StreamState = {}
   stream_init(strm)
 
   // Set up 20 bytes of input

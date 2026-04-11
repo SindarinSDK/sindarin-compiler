@@ -586,7 +586,7 @@ Expr *parser_primary(Parser *parser)
                 type_args = arena_alloc(parser->arena, sizeof(Type *) * capacity);
 
                 bool parse_ok = true;
-                if (!parser_check(parser, TOKEN_GREATER))
+                if (!parser_check_generic_close(parser))
                 {
                     do
                     {
@@ -604,9 +604,9 @@ Expr *parser_primary(Parser *parser)
                     } while (parser_match(parser, TOKEN_COMMA));
                 }
 
-                if (parse_ok && parser_check(parser, TOKEN_GREATER))
+                if (parse_ok && parser_check_generic_close(parser))
                 {
-                    parser_advance(parser);  /* consume '>' */
+                    parser_consume_generic_close(parser, "Expected '>' after type arguments");
 
                     if (parser_check(parser, TOKEN_LEFT_BRACE))
                     {
@@ -690,26 +690,43 @@ Expr *parser_primary(Parser *parser)
         return expr;
     }
 
-    /* Struct literal inferred from declared type: var x: MyStruct = { field: value } */
-    if (parser_check(parser, TOKEN_LEFT_BRACE) &&
-        inferred_type != NULL &&
-        inferred_type->kind == TYPE_STRUCT &&
-        inferred_type->as.struct_type.name != NULL)
+    /* Struct literal inferred from declared type: var x: MyStruct = { field: value }
+     * or, for generic types, var x: Stack<int> = { field: value }. In the generic
+     * case the inferred type carries the concrete type arguments via TYPE_GENERIC_INST
+     * and we thread that through as the struct literal's type_annotation so the
+     * type checker can monomorphize the template. */
+    if (parser_check(parser, TOKEN_LEFT_BRACE) && inferred_type != NULL)
     {
-        /* Verify the inferred type is a known struct in the symbol table */
-        const char *struct_name = inferred_type->as.struct_type.name;
-        Token name_token;
-        name_token.start = struct_name;
-        name_token.length = (int)strlen(struct_name);
-        name_token.type = TOKEN_IDENTIFIER;
-        name_token.line = parser->current.line;
-        name_token.filename = parser->current.filename;
-
-        Symbol *type_symbol = symbol_table_lookup_type(parser->symbol_table, name_token);
-        if (type_symbol != NULL && type_symbol->type != NULL &&
-            type_symbol->type->kind == TYPE_STRUCT)
+        const char *struct_name = NULL;
+        if (inferred_type->kind == TYPE_STRUCT &&
+            inferred_type->as.struct_type.name != NULL)
         {
-            return parse_struct_literal(parser, &name_token);
+            struct_name = inferred_type->as.struct_type.name;
+        }
+        else if (inferred_type->kind == TYPE_GENERIC_INST &&
+                 inferred_type->as.generic_inst.template_name != NULL)
+        {
+            struct_name = inferred_type->as.generic_inst.template_name;
+        }
+
+        if (struct_name != NULL)
+        {
+            Token name_token;
+            name_token.start = struct_name;
+            name_token.length = (int)strlen(struct_name);
+            name_token.type = TOKEN_IDENTIFIER;
+            name_token.line = parser->current.line;
+            name_token.filename = parser->current.filename;
+
+            Symbol *type_symbol = symbol_table_lookup_type(parser->symbol_table, name_token);
+            if (type_symbol != NULL && type_symbol->type != NULL &&
+                type_symbol->type->kind == TYPE_STRUCT)
+            {
+                Expr *lit = parse_struct_literal(parser, &name_token);
+                if (lit != NULL && inferred_type->kind == TYPE_GENERIC_INST)
+                    lit->as.struct_literal.type_annotation = inferred_type;
+                return lit;
+            }
         }
     }
 

@@ -87,7 +87,7 @@ struct Versioned =>
     return self.compare(other) == -1
 
   fn bumpMajor(): Versioned =>
-    var result: Versioned = Versioned {
+    var result: Versioned = {
       major: self.major + 1,
       minor: 0,
       patch: 0,
@@ -96,7 +96,7 @@ struct Versioned =>
     return result
 
   fn bumpMinor(): Versioned =>
-    var result: Versioned = Versioned {
+    var result: Versioned = {
       major: self.major,
       minor: self.minor + 1,
       patch: 0,
@@ -112,7 +112,7 @@ struct Versioned =>
 
 fn main(): int =>
   # --- Calculator: int methods calling int methods, with str field ---
-  var calc: Calculator = Calculator {
+  var calc: Calculator = {
     value: 5,
     label: "calc"
   }
@@ -123,7 +123,7 @@ fn main(): int =>
   print($"describeDoubled: {calc.describeDoubled()}\n")
 
   # --- TextProcessor: string methods on self fields, chained self calls ---
-  var tp: TextProcessor = TextProcessor { text: "  hello  " }
+  var tp: TextProcessor = {text: "  hello  "}
   print($"getText: [{tp.getText()}]\n")
   print($"trimmed: [{tp.trimmed()}]\n")
   print($"upper: [{tp.upper()}]\n")
@@ -133,18 +133,18 @@ fn main(): int =>
   print($"isNotEmpty: {tp.isNotEmpty()}\n")
   print($"describe: {tp.describe()}\n")
 
-  var empty: TextProcessor = TextProcessor { text: "" }
+  var empty: TextProcessor = {text: ""}
   print($"empty.isEmpty: {empty.isEmpty()}\n")
   print($"empty.describe: {empty.describe()}\n")
 
   # --- Versioned: self.compare() pattern, struct return from method ---
-  var v1: Versioned = Versioned {
+  var v1: Versioned = {
     major: 1,
     minor: 2,
     patch: 3,
     tag: "beta"
   }
-  var v2: Versioned = Versioned {
+  var v2: Versioned = {
     major: 2,
     minor: 0,
     patch: 0,

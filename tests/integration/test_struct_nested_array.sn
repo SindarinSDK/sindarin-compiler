@@ -47,7 +47,7 @@ fn main(): void =>
   print("Test 2 - Array of structs with defaults passed\n")
 
   # Test 3: Struct containing array of structs
-  var shape1: Shape = Shape {
+  var shape1: Shape = {
     name: "triangle",
     points: { Point {
       x: 0.0,
@@ -63,7 +63,7 @@ fn main(): void =>
   print("Test 3 - Struct containing array of structs passed\n")
 
   # Test 4: Struct containing array of structs with outer defaults
-  var shape2: Shape = Shape {
+  var shape2: Shape = {
     name: "line",
     points: { Point {
       x: 0.0,
@@ -77,18 +77,18 @@ fn main(): void =>
   print("Test 4 - Struct containing array with outer defaults passed\n")
 
   # Test 5: Struct containing array of structs with defaults
-  var settings1: Settings = Settings { configs: { Config {}, Config { name: "test" } } }
+  var settings1: Settings = {configs: { Config {}, Config { name: "test" } }}
   print("Test 5 - Struct containing array of structs with defaults passed\n")
 
   # Test 6: Empty array in struct
-  var shape3: Shape = Shape {
+  var shape3: Shape = {
     name: "empty",
     points: {}
   }
   print("Test 6 - Empty array in struct passed\n")
 
   # Test 7: Container with nested array of structs
-  var container1: Container = Container {
+  var container1: Container = {
     label: "shapes",
     shapes: { Shape {
       name: "square",
@@ -110,7 +110,7 @@ fn main(): void =>
   print("Test 7 - Container with nested array of structs passed\n")
 
   # Test 8: Container with multiple shapes
-  var container2: Container = Container {
+  var container2: Container = {
     label: "multi",
     shapes: { Shape {
       name: "line1",
@@ -137,7 +137,7 @@ fn main(): void =>
   print("Test 8 - Container with multiple shapes passed\n")
 
   # Test 9: Single element array
-  var single: Shape = Shape {
+  var single: Shape = {
     name: "dot",
     points: { Point {
       x: 5.0,

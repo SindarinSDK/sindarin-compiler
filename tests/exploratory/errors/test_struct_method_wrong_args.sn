@@ -9,7 +9,7 @@ struct Counter =>
     return self.value
 
 fn main(): int =>
-  var c: Counter = Counter { value: 42 }
+  var c: Counter = {value: 42}
   # Try to call a method with too few arguments
   var x: int = c.addValue()
   return 0
