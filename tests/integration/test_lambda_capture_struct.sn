@@ -1,35 +1,23 @@
 // Regression: a lambda captures both a native pointer (db-like) AND a
 // user-struct (metrics-client-like) from outer scope. The user-struct has
 // string fields, an array field, and int fields, and is created via a
-// static factory. Two background threads borrow / take the same user
-// struct: one by `as ref`, one by value. The lambda is then passed to a
-// higher-order function in a SEPARATE module which invokes it many times.
+// static factory. Two background threads take the user struct by value
+// (the compiler inserts a deep copy into the thread args). The lambda is
+// then passed to a higher-order function in a SEPARATE module which
+// invokes it many times.
 //
-// Inside the lambda, the captured user-struct's fields read garbage when
-// the lambda passes the struct (by pointer) to a helper function. ASAN
-// catches it as `stack-use-after-return` in the spawned thread reading
-// memory that was on a returned function's stack frame.
+// The lambda captures the struct by value; the closure environment must
+// hold its own deep copy (see __closure_N_struct_cleanup__ in the
+// generated C). Without that, the closure shares heap pointers with
+// main's local and ASAN reports a use-after-free once main's sn_auto
+// cleanup runs.
 //
-// Found in skynet (sindarin/skynet) where each service's main does:
-// var metricsClient: MetricsClient = MetricsClient.create(...)
-// var h1: int = & metricsClientFlushLoop(metricsClient)         // borrows as ref
-// h1 ~
-// var ctx: ServiceContext = startService(serviceConfig)
-// var h2: int = & acceptLoop(ctx.listener, dbUrl, metricsClient) // takes by value (deep copy)
-// h2 ~
-// runWorkLoop(ctx, fn(stream): int => handleWorkStream(stream, db, metricsClient))
-//
-// gdb of the crashed handleWorkStream call frame showed metricsClient fields
-// containing unrelated data — a millisecond timestamp where maxBatchSize
-// should have been, an unreadable pointer where source should have been,
-// and a 1.0 IEEE-754 double pattern where one of the string slots should
-// have been. The same struct in main's own scope read correctly, and the
-// native pointer (db) captured fine.
-//
-// The bug is intermittent under ASAN — it depends on thread scheduling
-// for the corruption to land before the lambda is invoked. The test runner
-// has caught it; the regression test exists so any progress on the
-// underlying compiler issue does not silently regress.
+// Passing a value-struct `as ref` to a thread spawn is intentionally a
+// compile error (see tests/integration/errors/test_thread_spawn_as_ref_composite.sn)
+// because the raw pointer into main's stack frame cannot safely cross a
+// thread boundary. Skynet services that want shared mutable state across
+// threads should declare the struct as `struct X as ref => ...` so that
+// retain/release manages lifetime instead.
 
 import "lib/higher_order"
 
@@ -54,9 +42,10 @@ struct Captured =>
       flushIntervalMs: flushInterval
     }
 
-# Borrows as ref. Mirrors metricsClientFlushLoop.
-fn flushLoop(c: Captured as ref): int =>
-  # Touch the fields so the borrow is real, but do not print (would race
+# Takes by value (thread spawn deep-copies into its own args struct).
+# Mirrors a flush-loop service task that reads the captured config.
+fn flushLoop(c: Captured): int =>
+  # Touch the fields so the read is real, but do not print (would race
   # with main's output and make the test non-deterministic on success).
   var len: int = c.source.length + c.addr.length
   return len

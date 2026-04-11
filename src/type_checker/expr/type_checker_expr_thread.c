@@ -82,6 +82,48 @@ Type *type_check_thread_spawn(Expr *expr, SymbolTable *table)
         return NULL;
     }
 
+    /* Reject passing a non-refcounted (value-type) struct by reference to a
+     * thread spawn. A raw pointer into the caller's stack frame cannot safely
+     * cross a thread boundary: the thread may outlive the frame (detached
+     * case) or, even under join, the caller's sn_auto cleanup can fire before
+     * the thread's read completes, freeing any heap-owned fields.
+     *
+     * Refcounted structs (declared `struct X as ref => ...`, i.e.
+     * pass_self_by_ref == true) are exempt — retain/release manages their
+     * lifetime across threads. Primitives passed by ref are also exempt;
+     * this check only targets composite TYPE_STRUCT args. */
+    MemoryQualifier *pmq = func_type->as.function.param_mem_quals;
+    int pcount = func_type->as.function.param_count;
+    int arg_count = call->as.call.arg_count;
+    int check_count = pcount < arg_count ? pcount : arg_count;
+    for (int i = 0; i < check_count; i++)
+    {
+        if (pmq == NULL || pmq[i] != MEM_AS_REF)
+            continue;
+        Expr *arg_expr = call->as.call.arguments[i];
+        if (arg_expr == NULL || arg_expr->expr_type == NULL)
+            continue;
+        Type *at = arg_expr->expr_type;
+        if (at->kind != TYPE_STRUCT)
+            continue;
+        if (at->as.struct_type.pass_self_by_ref)
+            continue;
+
+        const char *sname = at->as.struct_type.name != NULL
+                              ? at->as.struct_type.name : "<anonymous>";
+        char msg[768];
+        snprintf(msg, sizeof(msg),
+            "Cannot pass struct '%s' by reference to a thread spawn: "
+            "references to stack-allocated structs cannot safely cross "
+            "thread boundaries. Either: (a) drop 'as ref' from the "
+            "parameter so the thread receives a deep copy, or (b) declare "
+            "'struct %s as ref => ...' so it is reference-counted, "
+            "allowing retain/release across threads.",
+            sname, sname);
+        type_error(expr->token, msg);
+        return NULL;
+    }
+
     /* Extract return type from function type */
     Type *return_type = func_type->as.function.return_type;
 

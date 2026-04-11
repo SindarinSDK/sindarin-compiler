@@ -1,0 +1,24 @@
+# Error test: passing a non-refcounted value-struct by reference to a
+# thread spawn is rejected. The raw pointer into the caller's frame cannot
+# safely cross thread boundaries; the user must either drop `as ref` (so
+# the spawn deep-copies) or declare the struct as refcounted.
+
+struct Captured =>
+  source: str
+  addr: str
+  maxBatchSize: int
+
+fn flushLoop(c: Captured as ref): int =>
+  return c.source.length + c.addr.length
+
+fn main(): int =>
+  var c: Captured = {
+    source: "hello",
+    addr: "world",
+    maxBatchSize: 100
+  }
+
+  var h: int = & flushLoop(c)
+  h ~
+
+  return 0
