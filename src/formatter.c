@@ -129,6 +129,8 @@ typedef enum
     FT_CLOSE_BRACE,      /* } */
     FT_OPEN_BRACKET,     /* [ */
     FT_CLOSE_BRACKET,    /* ] */
+    FT_ANGLE_OPEN,       /* < when part of a generic parameter list (reclassified) */
+    FT_ANGLE_CLOSE,      /* > when part of a generic parameter list (reclassified) */
     FT_END,
 } FTType;
 
@@ -371,6 +373,117 @@ static int tokenize_line(const char *p, const char *line_end, FT *tokens)
     return count;
 }
 
+/* Is this FT_BINOP token the single character `<`? */
+static int is_single_lt(FT *t)
+{
+    return t->type == FT_BINOP && t->len == 1 && t->text[0] == '<';
+}
+
+/* Is this FT_BINOP token the single character `>`? */
+static int is_single_gt(FT *t)
+{
+    return t->type == FT_BINOP && t->len == 1 && t->text[0] == '>';
+}
+
+/* Inside a generic argument list, only these token types are permitted. */
+static int allowed_inside_generic(FTType t)
+{
+    return t == FT_WORD || t == FT_COMMA ||
+           t == FT_OPEN_BRACKET || t == FT_CLOSE_BRACKET;
+}
+
+/* After a closing `>` of a generic, the next token must not be an operand or
+ * anything that would naturally follow a comparison result. This is how we
+ * distinguish `Stack<int> = ...` (generic) from `i < length || ...` (compare). */
+static int allowed_after_generic_close(FTType t)
+{
+    switch (t)
+    {
+    case FT_OPEN_PAREN:
+    case FT_OPEN_BRACE:
+    case FT_OPEN_BRACKET:
+    case FT_CLOSE_PAREN:
+    case FT_CLOSE_BRACE:
+    case FT_CLOSE_BRACKET:
+    case FT_EQUAL:
+    case FT_ARROW:
+    case FT_COLON:
+    case FT_COMMA:
+    case FT_SEMICOLON:
+    case FT_COMPOUND_ASSIGN:
+    case FT_COMMENT:
+    case FT_END:
+        return 1;
+    default:
+        return 0;
+    }
+}
+
+/* Reclassify single-char `<` `>` tokens that form a generic parameter list
+ * from FT_BINOP to FT_ANGLE_OPEN / FT_ANGLE_CLOSE. See the comments on the
+ * helpers above for the detection rules. Handles nested generics via a stack. */
+static void classify_generics(FT *tokens, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        if (!is_single_lt(&tokens[i])) continue;
+        if (i == 0 || tokens[i - 1].type != FT_WORD) continue;
+
+        /* Walk forward, tracking nested angle depth. Record every pair so we
+         * can reclassify them all atomically once the outer match closes. */
+        int open_stack[64];
+        int sp = 0;
+        int pair_open[64];
+        int pair_close[64];
+        int num_pairs = 0;
+        int outer_close = -1;
+        int ok = 1;
+
+        open_stack[sp++] = i;
+        int j = i + 1;
+        while (j < count && sp > 0)
+        {
+            FT *t = &tokens[j];
+            if (is_single_lt(t))
+            {
+                if (sp >= 64) { ok = 0; break; }
+                open_stack[sp++] = j;
+            }
+            else if (is_single_gt(t))
+            {
+                sp--;
+                if (num_pairs >= 64) { ok = 0; break; }
+                pair_open[num_pairs] = open_stack[sp];
+                pair_close[num_pairs] = j;
+                num_pairs++;
+                if (sp == 0) { outer_close = j; break; }
+            }
+            else if (!allowed_inside_generic(t->type))
+            {
+                ok = 0;
+                break;
+            }
+            j++;
+        }
+
+        if (!ok || outer_close < 0) continue;
+
+        /* Check what follows the outer `>`. */
+        FTType next = tokens[outer_close + 1].type;  /* FT_END sentinel is safe */
+        if (!allowed_after_generic_close(next)) continue;
+
+        /* All checks passed — reclassify every recorded pair. */
+        for (int k = 0; k < num_pairs; k++)
+        {
+            tokens[pair_open[k]].type = FT_ANGLE_OPEN;
+            tokens[pair_close[k]].type = FT_ANGLE_CLOSE;
+        }
+
+        /* Skip past the outer close to avoid re-scanning already-classified pairs. */
+        i = outer_close;
+    }
+}
+
 /* ============================================================================
  * Section 3: Spacing rules
  * ============================================================================ */
@@ -402,11 +515,20 @@ static int needs_space(FT *prev, FT *cur)
     FTType p = prev->type;
     FTType c = cur->type;
 
+    /* Two adjacent generic closes must stay separated so they do not fuse
+     * into a `>>` right-shift token when the output is re-lexed. */
+    if (p == FT_ANGLE_CLOSE && c == FT_ANGLE_CLOSE) return 1;
+
     /* No space after opening delimiters */
-    if (p == FT_OPEN_PAREN || p == FT_OPEN_BRACKET) return 0;
+    if (p == FT_OPEN_PAREN || p == FT_OPEN_BRACKET || p == FT_ANGLE_OPEN) return 0;
 
     /* No space before closing delimiters */
-    if (c == FT_CLOSE_PAREN || c == FT_CLOSE_BRACKET) return 0;
+    if (c == FT_CLOSE_PAREN || c == FT_CLOSE_BRACKET || c == FT_ANGLE_CLOSE) return 0;
+
+    /* No space between a type/function name and the `<` that opens its generic
+     * argument list, or between a generic close and a following `(` / `[`. */
+    if (p == FT_WORD && c == FT_ANGLE_OPEN) return 0;
+    if (p == FT_ANGLE_CLOSE && (c == FT_OPEN_PAREN || c == FT_OPEN_BRACKET)) return 0;
 
     /* No space around . */
     if (p == FT_DOT || c == FT_DOT) return 0;
@@ -946,6 +1068,7 @@ static char *format_source(const char *source)
         /* ---- Code line ---- */
         FT tokens[MAX_LINE_TOKENS];
         int count = tokenize_line(content, line_end, tokens);
+        classify_generics(tokens, count);
 
         if (count > 0)
         {
