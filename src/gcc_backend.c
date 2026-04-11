@@ -842,10 +842,25 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
 
     /* Build the link command with all .o files, deduplicating any
      * entries that resolve to the same path (defensive measure against
-     * module name collisions producing duplicate .o references). */
-    char all_objs[8192];
-    int obj_offset = 0;
-    for (int i = 0; i < obj_count && obj_offset < (int)sizeof(all_objs) - PATH_MAX; i++)
+     * module name collisions producing duplicate .o references).
+     *
+     * Size the buffer from the actual path lengths so large projects
+     * (many modules + pragma sources) don't silently drop .o files. */
+    size_t all_objs_size = 16; /* room for leading nul + slack */
+    for (int i = 0; i < obj_count; i++)
+        all_objs_size += strlen(obj_files[i]) + 4; /* space + 2 quotes + nul */
+
+    char *all_objs = malloc(all_objs_size);
+    if (!all_objs)
+    {
+        fprintf(stderr, "Error: out of memory building link command\n");
+        for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+        return false;
+    }
+    all_objs[0] = '\0';
+
+    size_t obj_offset = 0;
+    for (int i = 0; i < obj_count; i++)
     {
         /* Skip if this .o path was already emitted */
         bool dup = false;
@@ -855,8 +870,9 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         }
         if (dup) continue;
 
-        int written = snprintf(all_objs + obj_offset, sizeof(all_objs) - obj_offset, " \"%s\"", obj_files[i]);
-        if (written > 0) obj_offset += written;
+        int written = snprintf(all_objs + obj_offset, all_objs_size - obj_offset,
+                               " \"%s\"", obj_files[i]);
+        if (written > 0) obj_offset += (size_t)written;
     }
 
     char exe_path[PATH_MAX];
@@ -864,7 +880,24 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
     exe_path[sizeof(exe_path) - 1] = '\0';
     normalize_path_separators(exe_path);
 
-    snprintf(command, sizeof(command),
+    /* The link command can easily exceed the fixed 8 KB 'command' buffer
+     * once all_objs is large — allocate a sufficiently sized buffer. */
+    size_t link_cmd_size = all_objs_size
+        + strlen(config->cc) + strlen(mode_cflags) + strlen(config->std)
+        + strlen(config->cflags) + strlen(runtime_lib) + strlen(deps_lib_opt)
+        + strlen(pkg_lib_opt) + strlen(extra_libs) + strlen(config->ldlibs)
+        + strlen(config->ldflags) + strlen(exe_path) + strlen(error_file) + 512;
+
+    char *link_command = malloc(link_cmd_size);
+    if (!link_command)
+    {
+        fprintf(stderr, "Error: out of memory building link command\n");
+        free(all_objs);
+        for (int j = 0; j < obj_count; j++) free(obj_files[j]);
+        return false;
+    }
+
+    snprintf(link_command, link_cmd_size,
         "%s%s%s %s -w -Werror=implicit-function-declaration -std=%s -D_GNU_SOURCE %s "
         "%s \"%s\" "
         "%s %s%s %s %s -o \"%s\" 2>\"%s\"",
@@ -873,7 +906,10 @@ bool gcc_compile_modular(const CCBackendConfig *config, const char *build_dir,
         deps_lib_opt, pkg_lib_opt, extra_libs, config->ldlibs, config->ldflags,
         exe_path, error_file);
 
-    bool link_ok = run_compile_cmd(command, error_file, verbose);
+    bool link_ok = run_compile_cmd(link_command, error_file, verbose);
+
+    free(link_command);
+    free(all_objs);
 
     /* Free obj_files */
     for (int i = 0; i < obj_count; i++) free(obj_files[i]);
