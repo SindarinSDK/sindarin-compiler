@@ -1,0 +1,129 @@
+# Test: value semantics for struct fields of generic type parameter.
+#
+# Pins the four current behaviors (see docs/issues/compiler-problems.36.md):
+#
+# 1. Inside Wrapper<T>.run, self.inner.mutate(...) propagates — later
+# reads on self.inner within the same method see the new value.
+# 2. After wrapper.run() returns, wrapper.inner.<field> reads the new
+# value. The wrapper's own copy is persistently mutated.
+# 3. A caller variable passed into Wrapper<T> { inner: b } at
+# construction time is NOT affected by later wrapper mutations —
+# b was copied at construction, so b and wrapper.inner are two
+# independent instances from that point on.
+# 4. var local: T = self.inner; local.mutate(...) does NOT propagate
+# back into self.inner — `local` is a copy.
+
+struct Box =>
+  flag: bool
+  count: int
+  data: double[]
+
+  fn mutate(v: double): void =>
+    self.flag = true
+    self.count = self.count + 1
+    self.data = {v, v + 1.0, v + 2.0}
+
+struct Wrap < T > =>
+  inner: T
+  ranInsideFlag: bool
+  ranInsideData0: double
+
+  fn runDirect(v: double): void =>
+    self.inner.mutate(v)
+    # Read back via self.inner after the mutate — the trainer's own
+    # subsequent-reads view must see the mutation.
+    self.ranInsideFlag = self.inner.flag
+    self.ranInsideData0 = self.inner.data[0]
+
+  fn runViaLocal(v: double): void =>
+    var local: T = self.inner
+    local.mutate(v)
+
+fn main(): int =>
+  # --- Test 1: direct dispatch mutates the wrapper's copy -----------------
+  var d0: double[] = {0.0, 0.0, 0.0}
+  var b: Box = Box {
+    flag: false,
+    count: 0,
+    data: d0
+  }
+  var w: Wrap < Box > = Wrap < Box > {
+    inner: b,
+    ranInsideFlag: false,
+    ranInsideData0: -1.0
+  }
+  w.runDirect(42.0)
+
+  if !w.ranInsideFlag =>
+    print("FAIL: inside runDirect, self.inner.flag not visible after mutate\n")
+    return 1
+  if w.ranInsideData0 != 42.0 =>
+    print("FAIL: inside runDirect, self.inner.data[0] not visible after mutate\n")
+    return 1
+  print("Test 1 passed: inside-method self-view sees mutation\n")
+
+  # --- Test 2: post-call wrapper.inner reflects the mutation --------------
+  if !w.inner.flag =>
+    print("FAIL: w.inner.flag should be true after runDirect\n")
+    return 1
+  if w.inner.count != 1 =>
+    print("FAIL: w.inner.count should be 1 after runDirect\n")
+    return 1
+  if w.inner.data.length != 3 =>
+    print("FAIL: w.inner.data.length should be 3 after runDirect\n")
+    return 1
+  if w.inner.data[0] != 42.0 =>
+    print("FAIL: w.inner.data[0] should be 42.0 after runDirect\n")
+    return 1
+  if w.inner.data[2] != 44.0 =>
+    print("FAIL: w.inner.data[2] should be 44.0 after runDirect\n")
+    return 1
+  print("Test 2 passed: post-call wrapper.inner reflects mutation\n")
+
+  # --- Test 3: pre-construction caller variable is unaffected -------------
+  # b was copied into w at construction time; value semantics at the
+  # construction boundary mean b retains its original state regardless
+  # of what happens to w.inner afterwards.
+  if b.flag =>
+    print("FAIL: caller's b.flag should remain false (pre-construction copy)\n")
+    return 1
+  if b.count != 0 =>
+    print("FAIL: caller's b.count should remain 0 (pre-construction copy)\n")
+    return 1
+  if b.data.length != 3 =>
+    print("FAIL: caller's b.data.length should remain 3 (pre-construction copy)\n")
+    return 1
+  if b.data[0] != 0.0 =>
+    print("FAIL: caller's b.data[0] should remain 0.0 (pre-construction copy)\n")
+    return 1
+  print("Test 3 passed: pre-construction caller variable unaffected (value semantics)\n")
+
+  # --- Test 4: local-copy-then-mutate does not propagate -----------------
+  var b2: Box = Box {
+    flag: false,
+    count: 0,
+    data: {0.0}
+  }
+  var w2: Wrap < Box > = Wrap < Box > {
+    inner: b2,
+    ranInsideFlag: false,
+    ranInsideData0: -1.0
+  }
+  w2.runViaLocal(99.0)
+
+  if w2.inner.flag =>
+    print("FAIL: runViaLocal mutated the wrapper's copy — expected local-copy isolation\n")
+    return 1
+  if w2.inner.count != 0 =>
+    print("FAIL: runViaLocal bumped count — expected local-copy isolation\n")
+    return 1
+  if w2.inner.data.length != 1 =>
+    print("FAIL: runViaLocal changed data length — expected local-copy isolation\n")
+    return 1
+  if w2.inner.data[0] != 0.0 =>
+    print("FAIL: runViaLocal changed data[0] — expected local-copy isolation\n")
+    return 1
+  print("Test 4 passed: local-copy-then-mutate does not propagate\n")
+
+  print("All generic wrapper value semantics tests passed!\n")
+  return 0

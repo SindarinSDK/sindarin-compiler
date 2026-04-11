@@ -1,0 +1,5 @@
+Test 1 passed: inside-method self-view sees mutation
+Test 2 passed: post-call wrapper.inner reflects mutation
+Test 3 passed: pre-construction caller variable unaffected (value semantics)
+Test 4 passed: local-copy-then-mutate does not propagate
+All generic wrapper value semantics tests passed!
