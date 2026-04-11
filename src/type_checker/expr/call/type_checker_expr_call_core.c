@@ -172,6 +172,29 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
                     return NULL;
                 }
 
+                /* After substitution, nested generic params like Box<T> become
+                 * Box<int> (still TYPE_GENERIC_INST). Resolve each such param /
+                 * return type to its concrete monomorphized struct so downstream
+                 * argument checks and codegen see a plain TYPE_STRUCT. */
+                for (int i = 0; i < mono_fn->param_count; i++)
+                {
+                    Type *pt = mono_fn->params[i].type;
+                    if (pt != NULL && pt->kind == TYPE_GENERIC_INST)
+                    {
+                        Type *resolved = resolve_generic_instantiation(table->arena, pt, table);
+                        if (resolved != NULL)
+                            mono_fn->params[i].type = resolved;
+                    }
+                }
+                if (mono_fn->return_type != NULL &&
+                    mono_fn->return_type->kind == TYPE_GENERIC_INST)
+                {
+                    Type *resolved = resolve_generic_instantiation(table->arena,
+                                                                    mono_fn->return_type, table);
+                    if (resolved != NULL)
+                        mono_fn->return_type = resolved;
+                }
+
                 /* Cache — use an arena-duped name so the pointer remains valid.
                  * call_name is a stack buffer; storing a raw pointer to it would
                  * leave a dangling pointer once this stack frame is reused. */

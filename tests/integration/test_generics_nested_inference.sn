@@ -1,0 +1,132 @@
+# Test: Generic function type inference through nested generic struct parameters.
+#
+# Inference must recurse into TYPE_GENERIC_INST parameter types so that
+# fn f<T>(w: Box<T>) binds T from a Box<int> argument.
+
+interface Sim =>
+  fn stepId(): int
+
+struct CrusherAdapter =>
+  counter: int
+
+  fn stepId(): int =>
+    return self.counter
+
+struct WidgetAdapter =>
+  tag: int
+
+  fn stepId(): int =>
+    return self.tag * 10
+
+struct Box<T> =>
+  value: T
+
+struct Pair<T, U> =>
+  first: T
+  second: U
+
+struct Worker < S: Sim > =>
+  sim: S
+  steps: int
+
+# Case 1: single type param, nested in Box<T>
+fn unwrap<T>(b: Box<T>): T =>
+  return b.value
+
+# Case 2: interface-constrained S, nested in Worker<S>
+fn runOne < S: Sim > (w: Worker<S>): int =>
+  return w.sim.stepId()
+
+# Case 3: two type params, nested in Pair<T, U>
+fn firstOf<T, U>(p: Pair<T, U>): T =>
+  return p.first
+
+fn secondOf<T, U>(p: Pair<T, U>): U =>
+  return p.second
+
+# Case 4: doubly-nested Box<Pair<T, U>>
+fn innerFirst<T, U>(bp: Box<Pair<T, U>>): T =>
+  return bp.value.first
+
+# Case 5: same type param appears at top level AND nested — both must agree
+fn takeBoth<T>(x: T, b: Box<T>): T =>
+  if x == b.value =>
+    return x
+  return b.value
+
+fn main(): int =>
+  # Case 1a: unwrap(Box<int>) — infer T=int from a literal
+  var bi: Box<int> = { value: 42 }
+  var i1: int = unwrap(bi)
+  if i1 != 42 =>
+    print("FAIL: unwrap(Box<int>) should return 42\n")
+    return 1
+  print("Case 1a passed: unwrap<int> from var\n")
+
+  # Case 1b: unwrap(Box<str>) — infer T=str, via a second var to exercise the var path
+  var bs: Box<str> = { value: "hello" }
+  var s1: str = unwrap(bs)
+  if s1 != "hello" =>
+    print("FAIL: unwrap(Box<str>) should return 'hello'\n")
+    return 1
+  print("Case 1b passed: unwrap<str> from var\n")
+
+  # Case 2a: runOne(Worker<CrusherAdapter>) — interface-constrained S
+  var wc: Worker<CrusherAdapter> = {
+    sim: CrusherAdapter { counter: 7 },
+    steps: 0
+  }
+  var r1: int = runOne(wc)
+  if r1 != 7 =>
+    print("FAIL: runOne(Worker<CrusherAdapter>) should return 7\n")
+    return 1
+  print("Case 2a passed: runOne<CrusherAdapter>\n")
+
+  # Case 2b: runOne with a different adapter — proves the framework is polymorphic
+  var ww: Worker<WidgetAdapter> = {
+    sim: WidgetAdapter { tag: 4 },
+    steps: 0
+  }
+  var r2: int = runOne(ww)
+  if r2 != 40 =>
+    print("FAIL: runOne(Worker<WidgetAdapter>) should return 40\n")
+    return 1
+  print("Case 2b passed: runOne<WidgetAdapter>\n")
+
+  # Case 3: Pair<int, str> — both type params infer from one arg
+  var p1: Pair<int, str> = {
+    first: 99,
+    second: "ok"
+  }
+  var pi: int = firstOf(p1)
+  var ps: str = secondOf(p1)
+  if pi != 99 =>
+    print("FAIL: firstOf(Pair<int,str>) should return 99\n")
+    return 1
+  if ps != "ok" =>
+    print("FAIL: secondOf(Pair<int,str>) should return 'ok'\n")
+    return 1
+  print("Case 3 passed: firstOf/secondOf<int, str>\n")
+
+  # Case 4: Box<Pair<int, str>> — doubly nested
+  var innerPair: Pair<int, str> = {
+    first: 11,
+    second: "deep"
+  }
+  var bp: Box<Pair<int, str>> = { value: innerPair }
+  var di: int = innerFirst(bp)
+  if di != 11 =>
+    print("FAIL: innerFirst(Box<Pair<int,str>>) should return 11\n")
+    return 1
+  print("Case 4 passed: innerFirst<int, str> (doubly nested)\n")
+
+  # Case 5: takeBoth(int, Box<int>) — top-level + nested must agree
+  var b5: Box<int> = { value: 5 }
+  var t1: int = takeBoth(5, b5)
+  if t1 != 5 =>
+    print("FAIL: takeBoth(5, Box<int>{5}) should return 5\n")
+    return 1
+  print("Case 5 passed: takeBoth<int>\n")
+
+  print("All nested-inference tests passed!\n")
+  return 0

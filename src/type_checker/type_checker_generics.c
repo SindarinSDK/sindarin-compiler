@@ -1149,158 +1149,187 @@ FunctionStmt *monomorphize_function(Arena *arena, GenericFunctionTemplate *tmpl,
  * Generic function type inference
  * ============================================================================ */
 
+/* If param_type is a placeholder for one of the type params, return its index.
+ * Handles both TYPE_OPAQUE and zero-field TYPE_STRUCT forward-ref forms that
+ * the parser emits for a bare `T` reference in a function signature. */
+static int find_type_param_slot(Type *param_type,
+                                 const char **type_params, int tp_count)
+{
+    if (param_type == NULL || type_params == NULL)
+        return -1;
+
+    const char *name = NULL;
+    if (param_type->kind == TYPE_OPAQUE)
+        name = param_type->as.opaque.name;
+    else if (param_type->kind == TYPE_STRUCT &&
+             param_type->as.struct_type.field_count == 0 &&
+             param_type->as.struct_type.name != NULL)
+        name = param_type->as.struct_type.name;
+
+    if (name == NULL)
+        return -1;
+
+    for (int i = 0; i < tp_count; i++)
+    {
+        if (type_params[i] != NULL && strcmp(name, type_params[i]) == 0)
+            return i;
+    }
+    return -1;
+}
+
+/* Given an argument type that is a monomorphized struct (e.g. Box_int), recover
+ * the concrete type args that were used to instantiate the named template.
+ * Returns the matching GenericInstantiation, or NULL if the arg is not a
+ * known instantiation of template_name. */
+static GenericInstantiation *find_matching_instantiation(const char *template_name,
+                                                          Type *arg_type)
+{
+    if (template_name == NULL || arg_type == NULL)
+        return NULL;
+    if (arg_type->kind != TYPE_STRUCT || arg_type->as.struct_type.name == NULL)
+        return NULL;
+
+    const char *arg_name = arg_type->as.struct_type.name;
+    int n = generic_registry_instantiation_count();
+    for (int i = 0; i < n; i++)
+    {
+        GenericInstantiation *inst = generic_registry_get_instantiation(i);
+        if (inst == NULL || inst->template_name == NULL)
+            continue;
+        if (strcmp(inst->template_name, template_name) != 0)
+            continue;
+        if (inst->instantiated_type != NULL &&
+            inst->instantiated_type->kind == TYPE_STRUCT &&
+            inst->instantiated_type->as.struct_type.name != NULL &&
+            strcmp(inst->instantiated_type->as.struct_type.name, arg_name) == 0)
+            return inst;
+    }
+    return NULL;
+}
+
+/* Recursive structural unification of a parameter type against an argument type.
+ * Records bindings into inferred_args; returns false only on a hard conflict
+ * (same slot bound to two different types). Missing bindings are left NULL and
+ * detected by the caller. */
+static bool try_infer(Type *param_type, Type *arg_type,
+                       const char **type_params, int tp_count,
+                       Type **inferred_args)
+{
+    if (param_type == NULL || arg_type == NULL)
+        return true;
+
+    /* Case 1 & 2: bare type-parameter placeholder (TYPE_OPAQUE or zero-field TYPE_STRUCT) */
+    int slot = find_type_param_slot(param_type, type_params, tp_count);
+    if (slot >= 0)
+    {
+        if (inferred_args[slot] == NULL)
+        {
+            inferred_args[slot] = arg_type;
+            return true;
+        }
+        return ast_type_equals(inferred_args[slot], arg_type);
+    }
+
+    /* Case 3: T[] — recurse on element type */
+    if (param_type->kind == TYPE_ARRAY &&
+        arg_type->kind == TYPE_ARRAY)
+    {
+        return try_infer(param_type->as.array.element_type,
+                          arg_type->as.array.element_type,
+                          type_params, tp_count, inferred_args);
+    }
+
+    /* Case 4: fn(T...): U — recurse on param types and return type */
+    if (param_type->kind == TYPE_FUNCTION &&
+        arg_type->kind == TYPE_FUNCTION)
+    {
+        int min_params = param_type->as.function.param_count;
+        if (arg_type->as.function.param_count < min_params)
+            min_params = arg_type->as.function.param_count;
+
+        for (int q = 0; q < min_params; q++)
+        {
+            if (!try_infer(param_type->as.function.param_types[q],
+                            arg_type->as.function.param_types[q],
+                            type_params, tp_count, inferred_args))
+                return false;
+        }
+        if (!try_infer(param_type->as.function.return_type,
+                        arg_type->as.function.return_type,
+                        type_params, tp_count, inferred_args))
+            return false;
+        return true;
+    }
+
+    /* Case 5: Foo<T, U> — recurse pairwise on type args.
+     * The argument is normally a monomorphized TYPE_STRUCT (e.g. Box_int) because
+     * the call-site variable's declared type has already been resolved. We recover
+     * the instantiation's type_args from the generic registry. If the argument is
+     * itself still a TYPE_GENERIC_INST, recurse directly on its type_args. */
+    if (param_type->kind == TYPE_GENERIC_INST)
+    {
+        const char *tn = param_type->as.generic_inst.template_name;
+        int argc = param_type->as.generic_inst.type_arg_count;
+        Type **param_args = param_type->as.generic_inst.type_args;
+
+        if (arg_type->kind == TYPE_GENERIC_INST &&
+            arg_type->as.generic_inst.template_name != NULL &&
+            tn != NULL &&
+            strcmp(arg_type->as.generic_inst.template_name, tn) == 0 &&
+            arg_type->as.generic_inst.type_arg_count == argc)
+        {
+            for (int i = 0; i < argc; i++)
+            {
+                if (!try_infer(param_args[i],
+                                arg_type->as.generic_inst.type_args[i],
+                                type_params, tp_count, inferred_args))
+                    return false;
+            }
+            return true;
+        }
+
+        GenericInstantiation *inst = find_matching_instantiation(tn, arg_type);
+        if (inst != NULL && inst->type_arg_count == argc)
+        {
+            for (int i = 0; i < argc; i++)
+            {
+                if (!try_infer(param_args[i], inst->type_args[i],
+                                type_params, tp_count, inferred_args))
+                    return false;
+            }
+            return true;
+        }
+
+        /* Argument is not a matching instantiation — leave bindings alone and
+         * let the caller-site argument-count/type check surface the mismatch. */
+        return true;
+    }
+
+    /* Concrete types or unhandled shapes: no inference obligations. */
+    return true;
+}
+
 bool infer_type_params_from_args(FunctionStmt *tmpl_func,
                                   Type **arg_types, int arg_count,
                                   Type **inferred_args)
 {
     int tp_count = tmpl_func->type_param_count;
 
-    /* Initialize output to NULL */
     for (int i = 0; i < tp_count; i++)
         inferred_args[i] = NULL;
 
-    /* Walk each parameter; if the parameter type is a TYPE_OPAQUE matching a type param,
-     * unify it with the corresponding argument type. */
     int param_count = tmpl_func->param_count;
     if (arg_count < param_count)
-        param_count = arg_count; /* don't read past end of arg_types */
+        param_count = arg_count;
 
     for (int p = 0; p < param_count; p++)
     {
-        Type *param_type = tmpl_func->params[p].type;
-        Type *arg_type   = arg_types[p];
-
-        if (param_type == NULL || arg_type == NULL)
-            continue;
-
-        if (param_type->kind == TYPE_OPAQUE && param_type->as.opaque.name != NULL)
-        {
-            const char *pname = param_type->as.opaque.name;
-            for (int t = 0; t < tp_count; t++)
-            {
-                if (tmpl_func->type_params[t] != NULL &&
-                    strcmp(pname, tmpl_func->type_params[t]) == 0)
-                {
-                    if (inferred_args[t] == NULL)
-                    {
-                        inferred_args[t] = arg_type;
-                    }
-                    else if (!ast_type_equals(inferred_args[t], arg_type))
-                    {
-                        /* Conflicting inference */
-                        return false;
-                    }
-                    break;
-                }
-            }
-        }
-
-        /* Also handle TYPE_STRUCT forward-ref placeholders (same as TYPE_OPAQUE) */
-        if (param_type->kind == TYPE_STRUCT &&
-            param_type->as.struct_type.field_count == 0 &&
-            param_type->as.struct_type.name != NULL)
-        {
-            for (int i = 0; i < tp_count; i++)
-            {
-                if (strcmp(param_type->as.struct_type.name, tmpl_func->type_params[i]) == 0)
-                {
-                    if (inferred_args[i] == NULL)
-                        inferred_args[i] = arg_type;
-                    break;
-                }
-            }
-        }
-
-        /* Also handle TYPE_ARRAY parameters: if element type is a placeholder, infer from arg array */
-        if (param_type->kind == TYPE_ARRAY &&
-            param_type->as.array.element_type != NULL &&
-            arg_type != NULL && arg_type->kind == TYPE_ARRAY)
-        {
-            Type *elem_param = param_type->as.array.element_type;
-            Type *elem_arg   = arg_type->as.array.element_type;
-
-            /* Check if element is TYPE_OPAQUE or TYPE_STRUCT placeholder */
-            const char *elem_name = NULL;
-            if (elem_param->kind == TYPE_OPAQUE)
-                elem_name = elem_param->as.opaque.name;
-            else if (elem_param->kind == TYPE_STRUCT &&
-                     elem_param->as.struct_type.field_count == 0)
-                elem_name = elem_param->as.struct_type.name;
-
-            if (elem_name != NULL)
-            {
-                for (int i = 0; i < tp_count; i++)
-                {
-                    if (strcmp(elem_name, tmpl_func->type_params[i]) == 0)
-                    {
-                        if (inferred_args[i] == NULL)
-                            inferred_args[i] = elem_arg;
-                        break;
-                    }
-                }
-            }
-        }
-
-        /* Also handle TYPE_FUNCTION parameter types — when a function parameter is fn(T): U,
-         * infer T and U from the corresponding lambda argument */
-        if (param_type->kind == TYPE_FUNCTION &&
-            arg_type != NULL && arg_type->kind == TYPE_FUNCTION)
-        {
-            /* Infer each param type in the function type */
-            int min_params = param_type->as.function.param_count;
-            if (arg_type->as.function.param_count < min_params)
-                min_params = arg_type->as.function.param_count;
-
-            for (int q = 0; q < min_params; q++)
-            {
-                Type *fp = param_type->as.function.param_types[q];
-                Type *fa = arg_type->as.function.param_types[q];
-                if (fp == NULL || fa == NULL) continue;
-
-                const char *fp_name = NULL;
-                if (fp->kind == TYPE_OPAQUE) fp_name = fp->as.opaque.name;
-                else if (fp->kind == TYPE_STRUCT && fp->as.struct_type.field_count == 0)
-                    fp_name = fp->as.struct_type.name;
-
-                if (fp_name != NULL)
-                {
-                    for (int i = 0; i < tp_count; i++)
-                    {
-                        if (strcmp(fp_name, tmpl_func->type_params[i]) == 0)
-                        {
-                            if (inferred_args[i] == NULL) inferred_args[i] = fa;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            /* Also infer return type */
-            Type *rp = param_type->as.function.return_type;
-            Type *ra = arg_type->as.function.return_type;
-            if (rp != NULL && ra != NULL)
-            {
-                const char *rp_name = NULL;
-                if (rp->kind == TYPE_OPAQUE) rp_name = rp->as.opaque.name;
-                else if (rp->kind == TYPE_STRUCT && rp->as.struct_type.field_count == 0)
-                    rp_name = rp->as.struct_type.name;
-
-                if (rp_name != NULL)
-                {
-                    for (int i = 0; i < tp_count; i++)
-                    {
-                        if (strcmp(rp_name, tmpl_func->type_params[i]) == 0)
-                        {
-                            if (inferred_args[i] == NULL) inferred_args[i] = ra;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
+        if (!try_infer(tmpl_func->params[p].type, arg_types[p],
+                        (const char **)tmpl_func->type_params, tp_count,
+                        inferred_args))
+            return false;
     }
 
-    /* Check all type params were inferred */
     for (int i = 0; i < tp_count; i++)
     {
         if (inferred_args[i] == NULL)

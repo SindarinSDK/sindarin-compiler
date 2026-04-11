@@ -1,0 +1,8 @@
+Case 1a passed: unwrap<int> from var
+Case 1b passed: unwrap<str> from var
+Case 2a passed: runOne<CrusherAdapter>
+Case 2b passed: runOne<WidgetAdapter>
+Case 3 passed: firstOf/secondOf<int, str>
+Case 4 passed: innerFirst<int, str> (doubly nested)
+Case 5 passed: takeBoth<int>
+All nested-inference tests passed!
