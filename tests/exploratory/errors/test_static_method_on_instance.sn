@@ -10,7 +10,7 @@ struct Counter =>
     return self.value
 
 fn main(): int =>
-  var c: Counter = {value: 42}
+  var c: Counter = { value: 42 }
   # Try to call static method on instance - should fail
   var z: int = c.zero()
   return 0

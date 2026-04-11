@@ -77,7 +77,7 @@ fn main(): void =>
   print("Test 4 - Struct containing array with outer defaults passed\n")
 
   # Test 5: Struct containing array of structs with defaults
-  var settings1: Settings = {configs: { Config {}, Config { name: "test" } }}
+  var settings1: Settings = { configs: { Config {}, Config { name: "test" } } }
   print("Test 5 - Struct containing array of structs with defaults passed\n")
 
   # Test 6: Empty array in struct

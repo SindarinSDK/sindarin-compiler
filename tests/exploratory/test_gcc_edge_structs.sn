@@ -51,7 +51,7 @@ struct Level5 =>
   value: int = 5
 
 fn test_deep_nesting(): void =>
-  var l1: Level1 = {value: 10}
+  var l1: Level1 = { value: 10 }
   var l2: Level2 = {
     inner: l1,
     value: 20
@@ -159,7 +159,7 @@ struct Counter =>
     print($"Counter '{self.name}': {self.count}\n")
 
 fn test_struct_methods(): void =>
-  var c: Counter = {name: "test"}
+  var c: Counter = { name: "test" }
   c.increment()
   c.increment()
   c.increment()

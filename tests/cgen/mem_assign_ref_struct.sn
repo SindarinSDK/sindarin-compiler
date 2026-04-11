@@ -2,7 +2,7 @@ struct Node as ref =>
   value: int
 
 fn make_node(v: int): Node =>
-  var n: Node = {value: v}
+  var n: Node = { value: v }
   return n
 
 fn main(): void =>

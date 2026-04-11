@@ -110,9 +110,9 @@ fn test_struct_c_names(): void =>
     fd: 3,
     mode: "w"
   }
-  var s: size_t = {value: 42}
-  var t: time_t = {seconds: 1000}
-  var p: pid_t = {id: 12345}
+  var s: size_t = { value: 42 }
+  var t: time_t = { seconds: 1000 }
+  var p: pid_t = { id: 12345 }
   print($"FILE.fd={f.fd} size_t.value={s.value}\n")
   print($"time_t.seconds={t.seconds} pid_t.id={p.id}\n")
 

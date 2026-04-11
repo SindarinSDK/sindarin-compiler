@@ -123,7 +123,7 @@ fn main(): int =>
   print($"describeDoubled: {calc.describeDoubled()}\n")
 
   # --- TextProcessor: string methods on self fields, chained self calls ---
-  var tp: TextProcessor = {text: "  hello  "}
+  var tp: TextProcessor = { text: "  hello  " }
   print($"getText: [{tp.getText()}]\n")
   print($"trimmed: [{tp.trimmed()}]\n")
   print($"upper: [{tp.upper()}]\n")
@@ -133,7 +133,7 @@ fn main(): int =>
   print($"isNotEmpty: {tp.isNotEmpty()}\n")
   print($"describe: {tp.describe()}\n")
 
-  var empty: TextProcessor = {text: ""}
+  var empty: TextProcessor = { text: "" }
   print($"empty.isEmpty: {empty.isEmpty()}\n")
   print($"empty.describe: {empty.describe()}\n")
 

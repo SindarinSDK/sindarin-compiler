@@ -5,6 +5,6 @@ fn consume(n: Node as val): int =>
   return n.value
 
 fn main(): void =>
-  var n: Node = {value: 42}
+  var n: Node = { value: 42 }
   var v: int = consume(n)
   assert(v == 42, "should get value from copy")

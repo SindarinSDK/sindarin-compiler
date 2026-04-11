@@ -7,6 +7,6 @@ struct Subject =>
 
 fn main(): int =>
   var f: fn(Subject): str = fn(s: Subject): str => s.label
-  var s: Subject = {label: "hi"}
+  var s: Subject = { label: "hi" }
   print($"f(s) = {f(s)}\n")
   return 0

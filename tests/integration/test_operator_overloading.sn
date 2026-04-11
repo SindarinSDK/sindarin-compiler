@@ -127,9 +127,9 @@ fn main(): int =>
     return 1
 
   # Test != auto-derived for Score (only == defined)
-  var s1: Score = {value: 10}
-  var s2: Score = {value: 10}
-  var s3: Score = {value: 20}
+  var s1: Score = { value: 10 }
+  var s2: Score = { value: 10 }
+  var s3: Score = { value: 20 }
 
   var seq: bool = s1 == s2
   print($"s1 == s2 (equal scores): {seq}\n")
@@ -144,7 +144,7 @@ fn main(): int =>
     return 1
 
   # Test hash method
-  var h: HashItem = {id: 7}
+  var h: HashItem = { id: 7 }
   var hashVal: int = h.hash()
   print($"hash(id=7): {hashVal}\n")
   if hashVal != 217 =>

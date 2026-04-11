@@ -56,7 +56,7 @@ fn ctx_return(): void =>
 
 # (4) Struct literal field context
 fn ctx_field(): void =>
-  var w: Wrapper = {inner: build().primary}
+  var w: Wrapper = { inner: build().primary }
   assert(w.inner.id == 1, "ctx_field: id mismatch")
 
 # (5) Chained method call context

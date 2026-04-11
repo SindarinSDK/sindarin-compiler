@@ -37,9 +37,9 @@ struct Version =>
 
 fn main(): int =>
   # --- Section 1: operators directly in if conditions (no intermediate bool var) ---
-  var w1: Weight = {kg: 10}
-  var w2: Weight = {kg: 20}
-  var w3: Weight = {kg: 10}
+  var w1: Weight = { kg: 10 }
+  var w2: Weight = { kg: 20 }
+  var w3: Weight = { kg: 10 }
 
   if w1 == w3 =>
     print("w1 == w3 (direct if): true\n")
@@ -85,8 +85,8 @@ fn main(): int =>
     return 1
 
   # --- Section 3: while loop using operator in condition ---
-  var cur: Weight = {kg: 1}
-  var limit: Weight = {kg: 5}
+  var cur: Weight = { kg: 1 }
+  var limit: Weight = { kg: 5 }
   var count: int = 0
   while cur < limit =>
     count = count + 1
@@ -97,9 +97,9 @@ fn main(): int =>
     return 1
 
   # --- Section 4: explicit != operator (not auto-derived) ---
-  var t1: Tag = {code: 42}
-  var t2: Tag = {code: 42}
-  var t3: Tag = {code: 99}
+  var t1: Tag = { code: 42 }
+  var t2: Tag = { code: 42 }
+  var t3: Tag = { code: 99 }
 
   if t1 == t2 =>
     print("t1 == t2 (explicit ==): true\n")

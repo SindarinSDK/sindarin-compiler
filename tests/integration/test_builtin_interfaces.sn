@@ -30,9 +30,9 @@ fn acceptStringable(x: Stringable): void => return
 fn acceptCopyable(x: Copyable): void => return
 
 fn main(): int =>
-  var s1: Score = {value: 10}
-  var s2: Score = {value: 20}
-  var s3: Score = {value: 10}
+  var s1: Score = { value: 10 }
+  var s2: Score = { value: 20 }
+  var s3: Score = { value: 10 }
 
   # --- Test 1: Comparable ---
   var cmp1: int = s1.compare(s2)
@@ -100,7 +100,7 @@ fn main(): int =>
     print("FAIL: copied.value should be 10\n")
     return 1
 
-  var s1b: Score = {value: 99}
+  var s1b: Score = { value: 99 }
   var copiedB: Score = s1b.copy()
   if copiedB.value != 99 =>
     print("FAIL: copiedB.value should be 99\n")

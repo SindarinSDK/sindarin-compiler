@@ -200,7 +200,7 @@ fn test_runtime_modification(): bool =>
 fn test_config_copy(): bool =>
   print("Test 6: Configuration copy independence\n")
 
-  var original: ServerConfig = {port: 8000}
+  var original: ServerConfig = { port: 8000 }
   var copy: ServerConfig = original
 
   // Modify copy

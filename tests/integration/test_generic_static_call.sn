@@ -73,7 +73,7 @@ fn main(): int =>
   print("Test 3 passed: Wrapper<int>.createWithCount(99, 5)\n")
 
   # Test 4: Constrained generic static call
-  var tag1: Tag = {name: "alpha"}
+  var tag1: Tag = { name: "alpha" }
   var c1: Container<Tag> = Container < Tag >.of(tag1)
   if c1.getSize() != 1 =>
     print("FAIL: Container size should be 1\n")
@@ -84,7 +84,7 @@ fn main(): int =>
   print("Test 4 passed: Container<Tag>.of(Tag{name:\"alpha\"})\n")
 
   # Test 5: Generic static call with struct type arg
-  var inner: Tag = {name: "beta"}
+  var inner: Tag = { name: "beta" }
   var w4: Wrapper<Tag> = Wrapper < Tag >.create(inner)
   if w4.value.name != "beta" =>
     print("FAIL: Wrapper<Tag> value.name should be beta\n")

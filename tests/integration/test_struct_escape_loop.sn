@@ -90,7 +90,7 @@ fn test_struct_defaults_in_loop(): void =>
   var sum_values: int = 0
 
   for var i: int = 0; i < 4; i++ =>
-    var c: Counter = {value: i * 100}
+    var c: Counter = { value: i * 100 }
     # c.label should be "count" by default
     sum_values = sum_values + c.value
 

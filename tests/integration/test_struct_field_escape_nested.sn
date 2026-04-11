@@ -19,7 +19,7 @@ struct Deep =>
 
 fn test_two_level_nested_escape(): void =>
   # outer.inner.value = local_val should mark escape on chain
-  var wrapper: Middle = {inner: Inner { value: 0 }}
+  var wrapper: Middle = { inner: Inner { value: 0 } }
 
   var local_val: int = 123
   wrapper.inner.value = local_val
@@ -32,7 +32,7 @@ fn test_two_level_nested_escape(): void =>
 
 fn test_three_level_nested_escape(): void =>
   # outer.middle.inner.value = local should mark entire chain
-  var root: Outer = {middle: Middle { inner: Inner { value: 0 } }}
+  var root: Outer = { middle: Middle { inner: Inner { value: 0 } } }
 
   var data: int = 456
   root.middle.inner.value = data
@@ -45,7 +45,7 @@ fn test_three_level_nested_escape(): void =>
 
 fn test_four_level_nested_escape(): void =>
   # deep.outer.middle.inner.value = local
-  var deep: Deep = {outer: Outer { middle: Middle { inner: Inner { value: 0 } } }}
+  var deep: Deep = { outer: Outer { middle: Middle { inner: Inner { value: 0 } } } }
 
   var deep_val: int = 789
   deep.outer.middle.inner.value = deep_val
@@ -58,7 +58,7 @@ fn test_four_level_nested_escape(): void =>
 
 fn test_nested_with_defaults(): void =>
   # Verify defaults propagate through nested structs
-  var o: Outer = {middle: Middle { inner: Inner { value: 100 } }}
+  var o: Outer = { middle: Middle { inner: Inner { value: 100 } } }
 
   # Check defaults
   if o.middle.name != "middle" =>
@@ -84,7 +84,7 @@ fn test_nested_with_defaults(): void =>
   print("Nested with defaults test: PASS\n")
 
 fn test_multiple_nested_escapes(): void =>
-  var root: Outer = {middle: Middle { inner: Inner { value: 0 } }}
+  var root: Outer = { middle: Middle { inner: Inner { value: 0 } } }
 
   # Multiple assignments to different levels
   var v1: int = 11

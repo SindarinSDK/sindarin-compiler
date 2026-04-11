@@ -25,7 +25,7 @@ struct Point =>
 
 fn main(): int =>
   # Test basic method call
-  var c: Counter = {value: 42}
+  var c: Counter = { value: 42 }
   var v: int = c.getValue()
   print($"Initial counter value: {v}\n")
   if v != 42 =>

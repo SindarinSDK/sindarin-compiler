@@ -189,7 +189,7 @@ fn main(): int =>
   print("Test 7 passed: break inside iterator loop\n")
 
   # Test 8: Generic Sequence<int> iteration
-  var seq: Sequence<int> = {items: {10, 20, 30}}
+  var seq: Sequence<int> = { items: {10, 20, 30} }
   var sum8: int = 0
   for item in seq =>
     sum8 = sum8 + item
@@ -199,7 +199,7 @@ fn main(): int =>
   print("Test 8 passed: Sequence<int> (generic iterator)\n")
 
   # Test 9: Generic Sequence<str> iteration
-  var words: Sequence<str> = {items: {"hello", "world", "!"}}
+  var words: Sequence<str> = { items: {"hello", "world", "!"} }
   var wcount: int = 0
   for w in words =>
     wcount = wcount + 1

@@ -19,8 +19,8 @@ struct Forest =>
 
 fn test_nested_to_nested_assignment(): void =>
   # a.b.c = d.e.f pattern
-  var src: Tree = {branch: Branch { leaf: Leaf { value: 42 } }}
-  var dst: Tree = {branch: Branch { leaf: Leaf { value: 0 } }}
+  var src: Tree = { branch: Branch { leaf: Leaf { value: 42 } } }
+  var dst: Tree = { branch: Branch { leaf: Leaf { value: 0 } } }
 
   dst.branch.leaf.value = src.branch.leaf.value
 
@@ -56,8 +56,8 @@ fn test_deep_nested_cross_assign(): void =>
 
 fn test_partial_chain_copy(): void =>
   # Copy from deeper to shallower chain
-  var src: Forest = {tree: Tree { branch: Branch { leaf: Leaf { value: 55 } } }}
-  var dst_tree: Tree = {branch: Branch { leaf: Leaf { value: 0 } }}
+  var src: Forest = { tree: Tree { branch: Branch { leaf: Leaf { value: 55 } } } }
+  var dst_tree: Tree = { branch: Branch { leaf: Leaf { value: 0 } } }
 
   # dst_tree.branch.leaf.value = src.tree.branch.leaf.value
   dst_tree.branch.leaf.value = src.tree.branch.leaf.value
@@ -89,11 +89,11 @@ fn test_intermediate_field_access(): void =>
   print("Intermediate field access test: PASS\n")
 
 fn test_mixed_depth_assignments(): void =>
-  var forest: Forest = {tree: Tree { branch: Branch { leaf: Leaf { value: 0 } } }}
+  var forest: Forest = { tree: Tree { branch: Branch { leaf: Leaf { value: 0 } } } }
 
   # Assign from different depths
   var shallow_val: int = 111
-  var deep_src: Tree = {branch: Branch { leaf: Leaf { value: 222 } }}
+  var deep_src: Tree = { branch: Branch { leaf: Leaf { value: 222 } } }
 
   # Shallow to deep
   forest.tree.branch.leaf.value = shallow_val
@@ -113,8 +113,8 @@ fn test_mixed_depth_assignments(): void =>
 
 fn test_chain_swap(): void =>
   # Swap values between two nested chains
-  var t1: Tree = {branch: Branch { leaf: Leaf { value: 1 } }}
-  var t2: Tree = {branch: Branch { leaf: Leaf { value: 2 } }}
+  var t1: Tree = { branch: Branch { leaf: Leaf { value: 1 } } }
+  var t2: Tree = { branch: Branch { leaf: Leaf { value: 2 } } }
 
   var temp: int = t1.branch.leaf.value
   t1.branch.leaf.value = t2.branch.leaf.value

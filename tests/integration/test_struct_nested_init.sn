@@ -47,11 +47,11 @@ struct ComplexApp =>
 
 fn main(): void =>
   # Test 1: 2-level nested struct - inner has all defaults
-  var cfg1: Config = {settings: Settings {}}
+  var cfg1: Config = { settings: Settings {} }
   print("Test 1 - 2-level nested, inner all defaults passed\n")
 
   # Test 2: 2-level nested struct - defaults at both levels
-  var cfg2: Config = {settings: Settings { debug: true }}
+  var cfg2: Config = { settings: Settings { debug: true } }
   print("Test 2 - 2-level nested, defaults both levels passed\n")
 
   # Test 3: 2-level nested struct - override outer defaults

@@ -25,7 +25,7 @@ fn main(): void =>
 
   # Instantiation with defaults
   var cfg: Config = {}
-  var cfg2: Config = {timeout: 60}
+  var cfg2: Config = { timeout: 60 }
 
   # 3. FIELD ACCESS - Read field values
   print($"p1.x = {p1.x}\n")

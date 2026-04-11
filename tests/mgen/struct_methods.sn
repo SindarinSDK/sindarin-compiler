@@ -8,6 +8,6 @@ struct Counter =>
     return self.value
 
 fn main(): void =>
-  var c: Counter = {value: 0}
+  var c: Counter = { value: 0 }
   c.increment()
   assert(c.getValue() == 1, "expected counter to be 1 after increment")

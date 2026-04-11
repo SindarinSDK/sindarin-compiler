@@ -14,7 +14,7 @@ struct Outer =>
   middle: Middle
 
 fn buildOuter(): Outer =>
-  var i: Inner = {value: "deep-value"}
+  var i: Inner = { value: "deep-value" }
   var m: Middle = {
     label: "mid-label",
     inner: i

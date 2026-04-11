@@ -187,7 +187,7 @@ fn test_match_as_ref_all_modes(): void =>
 
 fn test_match_selector_ref(): void =>
   print("test_match_selector_ref: ")
-  var sel: Selector = {choice: 5}
+  var sel: Selector = { choice: 5 }
   assert(categorize_by_ref(sel) == "medium", "5 should be medium")
 
   sel.choice = 1

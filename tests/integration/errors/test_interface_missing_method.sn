@@ -9,6 +9,6 @@ struct Box =>
   size: int
 
 fn main(): int =>
-  var a: Box = {size: 1}
+  var a: Box = { size: 1 }
   check(a)
   return 0

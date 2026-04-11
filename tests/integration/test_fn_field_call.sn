@@ -12,12 +12,12 @@ fn add10(x: int): int =>
 
 fn main(): void =>
   // Test basic function field call
-  var h1: Handler = {callback: multiply}
+  var h1: Handler = { callback: multiply }
   var result1: int = h1.callback(5)
   print($"multiply(5) = {result1}\n")
 
   // Test with different function
-  var h2: Handler = {callback: add10}
+  var h2: Handler = { callback: add10 }
   var result2: int = h2.callback(5)
   print($"add10(5) = {result2}\n")
 

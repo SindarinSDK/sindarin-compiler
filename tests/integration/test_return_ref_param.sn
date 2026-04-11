@@ -8,7 +8,7 @@
 struct Tensor as ref =>
   value: int
 
-var g_cache: Tensor = {value: 0}
+var g_cache: Tensor = { value: 0 }
 
 fn storeAndReturn(t: Tensor): Tensor =>
   g_cache = t
@@ -19,18 +19,18 @@ fn passThrough(t: Tensor): Tensor =>
 
 fn main(): void =>
   # Pattern 1: simple pass-through
-  var a: Tensor = {value: 42}
+  var a: Tensor = { value: 42 }
   var b: Tensor = passThrough(a)
   println($"a={a.value} b={b.value}")
 
   # Pattern 2: store-in-global + return same ref
-  var c: Tensor = {value: 7}
+  var c: Tensor = { value: 7 }
   var d: Tensor = storeAndReturn(c)
   println($"c={c.value} d={d.value} cache={g_cache.value}")
 
   # Pattern 3: re-stash a different value into the global, ensure prior
   # references stay valid
-  var e: Tensor = {value: 99}
+  var e: Tensor = { value: 99 }
   g_cache = e
   println($"after restash: a={a.value} c={c.value} e={e.value} cache={g_cache.value}")
   println("PASS")

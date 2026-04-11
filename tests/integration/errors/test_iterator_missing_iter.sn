@@ -4,7 +4,7 @@ struct Bag =>
   count: int
 
 fn main(): int =>
-  var b: Bag = {count: 3}
+  var b: Bag = { count: 3 }
   for x in b =>
     print(x)
   return 0

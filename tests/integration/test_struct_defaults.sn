@@ -38,11 +38,11 @@ fn main(): void =>
   print("Test 1 - Zero init passed\n")
 
   # Test 2: Partial initialization - some fields specified, rest use defaults
-  var cfg2: Config = {timeout: 60}
+  var cfg2: Config = { timeout: 60 }
   print("Test 2 - Partial init (timeout only) passed\n")
 
   # Test 3: Partial initialization - different field
-  var cfg3: Config = {verbose: true}
+  var cfg3: Config = { verbose: true }
   print("Test 3 - Partial init (verbose only) passed\n")
 
   # Test 4: Override all defaults with explicit values
@@ -58,7 +58,7 @@ fn main(): void =>
   print("Test 5 - Connection defaults passed\n")
 
   # Test 6: Connection with partial override
-  var conn2: Connection = {port: 443}
+  var conn2: Connection = { port: 443 }
   print("Test 6 - Connection partial passed\n")
 
   # Test 7: Connection with all overrides

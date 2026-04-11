@@ -6,7 +6,7 @@ struct Person as ref =>
   addr: Address
 
 fn main(): void =>
-  var a: Address = {city: "NYC"}
+  var a: Address = { city: "NYC" }
   var p: Person = {
     name: "Alice",
     addr: a

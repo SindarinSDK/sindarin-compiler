@@ -132,7 +132,7 @@ fn test_small_point(): void =>
   print("SmallPoint test: PASS\n")
 
 fn test_config_with_defaults(): void =>
-  var c: SmallConfig = {timeout: 30}
+  var c: SmallConfig = { timeout: 30 }
   # Verify defaults are applied
   if c.timeout != 30 =>
     print($"FAIL: c.timeout = {c.timeout}, expected 30\n")

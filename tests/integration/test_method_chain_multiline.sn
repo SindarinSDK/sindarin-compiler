@@ -52,7 +52,7 @@ fn main(): int =>
 
   # === Struct instance method chaining ===
 
-  var base: Counter = {value: 5}
+  var base: Counter = { value: 5 }
 
   # Instance method chain - same indent
   var c2: Counter = base.add(3)

@@ -24,7 +24,7 @@ native struct StreamConfig =>
 # Native function to test native struct usage
 native fn test_native_structs(): void =>
   # Test 1: Native struct with zero initialization (non-pointer defaults apply)
-  var cfg1: NativeConfig = {data: nil}
+  var cfg1: NativeConfig = { data: nil }
   print("Test 1 - Native zero init passed\n")
 
   # Test 2: Native struct with partial initialization

@@ -13,7 +13,7 @@ struct BadCollection =>
     return BadIter { value: self.value }
 
 fn main(): int =>
-  var c: BadCollection = {value: 1}
+  var c: BadCollection = { value: 1 }
   for x in c =>
     print(x)
   return 0

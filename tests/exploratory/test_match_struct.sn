@@ -142,15 +142,15 @@ fn test_http_is_success(): void =>
 
 fn test_direction(): void =>
   print("test_direction: ")
-  var d: Direction = {name: "north"}
+  var d: Direction = { name: "north" }
   assert(d.opposite() == "south", "north opposite should be south")
   assert(d.degrees() == 0, "north should be 0 degrees")
 
-  var d2: Direction = {name: "west"}
+  var d2: Direction = { name: "west" }
   assert(d2.opposite() == "east", "west opposite should be east")
   assert(d2.degrees() == 270, "west should be 270 degrees")
 
-  var d3: Direction = {name: "diagonal"}
+  var d3: Direction = { name: "diagonal" }
   assert(d3.opposite() == "unknown", "unknown direction")
   assert(d3.degrees() == -1, "unknown degrees")
   print("PASS\n")
@@ -181,7 +181,7 @@ fn test_token_describe(): void =>
 
 fn test_calculator(): void =>
   print("test_calculator: ")
-  var calc: Calculator = {result: 0}
+  var calc: Calculator = { result: 0 }
   calc.apply("add", 10)
   assert(calc.result == 10, "after add 10")
   calc.apply("mul", 3)

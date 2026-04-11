@@ -127,7 +127,7 @@ fn main(): int =>
   print("Test 3 passed: SortedList<str> (primitive auto-satisfies)\n")
 
   # Test 4: IndexedSet<Player> — multi-constraint (Comparable & Hashable)
-  var iset: IndexedSet<Player> = {items: {}}
+  var iset: IndexedSet<Player> = { items: {} }
   var p1: Player = {
     name: "Alice",
     score: 100
@@ -170,8 +170,8 @@ fn main(): int =>
   print("Test 6 passed: KeyValue<str, int> (primitive auto-satisfies)\n")
 
   # Test 7: Generic function with constraint — maxOf<Score>
-  var s1: Score = {value: 10}
-  var s2: Score = {value: 20}
+  var s1: Score = { value: 10 }
+  var s2: Score = { value: 20 }
   var bigger: Score = maxOf(s1, s2)
   if bigger.value != 20 =>
     print("FAIL: maxOf should return score 20\n")

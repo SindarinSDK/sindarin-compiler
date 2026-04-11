@@ -32,7 +32,7 @@ struct Pair<A, B> =>
 
 fn main(): int =>
   # Test 1: var v: T with int
-  var ci: Container<int> = {items: {10, 20, 30}}
+  var ci: Container<int> = { items: {10, 20, 30} }
   if ci.first() != 10 =>
     print("FAIL: Container<int>.first() should be 10\n")
     return 1
@@ -42,7 +42,7 @@ fn main(): int =>
   print("Test 1 passed: var T with int\n")
 
   # Test 2: var v: T with str
-  var cs: Container<str> = {items: {"alpha", "beta", "gamma"}}
+  var cs: Container<str> = { items: {"alpha", "beta", "gamma"} }
   if cs.first() != "alpha" =>
     print("FAIL: Container<str>.first() should be alpha\n")
     return 1
@@ -52,7 +52,7 @@ fn main(): int =>
   print("Test 2 passed: var T with str\n")
 
   # Test 3: var v: T arithmetic (int instantiation)
-  var cn: Container<int> = {items: {3, 7, 11}}
+  var cn: Container<int> = { items: {3, 7, 11} }
   if cn.sum_first_two() != 10 =>
     print("FAIL: sum_first_two should be 10\n")
     return 1
