@@ -35,6 +35,25 @@ function Write-Status {
     }
 }
 
+function Invoke-Prereqs {
+    $prereqsUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/main/scripts/install-prereqs.ps1"
+    $localScript = if ($PSScriptRoot) { Join-Path $PSScriptRoot "install-prereqs.ps1" } else { $null }
+
+    if ($localScript -and (Test-Path $localScript)) {
+        Write-Status "Running prerequisites installer from $localScript..."
+        & $localScript
+        if ($LASTEXITCODE -ne 0) {
+            throw "Prerequisites installation failed with exit code $LASTEXITCODE"
+        }
+    } else {
+        Write-Status "Fetching prerequisites installer..."
+        $iwrArgs = @{ Uri = $prereqsUrl; UseBasicParsing = $true }
+        if ($GHToken) { $iwrArgs["Headers"] = @{ Authorization = "Bearer $GHToken" } }
+        $prereqsScript = (Invoke-WebRequest @iwrArgs).Content
+        Invoke-Expression $prereqsScript
+    }
+}
+
 function Get-LatestWindowsRelease {
     Write-Status "Fetching latest release from GitHub..."
 
@@ -188,13 +207,16 @@ function Main {
     Write-Host ""
 
     try {
-        # Step 1: Get latest release info
+        # Step 1: Install prerequisites (build tools)
+        Invoke-Prereqs
+
+        # Step 2: Get latest release info
         $release = Get-LatestWindowsRelease
 
-        # Step 2: Download and install
+        # Step 3: Download and install
         Install-Sindarin -Release $release | Out-Null
 
-        # Step 3: Add to PATH (idempotent - won't duplicate)
+        # Step 4: Add to PATH (idempotent - won't duplicate)
         Add-ToPath
 
         Write-Host ""

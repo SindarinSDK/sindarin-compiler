@@ -89,6 +89,38 @@ detect_arch() {
     esac
 }
 
+# Run the prerequisites installer (build tools, compilers, etc.)
+run_prereqs() {
+    local prereqs_url="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/scripts/install-prereqs.sh"
+    local local_script=""
+
+    if [ -n "${BASH_SOURCE[0]:-}" ]; then
+        local_script="$(dirname "${BASH_SOURCE[0]}")/install-prereqs.sh"
+    fi
+
+    if [ -n "$local_script" ] && [ -f "$local_script" ]; then
+        write_status "Running prerequisites installer from $local_script..."
+        bash "$local_script"
+    else
+        write_status "Fetching prerequisites installer..."
+        local prereqs_tmp
+        prereqs_tmp=$(mktemp)
+
+        if command_exists curl; then
+            curl -fsSL "${CURL_AUTH[@]}" -o "$prereqs_tmp" "$prereqs_url"
+        elif command_exists wget; then
+            wget -q -O "$prereqs_tmp" "${WGET_AUTH[@]}" "$prereqs_url"
+        else
+            rm -f "$prereqs_tmp"
+            write_status "Neither curl nor wget found. Please install one of them." "Error"
+            exit 1
+        fi
+
+        bash "$prereqs_tmp"
+        rm -f "$prereqs_tmp"
+    fi
+}
+
 # Fetch the latest release from GitHub
 get_latest_release() {
     write_status "Fetching latest release from GitHub..."
@@ -286,13 +318,16 @@ main() {
     arch_type=$(detect_arch)
     write_status "Detected OS: $os_type ($arch_type)"
 
-    # Step 3: Get latest release info
+    # Step 3: Install prerequisites (build tools)
+    run_prereqs
+
+    # Step 4: Get latest release info
     get_latest_release
 
-    # Step 4: Download and install
+    # Step 5: Download and install
     install_sindarin "$os_type" "$arch_type"
 
-    # Step 5: Add to PATH (idempotent - won't duplicate)
+    # Step 6: Add to PATH (idempotent - won't duplicate)
     add_to_path
 
     echo ""
