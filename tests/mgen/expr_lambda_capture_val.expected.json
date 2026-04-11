@@ -109,6 +109,7 @@
               }
             ],
             "has_captures": true,
+            "has_struct_copy_captures": false,
             "has_ref_captures": false,
             "body": {
               "type": {
@@ -237,6 +238,7 @@
         }
       ],
       "has_captures": true,
+      "has_struct_copy_captures": false,
       "has_ref_captures": false,
       "body": {
         "type": {

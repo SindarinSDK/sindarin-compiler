@@ -94,6 +94,7 @@
               }
             ],
             "has_captures": true,
+            "has_struct_copy_captures": false,
             "has_ref_captures": true,
             "body_stmts": [
               {
@@ -219,6 +220,7 @@
         }
       ],
       "has_captures": true,
+      "has_struct_copy_captures": false,
       "has_ref_captures": true,
       "body_stmts": [
         {

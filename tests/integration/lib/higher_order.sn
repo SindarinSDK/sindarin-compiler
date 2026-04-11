@@ -1,0 +1,13 @@
+// Higher-order function in a separate module — mirrors skynet's
+// common/net/service.sn::runWorkLoop which is called from each service's
+// main.sn with a lambda that captures user-struct values from main's scope.
+// The loop and number of iterations give the bug more chances to fire under
+// thread scheduling pressure when ASAN is enabled.
+
+fn invokeIt(h: fn(int): int): void =>
+  for var i: int = 0; i < 50; i++ =>
+    var result: int = h(i)
+    if result != 1 =>
+      print($"invokeIt: handler returned wrong value at i={i}: got {result}\n")
+      return
+  print("invokeIt: 50 iterations OK\n")

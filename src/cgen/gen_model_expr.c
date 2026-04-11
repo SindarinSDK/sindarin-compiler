@@ -2929,6 +2929,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             mc_analyze(arena, lam, &caps);
 
             json_object *captures = json_object_new_array();
+            bool has_struct_copy_captures = false;
             for (int i = 0; i < caps.count; i++)
             {
                 json_object *cap = json_object_new_object();
@@ -2944,11 +2945,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { is_ref = true; break; }
                 }
                 json_object_object_add(cap, "is_ref", json_object_new_boolean(is_ref));
+
+                /* needs_struct_copy: a value-struct capture (not a ref/refcounted)
+                 * with heap fields must be deep-copied into the closure environment.
+                 * Otherwise the closure shares string/array pointers with the
+                 * caller's struct and any cleanup of either side is a use-after-free.
+                 * The matching cleanup runs through __closure_<id>_struct_cleanup__. */
+                if (!is_ref && caps.types[i] &&
+                    caps.types[i]->kind == TYPE_STRUCT &&
+                    !caps.types[i]->as.struct_type.pass_self_by_ref &&
+                    gen_model_type_has_heap_fields(caps.types[i]))
+                {
+                    json_object_object_add(cap, "needs_struct_copy",
+                        json_object_new_boolean(true));
+                    json_object_object_add(cap, "struct_type_name",
+                        json_object_new_string(caps.types[i]->as.struct_type.name));
+                    has_struct_copy_captures = true;
+                }
+
                 json_object_array_add(captures, cap);
             }
             json_object_object_add(obj, "captures", captures);
             json_object_object_add(obj, "has_captures",
                 json_object_new_boolean(caps.count > 0));
+            json_object_object_add(obj, "has_struct_copy_captures",
+                json_object_new_boolean(has_struct_copy_captures));
             /* Check if any capture is by reference (needs heap promotion) */
             {
                 bool has_ref_caps = false;
@@ -3033,6 +3054,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
                 /* Add captures to the lambda definition too */
                 json_object *lcaps = json_object_new_array();
+                bool ldef_has_struct_copy_captures = false;
                 for (int i = 0; i < caps.count; i++)
                 {
                     json_object *lc = json_object_new_object();
@@ -3047,11 +3069,29 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { lc_is_ref = true; break; }
                     }
                     json_object_object_add(lc, "is_ref", json_object_new_boolean(lc_is_ref));
+
+                    /* Mirror the needs_struct_copy flag onto the lambda definition's
+                     * captures so the closure type definition / cleanup function
+                     * template can emit the deep cleanup. */
+                    if (!lc_is_ref && caps.types[i] &&
+                        caps.types[i]->kind == TYPE_STRUCT &&
+                        !caps.types[i]->as.struct_type.pass_self_by_ref &&
+                        gen_model_type_has_heap_fields(caps.types[i]))
+                    {
+                        json_object_object_add(lc, "needs_struct_copy",
+                            json_object_new_boolean(true));
+                        json_object_object_add(lc, "struct_type_name",
+                            json_object_new_string(caps.types[i]->as.struct_type.name));
+                        ldef_has_struct_copy_captures = true;
+                    }
+
                     json_object_array_add(lcaps, lc);
                 }
                 json_object_object_add(ldef, "captures", lcaps);
                 json_object_object_add(ldef, "has_captures",
                     json_object_new_boolean(caps.count > 0));
+                json_object_object_add(ldef, "has_struct_copy_captures",
+                    json_object_new_boolean(ldef_has_struct_copy_captures));
                 /* Check if any capture is by reference */
                 {
                     bool has_ref_caps = false;

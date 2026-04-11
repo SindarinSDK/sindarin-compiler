@@ -1,0 +1,92 @@
+// Regression: a lambda captures both a native pointer (db-like) AND a
+// user-struct (metrics-client-like) from outer scope. The user-struct has
+// string fields, an array field, and int fields, and is created via a
+// static factory. Two background threads borrow / take the same user
+// struct: one by `as ref`, one by value. The lambda is then passed to a
+// higher-order function in a SEPARATE module which invokes it many times.
+//
+// Inside the lambda, the captured user-struct's fields read garbage when
+// the lambda passes the struct (by pointer) to a helper function. ASAN
+// catches it as `stack-use-after-return` in the spawned thread reading
+// memory that was on a returned function's stack frame.
+//
+// Found in skynet (sindarin/skynet) where each service's main does:
+// var metricsClient: MetricsClient = MetricsClient.create(...)
+// var h1: int = & metricsClientFlushLoop(metricsClient)         // borrows as ref
+// h1 ~
+// var ctx: ServiceContext = startService(serviceConfig)
+// var h2: int = & acceptLoop(ctx.listener, dbUrl, metricsClient) // takes by value (deep copy)
+// h2 ~
+// runWorkLoop(ctx, fn(stream): int => handleWorkStream(stream, db, metricsClient))
+//
+// gdb of the crashed handleWorkStream call frame showed metricsClient fields
+// containing unrelated data — a millisecond timestamp where maxBatchSize
+// should have been, an unreadable pointer where source should have been,
+// and a 1.0 IEEE-754 double pattern where one of the string slots should
+// have been. The same struct in main's own scope read correctly, and the
+// native pointer (db) captured fine.
+//
+// The bug is intermittent under ASAN — it depends on thread scheduling
+// for the corruption to land before the lambda is invoked. The test runner
+// has caught it; the regression test exists so any progress on the
+// underlying compiler issue does not silently regress.
+
+import "lib/higher_order"
+
+# Stand-in for QuicConnection — opaque native-style pointer.
+struct DbHandle =>
+  id: int
+
+struct Captured =>
+  source: str
+  addr: str
+  buffer: int[]
+  maxBatchSize: int
+  flushIntervalMs: int
+
+  static fn create(source: str, addr: str, batchSize: int, flushInterval: int): Captured =>
+    var emptyBuf: int[] = {}
+    return Captured {
+      source: source,
+      addr: addr,
+      buffer: emptyBuf,
+      maxBatchSize: batchSize,
+      flushIntervalMs: flushInterval
+    }
+
+# Borrows as ref. Mirrors metricsClientFlushLoop.
+fn flushLoop(c: Captured as ref): int =>
+  # Touch the fields so the borrow is real, but do not print (would race
+  # with main's output and make the test non-deterministic on success).
+  var len: int = c.source.length + c.addr.length
+  return len
+
+# Takes by value (so a deep copy occurs at call site). Mirrors acceptLoop's
+# `metrics: MetricsClient` parameter that gets copy-passed in skynet.
+fn listenLoop(d: DbHandle, c: Captured): int =>
+  return c.maxBatchSize + c.flushIntervalMs
+
+# Mirrors handleWorkStream — takes the captured user-struct by value
+# (Sindarin's calling convention turns this into a pointer parameter in C).
+# Returns 1 on each call so invokeIt can detect corruption: any returned
+# value other than 1 means a captured field was wrong.
+fn helper(d: DbHandle, c: Captured): int =>
+  if c.source == "hello" && c.addr == "world" && c.maxBatchSize == 200 && c.flushIntervalMs == 10000 =>
+    return 1
+  return 0
+
+fn main(): int =>
+  var db: DbHandle = { id: 7 }
+  var c: Captured = Captured.create("hello", "world", 200, 10000)
+
+  var h1: int = & flushLoop(c)
+  h1 ~
+
+  var h2: int = & listenLoop(db, c)
+  h2 ~
+
+  print($"main: source={c.source} addr={c.addr} batch={c.maxBatchSize} interval={c.flushIntervalMs} bufLen={len(c.buffer)}\n")
+
+  invokeIt(fn(x: int): int => helper(db, c))
+
+  return 0

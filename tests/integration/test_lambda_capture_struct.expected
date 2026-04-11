@@ -1,0 +1,2 @@
+main: source=hello addr=world batch=200 interval=10000 bufLen=0
+invokeIt: 50 iterations OK
