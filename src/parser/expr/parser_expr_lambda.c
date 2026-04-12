@@ -97,6 +97,92 @@ Expr *parse_lambda_expr(Parser *parser, Token *fn_token)
         return NULL;
     }
 
+    /* Inside balanced delimiters (e.g. function call arguments), the lexer
+     * suppresses NEWLINE and INDENT tokens. If the token after '=>' is on a
+     * different line, a newline was suppressed and this may be a multi-line
+     * lambda.  Re-lex from the position after '=>' with bracket_depth
+     * temporarily set to 0 so the lexer emits NEWLINE/INDENT/DEDENT normally
+     * for the lambda body. */
+    if (parser->lexer->bracket_depth > 0 &&
+        parser->current.line > parser->previous.line)
+    {
+        int saved_depth = parser->lexer->bracket_depth;
+
+        /* lexer_make_token arena-copies token text, so parser->previous.start
+         * does NOT point into the source buffer.  Use the lexer's own source
+         * pointer instead: lexer->start currently points to the first character
+         * of parser->current's token in the real source buffer.  Scan backwards
+         * from there past the leading whitespace and the newline to find the
+         * position right after '=>' in the source. */
+        const char *src_cur_token = parser->lexer->start;
+        const char *p = src_cur_token;
+        /* Back up past whitespace that precedes the current token on its line */
+        while (p > parser->lexer->start - 256 && p[-1] != '\n' && p[-1] != '\0')
+            p--;
+        /* Now p points to the first character of the current line (past \n).
+         * Go back one more to the \n itself. */
+        if (p > parser->lexer->start - 256 && p[-1] == '\n')
+            p--;
+        /* p now points to the \n between '=>' and the lambda body. */
+
+        /* Reset lexer to that \n and re-lex with bracket_depth=0 */
+        parser->lexer->bracket_depth = 0;
+        parser->lexer->current = p;
+        parser->lexer->start = p;
+        parser->lexer->line = parser->previous.line;
+        parser->lexer->at_line_start = 0;
+        parser->lexer->pending_indent = -1;
+        parser->lexer->pending_current = NULL;
+
+        parser_advance(parser); /* should yield TOKEN_NEWLINE */
+
+        if (parser_check(parser, TOKEN_NEWLINE))
+        {
+            skip_newlines(parser);
+            if (parser_check(parser, TOKEN_INDENT))
+            {
+                /* Multi-line lambda inside balanced delimiters */
+                Stmt *block = parser_indented_block(parser);
+
+                /* Restore bracket_depth.  The token now sitting in
+                 * parser->current was scanned while bracket_depth was 0.
+                 * If it is a closing delimiter the decrement that the lexer
+                 * normally performs was skipped, so apply it here. */
+                parser->lexer->bracket_depth = saved_depth;
+                if (parser->current.type == TOKEN_RIGHT_PAREN ||
+                    parser->current.type == TOKEN_RIGHT_BRACKET ||
+                    parser->current.type == TOKEN_RIGHT_BRACE)
+                {
+                    parser->lexer->bracket_depth--;
+                }
+
+                if (block == NULL)
+                {
+                    parser_error(parser, "Expected indented block for lambda body");
+                    return NULL;
+                }
+                Stmt **stmts = block->as.block.statements;
+                int stmt_count = block->as.block.count;
+                bool is_native_lambda = parser->in_native_function != 0;
+                return ast_create_lambda_stmt_expr(parser->arena, params, param_count,
+                                                   return_type, stmts, stmt_count, modifier,
+                                                   is_native_lambda, fn_token);
+            }
+        }
+
+        /* Not actually multi-line — restore bracket_depth and fall through
+         * to single-line parsing.  Re-lex from the \n with original
+         * bracket_depth so parser->current is correct. */
+        parser->lexer->bracket_depth = saved_depth;
+        parser->lexer->current = p;
+        parser->lexer->start = p;
+        parser->lexer->line = parser->previous.line;
+        parser->lexer->at_line_start = 0;
+        parser->lexer->pending_indent = -1;
+        parser->lexer->pending_current = NULL;
+        parser_advance(parser);
+    }
+
     /* Single-line lambda with expression body */
     Expr *body = parser_expression(parser);
     bool is_native_lambda = parser->in_native_function != 0;

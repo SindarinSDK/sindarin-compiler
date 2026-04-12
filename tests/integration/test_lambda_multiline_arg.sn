@@ -1,0 +1,33 @@
+fn run(task: fn(): void): void =>
+  task()
+
+fn apply(f: fn(int): int, x: int): int =>
+  f(x)
+
+var a: int = 0
+var b: int = 0
+
+fn main(): void =>
+  # Test 1: multi-statement closure as sole argument
+  run(fn(): void =>
+    a = 10
+    b = 20
+  )
+  println($"{a + b}")
+
+  # Test 2: multi-statement closure with return value
+  var r: int = apply(fn(x: int): int =>
+    var y: int = x * 2
+    return y + 1
+  , 5)
+  println($"{r}")
+
+  # Test 3: nested function call with closure argument
+  a = 0
+  run(fn(): void =>
+    a = 100
+    run(fn(): void =>
+      b = 200
+    )
+  )
+  println($"{a + b}")
