@@ -1,0 +1,108 @@
+# Issue #50: Module-level array buffer swap leaks nested struct arrays
+# when emit + flush happen within the same function scope as the
+# refcounted locals.
+#
+# Reproduces the MetricsClient pattern: a module-level array accumulates
+# structs with nested array fields. A flush function swaps the buffer
+# into a local, resets the module-level to empty, and lets the local go
+# out of scope. The cleanup must cascade through the nested arrays to
+# release every refcounted element.
+#
+# The critical case is when emit() and flush() are called from a
+# SEPARATE function scope from the Tag creation — mimicking how
+# skynet's observer poll loop calls metrics.emit() then
+# metricsFlushTo() while the original values have already gone out
+# of scope in their callers.
+
+#pragma source "test_module_array_swap_leak_helper.c"
+
+native struct Tag as ref =>
+  id: int
+
+  @alias "tag_dispose"
+  native fn dispose(): void
+
+native fn tag_create(id: int): Tag
+native fn tag_alive_count(): int
+
+struct Item =>
+  name: str
+  tags: Tag[]
+
+var buffer: Item[] = {}
+
+fn emit(name: str, tags: Tag[]): void =>
+  buffer.push(Item {
+    name: name,
+    tags: tags
+  })
+
+fn flush(): int =>
+  var toSend: Item[] = buffer
+  buffer = {}
+  var count: int = len(toSend)
+  return count
+
+# Test 1: emit and flush in separate scopes from Tag creation.
+# This is the real-world observer pattern — tag_create happens in a
+# helper, emit in another helper, flush in the main loop.
+fn createAndEmit(id: int): void =>
+  var t1: Tag = tag_create(id)
+  var t2: Tag = tag_create(id + 1)
+  emit($"metric_{id}", {t1, t2})
+
+fn test_separate_scopes(): void =>
+  createAndEmit(10)
+  createAndEmit(20)
+  println($"before flush: alive={tag_alive_count()}")
+  var count: int = flush()
+  println($"after flush: count={count} alive={tag_alive_count()}")
+  assert(tag_alive_count() == 0, $"test_separate_scopes: leaked {tag_alive_count()} tags")
+  println("test_separate_scopes: PASS")
+
+# Test 2: Multiple flush cycles — verify no accumulation across rounds.
+fn test_repeated_flush(): void =>
+  for var round: int = 0; round < 5; round++ =>
+    createAndEmit(round * 100)
+  flush()
+  println($"after 5 rounds: alive={tag_alive_count()}")
+  assert(tag_alive_count() == 0, $"test_repeated_flush: leaked {tag_alive_count()} tags")
+  println("test_repeated_flush: PASS")
+
+# Test 3: Mixed items — some with tags, some with empty tag arrays.
+fn test_mixed_empty(): void =>
+  emit("no_tags", {})
+  createAndEmit(999)
+  emit("no_tags_2", {})
+  flush()
+  assert(tag_alive_count() == 0, $"test_mixed_empty: leaked {tag_alive_count()} tags")
+  println("test_mixed_empty: PASS")
+
+# Test 4: Buffer reassignment without flush — just reset the module-
+# level array directly.
+fn test_direct_reassign(): void =>
+  createAndEmit(50)
+  println($"before reassign: alive={tag_alive_count()}")
+  buffer = {}
+  println($"after reassign: alive={tag_alive_count()}")
+  assert(tag_alive_count() == 0, $"test_direct_reassign: leaked {tag_alive_count()} tags")
+  println("test_direct_reassign: PASS")
+
+# Test 5: Same scope — emit and flush in the same function that
+# creates the Tags. This is the pattern that triggered the original
+# investigation (inline metrics in a poll loop).
+fn test_same_scope(): void =>
+  var t: Tag = tag_create(1)
+  emit("inline", {t})
+  flush()
+  println($"after same-scope flush: alive={tag_alive_count()}")
+
+fn main(): void =>
+  test_separate_scopes()
+  test_repeated_flush()
+  test_mixed_empty()
+  test_direct_reassign()
+  test_same_scope()
+  println($"final: alive={tag_alive_count()}")
+  assert(tag_alive_count() == 0, $"final leak: {tag_alive_count()} tags")
+  println("test_module_array_swap_leak: ALL PASS")

@@ -1,0 +1,12 @@
+before flush: alive=4
+after flush: count=2 alive=0
+test_separate_scopes: PASS
+after 5 rounds: alive=0
+test_repeated_flush: PASS
+test_mixed_empty: PASS
+before reassign: alive=2
+after reassign: alive=0
+test_direct_reassign: PASS
+after same-scope flush: alive=1
+final: alive=0
+test_module_array_swap_leak: ALL PASS
