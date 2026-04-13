@@ -74,8 +74,8 @@ static bool file_exists(const char *path)
 #define DEFAULT_DEBUG_CFLAGS_CLANG "-fwrapv -fsanitize=address,undefined -fno-omit-frame-pointer -fstack-protector-strong -g"
 #define DEFAULT_LDLIBS_UNIX "-lpthread -lm"
 #endif
-#define DEFAULT_RELEASE_CFLAGS_GCC "-O3 -flto -fwrapv"
-#define DEFAULT_RELEASE_CFLAGS_CLANG "-O3 -flto -fwrapv"
+#define DEFAULT_RELEASE_CFLAGS_GCC "-O2 -fwrapv"
+#define DEFAULT_RELEASE_CFLAGS_CLANG "-O2 -fwrapv"
 #define DEFAULT_PROFILE_CFLAGS_GCC "-O2 -fno-omit-frame-pointer -g -fwrapv"
 #define DEFAULT_PROFILE_CFLAGS_CLANG "-O2 -fno-omit-frame-pointer -g -fwrapv"
 #define DEFAULT_DEBUG_CFLAGS_TCC "-g"
