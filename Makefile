@@ -248,21 +248,13 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# setup - Download pre-built dependencies using platform-specific installer
+# setup - Install pre-built dependencies via sn --install
 #------------------------------------------------------------------------------
-ifeq ($(PLATFORM),windows)
 setup:
-	@echo "Setting up build dependencies for Windows..."
-	@powershell -NoProfile -ExecutionPolicy Bypass -Command "New-Item -ItemType Directory -Force -Path libs | Out-Null; cd libs; irm https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs/main/scripts/install.ps1 | iex"
+	@echo "Setting up build dependencies..."
+	@sn --install
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
-else
-setup:
-	@echo "Setting up build dependencies for $(PLATFORM)..."
-	@mkdir -p libs && cd libs && export GITHUB_TOKEN=$${GITHUB_TOKEN:-$$(gh auth token 2>/dev/null)}; curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-pkg-libs/main/scripts/install.sh | bash
-	@echo "Pre-built libraries ready!"
-	@echo "Run 'make build' to build the compiler."
-endif
 
 #------------------------------------------------------------------------------
 # hooks - Configure git to use tracked pre-commit hooks

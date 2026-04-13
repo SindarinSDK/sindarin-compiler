@@ -491,7 +491,11 @@ else()
 endif()
 
 # Find dependency installation directory from libs
+# Check both legacy path (libs/libs/) and sn --install path (.sn/sindarin-pkg-libs/libs/)
 set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
+if(NOT EXISTS "${SINDARIN_LIBS_DIR}/lib")
+    set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/.sn/sindarin-pkg-libs/libs/${SINDARIN_LIBS_PLATFORM}")
+endif()
 
 # Create bin/deps directory structure
 set(SN_DEPS_DIR ${CMAKE_SOURCE_DIR}/bin/deps)
@@ -710,22 +714,29 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
         message(STATUS "Found libgit2 and libyaml - enabling package manager")
         target_compile_definitions(sn PRIVATE SN_HAS_PACKAGE_MANAGER=1)
 
-        # Link libgit2 and its dependencies
+        # Link libgit2 and its dependencies (including OpenSSL for libssh2)
         if(WIN32)
             target_link_libraries(sn PRIVATE
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
             target_link_libraries(sn PRIVATE
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
                 "-framework Security"
                 "-framework CoreFoundation"
                 iconv
@@ -735,8 +746,11 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
             )
         endif()
     else()
@@ -788,16 +802,23 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
             target_link_libraries(tests PRIVATE
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
                 iconv
             )
         else()
@@ -805,8 +826,11 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libgit2.a"
                 "${SINDARIN_LIBS_DIR}/lib/libyaml.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssh2.a"
+                "${SINDARIN_LIBS_DIR}/lib/libssl.a"
+                "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
+                "${SINDARIN_LIBS_DIR}/lib/libz.a"
             )
         endif()
     else()
