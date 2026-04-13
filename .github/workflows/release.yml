@@ -54,12 +54,13 @@ jobs:
             exe_ext: '.exe'
             cmake_extra: ''
 
-          - os: macos-13
+          - os: macos-15
             platform: darwin
             compiler: clang
             artifact_name: sindarin-darwin-x64
             exe_ext: ''
-            cmake_extra: ''
+            cmake_extra: '-DCMAKE_OSX_ARCHITECTURES=x86_64'
+            libs_arch: x64
 
           - os: macos-latest
             platform: darwin
@@ -125,6 +126,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          SN_LIBS_ARCH: ${{ matrix.libs_arch }}
         run: make setup
 
       #------------------------------------------------------------------------
