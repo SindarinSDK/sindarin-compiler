@@ -262,6 +262,22 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Upload to S3
+        run: |
+          VER="${{ env.VERSION }}"
+          S3_PREFIX="s3://cryosharp-sindarin-pkg-binaries/sindarin-compiler/${VER}"
+
+          echo "Uploading to ${S3_PREFIX}/"
+          find artifacts -type f \( -name "sindarin-*.tar.gz" -o -name "sindarin-*.zip" \) | while read file; do
+            fname=$(basename "$file")
+            echo "  -> ${S3_PREFIX}/${fname}"
+            aws s3 cp "$file" "${S3_PREFIX}/${fname}"
+          done
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: eu-west-2
+
   #----------------------------------------------------------------------------
   # Source Distribution
   #----------------------------------------------------------------------------
