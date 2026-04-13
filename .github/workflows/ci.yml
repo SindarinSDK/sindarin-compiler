@@ -109,9 +109,7 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: |
-          make setup
-          export PATH="$HOME/.sn/bin:$PATH"
+        run: make setup
 
       - name: Build
         shell: bash

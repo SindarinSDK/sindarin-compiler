@@ -254,14 +254,14 @@ ifeq ($(PLATFORM),windows)
 setup:
 	@echo "Setting up build dependencies for Windows..."
 	@powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install.ps1
-	@sn --install
+	@export PATH="$$HOME/.sn/bin:$$PATH" && sn --install
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 else
 setup:
 	@echo "Setting up build dependencies for $(PLATFORM)..."
 	@bash scripts/install.sh
-	@sn --install
+	@export PATH="$$HOME/.sn/bin:$$PATH" && sn --install
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
 endif
