@@ -113,7 +113,7 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{/each}}
 {{#with module}}{{#if has_main}}
 {{#if has_main_args}}int main(int argc, char **argv) {
-    SnArray *__sn__args = sn_array_new(sizeof(char *), argc);
+    sn_auto_arr SnArray *__sn__args = sn_array_new(sizeof(char *), argc);
     __sn__args->elem_tag = SN_TAG_STRING;
     __sn__args->elem_release = (void (*)(void *))sn_cleanup_str;
     __sn__args->elem_copy = sn_copy_str;
@@ -129,8 +129,7 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{else}}{{#if (eq cleanup_kind "arr")}}    sn_cleanup_array(&__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "release")}}    __sn__{{type.name}}_release(&__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "val_cleanup")}}    __sn__{{type.name}}_cleanup(&__sn__{{name}});
-{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}{{#if has_main_args}}    sn_cleanup_array(&__sn__args);
-{{/if}}    fflush(stdout);
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    fflush(stdout);
 {{#unless main_returns}}    return 0;
 {{/unless}}
 }{{/if}}{{/with}}

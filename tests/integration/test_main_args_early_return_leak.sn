@@ -1,0 +1,6 @@
+# Test: main(args) with early return must not leak the args array
+# The args array should be cleaned up on all return paths, not just fall-through.
+
+fn main(args: str[]): int =>
+  print($"args: {args.length}\n")
+  return 0
