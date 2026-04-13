@@ -1,0 +1,58 @@
+# Refcounted intermediate passed as a function argument.
+#
+# When a method chain on a refcounted struct produces a non-ref result
+# and that result is passed directly as a function argument, the
+# intermediate refcounted object must be extracted into a temp with
+# sn_auto cleanup. Without this, the intermediate is consumed inline
+# and its pointer is lost — leaking one allocation per call.
+#
+# Real-world example: consume(Foo.create(1).getX()) where Foo is
+# refcounted. The flattener extracts the chain object (Foo.create)
+# when it's the receiver of a method call, but the OUTER call
+# (consume) receives the fully-evaluated int result — the question
+# is whether the intermediate Foo was cleaned up along the way.
+
+#pragma source "test_refcount_arg_leak_helper.c"
+
+native struct Foo as ref =>
+  x: int
+
+  @alias "foo_dispose"
+  native fn dispose(): void
+
+  @alias "foo_get_x"
+  native fn getX(): int
+
+native fn foo_create(val: int): Foo
+native fn foo_alive(): int
+
+fn consume(val: int): int =>
+  return val
+
+# Each case in its own function so chain temps are cleaned up at return
+fn case1(): int =>
+  return consume(foo_create(1).getX())
+
+fn case2(): int =>
+  return foo_create(2).getX()
+
+fn case3(): int =>
+  return consume(foo_create(3).getX()) + consume(foo_create(4).getX())
+
+fn main(): void =>
+  # Case 1: chain result as function argument
+  var r1: int = case1()
+  assert(r1 == 1, $"case 1: expected 1, got {r1}")
+  assert(foo_alive() == 0, $"case 1: leaked, alive={foo_alive()}")
+
+  # Case 2: chain result as direct variable initializer (control)
+  var r2: int = case2()
+  assert(r2 == 2, $"case 2: expected 2, got {r2}")
+  assert(foo_alive() == 0, $"case 2: leaked, alive={foo_alive()}")
+
+  # Case 3: two chains in one expression, both passed as args
+  var r3: int = case3()
+  assert(r3 == 7, $"case 3: expected 7, got {r3}")
+  assert(foo_alive() == 0, $"case 3: leaked, alive={foo_alive()}")
+
+  println("test_refcount_arg_leak: PASS")
