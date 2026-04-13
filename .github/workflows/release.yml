@@ -257,6 +257,9 @@ jobs:
             echo "  -> ${S3_PREFIX}/${fname}"
             aws s3 cp "$file" "${S3_PREFIX}/${fname}"
           done
+
+          echo "Writing __version__: ${VER}"
+          echo -n "${VER}" | aws s3 cp - "s3://cryosharp-sindarin-pkg-binaries/sindarin-compiler/__version__" --content-type text/plain
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
