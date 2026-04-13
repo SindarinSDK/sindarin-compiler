@@ -71,6 +71,7 @@ tests/integration/io_*
 !tests/integration/test_struct_rvalue_member_leak_helper.c
 !tests/integration/test_struct_rvalue_member_leak_contexts_helper.c
 !tests/integration/test_refcount_chain_in_struct_literal_helper.c
+!tests/integration/test_str_return_as_arg_leak_helper.c
 
 tests/exploratory/test_*
 !tests/exploratory/test_*.sn

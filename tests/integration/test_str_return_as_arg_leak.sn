@@ -1,0 +1,44 @@
+# Issue: str return value leaks when passed through a chain of calls
+# inside a struct literal.
+#
+# Pattern (from skynet observer):
+# var obs: MyStruct = {
+# data: process(wrap(obj.getString("key")))
+# }
+#
+# obj.getString() returns a strdup'd str. It's passed to wrap() which
+# returns a ref struct, then to process() which returns an array. The
+# intermediate str from getString is never freed.
+#
+# ASAN (detect_leaks=1) catches the leak at exit.
+
+#pragma source "test_str_return_as_arg_leak_helper.c"
+
+native struct Source as ref =>
+  _v: int
+
+  @alias "source_get_string"
+  native fn getString(key: str): str
+
+native struct Wrapper as ref =>
+  value: int
+
+  @alias "wrapper_dispose"
+  native fn dispose(): void
+
+struct Result =>
+  data: int
+
+native fn source_create(): Source
+native fn wrap_string(s: str): Wrapper
+native fn process_wrapper(w: Wrapper): int
+
+fn main(): void =>
+  var src: Source = source_create()
+
+  for var i: int = 0; i < 10; i++ =>
+    var r: Result = {
+      data: process_wrapper(wrap_string(src.getString("key")))
+    }
+
+  println("test_str_return_as_arg_leak: PASS")

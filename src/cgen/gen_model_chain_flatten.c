@@ -443,16 +443,18 @@ static void flatten_expr(json_object *expr, json_object *inserts)
             flatten_expr(callee, inserts);
         }
 
-        /* Extract interpolated string args and heap-producing args,
-         * then recurse into remaining args */
+        /* Recurse into args first (bottom-up), then extract at this level.
+         * Inner heap-producing calls must be extracted before outer ones,
+         * otherwise the inner call ends up inside an extracted chain temp's
+         * initializer and is never revisited — leaking the intermediate. */
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
-            extract_interp_string_args(args, inserts);
-            extract_heap_producing_args(args, inserts);
             int len = json_object_array_length(args);
             for (int i = 0; i < len; i++)
                 flatten_expr(json_object_array_get_idx(args, i), inserts);
+            extract_interp_string_args(args, inserts);
+            extract_heap_producing_args(args, inserts);
         }
         return;
     }
@@ -464,11 +466,11 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         json_object *args = NULL;
         if (json_object_object_get_ex(expr, "args", &args))
         {
-            extract_interp_string_args(args, inserts);
-            extract_heap_producing_args(args, inserts);
             int len = json_object_array_length(args);
             for (int i = 0; i < len; i++)
                 flatten_expr(json_object_array_get_idx(args, i), inserts);
+            extract_interp_string_args(args, inserts);
+            extract_heap_producing_args(args, inserts);
         }
         return;
     }
@@ -570,11 +572,11 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         json_object *m_args = NULL;
         if (json_object_object_get_ex(expr, "args", &m_args))
         {
-            extract_interp_string_args(m_args, inserts);
-            extract_heap_producing_args(m_args, inserts);
             int mlen = json_object_array_length(m_args);
             for (int mi = 0; mi < mlen; mi++)
                 flatten_expr(json_object_array_get_idx(m_args, mi), inserts);
+            extract_interp_string_args(m_args, inserts);
+            extract_heap_producing_args(m_args, inserts);
         }
         return;
     }
