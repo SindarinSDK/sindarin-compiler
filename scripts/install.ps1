@@ -1,10 +1,10 @@
 <#
 .SYNOPSIS
-    Installs the Sindarin compiler from the latest GitHub release.
+    Installs the Sindarin compiler from the latest S3 release.
 
 .DESCRIPTION
     This script:
-    1. Downloads the latest Windows release from GitHub
+    1. Downloads the latest Windows release from S3
     2. Extracts it to ~/.sn
     3. Adds ~/.sn/bin to the user PATH (if not already present)
 
@@ -14,15 +14,11 @@
 
 $ErrorActionPreference = "Stop"
 
-$RepoOwner = "SindarinSDK"
-$RepoName = "sindarin-compiler"
+$S3Bucket = "cryosharp-sindarin-pkg-binaries"
+$S3Region = "eu-west-2"
+$S3BaseUrl = "https://${S3Bucket}.s3.${S3Region}.amazonaws.com"
 $InstallDir = Join-Path $env:USERPROFILE ".sn"
 $BinDir = Join-Path $InstallDir "bin"
-
-# Optional auth token — avoids GitHub API rate limits (60/hr unauthenticated).
-# Set GH_TOKEN or GITHUB_TOKEN in the environment to authenticate.
-# GitHub Actions sets GH_TOKEN automatically when passed via env:.
-$GHToken = if ($env:GH_TOKEN) { $env:GH_TOKEN } elseif ($env:GITHUB_TOKEN) { $env:GITHUB_TOKEN } else { $null }
 
 function Write-Status {
     param([string]$Message, [string]$Type = "Info")
@@ -36,7 +32,7 @@ function Write-Status {
 }
 
 function Invoke-Prereqs {
-    $prereqsUrl = "https://raw.githubusercontent.com/$RepoOwner/$RepoName/main/scripts/install-prereqs.ps1"
+    $prereqsUrl = "https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install-prereqs.ps1"
     $localScript = if ($PSScriptRoot) { Join-Path $PSScriptRoot "install-prereqs.ps1" } else { $null }
 
     if ($localScript -and (Test-Path $localScript)) {
@@ -47,62 +43,51 @@ function Invoke-Prereqs {
         }
     } else {
         Write-Status "Fetching prerequisites installer..."
-        $iwrArgs = @{ Uri = $prereqsUrl; UseBasicParsing = $true }
-        if ($GHToken) { $iwrArgs["Headers"] = @{ Authorization = "Bearer $GHToken" } }
-        $prereqsScript = (Invoke-WebRequest @iwrArgs).Content
+        $prereqsScript = (Invoke-WebRequest -Uri $prereqsUrl -UseBasicParsing).Content
         Invoke-Expression $prereqsScript
     }
 }
 
-function Get-LatestWindowsRelease {
-    Write-Status "Fetching latest release from GitHub..."
+function Get-LatestVersion {
+    Write-Status "Fetching latest version..."
 
-    $apiUrl = "https://api.github.com/repos/$RepoOwner/$RepoName/releases/latest"
+    $versionUrl = "${S3BaseUrl}/sindarin-compiler/__version__"
 
     try {
-        $headers = @{
-            "Accept"     = "application/vnd.github.v3+json"
-            "User-Agent" = "Sindarin-Installer"
-        }
-        if ($GHToken) { $headers["Authorization"] = "Bearer $GHToken" }
+        $version = (Invoke-WebRequest -Uri $versionUrl -UseBasicParsing).Content.Trim()
 
-        $release = Invoke-RestMethod -Uri $apiUrl -Headers $headers -Method Get
-
-        Write-Status "Found release: $($release.tag_name)" "Success"
-
-        # Find the Windows zip asset
-        $asset = $release.assets | Where-Object { $_.name -like "*-windows-x64.zip" }
-
-        if (-not $asset) {
-            throw "Windows release asset not found in release $($release.tag_name)"
+        if (-not $version) {
+            throw "Empty version response"
         }
 
-        return @{
-            TagName = $release.tag_name
-            AssetUrl = $asset.browser_download_url
-            AssetName = $asset.name
-        }
+        Write-Status "Found release: $version" "Success"
+        return $version
     }
     catch {
-        throw "Failed to fetch latest release: $_"
+        throw "Failed to fetch latest version: $_"
     }
 }
 
 function Install-Sindarin {
-    param([hashtable]$Release)
+    param([string]$TagName)
+
+    # Extract version number from tag (e.g., "0.0.65" from "v0.0.65")
+    $versionNum = $TagName -replace '^v', ''
+
+    # Determine the zip name and S3 URL
+    $zipName = "sindarin-${versionNum}-windows-x64.zip"
+    $downloadUrl = "${S3BaseUrl}/sindarin-compiler/${TagName}/${zipName}"
 
     $tempDir = Join-Path $env:TEMP "sindarin-install-$(Get-Date -Format 'yyyyMMddHHmmss')"
-    $zipPath = Join-Path $tempDir $Release.AssetName
+    $zipPath = Join-Path $tempDir $zipName
 
     try {
         # Create temp directory
         New-Item -ItemType Directory -Path $tempDir -Force | Out-Null
 
         # Download the release zip
-        Write-Status "Downloading $($Release.AssetName)..."
-        $iwrArgs = @{ Uri = $Release.AssetUrl; OutFile = $zipPath; UseBasicParsing = $true }
-        if ($GHToken) { $iwrArgs["Headers"] = @{ Authorization = "Bearer $GHToken" } }
-        Invoke-WebRequest @iwrArgs
+        Write-Status "Downloading $zipName..."
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
         Write-Status "Download complete" "Success"
 
         # Remove existing installation if present
@@ -210,11 +195,11 @@ function Main {
         # Step 1: Install prerequisites (build tools)
         Invoke-Prereqs
 
-        # Step 2: Get latest release info
-        $release = Get-LatestWindowsRelease
+        # Step 2: Get latest version from S3
+        $tagName = Get-LatestVersion
 
         # Step 3: Download and install
-        Install-Sindarin -Release $release | Out-Null
+        Install-Sindarin -TagName $tagName | Out-Null
 
         # Step 4: Add to PATH (idempotent - won't duplicate)
         Add-ToPath
@@ -223,7 +208,7 @@ function Main {
         Write-Status "Sindarin compiler installed successfully!" "Success"
         Write-Host ""
         Write-Host "  Installed to: $InstallDir" -ForegroundColor White
-        Write-Host "  Version:      $($release.TagName)" -ForegroundColor White
+        Write-Host "  Version:      $tagName" -ForegroundColor White
         Write-Host ""
         Write-Host "  ============================================" -ForegroundColor Yellow
         Write-Host "  IMPORTANT: Please restart your terminal" -ForegroundColor Yellow

@@ -3,7 +3,7 @@
 # Sindarin Compiler Installer
 #
 # This script:
-#   1. Downloads the latest release from GitHub
+#   1. Downloads the latest release from S3
 #   2. Extracts it to ~/.sn
 #   3. Adds ~/.sn/bin to the user PATH (if not already present)
 #
@@ -13,23 +13,11 @@
 
 set -e
 
-REPO_OWNER="SindarinSDK"
-REPO_NAME="sindarin-compiler"
+S3_BUCKET="cryosharp-sindarin-pkg-binaries"
+S3_REGION="eu-west-2"
+S3_BASE_URL="https://${S3_BUCKET}.s3.${S3_REGION}.amazonaws.com"
 INSTALL_DIR="$HOME/.sn"
 BIN_DIR="$INSTALL_DIR/bin"
-
-# Optional auth token — avoids GitHub API rate limits (60/hr unauthenticated).
-# Set GH_TOKEN or GITHUB_TOKEN in the environment to authenticate.
-# GitHub Actions sets GH_TOKEN automatically when passed via env:.
-setup_auth() {
-    TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
-    CURL_AUTH=()
-    WGET_AUTH=()
-    if [ -n "$TOKEN" ]; then
-        CURL_AUTH=(-H "Authorization: Bearer $TOKEN")
-        WGET_AUTH=(--header="Authorization: Bearer $TOKEN")
-    fi
-}
 
 # Colors for output
 RED='\033[0;31m'
@@ -91,7 +79,7 @@ detect_arch() {
 
 # Run the prerequisites installer (build tools, compilers, etc.)
 run_prereqs() {
-    local prereqs_url="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/scripts/install-prereqs.sh"
+    local prereqs_url="https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install-prereqs.sh"
     local local_script=""
 
     if [ -n "${BASH_SOURCE[0]:-}" ]; then
@@ -107,9 +95,9 @@ run_prereqs() {
         prereqs_tmp=$(mktemp)
 
         if command_exists curl; then
-            curl -fsSL "${CURL_AUTH[@]}" -o "$prereqs_tmp" "$prereqs_url"
+            curl -fsSL -o "$prereqs_tmp" "$prereqs_url"
         elif command_exists wget; then
-            wget -q -O "$prereqs_tmp" "${WGET_AUTH[@]}" "$prereqs_url"
+            wget -q -O "$prereqs_tmp" "$prereqs_url"
         else
             rm -f "$prereqs_tmp"
             write_status "Neither curl nor wget found. Please install one of them." "Error"
@@ -121,45 +109,43 @@ run_prereqs() {
     fi
 }
 
-# Fetch the latest release from GitHub
-get_latest_release() {
-    write_status "Fetching latest release from GitHub..."
+# Fetch the latest version from S3
+get_latest_version() {
+    write_status "Fetching latest version..."
 
-    local api_url="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
-    local response=""
+    local version_url="${S3_BASE_URL}/sindarin-compiler/__version__"
+    local version=""
 
     if command_exists curl; then
-        response=$(curl -fsSL "${CURL_AUTH[@]}" -H "Accept: application/vnd.github.v3+json" -H "User-Agent: Sindarin-Installer" "$api_url")
+        version=$(curl -fsSL "$version_url")
     elif command_exists wget; then
-        response=$(wget -q -O - "${WGET_AUTH[@]}" --header="Accept: application/vnd.github.v3+json" --header="User-Agent: Sindarin-Installer" "$api_url")
+        version=$(wget -q -O - "$version_url")
     else
         write_status "Neither curl nor wget found. Please install one of them." "Error"
         exit 1
     fi
 
-    # Extract tag_name
-    TAG_NAME=$(echo "$response" | grep -o '"tag_name"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"tag_name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
-
-    if [ -z "$TAG_NAME" ]; then
-        write_status "Failed to fetch latest release version" "Error"
+    if [ -z "$version" ]; then
+        write_status "Failed to fetch latest version" "Error"
         exit 1
     fi
 
+    TAG_NAME="$version"
     write_status "Found release: $TAG_NAME" "Success"
 }
 
 # Download and install Sindarin
 install_sindarin() {
     local os_type="$1"
-
-    # Extract version number from tag (e.g., "0.0.12" from "v0.0.12-alpha")
-    local version_num
-    version_num=$(echo "$TAG_NAME" | sed 's/^v//' | sed 's/-.*$//')
-
-    # Determine the tarball name
     local arch_type="$2"
+
+    # Extract version number from tag (e.g., "0.0.65" from "v0.0.65")
+    local version_num
+    version_num=$(echo "$TAG_NAME" | sed 's/^v//')
+
+    # Determine the tarball name and S3 URL
     local tarball_name="sindarin-${version_num}-${os_type}-${arch_type}.tar.gz"
-    local download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${TAG_NAME}/${tarball_name}"
+    local download_url="${S3_BASE_URL}/sindarin-compiler/${TAG_NAME}/${tarball_name}"
 
     # Create temp directory
     local temp_dir
@@ -172,9 +158,9 @@ install_sindarin() {
     write_status "Downloading ${tarball_name}..."
 
     if command_exists curl; then
-        curl -fsSL "${CURL_AUTH[@]}" -o "$tarball_path" "$download_url"
+        curl -fsSL -o "$tarball_path" "$download_url"
     elif command_exists wget; then
-        wget -q -O "$tarball_path" "${WGET_AUTH[@]}" "$download_url"
+        wget -q -O "$tarball_path" "$download_url"
     fi
 
     if [ ! -f "$tarball_path" ]; then
@@ -308,26 +294,23 @@ main() {
     echo -e "${MAGENTA}========================================${NC}"
     echo ""
 
-    # Step 1: Set up optional auth headers
-    setup_auth
-
-    # Step 2: Detect OS and architecture
+    # Step 1: Detect OS and architecture
     local os_type
     os_type=$(detect_os)
     local arch_type
     arch_type=$(detect_arch)
     write_status "Detected OS: $os_type ($arch_type)"
 
-    # Step 3: Install prerequisites (build tools)
+    # Step 2: Install prerequisites (build tools)
     run_prereqs
 
-    # Step 4: Get latest release info
-    get_latest_release
+    # Step 3: Get latest version from S3
+    get_latest_version
 
-    # Step 5: Download and install
+    # Step 4: Download and install
     install_sindarin "$os_type" "$arch_type"
 
-    # Step 6: Add to PATH (idempotent - won't duplicate)
+    # Step 5: Add to PATH (idempotent - won't duplicate)
     add_to_path
 
     echo ""
