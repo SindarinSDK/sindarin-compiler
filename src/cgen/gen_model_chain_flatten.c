@@ -579,6 +579,30 @@ static void flatten_expr(json_object *expr, json_object *inserts)
         return;
     }
 
+    /* Struct literal field initializers: the "fields" array contains
+     * objects with "name" and "value" keys but no "kind". The generic
+     * recursion below would call flatten_expr on each field descriptor,
+     * which returns early because of the missing "kind" — so chains
+     * inside field values (e.g. Tracker.create(1).getValue()) are never
+     * flattened and their refcounted intermediates leak.  Explicitly
+     * recurse into each field's value expression here. */
+    if (strcmp(kind, "struct_literal") == 0)
+    {
+        json_object *fields = NULL;
+        if (json_object_object_get_ex(expr, "fields", &fields))
+        {
+            int flen = json_object_array_length(fields);
+            for (int fi = 0; fi < flen; fi++)
+            {
+                json_object *field = json_object_array_get_idx(fields, fi);
+                json_object *field_val = NULL;
+                if (json_object_object_get_ex(field, "value", &field_val))
+                    flatten_expr(field_val, inserts);
+            }
+        }
+        return;
+    }
+
     /* Generic recursion into all object values */
     json_object_object_foreach(expr, key, val)
     {

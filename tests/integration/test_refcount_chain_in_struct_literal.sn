@@ -1,0 +1,70 @@
+# Refcounted intermediate in struct literal field initializer.
+#
+# When a method chain on a refcounted struct is used as a field value
+# inside a struct literal (e.g. `Bar { value: Tracker.create(1).getValue() }`),
+# the flattener must extract the intermediate refcounted object into a
+# temp variable with sn_auto cleanup. Without this, the intermediate
+# is consumed by the method call but never released — leaking one
+# refcounted allocation per struct literal evaluation.
+#
+# This is the root cause of the skynet observer memory leak: the
+# observer creates an Observation every 100ms with
+# id: UUID.create().toString()
+# timestamp: Time.utc().millis().toInt()
+# Both UUID and Time are refcounted — the intermediates leak.
+
+#pragma source "test_refcount_chain_in_struct_literal_helper.c"
+
+native struct Tracker as ref =>
+  id: int
+
+  @alias "tracker_dispose"
+  native fn dispose(): void
+
+  @alias "tracker_get_value"
+  native fn getValue(): int
+
+native fn tracker_create(id: int): Tracker
+native fn tracker_alive_count(): int
+
+struct Result =>
+  value: int
+
+# Case 1: chain in struct literal inside a return statement
+fn makeResult(): Result =>
+  return Result {
+    value: tracker_create(1).getValue()
+  }
+
+# Case 2: chain in struct literal in a variable initializer
+fn makeResultLocal(): Result =>
+  var r: Result = {
+    value: tracker_create(2).getValue()
+  }
+  return r
+
+# Case 3: chain in struct literal in a local variable (non-return)
+# Exercises the same pattern outside a return statement.
+fn makeResultInline(): Result =>
+  var r: Result = {
+    value: tracker_create(3).getValue()
+  }
+  return r
+
+fn main(): void =>
+  # Case 1: return statement with struct literal
+  var r1: Result = makeResult()
+  assert(r1.value == 1, $"case 1: expected 1, got {r1.value}")
+  assert(tracker_alive_count() == 0, $"case 1: leaked tracker, alive={tracker_alive_count()}")
+
+  # Case 2: local variable with struct literal
+  var r2: Result = makeResultLocal()
+  assert(r2.value == 2, $"case 2: expected 2, got {r2.value}")
+  assert(tracker_alive_count() == 0, $"case 2: leaked tracker, alive={tracker_alive_count()}")
+
+  # Case 3: inline variable (chain temp cleaned up at function scope exit)
+  var r3: Result = makeResultInline()
+  assert(r3.value == 3, $"case 3: expected 3, got {r3.value}")
+  assert(tracker_alive_count() == 0, $"case 3: leaked tracker, alive={tracker_alive_count()}")
+
+  println("test_refcount_chain_in_struct_literal: PASS")
