@@ -98,9 +98,36 @@ if ($env:GITHUB_PATH) {
 # -------------------------------------------------------------------------
 # Install make via Chocolatey
 # -------------------------------------------------------------------------
-Write-Status "Installing make via Chocolatey..."
-choco install make -y
-Write-Status "make installed" "Success"
+Write-Status "Installing make and ninja via Chocolatey..."
+choco install make ninja cmake -y
+Write-Status "Build tools installed" "Success"
+
+# -------------------------------------------------------------------------
+# Install vcpkg
+# -------------------------------------------------------------------------
+$vcpkgRoot = "$env:USERPROFILE\vcpkg"
+
+if ((Test-Path "$vcpkgRoot\vcpkg.exe")) {
+    Write-Status "vcpkg already installed at $vcpkgRoot" "Success"
+} else {
+    Write-Status "Installing vcpkg to $vcpkgRoot..."
+    git clone https://github.com/microsoft/vcpkg.git $vcpkgRoot
+    & "$vcpkgRoot\bootstrap-vcpkg.bat" -disableMetrics
+    Write-Status "vcpkg installed" "Success"
+}
+
+# Export for current session
+$env:VCPKG_ROOT = $vcpkgRoot
+$env:PATH = "$vcpkgRoot;$env:PATH"
+
+# Register in GITHUB_ENV/GITHUB_PATH when running in GitHub Actions
+if ($env:GITHUB_ENV) {
+    $vcpkgRootFwd = $vcpkgRoot.Replace('\', '/')
+    "VCPKG_ROOT=$vcpkgRootFwd" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+}
+if ($env:GITHUB_PATH) {
+    Add-Content -Path $env:GITHUB_PATH -Value $vcpkgRoot
+}
 
 Write-Host ""
 Write-Status "Prerequisites installed successfully!" "Success"

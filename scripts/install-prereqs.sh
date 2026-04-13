@@ -35,41 +35,44 @@ write_status() {
 install_apt() {
     write_status "Installing build-essential via apt-get..."
     sudo apt-get update -y
-    sudo apt-get install -y build-essential
+    sudo apt-get install -y build-essential cmake ninja-build pkg-config curl zip unzip tar
 }
 
 install_dnf_devtools() {
     write_status "Installing Development Tools via dnf..."
     sudo dnf groupinstall -y "Development Tools"
+    sudo dnf install -y cmake ninja-build pkgconf curl zip unzip tar
 }
 
 install_yum_devtools() {
     write_status "Installing Development Tools via yum..."
     sudo yum groupinstall -y "Development Tools"
+    sudo yum install -y cmake ninja-build pkgconfig curl zip unzip tar
 }
 
 install_pacman() {
     write_status "Installing base-devel via pacman..."
-    sudo pacman -S --needed --noconfirm base-devel
+    sudo pacman -S --needed --noconfirm base-devel cmake ninja pkgconf curl zip unzip tar
 }
 
 install_apk() {
     write_status "Installing build-base via apk..."
     if command -v sudo >/dev/null 2>&1; then
-        sudo apk add --no-cache build-base
+        sudo apk add --no-cache build-base cmake samurai pkgconf curl zip unzip tar
     else
-        apk add --no-cache build-base
+        apk add --no-cache build-base cmake samurai pkgconf curl zip unzip tar
     fi
 }
 
 install_zypper() {
     write_status "Installing devel_basis pattern via zypper..."
     sudo zypper install -y -t pattern devel_basis
+    sudo zypper install -y cmake ninja pkgconf-pkg-config curl zip unzip tar
 }
 
 install_xbps() {
     write_status "Installing build tools via xbps-install..."
-    sudo xbps-install -Sy gcc make glibc-devel binutils
+    sudo xbps-install -Sy gcc make glibc-devel binutils cmake ninja pkgconf curl zip unzip tar
 }
 
 install_linux() {
@@ -152,7 +155,32 @@ install_macos() {
     fi
 
     write_status "Installing coreutils via Homebrew..."
-    brew install coreutils
+    brew install coreutils cmake ninja pkg-config
+}
+
+install_vcpkg() {
+    local vcpkg_root="$HOME/vcpkg"
+
+    if [ -d "$vcpkg_root" ] && [ -x "$vcpkg_root/vcpkg" ]; then
+        write_status "vcpkg already installed at $vcpkg_root" "Success"
+    else
+        write_status "Installing vcpkg to $vcpkg_root..."
+        git clone https://github.com/microsoft/vcpkg.git "$vcpkg_root"
+        "$vcpkg_root/bootstrap-vcpkg.sh" -disableMetrics
+        write_status "vcpkg installed" "Success"
+    fi
+
+    # Export for current session
+    export VCPKG_ROOT="$vcpkg_root"
+    export PATH="$vcpkg_root:$PATH"
+
+    # Register in GITHUB_ENV/GITHUB_PATH when running in GitHub Actions
+    if [ -n "${GITHUB_ENV:-}" ]; then
+        echo "VCPKG_ROOT=$vcpkg_root" >> "$GITHUB_ENV"
+    fi
+    if [ -n "${GITHUB_PATH:-}" ]; then
+        echo "$vcpkg_root" >> "$GITHUB_PATH"
+    fi
 }
 
 main() {
@@ -170,6 +198,8 @@ main() {
             exit 1
             ;;
     esac
+
+    install_vcpkg
 
     echo ""
     write_status "Prerequisites installed successfully!" "Success"
