@@ -5,9 +5,3 @@ dependencies:
 - name: sindarin-pkg-libs
   git: https://github.com/SindarinSDK/sindarin-pkg-libs.git
   branch: main
-- name: sindarin-pkg-sdk
-  git: https://github.com/SindarinSDK/sindarin-pkg-sdk.git
-  branch: main
-- name: sindarin-pkg-http
-  git: https://github.com/SindarinSDK/sindarin-pkg-http.git
-  branch: main
