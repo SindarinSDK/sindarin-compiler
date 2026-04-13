@@ -689,21 +689,20 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
             )
         endif()
 
-        # Link yyjson for JSON parsing
-        if(WIN32)
-            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
-        else()
-            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
-        endif()
-
-        # Link json-c for gen_model JSON output
-        if(EXISTS "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
-            target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
-            target_link_libraries(tests PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
-        endif()
     else()
         message(STATUS "libcurl not found - auto-update feature disabled")
         target_compile_definitions(sn PRIVATE SN_HAS_CURL=0)
+    endif()
+
+    # Link yyjson for JSON parsing
+    if(EXISTS "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
+        target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libyyjson.a")
+    endif()
+
+    # Link json-c for gen_model JSON output and handlebars template engine
+    if(EXISTS "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
+        target_link_libraries(sn PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
+        target_link_libraries(tests PRIVATE "${SINDARIN_LIBS_DIR}/lib/libjson-c.a")
     endif()
 
     # Check for libgit2 and libyaml for package manager
