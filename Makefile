@@ -248,13 +248,23 @@ package: build
 	@cd $(BUILD_DIR) && cpack
 
 #------------------------------------------------------------------------------
-# setup - Install pre-built dependencies via sn --install
+# setup - Bootstrap compiler and install pre-built dependencies
 #------------------------------------------------------------------------------
+ifeq ($(PLATFORM),windows)
 setup:
-	@echo "Setting up build dependencies..."
+	@echo "Setting up build dependencies for Windows..."
+	@powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install.ps1
 	@sn --install
 	@echo "Pre-built libraries ready!"
 	@echo "Run 'make build' to build the compiler."
+else
+setup:
+	@echo "Setting up build dependencies for $(PLATFORM)..."
+	@bash scripts/install.sh
+	@sn --install
+	@echo "Pre-built libraries ready!"
+	@echo "Run 'make build' to build the compiler."
+endif
 
 #------------------------------------------------------------------------------
 # hooks - Configure git to use tracked pre-commit hooks

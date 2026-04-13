@@ -54,13 +54,12 @@ jobs:
             exe_ext: '.exe'
             cmake_extra: ''
 
-          - os: macos-15
+          - os: macos-13
             platform: darwin
             compiler: clang
             artifact_name: sindarin-darwin-x64
             exe_ext: ''
-            cmake_extra: '-DCMAKE_OSX_ARCHITECTURES=x86_64'
-            libs_arch: x64
+            cmake_extra: ''
 
           - os: macos-latest
             platform: darwin
@@ -122,39 +121,13 @@ jobs:
       #------------------------------------------------------------------------
       # Setup libs (pre-built dependencies)
       #------------------------------------------------------------------------
-      - name: Install Sindarin compiler
-        if: runner.os != 'Windows'
-        shell: bash
-        run: curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.sh | bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Install Sindarin compiler (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: irm https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.ps1 | iex
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       - name: Setup libs
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          make setup
           export PATH="$HOME/.sn/bin:$PATH"
-          if [ "${{ matrix.libs_arch }}" != "" ]; then
-            # Cross-compilation: download libs for target arch directly from S3
-            ARCH="${{ matrix.libs_arch }}"
-            PLATFORM="${{ matrix.platform }}"
-            VERSION=$(grep '^version:' .sn/sindarin-pkg-libs/sn.yaml | sed 's/^version:[[:space:]]*//')
-            ARCHIVE="sindarin-pkg-libs-v${VERSION}-${PLATFORM}-${ARCH}.tar.gz"
-            URL="https://cryosharp-sindarin-pkg-binaries.s3.eu-west-2.amazonaws.com/sindarin-pkg-libs/v${VERSION}/${ARCHIVE}"
-            echo "Downloading libs for ${PLATFORM}-${ARCH} (v${VERSION})..."
-            mkdir -p .sn/sindarin-pkg-libs/libs/${PLATFORM}
-            curl -fSL "$URL" -o /tmp/libs.tar.gz
-            tar -xzf /tmp/libs.tar.gz -C .sn/sindarin-pkg-libs/libs/${PLATFORM}
-            echo "Libs installed for ${PLATFORM}-${ARCH}"
-          else
-            sn --install
-          fi
 
       #------------------------------------------------------------------------
       # Configure and Build

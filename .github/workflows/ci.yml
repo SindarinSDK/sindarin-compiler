@@ -105,25 +105,13 @@ jobs:
       #------------------------------------------------------------------------
       # Unified Build Steps (same for all platforms)
       #------------------------------------------------------------------------
-      - name: Install Sindarin compiler
-        if: runner.os != 'Windows'
-        shell: bash
-        run: curl -fsSL https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.sh | bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-
-      - name: Install Sindarin compiler (Windows)
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: irm https://raw.githubusercontent.com/SindarinSDK/sindarin-compiler/main/scripts/install.ps1 | iex
-        env:
-          GH_TOKEN: ${{ github.token }}
-
       - name: Setup libs
         shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
+          make setup
           export PATH="$HOME/.sn/bin:$PATH"
-          sn --install
 
       - name: Build
         shell: bash
