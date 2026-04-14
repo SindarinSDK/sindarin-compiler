@@ -38,7 +38,7 @@ function Invoke-Prereqs {
     if ($localScript -and (Test-Path $localScript)) {
         Write-Status "Running prerequisites installer from $localScript..."
         & $localScript
-        if ($LASTEXITCODE -ne 0) {
+        if ($LASTEXITCODE) {
             throw "Prerequisites installation failed with exit code $LASTEXITCODE"
         }
     } else {

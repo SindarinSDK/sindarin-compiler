@@ -491,10 +491,10 @@ else()
 endif()
 
 # Find dependency installation directory from libs
-# Check both legacy path (libs/libs/) and sn --install path (.sn/sindarin-pkg-libs/libs/)
-set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
+# Prefer sn --install path (.sn/sindarin-pkg-libs/libs/), fall back to legacy path (libs/libs/)
+set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/.sn/sindarin-pkg-libs/libs/${SINDARIN_LIBS_PLATFORM}")
 if(NOT EXISTS "${SINDARIN_LIBS_DIR}/lib")
-    set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/.sn/sindarin-pkg-libs/libs/${SINDARIN_LIBS_PLATFORM}")
+    set(SINDARIN_LIBS_DIR "${CMAKE_SOURCE_DIR}/libs/libs/${SINDARIN_LIBS_PLATFORM}")
 endif()
 
 # Create bin/deps directory structure

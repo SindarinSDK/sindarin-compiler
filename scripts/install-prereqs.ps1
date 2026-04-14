@@ -255,3 +255,4 @@ if ($skipped.Count -gt 0) {
     foreach ($item in $skipped) { Write-Host "    - $item" -ForegroundColor DarkGray }
 }
 Write-Host ""
+exit 0
