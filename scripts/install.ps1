@@ -43,8 +43,22 @@ function Invoke-Prereqs {
         }
     } else {
         Write-Status "Fetching prerequisites installer..."
-        $prereqsScript = (Invoke-WebRequest -Uri $prereqsUrl -UseBasicParsing).Content
-        Invoke-Expression $prereqsScript
+        $prereqsContent = (Invoke-WebRequest -Uri $prereqsUrl -UseBasicParsing).Content
+        # Save to a temp file and run via `&` instead of Invoke-Expression.
+        # Invoke-Expression runs the fetched content in the CALLER'S scope,
+        # so `exit 0` at the end of install-prereqs.ps1 terminates this
+        # install.ps1 itself before Main can download the compiler. Running
+        # via `&` creates a sub-scope where `exit` only ends the sub-script.
+        $tempScript = Join-Path $env:TEMP "sindarin-install-prereqs-$([Guid]::NewGuid()).ps1"
+        try {
+            Set-Content -Path $tempScript -Value $prereqsContent
+            & $tempScript
+            if ($LASTEXITCODE) {
+                throw "Prerequisites installation failed with exit code $LASTEXITCODE"
+            }
+        } finally {
+            Remove-Item -Path $tempScript -Force -ErrorAction SilentlyContinue
+        }
     }
 }
 
