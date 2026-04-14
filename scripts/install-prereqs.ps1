@@ -93,6 +93,16 @@ if (Test-Path $systemLlvm) {
     $onPath = ($env:PATH -split ';') -contains $systemLlvmBin
     if ($onPath) {
         Write-Status "Removing system LLVM at $systemLlvm to avoid conflicts..."
+        $sysLlvmProcs = Get-Process -ErrorAction SilentlyContinue |
+            Where-Object {
+                try { $_.Path -and $_.Path.StartsWith($systemLlvm, [StringComparison]::OrdinalIgnoreCase) }
+                catch { $false }
+            }
+        if ($sysLlvmProcs) {
+            Write-Status "Stopping processes running from $systemLlvm`: $($sysLlvmProcs.Name -join ', ')..." "Warning"
+            $sysLlvmProcs | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+        }
         Remove-Item -Path $systemLlvm -Recurse -Force
         $installed += "system LLVM removed"
     } else {
@@ -135,6 +145,18 @@ if ($needLlvmInstall) {
 
     Write-Status "Extracting LLVM-MinGW to $llvmRoot..."
     if (Test-Path $llvmRoot) {
+        # Kill any processes running from the LLVM-MinGW directory (e.g. clangd
+        # launched by an editor) so we can delete the folder.
+        $llvmProcs = Get-Process -ErrorAction SilentlyContinue |
+            Where-Object {
+                try { $_.Path -and $_.Path.StartsWith($llvmRoot, [StringComparison]::OrdinalIgnoreCase) }
+                catch { $false }
+            }
+        if ($llvmProcs) {
+            Write-Status "Stopping processes running from $llvmRoot`: $($llvmProcs.Name -join ', ')..." "Warning"
+            $llvmProcs | Stop-Process -Force -ErrorAction SilentlyContinue
+            Start-Sleep -Seconds 2
+        }
         Remove-Item -Path $llvmRoot -Recurse -Force
     }
     Expand-Archive -Path $llvmZip -DestinationPath $llvmRoot -Force
