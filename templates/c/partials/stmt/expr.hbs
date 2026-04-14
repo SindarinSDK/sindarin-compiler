@@ -1,4 +1,4 @@
-{{#if is_fire_and_forget_thread}}{ SnThread *__ff__ = {{> expr expr}}; pthread_detach(__ff__->thread); }
+{{#if is_fire_and_forget_thread}}{ SnThread *__ff__ = {{> expr expr}}; __ff__->detached = 1; pthread_detach(__ff__->thread); sn_thread_release(__ff__); }
 {{else}}{{#if needs_discard_cleanup}}{{#if (eq discard_kind "str")}}{ char *__discard__ = {{> expr expr}}; free(__discard__); }
 {{else}}{{#if (eq discard_kind "arr")}}{ SnArray *__discard__ = {{> expr expr}}; sn_cleanup_array(&__discard__); }
 {{else}}{{#if (eq discard_kind "fn")}}{ void *__discard__ = {{> expr expr}}; sn_cleanup_fn(&__discard__); }

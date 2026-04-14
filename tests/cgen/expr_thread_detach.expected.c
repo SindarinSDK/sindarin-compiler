@@ -18,7 +18,7 @@ static void *__thread_wrapper_0__(void *arg) {
     long long __result__ = __sn__compute();
     if (!__th__->result) __th__->result = calloc(1, sizeof(long long));
     *(long long *)__th__->result = __result__;
-    if (__th__->detached) { free(__th__->result); free(__th__); }
+    sn_thread_release(__th__);
     return NULL;
 }
 typedef struct __Closure__ {
@@ -42,7 +42,6 @@ int main() {
     });
     ({
         SnThread *__dt__ = __sn__handle__th__;
-        __sn__handle__th__ = NULL;
         if (__dt__) {
             __dt__->detached = 1;
             pthread_detach(__dt__->thread);

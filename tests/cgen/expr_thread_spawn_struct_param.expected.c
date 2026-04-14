@@ -80,7 +80,7 @@ static void *__thread_wrapper_0__(void *arg) {
     free(__th__->result); __th__->result = NULL;
     if (!__th__->result) __th__->result = calloc(1, sizeof(long long));
     *(long long *)__th__->result = __result__;
-    if (__th__->detached) { free(__th__->result); free(__th__); }
+    sn_thread_release(__th__);
     return NULL;
 }
 typedef struct __Closure__ {

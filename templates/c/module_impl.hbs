@@ -40,7 +40,6 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{#if type.pass_self_by_ref}}    __sn__{{type.name}}_release(&args->{{name}});
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
-{{/if}}{{#if is_fire_and_forget}}    free(__th__);
 {{/if}}{{else}}
     {{c_type return_type}} __result__ = (({{c_type return_type}} (*)(void *{{#each args}}, {{c_type type}}{{/each}}))(args->__closure_fn)->fn)(args->__closure_fn{{#each args}}, {{#if is_borrow}}&{{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
@@ -59,7 +58,6 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
 {{/if}}{{#if type.pass_self_by_ref}}    __sn__{{type.name}}_release(&args->{{name}});
 {{/if}}{{#if needs_val_copy}}    __sn__{{val_copy_name}}_cleanup(&args->{{name}});
 {{/if}}{{/each}}{{#if has_args}}    free(__th__->result); __th__->result = NULL;
-{{/if}}{{#if is_fire_and_forget}}    free(__th__);
 {{/if}}{{else}}
     {{c_type return_type}} __result__ = {{#if is_native}}{{target_name}}{{else}}__sn__{{func_name}}{{/if}}({{#each args}}{{#if @index}}, {{/if}}{{#if is_borrow}}&{{/if}}args->{{name}}{{/each}});
 {{#each args}}{{#if is_fn_ref_arg}}    free(args->{{name}});
@@ -71,8 +69,8 @@ void *__thread_wrapper_{{thread_id}}__(void *arg) {
     *({{c_type return_type}} *)__th__->result = __result__;
 {{/if}}
 {{/if}}
-{{#unless is_fire_and_forget}}    if (__th__->detached) { free(__th__->result); free(__th__); }
-{{/unless}}    return NULL;
+    sn_thread_release(__th__);
+    return NULL;
 }
 {{/each}}
 {{#each fn_wrappers}}

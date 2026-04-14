@@ -1,7 +1,7 @@
 {{#if is_array_sync}}({
     for (long long __si__ = 0; __si__ < __sn__{{handle.name}}->len; __si__++) {
         SnThread *__th__ = *(SnThread**)((char*)__sn__{{handle.name}}->data + __sn__{{handle.name}}->elem_size * (size_t)__si__);
-        if (__th__) { sn_thread_join(__th__); (({{c_type element_type}} *)__sn__{{handle.name}}->data)[__si__] = *({{c_type element_type}} *)__th__->result; free(__th__->result); free(__th__); }
+        if (__th__) { sn_thread_join(__th__); (({{c_type element_type}} *)__sn__{{handle.name}}->data)[__si__] = *({{c_type element_type}} *)__th__->result; sn_thread_release(__th__); }
     }
     __sn__{{handle.name}}; })
 {{else}}{{#if is_element_sync}}({
@@ -11,7 +11,7 @@
     sn_thread_join(__sync_th__);
     {{c_type element_type}} __sync_val__ = *({{c_type element_type}} *)__sync_th__->result;
     (({{c_type element_type}} *){{> expr handle.array}}->data)[__si__] = __sync_val__;
-    free(__sync_th__->result); free(__sync_th__);
+    sn_thread_release(__sync_th__);
     __sync_val__; })
 {{else}}{{#if (eq handle.kind "sync_list")}}({
 {{#each handle.elements}}    { sn_auto_thread SnThread *__sync_th__ = __sn__{{name}}__th__; __sn__{{name}}__th__ = NULL;

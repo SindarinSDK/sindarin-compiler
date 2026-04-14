@@ -16,7 +16,7 @@ static void *__thread_wrapper_0__(void *arg) {
     SnThread *__th__ = (SnThread *)arg;
 
     __sn__compute();
-    free(__th__);
+    sn_thread_release(__th__);
     return NULL;
 }
 typedef struct __Closure__ {
@@ -37,7 +37,7 @@ int main() {
         __th__->result_size = sizeof(void);
         pthread_create(&__th__->thread, NULL, __thread_wrapper_0__, __th__);
         __th__;
-    }); pthread_detach(__ff__->thread); }
+    }); __ff__->detached = 1; pthread_detach(__ff__->thread); sn_thread_release(__ff__); }
     
     return 0LL;    fflush(stdout);
 }
