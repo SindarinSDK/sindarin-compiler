@@ -269,8 +269,13 @@ endif
 #------------------------------------------------------------------------------
 # hooks - Configure git to use tracked pre-commit hooks
 #------------------------------------------------------------------------------
+ifeq ($(PLATFORM),windows)
 hooks:
-	@git config core.hooksPath .githooks 2>/dev/null || true
+	-@git config core.hooksPath .githooks >NUL 2>&1
+else
+hooks:
+	-@git config core.hooksPath .githooks 2>/dev/null
+endif
 
 #------------------------------------------------------------------------------
 # help - Show available targets
