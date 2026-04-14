@@ -40,13 +40,15 @@ install_apt() {
 
 install_dnf_devtools() {
     write_status "Installing Development Tools via dnf..."
-    sudo dnf groupinstall -y "Development Tools"
-    sudo dnf install -y cmake ninja-build pkgconf curl zip unzip tar
+    # Use "group install" (with space) — the "groupinstall" alias was removed in DNF5 (Fedora 41+).
+    sudo dnf group install -y "Development Tools"
+    # --allowerasing lets curl replace curl-minimal on RHEL 9+/Rocky 9/Alma 9/Fedora minimal.
+    sudo dnf install -y --allowerasing cmake ninja-build pkgconf curl zip unzip tar
 }
 
 install_yum_devtools() {
     write_status "Installing Development Tools via yum..."
-    sudo yum groupinstall -y "Development Tools"
+    sudo yum group install -y "Development Tools"
     sudo yum install -y cmake ninja-build pkgconfig curl zip unzip tar
 }
 
@@ -72,7 +74,12 @@ install_zypper() {
 
 install_xbps() {
     write_status "Installing build tools via xbps-install..."
-    sudo xbps-install -Sy gcc make glibc-devel binutils cmake ninja pkgconf curl zip unzip tar
+    # Void ships both glibc and musl editions; pick the matching libc-devel.
+    local libc_devel="glibc-devel"
+    if ldd --version 2>&1 | grep -qi musl; then
+        libc_devel="musl-devel"
+    fi
+    sudo xbps-install -Sy gcc make "$libc_devel" binutils cmake ninja pkgconf curl zip unzip tar
 }
 
 install_linux() {
