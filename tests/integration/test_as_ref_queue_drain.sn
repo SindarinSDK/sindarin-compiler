@@ -1,0 +1,65 @@
+# Repro for a refcount issue exercised by SignalQueue-like drain patterns in
+# skynet-genesis. Isolates the chain from threads so a compiler fix can be
+# verified deterministically under ASAN.
+#
+# The chain:
+# 1. An `as ref` struct (Item) is held in an array on a container (Holder).
+# 2. Holder.take() reads an element into a local `v` and returns v — same
+# shape as Queue<T>.dequeue in sindarin-pkg-collections.
+# 3. A free function (drainAll) pushes successive take() results into an
+# output array — same shape as SignalQueue.popBatch.
+# 4. The caller iterates the output array and calls a consumer that reads
+# the struct's `.tag` — same shape as the flusher calling
+# ObservationStore.record(batch[i]).
+#
+# Observed failure under ASAN: heap-use-after-free at step 4 (reading
+# `batch[i].tag`). The element pointer held by `batch` has already been
+# released to zero during the drain/push flow.
+
+struct Item as ref =>
+  tag: str
+
+struct Holder as ref =>
+  items: Item[]
+  head: int
+
+  # Mirrors Queue<T>.dequeue: local-bind from an array access, return the
+  # local. Each step is valid individually; the question is whether the
+  # combined refcount accounting is correct.
+  fn take(): Item =>
+    var v: Item = self.items[self.head]
+    self.head = self.head + 1
+    return v
+
+# Mirrors SignalQueue.popBatch: push each take() result directly into an
+# output array (no intermediate named local), return the array.
+fn drainAll(holder: Holder, max: int): Item[] =>
+  var out: Item[] = {}
+  for var i: int = 0; i < max; i++ =>
+    out.push(holder.take())
+  return out
+
+# Mirrors ObservationStore.record(signal): receive the struct by reference,
+# read a field. The field read is what ASAN flags when rc has already
+# dropped to zero upstream.
+fn readTag(item: Item): str =>
+  return item.tag
+
+fn main(): int =>
+  var holder: Holder = {
+    items: {},
+    head: 0
+  }
+  holder.items.push(Item { tag: "alpha" })
+  holder.items.push(Item { tag: "beta" })
+  holder.items.push(Item { tag: "gamma" })
+
+  var batch: Item[] = drainAll(holder, 3)
+  assert(batch.length == 3, $"expected batch of 3, got {batch.length}")
+
+  for var i: int = 0; i < batch.length; i++ =>
+    var label: str = readTag(batch[i])
+    assert(label.length > 0, $"iter {i}: label empty (likely UAF)")
+
+  print("PASS\n")
+  return 0

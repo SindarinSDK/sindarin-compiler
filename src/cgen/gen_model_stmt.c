@@ -606,8 +606,16 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                         /* Unwrap pointer-to-struct (method self parameter) */
                         if (obj_type->kind == TYPE_POINTER && obj_type->as.pointer.base_type)
                             obj_type = obj_type->as.pointer.base_type;
+                        /* Both `as val` structs with heap fields and `as ref`
+                         * (refcounted) structs own their heap fields — the
+                         * caller receiving a str or array out of them needs
+                         * an independent copy. Previously restricted to
+                         * `!pass_self_by_ref`, which left a UAF / double-free
+                         * on `return refStruct.strField`: the caller's local
+                         * aliased the struct's str, sn_auto_str freed it at
+                         * scope exit, then struct release tried to free it
+                         * again. */
                         if (obj_type->kind == TYPE_STRUCT &&
-                            !obj_type->as.struct_type.pass_self_by_ref &&
                             gen_model_type_has_heap_fields(obj_type))
                         {
                             source_has_cleanup = true;
