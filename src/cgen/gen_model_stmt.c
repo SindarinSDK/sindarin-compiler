@@ -639,6 +639,24 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                  * and silently leaked. We now do nothing here: the source's auto
                  * cleanup runs normally and decrements its element refs back to
                  * where the clone took over. */
+                /* `as ref` struct return from a container read (array element or
+                 * struct member): the value's rc reflects the container's own
+                 * reference, not a fresh allocation. Emit `_retain()` at the
+                 * return so the caller receives a +1 owned reference, matching
+                 * the "callee returned fresh rc=1" convention the call-site
+                 * cleanup assumes. Without this, the caller's sn_auto release
+                 * at scope exit drops rc 1→0 and frees the element out from
+                 * under the container — classic UAF on the next container read. */
+                else if (rv->expr_type &&
+                         rv->expr_type->kind == TYPE_STRUCT &&
+                         rv->expr_type->as.struct_type.pass_self_by_ref &&
+                         (rv->type == EXPR_ARRAY_ACCESS ||
+                          rv->type == EXPR_MEMBER ||
+                          rv->type == EXPR_MEMBER_ACCESS))
+                {
+                    json_object_object_add(obj, "needs_retain_return",
+                        json_object_new_boolean(true));
+                }
                 /* String return from non-owned source: needs strdup so caller can free.
                  * Literals, member accesses, and array accesses all borrow from their
                  * source — the returned string must be an independent copy. */

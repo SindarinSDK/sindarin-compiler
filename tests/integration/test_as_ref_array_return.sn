@@ -1,0 +1,54 @@
+# Repro for heap-use-after-free when an `as ref` struct is returned from a
+# function that reads it out of an array.
+#
+# Bug: when the return expression is `arr[idx]` and the element type is an
+# `as ref` refcounted struct, the callee does not emit `_retain()` on the
+# returned pointer. The caller binds the call result to a local under the
+# usual "callee returned fresh rc=1" convention, so its sn_auto release at
+# scope exit decrements rc 1→0 and frees the element — which the array
+# still points at. The next iteration's lookup returns a dangling pointer
+# and the field read is UAF.
+#
+# Fix: emit `__sn__T_retain(arr[idx])` at the return site when returning
+# an `as ref` struct from an array-access (or member-access) expression.
+# Refcount then goes 1→2 on return; caller's scope-exit release restores
+# it to 1; array's reference stays intact.
+
+struct Item as ref =>
+  id: int
+
+fn lookup(items: Item[], idx: int): Item =>
+  return items[idx]
+
+fn readId(items: Item[], idx: int): int =>
+  # Intermediate local of the refcounted type — exercises the full
+  # return-and-bind cycle that triggers the bug.
+  var it: Item = lookup(items, idx)
+  return it.id
+
+fn main(): int =>
+  var items: Item[] = {}
+  items.push(Item { id: 100 })
+  items.push(Item { id: 200 })
+  items.push(Item { id: 300 })
+
+  # Hammer the pattern. Under the bug: element for idx=0 is freed at the
+  # end of iter 0, and iter 3 (idx=0 again) returns a dangling pointer.
+  # Any UAF is caught by ASAN.
+  var count: int = 0
+  for var i: int = 0; i < 200; i++ =>
+    var idx: int = i % 3
+    var got: int = readId(items, idx)
+    if idx == 0 =>
+      assert(got == 100, $"iter {i}: expected 100, got {got}")
+    if idx == 1 =>
+      assert(got == 200, $"iter {i}: expected 200, got {got}")
+    if idx == 2 =>
+      assert(got == 300, $"iter {i}: expected 300, got {got}")
+    count = count + 1
+
+  assert(count == 200, $"expected 200 iterations, got {count}")
+  assert(len(items) == 3, $"array corrupted: len={len(items)}")
+
+  print("PASS\n")
+  return 0
