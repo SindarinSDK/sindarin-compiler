@@ -395,6 +395,54 @@ static void test_lexer_interpolated_string(void)
     DEBUG_INFO("Finished test_lexer_interpolated_string");
 }
 
+static void test_lexer_interpol_brace_identifier_regress(void)
+{
+    DEBUG_INFO("Starting test_lexer_interpol_brace_identifier_regress");
+
+    const char *source = "$\"{x}\"";
+    Arena arena;
+    arena_init(&arena, 1024);
+    Lexer lexer;
+    lexer_init(&arena, &lexer, source, "test.sn");
+
+    Token t1 = lexer_scan_token(&lexer);
+    assert(t1.type == TOKEN_INTERPOL_STRING);
+    assert(t1.literal.string_value != NULL);
+    assert(strcmp(t1.literal.string_value, "{x}") == 0);
+
+    Token t2 = lexer_scan_token(&lexer);
+    assert(t2.type == TOKEN_EOF);
+
+    lexer_cleanup(&lexer);
+    arena_free(&arena);
+
+    DEBUG_INFO("Finished test_lexer_interpol_brace_identifier_regress");
+}
+
+static void test_lexer_interpol_brace_quoted_arg_regress(void)
+{
+    DEBUG_INFO("Starting test_lexer_interpol_brace_quoted_arg_regress");
+
+    const char *source = "$\"{\\\"a\\\"}\"";
+    Arena arena;
+    arena_init(&arena, 1024);
+    Lexer lexer;
+    lexer_init(&arena, &lexer, source, "test.sn");
+
+    Token t1 = lexer_scan_token(&lexer);
+    assert(t1.type == TOKEN_INTERPOL_STRING);
+    assert(t1.literal.string_value != NULL);
+    assert(strcmp(t1.literal.string_value, "{\"a\"}") == 0);
+
+    Token t2 = lexer_scan_token(&lexer);
+    assert(t2.type == TOKEN_EOF);
+
+    lexer_cleanup(&lexer);
+    arena_free(&arena);
+
+    DEBUG_INFO("Finished test_lexer_interpol_brace_quoted_arg_regress");
+}
+
 static void test_lexer_char_literal(void)
 {
     DEBUG_INFO("Starting test_lexer_char_literal");
@@ -759,6 +807,8 @@ void test_lexer_literal_main(void)
     TEST_RUN("lexer_string_with_escapes", test_lexer_string_with_escapes);
     TEST_RUN("lexer_unterminated_string", test_lexer_unterminated_string);
     TEST_RUN("lexer_interpolated_string", test_lexer_interpolated_string);
+    TEST_RUN("lexer_interpol_brace_identifier_regress", test_lexer_interpol_brace_identifier_regress);
+    TEST_RUN("lexer_interpol_brace_quoted_arg_regress", test_lexer_interpol_brace_quoted_arg_regress);
     TEST_RUN("lexer_char_literal", test_lexer_char_literal);
     TEST_RUN("lexer_char_escape", test_lexer_char_escape);
     TEST_RUN("lexer_unterminated_char", test_lexer_unterminated_char);

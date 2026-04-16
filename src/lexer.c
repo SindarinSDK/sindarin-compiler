@@ -465,7 +465,7 @@ skip_indent_processing:
         return lexer_make_token(lexer, TOKEN_RIGHT_BRACE);
     case '"':
     {
-        Token string_token = lexer_scan_string(lexer);
+        Token string_token = lexer_scan_string(lexer, 0);
         DEBUG_VERBOSE("Line %d: Emitting STRING_LITERAL", lexer->line);
         return string_token;
     }
@@ -521,7 +521,7 @@ skip_indent_processing:
         if (lexer_peek(lexer) == '"')
         {
             lexer_advance(lexer);
-            Token token = lexer_scan_string(lexer);
+            Token token = lexer_scan_string(lexer, 1);
             token.type = TOKEN_INTERPOL_STRING;
             DEBUG_VERBOSE("Line %d: Emitting INTERPOL_STRING", lexer->line);
             return token;

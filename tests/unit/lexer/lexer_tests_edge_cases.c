@@ -56,6 +56,12 @@ void test_lexer_edge_cases_main(void)
     TEST_RUN("string_escape_t", test_lex_string_escape_t);
     TEST_RUN("string_escape_backslash", test_lex_string_escape_backslash);
     TEST_RUN("string_escape_quote", test_lex_string_escape_quote);
+    TEST_RUN("string_brace_open", test_lex_string_brace_open);
+    TEST_RUN("string_brace_close", test_lex_string_brace_close);
+    TEST_RUN("string_brace_contents", test_lex_string_brace_contents);
+    TEST_RUN("string_brace_open_close_sequence", test_lex_string_brace_open_close_sequence);
+    TEST_RUN("string_brace_with_ident", test_lex_string_brace_with_ident);
+    TEST_RUN("string_escaped_quote_solo", test_lex_string_escaped_quote_solo);
 
     TEST_SECTION("Lexer - Char Literals");
     TEST_RUN("char_simple", test_lex_char_simple);

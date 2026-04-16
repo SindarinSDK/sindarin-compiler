@@ -10,7 +10,7 @@ SnTokenType lexer_identifier_type(Lexer *lexer);
 /* Token scanners */
 Token lexer_scan_identifier(Lexer *lexer);
 Token lexer_scan_number(Lexer *lexer);
-Token lexer_scan_string(Lexer *lexer);
+Token lexer_scan_string(Lexer *lexer, int is_interpolated);
 Token lexer_scan_char(Lexer *lexer);
 
 #endif /* LEXER_SCAN_H */

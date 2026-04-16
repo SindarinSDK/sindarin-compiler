@@ -96,6 +96,113 @@ static void test_lex_string_escape_quote(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
+static void test_lex_string_brace_open(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"{\"");
+
+    Token tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(tok.literal.string_value, "{") == 0);
+
+    Token eof = lexer_scan_token(&lexer);
+    assert(eof.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
+static void test_lex_string_brace_close(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"}\"");
+
+    Token tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(tok.literal.string_value, "}") == 0);
+
+    Token eof = lexer_scan_token(&lexer);
+    assert(eof.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
+static void test_lex_string_brace_contents(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"{a}\"");
+
+    Token tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(tok.literal.string_value, "{a}") == 0);
+
+    Token eof = lexer_scan_token(&lexer);
+    assert(eof.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
+static void test_lex_string_brace_open_close_sequence(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"{\" \"}\"");
+
+    Token t1 = lexer_scan_token(&lexer);
+    assert(t1.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(t1.literal.string_value, "{") == 0);
+
+    Token t2 = lexer_scan_token(&lexer);
+    assert(t2.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(t2.literal.string_value, "}") == 0);
+
+    Token t3 = lexer_scan_token(&lexer);
+    assert(t3.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
+static void test_lex_string_brace_with_ident(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"{\" x \"}\"");
+
+    Token t1 = lexer_scan_token(&lexer);
+    assert(t1.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(t1.literal.string_value, "{") == 0);
+
+    Token t2 = lexer_scan_token(&lexer);
+    assert(t2.type == TOKEN_IDENTIFIER);
+
+    Token t3 = lexer_scan_token(&lexer);
+    assert(t3.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(t3.literal.string_value, "}") == 0);
+
+    Token t4 = lexer_scan_token(&lexer);
+    assert(t4.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
+static void test_lex_string_escaped_quote_solo(void)
+{
+    Arena arena;
+    Lexer lexer;
+    init_lexer_test(&arena, &lexer, "\"\\\"\"");
+
+    Token tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STRING_LITERAL);
+    assert(strcmp(tok.literal.string_value, "\"") == 0);
+
+    Token eof = lexer_scan_token(&lexer);
+    assert(eof.type == TOKEN_EOF);
+
+    cleanup_lexer_test(&arena, &lexer);
+}
+
 /* ============================================================================
  * Char Literal Tests
  * ============================================================================ */

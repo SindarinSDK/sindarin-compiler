@@ -36,7 +36,7 @@ Token lexer_error_token(Lexer *lexer, const char *message);
 void lexer_skip_whitespace(Lexer *lexer);
 Token lexer_scan_identifier(Lexer *lexer);
 Token lexer_scan_number(Lexer *lexer);
-Token lexer_scan_string(Lexer *lexer);
+Token lexer_scan_string(Lexer *lexer, int is_interpolated);
 Token lexer_scan_char(Lexer *lexer);
 Token lexer_scan_pipe_string(Lexer *lexer, int is_interpolated);
 
