@@ -188,6 +188,7 @@ set(SN_CGEN_SOURCES
     src/cgen/gen_model_split.c
     src/cgen/gen_model_render_modular.c
     src/cgen/c/gen_model_render_min_c.c
+    src/cgen/ownership.c
 )
 
 set(SN_BACKEND_SOURCES

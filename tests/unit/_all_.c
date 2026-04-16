@@ -2,6 +2,7 @@
 #include "standalone/arena_tests_edge_cases.c"
 #include "standalone/compiler_driver_tests.c"
 #include "standalone/diagnostic_tests.c"
+#include "standalone/ownership_tests.c"
 #include "ast/ast_tests.c"
 #include "backend/gcc_backend_tests.c"
 #include "lexer/lexer_tests.c"
@@ -38,6 +39,10 @@ int main()
     // *** Diagnostic System ***
 
     test_diagnostic_main();
+
+    // *** Ownership classifier ***
+
+    test_ownership_main();
 
 
     // *** AST ***
