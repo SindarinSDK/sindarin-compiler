@@ -8,6 +8,7 @@
 
 char *sn_str_concat(const char *a, const char *b);
 char *sn_str_concat_multi(int count, ...);
+char *sn_str_fmt(const char *fmt, ...) __attribute__((format(printf, 1, 2)));
 
 /* ---- String contains / indexOf ---- */
 

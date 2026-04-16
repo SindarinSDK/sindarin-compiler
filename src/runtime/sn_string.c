@@ -46,6 +46,23 @@ char *sn_str_concat_multi(int count, ...)
     return result;
 }
 
+/* asprintf-style: snprintf into a malloc'd buffer sized to fit.
+ * Returned pointer is owned by caller. Used by interpolated_string codegen
+ * to format each typed part without a fixed buffer. */
+char *sn_str_fmt(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int n = vsnprintf(NULL, 0, fmt, ap);
+    va_end(ap);
+    if (n < 0) n = 0;
+    char *buf = sn_malloc((size_t)n + 1);
+    va_start(ap, fmt);
+    vsnprintf(buf, (size_t)n + 1, fmt, ap);
+    va_end(ap);
+    return buf;
+}
+
 /* ---- String split ---- */
 
 SnArray *sn_str_split(const char *s, const char *delim)

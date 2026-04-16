@@ -2805,6 +2805,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_array_add(parts, part);
             }
             json_object_object_add(obj, "parts", parts);
+            json_object_object_add(obj, "part_count",
+                json_object_new_int(expr->as.interpol.part_count));
             break;
         }
 

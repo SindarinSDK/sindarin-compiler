@@ -17,12 +17,9 @@ typedef struct __Closure__ {
 char * __sn__greet(char * __sn__name) {
 
     sn_auto_str char * __sn__msg = ({
-            char __is_buf__[1024];
-            int __is_off__ = 0;
-            __is_buf__[0] = '\0';
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", "Hello ");
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __sn__name);
-            strdup(__is_buf__);
+            sn_auto_str char *__is_p0__ = sn_strdup("Hello ");
+            sn_auto_str char *__is_p1__ = sn_strdup(__sn__name);
+            sn_str_concat_multi(2, __is_p0__, __is_p1__);
         });
 
     {

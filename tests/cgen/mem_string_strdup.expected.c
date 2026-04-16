@@ -16,12 +16,9 @@ int main() {
     sn_auto_str char * __sn__a = strdup("hello");
     sn_auto_str char * __sn__b = strdup(__sn__a);
     sn_auto_str char * __sn__c = ({
-            char __is_buf__[1024];
-            int __is_off__ = 0;
-            __is_buf__[0] = '\0';
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", "value: ");
-            __is_off__ += snprintf(__is_buf__ + __is_off__, sizeof(__is_buf__) - __is_off__, "%s", __sn__a);
-            strdup(__is_buf__);
+            sn_auto_str char *__is_p0__ = sn_strdup("value: ");
+            sn_auto_str char *__is_p1__ = sn_strdup(__sn__a);
+            sn_str_concat_multi(2, __is_p0__, __is_p1__);
         });
     sn_assert((sn_str_length(__sn__a) == 5LL), "a should be 5 chars");
     
