@@ -19,7 +19,6 @@ OwnershipKind ownership_kind(const Expr *src)
         case EXPR_INTERPOLATED:
         case EXPR_LAMBDA:
         case EXPR_THREAD_SPAWN:
-        case EXPR_THREAD_SYNC:
         case EXPR_MATCH:
         case EXPR_BINARY:
         case EXPR_UNARY:
@@ -32,7 +31,25 @@ OwnershipKind ownership_kind(const Expr *src)
         case EXPR_ARRAY_ACCESS:
         case EXPR_VALUE_OF:
         case EXPR_ADDRESS_OF:
+            return OWNERSHIP_BORROW;
+
+        case EXPR_THREAD_SYNC:
+            /* Handle-based sync (`handle!` where handle is a variable) aliases
+             * the thread handle's result payload — both the handle var and the
+             * destination would claim ownership of the same pointer unless the
+             * destination acquires a fresh copy. Inline sync (`spawn f()!`)
+             * returns a unique owned value — no acquire needed. */
+            if (src->as.thread_sync.handle &&
+                src->as.thread_sync.handle->type == EXPR_VARIABLE)
+                return OWNERSHIP_BORROW;
+            return OWNERSHIP_OWNED;
+
         case EXPR_LITERAL:
+            /* nil literals produce a NULL pointer; there is nothing to acquire.
+             * Classify as OWNED so acquire-emission sites skip strdup(NULL) /
+             * sn_array_copy(NULL) / __sn__T_retain(NULL). */
+            if (src->as.literal.type && src->as.literal.type->kind == TYPE_NIL)
+                return OWNERSHIP_OWNED;
             return OWNERSHIP_BORROW;
 
         /* Side-effecting forms rarely appear as acquire-context sources; classify

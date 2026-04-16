@@ -272,6 +272,21 @@ static void extract_heap_producing_args(json_object *args, json_object *inserts)
         /* Annotate with cleanup kind based on type */
         annotate_chain_temp(var_decl, arg_type);
 
+        /* consumes_source: the sink at the arg's call site has taken ownership
+         * of the +1 credit this chain_tmp holds (e.g. refcounted struct push
+         * into an array, or struct-literal field init from an OWNED source).
+         * Suppress the chain_tmp's release so the sink's slot keeps the credit
+         * intact. Without this, the sn_auto_T release drops rc out from under
+         * the slot, producing a dangling pointer at the next cleanup cycle —
+         * the queue_drain UAF. */
+        json_object *cons = NULL;
+        if (json_object_object_get_ex(arg, "consumes_source", &cons) &&
+            json_object_get_boolean(cons))
+        {
+            json_object_object_del(var_decl, "needs_cleanup");
+            json_object_object_del(var_decl, "cleanup_kind");
+        }
+
         json_object_array_add(inserts, var_decl);
 
         /* Replace the argument with a variable reference */

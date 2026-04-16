@@ -59,8 +59,31 @@ static void test_owned_thread_forms(void)
 {
     Expr spawn = make_expr(EXPR_THREAD_SPAWN);
     Expr sync  = make_expr(EXPR_THREAD_SYNC);
+    /* Inline sync (spawn f()!): handle field NULL, OWNED. */
     assert(ownership_kind(&spawn) == OWNERSHIP_OWNED);
     assert(ownership_kind(&sync)  == OWNERSHIP_OWNED);
+}
+
+static void test_borrow_thread_sync_from_handle(void)
+{
+    /* `handle!` where handle is a variable aliases the handle's payload —
+     * destination needs its own copy. BORROW. */
+    Expr handle_var = make_expr(EXPR_VARIABLE);
+    Expr sync       = make_expr(EXPR_THREAD_SYNC);
+    sync.as.thread_sync.handle = &handle_var;
+    assert(ownership_kind(&sync) == OWNERSHIP_BORROW);
+}
+
+static void test_owned_nil_literal(void)
+{
+    /* nil literal is NULL; there is nothing to acquire. Classify OWNED so
+     * the destination does not strdup(NULL) / retain(NULL) / copy(NULL). */
+    Type nil_type;
+    memset(&nil_type, 0, sizeof(nil_type));
+    nil_type.kind = TYPE_NIL;
+    Expr nil_lit = make_expr(EXPR_LITERAL);
+    nil_lit.as.literal.type = &nil_type;
+    assert(ownership_kind(&nil_lit) == OWNERSHIP_OWNED);
 }
 
 static void test_owned_operators(void)
@@ -162,8 +185,10 @@ void test_ownership_main(void)
     TEST_RUN("owned_constructors",                  test_owned_constructors);
     TEST_RUN("owned_thread_forms",                  test_owned_thread_forms);
     TEST_RUN("owned_operators",                     test_owned_operators);
+    TEST_RUN("owned_nil_literal",                   test_owned_nil_literal);
     TEST_RUN("borrow_reads",                        test_borrow_reads);
     TEST_RUN("borrow_literals",                     test_borrow_literals);
+    TEST_RUN("borrow_thread_sync_from_handle",      test_borrow_thread_sync_from_handle);
     TEST_RUN("null_source_is_safe",                 test_null_source_is_safe);
     TEST_RUN("kind_str_roundtrip",                  test_kind_str_roundtrip);
     TEST_RUN("regression_queue_drain_take_owned",   test_regression_queue_drain_take_is_owned);

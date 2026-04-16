@@ -1,4 +1,5 @@
 #include "cgen/gen_model.h"
+#include "cgen/ownership.h"
 #include "symbol_table/symbol_table_core.h"
 #include <string.h>
 
@@ -1606,15 +1607,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         json_object_object_add(arg, "needs_arr_copy",
                             json_object_new_boolean(true));
                     }
-                    /* Composite struct array push/insert: lvalue args need deep copy for ownership */
+                    /* Composite struct array push/insert: BORROW args need deep copy
+                     * for ownership (the source still owns its heap fields after
+                     * the push; without a copy, both would try to free them). */
                     if (member_struct_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
-                                          arg_expr->type == EXPR_ARRAY_ACCESS ||
-                                          arg_expr->type == EXPR_MEMBER ||
-                                          arg_expr->type == EXPR_MEMBER_ACCESS);
-                        if (is_lvalue)
+                        if (ownership_kind(arg_expr) == OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "needs_struct_copy",
                                 json_object_new_boolean(true));
@@ -1622,20 +1621,28 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                                 json_object_new_string(member_struct_push_name));
                         }
                     }
-                    /* Ref struct array push/insert: lvalue args need retain for ownership */
+                    /* Ref struct array push/insert:
+                     *   BORROW source → retain so slot contributes +1 while source stays live.
+                     *   OWNED source  → no retain; slot consumes the existing +1. If the
+                     *     OWNED source is a call result the chain flattener would lift it
+                     *     into a __chain_tmp_N with sn_auto_T release — that release would
+                     *     drop the rc out from under the slot. Mark consumes_source so the
+                     *     flattener skips the release on that chain_tmp. */
                     if (member_ref_push && i == 0)
                     {
                         Expr *arg_expr = expr->as.call.arguments[0];
-                        bool is_lvalue = (arg_expr->type == EXPR_VARIABLE ||
-                                          arg_expr->type == EXPR_ARRAY_ACCESS ||
-                                          arg_expr->type == EXPR_MEMBER ||
-                                          arg_expr->type == EXPR_MEMBER_ACCESS);
-                        if (is_lvalue)
+                        OwnershipKind k = ownership_kind(arg_expr);
+                        if (k == OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "needs_retain",
                                 json_object_new_boolean(true));
                             json_object_object_add(arg, "retain_type_name",
                                 json_object_new_string(member_ref_push_name));
+                        }
+                        else
+                        {
+                            json_object_object_add(arg, "consumes_source",
+                                json_object_new_boolean(true));
                         }
                     }
                     /* Issue #47: Array literal / range call args have no auto
@@ -2599,21 +2606,30 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(f, "needs_strdup",
                         json_object_new_boolean(needs_strdup));
                 }
-                /* Ref struct fields from variables/members/accesses need retain
-                 * to increment the refcount — the struct literal shares the pointer,
-                 * so cleanup of the literal must not drop the refcount to 0 while
-                 * the original owner still holds a reference.
-                 * Function calls and constructors return fresh refs (rc=1) — no retain needed. */
+                /* Ref struct fields:
+                 *   BORROW source  → retain so the field contributes +1 while source stays live.
+                 *   OWNED source   → no retain; field consumes the existing +1. If the OWNED
+                 *     source is a call result the chain flattener would lift it into a
+                 *     __chain_tmp_N with sn_auto_T release that would drop the rc out from
+                 *     under the struct's new field. Mark consumes_source so the flattener
+                 *     skips the release on that chain_tmp. */
                 if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
                     fv->expr_type->as.struct_type.pass_self_by_ref &&
-                    !fv_is_lifted_member &&
-                    (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
-                     fv->type == EXPR_ARRAY_ACCESS || fv->type == EXPR_MEMBER_ACCESS))
+                    !fv_is_lifted_member)
                 {
-                    json_object_object_add(f, "needs_retain",
-                        json_object_new_boolean(true));
-                    json_object_object_add(f, "retain_type_name",
-                        json_object_new_string(fv->expr_type->as.struct_type.name));
+                    OwnershipKind k = ownership_kind(fv);
+                    if (k == OWNERSHIP_BORROW)
+                    {
+                        json_object_object_add(f, "needs_retain",
+                            json_object_new_boolean(true));
+                        json_object_object_add(f, "retain_type_name",
+                            json_object_new_string(fv->expr_type->as.struct_type.name));
+                    }
+                    else
+                    {
+                        json_object_object_add(f, "consumes_source",
+                            json_object_new_boolean(true));
+                    }
                 }
                 /* Val struct fields from variables/members/accesses need deep copy
                  * to transfer ownership (avoid double-free when source is cleaned up) */
