@@ -29,9 +29,15 @@ OwnershipKind ownership_kind(const Expr *src)
         case EXPR_MEMBER:
         case EXPR_MEMBER_ACCESS:
         case EXPR_ARRAY_ACCESS:
-        case EXPR_VALUE_OF:
         case EXPR_ADDRESS_OF:
             return OWNERSHIP_BORROW;
+
+        /* valueOf either produces a fresh owned value (deep-copy for as-ref
+         * structs, strdup for *char, fresh array for pointer-slice) or is a
+         * no-op pass-through. In every case the destination must not emit a
+         * further acquire — classify OWNED. */
+        case EXPR_VALUE_OF:
+            return OWNERSHIP_OWNED;
 
         case EXPR_THREAD_SYNC:
             /* Handle-based sync (`handle!` where handle is a variable) aliases
@@ -66,8 +72,13 @@ OwnershipKind ownership_kind(const Expr *src)
         case EXPR_THREAD_DETACH:
         case EXPR_SYNC_LIST:
         case EXPR_SIZEOF:
-        case EXPR_TYPEOF:
             return OWNERSHIP_BORROW;
+
+        /* typeOf lowers to sn_typeinfo_create(...) — a call that returns a
+         * fresh val-struct with heap fields. Must classify as OWNED so the
+         * acquire site does not attempt to deep-copy an rvalue. */
+        case EXPR_TYPEOF:
+            return OWNERSHIP_OWNED;
     }
     return OWNERSHIP_BORROW;
 }

@@ -1,6 +1,6 @@
 {{#if (eq elem_cleanup "free_str")}}({
     long long __ai__ = {{> expr index}}; if (__ai__ < 0) __ai__ += {{> expr array}}->len;
-    {{c_type type}} __new__ = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{c_type type}} __new__ = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
     free((({{c_type type}} *){{> expr array}}->data)[__ai__]);
     (({{c_type type}} *){{> expr array}}->data)[__ai__] = __new__;
 }){{else}}{{#if (eq elem_cleanup "struct_composite")}}({

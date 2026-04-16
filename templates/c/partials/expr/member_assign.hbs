@@ -1,22 +1,22 @@
 {{#if (eq field_cleanup "free_str")}}({
     {{#if object.type.pass_self_by_ref}}free({{> expr object}}->__sn__{{field_name}});
-    {{> expr object}}->__sn__{{field_name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}->__sn__{{field_name}} = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
     {{> expr object}}->__sn__{{field_name}};{{else}}free({{> expr object}}.__sn__{{field_name}});
-    {{> expr object}}.__sn__{{field_name}} = {{#if needs_strdup}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}.__sn__{{field_name}} = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
     {{> expr object}}.__sn__{{field_name}};{{/if}}
 }){{else}}{{#if (eq field_cleanup "release_ref")}}({
     {{#if object.type.pass_self_by_ref}}__sn__{{field_type_name}} *__old__ = {{> expr object}}->__sn__{{field_name}};
-    {{> expr object}}->__sn__{{field_name}} = {{#if needs_retain}}__sn__{{field_type_name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}->__sn__{{field_name}} = {{#if source_is_borrow}}__sn__{{field_type_name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
     __sn__{{field_type_name}}_release(&__old__);
     {{> expr object}}->__sn__{{field_name}};{{else}}__sn__{{field_type_name}} *__old__ = {{> expr object}}.__sn__{{field_name}};
-    {{> expr object}}.__sn__{{field_name}} = {{#if needs_retain}}__sn__{{field_type_name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}.__sn__{{field_name}} = {{#if source_is_borrow}}__sn__{{field_type_name}}_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
     __sn__{{field_type_name}}_release(&__old__);
     {{> expr object}}.__sn__{{field_name}};{{/if}}
 }){{else}}{{#if (eq field_cleanup "cleanup_arr")}}({
-    {{#if object.type.pass_self_by_ref}}SnArray *__ma_arr_tmp__ = {{#if needs_arr_copy}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{#if object.type.pass_self_by_ref}}SnArray *__ma_arr_tmp__ = {{#if source_is_borrow}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
     sn_cleanup_array(&{{> expr object}}->__sn__{{field_name}});
     {{> expr object}}->__sn__{{field_name}} = __ma_arr_tmp__;
-    {{> expr object}}->__sn__{{field_name}};{{else}}SnArray *__ma_arr_tmp__ = {{#if needs_arr_copy}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}->__sn__{{field_name}};{{else}}SnArray *__ma_arr_tmp__ = {{#if source_is_borrow}}sn_array_copy({{> expr value}}){{else}}{{> expr value}}{{/if}};
     sn_cleanup_array(&{{> expr object}}.__sn__{{field_name}});
     {{> expr object}}.__sn__{{field_name}} = __ma_arr_tmp__;
     {{> expr object}}.__sn__{{field_name}};{{/if}}
@@ -27,10 +27,10 @@
     {{> expr object}}.__sn__{{field_name}} = {{#if needs_closure_wrap}}({ __Closure__ *__cl__ = malloc(sizeof(__Closure__)); __cl__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __cl__->size = sizeof(__Closure__); __cl__->__cleanup__ = NULL; __cl__; }){{else}}{{> expr value}}{{/if}};
     {{> expr object}}.__sn__{{field_name}};{{/if}}
 }){{else}}{{#if (eq field_cleanup "cleanup_val")}}({
-    {{#if object.type.pass_self_by_ref}}__sn__{{field_type_name}} __ma_tmp__ = {{#if needs_val_copy}}__sn__{{field_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}};
+    {{#if object.type.pass_self_by_ref}}__sn__{{field_type_name}} __ma_tmp__ = {{#if source_is_borrow}}__sn__{{field_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}};
     __sn__{{field_type_name}}_cleanup(&{{> expr object}}->__sn__{{field_name}});
     {{> expr object}}->__sn__{{field_name}} = __ma_tmp__;
-    {{> expr object}}->__sn__{{field_name}};{{else}}__sn__{{field_type_name}} __ma_tmp__ = {{#if needs_val_copy}}__sn__{{field_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}};
+    {{> expr object}}->__sn__{{field_name}};{{else}}__sn__{{field_type_name}} __ma_tmp__ = {{#if source_is_borrow}}__sn__{{field_type_name}}_copy(&({{> expr value}})){{else}}{{> expr value}}{{/if}};
     __sn__{{field_type_name}}_cleanup(&{{> expr object}}.__sn__{{field_name}});
     {{> expr object}}.__sn__{{field_name}} = __ma_tmp__;
     {{> expr object}}.__sn__{{field_name}};{{/if}}

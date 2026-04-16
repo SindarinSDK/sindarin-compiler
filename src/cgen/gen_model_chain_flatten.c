@@ -337,8 +337,19 @@ static void extract_interp_string_args(json_object *args, json_object *inserts)
         json_object_object_add(var_decl, "name", json_object_new_string(tmp_name));
         json_object_object_add(var_decl, "type", str_type);
         json_object_object_add(var_decl, "initializer", json_object_get(arg));
-        json_object_object_add(var_decl, "needs_cleanup", json_object_new_boolean(true));
-        json_object_object_add(var_decl, "cleanup_kind", json_object_new_string("str"));
+        /* consumes_source on the arg means the sink transfers the +1 credit
+         * out of this chain_tmp — suppress sn_auto_str so the slot isn't
+         * left holding a dangling pointer after the tmp's release. Mirrors
+         * extract_heap_producing_args' handling for refcounted/composite
+         * struct sinks. */
+        json_object *cons = NULL;
+        bool consumes = json_object_object_get_ex(arg, "consumes_source", &cons) &&
+                        json_object_get_boolean(cons);
+        if (!consumes)
+        {
+            json_object_object_add(var_decl, "needs_cleanup", json_object_new_boolean(true));
+            json_object_object_add(var_decl, "cleanup_kind", json_object_new_string("str"));
+        }
 
         json_object_array_add(inserts, var_decl);
 

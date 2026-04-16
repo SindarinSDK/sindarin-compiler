@@ -44,7 +44,6 @@
             "value_kind": "string",
             "value": "world"
           },
-          "needs_strdup": true,
           "source_is_borrow": true
         },
         {
@@ -83,8 +82,7 @@
                 "value": "!"
               }
             ]
-          },
-          "needs_strdup": false
+          }
         },
         {
           "kind": "expr",

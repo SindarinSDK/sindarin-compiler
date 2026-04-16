@@ -761,8 +761,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 Type *atype = expr->expr_type;
                 const char *assign_cleanup = "none";
-                bool assign_needs_strdup = false;
-                bool assign_needs_retain = false;
 
                 /* Issue #49: lifted member RHS already runs the keeper op
                  * inside the lift block — skip the assign-side ownership op
@@ -788,17 +786,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     case TYPE_STRING:
                         assign_cleanup = "free_str";
-                        /* RHS literal/variable → needs strdup; function return/interpolation → owned */
-                        {
-                            Expr *val = expr->as.assign.value;
-                            ExprType vt = val->type;
-                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
-                                           val->as.literal.type->kind == TYPE_NIL);
-                            if (!is_nil && !assign_rhs_is_lifted_member &&
-                                (vt == EXPR_LITERAL || vt == EXPR_VARIABLE ||
-                                 vt == EXPR_ARRAY_ACCESS || vt == EXPR_MEMBER))
-                                assign_needs_strdup = true;
-                        }
                         break;
                     case TYPE_ARRAY:
                         assign_cleanup = "cleanup_arr";
@@ -807,9 +794,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (atype->as.struct_type.pass_self_by_ref)
                         {
                             assign_cleanup = "release_ref";
-                            /* Variable RHS is borrowed → need retain */
-                            if (expr->as.assign.value->type == EXPR_VARIABLE)
-                                assign_needs_retain = true;
                         }
                         else
                         {
@@ -835,32 +819,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 json_object_object_add(obj, "assign_cleanup",
                     json_object_new_string(assign_cleanup));
-                if (assign_needs_strdup)
-                    json_object_object_add(obj, "needs_strdup",
-                        json_object_new_boolean(true));
-                if (assign_needs_retain)
-                    json_object_object_add(obj, "needs_retain",
-                        json_object_new_boolean(true));
-                /* Val struct from variable needs deep copy to avoid shared heap fields */
-                if (strcmp(assign_cleanup, "cleanup_val") == 0 &&
-                    expr->as.assign.value->type == EXPR_VARIABLE)
-                {
-                    json_object_object_add(obj, "needs_val_copy",
-                        json_object_new_boolean(true));
-                }
-                /* Array from variable/member needs copy to avoid double-free */
-                if (strcmp(assign_cleanup, "cleanup_arr") == 0 &&
-                    !assign_rhs_is_lifted_member &&
-                    (expr->as.assign.value->type == EXPR_VARIABLE ||
-                     expr->as.assign.value->type == EXPR_MEMBER))
-                {
-                    json_object_object_add(obj, "needs_arr_copy",
-                        json_object_new_boolean(true));
-                }
-                /* Unified classifier: source_is_borrow when RHS reads through a
-                 * live owner and the destination's type family needs an acquire
-                 * to contribute its own credit. Mirrors the needs_* emissions
-                 * above — replacing them in Commit 2.5b. */
+                /* Unified classifier: source_is_borrow when the RHS reads
+                 * through a live owner and the destination's cleanup_kind
+                 * requires a fresh +1 credit. The template selects the
+                 * concrete acquire (strdup / retain / val-copy / arr-copy)
+                 * off assign_cleanup. */
                 if (!assign_rhs_is_lifted_member &&
                     ownership_kind(expr->as.assign.value) == OWNERSHIP_BORROW &&
                     (strcmp(assign_cleanup, "free_str") == 0 ||
@@ -1609,27 +1572,39 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             }
                         }
                     }
-                    /* String array push/insert: args need strdup for ownership */
+                    /* String array push/insert: BORROW args need strdup so slot
+                     * contributes +1 while source stays live. OWNED args (call
+                     * results, interpolated strings, binary ops, literal array
+                     * allocations that flatten through chain_tmps) transfer the
+                     * existing +1 into the slot — consumes_source suppresses
+                     * the chain_tmp's sn_auto_str release. */
                     if (member_str_push && i == 0)
                     {
-                        json_object_object_add(arg, "needs_strdup",
-                            json_object_new_boolean(true));
                         Expr *arg_expr = expr->as.call.arguments[0];
                         if (ownership_kind(arg_expr) == OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "source_is_borrow",
                                 json_object_new_boolean(true));
                         }
+                        else
+                        {
+                            json_object_object_add(arg, "consumes_source",
+                                json_object_new_boolean(true));
+                        }
                     }
-                    /* Array-of-arrays push/insert: args need sn_array_copy for ownership */
+                    /* Array-of-arrays push/insert: mirror the str rule — BORROW
+                     * copies, OWNED transfers via consumes_source. */
                     if (member_arr_push && i == 0)
                     {
-                        json_object_object_add(arg, "needs_arr_copy",
-                            json_object_new_boolean(true));
                         Expr *arg_expr = expr->as.call.arguments[0];
                         if (ownership_kind(arg_expr) == OWNERSHIP_BORROW)
                         {
                             json_object_object_add(arg, "source_is_borrow",
+                                json_object_new_boolean(true));
+                        }
+                        else
+                        {
+                            json_object_object_add(arg, "consumes_source",
                                 json_object_new_boolean(true));
                         }
                     }
@@ -1641,8 +1616,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         Expr *arg_expr = expr->as.call.arguments[0];
                         if (ownership_kind(arg_expr) == OWNERSHIP_BORROW)
                         {
-                            json_object_object_add(arg, "needs_struct_copy",
-                                json_object_new_boolean(true));
                             json_object_object_add(arg, "copy_struct_name",
                                 json_object_new_string(member_struct_push_name));
                             json_object_object_add(arg, "source_is_borrow",
@@ -1662,8 +1635,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         OwnershipKind k = ownership_kind(arg_expr);
                         if (k == OWNERSHIP_BORROW)
                         {
-                            json_object_object_add(arg, "needs_retain",
-                                json_object_new_boolean(true));
                             json_object_object_add(arg, "retain_type_name",
                                 json_object_new_string(member_ref_push_name));
                             json_object_object_add(arg, "source_is_borrow",
@@ -2042,50 +2013,32 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             for (int i = 0; i < expr->as.array.element_count; i++)
             {
                 json_object *elem = gen_model_expr(arena, expr->as.array.elements[i], symbol_table, arithmetic_mode);
-                /* String array elements from literals/variables need strdup */
+                /* Unified classifier: BORROW element source → source_is_borrow +
+                 * type-name context keys the template needs for the concrete
+                 * acquire call. */
                 Expr *ae = expr->as.array.elements[i];
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRING)
-                {
-                    bool is_nil = (ae->type == EXPR_LITERAL && ae->as.literal.type &&
-                                   ae->as.literal.type->kind == TYPE_NIL);
-                    if (!is_nil && (ae->type == EXPR_LITERAL || ae->type == EXPR_VARIABLE ||
-                                    ae->type == EXPR_ARRAY_ACCESS || ae->type == EXPR_MEMBER))
-                        json_object_object_add(elem, "needs_strdup", json_object_new_boolean(true));
-                    if (ownership_kind(ae) == OWNERSHIP_BORROW)
-                        json_object_object_add(elem, "source_is_borrow", json_object_new_boolean(true));
-                }
-                /* Array-of-arrays: variable/member elements need sn_array_copy */
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_ARRAY &&
-                    (ae->type == EXPR_VARIABLE || ae->type == EXPR_MEMBER))
-                {
-                    json_object_object_add(elem, "needs_arr_copy", json_object_new_boolean(true));
-                }
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_ARRAY &&
+                if (ae && ae->expr_type &&
                     ownership_kind(ae) == OWNERSHIP_BORROW)
                 {
-                    json_object_object_add(elem, "source_is_borrow", json_object_new_boolean(true));
-                }
-                /* Composite struct arrays: lvalue elements need deep copy */
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
-                    !ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
-                    (ae->type == EXPR_VARIABLE || ae->type == EXPR_ARRAY_ACCESS ||
-                     ae->type == EXPR_MEMBER || ae->type == EXPR_MEMBER_ACCESS))
-                {
-                    json_object_object_add(elem, "needs_struct_copy", json_object_new_boolean(true));
-                    json_object_object_add(elem, "copy_struct_name",
-                        json_object_new_string(ae->expr_type->as.struct_type.name));
-                }
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
-                    !ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    gen_model_type_category(ae->expr_type) == TYPE_CAT_COMPOSITE &&
-                    ownership_kind(ae) == OWNERSHIP_BORROW)
-                {
-                    json_object_object_add(elem, "source_is_borrow", json_object_new_boolean(true));
-                    if (!json_object_object_get_ex(elem, "copy_struct_name", NULL))
+                    Type *et = ae->expr_type;
+                    if (et->kind == TYPE_STRING || et->kind == TYPE_ARRAY)
                     {
+                        json_object_object_add(elem, "source_is_borrow",
+                            json_object_new_boolean(true));
+                    }
+                    else if (et->kind == TYPE_STRUCT &&
+                             !et->as.struct_type.pass_self_by_ref &&
+                             gen_model_type_category(et) == TYPE_CAT_COMPOSITE)
+                    {
+                        json_object_object_add(elem, "source_is_borrow",
+                            json_object_new_boolean(true));
                         json_object_object_add(elem, "copy_struct_name",
-                            json_object_new_string(ae->expr_type->as.struct_type.name));
+                            json_object_new_string(et->as.struct_type.name));
+                    }
+                    else if (et->kind == TYPE_STRUCT &&
+                             et->as.struct_type.pass_self_by_ref)
+                    {
+                        /* Handled below via the refcounted-struct branch. */
                     }
                 }
                 /* Composite struct arrays: function call elements need a temp variable
@@ -2099,25 +2052,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_object_add(elem, "tmp_struct_type",
                         json_object_new_string(ae->expr_type->as.struct_type.name));
                 }
-                /* Ref struct arrays: lvalue elements need retain to bump refcount */
+                /* Refcounted-struct array elements: BORROW → retain, OWNED →
+                 * consumes_source so the flattener suppresses the chain_tmp's
+                 * sn_auto_T release (mirrors push/insert and struct-lit). */
                 if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
-                    ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    (ae->type == EXPR_VARIABLE || ae->type == EXPR_ARRAY_ACCESS ||
-                     ae->type == EXPR_MEMBER || ae->type == EXPR_MEMBER_ACCESS))
+                    ae->expr_type->as.struct_type.pass_self_by_ref)
                 {
-                    json_object_object_add(elem, "needs_retain", json_object_new_boolean(true));
-                    json_object_object_add(elem, "retain_type_name",
-                        json_object_new_string(ae->expr_type->as.struct_type.name));
-                }
-                if (ae && ae->expr_type && ae->expr_type->kind == TYPE_STRUCT &&
-                    ae->expr_type->as.struct_type.pass_self_by_ref &&
-                    ownership_kind(ae) == OWNERSHIP_BORROW)
-                {
-                    json_object_object_add(elem, "source_is_borrow", json_object_new_boolean(true));
-                    if (!json_object_object_get_ex(elem, "retain_type_name", NULL))
+                    OwnershipKind k = ownership_kind(ae);
+                    if (k == OWNERSHIP_BORROW)
                     {
+                        json_object_object_add(elem, "source_is_borrow",
+                            json_object_new_boolean(true));
                         json_object_object_add(elem, "retain_type_name",
                             json_object_new_string(ae->expr_type->as.struct_type.name));
+                    }
+                    else
+                    {
+                        json_object_object_add(elem, "consumes_source",
+                            json_object_new_boolean(true));
                     }
                 }
                 json_object_array_add(elements, elem);
@@ -2227,24 +2179,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 Type *etype = expr->expr_type;
                 const char *elem_cleanup = "none";
-                bool ia_needs_strdup = false;
 
                 switch (etype->kind)
                 {
                     case TYPE_STRING:
                         elem_cleanup = "free_str";
-                        {
-                            Expr *val = expr->as.index_assign.value;
-                            ExprType vt = val->type;
-                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
-                                           val->as.literal.type->kind == TYPE_NIL);
-                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE ||
-                                            vt == EXPR_ARRAY_ACCESS || vt == EXPR_MEMBER))
-                                ia_needs_strdup = true;
-                            if (ownership_kind(val) == OWNERSHIP_BORROW)
-                                json_object_object_add(obj, "source_is_borrow",
-                                    json_object_new_boolean(true));
-                        }
+                        if (ownership_kind(expr->as.index_assign.value) == OWNERSHIP_BORROW)
+                            json_object_object_add(obj, "source_is_borrow",
+                                json_object_new_boolean(true));
                         break;
                     case TYPE_STRUCT:
                     {
@@ -2292,9 +2234,6 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 json_object_object_add(obj, "elem_cleanup",
                     json_object_new_string(elem_cleanup));
-                if (ia_needs_strdup)
-                    json_object_object_add(obj, "needs_strdup",
-                        json_object_new_boolean(true));
             }
             break;
         }
@@ -2484,41 +2423,19 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             {
                 Type *ftype = expr->expr_type;
                 const char *field_cleanup = "none";
-                bool ma_needs_strdup = false;
-                bool ma_needs_retain = false;
 
                 switch (ftype->kind)
                 {
                     case TYPE_STRING:
                         field_cleanup = "free_str";
-                        {
-                            Expr *val = expr->as.member_assign.value;
-                            ExprType vt = val->type;
-                            bool is_nil = (vt == EXPR_LITERAL && val->as.literal.type &&
-                                           val->as.literal.type->kind == TYPE_NIL);
-                            if (!is_nil && (vt == EXPR_LITERAL || vt == EXPR_VARIABLE ||
-                                            vt == EXPR_ARRAY_ACCESS || vt == EXPR_MEMBER))
-                                ma_needs_strdup = true;
-                        }
                         break;
                     case TYPE_ARRAY:
                         field_cleanup = "cleanup_arr";
-                        /* Array from variable/member needs copy to avoid double-free */
-                        {
-                            Expr *val = expr->as.member_assign.value;
-                            if (val->type == EXPR_VARIABLE || val->type == EXPR_MEMBER)
-                            {
-                                json_object_object_add(obj, "needs_arr_copy",
-                                    json_object_new_boolean(true));
-                            }
-                        }
                         break;
                     case TYPE_STRUCT:
                         if (ftype->as.struct_type.pass_self_by_ref)
                         {
                             field_cleanup = "release_ref";
-                            if (expr->as.member_assign.value->type == EXPR_VARIABLE)
-                                ma_needs_retain = true;
                             json_object_object_add(obj, "field_type_name",
                                 json_object_new_string(ftype->as.struct_type.name));
                         }
@@ -2598,23 +2515,10 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 json_object_object_add(obj, "field_cleanup",
                     json_object_new_string(field_cleanup));
-                if (ma_needs_strdup)
-                    json_object_object_add(obj, "needs_strdup",
-                        json_object_new_boolean(true));
-                if (ma_needs_retain)
-                    json_object_object_add(obj, "needs_retain",
-                        json_object_new_boolean(true));
-                /* Val struct from variable/member needs deep copy to avoid shared heap fields */
-                if (strcmp(field_cleanup, "cleanup_val") == 0 &&
-                    (expr->as.member_assign.value->type == EXPR_VARIABLE ||
-                     expr->as.member_assign.value->type == EXPR_MEMBER))
-                {
-                    json_object_object_add(obj, "needs_val_copy",
-                        json_object_new_boolean(true));
-                }
-                /* Unified classifier mirror. Emits source_is_borrow when the RHS
-                 * reads through a live owner and the destination field needs an
-                 * acquire. Replaces the ExprType shape-checks above in 2.5b. */
+                /* Unified classifier: source_is_borrow when RHS reads through a
+                 * live owner and the field's cleanup_kind requires a fresh +1
+                 * credit. Template selects strdup / retain / val-copy / arr-copy
+                 * off field_cleanup. */
                 if ((strcmp(field_cleanup, "free_str") == 0 ||
                      strcmp(field_cleanup, "release_ref") == 0 ||
                      strcmp(field_cleanup, "cleanup_val") == 0 ||
@@ -2673,92 +2577,51 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         fv_is_lifted_member = true;
                     }
                 }
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRING)
-                {
-                    bool needs_strdup = !fv_is_lifted_member &&
-                                        (fv->type == EXPR_LITERAL || fv->type == EXPR_VARIABLE ||
-                                         fv->type == EXPR_MEMBER || fv->type == EXPR_ARRAY_ACCESS);
-                    json_object_object_add(f, "needs_strdup",
-                        json_object_new_boolean(needs_strdup));
-                    if (!fv_is_lifted_member &&
-                        ownership_kind(fv) == OWNERSHIP_BORROW)
-                    {
-                        json_object_object_add(f, "source_is_borrow",
-                            json_object_new_boolean(true));
-                    }
-                }
-                /* Ref struct fields:
-                 *   BORROW source  → retain so the field contributes +1 while source stays live.
-                 *   OWNED source   → no retain; field consumes the existing +1. If the OWNED
-                 *     source is a call result the chain flattener would lift it into a
-                 *     __chain_tmp_N with sn_auto_T release that would drop the rc out from
-                 *     under the struct's new field. Mark consumes_source so the flattener
-                 *     skips the release on that chain_tmp. */
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_STRUCT &&
-                    fv->expr_type->as.struct_type.pass_self_by_ref &&
-                    !fv_is_lifted_member)
+                /* Unified classifier: BORROW source → emit source_is_borrow
+                 * plus the type-name context keys the template needs to build
+                 * the concrete acquire call (retain_type_name for ref struct,
+                 * copy_type_name for val-struct with heap fields). OWNED
+                 * ref-struct source emits consumes_source so the chain
+                 * flattener suppresses the lifted chain_tmp's sn_auto_T
+                 * release, transferring the existing +1 into the field. */
+                if (fv && fv->expr_type && !fv_is_lifted_member)
                 {
                     OwnershipKind k = ownership_kind(fv);
-                    if (k == OWNERSHIP_BORROW)
+                    Type *ft = fv->expr_type;
+                    if (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)
                     {
-                        json_object_object_add(f, "needs_retain",
-                            json_object_new_boolean(true));
-                        json_object_object_add(f, "retain_type_name",
-                            json_object_new_string(fv->expr_type->as.struct_type.name));
-                        json_object_object_add(f, "source_is_borrow",
-                            json_object_new_boolean(true));
+                        if (k == OWNERSHIP_BORROW)
+                        {
+                            json_object_object_add(f, "retain_type_name",
+                                json_object_new_string(ft->as.struct_type.name));
+                            json_object_object_add(f, "source_is_borrow",
+                                json_object_new_boolean(true));
+                        }
+                        else
+                        {
+                            json_object_object_add(f, "consumes_source",
+                                json_object_new_boolean(true));
+                        }
                     }
-                    else
+                    else if (ft->kind == TYPE_STRUCT &&
+                             gen_model_type_category(ft) == TYPE_CAT_COMPOSITE)
                     {
-                        json_object_object_add(f, "consumes_source",
-                            json_object_new_boolean(true));
+                        if (k == OWNERSHIP_BORROW)
+                        {
+                            json_object_object_add(f, "copy_type_name",
+                                json_object_new_string(ft->as.struct_type.name));
+                            json_object_object_add(f, "source_is_borrow",
+                                json_object_new_boolean(true));
+                        }
                     }
-                }
-                /* Val struct fields from variables/members/accesses need deep copy
-                 * to transfer ownership (avoid double-free when source is cleaned up) */
-                if (fv && fv->expr_type &&
-                    gen_model_type_category(fv->expr_type) == TYPE_CAT_COMPOSITE &&
-                    !fv_is_lifted_member &&
-                    (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
-                     fv->type == EXPR_ARRAY_ACCESS))
-                {
+                    else if (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY)
                     {
-                        json_object_object_add(f, "needs_struct_copy",
-                            json_object_new_boolean(true));
-                        json_object_object_add(f, "copy_type_name",
-                            json_object_new_string(fv->expr_type->as.struct_type.name));
+                        if (k == OWNERSHIP_BORROW)
+                        {
+                            json_object_object_add(f, "source_is_borrow",
+                                json_object_new_boolean(true));
+                        }
                     }
-                }
-                if (fv && fv->expr_type &&
-                    gen_model_type_category(fv->expr_type) == TYPE_CAT_COMPOSITE &&
-                    !fv_is_lifted_member &&
-                    ownership_kind(fv) == OWNERSHIP_BORROW)
-                {
-                    json_object_object_add(f, "source_is_borrow",
-                        json_object_new_boolean(true));
-                    if (!json_object_object_get_ex(f, "copy_type_name", NULL))
-                    {
-                        json_object_object_add(f, "copy_type_name",
-                            json_object_new_string(fv->expr_type->as.struct_type.name));
-                    }
-                }
-                /* Array fields from variables/members need deep copy to avoid
-                 * double-free — the local variable and the struct field would
-                 * otherwise share the same SnArray * with both having cleanup. */
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_ARRAY &&
-                    !fv_is_lifted_member &&
-                    (fv->type == EXPR_VARIABLE || fv->type == EXPR_MEMBER ||
-                     fv->type == EXPR_ARRAY_ACCESS))
-                {
-                    json_object_object_add(f, "needs_arr_copy",
-                        json_object_new_boolean(true));
-                }
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_ARRAY &&
-                    !fv_is_lifted_member &&
-                    ownership_kind(fv) == OWNERSHIP_BORROW)
-                {
-                    json_object_object_add(f, "source_is_borrow",
-                        json_object_new_boolean(true));
                 }
                 /* Empty array literal with nil element type: fix type from struct field def */
                 if (fv && fv->type == EXPR_ARRAY && fv->as.array.element_count == 0 &&

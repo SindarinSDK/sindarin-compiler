@@ -130,7 +130,6 @@
                   "value_kind": "string",
                   "value": "Alice"
                 },
-                "needs_strdup": true,
                 "source_is_borrow": true
               },
               {

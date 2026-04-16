@@ -103,14 +103,25 @@ static void test_borrow_reads(void)
     Expr member      = make_expr(EXPR_MEMBER);
     Expr member_acc  = make_expr(EXPR_MEMBER_ACCESS);
     Expr arr_access  = make_expr(EXPR_ARRAY_ACCESS);
-    Expr value_of    = make_expr(EXPR_VALUE_OF);
     Expr address_of  = make_expr(EXPR_ADDRESS_OF);
     assert(ownership_kind(&var)        == OWNERSHIP_BORROW);
     assert(ownership_kind(&member)     == OWNERSHIP_BORROW);
     assert(ownership_kind(&member_acc) == OWNERSHIP_BORROW);
     assert(ownership_kind(&arr_access) == OWNERSHIP_BORROW);
-    assert(ownership_kind(&value_of)   == OWNERSHIP_BORROW);
     assert(ownership_kind(&address_of) == OWNERSHIP_BORROW);
+}
+
+static void test_owned_transforms(void)
+{
+    /* valueOf and typeOf are each lowered to expressions that produce a
+     * fresh owned value (deep-copy / strdup / fresh array / sn_typeinfo_create).
+     * Acquire sites must not emit a further acquire on the result — classify
+     * OWNED so source_is_borrow is false and no strdup/retain/copy wraps the
+     * expression. */
+    Expr value_of = make_expr(EXPR_VALUE_OF);
+    Expr typeof_e = make_expr(EXPR_TYPEOF);
+    assert(ownership_kind(&value_of) == OWNERSHIP_OWNED);
+    assert(ownership_kind(&typeof_e) == OWNERSHIP_OWNED);
 }
 
 static void test_borrow_literals(void)
@@ -187,6 +198,7 @@ void test_ownership_main(void)
     TEST_RUN("owned_operators",                     test_owned_operators);
     TEST_RUN("owned_nil_literal",                   test_owned_nil_literal);
     TEST_RUN("borrow_reads",                        test_borrow_reads);
+    TEST_RUN("owned_transforms",                    test_owned_transforms);
     TEST_RUN("borrow_literals",                     test_borrow_literals);
     TEST_RUN("borrow_thread_sync_from_handle",      test_borrow_thread_sync_from_handle);
     TEST_RUN("null_source_is_safe",                 test_null_source_is_safe);

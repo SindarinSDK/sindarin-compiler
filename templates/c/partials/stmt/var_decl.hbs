@@ -1,12 +1,12 @@
 {{#if is_thread_handle}}{{#if (eq cleanup_kind "str")}}sn_auto_str {{/if}}{{#if (eq cleanup_kind "arr")}}sn_auto_arr {{/if}}{{#if (eq cleanup_kind "val_cleanup")}}sn_auto_{{type.name}} {{/if}}{{c_type type}} __sn__{{name}} = {{default_value type}}; sn_auto_thread SnThread * __sn__{{name}}__th__ = {{> expr initializer}};
 {{else}}{{#if is_captured}}sn_auto_capture {{c_type type}} *__sn__{{name}} = malloc(sizeof({{c_type type}})); *__sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
-{{else}}{{#if (eq cleanup_kind "str")}}sn_auto_str char * __sn__{{name}} = {{#if initializer}}{{#if needs_strdup}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
-{{else}}{{#if (eq cleanup_kind "arr")}}sn_auto_arr SnArray * __sn__{{name}} = {{#if initializer}}{{#if needs_arr_copy}}sn_array_copy({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq cleanup_kind "str")}}sn_auto_str char * __sn__{{name}} = {{#if initializer}}{{#if source_is_borrow}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq cleanup_kind "arr")}}sn_auto_arr SnArray * __sn__{{name}} = {{#if initializer}}{{#if source_is_borrow}}sn_array_copy({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "closure")}}sn_auto_closure_{{closure_lambda_id}} void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "fn")}}sn_auto_fn void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
 {{else}}{{#if (eq cleanup_kind "ptr")}}sn_auto_ptr void * __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}NULL{{/if}};
-{{else}}{{#if (eq cleanup_kind "release")}}sn_auto_{{type.name}} __sn__{{type.name}} * __sn__{{name}} = {{#if initializer}}{{#if needs_retain}}__sn__{{type.name}}_retain({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
-{{else}}{{#if (eq cleanup_kind "val_cleanup")}}sn_auto_{{type.name}} __sn__{{type.name}} __sn__{{name}} = {{#if initializer}}{{#if needs_val_copy}}__sn__{{type.name}}_copy(&{{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}{{default_value type}}{{/if}};
+{{else}}{{#if (eq cleanup_kind "release")}}sn_auto_{{type.name}} __sn__{{type.name}} * __sn__{{name}} = {{#if initializer}}{{#if source_is_borrow}}__sn__{{type.name}}_retain({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}NULL{{/if}};
+{{else}}{{#if (eq cleanup_kind "val_cleanup")}}sn_auto_{{type.name}} __sn__{{type.name}} __sn__{{name}} = {{#if initializer}}{{#if source_is_borrow}}__sn__{{type.name}}_copy(&{{> expr initializer}}){{else}}{{> expr initializer}}{{/if}}{{else}}{{default_value type}}{{/if}};
 {{else}}{{#if (eq sync_mod "atomic")}}_Atomic {{/if}}{{c_type type}} __sn__{{name}} = {{#if initializer}}{{> expr initializer}}{{else}}{{default_value type}}{{/if}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{#if has_self_capture}}
     ((__closure_{{self_capture_lambda_id}}__ *)__sn__{{self_capture_name}})->{{self_capture_name}} = __sn__{{self_capture_name}};{{/if}}{{#if needs_thread_handle}}

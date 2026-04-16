@@ -122,7 +122,7 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
     }
 {{else}}int main() {
 {{/if}}
-{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{#if needs_strdup}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}};
+{{#each ../globals}}{{#if is_deferred}}    __sn__{{name}} = {{#if source_is_borrow}}strdup({{> expr initializer}}){{else}}{{> expr initializer}}{{/if}};
 {{/if}}{{/each}}{{#each ../functions}}{{#if (eq name "main")}}{{#each body}}
     {{> stmt this}}{{/each}}{{/if}}{{/each}}{{#each ../globals}}{{#if needs_cleanup}}{{#if (eq cleanup_kind "str")}}    free(__sn__{{name}});
 {{else}}{{#if (eq cleanup_kind "arr")}}    sn_cleanup_array(&__sn__{{name}});
