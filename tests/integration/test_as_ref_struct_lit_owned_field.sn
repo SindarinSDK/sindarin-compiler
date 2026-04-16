@@ -1,0 +1,46 @@
+# Edge test for the as-ref ownership unification: struct-literal field
+# init from an OWNED chain (Inner.create().chain()).
+#
+# Symmetric of test_as_ref_queue_drain on the struct-literal path. The
+# Outer literal's `inner` field is initialized from a chained call result
+# (OWNED +1, not a BORROW of a live owner). The classifier must emit
+# consumes_source so the chain flattener suppresses sn_auto_Inner release
+# on the lifted __chain_tmp_N — the slot transfers the +1 credit instead
+# of retaining a fresh one while the flattener drops the original.
+#
+# Without consumes_source, Outer.inner's rc reaches zero at the chain_tmp's
+# auto release and the field read in the loop hits a freed Inner — UAF
+# on outer.inner.value.
+
+struct Inner as ref =>
+  value: int
+
+  fn multiply(factor: int): Inner =>
+    return Inner { value: self.value * factor }
+
+struct Outer as ref =>
+  inner: Inner
+  label: str
+
+fn make(base: int): Inner =>
+  return Inner { value: base }
+
+fn main(): int =>
+  var outers: Outer[] = {}
+  for var i: int = 0; i < 5; i++ =>
+    var o: Outer = {
+      inner: make(i).multiply(10),
+      label: $"outer-{i}"
+    }
+    outers.push(o)
+
+  for var iter: int = 0; iter < 10; iter++ =>
+    for var i: int = 0; i < outers.length; i++ =>
+      var outer: Outer = outers[i]
+      assert(outer.inner.value == i * 10,
+        $"iter {iter} i {i}: expected {i * 10}, got {outer.inner.value}")
+      assert(outer.label.length > 0,
+        $"iter {iter} i {i}: label empty (likely UAF)")
+
+  print("PASS\n")
+  return 0

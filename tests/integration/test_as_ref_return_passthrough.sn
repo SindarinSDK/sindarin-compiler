@@ -1,0 +1,50 @@
+# Edge test for the as-ref ownership unification: container-read return
+# through a chain of callers.
+#
+# Validates the return-edge acquire under the unified rule. The caller's
+# +1 credit comes from a retain emitted at lookup()'s return (container
+# read of an as-ref struct element classifies BORROW — retain so the
+# caller gets a fresh +1), and flows through caller() — which returns
+# the call result directly without a further acquire because lookup()
+# handed it an already-owned +1 (OWNED call result, no retain).
+#
+# Without the classifier driving the retain-on-return, the caller's
+# sn_auto_Item release at scope exit drops the rc out from under the
+# container; subsequent reads or cleanups hit a freed element — UAF on
+# iter 1 or later.
+
+struct Item as ref =>
+  tag: str
+  value: int
+
+fn lookup(items: Item[], i: int): Item =>
+  return items[i]
+
+fn caller(items: Item[], i: int): Item =>
+  return lookup(items, i)
+
+fn main(): int =>
+  var items: Item[] = {}
+  items.push(Item {
+    tag: "a",
+    value: 1
+  })
+  items.push(Item {
+    tag: "b",
+    value: 2
+  })
+  items.push(Item {
+    tag: "c",
+    value: 3
+  })
+
+  for var iter: int = 0; iter < 20; iter++ =>
+    for var i: int = 0; i < items.length; i++ =>
+      var picked: Item = caller(items, i)
+      assert(picked.value == i + 1,
+        $"iter {iter} i {i}: expected value {i + 1}, got {picked.value}")
+      assert(picked.tag.length == 1,
+        $"iter {iter} i {i}: tag length wrong (likely UAF)")
+
+  print("PASS\n")
+  return 0
