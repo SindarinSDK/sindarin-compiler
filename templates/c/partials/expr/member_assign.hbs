@@ -1,8 +1,10 @@
 {{#if (eq field_cleanup "free_str")}}({
-    {{#if object.type.pass_self_by_ref}}free({{> expr object}}->__sn__{{field_name}});
-    {{> expr object}}->__sn__{{field_name}} = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
-    {{> expr object}}->__sn__{{field_name}};{{else}}free({{> expr object}}.__sn__{{field_name}});
-    {{> expr object}}.__sn__{{field_name}} = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    {{#if object.type.pass_self_by_ref}}char *__ma_str_tmp__ = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    free({{> expr object}}->__sn__{{field_name}});
+    {{> expr object}}->__sn__{{field_name}} = __ma_str_tmp__;
+    {{> expr object}}->__sn__{{field_name}};{{else}}char *__ma_str_tmp__ = {{#if source_is_borrow}}strdup({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    free({{> expr object}}.__sn__{{field_name}});
+    {{> expr object}}.__sn__{{field_name}} = __ma_str_tmp__;
     {{> expr object}}.__sn__{{field_name}};{{/if}}
 }){{else}}{{#if (eq field_cleanup "release_ref")}}({
     {{#if object.type.pass_self_by_ref}}__sn__{{field_type_name}} *__old__ = {{> expr object}}->__sn__{{field_name}};

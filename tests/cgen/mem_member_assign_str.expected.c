@@ -77,8 +77,9 @@ int main() {
         __tmp__;
     });
     ({
+        char *__ma_str_tmp__ = strdup("Bob");
         free(__sn__p->__sn__name);
-        __sn__p->__sn__name = strdup("Bob");
+        __sn__p->__sn__name = __ma_str_tmp__;
         __sn__p->__sn__name;
     });
     

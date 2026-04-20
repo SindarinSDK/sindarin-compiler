@@ -1,0 +1,20 @@
+# Regression: self-referential concat into a struct's str field must not UAF.
+# Bug: member_assign codegen emits free(self->x) BEFORE evaluating the RHS,
+# so `self.x = self.x + y` reads through a freed pointer.
+# Fix: evaluate RHS into a temp first, then free old, then install new —
+# the same pattern already used by the cleanup_arr / release_ref / cleanup_val
+# branches in templates/c/partials/expr/member_assign.hbs.
+
+struct Accumulator =>
+  buf: str
+
+  fn append(s: str): void =>
+    self.buf = self.buf + s
+
+fn main(): int =>
+  var a: Accumulator = { buf: "start" }
+  a.append("-X")
+  a.append("-Y")
+  a.append("-Z")
+  print($"{a.buf}\n")
+  return 0
