@@ -237,12 +237,18 @@ json_object *gen_model_struct(Arena *arena, StructDeclStmt *decl, SymbolTable *s
                 json_object_array_add(body, guard);
             }
 
-            /* Register as-ref and composite borrow params for body dereference */
-            if (m->params[j].mem_qualifier == MEM_AS_REF ||
+            /* Register as-ref and composite borrow params for body dereference.
+             * Skip 'as ref' on already-refcounted structs — the param is a
+             * single pointer, and field access goes through the normal
+             * ref-struct path, not the as-ref-deref path. */
+            bool is_as_ref_on_ref_struct = (m->params[j].mem_qualifier == MEM_AS_REF &&
+                m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
+                m->params[j].type->as.struct_type.pass_self_by_ref);
+            if (!is_as_ref_on_ref_struct && (m->params[j].mem_qualifier == MEM_AS_REF ||
                 (m->params[j].mem_qualifier == MEM_DEFAULT && !m->is_native &&
                  m->params[j].type && m->params[j].type->kind == TYPE_STRUCT &&
                  !m->params[j].type->as.struct_type.pass_self_by_ref &&
-                 gen_model_type_has_heap_fields(m->params[j].type)))
+                 gen_model_type_has_heap_fields(m->params[j].type))))
             {
                 if (g_as_ref_param_count % 8 == 0) {
                     char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));

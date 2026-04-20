@@ -1,0 +1,5 @@
+compute: PASS
+mutate: PASS
+bumpSelf: PASS
+threadWork: PASS
+All as-ref-on-ref-struct tests passed!

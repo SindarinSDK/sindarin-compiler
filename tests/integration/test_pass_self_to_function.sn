@@ -1,0 +1,40 @@
+# Test passing 'self' as an argument to a free function and to a thread spawn,
+# from inside a method of an 'as ref' struct.
+
+struct Worker as ref =>
+  value: int
+
+  fn runSync(): int =>
+    return compute(self)
+
+  fn runThread(): int =>
+    var h: int = & compute(self)
+    return h !
+
+  fn runDetached(): void =>
+    var h: int = & compute(self)
+    h ~
+
+fn compute(w: Worker): int =>
+  return w.value * 2
+
+fn main(): int =>
+  var w: Worker = { value: 21 }
+
+  var sync_result: int = w.runSync()
+  if sync_result != 42 =>
+    print("runSync: FAIL\n")
+    return 1
+  print("runSync: PASS\n")
+
+  var thread_result: int = w.runThread()
+  if thread_result != 42 =>
+    print("runThread: FAIL\n")
+    return 1
+  print("runThread: PASS\n")
+
+  w.runDetached()
+  print("runDetached: PASS\n")
+
+  print("All pass-self tests passed!\n")
+  return 0

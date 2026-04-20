@@ -1,0 +1,4 @@
+runSync: PASS
+runThread: PASS
+runDetached: PASS
+All pass-self tests passed!

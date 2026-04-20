@@ -153,6 +153,18 @@ void gen_model_emit_param_cleanup(json_object *param_obj, Parameter *param, bool
 {
     if (!param->type || param->type->kind != TYPE_STRUCT) return;
 
+    /* 'as ref' on an already-refcounted struct is redundant — refcounted
+     * structs are always passed by pointer. The call-site in
+     * gen_model_expr.c skips the '&' for ref-struct args regardless of
+     * MEM_AS_REF, so the param declaration must also not add an extra
+     * indirection. Normalize to 'default' here so templates agree. */
+    if (param->mem_qualifier == MEM_AS_REF && param->type->as.struct_type.pass_self_by_ref)
+    {
+        json_object_object_del(param_obj, "mem_qual");
+        json_object_object_add(param_obj, "mem_qual",
+            json_object_new_string("default"));
+    }
+
     /* Explicit 'as val' param on as ref struct: owns the copy, needs release.
      * MEM_DEFAULT on as ref structs passes by pointer (no copy), so only MEM_AS_VAL triggers this. */
     if (param->mem_qualifier == MEM_AS_VAL && param->type->as.struct_type.pass_self_by_ref)
@@ -308,6 +320,18 @@ json_object *gen_model_type(Arena *arena, Type *type)
                     const char *q = "default";
                     if (type->as.function.param_mem_quals[i] == MEM_AS_REF) q = "as_ref";
                     else if (type->as.function.param_mem_quals[i] == MEM_AS_VAL) q = "as_val";
+                    /* Normalize: 'as ref' on a refcounted struct is redundant
+                     * (already passed by pointer) — must match the param
+                     * emitter in gen_model_emit_param_cleanup. */
+                    if (type->as.function.param_mem_quals[i] == MEM_AS_REF)
+                    {
+                        Type *pt = type->as.function.param_types[i];
+                        if (pt && pt->kind == TYPE_STRUCT &&
+                            pt->as.struct_type.pass_self_by_ref)
+                        {
+                            q = "default";
+                        }
+                    }
                     json_object_array_add(quals, json_object_new_string(q));
                 }
                 json_object_object_add(obj, "param_mem_quals", quals);

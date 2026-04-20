@@ -47,6 +47,10 @@ const char *type_name(Type *type)
         case TYPE_ARRAY:       return "array";
         case TYPE_FUNCTION:    return "function";
         case TYPE_POINTER:      return "pointer";
+        case TYPE_STRUCT:
+            return type->as.struct_type.name != NULL ? type->as.struct_type.name : "struct";
+        case TYPE_INTERFACE:
+            return type->as.interface_type.name != NULL ? type->as.interface_type.name : "interface";
         default:                return "unknown";
     }
 }

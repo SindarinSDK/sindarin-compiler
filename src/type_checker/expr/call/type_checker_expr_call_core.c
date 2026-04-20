@@ -474,8 +474,37 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
         }
         else if (!ast_type_equals(arg_type, param_type))
         {
-            argument_type_error(expr->token, func_name, i, param_type, arg_type);
-            return NULL;
+            /* Special case: in a method body, 'self' is bound as pointer-to-struct
+             * so that field mutations work. When it's passed to a function whose
+             * parameter type is the struct itself (with 'as ref' refcounting),
+             * the ABI is identical — both are __sn__<Struct> *. Allow it, and
+             * rewrite the arg's expr_type to match the param so codegen treats
+             * it as a refcounted struct argument rather than trying to take
+             * its address. Mirrors the 'return self' handling in
+             * type_checker_stmt_control.c. */
+            bool is_self_as_struct = false;
+            if (method_context_is_active() &&
+                arg_expr != NULL && arg_expr->type == EXPR_VARIABLE &&
+                arg_expr->as.variable.name.length == 4 &&
+                memcmp(arg_expr->as.variable.name.start, "self", 4) == 0 &&
+                arg_type != NULL && arg_type->kind == TYPE_POINTER &&
+                arg_type->as.pointer.base_type != NULL &&
+                arg_type->as.pointer.base_type->kind == TYPE_STRUCT &&
+                arg_type->as.pointer.base_type->as.struct_type.pass_self_by_ref &&
+                param_type != NULL && param_type->kind == TYPE_STRUCT &&
+                ast_type_equals(arg_type->as.pointer.base_type, param_type))
+            {
+                arg_expr->expr_type = param_type;
+                arg_type = param_type;
+                is_self_as_struct = true;
+                DEBUG_VERBOSE("Allowing implicit dereference of self pointer for struct argument");
+            }
+
+            if (!is_self_as_struct)
+            {
+                argument_type_error(expr->token, func_name, i, param_type, arg_type);
+                return NULL;
+            }
         }
 
         /* Check that 'as ref' parameters receive an lvalue (variable), not a literal or expression result */

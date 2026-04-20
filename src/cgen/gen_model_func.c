@@ -541,12 +541,22 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
 
         if (func->params[i].mem_qualifier == MEM_AS_REF)
         {
-            if (g_as_ref_param_count % 8 == 0) {
-                char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));
-                for (int j = 0; j < g_as_ref_param_count; j++) nv[j] = g_as_ref_param_names[j];
-                g_as_ref_param_names = nv;
+            /* Skip refcounted structs — 'as ref' on them is redundant
+             * (already a pointer). The param is emitted as a single pointer
+             * and field access via '->' is handled by the normal ref-struct
+             * codepath, not by the as-ref-param deref path. */
+            bool skip = (func->params[i].type &&
+                         func->params[i].type->kind == TYPE_STRUCT &&
+                         func->params[i].type->as.struct_type.pass_self_by_ref);
+            if (!skip)
+            {
+                if (g_as_ref_param_count % 8 == 0) {
+                    char **nv = arena_alloc(arena, (g_as_ref_param_count + 8) * sizeof(char *));
+                    for (int j = 0; j < g_as_ref_param_count; j++) nv[j] = g_as_ref_param_names[j];
+                    g_as_ref_param_names = nv;
+                }
+                g_as_ref_param_names[g_as_ref_param_count++] = ncopy;
             }
-            g_as_ref_param_names[g_as_ref_param_count++] = ncopy;
         }
         /* Composite val-type struct with MEM_DEFAULT on non-native callee:
          * passed by pointer (same as 'as ref'), body must dereference. */

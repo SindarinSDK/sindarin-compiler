@@ -1,0 +1,53 @@
+# Regression test: 'as ref' on an already-refcounted struct is redundant
+# but must not produce a double-pointer param. Covers free functions,
+# instance methods, and thread spawns.
+
+struct Worker as ref =>
+  value: int
+
+  fn bumpSelf(other: Worker as ref): int =>
+    other.value = other.value + 1
+    return self.value + other.value
+
+fn compute(w: Worker as ref): int =>
+  return w.value * 2
+
+fn mutate(w: Worker as ref): void =>
+  w.value = 100
+
+fn threadWork(w: Worker as ref): int =>
+  return w.value + 1
+
+fn main(): int =>
+  var w: Worker = { value: 21 }
+
+  if compute(w) != 42 =>
+    print("compute: FAIL\n")
+    return 1
+  print("compute: PASS\n")
+
+  mutate(w)
+  if w.value != 100 =>
+    print("mutate: FAIL\n")
+    return 1
+  print("mutate: PASS\n")
+
+  var other: Worker = { value: 5 }
+  w.value = 10
+  var s: int = w.bumpSelf(other)
+  if s != 16 =>
+    print("bumpSelf return: FAIL\n")
+    return 1
+  if other.value != 6 =>
+    print("bumpSelf mutation: FAIL\n")
+    return 1
+  print("bumpSelf: PASS\n")
+
+  var h: int = & threadWork(w)
+  if h ! != 11 =>
+    print("threadWork: FAIL\n")
+    return 1
+  print("threadWork: PASS\n")
+
+  print("All as-ref-on-ref-struct tests passed!\n")
+  return 0

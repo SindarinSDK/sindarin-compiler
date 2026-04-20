@@ -454,7 +454,11 @@ static void push_lambda_as_ref_params(Arena *arena, LambdaExpr *lam,
     for (int i = 0; i < lam->param_count; i++)
     {
         Parameter *p = &lam->params[i];
-        bool is_as_ref = (p->mem_qualifier == MEM_AS_REF);
+        /* 'as ref' on an already-refcounted struct is redundant — param is a
+         * single pointer, field access uses the ref-struct path. Skip. */
+        bool is_as_ref = (p->mem_qualifier == MEM_AS_REF &&
+                          !(p->type && p->type->kind == TYPE_STRUCT &&
+                            p->type->as.struct_type.pass_self_by_ref));
         bool is_composite_val = (p->mem_qualifier == MEM_DEFAULT && !lam->is_native &&
                                  p->type && p->type->kind == TYPE_STRUCT &&
                                  !p->type->as.struct_type.pass_self_by_ref &&
@@ -3337,12 +3341,23 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         snprintf(arg_name, sizeof(arg_name), "arg%d", i);
                         json_object_object_add(arg, "name",
                             json_object_new_string(arg_name));
-                        /* Check if this param has as ref qualifier */
+                        /* Check if this param has as ref qualifier. 'as ref' on
+                         * an already-refcounted struct is redundant — the arg
+                         * is already a pointer, so don't add another level of
+                         * indirection (matches the normalization in
+                         * gen_model_emit_param_cleanup). */
                         if (param_mem_quals && i < param_count &&
                             param_mem_quals[i] == MEM_AS_REF)
                         {
-                            json_object_object_add(arg, "is_ref",
-                                json_object_new_boolean(true));
+                            Type *arg_type_for_ref = arg_expr->expr_type;
+                            bool redundant_ref = (arg_type_for_ref &&
+                                arg_type_for_ref->kind == TYPE_STRUCT &&
+                                arg_type_for_ref->as.struct_type.pass_self_by_ref);
+                            if (!redundant_ref)
+                            {
+                                json_object_object_add(arg, "is_ref",
+                                    json_object_new_boolean(true));
+                            }
                         }
                         /* Check if this param would be a borrow in the function signature.
                          * Thread wrapper must pass &args->argN for borrow params. */
