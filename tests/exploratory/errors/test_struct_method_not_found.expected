@@ -1,1 +1,1 @@
-Type 'unknown' has no member 'nonExistentMethod'
+Type 'Counter' has no member 'nonExistentMethod'
