@@ -100,7 +100,6 @@ Stmt *parser_return_statement(Parser *parser);
 Stmt *parser_if_statement(Parser *parser);
 Stmt *parser_while_statement(Parser *parser);
 Stmt *parser_for_statement(Parser *parser);
-Stmt *parser_block_statement(Parser *parser);
 Stmt *parser_expression_statement(Parser *parser);
 Stmt *parser_import_statement(Parser *parser);
 

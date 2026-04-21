@@ -65,11 +65,6 @@ Stmt *parser_statement(Parser *parser)
     {
         return parser_return_statement(parser);
     }
-    if (parser_match(parser, TOKEN_LEFT_BRACE))
-    {
-        return parser_block_statement(parser);
-    }
-
     // Parse using name = expr => block
     if (parser_match(parser, TOKEN_USING))
     {
@@ -200,49 +195,6 @@ static void parser_attach_comments(Parser *parser, Stmt *stmt)
 
     /* Clear pending comments */
     parser->pending_comment_count = 0;
-}
-
-Stmt *parser_block_statement(Parser *parser)
-{
-    Token brace = parser->previous;
-    Stmt **statements = NULL;
-    int count = 0;
-    int capacity = 0;
-
-    symbol_table_push_scope(parser->symbol_table);
-
-    while (!parser_is_at_end(parser))
-    {
-        while (parser_match(parser, TOKEN_NEWLINE))
-        {
-        }
-        if (parser_is_at_end(parser) || parser_check(parser, TOKEN_DEDENT))
-            break;
-
-        Stmt *stmt = parser_declaration(parser);
-        if (stmt == NULL)
-            continue;
-
-        if (count >= capacity)
-        {
-            capacity = capacity == 0 ? 8 : capacity * 2;
-            Stmt **new_statements = arena_alloc(parser->arena, sizeof(Stmt *) * capacity);
-            if (new_statements == NULL)
-            {
-                exit(1);
-            }
-            if (statements != NULL && count > 0)
-            {
-                memcpy(new_statements, statements, sizeof(Stmt *) * count);
-            }
-            statements = new_statements;
-        }
-        statements[count++] = stmt;
-    }
-
-    symbol_table_pop_scope(parser->symbol_table);
-
-    return ast_create_block_stmt(parser->arena, statements, count, &brace);
 }
 
 Stmt *parser_expression_statement(Parser *parser)
