@@ -524,6 +524,9 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
     /* Collect ALL parameter names — used by return-stmt emitter to detect borrowed vars. */
     g_all_param_names = NULL;
     g_all_param_count = 0;
+    /* Reset for-each iter-var stack — populated as we descend into loop bodies. */
+    g_iter_var_names = NULL;
+    g_iter_var_count = 0;
     for (int i = 0; i < func->param_count; i++)
     {
         int nlen = func->params[i].name.length;
@@ -631,6 +634,8 @@ json_object *gen_model_function(Arena *arena, FunctionStmt *func, SymbolTable *s
     g_as_ref_param_count = 0;
     g_all_param_names = NULL;
     g_all_param_count = 0;
+    g_iter_var_names = NULL;
+    g_iter_var_count = 0;
     g_closure_var_count = 0;
     g_suppress_local_cleanup = false;
 

@@ -486,6 +486,28 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                 break;
                             }
                         }
+                        /* For-each iter var over an array binds a borrowed element pointer
+                         * (no retain on read, no sn_auto cleanup). Treat returns of this var
+                         * the same as borrowed params: skip the move/null_ptr transfer and
+                         * emit a retain at the return edge for as-ref struct / strdup for str. */
+                        if (is_owned)
+                        {
+                            for (int ii = 0; ii < g_iter_var_count; ii++)
+                            {
+                                if ((int)strlen(g_iter_var_names[ii]) == vlen &&
+                                    strncmp(g_iter_var_names[ii], vname, vlen) == 0)
+                                {
+                                    is_owned = false;
+                                    if (rt->kind == TYPE_STRING ||
+                                        (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref))
+                                    {
+                                        json_object_object_add(obj, "source_is_borrow",
+                                                               json_object_new_boolean(true));
+                                    }
+                                    break;
+                                }
+                            }
+                        }
                     }
 
                     if (is_owned)
@@ -791,8 +813,25 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     json_object_new_string(stmt->as.for_each_stmt.var_name.start));
                 json_object_object_add(obj, "iterable",
                     gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
+
+                /* Iter var binds a borrowed array element (no retain on read).
+                 * Push the name so a `return <itervar>` inside the body retains
+                 * instead of moving — the array still owns its element. */
+                int nlen = stmt->as.for_each_stmt.var_name.length;
+                char *ncopy = arena_alloc(arena, nlen + 1);
+                memcpy(ncopy, stmt->as.for_each_stmt.var_name.start, nlen);
+                ncopy[nlen] = '\0';
+                if (g_iter_var_count % 8 == 0) {
+                    char **nv = arena_alloc(arena, (g_iter_var_count + 8) * sizeof(char *));
+                    for (int j = 0; j < g_iter_var_count; j++) nv[j] = g_iter_var_names[j];
+                    g_iter_var_names = nv;
+                }
+                g_iter_var_names[g_iter_var_count++] = ncopy;
+
                 json_object_object_add(obj, "body",
                     gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
+
+                g_iter_var_count--;
                 /* iterable needs cleanup if it's a temporary (not a variable/member reference) */
                 Expr *iter_expr = stmt->as.for_each_stmt.iterable;
                 bool iter_is_temp = (iter_expr->type != EXPR_VARIABLE &&

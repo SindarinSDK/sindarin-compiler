@@ -1,0 +1,73 @@
+# Reproduces a heap-use-after-free seen in skynet-genesis-1's
+# ObservationSchema.find(): a method on an `as ref` struct iterates its
+# own as-ref-array field with `for entry in self.entries` and returns
+# the matching element. The caller's `var e: Entry = ...` binding plus
+# its scope-exit release drops the element's refcount past 0, even
+# though the array still owns it.
+#
+# ASAN trace from the original failure (skynet-genesis-1):
+# READ at __sn__ObservationSchema_find  ← inside find() on a later call
+# FREE at __sn__ObservationStore_record  ← caller's local release
+# ALLOC by __sn__ObservationSchema_addEntry  ← entry pushed into array
+#
+# Without the bug, repeated lookups must be safe: the array keeps a +1
+# on every element, the caller's local independently holds +1, and the
+# scope-exit release just drops the local — never the array's reference.
+#
+# Companion to test_as_ref_return_passthrough.sn, which exercises the
+# same return-edge classifier via `return items[i]` (direct index). The
+# `for x in self.arr => return x` shape has no existing coverage and
+# is what tripped in the field.
+
+struct Entry as ref =>
+  tag: str
+  kind: int
+
+struct Catalog as ref =>
+  entries: Entry[]
+
+  static fn create(): Catalog =>
+    return Catalog { entries: {} }
+
+  fn add(tag: str, kind: int): void =>
+    self.entries.push(Entry {
+      tag: tag,
+      kind: kind
+    })
+
+  fn find(tag: str): Entry =>
+    for entry in self.entries =>
+      if entry.tag == tag =>
+        return entry
+    return Entry {
+      tag: "",
+      kind: -1
+    }
+
+fn main(): int =>
+  var cat: Catalog = Catalog.create()
+  cat.add("alpha", 1)
+  cat.add("beta", 2)
+  cat.add("gamma", 3)
+
+  # Repeated lookups across all three entries. Without the
+  # retain-on-return, the second iteration reads freed memory inside
+  # find() while scanning the array.
+  for var iter: int = 0; iter < 50; iter++ =>
+    var e1: Entry = cat.find("beta")
+    assert(e1.tag == "beta",
+      $"iter {iter}: e1.tag wrong (likely UAF), got '{e1.tag}'")
+    assert(e1.kind == 2, $"iter {iter}: e1.kind wrong, got {e1.kind}")
+
+    var e2: Entry = cat.find("gamma")
+    assert(e2.tag == "gamma",
+      $"iter {iter}: e2.tag wrong (likely UAF), got '{e2.tag}'")
+    assert(e2.kind == 3, $"iter {iter}: e2.kind wrong, got {e2.kind}")
+
+    var e3: Entry = cat.find("alpha")
+    assert(e3.tag == "alpha",
+      $"iter {iter}: e3.tag wrong (likely UAF), got '{e3.tag}'")
+    assert(e3.kind == 1, $"iter {iter}: e3.kind wrong, got {e3.kind}")
+
+  print("PASS\n")
+  return 0

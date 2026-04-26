@@ -64,6 +64,14 @@ extern int g_as_ref_param_count;
 extern char **g_all_param_names;
 extern int g_all_param_count;
 
+/* Stack of for-each iteration variable names that bind a borrowed array element
+ * (the iterator-protocol path yields owned values from next() and is NOT pushed).
+ * Pushed before recursing into the loop body, popped after. The return-statement
+ * emitter checks this stack so `return entry` from `for entry in arr` retains
+ * instead of moving — the array still owns its element. */
+extern char **g_iter_var_names;
+extern int g_iter_var_count;
+
 /* Global thread-handle-variable set - populated by pre-scanning function bodies.
  * Variables in this set are assigned thread_spawn results outside their var_decl
  * (e.g., conditional spawns) and need a companion SnThread* variable. */
