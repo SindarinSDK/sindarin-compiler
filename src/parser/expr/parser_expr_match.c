@@ -38,6 +38,11 @@ Expr *parse_match_expr(Parser *parser, Token *match_token)
             break;
         }
 
+        /* Forward-progress guard: snapshot the current token position so
+         * that if no sub-parser consumes anything during this iteration we
+         * abort instead of looping forever on garbage. */
+        Token start_token = parser->current;
+
         /* Grow arms array */
         if (arm_count >= arm_capacity)
         {
@@ -90,15 +95,28 @@ Expr *parse_match_expr(Parser *parser, Token *match_token)
                     patterns = new_patterns;
                 }
                 patterns[pattern_count++] = parser_expression(parser);
+                if (parser->panic_mode)
+                {
+                    break;
+                }
             } while (parser_match(parser, TOKEN_COMMA));
 
             arm->patterns = patterns;
             arm->pattern_count = pattern_count;
             arm->is_else = false;
+
+            if (parser->panic_mode)
+            {
+                break;
+            }
         }
 
         /* Consume => before arm body */
         parser_consume(parser, TOKEN_ARROW, "Expected '=>' after match arm pattern");
+        if (parser->panic_mode)
+        {
+            break;
+        }
 
         /* Parse arm body: indented block or single statement */
         if (parser_check(parser, TOKEN_NEWLINE))
@@ -126,7 +144,21 @@ Expr *parse_match_expr(Parser *parser, Token *match_token)
             arm->body = ast_create_block_stmt(parser->arena, stmts, 1, match_token);
         }
 
+        if (parser->panic_mode)
+        {
+            arm_count++;
+            break;
+        }
+
         arm_count++;
+
+        /* Forward-progress guard: if no token was consumed this iteration,
+         * the loop is wedged. Bail out so the caller can synchronize. */
+        if (parser->current.start == start_token.start &&
+            parser->current.type == start_token.type)
+        {
+            break;
+        }
     }
 
     /* Consume DEDENT */

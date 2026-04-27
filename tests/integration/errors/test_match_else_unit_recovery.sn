@@ -1,0 +1,15 @@
+# Error test: `else => ()` inside a match arm.
+# The empty-paren expression `()` is not a valid arm body. Before the fix,
+# the parser swallowed the error, set panic_mode, and looped on garbage
+# tokens — allocating ~270 MB/s of arena memory until the host OOM-killed
+# the process. After the fix, the parser must report a single
+# "Expected expression" error and terminate promptly.
+fn pick(i: int): int =>
+  match i =>
+    0 => return 1
+    1 => return 2
+    else => ()
+  return 0
+
+fn main(): int =>
+  return pick(0)
