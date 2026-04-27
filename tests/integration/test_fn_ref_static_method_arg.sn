@@ -1,0 +1,14 @@
+fn produce(): str =>
+  return "world"
+
+struct Box =>
+  fnField: fn(): str
+
+  static fn make(f: fn(): str): Box =>
+    return Box { fnField: f }
+
+fn main(): void =>
+  var b: Box = Box.make(produce)
+  var b2: Box = b
+  print(b2.fnField())
+  print("\n")

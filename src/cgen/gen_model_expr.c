@@ -532,6 +532,81 @@ static bool is_named_fn_str_call(Expr *expr, SymbolTable *symbol_table)
     return (sym && sym->is_function);
 }
 
+/* Wrap a bare top-level function reference into a __Closure__ at the call/
+ * assignment site. fn_type must be the destination's TYPE_FUNCTION (the
+ * parameter type, the field type, or the assignment target's type).
+ *
+ * Returns the wrapper_id appended to g_model_fn_wrappers if a wrap was
+ * emitted, or -1 if the source expression is not a bare top-level function
+ * reference (lambda, parameter reference, member access, call result, etc).
+ *
+ * Callers attach the returned id and a context-appropriate boolean flag to
+ * their own JSON output:
+ *   - call/static-call argument:  "is_fn_ref_arg" + "fn_wrapper_id"
+ *   - struct-literal field:       "needs_closure_wrap" + "fn_wrapper_id"
+ *   - member-assign value:        "needs_closure_wrap" + "fn_wrapper_id"
+ *
+ * The four sites used to inline this logic; consolidating prevents a fourth
+ * site (EXPR_STATIC_CALL — see crash on Box.make(produce) when Box stores
+ * a fn-typed field that later goes through __sn__Box_copy) from drifting
+ * out of sync with the rest. */
+static int maybe_emit_fn_ref_wrapper(Arena *arena, Expr *arg_expr,
+                                     Type *fn_type, SymbolTable *symbol_table)
+{
+    if (!fn_type || fn_type->kind != TYPE_FUNCTION) return -1;
+    if (!arg_expr || arg_expr->type != EXPR_VARIABLE) return -1;
+
+    Symbol *arg_sym = symbol_table
+        ? symbol_table_lookup_symbol(symbol_table, arg_expr->as.variable.name)
+        : NULL;
+    if (!arg_sym || !arg_sym->is_function ||
+        arg_sym->kind == SYMBOL_PARAM ||
+        arg_expr->as.variable.is_param_ref)
+    {
+        return -1;
+    }
+
+    int wrap_id = g_model_fn_wrapper_count++;
+    json_object *wrapper = json_object_new_object();
+    json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
+    json_object_object_add(wrapper, "target_name",
+        json_object_new_string(arg_expr->as.variable.name.start));
+    json_object_object_add(wrapper, "return_type",
+        gen_model_type(arena, fn_type->as.function.return_type));
+
+    json_object *wrap_params = json_object_new_array();
+    bool target_is_native = fn_type->as.function.is_native;
+    bool has_borrow = false;
+    for (int p = 0; p < fn_type->as.function.param_count; p++)
+    {
+        json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
+        if (!target_is_native)
+        {
+            Type *ptype = fn_type->as.function.param_types[p];
+            MemoryQualifier pmq_val = MEM_DEFAULT;
+            if (fn_type->as.function.param_mem_quals)
+                pmq_val = fn_type->as.function.param_mem_quals[p];
+            if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
+                gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
+            {
+                json_object_object_add(pt, "is_borrow",
+                    json_object_new_boolean(true));
+                has_borrow = true;
+            }
+        }
+        json_object_array_add(wrap_params, pt);
+    }
+    json_object_object_add(wrapper, "param_types", wrap_params);
+    json_object_object_add(wrapper, "is_native",
+        json_object_new_boolean(target_is_native));
+    if (has_borrow)
+        json_object_object_add(wrapper, "has_borrow_cleanup",
+            json_object_new_boolean(true));
+
+    json_object_array_add(g_model_fn_wrappers, wrapper);
+    return wrap_id;
+}
+
 json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                             ArithmeticMode arithmetic_mode)
 {
@@ -1504,76 +1579,18 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                     }
                     /* Detect named function references passed to function-type params.
-                     * These need wrapping in a __Closure__ struct at the call site,
-                     * with a wrapper function that adapts the calling convention. */
-                    if (callee_param_types && i < callee_param_count &&
-                        callee_param_types[i] && callee_param_types[i]->kind == TYPE_FUNCTION)
+                     * Wrap into __Closure__ for uniform calling convention. */
+                    if (callee_param_types && i < callee_param_count)
                     {
-                        Expr *arg_expr = expr->as.call.arguments[i];
-                        if (arg_expr && arg_expr->type == EXPR_VARIABLE)
+                        int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                            expr->as.call.arguments[i], callee_param_types[i],
+                            symbol_table);
+                        if (wrap_id >= 0)
                         {
-                            Symbol *arg_sym = symbol_table_lookup_symbol(symbol_table,
-                                arg_expr->as.variable.name);
-                            if (arg_sym && arg_sym->is_function &&
-                                arg_sym->kind != SYMBOL_PARAM &&
-                                !arg_expr->as.variable.is_param_ref)
-                            {
-                                /* Bare function references must be wrapped in closures
-                                 * for uniform calling convention.  Parameter references
-                                 * (is_param_ref) are already closures — re-wrapping
-                                 * leaks the intermediate closure. */
-                                {
-                                /* Generate a wrapper function that adapts the calling convention.
-                                 * The wrapper accepts (void *__closure__, params...) and forwards
-                                 * to the named function with just (params...). */
-                                int wrap_id = g_model_fn_wrapper_count++;
-                                json_object *wrapper = json_object_new_object();
-                                json_object_object_add(wrapper, "wrapper_id",
-                                    json_object_new_int(wrap_id));
-                                json_object_object_add(wrapper, "target_name",
-                                    json_object_new_string(arg_expr->as.variable.name.start));
-                                Type *fn_type = callee_param_types[i];
-                                json_object_object_add(wrapper, "return_type",
-                                    gen_model_type(arena, fn_type->as.function.return_type));
-                                json_object *wrap_params = json_object_new_array();
-                                /* Resolve the target function's actual param info to detect borrow.
-                                 * Look up the target function in module stmts to get Parameter data. */
-                                bool target_is_native = fn_type->as.function.is_native;
-                                bool has_borrow = false;
-                                for (int p = 0; p < fn_type->as.function.param_count; p++)
-                                {
-                                    json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
-                                    /* Mark borrow params: non-native target, MEM_DEFAULT or MEM_AS_REF, COMPOSITE type */
-                                    if (!target_is_native)
-                                    {
-                                        Type *ptype = fn_type->as.function.param_types[p];
-                                        MemoryQualifier pmq_val = MEM_DEFAULT;
-                                        if (fn_type->as.function.param_mem_quals)
-                                            pmq_val = fn_type->as.function.param_mem_quals[p];
-                                        if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
-                                            gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
-                                        {
-                                            json_object_object_add(pt, "is_borrow",
-                                                json_object_new_boolean(true));
-                                            has_borrow = true;
-                                        }
-                                    }
-                                    json_object_array_add(wrap_params, pt);
-                                }
-                                json_object_object_add(wrapper, "param_types", wrap_params);
-                                json_object_object_add(wrapper, "is_native",
-                                    json_object_new_boolean(fn_type->as.function.is_native));
-                                if (has_borrow)
-                                    json_object_object_add(wrapper, "has_borrow_cleanup",
-                                        json_object_new_boolean(true));
-                                json_object_array_add(g_model_fn_wrappers, wrapper);
-
-                                json_object_object_add(arg, "is_fn_ref_arg",
-                                    json_object_new_boolean(true));
-                                json_object_object_add(arg, "fn_wrapper_id",
-                                    json_object_new_int(wrap_id));
-                                } /* end else (callee_calls_param) */
-                            }
+                            json_object_object_add(arg, "is_fn_ref_arg",
+                                json_object_new_boolean(true));
+                            json_object_object_add(arg, "fn_wrapper_id",
+                                json_object_new_int(wrap_id));
                         }
                     }
                     /* String array push/insert: BORROW args need strdup so slot
@@ -2000,6 +2017,24 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         {
                             json_object_object_add(arg, "is_arr_lit_borrow",
                                 json_object_new_boolean(true));
+                        }
+                    }
+                    /* Wrap bare top-level fn refs into __Closure__ when passed
+                     * to a fn-typed param. Without this, the receiving static
+                     * method stores a raw fn pointer in a fn-typed struct
+                     * field, which crashes on the next struct copy when copy
+                     * code dereferences the field as __Closure__. */
+                    if (m && i < m->param_count && m->params[i].type)
+                    {
+                        int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                            expr->as.static_call.arguments[i],
+                            m->params[i].type, symbol_table);
+                        if (wrap_id >= 0)
+                        {
+                            json_object_object_add(arg, "is_fn_ref_arg",
+                                json_object_new_boolean(true));
+                            json_object_object_add(arg, "fn_wrapper_id",
+                                json_object_new_int(wrap_id));
                         }
                     }
                     json_object_array_add(args, arg);
@@ -2463,54 +2498,14 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     case TYPE_FUNCTION:
                         field_cleanup = "free_closure";
                         {
-                            Expr *val = expr->as.member_assign.value;
-                            if (val && val->type == EXPR_VARIABLE)
+                            int wrap_id = maybe_emit_fn_ref_wrapper(arena,
+                                expr->as.member_assign.value, ftype, symbol_table);
+                            if (wrap_id >= 0)
                             {
-                                Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, val->as.variable.name) : NULL;
-                                if (sym && sym->is_function && sym->kind != SYMBOL_PARAM &&
-                                    !val->as.variable.is_param_ref)
-                                {
-                                    /* Create a wrapper function for the bare function reference */
-                                    Type *fn_type = ftype;
-                                    int wrap_id = g_model_fn_wrapper_count++;
-                                    json_object *wrapper = json_object_new_object();
-                                    json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
-                                    json_object_object_add(wrapper, "target_name",
-                                        json_object_new_string(val->as.variable.name.start));
-                                    json_object_object_add(wrapper, "return_type",
-                                        gen_model_type(arena, fn_type->as.function.return_type));
-                                    json_object *wrap_params = json_object_new_array();
-                                    bool tgt_native2 = fn_type->as.function.is_native;
-                                    bool has_borrow2 = false;
-                                    for (int p = 0; p < fn_type->as.function.param_count; p++)
-                                    {
-                                        json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
-                                        if (!tgt_native2)
-                                        {
-                                            Type *ptype = fn_type->as.function.param_types[p];
-                                            MemoryQualifier pmq_val = MEM_DEFAULT;
-                                            if (fn_type->as.function.param_mem_quals)
-                                                pmq_val = fn_type->as.function.param_mem_quals[p];
-                                            if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
-                                                gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
-                                            {
-                                                json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
-                                                has_borrow2 = true;
-                                            }
-                                        }
-                                        json_object_array_add(wrap_params, pt);
-                                    }
-                                    json_object_object_add(wrapper, "param_types", wrap_params);
-                                    json_object_object_add(wrapper, "is_native",
-                                        json_object_new_boolean(fn_type->as.function.is_native));
-                                    if (has_borrow2)
-                                        json_object_object_add(wrapper, "has_borrow_cleanup",
-                                            json_object_new_boolean(true));
-                                    json_object_array_add(g_model_fn_wrappers, wrapper);
-
-                                    json_object_object_add(obj, "needs_closure_wrap", json_object_new_boolean(true));
-                                    json_object_object_add(obj, "fn_wrapper_id", json_object_new_int(wrap_id));
-                                }
+                                json_object_object_add(obj, "needs_closure_wrap",
+                                    json_object_new_boolean(true));
+                                json_object_object_add(obj, "fn_wrapper_id",
+                                    json_object_new_int(wrap_id));
                             }
                         }
                         break;
@@ -2695,52 +2690,16 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 /* Function-typed fields need heap closure wrapping for bare function references.
                  * Parameters of function type are already closure pointers. */
-                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_FUNCTION && fv->type == EXPR_VARIABLE)
+                if (fv && fv->expr_type && fv->expr_type->kind == TYPE_FUNCTION)
                 {
-                    Symbol *sym = symbol_table ? symbol_table_lookup_symbol(symbol_table, fv->as.variable.name) : NULL;
-                    if (sym && sym->is_function && sym->kind != SYMBOL_PARAM &&
-                        !fv->as.variable.is_param_ref)
+                    int wrap_id = maybe_emit_fn_ref_wrapper(arena, fv,
+                        fv->expr_type, symbol_table);
+                    if (wrap_id >= 0)
                     {
-                        /* Create a wrapper function (same as is_fn_ref_arg) */
-                        Type *fn_type = fv->expr_type;
-                        int wrap_id = g_model_fn_wrapper_count++;
-                        json_object *wrapper = json_object_new_object();
-                        json_object_object_add(wrapper, "wrapper_id", json_object_new_int(wrap_id));
-                        json_object_object_add(wrapper, "target_name",
-                            json_object_new_string(fv->as.variable.name.start));
-                        json_object_object_add(wrapper, "return_type",
-                            gen_model_type(arena, fn_type->as.function.return_type));
-                        json_object *wrap_params = json_object_new_array();
-                        bool tgt_native3 = fn_type->as.function.is_native;
-                        bool has_borrow3 = false;
-                        for (int p = 0; p < fn_type->as.function.param_count; p++)
-                        {
-                            json_object *pt = gen_model_type(arena, fn_type->as.function.param_types[p]);
-                            if (!tgt_native3)
-                            {
-                                Type *ptype = fn_type->as.function.param_types[p];
-                                MemoryQualifier pmq_val = MEM_DEFAULT;
-                                if (fn_type->as.function.param_mem_quals)
-                                    pmq_val = fn_type->as.function.param_mem_quals[p];
-                                if ((pmq_val == MEM_DEFAULT || pmq_val == MEM_AS_REF) && ptype &&
-                                    gen_model_type_category(ptype) == TYPE_CAT_COMPOSITE)
-                                {
-                                    json_object_object_add(pt, "is_borrow", json_object_new_boolean(true));
-                                    has_borrow3 = true;
-                                }
-                            }
-                            json_object_array_add(wrap_params, pt);
-                        }
-                        json_object_object_add(wrapper, "param_types", wrap_params);
-                        json_object_object_add(wrapper, "is_native",
-                            json_object_new_boolean(fn_type->as.function.is_native));
-                        if (has_borrow3)
-                            json_object_object_add(wrapper, "has_borrow_cleanup",
-                                json_object_new_boolean(true));
-                        json_object_array_add(g_model_fn_wrappers, wrapper);
-
-                        json_object_object_add(f, "needs_closure_wrap", json_object_new_boolean(true));
-                        json_object_object_add(f, "fn_wrapper_id", json_object_new_int(wrap_id));
+                        json_object_object_add(f, "needs_closure_wrap",
+                            json_object_new_boolean(true));
+                        json_object_object_add(f, "fn_wrapper_id",
+                            json_object_new_int(wrap_id));
                     }
                 }
                 json_object_array_add(fields, f);
