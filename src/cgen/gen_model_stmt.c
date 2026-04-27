@@ -554,6 +554,37 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                             gen_model_type(arena, rt));
                     }
                 }
+                /* Inline-lambda return: `return fn() => ...` constructs the
+                 * closure directly in the return expression. Mirror the
+                 * variable-return escape path so heap-promoted (is_ref)
+                 * captures transfer ownership to the closure: NULL out the
+                 * outer captured vars and override the closure's __cleanup__
+                 * to __closure_<id>_free__ (which frees both is_ref boxes and
+                 * any owned heap-data captures). Without this, the outer's
+                 * sn_auto_capture frees the boxes on function exit while the
+                 * closure still holds pointers to them — a heap-use-after-free
+                 * the next time the closure is invoked. */
+                else if (rv->type == EXPR_LAMBDA && !g_in_lambda_body &&
+                         g_captured_var_count > 0)
+                {
+                    json_object_object_add(obj, "is_ownership_transfer",
+                        json_object_new_boolean(true));
+                    json_object_object_add(obj, "transfer_kind",
+                        json_object_new_string("lambda_inline"));
+                    json_object_object_add(obj, "transfer_type",
+                        gen_model_type(arena, rv->expr_type));
+                    json_object_object_add(obj, "has_closure_escape",
+                        json_object_new_boolean(true));
+                    json_object_object_add(obj, "closure_escape_lambda_id",
+                        json_object_new_int(rv->as.lambda.lambda_id));
+                    json_object *cap_vars = json_object_new_array();
+                    for (int ci = 0; ci < g_captured_var_count; ci++)
+                    {
+                        json_object_array_add(cap_vars,
+                            json_object_new_string(g_captured_vars[ci]));
+                    }
+                    json_object_object_add(obj, "captured_vars_to_null", cap_vars);
+                }
                 /* Member access return: if returning a str/array field of a struct,
                  * the caller receives an owned value but the struct also owns its
                  * field.  Copy to avoid double-free (self/params) or use-after-free

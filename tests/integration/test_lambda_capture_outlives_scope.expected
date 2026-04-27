@@ -1,0 +1,5 @@
+hello from a captured local string | state-prefix | count=7
+hello from a captured local string | state-prefix | count=7
+counter: 101
+counter: 102
+counter: 103

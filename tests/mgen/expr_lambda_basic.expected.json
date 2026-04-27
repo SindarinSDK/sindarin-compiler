@@ -94,6 +94,7 @@
             "captures": [],
             "has_captures": false,
             "has_struct_copy_captures": false,
+            "has_capture_cleanup": false,
             "has_ref_captures": false,
             "body": {
               "type": {
@@ -232,6 +233,7 @@
       "captures": [],
       "has_captures": false,
       "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
       "has_ref_captures": false,
       "body": {
         "type": {

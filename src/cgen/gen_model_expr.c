@@ -387,6 +387,62 @@ static bool mc_is_primitive(Type *type)
     }
 }
 
+/* Decide how a captured outer variable must be copied into the closure
+ * environment and how that copy must be released when the closure is
+ * destroyed. Without owning copies, a closure that outlives the enclosing
+ * function reads memory that the caller's sn_auto_* cleanup has already
+ * freed.
+ *
+ * `is_ref` captures are heap-promoted boxes shared with the outer scope —
+ * ownership transfers to the closure only on escape (handled separately
+ * by __closure_<id>_free__). Their cap_cleanup stays "none" so the regular
+ * destruction path does not double-free a box still owned by sn_auto_capture.
+ *
+ * Returns true when the capture introduces an owned heap copy that needs
+ * release on every closure cleanup path. */
+static bool mc_emit_capture_actions(json_object *cap, Type *type, bool is_ref)
+{
+    const char *cap_action = "assign";
+    const char *cap_cleanup = "none";
+    const char *struct_type_name = NULL;
+
+    if (is_ref) {
+        /* Borrowed pointer to outer's heap-promoted box; outer owns it
+         * unless ownership transfers via escape. */
+    } else if (type) {
+        switch (type->kind) {
+        case TYPE_STRING:
+            cap_action = "strdup";
+            cap_cleanup = "free";
+            break;
+        case TYPE_ARRAY:
+            cap_action = "array_copy";
+            cap_cleanup = "cleanup_array";
+            break;
+        case TYPE_STRUCT:
+            if (type->as.struct_type.pass_self_by_ref) {
+                cap_action = "retain";
+                cap_cleanup = "release";
+                struct_type_name = type->as.struct_type.name;
+            } else if (gen_model_type_has_heap_fields(type)) {
+                cap_action = "struct_copy";
+                cap_cleanup = "struct_cleanup";
+                struct_type_name = type->as.struct_type.name;
+            }
+            break;
+        default:
+            break;
+        }
+    }
+
+    json_object_object_add(cap, "cap_action", json_object_new_string(cap_action));
+    json_object_object_add(cap, "cap_cleanup", json_object_new_string(cap_cleanup));
+    if (struct_type_name)
+        json_object_object_add(cap, "cap_struct_type_name",
+            json_object_new_string(struct_type_name));
+    return strcmp(cap_cleanup, "none") != 0;
+}
+
 /* ============================================================================ */
 
 static const char *binary_op_str(SnTokenType op)
@@ -2877,6 +2933,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
 
             json_object *captures = json_object_new_array();
             bool has_struct_copy_captures = false;
+            bool has_capture_cleanup = false;
             for (int i = 0; i < caps.count; i++)
             {
                 json_object *cap = json_object_new_object();
@@ -2893,11 +2950,15 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 }
                 json_object_object_add(cap, "is_ref", json_object_new_boolean(is_ref));
 
-                /* needs_struct_copy: a value-struct capture (not a ref/refcounted)
-                 * with heap fields must be deep-copied into the closure environment.
-                 * Otherwise the closure shares string/array pointers with the
-                 * caller's struct and any cleanup of either side is a use-after-free.
-                 * The matching cleanup runs through __closure_<id>_struct_cleanup__. */
+                /* Emit per-capture cap_action / cap_cleanup so the closure owns
+                 * its captured heap data. Without this, str / refcounted-struct /
+                 * array captures share pointers with the caller and trigger a
+                 * heap-use-after-free once the caller's sn_auto_* cleanup runs. */
+                if (mc_emit_capture_actions(cap, caps.types[i], is_ref))
+                    has_capture_cleanup = true;
+
+                /* Legacy needs_struct_copy flag — used by the closure type
+                 * definition to know which fields are deep-copied value structs. */
                 if (!is_ref && caps.types[i] &&
                     caps.types[i]->kind == TYPE_STRUCT &&
                     !caps.types[i]->as.struct_type.pass_self_by_ref &&
@@ -2917,6 +2978,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_boolean(caps.count > 0));
             json_object_object_add(obj, "has_struct_copy_captures",
                 json_object_new_boolean(has_struct_copy_captures));
+            json_object_object_add(obj, "has_capture_cleanup",
+                json_object_new_boolean(has_capture_cleanup));
             /* Check if any capture is by reference (needs heap promotion) */
             {
                 bool has_ref_caps = false;
@@ -3002,6 +3065,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 /* Add captures to the lambda definition too */
                 json_object *lcaps = json_object_new_array();
                 bool ldef_has_struct_copy_captures = false;
+                bool ldef_has_capture_cleanup = false;
                 for (int i = 0; i < caps.count; i++)
                 {
                     json_object *lc = json_object_new_object();
@@ -3016,6 +3080,9 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         if (strcmp(g_captured_vars[ci], caps.names[i]) == 0) { lc_is_ref = true; break; }
                     }
                     json_object_object_add(lc, "is_ref", json_object_new_boolean(lc_is_ref));
+
+                    if (mc_emit_capture_actions(lc, caps.types[i], lc_is_ref))
+                        ldef_has_capture_cleanup = true;
 
                     /* Mirror the needs_struct_copy flag onto the lambda definition's
                      * captures so the closure type definition / cleanup function
@@ -3039,6 +3106,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     json_object_new_boolean(caps.count > 0));
                 json_object_object_add(ldef, "has_struct_copy_captures",
                     json_object_new_boolean(ldef_has_struct_copy_captures));
+                json_object_object_add(ldef, "has_capture_cleanup",
+                    json_object_new_boolean(ldef_has_capture_cleanup));
                 /* Check if any capture is by reference */
                 {
                     bool has_ref_caps = false;

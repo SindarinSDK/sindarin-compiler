@@ -55,7 +55,11 @@ typedef struct __closure_{{lambda_id}}__ {
 static void __closure_{{lambda_id}}_free__(void *p) {
     __closure_{{lambda_id}}__ *cl = (__closure_{{lambda_id}}__ *)p;
 {{#each captures}}{{#if is_ref}}    free(cl->{{name}});
-{{/if}}{{/each}}    free(cl);
+{{else}}{{#if (eq cap_cleanup "free")}}    free(cl->{{name}});
+{{else}}{{#if (eq cap_cleanup "release")}}    __sn__{{cap_struct_type_name}}_release(&cl->{{name}});
+{{else}}{{#if (eq cap_cleanup "cleanup_array")}}    sn_cleanup_array(&cl->{{name}});
+{{else}}{{#if (eq cap_cleanup "struct_cleanup")}}    __sn__{{cap_struct_type_name}}_cleanup(&cl->{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
 }
 static void __closure_{{lambda_id}}_cleanup__(void **p) {
     if (*p) {
@@ -66,7 +70,7 @@ static void __closure_{{lambda_id}}_cleanup__(void **p) {
 #define sn_auto_closure_{{lambda_id}} __attribute__((cleanup(__closure_{{lambda_id}}_cleanup__)))
 {{/if}}
 {{/if}}
-{{#if has_struct_copy_captures}}static void __closure_{{lambda_id}}_struct_cleanup__(void *p);
+{{#if has_capture_cleanup}}static void __closure_{{lambda_id}}_capture_cleanup__(void *p);
 {{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if (eq mem_qual "as_ref")}}*{{/if}}{{#if is_borrow}}*{{/if}}__sn__{{name}}{{/each}});
 {{/each}}
 {{#each fn_wrappers}}

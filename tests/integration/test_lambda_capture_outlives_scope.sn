@@ -1,0 +1,56 @@
+// Regression: a closure that outlives the enclosing function's stack
+// frame must own its captured `str` and refcounted-struct values, not
+// borrow them. Otherwise the local cleanup runs on function return and
+// the closure ends up reading freed memory the next time it is invoked.
+//
+// This test mirrors the SSE-producer pattern in sindarin-pkg-http where
+// HttpResponse.sse(producer) holds a closure that the http server thread
+// drains after the request handler has already returned.
+
+struct State as ref =>
+  prefix: str
+  count: int
+
+# Build a producer closure that captures a local `str` and a local
+# `State as ref` struct, then return it. After this function returns,
+# both locals are out of scope and would be freed by the caller's
+# `sn_auto_*` cleanup if the closure had not retained them.
+fn makeProducer(): fn(): str =>
+  var greeting: str = "hello from a captured local string"
+  var s: State = {
+    prefix: "state-prefix",
+    count: 7
+  }
+  return fn(): str => $"{greeting} | {s.prefix} | count={s.count}"
+
+# Build a counter closure that captures and mutates a heap-promoted local
+# (an is_ref capture) AND a refcounted struct, then returns it inline.
+# Inline-returned closures must transfer ownership of is_ref boxes to the
+# closure — otherwise the outer's sn_auto_capture cleanup frees the box
+# while the closure still holds a pointer to it.
+fn makeCounter(): fn(): int =>
+  var counter: int = 100
+  var s: State = {
+    prefix: "shared",
+    count: 0
+  }
+  return fn(): int =>
+    counter = counter + 1
+    return counter + s.count
+
+fn main(): int =>
+  var p: fn(): str = makeProducer()
+  # The locals captured by p are out of scope here. If the closure did
+  # not retain/strdup them, ASAN reports a heap-use-after-free on the
+  # first call.
+  var first: str = p()
+  print($"{first}\n")
+  # Call again to confirm the captured values are stable across calls.
+  var second: str = p()
+  print($"{second}\n")
+
+  var c: fn(): int = makeCounter()
+  print($"counter: {c()}\n")
+  print($"counter: {c()}\n")
+  print($"counter: {c()}\n")
+  return 0

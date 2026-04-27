@@ -3,14 +3,10 @@
     __closure_{{lambda_id}}__ *__cl__ = malloc(sizeof(__closure_{{lambda_id}}__));
     __cl__->fn = (void *)__lambda_{{lambda_id}}__;
     __cl__->size = sizeof(__closure_{{lambda_id}}__);
-    __cl__->__cleanup__ = {{#if has_struct_copy_captures}}__closure_{{lambda_id}}_struct_cleanup__{{else}}NULL{{/if}};
+    __cl__->__cleanup__ = {{#if has_capture_cleanup}}__closure_{{lambda_id}}_capture_cleanup__{{else}}NULL{{/if}};
 {{#each captures}}
 {{#unless is_self}}
-{{#if is_ref}}
-    __cl__->{{name}} = __sn__{{name}};
-{{else}}
-    __cl__->{{name}} = {{#if needs_struct_copy}}__sn__{{struct_type_name}}_copy(&__sn__{{name}}){{else}}__sn__{{name}}{{/if}};
-{{/if}}
+    __cl__->{{name}} = {{#if (eq cap_action "strdup")}}__sn__{{name}} ? strdup(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "retain")}}__sn__{{cap_struct_type_name}}_retain(__sn__{{name}}){{else}}{{#if (eq cap_action "array_copy")}}__sn__{{name}} ? sn_array_copy(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "struct_copy")}}__sn__{{cap_struct_type_name}}_copy(&__sn__{{name}}){{else}}__sn__{{name}}{{/if}}{{/if}}{{/if}}{{/if}};
 {{/unless}}
 {{/each}}
     __cl__;

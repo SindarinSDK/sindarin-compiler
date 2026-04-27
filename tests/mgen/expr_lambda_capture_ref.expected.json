@@ -90,11 +90,14 @@
                   "kind": "int"
                 },
                 "is_primitive": true,
-                "is_ref": true
+                "is_ref": true,
+                "cap_action": "assign",
+                "cap_cleanup": "none"
               }
             ],
             "has_captures": true,
             "has_struct_copy_captures": false,
+            "has_capture_cleanup": false,
             "has_ref_captures": true,
             "body_stmts": [
               {
@@ -216,11 +219,14 @@
             "kind": "int"
           },
           "is_primitive": true,
-          "is_ref": true
+          "is_ref": true,
+          "cap_action": "assign",
+          "cap_cleanup": "none"
         }
       ],
       "has_captures": true,
       "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
       "has_ref_captures": true,
       "body_stmts": [
         {
