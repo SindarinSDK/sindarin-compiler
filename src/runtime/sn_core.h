@@ -66,16 +66,43 @@ static inline void *sn_realloc(void *ptr, size_t size)
 
 static inline void sn_cleanup_str(char **p) { free(*p); }
 static inline void sn_cleanup_ptr(void **p) { free(*p); }
-static inline void sn_cleanup_fn(void **p) {
+
+/* Closures (and their per-lambda specialisations) all share this prefix.
+ * The codegen emits matching __Closure__ / __closure_<id>__ typedefs whose
+ * first four fields are byte-compatible with this layout, so generic
+ * runtime helpers can retain/release without knowing the closure's type.
+ *
+ * Refcount semantics: every closure box is born with __rc__ == 1; sharing
+ * (capturing into another closure, copying into a struct field, etc.) must
+ * call sn_closure_retain; every destruction path must call sn_closure_release,
+ * which runs __cleanup__ exactly once when the count hits zero. __cleanup__
+ * is responsible for releasing owned captures and freeing the box itself. */
+typedef struct {
+    void *fn;
+    size_t size;
+    void (*__cleanup__)(void *);
+    int __rc__;
+} __SnClosureHeader__;
+
+static inline void *sn_closure_retain(void *p) {
+    if (p) ((__SnClosureHeader__ *)p)->__rc__++;
+    return p;
+}
+
+static inline void sn_closure_release(void **p) {
     if (*p) {
-        void (**cleanup)(void *) = (void (**)(void *))((char *)*p + sizeof(void *) + sizeof(size_t));
-        if (*cleanup)
-            (*cleanup)(*p);
-        else
-            free(*p);
+        __SnClosureHeader__ *h = (__SnClosureHeader__ *)*p;
+        if (--h->__rc__ == 0) {
+            if (h->__cleanup__)
+                h->__cleanup__(*p);
+            else
+                free(*p);
+        }
     }
     *p = NULL;
 }
+
+static inline void sn_cleanup_fn(void **p) { sn_closure_release(p); }
 
 #define sn_auto_str __attribute__((cleanup(sn_cleanup_str)))
 #define sn_auto_ptr __attribute__((cleanup(sn_cleanup_ptr)))

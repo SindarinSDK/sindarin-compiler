@@ -1,0 +1,16 @@
+// Regression: a closure that captures a `fn(...)` parameter must take a
+// shared reference to the captured closure box, not a raw pointer copy.
+// Without the retain, the source closure (a sn_auto_fn temporary at the
+// call site) is freed when its statement-expression ends, leaving the
+// captured pointer dangling — heap-use-after-free on the next call.
+
+fn wrap(target: fn(int): int): fn(int): int =>
+  return fn(x: int): int => target(x) + 1
+
+fn timesTwo(x: int): int => x * 2
+
+fn main(): int =>
+  var w: fn(int): int = wrap(timesTwo)
+  print($"{w(5)}\n")
+  print($"{w(10)}\n")
+  return 0

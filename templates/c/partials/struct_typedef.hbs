@@ -39,7 +39,7 @@ typedef struct {
 {{else}}{{#if (eq copy_action "array_copy")}}    dst.__sn__{{name}} = sn_array_copy(src->__sn__{{name}});
 {{else}}{{#if (eq copy_action "retain")}}    dst.__sn__{{name}} = __sn__{{type.name}}_retain(src->__sn__{{name}});
 {{else}}{{#if (eq copy_action "copy_val")}}    dst.__sn__{{name}} = __sn__{{type.name}}_copy(&src->__sn__{{name}});
-{{else}}{{#if (eq copy_action "closure_copy")}}    if (src->__sn__{{name}}) { __Closure__ *__src_cl__ = (__Closure__ *)src->__sn__{{name}}; dst.__sn__{{name}} = malloc(__src_cl__->size); memcpy(dst.__sn__{{name}}, __src_cl__, __src_cl__->size); } else { dst.__sn__{{name}} = NULL; }
+{{else}}{{#if (eq copy_action "retain_closure")}}    dst.__sn__{{name}} = sn_closure_retain(src->__sn__{{name}});
 {{else}}    dst.__sn__{{name}} = src->__sn__{{name}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    return dst;
 }
@@ -50,6 +50,7 @@ static inline void __sn__{{name}}_cleanup(__sn__{{name}} *p) {
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}    sn_cleanup_array(&p->__sn__{{name}});
 {{/if}}{{#if (eq cleanup_action "release")}}    __sn__{{type.name}}_release(&p->__sn__{{name}});
 {{/if}}{{#if (eq cleanup_action "cleanup_val")}}    __sn__{{type.name}}_cleanup(&p->__sn__{{name}});
+{{/if}}{{#if (eq cleanup_action "release_closure")}}    sn_closure_release((void **)&p->__sn__{{name}});
 {{/if}}{{/each}}
 }
 
@@ -70,6 +71,7 @@ static inline void __sn__{{name}}_release(__sn__{{name}} **p) {
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->__sn__{{name}});
 {{/if}}{{#if (eq cleanup_action "release")}}        __sn__{{type.name}}_release(&(*p)->__sn__{{name}});
 {{/if}}{{#if (eq cleanup_action "cleanup_val")}}        __sn__{{type.name}}_cleanup(&(*p)->__sn__{{name}});
+{{/if}}{{#if (eq cleanup_action "release_closure")}}        sn_closure_release((void **)&(*p)->__sn__{{name}});
 {{/if}}{{/each}}        free(*p);
     }
     *p = NULL;
@@ -193,6 +195,7 @@ static inline __sn__{{name}} *__sn__{{name}}_retain(__sn__{{name}} *p) {
 {{/if}}{{#if (eq cleanup_action "cleanup_array")}}        sn_cleanup_array(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{#if (eq cleanup_action "release")}}        __sn__{{type.name}}_release(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{#if (eq cleanup_action "cleanup_val")}}        __sn__{{type.name}}_cleanup(&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
+{{/if}}{{#if (eq cleanup_action "release_closure")}}        sn_closure_release((void **)&(*p)->{{#if c_alias}}{{c_alias}}{{else}}__sn__{{name}}{{/if}});
 {{/if}}{{/each}}{{/if}}        free(*p);
     }
     *p = NULL;
@@ -205,7 +208,7 @@ static inline __sn__{{name}} *__sn__{{name}}_retain(__sn__{{name}} *p) {
 {{else}}{{#if (eq copy_action "array_copy")}}    dst->__sn__{{name}} = sn_array_copy(src->__sn__{{name}});
 {{else}}{{#if (eq copy_action "retain")}}    dst->__sn__{{name}} = __sn__{{type.name}}_retain(src->__sn__{{name}});
 {{else}}{{#if (eq copy_action "copy_val")}}    dst->__sn__{{name}} = __sn__{{type.name}}_copy(&src->__sn__{{name}});
-{{else}}{{#if (eq copy_action "closure_copy")}}    if (src->__sn__{{name}}) { __Closure__ *__src_cl__ = (__Closure__ *)src->__sn__{{name}}; dst->__sn__{{name}} = malloc(__src_cl__->size); memcpy(dst->__sn__{{name}}, __src_cl__, __src_cl__->size); } else { dst->__sn__{{name}} = NULL; }
+{{else}}{{#if (eq copy_action "retain_closure")}}    dst->__sn__{{name}} = sn_closure_retain(src->__sn__{{name}});
 {{else}}    dst->__sn__{{name}} = src->__sn__{{name}};
 {{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    return dst;
 }

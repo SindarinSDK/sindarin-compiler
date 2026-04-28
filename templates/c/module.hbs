@@ -57,6 +57,7 @@ typedef struct __Closure__ {
     void *fn;
     size_t size;
     void (*__cleanup__)(void *);
+    int __rc__;
 } __Closure__;
 {{#if lambdas}}
 {{#each lambdas}}
@@ -66,6 +67,7 @@ typedef struct __closure_{{lambda_id}}__ {
     void *fn;
     size_t size;
     void (*__cleanup__)(void *);
+    int __rc__;
 {{#each captures}}
     {{c_type type}} {{#if is_ref}}*{{/if}}{{name}};
 {{/each}}
@@ -78,7 +80,8 @@ static void __closure_{{lambda_id}}_free__(void *p) {
 {{else}}{{#if (eq cap_cleanup "release")}}    __sn__{{cap_struct_type_name}}_release(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "cleanup_array")}}    sn_cleanup_array(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "struct_cleanup")}}    __sn__{{cap_struct_type_name}}_cleanup(&cl->{{name}});
-{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
+{{else}}{{#if (eq cap_cleanup "release_closure")}}    sn_closure_release((void **)&cl->{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
 }
 static void __closure_{{lambda_id}}_cleanup__(void **p) {
     if (*p) {
@@ -145,7 +148,8 @@ static {{c_type return_type}} __fn_wrap_{{wrapper_id}}__(void *__closure__{{#eac
 {{else}}{{#if (eq cap_cleanup "release")}}    __sn__{{cap_struct_type_name}}_release(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "cleanup_array")}}    sn_cleanup_array(&cl->{{name}});
 {{else}}{{#if (eq cap_cleanup "struct_cleanup")}}    __sn__{{cap_struct_type_name}}_cleanup(&cl->{{name}});
-{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
+{{else}}{{#if (eq cap_cleanup "release_closure")}}    sn_closure_release((void **)&cl->{{name}});
+{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/each}}    free(cl);
 }
 {{/if}}static {{c_type return_type}} __lambda_{{lambda_id}}__(void *__closure__{{#each params}}, {{c_type type}} {{#if needs_struct_cleanup}}__p__{{name}}{{else}}__sn__{{name}}{{/if}}{{/each}}) {
 {{#each params}}{{#if needs_struct_cleanup}}    sn_auto_{{struct_cleanup_name}} {{c_type type}} __sn__{{name}} = __p__{{name}};

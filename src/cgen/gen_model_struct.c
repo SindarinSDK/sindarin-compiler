@@ -11,7 +11,7 @@ static const char *field_cleanup_action(Type *type)
         case TYPE_STRING:   return "free";
         case TYPE_POINTER:  return "free";  /* raw pointer fields (e.g. *byte) are heap-allocated */
         case TYPE_ARRAY:    return "cleanup_array";
-        case TYPE_FUNCTION: return "free";  /* closures are heap-allocated */
+        case TYPE_FUNCTION: return "release_closure";  /* refcounted closure box */
         case TYPE_STRUCT:
         {
             TypeCategory cat = gen_model_type_category(type);
@@ -32,7 +32,7 @@ static const char *field_copy_action(Type *type)
     {
         case TYPE_STRING:   return "strdup";
         case TYPE_ARRAY:    return "array_copy";
-        case TYPE_FUNCTION: return "closure_copy";  /* deep-copy heap closures */
+        case TYPE_FUNCTION: return "retain_closure";  /* shared refcounted closure */
         case TYPE_STRUCT:
             if (type->as.struct_type.pass_self_by_ref)
                 return "retain";

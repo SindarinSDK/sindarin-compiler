@@ -20,7 +20,7 @@
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if (eq assign_cleanup "free_closure")}}({
     void *__old_cl__ = {{#if is_captured}}*{{/if}}__sn__{{target}};
-    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{> expr value}};
-    free(__old_cl__);
+    {{#if is_captured}}*{{/if}}__sn__{{target}} = {{#if source_is_borrow}}sn_closure_retain({{> expr value}}){{else}}{{> expr value}}{{/if}};
+    sn_closure_release(&__old_cl__);
     {{#if is_captured}}*{{/if}}__sn__{{target}};
 }){{else}}{{#if is_captured}}(*__sn__{{target}} = {{> expr value}}){{else}}(__sn__{{target}} = {{> expr value}}){{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}}

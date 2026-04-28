@@ -10,12 +10,14 @@ typedef struct __Closure__ {
     void *fn;
     size_t size;
     void (*__cleanup__)(void *);
+    int __rc__;
 } __Closure__;
 
 typedef struct __closure_0__ {
     void *fn;
     size_t size;
     void (*__cleanup__)(void *);
+    int __rc__;
     long long *x;
 } __closure_0__;
 static void __closure_0_free__(void *p) {
@@ -39,6 +41,7 @@ int main() {
         __cl__->fn = (void *)__lambda_0__;
         __cl__->size = sizeof(__closure_0__);
         __cl__->__cleanup__ = NULL;
+        __cl__->__rc__ = 1;
         __cl__->x = __sn__x;
         __cl__;
     });

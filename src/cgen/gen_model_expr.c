@@ -430,6 +430,15 @@ static bool mc_emit_capture_actions(json_object *cap, Type *type, bool is_ref)
                 struct_type_name = type->as.struct_type.name;
             }
             break;
+        case TYPE_FUNCTION:
+            /* Closures are heap boxes shared via refcount. Capture takes a
+             * shared reference (retain); cleanup releases it (which runs
+             * the closure's __cleanup__ at refcount zero, freeing its own
+             * captures and the box itself). Without this the captured
+             * pointer outlives the source closure's sn_auto_fn cleanup. */
+            cap_action = "retain_closure";
+            cap_cleanup = "release_closure";
+            break;
         default:
             break;
         }

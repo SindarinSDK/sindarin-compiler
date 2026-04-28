@@ -14,6 +14,7 @@ typedef struct __Closure__ {
     void *fn;
     size_t size;
     void (*__cleanup__)(void *);
+    int __rc__;
 } __Closure__;
 
 int main() {

@@ -1,0 +1,17 @@
+// Regression: a captured `fn(...)` parameter may itself be a closure
+// with its own owned captures (e.g. a strdup'd string). Refcounting the
+// captured closure box ensures that owned captures inside it are released
+// exactly once — by the captured closure's own __cleanup__ when its
+// refcount drops to zero — not double-freed and not leaked.
+
+fn callTwice(action: fn(): str): str =>
+  return $"{action()} | {action()}"
+
+fn main(): int =>
+  var greeting: str = "hello world"
+  var producer: fn(): str = fn(): str => greeting
+  print($"{callTwice(producer)}\n")
+  // Use producer again after callTwice returns to confirm the captured
+  // string inside producer is still alive.
+  print($"{producer()}\n")
+  return 0

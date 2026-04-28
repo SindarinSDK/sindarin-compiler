@@ -3,7 +3,7 @@
 {{#if call.is_closure_call}}
     __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
     __args__->__closure_fn = (__Closure__ *){{> expr call.callee}};
-{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __args__->arg{{@index}} = __fc__; }
+{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __fc__->__cleanup__ = NULL; __fc__->__rc__ = 1; __args__->arg{{@index}} = __fc__; }
 {{else}}    __args__->arg{{@index}} = {{#if type.pass_self_by_ref}}__sn__{{type.name}}_retain({{> expr this}}){{else}}{{#if is_copy_arg}}__sn__{{copy_type_name}}_copy({{#if copy_needs_addr}}&({{> expr this}}){{else}}{{> expr this}}{{/if}}){{else}}{{#if is_ref_arg}}&{{/if}}{{> expr this}}{{/if}}{{/if}};
 {{/if}}{{/each}}    __th__->result = __args__;
 {{/if}}
@@ -11,7 +11,7 @@
 {{#if call.args}}
     __ThreadArgs_{{thread_id}}__ *__args__ = malloc(sizeof(__ThreadArgs_{{thread_id}}__));
 {{#if (eq call.callee.kind "member")}}    __args__->self_arg = {{> expr call.callee.object}};
-{{/if}}{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __args__->arg{{@index}} = __fc__; }
+{{/if}}{{#each call.args}}{{#if is_fn_ref_arg}}    { __Closure__ *__fc__ = malloc(sizeof(__Closure__)); __fc__->fn = (void *)__fn_wrap_{{fn_wrapper_id}}__; __fc__->size = sizeof(__Closure__); __fc__->__cleanup__ = NULL; __fc__->__rc__ = 1; __args__->arg{{@index}} = __fc__; }
 {{else}}    __args__->arg{{@index}} = {{#if type.pass_self_by_ref}}__sn__{{type.name}}_retain({{> expr this}}){{else}}{{#if is_copy_arg}}__sn__{{copy_type_name}}_copy({{#if copy_needs_addr}}&({{> expr this}}){{else}}{{> expr this}}{{/if}}){{else}}{{#if is_ref_arg}}&{{/if}}{{> expr this}}{{/if}}{{/if}};
 {{/if}}{{/each}}    __th__->result = __args__;
 {{/if}}

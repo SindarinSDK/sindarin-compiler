@@ -4,9 +4,10 @@
     __cl__->fn = (void *)__lambda_{{lambda_id}}__;
     __cl__->size = sizeof(__closure_{{lambda_id}}__);
     __cl__->__cleanup__ = {{#if has_capture_cleanup}}__closure_{{lambda_id}}_capture_cleanup__{{else}}NULL{{/if}};
+    __cl__->__rc__ = 1;
 {{#each captures}}
 {{#unless is_self}}
-    __cl__->{{name}} = {{#if (eq cap_action "strdup")}}__sn__{{name}} ? strdup(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "retain")}}__sn__{{cap_struct_type_name}}_retain(__sn__{{name}}){{else}}{{#if (eq cap_action "array_copy")}}__sn__{{name}} ? sn_array_copy(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "struct_copy")}}__sn__{{cap_struct_type_name}}_copy(&__sn__{{name}}){{else}}__sn__{{name}}{{/if}}{{/if}}{{/if}}{{/if}};
+    __cl__->{{name}} = {{#if (eq cap_action "strdup")}}__sn__{{name}} ? strdup(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "retain")}}__sn__{{cap_struct_type_name}}_retain(__sn__{{name}}){{else}}{{#if (eq cap_action "array_copy")}}__sn__{{name}} ? sn_array_copy(__sn__{{name}}) : NULL{{else}}{{#if (eq cap_action "struct_copy")}}__sn__{{cap_struct_type_name}}_copy(&__sn__{{name}}){{else}}{{#if (eq cap_action "retain_closure")}}sn_closure_retain(__sn__{{name}}){{else}}__sn__{{name}}{{/if}}{{/if}}{{/if}}{{/if}}{{/if}};
 {{/unless}}
 {{/each}}
     __cl__;
@@ -15,6 +16,7 @@
     __cl__->fn = (void *)__lambda_{{lambda_id}}__;
     __cl__->size = sizeof(__Closure__);
     __cl__->__cleanup__ = NULL;
+    __cl__->__rc__ = 1;
     __cl__;
 {{/if}}
 })
