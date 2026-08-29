@@ -4,7 +4,7 @@
 // This file demonstrates all features of the Sindarin language by importing
 // and running demo modules for each feature area.
 //
-// Run: bin/sn samples/main.sn -o /tmp/main.c && gcc /tmp/main.c bin/*.o -o /tmp/main && /tmp/main
+// Run: bin/sn samples/main.sn -o /tmp/sindarin-demo && /tmp/sindarin-demo
 // ============================================================================
 
 import "lib/types"

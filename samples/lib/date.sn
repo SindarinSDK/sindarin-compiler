@@ -5,7 +5,7 @@
 // and common date patterns
 // ============================================================================
 
-import "../../sdk/time/date"
+import "sindarin-pkg-sdk/src/time/date"
 
 // Entry point for date demos
 fn demo_date(): void =>
