@@ -346,48 +346,23 @@ static void test_lexer_array_with_indentation(void)
     Token t5 = lexer_scan_token(&lexer);
     assert(t5.type == TOKEN_LEFT_BRACE);
 
-    // t6: NEWLINE (end line 1)
+    // Newlines and indentation are suppressed inside balanced delimiters.
     Token t6 = lexer_scan_token(&lexer);
-    assert(t6.type == TOKEN_NEWLINE);
+    assert(t6.type == TOKEN_INT_LITERAL);
+    assert(t6.literal.int_value == 1);
 
-    // t7: INDENT (4 spaces for array elements block)
     Token t7 = lexer_scan_token(&lexer);
-    assert(t7.type == TOKEN_INDENT);
+    assert(t7.type == TOKEN_COMMA);
 
-    // Line 2: 1,
     Token t8 = lexer_scan_token(&lexer);
     assert(t8.type == TOKEN_INT_LITERAL);
-    assert(t8.literal.int_value == 1);
+    assert(t8.literal.int_value == 2);
 
     Token t9 = lexer_scan_token(&lexer);
-    assert(t9.type == TOKEN_COMMA);
+    assert(t9.type == TOKEN_RIGHT_BRACE);
 
-    // t10: NEWLINE (end line 2)
     Token t10 = lexer_scan_token(&lexer);
-    assert(t10.type == TOKEN_NEWLINE);
-
-    // Line 3: 2 (same indent level 4, no extra INDENT)
-    Token t11 = lexer_scan_token(&lexer);
-    assert(t11.type == TOKEN_INT_LITERAL); // Changed: Directly the number "2"
-    assert(t11.literal.int_value == 2);
-
-    // t12: NEWLINE (end line 3)
-    Token t12 = lexer_scan_token(&lexer);
-    assert(t12.type == TOKEN_NEWLINE);
-
-    // t13: DEDENT (back to 2 spaces for line 4)
-    Token t13 = lexer_scan_token(&lexer);
-    assert(t13.type == TOKEN_DEDENT);
-
-    // No second DEDENT yet (line 4 indent=2 == previous 2)
-
-    // Line 4: }
-    Token t14 = lexer_scan_token(&lexer);
-    assert(t14.type == TOKEN_RIGHT_BRACE);
-
-    // t15: EOF (end, with possible final DEDENT if needed, but since base, direct EOF)
-    Token t15 = lexer_scan_token(&lexer);
-    assert(t15.type == TOKEN_EOF);
+    assert(t10.type == TOKEN_EOF);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);

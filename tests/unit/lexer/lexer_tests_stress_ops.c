@@ -88,7 +88,7 @@ static void test_lexer_stress_assign_ops(void)
     assert(tok.type == TOKEN_SLASH_EQUAL);
 
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_MOD_EQUAL);
+    assert(tok.type == TOKEN_MODULO_EQUAL);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);
@@ -124,7 +124,7 @@ static void test_lexer_stress_range_op(void)
     assert(tok.type == TOKEN_INT_LITERAL);
 
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_DOT_DOT);
+    assert(tok.type == TOKEN_RANGE);
 
     tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_INT_LITERAL);

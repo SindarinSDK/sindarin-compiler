@@ -195,7 +195,7 @@ static void test_lexer_if_statement(void)
     assert(tok.type == TOKEN_INT_LITERAL);
 
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_FAT_ARROW);
+    assert(tok.type == TOKEN_ARROW);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);
@@ -252,7 +252,7 @@ static void test_lexer_match_expression(void)
     assert(tok.type == TOKEN_IDENTIFIER);
 
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_FAT_ARROW);
+    assert(tok.type == TOKEN_ARROW);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);

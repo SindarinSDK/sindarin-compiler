@@ -20,7 +20,7 @@ static void test_struct_layout_large()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "LargeStruct";
     struct_type->as.struct_type.field_count = 20;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 20);
 
     for (int i = 0; i < 20; i++) {
@@ -66,7 +66,7 @@ static void test_struct_layout_large_mixed()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "MixedLarge";
     struct_type->as.struct_type.field_count = 8;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 8);
 
     /* int64, byte, int64, byte, int32, byte, double, byte */
@@ -167,7 +167,7 @@ static void test_struct_layout_single_int()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "SingleInt";
     struct_type->as.struct_type.field_count = 1;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 1);
 
     struct_type->as.struct_type.fields[0].name = "val";
@@ -201,7 +201,7 @@ static void test_struct_layout_single_byte()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "SingleByte";
     struct_type->as.struct_type.field_count = 1;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 1);
 
     struct_type->as.struct_type.fields[0].name = "val";
@@ -236,7 +236,7 @@ static void test_struct_layout_single_nested()
     inner_type->kind = TYPE_STRUCT;
     inner_type->as.struct_type.name = "Inner";
     inner_type->as.struct_type.field_count = 2;
-    inner_type->as.struct_type.is_native = false;
+    inner_type->as.struct_type.is_native = true;
     inner_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
     inner_type->as.struct_type.fields[0].name = "x";
@@ -260,7 +260,7 @@ static void test_struct_layout_single_nested()
     outer_type->kind = TYPE_STRUCT;
     outer_type->as.struct_type.name = "Outer";
     outer_type->as.struct_type.field_count = 1;
-    outer_type->as.struct_type.is_native = false;
+    outer_type->as.struct_type.is_native = true;
     outer_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 1);
 
     outer_type->as.struct_type.fields[0].name = "inner";
@@ -483,7 +483,7 @@ static void test_struct_layout_deeply_nested()
     inner_type->kind = TYPE_STRUCT;
     inner_type->as.struct_type.name = "Inner";
     inner_type->as.struct_type.field_count = 1;
-    inner_type->as.struct_type.is_native = false;
+    inner_type->as.struct_type.is_native = true;
     inner_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 1);
     inner_type->as.struct_type.fields[0].name = "val";
     inner_type->as.struct_type.fields[0].type = int_type;
@@ -499,7 +499,7 @@ static void test_struct_layout_deeply_nested()
     middle_type->kind = TYPE_STRUCT;
     middle_type->as.struct_type.name = "Middle";
     middle_type->as.struct_type.field_count = 2;
-    middle_type->as.struct_type.is_native = false;
+    middle_type->as.struct_type.is_native = true;
     middle_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
     middle_type->as.struct_type.fields[0].name = "inner";
     middle_type->as.struct_type.fields[0].type = inner_type;
@@ -520,7 +520,7 @@ static void test_struct_layout_deeply_nested()
     outer_type->kind = TYPE_STRUCT;
     outer_type->as.struct_type.name = "Outer";
     outer_type->as.struct_type.field_count = 2;
-    outer_type->as.struct_type.is_native = false;
+    outer_type->as.struct_type.is_native = true;
     outer_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
     outer_type->as.struct_type.fields[0].name = "middle";
     outer_type->as.struct_type.fields[0].type = middle_type;

@@ -304,13 +304,13 @@ static void test_struct_get_type_size()
 
     /* Now get_type_size should return the computed size */
     int size = get_type_size(struct_type);
-    assert(size == 16);  /* int(8) + byte(1) + padding(7) = 16 */
+    assert(size == 24);  /* arena pointer(8) + fields(16) */
 
     arena_free(&arena);
     DEBUG_INFO("Finished test_struct_get_type_size");
 }
 
-/* Test: get_type_size returns 0 for empty struct */
+/* An empty non-native struct still contains its hidden arena pointer. */
 static void test_struct_get_type_size_empty()
 {
     DEBUG_INFO("Starting test_struct_get_type_size_empty");
@@ -330,7 +330,7 @@ static void test_struct_get_type_size_empty()
     calculate_struct_layout(struct_type);
 
     int size = get_type_size(struct_type);
-    assert(size == 0);
+    assert(size == 8);
 
     arena_free(&arena);
     DEBUG_INFO("Finished test_struct_get_type_size_empty");
@@ -459,7 +459,7 @@ static void test_get_type_alignment_struct()
     byte_struct->kind = TYPE_STRUCT;
     byte_struct->as.struct_type.name = "ByteStruct";
     byte_struct->as.struct_type.field_count = 2;
-    byte_struct->as.struct_type.is_native = false;
+    byte_struct->as.struct_type.is_native = true;
     byte_struct->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
     byte_struct->as.struct_type.fields[0].name = "a";

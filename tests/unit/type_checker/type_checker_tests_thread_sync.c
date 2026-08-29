@@ -67,8 +67,8 @@ static void test_sync_unknown_variable_error(void)
     arena_free(&arena);
 }
 
-/* Test sync on non-pending variable reports error */
-static void test_sync_non_pending_variable_error(void)
+/* Non-pending values are allowed for conditionally spawned threads. */
+static void test_sync_non_pending_variable_allowed(void)
 {
     Arena arena;
     arena_init(&arena, 4096);
@@ -93,11 +93,11 @@ static void test_sync_non_pending_variable_error(void)
     setup_token(&sync_tok, TOKEN_BANG, "!", 1, "test.sn", &arena);
     Expr *sync_expr = ast_create_thread_sync_expr(&arena, var_expr, false, &sync_tok);
 
-    /* Type check should return NULL and set error */
+    /* The runtime checks whether a thread is pending before joining. */
     type_checker_reset_error();
     Type *result = type_check_expr(sync_expr, &table);
-    assert(result == NULL);
-    assert(type_checker_had_error());
+    assert(result == int_type);
+    assert(!type_checker_had_error());
 
     symbol_table_cleanup(&table);
     arena_free(&arena);
@@ -471,7 +471,7 @@ void test_type_checker_thread_sync_main(void)
 
     TEST_RUN("sync_non_variable_error", test_sync_non_variable_error);
     TEST_RUN("sync_unknown_variable_error", test_sync_unknown_variable_error);
-    TEST_RUN("sync_non_pending_variable_error", test_sync_non_pending_variable_error);
+    TEST_RUN("sync_non_pending_variable_allowed", test_sync_non_pending_variable_allowed);
     TEST_RUN("valid_sync_returns_correct_type", test_valid_sync_returns_correct_type);
     TEST_RUN("sync_state_transition", test_sync_state_transition);
     TEST_RUN("array_sync_validates_array_handle", test_array_sync_validates_array_handle);

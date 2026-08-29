@@ -45,7 +45,7 @@ static void test_parser_double_negation(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var x: int = --y\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var x: int = - -y\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
@@ -110,7 +110,7 @@ static void test_parser_precedence_comparison_over_logical(void)
     Parser parser;
     SymbolTable symbol_table;
     // x < y and y < z should parse as (x < y) and (y < z)
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x < y and y < z\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x < y && y < z\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);

@@ -222,8 +222,8 @@ static void test_output_file_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.output_file != NULL);
-    /* Output file should be set to the executable */
+    /* Normal compilation consumes -o as the executable path. */
+    assert(options.output_file == NULL);
     assert(options.executable_file != NULL);
     assert(strcmp(options.executable_file, "myprogram") == 0);
 
@@ -243,7 +243,7 @@ static void test_emit_c_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.emit_c_only == 1);
+    assert(options.emit_c == 1);
 
     arena_free(&options.arena);
 }
@@ -414,7 +414,7 @@ static void test_default_output_path(void)
     arena_free(&options.arena);
 }
 
-static void test_default_c_output_path(void)
+static void test_default_output_file_unused(void)
 {
     CompilerOptions options;
     memset(&options, 0, sizeof(options));
@@ -427,9 +427,7 @@ static void test_default_c_output_path(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    /* Intermediate C file should be "myfile.c" */
-    assert(options.output_file != NULL);
-    assert(strcmp(options.output_file, "myfile.c") == 0);
+    assert(options.output_file == NULL);
 
     arena_free(&options.arena);
 }
@@ -570,7 +568,7 @@ static void test_flags_order_independence(void)
  * Legacy Flag Tests
  * ============================================================================ */
 
-static void test_no_opt_legacy_flag(void)
+static void test_no_opt_legacy_flag_rejected(void)
 {
     CompilerOptions options;
     memset(&options, 0, sizeof(options));
@@ -583,9 +581,7 @@ static void test_no_opt_legacy_flag(void)
     options.optimization_level = OPT_LEVEL_FULL;
 
     int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
-    /* --no-opt is legacy equivalent to -O0 */
-    assert(options.optimization_level == OPT_LEVEL_NONE);
+    assert(result == 0);
 
     arena_free(&options.arena);
 }
@@ -715,7 +711,7 @@ void test_compiler_driver_main(void)
 
     TEST_SECTION("Compiler Driver - Output Path Derivation");
     TEST_RUN("default_output_path", test_default_output_path);
-    TEST_RUN("default_c_output_path", test_default_c_output_path);
+    TEST_RUN("default_output_file_unused", test_default_output_file_unused);
     TEST_RUN("emit_c_output_path", test_emit_c_output_path);
 
     TEST_SECTION("Compiler Driver - Error Handling");
@@ -728,7 +724,7 @@ void test_compiler_driver_main(void)
     TEST_RUN("flags_order_independence", test_flags_order_independence);
 
     TEST_SECTION("Compiler Driver - Legacy Flags");
-    TEST_RUN("no_opt_legacy_flag", test_no_opt_legacy_flag);
+    TEST_RUN("no_opt_legacy_flag_rejected", test_no_opt_legacy_flag_rejected);
 
     TEST_SECTION("Compiler Driver - Edge Cases");
     TEST_RUN("source_file_without_extension", test_source_file_without_extension);

@@ -6,7 +6,7 @@
 /* Configuration for the C compiler backend */
 typedef struct {
     const char *cc;              /* SN_CC: Compiler command (default: "gcc") */
-    const char *std;             /* SN_STD: C standard (default: "c99") */
+    const char *std;             /* SN_STD: C standard (default: "c11") */
     const char *debug_cflags;    /* SN_DEBUG_CFLAGS: Debug mode flags */
     const char *release_cflags;  /* SN_RELEASE_CFLAGS: Release mode flags */
     const char *profile_cflags;  /* SN_PROFILE_CFLAGS: Profile mode flags */

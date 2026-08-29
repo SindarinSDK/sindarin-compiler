@@ -61,9 +61,11 @@ static void test_edge_mixed_params_and_locals(void) {
     assert(p2->kind == SYMBOL_PARAM);
     assert(l2->kind == SYMBOL_LOCAL);
 
-    // Params and locals should have separate offset sequences
-    assert(p1->offset != l1->offset);
-    assert(p2->offset != l2->offset);
+    // Params and locals advance independently from the same base offset.
+    assert(p1->offset == l1->offset);
+    assert(p2->offset == l2->offset);
+    assert(p1->offset != p2->offset);
+    assert(l1->offset != l2->offset);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);

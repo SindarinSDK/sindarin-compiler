@@ -320,7 +320,7 @@ The C compiler backend can be configured via environment variables:
 | Variable | Purpose | Default |
 |----------|---------|---------|
 | `SN_CC` | C compiler command | `gcc` |
-| `SN_STD` | C standard | `c99` |
+| `SN_STD` | C standard | `c11` |
 | `SN_DEBUG_CFLAGS` | Debug mode flags | `-no-pie -fsanitize=address -fno-omit-frame-pointer -g` |
 | `SN_RELEASE_CFLAGS` | Release mode flags | `-O3 -flto` |
 | `SN_CFLAGS` | Additional compiler flags | (empty) |

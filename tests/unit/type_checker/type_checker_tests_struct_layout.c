@@ -27,7 +27,7 @@ static void test_struct_layout_all_8byte_fields()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 3;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 3);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -81,7 +81,7 @@ static void test_struct_layout_byte_int_padding()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 3;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 3);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -135,7 +135,7 @@ static void test_struct_layout_trailing_padding()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 2;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -182,7 +182,7 @@ static void test_struct_layout_4byte_fields()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 3;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 3);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -236,7 +236,7 @@ static void test_struct_layout_mixed_alignment()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 2;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -284,7 +284,7 @@ static void test_struct_layout_all_1byte_fields()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Test";
     struct_type->as.struct_type.field_count = 4;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 4);
 
     struct_type->as.struct_type.fields[0].name = "a";
@@ -338,7 +338,7 @@ static void test_struct_layout_empty()
     struct_type->kind = TYPE_STRUCT;
     struct_type->as.struct_type.name = "Empty";
     struct_type->as.struct_type.field_count = 0;
-    struct_type->as.struct_type.is_native = false;
+    struct_type->as.struct_type.is_native = true;
     struct_type->as.struct_type.fields = NULL;
 
     calculate_struct_layout(struct_type);
@@ -366,7 +366,7 @@ static void test_struct_layout_nested()
     point_type->kind = TYPE_STRUCT;
     point_type->as.struct_type.name = "Point";
     point_type->as.struct_type.field_count = 2;
-    point_type->as.struct_type.is_native = false;
+    point_type->as.struct_type.is_native = true;
     point_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
     point_type->as.struct_type.fields[0].name = "x";
@@ -395,7 +395,7 @@ static void test_struct_layout_nested()
     rect_type->kind = TYPE_STRUCT;
     rect_type->as.struct_type.name = "Rect";
     rect_type->as.struct_type.field_count = 3;
-    rect_type->as.struct_type.is_native = false;
+    rect_type->as.struct_type.is_native = true;
     rect_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 3);
 
     rect_type->as.struct_type.fields[0].name = "origin";

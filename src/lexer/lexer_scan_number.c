@@ -150,57 +150,54 @@ Token lexer_scan_number(Lexer *lexer)
         lexer_advance(lexer);
     }
 
-    /* Check for decimal point (floating-point literal) */
+    int is_floating = 0;
+
+    /* Check for decimal point (floating-point literal). */
     if (lexer_peek(lexer) == '.' && isdigit(lexer_peek_next(lexer)))
     {
+        is_floating = 1;
         lexer_advance(lexer);
         while (isdigit(lexer_peek(lexer)))
         {
             lexer_advance(lexer);
         }
+    }
 
-        /* Float suffix: f or F */
+    /* Scientific notation is valid with or without a decimal point. */
+    if (lexer_peek(lexer) == 'e' || lexer_peek(lexer) == 'E')
+    {
+        is_floating = 1;
+        lexer_advance(lexer);
+        if (lexer_peek(lexer) == '+' || lexer_peek(lexer) == '-')
+            lexer_advance(lexer);
+        if (!isdigit(lexer_peek(lexer)))
+        {
+            snprintf(error_buffer, sizeof(error_buffer), "Expected digit in exponent");
+            return lexer_error_token(lexer, error_buffer);
+        }
+        while (isdigit(lexer_peek(lexer)))
+            lexer_advance(lexer);
+    }
+
+    if (is_floating)
+    {
+        SnTokenType token_type = TOKEN_DOUBLE_LITERAL;
+        int suffix_length = 0;
         if (lexer_peek(lexer) == 'f' || lexer_peek(lexer) == 'F')
         {
+            token_type = TOKEN_FLOAT_LITERAL;
             lexer_advance(lexer);
-            Token token = lexer_make_token(lexer, TOKEN_FLOAT_LITERAL);
-            char buffer[256];
-            int length = (int)(lexer->current - lexer->start - 1);
-            if (length >= (int)sizeof(buffer))
-            {
-                snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
-                return lexer_error_token(lexer, error_buffer);
-            }
-            strncpy(buffer, lexer->start, length);
-            buffer[length] = '\0';
-            double value = strtod(buffer, NULL);
-            token_set_double_literal(&token, value);
-            return token;
+            suffix_length = 1;
         }
-
-        /* Double suffix: d or D (optional) */
-        if (lexer_peek(lexer) == 'd' || lexer_peek(lexer) == 'D')
+        else if (lexer_peek(lexer) == 'd' || lexer_peek(lexer) == 'D')
         {
             lexer_advance(lexer);
-            Token token = lexer_make_token(lexer, TOKEN_DOUBLE_LITERAL);
-            char buffer[256];
-            int length = (int)(lexer->current - lexer->start - 1);
-            if (length >= (int)sizeof(buffer))
-            {
-                snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");
-                return lexer_error_token(lexer, error_buffer);
-            }
-            strncpy(buffer, lexer->start, length);
-            buffer[length] = '\0';
-            double value = strtod(buffer, NULL);
-            token_set_double_literal(&token, value);
-            return token;
+            suffix_length = 1;
         }
 
-        /* No suffix: default to double */
-        Token token = lexer_make_token(lexer, TOKEN_DOUBLE_LITERAL);
+        Token token = lexer_make_token(lexer, token_type);
         char buffer[256];
-        int length = (int)(lexer->current - lexer->start);
+        int length = (int)(lexer->current - lexer->start) - suffix_length;
         if (length >= (int)sizeof(buffer))
         {
             snprintf(error_buffer, sizeof(error_buffer), "Number literal too long");

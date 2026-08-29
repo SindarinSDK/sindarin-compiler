@@ -28,8 +28,8 @@ static void test_config_init_defaults(void)
     assert(config.ldflags != NULL);
     assert(config.ldlibs != NULL);
 
-    /* Default C standard should be c99 */
-    assert(strcmp(config.std, "c99") == 0);
+    /* Generated C targets C11 by default. */
+    assert(strcmp(config.std, "c11") == 0);
 }
 
 static void test_config_default_compiler(void)
@@ -108,13 +108,12 @@ static void test_detect_gcc_compiler(void)
     assert(config.cc != NULL);
 }
 
-static void test_config_std_c99(void)
+static void test_config_std_c11(void)
 {
     CCBackendConfig config;
     cc_backend_init_config(&config);
 
-    /* Verify default standard is c99 */
-    assert(strcmp(config.std, "c99") == 0);
+    assert(strcmp(config.std, "c11") == 0);
 }
 
 /* ============================================================================
@@ -518,7 +517,7 @@ void test_gcc_backend_main(void)
     TEST_RUN("config_ldflags_empty", test_config_ldflags_empty);
     TEST_RUN("config_ldlibs_not_null", test_config_ldlibs_not_null);
     TEST_RUN("config_cflags_not_null", test_config_cflags_not_null);
-    TEST_RUN("config_std_c99", test_config_std_c99);
+    TEST_RUN("config_std_c11", test_config_std_c11);
     TEST_RUN("config_after_load", test_config_after_load);
     TEST_RUN("config_init_multiple_times", test_config_init_multiple_times);
     TEST_RUN("config_values_stable", test_config_values_stable);

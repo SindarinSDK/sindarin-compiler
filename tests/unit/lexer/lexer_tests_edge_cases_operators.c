@@ -60,7 +60,7 @@ static void test_lex_op_percent(void)
     init_lexer_test(&arena, &lexer, "%");
 
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_PERCENT);
+    assert(tok.type == TOKEN_MODULO);
 
     cleanup_lexer_test(&arena, &lexer);
 }

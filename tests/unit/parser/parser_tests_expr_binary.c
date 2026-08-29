@@ -194,7 +194,7 @@ static void test_parser_binary_and(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x and y\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x && y\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
@@ -211,7 +211,7 @@ static void test_parser_binary_or(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x or y\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = x || y\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);

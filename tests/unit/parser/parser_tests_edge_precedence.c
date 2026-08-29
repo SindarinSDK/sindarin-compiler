@@ -76,7 +76,7 @@ static void test_parse_precedence_and_lower_than_comparison(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a > b and c > d\n";
+    const char *source = "var x: bool = a > b && c > d\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -97,7 +97,7 @@ static void test_parse_precedence_or_lower_than_and(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a and b or c and d\n";
+    const char *source = "var x: bool = a && b || c && d\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -139,7 +139,7 @@ static void test_parse_double_negation(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: int = --5\n";
+    const char *source = "var x: int = - -5\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -159,7 +159,7 @@ static void test_parse_not_and_comparison(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = not a > b\n";
+    const char *source = "var x: bool = !(a > b)\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -167,7 +167,7 @@ static void test_parse_not_and_comparison(void)
     Stmt *stmt = module->statements[0];
     Expr *init = stmt->as.var_decl.initializer;
     assert(init->type == EXPR_UNARY);
-    assert(init->as.unary.operator == TOKEN_NOT);
+    assert(init->as.unary.operator == TOKEN_BANG);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }

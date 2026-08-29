@@ -107,9 +107,8 @@ static void test_symbol_table_add_symbol_no_scope(void) {
     DEBUG_INFO("Finished test_symbol_table_add_symbol_no_scope");
 }
 
-// Test type cloning on add (since add clones type)
-static void test_symbol_table_add_symbol_type_clone(void) {
-    DEBUG_INFO("Starting test_symbol_table_add_symbol_type_clone");
+static void test_symbol_table_add_symbol_retains_type(void) {
+    DEBUG_INFO("Starting test_symbol_table_add_symbol_retains_type");
 
     Arena arena;
     arena_init(&arena, TEST_ARENA_SIZE);
@@ -121,15 +120,12 @@ static void test_symbol_table_add_symbol_type_clone(void) {
     symbol_table_add_symbol(&table, name, orig_type);
 
     Symbol *sym = symbol_table_lookup_symbol(&table, name);
-    assert(sym->type != orig_type);  // Cloned
-    assert(ast_type_equals(sym->type, orig_type));  // But equal
-
-    // Modify orig (if possible), but since primitive, just check equality
+    assert(sym->type == orig_type);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);
 
-    DEBUG_INFO("Finished test_symbol_table_add_symbol_type_clone");
+    DEBUG_INFO("Finished test_symbol_table_add_symbol_retains_type");
 }
 
 // Test arena exhaustion (simulate by small arena, but hard; test alloc failures)

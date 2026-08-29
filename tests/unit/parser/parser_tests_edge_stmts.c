@@ -58,7 +58,7 @@ static void test_parse_if_elif_else(void)
     const char *source =
         "if a =>\n"
         "  print(\"a\")\n"
-        "elif b =>\n"
+        "else if b =>\n"
         "  print(\"b\")\n"
         "else =>\n"
         "  print(\"c\")\n";
@@ -69,7 +69,7 @@ static void test_parse_if_elif_else(void)
     assert(module->count == 1);
     Stmt *if_stmt = module->statements[0];
     assert(if_stmt->type == STMT_IF);
-    /* Check that elif creates a nested if */
+    /* Check that else-if creates a nested if. */
     assert(if_stmt->as.if_stmt.else_branch != NULL);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
@@ -111,7 +111,7 @@ static void test_parse_for_range(void)
     assert(module != NULL);
     assert(module->count == 1);
     Stmt *for_stmt = module->statements[0];
-    assert(for_stmt->type == STMT_FOR);
+    assert(for_stmt->type == STMT_FOR_EACH);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }

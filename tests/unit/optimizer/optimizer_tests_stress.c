@@ -49,6 +49,7 @@ static void test_optimizer_terminator_if_stmt(void)
     arena_init(&arena, 4096);
 
     Stmt *if_stmt = arena_alloc(&arena, sizeof(Stmt));
+    *if_stmt = (Stmt){0};
     if_stmt->type = STMT_IF;
     assert(stmt_is_terminator(if_stmt) == false);
 
@@ -61,6 +62,7 @@ static void test_optimizer_terminator_while_stmt(void)
     arena_init(&arena, 4096);
 
     Stmt *while_stmt = arena_alloc(&arena, sizeof(Stmt));
+    *while_stmt = (Stmt){0};
     while_stmt->type = STMT_WHILE;
     assert(stmt_is_terminator(while_stmt) == false);
 
@@ -73,6 +75,7 @@ static void test_optimizer_terminator_for_stmt(void)
     arena_init(&arena, 4096);
 
     Stmt *for_stmt = arena_alloc(&arena, sizeof(Stmt));
+    *for_stmt = (Stmt){0};
     for_stmt->type = STMT_FOR;
     assert(stmt_is_terminator(for_stmt) == false);
 
@@ -85,6 +88,7 @@ static void test_optimizer_terminator_block_stmt(void)
     arena_init(&arena, 4096);
 
     Stmt *block_stmt = arena_alloc(&arena, sizeof(Stmt));
+    *block_stmt = (Stmt){0};
     block_stmt->type = STMT_BLOCK;
     assert(stmt_is_terminator(block_stmt) == false);
 
@@ -97,6 +101,7 @@ static void test_optimizer_terminator_function_stmt(void)
     arena_init(&arena, 4096);
 
     Stmt *func_stmt = arena_alloc(&arena, sizeof(Stmt));
+    *func_stmt = (Stmt){0};
     func_stmt->type = STMT_FUNCTION;
     assert(stmt_is_terminator(func_stmt) == false);
 

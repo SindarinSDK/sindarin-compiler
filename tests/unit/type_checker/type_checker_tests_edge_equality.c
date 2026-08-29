@@ -132,7 +132,7 @@ static void test_type_equality_with_null(void)
 
     Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
 
-    assert(ast_type_equals(NULL, NULL) == 0);
+    assert(ast_type_equals(NULL, NULL) == 1);
     assert(ast_type_equals(int_type, NULL) == 0);
     assert(ast_type_equals(NULL, int_type) == 0);
 

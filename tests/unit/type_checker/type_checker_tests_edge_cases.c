@@ -139,14 +139,14 @@ void test_type_checker_edge_cases_main(void)
     TEST_RUN("type_equality_function_different_params", test_type_equality_function_different_params);
     TEST_RUN("type_equality_with_null", test_type_equality_with_null);
 
-    // Type coercion
-    TEST_RUN("coercion_int_to_double", test_coercion_int_to_double);
-    TEST_RUN("coercion_double_to_int_fails", test_coercion_double_to_int_fails);
-    TEST_RUN("coercion_byte_to_int", test_coercion_byte_to_int);
-    TEST_RUN("coercion_char_to_int", test_coercion_char_to_int);
-    TEST_RUN("coercion_same_type", test_coercion_same_type);
-    TEST_RUN("coercion_string_to_int_fails", test_coercion_string_to_int_fails);
-    TEST_RUN("coercion_bool_to_int_fails", test_coercion_bool_to_int_fails);
+    // Numeric promotion
+    TEST_RUN("promotion_int_to_double", test_promotion_int_to_double);
+    TEST_RUN("promotion_double_to_int_fails", test_promotion_double_to_int_fails);
+    TEST_RUN("promotion_byte_to_int_fails", test_promotion_byte_to_int_fails);
+    TEST_RUN("promotion_char_to_int_fails", test_promotion_char_to_int_fails);
+    TEST_RUN("promotion_same_type_fails", test_promotion_same_type_fails);
+    TEST_RUN("promotion_string_to_int_fails", test_promotion_string_to_int_fails);
+    TEST_RUN("promotion_bool_to_int_fails", test_promotion_bool_to_int_fails);
 
     // Literal expressions
     TEST_RUN("literal_int_type", test_literal_int_type);

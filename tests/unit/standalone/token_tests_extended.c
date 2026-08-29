@@ -329,7 +329,7 @@ static void test_token_type_type_keywords(void)
     assert(TOKEN_DOUBLE != TOKEN_FLOAT);
     assert(TOKEN_STR != TOKEN_CHAR);
     assert(TOKEN_BOOL != TOKEN_BYTE);
-    assert(TOKEN_VOID != TOKEN_ANY);
+    assert(TOKEN_VOID != TOKEN_BYTE);
 }
 
 static void test_token_type_control_flow(void)

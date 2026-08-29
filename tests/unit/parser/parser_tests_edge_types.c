@@ -11,7 +11,7 @@ static void test_parse_array_type(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: [int] = [1, 2, 3]\n";
+    const char *source = "var x: int[] = {1, 2, 3}\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -39,19 +39,19 @@ static void test_parse_pointer_type(void)
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
 
-static void test_parse_nullable_type(void)
+static void test_parse_pointer_with_nil_initializer(void)
 {
     Arena arena;
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: int? = null\n";
+    const char *source = "var x: *int = nil\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
     Stmt *stmt = module->statements[0];
-    assert(stmt->as.var_decl.type->kind == TYPE_NULLABLE);
+    assert(stmt->as.var_decl.type->kind == TYPE_POINTER);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -124,7 +124,7 @@ static void test_parse_array_indexing(void)
     assert(module != NULL);
     Stmt *stmt = module->statements[0];
     Expr *expr = stmt->as.expression.expression;
-    assert(expr->type == EXPR_INDEX);
+    assert(expr->type == EXPR_ARRAY_ACCESS);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
