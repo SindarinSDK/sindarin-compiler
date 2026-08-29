@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 /* Forward declarations */
 typedef struct __sn__Encoder __sn__Encoder;
@@ -40,6 +41,8 @@ struct __sn__Encoder {
     __sn__EncoderVTable *__sn__vt;
     void *__sn__ctx;
     void (*__sn__cleanup)(__sn__Encoder *self);
+    char *__sn__result_cache;
+    bool __sn__finalized;
 };
 
 /* ---- Decoder vtable ---- */
@@ -75,6 +78,7 @@ static inline __sn__Encoder *__sn__Encoder_alloc(void) {
 static inline void __sn__Encoder_release(__sn__Encoder **p) {
     if (*p) {
         if ((*p)->__sn__cleanup) (*p)->__sn__cleanup(*p);
+        free((*p)->__sn__result_cache);
         free(*p);
     }
     *p = NULL;
@@ -108,26 +112,60 @@ static inline void __sn__Decoder_release_elem(void *p) {
     __sn__Decoder_release((__sn__Decoder **)p);
 }
 
-/* ---- Vtable dispatch macros ----
+/* ---- Vtable dispatch ----
  *
  * The compiler generates method calls like __sn__Encoder_writeStr(enc, "key", val).
- * These macros expand them to vtable dispatch: enc->__sn__vt->writeStr(enc, "key", val).
- * Zero overhead — the C preprocessor inlines the indirection. */
+ * result() is finalizing and therefore dispatched through a wrapper that caches
+ * its first value. This makes finalization idempotent even when a concrete
+ * encoder releases its context while producing the result. */
 
-#define __sn__Encoder_writeStr(__self, __key, __val)    (__self)->__sn__vt->writeStr((__self), (__key), (__val))
-#define __sn__Encoder_writeInt(__self, __key, __val)    (__self)->__sn__vt->writeInt((__self), (__key), (__val))
-#define __sn__Encoder_writeDouble(__self, __key, __val) (__self)->__sn__vt->writeDouble((__self), (__key), (__val))
-#define __sn__Encoder_writeBool(__self, __key, __val)   (__self)->__sn__vt->writeBool((__self), (__key), (__val))
-#define __sn__Encoder_writeNull(__self, __key)          (__self)->__sn__vt->writeNull((__self), (__key))
-#define __sn__Encoder_beginObject(__self, __key)        (__self)->__sn__vt->beginObject((__self), (__key))
-#define __sn__Encoder_beginArray(__self, __key)         (__self)->__sn__vt->beginArray((__self), (__key))
-#define __sn__Encoder_end(__self)                       (__self)->__sn__vt->end((__self))
-#define __sn__Encoder_appendStr(__self, __val)          (__self)->__sn__vt->appendStr((__self), (__val))
-#define __sn__Encoder_appendInt(__self, __val)          (__self)->__sn__vt->appendInt((__self), (__val))
-#define __sn__Encoder_appendDouble(__self, __val)       (__self)->__sn__vt->appendDouble((__self), (__val))
-#define __sn__Encoder_appendBool(__self, __val)         (__self)->__sn__vt->appendBool((__self), (__val))
-#define __sn__Encoder_appendObject(__self)              (__self)->__sn__vt->appendObject((__self))
-#define __sn__Encoder_result(__self)                    (__self)->__sn__vt->result((__self))
+static inline void __sn__Encoder_require_active(__sn__Encoder *self, const char *operation) {
+    if (!self || !self->__sn__vt || self->__sn__finalized) {
+        fprintf(stderr, "Fatal: cannot call Encoder.%s() after result()\n", operation);
+        abort();
+    }
+}
+
+static inline char *__sn__Encoder_result_dispatch(__sn__Encoder *self) {
+    if (!self || !self->__sn__vt || !self->__sn__vt->result) {
+        fprintf(stderr, "Fatal: cannot call Encoder.result() on an invalid encoder\n");
+        abort();
+    }
+
+    if (self->__sn__finalized) {
+        if (!self->__sn__result_cache)
+            return NULL;
+        char *result = strdup(self->__sn__result_cache);
+        if (!result)
+            abort();
+        return result;
+    }
+
+    char *result = self->__sn__vt->result(self);
+    self->__sn__finalized = true;
+    self->__sn__cleanup = NULL;
+    if (result) {
+        self->__sn__result_cache = strdup(result);
+        if (!self->__sn__result_cache)
+            abort();
+    }
+    return result;
+}
+
+#define __sn__Encoder_writeStr(__self, __key, __val)    (__sn__Encoder_require_active((__self), "writeStr"), (__self)->__sn__vt->writeStr((__self), (__key), (__val)))
+#define __sn__Encoder_writeInt(__self, __key, __val)    (__sn__Encoder_require_active((__self), "writeInt"), (__self)->__sn__vt->writeInt((__self), (__key), (__val)))
+#define __sn__Encoder_writeDouble(__self, __key, __val) (__sn__Encoder_require_active((__self), "writeDouble"), (__self)->__sn__vt->writeDouble((__self), (__key), (__val)))
+#define __sn__Encoder_writeBool(__self, __key, __val)   (__sn__Encoder_require_active((__self), "writeBool"), (__self)->__sn__vt->writeBool((__self), (__key), (__val)))
+#define __sn__Encoder_writeNull(__self, __key)          (__sn__Encoder_require_active((__self), "writeNull"), (__self)->__sn__vt->writeNull((__self), (__key)))
+#define __sn__Encoder_beginObject(__self, __key)        (__sn__Encoder_require_active((__self), "beginObject"), (__self)->__sn__vt->beginObject((__self), (__key)))
+#define __sn__Encoder_beginArray(__self, __key)         (__sn__Encoder_require_active((__self), "beginArray"), (__self)->__sn__vt->beginArray((__self), (__key)))
+#define __sn__Encoder_end(__self)                       (__sn__Encoder_require_active((__self), "end"), (__self)->__sn__vt->end((__self)))
+#define __sn__Encoder_appendStr(__self, __val)          (__sn__Encoder_require_active((__self), "appendStr"), (__self)->__sn__vt->appendStr((__self), (__val)))
+#define __sn__Encoder_appendInt(__self, __val)          (__sn__Encoder_require_active((__self), "appendInt"), (__self)->__sn__vt->appendInt((__self), (__val)))
+#define __sn__Encoder_appendDouble(__self, __val)       (__sn__Encoder_require_active((__self), "appendDouble"), (__self)->__sn__vt->appendDouble((__self), (__val)))
+#define __sn__Encoder_appendBool(__self, __val)         (__sn__Encoder_require_active((__self), "appendBool"), (__self)->__sn__vt->appendBool((__self), (__val)))
+#define __sn__Encoder_appendObject(__self)              (__sn__Encoder_require_active((__self), "appendObject"), (__self)->__sn__vt->appendObject((__self)))
+#define __sn__Encoder_result(__self)                    __sn__Encoder_result_dispatch((__self))
 
 #define __sn__Decoder_readStr(__self, __key)            (__self)->__sn__vt->readStr((__self), (__key))
 #define __sn__Decoder_readInt(__self, __key)            (__self)->__sn__vt->readInt((__self), (__key))

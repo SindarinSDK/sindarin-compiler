@@ -1,7 +1,5 @@
-// Tests that @serializable encode/encodeArray don't crash when the Encoder
-// has a __sn__cleanup callback set.  Before the fix, Encoder.result() would
-// finalize the encoder (setting ctx=NULL), and then sn_auto_Encoder cleanup
-// would call __sn__cleanup which dereferences the now-NULL ctx — SEGV.
+// Tests that Encoder finalization is safe and idempotent when the concrete
+// implementation releases its context from result().
 
 @source "test_serializable_encoder_cleanup.sn.c"
 
@@ -72,5 +70,27 @@ fn main(): void =>
     var j: str = tmp.encode(cleanup_json_encoder())
     assert(j.length > 0, "sequential encode")
   println("test_sequential_cleanup: PASS")
+
+  // --- Test 6: documented two-step encode remains safe ---
+  var retainedEnc: Encoder = cleanup_json_encoder()
+  item.encode(retainedEnc)
+  var retainedJson: str = retainedEnc.result()
+  assert(retainedJson == "{\"name\":\"widget\",\"qty\":5}", "two-step encode result")
+  println("test_two_step_encode: PASS")
+
+  // --- Test 7: documented two-step encodeArray remains safe ---
+  var retainedArrayEnc: Encoder = cleanup_json_array_encoder()
+  Item.encodeArray(items, retainedArrayEnc)
+  var retainedArrayJson: str = retainedArrayEnc.result()
+  assert(retainedArrayJson == "[{\"name\":\"bolt\",\"qty\":10},{\"name\":\"nut\",\"qty\":20}]", "two-step encodeArray result")
+  println("test_two_step_encodeArray: PASS")
+
+  // --- Test 8: direct result calls are idempotent ---
+  var repeatedEnc: Encoder = cleanup_json_encoder()
+  var firstResult: str = repeatedEnc.result()
+  var secondResult: str = repeatedEnc.result()
+  assert(firstResult == "{}", "first direct result")
+  assert(secondResult == firstResult, "repeated direct result")
+  println("test_repeated_result: PASS")
 
   println("\nAll encoder-cleanup tests passed!")
