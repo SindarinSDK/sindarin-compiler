@@ -688,6 +688,23 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
 
     message(STATUS "  Dependencies copied to: ${SN_DEPS_DIR}")
 
+    # vcpkg's MinGW zlib archive name varies by port/toolchain version.
+    # Keep compatibility with existing bundles (libzlib.a) and current ones
+    # (libzs.a), and use the resolved path everywhere below.
+    if(WIN32)
+        set(SINDARIN_ZLIB_LIBRARY "")
+        foreach(ZLIB_ARCHIVE libzlib.a zlib.a libz.a libzs.a)
+            if(EXISTS "${SINDARIN_LIBS_DIR}/lib/${ZLIB_ARCHIVE}")
+                set(SINDARIN_ZLIB_LIBRARY "${SINDARIN_LIBS_DIR}/lib/${ZLIB_ARCHIVE}")
+                break()
+            endif()
+        endforeach()
+        if(NOT SINDARIN_ZLIB_LIBRARY)
+            message(FATAL_ERROR "No supported zlib archive found in ${SINDARIN_LIBS_DIR}/lib")
+        endif()
+        message(STATUS "Using zlib archive: ${SINDARIN_ZLIB_LIBRARY}")
+    endif()
+
     # Add json-c include path for gen_model
     if(EXISTS "${SINDARIN_LIBS_DIR}/include/json-c/json.h")
         target_include_directories(sn PRIVATE "${SINDARIN_LIBS_DIR}/include")
@@ -734,7 +751,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssl.a"
                 "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
-                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                "${SINDARIN_ZLIB_LIBRARY}"
                 crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
@@ -789,7 +806,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
-                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                "${SINDARIN_ZLIB_LIBRARY}"
                 crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
@@ -832,7 +849,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libcurl.a"
                 "${SINDARIN_LIBS_DIR}/lib/libssl.a"
                 "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
-                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                "${SINDARIN_ZLIB_LIBRARY}"
                 "${SINDARIN_LIBS_DIR}/lib/libyyjson.a"
                 crypt32 wldap32 iphlpapi secur32
             )
@@ -871,7 +888,7 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
                 "${SINDARIN_LIBS_DIR}/lib/libcrypto.a"
                 "${SINDARIN_LIBS_DIR}/lib/libpcre2-8.a"
                 "${SINDARIN_LIBS_DIR}/lib/libhttp_parser.a"
-                "${SINDARIN_LIBS_DIR}/lib/libzlib.a"
+                "${SINDARIN_ZLIB_LIBRARY}"
                 crypt32 wldap32 iphlpapi secur32
             )
         elseif(APPLE)
