@@ -71,7 +71,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       #------------------------------------------------------------------------
       # Setup Dependencies
@@ -202,12 +202,13 @@ jobs:
       # Upload Artifacts
       #------------------------------------------------------------------------
       - name: Upload packages
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: |
             build/sindarin-*.tar.gz
             build/sindarin-*.zip
+          if-no-files-found: error
           retention-days: 30
 
   #----------------------------------------------------------------------------
@@ -222,10 +223,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: artifacts
 
@@ -233,7 +234,7 @@ jobs:
         run: find artifacts -type f -name "sindarin-*"
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           name: Sindarin ${{ env.VERSION }}
           tag_name: ${{ env.VERSION }}
@@ -243,6 +244,7 @@ jobs:
           files: |
             artifacts/**/*.tar.gz
             artifacts/**/*.zip
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -277,23 +279,28 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install dependencies
         run: sudo apt-get install -y cmake
 
       - name: Configure CMake
-        run: cmake -S . -B build
+        shell: bash
+        run: |
+          VERSION="${{ env.VERSION }}"
+          VERSION="${VERSION#v}"
+          VERSION="${VERSION%%-*}"
+          cmake -S . -B build -DSN_VERSION="${VERSION}"
 
       - name: Create source package
         working-directory: build
         run: cpack --config CPackSourceConfig.cmake -G TGZ
 
       - name: Upload source package
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ env.VERSION }}
-          files: build/sindarin-*-source.tar.gz
+          files: build/sindarin-*-Source.tar.gz
+          fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
