@@ -31,10 +31,11 @@ list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-# Output directories - all artifacts go to bin/
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+# Keep each build tree's artifacts isolated.  A staging target below copies the
+# active build's distributable artifacts to bin/ for the CLI, tests, and CI.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 #------------------------------------------------------------------------------
 # Build Options
@@ -312,12 +313,14 @@ endif()
 # This simplifies linking and avoids command-line length issues on Windows
 if(NOT MSVC)
     if(WIN32)
-        set(SN_RUNTIME_LIB_DIR ${CMAKE_SOURCE_DIR}/bin/lib/clang)
+        set(SN_RUNTIME_BUILD_DIR ${CMAKE_BINARY_DIR}/bin/lib/clang)
+        set(SN_RUNTIME_STAGE_DIR ${CMAKE_SOURCE_DIR}/bin/lib/clang)
     else()
-        set(SN_RUNTIME_LIB_DIR ${CMAKE_SOURCE_DIR}/bin/lib/gcc)
+        set(SN_RUNTIME_BUILD_DIR ${CMAKE_BINARY_DIR}/bin/lib/gcc)
+        set(SN_RUNTIME_STAGE_DIR ${CMAKE_SOURCE_DIR}/bin/lib/gcc)
     endif()
 
-    file(MAKE_DIRECTORY ${SN_RUNTIME_LIB_DIR})
+    file(MAKE_DIRECTORY ${SN_RUNTIME_BUILD_DIR})
 
     # Runtime library (minimal runtime)
     set(SN_RUNTIME_LIB_SOURCES
@@ -335,10 +338,41 @@ if(NOT MSVC)
     endif()
     target_compile_options(sn_runtime_min PRIVATE -O2 -fno-lto)
     set_target_properties(sn_runtime_min PROPERTIES
-        ARCHIVE_OUTPUT_DIRECTORY ${SN_RUNTIME_LIB_DIR}
+        ARCHIVE_OUTPUT_DIRECTORY ${SN_RUNTIME_BUILD_DIR}
         OUTPUT_NAME sn_runtime_min
     )
 endif()
+
+# bin/ is the stable interface used by the Makefile, test runner, installers,
+# and CI.  This target runs on every build so switching between debug and
+# release trees always re-stages artifacts from the selected build tree, even
+# when that tree did not need to relink them.
+set(SN_STAGE_COMMANDS
+    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_SOURCE_DIR}/bin"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:sn>"
+            "${CMAKE_SOURCE_DIR}/bin/$<TARGET_FILE_NAME:sn>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:tests>"
+            "${CMAKE_SOURCE_DIR}/bin/$<TARGET_FILE_NAME:tests>"
+)
+set(SN_STAGE_DEPENDS sn tests)
+
+if(TARGET sn_runtime_min)
+    list(APPEND SN_STAGE_COMMANDS
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${SN_RUNTIME_STAGE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "$<TARGET_FILE:sn_runtime_min>"
+                "${SN_RUNTIME_STAGE_DIR}/$<TARGET_FILE_NAME:sn_runtime_min>"
+    )
+    list(APPEND SN_STAGE_DEPENDS sn_runtime_min)
+endif()
+
+add_custom_target(sn_stage_artifacts ALL
+    ${SN_STAGE_COMMANDS}
+    DEPENDS ${SN_STAGE_DEPENDS}
+    COMMENT "Staging compiler artifacts in bin"
+)
 
 #------------------------------------------------------------------------------
 # Setup Include and Config Directories
