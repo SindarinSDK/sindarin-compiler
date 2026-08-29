@@ -288,6 +288,15 @@ endif()
 # allocate variables to exercise allocation paths without reading them back.
 target_compile_options(tests PRIVATE -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-function)
 
+# Unit tests use assert() for their checks. CMake's Release configuration defines
+# NDEBUG by default, which would otherwise compile those checks out while the
+# harness still reports each test as passing.
+if(MSVC)
+    target_compile_options(tests PRIVATE /UNDEBUG)
+else()
+    target_compile_options(tests PRIVATE -UNDEBUG)
+endif()
+
 if(WIN32)
     target_link_libraries(tests PRIVATE ws2_32 bcrypt pthread)
 else()

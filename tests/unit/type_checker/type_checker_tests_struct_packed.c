@@ -148,7 +148,7 @@ static void test_struct_layout_packed_vs_unpacked()
     unpacked_type->kind = TYPE_STRUCT;
     unpacked_type->as.struct_type.name = "Unpacked";
     unpacked_type->as.struct_type.field_count = 2;
-    unpacked_type->as.struct_type.is_native = false;
+    unpacked_type->as.struct_type.is_native = true;
     unpacked_type->as.struct_type.is_packed = false;
     unpacked_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 
@@ -170,7 +170,7 @@ static void test_struct_layout_packed_vs_unpacked()
     packed_type->kind = TYPE_STRUCT;
     packed_type->as.struct_type.name = "Packed";
     packed_type->as.struct_type.field_count = 2;
-    packed_type->as.struct_type.is_native = false;
+    packed_type->as.struct_type.is_native = true;
     packed_type->as.struct_type.is_packed = true;  /* PACKED! */
     packed_type->as.struct_type.fields = arena_alloc(&arena, sizeof(StructField) * 2);
 

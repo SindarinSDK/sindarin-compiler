@@ -62,7 +62,7 @@ void test_parser_edge_cases_main(void)
     TEST_SECTION("Parser - Types");
     TEST_RUN("array_type", test_parse_array_type);
     TEST_RUN("pointer_type", test_parse_pointer_type);
-    TEST_RUN("nullable_type", test_parse_nullable_type);
+    TEST_RUN("pointer_with_nil_initializer", test_parse_pointer_with_nil_initializer);
     TEST_RUN("long_type", test_parse_long_type);
     TEST_RUN("byte_type", test_parse_byte_type);
 

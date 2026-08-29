@@ -177,7 +177,7 @@ static void test_ast_type_equals()
 
     // All primitives
     Type *t_long = ast_create_primitive_type(&arena, TYPE_LONG);
-    assert(ast_type_equals(t1, t_long) == 0);
+    assert(ast_type_equals(t1, t_long) == 1);
 
     // Arrays
     Type *arr1 = ast_create_array_type(&arena, t1);

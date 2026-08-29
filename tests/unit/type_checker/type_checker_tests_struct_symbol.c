@@ -172,12 +172,7 @@ static void test_struct_symbol_table_size_alignment()
     Module module;
     ast_init_module(&arena, &module, "test.sn");
 
-    /* Create struct: { a: int32, b: byte, c: int }
-     * Expected layout with padding:
-     * a: offset 0, size 4
-     * b: offset 4, size 1, padding 3
-     * c: offset 8, size 8
-     * Total: 16 bytes, alignment 8 */
+    /* Non-native structs begin with an 8-byte hidden arena pointer. */
     Type *int32_type = ast_create_primitive_type(&arena, TYPE_INT32);
     Type *byte_type = ast_create_primitive_type(&arena, TYPE_BYTE);
     Type *int_type = ast_create_primitive_type(&arena, TYPE_INT);
@@ -207,13 +202,13 @@ static void test_struct_symbol_table_size_alignment()
     assert(symbol != NULL);
 
     /* After type checking, size and alignment should be set */
-    assert(symbol->type->as.struct_type.size == 16);
+    assert(symbol->type->as.struct_type.size == 24);
     assert(symbol->type->as.struct_type.alignment == 8);
 
     /* Verify field offsets */
-    assert(symbol->type->as.struct_type.fields[0].offset == 0);  /* a */
-    assert(symbol->type->as.struct_type.fields[1].offset == 4);  /* b */
-    assert(symbol->type->as.struct_type.fields[2].offset == 8);  /* c */
+    assert(symbol->type->as.struct_type.fields[0].offset == 8);   /* a */
+    assert(symbol->type->as.struct_type.fields[1].offset == 12);  /* b */
+    assert(symbol->type->as.struct_type.fields[2].offset == 16);  /* c */
 
     symbol_table_cleanup(&table);
     arena_free(&arena);

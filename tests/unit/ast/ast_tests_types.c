@@ -424,7 +424,7 @@ static void test_types_equal_same_int(void)
     Type *t1 = ast_create_primitive_type(&arena, TYPE_INT);
     Type *t2 = ast_create_primitive_type(&arena, TYPE_INT);
 
-    assert(types_equal(t1, t2) == true);
+    assert(ast_type_equals(t1, t2) == true);
 
     arena_free(&arena);
 }
@@ -437,7 +437,7 @@ static void test_types_equal_different_primitives(void)
     Type *t1 = ast_create_primitive_type(&arena, TYPE_INT);
     Type *t2 = ast_create_primitive_type(&arena, TYPE_DOUBLE);
 
-    assert(types_equal(t1, t2) == false);
+    assert(ast_type_equals(t1, t2) == false);
 
     arena_free(&arena);
 }
@@ -452,7 +452,7 @@ static void test_types_equal_same_array(void)
     Type *arr1 = ast_create_array_type(&arena, int1);
     Type *arr2 = ast_create_array_type(&arena, int2);
 
-    assert(types_equal(arr1, arr2) == true);
+    assert(ast_type_equals(arr1, arr2) == true);
 
     arena_free(&arena);
 }
@@ -467,7 +467,7 @@ static void test_types_equal_different_array_elements(void)
     Type *arr1 = ast_create_array_type(&arena, int_type);
     Type *arr2 = ast_create_array_type(&arena, str_type);
 
-    assert(types_equal(arr1, arr2) == false);
+    assert(ast_type_equals(arr1, arr2) == false);
 
     arena_free(&arena);
 }
@@ -479,7 +479,7 @@ static void test_types_equal_null_first(void)
 
     Type *t = ast_create_primitive_type(&arena, TYPE_INT);
 
-    assert(types_equal(NULL, t) == false);
+    assert(ast_type_equals(NULL, t) == false);
 
     arena_free(&arena);
 }
@@ -491,14 +491,14 @@ static void test_types_equal_null_second(void)
 
     Type *t = ast_create_primitive_type(&arena, TYPE_INT);
 
-    assert(types_equal(t, NULL) == false);
+    assert(ast_type_equals(t, NULL) == false);
 
     arena_free(&arena);
 }
 
 static void test_types_equal_both_null(void)
 {
-    assert(types_equal(NULL, NULL) == true);
+    assert(ast_type_equals(NULL, NULL) == true);
 }
 
 static void test_types_equal_functions_same(void)
@@ -511,7 +511,7 @@ static void test_types_equal_functions_same(void)
     Type *func1 = ast_create_function_type(&arena, ret1, NULL, 0);
     Type *func2 = ast_create_function_type(&arena, ret2, NULL, 0);
 
-    assert(types_equal(func1, func2) == true);
+    assert(ast_type_equals(func1, func2) == true);
 
     arena_free(&arena);
 }
@@ -526,7 +526,7 @@ static void test_types_equal_functions_different_returns(void)
     Type *func1 = ast_create_function_type(&arena, ret1, NULL, 0);
     Type *func2 = ast_create_function_type(&arena, ret2, NULL, 0);
 
-    assert(types_equal(func1, func2) == false);
+    assert(ast_type_equals(func1, func2) == false);
 
     arena_free(&arena);
 }

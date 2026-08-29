@@ -50,7 +50,7 @@ static void test_ast_create_nested_arrays(void)
 
     assert(arr3 != NULL);
     assert(arr3->kind == TYPE_ARRAY);
-    assert(arr3->data.array.element_type == arr2);
+    assert(arr3->as.array.element_type == arr2);
 
     cleanup_arena(&arena);
 }
@@ -107,7 +107,7 @@ static void test_ast_create_many_literals(void)
         LiteralValue val = {.int_value = i};
         Expr *lit = ast_create_literal_expr(&arena, val, int_type, false, &tok);
         assert(lit != NULL);
-        assert(lit->kind == EXPR_LITERAL);
+        assert(lit->type == EXPR_LITERAL);
         assert(lit->as.literal.value.int_value == i);
     }
 
@@ -125,7 +125,7 @@ static void test_ast_create_many_variables(void)
         Token tok = create_dummy_token(&arena, names[i]);
         Expr *var = ast_create_variable_expr(&arena, tok, &tok);
         assert(var != NULL);
-        assert(var->kind == EXPR_VARIABLE);
+        assert(var->type == EXPR_VARIABLE);
     }
 
     cleanup_arena(&arena);
@@ -146,7 +146,7 @@ static void test_ast_create_binary_chain(void)
         Expr *right = ast_create_literal_expr(&arena, val, int_type, false, &tok);
         expr = ast_create_binary_expr(&arena, expr, TOKEN_PLUS, right, &tok);
         assert(expr != NULL);
-        assert(expr->kind == EXPR_BINARY);
+        assert(expr->type == EXPR_BINARY);
     }
 
     cleanup_arena(&arena);
@@ -166,7 +166,7 @@ static void test_ast_create_unary_chain(void)
     for (int i = 0; i < 10; i++) {
         expr = ast_create_unary_expr(&arena, TOKEN_MINUS, expr, &tok);
         assert(expr != NULL);
-        assert(expr->kind == EXPR_UNARY);
+        assert(expr->type == EXPR_UNARY);
     }
 
     cleanup_arena(&arena);
@@ -192,8 +192,8 @@ static void test_ast_create_all_binary_ops(void)
     for (int i = 0; i < 13; i++) {
         Expr *bin = ast_create_binary_expr(&arena, left, ops[i], right, &tok);
         assert(bin != NULL);
-        assert(bin->kind == EXPR_BINARY);
-        assert(bin->as.binary.op == ops[i]);
+        assert(bin->type == EXPR_BINARY);
+        assert(bin->as.binary.operator == ops[i]);
     }
 
     cleanup_arena(&arena);
@@ -211,7 +211,7 @@ static void test_ast_create_call_exprs(void)
         Expr *callee = ast_create_variable_expr(&arena, tok, &tok);
         Expr *call = ast_create_call_expr(&arena, callee, NULL, 0, &tok);
         assert(call != NULL);
-        assert(call->kind == EXPR_CALL);
+        assert(call->type == EXPR_CALL);
     }
 
     cleanup_arena(&arena);
@@ -232,7 +232,7 @@ static void test_ast_create_array_access_exprs(void)
         Expr *idx = ast_create_literal_expr(&arena, val, int_type, false, &idx_tok);
         Expr *access_expr = ast_create_array_access_expr(&arena, arr, idx, &arr_tok);
         assert(access_expr != NULL);
-        assert(access_expr->kind == EXPR_ARRAY_ACCESS);
+        assert(access_expr->type == EXPR_ARRAY_ACCESS);
     }
 
     cleanup_arena(&arena);
@@ -252,7 +252,7 @@ static void test_ast_create_member_exprs(void)
         Token member_tok = create_dummy_token(&arena, members[i]);
         Expr *member = ast_create_member_expr(&arena, obj, member_tok, &obj_tok);
         assert(member != NULL);
-        assert(member->kind == EXPR_MEMBER);
+        assert(member->type == EXPR_MEMBER);
     }
 
     cleanup_arena(&arena);
@@ -271,7 +271,7 @@ static void test_ast_create_assign_exprs(void)
         Expr *value = ast_create_literal_expr(&arena, val, int_type, false, &tok);
         Expr *assign = ast_create_assign_expr(&arena, tok, value, &tok);
         assert(assign != NULL);
-        assert(assign->kind == EXPR_ASSIGN);
+        assert(assign->type == EXPR_ASSIGN);
     }
 
     cleanup_arena(&arena);
@@ -294,7 +294,7 @@ static void test_ast_create_comparison_exprs(void)
     for (int i = 0; i < 50; i++) {
         Expr *cmp = ast_create_comparison_expr(&arena, left, right, comp_ops[i % 4], &tok);
         assert(cmp != NULL);
-        assert(cmp->kind == EXPR_COMPARISON);
+        assert(cmp->type == EXPR_BINARY);
     }
 
     cleanup_arena(&arena);
@@ -317,7 +317,7 @@ static void test_ast_create_many_var_decls(void)
         Token tok = create_dummy_token(&arena, names[i]);
         Stmt *decl = ast_create_var_decl_stmt(&arena, tok, int_type, NULL, &tok);
         assert(decl != NULL);
-        assert(decl->kind == STMT_VAR_DECL);
+        assert(decl->type == STMT_VAR_DECL);
     }
 
     cleanup_arena(&arena);
@@ -336,7 +336,7 @@ static void test_ast_create_many_expr_stmts(void)
         Expr *lit = ast_create_literal_expr(&arena, val, int_type, false, &tok);
         Stmt *stmt = ast_create_expr_stmt(&arena, lit, &tok);
         assert(stmt != NULL);
-        assert(stmt->kind == STMT_EXPR);
+        assert(stmt->type == STMT_EXPR);
     }
 
     cleanup_arena(&arena);
@@ -355,7 +355,7 @@ static void test_ast_create_return_stmts(void)
         Expr *lit = ast_create_literal_expr(&arena, val, int_type, false, &ret_tok);
         Stmt *ret = ast_create_return_stmt(&arena, ret_tok, lit, &ret_tok);
         assert(ret != NULL);
-        assert(ret->kind == STMT_RETURN);
+        assert(ret->type == STMT_RETURN);
     }
 
     cleanup_arena(&arena);
@@ -380,7 +380,7 @@ static void test_ast_create_if_stmts(void)
     for (int i = 0; i < 50; i++) {
         Stmt *if_stmt = ast_create_if_stmt(&arena, cond, then_stmt, NULL, &tok);
         assert(if_stmt != NULL);
-        assert(if_stmt->kind == STMT_IF);
+        assert(if_stmt->type == STMT_IF);
     }
 
     cleanup_arena(&arena);
@@ -405,7 +405,7 @@ static void test_ast_create_while_stmts(void)
     for (int i = 0; i < 50; i++) {
         Stmt *while_stmt = ast_create_while_stmt(&arena, cond, body, &tok);
         assert(while_stmt != NULL);
-        assert(while_stmt->kind == STMT_WHILE);
+        assert(while_stmt->type == STMT_WHILE);
     }
 
     cleanup_arena(&arena);
@@ -427,7 +427,7 @@ static void test_ast_create_block_stmts(void)
         stmts[0] = stmt;
         Stmt *block = ast_create_block_stmt(&arena, stmts, 1, &tok);
         assert(block != NULL);
-        assert(block->kind == STMT_BLOCK);
+        assert(block->type == STMT_BLOCK);
     }
 
     cleanup_arena(&arena);
@@ -451,7 +451,7 @@ static void test_ast_create_for_stmts(void)
     for (int i = 0; i < 50; i++) {
         Stmt *for_stmt = ast_create_for_stmt(&arena, NULL, cond, incr, body, &tok);
         assert(for_stmt != NULL);
-        assert(for_stmt->kind == STMT_FOR);
+        assert(for_stmt->type == STMT_FOR);
     }
 
     cleanup_arena(&arena);
@@ -479,7 +479,7 @@ static void test_ast_module_many_stmts(void)
         ast_module_add_statement(&arena, &module, stmt);
     }
 
-    assert(module.num_statements == 100);
+    assert(module.count == 100);
 
     cleanup_arena(&arena);
 }
@@ -516,7 +516,7 @@ static void test_ast_module_mixed_stmts(void)
         ast_module_add_statement(&arena, &module, decl2);
     }
 
-    assert(module.num_statements == 100);
+    assert(module.count == 100);
 
     cleanup_arena(&arena);
 }
@@ -579,8 +579,8 @@ static void test_ast_type_compare_primitives(void)
     Type *int2 = ast_create_primitive_type(&arena, TYPE_INT);
     Type *double1 = ast_create_primitive_type(&arena, TYPE_DOUBLE);
 
-    assert(ast_types_equal(int1, int2));
-    assert(!ast_types_equal(int1, double1));
+    assert(ast_type_equals(int1, int2));
+    assert(!ast_type_equals(int1, double1));
 
     cleanup_arena(&arena);
 }
@@ -596,8 +596,8 @@ static void test_ast_type_compare_arrays(void)
     Type *double_type = ast_create_primitive_type(&arena, TYPE_DOUBLE);
     Type *arr3 = ast_create_array_type(&arena, double_type);
 
-    assert(ast_types_equal(arr1, arr2));
-    assert(!ast_types_equal(arr1, arr3));
+    assert(ast_type_equals(arr1, arr2));
+    assert(!ast_type_equals(arr1, arr3));
 
     cleanup_arena(&arena);
 }
@@ -611,7 +611,7 @@ static void test_ast_type_compare_pointers(void)
     Type *ptr1 = ast_create_pointer_type(&arena, int_type);
     Type *ptr2 = ast_create_pointer_type(&arena, int_type);
 
-    assert(ast_types_equal(ptr1, ptr2));
+    assert(ast_type_equals(ptr1, ptr2));
 
     cleanup_arena(&arena);
 }
@@ -629,7 +629,7 @@ static void test_ast_type_compare_function_types(void)
     Type *func1 = ast_create_function_type(&arena, int_type, params, 2);
     Type *func2 = ast_create_function_type(&arena, int_type, params, 2);
 
-    assert(ast_types_equal(func1, func2));
+    assert(ast_type_equals(func1, func2));
 
     cleanup_arena(&arena);
 }
@@ -648,16 +648,16 @@ static void test_ast_expr_kinds(void)
     LiteralValue val = {.int_value = 42};
 
     Expr *lit = ast_create_literal_expr(&arena, val, int_type, false, &tok);
-    assert(lit->kind == EXPR_LITERAL);
+    assert(lit->type == EXPR_LITERAL);
 
     Expr *var = ast_create_variable_expr(&arena, tok, &tok);
-    assert(var->kind == EXPR_VARIABLE);
+    assert(var->type == EXPR_VARIABLE);
 
     Expr *bin = ast_create_binary_expr(&arena, lit, TOKEN_PLUS, lit, &tok);
-    assert(bin->kind == EXPR_BINARY);
+    assert(bin->type == EXPR_BINARY);
 
     Expr *unary = ast_create_unary_expr(&arena, TOKEN_MINUS, lit, &tok);
-    assert(unary->kind == EXPR_UNARY);
+    assert(unary->type == EXPR_UNARY);
 
     cleanup_arena(&arena);
 }
@@ -678,18 +678,18 @@ static void test_ast_stmt_kinds(void)
     Expr *lit = ast_create_literal_expr(&arena, val, int_type, false, &tok);
 
     Stmt *var_decl = ast_create_var_decl_stmt(&arena, tok, int_type, NULL, &tok);
-    assert(var_decl->kind == STMT_VAR_DECL);
+    assert(var_decl->type == STMT_VAR_DECL);
 
     Stmt *expr_stmt = ast_create_expr_stmt(&arena, lit, &tok);
-    assert(expr_stmt->kind == STMT_EXPR);
+    assert(expr_stmt->type == STMT_EXPR);
 
     Stmt *ret = ast_create_return_stmt(&arena, ret_tok, lit, &tok);
-    assert(ret->kind == STMT_RETURN);
+    assert(ret->type == STMT_RETURN);
 
     Stmt **stmts = arena_alloc(&arena, sizeof(Stmt*));
     stmts[0] = expr_stmt;
     Stmt *block = ast_create_block_stmt(&arena, stmts, 1, &tok);
-    assert(block->kind == STMT_BLOCK);
+    assert(block->type == STMT_BLOCK);
 
     cleanup_arena(&arena);
 }

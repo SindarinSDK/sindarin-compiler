@@ -107,7 +107,7 @@ static void test_parser_array_empty(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = []\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = {}\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
@@ -124,7 +124,7 @@ static void test_parser_array_single_element(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = [42]\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = {42}\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
@@ -141,7 +141,7 @@ static void test_parser_array_multiple_elements(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = [1, 2, 3, 4, 5]\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var arr: int[] = {1, 2, 3, 4, 5}\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);

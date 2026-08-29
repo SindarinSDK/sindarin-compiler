@@ -142,7 +142,7 @@ static void test_ast_pointer_type_int(void)
     Type *ptr = ast_create_pointer_type(&arena, pointee);
     assert(ptr != NULL);
     assert(ptr->kind == TYPE_POINTER);
-    assert(ptr->as.pointer.pointee == pointee);
+    assert(ptr->as.pointer.base_type == pointee);
 
     cleanup_arena(&arena);
 }
@@ -156,7 +156,7 @@ static void test_ast_pointer_type_char(void)
     Type *ptr = ast_create_pointer_type(&arena, pointee);
     assert(ptr != NULL);
     assert(ptr->kind == TYPE_POINTER);
-    assert(ptr->as.pointer.pointee->kind == TYPE_CHAR);
+    assert(ptr->as.pointer.base_type->kind == TYPE_CHAR);
 
     cleanup_arena(&arena);
 }
@@ -198,7 +198,7 @@ static void test_ast_pointer_to_pointer(void)
     Type *ptr2 = ast_create_pointer_type(&arena, ptr1);
     assert(ptr2 != NULL);
     assert(ptr2->kind == TYPE_POINTER);
-    assert(ptr2->as.pointer.pointee->kind == TYPE_POINTER);
+    assert(ptr2->as.pointer.base_type->kind == TYPE_POINTER);
 
     cleanup_arena(&arena);
 }

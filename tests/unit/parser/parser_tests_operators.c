@@ -95,7 +95,7 @@ static void test_parse_op_modulo(void)
     Stmt *stmt = module->statements[0];
     Expr *init = stmt->as.var_decl.initializer;
     assert(init->type == EXPR_BINARY);
-    assert(init->as.binary.operator == TOKEN_PERCENT);
+    assert(init->as.binary.operator == TOKEN_MODULO);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -228,7 +228,7 @@ static void test_parse_op_and(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a and b\n";
+    const char *source = "var x: bool = a && b\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -247,7 +247,7 @@ static void test_parse_op_or(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a or b\n";
+    const char *source = "var x: bool = a || b\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -289,7 +289,7 @@ static void test_parse_op_not(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = not true\n";
+    const char *source = "var x: bool = !true\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -297,7 +297,7 @@ static void test_parse_op_not(void)
     Stmt *stmt = module->statements[0];
     Expr *init = stmt->as.var_decl.initializer;
     assert(init->type == EXPR_UNARY);
-    assert(init->as.unary.operator == TOKEN_NOT);
+    assert(init->as.unary.operator == TOKEN_BANG);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -457,7 +457,7 @@ static void test_parse_chained_comparison(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a > b and c < d\n";
+    const char *source = "var x: bool = a > b && c < d\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");
@@ -478,7 +478,7 @@ static void test_parse_chained_logical(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    const char *source = "var x: bool = a or b or c\n";
+    const char *source = "var x: bool = a || b || c\n";
     setup_parser(&arena, &lexer, &parser, &symbol_table, source);
 
     Module *module = parser_execute(&parser, "test.sn");

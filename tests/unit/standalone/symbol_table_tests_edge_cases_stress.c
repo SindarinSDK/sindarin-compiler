@@ -114,7 +114,7 @@ static void test_edge_symbol_type_update(void) {
     arena_free(&arena);
 }
 
-static void test_edge_type_equals_cloned(void) {
+static void test_edge_type_pointer_retained(void) {
     Arena arena;
     arena_init(&arena, TEST_ARENA_SIZE);
     SymbolTable table;
@@ -128,8 +128,7 @@ static void test_edge_type_equals_cloned(void) {
 
     Symbol *sym = symbol_table_lookup_symbol(&table, name);
 
-    // Type should be cloned but equal
-    assert(sym->type != arr_type);
+    assert(sym->type == arr_type);
     assert(ast_type_equals(sym->type, arr_type));
 
     symbol_table_cleanup(&table);

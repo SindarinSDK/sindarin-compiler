@@ -195,13 +195,13 @@ static void test_lexer_keyword_static(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_keyword_is(void)
+static void test_lexer_is_is_identifier(void)
 {
     Arena arena;
     Lexer lexer;
     init_lexer_test(&arena, &lexer, "is");
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_IS);
+    assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
 
@@ -339,13 +339,13 @@ static void test_lexer_type_void(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_type_any(void)
+static void test_lexer_any_is_identifier(void)
 {
     Arena arena;
     Lexer lexer;
     init_lexer_test(&arena, &lexer, "any");
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_ANY);
+    assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
 
@@ -551,7 +551,7 @@ static void test_lexer_break_continue_sequence(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_any_type_sequence(void)
+static void test_lexer_any_identifier_sequence(void)
 {
     Arena arena;
     Lexer lexer;
@@ -563,7 +563,7 @@ static void test_lexer_any_type_sequence(void)
     tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_COLON);
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_ANY);
+    assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
 
@@ -601,7 +601,7 @@ static void test_lexer_nil_check_sequence(void)
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_is_type_check_sequence(void)
+static void test_lexer_is_identifier_sequence(void)
 {
     Arena arena;
     Lexer lexer;
@@ -609,7 +609,7 @@ static void test_lexer_is_type_check_sequence(void)
     Token tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_IS);
+    assert(tok.type == TOKEN_IDENTIFIER);
     tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_INT);
     cleanup_lexer_test(&arena, &lexer);
@@ -651,7 +651,7 @@ void test_lexer_keywords_main(void)
     TEST_RUN("keyword_struct", test_lexer_keyword_struct);
     TEST_RUN("keyword_import", test_lexer_keyword_import);
     TEST_RUN("keyword_static", test_lexer_keyword_static);
-    TEST_RUN("keyword_is", test_lexer_keyword_is);
+    TEST_RUN("is_is_identifier", test_lexer_is_is_identifier);
     TEST_RUN("keyword_sizeof", test_lexer_keyword_sizeof);
     TEST_RUN("keyword_shared_is_identifier", test_lexer_kw_shared_is_identifier);
     TEST_RUN("keyword_private_is_identifier", test_lexer_kw_private_is_identifier);
@@ -667,7 +667,7 @@ void test_lexer_keywords_main(void)
     TEST_RUN("type_char", test_lexer_type_char);
     TEST_RUN("type_byte", test_lexer_type_byte);
     TEST_RUN("type_void", test_lexer_type_void);
-    TEST_RUN("type_any", test_lexer_type_any);
+    TEST_RUN("any_is_identifier", test_lexer_any_is_identifier);
     TEST_RUN("type_float", test_lexer_type_float);
 
     // Context tests
@@ -685,9 +685,9 @@ void test_lexer_keywords_main(void)
     TEST_RUN("as_val_sequence", test_lexer_as_val_sequence);
     TEST_RUN("as_ref_sequence", test_lexer_as_ref_sequence);
     TEST_RUN("break_continue_sequence", test_lexer_break_continue_sequence);
-    TEST_RUN("any_type_sequence", test_lexer_any_type_sequence);
+    TEST_RUN("any_identifier_sequence", test_lexer_any_identifier_sequence);
     TEST_RUN("array_type_sequence", test_lexer_array_type_sequence);
     TEST_RUN("nil_check_sequence", test_lexer_nil_check_sequence);
-    TEST_RUN("is_type_check_sequence", test_lexer_is_type_check_sequence);
+    TEST_RUN("is_identifier_sequence", test_lexer_is_identifier_sequence);
     TEST_RUN("sizeof_sequence", test_lexer_sizeof_sequence);
 }

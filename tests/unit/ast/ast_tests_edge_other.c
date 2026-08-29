@@ -235,7 +235,7 @@ static void test_ast_module_init(void)
 
     assert(mod.filename != NULL);
     assert(strcmp(mod.filename, "test.sn") == 0);
-    assert(mod.statement_count == 0);
+    assert(mod.count == 0);
 
     cleanup_arena(&arena);
 }
@@ -256,7 +256,7 @@ static void test_ast_module_add_single_stmt(void)
 
     ast_module_add_statement(&arena, &mod, s);
 
-    assert(mod.statement_count == 1);
+    assert(mod.count == 1);
     assert(mod.statements[0] == s);
 
     cleanup_arena(&arena);
@@ -279,7 +279,7 @@ static void test_ast_module_add_multiple_stmts(void)
         ast_module_add_statement(&arena, &mod, s);
     }
 
-    assert(mod.statement_count == 5);
+    assert(mod.count == 5);
 
     cleanup_arena(&arena);
 }

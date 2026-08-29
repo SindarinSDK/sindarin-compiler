@@ -90,7 +90,7 @@ static void test_parser_complex_logical(void)
     Lexer lexer;
     Parser parser;
     SymbolTable symbol_table;
-    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = (x > 0 and y > 0) or (x < 0 and y < 0)\n");
+    setup_parser(&arena, &lexer, &parser, &symbol_table, "var b: bool = (x > 0 && y > 0) || (x < 0 && y < 0)\n");
 
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
@@ -173,7 +173,7 @@ static void test_parser_member_access(void)
     Module *module = parser_execute(&parser, "test.sn");
     assert(module != NULL);
     Stmt *stmt = module->statements[0];
-    assert(stmt->as.var_decl.initializer->type == EXPR_MEMBER_ACCESS);
+    assert(stmt->as.var_decl.initializer->type == EXPR_MEMBER);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -190,8 +190,8 @@ static void test_parser_chained_member_access(void)
     assert(module != NULL);
     Stmt *stmt = module->statements[0];
     Expr *expr = stmt->as.var_decl.initializer;
-    assert(expr->type == EXPR_MEMBER_ACCESS);
-    assert(expr->as.member_access.object->type == EXPR_MEMBER_ACCESS);
+    assert(expr->type == EXPR_MEMBER);
+    assert(expr->as.member.object->type == EXPR_MEMBER);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }
@@ -209,7 +209,7 @@ static void test_parser_method_call(void)
     Stmt *stmt = module->statements[0];
     assert(stmt->type == STMT_EXPR);
     assert(stmt->as.expression.expression->type == EXPR_CALL);
-    assert(stmt->as.expression.expression->as.call.callee->type == EXPR_MEMBER_ACCESS);
+    assert(stmt->as.expression.expression->as.call.callee->type == EXPR_MEMBER);
 
     cleanup_parser(&arena, &lexer, &parser, &symbol_table);
 }

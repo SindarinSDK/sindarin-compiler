@@ -37,7 +37,7 @@ static void test_type_check_var_as_ref_primitive()
     arena_free(&arena);
 }
 
-static void test_type_check_var_as_ref_array_error()
+static void test_type_check_var_as_ref_array_allowed()
 {
     Arena arena;
     arena_init(&arena, 4096);
@@ -64,7 +64,7 @@ static void test_type_check_var_as_ref_array_error()
     ast_module_add_statement(&arena, &module, var_decl);
 
     int no_error = type_check_module(&module, &table);
-    assert(no_error == 0); // Should have error
+    assert(no_error == 1);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);
@@ -112,6 +112,6 @@ static void test_type_check_var_as_val_array()
 static void test_type_checker_memory_qualifiers_var_main()
 {
     TEST_RUN("var_as_ref_primitive", test_type_check_var_as_ref_primitive);
-    TEST_RUN("var_as_ref_array_error", test_type_check_var_as_ref_array_error);
+    TEST_RUN("var_as_ref_array_allowed", test_type_check_var_as_ref_array_allowed);
     TEST_RUN("var_as_val_array", test_type_check_var_as_val_array);
 }

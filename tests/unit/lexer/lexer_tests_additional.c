@@ -402,7 +402,7 @@ static void test_lexer_arrow_operators(void)
 
     init_lexer_test(&arena, &lexer, "->");
     tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_THIN_ARROW);
+    assert(tok.type == TOKEN_ARROW);
     cleanup_lexer_test(&arena, &lexer);
 }
 
@@ -426,11 +426,13 @@ static void test_lexer_single_line_comment(void)
     // Just comment
     init_lexer_test(&arena, &lexer, "// only comment");
     tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_COMMENT);
+    tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_EOF);
     cleanup_lexer_test(&arena, &lexer);
 }
 
-static void test_lexer_multi_line_comment(void)
+static void test_lexer_block_comment_syntax_is_tokens(void)
 {
     Arena arena;
     Lexer lexer;
@@ -438,6 +440,16 @@ static void test_lexer_multi_line_comment(void)
     init_lexer_test(&arena, &lexer, "x /* comment */ y");
     Token tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_SLASH);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STAR);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_IDENTIFIER);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STAR);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_SLASH);
     tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
@@ -452,6 +464,22 @@ static void test_lexer_nested_comment_content(void)
     init_lexer_test(&arena, &lexer, "x /* { } [ ] */ y");
     Token tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_SLASH);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STAR);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_LEFT_BRACE);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_RIGHT_BRACE);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_LEFT_BRACKET);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_RIGHT_BRACKET);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_STAR);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_SLASH);
     tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
@@ -483,6 +511,10 @@ static void test_lexer_tabs_and_newlines(void)
     Token tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
     tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_NEWLINE);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_NEWLINE);
+    tok = lexer_scan_token(&lexer);
     assert(tok.type == TOKEN_IDENTIFIER);
     cleanup_lexer_test(&arena, &lexer);
 }
@@ -494,10 +526,19 @@ static void test_lexer_line_tracking(void)
 
     init_lexer_test(&arena, &lexer, "a\nb\nc");
     Token tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_IDENTIFIER);
     assert(tok.line == 1);
     tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_NEWLINE);
     assert(tok.line == 2);
     tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_IDENTIFIER);
+    assert(tok.line == 2);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_NEWLINE);
+    assert(tok.line == 3);
+    tok = lexer_scan_token(&lexer);
+    assert(tok.type == TOKEN_IDENTIFIER);
     assert(tok.line == 3);
     cleanup_lexer_test(&arena, &lexer);
 }
@@ -594,7 +635,7 @@ void test_lexer_additional_main(void)
 
     // Comments
     TEST_RUN("lexer_single_line_comment", test_lexer_single_line_comment);
-    TEST_RUN("lexer_multi_line_comment", test_lexer_multi_line_comment);
+    TEST_RUN("lexer_block_comment_syntax_is_tokens", test_lexer_block_comment_syntax_is_tokens);
     TEST_RUN("lexer_nested_comment_content", test_lexer_nested_comment_content);
 
     // Whitespace

@@ -73,7 +73,7 @@ static void test_edge_array_of_arrays_type(void) {
     Symbol *sym = symbol_table_lookup_symbol(&table, name);
     assert(sym != NULL);
     assert(sym->type->kind == TYPE_ARRAY);
-    assert(sym->type->data.array.element_type->kind == TYPE_ARRAY);
+    assert(sym->type->as.array.element_type->kind == TYPE_ARRAY);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);
@@ -99,7 +99,7 @@ static void test_edge_function_type_with_many_params(void) {
     Symbol *sym = symbol_table_lookup_symbol(&table, name);
     assert(sym != NULL);
     assert(sym->type->kind == TYPE_FUNCTION);
-    assert(sym->type->data.function.param_count == 10);
+    assert(sym->type->as.function.param_count == 10);
 
     symbol_table_cleanup(&table);
     arena_free(&arena);

@@ -57,7 +57,7 @@ void test_symbol_table_core_main(void)
     TEST_RUN("symbol_table_lookup_nulls", test_symbol_table_lookup_nulls);
     TEST_RUN("symbol_table_get_symbol_offset", test_symbol_table_get_symbol_offset);
     TEST_RUN("symbol_table_offsets_alignment", test_symbol_table_offsets_alignment);
-    TEST_RUN("symbol_table_add_symbol_type_clone", test_symbol_table_add_symbol_type_clone);
+    TEST_RUN("symbol_table_add_symbol_retains_type", test_symbol_table_add_symbol_retains_type);
     TEST_RUN("symbol_table_add_symbol_arena_exhaust", test_symbol_table_add_symbol_arena_exhaust);
     TEST_RUN("symbol_table_add_many_symbols", test_symbol_table_add_many_symbols);
     TEST_RUN("symbol_table_add_symbol_token_dup", test_symbol_table_add_symbol_token_dup);

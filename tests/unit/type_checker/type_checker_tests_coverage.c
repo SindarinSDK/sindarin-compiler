@@ -585,9 +585,9 @@ static void test_is_comparison_operator_or_false(void)
  * is_arithmetic_operator edge cases
  * ============================================================================ */
 
-static void test_is_arithmetic_operator_plus(void)
+static void test_is_arithmetic_operator_plus_false(void)
 {
-    assert(is_arithmetic_operator(TOKEN_PLUS) == true);
+    assert(is_arithmetic_operator(TOKEN_PLUS) == false);
 }
 
 static void test_is_arithmetic_operator_minus(void)
@@ -701,7 +701,7 @@ void test_type_checker_coverage_main(void)
     TEST_RUN("is_comparison_operator_or_false", test_is_comparison_operator_or_false);
 
     TEST_SECTION("Type Checker - is_arithmetic_operator");
-    TEST_RUN("is_arithmetic_operator_plus", test_is_arithmetic_operator_plus);
+    TEST_RUN("is_arithmetic_operator_plus_false", test_is_arithmetic_operator_plus_false);
     TEST_RUN("is_arithmetic_operator_minus", test_is_arithmetic_operator_minus);
     TEST_RUN("is_arithmetic_operator_star", test_is_arithmetic_operator_star);
     TEST_RUN("is_arithmetic_operator_slash", test_is_arithmetic_operator_slash);

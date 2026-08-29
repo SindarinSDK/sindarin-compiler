@@ -143,7 +143,7 @@ static void test_lexer_stress_interp_string(void)
     lexer_init(&arena, &lexer, source, "test.sn");
 
     Token tok = lexer_scan_token(&lexer);
-    assert(tok.type == TOKEN_INTERP_STRING_START);
+    assert(tok.type == TOKEN_INTERPOL_STRING);
 
     lexer_cleanup(&lexer);
     arena_free(&arena);
@@ -226,8 +226,7 @@ static void test_lexer_line_comment(void)
     lexer_init(&arena, &lexer, source, "test.sn");
 
     Token tok = lexer_scan_token(&lexer);
-    // After skipping comment and newline, should get 42
-    while (tok.type == TOKEN_NEWLINE) {
+    while (tok.type == TOKEN_COMMENT || tok.type == TOKEN_NEWLINE) {
         tok = lexer_scan_token(&lexer);
     }
     assert(tok.type == TOKEN_INT_LITERAL);
@@ -247,7 +246,7 @@ static void test_lexer_multiple_comments(void)
     Token tok;
     do {
         tok = lexer_scan_token(&lexer);
-    } while (tok.type == TOKEN_NEWLINE);
+    } while (tok.type == TOKEN_COMMENT || tok.type == TOKEN_NEWLINE);
     assert(tok.type == TOKEN_INT_LITERAL);
 
     lexer_cleanup(&lexer);

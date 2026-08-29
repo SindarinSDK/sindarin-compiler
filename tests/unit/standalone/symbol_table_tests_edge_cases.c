@@ -114,7 +114,7 @@ void test_symbol_table_edge_cases_main(void)
     TEST_RUN("edge_many_symbols_same_scope", test_edge_many_symbols_same_scope);
     TEST_RUN("edge_scope_capacity_expansion", test_edge_scope_capacity_expansion);
     TEST_RUN("edge_symbol_type_update", test_edge_symbol_type_update);
-    TEST_RUN("edge_type_equals_cloned", test_edge_type_equals_cloned);
+    TEST_RUN("edge_type_pointer_retained", test_edge_type_pointer_retained);
     TEST_RUN("edge_zero_length_token", test_edge_zero_length_token);
     TEST_RUN("edge_scope_depth_consistency", test_edge_scope_depth_consistency);
     TEST_RUN("edge_current_lookup_vs_full_lookup", test_edge_current_lookup_vs_full_lookup);
