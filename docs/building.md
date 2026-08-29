@@ -338,7 +338,7 @@ The compiler searches for the runtime library archive (`libsn_runtime.a`) in:
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `SN_CC` | `gcc` (Linux), `clang` (macOS/Windows) | C compiler |
-| `SN_STD` | `c99` | C standard |
+| `SN_STD` | `c11` | C standard |
 | `SN_DEBUG_CFLAGS` | Platform-specific | Debug mode flags |
 | `SN_RELEASE_CFLAGS` | `-O3 -flto` | Release mode flags |
 | `SN_PROFILE_CFLAGS` | Platform-specific | Profile mode flags (optimized with frame pointers) |
