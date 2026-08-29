@@ -3,6 +3,7 @@
 #include "standalone/compiler_driver_tests.c"
 #include "standalone/diagnostic_tests.c"
 #include "standalone/ownership_tests.c"
+#include "standalone/gen_model_split_tests.c"
 #include "ast/ast_tests.c"
 #include "backend/gcc_backend_tests.c"
 #include "lexer/lexer_tests.c"
@@ -43,6 +44,10 @@ int main()
     // *** Ownership classifier ***
 
     test_ownership_main();
+
+    // *** Modular model ownership ***
+
+    test_gen_model_split_main();
 
 
     // *** AST ***

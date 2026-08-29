@@ -390,6 +390,9 @@ ModularModel *gen_model_split(json_object *model, const char *entry_file)
         m->impl_models[b] = impl;
     }
 
+    if (native_externs)
+        json_object_put(native_externs);
+
     /* Free unused bucket arrays for buckets that weren't used
      * (only happens if bucket_count < MAX_BUCKETS) */
     for (int i = bucket_count; i < MAX_BUCKETS; i++)
