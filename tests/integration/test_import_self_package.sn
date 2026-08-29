@@ -1,0 +1,4 @@
+import "sindarin-compiler/tests/integration/imports/self_package/value"
+
+fn main(): void =>
+  print(selfPackageValue())

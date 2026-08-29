@@ -9,6 +9,7 @@
 #include "diagnostic.h"
 #include "file.h"
 #include "gcc_backend.h"
+#include "package.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -281,7 +282,16 @@ Module *parse_module_with_imports(Arena *arena, SymbolTable *symbol_table, const
                                     char *nested_path = construct_import_path(arena, cached_file, nested_mod_name.start);
                                     if (!nested_path) continue;
 
-                                    /* Try SDK path if relative doesn't exist */
+                                    /* Try package path if relative doesn't exist */
+                                    if (!import_file_exists(nested_path)) {
+                                        char *pkg_path = resolve_package_import(arena, cached_file,
+                                                                                nested_mod_name.start);
+                                        if (pkg_path) {
+                                            nested_path = pkg_path;
+                                        }
+                                    }
+
+                                    /* Try SDK path if relative and package paths don't exist */
                                     if (!import_file_exists(nested_path) && compiler_dir) {
                                         const char *sdk_path = gcc_resolve_sdk_import(compiler_dir, nested_mod_name.start);
                                         if (sdk_path) {
