@@ -551,9 +551,9 @@ encode/decode methods on the struct:
 
 | Method | Description |
 |--------|-------------|
-| `instance.encode(enc: Encoder)` | Encodes the instance to an `Encoder` |
+| `instance.encode(enc: Encoder): str` | Encodes the instance and returns the finalized result |
 | `TypeName.decode(dec: Decoder): TypeName` | Decodes an instance from a `Decoder` |
-| `TypeName.encodeArray(arr: TypeName[], enc: Encoder)` | Encodes an array of instances |
+| `TypeName.encodeArray(arr: TypeName[], enc: Encoder): str` | Encodes an array and returns the finalized result |
 | `TypeName.decodeArray(dec: Decoder): TypeName[]` | Decodes an array of instances |
 
 `Encoder` and `Decoder` are vtable types — the SDK provides a `FastJson` implementation, but
@@ -579,9 +579,7 @@ Encoding an instance:
 
 ```sindarin
 var a: Address = Address { street: "123 Main St", city: "NYC" }
-var enc: Encoder = sn_test_json_encoder()
-a.encode(enc)
-var json: str = enc.result()
+var json: str = a.encode(sn_test_json_encoder())
 // json == "{\"street\":\"123 Main St\",\"city\":\"NYC\"}"
 ```
 
@@ -600,9 +598,7 @@ var addrs: Address[] = {
     Address { street: "1 Main", city: "NYC" },
     Address { street: "2 Oak", city: "LA" }
 }
-var arrEnc: Encoder = sn_test_json_array_encoder()
-Address.encodeArray(addrs, arrEnc)
-var arrJson: str = arrEnc.result()
+var arrJson: str = Address.encodeArray(addrs, sn_test_json_array_encoder())
 
 var arrDec: Decoder = sn_test_json_decoder(arrJson)
 var decoded: Address[] = Address.decodeArray(arrDec)
@@ -610,6 +606,10 @@ var decoded: Address[] = Address.decodeArray(arrDec)
 
 Nested `@serializable` structs are encoded/decoded recursively. `str[]` fields are encoded as
 JSON arrays of strings.
+
+`encode()`, `encodeArray()`, and `Encoder.result()` finalize their encoder. Repeated
+`result()` calls are safe and return independently owned copies of the same value. Writing to
+an encoder after it has been finalized is a runtime error.
 
 ### Requirements and Limitations
 

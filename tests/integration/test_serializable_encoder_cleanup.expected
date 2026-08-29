@@ -3,5 +3,8 @@ test_nested_encode_cleanup: PASS
 test_encodeArray_cleanup: PASS
 test_roundtrip_cleanup: PASS
 test_sequential_cleanup: PASS
+test_two_step_encode: PASS
+test_two_step_encodeArray: PASS
+test_repeated_result: PASS
 
 All encoder-cleanup tests passed!

@@ -380,10 +380,23 @@ if(OLD_MINIMAL_HEADERS)
     file(REMOVE ${OLD_MINIMAL_HEADERS})
 endif()
 
-file(GLOB RUNTIME_HEADERS "${CMAKE_SOURCE_DIR}/src/runtime/*.h")
+file(GLOB RUNTIME_HEADERS CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/src/runtime/*.h")
 if(RUNTIME_HEADERS)
     file(INSTALL ${RUNTIME_HEADERS} DESTINATION "${RUNTIME_INCLUDE_DIR}")
     file(INSTALL ${RUNTIME_HEADERS} DESTINATION "${MINIMAL_INCLUDE_DIR}")
+
+    # Generated programs compile against the staged copies in bin/include.
+    # Keep them current on incremental builds as well as configure runs.
+    add_custom_target(sn_runtime_headers
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${RUNTIME_HEADERS} "${RUNTIME_INCLUDE_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                ${RUNTIME_HEADERS} "${MINIMAL_INCLUDE_DIR}"
+        DEPENDS ${RUNTIME_HEADERS}
+        COMMENT "Synchronizing runtime headers"
+    )
+    add_dependencies(sn sn_runtime_headers)
+    add_dependencies(tests sn_runtime_headers)
 endif()
 
 # Copy platform headers
