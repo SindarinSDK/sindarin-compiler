@@ -154,11 +154,23 @@ static void test_extract_name_nested_path(void)
 
 #if SN_HAS_PACKAGE_MANAGER
 
-static const char *TEST_YAML_PATH = "/tmp/sn_test_package.yaml";
+static const char *test_yaml_path(void)
+{
+#ifdef _WIN32
+    static char path[1024];
+    const char *temp_dir = getenv("TEMP");
+    if (temp_dir == NULL || temp_dir[0] == '\0')
+        temp_dir = ".";
+    snprintf(path, sizeof(path), "%s\\sn_test_package.yaml", temp_dir);
+    return path;
+#else
+    return "/tmp/sn_test_package.yaml";
+#endif
+}
 
 static void cleanup_test_yaml(void)
 {
-    unlink(TEST_YAML_PATH);
+    remove(test_yaml_path());
 }
 
 static void test_yaml_write_and_parse(void)
@@ -173,12 +185,12 @@ static void test_yaml_write_and_parse(void)
     strncpy(config.description, "A test project", sizeof(config.description) - 1);
     strncpy(config.license, "MIT", sizeof(config.license) - 1);
 
-    bool write_success = package_yaml_write(TEST_YAML_PATH, &config);
+    bool write_success = package_yaml_write(test_yaml_path(), &config);
     assert(write_success == true);
 
     /* Parse it back */
     PackageConfig parsed = {0};
-    bool parse_success = package_yaml_parse(TEST_YAML_PATH, &parsed);
+    bool parse_success = package_yaml_parse(test_yaml_path(), &parsed);
     assert(parse_success == true);
 
     /* Verify fields */
@@ -213,12 +225,12 @@ static void test_yaml_write_with_dependencies(void)
 
     config.dependency_count = 2;
 
-    bool write_success = package_yaml_write(TEST_YAML_PATH, &config);
+    bool write_success = package_yaml_write(test_yaml_path(), &config);
     assert(write_success == true);
 
     /* Parse it back */
     PackageConfig parsed = {0};
-    bool parse_success = package_yaml_parse(TEST_YAML_PATH, &parsed);
+    bool parse_success = package_yaml_parse(test_yaml_path(), &parsed);
     assert(parse_success == true);
 
     /* Verify */
@@ -245,7 +257,7 @@ static void test_yaml_add_dependency(void)
     strncpy(config.name, "test-app", sizeof(config.name) - 1);
     strncpy(config.version, "1.0.0", sizeof(config.version) - 1);
 
-    bool write_success = package_yaml_write(TEST_YAML_PATH, &config);
+    bool write_success = package_yaml_write(test_yaml_path(), &config);
     assert(write_success == true);
 
     /* Add a dependency */
@@ -254,12 +266,12 @@ static void test_yaml_add_dependency(void)
     strncpy(dep.git_url, "https://github.com/user/new-lib.git", sizeof(dep.git_url) - 1);
     strncpy(dep.tag, "v3.0", sizeof(dep.tag) - 1);
 
-    bool add_success = package_yaml_add_dependency(TEST_YAML_PATH, &dep);
+    bool add_success = package_yaml_add_dependency(test_yaml_path(), &dep);
     assert(add_success == true);
 
     /* Parse and verify */
     PackageConfig parsed = {0};
-    bool parse_success = package_yaml_parse(TEST_YAML_PATH, &parsed);
+    bool parse_success = package_yaml_parse(test_yaml_path(), &parsed);
     assert(parse_success == true);
 
     assert(parsed.dependency_count == 1);
@@ -281,7 +293,7 @@ static void test_yaml_update_dependency(void)
     strncpy(config.dependencies[0].tag, "v1.0", sizeof(config.dependencies[0].tag) - 1);
     config.dependency_count = 1;
 
-    bool write_success = package_yaml_write(TEST_YAML_PATH, &config);
+    bool write_success = package_yaml_write(test_yaml_path(), &config);
     assert(write_success == true);
 
     /* Update the dependency */
@@ -290,12 +302,12 @@ static void test_yaml_update_dependency(void)
     strncpy(dep.git_url, "https://github.com/new/lib.git", sizeof(dep.git_url) - 1);
     strncpy(dep.tag, "v2.0", sizeof(dep.tag) - 1);
 
-    bool add_success = package_yaml_add_dependency(TEST_YAML_PATH, &dep);
+    bool add_success = package_yaml_add_dependency(test_yaml_path(), &dep);
     assert(add_success == true);
 
     /* Parse and verify - should still have 1 dependency but updated */
     PackageConfig parsed = {0};
-    bool parse_success = package_yaml_parse(TEST_YAML_PATH, &parsed);
+    bool parse_success = package_yaml_parse(test_yaml_path(), &parsed);
     assert(parse_success == true);
 
     assert(parsed.dependency_count == 1);
