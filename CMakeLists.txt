@@ -64,10 +64,6 @@ add_compile_definitions(_GNU_SOURCE)
 # Debug vs Release configuration
 if(SN_DEBUG)
     add_compile_options(-g -O0)
-    if(SN_ASAN)
-        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-        add_link_options(-fsanitize=address)
-    endif()
 else()
     add_compile_options(-O3 -flto=auto)
     add_link_options(-flto=auto -O3)
@@ -302,6 +298,18 @@ if(WIN32)
     target_link_libraries(tests PRIVATE ws2_32 bcrypt pthread)
 else()
     target_link_libraries(tests PRIVATE pthread m)
+endif()
+
+# Sanitizers instrument the compiler and its unit tests, not the runtime
+# archive linked into generated programs.  The runtime must work regardless of
+# whether the compiler itself came from a debug or release build tree.
+if(SN_DEBUG AND SN_ASAN)
+    foreach(SN_SANITIZED_TARGET sn tests)
+        target_compile_options(${SN_SANITIZED_TARGET} PRIVATE
+            -fsanitize=address -fno-omit-frame-pointer
+        )
+        target_link_options(${SN_SANITIZED_TARGET} PRIVATE -fsanitize=address)
+    endforeach()
 endif()
 
 # Note: Additional library linking for tests will be done after libs submodule detection below
