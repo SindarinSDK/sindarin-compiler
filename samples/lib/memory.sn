@@ -1,8 +1,8 @@
 // ============================================================================
 // memory.sn - Memory Management Features in Sindarin
 // ============================================================================
-// Demonstrates: functions, shared/private blocks, shared loops,
-// as val (copy semantics), as ref (reference semantics)
+// Demonstrates: automatic arena management, ordinary loops,
+// copyOf (copy semantics), as ref (reference semantics)
 // ============================================================================
 
 // --- Function ---
@@ -34,49 +34,47 @@ fn demo_memory(): void =>
   var sum: int = compute_sum()
   print($"compute_sum() = {sum}\n")
 
-  // 3. Shared Blocks
-  print("\n--- Shared Blocks ---\n")
-  print("Shared blocks use the parent's arena\n")
+  // 3. Automatic Arena Management
+  print("\n--- Automatic Arena Management ---\n")
+  print("The compiler infers arena ownership for local values\n")
   var x: int = 10
-  shared =>
-    var y: int = 20
-    x = x + y
-  print($"After shared block: x = {x}\n")
+  var y: int = 20
+  x = x + y
+  print($"After local computation: x = {x}\n")
 
-  // 4. Private Blocks
-  print("\n--- Private Blocks ---\n")
-  print("Private blocks have isolated arenas (only primitives escape)\n")
+  // 4. Local Values
+  print("\n--- Local Values ---\n")
+  print("Temporary values are released according to inferred ownership\n")
   var computed: int = 0
-  private =>
-    var a: int = 100
-    var b: int = 200
-    computed = a + b
-  print($"After private block: computed = {computed}\n")
+  var a: int = 100
+  var b: int = 200
+  computed = a + b
+  print($"Computed value: {computed}\n")
 
-  // 5. Shared Loops
-  print("\n--- Shared Loops ---\n")
-  print("Shared loops don't create per-iteration arenas\n")
+  // 5. Loops
+  print("\n--- Loops ---\n")
+  print("Loop memory strategy is inferred automatically\n")
   var total: int = 0
-  shared for var i: int = 0; i < 5; i++ =>
+  for var i: int = 0; i < 5; i++ =>
     total = total + i
-  print($"Sum from shared for: {total}\n")
+  print($"Sum from for loop: {total}\n")
 
   var count: int = 0
-  shared while count < 3 =>
+  while count < 3 =>
     count = count + 1
-  print($"Count from shared while: {count}\n")
+  print($"Count from while loop: {count}\n")
 
   var arr: int[] = {1, 2, 3, 4, 5}
   var arrSum: int = 0
-  shared for n in arr =>
+  for n in arr =>
     arrSum = arrSum + n
-  print($"Sum from shared for-each: {arrSum}\n")
+  print($"Sum from for-each: {arrSum}\n")
 
-  // 6. as val (Copy Semantics)
-  print("\n--- as val (Copy Semantics) ---\n")
-  print("'as val' creates independent copies of arrays/strings\n")
+  // 6. Explicit Copy Semantics
+  print("\n--- Explicit Copy Semantics ---\n")
+  print("copyOf() creates an independent array copy\n")
   var original: int[] = {10, 20, 30}
-  var copy: int[] as val = original
+  var copy: int[] = copyOf(original)
   original.push(40)
   print("Original after push(40): ")
   print(original)

@@ -39,12 +39,12 @@ fn demo_lambda(): void =>
   print($"  negate(42) = {negate(42)}\n")
 
   // =========================================
-  // Lambdas with modifiers
+  // Additional inferred lambda
   // =========================================
-  print("\nLambdas with modifiers:\n")
+  print("\nAdditional inferred lambda:\n")
 
-  // Test 7: Shared lambda with inferred types
-  var increment: fn(int): int = fn(x) shared => x + 1
+  // Test 7: Lambda with inferred types
+  var increment: fn(int): int = fn(x) => x + 1
   print($"  increment(99) = {increment(99)}\n")
 
   // =========================================

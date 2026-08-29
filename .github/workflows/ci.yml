@@ -161,6 +161,17 @@ jobs:
           SN_EXCLUDE_TESTS: ${{ matrix.sn_exclude_tests }}
         run: make test ${{ runner.os == 'Windows' && 'ARENA_SANITIZE=' || '' }}
 
+      - name: Compile and run headline sample
+        shell: bash
+        env:
+          SN_CC: ${{ matrix.sn_cc }}
+          SN_CFLAGS: ${{ matrix.sn_cflags }}
+          SN_RELEASE_CFLAGS: ${{ matrix.sn_release_cflags }}
+        run: |
+          bin/sn${{ matrix.exe_ext }} samples/main.sn -o bin/sample${{ matrix.exe_ext }}
+          bin/sample${{ matrix.exe_ext }} > bin/sample-output.txt
+          grep -q "All Demos Complete" bin/sample-output.txt
+
       #------------------------------------------------------------------------
       # Upload Artifacts
       #------------------------------------------------------------------------

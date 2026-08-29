@@ -5,7 +5,7 @@
 // benchmarking, and common time patterns
 // ============================================================================
 
-import "../../sdk/time/time"
+import "sindarin-pkg-sdk/src/time/time"
 
 // Entry point for time demos
 fn demo_time(): void =>
