@@ -165,6 +165,15 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
     return strdup(value_obj ? json_object_get_string(value_obj) : "0");
 }
 
+static char *helper_rust_string_literal(json_object **params, int param_count,
+                                        hbs_options_t *options)
+{
+    (void)options;
+    const char *value = param_count > 0 && params[0]
+        ? json_object_get_string(params[0]) : "";
+    return quote_rust_string(value, '"');
+}
+
 static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)options;
@@ -228,6 +237,7 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_type", helper_rust_type);
     hbs_register_helper(env, "rust_ident", helper_rust_ident);
     hbs_register_helper(env, "rust_literal", helper_rust_literal);
+    hbs_register_helper(env, "rust_string_literal", helper_rust_string_literal);
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
     hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
