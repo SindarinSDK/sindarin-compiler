@@ -1,4 +1,7 @@
 #[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
 struct {{rust_ident name}} {
 {{#each fields}}    {{rust_ident name}}: {{rust_type type}},
-{{/each}}{{rbrace}}
+{{/each}}{{rbrace}}{{#if methods}}
+
+impl {{rust_ident name}} {
+{{#each methods}}{{> struct_method this}}{{/each}}{{rbrace}}{{/if}}

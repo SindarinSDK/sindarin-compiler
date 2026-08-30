@@ -1,0 +1,28 @@
+struct Point =>
+  x: int = 0
+  y: int = 0
+
+  static fn create(x: int, y: int): Point =>
+    return Point {
+      x: x,
+      y: y
+    }
+
+  static fn origin(): Point =>
+    return Point {}
+
+struct Label =>
+  text: string = ""
+
+  static fn wrap(value: string): Label =>
+    return Label { text: $"[{value}]" }
+
+fn main(): void =>
+  var point: Point = Point.create(3, 4)
+  var origin: Point = Point.origin()
+  var source: string = "hello"
+  var label: Label = Label.wrap(source)
+
+  println($"point={point.x},{point.y}")
+  println($"origin={origin.x},{origin.y}")
+  println($"label={label.text}; source={source}")
