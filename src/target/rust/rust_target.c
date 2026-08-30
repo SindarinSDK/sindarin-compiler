@@ -92,14 +92,12 @@ static bool rust_validate_structs(json_object *model)
         json_object *structure = json_object_array_get_idx(structs, i);
         const char *name = json_string_property(structure, "name");
         const char *mem_mode = json_string_property(structure, "mem_mode");
-        json_object *methods = NULL, *fields = NULL;
-        json_object_object_get_ex(structure, "methods", &methods);
+        json_object *fields = NULL;
 
         if (json_boolean_property(structure, "is_native") ||
             json_boolean_property(structure, "is_packed") ||
             json_boolean_property(structure, "is_serializable") ||
-            (mem_mode && strcmp(mem_mode, "val") != 0) ||
-            (methods && json_object_array_length(methods) > 0))
+            (mem_mode && strcmp(mem_mode, "val") != 0))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports only plain value struct '%s'\n",
@@ -587,6 +585,12 @@ static bool rust_validate_expr(json_object *expr)
         }
         return rust_validate_expr(operand);
     }
+    if (strcmp(kind, "static_call") == 0)
+    {
+        json_object *args = NULL;
+        json_object_object_get_ex(expr, "args", &args);
+        return rust_validate_expr_array(args);
+    }
     if (strcmp(kind, "member_assign") == 0)
     {
         json_object *object = NULL, *value = NULL;
@@ -864,6 +868,78 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
+static bool rust_validate_static_struct_methods(json_object *model)
+{
+    json_object *structs = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structs)) return true;
+
+    size_t struct_count = json_object_array_length(structs);
+    for (size_t i = 0; i < struct_count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        const char *struct_name = json_string_property(structure, "name");
+        json_object *methods = NULL;
+        if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
+
+        size_t method_count = json_object_array_length(methods);
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            const char *method_name = json_string_property(method, "name");
+            json_object *return_type = NULL, *params = NULL, *body = NULL;
+            if (!json_boolean_property(method, "is_static") ||
+                json_boolean_property(method, "is_native"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports only non-native static methods on plain value struct '%s'\n",
+                        struct_name ? struct_name : "<anonymous>");
+                return false;
+            }
+            if (!json_object_object_get_ex(method, "return_type", &return_type) ||
+                !rust_type_supported(return_type))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support return type of static method '%s.%s'\n",
+                        struct_name ? struct_name : "<anonymous>",
+                        method_name ? method_name : "<anonymous>");
+                return false;
+            }
+            if (json_object_object_get_ex(method, "params", &params))
+            {
+                size_t param_count = json_object_array_length(params);
+                for (size_t p = 0; p < param_count; p++)
+                {
+                    json_object *param = json_object_array_get_idx(params, p);
+                    json_object *param_type = NULL;
+                    const char *mem_qual = json_string_property(param, "mem_qual");
+                    const char *sync_mod = json_string_property(param, "sync_mod");
+                    if (!json_object_object_get_ex(param, "type", &param_type) ||
+                        !rust_type_supported(param_type) ||
+                        (mem_qual && strcmp(mem_qual, "default") != 0) ||
+                        (sync_mod && strcmp(sync_mod, "none") != 0))
+                    {
+                        fprintf(stderr,
+                                "Error: Rust target does not support a parameter of static method '%s.%s'\n",
+                                struct_name ? struct_name : "<anonymous>",
+                                method_name ? method_name : "<anonymous>");
+                        return false;
+                    }
+                }
+            }
+            json_object_object_get_ex(method, "body", &body);
+            if (!rust_validate_statements(body))
+            {
+                fprintf(stderr,
+                        "Error: Rust target encountered an unsupported construct in static method '%s.%s'\n",
+                        struct_name ? struct_name : "<anonymous>",
+                        method_name ? method_name : "<anonymous>");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 static bool rust_validate_model(json_object *model)
 {
     const char *unsupported = NULL;
@@ -898,7 +974,8 @@ static bool rust_validate_model(json_object *model)
         return false;
     }
 
-    if (!rust_validate_structs(model)) return false;
+    if (!rust_validate_structs(model) ||
+        !rust_validate_static_struct_methods(model)) return false;
 
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))
@@ -1080,6 +1157,27 @@ static void rust_lower_strings(json_object *node)
                         json_object_object_add(arg, "rust_needs_clone",
                                                json_object_new_boolean(true));
                 }
+            }
+        }
+    }
+    else if (strcmp(kind, "static_call") == 0)
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+        {
+            size_t count = json_object_array_length(args);
+            for (size_t i = 0; i < count; i++)
+            {
+                json_object *arg = json_object_array_get_idx(args, i);
+                json_object *arg_type = NULL;
+                const char *arg_kind = json_string_property(arg, "kind");
+                if (json_object_object_get_ex(arg, "type", &arg_type) &&
+                    json_string_property_equals(arg_type, "kind", "string") &&
+                    arg_kind && (strcmp(arg_kind, "variable") == 0 ||
+                                 strcmp(arg_kind, "member") == 0 ||
+                                 strcmp(arg_kind, "array_access") == 0))
+                    json_object_object_add(arg, "rust_needs_clone",
+                                           json_object_new_boolean(true));
             }
         }
     }
