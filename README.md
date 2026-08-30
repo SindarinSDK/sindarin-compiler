@@ -53,7 +53,8 @@ sn program.sn --target rust --emit-source -o output.rs
 
 C remains the default target. The Rust target currently supports primitive
 types, functions, local variables, basic control flow, direct calls, arithmetic,
-and printing; unsupported constructs produce a target-specific diagnostic.
+plain value structs (including defaults and nested fields), and printing;
+unsupported constructs produce a target-specific diagnostic.
 
 ## Example
 

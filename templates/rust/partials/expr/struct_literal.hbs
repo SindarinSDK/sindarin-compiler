@@ -1,0 +1,1 @@
+{{rust_ident struct_name}} { {{#each fields}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{> expr value}}{{rust_clone_suffix value source_is_borrow}}{{/each}} }

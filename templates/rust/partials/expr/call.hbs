@@ -1,1 +1,1 @@
-{{> expr callee}}({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{/each}})
+{{> expr callee}}({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{rust_clone_suffix this is_ref_arg}}{{rust_clone_suffix this is_copy_arg}}{{/each}})

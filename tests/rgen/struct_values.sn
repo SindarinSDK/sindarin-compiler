@@ -1,0 +1,39 @@
+struct Point =>
+  x: int
+  y: int
+
+struct Label =>
+  text: str = "default"
+
+struct Marker =>
+  point: Point
+  label: Label
+
+fn main(): void =>
+  var point: Point = {
+    x: 10,
+    y: 20
+  }
+  println(point.x)
+  point.x = 30
+  println(point.x)
+
+  var copied: Point = point
+  copied.y = 40
+  println(point.y)
+  println(copied.y)
+
+  var label: Label = {}
+  var label_copy: Label = label
+  label_copy.text = "changed"
+  println(label.text)
+  println(label_copy.text)
+
+  var marker: Marker = {
+    point: point,
+    label: label
+  }
+  marker.label.text = "nested"
+  println(marker.point.x)
+  println(label.text)
+  println(marker.label.text)
