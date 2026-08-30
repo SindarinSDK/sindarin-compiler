@@ -1,0 +1,12 @@
+fn main(): void =>
+  var words: str[] = {"the", "quick", "fox"}
+  var separator: str = " | "
+  println(words.join(separator))
+  println(separator)
+  println(words.join(""))
+
+  var single: str[] = {"alone"}
+  println(single.join(","))
+
+  var empty: str[] = {}
+  println($"empty=|{empty.join(",") }|")
