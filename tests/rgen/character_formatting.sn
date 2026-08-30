@@ -1,0 +1,15 @@
+fn main(): void =>
+  var letter: char = 'A'
+  var tab: char = '\t'
+  var nul: char = '\0'
+  var word: str = "byte"
+  var dynamic: char = word.charAt(1)
+
+  println($"plain=|{letter:c}|")
+  println($"width=|{letter:5c}|")
+  println($"left=|{letter:-5c}|")
+  println($"dynamic=|{dynamic:3c}|")
+  println($"tab=|{tab:c}|")
+  println($"nul=|{nul:c}|")
+  println($"nul-width=|{nul:5c}|")
+  println($"nul-left=|{nul:-5c}|")
