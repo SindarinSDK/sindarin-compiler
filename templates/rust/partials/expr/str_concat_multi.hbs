@@ -1,0 +1,1 @@
+{ let mut __sn_string = String::new(); {{#each parts}}__sn_string.push_str(&({{> expr this}})); {{/each}}__sn_string }

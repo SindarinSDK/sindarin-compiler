@@ -1,0 +1,34 @@
+fn decorate(value: str): str =>
+  return value + "!"
+
+fn main(): void =>
+  var source: str = "  Hello World  "
+  var assigned: str = source
+  println($"assignedCopy={assigned}")
+  assigned = "changed"
+  var explicit_copy: str = copyOf(source)
+  explicit_copy += " copy"
+  var decorated: str = decorate(source)
+
+  println($"source={source}")
+  println($"assigned={assigned}")
+  println($"copy={explicit_copy}")
+  println($"decorated={decorated}")
+
+  var hello: str = source.trim()
+  var joined: str = hello + " from" + " Rust"
+  println($"joined={joined}")
+  println($"length={hello.length}/{len(hello)}")
+  println($"equal={hello == "Hello World"}/{hello != source}")
+  println($"contains={hello.contains("lo Wo")}")
+  println($"starts={hello.startsWith("Hell")}")
+  println($"ends={hello.endsWith("World")}")
+  println($"upper={hello.toUpper()}")
+  println($"lower={hello.toLower()}")
+  println($"substring={hello.substring(6, 11)}")
+  println($"replace={hello.replace("World", "Rust")}")
+  println($"emptyReplace={hello.replace("", "ignored")}")
+  println($"char={hello.charAt(1)}")
+  println($"index={hello.indexOf("World")}/{hello.indexOf("missing")}")
+  println($"chain={source.trim().toLower().replace("world", "rust")}")
+  println($"sourceAgain={source}")

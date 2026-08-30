@@ -54,8 +54,14 @@ sn program.sn --target rust --emit-source -o output.rs
 C remains the default target. The Rust target currently supports primitive
 types, functions, local variables, basic control flow, direct calls, arithmetic,
 plain value structs (including defaults and nested fields), core array operations,
-integer ranges, C-style and array iteration, string interpolation, and printing;
-unsupported constructs produce a target-specific diagnostic.
+integer ranges, C-style and array iteration, string interpolation, string
+concatenation and copying, common non-mutating string operations, and printing;
+unsupported constructs produce a target-specific diagnostic. Rust string methods
+currently include `contains`, `startsWith`, `endsWith`, `trim`, `toUpper`,
+`toLower`, `substring`, `replace`, `charAt`, and `indexOf`; `length` and `len(...)`
+are also supported, and `copyOf(string)` provides an explicit clone. Concatenation
+currently requires string operands, and other string methods are rejected with a
+Rust-target diagnostic.
 
 ## Example
 

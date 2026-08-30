@@ -73,6 +73,13 @@ static bool json_boolean_property(json_object *object, const char *key)
            json_object_get_boolean(value);
 }
 
+static bool json_string_property_equals(json_object *object, const char *key,
+                                        const char *wanted)
+{
+    const char *value = json_string_property(object, key);
+    return value && strcmp(value, wanted) == 0;
+}
+
 static bool rust_validate_structs(json_object *model)
 {
     json_object *structs = NULL;
@@ -129,6 +136,16 @@ static bool rust_array_method_supported(const char *name)
            strcmp(name, "insert") == 0 || strcmp(name, "remove") == 0 ||
            strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
            strcmp(name, "clone") == 0;
+}
+
+static bool rust_string_method_supported(const char *name)
+{
+    if (!name) return false;
+    return strcmp(name, "contains") == 0 || strcmp(name, "startsWith") == 0 ||
+           strcmp(name, "endsWith") == 0 || strcmp(name, "trim") == 0 ||
+           strcmp(name, "toUpper") == 0 || strcmp(name, "toLower") == 0 ||
+           strcmp(name, "substring") == 0 || strcmp(name, "replace") == 0 ||
+           strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
 }
 
 static bool rust_validate_expr_array(json_object *array)
@@ -236,6 +253,20 @@ static bool rust_validate_expr(json_object *expr)
     if (strcmp(kind, "member") == 0)
         return json_object_object_get_ex(expr, "object", &child) &&
                rust_validate_expr(child);
+    if (strcmp(kind, "copy_of") == 0)
+    {
+        json_object *operand = NULL, *operand_type = NULL;
+        const char *operand_kind = NULL;
+        if (!json_object_object_get_ex(expr, "operand", &operand) ||
+            !json_object_object_get_ex(operand, "type", &operand_type) ||
+            !(operand_kind = json_string_property(operand_type, "kind")) ||
+            strcmp(operand_kind, "string") != 0)
+        {
+            fprintf(stderr, "Error: Rust target currently supports copyOf() only for strings\n");
+            return false;
+        }
+        return rust_validate_expr(operand);
+    }
     if (strcmp(kind, "member_assign") == 0)
     {
         json_object *object = NULL, *value = NULL;
@@ -246,9 +277,71 @@ static bool rust_validate_expr(json_object *expr)
     if (strcmp(kind, "binary") == 0)
     {
         json_object *left = NULL, *right = NULL;
-        return json_object_object_get_ex(expr, "left", &left) &&
-               json_object_object_get_ex(expr, "right", &right) &&
-               rust_validate_expr(left) && rust_validate_expr(right);
+        if (!json_object_object_get_ex(expr, "left", &left) ||
+            !json_object_object_get_ex(expr, "right", &right)) return false;
+        json_object *type = NULL;
+        const char *type_kind = NULL;
+        if (json_object_object_get_ex(expr, "type", &type) &&
+            (type_kind = json_string_property(type, "kind")) &&
+            strcmp(type_kind, "string") == 0)
+        {
+            json_object *left_type = NULL, *right_type = NULL;
+            const char *left_kind = NULL, *right_kind = NULL;
+            const char *op = json_string_property(expr, "op");
+            if (!op || strcmp(op, "add") != 0 ||
+                !json_object_object_get_ex(left, "type", &left_type) ||
+                !json_object_object_get_ex(right, "type", &right_type) ||
+                !(left_kind = json_string_property(left_type, "kind")) ||
+                !(right_kind = json_string_property(right_type, "kind")) ||
+                strcmp(left_kind, "string") != 0 || strcmp(right_kind, "string") != 0)
+            {
+                fprintf(stderr,
+                        "Error: Rust target currently supports string concatenation only between strings\n");
+                return false;
+            }
+        }
+        return rust_validate_expr(left) && rust_validate_expr(right);
+    }
+    if (strcmp(kind, "str_concat_multi") == 0)
+    {
+        json_object *parts = NULL;
+        if (!json_object_object_get_ex(expr, "parts", &parts)) return false;
+        size_t count = json_object_array_length(parts);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *part = json_object_array_get_idx(parts, i);
+            json_object *part_type = NULL;
+            const char *part_kind = NULL;
+            if (!json_object_object_get_ex(part, "type", &part_type) ||
+                !(part_kind = json_string_property(part_type, "kind")) ||
+                strcmp(part_kind, "string") != 0 || !rust_validate_expr(part))
+            {
+                fprintf(stderr,
+                        "Error: Rust target currently supports string concatenation only between strings\n");
+                return false;
+            }
+        }
+        return true;
+    }
+    if (strcmp(kind, "compound_assign") == 0)
+    {
+        json_object *target = NULL, *value = NULL, *target_type = NULL, *value_type = NULL;
+        const char *target_kind = NULL, *value_kind = NULL;
+        if (!json_object_object_get_ex(expr, "target", &target) ||
+            !json_object_object_get_ex(expr, "value", &value) ||
+            !json_object_object_get_ex(target, "type", &target_type) ||
+            !json_object_object_get_ex(value, "type", &value_type) ||
+            !(target_kind = json_string_property(target_type, "kind")) ||
+            !(value_kind = json_string_property(value_type, "kind")) ||
+            strcmp(target_kind, "string") != 0 || strcmp(value_kind, "string") != 0 ||
+            !json_string_property_equals(expr, "op", "add") ||
+            !json_string_property_equals(target, "kind", "variable"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target currently supports += only for string variables and string values\n");
+            return false;
+        }
+        return rust_validate_expr(target) && rust_validate_expr(value);
     }
     if (strcmp(kind, "unary") == 0 || strcmp(kind, "increment") == 0 ||
         strcmp(kind, "decrement") == 0)
@@ -269,10 +362,24 @@ static bool rust_validate_expr(json_object *expr)
             const char *object_type_kind = NULL;
             if (!json_object_object_get_ex(callee, "object", &object) ||
                 !json_object_object_get_ex(object, "type", &object_type) ||
-                !(object_type_kind = json_string_property(object_type, "kind")) ||
-                strcmp(object_type_kind, "array") != 0 ||
-                !rust_array_method_supported(json_string_property(callee, "member_name")) ||
-                !rust_validate_expr(object)) return false;
+                !(object_type_kind = json_string_property(object_type, "kind"))) return false;
+            const char *method = json_string_property(callee, "member_name");
+            if (strcmp(object_type_kind, "array") == 0)
+            {
+                if (!rust_array_method_supported(method) || !rust_validate_expr(object))
+                    return false;
+            }
+            else if (strcmp(object_type_kind, "string") == 0)
+            {
+                if (!rust_string_method_supported(method))
+                {
+                    fprintf(stderr, "Error: Rust target does not support string method '%s' yet\n",
+                            method ? method : "<unknown>");
+                    return false;
+                }
+                if (!rust_validate_expr(object)) return false;
+            }
+            else return false;
         }
         else if (strcmp(callee_kind_name, "variable") != 0) return false;
         json_object_object_get_ex(expr, "args", &args);
@@ -549,6 +656,112 @@ static void rust_lower_checked_arithmetic(json_object *node)
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
 }
 
+/* Mark string constructs after shared model generation so Rust syntax choices
+ * stay within this backend. */
+static void rust_lower_strings(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_strings(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_strings(value);
+    }
+
+    const char *kind = json_string_property(node, "kind");
+    if (!kind) return;
+    if (strcmp(kind, "binary") == 0)
+    {
+        json_object *type = NULL;
+        if (json_object_object_get_ex(node, "type", &type) &&
+            json_string_property_equals(type, "kind", "string") &&
+            json_string_property_equals(node, "op", "add"))
+            json_object_object_add(node, "rust_string_concat", json_object_new_boolean(true));
+        return;
+    }
+    if (strcmp(kind, "compound_assign") == 0)
+    {
+        json_object *target = NULL, *type = NULL;
+        if (json_object_object_get_ex(node, "target", &target) &&
+            json_object_object_get_ex(target, "type", &type) &&
+            json_string_property_equals(type, "kind", "string"))
+            json_object_object_add(node, "rust_string_append", json_object_new_boolean(true));
+        return;
+    }
+    if (strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL, *object = NULL, *type = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "member") &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            json_object_object_get_ex(object, "type", &type) &&
+            json_string_property_equals(type, "kind", "string"))
+        {
+            const char *method = json_string_property(callee, "member_name");
+            if (method)
+                json_object_object_add(node, "rust_string_method",
+                                       json_object_new_string(method));
+        }
+
+        /* Sindarin passes owned strings by value without consuming an lvalue at
+         * the call site. C's model does not need an acquire annotation for all
+         * default parameters, so record the Rust move/clone decision here. */
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "variable"))
+        {
+            json_object *args = NULL;
+            if (json_object_object_get_ex(node, "args", &args))
+            {
+                size_t count = json_object_array_length(args);
+                for (size_t i = 0; i < count; i++)
+                {
+                    json_object *arg = json_object_array_get_idx(args, i);
+                    json_object *arg_type = NULL;
+                    const char *arg_kind = json_string_property(arg, "kind");
+                    if (json_object_object_get_ex(arg, "type", &arg_type) &&
+                        json_string_property_equals(arg_type, "kind", "string") &&
+                        arg_kind && (strcmp(arg_kind, "variable") == 0 ||
+                                     strcmp(arg_kind, "member") == 0 ||
+                                     strcmp(arg_kind, "array_access") == 0))
+                        json_object_object_add(arg, "rust_needs_clone",
+                                               json_object_new_boolean(true));
+                }
+            }
+        }
+    }
+}
+
+static bool rust_model_uses_string_helpers(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_string_helpers(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    const char *method = json_string_property(node, "rust_string_method");
+    if (method && (strcmp(method, "substring") == 0 || strcmp(method, "replace") == 0 ||
+                   strcmp(method, "charAt") == 0 || strcmp(method, "indexOf") == 0))
+        return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_string_helpers(value)) return true;
+    }
+    return false;
+}
+
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
@@ -563,8 +776,11 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         return false;
     }
     rust_lower_checked_arithmetic(model);
+    rust_lower_strings(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
+    if (rust_model_uses_string_helpers(model))
+        json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);
