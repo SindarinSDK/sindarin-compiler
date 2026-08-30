@@ -1,0 +1,7 @@
+fn main(): void =>
+  var ascii: string = "abcdef"
+  var unicode: string = "éclair"
+
+  println($"precision={ascii:.3s}/{ascii:.0s}/{ascii:.20s}")
+  println($"width=|{ascii:8.3s}|/|{ascii:-8.3s}|")
+  println($"bytes=|{unicode:6.2s}|/|{unicode:-6.3s}|")

@@ -316,10 +316,10 @@ flags_done:
                  "character conversion requires a char expression");
         return false;
     }
-    if (parsed->has_precision && !is_float_conversion)
+    if (parsed->has_precision && !is_float_conversion && !is_string_conversion)
     {
         snprintf(reason, reason_size,
-                 "precision is currently supported only for fixed-point floats");
+                 "precision is supported only for floating-point and string conversions");
         return false;
     }
     if (is_string_conversion &&
@@ -1213,12 +1213,21 @@ static void rust_lower_interpolation_formats(json_object *node)
                                                parsed.conversion == 'f'));
                 }
             }
-            if (parsed.conversion == 's' && parsed.has_width)
+            if (parsed.conversion == 's' &&
+                (parsed.has_width || parsed.has_precision))
             {
+                json_object_object_add(part, "rust_string_format",
+                                       json_object_new_boolean(true));
                 json_object_object_add(part, "rust_string_width",
-                                       json_object_new_int(parsed.width));
+                                       json_object_new_int(parsed.has_width
+                                                           ? parsed.width : 0));
                 json_object_object_add(part, "rust_string_left_align",
                                        json_object_new_boolean(parsed.left_align));
+                json_object_object_add(part, "rust_string_has_precision",
+                                       json_object_new_boolean(parsed.has_precision));
+                json_object_object_add(part, "rust_string_precision",
+                                       json_object_new_int(parsed.has_precision
+                                                           ? parsed.precision : 0));
             }
         }
     }
@@ -1317,7 +1326,7 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     }
     if (!json_object_is_type(node, json_type_object)) return false;
     json_object *string_width = NULL;
-    if (json_object_object_get_ex(node, "rust_string_width", &string_width) ||
+    if (json_object_object_get_ex(node, "rust_string_format", &string_width) ||
         json_object_object_get_ex(node, "rust_character", &string_width) ||
         json_object_object_get_ex(node, "rust_fixed_alternate", &string_width) ||
         json_object_object_get_ex(node, "rust_integer_alternate", &string_width) ||
