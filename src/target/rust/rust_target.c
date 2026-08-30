@@ -276,8 +276,9 @@ flags_done:
                                     parsed->conversion == 'E';
     bool is_float_conversion = is_fixed_conversion || is_scientific_conversion;
     bool is_string_conversion = parsed->conversion == 's';
+    bool is_character_conversion = parsed->conversion == 'c';
     if (!is_integer_conversion && !is_float_conversion &&
-        !is_string_conversion)
+        !is_string_conversion && !is_character_conversion)
     {
         snprintf(reason, reason_size, "unsupported conversion '%c'", parsed->conversion);
         return false;
@@ -308,6 +309,13 @@ flags_done:
         snprintf(reason, reason_size, "string conversion requires a string expression");
         return false;
     }
+    if (is_character_conversion &&
+        (!type_kind || strcmp(type_kind, "char") != 0))
+    {
+        snprintf(reason, reason_size,
+                 "character conversion requires a char expression");
+        return false;
+    }
     if (parsed->has_precision && !is_float_conversion)
     {
         snprintf(reason, reason_size,
@@ -321,6 +329,15 @@ flags_done:
         snprintf(reason, reason_size, "numeric flags cannot format strings");
         return false;
     }
+    if (is_character_conversion &&
+        (parsed->force_sign || parsed->space_sign || parsed->alternate ||
+         parsed->zero_pad))
+    {
+        snprintf(reason, reason_size,
+                 "numeric flags cannot format characters");
+        return false;
+    }
+    if (is_character_conversion) return true;
     if (parsed->alternate)
     {
         snprintf(reason, reason_size, "alternate form is not supported yet");
@@ -1099,7 +1116,17 @@ static void rust_lower_interpolation_formats(json_object *node)
                                    json_string_property(type, "kind"), &parsed,
                                    reason, sizeof(reason)))
         {
-            if (parsed.conversion == 'e' || parsed.conversion == 'E')
+            if (parsed.conversion == 'c')
+            {
+                json_object_object_add(part, "rust_character",
+                                       json_object_new_boolean(true));
+                json_object_object_add(part, "rust_character_width",
+                                       json_object_new_int(parsed.has_width
+                                                           ? parsed.width : 0));
+                json_object_object_add(part, "rust_character_left_align",
+                                       json_object_new_boolean(parsed.left_align));
+            }
+            else if (parsed.conversion == 'e' || parsed.conversion == 'E')
             {
                 json_object_object_add(part, "rust_scientific",
                                        json_object_new_boolean(true));
@@ -1241,6 +1268,7 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return false;
     json_object *string_width = NULL;
     if (json_object_object_get_ex(node, "rust_string_width", &string_width) ||
+        json_object_object_get_ex(node, "rust_character", &string_width) ||
         json_object_object_get_ex(node, "rust_scientific", &string_width)) return true;
     json_object_object_foreach(node, key, value)
     {

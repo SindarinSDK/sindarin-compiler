@@ -160,7 +160,13 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         return result;
     }
     if (strcmp(kind, "char") == 0)
-        return quote_rust_string(value_obj ? json_object_get_string(value_obj) : "", '\'');
+    {
+        char literal[24];
+        unsigned int value = value_obj
+            ? (unsigned int)json_object_get_int(value_obj) & 0xffU : 0U;
+        snprintf(literal, sizeof(literal), "'\\u{%x}'", value);
+        return strdup(literal);
+    }
     if (strcmp(kind, "nil") == 0) return strdup("None");
     return strdup(value_obj ? json_object_get_string(value_obj) : "0");
 }

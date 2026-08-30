@@ -9,6 +9,21 @@ fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> Stri
     }
 }
 
+fn __sn_format_character(value: char, width: usize, left_align: bool) -> String {
+    if !value.is_ascii() {
+        panic!("Rust target cannot represent non-ASCII C character interpolation");
+    }
+    let padding = width.saturating_sub(1);
+    if value == '\0' {
+        return if left_align { String::new() } else { " ".repeat(padding) };
+    }
+    if left_align {
+        format!("{}{}", value, " ".repeat(padding))
+    } else {
+        format!("{}{}", " ".repeat(padding), value)
+    }
+}
+
 fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
                           width: usize, left_align: bool, force_sign: bool,
                           space_sign: bool, zero_pad: bool) -> String {
