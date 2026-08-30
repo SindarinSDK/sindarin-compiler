@@ -48,7 +48,69 @@ static bool rust_type_supported(json_object *type)
         strcmp(kind, "uint") == 0 || strcmp(kind, "uint32") == 0 ||
         strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0 ||
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
-        strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0);
+        strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0 ||
+        strcmp(kind, "struct") == 0);
+}
+
+static const char *json_string_property(json_object *object, const char *key)
+{
+    json_object *value = NULL;
+    return object && json_object_object_get_ex(object, key, &value)
+        ? json_object_get_string(value) : NULL;
+}
+
+static bool json_boolean_property(json_object *object, const char *key)
+{
+    json_object *value = NULL;
+    return object && json_object_object_get_ex(object, key, &value) &&
+           json_object_get_boolean(value);
+}
+
+static bool rust_validate_structs(json_object *model)
+{
+    json_object *structs = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structs)) return true;
+
+    size_t count = json_object_array_length(structs);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        const char *name = json_string_property(structure, "name");
+        const char *mem_mode = json_string_property(structure, "mem_mode");
+        json_object *methods = NULL, *fields = NULL;
+        json_object_object_get_ex(structure, "methods", &methods);
+
+        if (json_boolean_property(structure, "is_native") ||
+            json_boolean_property(structure, "is_packed") ||
+            json_boolean_property(structure, "is_serializable") ||
+            (mem_mode && strcmp(mem_mode, "val") != 0) ||
+            (methods && json_object_array_length(methods) > 0))
+        {
+            fprintf(stderr,
+                    "Error: Rust target currently supports only plain value struct '%s'\n",
+                    name ? name : "<anonymous>");
+            return false;
+        }
+
+        if (!json_object_object_get_ex(structure, "fields", &fields)) continue;
+        size_t field_count = json_object_array_length(fields);
+        for (size_t f = 0; f < field_count; f++)
+        {
+            json_object *field = json_object_array_get_idx(fields, f);
+            json_object *type = NULL;
+            const char *field_name = json_string_property(field, "name");
+            if (!json_object_object_get_ex(field, "type", &type) ||
+                !rust_type_supported(type))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support field '%s.%s' yet\n",
+                        name ? name : "<anonymous>",
+                        field_name ? field_name : "<anonymous>");
+                return false;
+            }
+        }
+    }
+    return true;
 }
 
 static bool rust_validate_expr(json_object *expr);
@@ -72,6 +134,29 @@ static bool rust_validate_expr(json_object *expr)
 
     if (strcmp(kind, "literal") == 0 || strcmp(kind, "variable") == 0)
         return true;
+    if (strcmp(kind, "struct_literal") == 0)
+    {
+        json_object *fields = NULL;
+        if (!json_object_object_get_ex(expr, "fields", &fields)) return true;
+        size_t count = json_object_array_length(fields);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *field = json_object_array_get_idx(fields, i);
+            if (!json_object_object_get_ex(field, "value", &child) ||
+                !rust_validate_expr(child)) return false;
+        }
+        return true;
+    }
+    if (strcmp(kind, "member") == 0)
+        return json_object_object_get_ex(expr, "object", &child) &&
+               rust_validate_expr(child);
+    if (strcmp(kind, "member_assign") == 0)
+    {
+        json_object *object = NULL, *value = NULL;
+        return json_object_object_get_ex(expr, "object", &object) &&
+               json_object_object_get_ex(expr, "value", &value) &&
+               rust_validate_expr(object) && rust_validate_expr(value);
+    }
     if (strcmp(kind, "binary") == 0)
     {
         json_object *left = NULL, *right = NULL;
@@ -137,7 +222,10 @@ static bool rust_validate_stmt(json_object *stmt)
     {
         json_object *type = NULL;
         if (!json_object_object_get_ex(stmt, "type", &type) || !rust_type_supported(type)) return false;
-        return !json_object_object_get_ex(stmt, "initializer", &child) || rust_validate_expr(child);
+        if (json_object_object_get_ex(stmt, "initializer", &child))
+            return rust_validate_expr(child);
+        const char *type_kind = json_string_property(type, "kind");
+        return !type_kind || strcmp(type_kind, "struct") != 0;
     }
     if (strcmp(kind, "block") == 0) return rust_validate_block(stmt);
     if (strcmp(kind, "while") == 0)
@@ -162,10 +250,10 @@ static bool rust_validate_stmt(json_object *stmt)
 static bool rust_validate_model(json_object *model)
 {
     const char *unsupported = NULL;
-    if (!array_is_empty(model, "structs")) unsupported = "struct declarations";
-    else if (!array_is_empty(model, "globals")) unsupported = "global variables";
+    if (!array_is_empty(model, "globals")) unsupported = "global variables";
     else if (!array_is_empty(model, "lambdas")) unsupported = "closures";
     else if (!array_is_empty(model, "threads")) unsupported = "threads";
+    else if (!array_is_empty(model, "type_decls")) unsupported = "type declarations";
 
     json_object *pragmas = NULL;
     if (!unsupported && json_object_object_get_ex(model, "pragmas", &pragmas))
@@ -192,6 +280,8 @@ static bool rust_validate_model(json_object *model)
         fprintf(stderr, "Error: Rust target does not support %s yet\n", unsupported);
         return false;
     }
+
+    if (!rust_validate_structs(model)) return false;
 
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))

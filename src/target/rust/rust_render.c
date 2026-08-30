@@ -12,6 +12,15 @@ static const char *json_kind(json_object *type)
     return json_object_get_string(kind);
 }
 
+static const char *json_string_property(json_object *object, const char *key)
+{
+    json_object *value = NULL;
+    return object && json_object_object_get_ex(object, key, &value)
+        ? json_object_get_string(value) : NULL;
+}
+
+static char *helper_rust_ident(json_object **params, int param_count, hbs_options_t *options);
+
 static char *rust_type(json_object *type)
 {
     const char *kind = json_kind(type);
@@ -27,6 +36,18 @@ static char *rust_type(json_object *type)
     if (strcmp(kind, "char") == 0) return strdup("char");
     if (strcmp(kind, "byte") == 0) return strdup("u8");
     if (strcmp(kind, "string") == 0) return strdup("String");
+    if (strcmp(kind, "struct") == 0)
+    {
+        json_object *name_obj = NULL;
+        if (!json_object_object_get_ex(type, "name", &name_obj)) return strdup("()");
+        const char *name = json_object_get_string(name_obj);
+        if (!name) return strdup("()");
+        json_object *param = json_object_new_string(name);
+        json_object *params[] = {param};
+        char *result = helper_rust_ident(params, 1, NULL);
+        json_object_put(param);
+        return result;
+    }
     return strdup("()");
 }
 
@@ -156,6 +177,19 @@ static char *helper_rust_unary(json_object **params, int param_count, hbs_option
     return strdup("");
 }
 
+static char *helper_rust_clone_suffix(json_object **params, int param_count,
+                                      hbs_options_t *options)
+{
+    (void)options;
+    if (param_count < 2 || !params[0] || !params[1] ||
+        !json_object_get_boolean(params[1])) return strdup("");
+
+    const char *kind = json_string_property(params[0], "kind");
+    if (kind && (strcmp(kind, "variable") == 0 || strcmp(kind, "member") == 0))
+        return strdup(".clone()");
+    return strdup("");
+}
+
 static char *helper_newline(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)params;
@@ -181,6 +215,7 @@ static void register_rust_helpers(hbs_env_t *env)
     hbs_register_helper(env, "rust_literal", helper_rust_literal);
     hbs_register_helper(env, "rust_default", helper_rust_default);
     hbs_register_helper(env, "rust_unary", helper_rust_unary);
+    hbs_register_helper(env, "rust_clone_suffix", helper_rust_clone_suffix);
     hbs_register_helper(env, "nl", helper_newline);
     hbs_register_helper(env, "rbrace", helper_right_brace);
 }

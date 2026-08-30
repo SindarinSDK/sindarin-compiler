@@ -1,0 +1,4 @@
+#[derive(Clone{{#unless has_heap_fields}}, Copy{{/unless}}, Debug, PartialEq)]
+struct {{rust_ident name}} {
+{{#each fields}}    {{rust_ident name}}: {{rust_type type}},
+{{/each}}{{rbrace}}
