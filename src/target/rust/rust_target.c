@@ -425,14 +425,28 @@ static bool rust_validate_expr(json_object *expr)
         json_object *elements = NULL;
         if (!json_object_object_get_ex(expr, "elements", &elements)) return true;
         size_t count = json_object_array_length(elements);
+        bool needs_flattening = false;
         for (size_t i = 0; i < count; i++)
         {
             json_object *element = json_object_array_get_idx(elements, i);
             const char *element_kind = json_string_property(element, "kind");
-            if (!element_kind || strcmp(element_kind, "range") == 0 ||
-                strcmp(element_kind, "spread") == 0 ||
-                !rust_validate_expr(element)) return false;
+            if (!element_kind) return false;
+            if (strcmp(element_kind, "spread") == 0)
+            {
+                json_object *operand = NULL;
+                if (!json_object_object_get_ex(element, "operand", &operand) ||
+                    !rust_validate_expr(operand)) return false;
+                needs_flattening = true;
+            }
+            else
+            {
+                if (!rust_validate_expr(element)) return false;
+                if (strcmp(element_kind, "range") == 0) needs_flattening = true;
+            }
         }
+        if (needs_flattening)
+            json_object_object_add(expr, "rust_flatten",
+                                   json_object_new_boolean(true));
         return true;
     }
     if (strcmp(kind, "range") == 0)
