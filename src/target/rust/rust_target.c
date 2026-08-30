@@ -667,9 +667,22 @@ static bool rust_validate_expr(json_object *expr)
         }
         return rust_validate_expr(target) && rust_validate_expr(value);
     }
-    if (strcmp(kind, "unary") == 0 || strcmp(kind, "increment") == 0 ||
-        strcmp(kind, "decrement") == 0)
+    if (strcmp(kind, "unary") == 0)
         return json_object_object_get_ex(expr, "operand", &child) && rust_validate_expr(child);
+    if (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0)
+    {
+        const char *operand_kind = NULL;
+        if (!json_object_object_get_ex(expr, "operand", &child) ||
+            !(operand_kind = json_string_property(child, "kind")) ||
+            (strcmp(operand_kind, "variable") != 0 &&
+             strcmp(operand_kind, "member") != 0))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports increment/decrement only for variables and fields\n");
+            return false;
+        }
+        return rust_validate_expr(child);
+    }
     if (strcmp(kind, "assign") == 0)
         return json_object_object_get_ex(expr, "value", &child) && rust_validate_expr(child);
     if (strcmp(kind, "call") == 0)
@@ -911,9 +924,7 @@ static bool rust_instance_method_node_supported(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return true;
 
     const char *kind = json_string_property(node, "kind");
-    if (kind && (strcmp(kind, "increment") == 0 ||
-                 strcmp(kind, "decrement") == 0 ||
-                 strcmp(kind, "static_call") == 0)) return false;
+    if (kind && strcmp(kind, "static_call") == 0) return false;
     if (kind && strcmp(kind, "variable") == 0)
         return !json_string_property_equals(node, "name", "self");
     if (kind && strcmp(kind, "member_assign") == 0)
@@ -963,6 +974,8 @@ static bool rust_method_has_direct_mutation(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return false;
     if (json_string_property_equals(node, "kind", "member_assign") ||
         json_string_property_equals(node, "kind", "index_assign") ||
+        json_string_property_equals(node, "kind", "increment") ||
+        json_string_property_equals(node, "kind", "decrement") ||
         rust_is_mutating_array_call(node)) return true;
     json_object_object_foreach(node, key, value)
     {

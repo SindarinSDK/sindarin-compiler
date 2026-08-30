@@ -1,0 +1,20 @@
+struct Counter =>
+  value: int = 0
+
+  fn next(): int =>
+    return self.value++
+
+  fn previous(): int =>
+    return self.value--
+
+  fn advance(): int =>
+    return self.next()
+
+fn main(): void =>
+  var counter: Counter = { value: 5 }
+
+  var beforeIncrement: int = counter.advance()
+  println($"increment={beforeIncrement}->{counter.value}")
+
+  var beforeDecrement: int = counter.previous()
+  println($"decrement={beforeDecrement}->{counter.value}")
