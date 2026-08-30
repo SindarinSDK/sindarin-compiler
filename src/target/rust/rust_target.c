@@ -944,13 +944,6 @@ static bool rust_instance_method_node_supported(json_object *node)
             json_string_property_equals(object, "name", "self")) return true;
         return rust_instance_method_node_supported(object);
     }
-    if (kind && strcmp(kind, "call") == 0)
-    {
-        json_object *callee = NULL;
-        if (!json_object_object_get_ex(node, "callee", &callee)) return false;
-        if (json_string_property_equals(callee, "kind", "variable")) return false;
-    }
-
     json_object_object_foreach(node, key, value)
     {
         (void)key;

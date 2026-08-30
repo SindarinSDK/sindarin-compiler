@@ -1,0 +1,25 @@
+struct Label =>
+  text: string = ""
+
+fn decorate(value: string, suffix: string): string =>
+  return $"<{value}>{suffix}"
+
+fn makeLabel(value: string): Label =>
+  return Label { text: value }
+
+struct Item =>
+  name: string = ""
+
+  fn describe(suffix: string): string =>
+    return decorate(self.name, suffix)
+
+  fn copyLabel(): Label =>
+    return makeLabel(self.name)
+
+fn main(): void =>
+  var item: Item = { name: "source" }
+  var suffix: string = "!"
+  var label: Label = item.copyLabel()
+
+  println(item.describe(suffix))
+  println($"copy={label.text}; original={item.name}; suffix={suffix}")
