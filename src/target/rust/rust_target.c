@@ -751,6 +751,17 @@ static bool rust_validate_expr(json_object *expr)
                 }
                 if (!rust_validate_expr(object)) return false;
             }
+            else if (strcmp(object_type_kind, "struct") == 0)
+            {
+                if (!rust_validate_expr(object)) return false;
+            }
+            else if (strcmp(object_type_kind, "pointer") == 0)
+            {
+                json_object *base_type = NULL;
+                if (!json_object_object_get_ex(object_type, "base_type", &base_type) ||
+                    !json_string_property_equals(base_type, "kind", "struct") ||
+                    !rust_validate_expr(object)) return false;
+            }
             else return false;
         }
         else if (strcmp(callee_kind_name, "variable") != 0) return false;
@@ -868,7 +879,67 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
-static bool rust_validate_static_struct_methods(json_object *model)
+static bool rust_readonly_method_node_supported(json_object *node)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_readonly_method_node_supported(
+                    json_object_array_get_idx(node, i))) return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "member_assign") == 0 ||
+                 strcmp(kind, "index_assign") == 0 ||
+                 strcmp(kind, "increment") == 0 ||
+                 strcmp(kind, "decrement") == 0 ||
+                 strcmp(kind, "static_call") == 0)) return false;
+    if (kind && strcmp(kind, "variable") == 0)
+        return !json_string_property_equals(node, "name", "self");
+    if (kind && strcmp(kind, "member") == 0)
+    {
+        json_object *object = NULL;
+        if (!json_object_object_get_ex(node, "object", &object)) return false;
+        if (json_string_property_equals(object, "kind", "variable") &&
+            json_string_property_equals(object, "name", "self")) return true;
+        return rust_readonly_method_node_supported(object);
+    }
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *callee = NULL;
+        if (!json_object_object_get_ex(node, "callee", &callee)) return false;
+        if (json_string_property_equals(callee, "kind", "variable")) return false;
+        if (json_string_property_equals(callee, "kind", "member"))
+        {
+            json_object *object = NULL, *type = NULL;
+            if (json_object_object_get_ex(callee, "object", &object) &&
+                json_object_object_get_ex(object, "type", &type) &&
+                json_string_property_equals(type, "kind", "array"))
+            {
+                const char *method = json_string_property(callee, "member_name");
+                if (method && (strcmp(method, "push") == 0 ||
+                               strcmp(method, "pop") == 0 ||
+                               strcmp(method, "insert") == 0 ||
+                               strcmp(method, "remove") == 0 ||
+                               strcmp(method, "reverse") == 0 ||
+                               strcmp(method, "clear") == 0)) return false;
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_readonly_method_node_supported(value)) return false;
+    }
+    return true;
+}
+
+static bool rust_validate_struct_methods(json_object *model)
 {
     json_object *structs = NULL;
     if (!json_object_object_get_ex(model, "structs", &structs)) return true;
@@ -887,11 +958,11 @@ static bool rust_validate_static_struct_methods(json_object *model)
             json_object *method = json_object_array_get_idx(methods, m);
             const char *method_name = json_string_property(method, "name");
             json_object *return_type = NULL, *params = NULL, *body = NULL;
-            if (!json_boolean_property(method, "is_static") ||
-                json_boolean_property(method, "is_native"))
+            bool is_static = json_boolean_property(method, "is_static");
+            if (json_boolean_property(method, "is_native"))
             {
                 fprintf(stderr,
-                        "Error: Rust target supports only non-native static methods on plain value struct '%s'\n",
+                        "Error: Rust target supports only non-native static and read-only instance methods on plain value struct '%s'\n",
                         struct_name ? struct_name : "<anonymous>");
                 return false;
             }
@@ -927,10 +998,11 @@ static bool rust_validate_static_struct_methods(json_object *model)
                 }
             }
             json_object_object_get_ex(method, "body", &body);
-            if (!rust_validate_statements(body))
+            if (!rust_validate_statements(body) ||
+                (!is_static && !rust_readonly_method_node_supported(body)))
             {
                 fprintf(stderr,
-                        "Error: Rust target encountered an unsupported construct in static method '%s.%s'\n",
+                        "Error: Rust target encountered an unsupported construct in method '%s.%s'\n",
                         struct_name ? struct_name : "<anonymous>",
                         method_name ? method_name : "<anonymous>");
                 return false;
@@ -975,7 +1047,7 @@ static bool rust_validate_model(json_object *model)
     }
 
     if (!rust_validate_structs(model) ||
-        !rust_validate_static_struct_methods(model)) return false;
+        !rust_validate_struct_methods(model)) return false;
 
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))
@@ -1137,8 +1209,26 @@ static void rust_lower_strings(json_object *node)
         /* Sindarin passes owned strings by value without consuming an lvalue at
          * the call site. C's model does not need an acquire annotation for all
          * default parameters, so record the Rust move/clone decision here. */
-        if (json_object_object_get_ex(node, "callee", &callee) &&
-            json_string_property_equals(callee, "kind", "variable"))
+        bool copies_owned_args = false;
+        if (json_object_object_get_ex(node, "callee", &callee))
+        {
+            copies_owned_args = json_string_property_equals(callee, "kind", "variable");
+            if (!copies_owned_args &&
+                json_string_property_equals(callee, "kind", "member") &&
+                json_object_object_get_ex(callee, "object", &object) &&
+                json_object_object_get_ex(object, "type", &type))
+            {
+                copies_owned_args = json_string_property_equals(type, "kind", "struct");
+                if (json_string_property_equals(type, "kind", "pointer"))
+                {
+                    json_object *base_type = NULL;
+                    copies_owned_args =
+                        json_object_object_get_ex(type, "base_type", &base_type) &&
+                        json_string_property_equals(base_type, "kind", "struct");
+                }
+            }
+        }
+        if (copies_owned_args)
         {
             json_object *args = NULL;
             if (json_object_object_get_ex(node, "args", &args))
@@ -1179,6 +1269,64 @@ static void rust_lower_strings(json_object *node)
                     json_object_object_add(arg, "rust_needs_clone",
                                            json_object_new_boolean(true));
             }
+        }
+    }
+}
+
+static bool rust_owned_value_type(json_object *node)
+{
+    json_object *type = NULL;
+    if (!json_object_object_get_ex(node, "type", &type)) return false;
+    const char *kind = json_string_property(type, "kind");
+    return kind && (strcmp(kind, "string") == 0 ||
+                    strcmp(kind, "array") == 0 ||
+                    strcmp(kind, "struct") == 0);
+}
+
+static void rust_mark_readonly_method_clones(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_readonly_method_clones(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_mark_readonly_method_clones(value);
+    }
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "member") == 0 ||
+                 strcmp(kind, "array_access") == 0) &&
+        rust_owned_value_type(node))
+        json_object_object_add(node, "rust_needs_clone",
+                               json_object_new_boolean(true));
+}
+
+static void rust_lower_readonly_method_clones(json_object *model)
+{
+    json_object *structs = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structs)) return;
+    size_t struct_count = json_object_array_length(structs);
+    for (size_t i = 0; i < struct_count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        json_object *methods = NULL;
+        if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
+        size_t method_count = json_object_array_length(methods);
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            json_object *body = NULL;
+            if (!json_boolean_property(method, "is_static") &&
+                json_object_object_get_ex(method, "body", &body))
+                rust_mark_readonly_method_clones(body);
         }
     }
 }
@@ -1452,6 +1600,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_checked_arithmetic(model);
     rust_lower_strings(model);
+    rust_lower_readonly_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     if (rust_model_uses_arrays(model))

@@ -1,0 +1,25 @@
+struct Metric =>
+  name: string = ""
+  value: int = 0
+
+  fn getValue(): int =>
+    return self.value
+
+  fn doubled(): int =>
+    return self.getValue() * 2
+
+  fn getName(): string =>
+    return self.name
+
+  fn describe(suffix: string): string =>
+    return $"{self.getName()}={self.doubled()}{suffix}"
+
+fn main(): void =>
+  var metric: Metric = {
+    name: "count",
+    value: 21
+  }
+  var suffix: string = "!"
+
+  println(metric.describe(suffix))
+  println($"unchanged={metric.name}/{suffix}")

@@ -1,2 +1,2 @@
-    fn {{rust_ident name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
+    fn {{rust_ident name}}({{#unless is_static}}&self{{#if params}}, {{/if}}{{/unless}}{{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
 {{#each body}}        {{> stmt this}}{{nl}}{{/each}}    }
