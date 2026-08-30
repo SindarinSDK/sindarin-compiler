@@ -14,6 +14,19 @@ typedef enum {
     ARITH_UNCHECKED    /* Use native C operators without overflow checking */
 } ArithmeticMode;
 
+/* Source-language backend selected for emission and executable builds. */
+typedef enum {
+    TARGET_C,
+    TARGET_RUST
+} TargetKind;
+
+/* Final product requested from the compilation pipeline. */
+typedef enum {
+    OUTPUT_EXECUTABLE,
+    OUTPUT_SOURCE,
+    OUTPUT_MODEL
+} OutputKind;
+
 /* Optimization levels */
 #define OPT_LEVEL_NONE  0  /* -O0: No optimization */
 #define OPT_LEVEL_BASIC 1  /* -O1: Basic optimizations */
@@ -32,9 +45,9 @@ typedef struct
     int log_level;
     ArithmeticMode arithmetic_mode;  /* Checked or unchecked arithmetic */
     int optimization_level;          /* Optimization level (0, 1, or 2) */
-    int emit_c;                      /* --emit-c: Output generated C code, don't compile */
-    int emit_model;                  /* --emit-model: Output JSON model, don't generate C */
-    int keep_c;                      /* --keep-c: Keep generated C files after compilation */
+    TargetKind target;                /* --target: Source-language backend (default: C) */
+    OutputKind output_kind;           /* Executable, generated source, or JSON model */
+    int keep_generated;               /* Keep generated target files after compilation */
     int debug_build;                 /* -g: Include debug symbols and sanitizers in GCC output */
     int profile_build;               /* -p: Profile build (optimized with frame pointers, no ASAN/LTO) */
     int do_init;                     /* --init: Initialize new package */

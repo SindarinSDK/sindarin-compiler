@@ -46,7 +46,14 @@ sn samples/main.sn -o myprogram
 
 # Or emit C code only
 sn samples/main.sn --emit-c -o output.c
+
+# Emit Rust for a program in the currently supported Rust subset
+sn program.sn --target rust --emit-source -o output.rs
 ```
+
+C remains the default target. The Rust target currently supports primitive
+types, functions, local variables, basic control flow, direct calls, arithmetic,
+and printing; unsupported constructs produce a target-specific diagnostic.
 
 ## Example
 
@@ -128,6 +135,7 @@ See `src/` for compiler implementation details.
 make test                    # All tests
 make test-unit               # Unit tests only
 make test-cgen               # Code generation tests (compare generated C)
+make test-rgen               # Rust generation and execution tests
 make test-mgen               # Model generation tests (compare JSON model)
 make test-integration        # Integration tests only
 make test-integration-errors # Integration error tests
@@ -141,6 +149,7 @@ Or use the test runner directly (cross-platform):
 python3 scripts/run_tests.py all                # All tests
 python3 scripts/run_tests.py unit               # Unit tests
 python3 scripts/run_tests.py cgen               # Code generation tests
+python3 scripts/run_tests.py rgen               # Rust generation tests
 python3 scripts/run_tests.py mgen               # Model generation tests
 python3 scripts/run_tests.py integration        # Integration tests
 python3 scripts/run_tests.py integration-errors # Integration error tests

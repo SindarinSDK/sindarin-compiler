@@ -192,6 +192,10 @@ set(SN_BACKEND_SOURCES
     src/gcc_backend.c
     src/gcc_backend_config.c
     src/gcc_backend_pkgconfig.c
+    src/target/target.c
+    src/target/c/c_target.c
+    src/target/rust/rust_target.c
+    src/target/rust/rust_render.c
 )
 
 set(SN_PACKAGE_SOURCES
@@ -722,7 +726,8 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
 
     # Copy templates to bin/ for runtime access (re-copies when any .hbs file changes)
     file(GLOB_RECURSE C_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/c/*.hbs")
-    set(ALL_TEMPLATES ${C_TEMPLATES})
+    file(GLOB_RECURSE RUST_TEMPLATES "${CMAKE_SOURCE_DIR}/templates/rust/*.hbs")
+    set(ALL_TEMPLATES ${C_TEMPLATES} ${RUST_TEMPLATES})
     if(ALL_TEMPLATES)
         add_custom_command(
             OUTPUT "${CMAKE_SOURCE_DIR}/bin/templates/.stamp"
@@ -730,6 +735,9 @@ if(EXISTS "${SINDARIN_LIBS_DIR}/lib" AND EXISTS "${SINDARIN_LIBS_DIR}/include")
             COMMAND ${CMAKE_COMMAND} -E copy_directory
                 "${CMAKE_SOURCE_DIR}/templates/c"
                 "${CMAKE_SOURCE_DIR}/bin/templates/c"
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+                "${CMAKE_SOURCE_DIR}/templates/rust"
+                "${CMAKE_SOURCE_DIR}/bin/templates/rust"
             COMMAND ${CMAKE_COMMAND} -E touch "${CMAKE_SOURCE_DIR}/bin/templates/.stamp"
             COMMENT "Copying templates to bin/templates"
         )

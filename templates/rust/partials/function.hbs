@@ -1,0 +1,3 @@
+{{#if (eq name "main")}}fn main() {
+{{else}}fn {{rust_ident name}}({{#each params}}{{#if @index}}, {{/if}}{{rust_ident name}}: {{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
+{{/if}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{rbrace}}{{nl}}
