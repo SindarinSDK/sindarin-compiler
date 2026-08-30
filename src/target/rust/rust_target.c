@@ -879,6 +879,24 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
+static bool rust_is_mutating_array_call(json_object *node)
+{
+    if (!json_string_property_equals(node, "kind", "call")) return false;
+    json_object *callee = NULL, *object = NULL, *type = NULL;
+    if (!json_object_object_get_ex(node, "callee", &callee) ||
+        !json_string_property_equals(callee, "kind", "member") ||
+        !json_object_object_get_ex(callee, "object", &object) ||
+        !json_object_object_get_ex(object, "type", &type) ||
+        !json_string_property_equals(type, "kind", "array")) return false;
+    const char *method = json_string_property(callee, "member_name");
+    return method && (strcmp(method, "push") == 0 ||
+                      strcmp(method, "pop") == 0 ||
+                      strcmp(method, "insert") == 0 ||
+                      strcmp(method, "remove") == 0 ||
+                      strcmp(method, "reverse") == 0 ||
+                      strcmp(method, "clear") == 0);
+}
+
 static bool rust_instance_method_node_supported(json_object *node)
 {
     if (!node) return true;
@@ -922,22 +940,6 @@ static bool rust_instance_method_node_supported(json_object *node)
         json_object *callee = NULL;
         if (!json_object_object_get_ex(node, "callee", &callee)) return false;
         if (json_string_property_equals(callee, "kind", "variable")) return false;
-        if (json_string_property_equals(callee, "kind", "member"))
-        {
-            json_object *object = NULL, *type = NULL;
-            if (json_object_object_get_ex(callee, "object", &object) &&
-                json_object_object_get_ex(object, "type", &type) &&
-                json_string_property_equals(type, "kind", "array"))
-            {
-                const char *method = json_string_property(callee, "member_name");
-                if (method && (strcmp(method, "push") == 0 ||
-                               strcmp(method, "pop") == 0 ||
-                               strcmp(method, "insert") == 0 ||
-                               strcmp(method, "remove") == 0 ||
-                               strcmp(method, "reverse") == 0 ||
-                               strcmp(method, "clear") == 0)) return false;
-            }
-        }
     }
 
     json_object_object_foreach(node, key, value)
@@ -960,7 +962,8 @@ static bool rust_method_has_direct_mutation(json_object *node)
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
-    if (json_string_property_equals(node, "kind", "member_assign")) return true;
+    if (json_string_property_equals(node, "kind", "member_assign") ||
+        rust_is_mutating_array_call(node)) return true;
     json_object_object_foreach(node, key, value)
     {
         (void)key;
