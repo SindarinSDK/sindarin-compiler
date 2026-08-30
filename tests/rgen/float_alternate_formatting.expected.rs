@@ -1,3 +1,5 @@
+#![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+
 fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> String {
     let padding = width.saturating_sub(value.len());
     if left_align {
@@ -122,4 +124,23 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
     } else {
         format!("{}{}{}", " ".repeat(padding), sign, magnitude)
     }
+}
+
+
+fn main() {
+    let mut value: f64 = 1.25;
+    let mut negative: f64 = (-1.25);
+    let mut negative_zero: f64 = (-0.0);
+    let mut single: f32 = 12.5;
+    let mut zero: f64 = 0.0;
+    let mut infinity: f64 = (1.0 / zero);
+    let mut nan: f64 = (zero / zero);
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("fixed="); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 6, 0, false, false, false, false)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 2, 0, false, false, false, false)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("fixed-width=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, true, false, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("fixed-zero=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, true, false, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("fixed-space=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((value) as f64, 0, 8, false, false, true, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((negative_zero) as f64, 0, 8, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("scientific="); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, true, 0, false, false, false, false, true)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&__sn_format_scientific((single) as f64, 0, false, 0, false, false, false, false, true)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("scientific-width=|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, false, false, false, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, true, 12, true, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("scientific-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((value) as f64, 0, false, 12, false, true, false, true, true)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 0, false, 12, false, false, false, true, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("special=|"); __sn_interpolated.push_str(&__sn_format_fixed_alternate((infinity) as f64, 0, 8, false, false, false, false)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_scientific((nan) as f64, 0, true, 8, false, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
 }

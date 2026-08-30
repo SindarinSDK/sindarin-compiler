@@ -339,10 +339,12 @@ flags_done:
     }
     if (is_character_conversion) return true;
     if (parsed->alternate && parsed->conversion != 'x' &&
-        parsed->conversion != 'X' && parsed->conversion != 'o')
+        parsed->conversion != 'X' && parsed->conversion != 'o' &&
+        parsed->conversion != 'f' && parsed->conversion != 'e' &&
+        parsed->conversion != 'E')
     {
         snprintf(reason, reason_size,
-                 "alternate form is currently supported only for hexadecimal and octal integers");
+                 "alternate form is supported only for hexadecimal, octal, fixed-point, and scientific conversions");
         return false;
     }
     if ((parsed->conversion == 'u' || parsed->conversion == 'x' ||
@@ -1142,6 +1144,26 @@ static void rust_lower_interpolation_formats(json_object *node)
                 json_object_object_add(part, "rust_alternate_zero_pad",
                                        json_object_new_boolean(parsed.zero_pad));
             }
+            else if (parsed.alternate && parsed.conversion == 'f')
+            {
+                json_object_object_add(part, "rust_fixed_alternate",
+                                       json_object_new_boolean(true));
+                json_object_object_add(part, "rust_fixed_precision",
+                                       json_object_new_int(parsed.has_precision
+                                                           ? parsed.precision : 6));
+                json_object_object_add(part, "rust_fixed_width",
+                                       json_object_new_int(parsed.has_width
+                                                           ? parsed.width : 0));
+                json_object_object_add(part, "rust_fixed_left_align",
+                                       json_object_new_boolean(parsed.left_align));
+                json_object_object_add(part, "rust_fixed_force_sign",
+                                       json_object_new_boolean(parsed.force_sign));
+                json_object_object_add(part, "rust_fixed_space_sign",
+                                       json_object_new_boolean(parsed.space_sign &&
+                                                               !parsed.force_sign));
+                json_object_object_add(part, "rust_fixed_zero_pad",
+                                       json_object_new_boolean(parsed.zero_pad));
+            }
             else if (parsed.conversion == 'c')
             {
                 json_object_object_add(part, "rust_character",
@@ -1173,6 +1195,8 @@ static void rust_lower_interpolation_formats(json_object *node)
                                                                !parsed.force_sign));
                 json_object_object_add(part, "rust_scientific_zero_pad",
                                        json_object_new_boolean(parsed.zero_pad));
+                json_object_object_add(part, "rust_scientific_alternate",
+                                       json_object_new_boolean(parsed.alternate));
             }
             else
             {
@@ -1295,6 +1319,7 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     json_object *string_width = NULL;
     if (json_object_object_get_ex(node, "rust_string_width", &string_width) ||
         json_object_object_get_ex(node, "rust_character", &string_width) ||
+        json_object_object_get_ex(node, "rust_fixed_alternate", &string_width) ||
         json_object_object_get_ex(node, "rust_integer_alternate", &string_width) ||
         json_object_object_get_ex(node, "rust_scientific", &string_width)) return true;
     json_object_object_foreach(node, key, value)
