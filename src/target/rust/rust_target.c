@@ -318,13 +318,6 @@ flags_done:
         snprintf(reason, reason_size, "sign flag is not valid for this conversion");
         return false;
     }
-    if (is_scientific_conversion &&
-        (parsed->left_align || parsed->force_sign || parsed->zero_pad || parsed->has_width))
-    {
-        snprintf(reason, reason_size,
-                 "scientific field width and flags are not supported yet");
-        return false;
-    }
     if (is_scientific_conversion) return true;
 
     char *out = parsed->rust_format;
@@ -1035,6 +1028,15 @@ static void rust_lower_interpolation_formats(json_object *node)
                                                            ? parsed.precision : 6));
                 json_object_object_add(part, "rust_scientific_uppercase",
                                        json_object_new_boolean(parsed.conversion == 'E'));
+                json_object_object_add(part, "rust_scientific_width",
+                                       json_object_new_int(parsed.has_width
+                                                           ? parsed.width : 0));
+                json_object_object_add(part, "rust_scientific_left_align",
+                                       json_object_new_boolean(parsed.left_align));
+                json_object_object_add(part, "rust_scientific_force_sign",
+                                       json_object_new_boolean(parsed.force_sign));
+                json_object_object_add(part, "rust_scientific_zero_pad",
+                                       json_object_new_boolean(parsed.zero_pad));
             }
             else
                 json_object_object_add(part, "rust_format",
