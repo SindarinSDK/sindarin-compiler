@@ -1,0 +1,15 @@
+fn main(): void =>
+  var value: int = 26
+  var zero: int = 0
+  var negative: int = -1
+  var narrow_negative: int32 = -1i32
+  var unsigned: uint32 = 4294967295u32
+
+  println($"plain={value:#x}/{value:#X}/{value:#o}")
+  println($"zero={zero:#x}/{zero:#X}/{zero:#o}")
+  println($"width=|{value:#8x}|/|{value:#8o}|")
+  println($"left=|{value:-#8X}|/|{value:-#8o}|")
+  println($"zero-pad=|{value:#08x}|/|{value:#08o}|")
+  println($"negative={negative:#x}/{narrow_negative:#x}")
+  println($"unsigned={unsigned:#X}")
+  println($"space=|{value: #8x}|")
