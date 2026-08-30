@@ -911,8 +911,7 @@ static bool rust_instance_method_node_supported(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return true;
 
     const char *kind = json_string_property(node, "kind");
-    if (kind && (strcmp(kind, "index_assign") == 0 ||
-                 strcmp(kind, "increment") == 0 ||
+    if (kind && (strcmp(kind, "increment") == 0 ||
                  strcmp(kind, "decrement") == 0 ||
                  strcmp(kind, "static_call") == 0)) return false;
     if (kind && strcmp(kind, "variable") == 0)
@@ -963,6 +962,7 @@ static bool rust_method_has_direct_mutation(json_object *node)
     }
     if (!json_object_is_type(node, json_type_object)) return false;
     if (json_string_property_equals(node, "kind", "member_assign") ||
+        json_string_property_equals(node, "kind", "index_assign") ||
         rust_is_mutating_array_call(node)) return true;
     json_object_object_foreach(node, key, value)
     {
@@ -1407,6 +1407,16 @@ static void rust_mark_instance_method_clones(json_object *node)
     {
         json_object *value = NULL;
         if (json_object_object_get_ex(node, "value", &value))
+            rust_mark_instance_method_clones(value);
+        return;
+    }
+    if (kind && strcmp(kind, "index_assign") == 0)
+    {
+        json_object *index = NULL, *value = NULL;
+        if (json_object_object_get_ex(node, "index", &index))
+            rust_mark_instance_method_clones(index);
+        if (!json_boolean_property(node, "source_is_borrow") &&
+            json_object_object_get_ex(node, "value", &value))
             rust_mark_instance_method_clones(value);
         return;
     }

@@ -1,0 +1,25 @@
+struct Playlist =>
+  names: string[] = {}
+  replacement: string = ""
+
+  fn replace(index: int, value: string): void =>
+    self.names[index] = value
+
+  fn replaceWithStored(index: int): void =>
+    self.names[index] = self.replacement
+
+  fn replaceLast(value: string): void =>
+    self.replace(-1, value)
+
+fn main(): void =>
+  var playlist: Playlist = {
+    names: {"one", "two", "three"},
+    replacement: "stored"
+  }
+  var first: string = "first"
+
+  playlist.replace(0, first)
+  playlist.replaceWithStored(1)
+  playlist.replaceLast("last")
+
+  println($"names={playlist.names}; replacement={playlist.replacement}; source={first}")
