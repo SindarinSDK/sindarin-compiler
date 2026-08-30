@@ -54,7 +54,7 @@ sn program.sn --target rust --emit-source -o output.rs
 C remains the default target. The Rust target currently supports primitive
 types, functions, local variables, basic control flow, direct calls, arithmetic,
 plain value structs (including defaults and nested fields), core array operations,
-integer ranges, C-style and array iteration, and printing;
+integer ranges, C-style and array iteration, string interpolation, and printing;
 unsupported constructs produce a target-specific diagnostic.
 
 ## Example

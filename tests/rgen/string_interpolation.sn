@@ -1,0 +1,15 @@
+struct Point =>
+  x: int
+
+fn main(): void =>
+  var name: str = "world"
+  var count: int = 3
+  var ratio: double = 2.5
+  var active: bool = true
+  var values: int[] = {1, 2, 3}
+  var point: Point = { x: 7 }
+
+  var message: str = $"Hello {name}: {count}, {ratio}, {active}"
+  println(message)
+  println($"values={values}")
+  println($"point={point}")

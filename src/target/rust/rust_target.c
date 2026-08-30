@@ -185,6 +185,25 @@ static bool rust_validate_expr(json_object *expr)
                json_object_object_get_ex(expr, "end", &end) &&
                rust_validate_expr(start) && rust_validate_expr(end);
     }
+    if (strcmp(kind, "interpolated_string") == 0)
+    {
+        json_object *parts = NULL;
+        if (!json_object_object_get_ex(expr, "parts", &parts)) return true;
+        size_t count = json_object_array_length(parts);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *part = json_object_array_get_idx(parts, i);
+            const char *part_kind = json_string_property(part, "kind");
+            json_object *value = NULL, *format_spec = NULL;
+            if (!part_kind) return false;
+            if (strcmp(part_kind, "text") == 0) continue;
+            if (strcmp(part_kind, "expr") != 0 ||
+                json_object_object_get_ex(part, "format_spec", &format_spec) ||
+                !json_object_object_get_ex(part, "expr", &value) ||
+                !rust_validate_expr(value)) return false;
+        }
+        return true;
+    }
     if (strcmp(kind, "sized_array") == 0)
     {
         json_object *element_type = NULL, *size = NULL;
