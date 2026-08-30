@@ -11,6 +11,7 @@ Usage:
 Test types:
     unit              - Run unit tests (bin/tests executable)
     cgen              - Run code generation tests (tests/cgen/*.sn - compares generated C)
+    rgen              - Run Rust generation tests (tests/rgen/*.sn - compares generated Rust)
     integration       - Run integration tests (tests/integration/*.sn)
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
@@ -189,6 +190,9 @@ TEST_CONFIGS = {
     'cgen': TestConfig(
         'tests/cgen', '*.sn', False, 'Code Generation Tests'
     ),
+    'rgen': TestConfig(
+        'tests/rgen', '*.sn', False, 'Rust Generation Tests'
+    ),
     'mgen': TestConfig(
         'tests/mgen', '*.sn', False, 'Model Generation Tests'
     ),
@@ -346,6 +350,12 @@ class TestRunner:
                     c_file = exe_file + '.c'
                 status, reason, details = self._run_cgen_test_internal(
                     test_file, expected_file, c_file
+                )
+            elif test_type == 'rgen':
+                expected_file = test_file.replace('.sn', '.expected.rs')
+                rs_file = exe_file + '.rs'
+                status, reason, details = self._run_rgen_test_internal(
+                    test_file, expected_file, rs_file, exe_file
                 )
             elif config.expect_compile_fail:
                 expected_file = test_file.replace('.sn', '.expected')
@@ -732,6 +742,65 @@ class TestRunner:
 
         return ('pass', '', None)
 
+    def _run_rgen_test_internal(self, test_file: str, expected_file: str,
+                                 rs_file: str, exe_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Compare generated Rust, then build and run it through the Rust target."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected.rs', None)
+
+        compile_cmd = [self.compiler, test_file, '--emit-rust', '-o', rs_file,
+                       '-l', '1', '-O0', '--no-install']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+        if exit_code != 0:
+            details = stderr.split('\n')[:50] if stderr else None
+            return ('fail', 'Rust emission error', details)
+        if not os.path.isfile(rs_file):
+            return ('fail', 'no Rust output', None)
+
+        with open(rs_file, 'r') as generated, open(expected_file, 'r') as expected:
+            generated_rs = generated.read().replace('\r\n', '\n').replace('\r', '\n')
+            expected_rs = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+        if generated_rs != expected_rs:
+            details = []
+            generated_lines = generated_rs.split('\n')
+            expected_lines = expected_rs.split('\n')
+            for index in range(max(len(generated_lines), len(expected_lines))):
+                actual = generated_lines[index] if index < len(generated_lines) else '<missing>'
+                wanted = expected_lines[index] if index < len(expected_lines) else '<missing>'
+                if actual != wanted and len(details) < 30:
+                    details.extend([f"  line {index + 1}:", f"    expected: {wanted}",
+                                    f"    got:      {actual}"])
+            return ('fail', 'Rust code mismatch', details)
+
+        compile_cmd = [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
+                       '-l', '1', '-O0', '--no-install']
+        exit_code, stdout, stderr = run_with_timeout(
+            compile_cmd, self.compile_timeout, env=self.env
+        )
+        if exit_code != 0:
+            details = stderr.split('\n')[:50] if stderr else None
+            return ('fail', 'Rust binary compile error', details)
+
+        exit_code, output, timeout_marker = run_with_timeout(
+            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+        )
+        if exit_code != 0:
+            if timeout_marker == 'TIMEOUT':
+                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
+            return ('fail', f'run exit code: {exit_code}', output.split('\n')[:20])
+
+        output_file = test_file.replace('.sn', '.expected')
+        if os.path.isfile(output_file):
+            with open(output_file, 'r') as expected:
+                expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
+            normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
+            if normalized_output != expected_output:
+                return ('fail', 'output mismatch', [f"expected: {expected_output!r}",
+                                                    f"got:      {normalized_output!r}"])
+        return ('pass', '', None)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -809,7 +878,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'cgen', 'mgen', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'rgen', 'mgen', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -881,7 +950,7 @@ def main():
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['cgen', 'mgen', 'integration', 'integration-errors',
+            for test_type in ['cgen', 'rgen', 'mgen', 'integration', 'integration-errors',
                              'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed

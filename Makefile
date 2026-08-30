@@ -11,7 +11,7 @@
 # Phony targets
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
-.PHONY: test-unit test-cgen test-mgen test-integration test-integration-errors
+.PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
 .PHONY: test-explore test-explore-errors
 .PHONY: configure install package setup hooks
 
@@ -178,6 +178,9 @@ test-unit: build
 test-cgen: build
 	@$(PYTHON) scripts/run_tests.py cgen --verbose
 
+test-rgen: build
+	@$(PYTHON) scripts/run_tests.py rgen --verbose
+
 test-mgen: build
 	@$(PYTHON) scripts/run_tests.py mgen --verbose
 
@@ -298,6 +301,7 @@ help:
 	@echo "  make test                   Run all tests"
 	@echo "  make test-unit              Run unit tests only"
 	@echo "  make test-cgen              Run code generation tests (compare generated C)"
+	@echo "  make test-rgen              Run Rust generation tests"
 	@echo "  make test-mgen              Run model generation tests (compare JSON model)"
 	@echo "  make test-integration       Run integration tests"
 	@echo "  make test-integration-errors Run integration error tests"

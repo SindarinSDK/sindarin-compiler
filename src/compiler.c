@@ -4,6 +4,7 @@
 #include "type_checker.h"
 #include "optimizer.h"
 #include "gcc_backend.h"
+#include "target/target.h"
 #include "version.h"
 #include <stdlib.h>
 #include <string.h>
@@ -27,9 +28,9 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->log_level = DEBUG_LEVEL_ERROR;
     options->arithmetic_mode = ARITH_CHECKED;
     options->optimization_level = OPT_LEVEL_FULL;
-    options->emit_c = 0;
-    options->emit_model = 0;
-    options->keep_c = 0;
+    options->target = TARGET_C;
+    options->output_kind = OUTPUT_EXECUTABLE;
+    options->keep_generated = 0;
     options->debug_build = 0;
     options->do_init = 0;
     options->do_install = 0;
@@ -121,9 +122,13 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
                 "\n"
                 "Output options:\n"
                 "  -o <file>          Specify output executable (default: source_file without extension)\n"
-                "  --emit-c           Output generated C code, don't compile to executable\n"
+                "  --target <target>  Select target compiler: c or rust (default: c)\n"
+                "  --emit-source      Output generated target source, don't compile\n"
+                "  --emit-c           Alias for --target c --emit-source\n"
+                "  --emit-rust        Alias for --target rust --emit-source\n"
                 "  --emit-model       Output JSON model, don't generate C\n"
-                "  --keep-c           Keep generated C files after compilation\n"
+                "  --keep-generated   Keep generated target files after compilation\n"
+                "  --keep-c           Compatibility alias for --keep-generated\n"
                 "\n"
                 "Debug options:\n"
                 "  -v                 Verbose mode (show compilation steps)\n"
@@ -188,6 +193,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
 
     int arithmetic_mode_explicit = 0;
     int o2_explicit = 0;
+    int target_explicit = 0;
 
     /* Second pass: parse all arguments */
     for (int i = 1; i < argc; i++)
@@ -228,17 +234,62 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
             options->optimization_level = OPT_LEVEL_FULL;
             o2_explicit = 1;
         }
+        else if (strcmp(argv[i], "--target") == 0)
+        {
+            TargetKind parsed_target;
+            if (i + 1 >= argc)
+            {
+                fprintf(stderr, "Error: --target requires c or rust\n");
+                return 0;
+            }
+            i++;
+            if (!target_kind_parse(argv[i], &parsed_target))
+            {
+                fprintf(stderr, "Error: Unknown target '%s' (expected c or rust)\n", argv[i]);
+                return 0;
+            }
+            if (target_explicit && options->target != parsed_target)
+            {
+                fprintf(stderr, "Error: conflicting compilation targets requested\n");
+                return 0;
+            }
+            options->target = parsed_target;
+            target_explicit = 1;
+        }
+        else if (strcmp(argv[i], "--emit-source") == 0)
+        {
+            options->output_kind = OUTPUT_SOURCE;
+        }
         else if (strcmp(argv[i], "--emit-c") == 0)
         {
-            options->emit_c = 1;
+            if (target_explicit && options->target != TARGET_C)
+            {
+                fprintf(stderr, "Error: --emit-c conflicts with --target rust\n");
+                return 0;
+            }
+            options->target = TARGET_C;
+            options->output_kind = OUTPUT_SOURCE;
+            target_explicit = 1;
+        }
+        else if (strcmp(argv[i], "--emit-rust") == 0)
+        {
+            if (target_explicit && options->target != TARGET_RUST)
+            {
+                fprintf(stderr, "Error: --emit-rust conflicts with --target c\n");
+                return 0;
+            }
+            options->target = TARGET_RUST;
+            options->output_kind = OUTPUT_SOURCE;
+            target_explicit = 1;
         }
         else if (strcmp(argv[i], "--emit-model") == 0)
         {
-            options->emit_model = 1;
+            options->output_kind = OUTPUT_MODEL;
         }
-        else if (strcmp(argv[i], "--keep-c") == 0)
+        else if (strcmp(argv[i], "--keep-c") == 0 ||
+                 strcmp(argv[i], "--keep-generated") == 0)
         {
-            options->keep_c = 1;
+            options->keep_generated = 1;
         }
         else if (strcmp(argv[i], "-g") == 0)
         {
@@ -289,7 +340,7 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
     const char *dot = strrchr(options->source_file, '.');
     size_t base_len = dot ? (size_t)(dot - options->source_file) : strlen(options->source_file);
 
-    if (options->emit_model)
+    if (options->output_kind == OUTPUT_MODEL)
     {
         /* --emit-model: output JSON */
         if (options->output_file == NULL)
@@ -301,14 +352,16 @@ int compiler_parse_args(int argc, char **argv, CompilerOptions *options)
         }
         options->executable_file = NULL;
     }
-    else if (options->emit_c)
+    else if (options->output_kind == OUTPUT_SOURCE)
     {
-        /* --emit-c: output C file */
+        /* Generated target source. */
         if (options->output_file == NULL)
         {
-            char *out = arena_alloc(&options->arena, base_len + 3);
+            const char *extension = options->target == TARGET_RUST ? ".rs" : ".c";
+            size_t extension_len = strlen(extension);
+            char *out = arena_alloc(&options->arena, base_len + extension_len + 1);
             strncpy(out, options->source_file, base_len);
-            strcpy(out + base_len, ".c");
+            strcpy(out + base_len, extension);
             options->output_file = out;
         }
         options->executable_file = NULL;

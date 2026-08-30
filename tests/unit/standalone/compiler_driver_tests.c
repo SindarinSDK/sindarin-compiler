@@ -243,7 +243,8 @@ static void test_emit_c_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.emit_c == 1);
+    assert(options.target == TARGET_C);
+    assert(options.output_kind == OUTPUT_SOURCE);
 
     arena_free(&options.arena);
 }
@@ -261,7 +262,7 @@ static void test_keep_c_flag(void)
 
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
-    assert(options.keep_c == 1);
+    assert(options.keep_generated == 1);
 
     arena_free(&options.arena);
 }
@@ -453,6 +454,28 @@ static void test_emit_c_output_path(void)
     arena_free(&options.arena);
 }
 
+static void test_emit_rust_output_path(void)
+{
+    CompilerOptions options;
+    memset(&options, 0, sizeof(options));
+    const char *args[] = {"sn", "myfile.sn", "--target", "rust", "--emit-source"};
+    int argc;
+    char **argv;
+    make_args(&argc, &argv, args, 5);
+
+    arena_init(&options.arena, 1024);
+
+    int result = compiler_parse_args(argc, argv, &options);
+    assert(result == 1);
+    assert(options.target == TARGET_RUST);
+    assert(options.output_kind == OUTPUT_SOURCE);
+    assert(options.output_file != NULL);
+    assert(strcmp(options.output_file, "myfile.rs") == 0);
+    assert(options.executable_file == NULL);
+
+    arena_free(&options.arena);
+}
+
 /* ============================================================================
  * Error Handling Tests
  * ============================================================================ */
@@ -529,7 +552,7 @@ static void test_multiple_flags_combined(void)
     assert(result == 1);
     assert(options.verbose == 1);
     assert(options.debug_build == 1);
-    assert(options.keep_c == 1);
+    assert(options.keep_generated == 1);
     assert(options.optimization_level == OPT_LEVEL_BASIC);
 
     arena_free(&options.arena);
@@ -667,7 +690,7 @@ static void test_many_flags(void)
     assert(result == 1);
     assert(options.verbose == 1);
     assert(options.debug_build == 1);
-    assert(options.keep_c == 1);
+    assert(options.keep_generated == 1);
     assert(options.optimization_level == OPT_LEVEL_FULL);
     assert(options.arithmetic_mode == ARITH_UNCHECKED);
     assert(options.log_level == DEBUG_LEVEL_WARNING);
@@ -713,6 +736,7 @@ void test_compiler_driver_main(void)
     TEST_RUN("default_output_path", test_default_output_path);
     TEST_RUN("default_output_file_unused", test_default_output_file_unused);
     TEST_RUN("emit_c_output_path", test_emit_c_output_path);
+    TEST_RUN("emit_rust_output_path", test_emit_rust_output_path);
 
     TEST_SECTION("Compiler Driver - Error Handling");
     TEST_RUN("no_source_file_error", test_no_source_file_error);

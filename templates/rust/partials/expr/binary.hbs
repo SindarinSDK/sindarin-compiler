@@ -1,0 +1,1 @@
+{{#if rust_checked_method}}({{> expr left}}).{{rust_checked_method}}({{> expr right}}).expect("checked arithmetic failed"){{else}}({{> expr left}} {{op_symbol op}} {{> expr right}}){{/if}}
