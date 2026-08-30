@@ -1,7 +1,19 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
-fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> String {
-    let padding = width.saturating_sub(value.len());
+fn __sn_format_string(value: &str, width: usize, left_align: bool,
+                      has_precision: bool, precision: usize) -> String {
+    let c_length = value.as_bytes().iter().position(|byte| *byte == 0)
+        .unwrap_or(value.len());
+    let length = if has_precision {
+        c_length.min(precision)
+    } else {
+        c_length
+    };
+    if !value.is_char_boundary(length) {
+        panic!("Rust target cannot represent C string precision that splits a UTF-8 code point");
+    }
+    let value = &value[..length];
+    let padding = width.saturating_sub(length);
     if left_align {
         format!("{}{}", value, " ".repeat(padding))
     } else {

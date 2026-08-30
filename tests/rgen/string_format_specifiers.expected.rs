@@ -1,7 +1,19 @@
 #![allow(dead_code, unused_mut, unused_variables, unused_parens)]
 
-fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> String {
-    let padding = width.saturating_sub(value.len());
+fn __sn_format_string(value: &str, width: usize, left_align: bool,
+                      has_precision: bool, precision: usize) -> String {
+    let c_length = value.as_bytes().iter().position(|byte| *byte == 0)
+        .unwrap_or(value.len());
+    let length = if has_precision {
+        c_length.min(precision)
+    } else {
+        c_length
+    };
+    if !value.is_char_boundary(length) {
+        panic!("Rust target cannot represent C string precision that splits a UTF-8 code point");
+    }
+    let value = &value[..length];
+    let padding = width.saturating_sub(length);
     if left_align {
         format!("{}{}", value, " ".repeat(padding))
     } else {
@@ -138,8 +150,8 @@ fn main() {
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("octal="); __sn_interpolated.push_str(&format!("{:o}", 64)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("fixed="); __sn_interpolated.push_str(&format!("{:.2}", pi)); __sn_interpolated.push_str("/"); __sn_interpolated.push_str(&format!("{:.4}", pi)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("default-fixed="); __sn_interpolated.push_str(&format!("{:.6}", pi)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("string=|"); __sn_interpolated.push_str(&__sn_format_string_width(&(name), 10, false)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_string_width(&(name), 10, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("unicode=|"); __sn_interpolated.push_str(&__sn_format_string_width(&(unicode), 3, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("string=|"); __sn_interpolated.push_str(&__sn_format_string(&(name), 10, false, false, 0)); __sn_interpolated.push_str("|/|"); __sn_interpolated.push_str(&__sn_format_string(&(name), 10, true, false, 0)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("unicode=|"); __sn_interpolated.push_str(&__sn_format_string(&(unicode), 3, false, false, 0)); __sn_interpolated.push_str("|"); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("width=|"); __sn_interpolated.push_str(&format!("{:8.2}", pi)); __sn_interpolated.push_str("|"); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("expr="); __sn_interpolated.push_str(&format!("{:04}", (x).checked_mul(2).expect("checked arithmetic failed"))); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("signed="); __sn_interpolated.push_str(&format!("{:+}", x)); __sn_interpolated });
