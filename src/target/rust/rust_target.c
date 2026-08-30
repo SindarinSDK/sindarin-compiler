@@ -136,7 +136,8 @@ static bool rust_array_method_supported(const char *name)
     return strcmp(name, "push") == 0 || strcmp(name, "pop") == 0 ||
            strcmp(name, "insert") == 0 || strcmp(name, "remove") == 0 ||
            strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
-           strcmp(name, "clone") == 0;
+           strcmp(name, "clone") == 0 || strcmp(name, "contains") == 0 ||
+           strcmp(name, "indexOf") == 0;
 }
 
 static bool rust_string_method_supported(const char *name)
@@ -185,6 +186,12 @@ static bool rust_unsigned_integer_type(const char *kind)
 {
     return kind && (strcmp(kind, "uint") == 0 || strcmp(kind, "uint32") == 0 ||
                     strcmp(kind, "byte") == 0);
+}
+
+static bool rust_array_search_type_supported(const char *kind)
+{
+    return rust_integer_type(kind) ||
+           (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "string") == 0));
 }
 
 static bool rust_parse_format_spec(const char *spec, const char *type_kind,
@@ -611,7 +618,27 @@ static bool rust_validate_expr(json_object *expr)
             const char *method = json_string_property(callee, "member_name");
             if (strcmp(object_type_kind, "array") == 0)
             {
-                if (!rust_array_method_supported(method) || !rust_validate_expr(object))
+                if (!rust_array_method_supported(method))
+                {
+                    fprintf(stderr, "Error: Rust target does not support array method '%s' yet\n",
+                            method ? method : "<unknown>");
+                    return false;
+                }
+                if ((strcmp(method, "contains") == 0 || strcmp(method, "indexOf") == 0))
+                {
+                    json_object *element_type = NULL;
+                    const char *element_kind = NULL;
+                    if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
+                        !(element_kind = json_string_property(element_type, "kind")) ||
+                        !rust_array_search_type_supported(element_kind))
+                    {
+                        fprintf(stderr,
+                                "Error: Rust target does not support array method '%s' for %s elements yet\n",
+                                method, element_kind ? element_kind : "<unknown>");
+                        return false;
+                    }
+                }
+                if (!rust_validate_expr(object))
                     return false;
             }
             else if (strcmp(object_type_kind, "string") == 0)

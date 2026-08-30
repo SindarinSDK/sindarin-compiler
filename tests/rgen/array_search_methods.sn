@@ -1,0 +1,25 @@
+fn main(): void =>
+  var numbers: int[] = {10, 20, 10}
+  println(numbers.contains(20))
+  println(numbers.contains(99))
+  println(numbers.indexOf(10))
+  println(numbers.indexOf(99))
+
+  var names: str[] = {"alpha", "beta", "alpha"}
+  var needle: str = "beta"
+  println(names.contains(needle))
+  println(names.indexOf("alpha"))
+  println(names.indexOf("missing"))
+  println(needle)
+
+  var flags: bool[] = {true, false}
+  println(flags.contains(false))
+  println(flags.indexOf(true))
+
+  var bytes: byte[] = {10, 20, 30}
+  println(bytes.contains(20))
+  println(bytes.indexOf(30))
+
+  var empty: int[] = {}
+  println(empty.contains(1))
+  println(empty.indexOf(1))
