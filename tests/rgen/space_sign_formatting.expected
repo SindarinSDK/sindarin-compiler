@@ -1,0 +1,11 @@
+decimal=| 42|/|-42|/| 0|
+width=|    42|/|   -42|
+zero=| 00042|/|-00042|
+left=| 42   |/|-42   |
+plus-wins=|   +42|
+unsigned=|    42|/|00002a|
+fixed=|    1.25|/|   -1.25|
+fixed-zero=| 0001.25|/|-0000.00|
+scientific=|    1.25e+00|/|   -1.25E+00|
+scientific-zero=| 0001.25e+00|/|-0000.00e+00|
+special=|       inf|/|       NAN|

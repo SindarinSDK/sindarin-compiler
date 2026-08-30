@@ -11,7 +11,7 @@ fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> Stri
 
 fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
                           width: usize, left_align: bool, force_sign: bool,
-                          zero_pad: bool) -> String {
+                          space_sign: bool, zero_pad: bool) -> String {
     let is_special = value.is_nan() || value.is_infinite();
     let magnitude = if value.is_nan() {
         if uppercase { "NAN" } else { "nan" }.to_string()
@@ -33,6 +33,8 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
         "-"
     } else if force_sign {
         "+"
+    } else if space_sign {
+        " "
     } else {
         ""
     };
@@ -47,6 +49,7 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
     }
 }
 
+
 fn main() {
     let mut large: f64 = 1234.5;
     let mut small: f64 = 0.00125;
@@ -57,19 +60,19 @@ fn main() {
     let mut divisor: f64 = 0.0;
     let mut infinity: f64 = (1.0 / divisor);
     let mut negative_infinity: f64 = ((-1.0) / divisor);
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("default="); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 6, false, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("precision="); __sn_interpolated.push_str(&__sn_format_scientific((small) as f64, 2, false, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uppercase="); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 1, true, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("zero="); __sn_interpolated.push_str(&__sn_format_scientific((zero) as f64, 3, false, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("rounded="); __sn_interpolated.push_str(&__sn_format_scientific((rounded) as f64, 2, false, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("float="); __sn_interpolated.push_str(&__sn_format_scientific((single) as f64, 3, true, 0, false, false, false)); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("width=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("left=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, true, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("sign=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 0, false, true, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("positive-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, true, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("negative-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 1, false, 14, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("combined=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, true, 14, true, true, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("infinity=|"); __sn_interpolated.push_str(&__sn_format_scientific((infinity) as f64, 2, false, 10, false, true, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("negative-infinity=|"); __sn_interpolated.push_str(&__sn_format_scientific((negative_infinity) as f64, 2, true, 10, true, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("default="); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 6, false, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("precision="); __sn_interpolated.push_str(&__sn_format_scientific((small) as f64, 2, false, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("uppercase="); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 1, true, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("zero="); __sn_interpolated.push_str(&__sn_format_scientific((zero) as f64, 3, false, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("rounded="); __sn_interpolated.push_str(&__sn_format_scientific((rounded) as f64, 2, false, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("float="); __sn_interpolated.push_str(&__sn_format_scientific((single) as f64, 3, true, 0, false, false, false, false)); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("width=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, false, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("left=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, true, false, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("sign=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 0, false, true, false, false)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("positive-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, false, 14, false, true, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("negative-zero=|"); __sn_interpolated.push_str(&__sn_format_scientific((negative) as f64, 1, false, 14, false, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("combined=|"); __sn_interpolated.push_str(&__sn_format_scientific((large) as f64, 2, true, 14, true, true, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("infinity=|"); __sn_interpolated.push_str(&__sn_format_scientific((infinity) as f64, 2, false, 10, false, true, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("negative-infinity=|"); __sn_interpolated.push_str(&__sn_format_scientific((negative_infinity) as f64, 2, true, 10, true, false, false, true)); __sn_interpolated.push_str("|"); __sn_interpolated });
 }
