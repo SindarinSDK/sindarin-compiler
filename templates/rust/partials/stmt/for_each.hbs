@@ -1,2 +1,2 @@
-while {{> expr condition}} {
+for {{rust_ident iterator_name}} in ({{> expr iterable}}).iter().cloned() {
 {{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}
