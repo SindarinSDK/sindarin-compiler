@@ -1,0 +1,48 @@
+struct Bucket =>
+  items: int[]
+
+fn main(): void =>
+  var values: int[] = {1, 2, 3}
+  println(values.length)
+  println(len(values))
+  println(values[-1])
+
+  values[0] = 10
+  values.push(4)
+  values.insert(20, 1)
+  println(values[0])
+  println(values[1])
+
+  var removed: int = values.remove(2)
+  var last: int = values.pop()
+  println(removed)
+  println(last)
+
+  values.reverse()
+  println(values[0])
+
+  var copied: int[] = values
+  copied.push(99)
+  println(values.length)
+  println(copied.length)
+  copied.clear()
+  println(copied.length)
+
+  var sized: int[3]
+  sized[1] = 7
+  println(sized[0])
+  println(sized[1])
+
+  var names: str[] = {"alpha", "beta"}
+  var picked: str = names[0]
+  names[0] = "changed"
+  names.push(picked)
+  println(picked)
+  println(names[0])
+  println(names[-1])
+
+  var bucket: Bucket = { items: {5, 6} }
+  var bucket_copy: Bucket = bucket
+  bucket_copy.items.push(7)
+  println(bucket.items.length)
+  println(bucket_copy.items[-1])

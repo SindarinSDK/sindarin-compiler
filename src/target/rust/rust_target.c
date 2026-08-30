@@ -43,13 +43,20 @@ static bool rust_type_supported(json_object *type)
     json_object *kind_obj = NULL;
     if (!type || !json_object_object_get_ex(type, "kind", &kind_obj)) return false;
     const char *kind = json_object_get_string(kind_obj);
-    return kind && (strcmp(kind, "void") == 0 || strcmp(kind, "int") == 0 ||
+    if (!kind) return false;
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element_type = NULL;
+        return json_object_object_get_ex(type, "element_type", &element_type) &&
+               rust_type_supported(element_type);
+    }
+    return strcmp(kind, "void") == 0 || strcmp(kind, "int") == 0 ||
         strcmp(kind, "long") == 0 || strcmp(kind, "int32") == 0 ||
         strcmp(kind, "uint") == 0 || strcmp(kind, "uint32") == 0 ||
         strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0 ||
         strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
         strcmp(kind, "byte") == 0 || strcmp(kind, "string") == 0 ||
-        strcmp(kind, "struct") == 0);
+        strcmp(kind, "struct") == 0;
 }
 
 static const char *json_string_property(json_object *object, const char *key)
@@ -115,6 +122,15 @@ static bool rust_validate_structs(json_object *model)
 
 static bool rust_validate_expr(json_object *expr);
 
+static bool rust_array_method_supported(const char *name)
+{
+    if (!name) return false;
+    return strcmp(name, "push") == 0 || strcmp(name, "pop") == 0 ||
+           strcmp(name, "insert") == 0 || strcmp(name, "remove") == 0 ||
+           strcmp(name, "reverse") == 0 || strcmp(name, "clear") == 0 ||
+           strcmp(name, "clone") == 0;
+}
+
 static bool rust_validate_expr_array(json_object *array)
 {
     if (!array) return true;
@@ -147,6 +163,41 @@ static bool rust_validate_expr(json_object *expr)
         }
         return true;
     }
+    if (strcmp(kind, "array_literal") == 0)
+    {
+        json_object *elements = NULL;
+        return !json_object_object_get_ex(expr, "elements", &elements) ||
+               rust_validate_expr_array(elements);
+    }
+    if (strcmp(kind, "sized_array") == 0)
+    {
+        json_object *element_type = NULL, *size = NULL;
+        if (!json_object_object_get_ex(expr, "element_type", &element_type) ||
+            !json_object_object_get_ex(expr, "size", &size) ||
+            !rust_type_supported(element_type)) return false;
+        const char *element_kind = json_string_property(element_type, "kind");
+        return element_kind && strcmp(element_kind, "struct") != 0 &&
+               rust_validate_expr(size);
+    }
+    if (strcmp(kind, "array_access") == 0)
+    {
+        json_object *array = NULL, *index = NULL;
+        return json_object_object_get_ex(expr, "array", &array) &&
+               json_object_object_get_ex(expr, "index", &index) &&
+               rust_validate_expr(array) && rust_validate_expr(index);
+    }
+    if (strcmp(kind, "index_assign") == 0)
+    {
+        json_object *array = NULL, *index = NULL, *value = NULL;
+        return json_object_object_get_ex(expr, "array", &array) &&
+               json_object_object_get_ex(expr, "index", &index) &&
+               json_object_object_get_ex(expr, "value", &value) &&
+               rust_validate_expr(array) && rust_validate_expr(index) &&
+               rust_validate_expr(value);
+    }
+    if (strcmp(kind, "builtin_length") == 0)
+        return json_object_object_get_ex(expr, "object", &child) &&
+               rust_validate_expr(child);
     if (strcmp(kind, "member") == 0)
         return json_object_object_get_ex(expr, "object", &child) &&
                rust_validate_expr(child);
@@ -173,9 +224,22 @@ static bool rust_validate_expr(json_object *expr)
     {
         json_object *callee = NULL, *args = NULL, *callee_kind = NULL;
         if (!json_object_object_get_ex(expr, "callee", &callee) ||
-            !json_object_object_get_ex(callee, "kind", &callee_kind) ||
-            strcmp(json_object_get_string(callee_kind), "variable") != 0)
+            !json_object_object_get_ex(callee, "kind", &callee_kind))
             return false;
+        const char *callee_kind_name = json_object_get_string(callee_kind);
+        if (!callee_kind_name) return false;
+        if (strcmp(callee_kind_name, "member") == 0)
+        {
+            json_object *object = NULL, *object_type = NULL;
+            const char *object_type_kind = NULL;
+            if (!json_object_object_get_ex(callee, "object", &object) ||
+                !json_object_object_get_ex(object, "type", &object_type) ||
+                !(object_type_kind = json_string_property(object_type, "kind")) ||
+                strcmp(object_type_kind, "array") != 0 ||
+                !rust_array_method_supported(json_string_property(callee, "member_name")) ||
+                !rust_validate_expr(object)) return false;
+        }
+        else if (strcmp(callee_kind_name, "variable") != 0) return false;
         json_object_object_get_ex(expr, "args", &args);
         return rust_validate_expr_array(args);
     }
@@ -184,6 +248,31 @@ static bool rust_validate_expr(json_object *expr)
         json_object *args = NULL;
         json_object_object_get_ex(expr, "args", &args);
         return rust_validate_expr_array(args);
+    }
+    return false;
+}
+
+static bool rust_model_uses_arrays(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_arrays(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && (strcmp(kind, "array") == 0 || strcmp(kind, "array_literal") == 0 ||
+                 strcmp(kind, "array_access") == 0 || strcmp(kind, "index_assign") == 0 ||
+                 strcmp(kind, "sized_array") == 0)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_arrays(value)) return true;
     }
     return false;
 }
@@ -399,6 +488,8 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         return false;
     }
     rust_lower_checked_arithmetic(model);
+    if (rust_model_uses_arrays(model))
+        json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);
