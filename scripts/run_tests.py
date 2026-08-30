@@ -776,8 +776,12 @@ class TestRunner:
 
         compile_cmd = [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
                        '-l', '1', '-O0', '--no-install']
+        # Four parallel rustc processes can exceed the general 60-second compile
+        # limit on cold Windows runners even though each compilation succeeds.
+        rust_compile_timeout = (max(self.compile_timeout, 120)
+                                if is_windows() else self.compile_timeout)
         exit_code, stdout, stderr = run_with_timeout(
-            compile_cmd, self.compile_timeout, env=self.env
+            compile_cmd, rust_compile_timeout, env=self.env
         )
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
