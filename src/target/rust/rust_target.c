@@ -2,6 +2,7 @@
 #include "target/rust/rust_render.h"
 #include "cgen/gen_model.h"
 #include "debug.h"
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -148,6 +149,231 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
 }
 
+typedef struct
+{
+    bool left_align;
+    bool force_sign;
+    bool alternate;
+    bool zero_pad;
+    bool has_width;
+    bool has_precision;
+    int width;
+    int precision;
+    char conversion;
+    char rust_format[64];
+} RustFormatSpec;
+
+static bool rust_integer_type(const char *kind)
+{
+    return kind && (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+                    strcmp(kind, "int32") == 0 || strcmp(kind, "uint") == 0 ||
+                    strcmp(kind, "uint32") == 0 || strcmp(kind, "byte") == 0);
+}
+
+static bool rust_float_type(const char *kind)
+{
+    return kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0);
+}
+
+static bool rust_signed_integer_type(const char *kind)
+{
+    return kind && (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+                    strcmp(kind, "int32") == 0);
+}
+
+static bool rust_unsigned_integer_type(const char *kind)
+{
+    return kind && (strcmp(kind, "uint") == 0 || strcmp(kind, "uint32") == 0 ||
+                    strcmp(kind, "byte") == 0);
+}
+
+static bool rust_parse_format_spec(const char *spec, const char *type_kind,
+                                   RustFormatSpec *parsed, char *reason,
+                                   size_t reason_size)
+{
+    memset(parsed, 0, sizeof(*parsed));
+    if (!spec || !spec[0])
+    {
+        snprintf(reason, reason_size, "empty format specifier");
+        return false;
+    }
+
+    const char *cursor = spec;
+    while (*cursor)
+    {
+        switch (*cursor)
+        {
+            case '-': parsed->left_align = true; break;
+            case '+': parsed->force_sign = true; break;
+            case '#': parsed->alternate = true; break;
+            case '0': parsed->zero_pad = true; break;
+            case ' ':
+                snprintf(reason, reason_size, "space-sign flag is not supported");
+                return false;
+            default: goto flags_done;
+        }
+        cursor++;
+    }
+flags_done:
+
+    if (isdigit((unsigned char)*cursor))
+    {
+        parsed->has_width = true;
+        while (isdigit((unsigned char)*cursor))
+        {
+            int digit = *cursor++ - '0';
+            if (parsed->width > (1000 - digit) / 10)
+            {
+                snprintf(reason, reason_size, "format width is too large");
+                return false;
+            }
+            parsed->width = parsed->width * 10 + digit;
+        }
+    }
+    if (*cursor == '.')
+    {
+        cursor++;
+        parsed->has_precision = true;
+        if (!isdigit((unsigned char)*cursor))
+        {
+            snprintf(reason, reason_size, "format precision requires digits");
+            return false;
+        }
+        while (isdigit((unsigned char)*cursor))
+        {
+            int digit = *cursor++ - '0';
+            if (parsed->precision > (1000 - digit) / 10)
+            {
+                snprintf(reason, reason_size, "format precision is too large");
+                return false;
+            }
+            parsed->precision = parsed->precision * 10 + digit;
+        }
+    }
+    if (!*cursor || cursor[1])
+    {
+        snprintf(reason, reason_size, "invalid conversion suffix");
+        return false;
+    }
+    parsed->conversion = *cursor;
+
+    bool is_integer_conversion = strchr("diuxXo", parsed->conversion) != NULL;
+    bool is_float_conversion = parsed->conversion == 'f';
+    bool is_string_conversion = parsed->conversion == 's';
+    if (parsed->conversion == 'e' || parsed->conversion == 'E')
+    {
+        snprintf(reason, reason_size, "scientific notation is not supported yet");
+        return false;
+    }
+    if (!is_integer_conversion && !is_float_conversion &&
+        !is_string_conversion)
+    {
+        snprintf(reason, reason_size, "unsupported conversion '%c'", parsed->conversion);
+        return false;
+    }
+    if (is_integer_conversion && !rust_integer_type(type_kind))
+    {
+        snprintf(reason, reason_size, "integer conversion requires an integer expression");
+        return false;
+    }
+    if ((parsed->conversion == 'd' || parsed->conversion == 'i') &&
+        !rust_signed_integer_type(type_kind))
+    {
+        snprintf(reason, reason_size, "signed decimal conversion requires a signed integer");
+        return false;
+    }
+    if (parsed->conversion == 'u' && !rust_unsigned_integer_type(type_kind))
+    {
+        snprintf(reason, reason_size, "unsigned decimal conversion requires an unsigned integer");
+        return false;
+    }
+    if (is_float_conversion && !rust_float_type(type_kind))
+    {
+        snprintf(reason, reason_size, "fixed-point conversion requires a float expression");
+        return false;
+    }
+    if (is_string_conversion && (!type_kind || strcmp(type_kind, "string") != 0))
+    {
+        snprintf(reason, reason_size, "string conversion requires a string expression");
+        return false;
+    }
+    if (parsed->has_precision && !is_float_conversion)
+    {
+        snprintf(reason, reason_size,
+                 "precision is currently supported only for fixed-point floats");
+        return false;
+    }
+    if (is_string_conversion &&
+        (parsed->force_sign || parsed->alternate || parsed->zero_pad))
+    {
+        snprintf(reason, reason_size, "numeric flags cannot format strings");
+        return false;
+    }
+    if (parsed->alternate)
+    {
+        snprintf(reason, reason_size, "alternate form is not supported yet");
+        return false;
+    }
+    if ((parsed->conversion == 'u' || parsed->conversion == 'x' ||
+         parsed->conversion == 'X' || parsed->conversion == 'o') && parsed->force_sign)
+    {
+        snprintf(reason, reason_size, "sign flag is not valid for this conversion");
+        return false;
+    }
+    char *out = parsed->rust_format;
+    size_t remaining = sizeof(parsed->rust_format);
+    int written = snprintf(out, remaining, "{:");
+    out += written;
+    remaining -= (size_t)written;
+
+    if (parsed->left_align)
+    {
+        written = snprintf(out, remaining, "<");
+        out += written;
+        remaining -= (size_t)written;
+    }
+    else if (is_string_conversion && parsed->has_width)
+    {
+        written = snprintf(out, remaining, ">");
+        out += written;
+        remaining -= (size_t)written;
+    }
+    if (parsed->force_sign)
+    {
+        written = snprintf(out, remaining, "+");
+        out += written;
+        remaining -= (size_t)written;
+    }
+    if (parsed->zero_pad && !parsed->left_align)
+    {
+        written = snprintf(out, remaining, "0");
+        out += written;
+        remaining -= (size_t)written;
+    }
+    if (parsed->has_width)
+    {
+        written = snprintf(out, remaining, "%d", parsed->width);
+        out += written;
+        remaining -= (size_t)written;
+    }
+    if (is_float_conversion)
+    {
+        int precision = parsed->has_precision ? parsed->precision : 6;
+        written = snprintf(out, remaining, ".%d", precision);
+        out += written;
+        remaining -= (size_t)written;
+    }
+    if (parsed->conversion == 'x' || parsed->conversion == 'X' ||
+        parsed->conversion == 'o')
+    {
+        written = snprintf(out, remaining, "%c", parsed->conversion);
+        out += written;
+        remaining -= (size_t)written;
+    }
+    snprintf(out, remaining, "}");
+    return true;
+}
+
 static bool rust_validate_expr_array(json_object *array)
 {
     if (!array) return true;
@@ -215,9 +441,28 @@ static bool rust_validate_expr(json_object *expr)
             if (!part_kind) return false;
             if (strcmp(part_kind, "text") == 0) continue;
             if (strcmp(part_kind, "expr") != 0 ||
-                json_object_object_get_ex(part, "format_spec", &format_spec) ||
                 !json_object_object_get_ex(part, "expr", &value) ||
                 !rust_validate_expr(value)) return false;
+            if (json_object_object_get_ex(part, "format_spec", &format_spec))
+            {
+                json_object *type = NULL;
+                RustFormatSpec parsed;
+                char reason[160];
+                const char *spec = json_object_get_string(format_spec);
+                const char *type_kind = NULL;
+                reason[0] = '\0';
+                if (!json_object_object_get_ex(value, "type", &type) ||
+                    !(type_kind = json_string_property(type, "kind")) ||
+                    !rust_parse_format_spec(spec, type_kind, &parsed,
+                                            reason, sizeof(reason)))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support interpolation format '%s' for %s: %s\n",
+                            spec ? spec : "", type_kind ? type_kind : "<unknown>",
+                            reason[0] ? reason : "missing expression type");
+                    return false;
+                }
+            }
         }
         return true;
     }
@@ -739,6 +984,54 @@ static void rust_lower_strings(json_object *node)
     }
 }
 
+static void rust_lower_interpolation_formats(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_interpolation_formats(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_interpolation_formats(value);
+    }
+
+    if (!json_string_property_equals(node, "kind", "interpolated_string")) return;
+    json_object *parts = NULL;
+    if (!json_object_object_get_ex(node, "parts", &parts)) return;
+    size_t count = json_object_array_length(parts);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *part = json_object_array_get_idx(parts, i);
+        json_object *format_spec = NULL, *expr = NULL, *type = NULL;
+        if (!json_object_object_get_ex(part, "format_spec", &format_spec) ||
+            !json_object_object_get_ex(part, "expr", &expr) ||
+            !json_object_object_get_ex(expr, "type", &type)) continue;
+        RustFormatSpec parsed;
+        char reason[160];
+        if (rust_parse_format_spec(json_object_get_string(format_spec),
+                                   json_string_property(type, "kind"), &parsed,
+                                   reason, sizeof(reason)))
+        {
+            json_object_object_add(part, "rust_format",
+                                   json_object_new_string(parsed.rust_format));
+            if (parsed.conversion == 's' && parsed.has_width)
+            {
+                json_object_object_add(part, "rust_string_width",
+                                       json_object_new_int(parsed.width));
+                json_object_object_add(part, "rust_string_left_align",
+                                       json_object_new_boolean(parsed.left_align));
+            }
+        }
+    }
+}
+
 static bool rust_model_uses_string_helpers(json_object *node)
 {
     if (!node) return false;
@@ -762,6 +1055,28 @@ static bool rust_model_uses_string_helpers(json_object *node)
     return false;
 }
 
+static bool rust_model_uses_string_format_helpers(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_string_format_helpers(
+                    json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    json_object *string_width = NULL;
+    if (json_object_object_get_ex(node, "rust_string_width", &string_width)) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_string_format_helpers(value)) return true;
+    }
+    return false;
+}
+
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
@@ -777,10 +1092,14 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_checked_arithmetic(model);
     rust_lower_strings(model);
+    rust_lower_interpolation_formats(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
         json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));
+    if (rust_model_uses_string_format_helpers(model))
+        json_object_object_add(model, "rust_uses_string_format_helpers",
+                               json_object_new_boolean(true));
 
     char template_dir[1024];
     snprintf(template_dir, sizeof(template_dir), "%s/templates/rust", options->compiler_dir);

@@ -1,0 +1,12 @@
+padded=00042
+hex=ff/FF
+octal=100
+fixed=3.14/3.1416
+default-fixed=3.141593
+string=|     Alice|/|Alice     |
+unicode=| é|
+width=|    3.14|
+expr=0084
+signed=+42
+unsigned=42
+left=|42   |
