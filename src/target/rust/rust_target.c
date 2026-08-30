@@ -497,6 +497,29 @@ static bool rust_validate_expr(json_object *expr)
                json_object_object_get_ex(expr, "index", &index) &&
                rust_validate_expr(array) && rust_validate_expr(index);
     }
+    if (strcmp(kind, "array_slice") == 0)
+    {
+        json_object *array = NULL, *start = NULL, *end = NULL;
+        json_object *step = NULL, *is_pointer_slice = NULL;
+        if (json_object_object_get_ex(expr, "is_pointer_slice", &is_pointer_slice) &&
+            json_object_get_boolean(is_pointer_slice))
+        {
+            fprintf(stderr, "Error: Rust target does not support pointer array slices yet\n");
+            return false;
+        }
+        if (json_object_object_get_ex(expr, "step", &step))
+        {
+            fprintf(stderr, "Error: Rust target does not support stepped array slices yet\n");
+            return false;
+        }
+        if (!json_object_object_get_ex(expr, "array", &array) ||
+            !rust_validate_expr(array)) return false;
+        if (json_object_object_get_ex(expr, "start", &start) &&
+            !rust_validate_expr(start)) return false;
+        if (json_object_object_get_ex(expr, "end", &end) &&
+            !rust_validate_expr(end)) return false;
+        return true;
+    }
     if (strcmp(kind, "index_assign") == 0)
     {
         json_object *array = NULL, *index = NULL, *value = NULL;
@@ -715,8 +738,9 @@ static bool rust_model_uses_arrays(json_object *node)
 
     const char *kind = json_string_property(node, "kind");
     if (kind && (strcmp(kind, "array") == 0 || strcmp(kind, "array_literal") == 0 ||
-                 strcmp(kind, "array_access") == 0 || strcmp(kind, "index_assign") == 0 ||
-                 strcmp(kind, "sized_array") == 0)) return true;
+                 strcmp(kind, "array_access") == 0 || strcmp(kind, "array_slice") == 0 ||
+                 strcmp(kind, "index_assign") == 0 || strcmp(kind, "sized_array") == 0))
+        return true;
 
     json_object_object_foreach(node, key, value)
     {
