@@ -1,0 +1,26 @@
+struct Formatter =>
+  prefix: string = ""
+
+  static fn bracket(value: string): string =>
+    return $"[{value}]"
+
+  fn describe(suffix: string): string =>
+    return $"{Formatter.bracket(self.prefix)}{suffix}"
+
+struct Label =>
+  text: string = ""
+
+  static fn from(value: string): Label =>
+    return Label { text: value }
+
+  fn copy(): Label =>
+    return Label.from(self.text)
+
+fn main(): void =>
+  var formatter: Formatter = { prefix: "item" }
+  var suffix: string = "!"
+  var label: Label = { text: "source" }
+  var copied: Label = label.copy()
+
+  println(formatter.describe(suffix))
+  println($"copy={copied.text}; original={label.text}; suffix={suffix}")
