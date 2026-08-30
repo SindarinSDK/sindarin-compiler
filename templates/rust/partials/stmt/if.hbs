@@ -1,5 +1,3 @@
 if {{> expr condition}} {
-{{#each then_body.statements}}    {{> stmt this}}
-{{/each}}}{{#if else_body}} else {
-{{#each else_body.statements}}    {{> stmt this}}
-{{/each}}}{{/if}}
+{{#each then_body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}{{#if else_body}} else {
+{{#each else_body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}{{/if}}

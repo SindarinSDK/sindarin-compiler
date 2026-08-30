@@ -1,0 +1,30 @@
+fn main(): void =>
+  var total: int = 0
+  for var i: int = 0; i < 5; i++ =>
+    total = total + i
+  println(total)
+
+  var values: int[] = {2, 4, 6}
+  for value in values =>
+    total = total + value
+  println(total)
+  if total == 22 =>
+    println("matched")
+
+  var countdown: int = 2
+  while countdown > 0 =>
+    println(countdown)
+    countdown--
+
+  var range_values: int[] = 3..7
+  println(range_values[0])
+  println(range_values[-1])
+
+  var range_total: int = 0
+  for value in 1..5 =>
+    range_total = range_total + value
+  println(range_total)
+
+  var names: str[] = {"one", "two"}
+  for name in names =>
+    println(name)

@@ -1,0 +1,6 @@
+{
+        {{> stmt init}}{{nl}}
+        while {{> expr condition}} {
+{{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}            {{> expr increment}};
+        }
+    }

@@ -166,8 +166,24 @@ static bool rust_validate_expr(json_object *expr)
     if (strcmp(kind, "array_literal") == 0)
     {
         json_object *elements = NULL;
-        return !json_object_object_get_ex(expr, "elements", &elements) ||
-               rust_validate_expr_array(elements);
+        if (!json_object_object_get_ex(expr, "elements", &elements)) return true;
+        size_t count = json_object_array_length(elements);
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *element = json_object_array_get_idx(elements, i);
+            const char *element_kind = json_string_property(element, "kind");
+            if (!element_kind || strcmp(element_kind, "range") == 0 ||
+                strcmp(element_kind, "spread") == 0 ||
+                !rust_validate_expr(element)) return false;
+        }
+        return true;
+    }
+    if (strcmp(kind, "range") == 0)
+    {
+        json_object *start = NULL, *end = NULL;
+        return json_object_object_get_ex(expr, "start", &start) &&
+               json_object_object_get_ex(expr, "end", &end) &&
+               rust_validate_expr(start) && rust_validate_expr(end);
     }
     if (strcmp(kind, "sized_array") == 0)
     {
@@ -279,6 +295,28 @@ static bool rust_model_uses_arrays(json_object *node)
 
 static bool rust_validate_stmt(json_object *stmt);
 
+static bool json_tree_contains_kind(json_object *node, const char *wanted)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (json_tree_contains_kind(json_object_array_get_idx(node, i), wanted))
+                return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, wanted) == 0) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (json_tree_contains_kind(value, wanted)) return true;
+    }
+    return false;
+}
+
 static bool rust_validate_statements(json_object *statements)
 {
     if (!statements) return true;
@@ -323,6 +361,24 @@ static bool rust_validate_stmt(json_object *stmt)
         return json_object_object_get_ex(stmt, "condition", &condition) &&
                json_object_object_get_ex(stmt, "body", &body) &&
                rust_validate_expr(condition) && rust_validate_block(body);
+    }
+    if (strcmp(kind, "for") == 0)
+    {
+        json_object *init = NULL, *condition = NULL, *increment = NULL, *body = NULL;
+        return json_object_object_get_ex(stmt, "init", &init) &&
+               json_object_object_get_ex(stmt, "condition", &condition) &&
+               json_object_object_get_ex(stmt, "increment", &increment) &&
+               json_object_object_get_ex(stmt, "body", &body) &&
+               !json_tree_contains_kind(body, "continue") &&
+               rust_validate_stmt(init) && rust_validate_expr(condition) &&
+               rust_validate_expr(increment) && rust_validate_block(body);
+    }
+    if (strcmp(kind, "for_each") == 0)
+    {
+        json_object *iterable = NULL, *body = NULL;
+        return json_object_object_get_ex(stmt, "iterable", &iterable) &&
+               json_object_object_get_ex(stmt, "body", &body) &&
+               rust_validate_expr(iterable) && rust_validate_block(body);
     }
     if (strcmp(kind, "if") == 0)
     {
