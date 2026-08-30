@@ -155,6 +155,7 @@ typedef struct
 {
     bool left_align;
     bool force_sign;
+    bool space_sign;
     bool alternate;
     bool zero_pad;
     bool has_width;
@@ -221,9 +222,7 @@ static bool rust_parse_format_spec(const char *spec, const char *type_kind,
             case '+': parsed->force_sign = true; break;
             case '#': parsed->alternate = true; break;
             case '0': parsed->zero_pad = true; break;
-            case ' ':
-                snprintf(reason, reason_size, "space-sign flag is not supported");
-                return false;
+            case ' ': parsed->space_sign = true; break;
             default: goto flags_done;
         }
         cursor++;
@@ -316,7 +315,8 @@ flags_done:
         return false;
     }
     if (is_string_conversion &&
-        (parsed->force_sign || parsed->alternate || parsed->zero_pad))
+        (parsed->force_sign || parsed->space_sign || parsed->alternate ||
+         parsed->zero_pad))
     {
         snprintf(reason, reason_size, "numeric flags cannot format strings");
         return false;
@@ -352,7 +352,10 @@ flags_done:
         out += written;
         remaining -= (size_t)written;
     }
-    if (parsed->force_sign)
+    if (parsed->force_sign ||
+        (parsed->space_sign &&
+         ((parsed->conversion == 'd' || parsed->conversion == 'i') ||
+          is_fixed_conversion)))
     {
         written = snprintf(out, remaining, "+");
         out += written;
@@ -1112,12 +1115,27 @@ static void rust_lower_interpolation_formats(json_object *node)
                                        json_object_new_boolean(parsed.left_align));
                 json_object_object_add(part, "rust_scientific_force_sign",
                                        json_object_new_boolean(parsed.force_sign));
+                json_object_object_add(part, "rust_scientific_space_sign",
+                                       json_object_new_boolean(parsed.space_sign &&
+                                                               !parsed.force_sign));
                 json_object_object_add(part, "rust_scientific_zero_pad",
                                        json_object_new_boolean(parsed.zero_pad));
             }
             else
+            {
                 json_object_object_add(part, "rust_format",
                                        json_object_new_string(parsed.rust_format));
+                if (parsed.space_sign && !parsed.force_sign &&
+                    (parsed.conversion == 'd' || parsed.conversion == 'i' ||
+                     parsed.conversion == 'f'))
+                {
+                    json_object_object_add(part, "rust_space_sign",
+                                           json_object_new_boolean(true));
+                    json_object_object_add(part, "rust_space_sign_float",
+                                           json_object_new_boolean(
+                                               parsed.conversion == 'f'));
+                }
+            }
             if (parsed.conversion == 's' && parsed.has_width)
             {
                 json_object_object_add(part, "rust_string_width",

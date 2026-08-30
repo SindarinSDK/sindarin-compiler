@@ -1,0 +1,23 @@
+fn main(): void =>
+  var positive: int = 42
+  var negative: int = -42
+  var zero_int: int = 0
+  var unsigned: uint = 42u
+  var value: double = 1.25
+  var negative_value: double = -1.25
+  var negative_zero: double = -0.0
+  var zero: double = 0.0
+  var infinity: double = 1.0 / zero
+  var nan: double = zero / zero
+
+  println($"decimal=|{positive: d}|/|{negative: d}|/|{zero_int: d}|")
+  println($"width=|{positive: 6d}|/|{negative: 6d}|")
+  println($"zero=|{positive: 06d}|/|{negative: 06d}|")
+  println($"left=|{positive:- 6d}|/|{negative:- 6d}|")
+  println($"plus-wins=|{positive:+ 6d}|")
+  println($"unsigned=|{unsigned: 6u}|/|{unsigned: 06x}|")
+  println($"fixed=|{value: 8.2f}|/|{negative_value: 8.2f}|")
+  println($"fixed-zero=|{value: 08.2f}|/|{negative_zero: 08.2f}|")
+  println($"scientific=|{value: 12.2e}|/|{negative_value: 12.2E}|")
+  println($"scientific-zero=|{value: 012.2e}|/|{negative_zero: 012.2e}|")
+  println($"special=|{infinity: 10.2e}|/|{nan: 10.2E}|")

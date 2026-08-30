@@ -11,7 +11,7 @@ fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> Stri
 
 fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
                           width: usize, left_align: bool, force_sign: bool,
-                          zero_pad: bool) -> String {
+                          space_sign: bool, zero_pad: bool) -> String {
     let is_special = value.is_nan() || value.is_infinite();
     let magnitude = if value.is_nan() {
         if uppercase { "NAN" } else { "nan" }.to_string()
@@ -33,6 +33,8 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
         "-"
     } else if force_sign {
         "+"
+    } else if space_sign {
+        " "
     } else {
         ""
     };
@@ -46,6 +48,7 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
         format!("{}{}{}", " ".repeat(padding), sign, magnitude)
     }
 }
+
 
 fn main() {
     let mut x: i64 = 42;
