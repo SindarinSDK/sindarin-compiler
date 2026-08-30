@@ -1,0 +1,27 @@
+struct Bag =>
+  values: int[] = {}
+
+  fn add(value: int): void =>
+    self.values.push(value)
+
+  fn addPair(first: int, second: int): void =>
+    self.add(first)
+    self.add(second)
+
+  fn reverse(): void =>
+    self.values.reverse()
+
+  fn removeMiddle(): void =>
+    self.values.remove(1)
+
+  fn size(): int =>
+    return self.values.length
+
+fn main(): void =>
+  var bag: Bag = {}
+  bag.add(1)
+  bag.addPair(2, 3)
+  bag.reverse()
+  bag.removeMiddle()
+
+  println($"values={bag.values}; size={bag.size()}")
