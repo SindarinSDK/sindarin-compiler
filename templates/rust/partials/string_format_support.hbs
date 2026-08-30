@@ -1,0 +1,8 @@
+fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> String {
+    let padding = width.saturating_sub(value.len());
+    if left_align {
+        format!("{}{}", value, " ".repeat(padding))
+    } else {
+        format!("{}{}", " ".repeat(padding), value)
+    }
+}

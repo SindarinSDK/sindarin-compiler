@@ -1,0 +1,19 @@
+fn main(): void =>
+  var x: int = 42
+  var pi: double = 3.14159265
+  var name: str = "Alice"
+  var unicode: str = "é"
+  var unsigned: uint = 42u
+
+  println($"padded={x:05d}")
+  println($"hex={255:x}/{255:X}")
+  println($"octal={64:o}")
+  println($"fixed={pi:.2f}/{pi:.4f}")
+  println($"default-fixed={pi:f}")
+  println($"string=|{name:10s}|/|{name:-10s}|")
+  println($"unicode=|{unicode:3s}|")
+  println($"width=|{pi:8.2f}|")
+  println($"expr={x * 2:04d}")
+  println($"signed={x:+d}")
+  println($"unsigned={unsigned:u}")
+  println($"left=|{x:-5d}|")
