@@ -1,0 +1,8 @@
+plain=0x1a/0X1A/032
+zero=0/0/0
+width=|    0x1a|/|     032|
+left=|0X1A    |/|032     |
+zero-pad=|0x00001a|/|00000032|
+negative=0xffffffffffffffff/0xffffffff
+unsigned=0XFFFFFFFF
+space=|    0x1a|

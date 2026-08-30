@@ -55,6 +55,28 @@ fn __sn_format_character(value: char, width: usize, left_align: bool) -> String 
     }
 }
 
+fn __sn_format_integer_alternate(digits: &str, is_zero: bool, uppercase: bool,
+                                 octal: bool, width: usize, left_align: bool,
+                                 zero_pad: bool) -> String {
+    let prefix = if is_zero {
+        ""
+    } else if octal {
+        "0"
+    } else if uppercase {
+        "0X"
+    } else {
+        "0x"
+    };
+    let padding = width.saturating_sub(prefix.len() + digits.len());
+    if left_align {
+        format!("{}{}{}", prefix, digits, " ".repeat(padding))
+    } else if zero_pad {
+        format!("{}{}{}", prefix, "0".repeat(padding), digits)
+    } else {
+        format!("{}{}{}", " ".repeat(padding), prefix, digits)
+    }
+}
+
 fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
                           width: usize, left_align: bool, force_sign: bool,
                           space_sign: bool, zero_pad: bool) -> String {
