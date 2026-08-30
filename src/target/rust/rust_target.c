@@ -666,28 +666,6 @@ static bool rust_model_uses_arrays(json_object *node)
 
 static bool rust_validate_stmt(json_object *stmt);
 
-static bool json_tree_contains_kind(json_object *node, const char *wanted)
-{
-    if (!node) return false;
-    if (json_object_is_type(node, json_type_array))
-    {
-        size_t count = json_object_array_length(node);
-        for (size_t i = 0; i < count; i++)
-            if (json_tree_contains_kind(json_object_array_get_idx(node, i), wanted))
-                return true;
-        return false;
-    }
-    if (!json_object_is_type(node, json_type_object)) return false;
-    const char *kind = json_string_property(node, "kind");
-    if (kind && strcmp(kind, wanted) == 0) return true;
-    json_object_object_foreach(node, key, value)
-    {
-        (void)key;
-        if (json_tree_contains_kind(value, wanted)) return true;
-    }
-    return false;
-}
-
 static bool rust_validate_statements(json_object *statements)
 {
     if (!statements) return true;
@@ -740,7 +718,6 @@ static bool rust_validate_stmt(json_object *stmt)
                json_object_object_get_ex(stmt, "condition", &condition) &&
                json_object_object_get_ex(stmt, "increment", &increment) &&
                json_object_object_get_ex(stmt, "body", &body) &&
-               !json_tree_contains_kind(body, "continue") &&
                rust_validate_stmt(init) && rust_validate_expr(condition) &&
                rust_validate_expr(increment) && rust_validate_block(body);
     }
@@ -1052,6 +1029,63 @@ static void rust_lower_interpolation_formats(json_object *node)
     }
 }
 
+/* A C-style for loop is rendered as a Rust while loop. Continue statements
+ * owned by that loop must therefore run its increment first. Stop at nested
+ * loop boundaries because their continue statements have different owners. */
+static void rust_mark_for_continues(json_object *node, json_object *increment)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_for_continues(json_object_array_get_idx(node, i), increment);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "continue") == 0)
+    {
+        json_object_object_add(node, "rust_continue_increment",
+                               json_object_get(increment));
+        return;
+    }
+    if (kind && (strcmp(kind, "for") == 0 || strcmp(kind, "for_each") == 0 ||
+                 strcmp(kind, "while") == 0)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_mark_for_continues(value, increment);
+    }
+}
+
+static void rust_lower_for_continues(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_for_continues(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_for_continues(value);
+    }
+
+    if (!json_string_property_equals(node, "kind", "for")) return;
+    json_object *body = NULL, *increment = NULL;
+    if (json_object_object_get_ex(node, "body", &body) &&
+        json_object_object_get_ex(node, "increment", &increment))
+        rust_mark_for_continues(body, increment);
+}
+
 static bool rust_model_uses_string_helpers(json_object *node)
 {
     if (!node) return false;
@@ -1114,6 +1148,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_checked_arithmetic(model);
     rust_lower_strings(model);
     rust_lower_interpolation_formats(model);
+    rust_lower_for_continues(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
