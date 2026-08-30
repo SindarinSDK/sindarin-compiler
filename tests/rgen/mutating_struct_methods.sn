@@ -1,0 +1,28 @@
+struct Counter =>
+  label: string = ""
+  value: int = 0
+
+  fn increment(): void =>
+    self.value = self.value + 1
+
+  fn rename(label: string): void =>
+    self.label = label
+
+  fn incrementTwice(): void =>
+    self.increment()
+    self.increment()
+
+  fn describe(): string =>
+    return $"{self.label}={self.value}"
+
+fn main(): void =>
+  var counter: Counter = {
+    label: "old",
+    value: 5
+  }
+  var label: string = "new"
+
+  counter.incrementTwice()
+  counter.rename(label)
+  println(counter.describe())
+  println($"source={label}")

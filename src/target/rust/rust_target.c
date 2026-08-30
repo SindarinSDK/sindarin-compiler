@@ -879,34 +879,43 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
-static bool rust_readonly_method_node_supported(json_object *node)
+static bool rust_instance_method_node_supported(json_object *node)
 {
     if (!node) return true;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            if (!rust_readonly_method_node_supported(
+            if (!rust_instance_method_node_supported(
                     json_object_array_get_idx(node, i))) return false;
         return true;
     }
     if (!json_object_is_type(node, json_type_object)) return true;
 
     const char *kind = json_string_property(node, "kind");
-    if (kind && (strcmp(kind, "member_assign") == 0 ||
-                 strcmp(kind, "index_assign") == 0 ||
+    if (kind && (strcmp(kind, "index_assign") == 0 ||
                  strcmp(kind, "increment") == 0 ||
                  strcmp(kind, "decrement") == 0 ||
                  strcmp(kind, "static_call") == 0)) return false;
     if (kind && strcmp(kind, "variable") == 0)
         return !json_string_property_equals(node, "name", "self");
+    if (kind && strcmp(kind, "member_assign") == 0)
+    {
+        json_object *object = NULL, *value = NULL;
+        if (!json_object_object_get_ex(node, "object", &object) ||
+            !json_object_object_get_ex(node, "value", &value) ||
+            !rust_instance_method_node_supported(value)) return false;
+        if (json_string_property_equals(object, "kind", "variable") &&
+            json_string_property_equals(object, "name", "self")) return true;
+        return rust_instance_method_node_supported(object);
+    }
     if (kind && strcmp(kind, "member") == 0)
     {
         json_object *object = NULL;
         if (!json_object_object_get_ex(node, "object", &object)) return false;
         if (json_string_property_equals(object, "kind", "variable") &&
             json_string_property_equals(object, "name", "self")) return true;
-        return rust_readonly_method_node_supported(object);
+        return rust_instance_method_node_supported(object);
     }
     if (kind && strcmp(kind, "call") == 0)
     {
@@ -934,9 +943,73 @@ static bool rust_readonly_method_node_supported(json_object *node)
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        if (!rust_readonly_method_node_supported(value)) return false;
+        if (!rust_instance_method_node_supported(value)) return false;
     }
     return true;
+}
+
+static bool rust_method_has_direct_mutation(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_method_has_direct_mutation(
+                    json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+    if (json_string_property_equals(node, "kind", "member_assign")) return true;
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_method_has_direct_mutation(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_method_calls_mutating_self(json_object *node,
+                                            json_object *methods)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_method_calls_mutating_self(
+                    json_object_array_get_idx(node, i), methods)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    if (json_string_property_equals(node, "kind", "call"))
+    {
+        json_object *callee = NULL, *object = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_string_property_equals(callee, "kind", "member") &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            json_string_property_equals(object, "kind", "variable") &&
+            json_string_property_equals(object, "name", "self"))
+        {
+            const char *called_name = json_string_property(callee, "member_name");
+            size_t method_count = json_object_array_length(methods);
+            for (size_t i = 0; called_name && i < method_count; i++)
+            {
+                json_object *called = json_object_array_get_idx(methods, i);
+                const char *name = json_string_property(called, "name");
+                if (name && strcmp(name, called_name) == 0 &&
+                    json_boolean_property(called, "rust_mutating")) return true;
+            }
+        }
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_method_calls_mutating_self(value, methods)) return true;
+    }
+    return false;
 }
 
 static bool rust_validate_struct_methods(json_object *model)
@@ -956,13 +1029,44 @@ static bool rust_validate_struct_methods(json_object *model)
         for (size_t m = 0; m < method_count; m++)
         {
             json_object *method = json_object_array_get_idx(methods, m);
+            json_object *body = NULL;
+            if (!json_boolean_property(method, "is_static") &&
+                json_object_object_get_ex(method, "body", &body) &&
+                rust_method_has_direct_mutation(body))
+                json_object_object_add(method, "rust_mutating",
+                                       json_object_new_boolean(true));
+        }
+        bool changed;
+        do
+        {
+            changed = false;
+            for (size_t m = 0; m < method_count; m++)
+            {
+                json_object *method = json_object_array_get_idx(methods, m);
+                json_object *body = NULL;
+                if (!json_boolean_property(method, "is_static") &&
+                    !json_boolean_property(method, "rust_mutating") &&
+                    json_object_object_get_ex(method, "body", &body) &&
+                    rust_method_calls_mutating_self(body, methods))
+                {
+                    json_object_object_add(method, "rust_mutating",
+                                           json_object_new_boolean(true));
+                    changed = true;
+                }
+            }
+        }
+        while (changed);
+
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
             const char *method_name = json_string_property(method, "name");
             json_object *return_type = NULL, *params = NULL, *body = NULL;
             bool is_static = json_boolean_property(method, "is_static");
             if (json_boolean_property(method, "is_native"))
             {
                 fprintf(stderr,
-                        "Error: Rust target supports only non-native static and read-only instance methods on plain value struct '%s'\n",
+                        "Error: Rust target supports only non-native methods on plain value struct '%s'\n",
                         struct_name ? struct_name : "<anonymous>");
                 return false;
             }
@@ -999,7 +1103,7 @@ static bool rust_validate_struct_methods(json_object *model)
             }
             json_object_object_get_ex(method, "body", &body);
             if (!rust_validate_statements(body) ||
-                (!is_static && !rust_readonly_method_node_supported(body)))
+                (!is_static && !rust_instance_method_node_supported(body)))
             {
                 fprintf(stderr,
                         "Error: Rust target encountered an unsupported construct in method '%s.%s'\n",
@@ -1283,25 +1387,40 @@ static bool rust_owned_value_type(json_object *node)
                     strcmp(kind, "struct") == 0);
 }
 
-static void rust_mark_readonly_method_clones(json_object *node)
+static void rust_mark_instance_method_clones(json_object *node)
 {
     if (!node) return;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            rust_mark_readonly_method_clones(json_object_array_get_idx(node, i));
+            rust_mark_instance_method_clones(json_object_array_get_idx(node, i));
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
 
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "member_assign") == 0)
+    {
+        json_object *value = NULL;
+        if (json_object_object_get_ex(node, "value", &value))
+            rust_mark_instance_method_clones(value);
+        return;
+    }
+    if (kind && strcmp(kind, "call") == 0)
+    {
+        json_object *args = NULL;
+        if (json_object_object_get_ex(node, "args", &args))
+            rust_mark_instance_method_clones(args);
+        return;
+    }
+
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        rust_mark_readonly_method_clones(value);
+        rust_mark_instance_method_clones(value);
     }
 
-    const char *kind = json_string_property(node, "kind");
     if (kind && (strcmp(kind, "member") == 0 ||
                  strcmp(kind, "array_access") == 0) &&
         rust_owned_value_type(node))
@@ -1309,7 +1428,7 @@ static void rust_mark_readonly_method_clones(json_object *node)
                                json_object_new_boolean(true));
 }
 
-static void rust_lower_readonly_method_clones(json_object *model)
+static void rust_lower_instance_method_clones(json_object *model)
 {
     json_object *structs = NULL;
     if (!json_object_object_get_ex(model, "structs", &structs)) return;
@@ -1326,7 +1445,7 @@ static void rust_lower_readonly_method_clones(json_object *model)
             json_object *body = NULL;
             if (!json_boolean_property(method, "is_static") &&
                 json_object_object_get_ex(method, "body", &body))
-                rust_mark_readonly_method_clones(body);
+                rust_mark_instance_method_clones(body);
         }
     }
 }
@@ -1600,7 +1719,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_checked_arithmetic(model);
     rust_lower_strings(model);
-    rust_lower_readonly_method_clones(model);
+    rust_lower_instance_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     if (rust_model_uses_arrays(model))
