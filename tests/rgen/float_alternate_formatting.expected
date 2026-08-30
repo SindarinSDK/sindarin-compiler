@@ -1,0 +1,8 @@
+fixed=1.250000/1.25/1.
+fixed-width=|      1.|/|1.      |
+fixed-zero=|+000001.|/|-000001.|
+fixed-space=| 000001.|/|-000000.|
+scientific=1.e+00/-1.E+00/1.e+01
+scientific-width=|      1.e+00|/|1.E+00      |
+scientific-zero=|+000001.e+00|/|-000001.e+00|
+special=|     inf|/|     NAN|

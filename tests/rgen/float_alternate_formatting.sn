@@ -1,0 +1,17 @@
+fn main(): void =>
+  var value: double = 1.25
+  var negative: double = -1.25
+  var negative_zero: double = -0.0
+  var single: float = 12.5f
+  var zero: double = 0.0
+  var infinity: double = 1.0 / zero
+  var nan: double = zero / zero
+
+  println($"fixed={value:#f}/{value:#.2f}/{value:#.0f}")
+  println($"fixed-width=|{value:#8.0f}|/|{value:-#8.0f}|")
+  println($"fixed-zero=|{value:+#08.0f}|/|{negative:#08.0f}|")
+  println($"fixed-space=|{value: #08.0f}|/|{negative_zero:#08.0f}|")
+  println($"scientific={value:#.0e}/{negative:#.0E}/{single:#.0e}")
+  println($"scientific-width=|{value:#12.0e}|/|{value:-#12.0E}|")
+  println($"scientific-zero=|{value:+#012.0e}|/|{negative:#012.0e}|")
+  println($"special=|{infinity:#8.0f}|/|{nan:#8.0E}|")

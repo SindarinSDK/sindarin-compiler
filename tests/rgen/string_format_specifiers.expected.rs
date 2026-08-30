@@ -46,9 +46,44 @@ fn __sn_format_integer_alternate(digits: &str, is_zero: bool, uppercase: bool,
     }
 }
 
+fn __sn_format_fixed_alternate(value: f64, precision: usize, width: usize,
+                               left_align: bool, force_sign: bool,
+                               space_sign: bool, zero_pad: bool) -> String {
+    let is_special = value.is_nan() || value.is_infinite();
+    let magnitude = if value.is_nan() {
+        "nan".to_string()
+    } else if value.is_infinite() {
+        "inf".to_string()
+    } else {
+        let mut rendered = format!("{:.*}", precision, value.abs());
+        if precision == 0 {
+            rendered.push('.');
+        }
+        rendered
+    };
+    let sign = if value.is_sign_negative() {
+        "-"
+    } else if force_sign {
+        "+"
+    } else if space_sign {
+        " "
+    } else {
+        ""
+    };
+    let padding = width.saturating_sub(sign.len() + magnitude.len());
+    if left_align {
+        format!("{}{}{}", sign, magnitude, " ".repeat(padding))
+    } else if zero_pad && !is_special {
+        format!("{}{}{}", sign, "0".repeat(padding), magnitude)
+    } else {
+        format!("{}{}{}", " ".repeat(padding), sign, magnitude)
+    }
+}
+
 fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
                           width: usize, left_align: bool, force_sign: bool,
-                          space_sign: bool, zero_pad: bool) -> String {
+                          space_sign: bool, zero_pad: bool,
+                          alternate: bool) -> String {
     let is_special = value.is_nan() || value.is_infinite();
     let magnitude = if value.is_nan() {
         if uppercase { "NAN" } else { "nan" }.to_string()
@@ -63,6 +98,11 @@ fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool,
         let marker = if uppercase { 'E' } else { 'e' };
         let (mantissa, exponent) = rendered.rsplit_once(marker)
             .expect("scientific formatting must contain an exponent");
+        let mantissa = if alternate && precision == 0 {
+            format!("{}.", mantissa)
+        } else {
+            mantissa.to_string()
+        };
         let exponent: i32 = exponent.parse().expect("scientific exponent must be numeric");
         format!("{}{}{:+03}", mantissa, marker, exponent)
     };
