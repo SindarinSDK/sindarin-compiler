@@ -1,0 +1,25 @@
+fn main(): void =>
+  var odd_total: int = 0
+  for var i: int = 0; i < 6; i++ =>
+    if i % 2 == 0 =>
+      continue
+    odd_total = odd_total + i
+  println(odd_total)
+
+  var nested_total: int = 0
+  for var outer: int = 0; outer < 3; outer++ =>
+    var inner: int = 0
+    while inner < 3 =>
+      inner++
+      if inner < 3 =>
+        continue
+      nested_total = nested_total + outer
+  println(nested_total)
+
+  var pair_total: int = 0
+  for var row: int = 0; row < 3; row++ =>
+    for var column: int = 0; column < 3; column++ =>
+      if row == column =>
+        continue
+      pair_total++
+  println(pair_total)
