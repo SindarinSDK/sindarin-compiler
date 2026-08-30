@@ -924,7 +924,6 @@ static bool rust_instance_method_node_supported(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return true;
 
     const char *kind = json_string_property(node, "kind");
-    if (kind && strcmp(kind, "static_call") == 0) return false;
     if (kind && strcmp(kind, "variable") == 0)
         return !json_string_property_equals(node, "name", "self");
     if (kind && strcmp(kind, "member_assign") == 0)

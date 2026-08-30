@@ -1,1 +1,1 @@
-{{rust_ident type_name}}::{{rust_ident method_name}}({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{rust_clone_suffix this rust_needs_clone}}{{rust_clone_suffix this source_is_borrow}}{{rust_clone_suffix this is_ref_arg}}{{rust_clone_suffix this is_copy_arg}}{{/each}})
+{{rust_ident type_name}}::{{rust_ident method_name}}({{#each args}}{{#if @index}}, {{/if}}{{> expr this}}{{rust_clone_suffix this source_is_borrow}}{{rust_clone_suffix this is_ref_arg}}{{rust_clone_suffix this is_copy_arg}}{{/each}})
