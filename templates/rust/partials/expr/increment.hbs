@@ -1,1 +1,1 @@
-{ {{> expr operand}} += 1; {{> expr operand}} }
+{ let __sn_previous = {{> expr operand}}; {{> expr operand}} += 1; __sn_previous }

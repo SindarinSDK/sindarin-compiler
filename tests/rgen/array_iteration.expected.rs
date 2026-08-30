@@ -30,7 +30,7 @@ fn main() {
 
         while (i < 5) {
             (total = (total).checked_add(i).expect("checked arithmetic failed"));
-            { i += 1; i };
+            { let __sn_previous = i; i += 1; __sn_previous };
         }
     }
     println!("{}", total);
@@ -45,7 +45,7 @@ fn main() {
     let mut countdown: i64 = 2;
     while (countdown > 0) {
         println!("{}", countdown);
-        { countdown -= 1; countdown };
+        { let __sn_previous = countdown; countdown -= 1; __sn_previous };
     }
     let mut range_values: Vec<i64> = (3..7).collect::<Vec<i64>>();
     println!("{}", (range_values)[__sn_index((range_values).len(), 0)]);
