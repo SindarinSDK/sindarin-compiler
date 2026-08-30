@@ -1,1 +1,1 @@
-{{#if rust_checked_method}}({{> expr left}}).{{rust_checked_method}}({{> expr right}}).expect("checked arithmetic failed"){{else}}({{> expr left}} {{op_symbol op}} {{> expr right}}){{/if}}
+{{#if rust_string_concat}}{ let mut __sn_string = String::new(); __sn_string.push_str(&({{> expr left}})); __sn_string.push_str(&({{> expr right}})); __sn_string }{{else}}{{#if rust_checked_method}}({{> expr left}}).{{rust_checked_method}}({{> expr right}}).expect("checked arithmetic failed"){{else}}({{> expr left}} {{op_symbol op}} {{> expr right}}){{/if}}{{/if}}
