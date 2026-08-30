@@ -1,0 +1,29 @@
+fn main(): void =>
+  var values: int[] = {0, 1, 2, 3, 4, 5}
+  var middle: int[] = values[1..4]
+  middle.push(9)
+  println(values.length)
+  println(middle.length)
+  println(middle[0])
+  println(middle[-1])
+
+  var prefix: int[] = values[..3]
+  var suffix: int[] = values[-2..]
+  var full: int[] = values[..]
+  var clamped: int[] = values[-20..20]
+  var empty_equal: int[] = values[3..3]
+  var empty_reverse: int[] = values[4..2]
+  var empty_end: int[] = values[..- 20]
+  println(prefix[-1])
+  println(suffix[0])
+  println(suffix[-1])
+  println(full.length)
+  println(clamped.length)
+  println(empty_equal.length)
+  println(empty_reverse.length)
+  println(empty_end.length)
+
+  var names: str[] = {"alpha", "beta", "gamma"}
+  var selected: str[] = names[1..]
+  names[1] = "changed"
+  println(selected.join(","))
