@@ -9,6 +9,31 @@ fn __sn_format_string_width(value: &str, width: usize, left_align: bool) -> Stri
     }
 }
 
+fn __sn_format_scientific(value: f64, precision: usize, uppercase: bool) -> String {
+    if value.is_nan() {
+        return if uppercase { "NAN" } else { "nan" }.to_string();
+    }
+    if value.is_infinite() {
+        let magnitude = if uppercase { "INF" } else { "inf" };
+        return if value.is_sign_negative() {
+            format!("-{}", magnitude)
+        } else {
+            magnitude.to_string()
+        };
+    }
+
+    let rendered = if uppercase {
+        format!("{:.*E}", precision, value)
+    } else {
+        format!("{:.*e}", precision, value)
+    };
+    let marker = if uppercase { 'E' } else { 'e' };
+    let (mantissa, exponent) = rendered.rsplit_once(marker)
+        .expect("scientific formatting must contain an exponent");
+    let exponent: i32 = exponent.parse().expect("scientific exponent must be numeric");
+    format!("{}{}{:+03}", mantissa, marker, exponent)
+}
+
 fn main() {
     let mut x: i64 = 42;
     let mut pi: f64 = 3.1415926500000002;

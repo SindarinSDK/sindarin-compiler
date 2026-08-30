@@ -258,13 +258,11 @@ flags_done:
     parsed->conversion = *cursor;
 
     bool is_integer_conversion = strchr("diuxXo", parsed->conversion) != NULL;
-    bool is_float_conversion = parsed->conversion == 'f';
+    bool is_fixed_conversion = parsed->conversion == 'f';
+    bool is_scientific_conversion = parsed->conversion == 'e' ||
+                                    parsed->conversion == 'E';
+    bool is_float_conversion = is_fixed_conversion || is_scientific_conversion;
     bool is_string_conversion = parsed->conversion == 's';
-    if (parsed->conversion == 'e' || parsed->conversion == 'E')
-    {
-        snprintf(reason, reason_size, "scientific notation is not supported yet");
-        return false;
-    }
     if (!is_integer_conversion && !is_float_conversion &&
         !is_string_conversion)
     {
@@ -289,7 +287,7 @@ flags_done:
     }
     if (is_float_conversion && !rust_float_type(type_kind))
     {
-        snprintf(reason, reason_size, "fixed-point conversion requires a float expression");
+        snprintf(reason, reason_size, "floating-point conversion requires a float expression");
         return false;
     }
     if (is_string_conversion && (!type_kind || strcmp(type_kind, "string") != 0))
@@ -320,6 +318,15 @@ flags_done:
         snprintf(reason, reason_size, "sign flag is not valid for this conversion");
         return false;
     }
+    if (is_scientific_conversion &&
+        (parsed->left_align || parsed->force_sign || parsed->zero_pad || parsed->has_width))
+    {
+        snprintf(reason, reason_size,
+                 "scientific field width and flags are not supported yet");
+        return false;
+    }
+    if (is_scientific_conversion) return true;
+
     char *out = parsed->rust_format;
     size_t remaining = sizeof(parsed->rust_format);
     int written = snprintf(out, remaining, "{:");
@@ -356,7 +363,7 @@ flags_done:
         out += written;
         remaining -= (size_t)written;
     }
-    if (is_float_conversion)
+    if (is_fixed_conversion)
     {
         int precision = parsed->has_precision ? parsed->precision : 6;
         written = snprintf(out, remaining, ".%d", precision);
@@ -1019,8 +1026,19 @@ static void rust_lower_interpolation_formats(json_object *node)
                                    json_string_property(type, "kind"), &parsed,
                                    reason, sizeof(reason)))
         {
-            json_object_object_add(part, "rust_format",
-                                   json_object_new_string(parsed.rust_format));
+            if (parsed.conversion == 'e' || parsed.conversion == 'E')
+            {
+                json_object_object_add(part, "rust_scientific",
+                                       json_object_new_boolean(true));
+                json_object_object_add(part, "rust_scientific_precision",
+                                       json_object_new_int(parsed.has_precision
+                                                           ? parsed.precision : 6));
+                json_object_object_add(part, "rust_scientific_uppercase",
+                                       json_object_new_boolean(parsed.conversion == 'E'));
+            }
+            else
+                json_object_object_add(part, "rust_format",
+                                       json_object_new_string(parsed.rust_format));
             if (parsed.conversion == 's' && parsed.has_width)
             {
                 json_object_object_add(part, "rust_string_width",
@@ -1068,7 +1086,8 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     }
     if (!json_object_is_type(node, json_type_object)) return false;
     json_object *string_width = NULL;
-    if (json_object_object_get_ex(node, "rust_string_width", &string_width)) return true;
+    if (json_object_object_get_ex(node, "rust_string_width", &string_width) ||
+        json_object_object_get_ex(node, "rust_scientific", &string_width)) return true;
     json_object_object_foreach(node, key, value)
     {
         (void)key;

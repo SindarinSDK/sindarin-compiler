@@ -62,8 +62,8 @@ currently include `contains`, `startsWith`, `endsWith`, `trim`, `toUpper`,
 are also supported, and `copyOf(string)` provides an explicit clone. Concatenation
 currently requires string operands, and other string methods are rejected with a
 Rust-target diagnostic. Rust interpolation supports printf-style decimal,
-hexadecimal, octal, fixed-point, and string-width specifiers; unsupported
-formats such as scientific notation and alternate forms are rejected explicitly.
+hexadecimal, octal, fixed-point, scientific, and string-width specifiers;
+unsupported formats and flag combinations are rejected explicitly.
 
 ## Example
 
