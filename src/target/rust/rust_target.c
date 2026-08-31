@@ -1269,7 +1269,8 @@ static bool rust_validate_model_impl(json_object *model)
                     bool mem_qual_supported =
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
-                         rust_heap_free_named_struct_type(param_type)) ||
+                         (rust_heap_free_named_struct_type(param_type) ||
+                          json_string_property_equals(param_type, "kind", "int"))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
@@ -1868,6 +1869,64 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     return false;
 }
 
+static void rust_mark_int_ref_uses(json_object *node, const char *param_name)
+{
+    if (!node || !param_name) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_mark_int_ref_uses(json_object_array_get_idx(node, i), param_name);
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "variable") == 0 &&
+        json_boolean_property(node, "is_captured") &&
+        !json_boolean_property(node, "is_ref_arg") &&
+        json_string_property_equals(node, "name", param_name))
+    {
+        json_object_object_add(node, "rust_deref", json_object_new_boolean(true));
+        return;
+    }
+    if (kind && strcmp(kind, "assign") == 0 &&
+        json_boolean_property(node, "is_captured") &&
+        json_string_property_equals(node, "target", param_name))
+        json_object_object_add(node, "rust_deref_target", json_object_new_boolean(true));
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_mark_int_ref_uses(value, param_name);
+    }
+}
+
+static void rust_lower_int_ref_parameters(json_object *model)
+{
+    json_object *functions = NULL;
+    if (!json_object_object_get_ex(model, "functions", &functions)) return;
+    size_t function_count = json_object_array_length(functions);
+    for (size_t i = 0; i < function_count; i++)
+    {
+        json_object *function = json_object_array_get_idx(functions, i);
+        json_object *params = NULL, *body = NULL;
+        if (!json_object_object_get_ex(function, "params", &params) ||
+            !json_object_object_get_ex(function, "body", &body)) continue;
+        size_t param_count = json_object_array_length(params);
+        for (size_t p = 0; p < param_count; p++)
+        {
+            json_object *param = json_object_array_get_idx(params, p);
+            json_object *type = NULL;
+            const char *name = json_string_property(param, "name");
+            if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
+                json_object_object_get_ex(param, "type", &type) &&
+                json_string_property_equals(type, "kind", "int"))
+                rust_mark_int_ref_uses(body, name);
+        }
+    }
+}
+
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
@@ -1887,6 +1946,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_instance_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
+    rust_lower_int_ref_parameters(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))

@@ -1,0 +1,11 @@
+fn increment(value: int as ref): void =>
+  value = value + 1
+
+fn twice(value: int as ref): void =>
+  increment(value)
+  value++
+
+fn main(): void =>
+  var value: int = 1
+  twice(value)
+  println(value)

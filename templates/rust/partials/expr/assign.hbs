@@ -1,1 +1,1 @@
-({{rust_ident target}} = {{> expr value}}{{rust_clone_suffix value source_is_borrow}})
+({{#if rust_deref_target}}*({{/if}}{{rust_ident target}}{{#if rust_deref_target}}){{/if}} = {{> expr value}}{{rust_clone_suffix value source_is_borrow}})
