@@ -1,0 +1,11 @@
+struct Label =>
+  text: str
+
+  static fn rename(label: Label as val): str =>
+    label.text = "changed"
+    return label.text
+
+fn main(): void =>
+  var label: Label = { text: "original" }
+  println(Label.rename(label))
+  println(label.text)
