@@ -227,6 +227,20 @@ static bool rust_array_concat_type_supported(json_object *type)
                      strcmp(kind, "string") == 0));
 }
 
+static bool rust_array_copy_type_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (kind && strcmp(kind, "struct") == 0)
+    {
+        json_object *structure = rust_find_struct(
+            rust_validation_model, json_string_property(type, "name"));
+        return structure && !json_boolean_property(structure, "has_heap_fields");
+    }
+    return rust_integer_type(kind) || rust_float_type(kind) ||
+           (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
+                     strcmp(kind, "string") == 0));
+}
+
 static bool rust_parse_format_spec(const char *spec, const char *type_kind,
                                    RustFormatSpec *parsed, char *reason,
                                    size_t reason_size)
@@ -603,20 +617,16 @@ static bool rust_validate_expr(json_object *expr)
         json_object *operand = NULL, *operand_type = NULL;
         json_object *element_type = NULL;
         const char *operand_kind = NULL;
-        const char *element_kind = NULL;
         if (!json_object_object_get_ex(expr, "operand", &operand) ||
             !json_object_object_get_ex(operand, "type", &operand_type) ||
             !(operand_kind = json_string_property(operand_type, "kind")) ||
             (strcmp(operand_kind, "string") != 0 &&
              (strcmp(operand_kind, "array") != 0 ||
               !json_object_object_get_ex(operand_type, "element_type", &element_type) ||
-              !(element_kind = json_string_property(element_type, "kind")) ||
-              (!rust_integer_type(element_kind) && strcmp(element_kind, "string") != 0 &&
-               strcmp(element_kind, "bool") != 0 && strcmp(element_kind, "char") != 0 &&
-               !rust_float_type(element_kind)))))
+              !rust_array_copy_type_supported(element_type))))
         {
             fprintf(stderr,
-                    "Error: Rust target currently supports copyOf() only for strings, integer arrays, string arrays, boolean arrays, character arrays, and floating-point arrays\n");
+                    "Error: Rust target currently supports copyOf() only for strings and arrays of integers, strings, booleans, characters, floating-point values, and heap-free named value structs\n");
             return false;
         }
         return rust_validate_expr(operand);
