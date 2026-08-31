@@ -20,7 +20,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
   - Stmt kinds `str`/`for_each_iter`/`lock`/`using`: `src/cgen/gen_model_stmt.c:94` (`str`), `:797` (`for_each_iter`), `:1019` (`lock`), `:1042` (`using`). CONFIRMED.
   - C cgen tests prove C support for `sizeof` (`tests/cgen/expr_sizeof.expected.c`), `spread` (`expr_spread.expected.c`), `thread_spawn/detach/sync`, `lambda`, `method_call` (`expr_call_method.expected.c`), `mem_struct_val_cleanup`, `mem_struct_ref_refcount`, `struct_operator_eq`. CONFIRMED.
   - Default target C: `src/compiler.c:31`; target parse `src/target/target.c:74` (c/rust/rs); toolchain gate hit only for executable output: `src/target/target.c:201`. CONFIRMED.
-  - CI (`.github/workflows/ci.yml`) has **no `rustup`/rust install or version pin**; rgen invokes runner-bundled `rustc`. CONFIRMED.
+  - CI (`.github/workflows/ci.yml`) installs/selects the exact Rust **1.93.1** via `rustup` for **every OS matrix job** before setup/build/test and records `rustc --version --verbose`. CONFIRMED.
   - Rust param gating: method-param block `rust_target.c:1148-1172`, function-param block `:1265-1283`; `as_ref` restricted to `int`/`long` (`:1271-1274`), heap-free named structs only (`rust_heap_free_named_struct_type`, `:223,235`). CONFIRMED.
   - `match`, `sizeof`, `typeof`, `value_of`, `address_of`, `spread`, `sized_array`, pointer/stepped slices all verified as C-supported + Rust-gap via `rust_validate_expr` (`rust_target.c:467`). CONFIRMED.
 
@@ -49,7 +49,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
 | E10 | rgen coverage | 45 positive (`tests/rgen/*`) + 8 negative (`tests/rgen/errors/*`) | CONFIRMED |
 | E11 | Baseline green | Baseline table above | CONFIRMED |
 | E12 | C-only suites | integration 1142, integration-errors 58, explore 224, explore-errors 11, cgen 107 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
-| E13 | CI no rustc pin | `.github/workflows/ci.yml` (no `rustup`); rgen relies on runner-bundled `rustc` | CONFIRMED |
+| E13 | CI rustc pin | `.github/workflows/ci.yml` installs/selects exact Rust **1.93.1** via `rustup` for every OS matrix job before setup/build/test and records `rustc --version --verbose` | CONFIRMED |
 
 ---
 
@@ -140,9 +140,9 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | Emitted source & executable compilation | `rust_build` (`rust_target.c:1973`) invokes `rustc --edition=2021`; rgen harness builds + runs | #9 | **PARITY** — rgen emit→snapshot→`rustc`→run→output | — | Low | M0 done |
 | `SN_RUSTC` / `SN_RUSTFLAGS` / `-g`/`-p` profile / build dirs / keep-generated / config | `rust_target.c:11,17,1973,1981-1987`; `src/target/target.c:232-239` (`.sn/build/<target>/<base>_<pid>/`) | #9 | **UT/ABSENT** — `SN_RUSTFLAGS` is env-only (no `sn.rust.cfg`); no test asserts flag propagation | Add `SN_RUSTFLAGS`/`-g`/`-p` propagation tests (**PR-A**); user input required **only if a public configuration contract would change** | Med | **PR-A** |
 | Host toolchain | `rustc 1.93.1` verified on **Spark 1** (read-only `rustc --version`) and **Spark 2** | — | **CONFIRMED** | — | Low | — |
-| CI Rust toolchain | `.github/workflows/ci.yml`: `make setup`→`make build`→`make test`; **no `rustup`/rust install, no version pin**; rgen invokes runner-bundled `rustc` from PATH | #9–#56 | **RISK** — a runner image lacking rustc fails all 45 rgen tests with a toolchain error, masking real source-parity regressions | Add `rustup` install + version pin + a `--target rust` sample build step | Med–High | **PR-A** |
+| CI Rust toolchain | `.github/workflows/ci.yml`: `make setup`→`make build`→`make test`; matrix-wide `Pin Rust toolchain` step installs/defaults Rust **1.93.1** via `rustup` and records `rustc --version --verbose` | #9–#56 | **PINNED** for **1.93.1** across **Ubuntu/Windows/macOS** | Explicit Rust headline sample build/run | Med | **PR-A** |
 | PR #9–#56 check/review evidence | **Laptop GitHub historical inspection:** all cross-platform **Build checks green**; **no review/comments** on any PR | #9–#56 | **Laptop GitHub historical inspection** (docs-only PR checks may be skipped by `paths-ignore`; re-inspect before each merge) | — | Low | — |
-| Platform assumptions | Platform = `linux`/`darwin`/`windows` (Makefile; pkg libs `.sn/<pkg>/libs/<platform>/`) | — | **UT** — Rust target assumes host rustc; no platform-specific handling | Document assumptions + pin per-OS toolchain | Med | **PR-A** |
+| Platform assumptions | Platform = `linux`/`darwin`/`windows` (Makefile; pkg libs `.sn/<pkg>/libs/<platform>/`) | — | **PARTIAL** — per-OS toolchain now pinned (Rust 1.93.1), but target-specific platform behavior remains under-tested | Document platform assumptions + per-platform testing | Med | **PR-A** |
 
 # TEST-COVERAGE GAP
 
