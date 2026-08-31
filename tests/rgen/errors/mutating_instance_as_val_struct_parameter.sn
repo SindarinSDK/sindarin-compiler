@@ -1,0 +1,11 @@
+struct Point =>
+  x: int
+
+  fn add(other: Point as val): void =>
+    self.x = self.x + other.x
+
+fn main(): void =>
+  var point: Point = { x: 1 }
+  var other: Point = { x: 2 }
+  point.add(other)
+  println(point.x)
