@@ -1,0 +1,11 @@
+fn increment(value: long as ref): void =>
+  value = value + 1
+
+fn twice(value: long as ref): void =>
+  increment(value)
+  value++
+
+fn main(): void =>
+  var value: long = 100
+  twice(value)
+  println(value)
