@@ -1,0 +1,21 @@
+fn main(): void =>
+  var zero: double = 0.0
+  var negative_zero: double = -0.0
+  var nan: double = zero / zero
+  var infinity: double = 1.0 / zero
+  var negative_infinity: double = -1.0 / zero
+  var source: double[] = {1.25, negative_zero, nan, infinity, negative_infinity}
+  var copied: double[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{copied[0]:.2f}")
+  println(1.0 / copied[1] == negative_infinity)
+  println(copied[2] != copied[2])
+  println(copied[3] == infinity)
+  println(copied[4] == negative_infinity)
+
+  source[0] = 2.5
+  copied[4] = -3.75
+
+  println($"{source[0]:.2f},{source[4]:.2f}")
+  println($"{copied[0]:.2f},{copied[4]:.2f}")
