@@ -1243,8 +1243,12 @@ static bool rust_validate_model_impl(json_object *model)
                 {
                     json_object *param = json_object_array_get_idx(params, p);
                     json_object *param_type = NULL;
+                    const char *mem_qual = json_string_property(param, "mem_qual");
+                    const char *sync_mod = json_string_property(param, "sync_mod");
                     if (!json_object_object_get_ex(param, "type", &param_type) ||
-                        !rust_type_supported(param_type))
+                        !rust_type_supported(param_type) ||
+                        (mem_qual && strcmp(mem_qual, "default") != 0) ||
+                        (sync_mod && strcmp(sync_mod, "none") != 0))
                     {
                         fprintf(stderr, "Error: Rust target does not support a parameter of function '%s'\n", name);
                         return false;

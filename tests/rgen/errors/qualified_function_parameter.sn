@@ -1,0 +1,10 @@
+struct Point =>
+  x: int
+
+fn increment(point: Point as ref): void =>
+  point.x = point.x + 1
+
+fn main(): void =>
+  var point: Point = { x: 1 }
+  increment(point)
+  println(point.x)
