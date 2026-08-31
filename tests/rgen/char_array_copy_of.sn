@@ -1,0 +1,13 @@
+fn main(): void =>
+  var source: char[] = {'A', '\t', '\0', 'z'}
+  var copied: char[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{source[0]:c},{source[1]:c},{source[2]:c},{source[3]:c}")
+  println($"{copied[0]:c},{copied[1]:c},{copied[2]:c},{copied[3]:c}")
+
+  source[0] = 'S'
+  copied[3] = 'C'
+
+  println($"{source[0]:c},{source[3]:c}")
+  println($"{copied[0]:c},{copied[3]:c}")
