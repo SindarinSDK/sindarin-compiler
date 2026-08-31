@@ -1,0 +1,13 @@
+struct Label =>
+  text: str
+
+struct Prefixer =>
+  count: int
+
+  fn copy(label: Label as val): str =>
+    return label.text
+
+fn main(): void =>
+  var prefixer: Prefixer = { count: 0 }
+  var label: Label = { text: "original" }
+  println(prefixer.copy(label))

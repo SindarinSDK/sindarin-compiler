@@ -1,0 +1,16 @@
+struct Point =>
+  x: int
+
+  fn offset(other: Point as val): int =>
+    var replacement: Point = { x: other.x + self.x }
+    other = replacement
+    return other.x
+
+fn main(): void =>
+  var point: Point = { x: 1 }
+  var other: Point = { x: 2 }
+  println(point.offset(other))
+  println(other.x)
+  println(point.x)
+  println(point.offset(point))
+  println(point.x)
