@@ -1,0 +1,14 @@
+fn main(): void =>
+  var left: str[] = {"alpha", "beta"}
+  var right: str[] = {"gamma", "delta"}
+  var combined: str[] = left.concat(right)
+
+  println(combined.length)
+  println(combined.join(","))
+
+  left[0] = "changed-left"
+  right[1] = "changed-right"
+
+  println(left.join(","))
+  println(right.join(","))
+  println(combined.join(","))
