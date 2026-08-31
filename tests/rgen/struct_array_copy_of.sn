@@ -1,0 +1,29 @@
+struct Point =>
+  x: int
+  y: int
+
+fn main(): void =>
+  var source: Point[] = { Point {
+    x: 1,
+    y: 10
+  }, Point {
+    x: 2,
+    y: 20
+  } }
+  var copied: Point[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{source[0].x},{source[0].y}:{source[1].x},{source[1].y}")
+  println($"{copied[0].x},{copied[0].y}:{copied[1].x},{copied[1].y}")
+
+  source[0] = Point {
+    x: 100,
+    y: 1000
+  }
+  copied[1] = Point {
+    x: 200,
+    y: 2000
+  }
+
+  println($"{source[0].x},{source[1].y}")
+  println($"{copied[0].x},{copied[1].y}")
