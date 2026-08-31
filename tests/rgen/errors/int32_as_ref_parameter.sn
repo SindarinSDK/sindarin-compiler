@@ -1,7 +1,7 @@
-fn increment(value: long as ref): void =>
+fn increment(value: int32 as ref): void =>
   value = value + 1
 
 fn main(): void =>
-  var value: long = 1
+  var value: int32 = 1
   increment(value)
   println(value)

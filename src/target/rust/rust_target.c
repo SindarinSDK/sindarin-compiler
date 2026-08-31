@@ -1270,7 +1270,8 @@ static bool rust_validate_model_impl(json_object *model)
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||
-                          json_string_property_equals(param_type, "kind", "int"))) ||
+                          json_string_property_equals(param_type, "kind", "int") ||
+                          json_string_property_equals(param_type, "kind", "long"))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
@@ -1869,14 +1870,14 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     return false;
 }
 
-static void rust_mark_int_ref_uses(json_object *node, const char *param_name)
+static void rust_mark_integer_ref_uses(json_object *node, const char *param_name)
 {
     if (!node || !param_name) return;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            rust_mark_int_ref_uses(json_object_array_get_idx(node, i), param_name);
+            rust_mark_integer_ref_uses(json_object_array_get_idx(node, i), param_name);
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
@@ -1898,11 +1899,11 @@ static void rust_mark_int_ref_uses(json_object *node, const char *param_name)
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        rust_mark_int_ref_uses(value, param_name);
+        rust_mark_integer_ref_uses(value, param_name);
     }
 }
 
-static void rust_lower_int_ref_parameters(json_object *model)
+static void rust_lower_integer_ref_parameters(json_object *model)
 {
     json_object *functions = NULL;
     if (!json_object_object_get_ex(model, "functions", &functions)) return;
@@ -1921,8 +1922,9 @@ static void rust_lower_int_ref_parameters(json_object *model)
             const char *name = json_string_property(param, "name");
             if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                 json_object_object_get_ex(param, "type", &type) &&
-                json_string_property_equals(type, "kind", "int"))
-                rust_mark_int_ref_uses(body, name);
+                (json_string_property_equals(type, "kind", "int") ||
+                 json_string_property_equals(type, "kind", "long")))
+                rust_mark_integer_ref_uses(body, name);
         }
     }
 }
@@ -1946,7 +1948,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_instance_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
-    rust_lower_int_ref_parameters(model);
+    rust_lower_integer_ref_parameters(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
