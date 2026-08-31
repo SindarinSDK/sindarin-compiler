@@ -227,15 +227,19 @@ static bool rust_array_concat_type_supported(json_object *type)
                      strcmp(kind, "string") == 0));
 }
 
+static bool rust_heap_free_named_struct_type(json_object *type)
+{
+    if (!json_string_property_equals(type, "kind", "struct")) return false;
+    json_object *structure = rust_find_struct(
+        rust_validation_model, json_string_property(type, "name"));
+    return structure && !json_boolean_property(structure, "has_heap_fields");
+}
+
 static bool rust_array_copy_type_supported(json_object *type)
 {
     const char *kind = json_string_property(type, "kind");
     if (kind && strcmp(kind, "struct") == 0)
-    {
-        json_object *structure = rust_find_struct(
-            rust_validation_model, json_string_property(type, "name"));
-        return structure && !json_boolean_property(structure, "has_heap_fields");
-    }
+        return rust_heap_free_named_struct_type(type);
     return rust_integer_type(kind) || rust_float_type(kind) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
                      strcmp(kind, "string") == 0));
@@ -1245,9 +1249,15 @@ static bool rust_validate_model_impl(json_object *model)
                     json_object *param_type = NULL;
                     const char *mem_qual = json_string_property(param, "mem_qual");
                     const char *sync_mod = json_string_property(param, "sync_mod");
-                    if (!json_object_object_get_ex(param, "type", &param_type) ||
+                    bool has_param_type =
+                        json_object_object_get_ex(param, "type", &param_type);
+                    bool mem_qual_supported =
+                        !mem_qual || strcmp(mem_qual, "default") == 0 ||
+                        (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
+                         rust_heap_free_named_struct_type(param_type));
+                    if (!has_param_type ||
                         !rust_type_supported(param_type) ||
-                        (mem_qual && strcmp(mem_qual, "default") != 0) ||
+                        !mem_qual_supported ||
                         (sync_mod && strcmp(sync_mod, "none") != 0))
                     {
                         fprintf(stderr, "Error: Rust target does not support a parameter of function '%s'\n", name);
