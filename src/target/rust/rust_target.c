@@ -1254,6 +1254,8 @@ static bool rust_validate_model_impl(json_object *model)
                     bool mem_qual_supported =
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
+                         rust_heap_free_named_struct_type(param_type)) ||
+                        (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
                         !rust_type_supported(param_type) ||
