@@ -447,6 +447,8 @@ static void test_emit_c_output_path(void)
     int result = compiler_parse_args(argc, argv, &options);
     assert(result == 1);
     /* In emit-c mode, output should be .c file */
+    assert(options.target == TARGET_C);
+    assert(options.output_kind == OUTPUT_SOURCE);
     assert(options.output_file != NULL);
     assert(strcmp(options.output_file, "myfile.c") == 0);
     assert(options.executable_file == NULL);
@@ -482,7 +484,9 @@ static void test_emit_rust_output_path(void)
 
 static void test_target_default_is_c(void)
 {
-    /* No target flags: the compiler must keep C as the default target. */
+    /* No target flags: the compiler must keep C as the default target.
+       Exercise the real compiler_init path, which is where the default
+       is actually assigned (src/compiler.c:31). */
     CompilerOptions options;
     memset(&options, 0, sizeof(options));
     const char *args[] = {"sn", "test.sn"};
@@ -490,14 +494,11 @@ static void test_target_default_is_c(void)
     char **argv;
     make_args(&argc, &argv, args, 2);
 
-    arena_init(&options.arena, 1024);
-
-    int result = compiler_parse_args(argc, argv, &options);
-    assert(result == 1);
+    compiler_init(&options, argc, argv);
     assert(options.target == TARGET_C);
     assert(options.output_kind == OUTPUT_EXECUTABLE);
 
-    arena_free(&options.arena);
+    compiler_cleanup(&options);
 }
 
 static void test_target_c_explicit(void)
