@@ -1,0 +1,12 @@
+fn main(): void =>
+  var source: str[] = {"alpha", "beta"}
+  var copied: str[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{source[0]},{source[1]}:{copied[0]},{copied[1]}")
+
+  source[0] = "changed-source"
+  copied[1] = "changed-copy"
+
+  println($"{source[0]},{source[1]}")
+  println($"{copied[0]},{copied[1]}")
