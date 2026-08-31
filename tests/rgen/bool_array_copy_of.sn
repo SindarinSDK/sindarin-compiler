@@ -1,0 +1,13 @@
+fn main(): void =>
+  var source: bool[] = {true, false, true}
+  var copied: bool[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{source[0]},{source[1]},{source[2]}")
+  println($"{copied[0]},{copied[1]},{copied[2]}")
+
+  source[0] = false
+  copied[1] = true
+
+  println($"{source[0]},{source[1]},{source[2]}")
+  println($"{copied[0]},{copied[1]},{copied[2]}")
