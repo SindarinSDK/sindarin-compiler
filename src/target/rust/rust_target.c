@@ -191,6 +191,7 @@ static bool rust_unsigned_integer_type(const char *kind)
 static bool rust_array_search_type_supported(const char *kind)
 {
     return rust_integer_type(kind) ||
+           (kind && strcmp(kind, "double") == 0) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
                      strcmp(kind, "string") == 0));
 }
@@ -1387,6 +1388,45 @@ static void rust_lower_strings(json_object *node)
     }
 }
 
+/* C array search compares non-string elements byte-for-byte. Mark floating
+ * searches so Rust preserves C behavior for signed zero and NaN payloads. */
+static void rust_lower_array_searches(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_array_searches(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_array_searches(value);
+    }
+
+    if (!json_string_property_equals(node, "kind", "call")) return;
+    json_object *callee = NULL, *object = NULL, *array_type = NULL, *element_type = NULL;
+    if (!json_object_object_get_ex(node, "callee", &callee) ||
+        !json_string_property_equals(callee, "kind", "member") ||
+        !json_object_object_get_ex(callee, "object", &object) ||
+        !json_object_object_get_ex(object, "type", &array_type) ||
+        !json_string_property_equals(array_type, "kind", "array") ||
+        !json_object_object_get_ex(array_type, "element_type", &element_type)) return;
+
+    const char *method = json_string_property(callee, "member_name");
+    const char *element_kind = json_string_property(element_type, "kind");
+    if (!method || (strcmp(method, "contains") != 0 && strcmp(method, "indexOf") != 0) ||
+        !element_kind || strcmp(element_kind, "double") != 0) return;
+
+    json_object_object_add(node, "rust_float_array_search", json_object_new_boolean(true));
+    json_object_object_add(node, "rust_float_array_search_type",
+                           json_object_new_string("f64"));
+}
+
 static bool rust_owned_value_type(json_object *node)
 {
     json_object *type = NULL;
@@ -1739,6 +1779,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_checked_arithmetic(model);
     rust_lower_strings(model);
+    rust_lower_array_searches(model);
     rust_lower_instance_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
