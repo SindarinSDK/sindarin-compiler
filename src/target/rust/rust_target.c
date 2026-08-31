@@ -126,6 +126,8 @@ static bool rust_validate_structs(json_object *model)
     return true;
 }
 
+static json_object *rust_validation_model;
+
 static bool rust_validate_expr(json_object *expr);
 
 static bool rust_array_method_supported(const char *name)
@@ -196,8 +198,30 @@ static bool rust_array_search_type_supported(const char *kind)
                      strcmp(kind, "string") == 0));
 }
 
-static bool rust_array_concat_type_supported(const char *kind)
+static json_object *rust_find_struct(json_object *model, const char *name)
 {
+    json_object *structs = NULL;
+    if (!model || !name || !json_object_object_get_ex(model, "structs", &structs))
+        return NULL;
+
+    size_t count = json_object_array_length(structs);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (json_string_property_equals(structure, "name", name)) return structure;
+    }
+    return NULL;
+}
+
+static bool rust_array_concat_type_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (kind && strcmp(kind, "struct") == 0)
+    {
+        json_object *structure = rust_find_struct(
+            rust_validation_model, json_string_property(type, "name"));
+        return structure && !json_boolean_property(structure, "has_heap_fields");
+    }
     return rust_integer_type(kind) || rust_float_type(kind) ||
            (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
                      strcmp(kind, "string") == 0));
@@ -732,7 +756,7 @@ static bool rust_validate_expr(json_object *expr)
                     const char *element_kind = NULL;
                     if (!json_object_object_get_ex(object_type, "element_type", &element_type) ||
                         !(element_kind = json_string_property(element_type, "kind")) ||
-                        !rust_array_concat_type_supported(element_kind))
+                        !rust_array_concat_type_supported(element_type))
                     {
                         fprintf(stderr,
                                 "Error: Rust target does not support array method 'concat' for %s elements yet\n",
@@ -1129,7 +1153,7 @@ static bool rust_validate_struct_methods(json_object *model)
     return true;
 }
 
-static bool rust_validate_model(json_object *model)
+static bool rust_validate_model_impl(json_object *model)
 {
     const char *unsupported = NULL;
     if (!array_is_empty(model, "globals")) unsupported = "global variables";
@@ -1217,6 +1241,14 @@ static bool rust_validate_model(json_object *model)
         }
     }
     return true;
+}
+
+static bool rust_validate_model(json_object *model)
+{
+    rust_validation_model = model;
+    bool valid = rust_validate_model_impl(model);
+    rust_validation_model = NULL;
+    return valid;
 }
 
 /* Annotate target-neutral binary nodes with the Rust checked-arithmetic method

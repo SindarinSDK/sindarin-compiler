@@ -1,0 +1,38 @@
+struct Point =>
+  x: int
+  y: int
+
+fn main(): void =>
+  var left: Point[] = { Point {
+    x: 1,
+    y: 10
+  }, Point {
+    x: 2,
+    y: 20
+  } }
+  var right: Point[] = { Point {
+    x: 3,
+    y: 30
+  }, Point {
+    x: 4,
+    y: 40
+  } }
+  var combined: Point[] = left.concat(right)
+
+  println(combined.length)
+  println($"{combined[0].x},{combined[0].y}")
+  println($"{combined[1].x},{combined[1].y}")
+  println($"{combined[2].x},{combined[2].y}")
+  println($"{combined[3].x},{combined[3].y}")
+
+  left[0] = Point {
+    x: 100,
+    y: 1000
+  }
+  right[1] = Point {
+    x: 4000,
+    y: 400
+  }
+
+  println($"{left[0].x},{right[1].y}")
+  println($"{combined[0].x},{combined[3].y}")
