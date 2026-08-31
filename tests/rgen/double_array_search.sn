@@ -1,0 +1,12 @@
+fn main(): void =>
+  var zero: double = 0.0
+  var negative_zero: double = -0.0
+  var nan: double = zero / zero
+  var values: double[] = {zero, 1.5, nan, 1.5}
+
+  println(values.contains(1.5))
+  println(values.indexOf(1.5))
+  println(values.contains(negative_zero))
+  println(values.indexOf(negative_zero))
+  println(values.contains(nan))
+  println(values.indexOf(nan))
