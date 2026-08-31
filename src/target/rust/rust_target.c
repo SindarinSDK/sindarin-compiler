@@ -612,10 +612,10 @@ static bool rust_validate_expr(json_object *expr)
               !json_object_object_get_ex(operand_type, "element_type", &element_type) ||
               !(element_kind = json_string_property(element_type, "kind")) ||
               (!rust_integer_type(element_kind) && strcmp(element_kind, "string") != 0 &&
-               strcmp(element_kind, "bool") != 0))))
+               strcmp(element_kind, "bool") != 0 && strcmp(element_kind, "char") != 0))))
         {
             fprintf(stderr,
-                    "Error: Rust target currently supports copyOf() only for strings, integer arrays, string arrays, and boolean arrays\n");
+                    "Error: Rust target currently supports copyOf() only for strings, integer arrays, string arrays, boolean arrays, and character arrays\n");
             return false;
         }
         return rust_validate_expr(operand);
