@@ -1147,13 +1147,21 @@ static bool rust_validate_struct_methods(json_object *model)
                     json_object *param_type = NULL;
                     const char *mem_qual = json_string_property(param, "mem_qual");
                     const char *sync_mod = json_string_property(param, "sync_mod");
-                    if (!json_object_object_get_ex(param, "type", &param_type) ||
+                    bool has_param_type =
+                        json_object_object_get_ex(param, "type", &param_type);
+                    bool mem_qual_supported =
+                        !mem_qual || strcmp(mem_qual, "default") == 0 ||
+                        (is_static && has_param_type &&
+                         strcmp(mem_qual, "as_ref") == 0 &&
+                         rust_heap_free_named_struct_type(param_type));
+                    if (!has_param_type ||
                         !rust_type_supported(param_type) ||
-                        (mem_qual && strcmp(mem_qual, "default") != 0) ||
+                        !mem_qual_supported ||
                         (sync_mod && strcmp(sync_mod, "none") != 0))
                     {
                         fprintf(stderr,
-                                "Error: Rust target does not support a parameter of static method '%s.%s'\n",
+                                "Error: Rust target does not support a parameter of %smethod '%s.%s'\n",
+                                is_static ? "static " : "",
                                 struct_name ? struct_name : "<anonymous>",
                                 method_name ? method_name : "<anonymous>");
                         return false;
