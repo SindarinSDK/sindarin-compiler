@@ -1,0 +1,31 @@
+struct Point =>
+  x: int
+  y: int
+
+  fn snapshot(): Point =>
+    return self
+
+  fn shiftX(amount: int): Point =>
+    self.x = self.x + amount
+    return self
+
+fn main(): void =>
+  var original: Point = {
+    x: 1,
+    y: 2
+  }
+  var snapshot: Point = original.snapshot()
+  var shifted: Point = original.shiftX(4)
+
+  println(original.x)
+  println(shifted.x)
+
+  original.x = 9
+  original.y = 10
+
+  println(snapshot.x)
+  println(snapshot.y)
+  println(shifted.x)
+  println(shifted.y)
+  println(original.x)
+  println(original.y)
