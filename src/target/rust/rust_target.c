@@ -913,7 +913,8 @@ static bool rust_is_mutating_array_call(json_object *node)
                       strcmp(method, "clear") == 0);
 }
 
-static bool rust_instance_method_node_supported(json_object *node)
+static bool rust_instance_method_node_supported(json_object *node,
+                                                bool allow_owned_self)
 {
     if (!node) return true;
     if (json_object_is_type(node, json_type_array))
@@ -921,23 +922,23 @@ static bool rust_instance_method_node_supported(json_object *node)
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
             if (!rust_instance_method_node_supported(
-                    json_object_array_get_idx(node, i))) return false;
+                    json_object_array_get_idx(node, i), allow_owned_self)) return false;
         return true;
     }
     if (!json_object_is_type(node, json_type_object)) return true;
 
     const char *kind = json_string_property(node, "kind");
     if (kind && strcmp(kind, "variable") == 0)
-        return !json_string_property_equals(node, "name", "self");
+        return allow_owned_self || !json_string_property_equals(node, "name", "self");
     if (kind && strcmp(kind, "member_assign") == 0)
     {
         json_object *object = NULL, *value = NULL;
         if (!json_object_object_get_ex(node, "object", &object) ||
             !json_object_object_get_ex(node, "value", &value) ||
-            !rust_instance_method_node_supported(value)) return false;
+            !rust_instance_method_node_supported(value, allow_owned_self)) return false;
         if (json_string_property_equals(object, "kind", "variable") &&
             json_string_property_equals(object, "name", "self")) return true;
-        return rust_instance_method_node_supported(object);
+        return rust_instance_method_node_supported(object, allow_owned_self);
     }
     if (kind && strcmp(kind, "member") == 0)
     {
@@ -945,12 +946,12 @@ static bool rust_instance_method_node_supported(json_object *node)
         if (!json_object_object_get_ex(node, "object", &object)) return false;
         if (json_string_property_equals(object, "kind", "variable") &&
             json_string_property_equals(object, "name", "self")) return true;
-        return rust_instance_method_node_supported(object);
+        return rust_instance_method_node_supported(object, allow_owned_self);
     }
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        if (!rust_instance_method_node_supported(value)) return false;
+        if (!rust_instance_method_node_supported(value, allow_owned_self)) return false;
     }
     return true;
 }
@@ -1114,7 +1115,8 @@ static bool rust_validate_struct_methods(json_object *model)
             }
             json_object_object_get_ex(method, "body", &body);
             if (!rust_validate_statements(body) ||
-                (!is_static && !rust_instance_method_node_supported(body)))
+                (!is_static && !rust_instance_method_node_supported(
+                    body, !json_boolean_property(structure, "has_heap_fields"))))
             {
                 fprintf(stderr,
                         "Error: Rust target encountered an unsupported construct in method '%s.%s'\n",
@@ -1450,12 +1452,32 @@ static void rust_mark_instance_method_clones(json_object *node)
     if (!json_object_is_type(node, json_type_object)) return;
 
     const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "variable") == 0 &&
+        json_string_property_equals(node, "name", "self"))
+    {
+        json_object_object_add(node, "rust_needs_clone",
+                               json_object_new_boolean(true));
+        return;
+    }
     if (kind && strcmp(kind, "member_assign") == 0)
     {
         json_object *value = NULL;
         if (json_object_object_get_ex(node, "value", &value))
             rust_mark_instance_method_clones(value);
         return;
+    }
+    if (kind && strcmp(kind, "member") == 0)
+    {
+        json_object *object = NULL;
+        if (json_object_object_get_ex(node, "object", &object) &&
+            json_string_property_equals(object, "kind", "variable") &&
+            json_string_property_equals(object, "name", "self"))
+        {
+            if (rust_owned_value_type(node))
+                json_object_object_add(node, "rust_needs_clone",
+                                       json_object_new_boolean(true));
+            return;
+        }
     }
     if (kind && strcmp(kind, "index_assign") == 0)
     {
