@@ -20,6 +20,12 @@ fn main(): void =>
   println(bytes.contains(20))
   println(bytes.indexOf(30))
 
+  var letters: char[] = {'a', 'b', 'a'}
+  println(letters.contains('b'))
+  println(letters.contains('z'))
+  println(letters.indexOf('a'))
+  println(letters.indexOf('z'))
+
   var empty: int[] = {}
   println(empty.contains(1))
   println(empty.indexOf(1))

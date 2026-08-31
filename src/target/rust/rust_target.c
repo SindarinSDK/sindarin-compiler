@@ -191,7 +191,8 @@ static bool rust_unsigned_integer_type(const char *kind)
 static bool rust_array_search_type_supported(const char *kind)
 {
     return rust_integer_type(kind) ||
-           (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "string") == 0));
+           (kind && (strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0 ||
+                     strcmp(kind, "string") == 0));
 }
 
 static bool rust_array_concat_type_supported(const char *kind)
