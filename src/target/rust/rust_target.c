@@ -601,13 +601,20 @@ static bool rust_validate_expr(json_object *expr)
     if (strcmp(kind, "copy_of") == 0)
     {
         json_object *operand = NULL, *operand_type = NULL;
+        json_object *element_type = NULL;
         const char *operand_kind = NULL;
+        const char *element_kind = NULL;
         if (!json_object_object_get_ex(expr, "operand", &operand) ||
             !json_object_object_get_ex(operand, "type", &operand_type) ||
             !(operand_kind = json_string_property(operand_type, "kind")) ||
-            strcmp(operand_kind, "string") != 0)
+            (strcmp(operand_kind, "string") != 0 &&
+             (strcmp(operand_kind, "array") != 0 ||
+              !json_object_object_get_ex(operand_type, "element_type", &element_type) ||
+              !(element_kind = json_string_property(element_type, "kind")) ||
+              !rust_integer_type(element_kind))))
         {
-            fprintf(stderr, "Error: Rust target currently supports copyOf() only for strings\n");
+            fprintf(stderr,
+                    "Error: Rust target currently supports copyOf() only for strings and integer arrays\n");
             return false;
         }
         return rust_validate_expr(operand);

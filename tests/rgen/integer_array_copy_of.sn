@@ -1,0 +1,31 @@
+fn main(): void =>
+  var ints: int[] = {1, 2, 3}
+  var ints_copy: int[] = copyOf(ints)
+  ints[0] = 10
+  ints_copy[2] = 30
+  println($"{ints.length}:{ints[0]},{ints[2]}:{ints_copy[0]},{ints_copy[2]}")
+
+  var longs: long[] = {4l, 5l}
+  var longs_copy: long[] = copyOf(longs)
+  longs[0] = 40l
+  println($"{longs[0]},{longs_copy[0]}")
+
+  var int32s: int32[] = {6i32, 7i32}
+  var int32s_copy: int32[] = copyOf(int32s)
+  int32s[0] = 60i32
+  println($"{int32s[0]},{int32s_copy[0]}")
+
+  var uints: uint[] = {8u, 9u}
+  var uints_copy: uint[] = copyOf(uints)
+  uints[0] = 80u
+  println($"{uints[0]},{uints_copy[0]}")
+
+  var uint32s: uint32[] = {10u32, 11u32}
+  var uint32s_copy: uint32[] = copyOf(uint32s)
+  uint32s[0] = 100u32
+  println($"{uint32s[0]},{uint32s_copy[0]}")
+
+  var bytes: byte[] = {12b, 13b}
+  var bytes_copy: byte[] = copyOf(bytes)
+  bytes[0] = 120b
+  println($"{bytes[0]},{bytes_copy[0]}")
