@@ -12,6 +12,7 @@ Test types:
     unit              - Run unit tests (bin/tests executable)
     cgen              - Run code generation tests (tests/cgen/*.sn - compares generated C)
     rgen              - Run Rust generation tests (tests/rgen/*.sn - compares generated Rust)
+    rgen-errors       - Run Rust generation error tests (tests/rgen/errors/*.sn)
     integration       - Run integration tests (tests/integration/*.sn)
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
@@ -193,6 +194,9 @@ TEST_CONFIGS = {
     'rgen': TestConfig(
         'tests/rgen', '*.sn', False, 'Rust Generation Tests'
     ),
+    'rgen-errors': TestConfig(
+        'tests/rgen/errors', '*.sn', True, 'Rust Generation Error Tests'
+    ),
     'mgen': TestConfig(
         'tests/mgen', '*.sn', False, 'Model Generation Tests'
     ),
@@ -356,6 +360,12 @@ class TestRunner:
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_test_internal(
                     test_file, expected_file, rs_file, exe_file
+                )
+            elif test_type == 'rgen-errors':
+                expected_file = test_file.replace('.sn', '.expected')
+                rs_file = exe_file + '.rs'
+                status, reason, details = self._run_rgen_error_test_internal(
+                    test_file, expected_file, rs_file
                 )
             elif config.expect_compile_fail:
                 expected_file = test_file.replace('.sn', '.expected')
@@ -805,6 +815,28 @@ class TestRunner:
                                                     f"got:      {normalized_output!r}"])
         return ('pass', '', None)
 
+    def _run_rgen_error_test_internal(self, test_file: str, expected_file: str,
+                                      rs_file: str) -> Tuple[str, str, Optional[List[str]]]:
+        """Verify that an unsupported Rust construct fails during emission."""
+        if not os.path.isfile(expected_file):
+            return ('skip', 'no .expected', None)
+
+        exit_code, stdout, stderr = run_with_timeout(
+            [self.compiler, test_file, '--emit-rust', '-o', rs_file,
+             '-l', '1', '-O0', '--no-install'],
+            self.compile_timeout, env=self.env
+        )
+        if exit_code == 0:
+            return ('fail', 'Rust emission should fail', None)
+
+        with open(expected_file, 'r') as expected:
+            expected_error = expected.readline().strip()
+        if expected_error in stderr:
+            return ('pass', '', None)
+        details = [f"Expected: {expected_error}", "Got:"]
+        details.extend(f"  {line}" for line in stderr.split('\n')[:15])
+        return ('fail', 'wrong error', details)
+
     def _run_positive_test_internal(self, test_file: str, expected_file: str,
                                      panic_file: str, exe_file: str,
                                      test_type: str) -> Tuple[str, str, Optional[List[str]]]:
@@ -882,7 +914,7 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'cgen', 'rgen', 'mgen', 'integration', 'integration-errors',
+                       choices=['unit', 'cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
                                'explore', 'explore-errors', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
@@ -954,7 +986,7 @@ def main():
             passed, elapsed = runner.run_unit_tests()
             all_passed &= passed
             total_elapsed += elapsed
-            for test_type in ['cgen', 'rgen', 'mgen', 'integration', 'integration-errors',
+            for test_type in ['cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
                              'explore', 'explore-errors']:
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
