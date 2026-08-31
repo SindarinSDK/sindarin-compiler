@@ -1,0 +1,14 @@
+struct Point =>
+  x: int
+
+fn increment(point: Point as ref): void =>
+  point.x = point.x + 1
+
+fn increment_twice(point: Point as ref): void =>
+  increment(point)
+  increment(point)
+
+fn main(): void =>
+  var point: Point = { x: 1 }
+  increment_twice(point)
+  println(point.x)

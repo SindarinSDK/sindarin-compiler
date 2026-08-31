@@ -1,0 +1,10 @@
+struct Label =>
+  text: str
+
+fn rename(label: Label as ref): void =>
+  label.text = "changed"
+
+fn main(): void =>
+  var label: Label = { text: "original" }
+  rename(label)
+  println(label.text)
