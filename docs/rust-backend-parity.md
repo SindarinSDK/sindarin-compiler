@@ -1,0 +1,208 @@
+# Sindarin Rust Backend — Parity Audit
+
+**Status:** Finalized. Branch `audit/rust-parity-architecture-v2` (base `origin/main`), tracking `origin/audit/rust-parity-architecture-v2`.
+C is the default target (`src/compiler.c:31` `options->target = TARGET_C`); Rust is opt-in via `--target rust` / `--emit-rust`.
+Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33` on `audit/rust-parity-tests-v2` (fetched, not merged/cherry-picked).
+
+## Baseline — build & test results (this worktree)
+
+| Gate | Result |
+|---|---|
+| `make setup` (fresh worktree, run **once** at start) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
+| `make test-rgen` | PASS — **45/45** Rust generation tests green. |
+| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
+| host `rustc --version` | `rustc 1.93.1` — verified on **Spark 1** (read-only check) and **Spark 2**. |
+
+## Methodology (verification)
+
+- Every disputed claim from the independent audit was re-verified against actual source/tests before being written in:
+  - `method_call`/`borrow_inferred_call` model kinds: `src/cgen/gen_model_expr.c:1046` (operator-overload → `method_call`), `:1883` (`borrow_inferred_call`), `:1908-1918`. CONFIRMED.
+  - Stmt kinds `str`/`for_each_iter`/`lock`/`using`: `src/cgen/gen_model_stmt.c:94` (`str`), `:797` (`for_each_iter`), `:1019` (`lock`), `:1042` (`using`). CONFIRMED.
+  - C cgen tests prove C support for `sizeof` (`tests/cgen/expr_sizeof.expected.c`), `spread` (`expr_spread.expected.c`), `thread_spawn/detach/sync`, `lambda`, `method_call` (`expr_call_method.expected.c`), `mem_struct_val_cleanup`, `mem_struct_ref_refcount`, `struct_operator_eq`. CONFIRMED.
+  - Default target C: `src/compiler.c:31`; target parse `src/target/target.c:74` (c/rust/rs); toolchain gate hit only for executable output: `src/target/target.c:201`. CONFIRMED.
+  - CI (`.github/workflows/ci.yml`) has **no `rustup`/rust install or version pin**; rgen invokes runner-bundled `rustc`. CONFIRMED.
+  - Rust param gating: method-param block `rust_target.c:1148-1172`, function-param block `:1265-1283`; `as_ref` restricted to `int`/`long` (`:1271-1274`), heap-free named structs only (`rust_heap_free_named_struct_type`, `:223,235`). CONFIRMED.
+  - `match`, `sizeof`, `typeof`, `value_of`, `address_of`, `spread`, `sized_array`, pointer/stepped slices all verified as C-supported + Rust-gap via `rust_validate_expr` (`rust_target.c:467`). CONFIRMED.
+
+## Parity status legend
+
+- **IBT** — implemented & behavior-tested (rgen: snapshot `.expected.rs` + `rustc` build + run + stdout diff). Because every rgen case snapshots, compiles, runs, and checks output, implemented behavior is **not** downgraded to snapshot-only when a dedicated test is missing — classify as **UT** (under-tested) instead.
+- **SNAP** — Rust partial/template exists but no dedicated rgen positive test.
+- **UT** — under-tested (implemented; few/no dedicated negative/edge tests).
+- **REJ** — explicitly rejected with a dedicated single-line diagnostic (rgen-errors pins first line).
+- **SIL** — silently unsupported: construct reaches the Rust validator and falls through to the generic "unsupported construct" message.
+- **ABSENT** — C supports it; Rust has neither a template nor a validator case.
+
+## Evidence ledger (verified line references)
+
+| # | Claim | Evidence (verified) | Status |
+|---|-------|----------|--------|
+| E1 | Target abstraction; C default | `src/compiler.c:31`; `src/target/target.c:74,91`; PR #9 | CONFIRMED |
+| E2 | Rust validation gate | `rust_target.c:1194` `rust_validate_model_impl` (globals `:1197`, lambdas `:1198`, threads `:1199`, type_decls `:1200`, native pragmas `:1215`), `:467` expr, `:887` stmt, `:84` structs, `:1074` methods | CONFIRMED |
+| E3 | Rust lowering | `rust_target.c:1309,1357,1479,1597,1619,1799,1906` | CONFIRMED |
+| E4 | Rust build/toolchain | `rust_target.c:11,17` (check), `:1973` build (`rustc --edition=2021`), `:1981` `SN_RUSTFLAGS` | CONFIRMED |
+| E5 | C backend | `c_target.c:31,120` (modular C + `gcc_compile_modular`), `src/gcc_backend.c` | CONFIRMED |
+| E6 | C-only expr kinds | `gen_model_expr.c:1046,1883,1908`; C partials `templates/c/partials/expr/{match,lambda,thread_*,address_of,typeof, sizeof, spread,method_call}.hbs` | CONFIRMED — Rust gap |
+| E7 | C-only stmt kinds | `gen_model_stmt.c:94,797,1019,1042`; C partials `stmt/{lock,using,for_each_iter}.hbs` | CONFIRMED — Rust gap |
+| E8 | PR #49 rejection | PR #49 diff → `rust_target.c:1148,1266` + `tests/rgen/errors/*` | CONFIRMED |
+| E9 | PR #54 C-incompatibility | PR #54 body: "Instance-method `as ref` remains rejected because the C backend currently emits incompatible value arguments for pointer parameters." | CONFIRMED (evaluation item) |
+| E10 | rgen coverage | 45 positive (`tests/rgen/*`) + 8 negative (`tests/rgen/errors/*`) | CONFIRMED |
+| E11 | Baseline green | Baseline table above | CONFIRMED |
+| E12 | C-only suites | integration 1142, integration-errors 58, explore 224, explore-errors 11, cgen 107 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
+| E13 | CI no rustc pin | `.github/workflows/ci.yml` (no `rustup`); rgen relies on runner-bundled `rustc` | CONFIRMED |
+
+---
+
+# SOURCE-LANGUAGE parity matrix
+
+Columns: **feature/behavior | exact C implementation & tests | historical PRs | current Rust status | missing implementation/tests | semantic/architectural risk | dependency-ordered milestone + PR boundary**
+
+| Feature / behavior | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Risk | Milestone + PR boundary |
+|---|---|---|---|---|---|---|
+| `fn` declarations + plain calls | `c_target.c` + `templates/c/partials/function.hbs`; `tests/cgen/expr_call*.expected.c`; `tests/integration/*` | #9 | **IBT** — `templates/rust/partials/function.hbs`; `tests/rgen/basic_functions.*` | — | Low | M0 done |
+| Value structs + literals | `templates/c/partials/struct_typedef.hbs` + C integration struct tests | #10 | **IBT** — `templates/rust/partials/struct.hbs`, `expr/struct_literal.hbs`; `tests/rgen/struct_values.*` | — | Low | M0 done |
+| `var x: T = init` | C `stmt/var_decl` | #9 | **IBT** — `templates/rust/partials/stmt/var_decl.hbs`; `basic_functions.*` | — | Low | M0 done |
+| **Global variables** | C model key `globals`; C integration covers | — | **REJ** — `rust_target.c:1197` "does not support global variables yet" | Add Rust globals (module-level `static mut`/`OnceLock`) + rgen test | Med | **PR-E** |
+| **`type` aliases / `type_decls`** | C `type_decls` model key; parser type-arg handling | — | **REJ** — `rust_target.c:1200` "does not support type declarations yet" | Add Rust `type` alias | Med | **PR-E** |
+| Primitive types (`int`/`long`/`int32`/`uint`/`uint32`/`byte`/`bool`/`char`/`double`/`float`/`string`) | C codegen for all; cgen primitive tests | #9 | **PARTIAL** — `rust_type_supported` (`rust_target.c:42-59`) accepts these kinds; `int`/`long` as-ref only (see param rows) | — | Low | M0 done |
+| **Packed / serializable structs** | C struct variants + cgen fixtures `struct_packed`, `struct_handle_fields`, `expr_struct_literal_handle`; **serializable source support has no dedicated cgen fixture** (handled via encoder/cleanup path) | — | **REJ** — `rust_target.c:97,103` rejects packed/serializable structs and non-val `mem_mode`; `tests/rgen/errors/heap_owning_*` | Implement C-equivalent behavior; any exception requires explicit user approval | High | **PR-D** |
+| **Native structs** | C native struct codegen | #3 | **REJ** — `rust_target.c:97` rejects native structs (native-struct FFI) | Implement C-equivalent behavior (native-struct FFI); any exception requires explicit user approval | High | **PR-H** |
+| Numeric binary ops (checked) | `gen_model_expr.c` + `--checked`; cgen `expr_binary_checked` | #9 | **IBT/UT** — `rust_lower_checked_arithmetic` (`:1309`) → `checked_*`; `basic_functions.expected.rs`; **no rgen overflow test** (implemented-but-under-tested) | Add `int_checked_overflow` rgen test | Med | **PR-B** |
+| **Numeric compound assign** `x += 1` | C `templates/c/partials/expr/compound_assign.hbs`; cgen covers | — | **REJ (specific)** — `rust_target.c:700-715` whitelists string `+=` only; numeric `+=` is **not implemented** on Rust | Implement numeric compound assignments + rgen tests (implementation gap, not under-tested) | Med | **PR-C** |
+| **Increment/decrement** | C `compound_assign.hbs` (inc/dec) | #9 | **REJ (specific)** — `rust_target.c:722-731` restricts inc/dec to variables + struct fields; `arr[i]++` / complex lvalues rejected | Add rgen tests for **supported** inc/dec (variables/struct fields) + implement the missing lvalue forms | Med | **PR-C** |
+| Type conversions (`int`→`str` etc.) | C emits runtime conversion macros via the method-call path (`gen_model_expr.c:1414-1440`: `__sn__int_toChar`, `__sn__str_toInt`); **no dedicated cgen fixture** | — | **ABSENT / implementation gap** — Rust has no `toChar`/`toInt`/… conversion-method lowering (only printf-style format-specifier handling exists in `rust_target.c:300-450,1655-1750`) | Implement Rust conversion-method lowering + add rgen tests | Med | **PR-C** |
+| **`match`** | C `templates/c/partials/expr/match.hbs`; cgen match tests | — | **SIL** — `rust_validate_expr` has no `match` case → generic "unsupported construct" | Add match lowering + template + rgen test | High | **PR-F** |
+| **Operator overloads** (`method_call`) | C `gen_model_expr.c:1046`; `tests/cgen/expr_call_method.expected.c`, `struct_operator_eq.expected.c` | — | **SIL** — only `call` whitelisted; `method_call` kind → generic rejection | Implement C-equivalent behavior; any exception requires explicit user approval | High | **PR-F** |
+| **`borrow_inferred_call`** | C `gen_model_expr.c:1883` | — | **ABSENT/SIL** — no partial/validator case | Implement C-equivalent behavior (Rust borrow-inference); any exception requires explicit user approval | Med | **PR-F** |
+| **`sizeof`** | C `templates/c/partials/expr/sizeof.hbs`; `tests/cgen/expr_sizeof.expected.c` | — | **ABSENT** — no Rust partial/validator case | Add Rust `size_of` | Med | **PR-C** |
+| **`typeof` / `value_of` / `address_of` / `spread`** | C expr partials `templates/c/partials/expr/{typeof,value_of,address_of,spread}.hbs`; `tests/cgen/expr_spread.expected.c` | — | **ABSENT** — no Rust partial/validator case | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-C** |
+| **Sized struct arrays** | C `sized_array` codegen | — | **REJ (specific)** — `rust_target.c:566-570` requires supported element_type; struct element → rejected | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| **Pointer / stepped slices** | C pointer param codegen (`mem_*` cgen) | — | **REJ (specific)** — pointer array slices + stepped slices rejected (`rust_target.c:584-593`); PR #54 C-incompatibility (evaluation item) | Implement C-equivalent pointer/stepped-slice emission; any exception requires explicit user approval | High | **PR-D** |
+| `if` / `else` | C `stmt/if.hbs` | #9 | **UT** — Rust partial exists (`stmt/if.hbs`); no dedicated rgen test (implemented-but-under-tested, not snapshot-only) | Add `if_else` rgen behavioral test | Low | **PR-B** |
+| `while` | C `stmt/while.hbs` | #9 | **UT** — partial exists; no dedicated rgen test (implemented-but-under-tested) | Add `while_loop` rgen behavioral test | Low | **PR-B** |
+| `for` + `continue` | C `stmt/for.hbs` | #18 | **IBT** — `tests/rgen/c_style_for_continue.*`; `rust_lower_for_continues` (`:1799`) | — | Low | M0 done |
+| `for_each` | C `stmt/for_each.hbs` | #12 | **IBT** — `tests/rgen/array_iteration.*` | — | Low | M0 done |
+| **`for_each_iter`** | C `stmt/for_each_iter.hbs`; `gen_model_stmt.c:797` | — | **SIL** — no Rust partial/validator case | Add partial + validator case | Med | **PR-C** |
+| **`using` / `import` / namespaces** | C `stmt/using.hbs`; `tests/integration/imports/*` (PR #8 fixed self-package resolution) | #8 | **SIL** — `using`/`import` model kinds (`gen_model_stmt.c:1042`); no Rust partial/validator case | Add Rust import/namespace emission | Med–High | **PR-E** |
+| **`lock` / `release`** | C `stmt/lock.hbs`; `gen_model_stmt.c:1019` | — | **SIL/ABSENT** | Add Rust mutex/lock statement | Med | **PR-G** |
+| **`str` statement kind** | C `gen_model_stmt.c:94` | — | **SIL** — no Rust partial/validator case | Implement C-equivalent behavior; any exception requires explicit user approval | Low | **PR-C** |
+| Functions / static / instance methods | C `function.hbs`, `struct_method.hbs` | #29,#30,#31,#35,#36,#40 | **IBT** — `tests/rgen/{static,readonly,mutating}_struct_methods.*`, `instance_function_calls.*`, `instance_static_calls.*`, `return_self.*`; `templates/rust/partials/struct_method.hbs` | — | Low | M0 done |
+| **`main()` non-void** | C allows non-void main (C model) | — | **REJ (specific)** — `rust_target.c:1255` "requires main to return void" | Implement non-void `main` support (or explicit user-approved exception); add rgen test | Low | **PR-A** |
+| **`as ref`/`as val` struct params** (heap-free) | C param `mem_qual` codegen | #50,#51,#52,#53 | **IBT** — `tests/rgen/{as_ref,as_val,static_as_ref,static_as_val}_struct_parameter.*` | — | Low | M0 done |
+| **int / long `as ref`** (scalar ref) | C `mem_*` cgen | #55,#56 | **IBT** — `tests/rgen/{int,long}_as_ref_parameter.*`; `rust_lower_integer_ref_parameters` (`:1906`) | — | Low | M0 done |
+| **int32 / uint32 / byte `as ref`** | C supports these scalar types | — | **REJ (specific)** — `rust_target.c:1271-1274` limits `as_ref` to `int`/`long`; `tests/rgen/errors/int32_as_ref_parameter.sn` (int32 only tested; uint32/byte untested) | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| **Heap-owning struct params** | C refcount/cleanup (`mem_struct_ref_refcount`, `mem_struct_val_cleanup` cgen) | — | **REJ (specific)** — `rust_heap_free_named_struct_type` (`:223,235`); 5 `tests/rgen/errors/heap_owning_*` | Add heap-owning (refcount) Rust support | High | **PR-D** |
+| **Instance `as ref`** | C emits pointer params | #54 (impl. commit `dbce38e`) | **REJ (specific)** — `rust_target.c:1150`; PR #54 (GitHub description + commit `dbce38e`): C emits incompatible value args for pointer params (evaluation item) | First fix the **shared C pointer-argument contract** (with C regression coverage), then enable the **equivalent Rust reference mapping**; any exception requires explicit user approval | High | **PR-D** |
+| **Mutating instance `as val`** | C codegen | #54 | **REJ (specific)** — `rust_target.c:1154` (rust_mutating + as_val); `tests/rgen/errors/mutating_instance_as_val_struct_parameter.sn` | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| **sync/memory qualifiers** | C memory qualifiers | #49 | **REJ (specific)** — `rust_target.c:1149,1266` reject non-default `mem_qual`/non-`none` `sync_mod` | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| String interpolation + ops + format specifiers | C `sn_string.c`; cgen string tests | #13,#14,#15–#28 | **IBT** — `tests/rgen/string_interpolation.*`, `string_operations.*`, `string_format_specifiers.*`, `scientific/float_alternate/integer_alternate/space_sign/string_precision` | — | Low | M0 done |
+| Arrays: literal/access/slice + methods | C `sn_array.c`; cgen `expr_array_access`, `mem_array_string` | #11,#19,#20,#21,#22,#23,#37,#38,#39,#41 | **IBT** — `tests/rgen/array_values.*`, `array_slicing.*`, `array_literal_flattening.*`, `array_search_methods.*`, `string_array_concat.*`, `string_array_join.*`, `struct_array_concat.*` | — | Low | M0 done |
+| **Array method/type restrictions** | C array method codegen | #37,#38,#41 | **REJ (specific)** — `rust_array_method_supported` (`:193`) / `rust_array_concat_type_supported` (`:216`) / `rust_array_copy_type_supported` (`:238`); `rust_target.c:758,771,785,799` | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| `copyOf` per element type | C `copy_of.hbs` | #42–#48 | **IBT** — `tests/rgen/{integer,string,bool,char,double,float,struct}_array_copy_of.*` | — | Low | M0 done |
+| **Heap-owning copy/concat restrictions** | C `copy_of`/`concat` codegen | — | **REJ (specific)** — `rust_target.c:622-633` (copyOf), `:764-799` (concat/join method/type checks) | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
+| **Generics** | C generics support (parser `type_args`) | — | **REJ** — `rust_target.c:1200` (type_decls) | Add Rust generics | High | **PR-E** |
+| **Native functions / native structs** | C native codegen; repo rule: never emit `extern` forwards for native fns without bodies | #3 | **REJ** — `rust_target.c:1247` (native fn), `:97` (native struct) | Add native fn FFI + native struct support | High | **PR-H** |
+| **Native `#pragma source/include`** | C native C source/include handling | — | **REJ** — `rust_target.c:1215` "native C source/include pragmas" | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-H** |
+| **Packages / SDK interaction** | C runtime `src/runtime/sn_*.c/h`; SDK `sindarin-pkg-sdk` is C-runtime-based | — | **ABSENT** — Rust codegen is std-only; no SDK/runtime counterpart | Decide SDK-on-Rust strategy | High | **PR-E** |
+
+---
+
+# RUNTIME & SDK PARITY
+
+| Feature / behavior | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Semantic / arch. risk | Milestone + PR boundary |
+|---|---|---|---|---|---|---|
+| Standalone std-based Rust (no C runtime linkage) | C runtime `src/runtime/sn_*.c/h` (`sn_string`, `sn_array`, `sn_thread.h`); runtime cgen tests | #9 | **PARTIAL / DESIGN DIVERGENCE** — Rust std types (`std::string`, `Vec<T>`, plain structs) implement only a **subset**; C-runtime-equivalent **semantics, SDK, cleanup/finalization, and concurrency are not established** | Implement C-equivalent runtime behavior (keep as parity work); any exception requires explicit user approval | High | **PR-D** |
+| String / array ownership & cleanup | C `src/cgen/ownership.c` (move/clone); `sn_string.c`; cgen `mem_array_string`, `mem_val_struct_copy` | #13 | **IBT/UT** — `rust_lower_strings` marks `rust_needs_clone` (`rust_target.c:1410-1475`); `tests/rgen/string_operations.*` (implemented-but-under-tested) | Add behavioral clone-vs-move test | Med | **PR-B** |
+| `copyOf` deep-copy (heap-free structs) | C `copy_of.hbs`; cgen covers | #42–#48 | **IBT** — `tests/rgen/struct_array_copy_of.*` | — | Low | M0 done |
+| **Heap-owning struct params / refcount cleanup** | C `mem_struct_refcount`, `mem_struct_val_cleanup` cgen | — | **REJ (specific)** — `rust_heap_free_named_struct_type` (`:223,235`); 5 `tests/rgen/errors/heap_owning_*` | Add refcount / `Drop`-based cleanup | High | **PR-D** |
+| **Serializable / packed structs** | C cgen `struct_packed`, `struct_handle_fields`, `expr_struct_literal_handle`; serializable source support (encoder finalization idempotency, PR #5) — **no dedicated cgen fixture for serializable** | #5 | **REJ** — `rust_target.c:97,103` rejects packed/serializable structs | Implement C-equivalent behavior; any exception requires explicit user approval | High | **PR-D** |
+| **Native structs (struct FFI)** | C native struct codegen | #3 | **REJ** — `rust_target.c:97` rejects native structs (handled under native-struct FFI) | Add native-struct FFI support | High | **PR-H** |
+| **Finalization / disposal / `using`** | C `val_cleanup` + `sn_serial.h` encoder finalization (PR #5); `tests/integration/test_serializable_encoder_cleanup.*` | #5 | **ABSENT** — no Rust `Drop`/finalization path | Add finalization/`using` + test | High | **PR-E** |
+| **Packages / SDK APIs** | C SDK `sindarin-pkg-sdk` (C-runtime-based); PR #8 fixed self-package resolution | #8 | **ABSENT** — Rust codegen is std-only; SDK APIs unavailable on Rust target | Decide SDK-on-Rust (std reimpl vs FFI bridge) | High | **PR-E** |
+| **Lambdas / callbacks** | C `expr_lambda_basic`, `expr_lambda_capture_ref` cgen; C integration closure tests | — | **REJ** — `rust_target.c:1198` "does not support closures yet" | Add Rust closure lowering (`Fn`/`FnMut`) | High | **PR-F** |
+| **Threads / `lock` / `release`** | C `sn_thread.h`; `templates/c/partials/expr/thread_{spawn,detach,sync}.hbs`; cgen `expr_thread_*` | — | **REJ** — `rust_target.c:1199` "does not support threads yet"; `lock`/`release` stmt kinds unhandled (SIL) | Add `std::thread` + `lock` statement | High | **PR-G** |
+| **Native FFI / `#pragma source` / `#pragma include`** | C native codegen; repo rule: never emit `extern` forwards for native fns without bodies | #3 | **REJ** — `rust_target.c:1247` (native fn), `:1215` (pragmas) | Add `extern "C"` FFI + pin rgen-error negatives | High | **PR-H** |
+
+# DIAGNOSTIC PARITY
+
+| Feature / behavior | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Semantic / arch. risk | Milestone + PR boundary |
+|---|---|---|---|---|---|---|
+| Shared malformed-program diagnostics (parse/type errors) | `src/diagnostic.c` (phase + file:line context); 1609 unit tests cover lexer/parser/type_checker | — | **PARITY (target-neutral)** — shared front-end, target-agnostic | — | Low | — |
+| Rust-target-specific emission diagnostics | `rust_target.c` plain `fprintf(stderr, "Error: Rust target ...")`; **no file/line context**; only **8 first-line negatives** pinned in `tests/rgen/errors/*`; SIL constructs (`match`/`method_call`/`sizeof`/`using`/`lock`/`for_each_iter`) fall through to the generic "unsupported construct" message with no dedicated negative test | #49,#54 | **UT** — add file/line richness + dedicated negatives for SIL constructs | Med | **PR-C/PR-F/PR-G** |
+| Missing-`rustc` at build stage | `rust_check_toolchain` (`rust_target.c:17`); gate invoked at `src/target/target.c:201` only for executable output | #9 | **UT** — no negative test for missing toolchain | Add negative test (`SN_RUSTC` → nonexistent binary) | Med | **PR-A** |
+
+# CLI / TOOLCHAIN / PLATFORM PARITY
+
+| Item | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Semantic / arch. risk | Milestone + PR boundary |
+|---|---|---|---|---|---|---|
+| C default target | `src/compiler.c:31` | #9 | **PARITY** — no CLI test asserts default | Add default-target unit test | Low | **PR-A** |
+| `--target` / `--emit-rust` / `--emit-c` aliases + conflict rules | `src/target/target.c:74` (c/rust/rs parse); `src/compiler.c:237-283` conflict handling | #9 | **UT** — no unit/CLI test on conflict errors | Add `tests/unit/standalone/compiler_driver_tests.c` cases | Low | **PR-A** |
+| Emitted source & executable compilation | `rust_build` (`rust_target.c:1973`) invokes `rustc --edition=2021`; rgen harness builds + runs | #9 | **PARITY** — rgen emit→snapshot→`rustc`→run→output | — | Low | M0 done |
+| `SN_RUSTC` / `SN_RUSTFLAGS` / `-g`/`-p` profile / build dirs / keep-generated / config | `rust_target.c:11,17,1973,1981-1987`; `src/target/target.c:232-239` (`.sn/build/<target>/<base>_<pid>/`) | #9 | **UT/ABSENT** — `SN_RUSTFLAGS` is env-only (no `sn.rust.cfg`); no test asserts flag propagation | Add `SN_RUSTFLAGS`/`-g`/`-p` propagation tests (**PR-A**); user input required **only if a public configuration contract would change** | Med | **PR-A** |
+| Host toolchain | `rustc 1.93.1` verified on **Spark 1** (read-only `rustc --version`) and **Spark 2** | — | **CONFIRMED** | — | Low | — |
+| CI Rust toolchain | `.github/workflows/ci.yml`: `make setup`→`make build`→`make test`; **no `rustup`/rust install, no version pin**; rgen invokes runner-bundled `rustc` from PATH | #9–#56 | **RISK** — a runner image lacking rustc fails all 45 rgen tests with a toolchain error, masking real source-parity regressions | Add `rustup` install + version pin + a `--target rust` sample build step | Med–High | **PR-A** |
+| PR #9–#56 check/review evidence | **Laptop GitHub historical inspection:** all cross-platform **Build checks green**; **no review/comments** on any PR | #9–#56 | **Laptop GitHub historical inspection** (docs-only PR checks may be skipped by `paths-ignore`; re-inspect before each merge) | — | Low | — |
+| Platform assumptions | Platform = `linux`/`darwin`/`windows` (Makefile; pkg libs `.sn/<pkg>/libs/<platform>/`) | — | **UT** — Rust target assumes host rustc; no platform-specific handling | Document assumptions + pin per-OS toolchain | Med | **PR-A** |
+
+# TEST-COVERAGE GAP
+
+| Suite | Count | Target |
+|---|---|---|
+| rgen (Rust behavior) | **45 positive** | Rust |
+| rgen-errors | **8** first-line negatives | Rust |
+| unit | 1609 | target-neutral |
+| cgen | 107 | **C** |
+| mgen | 79 | **C** |
+| integration | **1142** | **C only** |
+| integration-errors | **58** | **C only** |
+| exploratory | **224** | **C only** |
+| exploratory-errors | **11** | **C only** |
+
+**rgen behavior:** every rgen test (run_tests.py:755) does emit (`--emit-rust` → `.expected.rs` snapshot) → `rustc --edition=2021` build → run binary → diff stdout vs `.expected`. **There is no Rust integration suite**; the 1366 C-side behavioral tests (1142 integration + 224 exploratory, plus 58 + 11 error tests) have **no `--target rust` equivalent**, so C-only features (files/dates/threads/closures/imports) compiled on Rust hit rejections pinned only by the 8 rgen-errors.
+
+**Spark 1 evidence — `test_limitation_closure_array`:** during this audit the exploratory test `test_limitation_closure_array` (a closure capturing a local array, pushed from 3 concurrent threads) produced an ASAN `heap-buffer-overflow` **twice on Spark 1**, while the same focused baseline test passed **5/5 on Spark 2** and earlier full baselines were green. Classify it as a **nondeterministic / host-sensitive existing C concurrency/closure risk** (concurrent `SnArray` push → `sn_realloc` race), **not** a docs-branch or Rust-backend regression. Keep it in the **PR-G** (threads/closures) verification scope.
+
+## Dependency-ordered implementation roadmap
+
+**PR-A → PR-H are *milestones*, each decomposed into small, self-contained vertical PRs (not one giant PR).** Every vertical PR ships **positive + negative + behavioral** Rust tests (rgen + rgen-errors + a `--target rust` integration case). Any **shared compiler/IR** change adds **both** C (cgen/integration) and Rust (rgen/integration-rust) regressions. **C remains the unchanged default target.** Each substantive missing family in the matrix maps to **exactly one** milestone A–H (no family is dropped/N-A).
+
+| Milestone (decomposed into small vertical PRs) | Vertical slice (implementation) | Prerequisites | Required tests (Rust) | C regression obligation | Risk |
+|---|---|---|---|---|---|
+| **PR-A** | **Coverage/CLI/toolchain + non-void main.** CLI/toolchain unit tests (default target = C; `--target rs` alias; `--emit-c`+`--target rust` conflict; missing `SN_RUSTC`; `SN_RUSTFLAGS`/`-g`/`-p` propagation; build-dir layout); `main()` non-void support. | — | positive + negative + behavioral (CLI unit + rgen main) | cgen + integration (C default unaffected) | Low |
+| **PR-B** | **Already-implemented but under-tested behavior only:** `if`/`while` behavioral tests, checked-arithmetic/overflow test, string clone/move ownership, existing target/CLI aliases. | PR-A | positive + negative + behavioral | Shared IR edits need C cgen + integration regression | Low–Med |
+| **PR-C** | **Low-risk missing expressions/operators/control flow:** `for_each_iter`, `str` stmt, `sizeof`/`typeof`/`value_of`/`address_of`/`spread`, numeric compound assignments (impl + tests), `inc/dec` (tests for supported forms + implementation of missing lvalue forms). | PR-B | positive + negative + behavioral | cgen `expr_sizeof`, `expr_spread` (C) | Med–High |
+| **PR-D** | **Ownership/references/non-plain data:** sized struct arrays, pointer/stepped slices, array method/type restrictions, heap-owning copy/concat, heap-owning params + refcount cleanup, serializable/packed structs, instance `as ref`, mutating instance `as val`. | PR-C | positive + negative + behavioral | cgen `mem_struct_ref_refcount`, `mem_struct_val_cleanup` (C) | High |
+| **PR-E** | **Modules/imports/using/type declarations/generics/packages/SDK/finalization:** `import`/`using`/namespaces, `type_decls`/generics, SDK-on-Rust strategy, finalization/`using` cleanup. | PR-D | positive + negative + behavioral | integration/imports suite (C) | High |
+| **PR-F** | **Advanced expressions/operator overloads/lambdas/callbacks:** `match`, `method_call`, `borrow_inferred_call`, closures, operator overloads, callbacks. | PR-E | positive + negative + behavioral | cgen `expr_lambda_basic/capture_ref`, `struct_operator_eq` (C) | High |
+| **PR-G** | **Concurrency:** `std::thread`, `lock`/`release`, `thread_spawn`/`detach`/`sync`. | PR-F | positive + negative + behavioral | cgen `expr_thread_*` (C) | High |
+| **PR-H** | **Native/FFI:** native functions (with body), native structs, `#pragma source`/`include`, `extern "C"` FFI blocks. | PR-G | positive + negative + behavioral | native cgen + repo rule: never emit bare `extern` forwards for native fns without bodies | High |
+
+# SEMANTIC / ARCHITECTURAL DECISION REGISTER
+
+Four genuine contract forks. Implementation proceeds along the recommended starting direction; **pause only when the decision would change the language contract** (observable behavior, not internal mechanics).
+
+| # | Decision | Evidence | Public-behavior consequence | Recommended starting direction |
+|---|---|---|---|---|
+| D1 | **PR #54 — instance-method `as ref` rejected on Rust** | **GitHub PR #54 description**: "Instance-method `as ref` remains rejected because the C backend currently emits incompatible value arguments for pointer parameters." (Implementation commit **`dbce38e`** — "Support Rust readonly instance as-val parameters"; validator `rust_validate_struct_methods`, `rust_target.c` ~L1074). | A method declared `as ref` whose receiver is a struct: C compiles (emits value/pair args), Rust rejects → a valid-on-C program errors on Rust. | **First establish/fix the shared C pointer-argument contract** (C regression coverage), **then** enable the equivalent Rust reference mapping (emit the Rust receiver as a reference). Do **not** introduce a Rust-only divergence; any exception requires **explicit user approval**. |
+| D2 | **SDK strategy — native Rust vs C ABI bridge** | SDK package (`sindarin-pkg-sdk`) ships C sources + `libs`; Rust backend currently has no Rust-native SDK layer. | Determines whether SDK functions are reimplemented in Rust, or exposed to Rust via `extern "C"` ABI. | **Start with the C ABI bridge** (reuse existing C SDK via `extern "C"`), defer a native-Rust rewrite. A contract-affecting split needs user approval. |
+| D3 | **Native pragmas/functions — sidecar C compilation vs Rust FFI** | `#pragma source`/`include` + native functions with bodies; repo rule: never emit bare `extern` forwards for native fns without bodies. | Native `.c` files must compile alongside Rust — either a **sidecar C compilation** (gcc_backend path) or direct **Rust FFI**. | **Start with Rust FFI (`extern "C"`)** for the simple case, and sidecar C compilation when a native fn has a body. Changing which files are compiled to which language is a contract change → pause for user approval. |
+| D4 | **Thread panic/detach/synchronization semantics** | `src/runtime/sn_thread.h` (C runtime); C-only `expr_thread_spawn/detach/sync` (gen_model_expr.c). Rust's `std::thread` panic/detach/sync semantics differ from the C thread runtime. | Panic propagation, detach semantics, and join/barrier behavior observable to user code may diverge from C. | **Start by mirroring the C thread-runtime semantics** on `std::thread`; any semantic divergence (panic behavior, detach/join ordering) requires explicit user approval. |
+
+# VALIDATION / MERGE GATES
+
+Per-PR gate sequence (manual, in order):
+1. **Fresh worktree:** run `make setup` **once** at the start (toolchain check).
+2. **Targeted Rust tests:** run the milestone's new rgen + rgen-errors + `--target rust` integration cases.
+3. **`make test-rgen`:** full Rust generation/behavioral suite green.
+4. **`make build && make test`:** C default target + full suite green (C regression obligation).
+5. **Independent verification on another Spark machine** (second machine re-runs build + tests to confirm reproducibility).
+6. **Laptop: inspect the actual `git diff` + GitHub check runs** before merge.
+7. **Docs-only caveat:** CI may **skip** docs-only PRs via `paths-ignore`, but the **manual gates above still apply** — never skip the gates because CI skipped.
+8. **Merge order:** merge **serially** in milestone order (A→H); **refresh/rebase** each PR onto the updated main before merging.
+
+# CONCLUSION / STATUS
+
+- **Parity is NOT achieved.** The Rust backend implements a partial subset (value structs, arrays, strings, struct methods, copyOf/concat, int/long `as ref`); C-supported features across source language, runtime/SDK, diagnostics, and concurrency remain open.
+- **No C-supported gap is N/A / accepted target exception.** Every missing family maps to exactly one milestone (PR-A … PR-H); each is **implementation work**, not a dismissed category.
+- **Known unsupported paths require action:** each is either implemented to match C-equivalent behavior, or resolved by an **explicit user decision** (see Decision Register D1–D4). Implementation pauses only when a choice would change the language contract.
+- **C remains the default target** (`src/compiler.c:31`); Rust is opt-in and every change must keep C green.
