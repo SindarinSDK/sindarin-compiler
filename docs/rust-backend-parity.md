@@ -135,8 +135,8 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 
 | Item | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Semantic / arch. risk | Milestone + PR boundary |
 |---|---|---|---|---|---|---|
-| C default target | `src/compiler.c:31` | #9 | **PARITY** — no CLI test asserts default | Add default-target unit test | Low | **PR-A** |
-| `--target` / `--emit-rust` / `--emit-c` aliases + conflict rules | `src/target/target.c:74` (c/rust/rs parse); `src/compiler.c:237-283` conflict handling | #9 | **UT** — no unit/CLI test on conflict errors | Add `tests/unit/standalone/compiler_driver_tests.c` cases | Low | **PR-A** |
+| C default target | `src/compiler.c:31` | #9 | **PARITY** — default-target unit test `target_default_c` (`tests/unit/standalone/compiler_driver_tests.c`) asserts no explicit target keeps `TARGET_C` + `OUTPUT_EXECUTABLE`; C behavioral regression = 1142 integration + 224 exploratory tests (default C pipeline) | — | Low | **PR-A** |
+| `--target` / `--emit-rust` / `--emit-c` aliases + conflict rules | `src/target/target.c:74` (c/rust/rs parse); `src/compiler.c:237-283` conflict handling | #9 | **IBT** — 13 new unit cases in the `Target Selection` section of `tests/unit/standalone/compiler_driver_tests.c` cover: `c`/`rust`/`rs` selection, `--emit-rust`/`--emit-c` shorthands, unknown-target rejection, and all three conflict rules; end-to-end behavior of `--emit-rust` + `--target rust` (emit → snapshot → `rustc` → run → stdout diff) already covered by the 45 rgen tests; `--emit-c` covered by 107 cgen tests | — | Low | **PR-A** |
 | Emitted source & executable compilation | `rust_build` (`rust_target.c:1973`) invokes `rustc --edition=2021`; rgen harness builds + runs | #9 | **PARITY** — rgen emit→snapshot→`rustc`→run→output | — | Low | M0 done |
 | `SN_RUSTC` / `SN_RUSTFLAGS` / `-g`/`-p` profile / build dirs / keep-generated / config | `rust_target.c:11,17,1973,1981-1987`; `src/target/target.c:232-239` (`.sn/build/<target>/<base>_<pid>/`) | #9 | **UT/ABSENT** — `SN_RUSTFLAGS` is env-only (no `sn.rust.cfg`); no test asserts flag propagation | Add `SN_RUSTFLAGS`/`-g`/`-p` propagation tests (**PR-A**); user input required **only if a public configuration contract would change** | Med | **PR-A** |
 | Host toolchain | `rustc 1.93.1` verified on **Spark 1** (read-only `rustc --version`) and **Spark 2** | — | **CONFIRMED** | — | Low | — |
@@ -150,7 +150,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 |---|---|---|
 | rgen (Rust behavior) | **45 positive** | Rust |
 | rgen-errors | **8** first-line negatives | Rust |
-| unit | 1609 | target-neutral |
+| unit | 1622 (1609 baseline + 13 CLI target-selection cases) | target-neutral |
 | cgen | 107 | **C** |
 | mgen | 79 | **C** |
 | integration | **1142** | **C only** |
