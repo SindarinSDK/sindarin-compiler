@@ -1,0 +1,21 @@
+fn main(): void =>
+  var zero: float = 0.0f
+  var negative_zero: float = -0.0f
+  var nan: float = zero / zero
+  var infinity: float = 1.0f / zero
+  var negative_infinity: float = -1.0f / zero
+  var source: float[] = {1.25f, negative_zero, nan, infinity, negative_infinity}
+  var copied: float[] = copyOf(source)
+
+  println($"{source.length}:{copied.length}")
+  println($"{copied[0]:.2f}")
+  println(1.0f / copied[1] == negative_infinity)
+  println(copied[2] != copied[2])
+  println(copied[3] == infinity)
+  println(copied[4] == negative_infinity)
+
+  source[0] = 2.5f
+  copied[4] = -3.75f
+
+  println($"{source[0]:.2f},{source[4]:.2f}")
+  println($"{copied[0]:.2f},{copied[4]:.2f}")
