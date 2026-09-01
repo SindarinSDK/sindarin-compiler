@@ -1,0 +1,19 @@
+fn main(): void =>
+  var true_branch: int = 0
+  if true =>
+    true_branch = 10
+  else =>
+    true_branch = 100
+  println(true_branch)
+
+  var false_branch: int = 0
+  if false =>
+    false_branch = 100
+  else =>
+    false_branch = 20
+  println(false_branch)
+
+  var no_else: int = 30
+  if false =>
+    no_else = 100
+  println(no_else)

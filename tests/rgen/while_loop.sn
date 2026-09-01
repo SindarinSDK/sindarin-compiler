@@ -1,0 +1,12 @@
+fn main(): void =>
+  var current: int = 0
+  var total: int = 0
+  while current < 4 =>
+    current++
+    total = total + current
+  println(total)
+
+  var zero_iterations: int = 0
+  while zero_iterations < 0 =>
+    zero_iterations = 99
+  println(zero_iterations)
