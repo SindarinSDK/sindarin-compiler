@@ -571,7 +571,7 @@ class TestRunner:
         return failed == 0, suite_elapsed
 
     def run_rust_toolchain_tests(self) -> Tuple[bool, float]:
-        """Run the dedicated Rust toolchain invocation suite (3 reported cases).
+        """Run the dedicated Rust toolchain invocation suite (4 reported cases).
 
         Uses the sn_fake_rustc fixture and the SN_RUSTC / SN_FAKE_RUSTC_*
         environment variables to verify how the Rust target invokes rustc.
@@ -597,20 +597,27 @@ class TestRunner:
         # Case 2: point SN_RUSTC at a nonexistent path and require the exact
         # toolchain-unavailable diagnostic plus a nonzero exit.
         # Case 3: use the spaced fixture with SN_FAKE_RUSTC_EXIT set nonzero
-        # and require the same diagnostic plus a nonzero exit.
+        # (all invocations fail, so the --version check fails first) and
+        # require the toolchain-unavailable diagnostic plus a nonzero exit.
+        # Case 4: force the version exit to 0 and the build exit to 3 via
+        # SN_FAKE_RUSTC_VERSION_EXIT / SN_FAKE_RUSTC_BUILD_EXIT, prove the
+        # --version and build invocations were both captured, and pin the
+        # exact 'Error: rustc failed to build generated source' diagnostic text.
         cases = [
             {'name': 'rustc_invocation_records', 'kind': 'records'},
             {'name': 'missing_rustc', 'kind': 'missing'},
             {'name': 'failing_rustc', 'kind': 'failing'},
+            {'name': 'failing_rustc_build', 'kind': 'failing_build'},
         ]
 
         results = []
         with tempfile.TemporaryDirectory(prefix='sn_rustc_') as temp_dir:
-            spaced_dir = os.path.join(temp_dir, 'fake rustc dir')
+            spaced_dir = os.path.join(temp_dir, "fake rustc 'dir' &")
             os.makedirs(spaced_dir)
             spaced_rustc = os.path.join(spaced_dir, f'sn_fake_rustc{exe_ext}')
             shutil.copy2(fake_rustc_src, spaced_rustc)
             capture_file = os.path.join(temp_dir, 'capture.log')
+            capture_file_build = os.path.join(temp_dir, 'capture_build.log')
             output_file = os.path.join(temp_dir, f'basic{exe_ext}')
             missing_rustc = os.path.join(temp_dir, 'definitely_not_a_rustc')
 
@@ -671,6 +678,33 @@ class TestRunner:
                                        'status': 'pass' if details is None else 'fail',
                                        'reason': '' if details is None else 'missing toolchain diagnostic',
                                        'details': details, 'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'failing_build':
+                    env['SN_RUSTC'] = spaced_rustc
+                    env['SN_FAKE_RUSTC_VERSION_EXIT'] = '0'
+                    env['SN_FAKE_RUSTC_BUILD_EXIT'] = '3'
+                    env['SN_FAKE_RUSTC_CAPTURE'] = capture_file_build
+                    exit_code, _stdout, stderr = run_with_timeout(
+                        cmd, self.compile_timeout, env=env
+                    )
+                    if exit_code == 0:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': 'expected a nonzero compiler exit',
+                                       'details': None, 'elapsed': time.perf_counter() - case_start})
+                    else:
+                        details = []
+                        diag = 'Error: rustc failed to build generated source'
+                        if diag not in (stderr or ''):
+                            details.append("missing exact diagnostic text 'Error: rustc failed to build generated source'")
+                        records = parse_rustc_capture(capture_file_build)
+                        if not [r for r in records if '--version' in r]:
+                            details.append('no --version toolchain-check record captured')
+                        if not [r for r in records if '--edition=2021' in r]:
+                            details.append('no --edition=2021 build record captured')
+                        results.append({'name': case['name'],
+                                       'status': 'pass' if not details else 'fail',
+                                       'reason': '' if not details else 'failing build assertions unmet',
+                                       'details': details or None, 'elapsed': time.perf_counter() - case_start})
 
                 self._print_rustc_case_result(results[-1])
 

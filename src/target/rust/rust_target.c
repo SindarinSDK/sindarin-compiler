@@ -14,20 +14,85 @@ static const char *rustc_command(void)
     return configured && configured[0] ? configured : "rustc";
 }
 
-static void rustc_quoted(char *out, size_t out_size)
+static bool rustc_quoted(char *out, size_t out_size)
 {
+    const char *path = rustc_command();
+    size_t len = strlen(path);
+    size_t needed;
 #ifdef _WIN32
-    snprintf(out, out_size, "\"%s\"", rustc_command());
+    /* Windows: wrap the executable path in double quotes so it stays exactly
+     * one token; a path ending in a backslash needs a doubled backslash before
+     * the closing quote. */
+    size_t trailing_bs = (len > 0 && path[len - 1] == '\\') ? 1 : 0;
+    needed = 2 + len + 2 * trailing_bs;
+    if (needed >= out_size) return false;
+    char *wcursor = out;
+    size_t wremaining = out_size;
+    *wcursor++ = '"';
+    wremaining--;
+    for (size_t i = 0; i < len; i++)
+    {
+        *wcursor++ = path[i];
+        wremaining--;
+    }
+    if (trailing_bs)
+    {
+        *wcursor++ = '\\';
+        *wcursor++ = '\\';
+        wremaining -= 2;
+    }
+    *wcursor++ = '"';
+    wremaining--;
+    *wcursor = '\0';
+    (void)wremaining;
 #else
-    snprintf(out, out_size, "'%s'", rustc_command());
-#endif
+    /* POSIX: shell-quote the path as one token so spaces and ampersands stay
+     * literal. An embedded single quote is encoded with the standard
+     * close-quote / escaped-quote / reopen-quote sequence. */
+    size_t apostrophes = 0;
+    for (size_t i = 0; i < len; i++)
+        if (path[i] == '\'')
+            apostrophes++;
+    needed = 2 + len + 3 * apostrophes;
+    if (needed >= out_size) return false;
+
+    char *cursor = out;
+    size_t remaining = out_size;
+    *cursor++ = '\'';
+    remaining--;
+    for (size_t i = 0; i < len; i++)
+    {
+        if (path[i] == '\'')
+        {
+            static const char seq[4] = { '\'', '\\', '\'', '\'' };
+            memcpy(cursor, seq, sizeof(seq));
+            cursor += sizeof(seq);
+            remaining -= sizeof(seq);
+        }
+        else
+        {
+            *cursor++ = path[i];
+            remaining--;
+        }
+    }
+    *cursor++ = '\'';
+    remaining--;
+    *cursor = '\0';
+    (void)remaining;
+    #endif
+    return true;
 }
 
 static bool rust_check_toolchain(const CompilerOptions *options)
 {
     char command[PATH_MAX + 64];
     char quoted_rustc[PATH_MAX + 8];
-    rustc_quoted(quoted_rustc, sizeof(quoted_rustc));
+    if (!rustc_quoted(quoted_rustc, sizeof(quoted_rustc)))
+    {
+        fprintf(stderr,
+                "Error: SN_RUSTC path is too long to shell-quote safely; use --emit-rust.\n");
+        return false;
+    }
 #ifdef _WIN32
     snprintf(command, sizeof(command), "%s --version >NUL 2>&1", quoted_rustc);
 #else
@@ -2030,7 +2095,12 @@ static bool rust_build(const CompilerOptions *options, const char *build_dir,
 
     char command[PATH_MAX * 3];
     char quoted_rustc[PATH_MAX + 8];
-    rustc_quoted(quoted_rustc, sizeof(quoted_rustc));
+    if (!rustc_quoted(quoted_rustc, sizeof(quoted_rustc)))
+    {
+        fprintf(stderr,
+                "Error: SN_RUSTC path is too long to shell-quote safely; use --emit-rust.\n");
+        return false;
+    }
     snprintf(command, sizeof(command), "%s --edition=2021 %s %s \"%s\" -o \"%s\"",
              quoted_rustc, profile_flags, rustflags, source_path,
              options->executable_file);

@@ -150,7 +150,7 @@ configure:
 clean:
 	@echo "Cleaning build artifacts..."
 	-cmake -E rm -rf $(BUILD_DIR)
-	-cmake -E rm -f $(BIN_DIR)/sn$(EXE_EXT) $(BIN_DIR)/tests$(EXE_EXT)
+	-cmake -E rm -f $(BIN_DIR)/sn$(EXE_EXT) $(BIN_DIR)/tests$(EXE_EXT) $(BIN_DIR)/sn_fake_rustc$(EXE_EXT)
 	-cmake -E rm -rf $(BIN_DIR)/lib
 	-cmake -E rm -rf $(BIN_DIR)/deps
 	@echo "Cleaning test temp directories..."
