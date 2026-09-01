@@ -1,0 +1,3 @@
+fn main(args: str[]): void =>
+  println(args[1])
+  println(args[2])

@@ -33,6 +33,7 @@ Options:
 import argparse
 import atexit
 import glob
+import json
 import os
 import platform
 import signal
@@ -809,8 +810,28 @@ class TestRunner:
             except ValueError:
                 return ('fail', f'invalid .exit sidecar in {exit_file}: {raw!r}', None)
 
+        args_file = os.path.splitext(test_file)[0] + '.args'
+        run_args = []
+        if os.path.isfile(args_file):
+            with open(args_file, 'r', encoding='utf-8') as f:
+                raw = f.read().strip()
+            if not raw:
+                return ('fail', f'empty .args sidecar in {args_file}', None)
+            try:
+                parsed = json.loads(raw)
+            except ValueError as e:
+                return ('fail', f'invalid .args sidecar in {args_file}: {e}', None)
+            if not isinstance(parsed, list):
+                return ('fail', f'invalid .args sidecar in {args_file}: expected a JSON array', None)
+            for item in parsed:
+                if not isinstance(item, str):
+                    return ('fail', f'invalid .args sidecar in {args_file}: all elements must be strings', None)
+                if '\x00' in item:
+                    return ('fail', f'invalid .args sidecar in {args_file}: string contains embedded NUL', None)
+            run_args = parsed
+
         exit_code, output, timeout_marker = run_with_timeout(
-            [exe_file], self.run_timeout, env=self.env, merge_stderr=True
+            [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
         )
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)

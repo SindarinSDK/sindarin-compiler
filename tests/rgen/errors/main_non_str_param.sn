@@ -1,0 +1,2 @@
+fn main(args: int[]): void =>
+  var x: int = 0
