@@ -31,13 +31,16 @@ int main(int argc, char **argv)
     }
 
     if (capture != NULL && capture[0] != '\0') {
-        FILE *f = fopen(capture, "a");
+        FILE *f = fopen(capture, "ab");
         if (f != NULL) {
-            fprintf(f, "BEGIN\n");
+            fwrite("INVOCATION\n", 1, 11, f);
+            fprintf(f, "ARGC %d\n", argc);
             for (int i = 0; i < argc; i++) {
-                fprintf(f, "%s\n", argv[i]);
+                size_t len = strlen(argv[i]);
+                fprintf(f, "ARG %zu\n", len);
+                fwrite(argv[i], 1, len, f);
+                fputc('\n', f);
             }
-            fprintf(f, "END\n");
             fclose(f);
         }
     }

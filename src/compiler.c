@@ -32,6 +32,7 @@ void compiler_init(CompilerOptions *options, int argc, char **argv)
     options->output_kind = OUTPUT_EXECUTABLE;
     options->keep_generated = 0;
     options->debug_build = 0;
+    options->profile_build = 0;
     options->do_init = 0;
     options->do_install = 0;
     options->install_target = NULL;
