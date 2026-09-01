@@ -1,0 +1,5 @@
+fn main(): void =>
+  var min_base: int = -9223372036854775807
+  var one: int = 1
+  var min: int = min_base - one
+  var underflow: int = min - one

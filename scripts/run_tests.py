@@ -1427,7 +1427,12 @@ class TestRunner:
             details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'Rust binary compile error', details)
 
+        panic_file = os.path.splitext(test_file)[0] + '.panic'
         exit_file = os.path.splitext(test_file)[0] + '.exit'
+        expects_panic = os.path.isfile(panic_file)
+        if expects_panic and os.path.isfile(exit_file):
+            return ('fail', f'conflicting .panic and .exit sidecars in {panic_file} and {exit_file}', None)
+
         expected_exit = 0
         if os.path.isfile(exit_file):
             with open(exit_file, 'r') as f:
@@ -1464,7 +1469,17 @@ class TestRunner:
         )
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)
-        if exit_code != expected_exit:
+        if expects_panic:
+            # A nonempty marker is the wrapper's launch/runner exception detail.
+            # A child killed by a POSIX signal can also return -1, with no marker.
+            if timeout_marker:
+                details = [f'run error: {timeout_marker}']
+                if output:
+                    details += output.split('\n')[:20]
+                return ('fail', 'run error', details)
+            if exit_code == 0:
+                return ('fail', 'expected panic', None)
+        elif exit_code != expected_exit:
             details = [f"expected exit code: {expected_exit}", f"actual exit code: {exit_code}"]
             if output:
                 details.extend(output.split('\n')[:20])
