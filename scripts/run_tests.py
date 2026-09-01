@@ -17,7 +17,7 @@ Test types:
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
     explore-errors    - Run exploratory error tests (tests/exploratory/errors/*.sn)
-    rust-toolchain    - Run Rust toolchain invocation tests (SN_RUSTC / SN_FAKE_RUSTC_*)
+    rust-toolchain    - Run Rust toolchain and shared artifact lifecycle tests
     all               - Run all test suites
 
 Options:
@@ -44,6 +44,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 from typing import List, Optional, Tuple, Dict, Any
@@ -287,6 +288,107 @@ def assert_rustc_toolchain_diagnostic(stderr: str, rustc_path: str) -> Optional[
     ]
     details = [line for line in expected if line not in stderr]
     return details or None
+
+
+def find_single_build_dir(case_dir: str, target: str,
+                          source_basename: str) -> Tuple[Optional[Path], Optional[str]]:
+    """Find the sole build directory and require <source basename>_<numeric PID>."""
+    build_dirs = list(Path(case_dir, '.sn', 'build', target).glob(f'{source_basename}_*'))
+    if len(build_dirs) != 1:
+        return None, f'expected one {target} build directory, found {len(build_dirs)}'
+    build_dir = build_dirs[0]
+    pid = build_dir.name[len(source_basename) + 1:]
+    if not build_dir.is_dir() or not pid or not pid.isascii() or not pid.isdecimal():
+        return None, (f'expected {target} build directory named {source_basename}_<numeric PID>, '
+                      f'found {build_dir.name!r}')
+    return build_dir, None
+
+
+def format_subprocess_failure(stdout: str, stderr: str) -> str:
+    """Return both subprocess streams so platform compiler failures are actionable."""
+    return f'stdout:\n{stdout.strip() or "<empty>"}\nstderr:\n{stderr.strip() or "<empty>"}'
+
+
+def append_shell_fragment(existing: str, fragment: str) -> str:
+    """Append a raw shell fragment without altering any inherited content."""
+    return f'{existing} {fragment}' if existing else fragment
+
+
+def c_lifecycle_build_dirs(project_root: str, source_basename: str) -> List[Path]:
+    """Return only this C lifecycle iteration's UUID-namespaced build directories."""
+    prefix = f'{source_basename}_'
+    build_parent = Path(project_root, '.sn', 'build', 'c')
+    return [path for path in build_parent.glob(f'{prefix}*')
+            if path.is_dir() and path.name.startswith(prefix)]
+
+
+def cleanup_c_lifecycle_build_dirs(project_root: str, source_basename: str) -> None:
+    """Remove all and only build directories owned by one C lifecycle iteration."""
+    for build_dir in c_lifecycle_build_dirs(project_root, source_basename):
+        shutil.rmtree(build_dir, ignore_errors=True)
+
+
+def stage_c_lifecycle_source(project_root: str, source_basename: str,
+                             source_file: str) -> Tuple[str, Path]:
+    """Stage a colon-free, project-root-relative C lifecycle source path."""
+    relative_dir = Path('.sn', 'test_lifecycle', source_basename)
+    stage_dir = Path(project_root, relative_dir)
+    stage_dir.mkdir(parents=True)
+    relative_source = relative_dir / f'{source_basename}.sn'
+    try:
+        shutil.copy2(source_file, Path(project_root, relative_source))
+    except BaseException:
+        shutil.rmtree(stage_dir, ignore_errors=True)
+        raise
+    return str(relative_source), stage_dir
+
+
+def staged_c_lifecycle_source_error(source_file: str) -> Optional[str]:
+    """Return an error unless a staged C input is a safe relative argument."""
+    source_path = Path(source_file)
+    if source_path.is_absolute() or ':' in source_file:
+        return f'staged C compiler argument is not relative and colon-free: {source_file!r}'
+    return None
+
+
+def cleanup_c_lifecycle_source(stage_dir: Optional[Path], source_file: Optional[str]) -> bool:
+    """Remove only this iteration's staged file and UUID-owned directory."""
+    if not stage_dir:
+        return True
+    if source_file:
+        staged_file = stage_dir / Path(source_file).name
+        try:
+            staged_file.unlink(missing_ok=True)
+        except OSError:
+            pass
+    shutil.rmtree(stage_dir, ignore_errors=True)
+    return not stage_dir.exists()
+
+
+def stage_c_lifecycle_sentinel(project_root: str) -> Tuple[Path, Path]:
+    """Create an unrelated sibling sentinel to prove scoped cleanup is non-destructive."""
+    sentinel_dir = Path(project_root, '.sn', 'test_lifecycle', f'sentinel_{uuid.uuid4().hex}')
+    sentinel_dir.mkdir(parents=True)
+    sentinel_file = sentinel_dir / 'preserve.txt'
+    try:
+        sentinel_file.write_text('sentinel', encoding='ascii')
+    except BaseException:
+        shutil.rmtree(sentinel_dir, ignore_errors=True)
+        raise
+    return sentinel_dir, sentinel_file
+
+
+def c_lifecycle_build_sentinel(project_root: str) -> Tuple[Path, Path]:
+    """Create an unrelated build sibling to prove prefix cleanup is non-destructive."""
+    sentinel_dir = Path(project_root, '.sn', 'build', 'c', f'sentinel_{uuid.uuid4().hex}')
+    sentinel_dir.mkdir(parents=True)
+    sentinel_file = sentinel_dir / 'preserve.txt'
+    try:
+        sentinel_file.write_text('sentinel', encoding='ascii')
+    except BaseException:
+        shutil.rmtree(sentinel_dir, ignore_errors=True)
+        raise
+    return sentinel_dir, sentinel_file
 
 
 class TestConfig:
@@ -623,13 +725,13 @@ class TestRunner:
         return failed == 0, suite_elapsed
 
     def run_rust_toolchain_tests(self) -> Tuple[bool, float]:
-        """Run the dedicated Rust toolchain invocation suite (4 reported cases).
+        """Run the Rust toolchain and shared generated-artifact lifecycle suite.
 
         Uses the sn_fake_rustc fixture and the SN_RUSTC / SN_FAKE_RUSTC_*
         environment variables to verify how the Rust target invokes rustc.
         """
         print()
-        print(f"{Colors.BOLD}Rust Toolchain Tests{Colors.NC}")
+        print(f"{Colors.BOLD}Rust Toolchain and Artifact Lifecycle Tests{Colors.NC}")
         print("=" * 60)
         suite_start = time.perf_counter()
 
@@ -655,12 +757,19 @@ class TestRunner:
         # Case 4: force the version exit to 0 and the build exit to 3 via
         # SN_FAKE_RUSTC_VERSION_EXIT / SN_FAKE_RUSTC_BUILD_EXIT, prove the
         # --version and build invocations were both captured, and pin the
-        # exact 'Error: rustc failed to build generated source' diagnostic text.
+        # exact 'Error: rustc failed to build generated source' diagnostic text,
+        # and verify that its generated Rust source remains available.
+        # Case 5: verify Rust successful-build cleanup and --keep-generated
+        # retention in a private working directory.
+        # Case 6: repeat success cleanup/retention assertions for C, which
+        # exercises the same target_compile lifecycle path.
         cases = [
             {'name': 'rustc_invocation_records', 'kind': 'records'},
             {'name': 'missing_rustc', 'kind': 'missing'},
             {'name': 'failing_rustc', 'kind': 'failing'},
             {'name': 'failing_rustc_build', 'kind': 'failing_build'},
+            {'name': 'rust_generated_artifact_lifecycle', 'kind': 'rust_lifecycle'},
+            {'name': 'c_generated_artifact_lifecycle', 'kind': 'c_lifecycle'},
         ]
 
         results = []
@@ -797,27 +906,205 @@ class TestRunner:
                     env['SN_FAKE_RUSTC_VERSION_EXIT'] = '0'
                     env['SN_FAKE_RUSTC_BUILD_EXIT'] = '3'
                     env['SN_FAKE_RUSTC_CAPTURE'] = capture_file_build
-                    exit_code, _stdout, stderr = run_with_timeout(
-                        cmd, self.compile_timeout, env=env
-                    )
-                    if exit_code == 0:
-                        results.append({'name': case['name'], 'status': 'fail',
-                                       'reason': 'expected a nonzero compiler exit',
-                                       'details': None, 'elapsed': time.perf_counter() - case_start})
-                    else:
-                        details = []
+                    details = []
+                    for keep_generated in (False, True):
+                        label = '--keep-generated' if keep_generated else 'default'
+                        case_dir = os.path.join(temp_dir, f'failing-build-{int(keep_generated)}')
+                        os.makedirs(case_dir)
+                        failed_output = os.path.join(case_dir, f'basic_output{exe_ext}')
+                        failed_cmd = [self.compiler, test_file, '--target', 'rust', '-o', failed_output,
+                                      '-l', '3', '--no-install']
+                        if keep_generated:
+                            failed_cmd.append('--keep-generated')
+                        exit_code, _stdout, stderr = run_with_timeout(
+                            failed_cmd, self.compile_timeout, cwd=case_dir, env=env)
+                        if exit_code == 0:
+                            details.append(f'{label}: expected a nonzero compiler exit')
+                            continue
                         diag = 'Error: rustc failed to build generated source'
                         if diag not in (stderr or ''):
-                            details.append("missing exact diagnostic text 'Error: rustc failed to build generated source'")
-                        records = parse_rustc_capture(capture_file_build)
-                        if not [r for r in records if b'--version' in r]:
-                            details.append('no --version toolchain-check record captured')
-                        if not [r for r in records if b'--edition=2021' in r]:
-                            details.append('no --edition=2021 build record captured')
-                        results.append({'name': case['name'],
-                                       'status': 'pass' if not details else 'fail',
-                                       'reason': '' if not details else 'failing build assertions unmet',
-                                       'details': details or None, 'elapsed': time.perf_counter() - case_start})
+                            details.append(f'{label}: missing exact diagnostic text '
+                                           "'Error: rustc failed to build generated source'")
+                        build_dir, reason = find_single_build_dir(case_dir, 'rust', 'basic')
+                        if reason:
+                            details.append(f'{label}: {reason}')
+                        elif not (build_dir / 'main.rs').is_file():
+                            details.append(f'{label}: failed Rust build removed generated main.rs')
+                    records = parse_rustc_capture(capture_file_build)
+                    if not [r for r in records if b'--version' in r]:
+                        details.append('no --version toolchain-check record captured')
+                    if not [r for r in records if b'--edition=2021' in r]:
+                        details.append('no --edition=2021 build record captured')
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'failing build assertions unmet',
+                                   'details': details or None, 'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] in ('rust_lifecycle', 'c_lifecycle'):
+                    target = 'rust' if case['kind'] == 'rust_lifecycle' else 'c'
+                    details = []
+                    project_root = os.getcwd()
+
+                    for keep_generated in (False, True):
+                        label = '--keep-generated' if keep_generated else 'default cleanup'
+                        case_dir = os.path.join(temp_dir, f'{target}-lifecycle-{int(keep_generated)}')
+                        os.makedirs(case_dir)
+                        output = os.path.join(case_dir, f'basic_output{exe_ext}')
+                        source_file = test_file
+                        source_basename = 'basic'
+                        cwd = case_dir
+                        build_root = case_dir
+                        stage_dir = None
+                        sentinel_dir = None
+                        sentinel_file = None
+                        build_sentinel_dir = None
+                        build_sentinel_file = None
+                        try:
+                            if target == 'c':
+                                # C package/link discovery is project-CWD-relative. Keep that
+                                # established context, but pass the splitter a colon-free path.
+                                source_basename = f'basic_c_lifecycle_{uuid.uuid4().hex}'
+                                cwd = project_root
+                                build_root = project_root
+                                source_file, stage_dir = stage_c_lifecycle_source(
+                                    project_root, source_basename, test_file)
+                                sentinel_dir, sentinel_file = stage_c_lifecycle_sentinel(project_root)
+                                build_sentinel_dir, build_sentinel_file = c_lifecycle_build_sentinel(
+                                    project_root)
+                                source_error = staged_c_lifecycle_source_error(source_file)
+                                if source_error:
+                                    details.append(f'{label}: {source_error}')
+                            case_env = env.copy()
+                            if target == 'rust':
+                                case_env['SN_RUSTC'] = spaced_rustc
+                                case_env['SN_FAKE_RUSTC_VERSION_EXIT'] = '0'
+                                case_env['SN_FAKE_RUSTC_BUILD_EXIT'] = '0'
+                            lifecycle_cmd = [self.compiler, source_file, '--target', target,
+                                             '-o', output, '-l', '3', '--no-install']
+                            if keep_generated:
+                                lifecycle_cmd.append('--keep-generated')
+                            exit_code, stdout, stderr = run_with_timeout(
+                                lifecycle_cmd, self.compile_timeout, cwd=cwd, env=case_env)
+                            if exit_code != 0:
+                                details.append(f'{label}: {target} compile exit {exit_code}:\n'
+                                               f'{format_subprocess_failure(stdout, stderr)}')
+                                continue
+
+                            build_dir, reason = find_single_build_dir(build_root, target, source_basename)
+                            if reason:
+                                details.append(f'{label}: {reason}')
+                                continue
+                            if keep_generated:
+                                if target == 'rust':
+                                    if not (build_dir / 'main.rs').is_file():
+                                        details.append(f'{label}: Rust main.rs was not retained')
+                                else:
+                                    if not (build_dir / 'sn_types.h').is_file() or not list(build_dir.glob('*.c')):
+                                        details.append(f'{label}: C generated header/source was not retained')
+                            elif target == 'rust':
+                                if (build_dir / 'main.rs').exists():
+                                    details.append(f'{label}: Rust main.rs was not cleaned up')
+                            else:
+                                if (build_dir / 'sn_types.h').exists() or list(build_dir.glob('*.c')):
+                                    details.append(f'{label}: C generated header/source was not cleaned up')
+                        finally:
+                            if target == 'c':
+                                cleanup_c_lifecycle_build_dirs(build_root, source_basename)
+                                if not cleanup_c_lifecycle_source(stage_dir, source_file):
+                                    details.append(f'{label}: staged C source path remains')
+                                if sentinel_file and not sentinel_file.is_file():
+                                    details.append(f'{label}: unrelated staged sentinel was removed')
+                                if build_sentinel_file and not build_sentinel_file.is_file():
+                                    details.append(f'{label}: unrelated build sentinel was removed')
+                                if sentinel_dir:
+                                    shutil.rmtree(sentinel_dir, ignore_errors=True)
+                                if build_sentinel_dir:
+                                    shutil.rmtree(build_sentinel_dir, ignore_errors=True)
+                                leftovers = c_lifecycle_build_dirs(build_root, source_basename)
+                                if leftovers:
+                                    details.append(f'{label}: UUID-owned build directories remain: '
+                                                   f'{[str(path) for path in leftovers]!r}')
+
+                    if target == 'c':
+                        label = 'adversarial cleanup probe'
+                        case_dir = os.path.join(temp_dir, 'c-lifecycle-adversarial')
+                        os.makedirs(case_dir)
+                        source_basename = f'basic_c_lifecycle_{uuid.uuid4().hex}'
+                        output = os.path.join(case_dir, f'basic_output{exe_ext}')
+                        build_root = project_root
+                        source_file = None
+                        stage_dir = None
+                        sentinel_dir = None
+                        sentinel_file = None
+                        build_sentinel_dir = None
+                        build_sentinel_file = None
+                        failure_report = ''
+                        try:
+                            source_file, stage_dir = stage_c_lifecycle_source(
+                                project_root, source_basename, test_file)
+                            sentinel_dir, sentinel_file = stage_c_lifecycle_sentinel(project_root)
+                            build_sentinel_dir, build_sentinel_file = c_lifecycle_build_sentinel(
+                                project_root)
+                            source_error = staged_c_lifecycle_source_error(source_file)
+                            if source_error:
+                                details.append(f'{label}: {source_error}')
+                            probe_env = env.copy()
+                            # Force the C compile stage (after generated files are written)
+                            # to fail on GCC and Clang without changing compiler behavior.
+                            missing_header_flag = '-include sn_lifecycle_missing_header.h'
+                            inherited_cflags = probe_env.get('SN_CFLAGS', '')
+                            probe_env['SN_CFLAGS'] = append_shell_fragment(
+                                inherited_cflags, missing_header_flag)
+                            marker_cflags = ('--target=x86_64-w64-mingw32 -fuse-ld=lld '
+                                             '-rtlib=compiler-rt -unwindlib=none')
+                            if append_shell_fragment(marker_cflags, missing_header_flag) != (
+                                    f'{marker_cflags} {missing_header_flag}'):
+                                details.append(f'{label}: inherited SN_CFLAGS marker flags were not '
+                                               'preserved before the injected missing-header flag')
+                            if append_shell_fragment('', missing_header_flag) != missing_header_flag:
+                                details.append(f'{label}: empty SN_CFLAGS did not produce only the '
+                                               'injected missing-header flag')
+                            expected_probe_cflags = (f'{inherited_cflags} {missing_header_flag}'
+                                                     if inherited_cflags else missing_header_flag)
+                            if probe_env['SN_CFLAGS'] != expected_probe_cflags:
+                                details.append(f'{label}: inherited SN_CFLAGS was not preserved before '
+                                               'the injected missing-header flag')
+                            exit_code, stdout, stderr = run_with_timeout(
+                                [self.compiler, source_file, '--target', 'c', '-o', output,
+                                 '-l', '3', '--no-install'], self.compile_timeout,
+                                cwd=project_root, env=probe_env)
+                            failure_report = format_subprocess_failure(stdout, stderr)
+                            if exit_code == 0:
+                                details.append(f'{label}: expected a nonzero compiler exit:\n{failure_report}')
+                            else:
+                                build_dir, reason = find_single_build_dir(
+                                    build_root, 'c', source_basename)
+                                if reason:
+                                    details.append(f'{label}: {reason}\n{failure_report}')
+                                elif (not (build_dir / 'sn_types.h').is_file() or
+                                      not list(build_dir.glob('*.c'))):
+                                    details.append(f'{label}: C generated header/source was not written '
+                                                   f'before the forced compile failure\n{failure_report}')
+                        finally:
+                            cleanup_c_lifecycle_build_dirs(build_root, source_basename)
+                            if not cleanup_c_lifecycle_source(stage_dir, source_file):
+                                details.append(f'{label}: staged C source path remains')
+                            if sentinel_file and not sentinel_file.is_file():
+                                details.append(f'{label}: unrelated staged sentinel was removed')
+                            if build_sentinel_file and not build_sentinel_file.is_file():
+                                details.append(f'{label}: unrelated build sentinel was removed')
+                            if sentinel_dir:
+                                shutil.rmtree(sentinel_dir, ignore_errors=True)
+                            if build_sentinel_dir:
+                                shutil.rmtree(build_sentinel_dir, ignore_errors=True)
+                        leftovers = c_lifecycle_build_dirs(build_root, source_basename)
+                        if leftovers:
+                            details.append(f'{label}: UUID-owned build directories remain: '
+                                           f'{[str(path) for path in leftovers]!r}\n{failure_report}')
+
+                    results.append({'name': case['name'], 'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'artifact lifecycle assertions unmet',
+                                   'details': details or None, 'elapsed': time.perf_counter() - case_start})
 
                 self._print_rustc_case_result(results[-1])
 
