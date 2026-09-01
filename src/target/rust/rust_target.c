@@ -24,7 +24,7 @@ static bool rustc_quoted(char *out, size_t out_size)
      * one token; a path ending in a backslash needs a doubled backslash before
      * the closing quote. */
     size_t trailing_bs = (len > 0 && path[len - 1] == '\\') ? 1 : 0;
-    needed = 2 + len + 2 * trailing_bs;
+    needed = 2 + len + trailing_bs;
     if (needed >= out_size) return false;
     char *wcursor = out;
     size_t wremaining = out_size;
@@ -38,8 +38,7 @@ static bool rustc_quoted(char *out, size_t out_size)
     if (trailing_bs)
     {
         *wcursor++ = '\\';
-        *wcursor++ = '\\';
-        wremaining -= 2;
+        wremaining--;
     }
     *wcursor++ = '"';
     wremaining--;
