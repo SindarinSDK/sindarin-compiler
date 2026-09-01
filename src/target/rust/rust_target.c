@@ -1265,8 +1265,26 @@ static bool rust_validate_model_impl(json_object *model)
                 json_object_object_get_ex(function, "params", &params) &&
                 json_object_array_length(params) > 0)
             {
-                fprintf(stderr, "Error: Rust target does not support parameters on function 'main' yet\n");
-                return false;
+                size_t param_count = json_object_array_length(params);
+                json_object *param = json_object_array_get_idx(params, 0);
+                json_object *param_type = NULL;
+                json_object *element_type = NULL;
+                const char *param_name = json_string_property(param, "name");
+                if (param_count != 1 ||
+                    !json_object_object_get_ex(param, "type", &param_type) ||
+                    !json_string_property_equals(param_type, "kind", "array") ||
+                    !json_object_object_get_ex(param_type, "element_type", &element_type) ||
+                    !json_string_property_equals(element_type, "kind", "string"))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target requires main to have zero parameters or a single str[] parameter\n");
+                    return false;
+                }
+                json_object_object_add(function, "rust_main_has_args",
+                                       json_object_new_boolean(true));
+                if (param_name)
+                    json_object_object_add(function, "rust_main_args_name",
+                                           json_object_new_string(param_name));
             }
             if (json_object_object_get_ex(function, "params", &params))
             {
