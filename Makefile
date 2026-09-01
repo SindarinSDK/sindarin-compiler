@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors
+.PHONY: test-explore test-explore-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
@@ -150,11 +150,11 @@ configure:
 clean:
 	@echo "Cleaning build artifacts..."
 	-cmake -E rm -rf $(BUILD_DIR)
-	-cmake -E rm -f $(BIN_DIR)/sn$(EXE_EXT) $(BIN_DIR)/tests$(EXE_EXT)
+	-cmake -E rm -f $(BIN_DIR)/sn$(EXE_EXT) $(BIN_DIR)/tests$(EXE_EXT) $(BIN_DIR)/sn_fake_rustc$(EXE_EXT)
 	-cmake -E rm -rf $(BIN_DIR)/lib
 	-cmake -E rm -rf $(BIN_DIR)/deps
 	@echo "Cleaning test temp directories..."
-	$(PYTHON) -c "import glob, shutil, tempfile, os; [shutil.rmtree(d, ignore_errors=True) for d in glob.glob(os.path.join(tempfile.gettempdir(), 'sn_test_*'))]"
+	$(PYTHON) -c "import glob, shutil, tempfile, os; [shutil.rmtree(d, ignore_errors=True) for d in glob.glob(os.path.join(tempfile.gettempdir(), 'sn_test_*')) + glob.glob(os.path.join(tempfile.gettempdir(), 'sn_rustc_*'))]"
 	@echo "Clean complete."
 
 #------------------------------------------------------------------------------
@@ -195,6 +195,9 @@ test-explore: build
 
 test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
+
+test-rust-toolchain: build
+	@$(PYTHON) scripts/run_tests.py rust-toolchain --verbose
 
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
@@ -307,6 +310,7 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
+	@echo "  make test-rust-toolchain    Run Rust toolchain invocation tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"

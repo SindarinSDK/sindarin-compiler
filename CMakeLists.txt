@@ -304,6 +304,13 @@ else()
     target_link_libraries(tests PRIVATE pthread m)
 endif()
 
+#------------------------------------------------------------------------------
+# Fake Rustc Test Fixture Executable
+#------------------------------------------------------------------------------
+add_executable(sn_fake_rustc
+    tests/fixtures/fake_rustc.c
+)
+
 # Sanitizers instrument the compiler and its unit tests, not the runtime
 # archive linked into generated programs.  The runtime must work regardless of
 # whether the compiler itself came from a debug or release build tree.
@@ -367,8 +374,11 @@ set(SN_STAGE_COMMANDS
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
             "$<TARGET_FILE:tests>"
             "${CMAKE_SOURCE_DIR}/bin/$<TARGET_FILE_NAME:tests>"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "$<TARGET_FILE:sn_fake_rustc>"
+            "${CMAKE_SOURCE_DIR}/bin/$<TARGET_FILE_NAME:sn_fake_rustc>"
 )
-set(SN_STAGE_DEPENDS sn tests)
+set(SN_STAGE_DEPENDS sn tests sn_fake_rustc)
 
 if(TARGET sn_runtime_min)
     list(APPEND SN_STAGE_COMMANDS
