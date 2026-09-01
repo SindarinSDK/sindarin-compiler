@@ -1,0 +1,4 @@
+fn main(): void =>
+  var max: int = 9223372036854775807
+  var one: int = 1
+  var overflow: int = max + one
