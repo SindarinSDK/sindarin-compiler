@@ -82,6 +82,33 @@ static bool rustc_quoted(char *out, size_t out_size)
     return true;
 }
 
+static bool rust_run_command(const char *command)
+{
+#ifdef _WIN32
+    /* Windows cmd.exe /c strips the first opening quote from a command that
+     * begins with a quoted executable path (so a spaced SN_RUSTC path splits
+     * at the first space). Wrap the complete command in one additional outer
+     * pair of double quotes so the executable path stays a single token. */
+    size_t len = strlen(command);
+    char *to_run = (char *)malloc(len + 3);
+    if (!to_run)
+    {
+        fprintf(stderr, "Error: failed to allocate buffer for rustc invocation\n");
+        return false;
+    }
+    to_run[0] = '"';
+    memcpy(to_run + 1, command, len);
+    to_run[len + 1] = '"';
+    to_run[len + 2] = '\0';
+    int status = system(to_run);
+    free(to_run);
+    return status == 0;
+#else
+    /* POSIX: pass the command through unchanged; no extra allocation. */
+    return system(command) == 0;
+#endif
+}
+
 static bool rust_check_toolchain(const CompilerOptions *options)
 {
     char command[PATH_MAX + 64];
@@ -92,12 +119,18 @@ static bool rust_check_toolchain(const CompilerOptions *options)
                 "Error: SN_RUSTC path is too long to shell-quote safely; use --emit-rust.\n");
         return false;
     }
+    int written;
 #ifdef _WIN32
-    snprintf(command, sizeof(command), "%s --version >NUL 2>&1", quoted_rustc);
+    written = snprintf(command, sizeof(command), "%s --version >NUL 2>&1", quoted_rustc);
 #else
-    snprintf(command, sizeof(command), "%s --version >/dev/null 2>&1", quoted_rustc);
+    written = snprintf(command, sizeof(command), "%s --version >/dev/null 2>&1", quoted_rustc);
 #endif
-    if (system(command) == 0)
+    if (written < 0 || (size_t)written >= sizeof(command))
+    {
+        fprintf(stderr, "Error: failed to build rustc --version command\n");
+        return false;
+    }
+    if (rust_run_command(command))
     {
         if (options->verbose) DEBUG_INFO("Rust compiler '%s' found", rustc_command());
         return true;
@@ -2100,11 +2133,16 @@ static bool rust_build(const CompilerOptions *options, const char *build_dir,
                 "Error: SN_RUSTC path is too long to shell-quote safely; use --emit-rust.\n");
         return false;
     }
-    snprintf(command, sizeof(command), "%s --edition=2021 %s %s \"%s\" -o \"%s\"",
-             quoted_rustc, profile_flags, rustflags, source_path,
-             options->executable_file);
+    int written = snprintf(command, sizeof(command), "%s --edition=2021 %s %s \"%s\" -o \"%s\"",
+                           quoted_rustc, profile_flags, rustflags, source_path,
+                           options->executable_file);
+    if (written < 0 || (size_t)written >= sizeof(command))
+    {
+        fprintf(stderr, "Error: failed to build rustc build command\n");
+        return false;
+    }
     if (options->verbose) DEBUG_INFO("Executing: %s", command);
-    if (system(command) != 0)
+    if (!rust_run_command(command))
     {
         fprintf(stderr, "Error: rustc failed to build generated source\n");
         return false;
