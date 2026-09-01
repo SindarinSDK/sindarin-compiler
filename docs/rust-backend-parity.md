@@ -10,7 +10,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
 |---|---|
 | `make setup` (fresh worktree, run **once** at start) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
 | `make test-rgen` | PASS — **46/46** Rust generation tests green. |
-| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1609**, cgen **107**, rgen **46**, rgen-errors **9**, mgen **79**, integration **1142**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
+| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1622**, cgen **107**, rgen **46**, rgen-errors **10**, mgen **79**, integration **1142**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
 | host `rustc --version` | `rustc 1.93.1` — verified on **Spark 1** (read-only check) and **Spark 2**. |
 
 ## Methodology (verification)
@@ -46,7 +46,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
 | E7 | C-only stmt kinds | `gen_model_stmt.c:94,797,1019,1042`; C partials `stmt/{lock,using,for_each_iter}.hbs` | CONFIRMED — Rust gap |
 | E8 | PR #49 rejection | PR #49 diff → `rust_target.c:1148,1266` + `tests/rgen/errors/*` | CONFIRMED |
 | E9 | PR #54 C-incompatibility | PR #54 body: "Instance-method `as ref` remains rejected because the C backend currently emits incompatible value arguments for pointer parameters." | CONFIRMED (evaluation item) |
-| E10 | rgen coverage | 46 positive (`tests/rgen/*`) + 9 negative (`tests/rgen/errors/*`) | CONFIRMED |
+| E10 | rgen coverage | 46 positive (`tests/rgen/*`) + 10 negative (`tests/rgen/errors/*`) | CONFIRMED |
 | E11 | Baseline green | Baseline table above | CONFIRMED |
 | E12 | C-only suites | integration 1142, integration-errors 58, explore 224, explore-errors 11, cgen 107 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
 | E13 | CI rustc pin | `.github/workflows/ci.yml` installs/selects exact Rust **1.93.1** via `rustup` for every OS matrix job before setup/build/test and records `rustc --version --verbose` | CONFIRMED |
@@ -87,7 +87,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | **`lock` / `release`** | C `stmt/lock.hbs`; `gen_model_stmt.c:1019` | — | **SIL/ABSENT** | Add Rust mutex/lock statement | Med | **PR-G** |
 | **`str` statement kind** | C `gen_model_stmt.c:94` | — | **SIL** — no Rust partial/validator case | Implement C-equivalent behavior; any exception requires explicit user approval | Low | **PR-C** |
 | Functions / static / instance methods | C `function.hbs`, `struct_method.hbs` | #29,#30,#31,#35,#36,#40 | **IBT** — `tests/rgen/{static,readonly,mutating}_struct_methods.*`, `instance_function_calls.*`, `instance_static_calls.*`, `return_self.*`; `templates/rust/partials/struct_method.hbs` | — | Low | M0 done |
-| **`main()` non-void** | C allows non-void main (C model) | — | **PARTIAL** — zero-argument `int` main now emits Rust process exit behavior through a typed closure (`rust_target.c:1251-1263`); positive rgen test `main_int_exit` (with `.exit` expected code) + negative `main_non_int_return` (`tests/rgen/errors/main_non_int_return.*`; other non-void return kinds remain specifically rejected at `rust_target.c:1256`) | Implement remaining non-void `main` work (other return kinds / argument forms); add rgen tests | Low | **PR-A** |
+| **`main()` non-void / arguments** | C allows non-void main and main arguments (C model `has_main_args` → `int main(int argc, char **argv)`) | — | **PARTIAL** — this slice supports **zero-argument** `void`/`int` main only; `int` main emits Rust process-exit behavior through a typed closure (`rust_target.c:1251-1263`); **main arguments remain open/unsupported**: parameterized `main` (typechecker enforces a single `str[]` argv parameter) is now explicitly rejected by the Rust validator (`rust_target.c:1264-1270`); positives `main_int_exit` (with `.exit` expected code) + negatives `main_non_int_return` (other non-void return kinds rejected at `rust_target.c:1256`) and `main_parameterized` | Implement the argument-parity slice: convert the `str[]` main parameter to Rust `std::env::args`-style argv handling; add rgen tests | Low | **PR-A** |
 | **`as ref`/`as val` struct params** (heap-free) | C param `mem_qual` codegen | #50,#51,#52,#53 | **IBT** — `tests/rgen/{as_ref,as_val,static_as_ref,static_as_val}_struct_parameter.*` | — | Low | M0 done |
 | **int / long `as ref`** (scalar ref) | C `mem_*` cgen | #55,#56 | **IBT** — `tests/rgen/{int,long}_as_ref_parameter.*`; `rust_lower_integer_ref_parameters` (`:1906`) | — | Low | M0 done |
 | **int32 / uint32 / byte `as ref`** | C supports these scalar types | — | **REJ (specific)** — `rust_target.c:1271-1274` limits `as_ref` to `int`/`long`; `tests/rgen/errors/int32_as_ref_parameter.sn` (int32 only tested; uint32/byte untested) | Implement C-equivalent behavior; any exception requires explicit user approval | Med | **PR-D** |
@@ -128,7 +128,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | Feature / behavior | Exact C implementation & tests | Historical PRs | Current Rust status | Missing implementation / tests | Semantic / arch. risk | Milestone + PR boundary |
 |---|---|---|---|---|---|---|
 | Shared malformed-program diagnostics (parse/type errors) | `src/diagnostic.c` (phase + file:line context); 1609 unit tests cover lexer/parser/type_checker | — | **PARITY (target-neutral)** — shared front-end, target-agnostic | — | Low | — |
-| Rust-target-specific emission diagnostics | `rust_target.c` plain `fprintf(stderr, "Error: Rust target ...")`; **no file/line context**; only **8 first-line negatives** pinned in `tests/rgen/errors/*`; SIL constructs (`match`/`method_call`/`sizeof`/`using`/`lock`/`for_each_iter`) fall through to the generic "unsupported construct" message with no dedicated negative test | #49,#54 | **UT** — add file/line richness + dedicated negatives for SIL constructs | Med | **PR-C/PR-F/PR-G** |
+| Rust-target-specific emission diagnostics | `rust_target.c` plain `fprintf(stderr, "Error: Rust target ...")`; **no file/line context**; first-line negatives pinned in `tests/rgen/errors/*` (currently **10**); SIL constructs (`match`/`method_call`/`sizeof`/`using`/`lock`/`for_each_iter`) fall through to the generic "unsupported construct" message with no dedicated negative test | #49,#54 | **UT** — add file/line richness + dedicated negatives for SIL constructs | Med | **PR-C/PR-F/PR-G** |
 | Missing-`rustc` at build stage | `rust_check_toolchain` (`rust_target.c:17`); gate invoked at `src/target/target.c:201` only for executable output | #9 | **UT** — no negative test for missing toolchain | Add negative test (`SN_RUSTC` → nonexistent binary) | Med | **PR-A** |
 
 # CLI / TOOLCHAIN / PLATFORM PARITY
@@ -149,7 +149,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | Suite | Count | Target |
 |---|---|---|
 | rgen (Rust behavior) | **46 positive** | Rust |
-| rgen-errors | **9** first-line negatives | Rust |
+| rgen-errors | **10** first-line negatives | Rust |
 | unit | 1622 (1609 baseline + 13 CLI target-selection cases) | target-neutral |
 | cgen | 107 | **C** |
 | mgen | 79 | **C** |
@@ -158,7 +158,9 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | exploratory | **224** | **C only** |
 | exploratory-errors | **11** | **C only** |
 
-**rgen behavior:** every rgen test (run_tests.py:755) does emit (`--emit-rust` → `.expected.rs` snapshot) → `rustc --edition=2021` build → run binary → diff stdout vs `.expected`. **There is no Rust integration suite**; the 1366 C-side behavioral tests (1142 integration + 224 exploratory, plus 58 + 11 error tests) have **no `--target rust` equivalent**, so C-only features (files/dates/threads/closures/imports) compiled on Rust hit rejections pinned only by the 9 rgen-errors.
+**rgen behavior:** every rgen test (run_tests.py:755) does emit (`--emit-rust` → `.expected.rs` snapshot) → `rustc --edition=2021` build → run binary → diff stdout vs `.expected`. **There is no Rust integration suite**; the 1366 C-side behavioral tests (1142 integration + 224 exploratory, plus 58 + 11 error tests) have **no `--target rust` equivalent**, so C-only features (files/dates/threads/closures/imports) compiled on Rust hit rejections pinned only by the 10 rgen-errors.
+
+**Exit-code sidecar:** each rgen test may ship an optional `<name>.exit` sidecar file containing a single decimal integer that pins the expected process exit code. When the sidecar is absent, the runner defaults to expecting exit code **0** (run_tests.py:800-801); when present, the file must hold a valid decimal integer (empty or non-numeric sidecars fail the test, run_tests.py:802-810). `main_int_exit` uses `main_int_exit.exit` (value `7`) to pin the `std::process::exit` value emitted by a zero-argument `int` main.
 
 **Spark 1 evidence — `test_limitation_closure_array`:** during this audit the exploratory test `test_limitation_closure_array` (a closure capturing a local array, pushed from 3 concurrent threads) produced an ASAN `heap-buffer-overflow` **twice on Spark 1**, while the same focused baseline test passed **5/5 on Spark 2** and earlier full baselines were green. Classify it as a **nondeterministic / host-sensitive existing C concurrency/closure risk** (concurrent `SnArray` push → `sn_realloc` race), **not** a docs-branch or Rust-backend regression. Keep it in the **PR-G** (threads/closures) verification scope.
 

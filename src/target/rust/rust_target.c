@@ -1261,6 +1261,13 @@ static bool rust_validate_model_impl(json_object *model)
                 strcmp(json_object_get_string(return_kind), "int") == 0)
                 json_object_object_add(function, "rust_main_returns_int",
                                        json_object_new_boolean(true));
+            if (strcmp(name, "main") == 0 &&
+                json_object_object_get_ex(function, "params", &params) &&
+                json_object_array_length(params) > 0)
+            {
+                fprintf(stderr, "Error: Rust target does not support parameters on function 'main' yet\n");
+                return false;
+            }
             if (json_object_object_get_ex(function, "params", &params))
             {
                 size_t param_count = json_object_array_length(params);
