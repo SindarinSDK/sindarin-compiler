@@ -1,0 +1,30 @@
+struct Label =>
+  text: string = ""
+
+fn copyForCall(value: string): string =>
+  return value
+
+fn main(): void =>
+  var source: string = "source"
+
+  var assigned: string = source
+  assigned = "assigned"
+
+  var returned: string = copyForCall(source)
+  returned = "returned"
+
+  var label: Label = { text: source }
+  label.text = "label"
+  var extractedField: string = label.text
+  extractedField = "field"
+
+  var values: string[] = {}
+  values.push(source)
+  values.insert(source, 0)
+  println($"afterInsert={source}")
+  var extractedElement: string = values[0]
+  extractedElement = "element"
+  values[0] = "array"
+
+  source = "source-updated"
+  println($"source={source}; assigned={assigned}; returned={returned}; label={label.text}; field={extractedField}; array0={values[0]}; array1={values[1]}; element={extractedElement}")
