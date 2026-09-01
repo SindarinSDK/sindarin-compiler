@@ -2,11 +2,7 @@
 
 fn main() {
     std::process::exit((|| -> i64 {
-        let mut code: i64 = 7;
-        if (code == 7) {
-        return code;
-    }
-        return 0;
+        let mut x: i64 = 3;
         return 0;
     })() as i32);
 }
