@@ -168,59 +168,111 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
         return -1, '', str(e)
 
 
-def parse_rustc_capture(capture_file: str) -> List[List[str]]:
+def parse_rustc_capture(capture_file: str) -> List[List[bytes]]:
     """Parse SN_FAKE_RUSTC_CAPTURE output into a list of argv records.
 
-    The fake rustc appends records delimited by BEGIN/END markers, one argv
-    entry per line. Each record is returned as a list of strings.
+    The fake rustc writes binary-safe records as INVOCATION, ARGC <count>, and
+    then ARG <byte-count> followed by that exact many argument bytes and one
+    record-separator newline. Each record preserves exact raw argument bytes,
+    including embedded newlines and bytes that are invalid in a platform text
+    encoding.
     """
-    records: List[List[str]] = []
+    records: List[List[bytes]] = []
     if not os.path.isfile(capture_file):
         return records
-    with open(capture_file, 'r') as f:
-        lines = f.read().splitlines()
-    current: Optional[List[str]] = None
-    for line in lines:
-        if line == 'BEGIN':
-            current = []
-        elif line == 'END':
-            if current is not None:
-                records.append(current)
-                current = None
-        elif current is not None:
-            current.append(line)
+
+    data = Path(capture_file).read_bytes()
+    offset = 0
+
+    def read_line() -> bytes:
+        nonlocal offset
+        end = data.find(b'\n', offset)
+        if end < 0:
+            raise ValueError('truncated fake rustc capture header')
+        line = data[offset:end]
+        offset = end + 1
+        return line
+
+    while offset < len(data):
+        if read_line() != b'INVOCATION':
+            raise ValueError('invalid fake rustc capture invocation marker')
+        argc_header = read_line().split(b' ', 1)
+        if len(argc_header) != 2 or argc_header[0] != b'ARGC':
+            raise ValueError('invalid fake rustc capture argc header')
+        try:
+            argc = int(argc_header[1])
+        except ValueError as exc:
+            raise ValueError('invalid fake rustc capture argc') from exc
+        if argc < 0:
+            raise ValueError('negative fake rustc capture argc')
+
+        record: List[bytes] = []
+        for _ in range(argc):
+            arg_header = read_line().split(b' ', 1)
+            if len(arg_header) != 2 or arg_header[0] != b'ARG':
+                raise ValueError('invalid fake rustc capture argument header')
+            try:
+                length = int(arg_header[1])
+            except ValueError as exc:
+                raise ValueError('invalid fake rustc capture argument length') from exc
+            if length < 0 or offset + length >= len(data):
+                raise ValueError('truncated fake rustc capture argument')
+            raw_arg = data[offset:offset + length]
+            offset += length
+            if data[offset] != ord('\n'):
+                raise ValueError('missing fake rustc capture argument separator')
+            offset += 1
+            record.append(raw_arg)
+        records.append(record)
     return records
 
 
-def assert_rustc_invocation(records: List[List[str]], output_file: str) -> Tuple[str, Optional[List[str]]]:
+def assert_rustc_invocation(records: List[List[bytes]], output_file: str) -> Tuple[str, Optional[List[str]]]:
     """Verify the fake rustc was invoked correctly. Returns (reason, details).
 
     A clean pass yields ('', None); a problem yields ('<reason>', details).
     """
-    version_records = [r for r in records if '--version' in r]
+    version_records = [r for r in records if b'--version' in r]
     if not version_records:
         return 'no --version toolchain-check record', None
 
-    build_records = [r for r in records if '--edition=2021' in r]
+    build_records = [r for r in records if b'--edition=2021' in r]
     if not build_records:
         return 'no --edition=2021 build record', None
     build = build_records[0]
 
     details: List[str] = []
-    if '--edition=2021' not in build:
+    if b'--edition=2021' not in build:
         details.append('build record is missing the --edition=2021 argument')
-    if not any(arg.endswith('.rs') for arg in build):
+    if not any(arg.endswith(b'.rs') for arg in build):
         details.append('build record is missing a .rs source argument')
-    if '-o' not in build:
+    if b'-o' not in build:
         details.append('build record is missing the -o flag')
     else:
-        idx = build.index('-o')
+        idx = build.index(b'-o')
         actual = build[idx + 1] if idx + 1 < len(build) else None
-        if actual != output_file:
-            details.append(f'-o target is {actual!r}, expected {output_file!r}')
+        expected = os.fsencode(output_file)
+        if actual != expected:
+            details.append(f'-o target is {actual!r}, expected {expected!r}')
 
     if details:
         return 'invocation record mismatch', details
+    return '', None
+
+
+def assert_rustc_build_flags(records: List[List[bytes]], expected_flags: List[bytes],
+                             output_file: str) -> Tuple[str, Optional[List[str]]]:
+    """Verify the complete ordered flag region before the Rust source argv."""
+    reason, details = assert_rustc_invocation(records, output_file)
+    if reason:
+        return reason, details
+    build = next(r for r in records if b'--edition=2021' in r)
+    edition_index = build.index(b'--edition=2021')
+    source_index = next(i for i, arg in enumerate(build) if arg.endswith(b'.rs'))
+    actual_flags = build[edition_index + 1:source_index]
+    if actual_flags != expected_flags:
+        return ('unexpected rustc build flags',
+                [f'flags before generated source are {actual_flags!r}, expected {expected_flags!r}'])
     return '', None
 
 
@@ -593,7 +645,8 @@ class TestRunner:
             return False, time.perf_counter() - suite_start
 
         # Case 1: copy the fixture into a sub-path containing spaces, capture
-        # the rustc invocations, and verify the --version and build records.
+        # the rustc invocations, and verify the --version/build records plus
+        # default, SN_RUSTFLAGS, debug, and profile argv flag boundaries.
         # Case 2: point SN_RUSTC at a nonexistent path and require the exact
         # toolchain-unavailable diagnostic plus a nonzero exit.
         # Case 3: use the spaced fixture with SN_FAKE_RUSTC_EXIT set nonzero
@@ -618,7 +671,9 @@ class TestRunner:
             shutil.copy2(fake_rustc_src, spaced_rustc)
             capture_file = os.path.join(temp_dir, 'capture.log')
             capture_file_build = os.path.join(temp_dir, 'capture_build.log')
-            output_file = os.path.join(temp_dir, f'basic{exe_ext}')
+            capture_file_conflict = os.path.join(temp_dir, 'capture_conflict.log')
+            synthetic_capture_file = os.path.join(temp_dir, 'synthetic_capture.log')
+            output_file = os.path.join(temp_dir, f'basic_output{exe_ext}')
             missing_rustc = os.path.join(temp_dir, 'definitely_not_a_rustc')
 
             for case in cases:
@@ -629,22 +684,80 @@ class TestRunner:
 
                 if case['kind'] == 'records':
                     env['SN_RUSTC'] = spaced_rustc
-                    env['SN_FAKE_RUSTC_CAPTURE'] = capture_file
+                    details = []
+
+                    # Exercise the parser directly with an argument that could
+                    # otherwise be mistaken for multiple line-delimited records.
+                    synthetic_bytes = (b'embedded newline\nARGC 999\nINVOCATION\n'
+                                       b'marker-like value\xff')
+                    Path(synthetic_capture_file).write_bytes(
+                        b'INVOCATION\nARGC 1\nARG ' + str(len(synthetic_bytes)).encode('ascii') +
+                        b'\n' + synthetic_bytes + b'\n')
+                    try:
+                        if parse_rustc_capture(synthetic_capture_file) != [[synthetic_bytes]]:
+                            details.append('synthetic capture: raw newline/marker/invalid-UTF-8 argument was not returned intact')
+                    except ValueError as exc:
+                        details.append(f'synthetic capture: invalid capture: {exc}')
+
+                    def check_build(label: str, extra_args: List[str],
+                                    rustflags: Optional[str], expected_flags: List[bytes]) -> None:
+                        case_env = env.copy()
+                        if os.path.exists(capture_file):
+                            os.unlink(capture_file)
+                        case_env['SN_FAKE_RUSTC_CAPTURE'] = capture_file
+                        if rustflags is not None:
+                            case_env['SN_RUSTFLAGS'] = rustflags
+                        else:
+                            case_env.pop('SN_RUSTFLAGS', None)
+                        exit_code, _stdout, stderr = run_with_timeout(
+                            cmd + extra_args, self.compile_timeout, env=case_env
+                        )
+                        if exit_code != 0:
+                            details.append(f'{label}: compile exit {exit_code}: {stderr.splitlines()[:3]!r}')
+                            return
+                        try:
+                            records = parse_rustc_capture(capture_file)
+                        except ValueError as exc:
+                            details.append(f'{label}: invalid capture: {exc}')
+                            return
+                        reason, assertion_details = assert_rustc_build_flags(
+                            records, expected_flags, output_file)
+                        if reason:
+                            details.append(f'{label}: {reason}' +
+                                           (f' ({"; ".join(assertion_details)})'
+                                            if assertion_details else ''))
+
+                    check_build('default', [], None, [b'-C', b'opt-level=3'])
+                    check_build('SN_RUSTFLAGS', [], '-C target-cpu=native',
+                                [b'-C', b'opt-level=3', b'-C', b'target-cpu=native'])
+                    check_build('-g', ['-g'], None,
+                                [b'-C', b'debuginfo=2', b'-C', b'opt-level=0'])
+                    check_build('-p', ['-p'], None,
+                                [b'-C', b'debuginfo=1', b'-C', b'opt-level=3',
+                                 b'-C', b'force-frame-pointers=yes'])
+
+                    conflict_env = env.copy()
+                    conflict_env['SN_FAKE_RUSTC_CAPTURE'] = capture_file_conflict
                     exit_code, _stdout, stderr = run_with_timeout(
-                        cmd, self.compile_timeout, env=env
+                        cmd + ['-g', '-p'], self.compile_timeout, env=conflict_env
                     )
-                    if exit_code != 0:
-                        results.append({'name': case['name'], 'status': 'fail',
-                                       'reason': f'compile exit {exit_code}',
-                                       'details': (stderr.split('\n')[:20] if stderr else None),
-                                       'elapsed': time.perf_counter() - case_start})
-                        self._print_rustc_case_result(results[-1])
-                        continue
-                    records = parse_rustc_capture(capture_file)
-                    reason, details = assert_rustc_invocation(records, output_file)
-                    status = 'pass' if reason == '' else 'fail'
+                    expected_diagnostic = 'Error: -p (profile) and -g (debug) cannot be used together'
+                    if exit_code == 0:
+                        details.append('-g -p: expected a nonzero compiler exit')
+                    if (stderr or '').strip() != expected_diagnostic:
+                        details.append(f'-g -p: diagnostic is {(stderr or "").strip()!r}, '
+                                       f'expected {expected_diagnostic!r}')
+                    try:
+                        conflict_records = parse_rustc_capture(capture_file_conflict)
+                        if [r for r in conflict_records if b'--edition=2021' in r]:
+                            details.append('-g -p: rustc build invocation was captured')
+                    except ValueError as exc:
+                        details.append(f'-g -p: invalid capture: {exc}')
+
+                    status = 'pass' if not details else 'fail'
+                    reason = '' if not details else 'invocation record assertions unmet'
                     results.append({'name': case['name'], 'status': status, 'reason': reason,
-                                   'details': details, 'elapsed': time.perf_counter() - case_start})
+                                   'details': details or None, 'elapsed': time.perf_counter() - case_start})
 
                 elif case['kind'] == 'missing':
                     env['SN_RUSTC'] = missing_rustc
@@ -697,9 +810,9 @@ class TestRunner:
                         if diag not in (stderr or ''):
                             details.append("missing exact diagnostic text 'Error: rustc failed to build generated source'")
                         records = parse_rustc_capture(capture_file_build)
-                        if not [r for r in records if '--version' in r]:
+                        if not [r for r in records if b'--version' in r]:
                             details.append('no --version toolchain-check record captured')
-                        if not [r for r in records if '--edition=2021' in r]:
+                        if not [r for r in records if b'--edition=2021' in r]:
                             details.append('no --edition=2021 build record captured')
                         results.append({'name': case['name'],
                                        'status': 'pass' if not details else 'fail',

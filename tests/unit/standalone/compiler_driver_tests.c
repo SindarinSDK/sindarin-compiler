@@ -489,6 +489,9 @@ static void test_target_default_is_c(void)
        is actually assigned (src/compiler.c:31). */
     CompilerOptions options;
     memset(&options, 0, sizeof(options));
+    /* Poison only fields compiler_init must explicitly reset. */
+    options.debug_build = 1;
+    options.profile_build = 1;
     const char *args[] = {"sn", "test.sn"};
     int argc;
     char **argv;
@@ -497,6 +500,8 @@ static void test_target_default_is_c(void)
     compiler_init(&options, argc, argv);
     assert(options.target == TARGET_C);
     assert(options.output_kind == OUTPUT_EXECUTABLE);
+    assert(options.debug_build == 0);
+    assert(options.profile_build == 0);
 
     compiler_cleanup(&options);
 }
