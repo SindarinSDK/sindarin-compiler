@@ -21,7 +21,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
   - C cgen tests prove C support for `sizeof` (`tests/cgen/expr_sizeof.expected.c`), `spread` (`expr_spread.expected.c`), `thread_spawn/detach/sync`, `lambda`, `method_call` (`expr_call_method.expected.c`), `mem_struct_val_cleanup`, `mem_struct_ref_refcount`, `struct_operator_eq`. CONFIRMED.
   - Default target C: `src/compiler.c:31`; target parse `src/target/target.c:74` (c/rust/rs); toolchain gate hit only for executable output: `src/target/target.c:201`. CONFIRMED.
   - CI (`.github/workflows/ci.yml`) installs/selects the exact Rust **1.93.1** via `rustup` for **every OS matrix job** before setup/build/test and records `rustc --version --verbose`. CONFIRMED.
-  - Rust param gating: method-param block `rust_target.c:1148-1172`, function-param block `:1265-1283`; `as_ref` restricted to `int`/`long` (`:1271-1274`), heap-free named structs only (`rust_heap_free_named_struct_type`, `:223,235`). CONFIRMED.
+  - Rust param gating: method-param block `rust_target.c:1148-1172`, function-param block `:1272-1290`; `as_ref` restricted to `int`/`long` (`:1284-1287`), heap-free named structs only (`rust_heap_free_named_struct_type`, `:223,235`). CONFIRMED.
   - `match`, `sizeof`, `typeof`, `value_of`, `address_of`, `spread`, `sized_array`, pointer/stepped slices all verified as C-supported + Rust-gap via `rust_validate_expr` (`rust_target.c:467`). CONFIRMED.
 
 ## Parity status legend
