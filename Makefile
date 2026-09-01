@@ -310,7 +310,7 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
-	@echo "  make test-rust-toolchain    Run Rust toolchain invocation tests"
+	@echo "  make test-rust-toolchain    Run Rust toolchain and shared artifact lifecycle tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"
