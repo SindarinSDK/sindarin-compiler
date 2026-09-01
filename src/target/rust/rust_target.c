@@ -1250,11 +1250,17 @@ static bool rust_validate_model_impl(json_object *model)
             json_object *return_kind = NULL;
             if (strcmp(name, "main") == 0 &&
                 json_object_object_get_ex(return_type, "kind", &return_kind) &&
-                strcmp(json_object_get_string(return_kind), "void") != 0)
+                strcmp(json_object_get_string(return_kind), "void") != 0 &&
+                strcmp(json_object_get_string(return_kind), "int") != 0)
             {
-                fprintf(stderr, "Error: Rust target currently requires main to return void\n");
+                fprintf(stderr, "Error: Rust target requires main to return void or int\n");
                 return false;
             }
+            if (strcmp(name, "main") == 0 &&
+                json_object_object_get_ex(return_type, "kind", &return_kind) &&
+                strcmp(json_object_get_string(return_kind), "int") == 0)
+                json_object_object_add(function, "rust_main_returns_int",
+                                       json_object_new_boolean(true));
             if (json_object_object_get_ex(function, "params", &params))
             {
                 size_t param_count = json_object_array_length(params);

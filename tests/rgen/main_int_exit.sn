@@ -1,0 +1,5 @@
+fn main(): int =>
+  var code: int = 7
+  if code == 7 =>
+    return code
+  return 0

@@ -1,3 +1,6 @@
-{{#if (eq name "main")}}fn main() {
+{{#if rust_main_returns_int}}fn main() {
+    std::process::exit((|| -> {{rust_type return_type}} {
+{{#each body}}        {{> stmt this}}{{nl}}{{/each}}    })() as i32);
+{{rbrace}}{{nl}}{{else}}{{#if (eq name "main")}}fn main() {
 {{else}}fn {{rust_ident name}}({{#each params}}{{#if @index}}, {{/if}}{{#if (eq mem_qual "as_val")}}mut {{/if}}{{rust_ident name}}: {{#if (eq mem_qual "as_ref")}}&mut {{/if}}{{rust_type type}}{{/each}}){{#unless (eq return_type.kind "void")}} -> {{rust_type return_type}}{{/unless}} {
-{{/if}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{rbrace}}{{nl}}
+{{/if}}{{#each body}}    {{> stmt this}}{{nl}}{{/each}}{{rbrace}}{{nl}}{{/if}}

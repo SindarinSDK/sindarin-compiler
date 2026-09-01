@@ -356,13 +356,13 @@ class TestRunner:
                     test_file, expected_file, c_file
                 )
             elif test_type == 'rgen':
-                expected_file = test_file.replace('.sn', '.expected.rs')
+                expected_file = os.path.splitext(test_file)[0] + '.expected.rs'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_test_internal(
                     test_file, expected_file, rs_file, exe_file
                 )
             elif test_type == 'rgen-errors':
-                expected_file = test_file.replace('.sn', '.expected')
+                expected_file = os.path.splitext(test_file)[0] + '.expected'
                 rs_file = exe_file + '.rs'
                 status, reason, details = self._run_rgen_error_test_internal(
                     test_file, expected_file, rs_file
@@ -797,15 +797,30 @@ class TestRunner:
             details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'Rust binary compile error', details)
 
+        exit_file = os.path.splitext(test_file)[0] + '.exit'
+        expected_exit = 0
+        if os.path.isfile(exit_file):
+            with open(exit_file, 'r') as f:
+                raw = f.read().strip()
+            if not raw:
+                return ('fail', f'empty .exit sidecar in {exit_file}', None)
+            try:
+                expected_exit = int(raw, 10)
+            except ValueError:
+                return ('fail', f'invalid .exit sidecar in {exit_file}: {raw!r}', None)
+
         exit_code, output, timeout_marker = run_with_timeout(
             [exe_file], self.run_timeout, env=self.env, merge_stderr=True
         )
-        if exit_code != 0:
-            if timeout_marker == 'TIMEOUT':
-                return ('fail', 'timeout', output.split('\n')[:20] if output else None)
-            return ('fail', f'run exit code: {exit_code}', output.split('\n')[:20])
+        if timeout_marker == 'TIMEOUT':
+            return ('fail', 'timeout', output.split('\n')[:20] if output else None)
+        if exit_code != expected_exit:
+            details = [f"expected exit code: {expected_exit}", f"actual exit code: {exit_code}"]
+            if output:
+                details.extend(output.split('\n')[:20])
+            return ('fail', 'exit code mismatch', details)
 
-        output_file = test_file.replace('.sn', '.expected')
+        output_file = os.path.splitext(test_file)[0] + '.expected'
         if os.path.isfile(output_file):
             with open(output_file, 'r') as expected:
                 expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
