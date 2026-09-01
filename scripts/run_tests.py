@@ -17,6 +17,7 @@ Test types:
     integration-errors - Run integration error tests (tests/integration/errors/*.sn)
     explore           - Run exploratory tests (tests/exploratory/test_*.sn)
     explore-errors    - Run exploratory error tests (tests/exploratory/errors/*.sn)
+    rust-toolchain    - Run Rust toolchain invocation tests (SN_RUSTC / SN_FAKE_RUSTC_*)
     all               - Run all test suites
 
 Options:
@@ -165,6 +166,75 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
         return -1, '', 'TIMEOUT'
     except Exception as e:
         return -1, '', str(e)
+
+
+def parse_rustc_capture(capture_file: str) -> List[List[str]]:
+    """Parse SN_FAKE_RUSTC_CAPTURE output into a list of argv records.
+
+    The fake rustc appends records delimited by BEGIN/END markers, one argv
+    entry per line. Each record is returned as a list of strings.
+    """
+    records: List[List[str]] = []
+    if not os.path.isfile(capture_file):
+        return records
+    with open(capture_file, 'r') as f:
+        lines = f.read().splitlines()
+    current: Optional[List[str]] = None
+    for line in lines:
+        if line == 'BEGIN':
+            current = []
+        elif line == 'END':
+            if current is not None:
+                records.append(current)
+                current = None
+        elif current is not None:
+            current.append(line)
+    return records
+
+
+def assert_rustc_invocation(records: List[List[str]], output_file: str) -> Tuple[str, Optional[List[str]]]:
+    """Verify the fake rustc was invoked correctly. Returns (reason, details).
+
+    A clean pass yields ('', None); a problem yields ('<reason>', details).
+    """
+    version_records = [r for r in records if '--version' in r]
+    if not version_records:
+        return 'no --version toolchain-check record', None
+
+    build_records = [r for r in records if '--edition=2021' in r]
+    if not build_records:
+        return 'no --edition=2021 build record', None
+    build = build_records[0]
+
+    details: List[str] = []
+    if '--edition=2021' not in build:
+        details.append('build record is missing the --edition=2021 argument')
+    if not any(arg.endswith('.rs') for arg in build):
+        details.append('build record is missing a .rs source argument')
+    if '-o' not in build:
+        details.append('build record is missing the -o flag')
+    else:
+        idx = build.index('-o')
+        actual = build[idx + 1] if idx + 1 < len(build) else None
+        if actual != output_file:
+            details.append(f'-o target is {actual!r}, expected {output_file!r}')
+
+    if details:
+        return 'invocation record mismatch', details
+    return '', None
+
+
+def assert_rustc_toolchain_diagnostic(stderr: str, rustc_path: str) -> Optional[List[str]]:
+    """Verify the 'Rust toolchain unavailable' diagnostic.
+
+    Returns None when both diagnostic lines are present, else a details list.
+    """
+    expected = [
+        f"Error: Rust compiler '{rustc_path}' is not installed or not in PATH.",
+        "Set SN_RUSTC to a different compiler, or use --emit-rust.",
+    ]
+    details = [line for line in expected if line not in stderr]
+    return details or None
 
 
 class TestConfig:
@@ -499,6 +569,131 @@ class TestRunner:
               f"  ({self._format_elapsed(suite_elapsed)})")
 
         return failed == 0, suite_elapsed
+
+    def run_rust_toolchain_tests(self) -> Tuple[bool, float]:
+        """Run the dedicated Rust toolchain invocation suite (3 reported cases).
+
+        Uses the sn_fake_rustc fixture and the SN_RUSTC / SN_FAKE_RUSTC_*
+        environment variables to verify how the Rust target invokes rustc.
+        """
+        print()
+        print(f"{Colors.BOLD}Rust Toolchain Tests{Colors.NC}")
+        print("=" * 60)
+        suite_start = time.perf_counter()
+
+        exe_ext = get_exe_extension()
+        fake_rustc_src = os.path.abspath(os.path.join('bin', f'sn_fake_rustc{exe_ext}'))
+        test_file = os.path.abspath('tests/rust-toolchain/basic.sn')
+
+        if not os.path.isfile(fake_rustc_src):
+            print(f"{Colors.RED}FAIL{Colors.NC}: fake rustc fixture not found: {fake_rustc_src}")
+            return False, time.perf_counter() - suite_start
+        if not os.path.isfile(test_file):
+            print(f"{Colors.RED}FAIL{Colors.NC}: test fixture not found: {test_file}")
+            return False, time.perf_counter() - suite_start
+
+        # Case 1: copy the fixture into a sub-path containing spaces, capture
+        # the rustc invocations, and verify the --version and build records.
+        # Case 2: point SN_RUSTC at a nonexistent path and require the exact
+        # toolchain-unavailable diagnostic plus a nonzero exit.
+        # Case 3: use the spaced fixture with SN_FAKE_RUSTC_EXIT set nonzero
+        # and require the same diagnostic plus a nonzero exit.
+        cases = [
+            {'name': 'rustc_invocation_records', 'kind': 'records'},
+            {'name': 'missing_rustc', 'kind': 'missing'},
+            {'name': 'failing_rustc', 'kind': 'failing'},
+        ]
+
+        results = []
+        with tempfile.TemporaryDirectory(prefix='sn_rustc_') as temp_dir:
+            spaced_dir = os.path.join(temp_dir, 'fake rustc dir')
+            os.makedirs(spaced_dir)
+            spaced_rustc = os.path.join(spaced_dir, f'sn_fake_rustc{exe_ext}')
+            shutil.copy2(fake_rustc_src, spaced_rustc)
+            capture_file = os.path.join(temp_dir, 'capture.log')
+            output_file = os.path.join(temp_dir, f'basic{exe_ext}')
+            missing_rustc = os.path.join(temp_dir, 'definitely_not_a_rustc')
+
+            for case in cases:
+                env = self.env.copy()
+                case_start = time.perf_counter()
+                cmd = [self.compiler, test_file, '--target', 'rust', '-o', output_file,
+                       '-l', '3', '--no-install']
+
+                if case['kind'] == 'records':
+                    env['SN_RUSTC'] = spaced_rustc
+                    env['SN_FAKE_RUSTC_CAPTURE'] = capture_file
+                    exit_code, _stdout, stderr = run_with_timeout(
+                        cmd, self.compile_timeout, env=env
+                    )
+                    if exit_code != 0:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': f'compile exit {exit_code}',
+                                       'details': (stderr.split('\n')[:20] if stderr else None),
+                                       'elapsed': time.perf_counter() - case_start})
+                        self._print_rustc_case_result(results[-1])
+                        continue
+                    records = parse_rustc_capture(capture_file)
+                    reason, details = assert_rustc_invocation(records, output_file)
+                    status = 'pass' if reason == '' else 'fail'
+                    results.append({'name': case['name'], 'status': status, 'reason': reason,
+                                   'details': details, 'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'missing':
+                    env['SN_RUSTC'] = missing_rustc
+                    exit_code, _stdout, stderr = run_with_timeout(
+                        cmd, self.compile_timeout, env=env
+                    )
+                    if exit_code == 0:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': 'expected a nonzero compiler exit',
+                                       'details': None, 'elapsed': time.perf_counter() - case_start})
+                    else:
+                        details = assert_rustc_toolchain_diagnostic(stderr, missing_rustc)
+                        results.append({'name': case['name'],
+                                       'status': 'pass' if details is None else 'fail',
+                                       'reason': '' if details is None else 'missing toolchain diagnostic',
+                                       'details': details, 'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'failing':
+                    env['SN_RUSTC'] = spaced_rustc
+                    env['SN_FAKE_RUSTC_EXIT'] = '3'
+                    exit_code, _stdout, stderr = run_with_timeout(
+                        cmd, self.compile_timeout, env=env
+                    )
+                    if exit_code == 0:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': 'expected a nonzero compiler exit',
+                                       'details': None, 'elapsed': time.perf_counter() - case_start})
+                    else:
+                        details = assert_rustc_toolchain_diagnostic(stderr, spaced_rustc)
+                        results.append({'name': case['name'],
+                                       'status': 'pass' if details is None else 'fail',
+                                       'reason': '' if details is None else 'missing toolchain diagnostic',
+                                       'details': details, 'elapsed': time.perf_counter() - case_start})
+
+                self._print_rustc_case_result(results[-1])
+
+        passed = sum(1 for r in results if r['status'] == 'pass')
+        failed = sum(1 for r in results if r['status'] == 'fail')
+        suite_elapsed = time.perf_counter() - suite_start
+        print()
+        print("-" * 60)
+        print(f"Results: {Colors.GREEN}{passed} passed{Colors.NC}, "
+               f"{Colors.RED}{failed} failed{Colors.NC}"
+               f"  ({self._format_elapsed(suite_elapsed)})")
+        return failed == 0, suite_elapsed
+
+    def _print_rustc_case_result(self, result: Dict[str, Any]):
+        """Print the outcome of a single rust-toolchain case."""
+        elapsed_str = self._format_elapsed(result.get('elapsed', 0.0))
+        if result['status'] == 'pass':
+            print(f"  {result['name']:45} {Colors.GREEN}PASS{Colors.NC}  ({elapsed_str})")
+            return
+        print(f"  {result['name']:45} {Colors.RED}FAIL{Colors.NC} ({result['reason']})")
+        if result.get('details'):
+            for line in result['details']:
+                print(f"    {line}")
 
     @staticmethod
     def _format_elapsed(elapsed: float) -> str:
@@ -950,8 +1145,8 @@ def main():
         description='Unified cross-platform test runner for Sindarin compiler'
     )
     parser.add_argument('test_type', nargs='?', default='all',
-                       choices=['unit', 'cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
-                               'explore', 'explore-errors', 'all'],
+                        choices=['unit', 'cgen', 'rgen', 'rgen-errors', 'mgen', 'integration', 'integration-errors',
+                                'explore', 'explore-errors', 'rust-toolchain', 'all'],
                        help='Type of tests to run')
     parser.add_argument('--compiler', '-c', help='Path to compiler executable')
     parser.add_argument('--timeout', type=int, default=60,
@@ -1027,8 +1222,15 @@ def main():
                 passed, elapsed = runner.run_sn_tests(test_type)
                 all_passed &= passed
                 total_elapsed += elapsed
+            passed, elapsed = runner.run_rust_toolchain_tests()
+            all_passed &= passed
+            total_elapsed += elapsed
         elif args.test_type == 'unit':
             passed, elapsed = runner.run_unit_tests()
+            all_passed = passed
+            total_elapsed = elapsed
+        elif args.test_type == 'rust-toolchain':
+            passed, elapsed = runner.run_rust_toolchain_tests()
             all_passed = passed
             total_elapsed = elapsed
         else:

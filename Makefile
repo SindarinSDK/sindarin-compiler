@@ -12,7 +12,7 @@
 #------------------------------------------------------------------------------
 .PHONY: all build rebuild run clean test help
 .PHONY: test-unit test-cgen test-rgen test-mgen test-integration test-integration-errors
-.PHONY: test-explore test-explore-errors
+.PHONY: test-explore test-explore-errors test-rust-toolchain
 .PHONY: configure install package setup hooks
 
 #------------------------------------------------------------------------------
@@ -196,6 +196,9 @@ test-explore: build
 test-explore-errors: build
 	@$(PYTHON) scripts/run_tests.py explore-errors --verbose
 
+test-rust-toolchain: build
+	@$(PYTHON) scripts/run_tests.py rust-toolchain --verbose
+
 #------------------------------------------------------------------------------
 # install - Install to ~/.sn/ (global user installation)
 #------------------------------------------------------------------------------
@@ -307,6 +310,7 @@ help:
 	@echo "  make test-integration-errors Run integration error tests"
 	@echo "  make test-explore           Run exploratory tests"
 	@echo "  make test-explore-errors    Run exploratory error tests"
+	@echo "  make test-rust-toolchain    Run Rust toolchain invocation tests"
 	@echo ""
 	@echo "Distribution Targets:"
 	@echo "  make install      Install to ~/.sn/ (overwrites global compiler)"

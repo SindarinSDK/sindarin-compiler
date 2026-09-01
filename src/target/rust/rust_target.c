@@ -14,13 +14,24 @@ static const char *rustc_command(void)
     return configured && configured[0] ? configured : "rustc";
 }
 
+static void rustc_quoted(char *out, size_t out_size)
+{
+#ifdef _WIN32
+    snprintf(out, out_size, "\"%s\"", rustc_command());
+#else
+    snprintf(out, out_size, "'%s'", rustc_command());
+#endif
+}
+
 static bool rust_check_toolchain(const CompilerOptions *options)
 {
     char command[PATH_MAX + 64];
+    char quoted_rustc[PATH_MAX + 8];
+    rustc_quoted(quoted_rustc, sizeof(quoted_rustc));
 #ifdef _WIN32
-    snprintf(command, sizeof(command), "%s --version >NUL 2>&1", rustc_command());
+    snprintf(command, sizeof(command), "%s --version >NUL 2>&1", quoted_rustc);
 #else
-    snprintf(command, sizeof(command), "%s --version >/dev/null 2>&1", rustc_command());
+    snprintf(command, sizeof(command), "%s --version >/dev/null 2>&1", quoted_rustc);
 #endif
     if (system(command) == 0)
     {
@@ -2018,8 +2029,10 @@ static bool rust_build(const CompilerOptions *options, const char *build_dir,
             : "-C opt-level=3";
 
     char command[PATH_MAX * 3];
+    char quoted_rustc[PATH_MAX + 8];
+    rustc_quoted(quoted_rustc, sizeof(quoted_rustc));
     snprintf(command, sizeof(command), "%s --edition=2021 %s %s \"%s\" -o \"%s\"",
-             rustc_command(), profile_flags, rustflags, source_path,
+             quoted_rustc, profile_flags, rustflags, source_path,
              options->executable_file);
     if (options->verbose) DEBUG_INFO("Executing: %s", command);
     if (system(command) != 0)
