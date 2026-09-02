@@ -1,0 +1,8 @@
+fn fail(value: uint as ref): void =>
+  var two: uint = 2u
+  value *= two
+
+fn main(): void =>
+  var half: uint = 9223372036854775807u
+  var high: uint = half + 1u
+  fail(high)

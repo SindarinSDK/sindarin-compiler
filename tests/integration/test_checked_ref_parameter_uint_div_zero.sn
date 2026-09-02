@@ -1,0 +1,7 @@
+fn fail(value: uint as ref): void =>
+  var zero: uint = 0u
+  value /= zero
+
+fn main(): void =>
+  var value: uint = 1u
+  fail(value)

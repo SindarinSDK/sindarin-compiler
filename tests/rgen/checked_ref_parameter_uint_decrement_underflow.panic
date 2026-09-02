@@ -1,0 +1,1 @@
+# Checked uint as-ref postfix decrement must terminate with a nonzero status on underflow.
