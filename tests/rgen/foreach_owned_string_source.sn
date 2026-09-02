@@ -1,0 +1,11 @@
+# Rust supports cloned string foreach values today.  Keep reassignment out of
+# this fixture: mutable foreach bindings belong to PR79's primitive-loop work.
+fn main(): void =>
+  var names: str[] = {"alpha", "beta"}
+  var decorated: str[] = {}
+  for name in names =>
+    decorated.push(name + "!")
+  println(names[0])
+  println(names[1])
+  println(decorated[0])
+  println(decorated[1])

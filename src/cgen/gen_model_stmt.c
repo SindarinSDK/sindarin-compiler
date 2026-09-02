@@ -845,9 +845,29 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 json_object_object_add(obj, "iterable",
                     gen_model_expr(arena, stmt->as.for_each_stmt.iterable, symbol_table, arithmetic_mode));
 
-                /* Iter var binds a borrowed array element (no retain on read).
-                 * Push the name so a `return <itervar>` inside the body retains
-                 * instead of moving — the array still owns its element. */
+                /* Array storage owns heap-bearing elements.  The C template
+                 * must acquire an independent loop-local value before the
+                 * body can assign to or otherwise clean it up.  Keep the
+                 * resolved element type and its ordinary local cleanup kind
+                 * in the shared model; scalar/inert kinds remain "none". */
+                Type *elem_type = stmt->as.for_each_stmt.element_type;
+                if (elem_type == NULL && stmt->as.for_each_stmt.iterable->expr_type &&
+                    stmt->as.for_each_stmt.iterable->expr_type->kind == TYPE_ARRAY)
+                {
+                    elem_type = stmt->as.for_each_stmt.iterable->expr_type->as.array.element_type;
+                }
+                if (elem_type)
+                {
+                    json_object_object_add(obj, "element_type",
+                        gen_model_type(arena, elem_type));
+                    json_object_object_add(obj, "element_cleanup_kind",
+                        json_object_new_string(gen_model_var_cleanup_kind(elem_type, false)));
+                }
+
+                /* The template acquires an owned loop-local binding from the
+                 * borrowed array slot.  Keep its name in scope so a `return
+                 * <itervar>` retains rather than moves: the local cleanup and
+                 * the array each retain their own ownership. */
                 int nlen = stmt->as.for_each_stmt.var_name.length;
                 char *ncopy = arena_alloc(arena, nlen + 1);
                 memcpy(ncopy, stmt->as.for_each_stmt.var_name.start, nlen);

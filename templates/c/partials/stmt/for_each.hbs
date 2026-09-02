@@ -2,7 +2,8 @@
     {{#if needs_iterable_cleanup}}sn_auto_arr {{/if}}SnArray *__arr_0__ = {{> expr iterable}};
     long long __len_0__ = __arr_0__->len;
     for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
-        {{c_type iterable.type.element_type}} __sn__{{iterator_name}} = (({{c_type iterable.type.element_type}} *)__arr_0__->data)[__idx_0__];
+        {{c_type element_type}} __sn__{{iterator_name}}__source = (({{c_type element_type}} *)__arr_0__->data)[__idx_0__];
+        {{#if (eq element_cleanup_kind "str")}}sn_auto_str {{/if}}{{#if (eq element_cleanup_kind "arr")}}sn_auto_arr {{/if}}{{#if (eq element_cleanup_kind "val_cleanup")}}sn_auto_{{element_type.name}} {{/if}}{{#if (eq element_cleanup_kind "release")}}sn_auto_{{element_type.name}} {{/if}}{{c_type element_type}} __sn__{{iterator_name}} = {{#if (eq element_cleanup_kind "str")}}__sn__{{iterator_name}}__source ? strdup(__sn__{{iterator_name}}__source) : NULL{{else}}{{#if (eq element_cleanup_kind "arr")}}sn_array_copy(__sn__{{iterator_name}}__source){{else}}{{#if (eq element_cleanup_kind "val_cleanup")}}__sn__{{element_type.name}}_copy(&__sn__{{iterator_name}}__source){{else}}{{#if (eq element_cleanup_kind "release")}}__sn__{{element_type.name}}_retain(__sn__{{iterator_name}}__source){{else}}__sn__{{iterator_name}}__source{{/if}}{{/if}}{{/if}}{{/if}};
         {
 {{#each body.statements}}
             {{> stmt this}}

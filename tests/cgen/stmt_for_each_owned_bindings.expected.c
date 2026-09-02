@@ -14,26 +14,25 @@ typedef struct __Closure__ {
 } __Closure__;
 
 int main() {
-    long long __sn__sum = 0LL;
+    sn_auto_str char * __sn__source = strdup("one");
+    sn_auto_arr SnArray * __sn__names = __sn___split(&__sn__source, ",");
     {
-        sn_auto_arr SnArray *__arr_0__ = sn_array_range(1LL, 11LL);
+        SnArray *__arr_0__ = __sn__names;
         long long __len_0__ = __arr_0__->len;
         for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
-            long long __sn__x__source = ((long long *)__arr_0__->data)[__idx_0__];
-            long long __sn__x = __sn__x__source;
+            char * __sn__name__source = ((char * *)__arr_0__->data)[__idx_0__];
+            sn_auto_str char * __sn__name = __sn__name__source ? strdup(__sn__name__source) : NULL;
             {
                 ({
-                    long long *__sn_place__ = &(__sn__sum);
-                    long long __sn_rhs__ = __sn__x;
-                    *__sn_place__ = sn_add_long(*__sn_place__, __sn_rhs__);
-                    *__sn_place__;
+                    char *__sn_tmp__ = strdup("changed");
+                    free(__sn__name);
+                    __sn__name = __sn_tmp__;
+                    __sn__name;
                 });
                 
             }
         }
     }
-    sn_assert((__sn__sum == 55LL), "expected sum of 1..10 to be 55");
-    
     fflush(stdout);
     return 0;
 }

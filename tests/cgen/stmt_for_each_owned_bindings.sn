@@ -1,0 +1,5 @@
+fn main(): void =>
+  var source: str = "one"
+  var names: str[] = source.split(",")
+  for name in names =>
+    name = "changed"

@@ -48,6 +48,10 @@
         {
           "kind": "for_each",
           "iterator_name": "x",
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
           "iterable": {
             "type": {
               "kind": "array",
