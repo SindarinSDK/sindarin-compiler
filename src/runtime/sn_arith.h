@@ -72,11 +72,63 @@ static inline float sn_sub_float(float a, float b) { return a - b; }
 static inline float sn_mul_float(float a, float b) { return a * b; }
 static inline float sn_div_float(float a, float b) { return a / b; }
 
-/* ---- Byte arithmetic (unsigned, wrapping) ---- */
+/* ---- Checked byte arithmetic ---- */
 
-static inline unsigned char sn_add_byte(unsigned char a, unsigned char b) { return (unsigned char)(a + b); }
-static inline unsigned char sn_sub_byte(unsigned char a, unsigned char b) { return (unsigned char)(a - b); }
-static inline unsigned char sn_mul_byte(unsigned char a, unsigned char b) { return (unsigned char)(a * b); }
+/* Source-language bytes are exact u8 values.  Check the operands before
+ * evaluating an operation whose result would leave that range, so the
+ * subsequent promoted operation and implicit return conversion are exact. */
+static inline unsigned char sn_add_byte(unsigned char a, unsigned char b)
+{
+    if (a > UINT8_MAX || b > UINT8_MAX || a > UINT8_MAX - b) {
+        fprintf(stderr, "Runtime error: integer overflow in addition\n");
+        exit(1);
+    }
+    return a + b;
+}
+
+static inline unsigned char sn_sub_byte(unsigned char a, unsigned char b)
+{
+    if (a > UINT8_MAX || b > UINT8_MAX || a < b) {
+        fprintf(stderr, "Runtime error: integer overflow in subtraction\n");
+        exit(1);
+    }
+    return a - b;
+}
+
+static inline unsigned char sn_mul_byte(unsigned char a, unsigned char b)
+{
+    if (a > UINT8_MAX || b > UINT8_MAX || (b != 0 && a > UINT8_MAX / b)) {
+        fprintf(stderr, "Runtime error: integer overflow in multiplication\n");
+        exit(1);
+    }
+    return a * b;
+}
+
+static inline unsigned char sn_div_byte(unsigned char a, unsigned char b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Division by zero\n");
+        exit(1);
+    }
+    if (a > UINT8_MAX || b > UINT8_MAX) {
+        fprintf(stderr, "Runtime error: byte operand out of range\n");
+        exit(1);
+    }
+    return a / b;
+}
+
+static inline unsigned char sn_mod_byte(unsigned char a, unsigned char b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Modulo by zero\n");
+        exit(1);
+    }
+    if (a > UINT8_MAX || b > UINT8_MAX) {
+        fprintf(stderr, "Runtime error: byte operand out of range\n");
+        exit(1);
+    }
+    return a % b;
+}
 
 /* ---- Checked int32 arithmetic ---- */
 

@@ -1,0 +1,10 @@
+fn main(): void =>
+  var max: byte = 255b
+  var one: byte = 1b
+  var add_base: byte = 254b
+  var sum: byte = add_base + one
+  var difference: byte = one - one
+  var product: byte = max * one
+  var quotient: byte = max / one
+  var remainder: byte = max % one
+  print($"{sum} {difference} {product} {quotient} {remainder}\n")

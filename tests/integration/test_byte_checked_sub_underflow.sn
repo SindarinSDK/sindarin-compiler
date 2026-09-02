@@ -1,0 +1,4 @@
+fn main(): void =>
+  var zero: byte = 0b
+  var one: byte = 1b
+  var underflow: byte = zero - one

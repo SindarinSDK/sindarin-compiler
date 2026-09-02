@@ -1,0 +1,4 @@
+fn main(): void =>
+  var numerator: byte = 255b
+  var zero: byte = 0b
+  var remainder: byte = numerator % zero
