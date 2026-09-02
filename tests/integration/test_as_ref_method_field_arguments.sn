@@ -1,0 +1,30 @@
+struct Box =>
+  value: int
+
+struct Wrapper =>
+  box: Box
+
+struct RefOps =>
+  static fn staticBump(value: int as ref): void =>
+    value += 1
+
+  fn instanceBump(value: int as ref): void =>
+    value += 1
+
+fn freeBump(value: int as ref): void =>
+  value += 1
+
+fn main(): void =>
+  var direct: Box = { value: 1 }
+  var nested: Wrapper = { box: Box { value: 10 } }
+  var ops: RefOps = {}
+
+  freeBump(direct.value)
+  freeBump(nested.box.value)
+  RefOps.staticBump(direct.value)
+  RefOps.staticBump(nested.box.value)
+  ops.instanceBump(direct.value)
+  ops.instanceBump(nested.box.value)
+
+  println(direct.value)
+  println(nested.box.value)

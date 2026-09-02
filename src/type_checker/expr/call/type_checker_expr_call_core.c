@@ -52,12 +52,25 @@ static bool as_ref_argument_is_mutable_place(Expr *arg_expr)
 {
     if (!arg_expr) return false;
     if (arg_expr->type == EXPR_VARIABLE) return true;
-    if (arg_expr->type != EXPR_MEMBER_ACCESS) return false;
 
-    Expr *base = arg_expr;
-    while (base->type == EXPR_MEMBER_ACCESS)
-        base = base->as.member_access.object;
-    return base && base->type == EXPR_VARIABLE;
+    /* The parser represents ordinary field reads as EXPR_MEMBER, whose
+     * union layout differs from EXPR_MEMBER_ACCESS.  EXPR_MEMBER also
+     * represents method values, so only use it as a place after type
+     * checking has established that it did not resolve to a method. */
+    if (arg_expr->type == EXPR_MEMBER)
+    {
+        if (arg_expr->as.member.resolved_method != NULL ||
+            (arg_expr->expr_type && arg_expr->expr_type->kind == TYPE_FUNCTION))
+            return false;
+        return as_ref_argument_is_mutable_place(arg_expr->as.member.object);
+    }
+
+    if (arg_expr->type == EXPR_MEMBER_ACCESS)
+        return as_ref_argument_is_mutable_place(arg_expr->as.member_access.object);
+
+    /* Array/index access, calls, literals, and computed expressions are not
+     * part of the established variable-or-field as-ref contract. */
+    return false;
 }
 
 static bool validate_as_ref_argument_place(Expr *arg_expr)
