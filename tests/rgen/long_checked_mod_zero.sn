@@ -1,0 +1,4 @@
+fn main(): void =>
+  var numerator: long = 1l
+  var zero: long = 0l
+  var remainder: long = numerator % zero

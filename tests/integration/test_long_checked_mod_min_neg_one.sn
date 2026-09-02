@@ -1,0 +1,6 @@
+fn main(): void =>
+  var base: long = -9223372036854775807l
+  var one: long = 1l
+  var minimum: long = base - one
+  var negative_one: long = -1l
+  var overflow: long = minimum % negative_one

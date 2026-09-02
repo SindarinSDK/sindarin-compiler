@@ -2,6 +2,7 @@
 #define SN_ARITH_H
 
 #include <stdint.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -9,38 +10,44 @@
 
 static inline long long sn_add_long(long long a, long long b)
 {
-    long long r;
-    if (__builtin_add_overflow(a, b, &r)) {
+    if ((b > 0 && a > LLONG_MAX - b) ||
+        (b < 0 && a < LLONG_MIN - b)) {
         fprintf(stderr, "Runtime error: integer overflow in addition\n");
         exit(1);
     }
-    return r;
+    return a + b;
 }
 
 static inline long long sn_sub_long(long long a, long long b)
 {
-    long long r;
-    if (__builtin_sub_overflow(a, b, &r)) {
+    if ((b > 0 && a < LLONG_MIN + b) ||
+        (b < 0 && a > LLONG_MAX + b)) {
         fprintf(stderr, "Runtime error: integer overflow in subtraction\n");
         exit(1);
     }
-    return r;
+    return a - b;
 }
 
 static inline long long sn_mul_long(long long a, long long b)
 {
-    long long r;
-    if (__builtin_mul_overflow(a, b, &r)) {
+    if ((a > 0 && ((b > 0 && a > LLONG_MAX / b) ||
+                   (b < 0 && b < LLONG_MIN / a))) ||
+        (a < 0 && ((b > 0 && a < LLONG_MIN / b) ||
+                   (b < 0 && a < LLONG_MAX / b)))) {
         fprintf(stderr, "Runtime error: integer overflow in multiplication\n");
         exit(1);
     }
-    return r;
+    return a * b;
 }
 
 static inline long long sn_div_long(long long a, long long b)
 {
     if (b == 0) {
         fprintf(stderr, "panic: Division by zero\n");
+        exit(1);
+    }
+    if (a == LLONG_MIN && b == -1) {
+        fprintf(stderr, "Runtime error: integer overflow in division\n");
         exit(1);
     }
     return a / b;
@@ -50,6 +57,10 @@ static inline long long sn_mod_long(long long a, long long b)
 {
     if (b == 0) {
         fprintf(stderr, "panic: Modulo by zero\n");
+        exit(1);
+    }
+    if (a == LLONG_MIN && b == -1) {
+        fprintf(stderr, "Runtime error: integer overflow in modulo\n");
         exit(1);
     }
     return a % b;

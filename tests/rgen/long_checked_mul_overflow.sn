@@ -1,0 +1,4 @@
+fn main(): void =>
+  var left: long = 3037000500l
+  var right: long = 3037000500l
+  var overflow: long = left * right
