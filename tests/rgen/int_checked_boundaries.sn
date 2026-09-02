@@ -1,8 +1,0 @@
-fn main(): void =>
-  var add_left: int = 9223372036854775806
-  var add_right: int = 1
-  var sum: int = add_left + add_right
-  var min_base: int = -9223372036854775807
-  var min_step: int = 1
-  var minimum: int = min_base - min_step
-  println($"{sum} {minimum}")

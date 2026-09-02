@@ -1,0 +1,22 @@
+fn main(): void =>
+  var int_max_minus_one: int = 9223372036854775806
+  var int_one: int = 1
+  var int_max: int = int_max_minus_one + int_one
+  var int_min_base: int = -9223372036854775807
+  var int_min: int = int_min_base - int_one
+  var int_mul_base: int = 4611686018427387903
+  var int_two: int = 2
+  var int_product: int = int_mul_base * int_two
+  var int_quotient: int = int_min / int_one
+  var int_remainder: int = int_min % int_one
+  var long_max_minus_one: long = 9223372036854775806l
+  var long_one: long = 1l
+  var long_max: long = long_max_minus_one + long_one
+  var long_min_base: long = -9223372036854775807l
+  var long_min: long = long_min_base - long_one
+  var long_mul_base: long = 4611686018427387903l
+  var long_two: long = 2l
+  var long_product: long = long_mul_base * long_two
+  var long_quotient: long = long_min / long_one
+  var long_remainder: long = long_min % long_one
+  println("ok")
