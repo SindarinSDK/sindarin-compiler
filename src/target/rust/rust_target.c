@@ -189,6 +189,19 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
+static bool rust_checked_integer_ref_parameter(json_object *mutation,
+                                                json_object *parameter)
+{
+    json_object *type = NULL;
+    return json_string_property_equals(mutation, "mutation_storage", "parameter") &&
+        json_string_property_equals(mutation, "mutation_place", "variable") &&
+        json_string_property_equals(parameter, "kind", "variable") &&
+        json_string_property_equals(parameter, "parameter_mem_qual", "as_ref") &&
+        json_object_object_get_ex(parameter, "type", &type) &&
+        (json_string_property_equals(type, "kind", "int") ||
+         json_string_property_equals(type, "kind", "long"));
+}
+
 static bool rust_validate_structs(json_object *model)
 {
     json_object *structs = NULL;
@@ -844,12 +857,21 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment for sync variables\n");
             return false;
         }
+        if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
+            !json_string_property_equals(target, "parameter_mem_qual", "as_ref"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support compound assignment of by-value parameters\n");
+            return false;
+        }
+        bool checked_ref_parameter = rust_checked_integer_ref_parameter(expr, target);
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
              strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
              strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
             strcmp(target_kind, value_kind) != 0 ||
             !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked") ||
-            !json_string_property_equals(expr, "mutation_storage", "local"))
+            (!json_string_property_equals(expr, "mutation_storage", "local") &&
+             !checked_ref_parameter))
         {
             fprintf(stderr,
                     "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
@@ -897,7 +919,8 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
             return rust_validate_expr(child);
-        if (!json_string_property_equals(expr, "mutation_storage", "local"))
+        if (!json_string_property_equals(expr, "mutation_storage", "local") &&
+            !rust_checked_integer_ref_parameter(expr, child))
         {
             fprintf(stderr,
                     "Error: Rust target supports checked increment/decrement only for local variables and direct fields\n");
@@ -1357,6 +1380,10 @@ static bool rust_validate_struct_methods(json_object *model)
                         json_object_object_get_ex(param, "type", &param_type);
                     bool mem_qual_supported =
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
+                        (has_param_type &&
+                         strcmp(mem_qual, "as_ref") == 0 &&
+                         (json_string_property_equals(param_type, "kind", "int") ||
+                          json_string_property_equals(param_type, "kind", "long"))) ||
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
@@ -2182,25 +2209,57 @@ static void rust_mark_integer_ref_uses(json_object *node, const char *param_name
 static void rust_lower_integer_ref_parameters(json_object *model)
 {
     json_object *functions = NULL;
-    if (!json_object_object_get_ex(model, "functions", &functions)) return;
-    size_t function_count = json_object_array_length(functions);
-    for (size_t i = 0; i < function_count; i++)
+    if (json_object_object_get_ex(model, "functions", &functions))
     {
-        json_object *function = json_object_array_get_idx(functions, i);
-        json_object *params = NULL, *body = NULL;
-        if (!json_object_object_get_ex(function, "params", &params) ||
-            !json_object_object_get_ex(function, "body", &body)) continue;
-        size_t param_count = json_object_array_length(params);
-        for (size_t p = 0; p < param_count; p++)
+        size_t function_count = json_object_array_length(functions);
+        for (size_t i = 0; i < function_count; i++)
         {
-            json_object *param = json_object_array_get_idx(params, p);
-            json_object *type = NULL;
-            const char *name = json_string_property(param, "name");
-            if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
-                json_object_object_get_ex(param, "type", &type) &&
-                (json_string_property_equals(type, "kind", "int") ||
-                 json_string_property_equals(type, "kind", "long")))
-                rust_mark_integer_ref_uses(body, name);
+            json_object *function = json_object_array_get_idx(functions, i);
+            json_object *params = NULL, *body = NULL;
+            if (!json_object_object_get_ex(function, "params", &params) ||
+                !json_object_object_get_ex(function, "body", &body)) continue;
+            size_t param_count = json_object_array_length(params);
+            for (size_t p = 0; p < param_count; p++)
+            {
+                json_object *param = json_object_array_get_idx(params, p);
+                json_object *type = NULL;
+                const char *name = json_string_property(param, "name");
+                if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
+                    json_object_object_get_ex(param, "type", &type) &&
+                    (json_string_property_equals(type, "kind", "int") ||
+                     json_string_property_equals(type, "kind", "long")))
+                    rust_mark_integer_ref_uses(body, name);
+            }
+        }
+    }
+
+    json_object *structs = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structs)) return;
+    size_t struct_count = json_object_array_length(structs);
+    for (size_t i = 0; i < struct_count; i++)
+    {
+        json_object *structure = json_object_array_get_idx(structs, i);
+        json_object *methods = NULL;
+        if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
+        size_t method_count = json_object_array_length(methods);
+        for (size_t m = 0; m < method_count; m++)
+        {
+            json_object *method = json_object_array_get_idx(methods, m);
+            json_object *params = NULL, *body = NULL;
+            if (!json_object_object_get_ex(method, "params", &params) ||
+                !json_object_object_get_ex(method, "body", &body)) continue;
+            size_t param_count = json_object_array_length(params);
+            for (size_t p = 0; p < param_count; p++)
+            {
+                json_object *param = json_object_array_get_idx(params, p);
+                json_object *type = NULL;
+                const char *name = json_string_property(param, "name");
+                if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
+                    json_object_object_get_ex(param, "type", &type) &&
+                    (json_string_property_equals(type, "kind", "int") ||
+                     json_string_property_equals(type, "kind", "long")))
+                    rust_mark_integer_ref_uses(body, name);
+            }
         }
     }
 }

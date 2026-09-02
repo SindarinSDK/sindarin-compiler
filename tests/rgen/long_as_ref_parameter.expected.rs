@@ -6,7 +6,7 @@ fn increment(value: &mut i64) {
 
 fn twice(value: &mut i64) {
     increment(&mut *(value));
-    { let __sn_previous = *(value); *(value) += 1; __sn_previous };
+    { let __sn_place = &mut (*(value)); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
 }
 
 fn main() {

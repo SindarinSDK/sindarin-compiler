@@ -1,0 +1,1722 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/checked_ref_parameter_mutations.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "RefOps",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_mutations.sn",
+      "mem_mode": "val",
+      "fields": [],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "longOps",
+          "return_type": {
+            "kind": "long"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "var_decl",
+              "name": "add",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 3
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "sub",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "subtract",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "mul",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "multiply",
+                "mutation_op": "multiply",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 2
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "div",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "divide",
+                "mutation_op": "divide",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 2
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "rem",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "modulo",
+                "mutation_op": "modulo",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 3
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "old_inc",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "increment",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "old_dec",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "decrement",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            },
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "long"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "long"
+                      },
+                      "kind": "binary",
+                      "op": "add",
+                      "left": {
+                        "type": {
+                          "kind": "long"
+                        },
+                        "kind": "binary",
+                        "op": "add",
+                        "left": {
+                          "type": {
+                            "kind": "long"
+                          },
+                          "kind": "binary",
+                          "op": "add",
+                          "left": {
+                            "type": {
+                              "kind": "long"
+                            },
+                            "kind": "binary",
+                            "op": "add",
+                            "left": {
+                              "type": {
+                                "kind": "long"
+                              },
+                              "kind": "variable",
+                              "name": "add"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "long"
+                              },
+                              "kind": "variable",
+                              "name": "sub"
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "long"
+                            },
+                            "kind": "variable",
+                            "name": "mul"
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "long"
+                          },
+                          "kind": "variable",
+                          "name": "div"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "long"
+                        },
+                        "kind": "variable",
+                        "name": "rem"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "long"
+                      },
+                      "kind": "variable",
+                      "name": "old_inc"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "long"
+                    },
+                    "kind": "variable",
+                    "name": "old_dec"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "intPostfix",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "int"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "decrement",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "longPostfix",
+          "return_type": {
+            "kind": "long"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "increment",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "intCompound",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "int"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "longCompound",
+          "return_type": {
+            "kind": "long"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "long"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "compound_assign",
+                "op": "multiply",
+                "mutation_op": "multiply",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "long"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 2
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "oldThenIncrement",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "intOps",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "add",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "oldThenIncrement"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_ref_arg": true
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "sub",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "subtract",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "mul",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "multiply",
+            "mutation_op": "multiply",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 2
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "div",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "divide",
+            "mutation_op": "divide",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 2
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "rem",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "modulo",
+            "mutation_op": "modulo",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 3
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "old_inc",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "old_dec",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "decrement",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "binary",
+                      "op": "add",
+                      "left": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "binary",
+                        "op": "add",
+                        "left": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "add"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "sub"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "mul"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "div"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "rem"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "old_inc"
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "old_dec"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true
+            },
+            "arithmetic_mode": "checked"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_mutations.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "integer",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 2
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "long_value",
+          "type": {
+            "kind": "long"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "long"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 10
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "ops",
+          "type": {
+            "kind": "struct",
+            "name": "RefOps",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 8,
+            "alignment": 8,
+            "fields": []
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "RefOps",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 8,
+              "alignment": 8,
+              "fields": []
+            },
+            "kind": "struct_literal",
+            "struct_name": "RefOps",
+            "fields": []
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "intOps"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "integer",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "integer"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "static_call",
+                "type_name": "RefOps",
+                "method_name": "longOps",
+                "args": [
+                  {
+                    "type": {
+                      "kind": "long"
+                    },
+                    "kind": "variable",
+                    "name": "long_value",
+                    "is_ref_arg": true
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "variable",
+                "name": "long_value"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "RefOps",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 8,
+                      "alignment": 8,
+                      "fields": []
+                    },
+                    "kind": "variable",
+                    "name": "ops"
+                  },
+                  "member_name": "intPostfix",
+                  "has_c_alias": true,
+                  "c_alias": "__sn__RefOps_intPostfix"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "integer",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "integer"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "long"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "long"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "RefOps",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 8,
+                      "alignment": 8,
+                      "fields": []
+                    },
+                    "kind": "variable",
+                    "name": "ops"
+                  },
+                  "member_name": "longPostfix",
+                  "has_c_alias": true,
+                  "c_alias": "__sn__RefOps_longPostfix"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "long"
+                    },
+                    "kind": "variable",
+                    "name": "long_value",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "variable",
+                "name": "long_value"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "RefOps",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 8,
+                      "alignment": 8,
+                      "fields": []
+                    },
+                    "kind": "variable",
+                    "name": "ops"
+                  },
+                  "member_name": "intCompound",
+                  "has_c_alias": true,
+                  "c_alias": "__sn__RefOps_intCompound"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "integer",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "integer"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "long"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "long"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "RefOps",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 8,
+                      "alignment": 8,
+                      "fields": []
+                    },
+                    "kind": "variable",
+                    "name": "ops"
+                  },
+                  "member_name": "longCompound",
+                  "has_c_alias": true,
+                  "c_alias": "__sn__RefOps_longCompound"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "long"
+                    },
+                    "kind": "variable",
+                    "name": "long_value",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "long"
+                },
+                "kind": "variable",
+                "name": "long_value"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

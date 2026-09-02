@@ -12,6 +12,32 @@
 #include "debug.h"
 #include <string.h>
 
+/* Method calls use a synthesized function type during expression checking.
+ * Keep parameter memory qualifiers on that type so the regular call checker
+ * enforces the same argument-place contract as a free function. */
+static void copy_method_param_mem_quals(Type *func_type, StructMethod *method,
+                                        Arena *arena)
+{
+    if (!func_type || !method || method->param_count <= 0) return;
+
+    bool has_non_default_qual = false;
+    for (int i = 0; i < method->param_count; i++)
+    {
+        if (method->params[i].mem_qualifier != MEM_DEFAULT)
+        {
+            has_non_default_qual = true;
+            break;
+        }
+    }
+    if (!has_non_default_qual) return;
+
+    func_type->as.function.param_mem_quals = arena_alloc(
+        arena, sizeof(MemoryQualifier) * method->param_count);
+    if (!func_type->as.function.param_mem_quals) return;
+    for (int i = 0; i < method->param_count; i++)
+        func_type->as.function.param_mem_quals[i] = method->params[i].mem_qualifier;
+}
+
 Type *type_check_member(Expr *expr, SymbolTable *table)
 {
     DEBUG_VERBOSE("Type checking member access: %s", expr->as.member.member_name.start);
@@ -158,6 +184,7 @@ Type *type_check_member(Expr *expr, SymbolTable *table)
                     Type *func_type = ast_create_function_type(table->arena, method->return_type,
                         param_types, method->param_count);
                     func_type->as.function.is_native = method->is_native;
+                    copy_method_param_mem_quals(func_type, method, table->arena);
 
                     /* Store method reference for code generation */
                     expr->as.member.resolved_method = method;
@@ -326,6 +353,7 @@ normal_member_access:;  /* Empty statement needed - labels cannot be followed di
                 }
                 Type *func_type = ast_create_function_type(table->arena, method->return_type, param_types, total_params);
                 func_type->as.function.is_native = method->is_native;
+                copy_method_param_mem_quals(func_type, method, table->arena);
 
                 /* Store the method reference in the expression for code generation */
                 expr->as.member.resolved_method = method;
@@ -389,6 +417,7 @@ normal_member_access:;  /* Empty statement needed - labels cannot be followed di
                 }
                 Type *func_type = ast_create_function_type(table->arena, method->return_type, param_types, total_params);
                 func_type->as.function.is_native = method->is_native;
+                copy_method_param_mem_quals(func_type, method, table->arena);
                 expr->as.member.resolved_method = method;
                 expr->as.member.resolved_struct_type = struct_type;
                 return func_type;

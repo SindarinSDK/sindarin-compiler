@@ -1,0 +1,23 @@
+struct RefOps =>
+  static fn staticBump(value: int as ref): void =>
+    value += 1
+
+  fn instanceBump(value: int as ref): void =>
+    value += 1
+
+fn forwardStatic(value: int as ref): int =>
+  RefOps.staticBump(value)
+  return value
+
+fn forwardInstance(value: int as ref): int =>
+  var ops: RefOps = {}
+  ops.instanceBump(value)
+  return value
+
+fn main(): void =>
+  var staticValue: int = 1
+  var instanceValue: int = 1
+  println(forwardStatic(staticValue))
+  println(staticValue)
+  println(forwardInstance(instanceValue))
+  println(instanceValue)

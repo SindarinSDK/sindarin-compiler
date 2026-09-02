@@ -1,0 +1,6 @@
+fn fail(value: long as ref): void =>
+  value /= 0l
+
+fn main(): void =>
+  var value: long = 1l
+  fail(value)
