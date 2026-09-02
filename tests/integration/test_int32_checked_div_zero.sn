@@ -1,0 +1,4 @@
+fn main(): void =>
+  var numerator: int32 = 1i32
+  var zero: int32 = 0i32
+  var quotient: int32 = numerator / zero

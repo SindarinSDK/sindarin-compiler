@@ -1,0 +1,12 @@
+fn main(): void =>
+  var add_base: int32 = 2147483646i32
+  var one: int32 = 1i32
+  var sum: int32 = add_base + one
+  var min_base: int32 = -2147483647i32
+  var minimum: int32 = min_base - one
+  var mul_base: int32 = -1073741824i32
+  var two: int32 = 2i32
+  var product: int32 = mul_base * two
+  var quotient: int32 = minimum / one
+  var remainder: int32 = minimum % one
+  println($"{sum} {minimum} {product} {quotient} {remainder}")

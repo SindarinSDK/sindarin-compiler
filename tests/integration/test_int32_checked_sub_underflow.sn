@@ -1,0 +1,5 @@
+fn main(): void =>
+  var min_base: int32 = -2147483647i32
+  var one: int32 = 1i32
+  var minimum: int32 = min_base - one
+  var underflow: int32 = minimum - one
