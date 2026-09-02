@@ -7,4 +7,7 @@ fn main(): void =>
   var product: byte = max * one
   var quotient: byte = max / one
   var remainder: byte = max % one
-  print($"{sum} {difference} {product} {quotient} {remainder}\n")
+  var wide_left: byte = 200b
+  var wide_right: byte = 200b
+  var wide_sum: int = wide_left.toInt() + wide_right.toInt()
+  print($"{sum} {difference} {product} {quotient} {remainder} {wide_sum}\n")
