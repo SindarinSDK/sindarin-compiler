@@ -1,0 +1,4 @@
+fn main(): void =>
+  var zero: uint = 0u
+  var one: uint = 1u
+  var underflow: uint = zero - one
