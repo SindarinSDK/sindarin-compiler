@@ -1,0 +1,4 @@
+fn main(): void =>
+  var left: uint32 = 65536u32
+  var right: uint32 = 65536u32
+  var overflow: uint32 = left * right

@@ -1,0 +1,3 @@
+fn main(): int =>
+  var unused: uint32 = 42u32
+  return 0
