@@ -1,0 +1,58 @@
+fn main(): void =>
+  var ints: int[] = {1}
+  for item in ints =>
+    item = 2
+    println(item == 2 && ints[0] == 1)
+
+  var longs: long[] = {3l}
+  for item in longs =>
+    item = 4l
+    println(item == 4l && longs[0] == 3l)
+
+  var int32s: int32[] = {5i32}
+  for item in int32s =>
+    item = 6i32
+    println(item == 6i32 && int32s[0] == 5i32)
+
+  var uints: uint[] = {7u}
+  for item in uints =>
+    item = 8u
+    println(item == 8u && uints[0] == 7u)
+
+  var uint32s: uint32[] = {9u32}
+  for item in uint32s =>
+    item = 10u32
+    println(item == 10u32 && uint32s[0] == 9u32)
+
+  var bytes: byte[] = {11b}
+  for item in bytes =>
+    item = 12b
+    println(item == 12b && bytes[0] == 11b)
+
+  var floats: float[] = {1.5f}
+  for item in floats =>
+    item = 2.5f
+    println(item == 2.5f && floats[0] == 1.5f)
+
+  var doubles: double[] = {3.5}
+  for item in doubles =>
+    item = 4.5
+    println(item == 4.5 && doubles[0] == 3.5)
+
+  var bools: bool[] = {true}
+  for item in bools =>
+    item = false
+    println(item == false && bools[0] == true)
+
+  var chars: char[] = {'a'}
+  for item in chars =>
+    item = 'b'
+    println(item == 'b' && chars[0] == 'a')
+
+  var range_sum: int = 0
+  for value in 2..5 =>
+    value = value + 1
+    if value == 4 =>
+      continue
+    range_sum = range_sum + value
+  println(range_sum == 8)

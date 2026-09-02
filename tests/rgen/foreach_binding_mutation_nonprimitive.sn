@@ -1,0 +1,26 @@
+struct Point =>
+  x: int
+
+struct Label =>
+  text: str
+
+fn main(): void =>
+  var names: str[] = {"one"}
+  for item in names =>
+    item = "two"
+    println(item == "two" && names[0] == "one")
+
+  var rows: int[][] = {{1}}
+  for item in rows =>
+    item = {2}
+    println(item == {2} && rows[0] == {1})
+
+  var points: Point[] = { Point { x: 1 } }
+  for item in points =>
+    item = Point { x: 2 }
+    println(item.x == 2 && points[0].x == 1)
+
+  var labels: Label[] = { Label { text: "one" } }
+  for item in labels =>
+    item = Label { text: "two" }
+    println(item.text == "two" && labels[0].text == "one")
