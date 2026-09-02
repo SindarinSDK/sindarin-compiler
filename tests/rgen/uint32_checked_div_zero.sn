@@ -1,0 +1,4 @@
+fn main(): void =>
+  var numerator: uint32 = 4294967295u32
+  var zero: uint32 = 0u32
+  var quotient: uint32 = numerator / zero

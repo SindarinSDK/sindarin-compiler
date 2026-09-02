@@ -186,10 +186,53 @@ static inline uint64_t sn_add_uint(uint64_t a, uint64_t b) { return a + b; }
 static inline uint64_t sn_sub_uint(uint64_t a, uint64_t b) { return a - b; }
 static inline uint64_t sn_mul_uint(uint64_t a, uint64_t b) { return a * b; }
 
-/* ---- uint32 arithmetic (wrapping) ---- */
+/* ---- Checked uint32 arithmetic ---- */
 
-static inline uint32_t sn_add_uint32(uint32_t a, uint32_t b) { return a + b; }
-static inline uint32_t sn_sub_uint32(uint32_t a, uint32_t b) { return a - b; }
-static inline uint32_t sn_mul_uint32(uint32_t a, uint32_t b) { return a * b; }
+static inline uint32_t sn_add_uint32(uint32_t a, uint32_t b)
+{
+    uint64_t r = (uint64_t)a + (uint64_t)b;
+    if (r > UINT32_MAX) {
+        fprintf(stderr, "Runtime error: integer overflow in addition\n");
+        exit(1);
+    }
+    return (uint32_t)r;
+}
+
+static inline uint32_t sn_sub_uint32(uint32_t a, uint32_t b)
+{
+    if (a < b) {
+        fprintf(stderr, "Runtime error: integer overflow in subtraction\n");
+        exit(1);
+    }
+    return a - b;
+}
+
+static inline uint32_t sn_mul_uint32(uint32_t a, uint32_t b)
+{
+    uint64_t r = (uint64_t)a * (uint64_t)b;
+    if (r > UINT32_MAX) {
+        fprintf(stderr, "Runtime error: integer overflow in multiplication\n");
+        exit(1);
+    }
+    return (uint32_t)r;
+}
+
+static inline uint32_t sn_div_uint32(uint32_t a, uint32_t b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Division by zero\n");
+        exit(1);
+    }
+    return a / b;
+}
+
+static inline uint32_t sn_mod_uint32(uint32_t a, uint32_t b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Modulo by zero\n");
+        exit(1);
+    }
+    return a % b;
+}
 
 #endif

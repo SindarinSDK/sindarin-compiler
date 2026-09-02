@@ -6,7 +6,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
 
 ## Baseline — historical audit baseline (build & test results)
 
-> These results are the **historical audit baseline** recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`. They document the audit snapshot, **not the current state**: the current rgen suite has grown from the historical **47** to **72 behavior cases** (**58** successful runs plus **14** expected runtime failures); the checked-int32 and checked-byte slices and PR-B string clone/move ownership case bring current integration to **1159**.
+> These results are the **historical audit baseline** recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`. They document the audit snapshot, **not the current state**: the current rgen suite has grown from the historical **47** to **78 behavior cases** (**59** successful runs plus **19** expected runtime failures); the checked-int32, checked-byte, and checked-uint32 slices and PR-B string clone/move ownership case bring current integration to **1165**.
 
 ## Approved strict checked-int32 contract
 
@@ -20,13 +20,19 @@ Unsigned widths, remaining signed `int`/`long` operations, unchecked behavior, e
 
 In checked mode, source-language `byte` add, subtract, and multiply terminate nonzero when their mathematical result is outside `0..255`. Division and remainder terminate nonzero for a zero divisor. Successful boundary operations return their exact u8 result. The C runtime guards operands and range conditions before evaluating the arithmetic or returning through the byte type; the Rust lowering continues to use `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, and `checked_rem`.
 
-Unchecked byte behavior remains the native C operator path. Checked `uint`/`uint32`, remaining signed `int`/`long` operations, exact cross-target diagnostic text/status, and `SN_RUSTFLAGS` semantics remain open.
+Unchecked byte behavior remains the native C operator path. Checked `uint`, remaining signed `int`/`long` operations, exact cross-target diagnostic text/status, and `SN_RUSTFLAGS` semantics remain open.
+
+## Approved strict checked-uint32 contract
+
+In checked mode, source-language `uint32` addition, subtraction, and multiplication terminate nonzero when their mathematical result is outside `0..UINT32_MAX`. Division and remainder terminate nonzero for a zero divisor. Successful boundary operations return their exact u32 result. The C runtime uses widened `uint64_t` intermediates for addition and multiplication, a pre-subtraction `a < b` check, and zero guards before division or remainder; Rust continues to use `u32` `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, and `checked_rem`.
+
+Unchecked `uint32` behavior remains the native C operator path. Checked `uint`, remaining signed `int`/`long` operations, exact cross-target diagnostic text/status, and `SN_RUSTFLAGS` semantics remain open.
 
 | Gate | Result |
 |---|---|
 | `make setup` (fresh worktree, run **once** at start) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
-| `make test-rgen` | PASS — **47/47** Rust generation tests green (historical audit baseline; **current** rgen is **72 behavior cases: 58 successful runs + 14 expected runtime failures**). |
-| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1622**, cgen **107**, rgen **47** (historical; current cgen is **109** and rgen is **72 behavior cases: 58 successful runs + 14 expected runtime failures**), rgen-errors **10**, mgen **79**, integration **1159**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
+| `make test-rgen` | PASS — **47/47** Rust generation tests green (historical audit baseline; **current** rgen is **78 behavior cases: 59 successful runs + 19 expected runtime failures**). |
+| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1622**, cgen **107**, rgen **47** (historical; current cgen is **110** and rgen is **78 behavior cases: 59 successful runs + 19 expected runtime failures**), rgen-errors **10**, mgen **79**, integration **1165**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
 | host `rustc --version` | `rustc 1.93.1` — verified on **Spark 1** (read-only check) and **Spark 2**. |
 
 ## Methodology (verification)
@@ -62,9 +68,9 @@ Unchecked byte behavior remains the native C operator path. Checked `uint`/`uint
 | E7 | C-only stmt kinds | `gen_model_stmt.c:94,797,1019,1042`; C partials `stmt/{lock,using,for_each_iter}.hbs` | CONFIRMED — Rust gap |
 | E8 | PR #49 rejection | PR #49 diff → `rust_target.c:1148,1266` + `tests/rgen/errors/*` | CONFIRMED |
 | E9 | PR #54 C-incompatibility | PR #54 body: "Instance-method `as ref` remains rejected because the C backend currently emits incompatible value arguments for pointer parameters." | CONFIRMED (evaluation item) |
-| E10 | rgen coverage | 47 positive (`tests/rgen/*`) + 10 negative (`tests/rgen/errors/*`) at the historical baseline; current rgen has 72 behavior cases (58 successful runs + 14 expected runtime failures) | CONFIRMED |
+| E10 | rgen coverage | 47 positive (`tests/rgen/*`) + 10 negative (`tests/rgen/errors/*`) at the historical baseline; current rgen has 78 behavior cases (59 successful runs + 19 expected runtime failures) | CONFIRMED |
 | E11 | Baseline green | Baseline table above | CONFIRMED |
-| E12 | C-only suites | integration 1159, integration-errors 58, explore 224, explore-errors 11, cgen 109 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
+| E12 | C-only suites | integration 1165, integration-errors 58, explore 224, explore-errors 11, cgen 110 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
 | E13 | CI rustc pin | `.github/workflows/ci.yml` installs/selects exact Rust **1.93.1** via `rustup` for every OS matrix job before setup/build/test and records `rustc --version --verbose` | CONFIRMED |
 
 ---
@@ -83,7 +89,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 | Primitive types (`int`/`long`/`int32`/`uint`/`uint32`/`byte`/`bool`/`char`/`double`/`float`/`string`) | C codegen for all; cgen primitive tests | #9 | **PARTIAL** — `rust_type_supported` (`rust_target.c:150-168`) accepts these kinds; `int`/`long` as-ref only (see param rows) | — | Low | M0 done |
 | **Packed / serializable structs** | C struct variants + cgen fixtures `struct_packed`, `struct_handle_fields`, `expr_struct_literal_handle`; **serializable source support has no dedicated cgen fixture** (handled via encoder/cleanup path) | — | **REJ** — `rust_target.c:205-212` rejects packed/serializable structs and non-val `mem_mode`; `tests/rgen/errors/heap_owning_*` | Implement C-equivalent behavior; any exception requires explicit user approval | High | **PR-D** |
 | **Native structs** | C native struct codegen | #3 | **REJ** — `rust_target.c:205` rejects native structs (native-struct FFI) | Implement C-equivalent behavior (native-struct FFI); any exception requires explicit user approval | High | **PR-H** |
-| Numeric binary ops (checked) | `sn_arith.h` checked `sn_{add,sub,mul,div,mod}_{int32,byte}`; `tests/cgen/expr_{int32,byte}_checked` snapshot all helper calls; 14 C integration cases cover each slice’s boundary-success program plus isolated failures | #9 | **IBT (int32 + byte slices)** — `rust_lower_checked_arithmetic` → `checked_{add,sub,mul,div,rem}`; 14 matching `tests/rgen/{int32,byte}_checked_*` cases snapshot, build, and run boundary successes plus `.panic` failures | Strict checked signed-int32 and byte contracts are covered: byte add/sub/mul trap outside `0..255`; byte div/rem trap on zero; int32 div/rem also trap on `MIN / -1`; successful boundaries are exact. Remaining gaps are checked `uint`/`uint32`, signed `int`/`long`, unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, and `SN_RUSTFLAGS`. | Med | **PR-B** |
+| Numeric binary ops (checked) | `sn_arith.h` checked `sn_{add,sub,mul,div,mod}_{int32,byte,uint32}`; `tests/cgen/expr_{int32,byte,uint32}_checked` snapshot all helper calls; 20 C integration cases cover each slice’s boundary-success program plus isolated failures | #9 | **IBT (int32 + byte + uint32 slices)** — `rust_lower_checked_arithmetic` → `checked_{add,sub,mul,div,rem}`; 20 matching `tests/rgen/{int32,byte,uint32}_checked_*` cases snapshot, build, and run boundary successes plus `.panic` failures | Strict checked signed-int32, byte, and uint32 contracts are covered: byte and uint32 add/sub/mul trap outside their representable ranges; byte and uint32 div/rem trap on zero; int32 div/rem also trap on `MIN / -1`; successful boundaries are exact. Remaining gaps are checked `uint`, signed `int`/`long`, unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, and `SN_RUSTFLAGS`. | Med | **PR-B** |
 | **Numeric compound assign** `x += 1` | C `templates/c/partials/expr/compound_assign.hbs`; cgen covers | — | **REJ (specific)** — `rust_target.c:808-826` whitelists string `+=` only; numeric `+=` is **not implemented** on Rust | Implement numeric compound assignments + rgen tests (implementation gap, not under-tested) | Med | **PR-C** |
 | **Increment/decrement** | C `compound_assign.hbs` (inc/dec) | #9 | **REJ (specific)** — `rust_target.c:830-842` restricts inc/dec to variables + struct fields; `arr[i]++` / complex lvalues rejected | Add rgen tests for **supported** inc/dec (variables/struct fields) + implement the missing lvalue forms | Med | **PR-C** |
 | Type conversions (`int`→`str` etc.) | C emits runtime conversion macros via the method-call path (`gen_model_expr.c:1414-1440`: `__sn__int_toChar`, `__sn__str_toInt`); **no dedicated cgen fixture** | — | **ABSENT / implementation gap** — Rust has no `toChar`/`toInt`/… conversion-method lowering (only printf-style format-specifier handling exists in `rust_target.c:408-558,1730-1825`) | Implement Rust conversion-method lowering + add rgen tests | Med | **PR-C** |
@@ -165,7 +171,7 @@ Columns: **feature/behavior | exact C implementation & tests | historical PRs | 
 
 | Suite | Count | Target |
 |---|---|---|
-| rgen (Rust behavior) | **72 behavior cases** — 58 successful runs + 14 expected runtime failures | Rust |
+| rgen (Rust behavior) | **78 behavior cases** — 59 successful runs + 19 expected runtime failures | Rust |
 | rgen-errors | **10** first-line negatives | Rust |
 | rust-toolchain | **6** (case 1 binary-safe invocation records, default/`SN_RUSTFLAGS`/`-g`/`-p` argv and `-g -p` conflict; case 2 missing executable; case 3 nonzero `--version`; case 4 successful `--version` + nonzero Rust build with failed-build retention under default and `--keep-generated`; case 5 Rust successful cleanup/retention; case 6 C successful cleanup/retention for the shared lifecycle from the project-root package/link harness using a uniquely named staged relative source, plus a forced C compile-failure cleanup probe; cases 4–5 use isolated working directories and `sn_fake_rustc` where applicable) | Rust + shared C |
 | unit | 1622 (1609 baseline + 13 CLI target-selection cases; `target_default_c` also covers initialized defaults) | target-neutral |

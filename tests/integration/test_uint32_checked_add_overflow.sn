@@ -1,0 +1,4 @@
+fn main(): void =>
+  var max: uint32 = 4294967295u32
+  var one: uint32 = 1u32
+  var overflow: uint32 = max + one

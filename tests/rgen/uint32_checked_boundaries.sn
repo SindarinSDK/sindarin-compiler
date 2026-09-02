@@ -1,0 +1,12 @@
+fn main(): void =>
+  var max: uint32 = 4294967295u32
+  var one: uint32 = 1u32
+  var add_base: uint32 = 4294967294u32
+  var sum: uint32 = add_base + one
+  var difference: uint32 = one - one
+  var mul_left: uint32 = 65535u32
+  var mul_right: uint32 = 65537u32
+  var product: uint32 = mul_left * mul_right
+  var quotient: uint32 = max / one
+  var remainder: uint32 = max % 2u32
+  println($"{sum} {difference} {product} {quotient} {remainder}")

@@ -1,0 +1,4 @@
+fn main(): void =>
+  var zero: uint32 = 0u32
+  var one: uint32 = 1u32
+  var underflow: uint32 = zero - one
