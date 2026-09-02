@@ -7,10 +7,10 @@ struct Counter {
 
 impl Counter {
     fn next(&mut self) -> i64 {
-        return { let __sn_previous = (self).value; (self).value += 1; __sn_previous };
+        return { let __sn_place = &mut ((self).value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_add(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     }
     fn previous(&mut self) -> i64 {
-        return { let __sn_previous = (self).value; (self).value -= 1; __sn_previous };
+        return { let __sn_place = &mut ((self).value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
     }
     fn advance(&mut self) -> i64 {
         return (self).next();

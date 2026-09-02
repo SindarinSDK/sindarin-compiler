@@ -1,0 +1,6 @@
+struct Box =>
+  value: byte = 255b
+
+fn main(): void =>
+  var box: Box = {}
+  box.value++

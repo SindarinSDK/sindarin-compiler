@@ -814,13 +814,52 @@ static bool rust_validate_expr(json_object *expr)
             !json_object_object_get_ex(target, "type", &target_type) ||
             !json_object_object_get_ex(value, "type", &value_type) ||
             !(target_kind = json_string_property(target_type, "kind")) ||
-            !(value_kind = json_string_property(value_type, "kind")) ||
-            strcmp(target_kind, "string") != 0 || strcmp(value_kind, "string") != 0 ||
-            !json_string_property_equals(expr, "op", "add") ||
-            !json_string_property_equals(target, "kind", "variable"))
+            !(value_kind = json_string_property(value_type, "kind")))
         {
             fprintf(stderr,
-                    "Error: Rust target currently supports += only for string variables and string values\n");
+                    "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
+            return false;
+        }
+        if (strcmp(target_kind, "string") == 0)
+        {
+            if (json_boolean_property(expr, "mutation_sync"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support compound assignment for sync variables\n");
+                return false;
+            }
+            if (strcmp(value_kind, "string") != 0 ||
+                !json_string_property_equals(expr, "op", "add") ||
+                !json_string_property_equals(target, "kind", "variable"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target currently supports += only for string variables and string values\n");
+                return false;
+            }
+            return rust_validate_expr(target) && rust_validate_expr(value);
+        }
+        if (json_boolean_property(expr, "mutation_sync"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support compound assignment for sync variables\n");
+            return false;
+        }
+        if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
+             strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
+             strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
+            strcmp(target_kind, value_kind) != 0 ||
+            !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked") ||
+            !json_string_property_equals(expr, "mutation_storage", "local"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target currently supports numeric compound assignment only between same-type integral operands\n");
+            return false;
+        }
+        if (!json_string_property_equals(expr, "mutation_place", "variable") &&
+            !json_string_property_equals(expr, "mutation_place", "direct_field"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports checked numeric compound assignment only for variables and direct fields\n");
             return false;
         }
         return rust_validate_expr(target) && rust_validate_expr(value);
@@ -833,10 +872,35 @@ static bool rust_validate_expr(json_object *expr)
         if (!json_object_object_get_ex(expr, "operand", &child) ||
             !(operand_kind = json_string_property(child, "kind")) ||
             (strcmp(operand_kind, "variable") != 0 &&
-             strcmp(operand_kind, "member") != 0))
+             strcmp(operand_kind, "member") != 0) ||
+            (!json_string_property_equals(expr, "mutation_place", "variable") &&
+             !json_string_property_equals(expr, "mutation_place", "direct_field")))
         {
             fprintf(stderr,
                     "Error: Rust target supports increment/decrement only for variables and fields\n");
+            return false;
+        }
+        if (json_string_property_equals(expr, "mutation_storage", "parameter"))
+        {
+            if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support increment/decrement of by-value parameters\n");
+                return false;
+            }
+        }
+        if (json_boolean_property(expr, "mutation_sync"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support increment/decrement of sync variables\n");
+            return false;
+        }
+        if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
+            return rust_validate_expr(child);
+        if (!json_string_property_equals(expr, "mutation_storage", "local"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports checked increment/decrement only for local variables and direct fields\n");
             return false;
         }
         return rust_validate_expr(child);
@@ -1050,6 +1114,25 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
+/* A method needs &mut self only when its mutation place is rooted in self.
+ * Local values (including their fields, indices, and arrays) must not turn an
+ * otherwise read-only instance method into a mutable receiver method. */
+static bool rust_mutation_place_is_self_rooted(json_object *place)
+{
+    if (!json_object_is_type(place, json_type_object)) return false;
+    if (json_string_property_equals(place, "kind", "variable"))
+        return json_string_property_equals(place, "name", "self");
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member") &&
+        json_object_object_get_ex(place, "object", &parent))
+        return rust_mutation_place_is_self_rooted(parent);
+    if (json_string_property_equals(place, "kind", "array_access") &&
+        json_object_object_get_ex(place, "array", &parent))
+        return rust_mutation_place_is_self_rooted(parent);
+    return false;
+}
+
 static bool rust_is_mutating_array_call(json_object *node)
 {
     if (!json_string_property_equals(node, "kind", "call")) return false;
@@ -1123,11 +1206,26 @@ static bool rust_method_has_direct_mutation(json_object *node)
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
-    if (json_string_property_equals(node, "kind", "member_assign") ||
-        json_string_property_equals(node, "kind", "index_assign") ||
-        json_string_property_equals(node, "kind", "increment") ||
-        json_string_property_equals(node, "kind", "decrement") ||
-        rust_is_mutating_array_call(node)) return true;
+    json_object *place = NULL;
+    if ((json_string_property_equals(node, "kind", "compound_assign") &&
+         json_object_object_get_ex(node, "target", &place)) ||
+        ((json_string_property_equals(node, "kind", "increment") ||
+          json_string_property_equals(node, "kind", "decrement")) &&
+         json_object_object_get_ex(node, "operand", &place)) ||
+        (json_string_property_equals(node, "kind", "member_assign") &&
+         json_object_object_get_ex(node, "object", &place)) ||
+        (json_string_property_equals(node, "kind", "index_assign") &&
+         json_object_object_get_ex(node, "array", &place)))
+    {
+        if (rust_mutation_place_is_self_rooted(place)) return true;
+    }
+    if (rust_is_mutating_array_call(node))
+    {
+        json_object *callee = NULL, *object = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            rust_mutation_place_is_self_rooted(object)) return true;
+    }
     json_object_object_foreach(node, key, value)
     {
         (void)key;
@@ -1481,6 +1579,45 @@ static void rust_lower_checked_arithmetic(json_object *node)
         return;
 
     const char *op = json_object_get_string(op_obj);
+    const char *method = NULL;
+    if (strcmp(op, "add") == 0) method = "checked_add";
+    else if (strcmp(op, "subtract") == 0) method = "checked_sub";
+    else if (strcmp(op, "multiply") == 0) method = "checked_mul";
+    else if (strcmp(op, "divide") == 0) method = "checked_div";
+    else if (strcmp(op, "modulo") == 0) method = "checked_rem";
+    if (method)
+        json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
+}
+
+/* Apply the shared mutation annotations after validation.  A checked mutation
+ * is represented as a borrowed place plus a checked_* method in Rust, rather
+ * than reconstructing an arithmetic expression in a template. */
+static void rust_lower_checked_mutations(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_checked_mutations(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_checked_mutations(value);
+    }
+
+    const char *kind = json_string_property(node, "kind");
+    const char *mode = json_string_property(node, "mutation_arithmetic_mode");
+    const char *op = json_string_property(node, "mutation_op");
+    if (!kind || !mode || !op || strcmp(mode, "checked") != 0 ||
+        (strcmp(kind, "compound_assign") != 0 && strcmp(kind, "increment") != 0 &&
+         strcmp(kind, "decrement") != 0))
+        return;
+
     const char *method = NULL;
     if (strcmp(op, "add") == 0) method = "checked_add";
     else if (strcmp(op, "subtract") == 0) method = "checked_sub";
@@ -2082,6 +2219,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
         return false;
     }
     rust_lower_checked_arithmetic(model);
+    rust_lower_checked_mutations(model);
     rust_lower_strings(model);
     rust_lower_array_searches(model);
     rust_lower_instance_method_clones(model);

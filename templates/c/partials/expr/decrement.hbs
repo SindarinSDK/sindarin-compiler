@@ -1,1 +1,6 @@
-{{#if sync_var_name}}({pthread_mutex_lock(&__sn__{{sync_var_name}}_mutex); {{> expr operand}}--; pthread_mutex_unlock(&__sn__{{sync_var_name}}_mutex); __sn__{{sync_var_name}}; }){{else}}{{> expr operand}}--{{/if}}
+{{#if (eq mutation_arithmetic_mode "checked")}}({
+    {{#if sync_var_name}}pthread_mutex_lock(&__sn__{{sync_var_name}}_mutex); {{/if}}{{c_type type}} *__sn_place__ = &({{> expr operand}});
+    {{c_type type}} __sn_previous__ = *__sn_place__;
+    *__sn_place__ = sn_sub_{{type_suffix type}}(__sn_previous__, 1);
+    {{#if sync_var_name}}pthread_mutex_unlock(&__sn__{{sync_var_name}}_mutex); {{/if}}__sn_previous__;
+}){{else}}{{#if sync_var_name}}({pthread_mutex_lock(&__sn__{{sync_var_name}}_mutex); {{> expr operand}}--; {{c_type type}} __sn_result__ = {{> expr operand}}; pthread_mutex_unlock(&__sn__{{sync_var_name}}_mutex); __sn_result__; }){{else}}{{> expr operand}}--{{/if}}{{/if}}

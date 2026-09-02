@@ -1,0 +1,4 @@
+fn main(): void =>
+  var value: int32 = 1073741824i32
+  var two: int32 = 2i32
+  value *= two

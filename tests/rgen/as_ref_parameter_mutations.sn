@@ -1,0 +1,13 @@
+fn increment(value: int as ref): int =>
+  return value++
+
+fn decrement(value: int as ref): int =>
+  return value--
+
+fn main(): void =>
+  var high: int = 9
+  var low: int = 5
+  println(increment(high))
+  println(decrement(low))
+  println(high)
+  println(low)

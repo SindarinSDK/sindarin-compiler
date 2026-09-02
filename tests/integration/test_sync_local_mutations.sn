@@ -1,0 +1,6 @@
+fn main(): void =>
+  sync var counter: int = 10
+  var added: int = counter += 5
+  var previous: int = counter++
+  var decremented: int = counter--
+  println($"{added}:{previous}:{decremented}:{counter}")

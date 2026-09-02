@@ -108,6 +108,11 @@
                   },
                   "kind": "compound_assign",
                   "op": "add",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "captured",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "unchecked",
                   "target": {
                     "type": {
                       "kind": "int"
@@ -237,6 +242,11 @@
             },
             "kind": "compound_assign",
             "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "captured",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "unchecked",
             "target": {
               "type": {
                 "kind": "int"

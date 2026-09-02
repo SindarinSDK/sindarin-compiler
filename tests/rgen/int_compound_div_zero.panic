@@ -1,0 +1,1 @@
+# Checked integer division by zero must terminate with a nonzero status.

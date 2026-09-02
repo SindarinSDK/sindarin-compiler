@@ -1,0 +1,5 @@
+fn increment(value: int): void =>
+  value++
+
+fn main(): void =>
+  increment(1)

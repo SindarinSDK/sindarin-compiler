@@ -1,0 +1,6 @@
+#![allow(dead_code, unused_mut, unused_variables, unused_parens)]
+
+fn main() {
+    let mut value: u8 = 0;
+    { let __sn_place = &mut (value); let __sn_previous = *__sn_place; let __sn_next = __sn_previous.checked_sub(1).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_previous };
+}

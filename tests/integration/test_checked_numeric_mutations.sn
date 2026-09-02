@@ -1,0 +1,126 @@
+struct Numbers =>
+  i: int = 10
+  l: long = 10l
+  i32: int32 = 10i32
+  u: uint = 10u
+  u32: uint32 = 10u32
+  b: byte = 10b
+
+fn main(): void =>
+  var i: int = 10
+  var i_one: int = 1
+  var i_two: int = 2
+  var i_three: int = 3
+  i += i_two
+  i -= i_one
+  i *= i_two
+  i /= i_two
+  i %= i_three
+  var i_before: int = i++
+  i--
+
+  var l: long = 10l
+  var l_one: long = 1l
+  var l_two: long = 2l
+  var l_three: long = 3l
+  l += l_two
+  l -= l_one
+  l *= l_two
+  l /= l_two
+  l %= l_three
+  var l_before: long = l++
+  l--
+
+  var i32: int32 = 10i32
+  var i32_one: int32 = 1i32
+  var i32_two: int32 = 2i32
+  var i32_three: int32 = 3i32
+  i32 += i32_two
+  i32 -= i32_one
+  i32 *= i32_two
+  i32 /= i32_two
+  i32 %= i32_three
+  var i32_before: int32 = i32++
+  i32--
+
+  var u: uint = 10u
+  var u_one: uint = 1u
+  var u_two: uint = 2u
+  var u_three: uint = 3u
+  u += u_two
+  u -= u_one
+  u *= u_two
+  u /= u_two
+  u %= u_three
+  var u_before: uint = u++
+  u--
+
+  var u32: uint32 = 10u32
+  var u32_one: uint32 = 1u32
+  var u32_two: uint32 = 2u32
+  var u32_three: uint32 = 3u32
+  u32 += u32_two
+  u32 -= u32_one
+  u32 *= u32_two
+  u32 /= u32_two
+  u32 %= u32_three
+  var u32_before: uint32 = u32++
+  u32--
+
+  var b: byte = 10b
+  var b_one: byte = 1b
+  var b_two: byte = 2b
+  var b_three: byte = 3b
+  b += b_two
+  b -= b_one
+  b *= b_two
+  b /= b_two
+  b %= b_three
+  var b_before: byte = b++
+  b--
+
+  var fields: Numbers = {}
+  fields.i += i_two
+  fields.i -= i_one
+  fields.i *= i_two
+  fields.i /= i_two
+  fields.i %= i_three
+  var field_i_before: int = fields.i++
+  fields.i--
+  fields.l += l_two
+  fields.l -= l_one
+  fields.l *= l_two
+  fields.l /= l_two
+  fields.l %= l_three
+  var field_l_before: long = fields.l++
+  fields.l--
+  fields.i32 += i32_two
+  fields.i32 -= i32_one
+  fields.i32 *= i32_two
+  fields.i32 /= i32_two
+  fields.i32 %= i32_three
+  var field_i32_before: int32 = fields.i32++
+  fields.i32--
+  fields.u += u_two
+  fields.u -= u_one
+  fields.u *= u_two
+  fields.u /= u_two
+  fields.u %= u_three
+  var field_u_before: uint = fields.u++
+  fields.u--
+  fields.u32 += u32_two
+  fields.u32 -= u32_one
+  fields.u32 *= u32_two
+  fields.u32 /= u32_two
+  fields.u32 %= u32_three
+  var field_u32_before: uint32 = fields.u32++
+  fields.u32--
+  fields.b += b_two
+  fields.b -= b_one
+  fields.b *= b_two
+  fields.b /= b_two
+  fields.b %= b_three
+  var field_b_before: byte = fields.b++
+  fields.b--
+
+  println($"vars={i_before}:{i} {l_before}:{l} {i32_before}:{i32} {u_before}:{u} {u32_before}:{u32} {b_before}:{b}; fields={field_i_before}:{fields.i} {field_l_before}:{fields.l} {field_i32_before}:{fields.i32} {field_u_before}:{fields.u} {field_u32_before}:{fields.u32} {field_b_before}:{fields.b}")

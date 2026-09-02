@@ -1,0 +1,157 @@
+{
+  "module": {
+    "filename": "tests/mgen/expr_sync_local_mutations.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests/mgen/expr_sync_local_mutations.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "atomic",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 10
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "added",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "local",
+            "mutation_sync": true,
+            "sync_var_name": "counter",
+            "mutation_arithmetic_mode": "unchecked",
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 5
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "previous",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "local",
+            "mutation_sync": true,
+            "sync_var_name": "counter",
+            "mutation_arithmetic_mode": "unchecked",
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "decremented",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "decrement",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "local",
+            "mutation_sync": true,
+            "sync_var_name": "counter",
+            "mutation_arithmetic_mode": "unchecked",
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

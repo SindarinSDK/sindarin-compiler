@@ -79,6 +79,8 @@ Type *type_check_variable(Expr *expr, SymbolTable *table)
      * can distinguish module-level globals from true locals. */
     expr->as.variable.declaration_scope_depth = sym->declaration_scope_depth;
     expr->as.variable.is_param_ref = (sym->kind == SYMBOL_PARAM);
+    expr->as.variable.sync_modifier = sym->sync_mod;
+    expr->as.variable.param_mem_qualifier = sym->mem_qual;
 
     DEBUG_VERBOSE("Variable type found: %d", result_type->kind);
     return result_type;

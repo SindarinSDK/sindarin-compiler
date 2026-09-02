@@ -1,0 +1,3 @@
+fn main(): void =>
+  var value: byte = 255b
+  value++

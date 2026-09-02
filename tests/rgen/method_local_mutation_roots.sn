@@ -1,0 +1,23 @@
+struct Pair =>
+  value: int = 0
+
+struct Counter =>
+  value: int = 0
+
+  fn localMutations(): int =>
+    var number: int = 1
+    number++
+    number--
+    var pair: Pair = {}
+    pair.value = 4
+    var values: int[] = {1, 2}
+    values[0] = 3
+    values.push(4)
+    return number + pair.value + values[0] + values.length
+
+fn use(counter: Counter): int =>
+  return counter.localMutations()
+
+fn main(): void =>
+  var counter: Counter = {}
+  println(use(counter))

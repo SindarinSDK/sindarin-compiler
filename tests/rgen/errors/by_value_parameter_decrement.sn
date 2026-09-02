@@ -1,0 +1,5 @@
+fn decrement(value: int): void =>
+  value--
+
+fn main(): void =>
+  decrement(1)

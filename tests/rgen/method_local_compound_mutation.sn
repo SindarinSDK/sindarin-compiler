@@ -1,0 +1,14 @@
+struct Counter =>
+  value: int = 0
+
+  fn localMath(): int =>
+    var total: int = 4
+    total += 3
+    return total
+
+fn use(counter: Counter): int =>
+  return counter.localMath()
+
+fn main(): void =>
+  var counter: Counter = { value: 1 }
+  println(use(counter))
