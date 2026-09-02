@@ -35,7 +35,7 @@ fn main() {
     }
     println!("{}", total);
     let mut values: Vec<i64> = vec![2, 4, 6];
-    for value in (values).iter().cloned() {
+    for mut value in (values).iter().cloned() {
         (total = (total).checked_add(value).expect("checked arithmetic failed"));
     }
     println!("{}", total);
@@ -51,12 +51,12 @@ fn main() {
     println!("{}", (range_values)[__sn_index((range_values).len(), 0)]);
     println!("{}", (range_values)[__sn_index((range_values).len(), (-1))]);
     let mut range_total: i64 = 0;
-    for value in ((1..5).collect::<Vec<i64>>()).iter().cloned() {
+    for mut value in ((1..5).collect::<Vec<i64>>()).iter().cloned() {
         (range_total = (range_total).checked_add(value).expect("checked arithmetic failed"));
     }
     println!("{}", range_total);
     let mut names: Vec<String> = vec!["one".to_string(), "two".to_string()];
-    for name in (names).iter().cloned() {
+    for mut name in (names).iter().cloned() {
         println!("{}", name);
     }
 }
