@@ -1,0 +1,85 @@
+struct Box =>
+  value: uint32
+
+struct Wrapper =>
+  box: Box
+
+struct RefOps =>
+  static fn staticOps(value: uint32 as ref): uint32 =>
+    var add: uint32 = value += 3u32
+    var sub: uint32 = value -= 1u32
+    var mul: uint32 = value *= 2u32
+    var div: uint32 = value /= 2u32
+    var rem: uint32 = value %= 3u32
+    var old_inc: uint32 = value++
+    var old_dec: uint32 = value--
+    return add + sub + mul + div + rem + old_inc + old_dec + value
+
+  static fn staticBump(value: uint32 as ref): void =>
+    value += 1u32
+
+  fn instancePostfix(value: uint32 as ref): uint32 =>
+    return value--
+
+  fn instanceBump(value: uint32 as ref): void =>
+    value += 1u32
+
+fn oldThenIncrement(value: uint32 as ref): uint32 =>
+  return value++
+
+fn freeOps(value: uint32 as ref): uint32 =>
+  var add: uint32 = value += oldThenIncrement(value)
+  var sub: uint32 = value -= 1u32
+  var mul: uint32 = value *= 2u32
+  var div: uint32 = value /= 2u32
+  var rem: uint32 = value %= 3u32
+  var old_inc: uint32 = value++
+  var old_dec: uint32 = value--
+  return add + sub + mul + div + rem + old_inc + old_dec + value
+
+fn forwardStatic(value: uint32 as ref): uint32 =>
+  RefOps.staticBump(value)
+  return value
+
+fn forwardInstance(value: uint32 as ref): uint32 =>
+  var ops: RefOps = {}
+  ops.instanceBump(value)
+  return value
+
+fn maxBoundary(value: uint32 as ref): uint32 =>
+  return value += 1u32
+
+fn minBoundary(value: uint32 as ref): uint32 =>
+  return value -= 1u32
+
+fn assignAndRead(value: uint32 as ref): uint32 =>
+  value = 4000000000u32
+  return value
+
+fn read(value: uint32 as ref): uint32 =>
+  return value
+
+fn freeBump(value: uint32 as ref): void =>
+  value += 1u32
+
+fn main(): void =>
+  var free_value: uint32 = 2u32
+  var static_value: uint32 = 10u32
+  var postfix_value: uint32 = 5u32
+  var forwarded_static: uint32 = 1u32
+  var forwarded_instance: uint32 = 1u32
+  var maximum: uint32 = 4294967294u32
+  var minimum: uint32 = 1u32
+  var assigned: uint32 = 42u32
+  var direct: Box = { value: 1u32 }
+  var nested: Wrapper = { box: Box { value: 10u32 } }
+  var ops: RefOps = {}
+
+  freeBump(direct.value)
+  freeBump(nested.box.value)
+  RefOps.staticBump(direct.value)
+  RefOps.staticBump(nested.box.value)
+  ops.instanceBump(direct.value)
+  ops.instanceBump(nested.box.value)
+
+  println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {assignAndRead(assigned)} {assigned} {read(direct.value)} {direct.value} {nested.box.value}")
