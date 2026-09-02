@@ -27,8 +27,8 @@ fn main(): int =>
 
   // Test 4: Byte multiplication to int
   print("\nTest 4 - Byte multiplication:\n")
-  var b1: byte = 200
-  var b2: byte = 200
+  var b1: byte = 15
+  var b2: byte = 17
   var prod: int = b1 * b2
   print($"  byte * byte = {prod}\n")
 

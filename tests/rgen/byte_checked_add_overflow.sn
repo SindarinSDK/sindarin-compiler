@@ -1,0 +1,4 @@
+fn main(): void =>
+  var max: byte = 255b
+  var one: byte = 1b
+  var overflow: byte = max + one

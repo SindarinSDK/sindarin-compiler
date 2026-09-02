@@ -1,0 +1,15 @@
+fn main(): void =>
+  var max: byte = 255b
+  var one: byte = 1b
+  var add_base: byte = 254b
+  var sum: byte = add_base + one
+  var difference: byte = one - one
+  var mul_left: byte = 85b
+  var mul_right: byte = 3b
+  var product: byte = mul_left * mul_right
+  var quotient: byte = max / one
+  var remainder: byte = max % one
+  var wide_left: byte = 200b
+  var wide_right: byte = 200b
+  var wide_sum: int = wide_left.toInt() + wide_right.toInt()
+  print($"{sum} {difference} {product} {quotient} {remainder} {wide_sum}\n")
