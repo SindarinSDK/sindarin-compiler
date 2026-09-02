@@ -1,4 +1,4 @@
-fn main(): void =>
+fn main(): int =>
   var int_max_minus_one: int = 9223372036854775806
   var int_one: int = 1
   var int_max: int = int_max_minus_one + int_one
@@ -19,4 +19,4 @@ fn main(): void =>
   var long_product: long = long_mul_base * long_two
   var long_quotient: long = long_min / long_one
   var long_remainder: long = long_min % long_one
-  println("ok")
+  return 0

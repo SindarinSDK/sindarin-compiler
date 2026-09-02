@@ -34,8 +34,5 @@ int main() {
     long long __sn__long_product = sn_mul_long(__sn__long_mul_base, __sn__long_two);
     long long __sn__long_quotient = sn_div_long(__sn__long_min, __sn__long_one);
     long long __sn__long_remainder = sn_mod_long(__sn__long_min, __sn__long_one);
-    sn_println("ok");
-
-    fflush(stdout);
-    return 0;
+    return 0LL;    fflush(stdout);
 }
