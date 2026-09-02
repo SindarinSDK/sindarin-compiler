@@ -1,0 +1,21 @@
+fn bumpAndReturn(counter: int as ref): int =>
+  counter += 1
+  return - 1
+
+fn main(): void =>
+  var negative: int = -1
+  var as_long: long = negative.toLong()
+  var as_uint: uint = negative.toUint()
+  var as_byte: byte = negative.toByte()
+  var half_uint: uint = 9223372036854775807u
+  var max_uint: uint = half_uint * 2u + 1u
+  var long_value: long = 42l
+  var as_int: int = long_value.toInt()
+  var byte_value: byte = 200b
+  var widened: int = byte_value.toInt()
+  var true_value: int = true.toInt()
+  var false_value: int = false.toInt()
+  var counter: int = 0
+  var called_byte: byte = bumpAndReturn(counter).toByte()
+  var called_value: int = called_byte.toInt()
+  println($"{as_long == -1l && as_uint == max_uint && as_byte == 255b && as_int == 42 && widened == 200 && true_value == 1 && false_value == 0} {counter == 1 && called_value == 255}")

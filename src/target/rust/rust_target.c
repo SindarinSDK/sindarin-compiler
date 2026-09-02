@@ -276,6 +276,46 @@ static bool rust_string_method_supported(const char *name)
            strcmp(name, "charAt") == 0 || strcmp(name, "indexOf") == 0;
 }
 
+/* Keep this list aligned with the source-language primitive conversion members.
+ * Unsupported source-valid conversions receive a target-specific diagnostic below;
+ * model-only names such as toFloat/toBool deliberately are not recognized here. */
+static bool rust_primitive_conversion_member(const char *type_kind, const char *name)
+{
+    if (!type_kind || !name) return false;
+    if (strcmp(type_kind, "int") == 0)
+        return strcmp(name, "toDouble") == 0 || strcmp(name, "toLong") == 0 ||
+               strcmp(name, "toUint") == 0 || strcmp(name, "toByte") == 0 ||
+               strcmp(name, "toChar") == 0;
+    if (strcmp(type_kind, "long") == 0)
+        return strcmp(name, "toInt") == 0 || strcmp(name, "toDouble") == 0;
+    if (strcmp(type_kind, "double") == 0)
+        return strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0;
+    if (strcmp(type_kind, "uint") == 0)
+        return strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0 ||
+               strcmp(name, "toDouble") == 0;
+    if (strcmp(type_kind, "byte") == 0)
+        return strcmp(name, "toInt") == 0 || strcmp(name, "toChar") == 0;
+    if (strcmp(type_kind, "bool") == 0)
+        return strcmp(name, "toInt") == 0;
+    if (strcmp(type_kind, "char") == 0)
+        return strcmp(name, "toInt") == 0;
+    if (strcmp(type_kind, "string") == 0)
+        return strcmp(name, "toInt") == 0 || strcmp(name, "toLong") == 0 ||
+               strcmp(name, "toDouble") == 0;
+    return false;
+}
+
+static bool rust_primitive_integer_conversion_supported(const char *type_kind,
+                                                        const char *name)
+{
+    return (strcmp(type_kind, "int") == 0 &&
+            (strcmp(name, "toLong") == 0 || strcmp(name, "toUint") == 0 ||
+             strcmp(name, "toByte") == 0)) ||
+           (strcmp(type_kind, "long") == 0 && strcmp(name, "toInt") == 0) ||
+           (strcmp(type_kind, "byte") == 0 && strcmp(name, "toInt") == 0) ||
+           (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0);
+}
+
 typedef struct
 {
     bool left_align;
@@ -950,6 +990,22 @@ static bool rust_validate_expr(json_object *expr)
                 !json_object_object_get_ex(object, "type", &object_type) ||
                 !(object_type_kind = json_string_property(object_type, "kind"))) return false;
             const char *method = json_string_property(callee, "member_name");
+            if (rust_primitive_conversion_member(object_type_kind, method))
+            {
+                json_object_object_get_ex(expr, "args", &args);
+                if (!args || json_object_array_length(args) != 0) return false;
+                if (!rust_validate_expr(object)) return false;
+                if (!rust_primitive_integer_conversion_supported(object_type_kind, method))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target does not support primitive conversion %s.%s() yet\n",
+                            object_type_kind, method);
+                    return false;
+                }
+                json_object_object_add(expr, "rust_string_method",
+                                       json_object_new_string("primitive_conversion"));
+                return true;
+            }
             if (strcmp(object_type_kind, "array") == 0)
             {
                 if (!rust_array_method_supported(method))
