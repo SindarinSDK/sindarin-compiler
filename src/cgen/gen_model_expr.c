@@ -578,7 +578,8 @@ static const char *mutation_sync_variable_name(Expr *target)
 static bool mutation_is_checked_integer_ref_parameter(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
-    if (!base || !base->as.variable.is_param_ref ||
+    if (!target || target->type != EXPR_VARIABLE || target != base ||
+        !base->as.variable.is_param_ref ||
         base->as.variable.param_mem_qualifier != MEM_AS_REF ||
         !target->expr_type)
         return false;

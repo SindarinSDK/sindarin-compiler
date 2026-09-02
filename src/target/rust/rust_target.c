@@ -194,6 +194,8 @@ static bool rust_checked_integer_ref_parameter(json_object *mutation,
 {
     json_object *type = NULL;
     return json_string_property_equals(mutation, "mutation_storage", "parameter") &&
+        json_string_property_equals(mutation, "mutation_place", "variable") &&
+        json_string_property_equals(parameter, "kind", "variable") &&
         json_string_property_equals(parameter, "parameter_mem_qual", "as_ref") &&
         json_object_object_get_ex(parameter, "type", &type) &&
         (json_string_property_equals(type, "kind", "int") ||

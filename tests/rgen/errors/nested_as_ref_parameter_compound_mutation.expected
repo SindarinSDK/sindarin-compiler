@@ -1,0 +1,1 @@
+Error: Rust target currently supports numeric compound assignment only between same-type integral operands

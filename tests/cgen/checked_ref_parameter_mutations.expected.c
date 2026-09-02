@@ -224,29 +224,29 @@ int main() {
     long long __sn__long_value = 10LL;
     __sn__RefOps __sn__ops = (__sn__RefOps){  };
     printf("%lld\n", (long long)(__sn__intOps(&__sn__integer)));
-
+    
     printf("%lld\n", (long long)(__sn__integer));
-
+    
     printf("%lld\n", (long long)(__sn__RefOps_longOps(&__sn__long_value)));
-
+    
     printf("%lld\n", (long long)(__sn__long_value));
-
+    
     printf("%lld\n", (long long)(__sn__RefOps_intPostfix(&__sn__ops, &__sn__integer)));
-
+    
     printf("%lld\n", (long long)(__sn__integer));
-
+    
     printf("%lld\n", (long long)(__sn__RefOps_longPostfix(&__sn__ops, &__sn__long_value)));
-
+    
     printf("%lld\n", (long long)(__sn__long_value));
-
+    
     printf("%lld\n", (long long)(__sn__RefOps_intCompound(&__sn__ops, &__sn__integer)));
-
+    
     printf("%lld\n", (long long)(__sn__integer));
-
+    
     printf("%lld\n", (long long)(__sn__RefOps_longCompound(&__sn__ops, &__sn__long_value)));
-
+    
     printf("%lld\n", (long long)(__sn__long_value));
-
+    
     fflush(stdout);
     return 0;
 }
