@@ -1,0 +1,4 @@
+fn main(): void =>
+  var max: int32 = 2147483647i32
+  var one: int32 = 1i32
+  var overflow: int32 = max + one

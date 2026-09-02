@@ -78,11 +78,63 @@ static inline unsigned char sn_add_byte(unsigned char a, unsigned char b) { retu
 static inline unsigned char sn_sub_byte(unsigned char a, unsigned char b) { return (unsigned char)(a - b); }
 static inline unsigned char sn_mul_byte(unsigned char a, unsigned char b) { return (unsigned char)(a * b); }
 
-/* ---- int32 arithmetic (wrapping) ---- */
+/* ---- Checked int32 arithmetic ---- */
 
-static inline int32_t sn_add_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a + (uint32_t)b); }
-static inline int32_t sn_sub_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a - (uint32_t)b); }
-static inline int32_t sn_mul_int32(int32_t a, int32_t b) { return (int32_t)((uint32_t)a * (uint32_t)b); }
+static inline int32_t sn_add_int32(int32_t a, int32_t b)
+{
+    int64_t r = (int64_t)a + (int64_t)b;
+    if (r < INT32_MIN || r > INT32_MAX) {
+        fprintf(stderr, "Runtime error: integer overflow in addition\n");
+        exit(1);
+    }
+    return (int32_t)r;
+}
+
+static inline int32_t sn_sub_int32(int32_t a, int32_t b)
+{
+    int64_t r = (int64_t)a - (int64_t)b;
+    if (r < INT32_MIN || r > INT32_MAX) {
+        fprintf(stderr, "Runtime error: integer overflow in subtraction\n");
+        exit(1);
+    }
+    return (int32_t)r;
+}
+
+static inline int32_t sn_mul_int32(int32_t a, int32_t b)
+{
+    int64_t r = (int64_t)a * (int64_t)b;
+    if (r < INT32_MIN || r > INT32_MAX) {
+        fprintf(stderr, "Runtime error: integer overflow in multiplication\n");
+        exit(1);
+    }
+    return (int32_t)r;
+}
+
+static inline int32_t sn_div_int32(int32_t a, int32_t b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Division by zero\n");
+        exit(1);
+    }
+    if (a == INT32_MIN && b == -1) {
+        fprintf(stderr, "Runtime error: integer overflow in division\n");
+        exit(1);
+    }
+    return a / b;
+}
+
+static inline int32_t sn_mod_int32(int32_t a, int32_t b)
+{
+    if (b == 0) {
+        fprintf(stderr, "panic: Modulo by zero\n");
+        exit(1);
+    }
+    if (a == INT32_MIN && b == -1) {
+        fprintf(stderr, "Runtime error: integer overflow in modulo\n");
+        exit(1);
+    }
+    return a % b;
+}
 
 /* ---- uint arithmetic (wrapping) ---- */
 
