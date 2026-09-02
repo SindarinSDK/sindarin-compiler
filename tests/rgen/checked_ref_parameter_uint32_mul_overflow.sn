@@ -1,0 +1,7 @@
+fn fail(value: uint32 as ref): void =>
+  var two: uint32 = 2u32
+  value *= two
+
+fn main(): void =>
+  var value: uint32 = 2147483648u32
+  fail(value)

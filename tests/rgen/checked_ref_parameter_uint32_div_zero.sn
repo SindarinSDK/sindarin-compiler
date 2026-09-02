@@ -1,0 +1,7 @@
+fn fail(value: uint32 as ref): void =>
+  var zero: uint32 = 0u32
+  value /= zero
+
+fn main(): void =>
+  var value: uint32 = 1u32
+  fail(value)
