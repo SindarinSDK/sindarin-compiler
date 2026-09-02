@@ -2,5 +2,5 @@ fn bump(value: int as ref): void =>
   value += 1
 
 fn main(): void =>
-  var values: int[] = [1]
+  var values: int[] = {1}
   bump(values[0])
