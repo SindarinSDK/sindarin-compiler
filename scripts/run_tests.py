@@ -499,6 +499,24 @@ class TestRunner:
             shutil.rmtree(self.temp_dir, ignore_errors=True)
         _active_runner = None
 
+    @staticmethod
+    def _optimization_args(test_file: str) -> Tuple[Optional[List[str]], Optional[str]]:
+        """Return a fixture's optimizer flags; tests default to -O0 for stable snapshots."""
+        opt_file = os.path.splitext(test_file)[0] + '.opt'
+        if not os.path.isfile(opt_file):
+            return ['-O0'], None
+        try:
+            with open(opt_file, 'r', encoding='ascii') as f:
+                mode = f.read().strip()
+        except OSError as e:
+            return None, f'cannot read .opt sidecar {opt_file}: {e}'
+        if mode == 'default':
+            return [], None
+        if mode in ('-O0', '-O1', '-O2'):
+            return [mode], None
+        return None, (f'invalid .opt sidecar in {opt_file}: expected default, -O0, -O1, '
+                      f'or -O2; got {mode!r}')
+
     def run_unit_tests(self) -> Tuple[bool, float]:
         """Run unit tests. Returns (passed, elapsed_seconds)."""
         print()
@@ -1272,8 +1290,13 @@ class TestRunner:
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected.c', None)
 
+        optimization_args, optimization_error = self._optimization_args(test_file)
+        if optimization_error:
+            return ('fail', 'invalid .opt sidecar', [optimization_error])
+
         # Compile with --emit-c to generate C code
-        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1',
+                       *optimization_args, '--no-install']
         exit_code, stdout, stderr = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
@@ -1332,7 +1355,8 @@ class TestRunner:
         else:
             exe_file = c_file.replace('.c', '')
 
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1',
+                       *optimization_args, '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(
@@ -1388,8 +1412,12 @@ class TestRunner:
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected.rs', None)
 
+        optimization_args, optimization_error = self._optimization_args(test_file)
+        if optimization_error:
+            return ('fail', 'invalid .opt sidecar', [optimization_error])
+
         compile_cmd = [self.compiler, test_file, '--emit-rust', '-o', rs_file,
-                       '-l', '1', '-O0', '--no-install']
+                       '-l', '1', *optimization_args, '--no-install']
         exit_code, stdout, stderr = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
@@ -1415,7 +1443,7 @@ class TestRunner:
             return ('fail', 'Rust code mismatch', details)
 
         compile_cmd = [self.compiler, test_file, '--target', 'rust', '-o', exe_file,
-                       '-l', '1', '-O0', '--no-install']
+                       '-l', '1', *optimization_args, '--no-install']
         # Four parallel rustc processes can exceed the general 60-second compile
         # limit on cold Windows runners even though each compilation succeeds.
         rust_compile_timeout = (max(self.compile_timeout, 120)
@@ -1528,8 +1556,13 @@ class TestRunner:
         if not has_expected and test_type not in ('explore',):
             return ('skip', 'no .expected', None)
 
+        optimization_args, optimization_error = self._optimization_args(test_file)
+        if optimization_error:
+            return ('fail', 'invalid .opt sidecar', [optimization_error])
+
         # Standard compilation (use #pragma source for C helper files)
-        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1', '-O0', '--no-install']
+        compile_cmd = [self.compiler, test_file, '-o', exe_file, '-l', '1',
+                       *optimization_args, '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
         exit_code, stdout, stderr = run_with_timeout(

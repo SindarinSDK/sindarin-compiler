@@ -436,6 +436,8 @@ Module* compiler_compile(CompilerOptions *options)
     {
         Optimizer opt;
         optimizer_init(&opt, &options->arena);
+        optimizer_set_checked_arithmetic(&opt,
+            options->arithmetic_mode == ARITH_CHECKED);
         optimizer_dead_code_elimination(&opt, module);
         optimizer_merge_string_literals(&opt, module);
 

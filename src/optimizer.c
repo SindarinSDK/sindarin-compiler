@@ -8,11 +8,17 @@
 void optimizer_init(Optimizer *opt, Arena *arena)
 {
     opt->arena = arena;
+    opt->checked_arithmetic = true;
     opt->statements_removed = 0;
     opt->variables_removed = 0;
     opt->noops_removed = 0;
     opt->tail_calls_optimized = 0;
     opt->string_literals_merged = 0;
+}
+
+void optimizer_set_checked_arithmetic(Optimizer *opt, bool checked_arithmetic)
+{
+    opt->checked_arithmetic = checked_arithmetic;
 }
 
 void optimizer_get_stats(Optimizer *opt, int *stmts_removed, int *vars_removed, int *noops_removed)
