@@ -1,0 +1,8 @@
+fn fail(value: uint as ref): void =>
+  value++
+
+fn main(): void =>
+  var half: uint = 9223372036854775807u
+  var max_minus_one: uint = half * 2u
+  var max: uint = max_minus_one + 1u
+  fail(max)

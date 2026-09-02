@@ -1,0 +1,89 @@
+struct Box =>
+  value: uint
+
+struct Wrapper =>
+  box: Box
+
+struct RefOps =>
+  static fn staticOps(value: uint as ref): uint =>
+    var add: uint = value += 3u
+    var sub: uint = value -= 1u
+    var mul: uint = value *= 2u
+    var div: uint = value /= 2u
+    var rem: uint = value %= 3u
+    var old_inc: uint = value++
+    var old_dec: uint = value--
+    return add + sub + mul + div + rem + old_inc + old_dec + value
+
+  static fn staticBump(value: uint as ref): void =>
+    value += 1u
+
+  fn instancePostfix(value: uint as ref): uint =>
+    return value--
+
+  fn instanceBump(value: uint as ref): void =>
+    value += 1u
+
+fn oldThenIncrement(value: uint as ref): uint =>
+  return value++
+
+fn freeOps(value: uint as ref): uint =>
+  var add: uint = value += oldThenIncrement(value)
+  var sub: uint = value -= 1u
+  var mul: uint = value *= 2u
+  var div: uint = value /= 2u
+  var rem: uint = value %= 3u
+  var old_inc: uint = value++
+  var old_dec: uint = value--
+  return add + sub + mul + div + rem + old_inc + old_dec + value
+
+fn forwardStatic(value: uint as ref): uint =>
+  RefOps.staticBump(value)
+  return value
+
+fn forwardInstance(value: uint as ref): uint =>
+  var ops: RefOps = {}
+  ops.instanceBump(value)
+  return value
+
+fn maxBoundary(value: uint as ref): uint =>
+  return value += 1u
+
+fn minBoundary(value: uint as ref): uint =>
+  return value -= 1u
+
+fn assignAndRead(value: uint as ref, assigned: uint): uint =>
+  value = assigned
+  return value
+
+fn read(value: uint as ref): uint =>
+  return value
+
+fn freeBump(value: uint as ref): void =>
+  value += 1u
+
+fn main(): void =>
+  var free_value: uint = 2u
+  var static_value: uint = 10u
+  var postfix_value: uint = 5u
+  var forwarded_static: uint = 1u
+  var forwarded_instance: uint = 1u
+  var half: uint = 9223372036854775807u
+  var high: uint = half + 1u
+  var max_minus_one: uint = half * 2u
+  var max: uint = max_minus_one + 1u
+  var maximum: uint = max_minus_one
+  var minimum: uint = 1u
+  var assigned: uint = 42u
+  var direct: Box = { value: 1u }
+  var nested: Wrapper = { box: Box { value: 10u } }
+  var ops: RefOps = {}
+
+  freeBump(direct.value)
+  freeBump(nested.box.value)
+  RefOps.staticBump(direct.value)
+  RefOps.staticBump(nested.box.value)
+  ops.instanceBump(direct.value)
+  ops.instanceBump(nested.box.value)
+
+  println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum) == max} {maximum == max} {minBoundary(minimum)} {assignAndRead(assigned, high) == high} {assigned == high} {read(direct.value)} {direct.value} {nested.box.value}")

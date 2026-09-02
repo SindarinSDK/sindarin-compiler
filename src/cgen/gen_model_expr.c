@@ -580,7 +580,7 @@ static const char *mutation_sync_variable_name(Expr *target)
 }
 
 /* The checked stable-place slice admits direct scalar `as ref` parameters
- * only for the established signed scalar types, byte, and uint32 ABIs.
+ * only for the established signed scalar types, byte, uint32, and uint ABIs.
  * Keep all other parameter, capture, computed-place, and sync cases outside
  * this shared path until their ownership/borrowing contracts are defined. */
 static bool mutation_is_checked_scalar_ref_parameter(Expr *target)
@@ -597,7 +597,8 @@ static bool mutation_is_checked_scalar_ref_parameter(Expr *target)
         target->expr_type->kind == TYPE_LONG ||
         target->expr_type->kind == TYPE_INT32 ||
         target->expr_type->kind == TYPE_BYTE ||
-        target->expr_type->kind == TYPE_UINT32;
+        target->expr_type->kind == TYPE_UINT32 ||
+        target->expr_type->kind == TYPE_UINT;
 }
 
 static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
