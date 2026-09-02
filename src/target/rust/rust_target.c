@@ -1114,6 +1114,25 @@ static bool rust_validate_stmt(json_object *stmt)
     return false;
 }
 
+/* A method needs &mut self only when its mutation place is rooted in self.
+ * Local values (including their fields, indices, and arrays) must not turn an
+ * otherwise read-only instance method into a mutable receiver method. */
+static bool rust_mutation_place_is_self_rooted(json_object *place)
+{
+    if (!json_object_is_type(place, json_type_object)) return false;
+    if (json_string_property_equals(place, "kind", "variable"))
+        return json_string_property_equals(place, "name", "self");
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member") &&
+        json_object_object_get_ex(place, "object", &parent))
+        return rust_mutation_place_is_self_rooted(parent);
+    if (json_string_property_equals(place, "kind", "array_access") &&
+        json_object_object_get_ex(place, "array", &parent))
+        return rust_mutation_place_is_self_rooted(parent);
+    return false;
+}
+
 static bool rust_is_mutating_array_call(json_object *node)
 {
     if (!json_string_property_equals(node, "kind", "call")) return false;
@@ -1187,21 +1206,25 @@ static bool rust_method_has_direct_mutation(json_object *node)
         return false;
     }
     if (!json_object_is_type(node, json_type_object)) return false;
-    if (json_string_property_equals(node, "kind", "member_assign") ||
-        json_string_property_equals(node, "kind", "index_assign") ||
-        json_string_property_equals(node, "kind", "increment") ||
-        json_string_property_equals(node, "kind", "decrement") ||
-        rust_is_mutating_array_call(node)) return true;
-    if (json_string_property_equals(node, "kind", "compound_assign"))
+    json_object *place = NULL;
+    if ((json_string_property_equals(node, "kind", "compound_assign") &&
+         json_object_object_get_ex(node, "target", &place)) ||
+        ((json_string_property_equals(node, "kind", "increment") ||
+          json_string_property_equals(node, "kind", "decrement")) &&
+         json_object_object_get_ex(node, "operand", &place)) ||
+        (json_string_property_equals(node, "kind", "member_assign") &&
+         json_object_object_get_ex(node, "object", &place)) ||
+        (json_string_property_equals(node, "kind", "index_assign") &&
+         json_object_object_get_ex(node, "array", &place)))
     {
-        json_object *target = NULL;
-        if (!json_object_object_get_ex(node, "target", &target)) return false;
-        while (json_string_property_equals(target, "kind", "member"))
-        {
-            if (!json_object_object_get_ex(target, "object", &target)) return false;
-        }
-        if (json_string_property_equals(target, "kind", "variable") &&
-            json_string_property_equals(target, "name", "self")) return true;
+        if (rust_mutation_place_is_self_rooted(place)) return true;
+    }
+    if (rust_is_mutating_array_call(node))
+    {
+        json_object *callee = NULL, *object = NULL;
+        if (json_object_object_get_ex(node, "callee", &callee) &&
+            json_object_object_get_ex(callee, "object", &object) &&
+            rust_mutation_place_is_self_rooted(object)) return true;
     }
     json_object_object_foreach(node, key, value)
     {

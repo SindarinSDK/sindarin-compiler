@@ -13,4 +13,6 @@ fn main() {
     let mut low: i64 = 5;
     println!("{}", increment(&mut (high)));
     println!("{}", decrement(&mut (low)));
+    println!("{}", high);
+    println!("{}", low);
 }

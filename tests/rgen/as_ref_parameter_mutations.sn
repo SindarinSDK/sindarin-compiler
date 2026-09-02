@@ -9,3 +9,5 @@ fn main(): void =>
   var low: int = 5
   println(increment(high))
   println(decrement(low))
+  println(high)
+  println(low)

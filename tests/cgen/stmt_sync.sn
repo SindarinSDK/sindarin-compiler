@@ -3,3 +3,5 @@ fn main(): void =>
   lock (counter) =>
     counter = counter + 1
   assert(counter == 1, "expected counter to be 1 after lock increment")
+  var after_increment: int = counter++
+  var after_decrement: int = counter--
