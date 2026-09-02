@@ -1,0 +1,6 @@
+fn increment(value: uint32 as ref): void =>
+  value = value + 1u32
+
+fn main(): void =>
+  var value: uint32 = 1u32
+  increment(value)

@@ -1,0 +1,6 @@
+fn increment(value: byte as ref): void =>
+  value = value + 1b
+
+fn main(): void =>
+  var value: byte = 1b
+  increment(value)

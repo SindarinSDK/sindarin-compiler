@@ -1,0 +1,8 @@
+fn fail(value: int32 as ref): void =>
+  value--
+
+fn main(): void =>
+  var min_base: int32 = -2147483647i32
+  var one: int32 = 1i32
+  var value: int32 = min_base - one
+  fail(value)

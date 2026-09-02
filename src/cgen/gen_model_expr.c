@@ -580,7 +580,7 @@ static const char *mutation_sync_variable_name(Expr *target)
 }
 
 /* The checked stable-place slice admits direct scalar `as ref` parameters
- * only for the two signed i64 spellings already supported by the Rust ABI.
+ * only for the signed scalar types whose Rust ABI is established here.
  * Keep all other parameter, capture, computed-place, and sync cases outside
  * this shared path until their ownership/borrowing contracts are defined. */
 static bool mutation_is_checked_integer_ref_parameter(Expr *target)
@@ -594,7 +594,8 @@ static bool mutation_is_checked_integer_ref_parameter(Expr *target)
         return false;
 
     return target->expr_type->kind == TYPE_INT ||
-        target->expr_type->kind == TYPE_LONG;
+        target->expr_type->kind == TYPE_LONG ||
+        target->expr_type->kind == TYPE_INT32;
 }
 
 static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
