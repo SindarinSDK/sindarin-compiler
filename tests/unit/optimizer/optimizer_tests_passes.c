@@ -301,6 +301,7 @@ static void test_nested_observable_effects_are_not_removed(void)
     assert(call_count == 1);
 
     Expr *static_call = arena_alloc(&arena, sizeof(Expr));
+    memset(static_call, 0, sizeof(Expr));
     static_call->type = EXPR_STATIC_CALL;
     static_call->expr_type = ast_create_primitive_type(&arena, TYPE_INT);
     static_call->as.static_call.arguments = NULL;
@@ -314,6 +315,7 @@ static void test_nested_observable_effects_are_not_removed(void)
     assert(static_count == 1);
 
     Expr *method_call = arena_alloc(&arena, sizeof(Expr));
+    memset(method_call, 0, sizeof(Expr));
     method_call->type = EXPR_METHOD_CALL;
     method_call->expr_type = ast_create_primitive_type(&arena, TYPE_INT);
     method_call->as.method_call.object = NULL;

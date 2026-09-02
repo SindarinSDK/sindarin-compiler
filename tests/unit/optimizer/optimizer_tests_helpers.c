@@ -5,6 +5,7 @@
 static Expr *create_int_literal(Arena *arena, int64_t value)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_LITERAL;
     expr->as.literal.value.int_value = value;
     expr->as.literal.type = ast_create_primitive_type(arena, TYPE_INT);
@@ -16,6 +17,7 @@ static Expr *create_int_literal(Arena *arena, int64_t value)
 static Expr *create_variable_expr(Arena *arena, const char *name)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_VARIABLE;
     setup_basic_token(&expr->as.variable.name, TOKEN_IDENTIFIER, name);
     expr->expr_type = ast_create_primitive_type(arena, TYPE_INT);
@@ -26,6 +28,7 @@ static Expr *create_variable_expr(Arena *arena, const char *name)
 static Expr *create_binary_expr(Arena *arena, Expr *left, SnTokenType op, Expr *right)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_BINARY;
     expr->as.binary.left = left;
     expr->as.binary.right = right;
@@ -38,6 +41,7 @@ static Expr *create_binary_expr(Arena *arena, Expr *left, SnTokenType op, Expr *
 static Expr *create_unary_expr(Arena *arena, SnTokenType op, Expr *operand)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_UNARY;
     expr->as.unary.operator = op;
     expr->as.unary.operand = operand;
@@ -49,6 +53,7 @@ static Expr *create_unary_expr(Arena *arena, SnTokenType op, Expr *operand)
 static Stmt *create_return_stmt(Arena *arena, Expr *value)
 {
     Stmt *stmt = arena_alloc(arena, sizeof(Stmt));
+    memset(stmt, 0, sizeof(Stmt));
     stmt->type = STMT_RETURN;
     Token tok;
     setup_basic_token(&tok, TOKEN_RETURN, "return");
@@ -61,6 +66,7 @@ static Stmt *create_return_stmt(Arena *arena, Expr *value)
 static Stmt *create_expr_stmt(Arena *arena, Expr *expr)
 {
     Stmt *stmt = arena_alloc(arena, sizeof(Stmt));
+    memset(stmt, 0, sizeof(Stmt));
     stmt->type = STMT_EXPR;
     stmt->as.expression.expression = expr;
     return stmt;
@@ -70,6 +76,7 @@ static Stmt *create_expr_stmt(Arena *arena, Expr *expr)
 static Stmt *create_var_decl(Arena *arena, const char *name, Expr *init)
 {
     Stmt *stmt = arena_alloc(arena, sizeof(Stmt));
+    memset(stmt, 0, sizeof(Stmt));
     stmt->type = STMT_VAR_DECL;
     setup_basic_token(&stmt->as.var_decl.name, TOKEN_IDENTIFIER, name);
     stmt->as.var_decl.type = ast_create_primitive_type(arena, TYPE_INT);
@@ -82,11 +89,13 @@ static Stmt *create_var_decl(Arena *arena, const char *name, Expr *init)
 static Expr *create_call_expr(Arena *arena, const char *func_name, Expr **args, int arg_count)
 {
     Expr *callee = arena_alloc(arena, sizeof(Expr));
+    memset(callee, 0, sizeof(Expr));
     callee->type = EXPR_VARIABLE;
     setup_basic_token(&callee->as.variable.name, TOKEN_IDENTIFIER, func_name);
     callee->expr_type = ast_create_primitive_type(arena, TYPE_INT);
 
     Expr *call = arena_alloc(arena, sizeof(Expr));
+    memset(call, 0, sizeof(Expr));
     call->type = EXPR_CALL;
     call->as.call.callee = callee;
     call->as.call.arguments = args;
@@ -100,10 +109,10 @@ static Expr *create_call_expr(Arena *arena, const char *func_name, Expr **args, 
 static Expr *create_string_literal(Arena *arena, const char *value)
 {
     Expr *expr = arena_alloc(arena, sizeof(Expr));
+    memset(expr, 0, sizeof(Expr));
     expr->type = EXPR_LITERAL;
     expr->as.literal.type = ast_create_primitive_type(arena, TYPE_STRING);
     expr->as.literal.value.string_value = arena_strdup(arena, value);
     expr->expr_type = expr->as.literal.type;
     return expr;
 }
-
