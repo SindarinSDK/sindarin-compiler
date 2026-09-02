@@ -580,10 +580,10 @@ static const char *mutation_sync_variable_name(Expr *target)
 }
 
 /* The checked stable-place slice admits direct scalar `as ref` parameters
- * only for the signed scalar types whose Rust ABI is established here.
+ * only for the established signed scalar types and byte ABI.
  * Keep all other parameter, capture, computed-place, and sync cases outside
  * this shared path until their ownership/borrowing contracts are defined. */
-static bool mutation_is_checked_integer_ref_parameter(Expr *target)
+static bool mutation_is_checked_scalar_ref_parameter(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
     if (!target || target->type != EXPR_VARIABLE || target != base ||
@@ -595,7 +595,8 @@ static bool mutation_is_checked_integer_ref_parameter(Expr *target)
 
     return target->expr_type->kind == TYPE_INT ||
         target->expr_type->kind == TYPE_LONG ||
-        target->expr_type->kind == TYPE_INT32;
+        target->expr_type->kind == TYPE_INT32 ||
+        target->expr_type->kind == TYPE_BYTE;
 }
 
 static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
@@ -609,7 +610,7 @@ static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
         mutation_target_is_sync(target) ||
         strcmp(mutation_place_kind(target), "computed") == 0 ||
         (strcmp(mutation_storage_kind(target), "local") != 0 &&
-         !mutation_is_checked_integer_ref_parameter(target)))
+         !mutation_is_checked_scalar_ref_parameter(target)))
         return "unchecked";
 
     if (require_same_type && (!value || !ast_type_equals(target->expr_type, value->expr_type)))
@@ -1144,7 +1145,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         arithmetic_mode, expr->as.compound_assign.operator,
                         expr->as.compound_assign.target,
                         expr->as.compound_assign.value, true)));
-            if (mutation_is_checked_integer_ref_parameter(expr->as.compound_assign.target))
+            if (mutation_is_checked_scalar_ref_parameter(expr->as.compound_assign.target))
                 json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *ca_target = gen_model_expr(arena, expr->as.compound_assign.target,
                                                      symbol_table, arithmetic_mode);
@@ -3052,7 +3053,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_PLUS, expr->as.operand, NULL, false)));
-            if (mutation_is_checked_integer_ref_parameter(expr->as.operand))
+            if (mutation_is_checked_scalar_ref_parameter(expr->as.operand))
                 json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *inc_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", inc_operand);
@@ -3091,7 +3092,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_MINUS, expr->as.operand, NULL, false)));
-            if (mutation_is_checked_integer_ref_parameter(expr->as.operand))
+            if (mutation_is_checked_scalar_ref_parameter(expr->as.operand))
                 json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *dec_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", dec_operand);

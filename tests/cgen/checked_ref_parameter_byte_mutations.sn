@@ -1,0 +1,80 @@
+struct Box =>
+  value: byte
+
+struct Wrapper =>
+  box: Box
+
+struct RefOps =>
+  static fn staticOps(value: byte as ref): byte =>
+    var add: byte = value += 3b
+    var sub: byte = value -= 1b
+    var mul: byte = value *= 2b
+    var div: byte = value /= 2b
+    var rem: byte = value %= 3b
+    var old_inc: byte = value++
+    var old_dec: byte = value--
+    return add + sub + mul + div + rem + old_inc + old_dec + value
+
+  static fn staticBump(value: byte as ref): void =>
+    value += 1b
+
+  fn instancePostfix(value: byte as ref): byte =>
+    return value--
+
+  fn instanceBump(value: byte as ref): void =>
+    value += 1b
+
+fn oldThenIncrement(value: byte as ref): byte =>
+  return value++
+
+fn freeOps(value: byte as ref): byte =>
+  var add: byte = value += oldThenIncrement(value)
+  var sub: byte = value -= 1b
+  var mul: byte = value *= 2b
+  var div: byte = value /= 2b
+  var rem: byte = value %= 3b
+  var old_inc: byte = value++
+  var old_dec: byte = value--
+  return add + sub + mul + div + rem + old_inc + old_dec + value
+
+fn forwardStatic(value: byte as ref): byte =>
+  RefOps.staticBump(value)
+  return value
+
+fn forwardInstance(value: byte as ref): byte =>
+  var ops: RefOps = {}
+  ops.instanceBump(value)
+  return value
+
+fn maxBoundary(value: byte as ref): byte =>
+  return value += 1b
+
+fn minBoundary(value: byte as ref): byte =>
+  return value -= 1b
+
+fn read(value: byte as ref): byte =>
+  return value
+
+fn freeBump(value: byte as ref): void =>
+  value += 1b
+
+fn main(): void =>
+  var free_value: byte = 2b
+  var static_value: byte = 10b
+  var postfix_value: byte = 5b
+  var forwarded_static: byte = 1b
+  var forwarded_instance: byte = 1b
+  var maximum: byte = 254b
+  var minimum: byte = 1b
+  var direct: Box = { value: 1b }
+  var nested: Wrapper = { box: Box { value: 10b } }
+  var ops: RefOps = {}
+
+  freeBump(direct.value)
+  freeBump(nested.box.value)
+  RefOps.staticBump(direct.value)
+  RefOps.staticBump(nested.box.value)
+  ops.instanceBump(direct.value)
+  ops.instanceBump(nested.box.value)
+
+  println($"{freeOps(free_value)} {free_value} {RefOps.staticOps(static_value)} {static_value} {ops.instancePostfix(postfix_value)} {postfix_value} {forwardStatic(forwarded_static)} {forwarded_static} {forwardInstance(forwarded_instance)} {forwarded_instance} {maxBoundary(maximum)} {minBoundary(minimum)} {read(direct.value)} {direct.value} {nested.box.value}")
