@@ -6,7 +6,7 @@ Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33
 
 ## Baseline — historical audit baseline (build & test results)
 
-> These results are the **historical audit baseline** recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`. They document the audit snapshot, **not the current state**: the current rgen suite has grown from the historical **47** to **78 behavior cases** (**59** successful runs plus **19** expected runtime failures); the checked-int32, checked-byte, and checked-uint32 slices and PR-B string clone/move ownership case bring current integration to **1165**.
+> The historical audit baseline was recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`: unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, and explore-errors **11**. These are the `940d5593` audit-run results, not current-head results. Current head is unit **1622**, cgen **110**, rgen **78** behavior cases (**59** successful runs plus **19** expected runtime failures), rgen-errors **10**, mgen **79**, integration **1165**, integration-errors **58**, explore **224**, and explore-errors **11**.
 
 ## Approved strict checked-int32 contract
 
@@ -30,9 +30,10 @@ Unchecked `uint32` behavior remains the native C operator path. Checked `uint`, 
 
 | Gate | Result |
 |---|---|
-| `make setup` (fresh worktree, run **once** at start) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
-| `make test-rgen` | PASS — **47/47** Rust generation tests green (historical audit baseline; **current** rgen is **78 behavior cases: 59 successful runs + 19 expected runtime failures**). |
-| `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1622**, cgen **107**, rgen **47** (historical; current cgen is **110** and rgen is **78 behavior cases: 59 successful runs + 19 expected runtime failures**), rgen-errors **10**, mgen **79**, integration **1165**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
+| Historical `timeout 180 make setup` (fresh audit worktree) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
+| Historical `timeout 900 python3 scripts/run_tests.py all` at `940d5593` | PASS — unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, explore-errors **11**. |
+| Current `make test-rgen` | PASS — **78/78** Rust behavior cases: **59** successful runs plus **19** expected runtime failures. |
+| Current `make build && make test` (exact, unpiped, unredirected) | PASS — unit **1622**, cgen **110**, rgen **78**, rgen-errors **10**, mgen **79**, integration **1165**, integration-errors **58**, exploratory **224**, exploratory-errors **11**. |
 | host `rustc --version` | `rustc 1.93.1` — verified on **Spark 1** (read-only check) and **Spark 2**. |
 
 ## Methodology (verification)
@@ -68,7 +69,7 @@ Unchecked `uint32` behavior remains the native C operator path. Checked `uint`, 
 | E7 | C-only stmt kinds | `gen_model_stmt.c:94,797,1019,1042`; C partials `stmt/{lock,using,for_each_iter}.hbs` | CONFIRMED — Rust gap |
 | E8 | PR #49 rejection | PR #49 diff → `rust_target.c:1148,1266` + `tests/rgen/errors/*` | CONFIRMED |
 | E9 | PR #54 C-incompatibility | PR #54 body: "Instance-method `as ref` remains rejected because the C backend currently emits incompatible value arguments for pointer parameters." | CONFIRMED (evaluation item) |
-| E10 | rgen coverage | 47 positive (`tests/rgen/*`) + 10 negative (`tests/rgen/errors/*`) at the historical baseline; current rgen has 78 behavior cases (59 successful runs + 19 expected runtime failures) | CONFIRMED |
+| E10 | rgen coverage | Historical `940d5593` audit: 45 positive (`tests/rgen/*`) + 8 negative (`tests/rgen/errors/*`); current head: 78 rgen behavior cases (59 successful runs + 19 expected runtime failures) + 10 rgen-errors | CONFIRMED |
 | E11 | Baseline green | Baseline table above | CONFIRMED |
 | E12 | C-only suites | integration 1165, integration-errors 58, explore 224, explore-errors 11, cgen 110 — all C target; **no `--target rust` integration suite exists** | CONFIRMED |
 | E13 | CI rustc pin | `.github/workflows/ci.yml` installs/selects exact Rust **1.93.1** via `rustup` for every OS matrix job before setup/build/test and records `rustc --version --verbose` | CONFIRMED |
