@@ -1,0 +1,19 @@
+struct Box<T> =>
+  value: T
+
+fn identity<T>(value: T): T =>
+  return value
+
+fn main(): void =>
+  var number: int = identity(42)
+  var original_word: str = "sindarin"
+  var word: str = identity(original_word)
+  var boxed: Box<int> = { value: number }
+  var boxed_copy: Box<int> = boxed
+  boxed_copy.value = 99
+
+  println(number)
+  println(word)
+  println(original_word)
+  println(boxed.value)
+  println(boxed_copy.value)

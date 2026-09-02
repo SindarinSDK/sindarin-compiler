@@ -1,0 +1,531 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/generic_monomorphization_basic.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Box_int",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/generic_monomorphization_basic.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 0,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/generic_monomorphization_basic.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "number",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "identity_int"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 42
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "original_word",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "sindarin"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "word",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "string"
+                },
+                "param_types": [
+                  {
+                    "kind": "string"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "identity_str"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "variable",
+                "name": "original_word"
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "boxed",
+          "type": {
+            "kind": "struct",
+            "name": "Box_int",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Box_int",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Box_int",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "number"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "boxed_copy",
+          "type": {
+            "kind": "struct",
+            "name": "Box_int",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Box_int",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "variable",
+            "name": "boxed"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "member_assign",
+            "object": {
+              "type": {
+                "kind": "struct",
+                "name": "Box_int",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "value",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              },
+              "kind": "variable",
+              "name": "boxed_copy"
+            },
+            "field_name": "value",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 99
+            },
+            "field_cleanup": "none"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "number"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "variable",
+                "name": "word"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "variable",
+                "name": "original_word"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box_int",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "boxed"
+                },
+                "member_name": "value"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box_int",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "boxed_copy"
+                },
+                "member_name": "value"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "identity_int",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/generic_monomorphization_basic.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "identity_str",
+      "return_type": {
+        "kind": "string"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/generic_monomorphization_basic.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "variable",
+            "name": "value"
+          },
+          "source_is_borrow": true
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
