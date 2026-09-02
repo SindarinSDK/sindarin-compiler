@@ -1,0 +1,94 @@
+struct Box =>
+  value: int32
+
+struct Wrapper =>
+  box: Box
+
+struct RefOps =>
+  static fn staticOps(value: int32 as ref): int32 =>
+    var add: int32 = value += 3i32
+    var sub: int32 = value -= 1i32
+    var mul: int32 = value *= 2i32
+    var div: int32 = value /= 2i32
+    var rem: int32 = value %= 3i32
+    var old_inc: int32 = value++
+    var old_dec: int32 = value--
+    return add + sub + mul + div + rem + old_inc + old_dec + value
+
+  static fn staticBump(value: int32 as ref): void =>
+    value += 1i32
+
+  fn instancePostfix(value: int32 as ref): int32 =>
+    return value--
+
+  fn instanceBump(value: int32 as ref): void =>
+    value += 1i32
+
+fn oldThenIncrement(value: int32 as ref): int32 =>
+  return value++
+
+fn freeOps(value: int32 as ref): int32 =>
+  var add: int32 = value += oldThenIncrement(value)
+  var sub: int32 = value -= 1i32
+  var mul: int32 = value *= 2i32
+  var div: int32 = value /= 2i32
+  var rem: int32 = value %= 3i32
+  var old_inc: int32 = value++
+  var old_dec: int32 = value--
+  return add + sub + mul + div + rem + old_inc + old_dec + value
+
+fn forwardStatic(value: int32 as ref): int32 =>
+  RefOps.staticBump(value)
+  return value
+
+fn forwardInstance(value: int32 as ref): int32 =>
+  var ops: RefOps = {}
+  ops.instanceBump(value)
+  return value
+
+fn maxBoundary(value: int32 as ref): int32 =>
+  return value += 1i32
+
+fn minBoundary(value: int32 as ref): int32 =>
+  return value -= 1i32
+
+fn read(value: int32 as ref): int32 =>
+  return value
+
+fn freeBump(value: int32 as ref): void =>
+  value += 1i32
+
+fn main(): void =>
+  var free_value: int32 = 2i32
+  var static_value: int32 = 10i32
+  var postfix_value: int32 = 5i32
+  var forwarded_static: int32 = 1i32
+  var forwarded_instance: int32 = 1i32
+  var maximum: int32 = 2147483646i32
+  var minimum: int32 = -2147483647i32
+  var direct: Box = { value: 1i32 }
+  var nested: Wrapper = { box: Box { value: 10i32 } }
+  var ops: RefOps = {}
+
+  println(freeOps(free_value))
+  println(free_value)
+  println(RefOps.staticOps(static_value))
+  println(static_value)
+  println(ops.instancePostfix(postfix_value))
+  println(postfix_value)
+  println(forwardStatic(forwarded_static))
+  println(forwarded_static)
+  println(forwardInstance(forwarded_instance))
+  println(forwarded_instance)
+  println(maxBoundary(maximum))
+  println(minBoundary(minimum))
+
+  freeBump(direct.value)
+  freeBump(nested.box.value)
+  RefOps.staticBump(direct.value)
+  RefOps.staticBump(nested.box.value)
+  ops.instanceBump(direct.value)
+  ops.instanceBump(nested.box.value)
+  println(read(direct.value))
+  println(direct.value)
+  println(nested.box.value)

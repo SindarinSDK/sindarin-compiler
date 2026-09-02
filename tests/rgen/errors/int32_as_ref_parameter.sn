@@ -1,7 +1,0 @@
-fn increment(value: int32 as ref): void =>
-  value = value + 1
-
-fn main(): void =>
-  var value: int32 = 1
-  increment(value)
-  println(value)

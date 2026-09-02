@@ -189,8 +189,8 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
-static bool rust_checked_integer_ref_parameter(json_object *mutation,
-                                                json_object *parameter)
+static bool rust_checked_scalar_ref_parameter(json_object *mutation,
+                                               json_object *parameter)
 {
     json_object *type = NULL;
     return json_string_property_equals(mutation, "mutation_storage", "parameter") &&
@@ -199,7 +199,8 @@ static bool rust_checked_integer_ref_parameter(json_object *mutation,
         json_string_property_equals(parameter, "parameter_mem_qual", "as_ref") &&
         json_object_object_get_ex(parameter, "type", &type) &&
         (json_string_property_equals(type, "kind", "int") ||
-         json_string_property_equals(type, "kind", "long"));
+         json_string_property_equals(type, "kind", "long") ||
+         json_string_property_equals(type, "kind", "int32"));
 }
 
 static bool rust_validate_structs(json_object *model)
@@ -864,7 +865,7 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment of by-value parameters\n");
             return false;
         }
-        bool checked_ref_parameter = rust_checked_integer_ref_parameter(expr, target);
+        bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
              strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
              strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
@@ -920,7 +921,7 @@ static bool rust_validate_expr(json_object *expr)
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
             return rust_validate_expr(child);
         if (!json_string_property_equals(expr, "mutation_storage", "local") &&
-            !rust_checked_integer_ref_parameter(expr, child))
+            !rust_checked_scalar_ref_parameter(expr, child))
         {
             fprintf(stderr,
                     "Error: Rust target supports checked increment/decrement only for local variables and direct fields\n");
@@ -1383,7 +1384,8 @@ static bool rust_validate_struct_methods(json_object *model)
                         (has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          (json_string_property_equals(param_type, "kind", "int") ||
-                          json_string_property_equals(param_type, "kind", "long"))) ||
+                          json_string_property_equals(param_type, "kind", "long") ||
+                          json_string_property_equals(param_type, "kind", "int32"))) ||
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
@@ -1535,7 +1537,8 @@ static bool rust_validate_model_impl(json_object *model)
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||
                           json_string_property_equals(param_type, "kind", "int") ||
-                          json_string_property_equals(param_type, "kind", "long"))) ||
+                          json_string_property_equals(param_type, "kind", "long") ||
+                          json_string_property_equals(param_type, "kind", "int32"))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
@@ -2173,14 +2176,14 @@ static bool rust_model_uses_string_format_helpers(json_object *node)
     return false;
 }
 
-static void rust_mark_integer_ref_uses(json_object *node, const char *param_name)
+static void rust_mark_scalar_ref_uses(json_object *node, const char *param_name)
 {
     if (!node || !param_name) return;
     if (json_object_is_type(node, json_type_array))
     {
         size_t count = json_object_array_length(node);
         for (size_t i = 0; i < count; i++)
-            rust_mark_integer_ref_uses(json_object_array_get_idx(node, i), param_name);
+            rust_mark_scalar_ref_uses(json_object_array_get_idx(node, i), param_name);
         return;
     }
     if (!json_object_is_type(node, json_type_object)) return;
@@ -2202,11 +2205,11 @@ static void rust_mark_integer_ref_uses(json_object *node, const char *param_name
     json_object_object_foreach(node, key, value)
     {
         (void)key;
-        rust_mark_integer_ref_uses(value, param_name);
+        rust_mark_scalar_ref_uses(value, param_name);
     }
 }
 
-static void rust_lower_integer_ref_parameters(json_object *model)
+static void rust_lower_scalar_ref_parameters(json_object *model)
 {
     json_object *functions = NULL;
     if (json_object_object_get_ex(model, "functions", &functions))
@@ -2227,8 +2230,9 @@ static void rust_lower_integer_ref_parameters(json_object *model)
                 if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                     json_object_object_get_ex(param, "type", &type) &&
                     (json_string_property_equals(type, "kind", "int") ||
-                     json_string_property_equals(type, "kind", "long")))
-                    rust_mark_integer_ref_uses(body, name);
+                     json_string_property_equals(type, "kind", "long") ||
+                     json_string_property_equals(type, "kind", "int32")))
+                    rust_mark_scalar_ref_uses(body, name);
             }
         }
     }
@@ -2257,8 +2261,9 @@ static void rust_lower_integer_ref_parameters(json_object *model)
                 if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                     json_object_object_get_ex(param, "type", &type) &&
                     (json_string_property_equals(type, "kind", "int") ||
-                     json_string_property_equals(type, "kind", "long")))
-                    rust_mark_integer_ref_uses(body, name);
+                     json_string_property_equals(type, "kind", "long") ||
+                     json_string_property_equals(type, "kind", "int32")))
+                    rust_mark_scalar_ref_uses(body, name);
             }
         }
     }
@@ -2284,7 +2289,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_instance_method_clones(model);
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
-    rust_lower_integer_ref_parameters(model);
+    rust_lower_scalar_ref_parameters(model);
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))

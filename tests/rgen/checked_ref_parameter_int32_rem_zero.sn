@@ -1,0 +1,7 @@
+fn fail(value: int32 as ref): void =>
+  var zero: int32 = 0i32
+  value %= zero
+
+fn main(): void =>
+  var value: int32 = 1i32
+  fail(value)
