@@ -1,0 +1,7 @@
+struct RefOps =>
+  fn bump(value: int as ref): void =>
+    value += 1
+
+fn main(): void =>
+  var ops: RefOps = {}
+  ops.bump(1 + 2)

@@ -1,0 +1,9 @@
+fn incrementCaptured(value: int as ref): void =>
+  var increment: fn(): void = fn(): void =>
+    value += 1
+  increment()
+
+fn main(): void =>
+  var value: int = 9223372036854775807
+  incrementCaptured(value)
+  println(value)

@@ -1,0 +1,318 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/captured_ref_parameter_mutation.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "incrementCaptured",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/captured_ref_parameter_mutation.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "increment",
+          "type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "void"
+            },
+            "param_types": [],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "closure",
+          "initializer": {
+            "type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "void"
+              },
+              "param_types": [],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            },
+            "kind": "lambda",
+            "lambda_id": 0,
+            "return_type": {
+              "kind": "void"
+            },
+            "modifier": "default",
+            "is_native": false,
+            "params": [],
+            "captures": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "is_primitive": true,
+                "is_ref": true,
+                "cap_action": "assign",
+                "cap_cleanup": "none"
+              }
+            ],
+            "has_captures": true,
+            "has_struct_copy_captures": false,
+            "has_capture_cleanup": false,
+            "has_ref_captures": true,
+            "body_stmts": [
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "parameter",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "unchecked",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value",
+                    "is_captured": true,
+                    "is_parameter": true,
+                    "parameter_mem_qual": "as_ref"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          },
+          "closure_lambda_id": 0
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "increment"
+            },
+            "args": [],
+            "is_tail_call": false,
+            "is_closure_call": true,
+            "is_fn_field_call": false
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/captured_ref_parameter_mutation.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 9223372036854775807
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "incrementCaptured"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "value",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "value"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [
+    {
+      "lambda_id": 0,
+      "source_file": "tests\/mgen\/captured_ref_parameter_mutation.sn",
+      "return_type": {
+        "kind": "void"
+      },
+      "params": [],
+      "captures": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "is_primitive": true,
+          "is_ref": true,
+          "cap_action": "assign",
+          "cap_cleanup": "none"
+        }
+      ],
+      "has_captures": true,
+      "has_struct_copy_captures": false,
+      "has_capture_cleanup": false,
+      "has_ref_captures": true,
+      "body_stmts": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "unchecked",
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "threads": [],
+  "fn_wrappers": []
+}

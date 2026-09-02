@@ -554,6 +554,14 @@ static const char *mutation_storage_kind(Expr *target)
     return "local";
 }
 
+static bool mutation_base_is_captured(Expr *base)
+{
+    if (!base) return false;
+    for (int i = 0; i < g_captured_var_count; i++)
+        if (mutation_variable_name_equals(base, g_captured_vars[i])) return true;
+    return false;
+}
+
 /* Function-local declaration scopes have been popped by model generation.
  * The type checker therefore carries the declaration symbol's sync modifier
  * on each resolved variable expression; never rediscover it from the live
@@ -579,6 +587,7 @@ static bool mutation_is_checked_integer_ref_parameter(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
     if (!target || target->type != EXPR_VARIABLE || target != base ||
+        mutation_base_is_captured(base) ||
         !base->as.variable.is_param_ref ||
         base->as.variable.param_mem_qualifier != MEM_AS_REF ||
         !target->expr_type)

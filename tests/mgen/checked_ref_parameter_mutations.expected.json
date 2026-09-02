@@ -1396,6 +1396,9 @@
                         "kind": "int"
                       }
                     ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
                     "is_variadic": false,
                     "is_native": false,
                     "has_arena_param": false
@@ -1477,6 +1480,9 @@
                       {
                         "kind": "long"
                       }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
                     ],
                     "is_variadic": false,
                     "is_native": false,
@@ -1560,6 +1566,9 @@
                         "kind": "int"
                       }
                     ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
                     "is_variadic": false,
                     "is_native": false,
                     "has_arena_param": false
@@ -1641,6 +1650,9 @@
                       {
                         "kind": "long"
                       }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
                     ],
                     "is_variadic": false,
                     "is_native": false,

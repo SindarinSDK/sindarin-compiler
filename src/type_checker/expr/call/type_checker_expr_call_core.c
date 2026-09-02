@@ -45,6 +45,29 @@ bool token_equals(Token tok, const char *str)
     return tok.length == (int)len && strncmp(tok.start, str, len) == 0;
 }
 
+/* Scalar `as ref` calls pass the address of a stable caller-owned place.
+ * A field is valid only when its receiver is rooted in a variable; accepting
+ * a field on a call result would make C take the address of a temporary. */
+static bool as_ref_argument_is_mutable_place(Expr *arg_expr)
+{
+    if (!arg_expr) return false;
+    if (arg_expr->type == EXPR_VARIABLE) return true;
+    if (arg_expr->type != EXPR_MEMBER_ACCESS) return false;
+
+    Expr *base = arg_expr;
+    while (base->type == EXPR_MEMBER_ACCESS)
+        base = base->as.member_access.object;
+    return base && base->type == EXPR_VARIABLE;
+}
+
+static bool validate_as_ref_argument_place(Expr *arg_expr)
+{
+    if (as_ref_argument_is_mutable_place(arg_expr)) return true;
+    type_error(arg_expr->token,
+        "'as ref' parameter requires a variable or field, not a literal or expression");
+    return false;
+}
+
 /* ============================================================================
  * Call Expression Type Checking
  * ============================================================================ */
@@ -511,12 +534,8 @@ Type *type_check_call_expression(Expr *expr, SymbolTable *table)
         MemoryQualifier *param_quals = callee_type->as.function.param_mem_quals;
         if (param_quals != NULL && param_quals[i] == MEM_AS_REF)
         {
-            if (arg_expr->type != EXPR_VARIABLE && arg_expr->type != EXPR_MEMBER_ACCESS)
-            {
-                type_error(arg_expr->token,
-                    "'as ref' parameter requires a variable or field, not a literal or expression");
+            if (!validate_as_ref_argument_place(arg_expr))
                 return NULL;
-            }
         }
     }
 
@@ -676,6 +695,9 @@ Type *type_check_static_method_call(Expr *expr, SymbolTable *table)
                             type_error(&method_name, msg);
                             return NULL;
                         }
+                        if (method->params[j].mem_qualifier == MEM_AS_REF &&
+                            !validate_as_ref_argument_place(call->arguments[j]))
+                            return NULL;
                     }
 
                     /* Store resolved method for code generation */

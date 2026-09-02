@@ -1,0 +1,6 @@
+struct RefOps =>
+  static fn bump(value: int as ref): void =>
+    value += 1
+
+fn main(): void =>
+  RefOps.bump(1)

@@ -1,0 +1,12 @@
+struct Box =>
+  value: int
+
+struct RefOps =>
+  static fn bump(value: int as ref): void =>
+    value += 1
+
+fn makeBox(): Box =>
+  return Box { value: 1 }
+
+fn main(): void =>
+  RefOps.bump(makeBox().value)
