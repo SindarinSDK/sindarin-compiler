@@ -1,0 +1,69 @@
+// Checked mutation lowering: stable locals and direct fields only.
+struct Counters =>
+  i: int = 10
+  l: long = 10l
+  i32: int32 = 10i32
+  u: uint = 10u
+  u32: uint32 = 10u32
+  b: byte = 10b
+
+fn main(): void =>
+  var one_i: int = 1
+  var i: int = 10
+  var add_i: int = i += one_i
+  var sub_i: int = i -= one_i
+  var mul_i: int = i *= one_i
+  var div_i: int = i /= one_i
+  var mod_i: int = i %= one_i
+  var old_i: int = i++
+  var dec_i: int = i--
+
+  var l: long = 10l
+  var one_l: long = 1l
+  var add_l: long = l += one_l
+  var inc_l: long = l++
+  var dec_l: long = l--
+  var i32: int32 = 10i32
+  var one_i32: int32 = 1i32
+  var add_i32: int32 = i32 += one_i32
+  var inc_i32: int32 = i32++
+  var dec_i32: int32 = i32--
+  var u: uint = 10u
+  var one_u: uint = 1u
+  var add_u: uint = u += one_u
+  var inc_u: uint = u++
+  var dec_u: uint = u--
+  var u32: uint32 = 10u32
+  var one_u32: uint32 = 1u32
+  var add_u32: uint32 = u32 += one_u32
+  var inc_u32: uint32 = u32++
+  var dec_u32: uint32 = u32--
+  var b: byte = 10b
+  var one_b: byte = 1b
+  var add_b: byte = b += one_b
+  var inc_b: byte = b++
+  var dec_b: byte = b--
+
+  var fields: Counters = {}
+  var add_field_i: int = fields.i += one_i
+  var sub_field_i: int = fields.i -= one_i
+  var mul_field_i: int = fields.i *= one_i
+  var div_field_i: int = fields.i /= one_i
+  var mod_field_i: int = fields.i %= one_i
+  var old_field_i: int = fields.i++
+  var dec_field_i: int = fields.i--
+  var add_field_l: long = fields.l += one_l
+  var inc_field_l: long = fields.l++
+  var dec_field_l: long = fields.l--
+  var add_field_i32: int32 = fields.i32 += one_i32
+  var inc_field_i32: int32 = fields.i32++
+  var dec_field_i32: int32 = fields.i32--
+  var add_field_u: uint = fields.u += one_u
+  var inc_field_u: uint = fields.u++
+  var dec_field_u: uint = fields.u--
+  var add_field_u32: uint32 = fields.u32 += one_u32
+  var inc_field_u32: uint32 = fields.u32++
+  var dec_field_u32: uint32 = fields.u32--
+  var add_field_b: byte = fields.b += one_b
+  var inc_field_b: byte = fields.b++
+  var dec_field_b: byte = fields.b--

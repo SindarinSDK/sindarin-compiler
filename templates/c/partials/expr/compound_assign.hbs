@@ -8,4 +8,9 @@
     {{> expr target}} = sn_str_concat({{> expr target}}, {{> expr value}});
     free(__old__);
 {{/if}}    {{> expr target}};
-}){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}
+}){{else}}{{#if (eq mutation_arithmetic_mode "checked")}}({
+    {{c_type type}} *__sn_place__ = &({{> expr target}});
+    {{c_type type}} __sn_rhs__ = {{> expr value}};
+    *__sn_place__ = {{#if (eq mutation_op "add")}}sn_add_{{type_suffix type}}(*__sn_place__, __sn_rhs__){{else}}{{#if (eq mutation_op "subtract")}}sn_sub_{{type_suffix type}}(*__sn_place__, __sn_rhs__){{else}}{{#if (eq mutation_op "multiply")}}sn_mul_{{type_suffix type}}(*__sn_place__, __sn_rhs__){{else}}{{#if (eq mutation_op "divide")}}sn_div_{{type_suffix type}}(*__sn_place__, __sn_rhs__){{else}}sn_mod_{{type_suffix type}}(*__sn_place__, __sn_rhs__){{/if}}{{/if}}{{/if}}{{/if}};
+    *__sn_place__;
+}){{else}}{{> expr target}} = {{> expr target}} {{op_symbol op}} {{> expr value}}{{/if}}{{/if}}

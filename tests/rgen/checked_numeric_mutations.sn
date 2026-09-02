@@ -1,0 +1,71 @@
+struct Numbers =>
+  i: int = 10
+  l: long = 10l
+  i32: int32 = 10i32
+  u: uint = 10u
+  u32: uint32 = 10u32
+  b: byte = 10b
+
+fn main(): void =>
+  var i: int = 10
+  var one: int = 1
+  var two: int = 2
+  var three: int = 3
+  i += two
+  i -= one
+  i *= two
+  i /= two
+  i %= three
+  var i_before: int = i++
+  i--
+
+  var fields: Numbers = {}
+  fields.i += two
+  fields.i -= one
+  fields.i *= two
+  fields.i /= two
+  fields.i %= three
+  var field_i_before: int = fields.i++
+  fields.i--
+
+  var l: long = 1l
+  l += 1l
+  var l_before: long = l++
+  l--
+  fields.l += 1l
+  var field_l_before: long = fields.l++
+  fields.l--
+
+  var i32: int32 = 1i32
+  i32 += 1i32
+  var i32_before: int32 = i32++
+  i32--
+  fields.i32 += 1i32
+  var field_i32_before: int32 = fields.i32++
+  fields.i32--
+
+  var u: uint = 1u
+  u += 1u
+  var u_before: uint = u++
+  u--
+  fields.u += 1u
+  var field_u_before: uint = fields.u++
+  fields.u--
+
+  var u32: uint32 = 1u32
+  u32 += 1u32
+  var u32_before: uint32 = u32++
+  u32--
+  fields.u32 += 1u32
+  var field_u32_before: uint32 = fields.u32++
+  fields.u32--
+
+  var b: byte = 1b
+  b += 1b
+  var b_before: byte = b++
+  b--
+  fields.b += 1b
+  var field_b_before: byte = fields.b++
+  fields.b--
+
+  println($"i={i_before}:{i} field={field_i_before}:{fields.i}; other={l_before}:{l}:{field_l_before}:{fields.l} {i32_before}:{i32}:{field_i32_before}:{fields.i32} {u_before}:{u}:{field_u_before}:{fields.u} {u32_before}:{u32}:{field_u32_before}:{fields.u32} {b_before}:{b}:{field_b_before}:{fields.b}")

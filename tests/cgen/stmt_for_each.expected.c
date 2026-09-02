@@ -33,7 +33,12 @@ int main() {
         for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
             long long __sn__item = ((long long *)__arr_0__->data)[__idx_0__];
             {
-                __sn__sum = __sn__sum + __sn__item;
+                ({
+                    long long *__sn_place__ = &(__sn__sum);
+                    long long __sn_rhs__ = __sn__item;
+                    *__sn_place__ = sn_add_long(*__sn_place__, __sn_rhs__);
+                    *__sn_place__;
+                });
                 
             }
         }

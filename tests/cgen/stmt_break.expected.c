@@ -16,7 +16,12 @@ typedef struct __Closure__ {
 int main() {
     long long __sn__x = 0LL;
     while (true) {
-        __sn__x++;
+        ({
+            long long *__sn_place__ = &(__sn__x);
+            long long __sn_previous__ = *__sn_place__;
+            *__sn_place__ = sn_add_long(__sn_previous__, 1);
+            __sn_previous__;
+        });
         
         if ((__sn__x == 5LL)) {
             break;
