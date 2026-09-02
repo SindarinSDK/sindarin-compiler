@@ -533,6 +533,13 @@ static bool mutation_variable_name_equals(Expr *variable, const char *name)
            strncmp(variable->as.variable.name.start, name, length) == 0;
 }
 
+static bool json_model_boolean_property(json_object *object, const char *key)
+{
+    json_object *value = NULL;
+    return object && json_object_object_get_ex(object, key, &value) &&
+           json_object_get_boolean(value);
+}
+
 static const char *mutation_storage_kind(Expr *target)
 {
     Expr *base = mutation_base_variable(target);
@@ -547,6 +554,23 @@ static const char *mutation_storage_kind(Expr *target)
     return "local";
 }
 
+/* Function-local declaration scopes have been popped by model generation.
+ * The type checker therefore carries the declaration symbol's sync modifier
+ * on each resolved variable expression; never rediscover it from the live
+ * model-generation symbol table. */
+static bool mutation_target_is_sync(Expr *target)
+{
+    Expr *base = mutation_base_variable(target);
+    return base && base->as.variable.sync_modifier == SYNC_ATOMIC;
+}
+
+static const char *mutation_sync_variable_name(Expr *target)
+{
+    Expr *base = mutation_base_variable(target);
+    if (!base || !mutation_target_is_sync(target)) return NULL;
+    return base->as.variable.name.start;
+}
+
 static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
                                              SnTokenType op, Expr *target, Expr *value,
                                              bool require_same_type)
@@ -555,6 +579,7 @@ static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
         (op != TOKEN_PLUS && op != TOKEN_MINUS && op != TOKEN_STAR &&
          op != TOKEN_SLASH && op != TOKEN_MODULO) ||
         !checked_mutation_integral_type(target->expr_type) ||
+        mutation_target_is_sync(target) ||
         strcmp(mutation_place_kind(target), "computed") == 0 ||
         strcmp(mutation_storage_kind(target), "local") != 0)
         return "unchecked";
@@ -562,16 +587,6 @@ static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
     if (require_same_type && (!value || !ast_type_equals(target->expr_type, value->expr_type)))
         return "unchecked";
     return "checked";
-}
-
-static bool mutation_target_is_sync(SymbolTable *symbol_table, Expr *target)
-{
-    Expr *base = target;
-    while (base && (base->type == EXPR_MEMBER || base->type == EXPR_MEMBER_ACCESS))
-        base = base->type == EXPR_MEMBER ? base->as.member.object : base->as.member_access.object;
-    if (!symbol_table || !base || base->type != EXPR_VARIABLE) return false;
-    Symbol *symbol = symbol_table_lookup_symbol(symbol_table, base->as.variable.name);
-    return symbol && symbol->sync_mod == SYNC_ATOMIC;
 }
 
 static const char *unary_op_str(SnTokenType op)
@@ -1090,10 +1105,13 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_place_kind(expr->as.compound_assign.target)));
             json_object_object_add(obj, "mutation_storage",
                 json_object_new_string(mutation_storage_kind(expr->as.compound_assign.target)));
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(
-                mutation_target_is_sync(symbol_table, expr->as.compound_assign.target)));
+            bool mutation_sync = mutation_target_is_sync(expr->as.compound_assign.target);
+            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
+            if (mutation_sync)
+                json_object_object_add(obj, "sync_var_name", json_object_new_string(
+                    mutation_sync_variable_name(expr->as.compound_assign.target)));
             json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_target_is_sync(symbol_table, expr->as.compound_assign.target)
+                json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, expr->as.compound_assign.operator,
                         expr->as.compound_assign.target,
@@ -1101,8 +1119,17 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
             json_object *ca_target = gen_model_expr(arena, expr->as.compound_assign.target,
                                                      symbol_table, arithmetic_mode);
             json_object_object_add(obj, "target", ca_target);
+            Expr *ca_base = mutation_base_variable(expr->as.compound_assign.target);
+            if (ca_base && ca_base->as.variable.is_param_ref)
+            {
+                json_object_object_add(ca_target, "is_parameter", json_object_new_boolean(true));
+                json_object_object_add(ca_target, "parameter_mem_qual",
+                    json_object_new_string(gen_model_mem_qual_str(
+                        ca_base->as.variable.param_mem_qualifier)));
+            }
             json_object *captured_obj = NULL;
-            if (json_object_object_get_ex(ca_target, "is_captured", &captured_obj) &&
+            if (!json_model_boolean_property(ca_target, "is_parameter") &&
+                json_object_object_get_ex(ca_target, "is_captured", &captured_obj) &&
                 json_object_get_boolean(captured_obj)) {
                 json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
                 json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
@@ -2961,31 +2988,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_place_kind(expr->as.operand)));
             json_object_object_add(obj, "mutation_storage",
                 json_object_new_string(mutation_storage_kind(expr->as.operand)));
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(
-                mutation_target_is_sync(symbol_table, expr->as.operand)));
+            bool mutation_sync = mutation_target_is_sync(expr->as.operand);
+            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
+            if (mutation_sync)
+                json_object_object_add(obj, "sync_var_name", json_object_new_string(
+                    mutation_sync_variable_name(expr->as.operand)));
             json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_target_is_sync(symbol_table, expr->as.operand)
+                json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_PLUS, expr->as.operand, NULL, false)));
             json_object *inc_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", inc_operand);
+            Expr *inc_base = mutation_base_variable(expr->as.operand);
+            if (inc_base && inc_base->as.variable.is_param_ref)
+            {
+                json_object_object_add(inc_operand, "is_parameter", json_object_new_boolean(true));
+                json_object_object_add(inc_operand, "parameter_mem_qual",
+                    json_object_new_string(gen_model_mem_qual_str(
+                        inc_base->as.variable.param_mem_qualifier)));
+            }
             json_object *captured_obj = NULL;
-            if (json_object_object_get_ex(inc_operand, "is_captured", &captured_obj) &&
+            if (!json_model_boolean_property(inc_operand, "is_parameter") &&
+                json_object_object_get_ex(inc_operand, "is_captured", &captured_obj) &&
                 json_object_get_boolean(captured_obj)) {
                 json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
                 json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
-            }
-            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
-            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
-                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
-                if (sym && sym->sync_mod == SYNC_ATOMIC) {
-                    int nlen = expr->as.operand->as.variable.name.length;
-                    char vname[256];
-                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
-                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
-                    vname[nlen] = '\0';
-                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
-                }
             }
             break;
         }
@@ -2998,31 +3025,31 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_place_kind(expr->as.operand)));
             json_object_object_add(obj, "mutation_storage",
                 json_object_new_string(mutation_storage_kind(expr->as.operand)));
-            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(
-                mutation_target_is_sync(symbol_table, expr->as.operand)));
+            bool mutation_sync = mutation_target_is_sync(expr->as.operand);
+            json_object_object_add(obj, "mutation_sync", json_object_new_boolean(mutation_sync));
+            if (mutation_sync)
+                json_object_object_add(obj, "sync_var_name", json_object_new_string(
+                    mutation_sync_variable_name(expr->as.operand)));
             json_object_object_add(obj, "mutation_arithmetic_mode",
-                json_object_new_string(mutation_target_is_sync(symbol_table, expr->as.operand)
+                json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_MINUS, expr->as.operand, NULL, false)));
             json_object *dec_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", dec_operand);
+            Expr *dec_base = mutation_base_variable(expr->as.operand);
+            if (dec_base && dec_base->as.variable.is_param_ref)
+            {
+                json_object_object_add(dec_operand, "is_parameter", json_object_new_boolean(true));
+                json_object_object_add(dec_operand, "parameter_mem_qual",
+                    json_object_new_string(gen_model_mem_qual_str(
+                        dec_base->as.variable.param_mem_qualifier)));
+            }
             json_object *captured_obj = NULL;
-            if (json_object_object_get_ex(dec_operand, "is_captured", &captured_obj) &&
+            if (!json_model_boolean_property(dec_operand, "is_parameter") &&
+                json_object_object_get_ex(dec_operand, "is_captured", &captured_obj) &&
                 json_object_get_boolean(captured_obj)) {
                 json_object_object_add(obj, "mutation_storage", json_object_new_string("captured"));
                 json_object_object_add(obj, "mutation_arithmetic_mode", json_object_new_string("unchecked"));
-            }
-            /* Sync variable: emit mutex name so template can wrap in lock/unlock */
-            if (expr->as.operand->type == EXPR_VARIABLE && symbol_table) {
-                Symbol *sym = symbol_table_lookup_symbol(symbol_table, expr->as.operand->as.variable.name);
-                if (sym && sym->sync_mod == SYNC_ATOMIC) {
-                    int nlen = expr->as.operand->as.variable.name.length;
-                    char vname[256];
-                    if (nlen >= (int)sizeof(vname)) nlen = (int)sizeof(vname) - 1;
-                    strncpy(vname, expr->as.operand->as.variable.name.start, nlen);
-                    vname[nlen] = '\0';
-                    json_object_object_add(obj, "sync_var_name", json_object_new_string(vname));
-                }
             }
             break;
         }

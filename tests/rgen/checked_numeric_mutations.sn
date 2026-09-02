@@ -1,71 +1,145 @@
 struct Numbers =>
-  i: int = 10
-  l: long = 10l
-  i32: int32 = 10i32
-  u: uint = 10u
-  u32: uint32 = 10u32
-  b: byte = 10b
+  i: int = 20
+  l: long = 20l
+  i32: int32 = 20i32
+  u: uint = 20u
+  u32: uint32 = 20u32
+  b: byte = 20b
 
 fn main(): void =>
-  var i: int = 10
-  var one: int = 1
-  var two: int = 2
-  var three: int = 3
-  i += two
-  i -= one
-  i *= two
-  i /= two
-  i %= three
-  var i_before: int = i++
-  i--
+  var i: int = 20
+  var i_add: int = 4
+  var i_sub: int = 2
+  var i_mul: int = 2
+  var i_div: int = 2
+  var i_mod: int = 5
+
+  var l: long = 20l
+  var l_add: long = 4l
+  var l_sub: long = 2l
+  var l_mul: long = 2l
+  var l_div: long = 2l
+  var l_mod: long = 5l
+
+  var i32: int32 = 20i32
+  var i32_add: int32 = 4i32
+  var i32_sub: int32 = 2i32
+  var i32_mul: int32 = 2i32
+  var i32_div: int32 = 2i32
+  var i32_mod: int32 = 5i32
+
+  var u: uint = 20u
+  var u_add: uint = 4u
+  var u_sub: uint = 2u
+  var u_mul: uint = 2u
+  var u_div: uint = 2u
+  var u_mod: uint = 5u
+
+  var u32: uint32 = 20u32
+  var u32_add: uint32 = 4u32
+  var u32_sub: uint32 = 2u32
+  var u32_mul: uint32 = 2u32
+  var u32_div: uint32 = 2u32
+  var u32_mod: uint32 = 5u32
+
+  var b: byte = 20b
+  var b_add: byte = 4b
+  var b_sub: byte = 2b
+  var b_mul: byte = 2b
+  var b_div: byte = 2b
+  var b_mod: byte = 5b
 
   var fields: Numbers = {}
-  fields.i += two
-  fields.i -= one
-  fields.i *= two
-  fields.i /= two
-  fields.i %= three
+
+  i += i_add
+  i -= i_sub
+  i *= i_mul
+  i /= i_div
+  i %= i_mod
+  fields.i += i_add
+  fields.i -= i_sub
+  fields.i *= i_mul
+  fields.i /= i_div
+  fields.i %= i_mod
+
+  l += l_add
+  l -= l_sub
+  l *= l_mul
+  l /= l_div
+  l %= l_mod
+  fields.l += l_add
+  fields.l -= l_sub
+  fields.l *= l_mul
+  fields.l /= l_div
+  fields.l %= l_mod
+
+  i32 += i32_add
+  i32 -= i32_sub
+  i32 *= i32_mul
+  i32 /= i32_div
+  i32 %= i32_mod
+  fields.i32 += i32_add
+  fields.i32 -= i32_sub
+  fields.i32 *= i32_mul
+  fields.i32 /= i32_div
+  fields.i32 %= i32_mod
+
+  u += u_add
+  u -= u_sub
+  u *= u_mul
+  u /= u_div
+  u %= u_mod
+  fields.u += u_add
+  fields.u -= u_sub
+  fields.u *= u_mul
+  fields.u /= u_div
+  fields.u %= u_mod
+
+  u32 += u32_add
+  u32 -= u32_sub
+  u32 *= u32_mul
+  u32 /= u32_div
+  u32 %= u32_mod
+  fields.u32 += u32_add
+  fields.u32 -= u32_sub
+  fields.u32 *= u32_mul
+  fields.u32 /= u32_div
+  fields.u32 %= u32_mod
+
+  b += b_add
+  b -= b_sub
+  b *= b_mul
+  b /= b_div
+  b %= b_mod
+  fields.b += b_add
+  fields.b -= b_sub
+  fields.b *= b_mul
+  fields.b /= b_div
+  fields.b %= b_mod
+
+  var i_before: int = i++
+  i--
   var field_i_before: int = fields.i++
   fields.i--
-
-  var l: long = 1l
-  l += 1l
   var l_before: long = l++
   l--
-  fields.l += 1l
   var field_l_before: long = fields.l++
   fields.l--
-
-  var i32: int32 = 1i32
-  i32 += 1i32
   var i32_before: int32 = i32++
   i32--
-  fields.i32 += 1i32
   var field_i32_before: int32 = fields.i32++
   fields.i32--
-
-  var u: uint = 1u
-  u += 1u
   var u_before: uint = u++
   u--
-  fields.u += 1u
   var field_u_before: uint = fields.u++
   fields.u--
-
-  var u32: uint32 = 1u32
-  u32 += 1u32
   var u32_before: uint32 = u32++
   u32--
-  fields.u32 += 1u32
   var field_u32_before: uint32 = fields.u32++
   fields.u32--
-
-  var b: byte = 1b
-  b += 1b
   var b_before: byte = b++
   b--
-  fields.b += 1b
   var field_b_before: byte = fields.b++
   fields.b--
 
-  println($"i={i_before}:{i} field={field_i_before}:{fields.i}; other={l_before}:{l}:{field_l_before}:{fields.l} {i32_before}:{i32}:{field_i32_before}:{fields.i32} {u_before}:{u}:{field_u_before}:{fields.u} {u32_before}:{u32}:{field_u32_before}:{fields.u32} {b_before}:{b}:{field_b_before}:{fields.b}")
+  println($"{i_before}:{i}:{field_i_before}:{fields.i} {l_before}:{l}:{field_l_before}:{fields.l} {i32_before}:{i32}:{field_i32_before}:{fields.i32} {u_before}:{u}:{field_u_before}:{fields.u} {u32_before}:{u32}:{field_u32_before}:{fields.u32} {b_before}:{b}:{field_b_before}:{fields.b}")

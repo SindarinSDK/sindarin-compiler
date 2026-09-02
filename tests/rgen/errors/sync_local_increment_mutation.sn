@@ -1,0 +1,3 @@
+fn main(): void =>
+  sync var counter: int = 1
+  counter++

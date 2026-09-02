@@ -822,6 +822,12 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (strcmp(target_kind, "string") == 0)
         {
+            if (json_boolean_property(expr, "mutation_sync"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support compound assignment for sync variables\n");
+                return false;
+            }
             if (strcmp(value_kind, "string") != 0 ||
                 !json_string_property_equals(expr, "op", "add") ||
                 !json_string_property_equals(target, "kind", "variable"))
@@ -832,12 +838,17 @@ static bool rust_validate_expr(json_object *expr)
             }
             return rust_validate_expr(target) && rust_validate_expr(value);
         }
+        if (json_boolean_property(expr, "mutation_sync"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support compound assignment for sync variables\n");
+            return false;
+        }
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
              strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
              strcmp(target_kind, "uint32") != 0 && strcmp(target_kind, "byte") != 0) ||
             strcmp(target_kind, value_kind) != 0 ||
             !json_string_property_equals(expr, "mutation_arithmetic_mode", "checked") ||
-            json_boolean_property(expr, "mutation_sync") ||
             !json_string_property_equals(expr, "mutation_storage", "local"))
         {
             fprintf(stderr,
@@ -869,10 +880,24 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target supports increment/decrement only for variables and fields\n");
             return false;
         }
+        if (json_string_property_equals(expr, "mutation_storage", "parameter"))
+        {
+            if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support increment/decrement of by-value parameters\n");
+                return false;
+            }
+        }
+        if (json_boolean_property(expr, "mutation_sync"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support increment/decrement of sync variables\n");
+            return false;
+        }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
             return rust_validate_expr(child);
-        if (json_boolean_property(expr, "mutation_sync") ||
-            !json_string_property_equals(expr, "mutation_storage", "local"))
+        if (!json_string_property_equals(expr, "mutation_storage", "local"))
         {
             fprintf(stderr,
                     "Error: Rust target supports checked increment/decrement only for local variables and direct fields\n");
@@ -1163,11 +1188,21 @@ static bool rust_method_has_direct_mutation(json_object *node)
     }
     if (!json_object_is_type(node, json_type_object)) return false;
     if (json_string_property_equals(node, "kind", "member_assign") ||
-        json_string_property_equals(node, "kind", "compound_assign") ||
         json_string_property_equals(node, "kind", "index_assign") ||
         json_string_property_equals(node, "kind", "increment") ||
         json_string_property_equals(node, "kind", "decrement") ||
         rust_is_mutating_array_call(node)) return true;
+    if (json_string_property_equals(node, "kind", "compound_assign"))
+    {
+        json_object *target = NULL;
+        if (!json_object_object_get_ex(node, "target", &target)) return false;
+        while (json_string_property_equals(target, "kind", "member"))
+        {
+            if (!json_object_object_get_ex(target, "object", &target)) return false;
+        }
+        if (json_string_property_equals(target, "kind", "variable") &&
+            json_string_property_equals(target, "name", "self")) return true;
+    }
     json_object_object_foreach(node, key, value)
     {
         (void)key;
