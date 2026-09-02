@@ -1,0 +1,10 @@
+struct CustomCopy =>
+  value: int
+
+  fn copy(): CustomCopy =>
+    return CustomCopy { value: 99 }
+
+fn main(): void =>
+  var source: CustomCopy = { value: 1 }
+  var copied: CustomCopy = copyOf(source)
+  println(copied.value)

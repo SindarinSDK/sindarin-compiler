@@ -1,0 +1,40 @@
+struct Point =>
+  x: int
+  y: int
+
+struct Payload =>
+  name: str
+  values: int[]
+  point: Point
+
+fn main(): void =>
+  var point: Point = {
+    x: 1,
+    y: 2
+  }
+  var point_copy: Point = copyOf(point)
+
+  point_copy.x = 10
+  point.y = 20
+  println($"point={point.x},{point.y}; copy={point_copy.x},{point_copy.y}")
+
+  var payload: Payload = {
+    name: "source",
+    values: {1, 2},
+    point: Point {
+      x: 7,
+      y: 8
+    }
+  }
+  var payload_copy: Payload = copyOf(payload)
+
+  payload_copy.name = "copy"
+  payload_copy.values[0] = 99
+  payload_copy.point.x = 70
+
+  payload.name = "source-updated"
+  payload.values[1] = 88
+  payload.point.y = 80
+
+  println($"payload={payload.name}:{payload.values[0]},{payload.values[1]}:{payload.point.x},{payload.point.y}")
+  println($"payload-copy={payload_copy.name}:{payload_copy.values[0]},{payload_copy.values[1]}:{payload_copy.point.x},{payload_copy.point.y}")
