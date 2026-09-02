@@ -1002,8 +1002,8 @@ static bool rust_validate_expr(json_object *expr)
                             object_type_kind, method);
                     return false;
                 }
-                json_object_object_add(expr, "rust_string_method",
-                                       json_object_new_string("primitive_conversion"));
+                json_object_object_add(expr, "rust_primitive_conversion",
+                                       json_object_new_boolean(true));
                 return true;
             }
             if (strcmp(object_type_kind, "array") == 0)
