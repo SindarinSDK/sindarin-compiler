@@ -1,0 +1,52 @@
+struct RefOps =>
+  static fn longOps(value: long as ref): long =>
+    var add: long = value += 3l
+    var sub: long = value -= 1l
+    var mul: long = value *= 2l
+    var div: long = value /= 2l
+    var rem: long = value %= 3l
+    var old_inc: long = value++
+    var old_dec: long = value--
+    return add + sub + mul + div + rem + old_inc + old_dec + value
+
+  fn intPostfix(value: int as ref): int =>
+    return value--
+
+  fn longPostfix(value: long as ref): long =>
+    return value++
+
+  fn intCompound(value: int as ref): int =>
+    return value += 1
+
+  fn longCompound(value: long as ref): long =>
+    return value *= 2l
+
+fn oldThenIncrement(value: int as ref): int =>
+  return value++
+
+fn intOps(value: int as ref): int =>
+  var add: int = value += oldThenIncrement(value)
+  var sub: int = value -= 1
+  var mul: int = value *= 2
+  var div: int = value /= 2
+  var rem: int = value %= 3
+  var old_inc: int = value++
+  var old_dec: int = value--
+  return add + sub + mul + div + rem + old_inc + old_dec + value
+
+fn main(): void =>
+  var integer: int = 2
+  var long_value: long = 10l
+  var ops: RefOps = {}
+  println(intOps(integer))
+  println(integer)
+  println(RefOps.longOps(long_value))
+  println(long_value)
+  println(ops.intPostfix(integer))
+  println(integer)
+  println(ops.longPostfix(long_value))
+  println(long_value)
+  println(ops.intCompound(integer))
+  println(integer)
+  println(ops.longCompound(long_value))
+  println(long_value)

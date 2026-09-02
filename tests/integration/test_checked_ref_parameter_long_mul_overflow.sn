@@ -1,0 +1,6 @@
+fn fail(value: long as ref): void =>
+  value *= 2l
+
+fn main(): void =>
+  var value: long = 4611686018427387904l
+  fail(value)

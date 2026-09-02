@@ -571,6 +571,22 @@ static const char *mutation_sync_variable_name(Expr *target)
     return base->as.variable.name.start;
 }
 
+/* The checked stable-place slice admits direct scalar `as ref` parameters
+ * only for the two signed i64 spellings already supported by the Rust ABI.
+ * Keep all other parameter, capture, computed-place, and sync cases outside
+ * this shared path until their ownership/borrowing contracts are defined. */
+static bool mutation_is_checked_integer_ref_parameter(Expr *target)
+{
+    Expr *base = mutation_base_variable(target);
+    if (!base || !base->as.variable.is_param_ref ||
+        base->as.variable.param_mem_qualifier != MEM_AS_REF ||
+        !target->expr_type)
+        return false;
+
+    return target->expr_type->kind == TYPE_INT ||
+        target->expr_type->kind == TYPE_LONG;
+}
+
 static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
                                              SnTokenType op, Expr *target, Expr *value,
                                              bool require_same_type)
@@ -581,7 +597,8 @@ static const char *mutation_arithmetic_mode(ArithmeticMode arithmetic_mode,
         !checked_mutation_integral_type(target->expr_type) ||
         mutation_target_is_sync(target) ||
         strcmp(mutation_place_kind(target), "computed") == 0 ||
-        strcmp(mutation_storage_kind(target), "local") != 0)
+        (strcmp(mutation_storage_kind(target), "local") != 0 &&
+         !mutation_is_checked_integer_ref_parameter(target)))
         return "unchecked";
 
     if (require_same_type && (!value || !ast_type_equals(target->expr_type, value->expr_type)))
@@ -1116,6 +1133,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         arithmetic_mode, expr->as.compound_assign.operator,
                         expr->as.compound_assign.target,
                         expr->as.compound_assign.value, true)));
+            if (mutation_is_checked_integer_ref_parameter(expr->as.compound_assign.target))
+                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *ca_target = gen_model_expr(arena, expr->as.compound_assign.target,
                                                      symbol_table, arithmetic_mode);
             json_object_object_add(obj, "target", ca_target);
@@ -1614,6 +1633,12 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                     pmq = expr->as.call.callee->expr_type->as.function.param_mem_quals;
                     pmq_count = expr->as.call.callee->expr_type->as.function.param_count;
                 }
+                /* Member-call function types do not retain parameter memory
+                 * qualifiers.  The resolved method does, and both C and Rust
+                 * must see its scalar `as ref` argument as an address/borrow. */
+                StructMethod *resolved_method =
+                    (expr->as.call.callee->type == EXPR_MEMBER)
+                    ? expr->as.call.callee->as.member.resolved_method : NULL;
 
                 /* Detect push/insert on string arrays — args need strdup for ownership */
                 bool member_str_push = false;
@@ -1678,7 +1703,26 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 {
                     json_object *arg = gen_model_expr(arena, expr->as.call.arguments[i], symbol_table, arithmetic_mode);
                     /* Override matrix: param annotation vs arg type */
-                    if (pmq && i < pmq_count)
+                    if (resolved_method && i < resolved_method->param_count)
+                    {
+                        Expr *arg_expr = expr->as.call.arguments[i];
+                        Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
+                        bool is_ref_struct = (arg_type && arg_type->kind == TYPE_STRUCT &&
+                                              arg_type->as.struct_type.pass_self_by_ref);
+                        if (resolved_method->params[i].mem_qualifier == MEM_AS_REF &&
+                            !is_ref_struct)
+                            json_object_object_add(arg, "is_ref_arg",
+                                json_object_new_boolean(true));
+                        else if (resolved_method->params[i].mem_qualifier == MEM_AS_VAL &&
+                                 is_ref_struct)
+                        {
+                            json_object_object_add(arg, "is_copy_arg",
+                                json_object_new_boolean(true));
+                            json_object_object_add(arg, "copy_type_name",
+                                json_object_new_string(arg_type->as.struct_type.name));
+                        }
+                    }
+                    else if (pmq && i < pmq_count)
                     {
                         Expr *arg_expr = expr->as.call.arguments[i];
                         Type *arg_type = arg_expr ? arg_expr->expr_type : NULL;
@@ -2997,6 +3041,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_PLUS, expr->as.operand, NULL, false)));
+            if (mutation_is_checked_integer_ref_parameter(expr->as.operand))
+                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *inc_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", inc_operand);
             Expr *inc_base = mutation_base_variable(expr->as.operand);
@@ -3034,6 +3080,8 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 json_object_new_string(mutation_sync
                     ? "unchecked" : mutation_arithmetic_mode(
                         arithmetic_mode, TOKEN_MINUS, expr->as.operand, NULL, false)));
+            if (mutation_is_checked_integer_ref_parameter(expr->as.operand))
+                json_object_object_add(obj, "mutation_rhs_first", json_object_new_boolean(true));
             json_object *dec_operand = gen_model_expr(arena, expr->as.operand, symbol_table, arithmetic_mode);
             json_object_object_add(obj, "operand", dec_operand);
             Expr *dec_base = mutation_base_variable(expr->as.operand);

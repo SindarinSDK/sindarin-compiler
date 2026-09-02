@@ -1,0 +1,6 @@
+fn fail(value: int as ref): void =>
+  value *= 2
+
+fn main(): void =>
+  var value: int = 4611686018427387904
+  fail(value)
