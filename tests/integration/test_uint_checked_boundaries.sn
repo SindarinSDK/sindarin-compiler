@@ -1,0 +1,15 @@
+fn main(): void =>
+  var half: uint = 9223372036854775807u
+  var two: uint = 2u
+  var one: uint = 1u
+  var max_minus_one: uint = half * two
+  var max: uint = max_minus_one + one
+  var sum: uint = max_minus_one + one
+  var difference: uint = one - one
+  var product: uint = half * two
+  var quotient: uint = max / one
+  var remainder: uint = max % two
+  if sum == max && difference == 0u && product == max_minus_one && quotient == max && remainder == one =>
+    println("ok")
+  else =>
+    println("wrong")
