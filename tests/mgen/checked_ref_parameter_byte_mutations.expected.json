@@ -1,0 +1,3030 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Box",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    },
+    {
+      "name": "Wrapper",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "box",
+          "type": {
+            "kind": "struct",
+            "name": "Box",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "byte"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "copy_val"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    },
+    {
+      "name": "RefOps",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "mem_mode": "val",
+      "fields": [],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "staticOps",
+          "return_type": {
+            "kind": "byte"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "var_decl",
+              "name": "add",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 3
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "sub",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "subtract",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 1
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "mul",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "multiply",
+                "mutation_op": "multiply",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 2
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "div",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "divide",
+                "mutation_op": "divide",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 2
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "rem",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "modulo",
+                "mutation_op": "modulo",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 3
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "old_inc",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "increment",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            },
+            {
+              "kind": "var_decl",
+              "name": "old_dec",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "decrement",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            },
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "byte"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "binary",
+                      "op": "add",
+                      "left": {
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "kind": "binary",
+                        "op": "add",
+                        "left": {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "binary",
+                          "op": "add",
+                          "left": {
+                            "type": {
+                              "kind": "byte"
+                            },
+                            "kind": "binary",
+                            "op": "add",
+                            "left": {
+                              "type": {
+                                "kind": "byte"
+                              },
+                              "kind": "variable",
+                              "name": "add"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "byte"
+                              },
+                              "kind": "variable",
+                              "name": "sub"
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "byte"
+                            },
+                            "kind": "variable",
+                            "name": "mul"
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "div"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "kind": "variable",
+                        "name": "rem"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "old_inc"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "byte"
+                    },
+                    "kind": "variable",
+                    "name": "old_dec"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "staticBump",
+          "return_type": {
+            "kind": "void"
+          },
+          "modifier": "default",
+          "is_static": true,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 1
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "instancePostfix",
+          "return_type": {
+            "kind": "byte"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "decrement",
+                "mutation_op": "subtract",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "operand": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                }
+              }
+            }
+          ]
+        },
+        {
+          "name": "instanceBump",
+          "return_type": {
+            "kind": "void"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [
+            {
+              "name": "value",
+              "type": {
+                "kind": "byte"
+              },
+              "mem_qual": "as_ref",
+              "sync_mod": "none"
+            }
+          ],
+          "body": [
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "compound_assign",
+                "op": "add",
+                "mutation_op": "add",
+                "mutation_place": "variable",
+                "mutation_storage": "parameter",
+                "mutation_sync": false,
+                "mutation_arithmetic_mode": "checked",
+                "mutation_rhs_first": true,
+                "target": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_parameter": true,
+                  "parameter_mem_qual": "as_ref"
+                },
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 1
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "oldThenIncrement",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "freeOps",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "add",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "byte"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "byte"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "oldThenIncrement"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "value",
+                  "is_captured": true,
+                  "is_ref_arg": true
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "sub",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "subtract",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "mul",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "multiply",
+            "mutation_op": "multiply",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 2
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "div",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "divide",
+            "mutation_op": "divide",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 2
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "rem",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "modulo",
+            "mutation_op": "modulo",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 3
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "old_inc",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "old_dec",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "decrement",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "byte"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "binary",
+                      "op": "add",
+                      "left": {
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "kind": "binary",
+                        "op": "add",
+                        "left": {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "add"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "sub"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "kind": "variable",
+                        "name": "mul"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "div"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "byte"
+                    },
+                    "kind": "variable",
+                    "name": "rem"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "variable",
+                  "name": "old_inc"
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "variable",
+                "name": "old_dec"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true
+            },
+            "arithmetic_mode": "checked"
+          }
+        }
+      ]
+    },
+    {
+      "name": "forwardStatic",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "static_call",
+            "type_name": "RefOps",
+            "method_name": "staticBump",
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "variable",
+                "name": "value",
+                "is_captured": true,
+                "is_ref_arg": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "variable",
+            "name": "value",
+            "is_captured": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "forwardInstance",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "ops",
+          "type": {
+            "kind": "struct",
+            "name": "RefOps",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 8,
+            "alignment": 8,
+            "fields": []
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "RefOps",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 8,
+              "alignment": 8,
+              "fields": []
+            },
+            "kind": "struct_literal",
+            "struct_name": "RefOps",
+            "fields": []
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "byte"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "RefOps",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 8,
+                  "alignment": 8,
+                  "fields": []
+                },
+                "kind": "variable",
+                "name": "ops"
+              },
+              "member_name": "instanceBump",
+              "has_c_alias": true,
+              "c_alias": "__sn__RefOps_instanceBump"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "variable",
+                "name": "value",
+                "is_captured": true,
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "variable",
+            "name": "value",
+            "is_captured": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "maxBoundary",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "minBoundary",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "subtract",
+            "mutation_op": "subtract",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "read",
+      "return_type": {
+        "kind": "byte"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "variable",
+            "name": "value",
+            "is_captured": true
+          }
+        }
+      ]
+    },
+    {
+      "name": "freeBump",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "variable",
+              "name": "value",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "byte"
+              },
+              "kind": "literal",
+              "value_kind": "byte",
+              "value": 1
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/checked_ref_parameter_byte_mutations.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "free_value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 2
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "static_value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 10
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "postfix_value",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 5
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "forwarded_static",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 1
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "forwarded_instance",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 1
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "maximum",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 254
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "minimum",
+          "type": {
+            "kind": "byte"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "byte"
+            },
+            "kind": "literal",
+            "value_kind": "byte",
+            "value": 1
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "direct",
+          "type": {
+            "kind": "struct",
+            "name": "Box",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "byte"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Box",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "value",
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Box",
+            "fields": [
+              {
+                "name": "value",
+                "value": {
+                  "type": {
+                    "kind": "byte"
+                  },
+                  "kind": "literal",
+                  "value_kind": "byte",
+                  "value": 1
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nested",
+          "type": {
+            "kind": "struct",
+            "name": "Wrapper",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 24,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "box",
+                "type": {
+                  "kind": "struct",
+                  "name": "Box",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "Wrapper",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "box",
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "offset": 8
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "Wrapper",
+            "fields": [
+              {
+                "name": "box",
+                "value": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "struct_literal",
+                  "struct_name": "Box",
+                  "fields": [
+                    {
+                      "name": "value",
+                      "value": {
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "kind": "literal",
+                        "value_kind": "byte",
+                        "value": 10
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "ops",
+          "type": {
+            "kind": "struct",
+            "name": "RefOps",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 8,
+            "alignment": 8,
+            "fields": []
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "RefOps",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 8,
+              "alignment": 8,
+              "fields": []
+            },
+            "kind": "struct_literal",
+            "struct_name": "RefOps",
+            "fields": []
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "byte"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "freeBump"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "direct"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "byte"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "freeBump"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Wrapper",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 24,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "box",
+                          "type": {
+                            "kind": "struct",
+                            "name": "Box",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "value",
+                                "type": {
+                                  "kind": "byte"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "nested"
+                  },
+                  "member_name": "box"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "static_call",
+            "type_name": "RefOps",
+            "method_name": "staticBump",
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "direct"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "static_call",
+            "type_name": "RefOps",
+            "method_name": "staticBump",
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Wrapper",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 24,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "box",
+                          "type": {
+                            "kind": "struct",
+                            "name": "Box",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "value",
+                                "type": {
+                                  "kind": "byte"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "nested"
+                  },
+                  "member_name": "box"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "byte"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "RefOps",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 8,
+                  "alignment": 8,
+                  "fields": []
+                },
+                "kind": "variable",
+                "name": "ops"
+              },
+              "member_name": "instanceBump",
+              "has_c_alias": true,
+              "c_alias": "__sn__RefOps_instanceBump"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "variable",
+                  "name": "direct"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "void"
+                },
+                "param_types": [
+                  {
+                    "kind": "byte"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "member",
+              "object": {
+                "type": {
+                  "kind": "struct",
+                  "name": "RefOps",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 8,
+                  "alignment": 8,
+                  "fields": []
+                },
+                "kind": "variable",
+                "name": "ops"
+              },
+              "member_name": "instanceBump",
+              "has_c_alias": true,
+              "c_alias": "__sn__RefOps_instanceBump"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "byte"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "Box",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "byte"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "struct",
+                      "name": "Wrapper",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 24,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "box",
+                          "type": {
+                            "kind": "struct",
+                            "name": "Box",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 16,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "value",
+                                "type": {
+                                  "kind": "byte"
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    },
+                    "kind": "variable",
+                    "name": "nested"
+                  },
+                  "member_name": "box"
+                },
+                "member_name": "value",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "freeOps"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "free_value",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "free_value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "static_call",
+                      "type_name": "RefOps",
+                      "method_name": "staticOps",
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "static_value",
+                          "is_ref_arg": true
+                        }
+                      ]
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "static_value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "member",
+                        "object": {
+                          "type": {
+                            "kind": "struct",
+                            "name": "RefOps",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 8,
+                            "alignment": 8,
+                            "fields": []
+                          },
+                          "kind": "variable",
+                          "name": "ops"
+                        },
+                        "member_name": "instancePostfix",
+                        "has_c_alias": true,
+                        "c_alias": "__sn__RefOps_instancePostfix"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "postfix_value",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "postfix_value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "forwardStatic"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "forwarded_static",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "forwarded_static"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "forwardInstance"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "forwarded_instance",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "variable",
+                      "name": "forwarded_instance"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "maxBoundary"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "maximum",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "minBoundary"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "variable",
+                          "name": "minimum",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "call",
+                      "callee": {
+                        "type": {
+                          "kind": "function",
+                          "return_type": {
+                            "kind": "byte"
+                          },
+                          "param_types": [
+                            {
+                              "kind": "byte"
+                            }
+                          ],
+                          "param_mem_quals": [
+                            "as_ref"
+                          ],
+                          "is_variadic": false,
+                          "is_native": false,
+                          "has_arena_param": false
+                        },
+                        "kind": "variable",
+                        "name": "read"
+                      },
+                      "args": [
+                        {
+                          "type": {
+                            "kind": "byte"
+                          },
+                          "kind": "member",
+                          "object": {
+                            "type": {
+                              "kind": "struct",
+                              "name": "Box",
+                              "is_native": false,
+                              "is_packed": false,
+                              "pass_self_by_ref": false,
+                              "size": 16,
+                              "alignment": 8,
+                              "fields": [
+                                {
+                                  "name": "value",
+                                  "type": {
+                                    "kind": "byte"
+                                  },
+                                  "offset": 8
+                                }
+                              ]
+                            },
+                            "kind": "variable",
+                            "name": "direct"
+                          },
+                          "member_name": "value",
+                          "is_ref_arg": true
+                        }
+                      ],
+                      "is_tail_call": false,
+                      "is_closure_call": false,
+                      "is_fn_field_call": false
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "struct",
+                          "name": "Box",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 16,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "value",
+                              "type": {
+                                "kind": "byte"
+                              },
+                              "offset": 8
+                            }
+                          ]
+                        },
+                        "kind": "variable",
+                        "name": "direct"
+                      },
+                      "member_name": "value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "byte"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "struct",
+                          "name": "Box",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 16,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "value",
+                              "type": {
+                                "kind": "byte"
+                              },
+                              "offset": 8
+                            }
+                          ]
+                        },
+                        "kind": "member",
+                        "object": {
+                          "type": {
+                            "kind": "struct",
+                            "name": "Wrapper",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "box",
+                                "type": {
+                                  "kind": "struct",
+                                  "name": "Box",
+                                  "is_native": false,
+                                  "is_packed": false,
+                                  "pass_self_by_ref": false,
+                                  "size": 16,
+                                  "alignment": 8,
+                                  "fields": [
+                                    {
+                                      "name": "value",
+                                      "type": {
+                                        "kind": "byte"
+                                      },
+                                      "offset": 8
+                                    }
+                                  ]
+                                },
+                                "offset": 8
+                              }
+                            ]
+                          },
+                          "kind": "variable",
+                          "name": "nested"
+                        },
+                        "member_name": "box"
+                      },
+                      "member_name": "value"
+                    }
+                  }
+                ],
+                "part_count": 29
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

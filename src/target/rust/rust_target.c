@@ -200,7 +200,8 @@ static bool rust_checked_scalar_ref_parameter(json_object *mutation,
         json_object_object_get_ex(parameter, "type", &type) &&
         (json_string_property_equals(type, "kind", "int") ||
          json_string_property_equals(type, "kind", "long") ||
-         json_string_property_equals(type, "kind", "int32"));
+         json_string_property_equals(type, "kind", "int32") ||
+         json_string_property_equals(type, "kind", "byte"));
 }
 
 static bool rust_validate_structs(json_object *model)
@@ -1385,7 +1386,8 @@ static bool rust_validate_struct_methods(json_object *model)
                          strcmp(mem_qual, "as_ref") == 0 &&
                          (json_string_property_equals(param_type, "kind", "int") ||
                           json_string_property_equals(param_type, "kind", "long") ||
-                          json_string_property_equals(param_type, "kind", "int32"))) ||
+                          json_string_property_equals(param_type, "kind", "int32") ||
+                          json_string_property_equals(param_type, "kind", "byte"))) ||
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
@@ -1538,7 +1540,8 @@ static bool rust_validate_model_impl(json_object *model)
                          (rust_heap_free_named_struct_type(param_type) ||
                           json_string_property_equals(param_type, "kind", "int") ||
                           json_string_property_equals(param_type, "kind", "long") ||
-                          json_string_property_equals(param_type, "kind", "int32"))) ||
+                          json_string_property_equals(param_type, "kind", "int32") ||
+                          json_string_property_equals(param_type, "kind", "byte"))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
@@ -2231,7 +2234,8 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
                     json_object_object_get_ex(param, "type", &type) &&
                     (json_string_property_equals(type, "kind", "int") ||
                      json_string_property_equals(type, "kind", "long") ||
-                     json_string_property_equals(type, "kind", "int32")))
+                     json_string_property_equals(type, "kind", "int32") ||
+                     json_string_property_equals(type, "kind", "byte")))
                     rust_mark_scalar_ref_uses(body, name);
             }
         }
@@ -2262,7 +2266,8 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
                     json_object_object_get_ex(param, "type", &type) &&
                     (json_string_property_equals(type, "kind", "int") ||
                      json_string_property_equals(type, "kind", "long") ||
-                     json_string_property_equals(type, "kind", "int32")))
+                     json_string_property_equals(type, "kind", "int32") ||
+                     json_string_property_equals(type, "kind", "byte")))
                     rust_mark_scalar_ref_uses(body, name);
             }
         }

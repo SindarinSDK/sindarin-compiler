@@ -1,0 +1,7 @@
+fn fail(value: byte as ref): void =>
+  var zero: byte = 0b
+  value /= zero
+
+fn main(): void =>
+  var value: byte = 1b
+  fail(value)
