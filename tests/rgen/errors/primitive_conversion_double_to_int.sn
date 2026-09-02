@@ -1,0 +1,3 @@
+fn main(): void =>
+  var source: double = 1.5
+  var value: int = source.toInt()

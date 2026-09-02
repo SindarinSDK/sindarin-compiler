@@ -1,0 +1,3 @@
+fn main(): void =>
+  var source: uint = 1u
+  var value: int = source.toInt()

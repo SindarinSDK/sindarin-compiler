@@ -1,0 +1,3 @@
+fn main(): void =>
+  var source: int = 65
+  var value: char = source.toChar()
