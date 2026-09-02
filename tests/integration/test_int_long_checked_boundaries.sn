@@ -4,7 +4,7 @@ fn main(): void =>
   var int_max: int = int_max_minus_one + int_one
   var int_min_base: int = -9223372036854775807
   var int_min: int = int_min_base - int_one
-  var int_mul_base: int = 4611686018427387903
+  var int_mul_base: int = -4611686018427387904
   var int_two: int = 2
   var int_product: int = int_mul_base * int_two
   var int_quotient: int = int_min / int_one
@@ -14,12 +14,12 @@ fn main(): void =>
   var long_max: long = long_max_minus_one + long_one
   var long_min_base: long = -9223372036854775807l
   var long_min: long = long_min_base - long_one
-  var long_mul_base: long = 4611686018427387903l
+  var long_mul_base: long = -4611686018427387904l
   var long_two: long = 2l
   var long_product: long = long_mul_base * long_two
   var long_quotient: long = long_min / long_one
   var long_remainder: long = long_min % long_one
-  if int_max == 9223372036854775807 && int_min + int_one == int_min_base && int_product == int_max_minus_one && int_quotient == int_min && int_remainder == 0 && long_max == 9223372036854775807l && long_min + long_one == long_min_base && long_product == long_max_minus_one && long_quotient == long_min && long_remainder == 0l =>
+  if int_max == 9223372036854775807 && int_min + int_one == int_min_base && int_product == int_min && int_quotient == int_min && int_remainder == 0 && long_max == 9223372036854775807l && long_min + long_one == long_min_base && long_product == long_min && long_quotient == long_min && long_remainder == 0l =>
     println("ok")
   else =>
     println("wrong")

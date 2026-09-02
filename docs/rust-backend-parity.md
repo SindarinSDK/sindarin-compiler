@@ -14,7 +14,7 @@ In checked mode, signed `int32` addition, subtraction, and multiplication termin
 
 Coverage is **1 C codegen snapshot** proving `sn_{add,sub,mul,div,mod}_int32` helper selection; **8 C integration cases** (one successful boundary result and seven isolated nonzero failure cases); and **8 Rust rgen cases** with `.expected.rs` snapshots (one successful output and seven `.panic` cases). The seven failure cases on each target are add overflow, subtract underflow, multiply overflow, divide-by-zero, remainder-by-zero, `MIN / -1`, and `MIN % -1`.
 
-Unsigned widths, unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
+Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
 
 ## Approved strict checked-int/long contract
 
@@ -28,13 +28,13 @@ Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, 
 
 In checked mode, source-language `byte` add, subtract, and multiply terminate nonzero when their mathematical result is outside `0..255`. Division and remainder terminate nonzero for a zero divisor. Successful boundary operations return their exact u8 result. The C runtime guards operands and range conditions before evaluating the arithmetic or returning through the byte type; the Rust lowering continues to use `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, and `checked_rem`.
 
-Unchecked byte behavior remains the native C operator path. Checked `uint`, unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
+Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
 
 ## Approved strict checked-uint32 contract
 
 In checked mode, source-language `uint32` addition, subtraction, and multiplication terminate nonzero when their mathematical result is outside `0..UINT32_MAX`. Division and remainder terminate nonzero for a zero divisor. Successful boundary operations return their exact u32 result. The C runtime uses widened `uint64_t` intermediates for addition and multiplication, a pre-subtraction `a < b` check, and zero guards before division or remainder; Rust continues to use `u32` `checked_add`, `checked_sub`, `checked_mul`, `checked_div`, and `checked_rem`.
 
-Unchecked `uint32` behavior remains the native C operator path. Checked `uint`, unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
+Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
 
 ## Approved strict checked-uint contract
 
@@ -42,7 +42,7 @@ In checked mode, source-language `uint` addition, subtraction, and multiplicatio
 
 Coverage is **1 C codegen snapshot** proving `sn_{add,sub,mul,div,mod}_uint` helper selection; **6 C integration cases** (one successful boundary result and five isolated nonzero failure cases); and **6 Rust rgen cases** with `.expected.rs` snapshots (one successful output and five `.panic` cases). The failures on each target are add overflow, subtract underflow, multiply overflow, divide-by-zero, and remainder-by-zero. The boundary program constructs its maximum value from representable operands and checks `max-1 + 1`, `1 - 1`, `half * 2`, `max / 1`, and `max % 2` without printing values above `INT64_MAX`.
 
-Unchecked `uint` behavior remains the native C operator path. Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
+Unchecked/debug-overflow behavior, exact cross-target diagnostic/status parity, literal parsing, unary negation, and `SN_RUSTFLAGS` semantics remain open.
 
 ## Checked arithmetic optimizer semantics
 
