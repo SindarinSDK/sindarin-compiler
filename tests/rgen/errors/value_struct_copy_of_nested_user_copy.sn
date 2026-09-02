@@ -1,0 +1,20 @@
+struct Inner =>
+  value: int
+
+  fn copy(): Inner =>
+    return Inner { value: 99 }
+
+struct Branch =>
+  values: Inner[]
+
+struct Outer =>
+  branch: Branch
+
+fn main(): void =>
+  var source: Outer = {
+    branch: Branch {
+      values: { Inner { value: 1 } }
+    }
+  }
+  var copied: Outer = copyOf(source)
+  println(copied.branch.values[0].value)

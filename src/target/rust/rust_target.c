@@ -378,6 +378,79 @@ static json_object *rust_find_struct(json_object *model, const char *name)
     return NULL;
 }
 
+static const char *rust_reachable_user_copy_struct(json_object *type,
+                                                   json_object *visiting)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind) return NULL;
+
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element_type = NULL;
+        return json_object_object_get_ex(type, "element_type", &element_type)
+            ? rust_reachable_user_copy_struct(element_type, visiting) : NULL;
+    }
+    if (strcmp(kind, "struct") != 0) return NULL;
+
+    const char *name = json_string_property(type, "name");
+    json_object *structure = rust_find_struct(rust_validation_model, name);
+    if (!structure) return NULL;
+    if (json_boolean_property(structure, "has_user_copy_method")) return name;
+
+    json_object *seen = NULL;
+    if (!name || json_object_object_get_ex(visiting, name, &seen)) return NULL;
+    json_object_object_add(visiting, name, json_object_new_boolean(true));
+
+    json_object *fields = NULL;
+    if (json_object_object_get_ex(structure, "fields", &fields))
+    {
+        size_t field_count = json_object_array_length(fields);
+        for (size_t i = 0; i < field_count; i++)
+        {
+            json_object *field = json_object_array_get_idx(fields, i);
+            json_object *field_type = NULL;
+            if (json_object_object_get_ex(field, "type", &field_type))
+            {
+                const char *user_copy =
+                    rust_reachable_user_copy_struct(field_type, visiting);
+                if (user_copy)
+                {
+                    json_object_object_del(visiting, name);
+                    return user_copy;
+                }
+            }
+        }
+    }
+
+    json_object_object_del(visiting, name);
+    return NULL;
+}
+
+static bool rust_auto_copy_plain_value_struct_type(
+    json_object *type, const char **user_copy_name)
+{
+    if (user_copy_name) *user_copy_name = NULL;
+    if (!json_string_property_equals(type, "kind", "struct")) return false;
+
+    json_object *structure = rust_find_struct(
+        rust_validation_model, json_string_property(type, "name"));
+    if (!structure) return false;
+
+    /* rust_validate_structs runs first and validates every declared field. */
+    const char *mem_mode = json_string_property(structure, "mem_mode");
+    if (!mem_mode || strcmp(mem_mode, "val") != 0 ||
+        json_boolean_property(structure, "is_native") ||
+        json_boolean_property(structure, "is_packed") ||
+        json_boolean_property(structure, "is_serializable")) return false;
+
+    json_object *visiting = json_object_new_object();
+    if (!visiting) return false;
+    const char *user_copy = rust_reachable_user_copy_struct(type, visiting);
+    json_object_put(visiting);
+    if (user_copy_name) *user_copy_name = user_copy;
+    return !user_copy;
+}
+
 static bool rust_array_concat_type_supported(json_object *type)
 {
     const char *kind = json_string_property(type, "kind");
@@ -786,16 +859,46 @@ static bool rust_validate_expr(json_object *expr)
         json_object *operand = NULL, *operand_type = NULL;
         json_object *element_type = NULL;
         const char *operand_kind = NULL;
+        const char *operand_name = NULL;
+        const char *user_copy_name = NULL;
+        bool auto_copy_struct = false;
         if (!json_object_object_get_ex(expr, "operand", &operand) ||
             !json_object_object_get_ex(operand, "type", &operand_type) ||
-            !(operand_kind = json_string_property(operand_type, "kind")) ||
-            (strcmp(operand_kind, "string") != 0 &&
-             (strcmp(operand_kind, "array") != 0 ||
-              !json_object_object_get_ex(operand_type, "element_type", &element_type) ||
-              !rust_array_copy_type_supported(element_type))))
+            !(operand_kind = json_string_property(operand_type, "kind")))
         {
             fprintf(stderr,
-                    "Error: Rust target currently supports copyOf() only for strings and arrays of integers, strings, booleans, characters, floating-point values, and heap-free named value structs\n");
+                    "Error: Rust target encountered an invalid copyOf() operand\n");
+            return false;
+        }
+
+        if (strcmp(operand_kind, "struct") == 0)
+        {
+            operand_name = json_string_property(operand_type, "name");
+            auto_copy_struct = rust_auto_copy_plain_value_struct_type(
+                operand_type, &user_copy_name);
+            if (user_copy_name)
+            {
+                if (operand_name && strcmp(operand_name, user_copy_name) == 0)
+                    fprintf(stderr,
+                            "Error: Rust target does not support copyOf() for value struct '%s' with a user-defined copy() method yet\n",
+                            operand_name);
+                else
+                    fprintf(stderr,
+                            "Error: Rust target does not support copyOf() for value struct '%s' because reachable value struct '%s' has a user-defined copy() method\n",
+                            operand_name ? operand_name : "<anonymous>",
+                            user_copy_name);
+                return false;
+            }
+        }
+
+        if (strcmp(operand_kind, "string") != 0 &&
+            !auto_copy_struct &&
+            (strcmp(operand_kind, "array") != 0 ||
+             !json_object_object_get_ex(operand_type, "element_type", &element_type) ||
+             !rust_array_copy_type_supported(element_type)))
+        {
+            fprintf(stderr,
+                    "Error: Rust target currently supports copyOf() only for strings, auto-copy plain value structs, and arrays of integers, strings, booleans, characters, floating-point values, and heap-free named value structs\n");
             return false;
         }
         return rust_validate_expr(operand);
