@@ -1,0 +1,869 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/sizeof_managed_handles.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "Point",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/sizeof_managed_handles.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "x",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "observe_text",
+      "return_type": {
+        "kind": "string"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/sizeof_managed_handles.sn",
+      "params": [
+        {
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "called"
+          },
+          "source_is_borrow": true
+        }
+      ]
+    },
+    {
+      "name": "observe_values",
+      "return_type": {
+        "kind": "array",
+        "name": "arr",
+        "element_type": {
+          "kind": "int"
+        }
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/sizeof_managed_handles.sn",
+      "params": [
+        {
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 2
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/sizeof_managed_handles.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "type_string",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "string"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_array",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_nested_array",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              }
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_struct_array",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              }
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "text",
+          "type": {
+            "kind": "string"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "str",
+          "initializer": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "literal",
+            "value_kind": "string",
+            "value": "managed"
+          },
+          "source_is_borrow": true
+        },
+        {
+          "kind": "var_decl",
+          "name": "values",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 2
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "rows",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "array_literal",
+                "elements": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  }
+                ]
+              }
+            ],
+            "elem_release_fn": "(void (*)(void *))sn_cleanup_array",
+            "elem_copy_fn": "sn_copy_array"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "points",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "struct",
+              "name": "Point",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 16,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "x",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                }
+              ]
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "Point",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 16,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "x",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  }
+                ]
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "Point",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "x",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "kind": "struct_literal",
+                "struct_name": "Point",
+                "fields": [
+                  {
+                    "name": "x",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "expression_sizes",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "sizeof",
+                      "operand": {
+                        "type": {
+                          "kind": "string"
+                        },
+                        "kind": "variable",
+                        "name": "text"
+                      },
+                      "target_type": {
+                        "kind": "string"
+                      }
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "sizeof",
+                      "operand": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "values"
+                      },
+                      "target_type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      }
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "sizeof",
+                    "operand": {
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "int"
+                          }
+                        }
+                      },
+                      "kind": "variable",
+                      "name": "rows"
+                    },
+                    "target_type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      }
+                    }
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "sizeof",
+                  "operand": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "struct",
+                        "name": "Point",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "x",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      }
+                    },
+                    "kind": "variable",
+                    "name": "points"
+                  },
+                  "target_type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "struct",
+                      "name": "Point",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 16,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "x",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        }
+                      ]
+                    }
+                  }
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "sizeof",
+                "operand": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "call",
+                  "callee": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "string"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "param_mem_quals": [
+                        "as_ref"
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "observe_text"
+                  },
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "counter",
+                      "is_ref_arg": true
+                    }
+                  ],
+                  "is_tail_call": false,
+                  "is_closure_call": false,
+                  "is_fn_field_call": false
+                },
+                "target_type": {
+                  "kind": "string"
+                }
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "sizeof",
+              "operand": {
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "int"
+                      }
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "observe_values"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "counter",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              },
+              "target_type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "int"
+                }
+              }
+            },
+            "arithmetic_mode": "checked"
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
