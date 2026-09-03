@@ -890,6 +890,11 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                      iter_expr->type != EXPR_ARRAY_ACCESS);
                 json_object_object_add(obj, "needs_iterable_cleanup",
                     json_object_new_boolean(iter_is_temp));
+                /* A borrowed source can be reassigned from inside the loop.
+                 * Snapshot it so the loop's backing storage remains valid;
+                 * owned temporaries already provide their own +1 credit. */
+                json_object_object_add(obj, "iterable_needs_copy",
+                    json_object_new_boolean(ownership_kind(iter_expr) == OWNERSHIP_BORROW));
             }
             break;
         }

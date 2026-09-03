@@ -1,0 +1,10 @@
+# The loop must retain a stable array snapshot when its iterable is reassigned.
+fn main(): int =>
+  var source: str[] = {"first", "second"}
+  var iterations: int = 0
+  for item in source =>
+    source = {"replacement"}
+    iterations = iterations + 1
+  assert(iterations == 2, "foreach did not retain its source array snapshot")
+  print("PASS\n")
+  return 0

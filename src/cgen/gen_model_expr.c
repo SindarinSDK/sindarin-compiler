@@ -1081,18 +1081,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                         else
                         {
-                            /* as val: only needs cleanup if it has heap fields */
-                            for (int fi = 0; fi < atype->as.struct_type.field_count; fi++)
-                            {
-                                Type *ft = atype->as.struct_type.fields[fi].type;
-                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                    ft->kind == TYPE_FUNCTION ||
-                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                                {
-                                    assign_cleanup = "cleanup_val";
-                                    break;
-                                }
-                            }
+                            /* Keep assignment cleanup consistent with every
+                             * other val-struct ownership path: nested value
+                             * structs can recursively own heap fields. */
+                            if (gen_model_type_has_heap_fields(atype))
+                                assign_cleanup = "cleanup_val";
                         }
                         break;
                     case TYPE_FUNCTION:

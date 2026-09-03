@@ -1,5 +1,5 @@
 # Rust supports cloned string foreach values today.  Keep reassignment out of
-# this fixture: mutable foreach bindings belong to PR79's primitive-loop work.
+# this fixture: Rust foreach ownership remains read-only here.
 fn main(): void =>
   var names: str[] = {"alpha", "beta"}
   var decorated: str[] = {}

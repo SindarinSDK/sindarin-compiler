@@ -48,10 +48,6 @@
         {
           "kind": "for_each",
           "iterator_name": "x",
-          "element_type": {
-            "kind": "int"
-          },
-          "element_cleanup_kind": "none",
           "iterable": {
             "type": {
               "kind": "array",
@@ -78,6 +74,10 @@
               "value": 11
             }
           },
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
           "body": {
             "kind": "block",
             "statements": [
@@ -112,7 +112,8 @@
               }
             ]
           },
-          "needs_iterable_cleanup": true
+          "needs_iterable_cleanup": true,
+          "iterable_needs_copy": false
         },
         {
           "kind": "expr",

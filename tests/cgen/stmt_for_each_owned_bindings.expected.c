@@ -17,7 +17,7 @@ int main() {
     sn_auto_str char * __sn__source = strdup("one");
     sn_auto_arr SnArray * __sn__names = __sn___split(&__sn__source, ",");
     {
-        SnArray *__arr_0__ = __sn__names;
+        sn_auto_arr SnArray *__arr_0__ = sn_array_copy(__sn__names);
         long long __len_0__ = __arr_0__->len;
         for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
             char * __sn__name__source = ((char * *)__arr_0__->data)[__idx_0__];

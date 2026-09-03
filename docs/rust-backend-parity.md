@@ -1,12 +1,12 @@
 # Sindarin Rust Backend — Parity Audit
 
-**Status:** Post-PR #79 C foreach owned-binding repair, based exactly on merged main `700fb791c91f19e00b66dd1670f6c6f1c0835f21`. PR #79 makes accepted Rust normal-array foreach locals mutable; this repair changes no Rust production code and only refreshes its read-only Rust snapshot. C remains the default target and Rust is opt-in.
+**Status:** PR #83 C foreach owned-binding repair, based exactly on merged main `700fb791c91f19e00b66dd1670f6c6f1c0835f21`. PR #79 makes accepted Rust normal-array foreach locals mutable; this repair changes no Rust production code and only refreshes its read-only Rust snapshot. C remains the default target and Rust is opt-in.
 C is the default target (`src/compiler.c:31` `options->target = TARGET_C`); Rust is opt-in via `--target rust` / `--emit-rust`.
 Reconciled against the independent audit `audit-rust-parity-tests.md` @ `1f26b33` on `audit/rust-parity-tests-v2` (fetched, not merged/cherry-picked).
 
 ## Baseline — historical audit baseline (build & test results)
 
-> The historical audit baseline was recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`: unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, and explore-errors **11**. These are the `940d5593` audit-run results, not current-head results. The exact PR #79 head gate is recorded below.
+> The historical audit baseline was recorded at commit `940d5593b14a99454671b3004ada8592fddf9734` on `audit/rust-parity-architecture-v2`: unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, and explore-errors **11**. These are the `940d5593` audit-run results, not current-head results. The exact PR #83 head gate is recorded below.
 
 ## Approved strict checked-int32 contract
 
@@ -71,7 +71,7 @@ At normal optimization (`-O1`/`-O2`), dead-variable elimination recursively pres
 | Historical `timeout 180 make setup` (fresh audit worktree) | PASS — installed sindarin v0.0.83 to `~/.sn`; `sn --install` pulled `sindarin-pkg-libs` v0.0.18 (linux-arm64), `-sdk`, `-test`. |
 | Historical `timeout 900 python3 scripts/run_tests.py all` at `940d5593` | PASS — unit **1609**, cgen **107**, rgen **45**, rgen-errors **8**, mgen **79**, integration **1142**, integration-errors **58**, explore **224**, explore-errors **11**. |
 | Post-PR #79 `make test-rgen` | PASS — **165/165** Rust generation behavior cases, including direct foreach-loop-local reassignment for primitives, `str`, nested arrays, and plain value structs. |
-| Post-PR #79 C owned-binding repair: exact sequential `make build && make test` | PASS — unit **1624**, cgen **124**, rgen **165**, rgen-errors **29**, mgen **87**, integration **1248**, integration-errors **65**, exploratory **224**, exploratory-errors **11**, Rust toolchain/artifact lifecycle **6**: **3,583** checks, zero failures. Focused evidence: mgen **2**, cgen **3**, owned-binding integration **1** default + **1** ASAN run, shared C/Rust negatives **1** each, Rust read-only counterpart **1**, nearby C foreach/array **15**, Rust foreach/array **3**, and all Rust diagnostics **29**. |
+| PR #83 C owned-binding repair: exact sequential `make build && make test` | PASS — unit **1624**, cgen **124**, rgen **165**, rgen-errors **29**, mgen **87**, integration **1250**, integration-errors **65**, exploratory **224**, exploratory-errors **11**, Rust toolchain/artifact lifecycle **6**: **3,585** checks, zero failures. Focused evidence: mgen **2**, cgen **3**, owned-binding integration **3** default + **3** ASAN runs, shared C/Rust negatives **1** each, Rust read-only counterpart **1**, nearby C foreach/array **15**, Rust foreach/array **3**, and all Rust diagnostics **29**. |
 | host `rustc --version` | `rustc 1.93.1` — verified on **Spark 1** (read-only check) and **Spark 2**. |
 
 ## Methodology (verification)

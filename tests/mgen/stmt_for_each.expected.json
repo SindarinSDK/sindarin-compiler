@@ -149,7 +149,8 @@
               }
             ]
           },
-          "needs_iterable_cleanup": false
+          "needs_iterable_cleanup": false,
+          "iterable_needs_copy": true
         },
         {
           "kind": "expr",

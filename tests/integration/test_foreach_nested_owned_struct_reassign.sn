@@ -1,0 +1,17 @@
+# Reassigning a foreach value must release its recursively-owned prior copy.
+struct Inner =>
+  label: str
+
+struct Outer =>
+  inner: Inner
+
+fn main(): int =>
+  var first: Outer = { inner: Inner { label: "first" } }
+  var second: Outer = { inner: Inner { label: "second" } }
+  var source: Outer[] = {first, second}
+  for outer in source =>
+    outer = Outer { inner: Inner { label: "loop-local" } }
+  assert(source[0].inner.label == "first", "first nested source changed")
+  assert(source[1].inner.label == "second", "second nested source changed")
+  print("PASS\n")
+  return 0
