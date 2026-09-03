@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: str = match 1 =>
+    1 => "one"
+    else => "other"
+  println(result)

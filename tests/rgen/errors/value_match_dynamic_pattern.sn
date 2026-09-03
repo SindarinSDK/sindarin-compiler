@@ -1,0 +1,6 @@
+fn main(): void =>
+  var pattern: int = 1
+  var result: int = match 1 =>
+    pattern => 10
+    else => 20
+  println(result)
