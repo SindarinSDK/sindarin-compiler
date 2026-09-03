@@ -1,0 +1,3 @@
+fn main(): void =>
+  var values: float[] = {1.0f}
+  values[0]++

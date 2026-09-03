@@ -1,0 +1,13 @@
+struct Inner =>
+  value: int
+
+struct Outer =>
+  inner: Inner
+
+fn increment(outer: Outer): void =>
+  outer.inner.value++
+
+fn main(): void =>
+  var inner: Inner = { value: 1 }
+  var outer: Outer = { inner: inner }
+  increment(outer)

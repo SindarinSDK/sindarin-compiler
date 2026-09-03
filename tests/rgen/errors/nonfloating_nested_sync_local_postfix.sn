@@ -1,0 +1,10 @@
+struct Inner =>
+  value: int
+
+struct Outer =>
+  inner: Inner
+
+fn main(): void =>
+  var inner: Inner = { value: 1 }
+  sync var outer: Outer = { inner: inner }
+  outer.inner.value--
