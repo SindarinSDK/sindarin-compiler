@@ -1,0 +1,4 @@
+import "../import_fixtures/rust_pure_unsupported_include" as unsupported
+
+fn main(): void =>
+  println(0)

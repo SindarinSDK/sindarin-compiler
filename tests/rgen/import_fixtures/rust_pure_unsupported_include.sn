@@ -1,0 +1,4 @@
+@include "stdint.h"
+
+fn value(): int =>
+  return 1
