@@ -197,6 +197,7 @@ static bool rust_scalar_ref_parameter_type_supported(json_object *type)
         json_string_property_equals(type, "kind", "byte") ||
         json_string_property_equals(type, "kind", "uint32") ||
         json_string_property_equals(type, "kind", "uint") ||
+        json_string_property_equals(type, "kind", "bool") ||
         json_string_property_equals(type, "kind", "float") ||
         json_string_property_equals(type, "kind", "double");
 }

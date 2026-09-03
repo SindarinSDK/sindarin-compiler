@@ -1,0 +1,6 @@
+fn writeChar(value: char as ref): void =>
+  value = 'z'
+
+fn main(): void =>
+  var value: char = 'a'
+  writeChar(value)
