@@ -1,0 +1,60 @@
+# Function-array foreach bindings own an independent closure reference. The
+# iterable expression runs once, reassignment releases only the binding's old
+# reference, and the source array keeps both original elements callable.
+
+struct Probe as ref =>
+  calls: int
+
+fn addOne(value: int): int => value + 1
+
+fn makeAdder(amount: int): fn(int): int =>
+  return fn(value: int): int => value + amount
+
+fn snapshot(callbacks: (fn(int): int)[], probe: Probe): (fn(int): int)[] =>
+  probe.calls += 1
+  return callbacks.clone()
+
+fn main(): int =>
+  var callbacks: (fn(int): int)[] = {}
+  callbacks.push(addOne)
+
+  var offset: int = 40
+  var captured: fn(int): int = fn(value: int): int => value + offset
+  callbacks.push(captured)
+  callbacks.push(makeAdder(100))
+
+  var replacement: fn(int): int = fn(value: int): int => value * 10
+  var probe: Probe = { calls: 0 }
+  var seen: int = 0
+
+  for callback in snapshot(callbacks, probe) =>
+    if seen == 0 =>
+      assert(callback(2) == 3, "plain function binding was not callable")
+    else if seen == 1 =>
+      assert(callback(2) == 42, "captured closure binding lost its capture")
+    else =>
+      assert(callback(2) == 102, "returned closure binding lost its capture")
+
+    callback = replacement
+    assert(callback(2) == 20, "reassigned binding was not callable")
+    callback = addOne
+    assert(callback(2) == 3, "named-function reassignment was not callable")
+    seen += 1
+
+  assert(probe.calls == 1, "foreach iterable was evaluated more than once")
+  assert(seen == 3, "foreach did not visit all function elements")
+  assert(callbacks[0] (2) == 3, "plain source element changed or was released")
+  assert(callbacks[1] (2) == 42, "captured source element changed or was released")
+  assert(callbacks[2] (2) == 102, "returned source closure changed or was released")
+
+  var literalCallbacks: (fn(int): int)[] = {addOne, captured}
+  for callback in literalCallbacks =>
+    callback = replacement
+    assert(callback(2) == 20, "literal-array binding reassignment failed")
+    callback = addOne
+    assert(callback(2) == 3, "literal named-function reassignment failed")
+  assert(literalCallbacks[0] (2) == 3, "literal plain function was released")
+  assert(literalCallbacks[1] (2) == 42, "literal captured closure was released")
+
+  print("PASS\n")
+  return 0

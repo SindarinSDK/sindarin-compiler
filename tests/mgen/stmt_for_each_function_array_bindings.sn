@@ -1,0 +1,4 @@
+fn main(): void =>
+  var callbacks: (fn(int): int)[] = {}
+  for callback in callbacks =>
+    callback = callback

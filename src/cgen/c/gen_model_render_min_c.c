@@ -178,6 +178,7 @@ static char *helper_c_sizeof_min(json_object **params, int param_count, hbs_opti
     if (strcmp(kind, "byte") == 0) return strdup("sizeof(unsigned char)");
     if (strcmp(kind, "string") == 0) return strdup("sizeof(char *)");
     if (strcmp(kind, "array") == 0) return strdup("sizeof(SnArray *)");
+    if (strcmp(kind, "function") == 0) return strdup("sizeof(void *)");
     if (strcmp(kind, "pointer") == 0) return strdup("sizeof(void *)");
     if (strcmp(kind, "opaque") == 0) return strdup("sizeof(void *)");
     if (strcmp(kind, "interface") == 0) return strdup("sizeof(void *)");

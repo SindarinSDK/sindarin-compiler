@@ -1,0 +1,9 @@
+fn main(): int =>
+  var offset: int = 40
+  var captured: fn(int): int = fn(value: int): int => value + offset
+  var callbacks: (fn(int): int)[] = {captured}
+
+  for callback in callbacks =>
+    callback = captured
+
+  return 0
