@@ -1,0 +1,3 @@
+fn main(): void =>
+  var value: double = 5.0
+  value %= 2.0

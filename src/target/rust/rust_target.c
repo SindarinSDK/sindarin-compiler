@@ -1234,6 +1234,42 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment of floating-point as ref parameters\n");
             return false;
         }
+        bool target_floating = rust_floating_type(target_type);
+        bool value_floating = rust_floating_type(value_type);
+        if (target_floating || value_floating)
+        {
+            const char *op = json_string_property(expr, "op");
+            if (!target_floating || !value_floating ||
+                strcmp(target_kind, value_kind) != 0)
+            {
+                fprintf(stderr,
+                        "Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands\n");
+                return false;
+            }
+            if (!op || (strcmp(op, "add") != 0 &&
+                        strcmp(op, "subtract") != 0 &&
+                        strcmp(op, "multiply") != 0 &&
+                        strcmp(op, "divide") != 0))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point compound assignment only for +=, -=, *=, and /=\n");
+                return false;
+            }
+            if (!json_string_property_equals(expr, "mutation_place", "variable") &&
+                !json_string_property_equals(expr, "mutation_place", "direct_field"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point compound assignment only for variables and direct fields\n");
+                return false;
+            }
+            if (!json_string_property_equals(expr, "mutation_storage", "local"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point compound assignment only for stable mutable locals and direct fields\n");
+                return false;
+            }
+            return rust_validate_expr(target) && rust_validate_expr(value);
+        }
         bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
              strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
@@ -2121,6 +2157,40 @@ static void rust_lower_checked_mutations(json_object *node)
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
 }
 
+/* Floating compound assignment uses the same shared stable-place annotations
+ * as checked integer mutation, but ordinary Rust f32/f64 arithmetic. */
+static void rust_lower_floating_mutations(json_object *node)
+{
+    if (!node) return;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            rust_lower_floating_mutations(json_object_array_get_idx(node, i));
+        return;
+    }
+    if (!json_object_is_type(node, json_type_object)) return;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        rust_lower_floating_mutations(value);
+    }
+
+    json_object *target = NULL, *type = NULL;
+    const char *op = json_string_property(node, "op");
+    if (!json_string_property_equals(node, "kind", "compound_assign") ||
+        !json_object_object_get_ex(node, "target", &target) ||
+        !json_object_object_get_ex(target, "type", &type) ||
+        !rust_floating_type(type) || !op ||
+        (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
+         strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
+        return;
+
+    json_object_object_add(node, "rust_floating_compound",
+                           json_object_new_boolean(true));
+}
+
 /* Mark string constructs after shared model generation so Rust syntax choices
  * stay within this backend. */
 static void rust_lower_strings(json_object *node)
@@ -2812,6 +2882,7 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     rust_lower_checked_arithmetic(model);
     rust_lower_checked_mutations(model);
+    rust_lower_floating_mutations(model);
     rust_lower_strings(model);
     rust_lower_array_searches(model);
     rust_lower_instance_method_clones(model);
