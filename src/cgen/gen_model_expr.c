@@ -1052,18 +1052,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                 bool assign_rhs_is_lifted_member = false;
                 {
                     Expr *val = expr->as.assign.value;
-                    if (val && val->type == EXPR_MEMBER && val->as.member.object)
-                    {
-                        Expr *mo = val->as.member.object;
-                        Type *mot = mo->expr_type;
-                        if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
-                            mot && mot->kind == TYPE_STRUCT &&
-                            !mot->as.struct_type.pass_self_by_ref &&
-                            gen_model_type_has_heap_fields(mot))
-                        {
-                            assign_rhs_is_lifted_member = true;
-                        }
-                    }
+                    assign_rhs_is_lifted_member = ownership_is_lifted_member(val);
                 }
 
                 switch (atype->kind)
@@ -1081,18 +1070,11 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                         }
                         else
                         {
-                            /* as val: only needs cleanup if it has heap fields */
-                            for (int fi = 0; fi < atype->as.struct_type.field_count; fi++)
-                            {
-                                Type *ft = atype->as.struct_type.fields[fi].type;
-                                if (ft && (ft->kind == TYPE_STRING || ft->kind == TYPE_ARRAY ||
-                                    ft->kind == TYPE_FUNCTION ||
-                                    (ft->kind == TYPE_STRUCT && ft->as.struct_type.pass_self_by_ref)))
-                                {
-                                    assign_cleanup = "cleanup_val";
-                                    break;
-                                }
-                            }
+                            /* Keep assignment cleanup consistent with every
+                             * other val-struct ownership path: nested value
+                             * structs can recursively own heap fields. */
+                            if (gen_model_type_has_heap_fields(atype))
+                                assign_cleanup = "cleanup_val";
                         }
                         break;
                     case TYPE_FUNCTION:
@@ -2652,11 +2634,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * owned value the caller can hold.  Consumers (var_decl,
                  * etc.) detect this pattern and skip their own ownership
                  * op so we don't double-retain. */
-                Expr *o = expr->as.member.object;
-                if (o && (o->type == EXPR_CALL || o->type == EXPR_STATIC_CALL) &&
-                    obj_type && obj_type->kind == TYPE_STRUCT &&
-                    !obj_type->as.struct_type.pass_self_by_ref &&
-                    gen_model_type_has_heap_fields(obj_type))
+                if (ownership_is_lifted_member(expr))
                 {
                     /* Determine the keeper op for the accessed field. */
                     Type *ft = expr->expr_type;
@@ -2829,18 +2807,7 @@ json_object *gen_model_expr(Arena *arena, Expr *expr, SymbolTable *symbol_table,
                  * (strdup/sn_array_copy/retain/val_copy) inside the lift block,
                  * so the field must skip its own ownership op. */
                 bool fv_is_lifted_member = false;
-                if (fv && fv->type == EXPR_MEMBER && fv->as.member.object)
-                {
-                    Expr *mo = fv->as.member.object;
-                    Type *mot = mo->expr_type;
-                    if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
-                        mot && mot->kind == TYPE_STRUCT &&
-                        !mot->as.struct_type.pass_self_by_ref &&
-                        gen_model_type_has_heap_fields(mot))
-                    {
-                        fv_is_lifted_member = true;
-                    }
-                }
+                fv_is_lifted_member = ownership_is_lifted_member(fv);
                 /* Unified classifier: BORROW source → emit source_is_borrow
                  * plus the type-name context keys the template needs to build
                  * the concrete acquire call (retain_type_name for ref struct,

@@ -1,0 +1,11 @@
+# Rust supports cloned string foreach values today.  Keep reassignment out of
+# this fixture: Rust foreach ownership remains read-only here.
+fn main(): void =>
+  var names: str[] = {"alpha", "beta"}
+  var decorated: str[] = {}
+  for name in names =>
+    decorated.push(name + "!")
+  println(names[0])
+  println(names[1])
+  println(decorated[0])
+  println(decorated[1])

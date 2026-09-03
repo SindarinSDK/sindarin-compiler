@@ -100,6 +100,10 @@
         {
           "kind": "for_each",
           "iterator_name": "item",
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
           "iterable": {
             "type": {
               "kind": "array",
@@ -145,7 +149,8 @@
               }
             ]
           },
-          "needs_iterable_cleanup": false
+          "needs_iterable_cleanup": false,
+          "iterable_needs_copy": true
         },
         {
           "kind": "expr",

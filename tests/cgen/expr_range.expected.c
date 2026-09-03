@@ -19,7 +19,8 @@ int main() {
         sn_auto_arr SnArray *__arr_0__ = sn_array_range(1LL, 11LL);
         long long __len_0__ = __arr_0__->len;
         for (long long __idx_0__ = 0; __idx_0__ < __len_0__; __idx_0__++) {
-            long long __sn__x = ((long long *)__arr_0__->data)[__idx_0__];
+            long long __sn__x__source = ((long long *)__arr_0__->data)[__idx_0__];
+            long long __sn__x = __sn__x__source;
             {
                 ({
                     long long *__sn_place__ = &(__sn__sum);

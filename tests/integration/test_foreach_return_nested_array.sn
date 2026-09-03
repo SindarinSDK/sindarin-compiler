@@ -1,0 +1,15 @@
+# A foreach binding for an array element is an owned local.  Returning it must
+# transfer that ownership out of the loop before the local cleanup runs.
+
+fn takeFirst(rows: int[][]): int[] =>
+  for row in rows =>
+    return row
+  return {}
+
+fn main(): void =>
+  var rows: int[][] = {{11, 12}, {21, 22}}
+  var first: int[] = takeFirst(rows)
+  assert(first.length == 2, "returned row length changed")
+  assert(first[0] == 11 && first[1] == 12, "returned row was freed")
+  assert(rows[0][0] == 11, "source row lost ownership")
+  println("test_foreach_return_nested_array: PASS")

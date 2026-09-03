@@ -1,0 +1,4 @@
+fn main(): void =>
+  var names: str[] = {"alpha"}
+  for name in names =>
+    name = 1
