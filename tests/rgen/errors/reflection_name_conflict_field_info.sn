@@ -1,0 +1,8 @@
+struct FieldInfo =>
+  value: int
+
+fn main(): void =>
+  var field: FieldInfo = {
+    value: 1
+  }
+  println(field.value)

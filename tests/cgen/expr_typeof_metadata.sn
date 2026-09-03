@@ -1,0 +1,13 @@
+struct MetaInner =>
+  value: int
+
+struct MetaOuter =>
+  label: str
+  items: int[]
+  inner: MetaInner
+
+fn inspect(outer: MetaOuter): TypeInfo =>
+  return typeOf(outer)
+
+fn main(): int =>
+  return 0

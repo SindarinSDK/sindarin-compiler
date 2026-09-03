@@ -1,0 +1,90 @@
+struct Inner =>
+  code: int32
+
+struct Record =>
+  name: str
+  count: int
+  flags: bool[]
+  inner: Inner
+  ratio: float
+
+fn touch(counter: int as ref): int =>
+  counter += 1
+  return counter
+
+fn reflectedRecord(): TypeInfo =>
+  var value: Record = {
+    name: "returned",
+    count: 2,
+    flags: {true, false},
+    inner: Inner {
+      code: 7i32
+    },
+    ratio: 1.5f
+  }
+  var info: TypeInfo = typeOf(value)
+  return info
+
+fn main(): void =>
+  var integer: int = 1
+  var long_value: long = 2l
+  var int32_value: int32 = 3i32
+  var uint_value: uint = 4u
+  var uint32_value: uint32 = 5u32
+  var double_value: double = 6.0
+  var float_value: float = 7.0f
+  var bool_value: bool = true
+  var char_value: char = 'x'
+  var byte_value: byte = 8b
+  var string_value: str = "text"
+
+  println($"{typeOf(integer).name}:{typeOf(integer).typeId}")
+  println($"{typeOf(long_value).name}:{typeOf(long_value).typeId}")
+  println($"{typeOf(int32_value).name}:{typeOf(int32_value).typeId}")
+  println($"{typeOf(uint_value).name}:{typeOf(uint_value).typeId}")
+  println($"{typeOf(uint32_value).name}:{typeOf(uint32_value).typeId}")
+  println($"{typeOf(double_value).name}:{typeOf(double_value).typeId}")
+  println($"{typeOf(float_value).name}:{typeOf(float_value).typeId}")
+  println($"{typeOf(bool_value).name}:{typeOf(bool_value).typeId}")
+  println($"{typeOf(char_value).name}:{typeOf(char_value).typeId}")
+  println($"{typeOf(byte_value).name}:{typeOf(byte_value).typeId}")
+  println($"{typeOf(string_value).name}:{typeOf(string_value).typeId}")
+
+  var numbers: int[] = {1, 2, 3}
+  var words: str[] = {"a", "b"}
+  var number_info: TypeInfo = typeOf(numbers)
+  var word_info: TypeInfo = typeOf(words)
+  println($"{number_info.name}:{number_info.fieldCount}:{number_info.typeId}")
+  println($"{word_info.name}:{word_info.fieldCount}:{word_info.typeId}:{number_info.typeId == word_info.typeId}")
+
+  var inner: Inner = {
+    code: 9i32
+  }
+  var record: Record = {
+    name: "record",
+    count: 3,
+    flags: {true},
+    inner: inner,
+    ratio: 2.5f
+  }
+  var info: TypeInfo = typeOf(record)
+  println($"{info.name}:{info.fieldCount}:{info.typeId}")
+  println($"{info.fields[0].name}:{info.fields[0].typeName}:{info.fields[0].typeId}")
+  println($"{info.fields[1].name}:{info.fields[1].typeName}:{info.fields[1].typeId}")
+  println($"{info.fields[2].name}:{info.fields[2].typeName}:{info.fields[2].typeId}")
+  println($"{info.fields[3].name}:{info.fields[3].typeName}:{info.fields[3].typeId}")
+  println($"{info.fields[4].name}:{info.fields[4].typeName}:{info.fields[4].typeId}")
+  println($"{info.fields[3].typeId == typeOf(inner).typeId}:{typeOf(record).typeId == info.typeId}:{typeOf(record).typeId != typeOf(integer).typeId}")
+
+  var assigned: TypeInfo = info
+  assigned.fields.clear()
+  var copied: TypeInfo = copyOf(info)
+  copied.fields.clear()
+  println($"{info.name}:{info.fields.length}:{assigned.name}:{assigned.fields.length}:{copied.name}:{copied.fields.length}")
+
+  var returned: TypeInfo = reflectedRecord()
+  println($"{returned.name}:{returned.fieldCount}:{returned.fields[3].typeName}")
+
+  var counter: int = 0
+  var unevaluated: TypeInfo = typeOf(touch(counter))
+  println($"{counter}:{unevaluated.name}:{typeOf(touch(counter)).fieldCount}")

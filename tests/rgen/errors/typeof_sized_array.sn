@@ -1,0 +1,3 @@
+fn main(): void =>
+  var values: int[3]
+  println(typeOf(values).name)

@@ -1,0 +1,1 @@
+Error: Rust target reserves struct name 'TypeInfo' for compiler reflection metadata

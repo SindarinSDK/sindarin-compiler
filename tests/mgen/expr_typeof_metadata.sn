@@ -1,0 +1,23 @@
+struct MetaInner =>
+  value: int
+
+struct MetaOuter =>
+  label: str
+  items: int[]
+  inner: MetaInner
+
+fn main(): void =>
+  var outer: MetaOuter = {
+    label: "x",
+    items: {1, 2},
+    inner: MetaInner {
+      value: 3
+    }
+  }
+  var info: TypeInfo = typeOf(outer)
+  println(info.fields[2].typeName)
+  println(typeOf(outer).name)
+  println(typeOf(outer).fieldCount)
+  println(typeOf(outer).typeId)
+  var fixed: int[3]
+  println(typeOf(fixed).name)

@@ -244,6 +244,7 @@ typedef struct
     bool is_param_ref;           /* set by type checker; true if resolved to a function parameter */
     SyncModifier sync_modifier;  /* resolved from the declaration symbol by the type checker */
     MemoryQualifier param_mem_qualifier; /* resolved parameter passing mode, when is_param_ref */
+    bool declared_as_sized_array; /* declaration used TYPE[size] allocation syntax */
 } VariableExpr;
 
 typedef struct

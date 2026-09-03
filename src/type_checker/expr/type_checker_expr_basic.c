@@ -81,6 +81,11 @@ Type *type_check_variable(Expr *expr, SymbolTable *table)
     expr->as.variable.is_param_ref = (sym->kind == SYMBOL_PARAM);
     expr->as.variable.sync_modifier = sym->sync_mod;
     expr->as.variable.param_mem_qualifier = sym->mem_qual;
+    expr->as.variable.declared_as_sized_array =
+        sym->var_decl_origin &&
+        sym->var_decl_origin->type == STMT_VAR_DECL &&
+        sym->var_decl_origin->as.var_decl.initializer &&
+        sym->var_decl_origin->as.var_decl.initializer->type == EXPR_SIZED_ARRAY_ALLOC;
 
     DEBUG_VERBOSE("Variable type found: %d", result_type->kind);
     return result_type;
