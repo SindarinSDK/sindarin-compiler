@@ -1,0 +1,3 @@
+fn main(): void =>
+  match 1 =>
+    "one" => println("one")

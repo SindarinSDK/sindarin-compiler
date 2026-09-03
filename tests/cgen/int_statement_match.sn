@@ -1,0 +1,41 @@
+fn nextSubject(calls: int as ref): int =>
+  calls++
+  return 2
+
+fn main(): void =>
+  var __sn_match_subject: int = 2
+  var subject_calls: int = 0
+  var selected: int = 0
+  var effects: int = 0
+
+  match nextSubject(subject_calls) =>
+    1, 2 =>
+      selected = 10
+      effects++
+    2, 3 =>
+      selected = 20
+      effects += 100
+    else =>
+      selected = 30
+      effects += 1000
+
+  var fallback: int = 0
+  match 99 =>
+    1, 2 => fallback = 1
+    else => fallback = 7
+
+  var unchanged: int = 11
+  match 42 =>
+    1, 2 => unchanged = 99
+
+  var negative: int = 0
+  match - 7 =>
+    -8, -7 => negative = 1
+    else => negative = 2
+
+  var upper_bound: int = 0
+  match 9223372036854775807 =>
+    -9223372036854775807, 9223372036854775807 => upper_bound = 1
+    else => upper_bound = 2
+
+  println($"{__sn_match_subject},{subject_calls},{selected},{effects},{fallback},{unchanged},{negative},{upper_bound}")

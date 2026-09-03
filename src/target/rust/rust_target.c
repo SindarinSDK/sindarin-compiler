@@ -869,6 +869,13 @@ static bool rust_validate_expr(json_object *expr)
     json_object *child = NULL;
     if (!kind) return false;
 
+    if (strcmp(kind, "match") == 0)
+    {
+        fprintf(stderr,
+                "Error: Rust target does not support value-returning match expressions yet\n");
+        return false;
+    }
+
     if (strcmp(kind, "literal") == 0)
     {
         json_object *reflected_type = NULL;
@@ -1551,6 +1558,123 @@ static bool rust_validate_block(json_object *block)
            rust_validate_statements(statements);
 }
 
+static bool rust_statement_match_literal_pattern(json_object *pattern)
+{
+    json_object *type = NULL;
+    if (!json_object_is_type(pattern, json_type_object) ||
+        !json_object_object_get_ex(pattern, "type", &type) ||
+        !json_string_property_equals(type, "kind", "int")) return false;
+
+    if (json_string_property_equals(pattern, "kind", "literal"))
+    {
+        json_object *value = NULL;
+        return json_string_property_equals(pattern, "value_kind", "int") &&
+               json_object_object_get_ex(pattern, "value", &value) &&
+               json_object_is_type(value, json_type_int);
+    }
+
+    json_object *operand = NULL;
+    if (!json_string_property_equals(pattern, "kind", "unary") ||
+        !json_string_property_equals(pattern, "op", "negate") ||
+        !json_object_object_get_ex(pattern, "operand", &operand) ||
+        !json_string_property_equals(operand, "kind", "literal") ||
+        !json_string_property_equals(operand, "value_kind", "int")) return false;
+
+    json_object *operand_type = NULL, *value = NULL;
+    return json_object_object_get_ex(operand, "type", &operand_type) &&
+           json_string_property_equals(operand_type, "kind", "int") &&
+           json_object_object_get_ex(operand, "value", &value) &&
+           json_object_is_type(value, json_type_int);
+}
+
+static bool rust_validate_statement_match(json_object *expr)
+{
+    json_object *subject = NULL, *subject_type = NULL, *arms = NULL;
+    if (!json_object_object_get_ex(expr, "subject", &subject) ||
+        !json_object_is_type(subject, json_type_object) ||
+        !json_object_object_get_ex(subject, "type", &subject_type) ||
+        !json_object_object_get_ex(expr, "arms", &arms) ||
+        !json_object_is_type(arms, json_type_array) ||
+        json_object_array_length(arms) == 0)
+    {
+        fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
+        return false;
+    }
+    if (!json_string_property_equals(subject_type, "kind", "int"))
+    {
+        fprintf(stderr,
+                "Error: Rust target supports statement match only with int subjects\n");
+        return false;
+    }
+    if (!rust_validate_expr(subject)) return false;
+
+    bool has_else = false;
+    bool has_pattern_arm = false;
+    size_t arm_count = json_object_array_length(arms);
+    for (size_t i = 0; i < arm_count; i++)
+    {
+        json_object *arm = json_object_array_get_idx(arms, i);
+        json_object *is_else_obj = NULL, *patterns = NULL, *body = NULL;
+        json_object *body_statements = NULL;
+        if (!json_object_is_type(arm, json_type_object) ||
+            !json_object_object_get_ex(arm, "is_else", &is_else_obj) ||
+            !json_object_is_type(is_else_obj, json_type_boolean) ||
+            !json_object_object_get_ex(arm, "patterns", &patterns) ||
+            !json_object_is_type(patterns, json_type_array) ||
+            !json_object_object_get_ex(arm, "body", &body) ||
+            !json_string_property_equals(body, "kind", "block") ||
+            !json_object_object_get_ex(body, "statements", &body_statements) ||
+            !json_object_is_type(body_statements, json_type_array))
+        {
+            fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
+            return false;
+        }
+
+        bool is_else = json_object_get_boolean(is_else_obj);
+        size_t pattern_count = json_object_array_length(patterns);
+        if ((is_else && (has_else || i + 1 != arm_count || pattern_count != 0)) ||
+            (!is_else && pattern_count == 0))
+        {
+            fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
+            return false;
+        }
+        if (is_else)
+        {
+            has_else = true;
+        }
+        else
+        {
+            has_pattern_arm = true;
+            for (size_t p = 0; p < pattern_count; p++)
+            {
+                if (!rust_statement_match_literal_pattern(
+                        json_object_array_get_idx(patterns, p)))
+                {
+                    fprintf(stderr,
+                            "Error: Rust target supports statement match only with integer literal patterns\n");
+                    return false;
+                }
+            }
+        }
+
+        if (!rust_validate_block(body))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support this statement match arm body yet\n");
+            return false;
+        }
+    }
+
+    if (!has_pattern_arm)
+    {
+        fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
+        return false;
+    }
+
+    json_object_object_add(expr, "rust_has_else", json_object_new_boolean(has_else));
+    return true;
+}
+
 static bool rust_iterator_scalar_element_supported(json_object *type)
 {
     const char *kind = json_string_property(type, "kind");
@@ -1608,7 +1732,12 @@ static bool rust_validate_stmt(json_object *stmt)
     if (strcmp(kind, "return") == 0)
         return !json_object_object_get_ex(stmt, "value", &child) || rust_validate_expr(child);
     if (strcmp(kind, "expr") == 0)
-        return json_object_object_get_ex(stmt, "expr", &child) && rust_validate_expr(child);
+    {
+        if (!json_object_object_get_ex(stmt, "expr", &child)) return false;
+        if (json_string_property_equals(child, "kind", "match"))
+            return rust_validate_statement_match(child);
+        return rust_validate_expr(child);
+    }
     if (strcmp(kind, "var_decl") == 0)
     {
         json_object *type = NULL;

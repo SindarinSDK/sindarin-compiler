@@ -1,0 +1,5 @@
+match ({{> expr subject}} as i64) {
+{{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
+{{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}        },
+{{/each}}{{#unless rust_has_else}}        _ => {},
+{{/unless}}    {{rbrace}}
