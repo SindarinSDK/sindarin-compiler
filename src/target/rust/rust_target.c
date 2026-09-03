@@ -1657,12 +1657,7 @@ static bool rust_validate_statement_match(json_object *expr)
             }
         }
 
-        if (!rust_validate_block(body))
-        {
-            fprintf(stderr,
-                    "Error: Rust target does not support this statement match arm body yet\n");
-            return false;
-        }
+        if (!rust_validate_block(body)) return false;
     }
 
     if (!has_pattern_arm)

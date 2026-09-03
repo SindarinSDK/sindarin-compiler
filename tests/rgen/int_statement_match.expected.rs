@@ -49,14 +49,34 @@ fn main() {
             (negative = 2);
         },
     };
-    let mut upper_bound: i64 = 0;
-    match (9223372036854775807 as i64) {
+    let mut parser_extremes: i64 = 0;
+    match ((-9223372036854775807) as i64) {
         (-9223372036854775807) | 9223372036854775807 => {
-            (upper_bound = 1);
+            { let __sn_rhs = 1; let __sn_place = &mut (parser_extremes); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
         },
         _ => {
-            (upper_bound = 2);
+            (parser_extremes = 100);
         },
     };
-    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", effects)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", unchanged)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", negative)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", upper_bound)); __sn_interpolated });
+    match (9223372036854775807 as i64) {
+        (-9223372036854775807) | 9223372036854775807 => {
+            { let __sn_rhs = 10; let __sn_place = &mut (parser_extremes); let __sn_next = (*__sn_place).checked_add(__sn_rhs).expect("checked arithmetic failed"); *__sn_place = __sn_next; __sn_next };
+        },
+        _ => {
+            (parser_extremes = 200);
+        },
+    };
+    let mut nested: i64 = 0;
+    match (1 as i64) {
+        1 => {
+            match (2 as i64) {
+        2 => {
+            (nested = 5);
+        },
+        _ => {},
+    };
+        },
+        _ => {},
+    };
+    println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str(&format!("{}", __sn_match_subject)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", subject_calls)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", selected)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", effects)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", fallback)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", unchanged)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", negative)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", parser_extremes)); __sn_interpolated.push_str(","); __sn_interpolated.push_str(&format!("{}", nested)); __sn_interpolated });
 }

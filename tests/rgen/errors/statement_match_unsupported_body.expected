@@ -1,1 +1,1 @@
-Error: Rust target does not support this statement match arm body yet
+Error: Rust target encountered an unsupported construct in function 'main'

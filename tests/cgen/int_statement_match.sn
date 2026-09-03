@@ -33,9 +33,19 @@ fn main(): void =>
     -8, -7 => negative = 1
     else => negative = 2
 
-  var upper_bound: int = 0
-  match 9223372036854775807 =>
-    -9223372036854775807, 9223372036854775807 => upper_bound = 1
-    else => upper_bound = 2
+  var parser_extremes: int = 0
+  match - 9223372036854775807 =>
+    -9223372036854775807, 9223372036854775807 => parser_extremes += 1
+    else => parser_extremes = 100
 
-  println($"{__sn_match_subject},{subject_calls},{selected},{effects},{fallback},{unchanged},{negative},{upper_bound}")
+  match 9223372036854775807 =>
+    -9223372036854775807, 9223372036854775807 => parser_extremes += 10
+    else => parser_extremes = 200
+
+  var nested: int = 0
+  match 1 =>
+    1 =>
+      match 2 =>
+        2 => nested = 5
+
+  println($"{__sn_match_subject},{subject_calls},{selected},{effects},{fallback},{unchanged},{negative},{parser_extremes},{nested}")
