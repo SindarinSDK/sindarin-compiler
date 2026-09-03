@@ -189,6 +189,24 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
+static bool rust_scalar_ref_parameter_type_supported(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "int") ||
+        json_string_property_equals(type, "kind", "long") ||
+        json_string_property_equals(type, "kind", "int32") ||
+        json_string_property_equals(type, "kind", "byte") ||
+        json_string_property_equals(type, "kind", "uint32") ||
+        json_string_property_equals(type, "kind", "uint") ||
+        json_string_property_equals(type, "kind", "float") ||
+        json_string_property_equals(type, "kind", "double");
+}
+
+static bool rust_floating_type(json_object *type)
+{
+    return json_string_property_equals(type, "kind", "float") ||
+        json_string_property_equals(type, "kind", "double");
+}
+
 static bool rust_checked_scalar_ref_parameter(json_object *mutation,
                                                json_object *parameter)
 {
@@ -1080,6 +1098,14 @@ static bool rust_validate_expr(json_object *expr)
                     "Error: Rust target does not support compound assignment of by-value parameters\n");
             return false;
         }
+        if (json_string_property_equals(expr, "mutation_storage", "parameter") &&
+            json_string_property_equals(target, "parameter_mem_qual", "as_ref") &&
+            rust_floating_type(target_type))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support compound assignment of floating-point as ref parameters\n");
+            return false;
+        }
         bool checked_ref_parameter = rust_checked_scalar_ref_parameter(expr, target);
         if ((strcmp(target_kind, "int") != 0 && strcmp(target_kind, "long") != 0 &&
              strcmp(target_kind, "int32") != 0 && strcmp(target_kind, "uint") != 0 &&
@@ -1124,6 +1150,14 @@ static bool rust_validate_expr(json_object *expr)
             {
                 fprintf(stderr,
                         "Error: Rust target does not support increment/decrement of by-value parameters\n");
+                return false;
+            }
+            json_object *operand_type = NULL;
+            if (json_object_object_get_ex(child, "type", &operand_type) &&
+                rust_floating_type(operand_type))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support increment/decrement of floating-point as ref parameters\n");
                 return false;
             }
         }
@@ -1662,12 +1696,7 @@ static bool rust_validate_struct_methods(json_object *model)
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
-                         (json_string_property_equals(param_type, "kind", "int") ||
-                          json_string_property_equals(param_type, "kind", "long") ||
-                          json_string_property_equals(param_type, "kind", "int32") ||
-                          json_string_property_equals(param_type, "kind", "byte") ||
-                          json_string_property_equals(param_type, "kind", "uint32") ||
-                          json_string_property_equals(param_type, "kind", "uint"))) ||
+                         rust_scalar_ref_parameter_type_supported(param_type)) ||
                         (is_static && has_param_type &&
                          strcmp(mem_qual, "as_ref") == 0 &&
                          rust_heap_free_named_struct_type(param_type)) ||
@@ -1818,12 +1847,7 @@ static bool rust_validate_model_impl(json_object *model)
                         !mem_qual || strcmp(mem_qual, "default") == 0 ||
                         (has_param_type && strcmp(mem_qual, "as_ref") == 0 &&
                          (rust_heap_free_named_struct_type(param_type) ||
-                          json_string_property_equals(param_type, "kind", "int") ||
-                          json_string_property_equals(param_type, "kind", "long") ||
-                          json_string_property_equals(param_type, "kind", "int32") ||
-                          json_string_property_equals(param_type, "kind", "byte") ||
-                          json_string_property_equals(param_type, "kind", "uint32") ||
-                          json_string_property_equals(param_type, "kind", "uint"))) ||
+                          rust_scalar_ref_parameter_type_supported(param_type))) ||
                         (has_param_type && strcmp(mem_qual, "as_val") == 0 &&
                          rust_heap_free_named_struct_type(param_type));
                     if (!has_param_type ||
@@ -2515,12 +2539,7 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
                 const char *name = json_string_property(param, "name");
                 if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                     json_object_object_get_ex(param, "type", &type) &&
-                    (json_string_property_equals(type, "kind", "int") ||
-                     json_string_property_equals(type, "kind", "long") ||
-                     json_string_property_equals(type, "kind", "int32") ||
-                     json_string_property_equals(type, "kind", "byte") ||
-                     json_string_property_equals(type, "kind", "uint32") ||
-                     json_string_property_equals(type, "kind", "uint")))
+                    rust_scalar_ref_parameter_type_supported(type))
                     rust_mark_scalar_ref_uses(body, name);
             }
         }
@@ -2549,12 +2568,7 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
                 const char *name = json_string_property(param, "name");
                 if (name && json_string_property_equals(param, "mem_qual", "as_ref") &&
                     json_object_object_get_ex(param, "type", &type) &&
-                    (json_string_property_equals(type, "kind", "int") ||
-                     json_string_property_equals(type, "kind", "long") ||
-                     json_string_property_equals(type, "kind", "int32") ||
-                     json_string_property_equals(type, "kind", "byte") ||
-                     json_string_property_equals(type, "kind", "uint32") ||
-                     json_string_property_equals(type, "kind", "uint")))
+                    rust_scalar_ref_parameter_type_supported(type))
                     rust_mark_scalar_ref_uses(body, name);
             }
         }

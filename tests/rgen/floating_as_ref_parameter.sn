@@ -1,0 +1,72 @@
+struct Values =>
+  single: float
+  precise: double
+
+struct RefOps =>
+  static fn staticWriteFloat(value: float as ref): float =>
+    var before: float = value
+    value = 6.5f
+    return before
+
+  static fn staticWriteDouble(value: double as ref): double =>
+    var before: double = value
+    value = 8.5
+    return before
+
+  fn instanceWriteFloat(value: float as ref): float =>
+    var before: float = value
+    value = 10.5f
+    return before
+
+  fn instanceWriteDouble(value: double as ref): double =>
+    var before: double = value
+    value = 12.5
+    return before
+
+fn writeFloat(value: float as ref): float =>
+  var before: float = value
+  value = 2.5f
+  return before
+
+fn writeDouble(value: double as ref): double =>
+  var before: double = value
+  value = 4.5
+  return before
+
+fn forwardFloat(value: float as ref): float =>
+  RefOps.staticWriteFloat(value)
+  return value
+
+fn forwardDouble(value: double as ref): double =>
+  var ops: RefOps = {}
+  ops.instanceWriteDouble(value)
+  return value
+
+fn main(): void =>
+  var freeSingle: float = 1.5f
+  var freeValues: Values = {
+    single: 0.0f,
+    precise: 2.25
+  }
+  var staticValues: Values = {
+    single: 4.0f,
+    precise: 0.0
+  }
+  var staticDouble: double = 5.25
+  var instanceSingle: float = 9.0f
+  var instanceValues: Values = {
+    single: 0.0f,
+    precise: 11.25
+  }
+  var forwardedSingle: float = 16.0f
+  var forwardedDouble: double = 32.0
+  var ops: RefOps = {}
+
+  println(writeFloat(freeSingle) == 1.5f && freeSingle == 2.5f)
+  println(writeDouble(freeValues.precise) == 2.25 && freeValues.precise == 4.5)
+  println(RefOps.staticWriteFloat(staticValues.single) == 4.0f && staticValues.single == 6.5f)
+  println(RefOps.staticWriteDouble(staticDouble) == 5.25 && staticDouble == 8.5)
+  println(ops.instanceWriteFloat(instanceSingle) == 9.0f && instanceSingle == 10.5f)
+  println(ops.instanceWriteDouble(instanceValues.precise) == 11.25 && instanceValues.precise == 12.5)
+  println(forwardFloat(forwardedSingle) == 6.5f && forwardedSingle == 6.5f)
+  println(forwardDouble(forwardedDouble) == 12.5 && forwardedDouble == 12.5)
