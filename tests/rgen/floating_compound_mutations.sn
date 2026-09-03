@@ -1,0 +1,66 @@
+struct FloatingValues =>
+  single: float
+  precise: double
+
+  fn halve(): double =>
+    return self.precise /= 2.0
+
+fn rhsFloat(calls: int as ref): float =>
+  calls += 1
+  return 2.0f
+
+fn main(): void =>
+  var single: float = 16.0f
+  var single_add: float = single += 4.0f
+  var single_subtract: float = single -= 2.0f
+  var single_multiply: float = single *= 0.5f
+  var single_divide: float = single /= 3.0f
+  println(single_add == 20.0f && single_subtract == 18.0f &&
+    single_multiply == 9.0f && single_divide == 3.0f && single == 3.0f)
+
+  var precise: double = 32.0
+  var precise_add: double = precise += 8.0
+  var precise_subtract: double = precise -= 4.0
+  var precise_multiply: double = precise *= 0.5
+  var precise_divide: double = precise /= 3.0
+  println(precise_add == 40.0 && precise_subtract == 36.0 &&
+    precise_multiply == 18.0 && precise_divide == 6.0 && precise == 6.0)
+
+  var fields: FloatingValues = {
+    single: 2.0f,
+    precise: 8.0
+  }
+  var field_single: float = fields.single *= 4.0f
+  var field_precise: double = fields.precise -= 2.0
+  var self_result: double = fields.halve()
+  println(field_single == 8.0f && fields.single == 8.0f &&
+    field_precise == 6.0 && self_result == 3.0 && fields.precise == 3.0)
+
+  var calls: int = 0
+  var __sn_rhs: float = 8.0f
+  var ordered_result: float = __sn_rhs += rhsFloat(calls)
+  println(ordered_result == 10.0f && __sn_rhs == 10.0f && calls == 1)
+
+  var __sn_place: double = 8.0
+  var place_result: double = __sn_place -= 2.0
+  var __sn_next: float = 3.0f
+  var next_result: float = __sn_next *= 2.0f
+  println(place_result == 6.0 && __sn_place == 6.0 &&
+    next_result == 6.0f && __sn_next == 6.0f)
+
+  var singles: float[] = {8.0f, 8.0f}
+  var single_index: int = 0
+  for value in singles =>
+    var result: float = value /= 2.0f
+    println(result == 4.0f && value == 4.0f && singles[single_index] == 8.0f)
+    single_index += 1
+
+  var doubles: double[] = {16.0}
+  for value in doubles =>
+    var result: double = value += 4.0
+    println(result == 20.0 && value == 20.0 && doubles[0] == 16.0)
+
+  var zero: double = 0.0
+  var infinity: double = 1.0
+  var infinity_result: double = infinity /= zero
+  println(infinity_result == infinity && infinity > 1.0)

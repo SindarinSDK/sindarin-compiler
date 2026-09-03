@@ -1,0 +1,8 @@
+struct Value =>
+  number: double
+
+fn makeValue(): Value =>
+  return Value { number: 1.0 }
+
+fn main(): void =>
+  makeValue().number += 1.0

@@ -1,0 +1,1 @@
+Error: Rust target currently supports floating-point compound assignment only between same-type float or double operands
