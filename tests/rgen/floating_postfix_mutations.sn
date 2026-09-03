@@ -1,0 +1,53 @@
+struct FloatingPostfixValues =>
+  single: float
+  precise: double
+
+  fn mutateSelf(): bool =>
+    var before_increment: double = self.precise++
+    var before_decrement: double = self.precise--
+    return before_increment == 6.0 && before_decrement == 7.0 && self.precise == 6.0
+
+fn main(): void =>
+  var single: float = 1.5f
+  var single_before_increment: float = single++
+  var single_before_decrement: float = single--
+  println(single_before_increment == 1.5f && single_before_decrement == 2.5f &&
+    single == 1.5f)
+
+  var precise: double = 3.25
+  var precise_before_increment: double = precise++
+  var precise_before_decrement: double = precise--
+  println(precise_before_increment == 3.25 && precise_before_decrement == 4.25 &&
+    precise == 3.25)
+
+  var fields: FloatingPostfixValues = {
+    single: 2.0f,
+    precise: 6.0
+  }
+  var field_single_before: float = fields.single++
+  var field_precise_before: double = fields.precise--
+  println(field_single_before == 2.0f && fields.single == 3.0f &&
+    field_precise_before == 6.0 && fields.precise == 5.0)
+
+  fields.precise++
+  println(fields.mutateSelf())
+
+  var singles: float[] = {4.0f}
+  for value in singles =>
+    var before: float = value++
+    println(before == 4.0f && value == 5.0f && singles[0] == 4.0f)
+
+  var doubles: double[] = {9.0}
+  for value in doubles =>
+    var before: double = value--
+    println(before == 9.0 && value == 8.0 && doubles[0] == 9.0)
+
+  var __sn_place: float = 10.0f
+  var place_before: float = __sn_place++
+  var __sn_previous: double = 12.0
+  var previous_before: double = __sn_previous--
+  var __sn_next: float = 14.0f
+  var next_before: float = __sn_next++
+  println(place_before == 10.0f && __sn_place == 11.0f &&
+    previous_before == 12.0 && __sn_previous == 11.0 &&
+    next_before == 14.0f && __sn_next == 15.0f)

@@ -1,0 +1,3 @@
+fn main(): void =>
+  sync var value: float = 1.0f
+  value--

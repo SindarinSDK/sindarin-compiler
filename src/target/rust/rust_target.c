@@ -1297,17 +1297,16 @@ static bool rust_validate_expr(json_object *expr)
     if (strcmp(kind, "increment") == 0 || strcmp(kind, "decrement") == 0)
     {
         const char *operand_kind = NULL;
+        json_object *operand_type = NULL;
         if (!json_object_object_get_ex(expr, "operand", &child) ||
             !(operand_kind = json_string_property(child, "kind")) ||
-            (strcmp(operand_kind, "variable") != 0 &&
-             strcmp(operand_kind, "member") != 0) ||
-            (!json_string_property_equals(expr, "mutation_place", "variable") &&
-             !json_string_property_equals(expr, "mutation_place", "direct_field")))
+            !json_object_object_get_ex(child, "type", &operand_type))
         {
             fprintf(stderr,
                     "Error: Rust target supports increment/decrement only for variables and fields\n");
             return false;
         }
+        bool operand_floating = rust_floating_type(operand_type);
         if (json_string_property_equals(expr, "mutation_storage", "parameter"))
         {
             if (!json_string_property_equals(child, "parameter_mem_qual", "as_ref"))
@@ -1316,9 +1315,7 @@ static bool rust_validate_expr(json_object *expr)
                         "Error: Rust target does not support increment/decrement of by-value parameters\n");
                 return false;
             }
-            json_object *operand_type = NULL;
-            if (json_object_object_get_ex(child, "type", &operand_type) &&
-                rust_floating_type(operand_type))
+            if (operand_floating)
             {
                 fprintf(stderr,
                         "Error: Rust target does not support increment/decrement of floating-point as ref parameters\n");
@@ -1329,6 +1326,34 @@ static bool rust_validate_expr(json_object *expr)
         {
             fprintf(stderr,
                     "Error: Rust target does not support increment/decrement of sync variables\n");
+            return false;
+        }
+        if (operand_floating)
+        {
+            if ((strcmp(operand_kind, "variable") != 0 &&
+                 strcmp(operand_kind, "member") != 0) ||
+                (!json_string_property_equals(expr, "mutation_place", "variable") &&
+                 !json_string_property_equals(expr, "mutation_place", "direct_field")))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point increment/decrement only for variables and direct fields\n");
+                return false;
+            }
+            if (!json_string_property_equals(expr, "mutation_storage", "local"))
+            {
+                fprintf(stderr,
+                        "Error: Rust target supports floating-point increment/decrement only for stable mutable locals and direct fields\n");
+                return false;
+            }
+            return rust_validate_expr(child);
+        }
+        if ((strcmp(operand_kind, "variable") != 0 &&
+             strcmp(operand_kind, "member") != 0) ||
+            (!json_string_property_equals(expr, "mutation_place", "variable") &&
+             !json_string_property_equals(expr, "mutation_place", "direct_field")))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports increment/decrement only for variables and fields\n");
             return false;
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
@@ -2157,8 +2182,9 @@ static void rust_lower_checked_mutations(json_object *node)
         json_object_object_add(node, "rust_checked_method", json_object_new_string(method));
 }
 
-/* Floating compound assignment uses the same shared stable-place annotations
- * as checked integer mutation, but ordinary Rust f32/f64 arithmetic. */
+/* Floating compound assignment and postfix mutation use the same shared
+ * stable-place annotations as checked integer mutation, but ordinary Rust
+ * f32/f64 arithmetic. */
 static void rust_lower_floating_mutations(json_object *node)
 {
     if (!node) return;
@@ -2178,16 +2204,33 @@ static void rust_lower_floating_mutations(json_object *node)
     }
 
     json_object *target = NULL, *type = NULL;
+    const char *kind = json_string_property(node, "kind");
     const char *op = json_string_property(node, "op");
-    if (!json_string_property_equals(node, "kind", "compound_assign") ||
-        !json_object_object_get_ex(node, "target", &target) ||
+    if (kind && strcmp(kind, "compound_assign") == 0)
+    {
+        if (!json_object_object_get_ex(node, "target", &target) ||
+            !json_object_object_get_ex(target, "type", &type) ||
+            !rust_floating_type(type) || !op ||
+            (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
+             strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
+            return;
+
+        json_object_object_add(node, "rust_floating_compound",
+                               json_object_new_boolean(true));
+        return;
+    }
+
+    const char *mutation_op = json_string_property(node, "mutation_op");
+    if ((!kind || (strcmp(kind, "increment") != 0 &&
+                   strcmp(kind, "decrement") != 0)) ||
+        !json_object_object_get_ex(node, "operand", &target) ||
         !json_object_object_get_ex(target, "type", &type) ||
-        !rust_floating_type(type) || !op ||
-        (strcmp(op, "add") != 0 && strcmp(op, "subtract") != 0 &&
-         strcmp(op, "multiply") != 0 && strcmp(op, "divide") != 0))
+        !rust_floating_type(type) || !mutation_op ||
+        (strcmp(mutation_op, "add") != 0 &&
+         strcmp(mutation_op, "subtract") != 0))
         return;
 
-    json_object_object_add(node, "rust_floating_compound",
+    json_object_object_add(node, "rust_floating_postfix",
                            json_object_new_boolean(true));
 }
 
