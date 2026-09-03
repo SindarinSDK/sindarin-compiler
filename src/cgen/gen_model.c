@@ -138,9 +138,9 @@ int g_as_ref_param_count = 0;
 char **g_all_param_names = NULL;
 int g_all_param_count = 0;
 
-/* For-each array-iteration variable names (borrowed array elements) */
-char **g_iter_var_names = NULL;
-int g_iter_var_count = 0;
+/* Normal-array foreach binding names (owned loop locals) */
+char **g_owned_iter_var_names = NULL;
+int g_owned_iter_var_count = 0;
 
 /* Global thread-handle-variable set */
 char **g_thread_handle_vars = NULL;

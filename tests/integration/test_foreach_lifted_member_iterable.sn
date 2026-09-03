@@ -1,0 +1,24 @@
+# build().items is already lifted from an owned temporary Holder and kept alive
+# as an owned array result.  Foreach must consume that one result without
+# copying it again or evaluating build twice.
+
+struct Holder =>
+  items: str[]
+
+var builds: int = 0
+
+fn build(): Holder =>
+  builds += 1
+  return Holder { items: {"alpha", "beta"} }
+
+fn main(): void =>
+  var seen: int = 0
+  for item in build().items =>
+    if seen == 0 =>
+      assert(item == "alpha", "unexpected first item")
+    else =>
+      assert(item == "beta", "unexpected second item")
+    seen += 1
+  assert(builds == 1, $"build evaluated {builds} times")
+  assert(seen == 2, $"visited {seen} items")
+  println("test_foreach_lifted_member_iterable: PASS")

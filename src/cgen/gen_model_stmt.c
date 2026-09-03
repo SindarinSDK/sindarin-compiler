@@ -211,18 +211,7 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 bool init_is_lifted_member = false;
                 {
                     Expr *init = stmt->as.var_decl.initializer;
-                    if (init && init->type == EXPR_MEMBER && init->as.member.object)
-                    {
-                        Expr *mo = init->as.member.object;
-                        Type *mot = mo->expr_type;
-                        if ((mo->type == EXPR_CALL || mo->type == EXPR_STATIC_CALL) &&
-                            mot && mot->kind == TYPE_STRUCT &&
-                            !mot->as.struct_type.pass_self_by_ref &&
-                            gen_model_type_has_heap_fields(mot))
-                        {
-                            init_is_lifted_member = true;
-                        }
-                    }
+                    init_is_lifted_member = ownership_is_lifted_member(init);
                 }
                 /* For string vars: determine if initializer needs strdup wrapping.
                  * Literals and variable refs are borrowed — need strdup.
@@ -462,7 +451,17 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                     {
                         const char *vname = rv->as.variable.name.start;
                         int vlen = rv->as.variable.name.length;
-                        for (int pi = 0; pi < g_all_param_count; pi++)
+                        bool is_owned_foreach_binding = false;
+                        for (int ii = 0; ii < g_owned_iter_var_count; ii++)
+                        {
+                            if ((int)strlen(g_owned_iter_var_names[ii]) == vlen &&
+                                strncmp(g_owned_iter_var_names[ii], vname, vlen) == 0)
+                            {
+                                is_owned_foreach_binding = true;
+                                break;
+                            }
+                        }
+                        for (int pi = 0; !is_owned_foreach_binding && pi < g_all_param_count; pi++)
                         {
                             if ((int)strlen(g_all_param_names[pi]) == vlen &&
                                 strncmp(g_all_param_names[pi], vname, vlen) == 0)
@@ -484,28 +483,6 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                                 /* For arrays/functions: just return directly — the callee doesn't
                                  * own the param's array; the caller retains ownership. */
                                 break;
-                            }
-                        }
-                        /* For-each iter var over an array binds a borrowed element pointer
-                         * (no retain on read, no sn_auto cleanup). Treat returns of this var
-                         * the same as borrowed params: skip the move/null_ptr transfer and
-                         * emit a retain at the return edge for as-ref struct / strdup for str. */
-                        if (is_owned)
-                        {
-                            for (int ii = 0; ii < g_iter_var_count; ii++)
-                            {
-                                if ((int)strlen(g_iter_var_names[ii]) == vlen &&
-                                    strncmp(g_iter_var_names[ii], vname, vlen) == 0)
-                                {
-                                    is_owned = false;
-                                    if (rt->kind == TYPE_STRING ||
-                                        (rt->kind == TYPE_STRUCT && rt->as.struct_type.pass_self_by_ref))
-                                    {
-                                        json_object_object_add(obj, "source_is_borrow",
-                                                               json_object_new_boolean(true));
-                                    }
-                                    break;
-                                }
                             }
                         }
                     }
@@ -865,24 +842,24 @@ json_object *gen_model_stmt(Arena *arena, Stmt *stmt, SymbolTable *symbol_table,
                 }
 
                 /* The template acquires an owned loop-local binding from the
-                 * borrowed array slot.  Keep its name in scope so a `return
-                 * <itervar>` retains rather than moves: the local cleanup and
-                 * the array each retain their own ownership. */
+                 * borrowed array slot. Keep its name in scope so return
+                 * lowering transfers it like an owned local, even if it
+                 * shadows a borrowed parameter with the same name. */
                 int nlen = stmt->as.for_each_stmt.var_name.length;
                 char *ncopy = arena_alloc(arena, nlen + 1);
                 memcpy(ncopy, stmt->as.for_each_stmt.var_name.start, nlen);
                 ncopy[nlen] = '\0';
-                if (g_iter_var_count % 8 == 0) {
-                    char **nv = arena_alloc(arena, (g_iter_var_count + 8) * sizeof(char *));
-                    for (int j = 0; j < g_iter_var_count; j++) nv[j] = g_iter_var_names[j];
-                    g_iter_var_names = nv;
+                if (g_owned_iter_var_count % 8 == 0) {
+                    char **nv = arena_alloc(arena, (g_owned_iter_var_count + 8) * sizeof(char *));
+                    for (int j = 0; j < g_owned_iter_var_count; j++) nv[j] = g_owned_iter_var_names[j];
+                    g_owned_iter_var_names = nv;
                 }
-                g_iter_var_names[g_iter_var_count++] = ncopy;
+                g_owned_iter_var_names[g_owned_iter_var_count++] = ncopy;
 
                 json_object_object_add(obj, "body",
                     gen_model_stmt(arena, stmt->as.for_each_stmt.body, symbol_table, arithmetic_mode));
 
-                g_iter_var_count--;
+                g_owned_iter_var_count--;
                 /* iterable needs cleanup if it's a temporary (not a variable/member reference) */
                 Expr *iter_expr = stmt->as.for_each_stmt.iterable;
                 bool iter_is_temp = (iter_expr->type != EXPR_VARIABLE &&

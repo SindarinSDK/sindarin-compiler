@@ -1,4 +1,18 @@
 #include "cgen/ownership.h"
+#include "cgen/gen_model.h"
+
+bool ownership_is_lifted_member(const Expr *src)
+{
+    if (!src || src->type != EXPR_MEMBER || !src->as.member.object)
+        return false;
+
+    Expr *object = src->as.member.object;
+    Type *object_type = object->expr_type;
+    return (object->type == EXPR_CALL || object->type == EXPR_STATIC_CALL) &&
+        object_type && object_type->kind == TYPE_STRUCT &&
+        !object_type->as.struct_type.pass_self_by_ref &&
+        gen_model_type_has_heap_fields(object_type);
+}
 
 OwnershipKind ownership_kind(const Expr *src)
 {
@@ -26,11 +40,18 @@ OwnershipKind ownership_kind(const Expr *src)
 
         /* BORROW — expression reads through a live owner that remains live. */
         case EXPR_VARIABLE:
-        case EXPR_MEMBER:
         case EXPR_MEMBER_ACCESS:
         case EXPR_ARRAY_ACCESS:
         case EXPR_ADDRESS_OF:
             return OWNERSHIP_BORROW;
+
+        case EXPR_MEMBER:
+            /* A normal member read borrows from its live object.  A member of
+             * an owned value-struct call result is different: expression
+             * lowering auto-cleans the lifted struct temporary and applies a
+             * keeper op to the selected field, producing a fresh owner. */
+            return ownership_is_lifted_member(src)
+                ? OWNERSHIP_OWNED : OWNERSHIP_BORROW;
 
         /* valueOf either produces a fresh owned value (deep-copy for as-ref
          * structs, strdup for *char, fresh array for pointer-slice) or is a
