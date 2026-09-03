@@ -1,0 +1,8 @@
+struct TypeInfo =>
+  value: int
+
+fn main(): void =>
+  var info: TypeInfo = {
+    value: 1
+  }
+  println(info.value)

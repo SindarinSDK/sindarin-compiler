@@ -1,0 +1,7 @@
+fn main(): void =>
+  var field: FieldInfo = {
+    name: "count",
+    typeName: "int",
+    typeId: 367623774
+  }
+  println($"{field.name}:{field.typeName}:{field.typeId}")

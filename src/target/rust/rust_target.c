@@ -189,6 +189,53 @@ static bool json_string_property_equals(json_object *object, const char *key,
     return value && strcmp(value, wanted) == 0;
 }
 
+static bool rust_typeof_type_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    if (!kind) return false;
+    if (strcmp(kind, "array") == 0)
+    {
+        json_object *element_type = NULL;
+        return json_object_object_get_ex(type, "element_type", &element_type) &&
+               rust_typeof_type_supported(element_type);
+    }
+    if (strcmp(kind, "struct") == 0)
+        return !json_boolean_property(type, "is_native") &&
+               !json_boolean_property(type, "is_packed") &&
+               !json_boolean_property(type, "pass_self_by_ref");
+    return strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+        strcmp(kind, "int32") == 0 || strcmp(kind, "uint") == 0 ||
+        strcmp(kind, "uint32") == 0 || strcmp(kind, "double") == 0 ||
+        strcmp(kind, "float") == 0 || strcmp(kind, "bool") == 0 ||
+        strcmp(kind, "char") == 0 || strcmp(kind, "byte") == 0 ||
+        strcmp(kind, "string") == 0;
+}
+
+static bool rust_validate_typeof_operand(json_object *expr,
+                                         json_object *reflected_type)
+{
+    const char *kind = json_string_property(reflected_type, "kind");
+    if (json_boolean_property(expr, "reflected_is_sized_array"))
+    {
+        fprintf(stderr,
+                "Error: Rust target does not support typeOf for sized-array operands\n");
+        return false;
+    }
+    if (kind && strcmp(kind, "void") == 0)
+    {
+        fprintf(stderr,
+                "Error: Rust target does not support typeOf for void operands\n");
+        return false;
+    }
+    if (!rust_typeof_type_supported(reflected_type))
+    {
+        fprintf(stderr,
+                "Error: Rust target does not support typeOf for this operand type yet\n");
+        return false;
+    }
+    return true;
+}
+
 static bool rust_scalar_ref_parameter_type_supported(json_object *type)
 {
     return json_string_property_equals(type, "kind", "int") ||
@@ -237,6 +284,15 @@ static bool rust_validate_structs(json_object *model)
         const char *name = json_string_property(structure, "name");
         const char *mem_mode = json_string_property(structure, "mem_mode");
         json_object *fields = NULL;
+
+        if (name && (strcmp(name, "FieldInfo") == 0 ||
+                     strcmp(name, "TypeInfo") == 0))
+        {
+            fprintf(stderr,
+                    "Error: Rust target reserves struct name '%s' for compiler reflection metadata\n",
+                    name);
+            return false;
+        }
 
         if (json_boolean_property(structure, "is_native") ||
             json_boolean_property(structure, "is_packed") ||
@@ -766,6 +822,45 @@ static bool rust_validate_expr_array(json_object *array)
     return true;
 }
 
+/* These checks deliberately mirror parser_init.c's compiler-injected
+ * FieldInfo/TypeInfo topology.  Rust emits native equivalents, so fail closed
+ * if the shared front-end definition changes without this backend changing in
+ * lockstep. */
+static bool rust_reflection_field_is(json_object *field, const char *name,
+                                     const char *kind)
+{
+    json_object *type = NULL;
+    return field && json_string_property_equals(field, "name", name) &&
+        json_object_object_get_ex(field, "type", &type) &&
+        json_string_property_equals(type, "kind", kind);
+}
+
+static bool rust_reflection_schema_is_current(json_object *type_info)
+{
+    json_object *fields = NULL;
+    if (!json_string_property_equals(type_info, "kind", "struct") ||
+        !json_string_property_equals(type_info, "name", "TypeInfo") ||
+        !json_object_object_get_ex(type_info, "fields", &fields) ||
+        json_object_array_length(fields) != 4 ||
+        !rust_reflection_field_is(json_object_array_get_idx(fields, 0), "name", "string") ||
+        !rust_reflection_field_is(json_object_array_get_idx(fields, 1), "fields", "array") ||
+        !rust_reflection_field_is(json_object_array_get_idx(fields, 2), "fieldCount", "int") ||
+        !rust_reflection_field_is(json_object_array_get_idx(fields, 3), "typeId", "int"))
+        return false;
+
+    json_object *fields_type = NULL, *field_info = NULL, *field_info_fields = NULL;
+    json_object *fields_field = json_object_array_get_idx(fields, 1);
+    return json_object_object_get_ex(fields_field, "type", &fields_type) &&
+        json_object_object_get_ex(fields_type, "element_type", &field_info) &&
+        json_string_property_equals(field_info, "kind", "struct") &&
+        json_string_property_equals(field_info, "name", "FieldInfo") &&
+        json_object_object_get_ex(field_info, "fields", &field_info_fields) &&
+        json_object_array_length(field_info_fields) == 3 &&
+        rust_reflection_field_is(json_object_array_get_idx(field_info_fields, 0), "name", "string") &&
+        rust_reflection_field_is(json_object_array_get_idx(field_info_fields, 1), "typeName", "string") &&
+        rust_reflection_field_is(json_object_array_get_idx(field_info_fields, 2), "typeId", "int");
+}
+
 static bool rust_validate_expr(json_object *expr)
 {
     json_object *kind_obj = NULL;
@@ -774,8 +869,35 @@ static bool rust_validate_expr(json_object *expr)
     json_object *child = NULL;
     if (!kind) return false;
 
-    if (strcmp(kind, "literal") == 0 || strcmp(kind, "variable") == 0)
+    if (strcmp(kind, "literal") == 0)
+    {
+        json_object *reflected_type = NULL;
+        if (json_object_object_get_ex(expr, "reflected_type", &reflected_type))
+            return rust_validate_typeof_operand(expr, reflected_type);
         return true;
+    }
+    if (strcmp(kind, "variable") == 0) return true;
+    if (strcmp(kind, "typeof") == 0)
+    {
+        json_object *type_info = NULL, *reflected_type = NULL;
+        if (!json_object_object_get_ex(expr, "type", &type_info) ||
+            !rust_reflection_schema_is_current(type_info))
+        {
+            fprintf(stderr,
+                    "Error: Rust target reflection metadata is out of sync with the built-in TypeInfo/FieldInfo definitions\n");
+            return false;
+        }
+        if (!json_object_object_get_ex(expr, "reflected_type", &reflected_type))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support typeOf for this operand type yet\n");
+            return false;
+        }
+        if (!rust_validate_typeof_operand(expr, reflected_type)) return false;
+        /* typeOf is compile-time and non-evaluating.  Its operand is omitted
+         * from the shared expression model; validate only the resolved type. */
+        return true;
+    }
     if (strcmp(kind, "sizeof") == 0)
     {
         json_object *target_type = NULL;
@@ -959,7 +1081,12 @@ static bool rust_validate_expr(json_object *expr)
             return false;
         }
 
-        if (strcmp(operand_kind, "struct") == 0)
+        if (strcmp(operand_kind, "struct") == 0 &&
+            json_string_property_equals(operand_type, "name", "TypeInfo"))
+        {
+            auto_copy_struct = true;
+        }
+        else if (strcmp(operand_kind, "struct") == 0)
         {
             operand_name = json_string_property(operand_type, "name");
             auto_copy_struct = rust_auto_copy_plain_value_struct_type(
@@ -1324,6 +1451,32 @@ static bool rust_model_uses_arrays(json_object *node)
     {
         (void)key;
         if (rust_model_uses_arrays(value)) return true;
+    }
+    return false;
+}
+
+static bool rust_model_uses_reflection(json_object *node)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_uses_reflection(json_object_array_get_idx(node, i))) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    if (json_string_property_equals(node, "kind", "typeof") ||
+        (json_string_property_equals(node, "kind", "struct") &&
+         (json_string_property_equals(node, "name", "TypeInfo") ||
+          json_string_property_equals(node, "name", "FieldInfo"))))
+        return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_uses_reflection(value)) return true;
     }
     return false;
 }
@@ -2674,6 +2827,8 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
+    if (rust_model_uses_reflection(model))
+        json_object_object_add(model, "rust_uses_reflection", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))
         json_object_object_add(model, "rust_uses_string_helpers", json_object_new_boolean(true));
     if (rust_model_uses_string_format_helpers(model))

@@ -1,0 +1,1004 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/expr_typeof_metadata.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "MetaInner",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/expr_typeof_metadata.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [],
+      "has_dispose": false
+    },
+    {
+      "name": "MetaOuter",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/expr_typeof_metadata.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "label",
+          "type": {
+            "kind": "string"
+          },
+          "offset": 8,
+          "cleanup_action": "free",
+          "copy_action": "strdup"
+        },
+        {
+          "name": "items",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "offset": 16,
+          "cleanup_action": "cleanup_array",
+          "copy_action": "array_copy"
+        },
+        {
+          "name": "inner",
+          "type": {
+            "kind": "struct",
+            "name": "MetaInner",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 16,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "value",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              }
+            ]
+          },
+          "offset": 24,
+          "cleanup_action": "none",
+          "copy_action": "copy_val"
+        }
+      ],
+      "has_heap_fields": true,
+      "methods": [],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/expr_typeof_metadata.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "outer",
+          "type": {
+            "kind": "struct",
+            "name": "MetaOuter",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 40,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "label",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 8
+              },
+              {
+                "name": "items",
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "offset": 16
+              },
+              {
+                "name": "inner",
+                "type": {
+                  "kind": "struct",
+                  "name": "MetaInner",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 16,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "value",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    }
+                  ]
+                },
+                "offset": 24
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "MetaOuter",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 40,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "items",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                },
+                {
+                  "name": "inner",
+                  "type": {
+                    "kind": "struct",
+                    "name": "MetaInner",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "offset": 24
+                }
+              ]
+            },
+            "kind": "struct_literal",
+            "struct_name": "MetaOuter",
+            "fields": [
+              {
+                "name": "label",
+                "value": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "literal",
+                  "value_kind": "string",
+                  "value": "x"
+                },
+                "source_is_borrow": true
+              },
+              {
+                "name": "items",
+                "value": {
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "kind": "array_literal",
+                  "elements": [
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    },
+                    {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 2
+                    }
+                  ]
+                }
+              },
+              {
+                "name": "inner",
+                "value": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "MetaInner",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "kind": "struct_literal",
+                  "struct_name": "MetaInner",
+                  "fields": [
+                    {
+                      "name": "value",
+                      "value": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 3
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "info",
+          "type": {
+            "kind": "struct",
+            "name": "TypeInfo",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 0,
+            "alignment": 0,
+            "fields": [
+              {
+                "name": "name",
+                "type": {
+                  "kind": "string"
+                },
+                "offset": 0
+              },
+              {
+                "name": "fields",
+                "type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "struct",
+                    "name": "FieldInfo",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 0,
+                    "alignment": 0,
+                    "fields": [
+                      {
+                        "name": "name",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 0
+                      },
+                      {
+                        "name": "typeName",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 0
+                      },
+                      {
+                        "name": "typeId",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 0
+                      }
+                    ]
+                  }
+                },
+                "offset": 0
+              },
+              {
+                "name": "fieldCount",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 0
+              },
+              {
+                "name": "typeId",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 0
+              }
+            ]
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "val_cleanup",
+          "initializer": {
+            "type": {
+              "kind": "struct",
+              "name": "TypeInfo",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 0,
+              "alignment": 0,
+              "fields": [
+                {
+                  "name": "name",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 0
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "struct",
+                      "name": "FieldInfo",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 0,
+                      "alignment": 0,
+                      "fields": [
+                        {
+                          "name": "name",
+                          "type": {
+                            "kind": "string"
+                          },
+                          "offset": 0
+                        },
+                        {
+                          "name": "typeName",
+                          "type": {
+                            "kind": "string"
+                          },
+                          "offset": 0
+                        },
+                        {
+                          "name": "typeId",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 0
+                        }
+                      ]
+                    }
+                  },
+                  "offset": 0
+                },
+                {
+                  "name": "fieldCount",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 0
+                },
+                {
+                  "name": "typeId",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 0
+                }
+              ]
+            },
+            "kind": "typeof",
+            "type_name": "MetaOuter",
+            "type_id": 64740043,
+            "reflected_type": {
+              "kind": "struct",
+              "name": "MetaOuter",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 40,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "label",
+                  "type": {
+                    "kind": "string"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "items",
+                  "type": {
+                    "kind": "array",
+                    "name": "arr",
+                    "element_type": {
+                      "kind": "int"
+                    }
+                  },
+                  "offset": 16
+                },
+                {
+                  "name": "inner",
+                  "type": {
+                    "kind": "struct",
+                    "name": "MetaInner",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 16,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "value",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      }
+                    ]
+                  },
+                  "offset": 24
+                }
+              ]
+            },
+            "reflected_is_sized_array": false,
+            "fields": [
+              {
+                "name": "label",
+                "type_name": "str",
+                "type_id": 1112265104
+              },
+              {
+                "name": "items",
+                "type_name": "array",
+                "type_id": 173583654
+              },
+              {
+                "name": "inner",
+                "type_name": "MetaInner",
+                "type_id": 2125471480
+              }
+            ],
+            "field_count": 3,
+            "is_assigned": true
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "member",
+                "object": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "FieldInfo",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 0,
+                    "alignment": 0,
+                    "fields": [
+                      {
+                        "name": "name",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 0
+                      },
+                      {
+                        "name": "typeName",
+                        "type": {
+                          "kind": "string"
+                        },
+                        "offset": 0
+                      },
+                      {
+                        "name": "typeId",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 0
+                      }
+                    ]
+                  },
+                  "kind": "array_access",
+                  "array": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "struct",
+                        "name": "FieldInfo",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 0,
+                        "alignment": 0,
+                        "fields": [
+                          {
+                            "name": "name",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 0
+                          },
+                          {
+                            "name": "typeName",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 0
+                          },
+                          {
+                            "name": "typeId",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 0
+                          }
+                        ]
+                      }
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "struct",
+                        "name": "TypeInfo",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 0,
+                        "alignment": 0,
+                        "fields": [
+                          {
+                            "name": "name",
+                            "type": {
+                              "kind": "string"
+                            },
+                            "offset": 0
+                          },
+                          {
+                            "name": "fields",
+                            "type": {
+                              "kind": "array",
+                              "name": "arr",
+                              "element_type": {
+                                "kind": "struct",
+                                "name": "FieldInfo",
+                                "is_native": false,
+                                "is_packed": false,
+                                "pass_self_by_ref": false,
+                                "size": 0,
+                                "alignment": 0,
+                                "fields": [
+                                  {
+                                    "name": "name",
+                                    "type": {
+                                      "kind": "string"
+                                    },
+                                    "offset": 0
+                                  },
+                                  {
+                                    "name": "typeName",
+                                    "type": {
+                                      "kind": "string"
+                                    },
+                                    "offset": 0
+                                  },
+                                  {
+                                    "name": "typeId",
+                                    "type": {
+                                      "kind": "int"
+                                    },
+                                    "offset": 0
+                                  }
+                                ]
+                              }
+                            },
+                            "offset": 0
+                          },
+                          {
+                            "name": "fieldCount",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 0
+                          },
+                          {
+                            "name": "typeId",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 0
+                          }
+                        ]
+                      },
+                      "kind": "variable",
+                      "name": "info"
+                    },
+                    "member_name": "fields"
+                  },
+                  "index": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  }
+                },
+                "member_name": "typeName"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "reflected_type": {
+                  "kind": "struct",
+                  "name": "MetaOuter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 40,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "items",
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "offset": 16
+                    },
+                    {
+                      "name": "inner",
+                      "type": {
+                        "kind": "struct",
+                        "name": "MetaInner",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "offset": 24
+                    }
+                  ]
+                },
+                "reflected_is_sized_array": false,
+                "kind": "literal",
+                "c_literal": "(char *)\"MetaOuter\"",
+                "value_kind": "string",
+                "value": "MetaOuter"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "reflected_type": {
+                  "kind": "struct",
+                  "name": "MetaOuter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 40,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "items",
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "offset": 16
+                    },
+                    {
+                      "name": "inner",
+                      "type": {
+                        "kind": "struct",
+                        "name": "MetaInner",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "offset": 24
+                    }
+                  ]
+                },
+                "reflected_is_sized_array": false,
+                "kind": "literal",
+                "c_literal": "3LL",
+                "value_kind": "int",
+                "value": 3
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "reflected_type": {
+                  "kind": "struct",
+                  "name": "MetaOuter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 40,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "label",
+                      "type": {
+                        "kind": "string"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "items",
+                      "type": {
+                        "kind": "array",
+                        "name": "arr",
+                        "element_type": {
+                          "kind": "int"
+                        }
+                      },
+                      "offset": 16
+                    },
+                    {
+                      "name": "inner",
+                      "type": {
+                        "kind": "struct",
+                        "name": "MetaInner",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 16,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "value",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          }
+                        ]
+                      },
+                      "offset": 24
+                    }
+                  ]
+                },
+                "reflected_is_sized_array": false,
+                "kind": "literal",
+                "c_literal": "64740043LL",
+                "value_kind": "int",
+                "value": 64740043
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "fixed",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "sized_array",
+            "element_type": {
+              "kind": "int"
+            },
+            "size": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 3
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "reflected_type": {
+                  "kind": "array",
+                  "name": "arr",
+                  "element_type": {
+                    "kind": "int"
+                  }
+                },
+                "reflected_is_sized_array": true,
+                "kind": "literal",
+                "c_literal": "(char *)\"array\"",
+                "value_kind": "string",
+                "value": "array"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

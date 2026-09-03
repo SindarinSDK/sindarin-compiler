@@ -1,0 +1,6 @@
+fn noValue(): void =>
+  println("evaluated")
+
+fn main(): void =>
+  var info: TypeInfo = typeOf(noValue())
+  println(info.name)
