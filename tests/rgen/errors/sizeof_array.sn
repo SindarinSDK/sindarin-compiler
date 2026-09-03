@@ -1,3 +1,0 @@
-fn main(): void =>
-  var values: int[] = {1, 2}
-  var bytes: int = sizeof(values)

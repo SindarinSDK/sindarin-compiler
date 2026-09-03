@@ -1,0 +1,4 @@
+fn callback(): int => return 1
+
+fn main(): void =>
+  var bytes: int = sizeof(callback)

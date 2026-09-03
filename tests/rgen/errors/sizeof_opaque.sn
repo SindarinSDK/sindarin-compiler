@@ -1,0 +1,4 @@
+type Handle = opaque
+
+fn main(): void =>
+  var bytes: int = sizeof(Handle)

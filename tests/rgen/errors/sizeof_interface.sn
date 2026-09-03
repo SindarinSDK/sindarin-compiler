@@ -1,0 +1,5 @@
+interface Sized =>
+  fn size(): int
+
+fn main(): void =>
+  var bytes: int = sizeof(Sized)

@@ -349,7 +349,8 @@ static int rust_fixed_sizeof_bytes(const char *kind)
 {
     if (!kind) return -1;
     if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
-        strcmp(kind, "uint") == 0 || strcmp(kind, "double") == 0)
+        strcmp(kind, "uint") == 0 || strcmp(kind, "double") == 0 ||
+        strcmp(kind, "string") == 0 || strcmp(kind, "array") == 0)
         return 8;
     if (strcmp(kind, "int32") == 0 || strcmp(kind, "uint32") == 0 ||
         strcmp(kind, "float") == 0)
@@ -378,11 +379,11 @@ static void rust_report_unsupported_sizeof(json_object *type)
 
     if (kind && strcmp(kind, "struct") == 0 && name)
         fprintf(stderr,
-                "Error: Rust target does not support sizeof for aggregate struct type '%s'; only fixed-size scalar types are supported\n",
+                "Error: Rust target does not support sizeof for aggregate struct type '%s'; only fixed-size scalar or managed-handle types are supported\n",
                 name);
     else
         fprintf(stderr,
-                "Error: Rust target does not support sizeof for %s '%s'; only fixed-size scalar types are supported\n",
+                "Error: Rust target does not support sizeof for %s '%s'; only fixed-size scalar or managed-handle types are supported\n",
                 category, kind ? kind : "<unknown>");
 }
 

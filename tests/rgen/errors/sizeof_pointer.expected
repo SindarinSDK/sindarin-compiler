@@ -1,1 +1,1 @@
-Error: Rust target does not support sizeof for pointer type 'pointer'; only fixed-size scalar types are supported
+Error: Rust target does not support sizeof for pointer type 'pointer'; only fixed-size scalar or managed-handle types are supported
