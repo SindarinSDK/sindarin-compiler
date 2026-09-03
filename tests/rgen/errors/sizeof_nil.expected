@@ -1,0 +1,1 @@
+Error: Rust target does not support sizeof for non-value type 'nil'; only fixed-size scalar types are supported

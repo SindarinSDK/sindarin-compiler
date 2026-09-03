@@ -343,6 +343,47 @@ static bool rust_float_type(const char *kind)
     return kind && (strcmp(kind, "double") == 0 || strcmp(kind, "float") == 0);
 }
 
+static int rust_fixed_sizeof_bytes(const char *kind)
+{
+    if (!kind) return -1;
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+        strcmp(kind, "uint") == 0 || strcmp(kind, "double") == 0)
+        return 8;
+    if (strcmp(kind, "int32") == 0 || strcmp(kind, "uint32") == 0 ||
+        strcmp(kind, "float") == 0)
+        return 4;
+    if (strcmp(kind, "byte") == 0 || strcmp(kind, "bool") == 0 ||
+        strcmp(kind, "char") == 0)
+        return 1;
+    return -1;
+}
+
+static void rust_report_unsupported_sizeof(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    const char *name = json_string_property(type, "name");
+    const char *category = "type";
+
+    if (kind && strcmp(kind, "string") == 0)
+        category = "dynamic type";
+    else if (kind && (strcmp(kind, "array") == 0 ||
+                      strcmp(kind, "struct") == 0))
+        category = "aggregate type";
+    else if (kind && strcmp(kind, "pointer") == 0)
+        category = "pointer type";
+    else if (kind && (strcmp(kind, "void") == 0 || strcmp(kind, "nil") == 0))
+        category = "non-value type";
+
+    if (kind && strcmp(kind, "struct") == 0 && name)
+        fprintf(stderr,
+                "Error: Rust target does not support sizeof for aggregate struct type '%s'; only fixed-size scalar types are supported\n",
+                name);
+    else
+        fprintf(stderr,
+                "Error: Rust target does not support sizeof for %s '%s'; only fixed-size scalar types are supported\n",
+                category, kind ? kind : "<unknown>");
+}
+
 static bool rust_signed_integer_type(const char *kind)
 {
     return kind && (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
@@ -712,6 +753,30 @@ static bool rust_validate_expr(json_object *expr)
 
     if (strcmp(kind, "literal") == 0 || strcmp(kind, "variable") == 0)
         return true;
+    if (strcmp(kind, "sizeof") == 0)
+    {
+        json_object *target_type = NULL;
+        const char *target_kind = NULL;
+        if (!json_object_object_get_ex(expr, "target_type", &target_type) ||
+            !(target_kind = json_string_property(target_type, "kind")))
+        {
+            fprintf(stderr,
+                    "Error: Rust target encountered sizeof without a resolved operand type\n");
+            return false;
+        }
+
+        int bytes = rust_fixed_sizeof_bytes(target_kind);
+        if (bytes < 0)
+        {
+            rust_report_unsupported_sizeof(target_type);
+            return false;
+        }
+
+        /* sizeof is compile-time and non-evaluating. Keep the modeled operand
+         * opaque: validation and rendering consume only its resolved type. */
+        json_object_object_add(expr, "rust_sizeof_bytes", json_object_new_int(bytes));
+        return true;
+    }
     if (strcmp(kind, "struct_literal") == 0)
     {
         json_object *fields = NULL;

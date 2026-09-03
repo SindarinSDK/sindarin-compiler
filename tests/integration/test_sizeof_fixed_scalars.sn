@@ -1,0 +1,26 @@
+fn observe(counter: int as ref): char =>
+  counter += 1
+  return 'x'
+
+fn main(): void =>
+  var type_int: int = sizeof(int)
+  var type_long: int = sizeof long
+  var type_int32: int = sizeof(int32)
+  var type_uint: int = sizeof uint
+  var type_uint32: int = sizeof(uint32)
+  var type_byte: int = sizeof byte
+  var type_bool: int = sizeof(bool)
+  var type_char: int = sizeof char
+  var type_float: int = sizeof(float)
+  var type_double: int = sizeof double
+
+  var integer: int = 9
+  var single: float = 1.5f
+  var counter: int = 0
+  var expression_sizes: int = sizeof(integer) + sizeof single + sizeof observe(counter)
+  var arithmetic: int = sizeof(int) + sizeof(float) * sizeof(byte)
+  var comparison: bool = sizeof(char) < sizeof(double)
+
+  var types_ok: bool = type_int == 8 && type_long == 8 && type_int32 == 4 && type_uint == 8 && type_uint32 == 4 && type_byte == 1 && type_bool == 1 && type_char == 1 && type_float == 4 && type_double == 8
+  var expressions_ok: bool = expression_sizes == 13
+  println($"{types_ok} {expressions_ok} {arithmetic == 12 && comparison} {counter == 0}")

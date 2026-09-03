@@ -1,0 +1,1 @@
+Error: Rust target does not support sizeof for aggregate struct type 'Point'; only fixed-size scalar types are supported

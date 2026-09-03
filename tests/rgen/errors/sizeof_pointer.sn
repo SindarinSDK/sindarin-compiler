@@ -1,0 +1,2 @@
+fn main(): void =>
+  var bytes: int = sizeof(*int)
