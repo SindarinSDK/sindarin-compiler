@@ -294,10 +294,16 @@ void type_check_for_each(Stmt *stmt, SymbolTable *table, Type *return_type)
         return;
     }
 
-    /* Create a new scope and add the loop variable.
-     * Use SYMBOL_PARAM so it's not freed - loop var is a reference to element. */
+    /* Array foreach creates an independently owned local snapshot.  Keep a
+     * distinct symbol kind so variable expressions are not mislabeled as
+     * parameter references while ownership-aware foreach lowering remains
+     * responsible for acquiring and cleaning up the binding.  Iterator
+     * protocol bindings retain their existing classification in this slice. */
     symbol_table_push_scope(table);
-    symbol_table_add_symbol_with_kind(table, stmt->as.for_each_stmt.var_name, element_type, SYMBOL_PARAM);
+    SymbolKind binding_kind = iterable_type->kind == TYPE_ARRAY
+        ? SYMBOL_FOREACH_LOCAL : SYMBOL_PARAM;
+    symbol_table_add_symbol_with_kind(table, stmt->as.for_each_stmt.var_name,
+                                      element_type, binding_kind);
 
     /* Track loop context for break/continue validation */
     symbol_table_enter_loop(table);

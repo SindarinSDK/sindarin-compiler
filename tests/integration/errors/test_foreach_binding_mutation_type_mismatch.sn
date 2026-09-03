@@ -1,0 +1,4 @@
+fn main(): void =>
+  var values: int[] = {1}
+  for item in values =>
+    item = "wrong"

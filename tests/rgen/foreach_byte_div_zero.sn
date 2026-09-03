@@ -1,0 +1,4 @@
+fn main(): void =>
+  var values: byte[] = {1b}
+  for value in values =>
+    value /= 0b
