@@ -1,0 +1,14 @@
+fn bumpAndReturn(counter: int as ref): int =>
+  counter += 1
+  return - 7
+
+fn main(): void =>
+  var zero: int = 0
+  var negative: int = -7
+  var positive: int = 42
+  var long_value: long = 42l
+  // Keep equality expectations within IEEE-754 binary64's exact-integer range.
+  var exact_long: long = 9007199254740991l
+  var counter: int = 0
+  var called: double = bumpAndReturn(counter).toDouble()
+  println($"{zero.toDouble() == 0.0 && negative.toDouble() == -7.0 && positive.toDouble() == 42.0 && long_value.toDouble() == 42.0 && exact_long.toDouble() == 9007199254740991.0} {counter == 1 && called == -7.0}")
