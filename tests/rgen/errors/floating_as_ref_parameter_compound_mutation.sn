@@ -1,0 +1,6 @@
+fn add(value: float as ref): void =>
+  value += 1.0f
+
+fn main(): void =>
+  var value: float = 1.0f
+  add(value)
