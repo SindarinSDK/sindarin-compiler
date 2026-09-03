@@ -1,0 +1,14 @@
+struct MissingNextIter =>
+  done: bool
+
+  fn hasNext(): bool =>
+    return !self.done
+
+struct MissingNextSource =>
+  fn iter(): MissingNextIter =>
+    return MissingNextIter { done: false }
+
+fn main(): void =>
+  var source: MissingNextSource = {}
+  for value in source =>
+    println(value)

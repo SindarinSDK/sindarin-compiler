@@ -1,0 +1,37 @@
+struct HygieneIter =>
+  current: int
+  remaining: int
+
+  fn hasNext(): bool =>
+    return self.current < self.remaining
+
+  fn next(): int =>
+    var value: int = self.current
+    self.current = self.current + 1
+    return value
+
+struct HygieneSource =>
+  limit: int
+
+  fn iter(): HygieneIter =>
+    return HygieneIter {
+      current: 0,
+      remaining: self.limit
+    }
+
+fn selectSource(calls: int as ref): HygieneSource =>
+  calls = calls + 1
+  return HygieneSource { limit: 2 }
+
+fn main(): void =>
+  var __sn_iter: int = 41
+  var __sn_iter_0: int = 42
+  var evaluations: int = 0
+
+  for outer_value in selectSource(evaluations) =>
+    for inner_value in selectSource(evaluations) =>
+      println($"collision={__sn_iter} candidate={__sn_iter_0} outer={outer_value} inner={inner_value}")
+      break
+    break
+
+  println($"final={__sn_iter} candidate-final={__sn_iter_0} evaluations={evaluations}")

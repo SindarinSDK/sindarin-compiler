@@ -1,0 +1,9 @@
+value=107 binding=-1
+value=218 binding=-1
+value=329 binding=-1
+value=440 binding=-1
+natural evaluations=1 sum=876
+before-break=107
+before-break=218
+total evaluations=2 source=7
+nested outer=1 evaluations=3

@@ -1242,6 +1242,52 @@ static bool rust_validate_block(json_object *block)
            rust_validate_statements(statements);
 }
 
+static bool rust_iterator_scalar_element_supported(json_object *type)
+{
+    const char *kind = json_string_property(type, "kind");
+    return kind && (rust_integer_type(kind) || rust_float_type(kind) ||
+                    strcmp(kind, "bool") == 0 || strcmp(kind, "char") == 0);
+}
+
+static bool rust_validate_for_each_iter(json_object *stmt)
+{
+    json_object *iterable = NULL, *body = NULL, *iterable_type = NULL;
+    json_object *iter_type = NULL, *element_type = NULL;
+    if (!json_object_object_get_ex(stmt, "iterable", &iterable) ||
+        !json_object_object_get_ex(stmt, "body", &body) ||
+        !json_object_object_get_ex(stmt, "iter_type", &iter_type) ||
+        !json_object_object_get_ex(stmt, "element_type", &element_type) ||
+        !json_object_object_get_ex(iterable, "type", &iterable_type))
+    {
+        fprintf(stderr,
+                "Error: Rust target encountered malformed iterator-protocol foreach model\n");
+        return false;
+    }
+
+    const char *element_kind = json_string_property(element_type, "kind");
+    if (!rust_iterator_scalar_element_supported(element_type) ||
+        !json_string_property_equals(stmt, "element_cleanup_kind", "none"))
+    {
+        fprintf(stderr,
+                "Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got '%s'\n",
+                element_kind ? element_kind : "<unknown>");
+        return false;
+    }
+
+    if (json_boolean_property(stmt, "iterable_pass_by_ref") ||
+        json_boolean_property(stmt, "iter_pass_by_ref") ||
+        !json_string_property_equals(stmt, "iter_cleanup_kind", "none") ||
+        !rust_heap_free_named_struct_type(iterable_type) ||
+        !rust_heap_free_named_struct_type(iter_type))
+    {
+        fprintf(stderr,
+                "Error: Rust target supports iterator-protocol foreach only with plain heap-free value iterable and iterator structs\n");
+        return false;
+    }
+
+    return rust_validate_expr(iterable) && rust_validate_block(body);
+}
+
 static bool rust_validate_stmt(json_object *stmt)
 {
     json_object *kind_obj = NULL;
@@ -1288,6 +1334,8 @@ static bool rust_validate_stmt(json_object *stmt)
                json_object_object_get_ex(stmt, "body", &body) &&
                rust_validate_expr(iterable) && rust_validate_block(body);
     }
+    if (strcmp(kind, "for_each_iter") == 0)
+        return rust_validate_for_each_iter(stmt);
     if (strcmp(kind, "if") == 0)
     {
         json_object *condition = NULL, *then_body = NULL, *else_body = NULL;
@@ -2261,6 +2309,7 @@ static void rust_mark_for_continues(json_object *node, json_object *increment)
         return;
     }
     if (kind && (strcmp(kind, "for") == 0 || strcmp(kind, "for_each") == 0 ||
+                 strcmp(kind, "for_each_iter") == 0 ||
                  strcmp(kind, "while") == 0)) return;
 
     json_object_object_foreach(node, key, value)
@@ -2443,6 +2492,74 @@ static void rust_lower_scalar_ref_parameters(json_object *model)
     }
 }
 
+/* Rust locals introduced by statement templates share a lexical namespace
+ * with Sindarin locals referenced by the rendered body.  Candidate spellings
+ * use only [A-Za-z_][A-Za-z0-9_]*, which is also legal in Sindarin, so select
+ * each iterator temporary against every string in the complete model.  The full
+ * model scan is deliberately schema-independent: it covers declarations,
+ * references, loop bindings, and names nested in expressions, while previously
+ * assigned temporary names make nested and adjacent iterator loops distinct. */
+static bool rust_model_contains_string(json_object *node, const char *wanted)
+{
+    if (!node) return false;
+    if (json_object_is_type(node, json_type_string))
+        return strcmp(json_object_get_string(node), wanted) == 0;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_model_contains_string(json_object_array_get_idx(node, i), wanted))
+                return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_model_contains_string(value, wanted)) return true;
+    }
+    return false;
+}
+
+static bool rust_lower_iterator_temp_names(json_object *model, json_object *node,
+                                           size_t *next_id)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_lower_iterator_temp_names(
+                    model, json_object_array_get_idx(node, i), next_id))
+                return false;
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_lower_iterator_temp_names(model, value, next_id)) return false;
+    }
+
+    if (!json_string_property_equals(node, "kind", "for_each_iter")) return true;
+
+    char candidate[64];
+    do
+    {
+        if (*next_id == (size_t)-1) return false;
+        int written = snprintf(candidate, sizeof(candidate), "__sn_iter_%zu", *next_id);
+        (*next_id)++;
+        if (written < 0 || (size_t)written >= sizeof(candidate)) return false;
+    }
+    while (rust_model_contains_string(model, candidate));
+
+    json_object_object_add(node, "rust_iterator_temp_name",
+                           json_object_new_string(candidate));
+    return true;
+}
+
 static bool rust_emit(CompilerOptions *options, Module *module,
                       TargetEmitMode mode, GeneratedFileSet *result)
 {
@@ -2464,6 +2581,13 @@ static bool rust_emit(CompilerOptions *options, Module *module,
     rust_lower_interpolation_formats(model);
     rust_lower_for_continues(model);
     rust_lower_scalar_ref_parameters(model);
+    size_t iterator_temp_id = 0;
+    if (!rust_lower_iterator_temp_names(model, model, &iterator_temp_id))
+    {
+        fprintf(stderr, "Error: Rust target could not assign hygienic iterator temporary names\n");
+        json_object_put(model);
+        return false;
+    }
     if (rust_model_uses_arrays(model))
         json_object_object_add(model, "rust_uses_arrays", json_object_new_boolean(true));
     if (rust_model_uses_string_helpers(model))

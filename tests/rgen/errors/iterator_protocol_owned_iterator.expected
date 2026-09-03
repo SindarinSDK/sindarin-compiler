@@ -1,0 +1,1 @@
+Error: Rust target supports iterator-protocol foreach only with plain heap-free value iterable and iterator structs

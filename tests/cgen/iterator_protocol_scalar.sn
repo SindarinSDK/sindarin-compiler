@@ -1,0 +1,63 @@
+struct TraceIter =>
+  current: int
+  remaining: int
+  has_next_calls: int
+  next_calls: int
+
+  fn hasNext(): bool =>
+    self.has_next_calls = self.has_next_calls + 1
+    return self.next_calls < self.remaining
+
+  fn next(): int =>
+    var value: int = self.has_next_calls * 100 + self.next_calls * 10 + self.current
+    self.current = self.current + 1
+    self.next_calls = self.next_calls + 1
+    return value
+
+struct TraceSource =>
+  start: int
+  count: int
+
+  fn iter(): TraceIter =>
+    return TraceIter {
+      current: self.start,
+      remaining: self.count,
+      has_next_calls: 0,
+      next_calls: 0
+    }
+
+fn selectSource(calls: int as ref): int =>
+  calls = calls + 1
+  return 0
+
+fn main(): void =>
+  var sources: TraceSource[] = { TraceSource {
+    start: 7,
+    count: 4
+  } }
+  var evaluations: int = 0
+  var sum: int = 0
+
+  for value in sources[selectSource(evaluations)] =>
+    var produced: int = value
+    value = -1
+    println($"value={produced} binding={value}")
+    if produced == 218 =>
+      continue
+    sum = sum + produced
+
+  println($"natural evaluations={evaluations} sum={sum}")
+
+  for value in sources[selectSource(evaluations)] =>
+    if value == 329 =>
+      break
+    println($"before-break={value}")
+
+  println($"total evaluations={evaluations} source={sources[0].start}")
+
+  var outer: int = 0
+  for var loop: int = 0; outer < 1; outer++ =>
+    for value in sources[selectSource(evaluations)] =>
+      if value == 107 =>
+        continue
+  println($"nested outer={outer} evaluations={evaluations}")

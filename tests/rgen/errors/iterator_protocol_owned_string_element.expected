@@ -1,0 +1,1 @@
+Error: Rust target supports iterator-protocol foreach only for heap-free scalar elements; got 'string'

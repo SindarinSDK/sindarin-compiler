@@ -1,0 +1,2370 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/iterator_protocol_scalar.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [
+    {
+      "name": "TraceIter",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/iterator_protocol_scalar.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "current",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "remaining",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 16,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "has_next_calls",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 24,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "next_calls",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 32,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "hasNext",
+          "return_type": {
+            "kind": "bool"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member_assign",
+                "object": {
+                  "type": {
+                    "kind": "pointer",
+                    "base_type": {
+                      "kind": "struct",
+                      "name": "TraceIter",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 40,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "current",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        },
+                        {
+                          "name": "remaining",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 16
+                        },
+                        {
+                          "name": "has_next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 24
+                        },
+                        {
+                          "name": "next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 32
+                        }
+                      ]
+                    },
+                    "pass_self_by_ref": true
+                  },
+                  "kind": "variable",
+                  "name": "self"
+                },
+                "field_name": "has_next_calls",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "pointer",
+                        "base_type": {
+                          "kind": "struct",
+                          "name": "TraceIter",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 40,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "current",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "remaining",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 16
+                            },
+                            {
+                              "name": "has_next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 24
+                            },
+                            {
+                              "name": "next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 32
+                            }
+                          ]
+                        },
+                        "pass_self_by_ref": true
+                      },
+                      "kind": "variable",
+                      "name": "self"
+                    },
+                    "member_name": "has_next_calls"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "field_cleanup": "none"
+              }
+            },
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "lt",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "TraceIter",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 40,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "current",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "remaining",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 16
+                          },
+                          {
+                            "name": "has_next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 24
+                          },
+                          {
+                            "name": "next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 32
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "next_calls"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "TraceIter",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 40,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "current",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "remaining",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 16
+                          },
+                          {
+                            "name": "has_next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 24
+                          },
+                          {
+                            "name": "next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 32
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "remaining"
+                },
+                "arithmetic_mode": "checked"
+              }
+            }
+          ]
+        },
+        {
+          "name": "next",
+          "return_type": {
+            "kind": "int"
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "var_decl",
+              "name": "value",
+              "type": {
+                "kind": "int"
+              },
+              "mem_qual": "default",
+              "sync_mod": "none",
+              "is_static": false,
+              "needs_cleanup": false,
+              "cleanup_kind": "none",
+              "initializer": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "add",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "binary",
+                    "op": "multiply",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "TraceIter",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 40,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "current",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "remaining",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 16
+                              },
+                              {
+                                "name": "has_next_calls",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 24
+                              },
+                              {
+                                "name": "next_calls",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 32
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "has_next_calls"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 100
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "binary",
+                    "op": "multiply",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "TraceIter",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 40,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "current",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "remaining",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 16
+                              },
+                              {
+                                "name": "has_next_calls",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 24
+                              },
+                              {
+                                "name": "next_calls",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 32
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "next_calls"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 10
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "member",
+                  "object": {
+                    "type": {
+                      "kind": "pointer",
+                      "base_type": {
+                        "kind": "struct",
+                        "name": "TraceIter",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 40,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "current",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "remaining",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 16
+                          },
+                          {
+                            "name": "has_next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 24
+                          },
+                          {
+                            "name": "next_calls",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 32
+                          }
+                        ]
+                      },
+                      "pass_self_by_ref": true
+                    },
+                    "kind": "variable",
+                    "name": "self"
+                  },
+                  "member_name": "current"
+                },
+                "arithmetic_mode": "checked"
+              }
+            },
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member_assign",
+                "object": {
+                  "type": {
+                    "kind": "pointer",
+                    "base_type": {
+                      "kind": "struct",
+                      "name": "TraceIter",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 40,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "current",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        },
+                        {
+                          "name": "remaining",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 16
+                        },
+                        {
+                          "name": "has_next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 24
+                        },
+                        {
+                          "name": "next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 32
+                        }
+                      ]
+                    },
+                    "pass_self_by_ref": true
+                  },
+                  "kind": "variable",
+                  "name": "self"
+                },
+                "field_name": "current",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "pointer",
+                        "base_type": {
+                          "kind": "struct",
+                          "name": "TraceIter",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 40,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "current",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "remaining",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 16
+                            },
+                            {
+                              "name": "has_next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 24
+                            },
+                            {
+                              "name": "next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 32
+                            }
+                          ]
+                        },
+                        "pass_self_by_ref": true
+                      },
+                      "kind": "variable",
+                      "name": "self"
+                    },
+                    "member_name": "current"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "field_cleanup": "none"
+              }
+            },
+            {
+              "kind": "expr",
+              "expr": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "member_assign",
+                "object": {
+                  "type": {
+                    "kind": "pointer",
+                    "base_type": {
+                      "kind": "struct",
+                      "name": "TraceIter",
+                      "is_native": false,
+                      "is_packed": false,
+                      "pass_self_by_ref": false,
+                      "size": 40,
+                      "alignment": 8,
+                      "fields": [
+                        {
+                          "name": "current",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 8
+                        },
+                        {
+                          "name": "remaining",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 16
+                        },
+                        {
+                          "name": "has_next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 24
+                        },
+                        {
+                          "name": "next_calls",
+                          "type": {
+                            "kind": "int"
+                          },
+                          "offset": 32
+                        }
+                      ]
+                    },
+                    "pass_self_by_ref": true
+                  },
+                  "kind": "variable",
+                  "name": "self"
+                },
+                "field_name": "next_calls",
+                "value": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "binary",
+                  "op": "add",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "member",
+                    "object": {
+                      "type": {
+                        "kind": "pointer",
+                        "base_type": {
+                          "kind": "struct",
+                          "name": "TraceIter",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 40,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "current",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "remaining",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 16
+                            },
+                            {
+                              "name": "has_next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 24
+                            },
+                            {
+                              "name": "next_calls",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 32
+                            }
+                          ]
+                        },
+                        "pass_self_by_ref": true
+                      },
+                      "kind": "variable",
+                      "name": "self"
+                    },
+                    "member_name": "next_calls"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "field_cleanup": "none"
+              }
+            },
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "value",
+                "escape_info": {
+                  "escapes_scope": true,
+                  "needs_heap": false
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    },
+    {
+      "name": "TraceSource",
+      "is_native": false,
+      "is_packed": false,
+      "pass_self_by_ref": false,
+      "is_serializable": false,
+      "source_file": "tests\/mgen\/iterator_protocol_scalar.sn",
+      "mem_mode": "val",
+      "fields": [
+        {
+          "name": "start",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 8,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        },
+        {
+          "name": "count",
+          "type": {
+            "kind": "int"
+          },
+          "offset": 16,
+          "cleanup_action": "none",
+          "copy_action": "value_copy"
+        }
+      ],
+      "has_heap_fields": false,
+      "methods": [
+        {
+          "name": "iter",
+          "return_type": {
+            "kind": "struct",
+            "name": "TraceIter",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 40,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "current",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              },
+              {
+                "name": "remaining",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 16
+              },
+              {
+                "name": "has_next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 24
+              },
+              {
+                "name": "next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 32
+              }
+            ]
+          },
+          "modifier": "default",
+          "is_static": false,
+          "is_native": false,
+          "has_arena_param": false,
+          "is_serializable_method": false,
+          "has_c_alias": false,
+          "params": [],
+          "body": [
+            {
+              "kind": "return",
+              "value": {
+                "type": {
+                  "kind": "struct",
+                  "name": "TraceIter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 40,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "current",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "remaining",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 16
+                    },
+                    {
+                      "name": "has_next_calls",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 24
+                    },
+                    {
+                      "name": "next_calls",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 32
+                    }
+                  ]
+                },
+                "kind": "struct_literal",
+                "struct_name": "TraceIter",
+                "fields": [
+                  {
+                    "name": "current",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "TraceSource",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "start",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "count",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 16
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "start"
+                    }
+                  },
+                  {
+                    "name": "remaining",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "pointer",
+                          "base_type": {
+                            "kind": "struct",
+                            "name": "TraceSource",
+                            "is_native": false,
+                            "is_packed": false,
+                            "pass_self_by_ref": false,
+                            "size": 24,
+                            "alignment": 8,
+                            "fields": [
+                              {
+                                "name": "start",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 8
+                              },
+                              {
+                                "name": "count",
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "offset": 16
+                              }
+                            ]
+                          },
+                          "pass_self_by_ref": true
+                        },
+                        "kind": "variable",
+                        "name": "self"
+                      },
+                      "member_name": "count"
+                    }
+                  },
+                  {
+                    "name": "has_next_calls",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 0
+                    }
+                  },
+                  {
+                    "name": "next_calls",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 0
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "has_dispose": false
+    }
+  ],
+  "globals": [],
+  "functions": [
+    {
+      "name": "selectSource",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/iterator_protocol_scalar.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "calls",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "calls",
+                "is_captured": true
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/iterator_protocol_scalar.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "sources",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "struct",
+              "name": "TraceSource",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "start",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 16
+                }
+              ]
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "struct",
+                "name": "TraceSource",
+                "is_native": false,
+                "is_packed": false,
+                "pass_self_by_ref": false,
+                "size": 24,
+                "alignment": 8,
+                "fields": [
+                  {
+                    "name": "start",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 8
+                  },
+                  {
+                    "name": "count",
+                    "type": {
+                      "kind": "int"
+                    },
+                    "offset": 16
+                  }
+                ]
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "struct",
+                  "name": "TraceSource",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "start",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "count",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 16
+                    }
+                  ]
+                },
+                "kind": "struct_literal",
+                "struct_name": "TraceSource",
+                "fields": [
+                  {
+                    "name": "start",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 7
+                    }
+                  },
+                  {
+                    "name": "count",
+                    "value": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 4
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "evaluations",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "sum",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "for_each_iter",
+          "iterator_name": "value",
+          "iterable": {
+            "type": {
+              "kind": "struct",
+              "name": "TraceSource",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "start",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "kind": "array_access",
+            "array": {
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "struct",
+                  "name": "TraceSource",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "start",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "count",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 16
+                    }
+                  ]
+                }
+              },
+              "kind": "variable",
+              "name": "sources"
+            },
+            "index": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "selectSource"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "evaluations",
+                  "is_ref_arg": true
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            }
+          },
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "var_decl",
+                "name": "produced",
+                "type": {
+                  "kind": "int"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": false,
+                "cleanup_kind": "none",
+                "initializer": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "value"
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "assign",
+                  "target": "value",
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    }
+                  },
+                  "assign_cleanup": "none"
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "void"
+                  },
+                  "kind": "builtin_println",
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "interpolated_string",
+                      "parts": [
+                        {
+                          "kind": "text",
+                          "value": "value="
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "produced"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " binding="
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "value"
+                          }
+                        }
+                      ],
+                      "part_count": 4
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "if",
+                "condition": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "eq",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "produced"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 218
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "then_body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "continue"
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "assign",
+                  "target": "sum",
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "binary",
+                    "op": "add",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "sum"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "produced"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "assign_cleanup": "none"
+                }
+              }
+            ]
+          },
+          "iterable_type_name": "TraceSource",
+          "iterable_pass_by_ref": false,
+          "iter_type_name": "TraceIter",
+          "iter_type": {
+            "kind": "struct",
+            "name": "TraceIter",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 40,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "current",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              },
+              {
+                "name": "remaining",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 16
+              },
+              {
+                "name": "has_next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 24
+              },
+              {
+                "name": "next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 32
+              }
+            ]
+          },
+          "iter_pass_by_ref": false,
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
+          "iter_cleanup_kind": "none"
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "text",
+                    "value": "natural evaluations="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "evaluations"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " sum="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "sum"
+                    }
+                  }
+                ],
+                "part_count": 4
+              }
+            ]
+          }
+        },
+        {
+          "kind": "for_each_iter",
+          "iterator_name": "value",
+          "iterable": {
+            "type": {
+              "kind": "struct",
+              "name": "TraceSource",
+              "is_native": false,
+              "is_packed": false,
+              "pass_self_by_ref": false,
+              "size": 24,
+              "alignment": 8,
+              "fields": [
+                {
+                  "name": "start",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 8
+                },
+                {
+                  "name": "count",
+                  "type": {
+                    "kind": "int"
+                  },
+                  "offset": 16
+                }
+              ]
+            },
+            "kind": "array_access",
+            "array": {
+              "type": {
+                "kind": "array",
+                "name": "arr",
+                "element_type": {
+                  "kind": "struct",
+                  "name": "TraceSource",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 24,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "start",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "count",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 16
+                    }
+                  ]
+                }
+              },
+              "kind": "variable",
+              "name": "sources"
+            },
+            "index": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "int"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "selectSource"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "evaluations",
+                  "is_ref_arg": true
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            }
+          },
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "if",
+                "condition": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "eq",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 329
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "then_body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "break"
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "void"
+                  },
+                  "kind": "builtin_println",
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "interpolated_string",
+                      "parts": [
+                        {
+                          "kind": "text",
+                          "value": "before-break="
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "value"
+                          }
+                        }
+                      ],
+                      "part_count": 2
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "iterable_type_name": "TraceSource",
+          "iterable_pass_by_ref": false,
+          "iter_type_name": "TraceIter",
+          "iter_type": {
+            "kind": "struct",
+            "name": "TraceIter",
+            "is_native": false,
+            "is_packed": false,
+            "pass_self_by_ref": false,
+            "size": 40,
+            "alignment": 8,
+            "fields": [
+              {
+                "name": "current",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 8
+              },
+              {
+                "name": "remaining",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 16
+              },
+              {
+                "name": "has_next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 24
+              },
+              {
+                "name": "next_calls",
+                "type": {
+                  "kind": "int"
+                },
+                "offset": 32
+              }
+            ]
+          },
+          "iter_pass_by_ref": false,
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
+          "iter_cleanup_kind": "none"
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "text",
+                    "value": "total evaluations="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "evaluations"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " source="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "member",
+                      "object": {
+                        "type": {
+                          "kind": "struct",
+                          "name": "TraceSource",
+                          "is_native": false,
+                          "is_packed": false,
+                          "pass_self_by_ref": false,
+                          "size": 24,
+                          "alignment": 8,
+                          "fields": [
+                            {
+                              "name": "start",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 8
+                            },
+                            {
+                              "name": "count",
+                              "type": {
+                                "kind": "int"
+                              },
+                              "offset": 16
+                            }
+                          ]
+                        },
+                        "kind": "array_access",
+                        "array": {
+                          "type": {
+                            "kind": "array",
+                            "name": "arr",
+                            "element_type": {
+                              "kind": "struct",
+                              "name": "TraceSource",
+                              "is_native": false,
+                              "is_packed": false,
+                              "pass_self_by_ref": false,
+                              "size": 24,
+                              "alignment": 8,
+                              "fields": [
+                                {
+                                  "name": "start",
+                                  "type": {
+                                    "kind": "int"
+                                  },
+                                  "offset": 8
+                                },
+                                {
+                                  "name": "count",
+                                  "type": {
+                                    "kind": "int"
+                                  },
+                                  "offset": 16
+                                }
+                              ]
+                            }
+                          },
+                          "kind": "variable",
+                          "name": "sources"
+                        },
+                        "index": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 0
+                        }
+                      },
+                      "member_name": "start"
+                    }
+                  }
+                ],
+                "part_count": 4
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "outer",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "for",
+          "init": {
+            "kind": "var_decl",
+            "name": "loop",
+            "type": {
+              "kind": "int"
+            },
+            "mem_qual": "default",
+            "sync_mod": "none",
+            "is_static": false,
+            "needs_cleanup": false,
+            "cleanup_kind": "none",
+            "initializer": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 0
+            }
+          },
+          "condition": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "lt",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "outer"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            },
+            "arithmetic_mode": "checked"
+          },
+          "increment": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "local",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "outer"
+            }
+          },
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "for_each_iter",
+                "iterator_name": "value",
+                "iterable": {
+                  "type": {
+                    "kind": "struct",
+                    "name": "TraceSource",
+                    "is_native": false,
+                    "is_packed": false,
+                    "pass_self_by_ref": false,
+                    "size": 24,
+                    "alignment": 8,
+                    "fields": [
+                      {
+                        "name": "start",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 8
+                      },
+                      {
+                        "name": "count",
+                        "type": {
+                          "kind": "int"
+                        },
+                        "offset": 16
+                      }
+                    ]
+                  },
+                  "kind": "array_access",
+                  "array": {
+                    "type": {
+                      "kind": "array",
+                      "name": "arr",
+                      "element_type": {
+                        "kind": "struct",
+                        "name": "TraceSource",
+                        "is_native": false,
+                        "is_packed": false,
+                        "pass_self_by_ref": false,
+                        "size": 24,
+                        "alignment": 8,
+                        "fields": [
+                          {
+                            "name": "start",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 8
+                          },
+                          {
+                            "name": "count",
+                            "type": {
+                              "kind": "int"
+                            },
+                            "offset": 16
+                          }
+                        ]
+                      }
+                    },
+                    "kind": "variable",
+                    "name": "sources"
+                  },
+                  "index": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [
+                          {
+                            "kind": "int"
+                          }
+                        ],
+                        "param_mem_quals": [
+                          "as_ref"
+                        ],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "selectSource"
+                    },
+                    "args": [
+                      {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "evaluations",
+                        "is_ref_arg": true
+                      }
+                    ],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false
+                  }
+                },
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "if",
+                      "condition": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "binary",
+                        "op": "eq",
+                        "left": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "value"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 107
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "then_body": {
+                        "kind": "block",
+                        "statements": [
+                          {
+                            "kind": "continue"
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "iterable_type_name": "TraceSource",
+                "iterable_pass_by_ref": false,
+                "iter_type_name": "TraceIter",
+                "iter_type": {
+                  "kind": "struct",
+                  "name": "TraceIter",
+                  "is_native": false,
+                  "is_packed": false,
+                  "pass_self_by_ref": false,
+                  "size": 40,
+                  "alignment": 8,
+                  "fields": [
+                    {
+                      "name": "current",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 8
+                    },
+                    {
+                      "name": "remaining",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 16
+                    },
+                    {
+                      "name": "has_next_calls",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 24
+                    },
+                    {
+                      "name": "next_calls",
+                      "type": {
+                        "kind": "int"
+                      },
+                      "offset": 32
+                    }
+                  ]
+                },
+                "iter_pass_by_ref": false,
+                "element_type": {
+                  "kind": "int"
+                },
+                "element_cleanup_kind": "none",
+                "iter_cleanup_kind": "none"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "text",
+                    "value": "nested outer="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "outer"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " evaluations="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "evaluations"
+                    }
+                  }
+                ],
+                "part_count": 4
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
