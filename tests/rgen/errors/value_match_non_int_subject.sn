@@ -1,0 +1,6 @@
+fn main(): void =>
+  var value: long = 2l
+  var result: int = match value =>
+    1l => 10
+    else => 20
+  println(result)

@@ -327,8 +327,17 @@ static bool rust_validate_structs(json_object *model)
 }
 
 static json_object *rust_validation_model;
+static bool rust_validation_reported_error;
 
 static bool rust_validate_expr(json_object *expr);
+static bool rust_validate_value_match(json_object *expr);
+
+static bool rust_report_match_error(const char *message)
+{
+    rust_validation_reported_error = true;
+    fprintf(stderr, "Error: Rust target %s\n", message);
+    return false;
+}
 
 static bool rust_array_method_supported(const char *name)
 {
@@ -870,11 +879,7 @@ static bool rust_validate_expr(json_object *expr)
     if (!kind) return false;
 
     if (strcmp(kind, "match") == 0)
-    {
-        fprintf(stderr,
-                "Error: Rust target does not support value-returning match expressions yet\n");
-        return false;
-    }
+        return rust_validate_value_match(expr);
 
     if (strcmp(kind, "literal") == 0)
     {
@@ -1558,7 +1563,7 @@ static bool rust_validate_block(json_object *block)
            rust_validate_statements(statements);
 }
 
-static bool rust_statement_match_literal_pattern(json_object *pattern)
+static bool rust_int_match_literal_pattern(json_object *pattern)
 {
     json_object *type = NULL;
     if (!json_object_is_type(pattern, json_type_object) ||
@@ -1597,14 +1602,12 @@ static bool rust_validate_statement_match(json_object *expr)
         !json_object_is_type(arms, json_type_array) ||
         json_object_array_length(arms) == 0)
     {
-        fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
-        return false;
+        return rust_report_match_error("encountered malformed statement match model");
     }
     if (!json_string_property_equals(subject_type, "kind", "int"))
     {
-        fprintf(stderr,
-                "Error: Rust target supports statement match only with int subjects\n");
-        return false;
+        return rust_report_match_error(
+            "supports statement match only with int subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -1626,8 +1629,8 @@ static bool rust_validate_statement_match(json_object *expr)
             !json_object_object_get_ex(body, "statements", &body_statements) ||
             !json_object_is_type(body_statements, json_type_array))
         {
-            fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
-            return false;
+            return rust_report_match_error(
+                "encountered malformed statement match model");
         }
 
         bool is_else = json_object_get_boolean(is_else_obj);
@@ -1635,8 +1638,8 @@ static bool rust_validate_statement_match(json_object *expr)
         if ((is_else && (has_else || i + 1 != arm_count || pattern_count != 0)) ||
             (!is_else && pattern_count == 0))
         {
-            fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
-            return false;
+            return rust_report_match_error(
+                "encountered malformed statement match model");
         }
         if (is_else)
         {
@@ -1647,13 +1650,10 @@ static bool rust_validate_statement_match(json_object *expr)
             has_pattern_arm = true;
             for (size_t p = 0; p < pattern_count; p++)
             {
-                if (!rust_statement_match_literal_pattern(
+                if (!rust_int_match_literal_pattern(
                         json_object_array_get_idx(patterns, p)))
-                {
-                    fprintf(stderr,
-                            "Error: Rust target supports statement match only with integer literal patterns\n");
-                    return false;
-                }
+                    return rust_report_match_error(
+                        "supports statement match only with integer literal patterns");
             }
         }
 
@@ -1662,11 +1662,108 @@ static bool rust_validate_statement_match(json_object *expr)
 
     if (!has_pattern_arm)
     {
-        fprintf(stderr, "Error: Rust target encountered malformed statement match model\n");
-        return false;
+        return rust_report_match_error(
+            "encountered malformed statement match model");
     }
 
     json_object_object_add(expr, "rust_has_else", json_object_new_boolean(has_else));
+    return true;
+}
+
+static bool rust_validate_value_match(json_object *expr)
+{
+    json_object *result_type = NULL, *subject = NULL, *subject_type = NULL;
+    json_object *arms = NULL;
+    if (!json_object_object_get_ex(expr, "type", &result_type) ||
+        !json_object_object_get_ex(expr, "subject", &subject) ||
+        !json_object_is_type(subject, json_type_object) ||
+        !json_object_object_get_ex(subject, "type", &subject_type) ||
+        !json_object_object_get_ex(expr, "arms", &arms) ||
+        !json_object_is_type(arms, json_type_array) ||
+        json_object_array_length(arms) == 0)
+        return rust_report_match_error("encountered malformed value match model");
+
+    if (!json_string_property_equals(subject_type, "kind", "int"))
+        return rust_report_match_error(
+            "supports value match only with int subjects");
+    if (!rust_validate_expr(subject)) return false;
+
+    size_t else_count = 0;
+    size_t ordinary_count = 0;
+    size_t arm_count = json_object_array_length(arms);
+    for (size_t i = 0; i < arm_count; i++)
+    {
+        json_object *arm = json_object_array_get_idx(arms, i);
+        json_object *is_else_obj = NULL, *patterns = NULL, *body = NULL;
+        json_object *body_statements = NULL;
+        if (!json_object_is_type(arm, json_type_object) ||
+            !json_object_object_get_ex(arm, "is_else", &is_else_obj) ||
+            !json_object_is_type(is_else_obj, json_type_boolean) ||
+            !json_object_object_get_ex(arm, "patterns", &patterns) ||
+            !json_object_is_type(patterns, json_type_array) ||
+            !json_object_object_get_ex(arm, "body", &body) ||
+            !json_string_property_equals(body, "kind", "block") ||
+            !json_object_object_get_ex(body, "statements", &body_statements) ||
+            !json_object_is_type(body_statements, json_type_array))
+            return rust_report_match_error("encountered malformed value match model");
+
+        bool is_else = json_object_get_boolean(is_else_obj);
+        size_t pattern_count = json_object_array_length(patterns);
+        if (is_else)
+        {
+            else_count++;
+            if (pattern_count != 0)
+                return rust_report_match_error("encountered malformed value match model");
+        }
+        else
+        {
+            ordinary_count++;
+            if (pattern_count == 0)
+                return rust_report_match_error("encountered malformed value match model");
+            for (size_t p = 0; p < pattern_count; p++)
+            {
+                if (!rust_int_match_literal_pattern(
+                        json_object_array_get_idx(patterns, p)))
+                    return rust_report_match_error(
+                        "supports value match only with integer literal patterns");
+            }
+        }
+    }
+
+    if (ordinary_count == 0)
+        return rust_report_match_error(
+            "requires value match to contain at least one ordinary arm");
+    if (else_count != 1 ||
+        !json_boolean_property(json_object_array_get_idx(arms, arm_count - 1),
+                               "is_else"))
+        return rust_report_match_error(
+            "requires value match to contain exactly one final else arm");
+    if (!json_string_property_equals(result_type, "kind", "int"))
+        return rust_report_match_error("supports value match only with int results");
+
+    for (size_t i = 0; i < arm_count; i++)
+    {
+        json_object *arm = json_object_array_get_idx(arms, i);
+        json_object *body = NULL, *body_statements = NULL;
+        if (!json_object_object_get_ex(arm, "body", &body) ||
+            !json_object_object_get_ex(body, "statements", &body_statements) ||
+            json_object_array_length(body_statements) != 1)
+            return rust_report_match_error(
+                "requires each value match arm body to contain exactly one int expression");
+
+        json_object *statement = json_object_array_get_idx(body_statements, 0);
+        json_object *arm_expr = NULL, *arm_type = NULL;
+        if (!json_string_property_equals(statement, "kind", "expr") ||
+            !json_object_object_get_ex(statement, "expr", &arm_expr) ||
+            !json_object_is_type(arm_expr, json_type_object) ||
+            !json_object_object_get_ex(arm_expr, "type", &arm_type) ||
+            !json_string_property_equals(arm_type, "kind", "int"))
+            return rust_report_match_error(
+                "requires each value match arm body to contain exactly one int expression");
+        if (!rust_validate_expr(arm_expr)) return false;
+    }
+
+    json_object_object_add(expr, "rust_value_match", json_object_new_boolean(true));
     return true;
 }
 
@@ -2056,10 +2153,11 @@ static bool rust_validate_struct_methods(json_object *model)
                 (!is_static && !rust_instance_method_node_supported(
                     body, !json_boolean_property(structure, "has_heap_fields"))))
             {
-                fprintf(stderr,
-                        "Error: Rust target encountered an unsupported construct in method '%s.%s'\n",
-                        struct_name ? struct_name : "<anonymous>",
-                        method_name ? method_name : "<anonymous>");
+                if (!rust_validation_reported_error)
+                    fprintf(stderr,
+                            "Error: Rust target encountered an unsupported construct in method '%s.%s'\n",
+                            struct_name ? struct_name : "<anonymous>",
+                            method_name ? method_name : "<anonymous>");
                 return false;
             }
         }
@@ -2193,7 +2291,8 @@ static bool rust_validate_model_impl(json_object *model)
             json_object_object_get_ex(function, "body", &body);
             if (!rust_validate_statements(body))
             {
-                fprintf(stderr, "Error: Rust target encountered an unsupported construct in function '%s'\n", name);
+                if (!rust_validation_reported_error)
+                    fprintf(stderr, "Error: Rust target encountered an unsupported construct in function '%s'\n", name);
                 return false;
             }
         }
@@ -2204,8 +2303,10 @@ static bool rust_validate_model_impl(json_object *model)
 static bool rust_validate_model(json_object *model)
 {
     rust_validation_model = model;
+    rust_validation_reported_error = false;
     bool valid = rust_validate_model_impl(model);
     rust_validation_model = NULL;
+    rust_validation_reported_error = false;
     return valid;
 }
 

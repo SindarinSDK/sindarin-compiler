@@ -1,0 +1,6 @@
+fn main(): void =>
+  var result = match 1 =>
+    1 => 10
+    else => 20
+    else => 30
+  println(result)

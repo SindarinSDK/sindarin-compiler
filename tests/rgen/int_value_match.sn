@@ -1,0 +1,40 @@
+fn observeSubject(calls: int as ref, value: int): int =>
+  calls++
+  return value
+
+fn observeResult(calls: int as ref, value: int): int =>
+  calls++
+  return value
+
+fn choose(value: int, subject_calls: int as ref, result_calls: int as ref): int =>
+  return match observeSubject(subject_calls, value) =>
+    1, 2 => observeResult(result_calls, 10)
+    2, 3 => observeResult(result_calls, 20)
+    else => observeResult(result_calls, 30)
+
+fn main(): void =>
+  var __sn_match_result: int = 41
+  var subject_calls: int = 0
+  var result_calls: int = 0
+
+  var first: int = match observeSubject(subject_calls, 2) =>
+    1, 2 => observeResult(result_calls, 10)
+    2, 3 => observeResult(result_calls, 20)
+    else => observeResult(result_calls, 30)
+
+  var fallback: int = match observeSubject(subject_calls, 99) =>
+    1, 2 => observeResult(result_calls, 10)
+    2, 3 => observeResult(result_calls, 20)
+    else => observeResult(result_calls, 30)
+
+  var returned: int = choose(3, subject_calls, result_calls)
+
+  var nested: int = match - 9223372036854775807 =>
+    -9223372036854775807, 9223372036854775807 =>
+      match 9223372036854775807 =>
+        -9223372036854775807 => observeResult(result_calls, 40)
+        9223372036854775807 => observeResult(result_calls, 50)
+        else => observeResult(result_calls, 60)
+    else => observeResult(result_calls, 70)
+
+  println($"{__sn_match_result},{subject_calls},{result_calls},{first},{fallback},{returned},{nested}")
