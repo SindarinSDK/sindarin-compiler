@@ -1300,7 +1300,16 @@ static bool rust_validate_expr(json_object *expr)
         json_object *operand_type = NULL;
         if (!json_object_object_get_ex(expr, "operand", &child) ||
             !(operand_kind = json_string_property(child, "kind")) ||
-            !json_object_object_get_ex(child, "type", &operand_type))
+            (strcmp(operand_kind, "variable") != 0 &&
+             strcmp(operand_kind, "member") != 0) ||
+            (!json_string_property_equals(expr, "mutation_place", "variable") &&
+             !json_string_property_equals(expr, "mutation_place", "direct_field")))
+        {
+            fprintf(stderr,
+                    "Error: Rust target supports increment/decrement only for variables and fields\n");
+            return false;
+        }
+        if (!json_object_object_get_ex(child, "type", &operand_type))
         {
             fprintf(stderr,
                     "Error: Rust target supports increment/decrement only for variables and fields\n");
@@ -1330,15 +1339,6 @@ static bool rust_validate_expr(json_object *expr)
         }
         if (operand_floating)
         {
-            if ((strcmp(operand_kind, "variable") != 0 &&
-                 strcmp(operand_kind, "member") != 0) ||
-                (!json_string_property_equals(expr, "mutation_place", "variable") &&
-                 !json_string_property_equals(expr, "mutation_place", "direct_field")))
-            {
-                fprintf(stderr,
-                        "Error: Rust target supports floating-point increment/decrement only for variables and direct fields\n");
-                return false;
-            }
             if (!json_string_property_equals(expr, "mutation_storage", "local"))
             {
                 fprintf(stderr,
@@ -1346,15 +1346,6 @@ static bool rust_validate_expr(json_object *expr)
                 return false;
             }
             return rust_validate_expr(child);
-        }
-        if ((strcmp(operand_kind, "variable") != 0 &&
-             strcmp(operand_kind, "member") != 0) ||
-            (!json_string_property_equals(expr, "mutation_place", "variable") &&
-             !json_string_property_equals(expr, "mutation_place", "direct_field")))
-        {
-            fprintf(stderr,
-                    "Error: Rust target supports increment/decrement only for variables and fields\n");
-            return false;
         }
         if (!json_string_property_equals(expr, "mutation_arithmetic_mode", "checked"))
             return rust_validate_expr(child);

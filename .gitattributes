@@ -11,7 +11,7 @@
 
 # Test expected output files - always LF
 *.expected text eol=lf
-*.expected.c text eol=lf -whitespace
+*.expected.c text eol=lf
 *.expected.json text eol=lf
 *.expected.rs text eol=lf
 
