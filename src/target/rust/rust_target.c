@@ -309,9 +309,11 @@ static bool rust_primitive_integer_conversion_supported(const char *type_kind,
                                                         const char *name)
 {
     return (strcmp(type_kind, "int") == 0 &&
-            (strcmp(name, "toLong") == 0 || strcmp(name, "toUint") == 0 ||
+            (strcmp(name, "toDouble") == 0 || strcmp(name, "toLong") == 0 ||
+             strcmp(name, "toUint") == 0 ||
              strcmp(name, "toByte") == 0)) ||
-           (strcmp(type_kind, "long") == 0 && strcmp(name, "toInt") == 0) ||
+           (strcmp(type_kind, "long") == 0 &&
+            (strcmp(name, "toInt") == 0 || strcmp(name, "toDouble") == 0)) ||
            (strcmp(type_kind, "byte") == 0 && strcmp(name, "toInt") == 0) ||
            (strcmp(type_kind, "bool") == 0 && strcmp(name, "toInt") == 0);
 }
