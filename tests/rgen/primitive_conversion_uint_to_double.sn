@@ -1,0 +1,17 @@
+fn bumpAndReturn(counter: int as ref): uint =>
+  counter += 1
+  return 42u
+
+fn main(): void =>
+  var zero: uint = 0u
+  var one: uint = 1u
+  var representative: uint = 42u
+  // This is the largest integer exactly representable by IEEE-754 binary64.
+  var exact: uint = 9007199254740991u
+  var half: uint = 9223372036854775807u
+  var max_minus_one: uint = half * 2u
+  var max: uint = max_minus_one + 1u
+  var counter: int = 0
+  var called: double = bumpAndReturn(counter).toDouble()
+  // u64::MAX rounds to 2^64 as f64; it is not represented exactly.
+  println($"{zero.toDouble() == 0.0 && one.toDouble() == 1.0 && representative.toDouble() == 42.0 && exact.toDouble() == 9007199254740991.0 && max.toDouble() == half.toDouble() * 2.0} {counter == 1 && called == 42.0}")

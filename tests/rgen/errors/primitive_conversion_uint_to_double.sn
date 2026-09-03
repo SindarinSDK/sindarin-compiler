@@ -1,3 +1,0 @@
-fn main(): void =>
-  var source: uint = 1u
-  var value: double = source.toDouble()
