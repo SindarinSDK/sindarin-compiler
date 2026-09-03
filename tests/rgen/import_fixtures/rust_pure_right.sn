@@ -1,0 +1,2 @@
+fn score(): int =>
+  return 7

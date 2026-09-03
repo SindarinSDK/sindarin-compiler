@@ -1,0 +1,5 @@
+import "import_fixtures/rust_pure_left" as left
+import "import_fixtures/rust_pure_right" as right
+
+fn main(): void =>
+  println(left.score() + right.score())

@@ -1,0 +1,2 @@
+native struct NativePair =>
+  value: int

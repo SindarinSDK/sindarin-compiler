@@ -1,0 +1,8 @@
+import "import_fixtures/rust_pure_direct_value"
+
+fn main(): void =>
+  var pair: Pair = {
+    left: 19,
+    right: 23
+  }
+  println(sum(pair.left, pair.right))

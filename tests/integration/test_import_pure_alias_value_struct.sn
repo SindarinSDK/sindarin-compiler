@@ -1,0 +1,5 @@
+import "imports/rust_pure/geometry" as geo
+
+fn main(): void =>
+  var point: geo.Point = geo.origin()
+  println(point.x)
