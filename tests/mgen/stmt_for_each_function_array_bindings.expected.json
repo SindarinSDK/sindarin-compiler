@@ -1,0 +1,175 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/stmt_for_each_function_array_bindings.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": false
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/stmt_for_each_function_array_bindings.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "callbacks",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "function",
+              "return_type": {
+                "kind": "int"
+              },
+              "param_types": [
+                {
+                  "kind": "int"
+                }
+              ],
+              "is_variadic": false,
+              "is_native": false,
+              "has_arena_param": false
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              }
+            },
+            "kind": "array_literal",
+            "elements": [],
+            "elem_release_fn": "sn_release_closure_elem",
+            "elem_copy_fn": "sn_copy_closure"
+          }
+        },
+        {
+          "kind": "for_each",
+          "iterator_name": "callback",
+          "iterable": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "int"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              }
+            },
+            "kind": "variable",
+            "name": "callbacks"
+          },
+          "element_type": {
+            "kind": "function",
+            "return_type": {
+              "kind": "int"
+            },
+            "param_types": [
+              {
+                "kind": "int"
+              }
+            ],
+            "is_variadic": false,
+            "is_native": false,
+            "has_arena_param": false
+          },
+          "element_cleanup_kind": "fn",
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "assign",
+                  "target": "callback",
+                  "value": {
+                    "type": {
+                      "kind": "function",
+                      "return_type": {
+                        "kind": "int"
+                      },
+                      "param_types": [
+                        {
+                          "kind": "int"
+                        }
+                      ],
+                      "is_variadic": false,
+                      "is_native": false,
+                      "has_arena_param": false
+                    },
+                    "kind": "variable",
+                    "name": "callback"
+                  },
+                  "assign_cleanup": "free_closure",
+                  "source_is_borrow": true
+                }
+              }
+            ]
+          },
+          "needs_iterable_cleanup": false,
+          "iterable_needs_copy": true
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

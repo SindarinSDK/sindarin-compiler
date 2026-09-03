@@ -1,0 +1,12 @@
+struct Holder =>
+  callback: fn(int): int
+
+fn makeAdder(amount: int): fn(int): int =>
+  return fn(value: int): int => value + amount
+
+fn store(callback: fn(int): int): Holder =>
+  return Holder { callback: callback }
+
+fn main(): void =>
+  var holder: Holder = store(makeAdder(40))
+  print(holder.callback(2))

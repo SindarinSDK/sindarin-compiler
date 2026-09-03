@@ -1,0 +1,17 @@
+# A fresh returned closure passed to a struct-returning function transfers its
+# ownership credit into the returned function field.
+
+struct Holder =>
+  callback: fn(int): int
+
+fn makeAdder(amount: int): fn(int): int =>
+  return fn(value: int): int => value + amount
+
+fn store(callback: fn(int): int): Holder =>
+  return Holder { callback: callback }
+
+fn main(): int =>
+  var holder: Holder = store(makeAdder(40))
+  assert(holder.callback(2) == 42, "stored returned closure lost its capture")
+  print("PASS\n")
+  return 0
