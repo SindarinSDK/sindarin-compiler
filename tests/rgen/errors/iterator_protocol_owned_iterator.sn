@@ -1,0 +1,22 @@
+struct OwnedIter =>
+  marker: str
+  done: bool
+
+  fn hasNext(): bool =>
+    return !self.done
+
+  fn next(): int =>
+    self.done = true
+    return 1
+
+struct OwnedIterSource =>
+  fn iter(): OwnedIter =>
+    return OwnedIter {
+      marker: "owned",
+      done: false
+    }
+
+fn main(): void =>
+  var source: OwnedIterSource = {}
+  for value in source =>
+    println(value)

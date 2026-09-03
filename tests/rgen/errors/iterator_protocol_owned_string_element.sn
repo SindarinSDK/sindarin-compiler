@@ -1,0 +1,18 @@
+struct StringIter =>
+  done: bool
+
+  fn hasNext(): bool =>
+    return !self.done
+
+  fn next(): str =>
+    self.done = true
+    return "owned"
+
+struct StringSource =>
+  fn iter(): StringIter =>
+    return StringIter { done: false }
+
+fn main(): void =>
+  var source: StringSource = {}
+  for value in source =>
+    println(value)

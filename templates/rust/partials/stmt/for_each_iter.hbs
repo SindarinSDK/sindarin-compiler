@@ -1,0 +1,6 @@
+{
+    let mut {{rust_ident rust_iterator_temp_name}} = ({{> expr iterable}}).{{rust_ident "iter"}}();
+    while {{rust_ident rust_iterator_temp_name}}.{{rust_ident "hasNext"}}() {
+        let mut {{rust_ident iterator_name}} = {{rust_ident rust_iterator_temp_name}}.{{rust_ident "next"}}();
+{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    {{rbrace}}
+}
