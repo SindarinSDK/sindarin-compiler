@@ -1,0 +1,3 @@
+fn main(): void =>
+  var text: str = "dynamic"
+  var bytes: int = sizeof(text)

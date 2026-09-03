@@ -1,0 +1,1051 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/sizeof_fixed_scalars.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "observe",
+      "return_type": {
+        "kind": "char",
+        "name": "char"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/sizeof_fixed_scalars.sn",
+      "params": [
+        {
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "counter",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "char",
+              "name": "char"
+            },
+            "kind": "literal",
+            "value_kind": "char",
+            "value": 120
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/sizeof_fixed_scalars.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "type_int",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "int"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_long",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "long"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_int32",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "int32"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_uint",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "uint"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_uint32",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "uint32"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_byte",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "byte"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_bool",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "bool"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_char",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "char",
+              "name": "char"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_float",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "float"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "type_double",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "sizeof",
+            "target_type": {
+              "kind": "double"
+            }
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "integer",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 9
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "single",
+          "type": {
+            "kind": "float"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "float"
+            },
+            "kind": "literal",
+            "value_kind": "double",
+            "value": 1.5
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "counter",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "expression_sizes",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "sizeof",
+                "operand": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "integer"
+                },
+                "target_type": {
+                  "kind": "int"
+                }
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "sizeof",
+                "operand": {
+                  "type": {
+                    "kind": "float"
+                  },
+                  "kind": "variable",
+                  "name": "single"
+                },
+                "target_type": {
+                  "kind": "float"
+                }
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "sizeof",
+              "operand": {
+                "type": {
+                  "kind": "char",
+                  "name": "char"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "char",
+                      "name": "char"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "param_mem_quals": [
+                      "as_ref"
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "observe"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "counter",
+                    "is_ref_arg": true
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              },
+              "target_type": {
+                "kind": "char",
+                "name": "char"
+              }
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "arithmetic",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "sizeof",
+              "target_type": {
+                "kind": "int"
+              }
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "multiply",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "sizeof",
+                "target_type": {
+                  "kind": "float"
+                }
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "sizeof",
+                "target_type": {
+                  "kind": "byte"
+                }
+              },
+              "arithmetic_mode": "checked"
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "comparison",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "lt",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "sizeof",
+              "target_type": {
+                "kind": "char",
+                "name": "char"
+              }
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "sizeof",
+              "target_type": {
+                "kind": "double"
+              }
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "types_ok",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "and",
+            "left": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "binary",
+              "op": "and",
+              "left": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "and",
+                "left": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "and",
+                  "left": {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "binary",
+                    "op": "and",
+                    "left": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "and",
+                      "left": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "binary",
+                        "op": "and",
+                        "left": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "binary",
+                          "op": "and",
+                          "left": {
+                            "type": {
+                              "kind": "bool"
+                            },
+                            "kind": "binary",
+                            "op": "and",
+                            "left": {
+                              "type": {
+                                "kind": "bool"
+                              },
+                              "kind": "binary",
+                              "op": "eq",
+                              "left": {
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "kind": "variable",
+                                "name": "type_int"
+                              },
+                              "right": {
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "kind": "literal",
+                                "value_kind": "int",
+                                "value": 8
+                              },
+                              "arithmetic_mode": "checked"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "bool"
+                              },
+                              "kind": "binary",
+                              "op": "eq",
+                              "left": {
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "kind": "variable",
+                                "name": "type_long"
+                              },
+                              "right": {
+                                "type": {
+                                  "kind": "int"
+                                },
+                                "kind": "literal",
+                                "value_kind": "int",
+                                "value": 8
+                              },
+                              "arithmetic_mode": "checked"
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "bool"
+                            },
+                            "kind": "binary",
+                            "op": "eq",
+                            "left": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "variable",
+                              "name": "type_int32"
+                            },
+                            "right": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "literal",
+                              "value_kind": "int",
+                              "value": 4
+                            },
+                            "arithmetic_mode": "checked"
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "bool"
+                          },
+                          "kind": "binary",
+                          "op": "eq",
+                          "left": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "type_uint"
+                          },
+                          "right": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 8
+                          },
+                          "arithmetic_mode": "checked"
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "binary",
+                        "op": "eq",
+                        "left": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "type_uint32"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 4
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "type_byte"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 1
+                      },
+                      "arithmetic_mode": "checked"
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "bool"
+                    },
+                    "kind": "binary",
+                    "op": "eq",
+                    "left": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "type_bool"
+                    },
+                    "right": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "literal",
+                      "value_kind": "int",
+                      "value": 1
+                    },
+                    "arithmetic_mode": "checked"
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "right": {
+                  "type": {
+                    "kind": "bool"
+                  },
+                  "kind": "binary",
+                  "op": "eq",
+                  "left": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "type_char"
+                  },
+                  "right": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  "arithmetic_mode": "checked"
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "bool"
+                },
+                "kind": "binary",
+                "op": "eq",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "type_float"
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 4
+                },
+                "arithmetic_mode": "checked"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "bool"
+              },
+              "kind": "binary",
+              "op": "eq",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "type_double"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 8
+              },
+              "arithmetic_mode": "checked"
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "expressions_ok",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "binary",
+            "op": "eq",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "expression_sizes"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 13
+            },
+            "arithmetic_mode": "checked"
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "types_ok"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "expressions_ok"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "and",
+                      "left": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "binary",
+                        "op": "eq",
+                        "left": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "arithmetic"
+                        },
+                        "right": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 12
+                        },
+                        "arithmetic_mode": "checked"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "variable",
+                        "name": "comparison"
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " "
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "counter"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 0
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  }
+                ],
+                "part_count": 7
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}
