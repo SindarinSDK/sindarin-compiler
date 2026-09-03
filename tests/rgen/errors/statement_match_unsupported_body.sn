@@ -1,0 +1,6 @@
+fn main(): void =>
+  sync var counter: int = 0
+  match 1 =>
+    1 =>
+      lock (counter) =>
+        counter = counter + 1

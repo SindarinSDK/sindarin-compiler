@@ -1,0 +1,4 @@
+fn main(): void =>
+  var pattern: int = 2
+  match 2 =>
+    pattern => println("matched")

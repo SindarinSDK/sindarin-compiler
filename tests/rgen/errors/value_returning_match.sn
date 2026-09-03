@@ -1,0 +1,5 @@
+fn main(): void =>
+  var result: int = match 2 =>
+    1 => 10
+    else => 20
+  println($"{result}")

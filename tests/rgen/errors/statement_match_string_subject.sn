@@ -1,0 +1,4 @@
+fn main(): void =>
+  match "two" =>
+    "one" => println("one")
+    else => println("other")
