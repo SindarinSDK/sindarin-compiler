@@ -1,0 +1,520 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/foreach_checked_mutations.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "rhs",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/foreach_checked_mutations.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/foreach_checked_mutations.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "values",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "int"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 8
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "for_each",
+          "iterator_name": "value",
+          "iterable": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "int"
+              }
+            },
+            "kind": "variable",
+            "name": "values"
+          },
+          "element_type": {
+            "kind": "int"
+          },
+          "element_cleanup_kind": "none",
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "var_decl",
+                "name": "added",
+                "type": {
+                  "kind": "int"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": false,
+                "cleanup_kind": "none",
+                "initializer": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "checked",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [
+                          {
+                            "kind": "int"
+                          }
+                        ],
+                        "param_mem_quals": [
+                          "as_ref"
+                        ],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "rhs"
+                    },
+                    "args": [
+                      {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "calls",
+                        "is_ref_arg": true
+                      }
+                    ],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false
+                  }
+                }
+              },
+              {
+                "kind": "var_decl",
+                "name": "divided",
+                "type": {
+                  "kind": "int"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": false,
+                "cleanup_kind": "none",
+                "initializer": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "divide",
+                  "mutation_op": "divide",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "checked",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "int"
+                        },
+                        "param_types": [
+                          {
+                            "kind": "int"
+                          }
+                        ],
+                        "param_mem_quals": [
+                          "as_ref"
+                        ],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "rhs"
+                    },
+                    "args": [
+                      {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "calls",
+                        "is_ref_arg": true
+                      }
+                    ],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false
+                  }
+                }
+              },
+              {
+                "kind": "var_decl",
+                "name": "before_inc",
+                "type": {
+                  "kind": "int"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": false,
+                "cleanup_kind": "none",
+                "initializer": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "increment",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "checked",
+                  "operand": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value"
+                  }
+                }
+              },
+              {
+                "kind": "var_decl",
+                "name": "before_dec",
+                "type": {
+                  "kind": "int"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": false,
+                "cleanup_kind": "none",
+                "initializer": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "decrement",
+                  "mutation_op": "subtract",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "checked",
+                  "operand": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "value"
+                  }
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "void"
+                  },
+                  "kind": "builtin_println",
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "interpolated_string",
+                      "parts": [
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "added"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "divided"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "before_inc"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "before_dec"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "value"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "calls"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": " "
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "array_access",
+                            "array": {
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "int"
+                                }
+                              },
+                              "kind": "variable",
+                              "name": "values"
+                            },
+                            "index": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "literal",
+                              "value_kind": "int",
+                              "value": 0
+                            }
+                          }
+                        }
+                      ],
+                      "part_count": 13
+                    }
+                  ]
+                }
+              }
+            ]
+          },
+          "needs_iterable_cleanup": false,
+          "iterable_needs_copy": true
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

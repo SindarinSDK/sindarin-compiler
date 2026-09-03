@@ -442,7 +442,7 @@ void symbol_table_add_symbol_with_kind(SymbolTable *table, Token name, Type *typ
         DEBUG_VERBOSE("Added parameter symbol: '%s', offset: %d, aligned_size: %d, new next_param_offset: %d",
                       name_str, symbol->offset, aligned_size, table->current->next_param_offset);
     }
-    else if (kind == SYMBOL_LOCAL)
+    else if (kind == SYMBOL_LOCAL || kind == SYMBOL_FOREACH_LOCAL)
     {
         symbol->offset = -table->current->next_local_offset;
         int type_size = get_type_size(type);

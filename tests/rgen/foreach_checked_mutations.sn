@@ -1,0 +1,14 @@
+fn rhs(calls: int as ref): int =>
+  calls += 1
+  return 2
+
+fn main(): void =>
+  var values: int[] = {8}
+  var calls: int = 0
+
+  for value in values =>
+    var added: int = value += rhs(calls)
+    var divided: int = value /= rhs(calls)
+    var before_inc: int = value++
+    var before_dec: int = value--
+    println($"{added} {divided} {before_inc} {before_dec} {value} {calls} {values[0]}")
