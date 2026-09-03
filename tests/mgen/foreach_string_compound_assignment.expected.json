@@ -1,0 +1,551 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/foreach_string_compound_assignment.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "suffix",
+      "return_type": {
+        "kind": "string"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/foreach_string_compound_assignment.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "compound_assign",
+            "op": "add",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "target": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            },
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "literal",
+              "value_kind": "int",
+              "value": 1
+            }
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "string"
+            },
+            "kind": "interpolated_string",
+            "parts": [
+              {
+                "kind": "text",
+                "value": "!"
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "calls",
+                  "is_captured": true
+                }
+              }
+            ],
+            "part_count": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/foreach_string_compound_assignment.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "names",
+          "type": {
+            "kind": "array",
+            "name": "arr",
+            "element_type": {
+              "kind": "string"
+            }
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": true,
+          "cleanup_kind": "arr",
+          "initializer": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "string"
+              }
+            },
+            "kind": "array_literal",
+            "elements": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "alpha",
+                "source_is_borrow": true
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "beta",
+                "source_is_borrow": true
+              },
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "literal",
+                "value_kind": "string",
+                "value": "gamma",
+                "source_is_borrow": true
+              }
+            ],
+            "elem_release_fn": "(void (*)(void *))sn_cleanup_str",
+            "elem_copy_fn": "sn_copy_str"
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "index",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "for_each",
+          "iterator_name": "__sn_string_place",
+          "iterable": {
+            "type": {
+              "kind": "array",
+              "name": "arr",
+              "element_type": {
+                "kind": "string"
+              }
+            },
+            "kind": "variable",
+            "name": "names"
+          },
+          "element_type": {
+            "kind": "string"
+          },
+          "element_cleanup_kind": "str",
+          "body": {
+            "kind": "block",
+            "statements": [
+              {
+                "kind": "var_decl",
+                "name": "appended",
+                "type": {
+                  "kind": "string"
+                },
+                "mem_qual": "default",
+                "sync_mod": "none",
+                "is_static": false,
+                "needs_cleanup": true,
+                "cleanup_kind": "str",
+                "initializer": {
+                  "type": {
+                    "kind": "string"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "unchecked",
+                  "target": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "variable",
+                    "name": "__sn_string_place"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "string"
+                    },
+                    "kind": "call",
+                    "callee": {
+                      "type": {
+                        "kind": "function",
+                        "return_type": {
+                          "kind": "string"
+                        },
+                        "param_types": [
+                          {
+                            "kind": "int"
+                          }
+                        ],
+                        "param_mem_quals": [
+                          "as_ref"
+                        ],
+                        "is_variadic": false,
+                        "is_native": false,
+                        "has_arena_param": false
+                      },
+                      "kind": "variable",
+                      "name": "suffix"
+                    },
+                    "args": [
+                      {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "variable",
+                        "name": "calls",
+                        "is_ref_arg": true
+                      }
+                    ],
+                    "is_tail_call": false,
+                    "is_closure_call": false,
+                    "is_fn_field_call": false,
+                    "is_str_temp": true
+                  }
+                },
+                "source_is_borrow": true
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "void"
+                  },
+                  "kind": "builtin_println",
+                  "args": [
+                    {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "interpolated_string",
+                      "parts": [
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "variable",
+                            "name": "appended"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "variable",
+                            "name": "__sn_string_place"
+                          }
+                        },
+                        {
+                          "kind": "text",
+                          "value": "|"
+                        },
+                        {
+                          "kind": "expr",
+                          "expr": {
+                            "type": {
+                              "kind": "string"
+                            },
+                            "kind": "array_access",
+                            "array": {
+                              "type": {
+                                "kind": "array",
+                                "name": "arr",
+                                "element_type": {
+                                  "kind": "string"
+                                }
+                              },
+                              "kind": "variable",
+                              "name": "names"
+                            },
+                            "index": {
+                              "type": {
+                                "kind": "int"
+                              },
+                              "kind": "variable",
+                              "name": "index"
+                            }
+                          }
+                        }
+                      ],
+                      "part_count": 5
+                    }
+                  ]
+                }
+              },
+              {
+                "kind": "expr",
+                "expr": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "compound_assign",
+                  "op": "add",
+                  "mutation_op": "add",
+                  "mutation_place": "variable",
+                  "mutation_storage": "local",
+                  "mutation_sync": false,
+                  "mutation_arithmetic_mode": "checked",
+                  "target": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "variable",
+                    "name": "index"
+                  },
+                  "value": {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  }
+                }
+              }
+            ]
+          },
+          "needs_iterable_cleanup": false,
+          "iterable_needs_copy": true
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "text",
+                    "value": "source="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "array_access",
+                      "array": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "string"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "names"
+                      },
+                      "index": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 0
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "array_access",
+                      "array": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "string"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "names"
+                      },
+                      "index": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 1
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "string"
+                      },
+                      "kind": "array_access",
+                      "array": {
+                        "type": {
+                          "kind": "array",
+                          "name": "arr",
+                          "element_type": {
+                            "kind": "string"
+                          }
+                        },
+                        "kind": "variable",
+                        "name": "names"
+                      },
+                      "index": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "literal",
+                        "value_kind": "int",
+                        "value": 2
+                      }
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": " calls="
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "calls"
+                    }
+                  }
+                ],
+                "part_count": 8
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

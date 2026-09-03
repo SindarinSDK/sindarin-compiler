@@ -1,0 +1,15 @@
+fn suffix(calls: int as ref): str =>
+  calls += 1
+  return $"!{calls}"
+
+fn main(): void =>
+  var names: str[] = {"alpha", "beta", "gamma"}
+  var calls: int = 0
+  var index: int = 0
+
+  for __sn_string_place in names =>
+    var appended: str = __sn_string_place += suffix(calls)
+    println($"{appended}|{__sn_string_place}|{names[index]}")
+    index += 1
+
+  println($"source={names[0]},{names[1]},{names[2]} calls={calls}")

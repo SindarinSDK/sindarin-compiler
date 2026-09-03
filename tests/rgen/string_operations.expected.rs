@@ -41,7 +41,7 @@ fn main() {
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("assignedCopy="); __sn_interpolated.push_str(&format!("{}", assigned)); __sn_interpolated });
     (assigned = "changed".to_string());
     let mut explicit_copy: String = (source).clone();
-    { let __sn_string_part = (" copy".to_string()).clone(); explicit_copy.push_str(&__sn_string_part); };
+    { let (__sn_string_part, __sn_string_place) = ((" copy".to_string()).clone(), &mut (explicit_copy)); __sn_string_place.push_str(&__sn_string_part); (*__sn_string_place).clone() };
     let mut decorated: String = decorate(source.clone());
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("source="); __sn_interpolated.push_str(&format!("{}", source)); __sn_interpolated });
     println!("{}", { let mut __sn_interpolated = String::new(); __sn_interpolated.push_str("assigned="); __sn_interpolated.push_str(&format!("{}", assigned)); __sn_interpolated });

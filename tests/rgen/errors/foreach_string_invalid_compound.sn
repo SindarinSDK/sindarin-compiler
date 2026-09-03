@@ -1,0 +1,4 @@
+fn main(): void =>
+  var names: str[] = {"alpha"}
+  for item in names =>
+    item -= "!"
