@@ -1,0 +1,57 @@
+struct State =>
+  enabled: bool
+
+struct Holder =>
+  state: State
+
+struct RefOps =>
+  static fn staticRead(value: bool as ref): bool =>
+    return value
+
+  static fn staticToggle(value: bool as ref): bool =>
+    var before: bool = value
+    value = !value
+    return before
+
+  fn instanceToggle(value: bool as ref): bool =>
+    var before: bool = value
+    value = !value
+    return before
+
+fn readBool(value: bool as ref): bool =>
+  return value
+
+fn toggleBool(value: bool as ref): bool =>
+  var before: bool = value
+  value = !value
+  return before
+
+fn forwardStatic(value: bool as ref): bool =>
+  RefOps.staticToggle(value)
+  return value
+
+fn forwardInstance(value: bool as ref): bool =>
+  var ops: RefOps = {}
+  ops.instanceToggle(value)
+  return value
+
+fn main(): void =>
+  var readValue: bool = true
+  var freeValue: bool = true
+  var holder: Holder = {
+    state: State {
+      enabled: false
+    }
+  }
+  var instanceValue: bool = false
+  var forwardedStatic: bool = true
+  var forwardedInstance: bool = false
+  var ops: RefOps = {}
+
+  println(readBool(readValue) && readValue)
+  println(toggleBool(freeValue) && !freeValue)
+  println(!RefOps.staticRead(holder.state.enabled) && !holder.state.enabled)
+  println(!RefOps.staticToggle(holder.state.enabled) && holder.state.enabled)
+  println(!ops.instanceToggle(instanceValue) && instanceValue)
+  println(!forwardStatic(forwardedStatic) && !forwardedStatic)
+  println(forwardInstance(forwardedInstance) && forwardedInstance)
