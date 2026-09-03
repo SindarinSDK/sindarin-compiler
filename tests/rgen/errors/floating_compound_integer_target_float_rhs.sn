@@ -1,0 +1,3 @@
+fn main(): void =>
+  var value: int = 1
+  value += 2.0f

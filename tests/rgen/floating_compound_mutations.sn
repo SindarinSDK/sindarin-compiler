@@ -41,6 +41,13 @@ fn main(): void =>
   var ordered_result: float = __sn_rhs += rhsFloat(calls)
   println(ordered_result == 10.0f && __sn_rhs == 10.0f && calls == 1)
 
+  var __sn_place: double = 8.0
+  var place_result: double = __sn_place -= 2.0
+  var __sn_next: float = 3.0f
+  var next_result: float = __sn_next *= 2.0f
+  println(place_result == 6.0 && __sn_place == 6.0 &&
+    next_result == 6.0f && __sn_next == 6.0f)
+
   var singles: float[] = {8.0f, 8.0f}
   var single_index: int = 0
   for value in singles =>

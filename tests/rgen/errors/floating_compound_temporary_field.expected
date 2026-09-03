@@ -1,0 +1,1 @@
+Error: Rust target supports floating-point compound assignment only for variables and direct fields

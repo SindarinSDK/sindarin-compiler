@@ -62,6 +62,11 @@ fn main() {
     let mut __sn_rhs: f32 = 8.0;
     let mut ordered_result: f32 = { let (__sn_rhs, __sn_place) = (rhsFloat(&mut (calls)), &mut (__sn_rhs)); let __sn_next = *__sn_place + __sn_rhs; *__sn_place = __sn_next; __sn_next };
     println!("{}", (((ordered_result == 10.0) && (__sn_rhs == 10.0)) && (calls == 1)));
+    let mut __sn_place: f64 = 8.0;
+    let mut place_result: f64 = { let (__sn_rhs, __sn_place) = (2.0, &mut (__sn_place)); let __sn_next = *__sn_place - __sn_rhs; *__sn_place = __sn_next; __sn_next };
+    let mut __sn_next: f32 = 3.0;
+    let mut next_result: f32 = { let (__sn_rhs, __sn_place) = (2.0, &mut (__sn_next)); let __sn_next = *__sn_place * __sn_rhs; *__sn_place = __sn_next; __sn_next };
+    println!("{}", ((((place_result == 6.0) && (__sn_place == 6.0)) && (next_result == 6.0)) && (__sn_next == 6.0)));
     let mut singles: Vec<f32> = vec![8.0, 8.0];
     let mut single_index: i64 = 0;
     for mut value in (singles).iter().cloned() {

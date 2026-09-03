@@ -1,0 +1,5 @@
+fn main(): void =>
+  var value: float = 1.0f
+  var mutate: fn(): void = fn(): void =>
+    value += 1.0f
+  mutate()

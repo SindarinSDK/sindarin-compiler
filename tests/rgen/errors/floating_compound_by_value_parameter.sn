@@ -1,0 +1,5 @@
+fn mutate(value: float): void =>
+  value += 1.0f
+
+fn main(): void =>
+  mutate(1.0f)
