@@ -1,0 +1,90 @@
+fn observeFloat(calls: int as ref, order: int as ref, marker: int, value: float): float =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn observeDouble(calls: int as ref, order: int as ref, marker: int, value: double): double =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn observeInt(calls: int as ref, order: int as ref, marker: int, value: int): int =>
+  calls++
+  order = order * 10 + marker
+  return value
+
+fn chooseDouble(subject_calls: int as ref, body_calls: int as ref, order: int as ref): double =>
+  return match observeDouble(subject_calls, order, 7, 9.5) =>
+    9.5 => observeDouble(body_calls, order, 8, 42.25)
+    else => observeDouble(body_calls, order, 9, 0.0)
+
+fn main(): void =>
+  var __sn_match_subject: int = 41
+  var __sn_match_result: int = 42
+  var subject_calls: int = 0
+  var body_calls: int = 0
+  var order: int = 0
+  var selected: int = 0
+
+  match observeFloat(subject_calls, order, 1, 2.5f) =>
+    1.0f, 2.5f, -2.5f =>
+      selected = 10
+      observeInt(body_calls, order, 2, 0)
+    2.5f =>
+      selected = 20
+      observeInt(body_calls, order, 8, 0)
+    else =>
+      selected = 30
+      observeInt(body_calls, order, 9, 0)
+
+  match observeDouble(subject_calls, order, 3, -4.5) =>
+    4.5, -4.5, -1.0 =>
+      selected += 20
+      observeInt(body_calls, order, 4, 0)
+    -4.5 =>
+      selected = 200
+      observeInt(body_calls, order, 8, 0)
+    else =>
+      selected = 300
+      observeInt(body_calls, order, 9, 0)
+
+  var nested_statement: int = 0
+  match 1.0f =>
+    1.0f =>
+      match 2.0 =>
+        2.0 => nested_statement = 12
+
+  var nan_statement_hits: int = 0
+  match 0.0f / 0.0f =>
+    0.0f => nan_statement_hits++
+
+  var zero_hits: int = 0
+  match - 0.0f =>
+    0.0f => zero_hits++
+  match 0.0 =>
+    -0.0 => zero_hits++
+
+  var first_value: int = match observeFloat(subject_calls, order, 5, -2.5f) =>
+    -2.5f, -1.0f => observeInt(body_calls, order, 6, 100)
+    -2.5f => observeInt(body_calls, order, 8, 200)
+    else => observeInt(body_calls, order, 9, 300)
+
+  var nan_value: bool = match 0.0 / 0.0 =>
+    0.0 => false
+    else => true
+  var float_value: float = match 7.25f =>
+    7.25f => -3.5f
+    else => 0.0f
+  var double_value: double = match - 6.5 =>
+    -6.5, 1.0 => 6.75
+    else => 0.0
+  var returned: double = chooseDouble(subject_calls, body_calls, order)
+
+  var nested_value: long = match - 1.0f =>
+    -1.0f =>
+      match 2.0 =>
+        2.0 => 77l
+        else => 0l
+    else => -1l
+
+  println($"{__sn_match_subject},{__sn_match_result},{subject_calls},{body_calls},{order},{selected},{nested_statement},{nan_statement_hits},{zero_hits},{first_value},{nan_value},{float_value == -3.5f},{double_value == 6.75},{returned == 42.25},{nested_value}")

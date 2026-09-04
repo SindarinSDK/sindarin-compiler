@@ -1,0 +1,1 @@
+Error: Rust target requires floating literal patterns in statement match to have the exact subject type

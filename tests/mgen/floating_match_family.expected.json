@@ -1,0 +1,3364 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/floating_match_family.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "observeFloat",
+      "return_type": {
+        "kind": "float"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/floating_match_family.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "float"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "float"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "observeDouble",
+      "return_type": {
+        "kind": "double"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/floating_match_family.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "observeInt",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/floating_match_family.sn",
+      "params": [
+        {
+          "name": "calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "marker",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "increment",
+            "mutation_op": "add",
+            "mutation_place": "variable",
+            "mutation_storage": "parameter",
+            "mutation_sync": false,
+            "mutation_arithmetic_mode": "checked",
+            "mutation_rhs_first": true,
+            "operand": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "calls",
+              "is_captured": true,
+              "is_parameter": true,
+              "parameter_mem_qual": "as_ref"
+            }
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "order",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "binary",
+                "op": "multiply",
+                "left": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true
+                },
+                "right": {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 10
+                },
+                "arithmetic_mode": "checked"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "marker"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "is_captured": true,
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "variable",
+            "name": "value"
+          }
+        }
+      ]
+    },
+    {
+      "name": "chooseDouble",
+      "return_type": {
+        "kind": "double"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/floating_match_family.sn",
+      "params": [
+        {
+          "name": "subject_calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "body_calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        },
+        {
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "as_ref",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "double"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "double"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "double"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "observeDouble"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "subject_calls",
+                  "is_captured": true,
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_captured": true,
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 7
+                },
+                {
+                  "type": {
+                    "kind": "double"
+                  },
+                  "kind": "literal",
+                  "value_kind": "double",
+                  "value": 9.5
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 9.5
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "double"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "double"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeDouble"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_captured": true,
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_captured": true,
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 8
+                          },
+                          {
+                            "type": {
+                              "kind": "double"
+                            },
+                            "kind": "literal",
+                            "value_kind": "double",
+                            "value": 42.25
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "double"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "double"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeDouble"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_captured": true,
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_captured": true,
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 9
+                          },
+                          {
+                            "type": {
+                              "kind": "double"
+                            },
+                            "kind": "literal",
+                            "value_kind": "double",
+                            "value": 0.0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/floating_match_family.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "__sn_match_subject",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 41
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "__sn_match_result",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 42
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "subject_calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "body_calls",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "order",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "selected",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "float"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "float"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "observeFloat"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "subject_calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 1
+                },
+                {
+                  "type": {
+                    "kind": "float"
+                  },
+                  "kind": "literal",
+                  "value_kind": "double",
+                  "value": 2.5
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 1.0
+                  },
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 2.5
+                  },
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "float"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 2.5
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "selected",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 10
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 2
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 2.5
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "selected",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 20
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 8
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "selected",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 30
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 9
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "double"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "double"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "double"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "observeDouble"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "subject_calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 3
+                },
+                {
+                  "type": {
+                    "kind": "double"
+                  },
+                  "kind": "unary",
+                  "op": "negate",
+                  "operand": {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 4.5
+                  }
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 4.5
+                  },
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "double"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 4.5
+                    }
+                  },
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "double"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 1.0
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "compound_assign",
+                        "op": "add",
+                        "mutation_op": "add",
+                        "mutation_place": "variable",
+                        "mutation_storage": "local",
+                        "mutation_sync": false,
+                        "mutation_arithmetic_mode": "checked",
+                        "target": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "selected"
+                        },
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 20
+                        }
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 4
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "double"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 4.5
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "selected",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 200
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 8
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "assign",
+                        "target": "selected",
+                        "value": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 300
+                        },
+                        "assign_cleanup": "none"
+                      }
+                    },
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 9
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 0
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nested_statement",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "literal",
+              "value_kind": "double",
+              "value": 1.0
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 1.0
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "void"
+                        },
+                        "kind": "match",
+                        "subject": {
+                          "type": {
+                            "kind": "double"
+                          },
+                          "kind": "literal",
+                          "value_kind": "double",
+                          "value": 2.0
+                        },
+                        "arms": [
+                          {
+                            "is_else": false,
+                            "patterns": [
+                              {
+                                "type": {
+                                  "kind": "double"
+                                },
+                                "kind": "literal",
+                                "value_kind": "double",
+                                "value": 2.0
+                              }
+                            ],
+                            "body": {
+                              "kind": "block",
+                              "statements": [
+                                {
+                                  "kind": "expr",
+                                  "expr": {
+                                    "type": {
+                                      "kind": "int"
+                                    },
+                                    "kind": "assign",
+                                    "target": "nested_statement",
+                                    "value": {
+                                      "type": {
+                                        "kind": "int"
+                                      },
+                                      "kind": "literal",
+                                      "value_kind": "int",
+                                      "value": 12
+                                    },
+                                    "assign_cleanup": "none"
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nan_statement_hits",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "binary",
+              "op": "divide",
+              "left": {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              },
+              "right": {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              },
+              "arithmetic_mode": "checked"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 0.0
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "increment",
+                        "mutation_op": "add",
+                        "mutation_place": "variable",
+                        "mutation_storage": "local",
+                        "mutation_sync": false,
+                        "mutation_arithmetic_mode": "checked",
+                        "operand": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "nan_statement_hits"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "zero_hits",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "literal",
+            "value_kind": "int",
+            "value": 0
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "unary",
+              "op": "negate",
+              "operand": {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              }
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 0.0
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "increment",
+                        "mutation_op": "add",
+                        "mutation_place": "variable",
+                        "mutation_storage": "local",
+                        "mutation_sync": false,
+                        "mutation_arithmetic_mode": "checked",
+                        "operand": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "zero_hits"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "double"
+              },
+              "kind": "literal",
+              "value_kind": "double",
+              "value": 0.0
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "double"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 0.0
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "increment",
+                        "mutation_op": "add",
+                        "mutation_place": "variable",
+                        "mutation_storage": "local",
+                        "mutation_sync": false,
+                        "mutation_arithmetic_mode": "checked",
+                        "operand": {
+                          "type": {
+                            "kind": "int"
+                          },
+                          "kind": "variable",
+                          "name": "zero_hits"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "first_value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "call",
+              "callee": {
+                "type": {
+                  "kind": "function",
+                  "return_type": {
+                    "kind": "float"
+                  },
+                  "param_types": [
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "int"
+                    },
+                    {
+                      "kind": "float"
+                    }
+                  ],
+                  "param_mem_quals": [
+                    "as_ref",
+                    "as_ref",
+                    "default",
+                    "default"
+                  ],
+                  "is_variadic": false,
+                  "is_native": false,
+                  "has_arena_param": false
+                },
+                "kind": "variable",
+                "name": "observeFloat"
+              },
+              "args": [
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "subject_calls",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "variable",
+                  "name": "order",
+                  "is_ref_arg": true
+                },
+                {
+                  "type": {
+                    "kind": "int"
+                  },
+                  "kind": "literal",
+                  "value_kind": "int",
+                  "value": 5
+                },
+                {
+                  "type": {
+                    "kind": "float"
+                  },
+                  "kind": "unary",
+                  "op": "negate",
+                  "operand": {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 2.5
+                  }
+                }
+              ],
+              "is_tail_call": false,
+              "is_closure_call": false,
+              "is_fn_field_call": false
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "float"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 2.5
+                    }
+                  },
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "float"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 1.0
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 6
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 100
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "float"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 2.5
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 8
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 200
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "int"
+                        },
+                        "kind": "call",
+                        "callee": {
+                          "type": {
+                            "kind": "function",
+                            "return_type": {
+                              "kind": "int"
+                            },
+                            "param_types": [
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              },
+                              {
+                                "kind": "int"
+                              }
+                            ],
+                            "param_mem_quals": [
+                              "as_ref",
+                              "as_ref",
+                              "default",
+                              "default"
+                            ],
+                            "is_variadic": false,
+                            "is_native": false,
+                            "has_arena_param": false
+                          },
+                          "kind": "variable",
+                          "name": "observeInt"
+                        },
+                        "args": [
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "body_calls",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "variable",
+                            "name": "order",
+                            "is_ref_arg": true
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 9
+                          },
+                          {
+                            "type": {
+                              "kind": "int"
+                            },
+                            "kind": "literal",
+                            "value_kind": "int",
+                            "value": 300
+                          }
+                        ],
+                        "is_tail_call": false,
+                        "is_closure_call": false,
+                        "is_fn_field_call": false
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nan_value",
+          "type": {
+            "kind": "bool"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "bool"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "double"
+              },
+              "kind": "binary",
+              "op": "divide",
+              "left": {
+                "type": {
+                  "kind": "double"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              },
+              "right": {
+                "type": {
+                  "kind": "double"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 0.0
+              },
+              "arithmetic_mode": "checked"
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 0.0
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": false
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "bool"
+                        },
+                        "kind": "literal",
+                        "value_kind": "bool",
+                        "value": true
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "float_value",
+          "type": {
+            "kind": "float"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "float"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "literal",
+              "value_kind": "double",
+              "value": 7.25
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 7.25
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "float"
+                        },
+                        "kind": "unary",
+                        "op": "negate",
+                        "operand": {
+                          "type": {
+                            "kind": "float"
+                          },
+                          "kind": "literal",
+                          "value_kind": "double",
+                          "value": 3.5
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "float"
+                        },
+                        "kind": "literal",
+                        "value_kind": "double",
+                        "value": 0.0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "double_value",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "double"
+              },
+              "kind": "unary",
+              "op": "negate",
+              "operand": {
+                "type": {
+                  "kind": "double"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 6.5
+              }
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "double"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 6.5
+                    }
+                  },
+                  {
+                    "type": {
+                      "kind": "double"
+                    },
+                    "kind": "literal",
+                    "value_kind": "double",
+                    "value": 1.0
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "literal",
+                        "value_kind": "double",
+                        "value": 6.75
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "literal",
+                        "value_kind": "double",
+                        "value": 0.0
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "returned",
+          "type": {
+            "kind": "double"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "double"
+            },
+            "kind": "call",
+            "callee": {
+              "type": {
+                "kind": "function",
+                "return_type": {
+                  "kind": "double"
+                },
+                "param_types": [
+                  {
+                    "kind": "int"
+                  },
+                  {
+                    "kind": "int"
+                  },
+                  {
+                    "kind": "int"
+                  }
+                ],
+                "param_mem_quals": [
+                  "as_ref",
+                  "as_ref",
+                  "as_ref"
+                ],
+                "is_variadic": false,
+                "is_native": false,
+                "has_arena_param": false
+              },
+              "kind": "variable",
+              "name": "chooseDouble"
+            },
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "subject_calls",
+                "is_ref_arg": true
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "body_calls",
+                "is_ref_arg": true
+              },
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "order",
+                "is_ref_arg": true
+              }
+            ],
+            "is_tail_call": false,
+            "is_closure_call": false,
+            "is_fn_field_call": false
+          }
+        },
+        {
+          "kind": "var_decl",
+          "name": "nested_value",
+          "type": {
+            "kind": "long"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "long"
+            },
+            "kind": "match",
+            "subject": {
+              "type": {
+                "kind": "float"
+              },
+              "kind": "unary",
+              "op": "negate",
+              "operand": {
+                "type": {
+                  "kind": "float"
+                },
+                "kind": "literal",
+                "value_kind": "double",
+                "value": 1.0
+              }
+            },
+            "arms": [
+              {
+                "is_else": false,
+                "patterns": [
+                  {
+                    "type": {
+                      "kind": "float"
+                    },
+                    "kind": "unary",
+                    "op": "negate",
+                    "operand": {
+                      "type": {
+                        "kind": "float"
+                      },
+                      "kind": "literal",
+                      "value_kind": "double",
+                      "value": 1.0
+                    }
+                  }
+                ],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "long"
+                        },
+                        "kind": "match",
+                        "subject": {
+                          "type": {
+                            "kind": "double"
+                          },
+                          "kind": "literal",
+                          "value_kind": "double",
+                          "value": 2.0
+                        },
+                        "arms": [
+                          {
+                            "is_else": false,
+                            "patterns": [
+                              {
+                                "type": {
+                                  "kind": "double"
+                                },
+                                "kind": "literal",
+                                "value_kind": "double",
+                                "value": 2.0
+                              }
+                            ],
+                            "body": {
+                              "kind": "block",
+                              "statements": [
+                                {
+                                  "kind": "expr",
+                                  "expr": {
+                                    "type": {
+                                      "kind": "long"
+                                    },
+                                    "kind": "literal",
+                                    "value_kind": "int",
+                                    "value": 77
+                                  }
+                                }
+                              ]
+                            }
+                          },
+                          {
+                            "is_else": true,
+                            "patterns": [],
+                            "body": {
+                              "kind": "block",
+                              "statements": [
+                                {
+                                  "kind": "expr",
+                                  "expr": {
+                                    "type": {
+                                      "kind": "long"
+                                    },
+                                    "kind": "literal",
+                                    "value_kind": "int",
+                                    "value": 0
+                                  }
+                                }
+                              ]
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "is_else": true,
+                "patterns": [],
+                "body": {
+                  "kind": "block",
+                  "statements": [
+                    {
+                      "kind": "expr",
+                      "expr": {
+                        "type": {
+                          "kind": "long"
+                        },
+                        "kind": "unary",
+                        "op": "negate",
+                        "operand": {
+                          "type": {
+                            "kind": "long"
+                          },
+                          "kind": "literal",
+                          "value_kind": "int",
+                          "value": 1
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "string"
+                },
+                "kind": "interpolated_string",
+                "parts": [
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "__sn_match_subject"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "__sn_match_result"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "subject_calls"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "body_calls"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "order"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "selected"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "nested_statement"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "nan_statement_hits"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "zero_hits"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "int"
+                      },
+                      "kind": "variable",
+                      "name": "first_value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "variable",
+                      "name": "nan_value"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "type": {
+                          "kind": "float"
+                        },
+                        "kind": "variable",
+                        "name": "float_value"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "float"
+                        },
+                        "kind": "unary",
+                        "op": "negate",
+                        "operand": {
+                          "type": {
+                            "kind": "float"
+                          },
+                          "kind": "literal",
+                          "value_kind": "double",
+                          "value": 3.5
+                        }
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "variable",
+                        "name": "double_value"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "literal",
+                        "value_kind": "double",
+                        "value": 6.75
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "bool"
+                      },
+                      "kind": "binary",
+                      "op": "eq",
+                      "left": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "variable",
+                        "name": "returned"
+                      },
+                      "right": {
+                        "type": {
+                          "kind": "double"
+                        },
+                        "kind": "literal",
+                        "value_kind": "double",
+                        "value": 42.25
+                      },
+                      "arithmetic_mode": "checked"
+                    }
+                  },
+                  {
+                    "kind": "text",
+                    "value": ","
+                  },
+                  {
+                    "kind": "expr",
+                    "expr": {
+                      "type": {
+                        "kind": "long"
+                      },
+                      "kind": "variable",
+                      "name": "nested_value"
+                    }
+                  }
+                ],
+                "part_count": 29
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

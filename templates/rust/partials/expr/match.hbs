@@ -1,4 +1,13 @@
-{{#if rust_value_match}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as {{rust_type subject.type}}{{/unless}}) {
+{{#if rust_floating_match}}{{#if rust_value_match}}{
+    let __sn_match_subject: {{rust_type subject.type}} = {{> expr subject}};
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}__sn_match_subject == {{> expr this}}{{/each}}){{/if}} {
+{{#each body.statements}}        ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as {{rust_type ../../type}}{{/unless}}){{/each}}
+    }
+{{/each}}{{rbrace}}{{else}}{
+    let __sn_match_subject: {{rust_type subject.type}} = {{> expr subject}};
+{{#each arms}}    {{#if is_else}}else{{else}}{{#if @first}}if{{else}}else if{{/if}} ({{#each patterns}}{{#if @index}} || {{/if}}__sn_match_subject == {{> expr this}}{{/each}}){{/if}} {
+{{#each body.statements}}        {{> stmt this}}{{nl}}{{/each}}    }
+{{/each}}{{rbrace}}{{/if}}{{else}}{{#if rust_value_match}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as {{rust_type subject.type}}{{/unless}}) {
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as {{rust_type ../../type}}{{/unless}}){{/each}}
         },
@@ -6,4 +15,4 @@
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}        },
 {{/each}}{{#unless rust_has_else}}        _ => {},
-{{/unless}}    {{rbrace}}{{/if~}}
+{{/unless}}    {{rbrace}}{{/if}}{{/if~}}
