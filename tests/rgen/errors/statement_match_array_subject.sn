@@ -1,0 +1,4 @@
+fn main(): void =>
+  var values: int[] = {1}
+  match values =>
+    {1} => println("one")

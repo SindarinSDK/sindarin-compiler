@@ -1,5 +1,0 @@
-fn main(): void =>
-  var value: long = 2l
-  match value =>
-    1l => println("one")
-    else => println("other")

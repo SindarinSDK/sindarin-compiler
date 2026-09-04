@@ -1,8 +1,8 @@
-{{#if rust_value_match}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as i64{{/unless}}) {
+{{#if rust_value_match}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as {{rust_type subject.type}}{{/unless}}) {
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
-{{#each body.statements}}            ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as i64{{/unless}}){{/each}}
+{{#each body.statements}}            ({{> expr expr}}{{#unless (eq ../../type.kind "bool")}} as {{rust_type ../../type}}{{/unless}}){{/each}}
         },
-{{/each}}    {{rbrace}}{{else}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as i64{{/unless}}) {
+{{/each}}    {{rbrace}}{{else}}match ({{> expr subject}}{{#unless (eq subject.type.kind "bool")}} as {{rust_type subject.type}}{{/unless}}) {
 {{#each arms}}        {{#if is_else}}_{{else}}{{#each patterns}}{{#if @index}} | {{/if}}{{> expr this}}{{/each}}{{/if}} => {
 {{#each body.statements}}            {{> stmt this}}{{nl}}{{/each}}        },
 {{/each}}{{#unless rust_has_else}}        _ => {},

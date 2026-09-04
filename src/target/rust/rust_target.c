@@ -1576,33 +1576,161 @@ static bool rust_validate_block(json_object *block)
            rust_validate_statements(statements);
 }
 
-static bool rust_int_match_literal_pattern(json_object *pattern)
+typedef enum
 {
-    json_object *type = NULL;
+    RUST_MATCH_PATTERN_OK,
+    RUST_MATCH_PATTERN_NOT_LITERAL,
+    RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED,
+    RUST_MATCH_PATTERN_NOT_LOSSLESS
+} RustMatchPatternStatus;
+
+static bool rust_match_integral_type(const char *kind)
+{
+    return rust_integer_type(kind);
+}
+
+/* Mirror the shared match checker's currently accepted integer pairings.  The
+ * target still validates the modeled value below: shared compatibility alone
+ * is not permission to narrow, wrap, or reinterpret a literal. */
+static bool rust_match_integer_types_shared_compatible(const char *subject_kind,
+                                                       const char *pattern_kind)
+{
+    if (!rust_match_integral_type(subject_kind) ||
+        !rust_match_integral_type(pattern_kind)) return false;
+    if (strcmp(subject_kind, pattern_kind) == 0) return true;
+
+    bool subject_is_byte = strcmp(subject_kind, "byte") == 0;
+    bool pattern_is_byte = strcmp(pattern_kind, "byte") == 0;
+    if (subject_is_byte || pattern_is_byte)
+        return (subject_is_byte && strcmp(pattern_kind, "int") == 0) ||
+               (pattern_is_byte && strcmp(subject_kind, "int") == 0);
+
+    /* The shared checker accepts every pairing among these five kinds. */
+    return true;
+}
+
+static bool rust_match_literal_model_value(json_object *literal,
+                                           const char *literal_kind,
+                                           int64_t *value_out)
+{
+    json_object *value = NULL;
+    const char *wanted_value_kind = strcmp(literal_kind, "byte") == 0
+        ? "byte" : "int";
+    if (!json_string_property_equals(literal, "kind", "literal") ||
+        !json_string_property_equals(literal, "value_kind", wanted_value_kind) ||
+        !json_object_object_get_ex(literal, "value", &value) ||
+        !json_object_is_type(value, json_type_int)) return false;
+    *value_out = json_object_get_int64(value);
+    return true;
+}
+
+static bool rust_match_positive_literal_intrinsically_reliable(const char *kind,
+                                                               int64_t value)
+{
+    if (value < 0) return false;
+    if (strcmp(kind, "int") == 0 || strcmp(kind, "long") == 0 ||
+        strcmp(kind, "uint") == 0) return true;
+    if (strcmp(kind, "int32") == 0) return value <= INT32_MAX;
+    if (strcmp(kind, "uint32") == 0) return (uint64_t)value <= UINT32_MAX;
+    if (strcmp(kind, "byte") == 0) return value <= UINT8_MAX;
+    return false;
+}
+
+static bool rust_match_positive_value_fits_subject(const char *subject_kind,
+                                                   uint64_t value)
+{
+    if (strcmp(subject_kind, "int") == 0 ||
+        strcmp(subject_kind, "long") == 0 ||
+        strcmp(subject_kind, "uint") == 0)
+        return value <= (uint64_t)INT64_MAX;
+    if (strcmp(subject_kind, "int32") == 0)
+        return value <= (uint64_t)INT32_MAX;
+    if (strcmp(subject_kind, "uint32") == 0)
+        return value <= (uint64_t)UINT32_MAX;
+    if (strcmp(subject_kind, "byte") == 0)
+        return value <= (uint64_t)UINT8_MAX;
+    return false;
+}
+
+static bool rust_match_negative_magnitude_fits_subject(const char *subject_kind,
+                                                       uint64_t magnitude)
+{
+    if (strcmp(subject_kind, "int") == 0 || strcmp(subject_kind, "long") == 0)
+    {
+        /* Source INT64_MIN is deliberately outside the reliable lexer/model
+         * boundary, so the largest admitted magnitude remains INT64_MAX. */
+        return magnitude <= (uint64_t)INT64_MAX;
+    }
+    if (strcmp(subject_kind, "int32") == 0)
+        return magnitude <= (uint64_t)INT32_MAX + 1U;
+    return false;
+}
+
+static RustMatchPatternStatus rust_integral_match_literal_pattern(
+    json_object *pattern, const char *subject_kind)
+{
+    json_object *pattern_type = NULL;
+    const char *pattern_kind = NULL;
     if (!json_object_is_type(pattern, json_type_object) ||
-        !json_object_object_get_ex(pattern, "type", &type) ||
-        !json_string_property_equals(type, "kind", "int")) return false;
+        !json_object_object_get_ex(pattern, "type", &pattern_type) ||
+        !(pattern_kind = json_string_property(pattern_type, "kind")) ||
+        !rust_match_integer_types_shared_compatible(subject_kind, pattern_kind))
+        return RUST_MATCH_PATTERN_NOT_LITERAL;
 
     if (json_string_property_equals(pattern, "kind", "literal"))
     {
-        json_object *value = NULL;
-        return json_string_property_equals(pattern, "value_kind", "int") &&
-               json_object_object_get_ex(pattern, "value", &value) &&
-               json_object_is_type(value, json_type_int);
+        int64_t value = 0;
+        if (!rust_match_literal_model_value(pattern, pattern_kind, &value))
+            return RUST_MATCH_PATTERN_NOT_LITERAL;
+        /* A uint source literal above INT64_MAX is stored through the shared
+         * signed model boundary as a negative number.  Never reinterpret it. */
+        if (!rust_match_positive_literal_intrinsically_reliable(pattern_kind, value) ||
+            !rust_match_positive_value_fits_subject(subject_kind, (uint64_t)value))
+            return RUST_MATCH_PATTERN_NOT_LOSSLESS;
+        return RUST_MATCH_PATTERN_OK;
     }
 
-    json_object *operand = NULL;
+    json_object *operand = NULL, *operand_type = NULL;
+    const char *operand_kind = NULL;
+    int64_t magnitude = 0;
     if (!json_string_property_equals(pattern, "kind", "unary") ||
         !json_string_property_equals(pattern, "op", "negate") ||
         !json_object_object_get_ex(pattern, "operand", &operand) ||
-        !json_string_property_equals(operand, "kind", "literal") ||
-        !json_string_property_equals(operand, "value_kind", "int")) return false;
+        !json_object_is_type(operand, json_type_object) ||
+        !json_object_object_get_ex(operand, "type", &operand_type) ||
+        !(operand_kind = json_string_property(operand_type, "kind")) ||
+        strcmp(pattern_kind, operand_kind) != 0 ||
+        !rust_match_literal_model_value(operand, operand_kind, &magnitude))
+        return RUST_MATCH_PATTERN_NOT_LITERAL;
 
-    json_object *operand_type = NULL, *value = NULL;
-    return json_object_object_get_ex(operand, "type", &operand_type) &&
-           json_string_property_equals(operand_type, "kind", "int") &&
-           json_object_object_get_ex(operand, "value", &value) &&
-           json_object_is_type(value, json_type_int);
+    if (!rust_signed_integer_type(pattern_kind))
+        return RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED;
+    if (rust_unsigned_integer_type(subject_kind))
+        return RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED;
+    if (!rust_match_positive_literal_intrinsically_reliable(pattern_kind, magnitude) ||
+        !rust_match_negative_magnitude_fits_subject(subject_kind,
+                                                    (uint64_t)magnitude))
+        return RUST_MATCH_PATTERN_NOT_LOSSLESS;
+    return RUST_MATCH_PATTERN_OK;
+}
+
+static bool rust_report_integral_match_pattern_error(RustMatchPatternStatus status,
+                                                     bool is_value_match)
+{
+    if (status == RUST_MATCH_PATTERN_NEGATIVE_UNSIGNED)
+        return rust_report_match_error(
+            is_value_match
+                ? "does not support negative patterns for unsigned value-match subjects or unsigned literal suffixes"
+                : "does not support negative patterns for unsigned statement-match subjects or unsigned literal suffixes");
+    if (status == RUST_MATCH_PATTERN_NOT_LOSSLESS)
+        return rust_report_match_error(
+            is_value_match
+                ? "requires integer literal patterns in value match to be losslessly representable in the subject type"
+                : "requires integer literal patterns in statement match to be losslessly representable in the subject type");
+    return rust_report_match_error(
+        is_value_match
+            ? "supports value match only with integer literal patterns"
+            : "supports statement match only with integer literal patterns");
 }
 
 static bool rust_bool_match_literal_pattern(json_object *pattern)
@@ -1629,12 +1757,13 @@ static bool rust_validate_statement_match(json_object *expr)
     {
         return rust_report_match_error("encountered malformed statement match model");
     }
-    bool subject_is_int = json_string_property_equals(subject_type, "kind", "int");
+    const char *subject_kind = json_string_property(subject_type, "kind");
+    bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
-    if (!subject_is_int && !subject_is_bool)
+    if (!subject_is_integral && !subject_is_bool)
     {
         return rust_report_match_error(
-            "supports statement match only with int or bool subjects");
+            "supports statement match only with bool or integral subjects");
     }
     if (!rust_validate_expr(subject)) return false;
 
@@ -1678,9 +1807,13 @@ static bool rust_validate_statement_match(json_object *expr)
             for (size_t p = 0; p < pattern_count; p++)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
-                if (subject_is_int && !rust_int_match_literal_pattern(pattern))
-                    return rust_report_match_error(
-                        "supports statement match only with integer literal patterns");
+                if (subject_is_integral)
+                {
+                    RustMatchPatternStatus status =
+                        rust_integral_match_literal_pattern(pattern, subject_kind);
+                    if (status != RUST_MATCH_PATTERN_OK)
+                        return rust_report_integral_match_pattern_error(status, false);
+                }
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports statement match only with boolean literal patterns");
@@ -1713,11 +1846,12 @@ static bool rust_validate_value_match(json_object *expr)
         json_object_array_length(arms) == 0)
         return rust_report_match_error("encountered malformed value match model");
 
-    bool subject_is_int = json_string_property_equals(subject_type, "kind", "int");
+    const char *subject_kind = json_string_property(subject_type, "kind");
+    bool subject_is_integral = rust_match_integral_type(subject_kind);
     bool subject_is_bool = json_string_property_equals(subject_type, "kind", "bool");
-    if (!subject_is_int && !subject_is_bool)
+    if (!subject_is_integral && !subject_is_bool)
         return rust_report_match_error(
-            "supports value match only with int or bool subjects");
+            "supports value match only with bool or integral subjects");
     if (!rust_validate_expr(subject)) return false;
 
     size_t else_count = 0;
@@ -1755,9 +1889,13 @@ static bool rust_validate_value_match(json_object *expr)
             for (size_t p = 0; p < pattern_count; p++)
             {
                 json_object *pattern = json_object_array_get_idx(patterns, p);
-                if (subject_is_int && !rust_int_match_literal_pattern(pattern))
-                    return rust_report_match_error(
-                        "supports value match only with integer literal patterns");
+                if (subject_is_integral)
+                {
+                    RustMatchPatternStatus status =
+                        rust_integral_match_literal_pattern(pattern, subject_kind);
+                    if (status != RUST_MATCH_PATTERN_OK)
+                        return rust_report_integral_match_pattern_error(status, true);
+                }
                 if (subject_is_bool && !rust_bool_match_literal_pattern(pattern))
                     return rust_report_match_error(
                         "supports value match only with boolean literal patterns");
@@ -1773,10 +1911,12 @@ static bool rust_validate_value_match(json_object *expr)
                                "is_else"))
         return rust_report_match_error(
             "requires value match to contain exactly one final else arm");
-    if (subject_is_int && !json_string_property_equals(result_type, "kind", "int"))
-        return rust_report_match_error("supports value match only with int results");
-    if (subject_is_bool && !json_string_property_equals(result_type, "kind", "bool"))
-        return rust_report_match_error("supports bool value match only with bool results");
+    const char *result_kind = json_string_property(result_type, "kind");
+    if (!result_kind ||
+        (!rust_match_integral_type(result_kind) &&
+         !rust_float_type(result_kind) && strcmp(result_kind, "bool") != 0))
+        return rust_report_match_error(
+            "supports value match results only for heap-free scalar bool, int, long, int32, uint32, uint, byte, float, or double");
 
     for (size_t i = 0; i < arm_count; i++)
     {
@@ -1785,10 +1925,16 @@ static bool rust_validate_value_match(json_object *expr)
         if (!json_object_object_get_ex(arm, "body", &body) ||
             !json_object_object_get_ex(body, "statements", &body_statements) ||
             json_object_array_length(body_statements) != 1)
+        {
+            if (strcmp(result_kind, "int") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one int expression");
+            if (strcmp(result_kind, "bool") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one bool expression");
             return rust_report_match_error(
-                subject_is_int
-                    ? "requires each value match arm body to contain exactly one int expression"
-                    : "requires each value match arm body to contain exactly one bool expression");
+                "requires each value match arm body to contain exactly one expression of the exact resolved result type");
+        }
 
         json_object *statement = json_object_array_get_idx(body_statements, 0);
         json_object *arm_expr = NULL, *arm_type = NULL;
@@ -1796,12 +1942,17 @@ static bool rust_validate_value_match(json_object *expr)
             !json_object_object_get_ex(statement, "expr", &arm_expr) ||
             !json_object_is_type(arm_expr, json_type_object) ||
             !json_object_object_get_ex(arm_expr, "type", &arm_type) ||
-            (subject_is_int && !json_string_property_equals(arm_type, "kind", "int")) ||
-            (subject_is_bool && !json_string_property_equals(arm_type, "kind", "bool")))
+            !json_string_property_equals(arm_type, "kind", result_kind))
+        {
+            if (strcmp(result_kind, "int") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one int expression");
+            if (strcmp(result_kind, "bool") == 0)
+                return rust_report_match_error(
+                    "requires each value match arm body to contain exactly one bool expression");
             return rust_report_match_error(
-                subject_is_int
-                    ? "requires each value match arm body to contain exactly one int expression"
-                    : "requires each value match arm body to contain exactly one bool expression");
+                "requires each value match arm body to contain exactly one expression of the exact resolved result type");
+        }
         if (!rust_validate_expr(arm_expr)) return false;
     }
 

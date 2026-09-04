@@ -1,6 +1,6 @@
 fn main(): void =>
-  var value: double = 2.0
+  var value: uint = 1u
   var result: int = match value =>
-    1.0 => 10
-    else => 20
+    9223372036854775808u => 1
+    else => 0
   println(result)

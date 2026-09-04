@@ -1,0 +1,7 @@
+struct Payload =>
+  text: str
+
+fn main(): void =>
+  var payload: Payload = { text: "one" }
+  match payload =>
+    Payload { text: "one" } => println("one")
