@@ -1,0 +1,8 @@
+fn main(): void =>
+  var ascii: str = "ASCII"
+  var accent: str = "é"
+  var world: str = "世界"
+  var emoji: str = "🙂"
+  var decomposed: str = "é"
+  var controls: str = "\n\t\r\x1F"
+  println($"{ascii.length} {accent.length} {world.length} {emoji.length} {decomposed.length} {controls.length}")

@@ -1,0 +1,3 @@
+fn main(): void =>
+  var value: str = "\xAF"
+  println(value.length)

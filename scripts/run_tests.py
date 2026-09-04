@@ -134,12 +134,24 @@ def find_compiler(specified_path: Optional[str] = None) -> str:
 
 def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
                      env: Optional[dict] = None,
-                     merge_stderr: bool = False) -> Tuple[int, str, str]:
-    """Run a command with timeout, returning (exit_code, stdout, stderr).
+                     merge_stderr: bool = False) -> Tuple[int, str, str, Optional[str]]:
+    """Run a command with timeout, returning exit code, text streams, and decode error.
 
     If merge_stderr is True, stderr is redirected to stdout (like bash 2>&1),
-    and stderr in the return value will be empty.
+    and stderr in the return value will be empty. Sindarin compiler and generated
+    program output is UTF-8 regardless of the host locale, so capture bytes and
+    decode strictly. Invalid external-tool bytes get a display-safe escaped copy
+    plus a separate error that callers must handle before making assertions.
     """
+    def decode_stream(data: bytes, stream_name: str) -> Tuple[str, Optional[str]]:
+        try:
+            return data.decode('utf-8'), None
+        except UnicodeDecodeError as error:
+            display = data.decode('utf-8', errors='backslashreplace')
+            detail = (f'{stream_name} is not valid UTF-8 at byte {error.start}: '
+                      f'{error.reason}')
+            return display, detail
+
     try:
         if merge_stderr:
             # Merge stderr into stdout (like bash's 2>&1)
@@ -147,26 +159,28 @@ def run_with_timeout(cmd: List[str], timeout: int, cwd: Optional[str] = None,
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                text=True,
                 timeout=timeout,
                 cwd=cwd,
                 env=env
             )
-            return result.returncode, result.stdout, ''
+            stdout, decode_error = decode_stream(result.stdout, 'merged subprocess output')
+            return result.returncode, stdout, '', decode_error
         else:
             result = subprocess.run(
                 cmd,
                 capture_output=True,
-                text=True,
                 timeout=timeout,
                 cwd=cwd,
                 env=env
             )
-            return result.returncode, result.stdout, result.stderr
+            stdout, stdout_error = decode_stream(result.stdout, 'subprocess stdout')
+            stderr, stderr_error = decode_stream(result.stderr, 'subprocess stderr')
+            decode_error = '; '.join(error for error in (stdout_error, stderr_error) if error)
+            return result.returncode, stdout, stderr, decode_error or None
     except subprocess.TimeoutExpired:
-        return -1, '', 'TIMEOUT'
+        return -1, '', 'TIMEOUT', None
     except Exception as e:
-        return -1, '', str(e)
+        return -1, '', str(e), None
 
 
 def parse_rustc_capture(capture_file: str) -> List[List[bytes]]:
@@ -534,10 +548,15 @@ class TestRunner:
         test_binary = os.path.abspath(test_binary)
 
         start_time = time.perf_counter()
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             [test_binary], self.run_timeout, env=self.env
         )
         elapsed = time.perf_counter() - start_time
+
+        if decode_error:
+            print(f"{Colors.RED}FAIL{Colors.NC}: subprocess output decode error: {decode_error}")
+            print(format_subprocess_failure(stdout, stderr))
+            return False, elapsed
 
         if stdout:
             # Filter out passing test lines and section headers, keep failures and summary
@@ -764,6 +783,8 @@ class TestRunner:
             print(f"{Colors.RED}FAIL{Colors.NC}: test fixture not found: {test_file}")
             return False, time.perf_counter() - suite_start
 
+        # Case 0: pin locale-independent strict UTF-8 subprocess decoding and
+        # explicit, display-safe failure for invalid external diagnostic bytes.
         # Case 1: copy the fixture into a sub-path containing spaces, capture
         # the rustc invocations, and verify the --version/build records plus
         # default, SN_RUSTFLAGS, debug, and profile argv flag boundaries.
@@ -782,6 +803,7 @@ class TestRunner:
         # Case 6: repeat success cleanup/retention assertions for C, which
         # exercises the same target_compile lifecycle path.
         cases = [
+            {'name': 'subprocess_utf8_boundary', 'kind': 'subprocess_utf8'},
             {'name': 'rustc_invocation_records', 'kind': 'records'},
             {'name': 'missing_rustc', 'kind': 'missing'},
             {'name': 'failing_rustc', 'kind': 'failing'},
@@ -809,7 +831,49 @@ class TestRunner:
                 cmd = [self.compiler, test_file, '--target', 'rust', '-o', output_file,
                        '-l', '3', '--no-install']
 
-                if case['kind'] == 'records':
+                if case['kind'] == 'subprocess_utf8':
+                    details = []
+                    semantic_assertion_runs = 0
+                    valid_cmd = [sys.executable, '-c',
+                                 'import os; os.write(1, bytes([240, 144, 128, 128]))']
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        valid_cmd, self.compile_timeout, env=env)
+                    if decode_error:
+                        details.append(f'valid UTF-8 subprocess output failed decoding: {decode_error}')
+                    else:
+                        semantic_assertion_runs += 1
+                        if exit_code != 0 or stdout != '\U00010000' or stderr:
+                            details.append('valid UTF-8 subprocess output was not decoded exactly')
+
+                    invalid_cmd = [sys.executable, '-c',
+                                   'import os, sys; os.write(2, bytes([255]) + b"external"); sys.exit(7)']
+                    exit_code, stdout, stderr, decode_error = run_with_timeout(
+                        invalid_cmd, self.compile_timeout, env=env)
+                    if decode_error:
+                        # The escaped copy is diagnostic-only; semantic assertions must
+                        # never consume replacement or display-safe text.
+                        if 'subprocess stderr is not valid UTF-8 at byte 0' not in decode_error:
+                            details.append(f'invalid UTF-8 probe has the wrong decode error: {decode_error!r}')
+                        if exit_code != 7:
+                            details.append(f'invalid UTF-8 probe lost exit code 7: {exit_code}')
+                        if stdout:
+                            details.append(f'invalid UTF-8 probe unexpectedly wrote stdout: {stdout!r}')
+                        if stderr != '\\xffexternal':
+                            details.append(f'invalid UTF-8 diagnostic is not display-safe: {stderr!r}')
+                    else:
+                        semantic_assertion_runs += 1
+                        details.append('invalid UTF-8 probe lacks explicit decode error')
+
+                    if semantic_assertion_runs != 1:
+                        details.append('decode-error output reached semantic assertions')
+
+                    results.append({'name': case['name'],
+                                   'status': 'pass' if not details else 'fail',
+                                   'reason': '' if not details else 'UTF-8 boundary assertions unmet',
+                                   'details': details or None,
+                                   'elapsed': time.perf_counter() - case_start})
+
+                elif case['kind'] == 'records':
                     env['SN_RUSTC'] = spaced_rustc
                     details = []
 
@@ -836,9 +900,13 @@ class TestRunner:
                             case_env['SN_RUSTFLAGS'] = rustflags
                         else:
                             case_env.pop('SN_RUSTFLAGS', None)
-                        exit_code, _stdout, stderr = run_with_timeout(
+                        exit_code, _stdout, stderr, decode_error = run_with_timeout(
                             cmd + extra_args, self.compile_timeout, env=case_env
                         )
+                        if decode_error:
+                            details.append(f'{label}: subprocess output decode error: {decode_error}; '
+                                           f'stderr: {stderr!r}')
+                            return
                         if exit_code != 0:
                             details.append(f'{label}: compile exit {exit_code}: {stderr.splitlines()[:3]!r}')
                             return
@@ -865,13 +933,16 @@ class TestRunner:
 
                     conflict_env = env.copy()
                     conflict_env['SN_FAKE_RUSTC_CAPTURE'] = capture_file_conflict
-                    exit_code, _stdout, stderr = run_with_timeout(
+                    exit_code, _stdout, stderr, decode_error = run_with_timeout(
                         cmd + ['-g', '-p'], self.compile_timeout, env=conflict_env
                     )
                     expected_diagnostic = 'Error: -p (profile) and -g (debug) cannot be used together'
-                    if exit_code == 0:
+                    if decode_error:
+                        details.append(f'-g -p: subprocess output decode error: {decode_error}; '
+                                       f'stderr: {stderr!r}')
+                    elif exit_code == 0:
                         details.append('-g -p: expected a nonzero compiler exit')
-                    if (stderr or '').strip() != expected_diagnostic:
+                    elif (stderr or '').strip() != expected_diagnostic:
                         details.append(f'-g -p: diagnostic is {(stderr or "").strip()!r}, '
                                        f'expected {expected_diagnostic!r}')
                     try:
@@ -888,10 +959,15 @@ class TestRunner:
 
                 elif case['kind'] == 'missing':
                     env['SN_RUSTC'] = missing_rustc
-                    exit_code, _stdout, stderr = run_with_timeout(
+                    exit_code, _stdout, stderr, decode_error = run_with_timeout(
                         cmd, self.compile_timeout, env=env
                     )
-                    if exit_code == 0:
+                    if decode_error:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': 'subprocess output decode error',
+                                       'details': [decode_error, stderr],
+                                       'elapsed': time.perf_counter() - case_start})
+                    elif exit_code == 0:
                         results.append({'name': case['name'], 'status': 'fail',
                                        'reason': 'expected a nonzero compiler exit',
                                        'details': None, 'elapsed': time.perf_counter() - case_start})
@@ -905,10 +981,15 @@ class TestRunner:
                 elif case['kind'] == 'failing':
                     env['SN_RUSTC'] = spaced_rustc
                     env['SN_FAKE_RUSTC_EXIT'] = '3'
-                    exit_code, _stdout, stderr = run_with_timeout(
+                    exit_code, _stdout, stderr, decode_error = run_with_timeout(
                         cmd, self.compile_timeout, env=env
                     )
-                    if exit_code == 0:
+                    if decode_error:
+                        results.append({'name': case['name'], 'status': 'fail',
+                                       'reason': 'subprocess output decode error',
+                                       'details': [decode_error, stderr],
+                                       'elapsed': time.perf_counter() - case_start})
+                    elif exit_code == 0:
                         results.append({'name': case['name'], 'status': 'fail',
                                        'reason': 'expected a nonzero compiler exit',
                                        'details': None, 'elapsed': time.perf_counter() - case_start})
@@ -934,8 +1015,12 @@ class TestRunner:
                                       '-l', '3', '--no-install']
                         if keep_generated:
                             failed_cmd.append('--keep-generated')
-                        exit_code, _stdout, stderr = run_with_timeout(
+                        exit_code, _stdout, stderr, decode_error = run_with_timeout(
                             failed_cmd, self.compile_timeout, cwd=case_dir, env=env)
+                        if decode_error:
+                            details.append(f'{label}: subprocess output decode error: {decode_error}; '
+                                           f'stderr: {stderr!r}')
+                            continue
                         if exit_code == 0:
                             details.append(f'{label}: expected a nonzero compiler exit')
                             continue
@@ -1001,8 +1086,12 @@ class TestRunner:
                                              '-o', output, '-l', '3', '--no-install']
                             if keep_generated:
                                 lifecycle_cmd.append('--keep-generated')
-                            exit_code, stdout, stderr = run_with_timeout(
+                            exit_code, stdout, stderr, decode_error = run_with_timeout(
                                 lifecycle_cmd, self.compile_timeout, cwd=cwd, env=case_env)
+                            if decode_error:
+                                details.append(f'{label}: subprocess output decode error: {decode_error}\n'
+                                               f'{format_subprocess_failure(stdout, stderr)}')
+                                continue
                             if exit_code != 0:
                                 details.append(f'{label}: {target} compile exit {exit_code}:\n'
                                                f'{format_subprocess_failure(stdout, stderr)}')
@@ -1087,12 +1176,15 @@ class TestRunner:
                             if probe_env['SN_CFLAGS'] != expected_probe_cflags:
                                 details.append(f'{label}: inherited SN_CFLAGS was not preserved before '
                                                'the injected missing-header flag')
-                            exit_code, stdout, stderr = run_with_timeout(
+                            exit_code, stdout, stderr, decode_error = run_with_timeout(
                                 [self.compiler, source_file, '--target', 'c', '-o', output,
                                  '-l', '3', '--no-install'], self.compile_timeout,
                                 cwd=project_root, env=probe_env)
                             failure_report = format_subprocess_failure(stdout, stderr)
-                            if exit_code == 0:
+                            if decode_error:
+                                details.append(f'{label}: subprocess output decode error: {decode_error}\n'
+                                               f'{failure_report}')
+                            elif exit_code == 0:
                                 details.append(f'{label}: expected a nonzero compiler exit:\n{failure_report}')
                             else:
                                 build_dir, reason = find_single_build_dir(
@@ -1186,16 +1278,20 @@ class TestRunner:
             return ('skip', 'no .expected', None)
 
         # Try to compile (should fail)
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             [self.compiler, test_file, '-o', exe_file, '-l', '1', '--no-install'],
             self.compile_timeout, env=self.env
         )
+
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
 
         if exit_code == 0:
             return ('fail', 'should not compile', None)
 
         # Check error message
-        with open(expected_file, 'r') as f:
+        with open(expected_file, 'r', encoding='utf-8') as f:
             expected_error = f.readline().strip()
 
         if expected_error in stderr:
@@ -1219,9 +1315,13 @@ class TestRunner:
 
         # Compile with --emit-model to generate JSON model
         compile_cmd = [self.compiler, test_file, '--emit-model', '-o', json_file, '-l', '1', '-O0', '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
+
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
 
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
@@ -1234,13 +1334,13 @@ class TestRunner:
         import json
 
         try:
-            with open(json_file, 'r') as f:
+            with open(json_file, 'r', encoding='utf-8') as f:
                 generated_json = json.load(f)
         except json.JSONDecodeError as e:
             return ('fail', 'invalid JSON output', [str(e)])
 
         try:
-            with open(expected_file, 'r') as f:
+            with open(expected_file, 'r', encoding='utf-8') as f:
                 expected_json = json.load(f)
         except json.JSONDecodeError as e:
             return ('fail', 'invalid expected JSON', [str(e)])
@@ -1297,9 +1397,13 @@ class TestRunner:
         # Compile with --emit-c to generate C code
         compile_cmd = [self.compiler, test_file, '--emit-c', '-o', c_file, '-l', '1',
                        *optimization_args, '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
+
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
 
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
@@ -1309,11 +1413,11 @@ class TestRunner:
         if not os.path.isfile(c_file):
             return ('fail', 'no C output', None)
 
-        with open(c_file, 'r') as f:
+        with open(c_file, 'r', encoding='utf-8') as f:
             generated_c = f.read()
 
         # Read expected C code
-        with open(expected_file, 'r') as f:
+        with open(expected_file, 'r', encoding='utf-8') as f:
             expected_c = f.read()
 
         # Normalize line endings for cross-platform comparison
@@ -1345,7 +1449,9 @@ class TestRunner:
             return ('fail', 'C code mismatch', details)
 
         # C code matches - now compile the full binary (skip if no main function)
-        has_main = 'fn main(' in open(test_file).read() or 'fn main()' in open(test_file).read()
+        with open(test_file, 'r', encoding='utf-8') as source:
+            test_source = source.read()
+        has_main = 'fn main(' in test_source or 'fn main()' in test_source
         if not has_main:
             return ('pass', '', None)
 
@@ -1359,19 +1465,25 @@ class TestRunner:
                        *optimization_args, '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
+
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
 
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'binary compile error', details)
 
         # Run the binary
-        exit_code, output, timeout_marker = run_with_timeout(
+        exit_code, output, timeout_marker, decode_error = run_with_timeout(
             [exe_file], self.run_timeout, env=self.env, merge_stderr=True
         )
 
+        if decode_error:
+            return ('fail', 'subprocess output decode error', [decode_error, output])
         if exit_code != 0:
             if timeout_marker == 'TIMEOUT':
                 return ('fail', 'timeout', output.split('\n')[:20] if output else None)
@@ -1382,7 +1494,7 @@ class TestRunner:
         # Check output against .expected file if it exists
         output_file = test_file.replace('.sn', '.expected')
         if os.path.isfile(output_file):
-            with open(output_file, 'r') as f:
+            with open(output_file, 'r', encoding='utf-8') as f:
                 expected_output = f.read()
 
             normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
@@ -1418,16 +1530,20 @@ class TestRunner:
 
         compile_cmd = [self.compiler, test_file, '--emit-rust', '-o', rs_file,
                        '-l', '1', *optimization_args, '--no-install']
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'Rust emission error', details)
         if not os.path.isfile(rs_file):
             return ('fail', 'no Rust output', None)
 
-        with open(rs_file, 'r') as generated, open(expected_file, 'r') as expected:
+        with open(rs_file, 'r', encoding='utf-8') as generated, \
+                open(expected_file, 'r', encoding='utf-8') as expected:
             generated_rs = generated.read().replace('\r\n', '\n').replace('\r', '\n')
             expected_rs = expected.read().replace('\r\n', '\n').replace('\r', '\n')
         if generated_rs != expected_rs:
@@ -1448,9 +1564,12 @@ class TestRunner:
         # limit on cold Windows runners even though each compilation succeeds.
         rust_compile_timeout = (max(self.compile_timeout, 120)
                                 if is_windows() else self.compile_timeout)
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, rust_compile_timeout, env=self.env
         )
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
             return ('fail', 'Rust binary compile error', details)
@@ -1463,7 +1582,7 @@ class TestRunner:
 
         expected_exit = 0
         if os.path.isfile(exit_file):
-            with open(exit_file, 'r') as f:
+            with open(exit_file, 'r', encoding='ascii') as f:
                 raw = f.read().strip()
             if not raw:
                 return ('fail', f'empty .exit sidecar in {exit_file}', None)
@@ -1492,9 +1611,11 @@ class TestRunner:
                     return ('fail', f'invalid .args sidecar in {args_file}: string contains embedded NUL', None)
             run_args = parsed
 
-        exit_code, output, timeout_marker = run_with_timeout(
+        exit_code, output, timeout_marker, decode_error = run_with_timeout(
             [exe_file] + run_args, self.run_timeout, env=self.env, merge_stderr=True
         )
+        if decode_error:
+            return ('fail', 'subprocess output decode error', [decode_error, output])
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)
         if expects_panic:
@@ -1515,7 +1636,7 @@ class TestRunner:
 
         output_file = os.path.splitext(test_file)[0] + '.expected'
         if os.path.isfile(output_file):
-            with open(output_file, 'r') as expected:
+            with open(output_file, 'r', encoding='utf-8') as expected:
                 expected_output = expected.read().replace('\r\n', '\n').replace('\r', '\n')
             normalized_output = output.replace('\r\n', '\n').replace('\r', '\n')
             if normalized_output != expected_output:
@@ -1529,15 +1650,18 @@ class TestRunner:
         if not os.path.isfile(expected_file):
             return ('skip', 'no .expected', None)
 
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             [self.compiler, test_file, '--emit-rust', '-o', rs_file,
              '-l', '1', '-O0', '--no-install'],
             self.compile_timeout, env=self.env
         )
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
         if exit_code == 0:
             return ('fail', 'Rust emission should fail', None)
 
-        with open(expected_file, 'r') as expected:
+        with open(expected_file, 'r', encoding='utf-8') as expected:
             expected_error = expected.readline().strip()
         if expected_error in stderr:
             return ('pass', '', None)
@@ -1566,9 +1690,13 @@ class TestRunner:
                        *optimization_args, '--no-install']
         if not is_windows():
             compile_cmd.append('-g')
-        exit_code, stdout, stderr = run_with_timeout(
+        exit_code, stdout, stderr, decode_error = run_with_timeout(
             compile_cmd, self.compile_timeout, env=self.env
         )
+
+        if decode_error:
+            return ('fail', 'subprocess output decode error',
+                    [decode_error, format_subprocess_failure(stdout, stderr)])
 
         if exit_code != 0:
             details = stderr.split('\n')[:50] if stderr else None
@@ -1576,10 +1704,12 @@ class TestRunner:
 
         # Run with merged stdout/stderr (like bash's 2>&1)
         run_timeout = 5 if test_type == 'integration' else self.run_timeout
-        exit_code, output, timeout_marker = run_with_timeout(
+        exit_code, output, timeout_marker, decode_error = run_with_timeout(
             [exe_file], run_timeout, env=self.env, merge_stderr=True
         )
 
+        if decode_error:
+            return ('fail', 'subprocess output decode error', [decode_error, output])
         if timeout_marker == 'TIMEOUT':
             return ('fail', 'timeout', output.split('\n')[:20] if output else None)
         if expects_panic:
@@ -1598,7 +1728,7 @@ class TestRunner:
 
         # Compare output if expected file exists
         if has_expected:
-            with open(expected_file, 'r') as f:
+            with open(expected_file, 'r', encoding='utf-8') as f:
                 expected_output = f.read()
 
             # Normalize line endings for cross-platform comparison (CRLF -> LF)

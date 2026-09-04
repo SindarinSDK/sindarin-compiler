@@ -1,6 +1,71 @@
 // src/lexer/lexer_scan_string.c
 // String and Character Literal Scanning
 
+static int string_bytes_are_valid_utf8(const unsigned char *bytes, int length)
+{
+    int i = 0;
+    while (i < length)
+    {
+        unsigned char first = bytes[i++];
+        if (first <= 0x7f) continue;
+
+        if (first >= 0xc2 && first <= 0xdf)
+        {
+            if (i >= length || bytes[i] < 0x80 || bytes[i] > 0xbf) return 0;
+            i++;
+            continue;
+        }
+
+        if (first >= 0xe0 && first <= 0xef)
+        {
+            if (i + 1 >= length) return 0;
+            unsigned char second = bytes[i];
+            unsigned char third = bytes[i + 1];
+            if (third < 0x80 || third > 0xbf) return 0;
+            if (first == 0xe0)
+            {
+                if (second < 0xa0 || second > 0xbf) return 0;
+            }
+            else if (first == 0xed)
+            {
+                if (second < 0x80 || second > 0x9f) return 0;
+            }
+            else if (second < 0x80 || second > 0xbf)
+            {
+                return 0;
+            }
+            i += 2;
+            continue;
+        }
+
+        if (first >= 0xf0 && first <= 0xf4)
+        {
+            if (i + 2 >= length) return 0;
+            unsigned char second = bytes[i];
+            unsigned char third = bytes[i + 1];
+            unsigned char fourth = bytes[i + 2];
+            if (third < 0x80 || third > 0xbf || fourth < 0x80 || fourth > 0xbf) return 0;
+            if (first == 0xf0)
+            {
+                if (second < 0x90 || second > 0xbf) return 0;
+            }
+            else if (first == 0xf4)
+            {
+                if (second < 0x80 || second > 0x8f) return 0;
+            }
+            else if (second < 0x80 || second > 0xbf)
+            {
+                return 0;
+            }
+            i += 3;
+            continue;
+        }
+
+        return 0;
+    }
+    return 1;
+}
+
 Token lexer_scan_string(Lexer *lexer, int is_interpolated)
 {
     int buffer_size = 256;
@@ -193,6 +258,11 @@ Token lexer_scan_string(Lexer *lexer, int is_interpolated)
         return error_tok;
     }
     lexer_advance(lexer);
+    if (!string_bytes_are_valid_utf8((const unsigned char *)buffer, buffer_index))
+    {
+        snprintf(error_buffer, sizeof(error_buffer), "Invalid UTF-8 sequence in string literal");
+        return lexer_error_token(lexer, error_buffer);
+    }
     buffer[buffer_index] = '\0';
     Token token = lexer_make_token(lexer, TOKEN_STRING_LITERAL);
     char *str_copy = arena_strdup(lexer->arena, buffer);

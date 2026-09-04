@@ -136,6 +136,80 @@ static char *quote_rust_string(const char *value, char quote)
     return result;
 }
 
+/* String values in the shared render model are escaped for direct insertion
+ * into C string literals. Decode that representation before quoting it as a
+ * Rust literal; otherwise source escapes such as \n and \\ become literal
+ * backslash sequences in generated Rust. */
+static char *decode_model_c_string(const char *value)
+{
+    if (!value) value = "";
+    size_t length = strlen(value);
+    char *decoded = malloc(length + 1);
+    if (!decoded) return NULL;
+
+    size_t out = 0;
+    for (size_t i = 0; i < length; i++)
+    {
+        if (value[i] != '\\' || i + 1 >= length)
+        {
+            decoded[out++] = value[i];
+            continue;
+        }
+
+        char escaped = value[++i];
+        switch (escaped)
+        {
+            case 'n': decoded[out++] = '\n'; break;
+            case 'r': decoded[out++] = '\r'; break;
+            case 't': decoded[out++] = '\t'; break;
+            case '\\': decoded[out++] = '\\'; break;
+            case '"': decoded[out++] = '"'; break;
+            case 'a': decoded[out++] = '\a'; break;
+            case 'b': decoded[out++] = '\b'; break;
+            case 'f': decoded[out++] = '\f'; break;
+            case 'v': decoded[out++] = '\v'; break;
+            case 'x':
+            {
+                if (i + 2 < length)
+                {
+                    int hi = value[i + 1] >= '0' && value[i + 1] <= '9'
+                        ? value[i + 1] - '0'
+                        : value[i + 1] >= 'a' && value[i + 1] <= 'f'
+                            ? value[i + 1] - 'a' + 10 : -1;
+                    int lo = value[i + 2] >= '0' && value[i + 2] <= '9'
+                        ? value[i + 2] - '0'
+                        : value[i + 2] >= 'a' && value[i + 2] <= 'f'
+                            ? value[i + 2] - 'a' + 10 : -1;
+                    if (hi >= 0 && lo >= 0)
+                    {
+                        decoded[out++] = (char)((hi << 4) | lo);
+                        i += 2;
+                        break;
+                    }
+                }
+                decoded[out++] = '\\';
+                decoded[out++] = escaped;
+                break;
+            }
+            default:
+                decoded[out++] = '\\';
+                decoded[out++] = escaped;
+                break;
+        }
+    }
+    decoded[out] = '\0';
+    return decoded;
+}
+
+static char *quote_rust_model_string(const char *value)
+{
+    char *decoded = decode_model_c_string(value);
+    if (!decoded) return NULL;
+    char *quoted = quote_rust_string(decoded, '"');
+    free(decoded);
+    return quoted;
+}
+
 static char *helper_rust_literal(json_object **params, int param_count, hbs_options_t *options)
 {
     (void)options;
@@ -151,7 +225,8 @@ static char *helper_rust_literal(json_object **params, int param_count, hbs_opti
         return strdup(value_obj && json_object_get_boolean(value_obj) ? "true" : "false");
     if (strcmp(kind, "string") == 0)
     {
-        char *quoted = quote_rust_string(value_obj ? json_object_get_string(value_obj) : "", '"');
+        char *quoted = quote_rust_model_string(
+            value_obj ? json_object_get_string(value_obj) : "");
         if (!quoted) return NULL;
         size_t length = strlen(quoted) + sizeof(".to_string()") + 1;
         char *result = malloc(length);
@@ -177,7 +252,7 @@ static char *helper_rust_string_literal(json_object **params, int param_count,
     (void)options;
     const char *value = param_count > 0 && params[0]
         ? json_object_get_string(params[0]) : "";
-    return quote_rust_string(value, '"');
+    return quote_rust_model_string(value);
 }
 
 static char *helper_rust_default(json_object **params, int param_count, hbs_options_t *options)

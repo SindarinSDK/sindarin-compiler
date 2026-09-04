@@ -1,0 +1,1 @@
+Error: Rust target supports str value-match results only for literals, borrowed variables, members, indexed elements, concatenation, interpolation, supported non-mutating calls, or nested str-result matches

@@ -1,0 +1,15 @@
+<selected>|1|1
+literal|variable|member|local-one|one|three
+variable|member|local-one|one|three
+convariable|inter-variable|<free>|static|MEMBER|VARIABLE|zero+one
+1|1|1|variable|member
+<nested>|1|<fallback>|1
+fallback|fallback
+direct[direct
+	quote:" slash:\]
+borrowed[borrowed
+	quote:" slash:\]
+indexed[indexed
+	quote:" slash:\]
+nested[nested
+	quote:" slash:\]

@@ -1,0 +1,13 @@
+struct MutableLabel =>
+  text: str
+
+  fn take(): str =>
+    self.text = "after"
+    return self.text
+
+fn main(): void =>
+  var label: MutableLabel = { text: "before" }
+  var result: str = match 1 =>
+    1 => label.take()
+    else => "other"
+  println(result)

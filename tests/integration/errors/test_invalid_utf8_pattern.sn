@@ -1,0 +1,4 @@
+fn main(): void =>
+  match "valid" =>
+    "\xAF" => println("wrong")
+    else => println("fallback")

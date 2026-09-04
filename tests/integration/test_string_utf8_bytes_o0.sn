@@ -1,0 +1,45 @@
+fn main(): void =>
+  var direct: str = "X\x1FAY"
+  var longGreedy: str = "X\x1FAb09Y"
+  var lower: str = "x\x1fay"
+  var borrowedSource: str = "X\x1FAb09Y"
+  var rows: str[] = {"X\x1FAb09Y"}
+  var borrowed: str = match 1 =>
+    1 => borrowedSource
+    else => "wrong"
+  var indexed: str = match 2 =>
+    2 => rows[0]
+    else => "wrong"
+  var nested: str = match true =>
+    true => match "X\x1FAY" =>
+      "X\x1FAY" => "X\x1FAb09Y"
+      else => "wrong-inner"
+    else => "wrong-outer"
+  var result: str = match false =>
+    true => "wrong"
+    else => "X\x1FAY"
+  var concatenated: str = "X\x1F" + "Ab09Y"
+  var interpolated: str = $"X\x1FAb09Y"
+  var boundaries: str = "\xC2\x80\xDF\xBF\xE0\xA0\x80\xED\x9F\xBF\xEE\x80\x80\xEF\xBF\xBF\xF0\x90\x80\x80\xF4\x8F\xBF\xBF"
+  var controls: str = "\n\t\r\"\\"
+  var unicode: str = "é世界🙂"
+  var expectedFour: str = "X\x1F" + "A" + "Y"
+  var expectedSeven: str = "X\x1F" + "A" + "b" + "0" + "9" + "Y"
+  var expectedLower: str = "x\x1f" + "a" + "y"
+
+  assert(direct == expectedFour && direct.length == 4, "uppercase greedy escape bytes")
+  assert(longGreedy == expectedSeven && longGreedy.length == 7, "long greedy escape bytes")
+  assert(lower == expectedLower && lower.length == 4, "lowercase hex escape bytes")
+  assert(borrowed == expectedSeven && indexed == expectedSeven && nested == expectedSeven, "borrowed/indexed/nested bytes")
+  assert(result == expectedFour, "match result bytes")
+  assert(concatenated == expectedSeven && interpolated == expectedSeven, "concat/interpolation bytes")
+  assert(boundaries.length == 24, "UTF-8 boundary bytes")
+  assert(controls.length == 5, "control escape bytes")
+  assert(unicode == "\xC3\xA9\xE4\xB8\x96\xE7\x95\x8C\xF0\x9F\x99\x82", "raw multibyte equality")
+  assert(unicode.length == 12, "raw multibyte byte length")
+
+  println(direct)
+  println(longGreedy)
+  println(lower)
+  println(unicode)
+  println($"{boundaries.length} {controls.length} {unicode.length}")

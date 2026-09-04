@@ -1,0 +1,5 @@
+fn main(): void =>
+  var value: str = match true =>
+    true => "\xAF"
+    else => "valid"
+  println(value)

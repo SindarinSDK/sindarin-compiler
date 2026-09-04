@@ -1,0 +1,134 @@
+struct ResultBox =>
+  label: str
+  rows: str[][]
+
+  fn memberResult(calls: int as ref): str =>
+    calls++
+    return self.label.toUpper()
+
+  static fn staticResult(calls: int as ref): str =>
+    calls++
+    return "static"
+
+fn selectSubject(calls: int as ref): int =>
+  calls++
+  return 2
+
+fn ownedResult(calls: int as ref, value: str): str =>
+  calls++
+  return $"<{value}>"
+
+fn chooseForReturn(value: bool, fallback: str): str =>
+  return match value =>
+    true => "returned"
+    else => fallback
+
+fn main(): void =>
+  var variableResult: str = "variable"
+  var fallbackResult: str = "fallback"
+  var box: ResultBox = {
+    label: "member",
+    rows: {{"zero", "one"}, {"two", "three"}}
+  }
+  var localRows: str[][] = {{"local-zero"}, {"local-one"}}
+  var escapedBorrowedSource: str = "borrowed\n\tquote:\" slash:\\"
+  var escapedRows: str[][] = {{"indexed\n\tquote:\" slash:\\"}}
+
+  var subjectCalls: int = 0
+  var selectedCalls: int = 0
+  var selected: str = match selectSubject(subjectCalls) =>
+    1 => ownedResult(selectedCalls, "wrong")
+    2 => ownedResult(selectedCalls, "selected")
+    2 => ownedResult(selectedCalls, "duplicate")
+    else => ownedResult(selectedCalls, "else")
+  println($"{selected}|{subjectCalls}|{selectedCalls}")
+
+  var literal: str = match true =>
+    true => "literal"
+    else => "wrong"
+  var variable: str = match 1.0f =>
+    1.0f => variableResult
+    else => fallbackResult
+  var member: str = match 1.0 =>
+    1.0 => box.label
+    else => fallbackResult
+  var localIndexed: str = match 7 =>
+    7 => localRows[1][0]
+    else => fallbackResult
+  var memberIndexed: str = match "key" =>
+    "key" => box.rows[0][1]
+    else => fallbackResult
+  var multiIndexed: str = match false =>
+    true => fallbackResult
+    else => box.rows[1][1]
+  println($"{literal}|{variable}|{member}|{localIndexed}|{memberIndexed}|{multiIndexed}")
+  println($"{variableResult}|{box.label}|{localRows[1][0]}|{box.rows[0][1]}|{box.rows[1][1]}")
+
+  var concatenated: str = match 10L =>
+    10L => "con" + variableResult
+    else => fallbackResult
+  var interpolated: str = match 10i32 =>
+    10i32 => $"inter-{variableResult}"
+    else => fallbackResult
+  var freeCalls: int = 0
+  var freeCalled: str = match 10u =>
+    10u => ownedResult(freeCalls, "free")
+    else => fallbackResult
+  var staticCalls: int = 0
+  var staticCalled: str = match 10u32 =>
+    10u32 => ResultBox.staticResult(staticCalls)
+    else => fallbackResult
+  var memberCalls: int = 0
+  var memberCalled: str = match 10b =>
+    10b => box.memberResult(memberCalls)
+    else => fallbackResult
+  var stringMemberCalled: str = match "upper" =>
+    "upper" => variableResult.toUpper()
+    else => fallbackResult
+  var joined: str = match 3 =>
+    3 => box.rows[0].join("+")
+    else => fallbackResult
+  println($"{concatenated}|{interpolated}|{freeCalled}|{staticCalled}|{memberCalled}|{stringMemberCalled}|{joined}")
+  println($"{freeCalls}|{staticCalls}|{memberCalls}|{variableResult}|{box.label}")
+
+  var nestedCalls: int = 0
+  var nested: str = match "outer" =>
+    "outer" => match 4 =>
+      4 => ownedResult(nestedCalls, "nested")
+      else => "inner-else"
+    else => "outer-else"
+  var fallbackCalls: int = 0
+  var fallback: str = match 99 =>
+    1 => ownedResult(fallbackCalls, "ordinary")
+    else => ownedResult(fallbackCalls, "fallback")
+  println($"{nested}|{nestedCalls}|{fallback}|{fallbackCalls}")
+
+  var returned: str = chooseForReturn(false, fallbackResult)
+  println($"{returned}|{fallbackResult}")
+
+  var escapedDirect: str = match true =>
+    true => "direct\n\tquote:\" slash:\\"
+    else => "wrong"
+  var escapedBorrowed: str = match 1 =>
+    1 => escapedBorrowedSource
+    else => "wrong"
+  var escapedIndexed: str = match false =>
+    true => "wrong"
+    else => escapedRows[0][0]
+  var escapedNested: str = match 2 =>
+    2 => match "nested" =>
+      "nested" => "nested\n\tquote:\" slash:\\"
+      else => "wrong-inner"
+    else => "wrong-outer"
+  print("direct[")
+  print(escapedDirect)
+  println("]")
+  print("borrowed[")
+  print(escapedBorrowed)
+  println("]")
+  print("indexed[")
+  print(escapedIndexed)
+  println("]")
+  print("nested[")
+  print(escapedNested)
+  println("]")
