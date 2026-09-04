@@ -1,0 +1,5 @@
+fn assign(value: int): int =>
+  return value = (value = 2)
+
+fn main(): void =>
+  println(assign(1))

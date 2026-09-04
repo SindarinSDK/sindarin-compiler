@@ -1,0 +1,9 @@
+fn bump(value: int as ref): int =>
+  value = value + 1
+  return value
+
+fn assign(value: int): int =>
+  return value = bump(value)
+
+fn main(): void =>
+  println(assign(1))

@@ -1,0 +1,5 @@
+fn assign(value: str): str =>
+  return value = "changed"
+
+fn main(): void =>
+  println(assign("source"))

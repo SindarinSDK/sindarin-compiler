@@ -1,0 +1,1 @@
+Error: Rust target requires direct assignment of by-value parameter 'value' to use the exact same scalar type; cannot assign 'double' to 'float'

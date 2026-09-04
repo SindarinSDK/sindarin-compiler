@@ -1,0 +1,209 @@
+{
+  "module": {
+    "filename": "tests\/mgen\/by_value_scalar_parameter_assignment.sn",
+    "has_main": true,
+    "main_returns": false,
+    "has_main_args": false,
+    "has_forward_decls": true
+  },
+  "pragmas": [],
+  "imports": [],
+  "type_decls": [],
+  "structs": [],
+  "globals": [],
+  "functions": [
+    {
+      "name": "assign",
+      "return_type": {
+        "kind": "int"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/by_value_scalar_parameter_assignment.sn",
+      "params": [
+        {
+          "name": "value",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        },
+        {
+          "name": "untouched",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none"
+        }
+      ],
+      "body": [
+        {
+          "kind": "var_decl",
+          "name": "result",
+          "type": {
+            "kind": "int"
+          },
+          "mem_qual": "default",
+          "sync_mod": "none",
+          "is_static": false,
+          "needs_cleanup": false,
+          "cleanup_kind": "none",
+          "initializer": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "assign",
+            "target": "value",
+            "value": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "value"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "literal",
+                "value_kind": "int",
+                "value": 1
+              },
+              "arithmetic_mode": "checked"
+            },
+            "assign_cleanup": "none"
+          }
+        },
+        {
+          "kind": "return",
+          "value": {
+            "type": {
+              "kind": "int"
+            },
+            "kind": "binary",
+            "op": "add",
+            "left": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "binary",
+              "op": "add",
+              "left": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "result"
+              },
+              "right": {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "variable",
+                "name": "value"
+              },
+              "arithmetic_mode": "checked"
+            },
+            "right": {
+              "type": {
+                "kind": "int"
+              },
+              "kind": "variable",
+              "name": "untouched"
+            },
+            "arithmetic_mode": "checked"
+          }
+        }
+      ]
+    },
+    {
+      "name": "main",
+      "return_type": {
+        "kind": "void"
+      },
+      "modifier": "default",
+      "is_native": false,
+      "has_body": true,
+      "is_variadic": false,
+      "has_arena_param": false,
+      "source_file": "tests\/mgen\/by_value_scalar_parameter_assignment.sn",
+      "params": [],
+      "body": [
+        {
+          "kind": "expr",
+          "expr": {
+            "type": {
+              "kind": "void"
+            },
+            "kind": "builtin_println",
+            "args": [
+              {
+                "type": {
+                  "kind": "int"
+                },
+                "kind": "call",
+                "callee": {
+                  "type": {
+                    "kind": "function",
+                    "return_type": {
+                      "kind": "int"
+                    },
+                    "param_types": [
+                      {
+                        "kind": "int"
+                      },
+                      {
+                        "kind": "int"
+                      }
+                    ],
+                    "is_variadic": false,
+                    "is_native": false,
+                    "has_arena_param": false
+                  },
+                  "kind": "variable",
+                  "name": "assign"
+                },
+                "args": [
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 1
+                  },
+                  {
+                    "type": {
+                      "kind": "int"
+                    },
+                    "kind": "literal",
+                    "value_kind": "int",
+                    "value": 2
+                  }
+                ],
+                "is_tail_call": false,
+                "is_closure_call": false,
+                "is_fn_field_call": false
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "top_level_statements": [],
+  "lambdas": [],
+  "threads": [],
+  "fn_wrappers": []
+}

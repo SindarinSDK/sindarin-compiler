@@ -1,0 +1,5 @@
+fn assign(value: char): char =>
+  return value = 'z'
+
+fn main(): void =>
+  println(assign('a'))

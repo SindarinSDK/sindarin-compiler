@@ -249,6 +249,307 @@ static bool rust_scalar_ref_parameter_type_supported(json_object *type)
         json_string_property_equals(type, "kind", "double");
 }
 
+/* Direct assignment is intentionally narrower than Rust's general Copy set.
+ * These are exactly the source scalar kinds whose default parameter ABI is a
+ * genuine callee-local value in both the C and Rust targets. */
+static bool rust_by_value_assign_parameter_type_supported(json_object *type)
+{
+    return rust_scalar_ref_parameter_type_supported(type);
+}
+
+static bool rust_direct_variable_named(json_object *node, const char *name)
+{
+    return node && name &&
+        json_string_property_equals(node, "kind", "variable") &&
+        json_string_property_equals(node, "name", name);
+}
+
+/* Rust cannot preserve the source sequencing contract if the RHS can mutate
+ * the very parameter whose replacement is still pending. Keep this bounded:
+ * ordinary reads of the old Copy value are allowed, while a nested write or
+ * an as-ref argument of that same parameter is rejected. */
+static bool rust_rhs_mutates_or_forwards_parameter(json_object *node,
+                                                    const char *name)
+{
+    if (!node || !name) return false;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        for (size_t i = 0; i < count; i++)
+            if (rust_rhs_mutates_or_forwards_parameter(
+                    json_object_array_get_idx(node, i), name)) return true;
+        return false;
+    }
+    if (!json_object_is_type(node, json_type_object)) return false;
+
+    const char *kind = json_string_property(node, "kind");
+    if (kind && strcmp(kind, "variable") == 0 &&
+        json_boolean_property(node, "is_ref_arg") &&
+        json_string_property_equals(node, "name", name)) return true;
+
+    if (kind && strcmp(kind, "assign") == 0 &&
+        json_string_property_equals(node, "target", name)) return true;
+
+    json_object *place = NULL;
+    if (kind && strcmp(kind, "compound_assign") == 0 &&
+        json_object_object_get_ex(node, "target", &place) &&
+        rust_direct_variable_named(place, name)) return true;
+    if (kind && (strcmp(kind, "increment") == 0 ||
+                 strcmp(kind, "decrement") == 0) &&
+        json_object_object_get_ex(node, "operand", &place) &&
+        rust_direct_variable_named(place, name)) return true;
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (rust_rhs_mutates_or_forwards_parameter(value, name)) return true;
+    }
+    return false;
+}
+
+static json_object *rust_find_parameter(json_object *params, const char *name)
+{
+    if (!params || !name) return NULL;
+    size_t count = json_object_array_length(params);
+    for (size_t i = 0; i < count; i++)
+    {
+        json_object *param = json_object_array_get_idx(params, i);
+        if (json_string_property_equals(param, "name", name)) return param;
+    }
+    return NULL;
+}
+
+typedef struct RustLocalBindingScope
+{
+    const char *name;
+    struct RustLocalBindingScope *parent;
+} RustLocalBindingScope;
+
+static bool rust_name_is_shadowed(RustLocalBindingScope *scope,
+                                  const char *name)
+{
+    for (; scope; scope = scope->parent)
+        if (scope->name && name && strcmp(scope->name, name) == 0) return true;
+    return false;
+}
+
+static json_object *rust_assignment_place_root(json_object *place)
+{
+    if (!json_object_is_type(place, json_type_object)) return NULL;
+    if (json_string_property_equals(place, "kind", "variable")) return place;
+
+    json_object *parent = NULL;
+    if (json_string_property_equals(place, "kind", "member") &&
+        json_object_object_get_ex(place, "object", &parent))
+        return rust_assignment_place_root(parent);
+    if (json_string_property_equals(place, "kind", "array_access") &&
+        json_object_object_get_ex(place, "array", &parent))
+        return rust_assignment_place_root(parent);
+    return NULL;
+}
+
+static bool rust_prepare_parameter_assignments_in_node(json_object *node,
+                                                       json_object *params,
+                                                       RustLocalBindingScope *scope)
+{
+    if (!node) return true;
+    if (json_object_is_type(node, json_type_array))
+    {
+        size_t count = json_object_array_length(node);
+        RustLocalBindingScope *bindings = count
+            ? calloc(count, sizeof(RustLocalBindingScope)) : NULL;
+        if (count && !bindings) return false;
+        RustLocalBindingScope *current = scope;
+        for (size_t i = 0; i < count; i++)
+        {
+            json_object *element = json_object_array_get_idx(node, i);
+            if (!rust_prepare_parameter_assignments_in_node(
+                    element, params, current))
+            {
+                free(bindings);
+                return false;
+            }
+            if (json_string_property_equals(element, "kind", "var_decl"))
+            {
+                bindings[i].name = json_string_property(element, "name");
+                bindings[i].parent = current;
+                current = &bindings[i];
+            }
+        }
+        free(bindings);
+        return true;
+    }
+    if (!json_object_is_type(node, json_type_object)) return true;
+
+    if (json_string_property_equals(node, "kind", "var_decl"))
+    {
+        const char *binding_name = json_string_property(node, "name");
+        json_object *param = rust_name_is_shadowed(scope, binding_name)
+            ? NULL : rust_find_parameter(params, binding_name);
+        json_object *type = NULL, *initializer = NULL;
+        if (param &&
+            json_string_property_equals(param, "mem_qual", "default") &&
+            json_object_object_get_ex(param, "type", &type) &&
+            rust_by_value_assign_parameter_type_supported(type) &&
+            json_object_object_get_ex(node, "initializer", &initializer) &&
+            rust_rhs_mutates_or_forwards_parameter(initializer, binding_name))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support a local declaration shadowing by-value parameter '%s' when its initializer mutates or forwards that parameter\n",
+                    binding_name);
+            return false;
+        }
+    }
+
+    if (json_string_property_equals(node, "kind", "member_assign") ||
+        json_string_property_equals(node, "kind", "index_assign"))
+    {
+        bool member = json_string_property_equals(node, "kind", "member_assign");
+        json_object *place = NULL;
+        json_object *root = NULL;
+        const char *root_name = NULL;
+        if (!json_object_object_get_ex(node, member ? "object" : "array", &place))
+            return false;
+        root = rust_assignment_place_root(place);
+        if (!root)
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support direct assignment to computed %s targets\n",
+                    member ? "field" : "index");
+            return false;
+        }
+        root_name = json_string_property(root, "name");
+        json_object *param = rust_name_is_shadowed(scope, root_name)
+            ? NULL : rust_find_parameter(params, root_name);
+        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        {
+            fprintf(stderr,
+                    "Error: Rust target does not support direct assignment through %s targets rooted in by-value parameter '%s'\n",
+                    member ? "field" : "index", root_name);
+            return false;
+        }
+    }
+
+    if (json_string_property_equals(node, "kind", "assign"))
+    {
+        const char *target = json_string_property(node, "target");
+        json_object *param = rust_name_is_shadowed(scope, target)
+            ? NULL : rust_find_parameter(params, target);
+        if (param && json_string_property_equals(param, "mem_qual", "default"))
+        {
+            json_object *type = NULL, *value = NULL, *value_type = NULL;
+            const char *type_kind = NULL, *value_kind = NULL;
+            if (!json_object_object_get_ex(param, "type", &type) ||
+                !(type_kind = json_string_property(type, "kind")) ||
+                !rust_by_value_assign_parameter_type_supported(type))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support direct assignment of by-value parameter '%s' with type '%s'; only bool, int, long, int32, byte, uint32, uint, float, and double are supported\n",
+                        target ? target : "<anonymous>",
+                        type_kind ? type_kind : "<unknown>");
+                return false;
+            }
+            if (!json_object_object_get_ex(node, "value", &value)) return false;
+            if (!json_object_object_get_ex(value, "type", &value_type) ||
+                !(value_kind = json_string_property(value_type, "kind")) ||
+                strcmp(type_kind, value_kind) != 0)
+            {
+                fprintf(stderr,
+                        "Error: Rust target requires direct assignment of by-value parameter '%s' to use the exact same scalar type; cannot assign '%s' to '%s'\n",
+                        target, value_kind ? value_kind : "<unknown>", type_kind);
+                return false;
+            }
+            if (rust_rhs_mutates_or_forwards_parameter(value, target))
+            {
+                fprintf(stderr,
+                        "Error: Rust target does not support direct assignment of by-value parameter '%s' when its RHS mutates or forwards the same parameter as ref\n",
+                        target);
+                return false;
+            }
+            json_object_object_add(param, "rust_by_value_mutated",
+                                   json_object_new_boolean(true));
+            json_object_object_add(node, "rust_by_value_scalar_parameter_assign",
+                                   json_object_new_boolean(true));
+        }
+    }
+
+    if (json_string_property_equals(node, "kind", "for_each") ||
+        json_string_property_equals(node, "kind", "for_each_iter"))
+    {
+        json_object *iterable = NULL, *body = NULL;
+        if (json_object_object_get_ex(node, "iterable", &iterable) &&
+            !rust_prepare_parameter_assignments_in_node(iterable, params, scope))
+            return false;
+        const char *binding_name = json_string_property(node, "iterator_name");
+        RustLocalBindingScope binding = {binding_name, scope};
+        return !json_object_object_get_ex(node, "body", &body) ||
+            rust_prepare_parameter_assignments_in_node(
+                body, params, binding_name ? &binding : scope);
+    }
+    if (json_string_property_equals(node, "kind", "for"))
+    {
+        json_object *init = NULL, *condition = NULL, *increment = NULL, *body = NULL;
+        if (!json_object_object_get_ex(node, "init", &init) ||
+            !rust_prepare_parameter_assignments_in_node(init, params, scope))
+            return false;
+        const char *binding_name = json_string_property(init, "name");
+        RustLocalBindingScope binding = {binding_name, scope};
+        RustLocalBindingScope *loop_scope = binding_name ? &binding : scope;
+        if (json_object_object_get_ex(node, "condition", &condition) &&
+            !rust_prepare_parameter_assignments_in_node(
+                condition, params, loop_scope)) return false;
+        if (json_object_object_get_ex(node, "body", &body) &&
+            !rust_prepare_parameter_assignments_in_node(
+                body, params, loop_scope)) return false;
+        return !json_object_object_get_ex(node, "increment", &increment) ||
+            rust_prepare_parameter_assignments_in_node(
+                increment, params, loop_scope);
+    }
+
+    json_object_object_foreach(node, key, value)
+    {
+        (void)key;
+        if (!rust_prepare_parameter_assignments_in_node(value, params, scope))
+            return false;
+    }
+    return true;
+}
+
+static bool rust_prepare_callable_parameter_assignments(json_object *callable)
+{
+    json_object *params = NULL, *body = NULL;
+    if (!json_object_object_get_ex(callable, "params", &params) ||
+        !json_object_object_get_ex(callable, "body", &body)) return true;
+    return rust_prepare_parameter_assignments_in_node(body, params, NULL);
+}
+
+static bool rust_prepare_by_value_scalar_parameter_assignments(json_object *model)
+{
+    json_object *functions = NULL;
+    if (json_object_object_get_ex(model, "functions", &functions))
+    {
+        size_t count = json_object_array_length(functions);
+        for (size_t i = 0; i < count; i++)
+            if (!rust_prepare_callable_parameter_assignments(
+                    json_object_array_get_idx(functions, i))) return false;
+    }
+
+    json_object *structs = NULL;
+    if (!json_object_object_get_ex(model, "structs", &structs)) return true;
+    size_t struct_count = json_object_array_length(structs);
+    for (size_t i = 0; i < struct_count; i++)
+    {
+        json_object *methods = NULL;
+        json_object *structure = json_object_array_get_idx(structs, i);
+        if (!json_object_object_get_ex(structure, "methods", &methods)) continue;
+        size_t method_count = json_object_array_length(methods);
+        for (size_t m = 0; m < method_count; m++)
+            if (!rust_prepare_callable_parameter_assignments(
+                    json_object_array_get_idx(methods, m))) return false;
+    }
+    return true;
+}
+
 static bool rust_floating_type(json_object *type)
 {
     return json_string_property_equals(type, "kind", "float") ||
@@ -3502,6 +3803,11 @@ static bool rust_emit(CompilerOptions *options, Module *module,
                                           &options->symbol_table,
                                           options->arithmetic_mode);
     if (!model) return false;
+    if (!rust_prepare_by_value_scalar_parameter_assignments(model))
+    {
+        json_object_put(model);
+        return false;
+    }
     if (!rust_validate_model(model, options->arithmetic_mode))
     {
         json_object_put(model);

@@ -1,0 +1,1 @@
+Error: Rust target does not support direct assignment of by-value parameter 'value' with type 'array'; only bool, int, long, int32, byte, uint32, uint, float, and double are supported
